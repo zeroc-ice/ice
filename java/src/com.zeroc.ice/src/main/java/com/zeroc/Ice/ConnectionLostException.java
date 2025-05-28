@@ -12,7 +12,7 @@ public final class ConnectionLostException extends SocketException {
     }
 
     /**
-     * Constructs a new {@code ConnectionLostException} with a cause.
+     * Constructs a {@code ConnectionLostException} with a cause.
      *
      * @param cause the cause of the exception
      */
