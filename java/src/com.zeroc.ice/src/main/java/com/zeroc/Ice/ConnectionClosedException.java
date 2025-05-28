@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception indicates that a connection was closed gracefully. */
 public final class ConnectionClosedException extends LocalException {
     /**
-     * Constructs a new {@code ConnectionClosedException}.
+     * Constructs a {@code ConnectionClosedException}.
      *
      * @param message the detail message
      * @param closedByApplication indicates whether the connection was closed by the application
