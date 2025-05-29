@@ -1,220 +1,146 @@
-# Ice for Python Build Instructions
+# Building Ice for Python from Source
 
-This document describes how to build and install Ice for Python from source.
-You can also download and install a [binary distribution].
+## Table of Contents
 
-* [Building Python Packages with build on Linux or macOS](#building-python-packages-with-build-on-linux-or-macos)
-* [Building Python Packages with build on Windows](#building-python-packages-with-build-on-windows)
-* [Building with Visual Studio 2022 and MSBuild (Python 3\.12 for Windows)](#building-with-visual-studio-2022-and-msbuild-python-312-for-windows)
-* [Building on Linux or macOS](#building-on-linux-or-macos)
-* [Configuring your Environment for Python](#configuring-your-environment-for-python)
-* [Running the Python Tests](#running-the-python-tests)
+- [Build roadmap](#build-roadmap)
+- [Building Ice for Python from source](#building-ice-for-python-from-source)
+  - [Prerequisites](#prerequisites)
+  - [Building Ice for Python](#building-ice-for-python)
+  - [Running the tests](#running-the-tests)
+  - [Generating the API reference](#generating-the-api-reference)
+- [Building the Python packages](#building-the-python-packages)
+  - [Creating Python packages](#creating-python-packages)
 
-## Building Python Packages with build on Linux or macOS
+## Build roadmap
 
-You can build the Ice for Python extension using [build]. Follow these steps:
+This document covers two distinct build workflows:
 
-First create a new Python virtual environment to install the Python build package, and activate it
+1. **Source Build:** Builds Ice for Python directly from the source tree.
+   This build **requires a prior build of Ice for C++**, and is typically used for development, testing, packaging into
+   Linux distributions, and contributing to the Ice for Python source.
 
-```shell
-python3 -m venv .venv
-source .venv/bin/activate
-```
+   ```mermaid
+   flowchart LR
+       c++(Ice for C++) --> python(Ice for Python)
+       python -- doc --> api(API Reference)
+       python --> tests(Tests)
+   ```
 
-Install the Python build package
+2. **Python Package Build:** Builds standalone Python packages from the source tree.
+   This build path **does not require Ice for C++** and is intended for producing distributable packages
+   (e.g., wheels) for PyPI or internal use.
 
-```shell
-python3 -m pip install build
-```
+## Building Ice for Python from Source
 
-Build the extension
+This build compiles Ice for Python directly from the source tree and requires a prior build of Ice for C++.
 
-```shell
-python3 -m build
-```
+### Prerequisites
 
-After running these commands, the build module will generate both the source distribution (.tar.gz) and the wheel
-distribution (.whl) in the dist directory.
+1. **Python 3.12 or later**
 
-Exit the virtual environment
+2. **Ice for C++**\
+   Refer to the [build instructions](../cpp/BUILDING.md) in the `cpp` folder for details on how to build the C++ source distribution.
 
-```shell
-deactivate
-```
+3. **Python dependency for Glacier2 tests**\
+   The Glacier2 test suite requires the `passlib` package.
 
-## Building Python Packages with build on Windows
+### Building Ice for Python
 
-You can build the Ice for Python extension using [build]. Follow these steps:
+You can build Ice for Python directly from the source distribution using the following commands:
 
-First create a new Python virtual environment to install the Python build package, and activate it
-
-```shell
-python -m venv .venv
-.venv\Scripts\activate.bat
-```
-
-Install the Python build package
+**Linux and macOS:**
 
 ```shell
-python -m pip install build
+make
 ```
 
-Build the extension
+**On Windows:**
 
 ```shell
-python -m build
+MSBuild msbuild\ice.proj
 ```
 
-After running these commands, the build module will generate both the source distribution (.tar.gz) and the wheel
-distribution (.whl) in the dist directory.
+By default, the Windows build uses the Python installation located at:
 
-Exit the virtual environment
+- `C:\Program Files\Python312` for `x64` builds
+- `C:\Program Files (x86)\Python312-32` for `Win32` builds
+
+If your Python installation is in a different location, set the `PythonHome` MSBuild property to the appropriate path:
 
 ```shell
-deactivate
+MSBuild msbuild\ice.proj /p:PythonHome=C:\Python312
 ```
 
-## Building with Visual Studio 2022 and MSBuild (Python 3.12 for Windows)
-
-You can build an Ice for Python extension that links with the Ice C++ DLLs using Visual Studio and MSBuild.
-
-First, open a Visual Studio 2022 command prompt:
-
-* VS2022 x86 Native Tools Command Prompt
-
-or
-
-* VS2022 x64 Native Tools Command Prompt
-
-Using the first Command Prompt produces `Win32` binaries by default, while
-the second Command Prompt produces `x64` binaries by default.
-
-In the Command Prompt, change to the `python` subdirectory:
+To build a debug version of the extension for use with `python_d`, set the `Configuration` property to `Debug`:
 
 ```shell
-cd python
+MSBuild msbuild\ice.proj /p:Configuration=Debug
 ```
 
-Then build the extension:
+You can also change the target platform using the Platform property. For example, to perform a Win32 debug build:
 
 ```shell
-msbuild msbuild\ice.proj
+MSBuild msbuild\ice.proj /p:Platform=Win32 /p:Configuration=Debug
 ```
 
-This builds the extension with `Release` binaries for the default platform. The
-extension will be placed in `python\x64\Release\IcePy.pyd` for the `x64`
-platform and `python\Win32\Release\IcePy.pyd` for the `Win32` platform.
+### Running the tests
 
-If you want to build a debug version of the extension, set the MSBuild
-`Configuration` property to `Debug`:
+To run the tests, open a command prompt and change to the `python` subdirectory. At the command prompt, execute:
 
 ```shell
-msbuild msbuild\ice.proj /p:Configuration=Debug
+python allTests.py --all
 ```
 
-The debug version of the extension will be placed in
-`python\x64\Debug\IcePy_d.pyd` for the `x64` platform and
-`python\Win32\Debug\IcePy_d.pyd` for the `Win32` platform.
+If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
 
-For Debug builds, a debug version of the Python interpreter must be installed
-as well.
+### Generating the API reference
 
-If you want to build the extension for a different platform than the Command
-Prompt's default platform, you need to set the MSBuild property `Platform`. The
-supported values for this property are `Win32` and `x64`.
+To build the API reference documentation, follow these steps from the `python/docs` subdirectory:
 
-The following command builds the `x64` platform binaries with the `Release`
-configuration:
+- Create and activate a Python virtual environment:
 
-```shell
-msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64
-```
+  ```shell
+  python -m venv venv
+  source venv/bin/activate  # On macOS/Linux
+  venv\Scripts\activate     # On Windows
+  ```
 
-This command builds the `Win32` platform binaries with the `Release`
-configuration:
+- Install the documentation dependencies:
 
-```shell
-msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=Win32
-```
+  ```shell
+  pip install -r requirements.txt
+  ```
 
-When using the MSBuild Platform property, the build platform doesn't depend
-on the command prompt's default platform.
+- Build the documentation:
 
-The build will use the default location for Python defined in
-`python\msbuild\ice.props`. You can override it by setting the `PythonHome`
-MSBuild property. For example, the following command will use the Python
-installation from `C:\Python312-AMD64` instead of the default location:
+  ```shell
+  make html
+  ```
 
-```shell
-msbuild msbuild\ice.proj /p:Configuration=Release /p:Platform=x64 /p:PythonHome=C:\Python312-AMD64
-```
+## Building the Python Packages
 
-## Building on Linux or macOS
+This build creates standalone Python packages without requiring a prior Ice for C++ source build.
 
-Ice for Python supports Python versions 3.12 and greater. Note however that
-your Python installation must have been built with a C++ compiler that is
-compatible with the compiler used to build Ice for C++.
+### Creating Python packages
 
-The build of Ice for Python requires to first build Ice for C++ in the `cpp`
-subdirectory.
+- Create and activate a Python virtual environment:
 
-From the top-level source directory, edit `config/Make.rules` to establish your
-build configuration. The comments in the file provide more information.
+  ```shell
+  python -m venv venv
+  source venv/bin/activate  # On macOS/Linux
+  venv\Scripts\activate     # On Windows
+  ```
 
-Change to the Ice for Python source subdirectory:
+- Install the build package:
 
-```shell
-cd python
-```
+  ```shell
+  pip install build
+  ```
 
-Execute `python -V` to verify that the correct Python interpreter is in your
-executable search path.
+- Build the Python package:
 
-Run `make` to build the extension.
+  ```shell
+  python -m build
+  ```
 
-Upon successful completion, run `make install`. You may need additional user
-permissions to install in the directory specified by `config/Make.rules`.
-
-## Configuring your Environment for Python
-
-Modify your environment to allow Python to find the Ice extension for Python.
-The python interpreter must be able to locate the IcePy extension as well as
-the Python source files in the `python` subdirectory. This is normally
-accomplished by setting the `PYTHONPATH` environment variable to contain the
-necessary subdirectory.
-
-For example on Windows, with Ice for Python installed in `C:\Ice-3.8.0`:
-
-```shell
-set PYTHONPATH=C:\Ice-3.8.0\python;C:\Ice\python\Win32\Release
-```
-
-For example on Linux or macOS, with Ice for Python installed in `/opt/Ice-3.8.0`:
-
-```shell
-export PYTHONPATH=/opt/Ice-3.8.0/python
-```
-
-## Running the Python Tests
-
-After a successful build, you can run the tests as follows:
-
-Windows:
-
-```shell
-python allTests.py --config=Release --platform=Win32
-```
-
-(adjust `--config` and `--platform` to match your build)
-
-Linux/macOS:
-
-```shell
-python allTests.py
-```
-
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
-
-[binary distribution]: https://zeroc.com/downloads/ice
-[build]: https://packaging.python.org/en/latest/key_projects/#build
+The resulting wheel and source distribution files will be placed in the `dist/` directory.
