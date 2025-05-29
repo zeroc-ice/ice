@@ -1041,8 +1041,6 @@ EXCLUDE_SYMBOLS        = DataStormI \
                          Ice::LoggerAdminPtr \
                          Ice::Process \
                          Ice::ProcessPtr \
-                         Ice::PropertiesAdmin \
-                         Ice::PropertiesAdminPtr \
                          IceMX::MetricsAdmin \
                          IceMX::MetricsAdminPtr \
                          IceBox::ServiceManager \

@@ -26,13 +26,10 @@ namespace Ice
 
         ~NativePropertiesAdmin() final;
 
-        /// @copydoc PropertiesAdmin::getProperty
         std::string getProperty(std::string key, const Current& current) final;
 
-        /// @copydoc PropertiesAdmin::getPropertiesForPrefix
         PropertyDict getPropertiesForPrefix(std::string prefix, const Current& current) final;
 
-        /// @copydoc PropertiesAdmin::setProperties
         void setProperties(PropertyDict newProperties, const Current& current) final;
 
         /// Registers an update callback that will be invoked when a property update occurs.
