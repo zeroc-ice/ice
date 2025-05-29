@@ -93,7 +93,7 @@ Make sure that all these compilers are available when you set `SLICE2CS_STAGING_
 
 ## Generating the API reference
 
-The API reference can be generated running the follwing command in the docfx subdirectory:
+The API reference can be generated running the following command in the docfx subdirectory:
 
 ```shell
 docfx metadata --property Configuration=Release
