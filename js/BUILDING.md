@@ -1,184 +1,121 @@
-# Ice for JavaScript Build Instructions
+# Building Ice for JavaScript from source
 
-This file describes how to build and install Ice for JavaScript from source code. If you prefer, you can also download
-[binary distributions] for the supported platforms.
+## Table of contents
 
-<!-- TOC depthFrom:2 -->
+- [Building Ice for JavaScript from source](#building-ice-for-javascript-from-source)
+  - [Table of contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Build roadmap](#build-roadmap)
+  - [Building Ice for JavaScript](#building-ice-for-javascript)
+  - [Running the tests](#running-the-tests)
+  - [Creating the NPM package](#creating-the-npm-package)
+    - [Slice compilers](#slice-compilers)
+  - [Generating the API reference](#generating-the-api-reference)
 
-- [JavaScript Build Requirements](#javascript-build-requirements)
-- [Building the JavaScript libraries and NodeJS packages](#building-the-javascript-libraries-and-nodejs-packages)
-- [Running the JavaScript Tests](#running-the-javascript-tests)
-  - [Browser Information](#browser-information)
-    - [Self-Signed Certificate](#self-signed-certificate)
-    - [Secure WebSockets on iOS and Android](#secure-websockets-on-ios-and-android)
-      - [Installing Certificates on iOS](#installing-certificates-on-ios)
-      - [Installing Certificates on Android](#installing-certificates-on-android)
-- [Installing a Source Build](#installing-a-source-build)
+## Prerequisites
 
-<!-- /TOC -->
+1. Node.js 22 or later.
 
-## JavaScript Build Requirements
+2. The Slice to JavaScript compiler (slice2js) from the C++ source distribution. \
+   Refer to the [build instructions](../cpp/BUILDING.md) in the `cpp` folder for details on how to build the C++ source
+   distribution.
 
-To build Ice for JavaScript you must have the following:
+3. Python 3.12 is required for running the tests. The Glacier2 test also require the `passlib` Python package.
 
-- The `slice2js` compiler from Ice for C++. If you have not built Ice for C++ in this source distribution, refer to the
-  [C++ build instructions](../cpp/BUILDING.md).
-- Node.js 22 or later
+4. Ice for Python is required for running the JavaScript in a web browser.\
+   Refer to the [build instructions](../python/BUILDING.md) in the `python` folder for details on how to build the
+   Python source distribution.
 
-## Building the JavaScript libraries and NodeJS packages
+## Build roadmap
 
-Change to the Ice for JavaScript source subdirectory:
-
-```shell
-cd js
+```mermaid
+flowchart LR
+    compiler(slice2js) --> ice(Ice for JavaScript)
+    ice -- doc --> api(API reference)
+    ice -- pack/publish --> npm(NPM packages)
+    ice --> tests(Tests)
 ```
 
-Run these commands to build the libraries and tests:
+## Building Ice for JavaScript
+
+Open a command prompt and change to the `js` subdirectory. You can build the Ice for JavaScript source distribution
+using the following command:
 
 ```shell
 npm install
 npm run build
 ```
 
-On Windows, you need to set the platform and configuration in order to locate `slice2js`. For example, if you have
-built C++ with the x64 platform and the Release configuration, you can use the following command to build JavaScript:
+> On Windows, if you’re not using the default C++ build configuration (e.g., x64/Release), you need to ensure that the
+> JavaScript build process can locate the correct slice2js compiler. To do this, set the `CPP_PLATFORM` and
+> `CPP_CONFIGURATION` environment variables, or pass the `--cppPlatform` and `--cppConfiguration` arguments to the
+> `npm run build command` to match your C++ platform and configuration settings.
+
+For example, when using a C++ **Debug** build for **Win32**, you can run:
 
 ```shell
-npm run build -- --cppPlatform x64 --cppConfiguration Release
-```
-
-Alternatively you can use the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables:
-
-```shell
-set CPP_PLATFORM=x64
 set CPP_CONFIGURATION=Debug
+set CPP_PLATFORM=Win32
 npm run build
 ```
 
-## Running the JavaScript Tests
-
-Python is required to run the test suite. Additionally, the Glacier2 tests require the Python module `passlib`,
-which you can install with the command:
+or
 
 ```shell
-pip install passlib
+npm run build -- --cppPlatform=Win32 --cppConfiguration=Debug
 ```
 
-The scripts also require Ice for Python, you can build Ice for Python from
-[python](../python) folder of this source distribution or install the Python
-module `zeroc-ice`, using the following command:
+## Running the Tests
+
+To run the JavaScript test suite with Node.js, open a command prompt and change to the `js` subdirectory. At the
+command prompt, execute:
 
 ```shell
-pip install zeroc-ice
+python allTests.py --all
 ```
 
-The test suites require that the Ice for C++ tests be built in the `cpp`
-subdirectory of this source distribution.
+If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
 
-You can start the NodeJS tests with:
+To run the JavaScript test suite with a Web Browser you must add the `--browser Manual` and follow the instructions
+to load the provided URL in the browser.
 
 ```shell
-python allTests.py
+python allTests.py --all --browser
 ```
 
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
+## Creating the NPM package
 
-You can start the browser tests with:
-
-```shell
-python allTests.py --browser Manual
-```
-
-Then open the test page (http://127.0.0.1:8080/start) using a web browser.
-These tests require a web browser with ECMAScript 6 support, such as
-a recent version of Chrome, Firefox, Microsoft Edge or Safari.
-
-On macOS the first time you run the tests, you will be prompted for your
-password. This is necessary to configure the trust setting for the HTTP
-server certificate, which will enable you to connect to the HTTP server
-with SSL via your web browser.
-
-### Browser Information
-
-#### Self-Signed Certificate
-
-The browser-based tests allow you to choose whether to run the tests over
-non-secure WebSocket (WS) or secure WebSocket (WSS) connections. The WSS
-connections in these tests rely on a self-signed certificate, `ca_cert.pem`,
-provided in the certs(../certs) directory.
-
-To successfully run the tests over WSS, additional action may be necessary
-depending on the browser you're using:
-
-- Chrome
-   You'll be presented with a warning about the site's security certificate.
-   Click the "Proceed anyway" button to temporarily accept the certificate.
-
-- Firefox
-   You'll see a warning saying "This Connection is Untrusted". Open Firefox's
-   Preferences or Options dialog, click on the Advanced section, select the
-   Certificates tab and click on the "View Certificates..." button. In the
-   Authorities tab, click the "Import..." button, navigate to the `ca_cert.pem`
-   file, and add it as a certificate authority (CA) for trusting web sites.
-   After closing the dialogs, reload the test page to continue. You should
-   uninstall this certificate after running the tests.
-
-- Microsoft Edge
-   Run the management console (mmc.exe) and add the Certificates snap-in for
-   the computer account. Then select Console Root > Certificates (Local
-   Computer) > Trusted Root Certificate Authorities. In the Action menu, choose
-   All Tasks and Import. Navigate to the `ca_cert.pem` file and import it into
-   the Trusted Root Certificate Authorities. Reload the test page to continue.
-   You should uninstall this certificate after running the tests.
-
-#### Secure WebSockets on iOS and Android
-
-To use WSS on iOS and Android it may be required (depending on browser and
-platform) that the server certificate's common name matches the computer hosting
-the tests, and that the test certificate authority be installed on your device.
-
-First you'll need to generate new certificates to match the IP address of the
-computer hosting the tests:
-
-```shell
-certs/makecerts.py [IP address]
-```
-
-Next you must install the certificate authority on your device. The simplest way
-is to email the CA certificate (`certs/cacert.pem`) to yourself and then follow
-the instructions below to install the certificate on your device.
-
-Once installed, you connect to the server using the same IP address used to
-create the certificates.
-
-##### Installing Certificates on iOS
-
-Open the certificate (`cacert.pem`) from the device's email client. You
-will be prompted to create a configuration profile containing this certificate.
-
-##### Installing Certificates on Android
-
-Download the certificate (`cacert.pem`) to the device from an email client.
-Next go to _Settings -> Security -> Install from storage_, and choose
-`cacert.pem`. Enter a name and press OK.
-
-## Installing a Source Build
-
-After a successful build, you can generate a package by running the
-following command:
+To create the `@zeroc/ice` NPM package, open a command prompt and run the following command:
 
 ```shell
 npm pack
 ```
 
-This will generate the file `ice-3.7.100.tgz`, which can be installed by running:
+### Slice compilers
+
+By default, the NPM package `@zeroc\ice` includes only the `slice2js` compiler created by the local C++ build.
+
+If you set the environment variable `SLICE2JS_STAGING_PATH`, `@zeroc/ice` instead includes the `slice2js` compiler
+for all supported platforms. The expected layout of the staging directory is `<os-name>-<os-arch>/<compiler-executable>`,
+with the following subdirectories:
+
+- `linux-x64`: Linux x86_64
+- `linux-arm64`: Linux ARM64
+- `macos-arm64`: macOS Apple silicon
+- `windows-x64`: Windows x64
+
+Make sure that all these compilers are available when you set `SLICE2JS_STAGING_PATH`.
+
+## Generating the API reference
+
+The API reference can be generated running the following command:
 
 ```shell
-npm install ice-3.7.100.tgz
+npn run build-doc
 ```
 
-To use Ice for JavaScript with a browser, copy the appropriate JavaScript
-library files located in the `lib` directory to your web server.
+This command generates the API reference into the `docs` directory. Start a local web server to view this API reference:
 
-[binary distributions]: https://zeroc.com/downloads/ice
+```shell
+npx http-server docs
+```
