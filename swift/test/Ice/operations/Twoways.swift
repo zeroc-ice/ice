@@ -1221,7 +1221,8 @@ func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
             type: MyClassPrx.self)
 
         guard let implicitContext = ic.getImplicitContext() else {
-            fatalError("Implicit context is not available")
+            try test(false)
+            return // never reached
         }
 
         implicitContext.setContext(ctx)
