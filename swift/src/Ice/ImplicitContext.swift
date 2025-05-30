@@ -51,6 +51,7 @@ public protocol ImplicitContext: AnyObject {
     /// - parameter value: `String` The value.
     ///
     /// - returns: `String` - The previous value associated with the key, if any.
+    @discardableResult
     func put(key: String, value: String) -> String
 
     /// Remove the entry for the given key in the underlying context.
