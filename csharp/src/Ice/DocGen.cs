@@ -28,13 +28,3 @@ public partial interface Process
 public abstract partial class ProcessDisp_
 {
 }
-
-[EditorBrowsable(EditorBrowsableState.Never)]
-public partial interface PropertiesAdmin
-{
-}
-
-[EditorBrowsable(EditorBrowsableState.Never)]
-public abstract partial class PropertiesAdminDisp_
-{
-}
