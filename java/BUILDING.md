@@ -15,13 +15,22 @@
 
 ## Build roadmap
 
+```mermaid
+flowchart LR
+    c++(Ice for C++) --> ice(Ice for Java)
+    ice -- doc --> api(API reference)
+    ice -- publish --> maven(Maven packages)
+    ice --> tests(Tests)
+```
+
 ## Prerequisites
 
-1. JDK 17 or later.
+1. JDK 17 or higher.
 2. The Slice-to-Java compiler (`slice2java`).
-3. Android Studio (optional) "Android Studio Meerkat Feature Drop" required to build the Android test suite.
+3. Android Studio (optional) "Android Studio Meerkat Feature Drop" release is required to build the Android test
+   controller.
 4. The Ice for C++ distribution, for running service tests.
-5. Python 3.12 is required for running the tests. The Glacier2 test also requires the `passlib` Python package.
+5. Python 3.12 is required to run the tests. The Glacier2 test also requires the `passlib` Python package.
 6. Ice for Python is required for running the Android tests.
 
 ## Building Ice for Java
@@ -38,9 +47,9 @@ To build Ice for Java, run the following commands:
 
 > On Windows, if you’re not using the default C++ build configuration (i.e., x64/Release), you need to ensure that the
 > Java build process can locate the correct `slice2java` compiler. To do this, set the `--cppPlatform` and
-> `--cppConfiguration` gradle properties to match your C++ platform and configuration settings.
+> `--cppConfiguration` Gradle properties to match your C++ platform and configuration settings.
 
-For example, when using a C++ Debug build for Win32, you can run:
+For example, when using a C++ `Debug` build for `Win32`, you can run:
 
 ```shell
 ./gradlew build -PcppPlatform=Win32 -PcppConfiguration=Debug
@@ -49,12 +58,12 @@ For example, when using a C++ Debug build for Win32, you can run:
 ### Slice Tools for Java
 
 By default, the Slice Tools for Java package `com.zeroc.ice.slice-tools` includes only the `slice2java` compiler created
-by the local C++ build. Refer to the [Building Slice Tools for Ice](./tools/slice-tools/BUILDING.md) for details of how
-to include the `slice2java` compilers for all supported platforms.
+by the local C++ build. Refer to the [Building Slice Tools for Ice](./tools/slice-tools/BUILDING.md) instructions on
+including the `slice2java` compilers for all supported platforms.
 
 ## Running the tests
 
-To run the Java test suite, open a command prompt and change to the `java` subdirectory. At the command prompt, execute:
+To run the Java test suite, open a command prompt and change to the `java` subdirectory. Then run:
 
 ```shell
 python allTests.py --all
@@ -64,7 +73,7 @@ python allTests.py --all
 
 The `java/test/android/controller` directory contains an Android Studio project for the Ice test suite controller.
 
-To build and run the Android test controller, you will need:
+To build and run the Android test controller, install the following:
 
 - Android SDK 34
 - Android Command Line Tools (optional, for command-line builds)
@@ -80,13 +89,13 @@ To build the Android test controller from the command line:
   - Android SDK platform tools
   - Android SDK emulator
 
-  **On Linux and macOS:**:
+  **On Linux and macOS:**
 
   ```shell
   export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/platform-tools:$PATH
   ```
 
-  **On Windows:**:
+  **On Windows:**
 
   ```shell
   set PATH=%ANDROID_HOME%\cmdline-tools\latest\bin;%ANDROID_HOME%\emulator;%ANDROID_HOME%\platform-tools;%PATH%
@@ -98,8 +107,8 @@ To build the Android test controller from the command line:
   ./gradlew build
   ```
 
-- Once the controller has been built, change to the `java` subdirectory and use the following
-command to run the Android tests:
+- Once the controller is built, change to the `java` subdirectory and use the following command to run the Android
+  tests:
 
   ```shell
   python3 allTests --android --all --controller-app
@@ -117,7 +126,7 @@ command to run the Android tests:
 
 ## Generating the API reference
 
-To build the API reference documentation, run the following commands from the `java` subdirectory:
+To generate the API reference documentation, run the following command from the `java` subdirectory:
 
 ```shell
 ./gradlew :alljavadoc
