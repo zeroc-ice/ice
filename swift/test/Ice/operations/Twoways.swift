@@ -1222,7 +1222,7 @@ func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
 
         guard let implicitContext = ic.getImplicitContext() else {
             try test(false)
-            return // never reached
+            return  // never reached
         }
 
         implicitContext.setContext(ctx)
