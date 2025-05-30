@@ -111,7 +111,7 @@ To build the Android test controller from the command line:
   tests:
 
   ```shell
-  python3 allTests --android --all --controller-app
+  python3 allTests.py --android --all --controller-app
   ```
 
 ### Using Android Studio
