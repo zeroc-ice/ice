@@ -40,7 +40,7 @@ This build compiles Ice for Python directly from the source tree and requires a 
 
 1. **Python 3.12 or later**
 
-2. **Ice for C++**
+2. **Ice for C++ source build**
 
 3. **Python dependency for Glacier2 tests**
    The Glacier2 test suite requires the `passlib` package.
