@@ -32,8 +32,8 @@ function parseArg(argv, key) {
     }
 }
 
-const platform = parseArg(process.argv, "--cppPlatform") || process.env.CPP_PLATFORM;
-const configuration = parseArg(process.argv, "--cppConfiguration") || process.env.CPP_CONFIGURATION;
+const platform = parseArg(process.argv, "--cppPlatform") || process.env.CPP_PLATFORM || "x64";
+const configuration = parseArg(process.argv, "--cppConfiguration") || process.env.CPP_CONFIGURATION || "Release";
 
 function slice2js(options) {
     const defaults = {};
@@ -267,7 +267,7 @@ for (const name of tests) {
     });
 
     gulp.task(testTask(name, "copy:assets"), async cb => {
-        pump([gulp.src("test/Common/controller.html"), gulp.dest(`dist/${name}`)], cb);
+        pump([gulp.src(["test/Common/controller.html", "test/Common/style.css"]), gulp.dest(`dist/${name}`)], cb);
     });
 
     createCleanTask(testTask(name, "clean:js"), [`${name}/*.ice`], ".js");

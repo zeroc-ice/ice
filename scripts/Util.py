@@ -2990,7 +2990,7 @@ class BrowserProcessController(RemoteProcessController):
             self.httpServer = Expect.Expect(httpServerCmd, cwd=cwd)
             self.httpServer.expect("Available on:")
 
-            httpsServerCmd = "node node_modules/http-server/bin/http-server -p 9090 --tls --cert ../certs/server_cert.pem --key ../certs/server_key.pem dist"
+            httpsServerCmd = "node node_modules/http-server/bin/http-server -p 9090 --tls --cert ../certs/common/ca/server_cert.pem --key ../certs/common/ca/server_key.pem dist"
             cwd = current.testcase.getMapping().getPath()
             self.httpsServer = Expect.Expect(httpsServerCmd, cwd=cwd)
             self.httpsServer.expect("Available on:")
