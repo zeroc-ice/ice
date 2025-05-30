@@ -2,14 +2,25 @@
 
 ## Table of Contents
 
--[Build roadmap](#build-roadmap)
--[Building Ice for C++](#building-ice-for-c)
-  -[Prerequisites](#prerequisites)
-  -[Building Ice for Python](#building-ice-for-python)
-  -[Running the tests](#running-the-tests)
-  -[Generating the API reference](#generating-the-api-reference)
--[Building the Python packages](#building-the-python-packages)
-  -[Creating Python packages](#creating-python-packages)
+- [Build roadmap](#build-roadmap)
+- [Prerequisites](#prerequisites)
+- [Building Ice for C++ on Linux](#building-ice-for-c-on-linux)
+  - [Installing Build Dependencies](#installing-build-dependencies)
+    - [On Ubuntu and other Debian-based systems](#on-ubuntu-and-other-debian-based-systems)
+    - [On RHEL 9](#on-rhel-9)
+    - [On Other Linux Distributions](#on-other-linux-distributions)
+  - [Building](#building)
+  - [Testing](#testing)
+  - [Installation](#installation)
+- [Building Ice for C++ on macOS](#building-ice-for-c-on-macos)
+  - [Installing Build Dependencies](#installing-build-dependencies-1)
+  - [Building](#building-1)
+  - [Testing](#testing-1)
+    - [macOS Testing](#macos-testing)
+    - [iOS Testing](#ios-testing)
+      - [Using Xcode](#using-xcode)
+      - [From the Terminal](#from-the-terminal)
+  - [Installation](#installation-1)
 
 ## Build roadmap
 
