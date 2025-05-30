@@ -4,7 +4,7 @@ import Foundation
 
 /// The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
 /// instantiation is language-specific, and not specified in Slice code.
-public protocol Communicator: AnyObject {
+public protocol Communicator: AnyObject, Sendable {
     /// Destroy the communicator. This operation calls shutdown implicitly. Calling destroy cleans up
     /// memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
     /// calls to destroy are ignored.

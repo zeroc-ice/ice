@@ -27,6 +27,9 @@ class AdminFacetFacade: ICEDispatchAdapter {
         encodingMinor: UInt8,
         outgoingResponseHandler: @escaping ICEOutgoingResponse
     ) {
+        let communicator = self.communicator
+        let servant = self.servant
+
         let objectAdapter = adapter.getSwiftObject(ObjectAdapterI.self) {
             let oa = ObjectAdapterI(handle: adapter, communicator: communicator)
 

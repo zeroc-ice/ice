@@ -141,7 +141,7 @@ public final class OutputStream {
     public func writePendingValues() {
         if encaps != nil, encaps.encoder != nil {
             encaps.encoder.writePendingValues()
-        } else if currentEncoding == Encoding_1_0 {
+        } else if currentEncoding == EncodingVersion.Encoding_1_0 {
             // If using the 1.0 encoding and no instances were written, we
             // still write an empty sequence for pending instances if
             // requested (i.e.: if this is called).
@@ -372,7 +372,7 @@ extension OutputStream {
     /// - parameter maxValue: `Int32` - The maximum value for the enumeration's enumerators
     /// (used only for the 1.0 encoding).
     public func write(enum val: UInt8, maxValue: Int32) {
-        if currentEncoding == Encoding_1_0 {
+        if currentEncoding == EncodingVersion.Encoding_1_0 {
             if maxValue < 127 {
                 write(UInt8(val))
             } else if maxValue < 32767 {
@@ -406,7 +406,7 @@ extension OutputStream {
     /// - parameter maxValue: `Int32` - The maximum value for the enumeration's enumerators
     /// (used only for the 1.0 encoding).
     public func write(enum val: Int32, maxValue: Int32) {
-        if currentEncoding == Encoding_1_0 {
+        if currentEncoding == EncodingVersion.Encoding_1_0 {
             if maxValue < 127 {
                 write(UInt8(val))
             } else if maxValue < 32767 {
@@ -536,7 +536,7 @@ extension OutputStream {
     }
 
     internal func writeOptionalImpl(tag: Int32, format: OptionalFormat) -> Bool {
-        guard currentEncoding != Encoding_1_0 else {
+        guard currentEncoding != EncodingVersion.Encoding_1_0 else {
             return false
         }
 
@@ -590,7 +590,7 @@ private class Encaps {
         self.start = start
         self.format = format
         self.encoding = encoding
-        encoding_1_0 = encoding == Encoding_1_0
+        encoding_1_0 = encoding == EncodingVersion.Encoding_1_0
     }
 }
 
