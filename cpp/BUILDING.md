@@ -21,12 +21,20 @@
       - [Using Xcode](#using-xcode)
       - [From the Terminal](#from-the-terminal)
   - [Installation](#installation-1)
+- [Building Ice for C++ on Windows](#building-ice-for-c-on-windows)
+  - [Installing Build Dependencies](#installing-build-dependencies-2)
+  - [Building](#building-2)
+  - [Testing](#testing-2)
+  - [Creating NuGet packages](#creating-nuget-packages)
 
 ## Build roadmap
 
 ## Prerequisites
 
 - A C++ compiler with support for the C++17 standard.
+  - GCC on Linux
+  - Clang on macOS
+  - Visual Studio 2022 on Windows
 - The following third-party libraries:
   - bzip2 1.0, used for protocol compression
   - expat 2.1 or higher, used by IceGrid
@@ -126,14 +134,14 @@ brew install mcpp lmdb
 
 ### Building
 
-On macOS, you can build Ice for C++ for macOS, iOS devices, and iOS simulators using the `macosx`, `iphoneos`, and 
+On macOS, you can build Ice for C++ for macOS, iOS devices, and iOS simulators using the `macosx`, `iphoneos`, and
 `iphonesimulator` platforms, respectively.
 
-By default, the build produces binaries for the `macosx` platform. You can build for multiple platforms by listing them 
+By default, the build produces binaries for the `macosx` platform. You can build for multiple platforms by listing them
 in the `PLATFORMS` Make variable, or use `all` to build all supported platforms at once.
 
-There are two build configurations: `shared` and `static`, which produce shared and static libraries, respectively. 
-By default, Ice for C++ uses the `shared` configuration. You can customize which configurations are built by setting 
+There are two build configurations: `shared` and `static`, which produce shared and static libraries, respectively.
+By default, Ice for C++ uses the `shared` configuration. You can customize which configurations are built by setting
 the `CONFIGS` Make variable.
 
 For example, to build all macOS targets for both `shared` and `static` configurations:
@@ -154,10 +162,10 @@ To build everything for all platforms and configurations:
 make PLATFORMS=all CONFIGS=all
 ```
 
-After the build completes, the libraries are placed in the `lib` subdirectory, and the executables are placed in the 
+After the build completes, the libraries are placed in the `lib` subdirectory, and the executables are placed in the
 `bin` subdirectory.
 
-The build also produces XCFrameworks for `Ice`, `IceDiscovery`, and `IceLocatorDiscovery` under `lib/XCFrameworks`. These 
+The build also produces XCFrameworks for `Ice`, `IceDiscovery`, and `IceLocatorDiscovery` under `lib/XCFrameworks`. These
 XCFrameworks contain static libraries for all platforms specified in the `PLATFORMS` Make variable.
 
 ### Testing
@@ -212,4 +220,58 @@ By default, Ice for C++ is installed to `/opt/Ice-3.8a0`. To change the installa
 
 ```shell
 make install prefix=~/Ice
+```
+
+## Building Ice for C++ on Windows
+
+### Installing Build Dependencies
+
+The Windows MSBuild build downloads all dependencies as NuGet packages during the build process, so there is no need to install additional dependencies manually.
+
+### Building
+
+Open a Visual Studio Developer Command Prompt, change to the `cpp` subdirectory, and run the following command:
+
+```shell
+MSBuild msbuild\ice.proj
+```
+
+This builds the Ice for C++ executables, libraries, and test suite for the default platform and configuration (i.e., `x64/Release`).
+
+You can select a different platform and configuration by setting the MSBuild `Platform` and `Configuration` properties. For example, to build `x64/Debug` binaries:
+
+```shell
+MSBuild msbuild\ice.proj /p:Platform=x64 /p:Configuration=Debug
+```
+
+The supported platforms are `x64` and `Win32`.
+The supported configurations are `Debug` and `Release`.
+
+### Testing
+
+You can run the test suite with:
+
+```shell
+python3 allTests.py --all
+```
+
+Use the `--platform` and `--configuration` options to run the tests for a specific platform/configuration combination:
+
+```shell
+python3 allTests.py --platform x64 --config Debug
+```
+
+### Creating NuGet Packages
+
+You can create the `ZeroC.Ice.Cpp` NuGet package using the following command:
+
+```shell
+MSBuild msbuild\ice.proj /t:Pack
+```
+
+By default, the package includes only the binaries for the current platform and configuration.
+To build a package that includes **all supported platforms and configurations**, use:
+
+```shell
+MSBuild msbuild\ice.proj /t:Pack /p:BuildAllConfigurations=yes
 ```

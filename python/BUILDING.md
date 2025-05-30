@@ -88,7 +88,7 @@ To change the target platform, use the `Platform` property. For example, to buil
 MSBuild msbuild\ice.proj /p:Platform=Win32 /p:Configuration=Debug
 ```
 
-> [!IMPORTANT] 
+> [!IMPORTANT]
 > The `Platform`, `Configuration`, and `PythonHome` settings must match your C++ build and Python version.
 
 ### Running the tests
