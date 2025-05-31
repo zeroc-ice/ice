@@ -68,7 +68,7 @@ extension Current {
     /// - Returns: The outgoing response.
     public func makeOutgoingResponse(error: Error) -> OutgoingResponse {
         let ostr = OutputStream(
-            communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
+            communicator: adapter.getCommunicator(), encoding: EncodingVersion.currentProtocolEncoding)
 
         if requestId != 0 {
             ostr.writeBlob(replyHdr)
@@ -159,7 +159,7 @@ extension Current {
     /// - Returns: The output stream.
     private func startReplyStream(replyStatus: ReplyStatus = .ok) -> OutputStream {
         let ostr = OutputStream(
-            communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
+            communicator: adapter.getCommunicator(), encoding: EncodingVersion.currentProtocolEncoding)
         if requestId != 0 {
             ostr.writeBlob(replyHdr)
             ostr.write(requestId)
@@ -168,8 +168,6 @@ extension Current {
         return ostr
     }
 }
-
-private let currentProtocolEncoding = EncodingVersion(major: 1, minor: 0)
 
 private let replyHdr: [UInt8] = [
     0x49, 0x63, 0x65, 0x50,  // IceP magic

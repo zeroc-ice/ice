@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 5.10
 
 import Foundation
 import PackageDescription
@@ -42,7 +42,7 @@ let package = Package(
             dependencies: ["IceImpl"],
             path: "swift/src/Ice",
             exclude: ["slice-plugin.json"],
-            plugins: [.plugin(name: "CompileSlice")]
+            plugins: [.plugin(name: "CompileSlice")],
         ),
         .target(
             name: "Glacier2",
@@ -120,6 +120,6 @@ let package = Package(
             path: "swift/Plugins/CompileSlice"
         ),
     ],
-    swiftLanguageVersions: [SwiftVersion.v5],
+    swiftLanguageVersions: [.version("6")],
     cxxLanguageStandard: .cxx20
 )

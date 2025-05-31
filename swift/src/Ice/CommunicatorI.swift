@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
+class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecked Sendable {
     let defaultsAndOverrides: DefaultsAndOverrides
     let initData: InitializationData
     let classGraphDepthMax: Int32

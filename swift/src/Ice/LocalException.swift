@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 /// Base class for Ice local exceptions.
-public class LocalException: Exception, CustomStringConvertible {
+public class LocalException: Exception, CustomStringConvertible, @unchecked Sendable {
     /// The error message.
     public let message: String
     /// The name of the file where this exception was thrown.
