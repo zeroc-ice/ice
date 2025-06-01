@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 import Foundation
-
 @preconcurrency import PackagePlugin
 
 enum PluginError: Error {

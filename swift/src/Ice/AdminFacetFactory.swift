@@ -27,9 +27,6 @@ class AdminFacetFacade: ICEDispatchAdapter {
         encodingMinor: UInt8,
         outgoingResponseHandler: sending @escaping ICEOutgoingResponse
     ) {
-        let communicator = self.communicator
-        let servant = self.servant
-
         let objectAdapter = adapter.getSwiftObject(ObjectAdapterI.self) {
             let oa = ObjectAdapterI(handle: adapter, communicator: communicator)
 
@@ -60,6 +57,7 @@ class AdminFacetFacade: ICEDispatchAdapter {
             bytes: Data(bytesNoCopy: inEncapsBytes, count: inEncapsCount, deallocator: .none))
 
         let request = IncomingRequest(current: current, inputStream: istr)
+        let servant = self.servant
 
         Task {
             let response: OutgoingResponse
