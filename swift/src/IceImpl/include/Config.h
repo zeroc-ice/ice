@@ -10,3 +10,5 @@
 #endif
 
 #define ICE_SWIFT_UNAVAILABLE(msg) __attribute__((unavailable(msg)))
+
+#define SWIFT_SENDING __attribute__((swift_attr("sending")))

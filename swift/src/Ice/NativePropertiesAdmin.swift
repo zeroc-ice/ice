@@ -13,7 +13,7 @@ public typealias PropertiesAdminUpdateCallback = (PropertyDict) -> Void
 public typealias PropertiesAdminRemoveCallback = () -> Void
 
 /// The default implementation for the "Properties" admin facet.
-public class NativePropertiesAdmin: PropertiesAdmin {
+public class NativePropertiesAdmin: PropertiesAdmin, @unchecked Sendable {
     private let handle: ICEPropertiesAdmin
 
     init(handle: ICEPropertiesAdmin) {

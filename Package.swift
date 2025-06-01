@@ -1,4 +1,4 @@
-// swift-tools-version: 5.10
+// swift-tools-version: 6.0
 
 import Foundation
 import PackageDescription
@@ -22,8 +22,8 @@ let package = Package(
     name: "ice",
     defaultLocalization: "en",
     platforms: [
-        .macOS(.v14),
-        .iOS(.v17),
+        .macOS(.v15),
+        .iOS(.v18),
     ],
     products: [
         .library(name: "Ice", targets: ["Ice"]),
@@ -76,7 +76,7 @@ let package = Package(
             linkerSettings: [
                 .linkedLibrary("bz2"),
                 .linkedFramework("ExternalAccessory")
-            ]
+            ],
         ),
         .binaryTarget(
             name: "IceCpp",
@@ -120,6 +120,6 @@ let package = Package(
             path: "swift/Plugins/CompileSlice"
         ),
     ],
-    swiftLanguageVersions: [.version("6")],
+    swiftLanguageModes: [.v6],
     cxxLanguageStandard: .cxx20
 )

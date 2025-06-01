@@ -1,7 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 import Foundation
-import PackagePlugin
+
+@preconcurrency import PackagePlugin
 
 enum PluginError: Error {
     case invalidTarget(Target)

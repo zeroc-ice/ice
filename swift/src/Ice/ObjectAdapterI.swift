@@ -227,7 +227,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
         requestId: Int32,
         encodingMajor: UInt8,
         encodingMinor: UInt8,
-        outgoingResponseHandler: @escaping ICEOutgoingResponse
+        outgoingResponseHandler: sending @escaping ICEOutgoingResponse
     ) {
         precondition(handle == adapter)
 
@@ -254,6 +254,9 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
         Task {
             let response: OutgoingResponse
+
+            // TODO: the request is in the Task capture and we need to send it. Is there a better syntax?
+            nonisolated(unsafe) let request = request
             do {
                 response = try await dispatchPipeline.dispatch(request)
             } catch {

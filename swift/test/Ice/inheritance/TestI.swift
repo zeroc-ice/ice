@@ -9,7 +9,7 @@ class IAI: MAIA {
     }
 
     // Since we plan to reuse this implementation, we need to define an overridable dispatch method in the base class.
-    func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse {
+    func dispatch(_ request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse {
         // The implementation forwards to the static dispatch method defined on the generated protocol extension.
         try await Self.dispatch(self, request: request)
     }
@@ -22,7 +22,7 @@ class IB1I: IAI, MBIB1 {
     }
 
     // Override the dispatch method with the correct implementation.
-    override func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse {
+    override func dispatch(_ request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse {
         // The implementation forwards to the static dispatch method defined on the generated protocol extension.
         try await Self.dispatch(self, request: request)
     }
@@ -35,7 +35,7 @@ class IB2I: IAI, MBIB2 {
     }
 
     // Override the dispatch method with the correct implementation.
-    override func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse {
+    override func dispatch(_ request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse {
         // The implementation forwards to the static dispatch method defined on the generated protocol extension.
         try await Self.dispatch(self, request: request)
     }
@@ -52,7 +52,7 @@ final class ICI: IB1I, MAIC {
     }
 
     // Override the dispatch method with the correct implementation.
-    override func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse {
+    override func dispatch(_ request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse {
         // The implementation forwards to the static dispatch method defined on the generated protocol extension.
         try await Self.dispatch(self, request: request)
     }

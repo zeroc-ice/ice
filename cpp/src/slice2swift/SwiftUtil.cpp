@@ -1332,6 +1332,11 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
 void
 SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
+    // We need a separate nested function for the nonisolated(unsafe) variable when unmarshaling classes.
+
+    out << sp;
+    out << nl << "func read(istr: Ice.InputStream) throws -> sending " << operationReturnType(op) << sb;
+
     const ParameterList outParams = op->outParameters();
     const bool returnsMultipleValues = op->returnsMultipleValues();
 
@@ -1342,8 +1347,8 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     // 3. optional (including optional return)
     //
 
-    out << "{ istr in";
-    out.inc();
+    vector<string> nonIsolatedParamNames;
+
     for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
     {
         const TypePtr paramType = param->type();
@@ -1353,8 +1358,9 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         string paramString;
         if (paramType->isClassType())
         {
-            out << nl << "var " << paramName << ": " << typeString;
-            paramString = paramName;
+            out << nl << "var " << paramName << "Var: " << typeString;
+            paramString = paramName + "Var";
+            nonIsolatedParamNames.push_back(paramName);
         }
         else
         {
@@ -1365,6 +1371,13 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     if (op->returnsClasses())
     {
         out << nl << "try istr.readPendingValues()";
+    }
+
+    // As of Swift 6.1, the nonisolated(unsafe) let assignment does not silence the warning in a closure. It works in
+    // a nested function, fortunately.
+    for (const auto& paramName : nonIsolatedParamNames)
+    {
+        out << nl << "nonisolated(unsafe) let " << paramName << " = " << paramName + "Var";
     }
 
     out << nl << "return ";
@@ -1396,8 +1409,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         out << epar;
     }
 
-    out.dec();
-    out << nl << "}";
+    out << eb;
 }
 
 void
@@ -1529,9 +1541,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
 
     if (returnsAnyValues)
     {
-        out << nl << "read: ";
-        writeUnmarshalOutParams(out, op);
-        out << ",";
+        out << nl << "read: read,";
     }
 
     if (!op->throws().empty())
@@ -1542,8 +1552,13 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
     }
 
     out << nl << "context: context)";
+
     out.restoreIndent();
 
+    if (returnsAnyValues)
+    {
+        writeUnmarshalOutParams(out, op);
+    }
     out << eb;
 }
 

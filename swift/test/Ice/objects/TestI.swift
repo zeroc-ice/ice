@@ -230,7 +230,7 @@ class F2I: F2 {
 }
 
 class UnexpectedObjectExceptionTestDispatcher: Ice.Dispatcher {
-    public func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
+    public func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
         let ae = AlsoEmpty()
         return request.current.makeOutgoingResponse(
             ae, formatType: nil

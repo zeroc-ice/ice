@@ -536,9 +536,17 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "/// Read a `" << docName << "` structured value from the stream.";
     out << nl << "///";
     out << nl << "/// - Returns: The structured value read from the stream.";
-    out << nl << "func read() throws -> " << name;
+    out << nl << "func read() throws -> sending " << name;
     out << sb;
-    out << nl << (usesClasses ? "let" : "var") << " v = " << name << "()";
+    if (usesClasses)
+    {
+        out << nl << "nonisolated(unsafe) let";
+    }
+    else
+    {
+        out << nl << "var";
+    }
+    out << " v = " << name << "()";
     for (const auto& member : members)
     {
         writeMarshalUnmarshalCode(out, member->type(), p, "v." + member->mappedName(), false);
@@ -659,13 +667,13 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "///";
     out << nl << "/// - Returns: The sequence read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
+    out << nl << "public static func read(from istr: " << istr << ") throws -> sending " << name;
     out << sb;
     out << nl << "let sz = try istr.readAndCheckSeqSize(minSize: " << p->type()->minWireSize() << ")";
 
     if (type->isClassType())
     {
-        out << nl << "var v = " << name << "(repeating: nil, count: sz)";
+        out << nl << "nonisolated(unsafe) var v = " << name << "(repeating: nil, count: sz)";
         out << nl << "for i in 0 ..< sz";
         out << sb;
         out << nl << "try Swift.withUnsafeMutablePointer(to: &v[i])";
@@ -696,7 +704,8 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The sequence read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << name << "?";
+    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> sending "
+        << name << "?";
     out << sb;
     out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -801,7 +810,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "///";
     out << nl << "/// - Returns: The dictionary read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
+    out << nl << "public static func read(from istr: " << istr << ") throws -> sending " << name;
     out << sb;
     out << nl << "let sz = try Swift.Int(istr.readSize())";
     out << nl << "var v = " << name << "()";
@@ -852,7 +861,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The dictionary read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << name << "?";
+    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> sending "
+        << name << "?";
     out << sb;
     out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -956,7 +966,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/// Read an enumerated value.";
     out << nl << "///";
     out << nl << "/// - Returns:  The enumerated value.";
-    out << nl << "func read() throws -> " << name;
+    out << nl << "func read() throws -> sending " << name;
     out << sb;
     out << nl << "let rawValue: " << enumType << " = try read(enumMaxValue: " << p->maxValue() << ")";
     out << nl << "guard let val = " << name << "(rawValue: rawValue) else";
@@ -1194,7 +1204,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "/// - Parameter type: The type of the proxy to be extracted.";
     out << nl << "///";
     out << nl << "/// - Returns: The extracted proxy.";
-    out << nl << "func read(_ type: " << prx << ".Protocol) throws -> " << prx << "?";
+    out << nl << "func read(_ type: " << prx << ".Protocol) throws -> sending " << prx << "?";
     out << sb;
     out << nl << "return try read() as " << prxI << "?";
     out << eb;

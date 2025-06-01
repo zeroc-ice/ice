@@ -4,9 +4,9 @@ import IceImpl
 
 class AdminFacetFacade: ICEDispatchAdapter {
     private let communicator: Communicator
-    var servant: Dispatcher
+    var servant: Dispatcher & Sendable
 
-    init(communicator: Communicator, servant: Dispatcher) {
+    init(communicator: Communicator, servant: Dispatcher & Sendable) {
         self.communicator = communicator
         self.servant = servant
     }
@@ -25,7 +25,7 @@ class AdminFacetFacade: ICEDispatchAdapter {
         requestId: Int32,
         encodingMajor: UInt8,
         encodingMinor: UInt8,
-        outgoingResponseHandler: @escaping ICEOutgoingResponse
+        outgoingResponseHandler: sending @escaping ICEOutgoingResponse
     ) {
         let communicator = self.communicator
         let servant = self.servant
@@ -63,6 +63,9 @@ class AdminFacetFacade: ICEDispatchAdapter {
 
         Task {
             let response: OutgoingResponse
+
+            // TODO: the request is in the Task capture and we need to send it. Is there a better syntax?
+            nonisolated(unsafe) let request = request
             do {
                 response = try await servant.dispatch(request)
             } catch {
@@ -83,8 +86,8 @@ class AdminFacetFacade: ICEDispatchAdapter {
     func complete() {}
 }
 
-final class UnsupportedAdminFacet: Dispatcher {
-    func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
+final class UnsupportedAdminFacet: Dispatcher & Sendable {
+    func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
         throw Ice.OperationNotExistException()
     }
 }
