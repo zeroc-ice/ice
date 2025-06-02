@@ -114,7 +114,7 @@ After the build completes, the libraries are placed in the `lib` subdirectory, a
 You can run the tests with:
 
 ```shell
-python3 allTests.py --all
+python allTests.py --all
 ```
 
 ### Installation
@@ -185,7 +185,7 @@ These XCFrameworks contain static libraries for all platforms specified in the `
 You can run the macOS tests with:
 
 ```shell
-python3 allTests.py --all
+python allTests.py --all
 ```
 
 #### iOS Testing
@@ -201,13 +201,13 @@ it to your target device or simulator.
 Then, from the command line, start the tests by running:
 
 ```shell
-python3 allTests.py --all --platform iphoneos
+python allTests.py --all --platform iphoneos
 ```
 
 or
 
 ```shell
-python3 allTests.py --all --platform iphonesimulator
+python allTests.py --all --platform iphonesimulator
 ```
 
 depending on whether you deployed the controller to an iOS device or an iOS simulator.
@@ -217,7 +217,7 @@ depending on whether you deployed the controller to an iOS device or an iOS simu
 You can also run the tests on the iOS simulator directly from the terminal without using Xcode:
 
 ```shell
-python3 allTests.py --all --platform iphonesimulator --controller-app
+python allTests.py --all --platform iphonesimulator --controller-app
 ```
 
 ### Installation
@@ -266,13 +266,13 @@ The supported configurations are `Debug` and `Release`.
 You can run the test suite with:
 
 ```shell
-python3 allTests.py --all
+python allTests.py --all
 ```
 
 Use the `--platform` and `--configuration` options to run the tests for a specific platform/configuration combination:
 
 ```shell
-python3 allTests.py --platform x64 --config Debug
+python allTests.py --platform x64 --config Debug
 ```
 
 ### Creating NuGet Packages
