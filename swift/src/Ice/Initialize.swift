@@ -267,6 +267,11 @@ public let intVersion: Int = 30850
 /// B indicates the minor version, and C indicates the patch level.
 public let stringVersion: String = "3.8.0-alpha.0"
 
+nonisolated(unsafe) public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
+nonisolated(unsafe) public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
+
+nonisolated(unsafe) public let currentEncoding = Encoding_1_1
+
 /// Converts a string to an object identity.
 ///
 /// - parameter string: `String` - The string to convert.

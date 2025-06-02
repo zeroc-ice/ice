@@ -110,7 +110,7 @@ class TestI: TestIntf {
 
     func checkSUnknown(o: Value?, current: Current) async throws {
         let su = o as? SUnknown
-        if current.encoding == EncodingVersion.Encoding_1_0 {
+        if current.encoding == Encoding_1_0 {
             try _helper.test(su == nil)
         } else {
             try _helper.test(su!.su == "SUnknown.su")
@@ -373,7 +373,7 @@ class TestI: TestIntf {
     }
 
     func checkPBSUnknownWithGraph(p: Preserved?, current: Current) async throws {
-        if current.encoding == EncodingVersion.Encoding_1_0 {
+        if current.encoding == Encoding_1_0 {
             try _helper.test(!(p is PSUnknown))
             try _helper.test(p!.pi == 5)
             try _helper.test(p!.ps == "preserved")
@@ -414,7 +414,7 @@ class TestI: TestIntf {
     }
 
     func checkPBSUnknown2WithGraph(p: Preserved?, current: Current) async throws {
-        if current.encoding == EncodingVersion.Encoding_1_0 {
+        if current.encoding == Encoding_1_0 {
             try _helper.test(!(p is PSUnknown2))
             try _helper.test(p!.pi == 5)
             try _helper.test(p!.ps == "preserved")

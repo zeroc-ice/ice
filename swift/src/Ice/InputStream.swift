@@ -141,7 +141,7 @@ public class InputStream {
         let encoding: EncodingVersion = try read()
         try checkSupportedEncoding(encoding)  // Make sure the encoding is supported.
 
-        if encoding == EncodingVersion.Encoding_1_0 {
+        if encoding == Encoding_1_0 {
             if sz != 6 {
                 throw MarshalException("invalid encapsulation size")
             }
@@ -661,7 +661,7 @@ extension InputStream {
     ///
     /// - returns: `UInt8` - The enumerator's byte value.
     public func read(enumMaxValue: Int32) throws -> UInt8 {
-        if currentEncoding == EncodingVersion.Encoding_1_0 {
+        if currentEncoding == Encoding_1_0 {
             if enumMaxValue < 127 {
                 return try read()
             } else if enumMaxValue < 32767 {
@@ -692,7 +692,7 @@ extension InputStream {
     ///
     /// - returns: `Int32` - The enumerator's Int32 value.
     public func read(enumMaxValue: Int32) throws -> Int32 {
-        if currentEncoding == EncodingVersion.Encoding_1_0 {
+        if currentEncoding == Encoding_1_0 {
             if enumMaxValue < 127 {
                 return try Int32(read() as UInt8)
             } else if enumMaxValue < 32767 {
@@ -830,7 +830,7 @@ private class Encaps {
         self.start = start
         sz = size
         self.encoding = encoding
-        encoding_1_0 = encoding == EncodingVersion.Encoding_1_0
+        encoding_1_0 = encoding == Encoding_1_0
     }
 }
 

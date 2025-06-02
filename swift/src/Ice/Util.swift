@@ -27,7 +27,7 @@ func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
 }
 
 func checkSupportedEncoding(_ v: EncodingVersion) throws {
-    let c = EncodingVersion.currentEncoding
+    let c = currentEncoding
     if v.major != c.major || v.minor > c.minor {
         throw MarshalException(
             "this Ice runtime does not support encoding version \(encodingVersionToString(v))")
