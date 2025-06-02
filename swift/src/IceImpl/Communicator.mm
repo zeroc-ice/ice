@@ -154,10 +154,17 @@
     self.communicator->setDefaultObjectAdapter(adapter == nil ? nullptr : [adapter objectAdapter]);
 }
 
-- (ICEImplicitContext*)getImplicitContext
+- (nullable ICEImplicitContext*)getImplicitContext
 {
     auto implicitContext = self.communicator->getImplicitContext();
-    return [ICEImplicitContext getHandle:implicitContext];
+    if (implicitContext)
+    {
+        return [ICEImplicitContext getHandle:implicitContext];
+    }
+    else
+    {
+        return nil;
+    }
 }
 
 // id<ICELoggerProtocol> may be either a Swift logger or a wrapper around a C++ logger
