@@ -1186,6 +1186,8 @@ allTests(TestHelper* helper)
 
     cout << "ok" << endl;
 
+    // TODO: with iOS, we get:
+    // collate_byname<char>::collate_byname failed to construct for en_US.UTF-8
 #if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
     cout << "testing proxy to string is not affected by locale settings... " << flush;
     auto currentLocale = std::locale();
