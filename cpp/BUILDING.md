@@ -123,6 +123,9 @@ brew install mcpp lmdb
 On macOS, you can build Ice for C++ for macOS, iOS devices, and iOS simulators using the `macosx`, `iphoneos`, and
 `iphonesimulator` platforms, respectively.
 
+There are two build configurations: `shared` and `static`. The `static` configuration is used to build the test suite
+against the static libraries and is also required for building the iOS test suite.
+
 To build Ice for C++ for the default platform (i.e., macOS):
 
 ```shell
@@ -134,13 +137,13 @@ By default, this builds all the Slice compilers, the C++ shared and static libra
 To build for the iOS simulator:
 
 ```shell
-make -j10 PLATFORMS=iphonesimulator
+make -j10 PLATFORMS=iphonesimulator CONFIGS=all
 ```
 
-You can build for multiple platforms at once by listing them in the `PLATFORMS` Makefile variable:
+To build for multiple platforms at once, list them in the `PLATFORMS` Makefile variable:
 
 ```shell
-make -j10 PLATFORMS="macosx iphonesimulator"
+make -j10 PLATFORMS="macosx iphonesimulator" CONFIGS=all
 ```
 
 After the build completes, the libraries are placed in the `lib` subdirectory, and the executables are placed in the
