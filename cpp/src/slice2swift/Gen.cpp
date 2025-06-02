@@ -679,6 +679,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         out << nl << "try Swift.withUnsafeMutablePointer(to: &v[i])";
         out << sb;
         out << " p in";
+        out << nl << "nonisolated(unsafe) let p = p";
         writeMarshalUnmarshalCode(out, type, p, "p.pointee", false);
         out << eb;
         out << eb;
@@ -821,7 +822,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << "var v = " << name << "()";
     if (p->valueType()->isClassType())
     {
-        out << nl << "let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "
+        out << nl << "nonisolated(unsafe) let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "
             << valueType << ">(size: sz)";
         out << nl << "for i in 0 ..< sz";
         out << sb;
