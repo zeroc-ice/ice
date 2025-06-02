@@ -1186,6 +1186,7 @@ allTests(TestHelper* helper)
 
     cout << "ok" << endl;
 
+#if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
     cout << "testing proxy to string is not affected by locale settings... " << flush;
     auto currentLocale = std::locale();
     std::locale::global(std::locale("en_US.UTF-8"));
@@ -1221,6 +1222,7 @@ allTests(TestHelper* helper)
     }
     std::locale::global(currentLocale);
     cout << "ok" << endl;
+#endif
 
     cout << "testing communicator shutdown/destroy... " << flush;
     {
