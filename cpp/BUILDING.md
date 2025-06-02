@@ -48,16 +48,24 @@ flowchart LR
 
 #### On Ubuntu and other Debian-based systems
 
+Install the required third-party libraries:
+
 ```shell
-sudo apt-get install libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev \
-    libssl-dev libsystemd-dev
+sudo apt-get install libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev libssl-dev libsystemd-dev
 ```
 
 #### On RHEL 9
 
+Add the ZeroC repository:
+
 ```shell
 dnf install https://zeroc.com/download/ice/3.7/el9/ice-repo-3.7.el9.noarch.rpm
-dnf install mcpp-devel bzip2-devel openssl-devel expat-devel libedit-devel lmdb-devel libsystemd-devel
+```
+
+Install the required third-party libraries:
+
+```shell
+dnf install bzip2-devel expat-devel libedit-devel libsystemd-devel lmdb-devel mcpp-devel openssl-devel
 ```
 
 ### Building
