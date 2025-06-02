@@ -58,7 +58,7 @@ For example, when using a C++ `Debug` build for `Win32`, you can run:
 ### Slice Tools for Java
 
 By default, the Slice Tools for Java package `com.zeroc.ice.slice-tools` includes only the `slice2java` compiler created
-by the local C++ build. Refer to the [Building Slice Tools for Ice](./tools/slice-tools/BUILDING.md) instructions on
+by the local C++ build. Refer to [Building Slice Tools for Ice](./tools/slice-tools/BUILDING.md) for instructions on
 including the `slice2java` compilers for all supported platforms.
 
 ## Running the tests
@@ -111,7 +111,7 @@ To build the Android test controller from the command line:
   tests:
 
   ```shell
-  python3 allTests.py --android --all --controller-app
+  python allTests.py --android --all --controller-app
   ```
 
 ### Using Android Studio
@@ -121,7 +121,7 @@ To build the Android test controller from the command line:
 - Once the test controller is running, open a terminal, change to the java subdirectory, and execute:
 
   ```shell
-  python3 allTests --android --all
+  python allTests --android --all
   ```
 
 ## Generating the API reference
