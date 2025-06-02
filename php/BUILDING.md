@@ -34,7 +34,7 @@ Once Ice for C++ is built, open a command prompt and navigate to the `php` subdi
 To build Ice for PHP, run the following commands:
 
 ```shell
-make -j10
+make
 ```
 
 ## Running the Tests
@@ -81,10 +81,15 @@ php-config --extension-dir
 Next, enable the extension in your PHP configuration. Create an `ice.ini` file containing:
 
 ```ini
+; Load Ice for PHP extension
 extension=ice
+
+; Add the Ice for PHP sources to the PHP include_path
+include_path=${include_path}":/opt/Ice-3.8a0/php"
 ```
 
-Place this file in one of PHP's `.ini` scan directories. You can inspect your PHP configuration with:
+Place this file in your PHP configuration file directory, often called `conf.d`.
+You can inspect your PHP configuration with:
 
 ```shell
 php --ini
@@ -99,19 +104,10 @@ Scan for additional .ini files in: /opt/homebrew/etc/php/8.4/conf.d
 Additional .ini files parsed:      /opt/homebrew/etc/php/8.4/conf.d/ext-opcache.ini
 ```
 
-In this case, you would place `ice.ini` in the `/opt/homebrew/etc/php/8.4/conf.d` directory.
-
 For PHP to successfully load the `ice.so` extension, the Ice shared libraries (`libIce`, `libIceDiscovery`, and
 `libIceLocatorDiscovery`) must also be accessible via your system's dynamic linker path. If they are not, you need to:
 
 - On **macOS**, add the Ice `lib` directory to your `DYLD_LIBRARY_PATH`.
 - On **Linux**, add the Ice `lib` directory to your `LD_LIBRARY_PATH`.
-
-Finally, the Ice for PHP source files must be available to your application. To do this, add the Ice for PHP library
-directory to PHP’s `include_path`. For example, add the following line to your `php.ini`:
-
-```ini
-include_path="${include_path}:/opt/Ice-3.8a0/php"
-```
 
 [phpDocumentor]: https://phpdoc.org/
