@@ -57,9 +57,12 @@ struct CompileSlicePlugin: BuildToolPlugin {
 
         // Search for the configuration file. If this plugin was loaded, the configuration file must be present, or
         // it's considered an error.
-        let configFilePath = try fm.contentsOfDirectory(atPath: target.directory.string).first { path in
-            path == Self.configFileName
-        }.map { target.directory.appending($0).string }
+//        let directoryUrl = target.directoryURL
+        let configFilePath = try fm.contentsOfDirectory(at: URL(fileURLWithPath: target.directory.string),
+                                                        includingPropertiesForKeys: nil,
+                                                        options: []).first { path in
+            path.lastPathComponent == Self.configFileName
+        }.map { target.directory.appending($0.lastPathComponent).string }
 
         guard let configFilePath else {
             throw PluginError.missingConfigFile(Self.configFileName, target.directory.string)
@@ -78,10 +81,14 @@ struct CompileSlicePlugin: BuildToolPlugin {
             }
 
             // Directory
-            return try fm.contentsOfDirectory(atPath: fullSourcePath.string).filter { path in
-                return path.hasSuffix(".ice")
-            }.map { sliceFile in
-                fullSourcePath.appending(sliceFile)
+            return try fm.contentsOfDirectory(
+                at: URL(fileURLWithPath: fullSourcePath.string),
+                includingPropertiesForKeys: nil,
+                options: []
+            ).filter { url in
+                url.path.hasSuffix(".ice")
+            }.map { sliceFileURL in
+                fullSourcePath.appending(sliceFileURL.lastPathComponent)
             }
         }.joined()
 

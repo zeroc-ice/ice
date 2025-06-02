@@ -323,7 +323,7 @@ class TestI: TestIntf {
     }
 
     func checkPBSUnknown(p: Preserved?, current: Current) async throws {
-        if current.encoding == IcEncodingVersione.Encoding_1_0 {
+        if current.encoding == Ice.Encoding_1_0 {
             try _helper.test(!(p is PSUnknown))
             try _helper.test(p!.pi == 5)
             try _helper.test(p!.ps == "preserved")

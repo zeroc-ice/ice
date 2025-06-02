@@ -813,7 +813,12 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "public static func read(from istr: " << istr << ") throws -> sending " << name;
     out << sb;
     out << nl << "let sz = try Swift.Int(istr.readSize())";
-    out << nl << "var v = " << name << "()";
+    out << nl;
+    if (p->valueType()->isClassType())
+    {
+        out << "nonisolated(unsafe) ";
+    }
+    out << "var v = " << name << "()";
     if (p->valueType()->isClassType())
     {
         out << nl << "let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "

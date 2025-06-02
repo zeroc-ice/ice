@@ -1358,7 +1358,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         string paramString;
         if (paramType->isClassType())
         {
-            out << nl << "var " << paramName << "Var: " << typeString;
+            out << nl << "nonisolated(unsafe) var " << paramName << "Var: " << typeString;
             paramString = paramName + "Var";
             nonIsolatedParamNames.push_back(paramName);
         }
@@ -1375,12 +1375,22 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
 
     // As of Swift 6.1, the nonisolated(unsafe) let assignment does not silence the warning in a closure. It works in
     // a nested function, fortunately.
+
     for (const auto& paramName : nonIsolatedParamNames)
     {
-        out << nl << "nonisolated(unsafe) let " << paramName << " = " << paramName + "Var";
+        out << nl;
+        out << "nonisolated(unsafe) let " << paramName << " = " << paramName + "Var";
     }
 
-    out << nl << "return ";
+    if (!nonIsolatedParamNames.empty() && returnsMultipleValues)
+    {
+        out << nl << "nonisolated(unsafe) let iceP_returnTuple = ";
+    }
+    else
+    {
+        out << nl << "return ";
+    }
+
     if (returnsMultipleValues)
     {
         out << spar;
@@ -1407,6 +1417,11 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     if (returnsMultipleValues)
     {
         out << epar;
+    }
+
+    if (!nonIsolatedParamNames.empty() && returnsMultipleValues)
+    {
+        out << nl << "return iceP_returnTuple";
     }
 
     out << eb;
