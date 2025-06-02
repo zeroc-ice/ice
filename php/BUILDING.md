@@ -47,7 +47,7 @@ python allTests.py --all
 
 ## Generating the API reference
 
-To generate the PHP API reference, pen a command prompt and change to the `php` subdirectory. At the command prompt,
+To generate the PHP API reference, open a command prompt and change to the `php` subdirectory. At the command prompt,
 execute:
 
 ```
