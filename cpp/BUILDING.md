@@ -8,7 +8,6 @@
   - [Installing Build Dependencies](#installing-build-dependencies)
     - [On Ubuntu and other Debian-based systems](#on-ubuntu-and-other-debian-based-systems)
     - [On RHEL 9](#on-rhel-9)
-    - [On Other Linux Distributions](#on-other-linux-distributions)
   - [Building](#building)
   - [Testing](#testing)
   - [Installation](#installation)
@@ -42,23 +41,12 @@ flowchart LR
   - GCC on Linux
   - Clang on macOS
   - Visual Studio 2022 on Windows
-- The following third-party libraries:
-  - bzip2 1.0, used for protocol compression
-  - expat 2.1 or higher, used by IceGrid
-  - libedit, required for the command-line utilities on Linux and macOS
-  - LMDB 0.9, used for the IceStorm and IceGrid databases
-  - mcpp 2.7.2 with ZeroC patches, used by the Slice compilers
-  - OpenSSL 3.0 or higher on Linux, required for the ssl transport
-  - D-Bus on Linux, required for the IceBT Bluetooth transport
-  - BlueZ on Linux, required for the IceBT Bluetooth transport
 
 ## Building Ice for C++ on Linux
 
 ### Installing Build Dependencies
 
 #### On Ubuntu and other Debian-based systems
-
-You can install the required third-party libraries with:
 
 ```shell
 sudo apt-get install libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev \
@@ -67,29 +55,17 @@ sudo apt-get install libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev \
 
 #### On RHEL 9
 
-First, install the ZeroC RHEL 9 repository (which provides the patched `mcpp` package):
-
 ```shell
 dnf install https://zeroc.com/download/ice/3.7/el9/ice-repo-3.7.el9.noarch.rpm
-```
-
-Then install the required libraries:
-
-```shell
 dnf install mcpp-devel bzip2-devel openssl-devel expat-devel libedit-devel lmdb-devel libsystemd-devel
 ```
-
-#### On Other Linux Distributions
-
-Refer to your system documentation for instructions on installing the required libraries listed in the prerequisites
-section above.
 
 ### Building
 
 Once you have installed the required libraries, you can build Ice for C++ by running:
 
 ```shell
-make
+make -j10
 ```
 
 By default, this builds all the Slice compilers, the C++ shared libraries, and all the Ice for C++ services.
@@ -97,13 +73,13 @@ By default, this builds all the Slice compilers, the C++ shared libraries, and a
 To build the static libraries, use the `static` configuration:
 
 ```shell
-make CONFIGS=static
+make -j10 CONFIGS=static
 ```
 
-Or to build both shared and static libraries:
+Or build both shared and static libraries by running:
 
 ```shell
-make CONFIGS=all
+make -j10 CONFIGS=all
 ```
 
 After the build completes, the libraries are placed in the `lib` subdirectory, and the executables are placed in the
@@ -129,7 +105,7 @@ By default, Ice for C++ is installed to `/opt/Ice-3.8a0`. To change the installa
 Makefile variable:
 
 ```shell
-make install prefix=~/Ice
+make install prefix=$HOME/ice
 ```
 
 ## Building Ice for C++ on macOS
@@ -147,36 +123,31 @@ brew install mcpp lmdb
 On macOS, you can build Ice for C++ for macOS, iOS devices, and iOS simulators using the `macosx`, `iphoneos`, and
 `iphonesimulator` platforms, respectively.
 
-By default, the build produces binaries for the `macosx` platform. You can build for multiple platforms by listing them
-in the `PLATFORMS` Make variable, or use `all` to build all supported platforms at once.
-
-There are two build configurations: `shared` and `static`, which produce shared and static libraries, respectively.
-By default, Ice for C++ uses the `shared` configuration. You can customize which configurations are built by setting
-the `CONFIGS` Make variable.
-
-For example, to build all macOS targets for both `shared` and `static` configurations:
+To build Ice for C++ for the default platform (i.e., macOS):
 
 ```shell
-make CONFIGS=all
+make -j10
 ```
+
+By default, this builds all the Slice compilers, the C++ shared and static libraries, and all the Ice for C++ services.
 
 To build for the iOS simulator:
 
 ```shell
-make PLATFORMS=iphonesimulator
+make -j10 PLATFORMS=iphonesimulator
 ```
 
-To build everything for all platforms and configurations:
+You can build for multiple platforms at once by listing them in the `PLATFORMS` Makefile variable:
 
 ```shell
-make PLATFORMS=all CONFIGS=all
+make -j10 PLATFORMS="macosx iphonesimulator"
 ```
 
 After the build completes, the libraries are placed in the `lib` subdirectory, and the executables are placed in the
 `bin` subdirectory.
 
 The build also produces XCFrameworks for `Ice`, `IceDiscovery`, and `IceLocatorDiscovery` under `lib/XCFrameworks`.
-These XCFrameworks contain static libraries for all platforms specified in the `PLATFORMS` Make variable.
+These XCFrameworks contain static libraries for all platforms specified in the `PLATFORMS` Makefile variable.
 
 ### Testing
 
@@ -225,14 +196,14 @@ python allTests.py --all --platform iphonesimulator --controller-app
 You can install Ice for C++ by running:
 
 ```shell
-make install
+make -j10 install
 ```
 
 By default, Ice for C++ is installed to `/opt/Ice-3.8a0`. To change the installation location, set the `prefix` Makefile
 variable:
 
 ```shell
-make install prefix=~/Ice
+make -j10 install prefix=$HOME/ice
 ```
 
 ## Building Ice for C++ on Windows
@@ -247,7 +218,7 @@ install additional dependencies manually.
 Open a Visual Studio Developer Command Prompt, change to the `cpp` subdirectory, and run the following command:
 
 ```shell
-MSBuild msbuild\ice.proj
+MSBuild /m msbuild\ice.proj
 ```
 
 This builds the Ice for C++ executables, libraries, and test suite for the default platform and configuration (i.e., `x64/Release`).
@@ -255,7 +226,7 @@ This builds the Ice for C++ executables, libraries, and test suite for the defau
 You can select a different platform and configuration by setting the MSBuild `Platform` and `Configuration` properties. For example, to build `x64/Debug` binaries:
 
 ```shell
-MSBuild msbuild\ice.proj /p:Platform=x64 /p:Configuration=Debug
+MSBuild /m msbuild\ice.proj /p:Platform=x64 /p:Configuration=Debug
 ```
 
 The supported platforms are `x64` and `Win32`.
@@ -280,12 +251,12 @@ python allTests.py --platform x64 --config Debug
 You can create the `ZeroC.Ice.Cpp` NuGet package using the following command:
 
 ```shell
-MSBuild msbuild\ice.proj /t:Pack
+MSBuild /m msbuild\ice.proj /t:Pack
 ```
 
 By default, the package includes only the binaries for the current platform and configuration.
 To build a package that includes **all supported platforms and configurations**, use:
 
 ```shell
-MSBuild msbuild\ice.proj /t:Pack /p:BuildAllConfigurations=yes
+MSBuild /m msbuild\ice.proj /t:Pack /p:BuildAllConfigurations=yes
 ```
