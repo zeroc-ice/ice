@@ -1,172 +1,85 @@
-# Ice for Ruby Build Instructions
+# Building Ice for Ruby from Source
 
-This file describes how to build and install Ice for Ruby from source code on
-Linux and macOS. If you prefer, you can also download [binary distributions][1]
-for the supported platforms.
+## Table of Contents
 
-* [Ruby Build Requirements](#ruby-build-requirements)
-  * [Operating Systems and Compilers](#operating-systems-and-compilers)
-  * [Ruby Versions](#ruby-versions)
-* [Building the Ruby Extension](#building-the-ruby-extension)
-* [Installing Ice for Ruby](#installing-ice-for-ruby)
-* [Configuring your Environment for Ruby](#configuring-your-environment-for-ruby)
-* [Running the Ruby Tests](#running-the-ruby-tests)
-* [SELinux Notes for Ruby](#selinux-notes-for-ruby)
+* [Build roadmap](#build-roadmap)
+* [Building Ice for Ruby from Source](#building-ice-for-ruby-from-source)
+  * [Prerequisites](#prerequisites)
+  * [Building Ice for Ruby](#building-ice-for-ruby)
+  * [Running the Tests](#running-the-tests)
+  * [Generating the API Reference](#generating-the-api-reference)
+* [Building the Ruby Gem Package](#building-the-ruby-gem-package)
 
-## Ruby Build Requirements
+## Build roadmap
 
-### Operating Systems and Compilers
+This document describes two distinct build workflows:
 
-Ice for Ruby is expected to build and run properly on macOS and on any recent
-Linux distribution for x86 and x86_64, and was extensively tested using the
-operating systems and Ruby versions listed for our [supported platforms][2].
+1. **Source Build:**
+   Builds Ice for Ruby directly from the source tree.
+   This build **requires a prior build of Ice for C++** and is typically used for development, testing, packaging for
+   Linux distributions, and contributing to Ice for Ruby.
 
-### Ruby Versions
+   ```mermaid
+   flowchart LR
+       c++(Ice for C++) --> ruby(Ice for Ruby)
+       ruby -- doc --> api(API Reference)
+       ruby -- test --> tests(Tests)
+   ```
 
-Ice for Ruby supports Ruby versions 2.0 or later. You can use a source or
-binary installation of Ruby.
+2. **Ruby Gem Package Build:**
+   Builds standalone Ruby Gem packages from the source tree.
+   This workflow **does not require Ice for C++** and is intended for producing distributable `.gem` packages.
 
-If you use an RPM installation, the following packages are required:
+## Building Ice for Ruby from Source
 
-* ruby
-* ruby-devel
-* ruby-libs (RHEL)
+This build compiles Ice for Ruby directly from the source tree and requires a prior build of Ice for C++.
 
-## Building the Ruby Extension
+### Prerequisites
 
-The instructions for compiling the Ice extension assume that you have already
-installed Ruby.
+1. **Ruby 3.0 or higher**
 
-The build of Ice for Ruby requires that you first build Ice for C++ in the
-`cpp` subdirectory.
+2. **Ice for C++ source build**
 
-From the top-level source directory, edit `config/Make.rules` to establish your
-build configuration. The comments in the file provide more information.
+3. **Python** (required to run the tests)
 
-Change to the Ice for Ruby source subdirectory:
+4. **[yard]** Ruby documentation tool for building the API reference
 
-```shell
-cd ruby
-```
+### Building Ice for Ruby
 
-Run `make` to build the extension.
+Before building Ice for Ruby, you must first build the Ice for C++ source distribution.
+Refer to the [build instructions](../cpp/BUILDING.md) in the `cpp` subdirectory for details.
 
-## Installing Ice for Ruby
-
-You can perform an automated installation with the following command:
+Once Ice for C++ is built, open a terminal and navigate to the `ruby` subdirectory.
+To build Ice for Ruby, run:
 
 ```shell
-make install
+make
 ```
 
-This process uses the `prefix` variable in `../config/Make.rules` as the
-installation's root directory. The subdirectory `<prefix>/ruby` is created as a
-copy of the local `ruby` directory and contains the Ice for Ruby extension
-library as well as Ruby source code. Using this installation method requires
-that you modify your environment as described in *Configuring your Environment
-for Ruby* below.
+### Running the Tests
 
-Another option is to copy the contents of the local `ruby` directory to your
-Ruby installation's `site_ruby` directory. For example, if you installed Ruby
-via RPM, you can use the steps below:
+To run the tests, open a terminal and change to the `ruby` subdirectory. Then run:
 
 ```shell
-cd <Ice source directory>/ruby/ruby
-sudo tar cf - * | (cd /usr/lib/ruby/site_ruby/1.8/i386-linux; tar xvf -)
+python allTests.py --all
 ```
 
-On x86_64 systems, change the last command to:
+### Generating the API Reference
+
+To build the API reference documentation, run the following command from the `ruby` subdirectory:
 
 ```shell
-sudo tar cf - * | (cd /usr/lib64/ruby/site_ruby/1.8/x86_64-linux; tar xvf -)
+yard doc 'ruby/**/*.rb'
 ```
 
-There is no need to modify your environment if you use this approach.
+## Building the Ruby Gem Package
 
-## Configuring your Environment for Ruby
-
-The Ruby interpreter must be able to locate the Ice extension. If you used the
-automated installation described above, you need to define the `RUBYLIB`
-environment variable as follows:
+To build the Ruby Gem package, run the following command from the `ruby` subdirectory:
 
 ```shell
-export RUBYLIB=/opt/Ice/ruby:$RUBYLIB
+rake
 ```
 
-This example assumes that your Ice for Ruby installation is located in the
-`/opt/Ice` directory.
+This will create the `zeroc-ice-3.8.0a.gem` file in the current directory.
 
-You must also modify `LD_LIBRARY_PATH` or `DYLD_LIBRARY_PATH` to include the
-directory `/opt/Ice/lib`:
-
-```shell
-export LD_LIBRARY_PATH=/opt/Ice/lib:$LD_LIBRARY_PATH       (Linux)
-export DYLD_LIBRARY_PATH=/opt/Ice/lib:$DYLD_LIBRARY_PATH   (macOS)
-```
-
-To verify that Ruby can load the Ice extension successfully, open a command
-window and start the interpreter using `irb`.
-
-At the prompt, enter:
-
-```shell
-require "Ice"
-```
-
-If the interpreter responds with the value true, the Ice extension was loaded
-successfully. Enter `exit` to quit the interpreter.
-
-## Running the Ruby Tests
-
-The `test` subdirectory contains Ruby implementations of the core Ice test
-suite. Python is required to run the test suite.
-
-The test suites require that the Ice for C++ tests be built in the `cpp`
-subdirectory of this source distribution.
-
-Open a command window and change to the top-level directory. At the command
-prompt, execute:
-
-```shell
-python allTests.py
-```
-
-You can also run tests individually by changing to the test directory and
-running this command:
-
-```shell
-python run.py
-```
-
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
-
-## SELinux Notes for Ruby
-
-If SELinux is enabled on your RHEL system, you may encounter this error message
-when Ruby attempts to load the Ice extension:
-
-```shell
-cannot restore segment prot after reloc: Permission denied
-```
-
-There are two ways to solve this problem:
-
-* Change the default security context for the Ice extension using the following
-  command:
-
-```shell
-chcon -t texrel_shlib_t /opt/Ice/ruby/IceRuby.so
-```
-
-Replace `/opt/Ice` with your installation directory.
-
-* Disable SELinux completely by adding the following line to your
-  `/etc/sysconfig/selinux` file:
-
-```shell
-SELINUX=disabled
-```
-
-[1]: https://zeroc.com/downloads/ice
-[2]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
+[yard]: https://yardoc.org/
