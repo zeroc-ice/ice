@@ -3,7 +3,6 @@ name: com.zeroc.IceRewriteRecipes
 displayName: "ZeroC Java Lints"
 recipeList:
   - org.openrewrite.staticanalysis.ChainStringBuilderAppendCalls
-  - org.openrewrite.staticanalysis.CustomImportOrder
   - org.openrewrite.staticanalysis.DefaultComesLast
   - org.openrewrite.staticanalysis.EmptyBlock
   - org.openrewrite.staticanalysis.EqualsAvoidsNull
