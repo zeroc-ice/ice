@@ -124,6 +124,7 @@ dependencies {
 }
 
 // Causes build failure when rewriteRun would make changes.
+def runningInCi = providers.environmentVariable("CI").isPresent()
 tasks.named('rewriteDryRun') {
-    rewrite.failOnDryRunResults = true
+    rewrite.failOnDryRunResults = runningInCi
 }
