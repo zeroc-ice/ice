@@ -12,7 +12,7 @@ xcframework-libraries = $(foreach p,$($1_platforms),$(call xcframework-library,$
 xcframework-flags     = $(foreach p,$($1_platforms),-library $(call xcframework-library,$1,$p) $(if $2,-headers include/$1))
 
 # Creates a xcframework from a static component and its headers
-# Note: Th headers are coppied into the root of the Headers directory. We move the headers into Header/$1 so that we can
+# Note: The headers are copied into the root of the Headers directory. We move the headers into Header/$1 so that we can
 # include Ice as <Ice/Ice.h>. We also copy the generated headers into the Headers/$1 directory.
 #
 # $(call create-xcframework,$1=framework-name)

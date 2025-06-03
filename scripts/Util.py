@@ -3550,6 +3550,8 @@ class CppMapping(Mapping):
             if self.buildConfig == platform.getDefaultBuildConfig():
                 if isinstance(platform, Windows):
                     self.buildConfig = "Release"
+                elif self.buildPlatform in ["iphoneos", "iphonesimulator"]:
+                    self.buildConfig = "release"
                 else:
                     self.buildConfig = "shared"
 

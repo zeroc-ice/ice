@@ -1,163 +1,113 @@
-# Ice for PHP Build Instructions
+# Building Ice for PHP from Source
 
-This page describes how to build and install Ice for PHP from source.
+## Table of Contents
 
-ZeroC provides [binary distributions] for many platforms, including Linux, so building Ice for PHP from source is
-usually unnecessary.
+- [Build roadmap](#build-roadmap)
+- [Prerequisites](#prerequisites)
+- [Building Ice for PHP](#building-ice-for-php)
+- [Generating the API reference](#generating-the-api-reference)
+- [Configuring the Ice for PHP extension](#configuring-the-ice-for-php-extension)
 
-- [PHP Build Requirements](#php-build-requirements)
-- [Building the PHP Extension](#building-the-php-extension)
-- [Installing the PHP Extension](#installing-the-php-extension)
-- [PHP Dependencies](#php-dependencies)
-- [PHP Source Files](#php-source-files)
-- [Running the PHP Tests](#running-the-php-tests)
+## Build roadmap
 
-## PHP Build Requirements
+```mermaid
+flowchart LR
+    c++(Ice for C++) --> ice(Ice for PHP)
+    ice -- doc --> api(API reference)
+    ice --> tests(Tests)
+```
 
-Ice was extensively tested using the operating systems and compiler versions listed on [supported platforms].
+## Prerequisites
 
-## Building the PHP Extension
+1. PHP 8.0 or higher.
+2. The Slice-to-PHP compiler (`slice2php`).
+3. The Ice for C++ test suite, for running PHP client tests against the C++ servers.
+4. Python 3.12 is required to run the tests.
+5. [phpDocumentor] is required to build the API reference.
 
-The build of Ice for PHP requires that you first build Ice for C++ in the `cpp` subdirectory.
+## Building Ice for PHP
 
-From the top-level source directory, edit `config/Make.rules` to establish your build configuration. The comments in
-the file provide more information.
+Before building Ice for PHP, you must first build the Ice for C++ source distribution.
+Refer to the [build instructions](../cpp/BUILDING.md) in the `cpp` subdirectory for details.
 
-Our source code only supports building Ice for PHP as a dynamic PHP extension; the product of the build is a shared
-library that you must configure PHP to load.
-
-Change to the `php` source subdirectory:
+Once Ice for C++ is built, open a command prompt and navigate to the `php` subdirectory.
+To build Ice for PHP, run the following commands:
 
 ```shell
-cd php
+make
 ```
 
-Ensure that `php` and `php-config` for the version of PHP you wish to build against are first in your PATH.
+## Running the Tests
 
-Run `make` to build the extension.
-
-## Installing the PHP Extension
-
-To install the Ice extension, you must move the extension's shared library into PHP's extension directory. This
-directory is determined by the PHP configuration directive `extension_dir`. You can determine the default value
-for this directive by running the command-line version of PHP with the `-i` option:
+To run the PHP tests, open a command prompt and change to the `php` subdirectory. At the command prompt, execute:
 
 ```shell
-php -i
+python allTests.py --all
 ```
 
-Review the output for a line like this:
+## Generating the API reference
+
+To generate the PHP API reference, open a command prompt and change to the `php` subdirectory. At the command prompt,
+execute:
+
+```
+phpDocumentor --config ./phpdoc.dist.xml
+```
+
+## Installing Ice for PHP
+
+You can install Ice for PHP by running:
 
 ```shell
-extension_dir => /usr/lib/php/modules => /usr/lib/php/modules
+make install
 ```
 
-Once you've copied the extension to PHP's extension directory, you will need to enable the extension in your PHP
-configuration. Your PHP installation likely supports the `/etc/php.d` configuration directory, which you can verify by
-examining the output of `php -i` and looking for the presence of `--with-config-file-scan-dir` in the
-"Configure Command" entry. If present, you can create a file in `/etc/php.d` that contains the directive to load the
-Ice extension. For example, create the file `/etc/php.d/ice.ini` containing the following line:
+By default, Ice for PHP is installed to `/opt/Ice-3.8a0`. To change the installation location, set the `prefix` Makefile
+variable:
 
 ```shell
-extension = ice.so
+make install prefix=$HOME/ice
 ```
 
-If PHP does not support the `/etc/php.d` directory, determine the path name of PHP's configuration file as reported by
-the `php -i` command:
+## Configuring the Ice for PHP Extension
+
+To use Ice for PHP, you must first copy the `ice.so` file from the `php` installation directory to your PHP extensions
+directory. You can determine the correct extension directory by running:
 
 ```shell
-Configuration File (php.ini) Path => /etc/php.ini
+php-config --extension-dir
 ```
 
-Open the configuration file and append the following line:
-
-```shell
-extension = ice.so
-```
-
-You can verify that PHP is loading the Ice extension by running the command
-shown below:
-
-```shell
-php -m
-```
-
-Look for `ice` among the installed modules. Note that your library search path (`LD_LIBRARY_PATH` on Linux or
-`DYLD_LIBRARY_PATH` on macOS) must include the directory containing the Ice shared libraries.
-
-Read the PHP Dependencies and PHP Source Files sections below for more information about installing the Ice extension.
-
-## PHP Dependencies
-
-PHP needs to locate the libraries for the Ice run-time libraries and its third-party dependencies.
-
-- Linux and macOS
-
-```shell
-libIce
-libIceDiscovery
-libIceLocatorDiscovery
-libIceSSL
-libbz2
-```
-
-In general, these libraries must reside in a directory of the user's (`LD_LIBRARY_PATH` on Linux or `DYLD_LIBRARY_PATH`
-on macOS). For Web servers, the libraries may need to reside in a system directory. For example, on Linux you can add
-the directory containing the Ice run-time libraries to `/etc/ld.so.conf` and run `ldconfig`.
-
-You can verify that the Ice extension is installed properly by examining the output of the `php -m` command, or by
-calling the `phpInfo()` function from a script. For example, you can create a file in the Web server's document
-directory containing the following PHP script:
-
-```php
-<?php
-phpInfo();
-?>
-```
-
-Then start a browser window and open the URL corresponding to this script. If the Ice extension is successfully
-installed, you will see an `ice` section among the configuration information.
-
-## PHP Source Files
-
-In addition to the binary Ice extension module and its library dependencies, you will also need to make the Ice for PHP
-source files available to your scripts. These files are located in the `lib` subdirectory and consist of the Ice run
-time definitions (`Ice.php`) along with PHP source files generated from the Slice files included in the Ice
-distribution.
-
-The Ice extension makes no assumptions about the location of these files, so you can install them anywhere you like.
-For example, you can simply include them in the same directory as your application scripts. Alternatively, if you
-prefer to install them in a common directory, you may need to modify PHP's `include_path` directive so that the PHP
-interpreter is able to locate these files. For example, you could append to `php.ini`:
+Next, enable the extension in your PHP configuration. Create an `ice.ini` file containing:
 
 ```ini
-include_path=${include_path}";/opt/Ice-3.8.0/php/lib"
+; Load Ice for PHP extension
+extension=ice
+
+; Add the Ice for PHP sources to the PHP include_path
+include_path=${include_path}":/opt/Ice-3.8a0/php"
 ```
 
-Another option is to modify the include path from within your script prior to including any Ice run-time file. Here is
-an example that assumes Ice is installed in `/opt`:
-
-```php
-ini_set('include_path',
-ini_get('include_path') . PATH_SEPARATOR . '/opt/Ice-3.8.0/php');
-require 'Ice.php'; // Load the core Ice run time definitions.
-```
-
-## Running the PHP Tests
-
-The test subdirectory contains PHP implementations of the core Ice test suite. Python is required to run the test
-suite.
-
-The test suites also require that the Ice for C++ tests be built in the `cpp` subdirectory of this source distribution.
-In addition, the scripts require that the CLI version of the PHP interpreter be available in your PATH.
-
-After a successful build, you can run the tests as follows:
+Place this file in your PHP configuration file directory, often called `conf.d`.
+You can inspect your PHP configuration with:
 
 ```shell
-python allTests.py
+php --ini
 ```
 
-If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
+Example output:
 
-[binary distributions]: https://zeroc.com/downloads/ice
-[supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
+```shell
+Configuration File (php.ini) Path: /opt/homebrew/etc/php/8.4
+Loaded Configuration File:         /opt/homebrew/etc/php/8.4/php.ini
+Scan for additional .ini files in: /opt/homebrew/etc/php/8.4/conf.d
+Additional .ini files parsed:      /opt/homebrew/etc/php/8.4/conf.d/ext-opcache.ini
+```
+
+For PHP to successfully load the `ice.so` extension, the Ice shared libraries (`libIce`, `libIceDiscovery`, and
+`libIceLocatorDiscovery`) must also be accessible via your system's dynamic linker path. If they are not, you need to:
+
+- On **macOS**, add the Ice `lib` directory to your `DYLD_LIBRARY_PATH`.
+- On **Linux**, add the Ice `lib` directory to your `LD_LIBRARY_PATH`.
+
+[phpDocumentor]: https://phpdoc.org/
