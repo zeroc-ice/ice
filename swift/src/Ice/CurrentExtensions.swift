@@ -171,7 +171,6 @@ extension Current {
 
 nonisolated(unsafe) private let currentProtocolEncoding = EncodingVersion(major: 1, minor: 0)
 
-
 private let replyHdr: [UInt8] = [
     0x49, 0x63, 0x65, 0x50,  // IceP magic
     1, 0,  // Protocol version (1.0)
