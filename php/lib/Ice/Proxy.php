@@ -74,5 +74,3 @@ function proxyIdentityAndFacetEqual($lhs, $rhs)
 {
     return proxyIdentityAndFacetCompare($lhs, $rhs) == 0;
 }
-
-?>

@@ -8,5 +8,3 @@ class EndpointSelectionType
     const Random = 0;
     const Ordered = 1;
 }
-
-?>

@@ -48,4 +48,3 @@ class Client extends TestHelper
         }
     }
 }
-?>

@@ -9,5 +9,3 @@ class CompressBatch
     const No = 1;
     const BasedOnProxy = 2;
 }
-
-?>
