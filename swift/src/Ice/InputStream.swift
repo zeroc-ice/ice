@@ -800,13 +800,13 @@ extension InputStream {
     }
 
     /// Reads a value from the stream.
-    public func read(cb: @escaping (Value?) throws -> Void) throws {
+    public func read(cb: @Sendable @escaping (Value?) throws -> Void) throws {
         initEncaps()
         try encaps.decoder.readValue(cb: cb)
     }
 
     /// Reads a value from the stream.
-    public func read<ValueType>(_ value: ValueType.Type, cb: @escaping (ValueType?) -> Void) throws
+    public func read<ValueType>(_ value: ValueType.Type, cb: @Sendable @escaping (ValueType?) -> Void) throws
     where ValueType: Value {
         initEncaps()
         try encaps.decoder.readValue { v in

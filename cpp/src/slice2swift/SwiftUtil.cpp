@@ -1347,8 +1347,6 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     // 3. optional (including optional return)
     //
 
-    vector<string> nonIsolatedParamNames;
-
     for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
     {
         const TypePtr paramType = param->type();
@@ -1358,9 +1356,8 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         string paramString;
         if (paramType->isClassType())
         {
-            out << nl << "nonisolated(unsafe) var " << paramName << "Var: " << typeString;
-            paramString = paramName + "Var";
-            nonIsolatedParamNames.push_back(paramName);
+            out << nl << "nonisolated(unsafe) var " << paramName << ": " << typeString;
+            paramString = paramName;
         }
         else
         {
@@ -1373,23 +1370,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         out << nl << "try istr.readPendingValues()";
     }
 
-    // As of Swift 6.1, the nonisolated(unsafe) let assignment does not silence the warning in a closure. It works in
-    // a nested function, fortunately.
-
-    for (const auto& paramName : nonIsolatedParamNames)
-    {
-        out << nl;
-        out << "nonisolated(unsafe) let " << paramName << " = " << paramName + "Var";
-    }
-
-    if (!nonIsolatedParamNames.empty() && returnsMultipleValues)
-    {
-        out << nl << "nonisolated(unsafe) let iceP_returnTuple = ";
-    }
-    else
-    {
-        out << nl << "return ";
-    }
+    out << nl << "return ";
 
     if (returnsMultipleValues)
     {
@@ -1419,11 +1400,6 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         out << epar;
     }
 
-    if (!nonIsolatedParamNames.empty() && returnsMultipleValues)
-    {
-        out << nl << "return iceP_returnTuple";
-    }
-
     out << eb;
 }
 
@@ -1440,7 +1416,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
         string paramString;
         if (paramType->isClassType())
         {
-            out << nl << "var " << paramName << ": " << typeString;
+            out << nl << "nonisolated(unsafe) var " << paramName << ": " << typeString;
             paramString = paramName;
         }
         else
