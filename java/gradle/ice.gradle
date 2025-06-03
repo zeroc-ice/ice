@@ -10,6 +10,8 @@ buildscript {
     }
 }
 
+def runningInCi = providers.environmentVariable("CI").isPresent()
+
 apply plugin: 'checkstyle'
 apply plugin: 'org.openrewrite.rewrite'
 
@@ -28,22 +30,11 @@ slice {
 
 checkstyle {
     toolVersion = '10.21.4'
-}
 
-tasks.named('checkstyleMain') {
-    doFirst {
-        source = sourceSets.main.allJava.matching {
-	    // Exclude generated files
-            exclude {
-                def path = it.file.toPath().normalize().toString().replace(File.separator, '/')
-                if (path.contains("/build/generated")) {
-                    return true
-                } else if (path.endsWith("/com/zeroc/Ice/PropertyNames.java")) {
-                    return true
-                }
-                return false
-            }
-        }
+    // If we're running in CI, we want the build to fail if any warnings are emitted.
+    // This doesn't affect what checkstyle emits, just whether it 'fails' or 'succeeds' from Gradle's perspective.
+    if (runningInCi) {
+        maxWarnings = 0
     }
 }
 

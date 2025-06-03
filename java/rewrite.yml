@@ -1,5 +1,25 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: com.zeroc.IceRewriteRecipes
+displayName: "ZeroC Java Lints"
+recipeList:
+  - org.openrewrite.staticanalysis.CodeCleanup
+  - org.openrewrite.staticanalysis.DefaultComesLast
+  - org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize
+  - org.openrewrite.java.OrderImports
+  - org.openrewrite.java.RemoveUnusedImports
+  - org.openrewrite.java.format.BlankLines
+  - org.openrewrite.java.format.NormalizeFormat
+  - org.openrewrite.java.format.NormalizeLineBreaks
+  - org.openrewrite.java.format.NormalizeTabsOrSpaces
+  - org.openrewrite.java.format.RemoveTrailingWhitespace
+  - org.openrewrite.java.format.Spaces
+  - org.openrewrite.java.format.TabsAndIndents
+
+---
+
 type: specs.openrewrite.org/v1beta/style
-name: com.zeroc.IceRewriteRules
+name: com.zeroc.IceRewriteStyle
+displayName: "ZeroC Java Style"
 styleConfigs:
   - org.openrewrite.java.style.TabsAndIndentsStyle:
       indentSize: 4
