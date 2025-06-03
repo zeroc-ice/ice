@@ -55,10 +55,9 @@ struct CompileSlicePlugin: BuildToolPlugin {
 
         let fm = FileManager.default
 
-        // target.directory is deprecated and has been replaced by target.directoryURL. Unfortunately, it seems that the developers forgot to add this
-        // property to the PackagePlugin.Target protocol.
+        // https://github.com/swiftlang/swift-package-manager/issues/8001
         guard let target = target as? SwiftSourceModuleTarget else {
-            fatalError("")
+            fatalError("Target must be a SwiftSourceModuleTarget, but got '\(type(of: target))'.")
         }
 
         // Search for the configuration file. If this plugin was loaded, the configuration file must be present, or
