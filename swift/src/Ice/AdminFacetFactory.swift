@@ -2,9 +2,9 @@
 
 import IceImpl
 
-class AdminFacetFacade: ICEDispatchAdapter {
+final class AdminFacetFacade: ICEDispatchAdapter {
     private let communicator: Communicator
-    var servant: Dispatcher & Sendable
+    let servant: Dispatcher & Sendable
 
     init(communicator: Communicator, servant: Dispatcher & Sendable) {
         self.communicator = communicator
@@ -90,7 +90,7 @@ final class UnsupportedAdminFacet: Dispatcher & Sendable {
     }
 }
 
-class AdminFacetFactory: ICEAdminFacetFactory {
+final class AdminFacetFactory: ICEAdminFacetFactory {
     static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess)
         -> ICEDispatchAdapter
     {
