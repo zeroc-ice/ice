@@ -316,17 +316,29 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         << ") throws";
     out << sb;
     out << nl << "_ = try istr.startSlice()";
-    for (const auto& member : members)
+    if (!members.empty())
     {
-        if (!member->optional())
+        out << nl << "nonisolated(unsafe) let iceP_self = self";
+
+        for (const auto& member : members)
         {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false);
+            if (!member->optional())
+            {
+                writeMarshalUnmarshalCode(out, member->type(), p, "iceP_self." + member->mappedName(), false);
+            }
+        }
+        for (const auto& member : optionalMembers)
+        {
+            writeMarshalUnmarshalCode(
+                out,
+                member->type(),
+                p,
+                "iceP_self." + member->mappedName(),
+                false,
+                member->tag());
         }
     }
-    for (const auto& member : optionalMembers)
-    {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false, member->tag());
-    }
+
     out << nl << "try istr.endSlice()";
     if (base)
     {
@@ -560,7 +572,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The structured value read from the stream.";
-    out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
+    out << nl << "func read(tag: Swift.Int32) throws -> sending " << name << "?";
     out << sb;
     out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -822,8 +834,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << "var v = " << name << "()";
     if (p->valueType()->isClassType())
     {
-        out << nl << "nonisolated(unsafe) let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "
-            << valueType << ">(size: sz)";
+        out << nl << "nonisolated(unsafe) let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<"
+            << keyType << ", " << valueType << ">(size: sz)";
         out << nl << "for i in 0 ..< sz";
         out << sb;
         string keyParam = "let key: " + keyType;
@@ -947,7 +959,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetadata());
-    out << nl << "public enum " << name << ": " << enumType;
+    out << nl << "@frozen public enum " << name << ": " << enumType;
     out << sb;
 
     for (const auto& enumerator : enumerators)
@@ -988,7 +1000,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The enumerated value.";
-    out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
+    out << nl << "func read(tag: Swift.Int32) throws -> sending " << name << "?";
     out << sb;
     out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -1106,7 +1118,8 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         out << "private ";
     }
-    out << "final class " << prxI << ": " << getUnqualified("Ice.ObjectPrxI", swiftModule) << ", " << prx;
+    out << "final class " << prxI << ": " << getUnqualified("Ice.ObjectPrxI", swiftModule) << ", " << prx
+        << ", @unchecked Sendable";
     out << sb;
 
     out << nl << "public override class func ice_staticId() -> Swift.String";

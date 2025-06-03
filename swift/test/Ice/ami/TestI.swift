@@ -54,7 +54,7 @@ actor State {
     }
 
     func waitForBatch(_ count: Int32) async {
-        var sub: AnyCancellable?
+        nonisolated(unsafe) var sub: AnyCancellable?
         await withCheckedContinuation { continuation in
             sub = _batchPublisher.sink { batchCount in
                 if batchCount == count {
@@ -150,9 +150,10 @@ class TestI: TestIntf {
     }
 
     func closeConnection(current: Current) async throws {
+        let connection = current.con!
         Task {
             do {
-                try await current.con!.close()
+                try await connection.close()
             } catch {
                 fatalError("Connection.close failed: \(error)")
             }

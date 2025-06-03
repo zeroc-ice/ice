@@ -8,7 +8,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Provides the reply status, the exception ID, the exception message, and bytes of the reply message (including the
 // header).
-typedef void (^ICEOutgoingResponse)(uint8_t, NSString* _Nullable, NSString* _Nullable, const void*, long);
+typedef void (^ICEOutgoingResponse)(uint8_t, NSString* _Nullable, NSString* _Nullable, const void*, long)
+    NS_SWIFT_SENDABLE;
 
 // The implementation must call the completion handler exactly once.
 ICEIMPL_API @protocol ICEDispatchAdapter
@@ -25,7 +26,7 @@ ICEIMPL_API @protocol ICEDispatchAdapter
                   requestId:(int32_t)requestId
               encodingMajor:(uint8_t)encodingMajor
               encodingMinor:(uint8_t)encodingMinor
-    outgoingResponseHandler:(ICEOutgoingResponse)SWIFT_SENDING outgoingResponseHandler;
+    outgoingResponseHandler:(ICEOutgoingResponse)outgoingResponseHandler;
 
 - (void)complete;
 @end

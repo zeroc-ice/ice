@@ -4,7 +4,7 @@ import Foundation
 import IceImpl
 
 /// The base protocol for all Ice proxies.
-public protocol ObjectPrx: CustomStringConvertible, AnyObject {
+public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
     /// Returns the communicator that created this proxy.
     ///
     /// - returns: `Ice.Communicator` - The communicator that created this proxy.
@@ -557,7 +557,7 @@ extension ObjectPrx {
 // ObjectPrxI, the base proxy implementation class is an Ice-internal class used in the
 // generated code - this is why we give it the open access level.
 //
-open class ObjectPrxI: ObjectPrx {
+open class ObjectPrxI: ObjectPrx, @unchecked Sendable {
     let handle: ICEObjectPrx
     let communicator: Communicator
     let encoding: EncodingVersion

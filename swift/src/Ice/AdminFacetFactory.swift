@@ -25,7 +25,7 @@ class AdminFacetFacade: ICEDispatchAdapter {
         requestId: Int32,
         encodingMajor: UInt8,
         encodingMinor: UInt8,
-        outgoingResponseHandler: sending @escaping ICEOutgoingResponse
+        outgoingResponseHandler: @escaping ICEOutgoingResponse
     ) {
         let objectAdapter = adapter.getSwiftObject(ObjectAdapterI.self) {
             let oa = ObjectAdapterI(handle: adapter, communicator: communicator)
@@ -91,7 +91,9 @@ final class UnsupportedAdminFacet: Dispatcher & Sendable {
 }
 
 class AdminFacetFactory: ICEAdminFacetFactory {
-    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter {
+    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess)
+        -> ICEDispatchAdapter
+    {
         // We create a new ProcessI each time, which does not really matter since users are not expected
         // to compare the address of these servants.
 
@@ -102,7 +104,9 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         )
     }
 
-    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter {
+    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin)
+        -> ICEDispatchAdapter
+    {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
 
         // We create a new NativePropertiesAdmin each time, which does not really matter since users are not expected

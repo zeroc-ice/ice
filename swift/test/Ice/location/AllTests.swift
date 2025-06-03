@@ -6,6 +6,7 @@ import TestCommon
 
 func allTests(_ helper: TestHelper) async throws {
     // This function must be sendable as it can be concurrently executed by a TaskGroup.
+    nonisolated(unsafe) let helper = helper
     @Sendable
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
@@ -268,7 +269,7 @@ func allTests(_ helper: TestHelper) async throws {
 
     try await withThrowingTaskGroup(of: Void.self) { [hello] taskGroup in
         for _ in 0..<1000 {
-            taskGroup.addTask {
+            taskGroup.addTask { @Sendable in
                 do {
                     try await hello.sayHello()
                     try test(false)

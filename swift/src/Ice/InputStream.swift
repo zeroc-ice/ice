@@ -4,7 +4,7 @@ import Foundation
 import IceImpl
 
 /// Stream class to read (unmarshal) Slice types from a sequence of bytes.
-public class InputStream {
+public final class InputStream {
     let data: Data
     let communicator: Communicator
 
