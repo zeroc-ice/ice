@@ -2,15 +2,34 @@ type: specs.openrewrite.org/v1beta/recipe
 name: com.zeroc.IceRewriteRecipes
 displayName: "ZeroC Java Lints"
 recipeList:
-  - org.openrewrite.staticanalysis.CodeCleanup
+  - org.openrewrite.staticanalysis.ChainStringBuilderAppendCalls
+  - org.openrewrite.staticanalysis.CustomImportOrder
   - org.openrewrite.staticanalysis.DefaultComesLast
+  - org.openrewrite.staticanalysis.EmptyBlock
+  - org.openrewrite.staticanalysis.EqualsAvoidsNull
+  - org.openrewrite.staticanalysis.ExplicitInitialization
+  - org.openrewrite.staticanalysis.FallThrough
+  - org.openrewrite.staticanalysis.FinalizePrivateFields
+  - org.openrewrite.staticanalysis.ForLoopControlVariablePostfixOperators
+  - org.openrewrite.staticanalysis.HideUtilityClassConstructor
+  - org.openrewrite.staticanalysis.NeedBraces
+  - org.openrewrite.staticanalysis.OperatorWrap
   - org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize
-#  - org.openrewrite.java.OrderImports TODO: enable in separate PR
+  - org.openrewrite.staticanalysis.ReplaceStringBuilderWithString
+  - org.openrewrite.staticanalysis.ReplaceThreadRunWithThreadStart
+  - org.openrewrite.staticanalysis.TypecastParenPad
+  - org.openrewrite.staticanalysis.UnnecessaryParentheses
+  # - org.openrewrite.java.OrderImports TODO enable this in a separate PR
   - org.openrewrite.java.RemoveUnusedImports
   - org.openrewrite.java.format.BlankLines
+  - org.openrewrite.java.format.EmptyNewlineAtEndOfFile
+  - org.openrewrite.java.format.MethodParamPad
   - org.openrewrite.java.format.NormalizeFormat
   - org.openrewrite.java.format.NormalizeLineBreaks
   - org.openrewrite.java.format.NormalizeTabsOrSpaces
+  - org.openrewrite.java.format.NoWhitespaceAfter
+  - org.openrewrite.java.format.NoWhitespaceBefore
+  - org.openrewrite.java.format.PadEmptyForLoopComponents
   - org.openrewrite.java.format.RemoveTrailingWhitespace
   - org.openrewrite.java.format.Spaces
   - org.openrewrite.java.format.TabsAndIndents
