@@ -5,7 +5,7 @@ recipeList:
   - org.openrewrite.staticanalysis.CodeCleanup
   - org.openrewrite.staticanalysis.DefaultComesLast
   - org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize
-  - org.openrewrite.java.OrderImports
+#  - org.openrewrite.java.OrderImports TODO: enable in separate PR
   - org.openrewrite.java.RemoveUnusedImports
   - org.openrewrite.java.format.BlankLines
   - org.openrewrite.java.format.NormalizeFormat
