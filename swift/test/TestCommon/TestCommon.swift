@@ -38,7 +38,7 @@ public enum TestFailed: Error {
     case testFailed
 }
 
-public protocol TestHelper: AnyObject {
+public protocol TestHelper: AnyObject, Sendable {
     init()
     func run(args: [String]) async throws
     func getTestEndpoint(num: Int32, prot: String) -> String
@@ -81,7 +81,7 @@ extension TestHelper {
     }
 }
 
-open class TestHelperI: TestHelper {
+open class TestHelperI: TestHelper, @unchecked Sendable {
     private var _controllerHelper: ControllerHelper!
     private var _communicator: Ice.Communicator!
     private var _writer: TextWriter!

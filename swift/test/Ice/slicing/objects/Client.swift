@@ -46,7 +46,7 @@ class CustomSliceLoader: SliceLoader {
     }
 }
 
-public class Client: TestHelperI {
+public class Client: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")

@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-class Server: TestHelperI {
+class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)
@@ -19,7 +19,8 @@ class Server: TestHelperI {
         communicator.getProperties().setProperty(key: "Ice.Warn.Dispatch", value: "0")
 
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.addServantLocator(locator: ServantLocatorI("category", self), category: "category")
+        try adapter.addServantLocator(
+            locator: ServantLocatorI("category", self), category: "category")
         try adapter.addServantLocator(locator: ServantLocatorI("", self), category: "")
         try adapter.add(servant: TestI(), id: Ice.stringToIdentity("asm"))
         try adapter.add(

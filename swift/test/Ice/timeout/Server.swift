@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-class Server: TestHelperI {
+class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
 
@@ -27,7 +27,8 @@ class Server: TestHelperI {
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         communicator.getProperties().setProperty(
             key: "ControllerAdapter.Endpoints", value: getTestEndpoint(num: 1))
-        communicator.getProperties().setProperty(key: "ControllerAdapter.ThreadPool.Size", value: "1")
+        communicator.getProperties().setProperty(
+            key: "ControllerAdapter.ThreadPool.Size", value: "1")
 
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.add(servant: TimeoutI(), id: Ice.stringToIdentity("timeout"))

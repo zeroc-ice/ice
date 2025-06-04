@@ -32,7 +32,7 @@ class DoI: `do` {
     }
 }
 
-public class Client: TestHelperI {
+public class Client: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let communicator = try initialize(args)
         defer {

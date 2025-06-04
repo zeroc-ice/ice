@@ -5,7 +5,7 @@ import TestCommon
 
 class EmptyI: Empty {}
 
-class Server: TestHelperI {
+class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")

@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-public class Client: TestHelperI {
+class Client: TestHelperI, @unchecked Sendable {
     override public func run(args _: [String]) async throws {
         try await allTests(self)
     }
