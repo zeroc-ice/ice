@@ -1715,7 +1715,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         addSemicolon = false;
     }
 
-    // Generate the default value for this field unless the enclosing type is a struct.
     if (p->defaultValue())
     {
         string defaultValue = *p->defaultValue();
