@@ -13,5 +13,8 @@
     "[java]": {
         "editor.formatOnSave": false
     },
+    "[swift]": {
+        "editor.formatOnSave": false
+    },
     "gradle.nestedProjects": true,
 }
