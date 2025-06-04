@@ -3,7 +3,7 @@
 plugins {
     id 'com.zeroc.ice.slice-tools' apply false
     id 'checkstyle'
-    id 'org.openrewrite.rewrite' version '7.3.0'
+    id 'org.openrewrite.rewrite' version '7.7.0'
 }
 
 allprojects {
