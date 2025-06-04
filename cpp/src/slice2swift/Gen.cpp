@@ -526,11 +526,25 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     writeSwiftAttributes(out, p->getMetadata());
     out << nl << "public " << (usesClasses ? "class " : "struct ") << name;
 
-    // Only generate Hashable if this struct is a legal dictionary key type.
+    // Vector of protocols this struct conforms to.
+    vector<string> structProtocols;
     if (isLegalKeyType)
     {
-        out << ": Swift.Hashable";
+        structProtocols.emplace_back("Swift.Hashable");
     }
+    if (!usesClasses)
+    {
+        structProtocols.emplace_back("Swift.Sendable");
+    }
+
+    if (!structProtocols.empty())
+    {
+        out << ": ";
+        out.spar("");
+        out << structProtocols;
+        out.epar("");
+    }
+
     out << sb;
 
     writeMembers(out, members, p);
