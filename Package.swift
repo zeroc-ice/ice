@@ -75,7 +75,7 @@ let package = Package(
             path: "swift/src/IceImpl",
             linkerSettings: [
                 .linkedLibrary("bz2"),
-                .linkedFramework("ExternalAccessory")
+                .linkedFramework("ExternalAccessory"),
             ],
         ),
         .binaryTarget(
@@ -110,7 +110,7 @@ let package = Package(
             publicHeadersPath: "src/slice2swift",
             cxxSettings: [
                 .headerSearchPath("src"),
-                .headerSearchPath("include")
+                .headerSearchPath("include"),
             ]
         ),
         .plugin(

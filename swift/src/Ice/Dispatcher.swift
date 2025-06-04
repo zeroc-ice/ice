@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+// TODO: Make Dispatcher Sendable
 /// A dispatcher accepts incoming requests and returns outgoing responses.
 public protocol Dispatcher {
     /// Dispatches an incoming request and returns the corresponding outgoing response.

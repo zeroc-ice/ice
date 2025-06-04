@@ -648,7 +648,8 @@ extension InputStream {
                 try skipOptional(format: format)  // Skip optional data members
             } else {
                 if format != expectedFormat {
-                    throw MarshalException("invalid optional data member `\(tag)': unexpected format")
+                    throw MarshalException(
+                        "invalid optional data member `\(tag)': unexpected format")
                 }
                 return true
             }
@@ -773,7 +774,8 @@ extension InputStream {
     /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
     ///
     /// - returns: `ProxyImpl?` - The proxy read from the stream.
-    public func read<ProxyImpl>(tag: Int32) throws -> sending ProxyImpl? where ProxyImpl: ObjectPrxI {
+    public func read<ProxyImpl>(tag: Int32) throws -> sending ProxyImpl?
+    where ProxyImpl: ObjectPrxI {
         guard try readOptional(tag: tag, expectedFormat: .FSize) else {
             return nil
         }
@@ -800,13 +802,21 @@ extension InputStream {
     }
 
     /// Reads a value from the stream.
+    // - Parameter cb: The closure that sets the value in the caller.
+    //                 This closure always executed in the same thread as the caller.
+    // TODO: We marked cb as @Sendable to work-around Swift 6 concurrency check errors.
     public func read(cb: @Sendable @escaping (Value?) throws -> Void) throws {
         initEncaps()
         try encaps.decoder.readValue(cb: cb)
     }
 
     /// Reads a value from the stream.
-    public func read<ValueType>(_ value: ValueType.Type, cb: @Sendable @escaping (ValueType?) -> Void) throws
+    // - Parameter cb: The closure that sets the value in the caller.
+    //                 This closure always executed in the same thread as the caller.
+    // TODO: We marked cb as @Sendable to work-around Swift 6 concurrency check errors.
+    public func read<ValueType>(
+        _ value: ValueType.Type, cb: @Sendable @escaping (ValueType?) -> Void
+    ) throws
     where ValueType: Value {
         initEncaps()
         try encaps.decoder.readValue { v in
@@ -1185,7 +1195,8 @@ private class EncapsDecoder10: EncapsDecoder {
         while true {
             // For the 1.0 encoding, the type ID for the base Object class marks the last slice.
             if typeId == "::Ice::Object" {
-                throw MarshalException("The Slice loader did not find a class for type ID '\(mostDerivedId)'")
+                throw MarshalException(
+                    "The Slice loader did not find a class for type ID '\(mostDerivedId)'")
             }
 
             v = try newInstance(typeId: typeId)
@@ -1328,7 +1339,8 @@ private class EncapsDecoder11: EncapsDecoder {
             try skipSlice()
 
             if current.sliceFlags.contains(.FLAG_IS_LAST_SLICE) {
-                throw MarshalException("cannot unmarshal user exception with type ID '\(mostDerivedId)'")
+                throw MarshalException(
+                    "cannot unmarshal user exception with type ID '\(mostDerivedId)'")
             }
 
             try startSlice()
