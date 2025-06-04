@@ -55,13 +55,6 @@ struct CompileSlicePlugin: BuildToolPlugin {
 
         let fm = FileManager.default
 
-        // TODO: This should be removed once the released version of SwiftPM includes the fix.
-        // Target.directoryURL is missing from the protocol
-        // See https://github.com/swiftlang/swift-package-manager/issues/8001
-        guard let target = target as? SwiftSourceModuleTarget else {
-            fatalError("Target must be a SwiftSourceModuleTarget, but got '\(type(of: target))'.")
-        }
-
         // Search for the configuration file. If this plugin was loaded, the configuration file must be present, or
         // it's considered an error.
         let targetDirectoryUrl = target.directoryURL
