@@ -16,6 +16,9 @@ module Test
 
     struct Point { int x; int y = 42; }
 
+    ["cs:property"]
+    struct PointProp { int x; int y = 42; }
+
     //
     // Struct1 maps to a C# class because it contains string members.
     //

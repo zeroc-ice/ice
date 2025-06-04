@@ -27,6 +27,20 @@ public class AllTests : global::Test.AllTests
         }
 
         {
+            var point = new PointProp();
+            test(point.x == 0);
+            test(point.y == 42);
+
+            point = default;
+            test(point.x == 0);
+            test(point.y == 0);
+
+            point = new PointProp { x = 13 };
+            test(point.x == 13);
+            test(point.y == 42);
+        }
+
+        {
             var v = new Struct1();
             test(!v.boolFalse);
             test(v.boolTrue);
