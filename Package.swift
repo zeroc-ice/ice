@@ -42,7 +42,7 @@ let package = Package(
             dependencies: ["IceImpl"],
             path: "swift/src/Ice",
             exclude: ["slice-plugin.json"],
-            plugins: [.plugin(name: "CompileSlice")],
+            plugins: [.plugin(name: "CompileSlice")]
         ),
         .target(
             name: "Glacier2",
@@ -76,7 +76,7 @@ let package = Package(
             linkerSettings: [
                 .linkedLibrary("bz2"),
                 .linkedFramework("ExternalAccessory"),
-            ],
+            ]
         ),
         .binaryTarget(
             name: "IceCpp",
