@@ -28,7 +28,8 @@ let factoriesRegistered: Bool = {
 ///   settings in args override property settings in initData.
 ///
 /// - returns: The initialized communicator.
-public func initialize(_ args: [String], initData: InitializationData? = nil) throws -> Communicator {
+public func initialize(_ args: [String], initData: InitializationData? = nil) throws -> Communicator
+{
     return try initializeImpl(
         args: args, initData: initData ?? InitializationData(), withConfigFile: true
     ).0
@@ -168,10 +169,12 @@ private func initializeImpl(
             initData.sliceLoader = DefaultSliceLoader()
         }
 
-        let notFoundCacheSize = try initData.properties!.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize")
+        let notFoundCacheSize = try initData.properties!.getIcePropertyAsInt(
+            "Ice.SliceLoader.NotFoundCacheSize")
         if notFoundCacheSize > 0 {
             let cacheFullLogger =
-                try initData.properties!.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0 ? initData.logger : nil
+                try initData.properties!.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0
+                ? initData.logger : nil
             initData.sliceLoader = NotFoundSliceLoaderDecorator(
                 initData.sliceLoader!,
                 cacheSize: notFoundCacheSize,
@@ -267,10 +270,10 @@ public let intVersion: Int = 30850
 /// B indicates the minor version, and C indicates the patch level.
 public let stringVersion: String = "3.8.0-alpha.0"
 
-nonisolated(unsafe) public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
-nonisolated(unsafe) public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
+public let Encoding_1_0 = EncodingVersion(major: 1, minor: 0)
+public let Encoding_1_1 = EncodingVersion(major: 1, minor: 1)
 
-nonisolated(unsafe) public let currentEncoding = Encoding_1_1
+public let currentEncoding = Encoding_1_1
 
 /// Converts a string to an object identity.
 ///
