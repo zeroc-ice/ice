@@ -75,7 +75,7 @@ public typealias HeaderDict = [String: String]
 public typealias CloseCallback = (Connection?) -> Void
 
 /// The user-level interface to a connection.
-public protocol Connection: AnyObject, CustomStringConvertible {
+public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
 
     /// Aborts this connection.
     func abort()

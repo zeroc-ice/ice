@@ -38,7 +38,7 @@ public enum TestFailed: Error {
     case testFailed
 }
 
-public protocol TestHelper: AnyObject {
+public protocol TestHelper: AnyObject, Sendable {
     init()
     func run(args: [String]) async throws
     func getTestEndpoint(num: Int32, prot: String) -> String
@@ -81,7 +81,7 @@ extension TestHelper {
     }
 }
 
-open class TestHelperI: TestHelper {
+open class TestHelperI: TestHelper, @unchecked Sendable {
     private var _controllerHelper: ControllerHelper!
     private var _communicator: Ice.Communicator!
     private var _writer: TextWriter!
@@ -101,7 +101,8 @@ open class TestHelperI: TestHelper {
             (prot == "")
             ? properties.getIceProperty("Ice.Default.Protocol") : prot
         s += " -p "
-        let port = try! properties.getPropertyAsIntWithDefault(key: "Test.BasePort", value: 12010) + num
+        let port =
+            try! properties.getPropertyAsIntWithDefault(key: "Test.BasePort", value: 12010) + num
         s += String(port)
         return s
     }
@@ -133,7 +134,8 @@ open class TestHelperI: TestHelper {
     public func createTestProperties(_ args: [String]) throws -> Ice.Properties {
         var remainingArgs = args
         let properties = try Ice.createProperties(&remainingArgs)
-        remainingArgs = try properties.parseCommandLineOptions(prefix: "Test", options: remainingArgs)
+        remainingArgs = try properties.parseCommandLineOptions(
+            prefix: "Test", options: remainingArgs)
         return properties
     }
 

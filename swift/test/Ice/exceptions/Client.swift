@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-public class Client: TestHelperI {
+class Client: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")

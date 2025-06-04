@@ -5,8 +5,6 @@ import Ice
 import TestCommon
 
 func allTests(_ helper: TestHelper) async throws {
-    // This function must be sendable as it can be concurrently executed by a TaskGroup.
-    @Sendable
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
@@ -36,7 +34,8 @@ func allTests(_ helper: TestHelper) async throws {
 
     output.write("testing ice_locator and ice_getLocator... ")
     try test(
-        base.ice_getLocator()!.ice_getIdentity() == communicator.getDefaultLocator()!.ice_getIdentity())
+        base.ice_getLocator()!.ice_getIdentity()
+            == communicator.getDefaultLocator()!.ice_getIdentity())
     let anotherLocator = try makeProxy(
         communicator: communicator, proxyString: "anotherLocator", type: Ice.LocatorPrx.self)
     base = base.ice_locator(anotherLocator)
@@ -50,7 +49,8 @@ func allTests(_ helper: TestHelper) async throws {
     communicator.setDefaultLocator(locator)
     base = try communicator.stringToProxy("test @ TestAdapter")!
     try test(
-        base.ice_getLocator()!.ice_getIdentity() == communicator.getDefaultLocator()!.ice_getIdentity())
+        base.ice_getLocator()!.ice_getIdentity()
+            == communicator.getDefaultLocator()!.ice_getIdentity())
 
     //
     // We also test ice_router/ice_getRouter(perhaps we should add a
@@ -66,7 +66,8 @@ func allTests(_ helper: TestHelper) async throws {
     communicator.setDefaultRouter(router)
     base = try communicator.stringToProxy("test @ TestAdapter")!
     try test(
-        base.ice_getRouter()!.ice_getIdentity() == communicator.getDefaultRouter()!.ice_getIdentity())
+        base.ice_getRouter()!.ice_getIdentity()
+            == communicator.getDefaultRouter()!.ice_getIdentity())
     communicator.setDefaultRouter(nil)
     base = try communicator.stringToProxy("test @ TestAdapter")!
     try test(base.ice_getRouter() == nil)
@@ -240,7 +241,8 @@ func allTests(_ helper: TestHelper) async throws {
     output.writeLine("ok")
 
     output.write("testing locator request queuing... ")
-    hello = try await obj.getReplicatedHello()!.ice_locatorCacheTimeout(0).ice_connectionCached(false)
+    hello = try await obj.getReplicatedHello()!.ice_locatorCacheTimeout(0).ice_connectionCached(
+        false)
     count = try await locator.getRequestCount()
     try await hello.ice_ping()
     count += 1
@@ -311,7 +313,8 @@ func allTests(_ helper: TestHelper) async throws {
     }
 
     do {
-        try await communicator.stringToProxy("test@TestAdapter3")!.ice_locatorCacheTimeout(0).ice_ping()
+        try await communicator.stringToProxy("test@TestAdapter3")!.ice_locatorCacheTimeout(0)
+            .ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
 
@@ -365,7 +368,8 @@ func allTests(_ helper: TestHelper) async throws {
     }
 
     do {
-        try await communicator.stringToProxy("test@TestAdapter4")!.ice_locatorCacheTimeout(0).ice_ping()
+        try await communicator.stringToProxy("test@TestAdapter4")!.ice_locatorCacheTimeout(0)
+            .ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
 
@@ -436,7 +440,8 @@ func allTests(_ helper: TestHelper) async throws {
         do {
             while true {
                 // 1s timeout.
-                try await ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1).ice_ping()
+                try await ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1)
+                    .ice_ping()
                 try await Task.sleep(for: .milliseconds(100))
             }
         } catch is Ice.LocalException {
@@ -479,8 +484,10 @@ func allTests(_ helper: TestHelper) async throws {
     try await communicator.stringToProxy("test@TestAdapter")!.ice_encodingVersion(Ice.Encoding_1_1)
         .ice_ping()
     try await test(count == locator.getRequestCount())
-    try await communicator.stringToProxy("test@TestAdapter10")!.ice_encodingVersion(Ice.Encoding_1_0)
-        .ice_ping()
+    try await communicator.stringToProxy("test@TestAdapter10")!.ice_encodingVersion(
+        Ice.Encoding_1_0
+    )
+    .ice_ping()
     count += 1
     try await test(count == locator.getRequestCount())
     try await communicator.stringToProxy("test -e 1.0@TestAdapter10-2")!.ice_ping()

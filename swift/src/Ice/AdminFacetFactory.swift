@@ -2,11 +2,11 @@
 
 import IceImpl
 
-class AdminFacetFacade: ICEDispatchAdapter {
+final class AdminFacetFacade: ICEDispatchAdapter {
     private let communicator: Communicator
-    var servant: Dispatcher
+    let servant: Dispatcher & Sendable
 
-    init(communicator: Communicator, servant: Dispatcher) {
+    init(communicator: Communicator, servant: Dispatcher & Sendable) {
         self.communicator = communicator
         self.servant = servant
     }
@@ -57,9 +57,13 @@ class AdminFacetFacade: ICEDispatchAdapter {
             bytes: Data(bytesNoCopy: inEncapsBytes, count: inEncapsCount, deallocator: .none))
 
         let request = IncomingRequest(current: current, inputStream: istr)
+        let servant = self.servant
 
         Task {
             let response: OutgoingResponse
+
+            // TODO: the request is in the Task capture and we need to send it. Is there a better syntax?
+            nonisolated(unsafe) let request = request
             do {
                 response = try await servant.dispatch(request)
             } catch {
@@ -80,14 +84,16 @@ class AdminFacetFacade: ICEDispatchAdapter {
     func complete() {}
 }
 
-final class UnsupportedAdminFacet: Dispatcher {
-    func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
+final class UnsupportedAdminFacet: Dispatcher & Sendable {
+    func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
         throw Ice.OperationNotExistException()
     }
 }
 
-class AdminFacetFactory: ICEAdminFacetFactory {
-    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter {
+final class AdminFacetFactory: ICEAdminFacetFactory {
+    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess)
+        -> ICEDispatchAdapter
+    {
         // We create a new ProcessI each time, which does not really matter since users are not expected
         // to compare the address of these servants.
 
@@ -98,7 +104,9 @@ class AdminFacetFactory: ICEAdminFacetFactory {
         )
     }
 
-    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter {
+    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin)
+        -> ICEDispatchAdapter
+    {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
 
         // We create a new NativePropertiesAdmin each time, which does not really matter since users are not expected

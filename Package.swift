@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.1
 
 import Foundation
 import PackageDescription
@@ -22,8 +22,8 @@ let package = Package(
     name: "ice",
     defaultLocalization: "en",
     platforms: [
-        .macOS(.v14),
-        .iOS(.v17),
+        .macOS(.v15),
+        .iOS(.v18),
     ],
     products: [
         .library(name: "Ice", targets: ["Ice"]),
@@ -75,7 +75,7 @@ let package = Package(
             path: "swift/src/IceImpl",
             linkerSettings: [
                 .linkedLibrary("bz2"),
-                .linkedFramework("ExternalAccessory")
+                .linkedFramework("ExternalAccessory"),
             ]
         ),
         .binaryTarget(
@@ -110,7 +110,7 @@ let package = Package(
             publicHeadersPath: "src/slice2swift",
             cxxSettings: [
                 .headerSearchPath("src"),
-                .headerSearchPath("include")
+                .headerSearchPath("include"),
             ]
         ),
         .plugin(
@@ -120,6 +120,6 @@ let package = Package(
             path: "swift/Plugins/CompileSlice"
         ),
     ],
-    swiftLanguageVersions: [SwiftVersion.v5],
+    swiftLanguageModes: [.v6],
     cxxLanguageStandard: .cxx20
 )

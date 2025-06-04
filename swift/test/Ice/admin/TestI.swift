@@ -4,7 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class TestFacetI: TestFacet {
+final class TestFacetI: TestFacet, Sendable {
     func op(current _: Ice.Current) {}
 }
 

@@ -97,7 +97,8 @@ class DValueReader: Ice.Value {
         let o: [String] = try istr.read()
         try helper!.test(
             o.count == 4 && o[0] == "test1" && o[1] == "test2" && o[2] == "test3" && o[3] == "test4")
-        try istr.read(A.self) { self.a = $0 }
+        nonisolated(unsafe) let thisClass = self
+        try istr.read(A.self) { thisClass.a = $0 }
         try istr.endSlice()
         // ::Test::B
         _ = try istr.startSlice()
@@ -481,7 +482,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
         let istr = InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
 
-        var v: Ice.Value?
+        nonisolated(unsafe) var v: Ice.Value?
         try istr.read { v = $0 }
         try istr.endEncapsulation()
         try test(v != nil && v is TestValueReader)
@@ -500,7 +501,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
         try test(result.ok)
         let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
-        var v: Ice.Value?
+        nonisolated(unsafe) var v: Ice.Value?
         try istr.read { v = $0 }
         try istr.endEncapsulation()
         try test(v != nil && v is TestValueReader)
@@ -565,7 +566,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
         try test(result.ok)
         let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
-        var v: Value?
+        nonisolated(unsafe) var v: Ice.Value?
         try istr.read { v = $0 }
         try istr.endEncapsulation()
         try test(v != nil && v is TestValueReader)
@@ -603,7 +604,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
         try test(result.ok)
         let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
-        var v: Value?
+        nonisolated(unsafe) var v: Ice.Value?
         try istr.read { v = $0 }
         try istr.endEncapsulation()
         try test(v != nil)
@@ -629,7 +630,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
         let inEncaps = ostr.finished()
         let istr = Ice.InputStream(communicator: communicator, bytes: inEncaps)
         _ = try istr.startEncapsulation()
-        var v: Value?
+        nonisolated(unsafe) var v: Value?
         try istr.read { v = $0 }
         try istr.endEncapsulation()
         customSliceLoader.useReader = false
@@ -668,7 +669,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
             try test(result.ok)
             var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
             _ = try istr.startEncapsulation()
-            var v: Ice.Value?
+            nonisolated(unsafe) var v: Ice.Value?
             try istr.read { v = $0 }
             try istr.endEncapsulation()
             try test(v != nil && v is CValueReader)
@@ -1467,9 +1468,9 @@ func testOneOptional(initial: InitialPrx, helper: TestHelper) async throws {
         operation: "opOneOptional", mode: .normal, inEncaps: inEncaps)
     let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
-    var v1: Ice.Value?
+    nonisolated(unsafe) var v1: Ice.Value?
     try istr.read { v1 = $0 }
-    var v2: Ice.Value?
+    nonisolated(unsafe) var v2: Ice.Value?
     try istr.read { v2 = $0 }
     try istr.endEncapsulation()
     try test((v1 as! OneOptional).a! == 58 && (v2 as! OneOptional).a == 58)

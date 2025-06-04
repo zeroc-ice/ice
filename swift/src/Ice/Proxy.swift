@@ -4,7 +4,7 @@ import Foundation
 import IceImpl
 
 /// The base protocol for all Ice proxies.
-public protocol ObjectPrx: CustomStringConvertible, AnyObject {
+public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
     /// Returns the communicator that created this proxy.
     ///
     /// - returns: `Ice.Communicator` - The communicator that created this proxy.
@@ -557,7 +557,7 @@ extension ObjectPrx {
 // ObjectPrxI, the base proxy implementation class is an Ice-internal class used in the
 // generated code - this is why we give it the open access level.
 //
-open class ObjectPrxI: ObjectPrx {
+open class ObjectPrxI: ObjectPrx, @unchecked Sendable {
     let handle: ICEObjectPrx
     let communicator: Communicator
     let encoding: EncodingVersion
@@ -910,7 +910,7 @@ open class ObjectPrxI: ObjectPrx {
         }
     }
 
-    public static func ice_read(from istr: InputStream) throws -> Self? {
+    public static func ice_read(from istr: InputStream) throws -> sending Self? {
         //
         // Unmarshaling of proxies is done in C++. Since we don't know how big this proxy will
         // be we pass the current buffer position and remaining buffer capacity.
@@ -1024,7 +1024,7 @@ open class ObjectPrxI: ObjectPrx {
         mode: OperationMode,
         format: FormatType? = nil,
         write: ((OutputStream) -> Void)? = nil,
-        read: @escaping (InputStream) throws -> T,
+        read: @escaping (InputStream) throws -> sending T,
         userException: ((UserException) throws -> Void)? = nil,
         context: Context? = nil
     ) async throws -> T {
@@ -1059,9 +1059,9 @@ open class ObjectPrxI: ObjectPrx {
                                 userException: userException)
                         }
                         try istr.startEncapsulation()
-                        let l = try read(istr)
+                        let returnValue = try read(istr)
                         try istr.endEncapsulation()
-                        continuation.resume(returning: l)
+                        continuation.resume(returning: returnValue)
                     } catch {
                         continuation.resume(throwing: error)
                     }

@@ -2,7 +2,9 @@
 
 import IceImpl
 
-class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable {
+class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable,
+    @unchecked Sendable
+{
     let servantManager: ServantManager
 
     var dispatchPipeline: Dispatcher {
@@ -82,7 +84,8 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
     func use(_ middlewareFactory: @escaping (_ next: Dispatcher) -> Dispatcher) -> Self {
         // We don't lock as none of this code is thread-safe
         precondition(
-            dispatchPipelineValue == nil, "All middleware must be installed before the first dispatch.")
+            dispatchPipelineValue == nil,
+            "All middleware must be installed before the first dispatch.")
         middlewareFactoryList.append(middlewareFactory)
         return self
     }
@@ -254,6 +257,9 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
         Task {
             let response: OutgoingResponse
+
+            // TODO: the request is in the Task capture and we need to send it. Is there a better syntax?
+            nonisolated(unsafe) let request = request
             do {
                 response = try await dispatchPipeline.dispatch(request)
             } catch {

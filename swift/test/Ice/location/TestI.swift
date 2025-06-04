@@ -166,7 +166,7 @@ class ServerLocator: TestLocator {
     func findAdapterById(id: String, current: Ice.Current) async throws -> ObjectPrx? {
         _requestCount += 1
         if id == "TestAdapter10" || id == "TestAdapter10-2" {
-            precondition(current.encoding == Ice.Encoding_1_0)
+            precondition(current.encoding == Encoding_1_0)
             return try _registry.getAdapter("TestAdapter")
         } else {
             // We add a small delay to make sure locator request queuing gets tested when

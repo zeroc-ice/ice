@@ -4,7 +4,7 @@ import Dispatch
 import Ice
 import TestCommon
 
-class Collocated: TestHelperI {
+class Collocated: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
 

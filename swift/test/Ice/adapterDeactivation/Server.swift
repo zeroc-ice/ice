@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-class Server: TestHelperI {
+class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let communicator = try initialize(args)
         defer {

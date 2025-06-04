@@ -1332,6 +1332,11 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
 void
 SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
+    // We need a separate nested function for the nonisolated(unsafe) variable when unmarshaling classes.
+
+    out << sp;
+    out << nl << "func read(istr: Ice.InputStream) throws -> sending " << operationReturnType(op) << sb;
+
     const ParameterList outParams = op->outParameters();
     const bool returnsMultipleValues = op->returnsMultipleValues();
 
@@ -1342,8 +1347,6 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     // 3. optional (including optional return)
     //
 
-    out << "{ istr in";
-    out.inc();
     for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
     {
         const TypePtr paramType = param->type();
@@ -1353,7 +1356,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         string paramString;
         if (paramType->isClassType())
         {
-            out << nl << "var " << paramName << ": " << typeString;
+            out << nl << "nonisolated(unsafe) var " << paramName << ": " << typeString;
             paramString = paramName;
         }
         else
@@ -1368,6 +1371,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     }
 
     out << nl << "return ";
+
     if (returnsMultipleValues)
     {
         out << spar;
@@ -1396,8 +1400,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         out << epar;
     }
 
-    out.dec();
-    out << nl << "}";
+    out << eb;
 }
 
 void
@@ -1413,7 +1416,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
         string paramString;
         if (paramType->isClassType())
         {
-            out << nl << "var " << paramName << ": " << typeString;
+            out << nl << "nonisolated(unsafe) var " << paramName << ": " << typeString;
             paramString = paramName;
         }
         else
@@ -1529,9 +1532,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
 
     if (returnsAnyValues)
     {
-        out << nl << "read: ";
-        writeUnmarshalOutParams(out, op);
-        out << ",";
+        out << nl << "read: read,";
     }
 
     if (!op->throws().empty())
@@ -1542,8 +1543,13 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
     }
 
     out << nl << "context: context)";
+
     out.restoreIndent();
 
+    if (returnsAnyValues)
+    {
+        writeUnmarshalOutParams(out, op);
+    }
     out << eb;
 }
 

@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class ProcessI: Process {
+class ProcessI: Process, @unchecked Sendable {
     private let handle: ICEProcess
 
     func shutdown(current _: Current) {

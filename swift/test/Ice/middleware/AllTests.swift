@@ -51,7 +51,7 @@ func allTests(_ helper: TestHelper) async throws {
         private let name: String
         private var log: MiddlewareLog
 
-        func dispatch(_ request: IncomingRequest) async throws -> OutgoingResponse {
+        func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
             log.inLog.append(name)
             let response = try await next.dispatch(request)
             log.outLog.append(name)

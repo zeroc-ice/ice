@@ -3,30 +3,34 @@
 import Ice
 import TestCommon
 
+actor PreservedCounter {
+    static var counter: Int32 = 0
+}
+
 class PreservedI: Preserved {
     public required init() {
-        PreservedI.counter += 1
+        PreservedCounter.counter += 1
         super.init()
     }
 
     deinit {
-        PreservedI.counter -= 1
+        PreservedCounter.counter -= 1
     }
+}
 
+actor PNodeCounter {
     static var counter: Int32 = 0
 }
 
 class PNodeI: PNode {
     public required init() {
-        PNodeI.counter += 1
+        PNodeCounter.counter += 1
         super.init()
     }
 
     deinit {
-        PNodeI.counter -= 1
+        PNodeCounter.counter -= 1
     }
-
-    static var counter: Int32 = 0
 }
 
 class CustomSliceLoader: SliceLoader {
@@ -42,7 +46,7 @@ class CustomSliceLoader: SliceLoader {
     }
 }
 
-public class Client: TestHelperI {
+public class Client: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
