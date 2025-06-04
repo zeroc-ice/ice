@@ -534,7 +534,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     }
     if (!usesClasses)
     {
-        structProtocols.emplace_back("Sendable");
+        structProtocols.emplace_back("Swift.Sendable");
     }
 
     if (!structProtocols.empty())
