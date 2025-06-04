@@ -1387,8 +1387,6 @@ compile(const vector<string>& argv)
 
                         // Generate the PHP mapping.
                         generate(u, all, includePaths, out);
-
-                        out << "?>\n";
                         out.close();
                     }
                     catch (const Slice::FileException& ex)

@@ -355,4 +355,3 @@ class Client extends TestHelper
         }
     }
 }
-?>

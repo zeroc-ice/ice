@@ -9,5 +9,3 @@ class ToStringMode
     const ASCII = 1;
     const Compat = 2;
 }
-
-?>

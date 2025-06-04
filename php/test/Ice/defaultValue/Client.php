@@ -140,4 +140,3 @@ class Client extends TestHelper
         allTests();
     }
 }
-?>
