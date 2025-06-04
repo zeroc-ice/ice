@@ -4,3 +4,9 @@
 # phpDoc install dir and cache
 /.phive
 /tools
+
+# Generated PHP files
+lib/Glacier2/
+lib/IceBox/
+lib/IceGrid/
+lib/IceStorm/

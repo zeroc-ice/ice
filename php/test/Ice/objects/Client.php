@@ -420,4 +420,3 @@ class Client extends TestHelper
         $communicator->destroy();
     }
 }
-?>

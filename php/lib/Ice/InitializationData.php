@@ -24,5 +24,3 @@ class InitializationData
     public ?\IcePHP_Logger $logger;
     public ?SliceLoader $sliceLoader;
 }
-
-?>
