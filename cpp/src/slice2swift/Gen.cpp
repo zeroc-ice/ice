@@ -541,10 +541,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     {
         out << " : ";
         out.spar("");
-        for (const auto& protocol : structProtocols)
-        {
-            out << protocol;
-        }
+        out << structProtocols;
         out.epar("");
     }
 

@@ -28,8 +28,7 @@ let factoriesRegistered: Bool = {
 ///   settings in args override property settings in initData.
 ///
 /// - returns: The initialized communicator.
-public func initialize(_ args: [String], initData: InitializationData? = nil) throws -> Communicator
-{
+public func initialize(_ args: [String], initData: InitializationData? = nil) throws -> Communicator {
     return try initializeImpl(
         args: args, initData: initData ?? InitializationData(), withConfigFile: true
     ).0
