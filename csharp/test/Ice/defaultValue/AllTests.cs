@@ -4,13 +4,25 @@ using Ice.defaultValue.Test;
 
 namespace Ice.defaultValue;
 
-public class AllTests : global::Test.AllTests
-{
-    public static void allTests(global::Test.TestHelper helper)
-    {
+public class AllTests : global::Test.AllTests {
+    public static void allTests(global::Test.TestHelper helper) {
         var output = helper.getWriter();
         output.Write("testing default values... ");
         output.Flush();
+
+        {
+            var point = new Point();
+            test(point.x == 0);
+            test(point.y == 42);
+
+            point = default;
+            test(point.x == 0);
+            test(point.y == 0);
+
+            point = new Point { x = 13 };
+            test(point.x == 13);
+            test(point.y == 42);
+        }
 
         {
             var v = new Struct1();
@@ -22,7 +34,8 @@ public class AllTests : global::Test.AllTests
             test(v.l == 4);
             test(v.f == (float)5.1);
             test(v.d == 6.2);
-            test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
+            test(v.str.Equals(
+                "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
             test(v.c3 == Color.blue);
@@ -72,8 +85,8 @@ public class AllTests : global::Test.AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            // test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
-            // test(v.str == "foo bar");
+            // test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007
+            // \u0007")); test(v.str == "foo bar");
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
             test(v.c3 == Color.blue);
@@ -99,8 +112,8 @@ public class AllTests : global::Test.AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            // test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
-            // test(v.str == "foo bar");
+            // test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007
+            // \u0007")); test(v.str == "foo bar");
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
             test(v.c3 == Color.blue);
@@ -126,7 +139,8 @@ public class AllTests : global::Test.AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
+            test(v.str.Equals(
+                "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
             test(v.noDefault.Length == 0);
             test(v.zeroI == 0);
             test(v.zeroL == 0);
@@ -146,7 +160,8 @@ public class AllTests : global::Test.AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
+            test(v.str.Equals(
+                "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
             test(v.c3 == Color.blue);
@@ -172,7 +187,8 @@ public class AllTests : global::Test.AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
+            test(v.str ==
+                 "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
             test(v.noDefault.Length == 0);
             test(v.zeroI == 0);
             test(v.zeroL == 0);
@@ -192,7 +208,8 @@ public class AllTests : global::Test.AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
+            test(v.str ==
+                 "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
             test(v.noDefault.Length == 0);
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
@@ -271,7 +288,8 @@ public class AllTests : global::Test.AllTests
         output.Write("testing non-primary constructor... ");
         output.Flush();
         {
-            var v = new StructNoDefaults(bs: [], iseq: [], st2: new(), dict: []);
+            var v =
+                new StructNoDefaults(bs: [], iseq: [], st2: new(), dict: []);
             test(v.bo == false);
             test(v.b == 0);
             test(v.s == 0);
