@@ -274,8 +274,8 @@ classDiagram
   Slice loader implemented by Ice, and you don't need to do anything to help Ice locate these generated classes.
   However, in Java and MATLAB, there is no such registration at startup, and you need to help Ice locate these generated
   classes when:
-  - you remap either the class name or an enclosing module using the java:identifier, java:package, or
-    matlab:identifier metadata; or
+  - you remap either the class name or an enclosing module using the `["java:identifier"]`, `["java:package"]`, or
+    `["matlab:identifier"]` metadata; or
   - you assign a compact ID to your class
 
   You help Ice locate these classes by installing a Slice loader in `InitializationData`, just like when you provide a
@@ -311,25 +311,84 @@ classDiagram
 
 - Removed local Slice. `local` is no longer a Slice keyword.
 
+- Added new metadata for customizing the mapped names of Slice definitions in each language.
+  This metadata is of the form: `["<lang>:identifier"]`, where `lang` is one of the standard metadata language prefixes.
+  For example:
+
+  ```slice
+  ["cs:identifier:MyNamespace"]
+  ["java:identifier:com.example.my_module"]
+  module MyModule {}
+  ```
+
+  The argument is used as a drop-in replacement for the Slice identifier, with no additional processing.
+  For the above example, `slice2cs` will generate `namespace MyNamespace {}` and `slice2java` will generate
+  `package com.example.my_module`. All other languages are unaffected and will map the module using its Slice-provided
+  identifier, as normal.
+
+- Deprecated the `["cs:namespace"]`, `["java:package"]`, `["python:package"]`, and `["swift:module"]` metadata.
+  `["<lang>:identifier"]` Metadata is now the preferred way to change how Slice modules are mapped.
+
+- Removed automatic escaping of Slice identifiers. Previously, the Slice compilers had a list of each language's
+  keywords and reserved identifiers, and would automatically escape conflicting identifiers during code-generation.
+  Now that this has been removed, conflicting identifiers should be fixed using `["<lang>:identifier"]` metadata.
+
+- Added a shorthand syntax for defining nested modules. For example, the following two definitions are equivalent:
+
+  ```slice
+  module Foo { module Bar { module Baz { /*...*/ } } }
+
+  module Foo::Bar::Baz { /*...*/ }
+  ```
+
+  Note: metadata cannot be applied to modules using this syntax, due to it being ambiguous which module it applies to.
+
+- Lists of metadata can be split into separate brackets now, allowing for longer metadata to be placed on separate lines
+  or for metadata to be grouped by functionality. For example, you can now write:
+
+  ```slice
+  ["deprecated:This operation should no longer be called"]
+  ["amd"] ["format:sliced"]
+  void myOperation(MyClass c);
+  ```
+
+  Previously, all metadata needed to be in a single comma-separated list (note that this syntax is still supported):
+
+  ```slice
+  ["deprecated:This operation should no longer be called", "amd", "format:sliced"]
+  void myOperation(MyClass c);
+  ```
+
+- Metadata can now be applied to Slice enumerators.
+
+- Removed the `["protected"]` metadata. This was primarily for for classes with operations, which are no longer allowed.
+
 - Removed the `["preserve-slice"]` metadata. Slice classes marshaled in the sliced format are now always preserved when
   unmarshaled.
+
+- Added `["deprecated"]` as an alias for the `["deprecate"]` metadata.
 
 - Exceptions are now always marshaled in the sliced format and no longer support preservation of unknown slices during
   unmarshaling.
 
 - Slice classes can no longer define operations or implement interfaces, and `implements` is no longer a Slice keyword.
-This feature has been deprecated since Ice 3.7.
+  This feature has been deprecated since Ice 3.7.
 
 - Slice classes can no longer represent remote Ice objects; the syntax `MyClass*` (a proxy to a class) is now invalid.
 
 - An interface can no longer be used as a type. This feature, known as "interface by value", has been deprecated since
-Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
+  Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
 
 - The type of an optional field or parameter can no longer be a class or contain a class.
 
 - `:` is now an alias for the `extends` keyword.
 
 - Removed Slice checksums.
+
+- Sequences can no longer be used as the type of dictionary keys.
+  This feature has been deprecated since Ice 3.3.0.
+
+- Improved validation of metadata and doc-comments.
 
 ## Slice Tools
 
