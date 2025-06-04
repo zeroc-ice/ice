@@ -539,7 +539,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     if (!structProtocols.empty())
     {
-        out << " : ";
+        out << ": ";
         out.spar("");
         out << structProtocols;
         out.epar("");
