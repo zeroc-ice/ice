@@ -4,7 +4,7 @@ import Foundation
 //
 import Ice
 
-class TimeoutI: Timeout {
+final class TimeoutI: Timeout {
     func op(current _: Current) async throws {}
 
     func sendData(seq _: ByteSeq, current _: Current) async throws {}

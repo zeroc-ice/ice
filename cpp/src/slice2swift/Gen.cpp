@@ -1320,7 +1320,7 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
         const string typeString = typeToString(param->type(), op, param->optional());
         out << param->mappedName() + ": " + typeString;
     }
-    out << ("current: " + getUnqualified("Ice.Current", swiftModule));
+    out << ("current: sending " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
 
     out << " async throws";

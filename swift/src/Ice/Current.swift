@@ -3,7 +3,7 @@
 import Foundation
 
 /// Provides information about an incoming request being dispatched.
-public final class Current {
+public struct Current {
     /// The object adapter that received the request.
     public let adapter: ObjectAdapter
     /// The connection that received the request. It's nil when the invocation and dispatch are collocated.
@@ -17,7 +17,7 @@ public final class Current {
     /// The operation mode (idempotent or not).
     public let mode: OperationMode
     /// The request context carried by the request.
-    public var ctx: Context
+    public let ctx: Context
     /// The request ID. 0 means the request is a one-way request.
     public let requestId: Int32
     /// The encoding of the request payload.

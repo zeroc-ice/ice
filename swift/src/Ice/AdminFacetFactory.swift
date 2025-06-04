@@ -4,9 +4,9 @@ import IceImpl
 
 final class AdminFacetFacade: ICEDispatchAdapter {
     private let communicator: Communicator
-    let servant: Dispatcher & Sendable
+    let servant: Dispatcher
 
-    init(communicator: Communicator, servant: Dispatcher & Sendable) {
+    init(communicator: Communicator, servant: Dispatcher) {
         self.communicator = communicator
         self.servant = servant
     }
@@ -84,7 +84,7 @@ final class AdminFacetFacade: ICEDispatchAdapter {
     func complete() {}
 }
 
-final class UnsupportedAdminFacet: Dispatcher & Sendable {
+final class UnsupportedAdminFacet: Dispatcher {
     func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
         throw Ice.OperationNotExistException()
     }
