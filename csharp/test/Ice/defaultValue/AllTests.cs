@@ -4,8 +4,10 @@ using Ice.defaultValue.Test;
 
 namespace Ice.defaultValue;
 
-public class AllTests : global::Test.AllTests {
-    public static void allTests(global::Test.TestHelper helper) {
+public class AllTests : global::Test.AllTests
+{
+    public static void allTests(global::Test.TestHelper helper)
+    {
         var output = helper.getWriter();
         output.Write("testing default values... ");
         output.Flush();
