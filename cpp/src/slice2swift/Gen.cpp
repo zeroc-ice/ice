@@ -1338,7 +1338,9 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     {
         out << " -> ";
         auto params = op->returnAndOutParameters("");
-        bool usesClasses = std::any_of(params.begin(), params.end(),
+        bool usesClasses = std::any_of(
+            params.begin(),
+            params.end(),
             [](const ParameterPtr& param) { return param->type()->usesClasses(); });
 
         // If the operation returns or out-parameters use classes, we need to specify 'sending'
