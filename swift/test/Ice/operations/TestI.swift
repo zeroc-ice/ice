@@ -4,10 +4,10 @@ import Foundation
 import Ice
 import TestCommon
 
-class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
-    var _helper: TestHelper
+final class MyDerivedClassI: MyDerivedClass {
+    let _helper: TestHelper
     var _opByteSOnewayCallCount: Int32 = 0
-    var _lock = os_unfair_lock()
+    let _lock = os_unfair_lock()
 
     init(_ helper: TestHelper) {
         _helper = helper

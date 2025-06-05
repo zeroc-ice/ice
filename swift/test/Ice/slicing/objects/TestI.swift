@@ -4,8 +4,8 @@ import Foundation
 import Ice
 import TestCommon
 
-class TestI: TestIntf {
-    var _helper: TestHelper
+actor TestI: TestIntf {
+    let _helper: TestHelper
     var _values = [Value]()
 
     init(_ helper: TestHelper) {

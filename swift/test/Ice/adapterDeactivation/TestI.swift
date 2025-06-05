@@ -4,9 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class TestI: TestIntf {
-    init() {}
-
+final class TestI: TestIntf {
     func transient(current: Ice.Current) async throws {
         let communicator = current.adapter.getCommunicator()
 
@@ -23,13 +21,13 @@ class TestI: TestIntf {
     }
 }
 
-class Cookie {
+final class Cookie {
     func message() -> String {
         return "blahblah"
     }
 }
 
-class RouterI: Ice.Router {
+final class RouterI: Ice.Router {
     func getClientProxy(current _: Ice.Current) async throws -> (
         returnValue: ObjectPrx?, hasRoutingTable: Bool?
     ) {
@@ -48,11 +46,10 @@ class RouterI: Ice.Router {
     }
 }
 
-class ServantLocatorI: Ice.ServantLocator {
-    var _helper: TestHelper
+actor ServantLocatorI: Ice.ServantLocator {
+    let _helper: TestHelper
     var _deactivated: Bool
-    var _router = RouterI()
-    var _lock = os_unfair_lock()
+    let _router = RouterI()
 
     init(helper: TestHelper) {
         _deactivated = false
@@ -64,10 +61,7 @@ class ServantLocatorI: Ice.ServantLocator {
     }
 
     func locate(_ current: Ice.Current) throws -> (returnValue: Dispatcher?, cookie: AnyObject?) {
-        try withLock(&_lock) {
-            try _helper.test(!_deactivated)
-        }
-
+        try _helper.test(!_deactivated)
         if current.id.name == "router" {
             return (_router, Cookie())
         }
@@ -79,9 +73,7 @@ class ServantLocatorI: Ice.ServantLocator {
     }
 
     func finished(curr current: Ice.Current, servant _: Ice.Dispatcher, cookie: AnyObject?) throws {
-        try withLock(&_lock) {
-            try _helper.test(!_deactivated)
-        }
+        try _helper.test(!_deactivated)
 
         if current.id.name == "router" {
             return
@@ -92,10 +84,8 @@ class ServantLocatorI: Ice.ServantLocator {
 
     func deactivate(_: String) {
         do {
-            try withLock(&_lock) {
-                try _helper.test(!_deactivated)
-                _deactivated = true
-            }
+            try _helper.test(!_deactivated)
+            _deactivated = true
         } catch {
             fatalError("\(error)")
         }

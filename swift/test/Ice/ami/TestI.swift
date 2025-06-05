@@ -72,9 +72,9 @@ actor State {
     }
 }
 
-class TestI: TestIntf {
-    var _state = State()
-    var _helper: TestHelper
+final class TestI: TestIntf {
+    let _state = State()
+    let _helper: TestHelper
 
     init(helper: TestHelper) {
         _helper = helper

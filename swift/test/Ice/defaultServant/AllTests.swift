@@ -3,8 +3,20 @@
 import Ice
 import TestCommon
 
-final class MyObjectI: ObjectI<MyObjectTraits>, MyObject {
-    override func ice_ping(current: Ice.Current) async throws {
+final class MyObjectI: MyObject {
+    func ice_id(current: Ice.Current) async throws -> String {
+        return try await Ice.DefaultObject<MyObjectTraits>().ice_id(current: current)
+    }
+
+    func ice_ids(current: Ice.Current) async throws -> [String] {
+        return try await Ice.DefaultObject<MyObjectTraits>().ice_ids(current: current)
+    }
+
+    func ice_isA(id: String, current: Ice.Current) async throws -> Bool {
+        return try await Ice.DefaultObject<MyObjectTraits>().ice_isA(id: id, current: current)
+    }
+
+    func ice_ping(current: Ice.Current) async throws {
         if current.id.name == "ObjectNotExist" {
             throw Ice.ObjectNotExistException()
         } else if current.id.name == "FacetNotExist" {

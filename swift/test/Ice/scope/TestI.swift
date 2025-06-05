@@ -4,7 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class MyInterface1: MyInterface {
+final class MyInterface1: MyInterface {
     func opMyStruct(s1: MyStruct, current _: Current) async throws -> (returnValue: MyStruct, s2: MyStruct) {
         return (s1, s1)
     }
@@ -19,15 +19,15 @@ class MyInterface1: MyInterface {
         return (s1, s1)
     }
 
-    func opMyClass(c1: MyClass?, current _: Current) async throws -> (returnValue: MyClass?, c2: MyClass?) {
+    func opMyClass(c1: MyClass?, current _: Current) async throws -> sending (returnValue: MyClass?, c2: MyClass?) {
         return (c1, c1)
     }
 
-    func opMyClassSeq(s1: MyClassSeq, current _: Current) async throws -> (returnValue: MyClassSeq, s2: MyClassSeq) {
+    func opMyClassSeq(s1: MyClassSeq, current _: Current) async throws -> sending (returnValue: MyClassSeq, s2: MyClassSeq) {
         return (s1, s1)
     }
 
-    func opMyClassMap(c1: MyClassMap, current _: Current) async throws -> (returnValue: MyClassMap, c2: MyClassMap) {
+    func opMyClassMap(c1: MyClassMap, current _: Current) async throws -> sending (returnValue: MyClassMap, c2: MyClassMap) {
         return (c1, c1)
     }
 
@@ -39,7 +39,7 @@ class MyInterface1: MyInterface {
         return s1
     }
 
-    func opMyOtherClass(c1: MyOtherClass?, current _: Current) async throws -> MyOtherClass? {
+    func opMyOtherClass(c1: MyOtherClass?, current _: Current) async throws -> sending MyOtherClass? {
         return c1
     }
 
@@ -56,7 +56,49 @@ class MyInterface1: MyInterface {
     }
 }
 
-class MyInterface2: InnerMyInterface {
+final class MyInterface2: InnerMyInterface {
+    func opMyStruct(s1: InnerInner2MyStruct, current _: Current) async throws -> (
+        returnValue: InnerInner2MyStruct, s2: InnerInner2MyStruct
+    ) {
+        return (s1, s1)
+    }
+
+    func opMyStructSeq(s1: InnerInner2MyStructSeq, current _: Current) async throws -> (
+        returnValue: InnerInner2MyStructSeq, s2: InnerInner2MyStructSeq
+    ) {
+        return (s1, s1)
+    }
+
+    func opMyStructMap(s1: InnerInner2MyStructMap, current _: Current) async throws -> (
+        returnValue: InnerInner2MyStructMap, s2: InnerInner2MyStructMap
+    ) {
+        return (s1, s1)
+    }
+
+    func opMyClass(c1: InnerInner2MyClass?, current _: Current) async throws -> sending (
+        returnValue: InnerInner2MyClass?, c2: InnerInner2MyClass?
+    ) {
+        return (c1, c1)
+    }
+
+    func opMyClassSeq(c1: InnerInner2MyClassSeq, current _: Current) async throws -> sending (
+        returnValue: InnerInner2MyClassSeq, c2: InnerInner2MyClassSeq
+    ) {
+        return (c1, c1)
+    }
+
+    func opMyClassMap(c1: InnerInner2MyClassMap, current _: Current) async throws -> sending (
+        returnValue: InnerInner2MyClassMap, c2: InnerInner2MyClassMap
+    ) {
+        return (c1, c1)
+    }
+
+    func shutdown(current: Current) async throws {
+        current.adapter.getCommunicator().shutdown()
+    }
+}
+
+final class MyInterface3: InnerInner2MyInterface {
     func opMyStruct(s1: InnerInner2MyStruct, current _: Current) async throws -> (
         returnValue: InnerInner2MyStruct, s2: InnerInner2MyStruct
     ) {
@@ -98,49 +140,7 @@ class MyInterface2: InnerMyInterface {
     }
 }
 
-class MyInterface3: InnerInner2MyInterface {
-    func opMyStruct(s1: InnerInner2MyStruct, current _: Current) async throws -> (
-        returnValue: InnerInner2MyStruct, s2: InnerInner2MyStruct
-    ) {
-        return (s1, s1)
-    }
-
-    func opMyStructSeq(s1: InnerInner2MyStructSeq, current _: Current) async throws -> (
-        returnValue: InnerInner2MyStructSeq, s2: InnerInner2MyStructSeq
-    ) {
-        return (s1, s1)
-    }
-
-    func opMyStructMap(s1: InnerInner2MyStructMap, current _: Current) async throws -> (
-        returnValue: InnerInner2MyStructMap, s2: InnerInner2MyStructMap
-    ) {
-        return (s1, s1)
-    }
-
-    func opMyClass(c1: InnerInner2MyClass?, current _: Current) async throws -> (
-        returnValue: InnerInner2MyClass?, c2: InnerInner2MyClass?
-    ) {
-        return (c1, c1)
-    }
-
-    func opMyClassSeq(c1: InnerInner2MyClassSeq, current _: Current) async throws -> (
-        returnValue: InnerInner2MyClassSeq, c2: InnerInner2MyClassSeq
-    ) {
-        return (c1, c1)
-    }
-
-    func opMyClassMap(c1: InnerInner2MyClassMap, current _: Current) async throws -> (
-        returnValue: InnerInner2MyClassMap, c2: InnerInner2MyClassMap
-    ) {
-        return (c1, c1)
-    }
-
-    func shutdown(current: Current) async throws {
-        current.adapter.getCommunicator().shutdown()
-    }
-}
-
-class MyInterface4: InnerTestInner2MyInterface {
+final class MyInterface4: InnerTestInner2MyInterface {
     func opMyStruct(s1: MyStruct, current _: Current) async throws -> (returnValue: MyStruct, s2: MyStruct) {
         return (s1, s1)
     }
@@ -172,7 +172,7 @@ class MyInterface4: InnerTestInner2MyInterface {
     }
 }
 
-class DPMyInterface: DifferentMyInterface {
+final class DPMyInterface: DifferentMyInterface {
     func opMyStruct(s1: InnerMyStruct, current _: Current) async throws -> (
         returnValue: InnerMyStruct, s2: InnerMyStruct
     ) {
@@ -186,7 +186,7 @@ class DPMyInterface: DifferentMyInterface {
     }
 }
 
-class NPMyInterface: NoPrefixMyInterface {
+final class NPMyInterface: NoPrefixMyInterface {
     func opMyStruct(s1: InnerMyStruct, current _: Current) async throws -> (
         returnValue: InnerMyStruct, s2: InnerMyStruct
     ) {

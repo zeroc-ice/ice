@@ -8,6 +8,7 @@
 #include "Ice/StringUtil.h"
 
 #include <algorithm>
+#include <any>
 #include <cassert>
 #include <iterator>
 
@@ -1340,7 +1341,18 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     out << " async throws";
     if (op->returnsAnyValues())
     {
-        out << " -> " << operationReturnType(op);
+        out << " -> ";
+        auto params = op->returnAndOutParameters("");
+        bool usesClasses = std::any_of(params.begin(), params.end(),
+            [](const ParameterPtr& param) { return param->type()->usesClasses(); });
+
+        // If the operation returns or out-parameters use classes, we need to specify 'sending'
+        if (usesClasses)
+        {
+            out << "sending ";
+        }
+
+        out << operationReturnType(op);
     }
 }
 
@@ -1359,7 +1371,7 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "extension " << servant;
     out << sb;
     out << nl << "private static var defaultObject: " << getUnqualified("Ice.Object", swiftModule) << sb;
-    out << nl << getUnqualified("Ice.ObjectI", swiftModule) << "<" << traits << ">()";
+    out << nl << getUnqualified("Ice.DefaultObject", swiftModule) << "<" << traits << ">()";
     out << eb;
 
     const OperationList allOps = p->allOperations();

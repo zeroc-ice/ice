@@ -332,7 +332,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
 
             try await p.ice_getConnection()!.setAdapter(adapter)
             try await p.pingBiDir(reply)
-            try test(replyI.checkReceived())
+            try await test(replyI.checkReceived())
             adapter.destroy()
             output.writeLine("ok")
         }
@@ -372,7 +372,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
     try await p.shutdown()
 }
 
-class PingReplyI: PingReply {
+actor PingReplyI: PingReply {
     private var _received = false
 
     func checkReceived() -> Bool {

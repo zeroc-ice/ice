@@ -4,7 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class ServantLocatorI: Ice.ServantLocator {
+final class ServantLocatorI: Ice.ServantLocator {
     let _dispatcher: Ice.Dispatcher = DispatcherI()
 
     func locate(_: Ice.Current) -> (returnValue: Ice.Dispatcher?, cookie: AnyObject?) {
@@ -16,7 +16,7 @@ class ServantLocatorI: Ice.ServantLocator {
     func deactivate(_: String) {}
 }
 
-class DispatcherI: Ice.Dispatcher {
+final class DispatcherI: Ice.Dispatcher {
     public func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
         let current = request.current
         let communicator = current.adapter.getCommunicator()

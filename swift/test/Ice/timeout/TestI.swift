@@ -1,7 +1,5 @@
-//
-import Foundation
 // Copyright (c) ZeroC, Inc.
-//
+
 import Ice
 
 final class TimeoutI: Timeout {
@@ -14,8 +12,8 @@ final class TimeoutI: Timeout {
     }
 }
 
-class ControllerI: Controller {
-    var _adapter: Ice.ObjectAdapter
+final class ControllerI: Controller {
+    let _adapter: Ice.ObjectAdapter
 
     init(_ adapter: Ice.ObjectAdapter) {
         _adapter = adapter
