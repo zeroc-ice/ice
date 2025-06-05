@@ -23,7 +23,7 @@ import { WSEndpointFactory } from "./WSEndpointFactory.js";
 import { Promise } from "./Promise.js";
 import { ConnectionOptions } from "./ConnectionOptions.js";
 import { StringUtil } from "./StringUtil.js";
-import { FileLogger } from "./Logger.js";
+import { FileLogger } from "./FileLogger.js";
 
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;

@@ -4251,7 +4251,7 @@ class JavaScriptMixin:
 
     def getOptions(self, current):
         options = {
-            "protocol": ["ws", "wss"] if current.config.browser else ["tcp"],
+            "protocol": ["ws", "wss"] if current.config.browser else ["tcp", "ws", "wss"],
             "compress": [False],
             "ipv6": [False],
             "serialize": [False],
@@ -4282,6 +4282,16 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
 
     def getCommonDir(self, current):
         return os.path.join(self.getPath(), "test", "Common")
+
+    def getEnv(self, process, current):
+        if not current.config.browser and current.config.protocol == "wss":
+            # When running with WSS in Node.js, we need to set the NODE_EXTRA_CA_CERTS environment variable
+            # so Node.js trusts our custom Certificate Authority (CA) used to sign the server certificate.
+            return {
+                "NODE_EXTRA_CA_CERTS": os.path.join(self.path, "..", "certs", "common", "ca", "ca_cert.pem")
+            }
+        else:
+            return {}
 
     def _getDefaultSource(self, processType):
         return {
