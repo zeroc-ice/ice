@@ -2,7 +2,7 @@
 
 import Ice
 
-actor MyDerivedClassI: MyDerivedClass {
+actor MyDerivedClassI: MyDerivedClass, Ice.Object {
     var _ctx: [String: String] = [:]
 
     func echo(obj: Ice.ObjectPrx?, current _: Ice.Current) async throws -> Ice.ObjectPrx? {
