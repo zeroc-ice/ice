@@ -24,12 +24,18 @@
         },
         "./slice2js": "./src/slice2js.js"
     },
+    "browser": {
+        "./src/Ice/FileLogger.js": "./src/Ice/FileLogger.browser.js",
+        "./src/Ice/TcpTransceiver.js": "./src/Ice/TcpTransceiver.browser.js",
+        "./src/Ice/TimerUtil.js": "./src/Ice/TimerUtil.browser.js"
+    },
     "bin": {
         "slice2js": "./bin/slice2js"
     },
     "browserslist": "> 0.25%, not dead",
     "devDependencies": {
         "@eslint/js": "^9.27.0",
+        "@rollup/plugin-node-resolve": "^16.0.1",
         "@rollup/plugin-strip": "^3.0.4",
         "@types/node": "^22.15.24",
         "c8": "^10.1.3",

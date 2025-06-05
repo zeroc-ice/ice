@@ -14,6 +14,11 @@ module Test
         enum Color { red, green, blue }
     }
 
+    struct Point { int x; int y = 42; }
+
+    ["cs:property"]
+    struct PointProp { int x; int y = 42; }
+
     //
     // Struct1 maps to a C# class because it contains string members.
     //
@@ -121,9 +126,7 @@ module Test
     }
 
     //
-    // Struct4 would normally map to a C# struct because we have omitted
-    // the string members, and don't contains cs:class metadata, but as it
-    // contains default values it is mapped to a class.
+    // Struct4 maps to a record struct
     //
     struct Struct4
     {

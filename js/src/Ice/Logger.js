@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-import fs from "fs";
-
 const formatMessage = message => message.join("").replace(/\n/g, "\n   ");
 
 export class Logger {
@@ -74,24 +72,3 @@ export class Logger {
         return d.toLocaleString("en-US", this._dateformat) + "." + d.getMilliseconds();
     }
 }
-
-let FileLogger = null;
-
-if (typeof fs.open === "function") {
-    FileLogger = class extends Logger {
-        constructor(prefix, filename) {
-            super(prefix);
-            this._filename = filename;
-        }
-
-        write(message) {
-            fs.appendFileSync(this._filename, message + "\n");
-        }
-
-        cloneWithPrefix(prefix) {
-            return new FileLogger(prefix, this._filename);
-        }
-    };
-}
-
-export { FileLogger };

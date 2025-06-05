@@ -151,6 +151,6 @@ export class WSEndpoint extends EndpointI {
     }
 
     connectable() {
-        return typeof WebSocket !== "undefined";
+        return true;
     }
 }
