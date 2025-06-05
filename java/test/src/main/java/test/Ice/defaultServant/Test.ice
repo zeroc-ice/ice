@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.defaultServant"]]
+["java:identifier:test.Ice.defaultServant.Test"]
 module Test
 {
     interface MyObject

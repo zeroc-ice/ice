@@ -35,10 +35,12 @@ final class Selector {
     }
 
     void destroy() {
-        try {
-            _selector.close();
-        } catch (IOException ex) {}
-        _selector = null;
+        if (_selector != null) {
+            try {
+                _selector.close();
+            } catch (IOException ex) {}
+            _selector = null;
+        }
     }
 
     void initialize(EventHandler handler) {

@@ -224,6 +224,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     {
         cout << "testing invocation timeout and retries... " << flush;
         retry2 = RetryPrx(communicator2, retry1->ice_toString());
+        retry2->ice_getConnection();
         try
         {
             retry2->ice_invocationTimeout(500)->opIdempotent(4); // No more than 2 retries before timeout kicks-in

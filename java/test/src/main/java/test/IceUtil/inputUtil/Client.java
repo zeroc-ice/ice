@@ -86,6 +86,8 @@ public class Client extends TestHelper {
             test(
                 args.length == 1
                     && "-Dir=C:\\oest\\oilewith\"quote".equals(args[0])); // -Dir=C:\oest\oilewith"quote
+
+            //CHECKSTYLE:OFF: IllegalTokenText
             args =
                 Options.split(
                     "-Dir=$'\\103\\072\\134\\164\\145\\163\\164\\134\\146\\151\\154\\145'");
@@ -100,6 +102,7 @@ public class Client extends TestHelper {
             test(args.length == 1 && "-Dir=C:\\ff\015i".equals(args[0]));
             args = Options.split("-Dir=$'C:\\\\\\cM\\x66\\146i'"); // -Dir=$'C:\\\cM\x66\146i'
             test(args.length == 1 && "-Dir=C:\\\015ffi".equals(args[0]));
+            //CHECKSTYLE:ON: IllegalTokenText
         } catch (ParseException ex) {
             test(false);
         }

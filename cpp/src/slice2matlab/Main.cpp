@@ -34,17 +34,16 @@ using namespace IceInternal;
 
 namespace
 {
-    void writeCopyright(IceInternal::Output& out, const string& file)
+    void writeCopyright(IceInternal::Output& out, string_view file)
     {
-        string f = file;
-        string::size_type pos = f.find_last_of('/');
+        string::size_type pos = file.find_last_of('/');
         if (pos != string::npos)
         {
-            f = f.substr(pos + 1);
+            file = file.substr(pos + 1);
         }
 
         out << nl << "% Copyright (c) ZeroC, Inc.";
-        out << nl << "% Generated from " << f << " by slice2matlab version " << ICE_STRING_VERSION;
+        out << nl << "% Generated from " << file << " by slice2matlab version " << ICE_STRING_VERSION;
         out << sp;
     }
 
@@ -490,59 +489,6 @@ namespace
         }
     }
 
-    void writeDocSentence(IceInternal::Output& out, const StringList& lines)
-    {
-        //
-        // Write the first sentence.
-        //
-        for (auto i = lines.begin(); i != lines.end(); ++i)
-        {
-            const string ws = " \t";
-
-            if (i->empty())
-            {
-                break;
-            }
-            if (i != lines.begin() && i->find_first_not_of(ws) == 0)
-            {
-                out << " ";
-            }
-            string::size_type pos = i->find('.');
-            if (pos == string::npos)
-            {
-                out << *i;
-            }
-            else if (pos == i->size() - 1)
-            {
-                out << *i;
-                break;
-            }
-            else
-            {
-                //
-                // Assume a period followed by whitespace indicates the end of the sentence.
-                //
-                while (pos != string::npos)
-                {
-                    if (ws.find((*i)[pos + 1]) != string::npos)
-                    {
-                        break;
-                    }
-                    pos = i->find('.', pos + 1);
-                }
-                if (pos != string::npos)
-                {
-                    out << i->substr(0, pos + 1);
-                    break;
-                }
-                else
-                {
-                    out << *i;
-                }
-            }
-        }
-    }
-
     void writeSeeAlso(IceInternal::Output& out, const StringList& seeAlso, const ContainerPtr& container)
     {
         assert(!seeAlso.empty());
@@ -596,7 +542,7 @@ namespace
 
     void writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
     {
-        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter, true);
+        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter);
         if (!doc)
         {
             return;
@@ -609,7 +555,7 @@ namespace
         //
         out << "% " << n << "   Summary of " << n;
 
-        StringList docOverview = doc->overview();
+        const StringList& docOverview = doc->overview();
         if (!docOverview.empty())
         {
             out << nl << "%";
@@ -626,13 +572,12 @@ namespace
                 for (const auto& enumerator : enumerators)
                 {
                     out << nl << "%   " << enumerator->mappedName();
-                    if (auto enumeratorDoc = DocComment::parseFrom(enumerator, matlabLinkFormatter, true))
+                    if (auto enumeratorDoc = DocComment::parseFrom(enumerator, matlabLinkFormatter))
                     {
-                        StringList enumeratorOverview = enumeratorDoc->overview();
+                        const StringList& enumeratorOverview = enumeratorDoc->overview();
                         if (!enumeratorOverview.empty())
                         {
-                            out << " - ";
-                            writeDocSentence(out, enumeratorOverview);
+                            out << " - " << getFirstSentence(enumeratorOverview);
                         }
                     }
                 }
@@ -648,13 +593,12 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << member->mappedName();
-                    if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
+                    if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter))
                     {
-                        StringList memberOverview = memberDoc->overview();
+                        const StringList& memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
                         {
-                            out << " - ";
-                            writeDocSentence(out, memberOverview);
+                            out << " - " << getFirstSentence(memberOverview);
                         }
                     }
                 }
@@ -670,13 +614,12 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << member->mappedName();
-                    if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
+                    if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter))
                     {
-                        StringList memberOverview = memberDoc->overview();
+                        const StringList& memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
                         {
-                            out << " - ";
-                            writeDocSentence(out, memberOverview);
+                            out << " - " << getFirstSentence(memberOverview);
                         }
                     }
                 }
@@ -692,27 +635,26 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << member->mappedName();
-                    if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter, true))
+                    if (auto memberDoc = DocComment::parseFrom(member, matlabLinkFormatter))
                     {
-                        StringList memberOverview = memberDoc->overview();
+                        const StringList& memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
                         {
-                            out << " - ";
-                            writeDocSentence(out, memberOverview);
+                            out << " - " << getFirstSentence(memberOverview);
                         }
                     }
                 }
             }
         }
 
-        StringList docSeeAlso = doc->seeAlso();
+        const StringList& docSeeAlso = doc->seeAlso();
         if (!docSeeAlso.empty())
         {
             out << nl << "%";
             writeSeeAlso(out, docSeeAlso, p->container());
         }
 
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
         {
             out << nl << "%";
@@ -730,7 +672,7 @@ namespace
 
     void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async)
     {
-        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter, true);
+        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter);
         if (!doc)
         {
             return;
@@ -738,7 +680,7 @@ namespace
 
         out << nl << "% " << p->mappedName() << (async ? "Async" : "");
 
-        StringList docOverview = doc->overview();
+        const StringList& docOverview = doc->overview();
         if (!docOverview.empty())
         {
             out << "   ";
@@ -747,7 +689,7 @@ namespace
 
         out << nl << "%";
         out << nl << "% Parameters:";
-        auto docParameters = doc->parameters();
+        const auto& docParameters = doc->parameters();
         const ParameterList inParams = p->inParameters();
         string ctxName = "context";
         string resultName = "result";
@@ -794,7 +736,7 @@ namespace
                 if (p->returnType() && outParams.empty())
                 {
                     out << nl << "% Returns (" << typeToString(p->returnType()) << ")";
-                    StringList docReturns = doc->returns();
+                    const StringList& docReturns = doc->returns();
                     if (!docReturns.empty())
                     {
                         out << " - ";
@@ -817,7 +759,7 @@ namespace
                     if (p->returnType())
                     {
                         out << nl << "%   " << resultName << " (" << typeToString(p->returnType()) << ")";
-                        StringList docReturns = doc->returns();
+                        const StringList& docReturns = doc->returns();
                         if (!docReturns.empty())
                         {
                             out << " - ";
@@ -838,7 +780,7 @@ namespace
             }
         }
 
-        auto docExceptions = doc->exceptions();
+        const auto& docExceptions = doc->exceptions();
         if (!docExceptions.empty())
         {
             out << nl << "%";
@@ -866,14 +808,14 @@ namespace
             }
         }
 
-        StringList docSeeAlso = doc->seeAlso();
+        const StringList& docSeeAlso = doc->seeAlso();
         if (!docSeeAlso.empty())
         {
             out << nl << "%";
             writeSeeAlso(out, docSeeAlso, p->container());
         }
 
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
         {
             out << nl << "%";
@@ -891,7 +833,7 @@ namespace
 
     void writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p)
     {
-        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter, true);
+        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter);
         if (!doc)
         {
             return;
@@ -904,7 +846,7 @@ namespace
         //
         out << "% " << n << "   Summary of " << n;
 
-        StringList docOverview = doc->overview();
+        const StringList& docOverview = doc->overview();
         if (!docOverview.empty())
         {
             out << nl << "%";
@@ -919,25 +861,23 @@ namespace
             for (const auto& op : ops)
             {
                 const string opName = op->mappedName();
-                const optional<DocComment> opdoc = DocComment::parseFrom(op, matlabLinkFormatter, true);
+                const optional<DocComment> opdoc = DocComment::parseFrom(op, matlabLinkFormatter);
                 out << nl << "%   " << opName;
                 if (opdoc)
                 {
-                    StringList opdocOverview = opdoc->overview();
+                    const StringList& opdocOverview = opdoc->overview();
                     if (!opdocOverview.empty())
                     {
-                        out << " - ";
-                        writeDocSentence(out, opdocOverview);
+                        out << " - " << getFirstSentence(opdocOverview);
                     }
                 }
                 out << nl << "%   " << opName << "Async";
                 if (opdoc)
                 {
-                    StringList opdocOverview = opdoc->overview();
+                    const StringList& opdocOverview = opdoc->overview();
                     if (!opdocOverview.empty())
                     {
-                        out << " - ";
-                        writeDocSentence(out, opdocOverview);
+                        out << " - " << getFirstSentence(opdocOverview);
                     }
                 }
             }
@@ -945,14 +885,14 @@ namespace
         out << nl << "%   checkedCast - Contacts the remote server to verify that the object implements this type.";
         out << nl << "%   uncheckedCast - Downcasts the given proxy to this type without contacting the remote server.";
 
-        StringList docSeeAlso = doc->seeAlso();
+        const StringList& docSeeAlso = doc->seeAlso();
         if (!docSeeAlso.empty())
         {
             out << nl << "%";
             writeSeeAlso(out, docSeeAlso, p->container());
         }
 
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
         {
             out << nl << "%";
@@ -970,15 +910,15 @@ namespace
 
     void writeMemberDoc(IceInternal::Output& out, const DataMemberPtr& p)
     {
-        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter, true);
+        optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter);
         if (!doc)
         {
             return;
         }
 
-        StringList docOverview = doc->overview();
-        StringList docSeeAlso = doc->seeAlso();
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docOverview = doc->overview();
+        const StringList& docSeeAlso = doc->seeAlso();
+        const StringList& docDeprecated = doc->deprecated();
         bool docIsDeprecated = doc->isDeprecated();
 
         const string n = p->mappedName();
@@ -1020,6 +960,8 @@ namespace
                 {typeid(Module),
                  typeid(InterfaceDecl),
                  typeid(Operation),
+                 typeid(ClassDecl),
+                 typeid(Slice::Exception),
                  typeid(Struct),
                  typeid(Sequence),
                  typeid(Dictionary),
@@ -1063,8 +1005,8 @@ private:
     string getOptionalFormat(const TypePtr&);
     string getFormatType(FormatType);
 
-    void marshal(IceInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
-    void unmarshal(IceInternal::Output&, const string&, const string&, const TypePtr&, bool, int);
+    void marshal(IceInternal::Output&, const string&, const string&, const TypePtr&, bool, int32_t);
+    void unmarshal(IceInternal::Output&, const string&, const string&, const TypePtr&, bool, int32_t);
 
     void unmarshalStruct(IceInternal::Output&, const StructPtr&, const string&);
     void convertStruct(IceInternal::Output&, const StructPtr&, const string&);
@@ -1348,7 +1290,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "TypeId char = '" << scoped << "'";
     if (p->compactId() != -1)
     {
-        out << nl << "CompactId char = '" << to_string(p->compactId()) << "'";
+        out << nl << "CompactId char = '" << p->compactId() << "'";
     }
     out.dec();
     out << nl << "end";
@@ -1957,9 +1899,15 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out.dec();
     out << nl << "end";
-
     out.dec();
     out << nl << "end";
+
+    out << nl << "properties(Constant, Access=private)";
+    out.inc();
+    out << nl << "TypeId char = '" << p->scoped() << "'";
+    out.dec();
+    out << nl << "end";
+
     out.dec();
     out << nl << "end";
     out << nl;
@@ -2849,7 +2797,7 @@ CodeVisitor::marshal(
     const string& v,
     const TypePtr& type,
     bool optional,
-    int tag)
+    int32_t tag)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -3086,7 +3034,7 @@ CodeVisitor::unmarshal(
     const string& v,
     const TypePtr& type,
     bool optional,
-    int tag)
+    int32_t tag)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)

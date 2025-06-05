@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-class Server: TestHelperI {
+class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let communicator = try initialize(args)
         defer {
@@ -15,7 +15,7 @@ class Server: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         let id = try Ice.stringToIdentity("factory")
         try adapter.add(
-            servant: RemoteCommunicatorFactoryDisp(RemoteCommunicatorFactoryI()),
+            servant: RemoteCommunicatorFactoryI(),
             id: id)
         try adapter.activate()
         serverReady()

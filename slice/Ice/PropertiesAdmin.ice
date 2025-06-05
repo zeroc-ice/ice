@@ -6,12 +6,12 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
 #include "PropertyDict.ice"
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// Provides remote access to the properties of a communicator.

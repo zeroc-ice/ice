@@ -1169,7 +1169,7 @@ class Mapping(object):
             "IceSSL.Password": "password",
             "IceSSL.DefaultDir": ""
             if current.config.buildPlatform == "iphoneos"
-            else os.path.join(self.component.getSourceDir(), "certs"),
+            else os.path.join(self.component.getSourceDir(), "certs/common/ca"),
         }
 
         #
@@ -1510,9 +1510,11 @@ class Process(Runnable):
     def getMapping(self, current):
         return self.mapping or current.testcase.getMapping()
 
+    def getProcessType(self, current):
+        return self.processType or current.testcase.getProcessType(self)
+
     def getExe(self, current):
-        processType = self.processType or current.testcase.getProcessType(self)
-        return self.exe or self.getMapping(current).getDefaultExe(processType)
+        return self.exe or self.getMapping(current).getDefaultExe(self.getProcessType(current))
 
     def getCommandLine(self, current, args=""):
         return (
@@ -1679,6 +1681,9 @@ class EchoServer(Server):
         props["Ice.MessageSizeMax"] = (
             8192  # Don't limit the amount of data to transmit between client/server
         )
+        # Set the program name to avoid conflicts with the log files. Without this both the JavaScript
+        # and the echo server would try to use the same log file.
+        props["Ice.ProgramName"] = "EchoServer"
         return props
 
     def getCommandLine(self, current, args=""):
@@ -1790,7 +1795,7 @@ class TestCase(Runnable):
         pass
 
     def teardownServerSide(self, current, success):
-        # Can be overridden to perform terddown after the server side is stopped
+        # Can be overridden to perform teardown after the server side is stopped
         pass
 
     def setupClientSide(self, current):
@@ -1798,7 +1803,7 @@ class TestCase(Runnable):
         pass
 
     def teardownClientSide(self, current, success):
-        # Can be overridden to perform terddown after the client side is stopped
+        # Can be overridden to perform teardown after the client side is stopped
         pass
 
     def startServerSide(self, current):
@@ -2326,7 +2331,10 @@ class LocalProcessController(ProcessController):
         def teardown(self, current, success):
             if self.traceFile:
                 if success or current.driver.isInterrupted():
-                    os.remove(self.traceFile)
+                    try:
+                        os.remove(self.traceFile)
+                    except FileNotFoundError:
+                        pass
                 else:
                     current.writeln("saved {0}".format(self.traceFile))
 
@@ -2346,7 +2354,7 @@ class LocalProcessController(ProcessController):
         }
 
         traceFile = ""
-        if not isinstance(process.getMapping(current), JavaScriptMixin):
+        if not current.config.browser:
             traceProps = process.getEffectiveTraceProps(current)
             if traceProps:
                 if "Ice.ProgramName" in props:
@@ -2982,7 +2990,7 @@ class BrowserProcessController(RemoteProcessController):
             self.httpServer = Expect.Expect(httpServerCmd, cwd=cwd)
             self.httpServer.expect("Available on:")
 
-            httpsServerCmd = "node node_modules/http-server/bin/http-server -p 9090 --tls --cert ../certs/server.pem --key ../certs/server_key.pem dist"
+            httpsServerCmd = "node node_modules/http-server/bin/http-server -p 9090 --tls --cert ../certs/common/ca/server_cert.pem --key ../certs/common/ca/server_key.pem dist"
             cwd = current.testcase.getMapping().getPath()
             self.httpsServer = Expect.Expect(httpsServerCmd, cwd=cwd)
             self.httpsServer.expect("Available on:")
@@ -3451,7 +3459,7 @@ class Driver:
         # Load IceSSL, this is useful to talk with WSS for JavaScript
         initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
         initData.properties.setProperty(
-            "IceSSL.DefaultDir", os.path.join(self.component.getSourceDir(), "certs")
+            "IceSSL.DefaultDir", os.path.join(self.component.getSourceDir(), "certs/common/ca")
         )
         initData.properties.setProperty("IceSSL.CertFile", "server.p12")
         initData.properties.setProperty("IceSSL.Password", "password")
@@ -3542,6 +3550,8 @@ class CppMapping(Mapping):
             if self.buildConfig == platform.getDefaultBuildConfig():
                 if isinstance(platform, Windows):
                     self.buildConfig = "Release"
+                elif self.buildPlatform in ["iphoneos", "iphonesimulator"]:
+                    self.buildConfig = "release"
                 else:
                     self.buildConfig = "shared"
 
@@ -3570,7 +3580,7 @@ class CppMapping(Mapping):
 
         props.update(
             {
-                "IceSSL.CAs": "cacert.pem",
+                "IceSSL.CAs": "ca_cert.pem",
                 "IceSSL.CertFile": "server.p12" if server else "client.p12",
             }
         )
@@ -3578,18 +3588,14 @@ class CppMapping(Mapping):
             props.update(
                 {
                     "IceSSL.KeychainPassword": "password",
-                    "IceSSL.Keychain": "server.keychain"
-                    if server
-                    else "client.keychain",
+                    "IceSSL.Keychain": "server.keychain" if server else "client.keychain",
                 }
             )
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
         return {
-            "IceSSL": "IceSSLOpenSSL:createIceSSLOpenSSL"
-            if current.config.openssl
-            else "IceSSL:createIceSSL",
+            "IceSSL": "IceSSL:createIceSSL",
             "IceBT": "IceBT:createIceBT",
             "IceDiscovery": "IceDiscovery:createIceDiscovery",
             "IceLocatorDiscovery": "IceLocatorDiscovery:createIceLocatorDiscovery",
@@ -3730,24 +3736,16 @@ class JavaMapping(Mapping):
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
-        if current.config.android:
-            props.update(
-                {
-                    "IceSSL.KeystoreType": "BKS",
-                    "IceSSL.TruststoreType": "BKS",
-                    "IceSSL.Keystore": "server.bks"
-                    if isinstance(process, Server)
-                    else "client.bks",
-                }
-            )
-        else:
-            props.update(
-                {
-                    "IceSSL.Keystore": "server.jks"
-                    if isinstance(process, Server)
-                    else "client.jks",
-                }
-            )
+        props.update(
+            {
+                "IceSSL.Keystore": "server.p12" if isinstance(process, Server) else "client.p12",
+                "IceSSL.KeystorePassword": "password",
+                "IceSSL.KeystoreType": "PKCS12",
+                "IceSSL.Truststore": "ca.p12",
+                "IceSSL.TruststorePassword": "password",
+                "IceSSL.TruststoreType": "PKCS12",
+            }
+        )
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
@@ -3840,13 +3838,11 @@ class CSharpMapping(Mapping):
             {
                 "IceSSL.Password": "password",
                 "IceSSL.DefaultDir": os.path.join(
-                    self.component.getSourceDir(), "certs"
+                    self.component.getSourceDir(), "certs/common/ca"
                 ),
-                "IceSSL.CAs": "cacert.pem",
+                "IceSSL.CAs": "ca_cert.pem",
                 "IceSSL.VerifyPeer": "0" if current.config.protocol == "wss" else "2",
-                "IceSSL.CertFile": "server.p12"
-                if isinstance(process, Server)
-                else "client.p12",
+                "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
             }
         )
         return props
@@ -4194,10 +4190,6 @@ class MatlabMapping(CppBasedClientMapping):
 
 class JavaScriptMixin:
     def loadTestSuites(self, tests, config, filters, rfilters):
-        # Exclude typescript directory when the mapping is not typescript otherwise we endup with duplicate entries
-        if self.name != "typescript":
-            rfilters += [re.compile("typescript/*")]
-
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
         self.getServerMapping().loadTestSuites(
             list(self.testsuites.keys()) + ["Ice/echo"], config
@@ -4247,11 +4239,20 @@ class JavaScriptMixin:
 
         return f"{coverage} {node_command}".strip()
 
+    def getProps(self, process, current):
+        props = Mapping.getProps(self, process, current)
+        if isinstance(process, IceProcess) and not current.config.browser:
+            if "Ice.ProgramName" not in props:
+                props["Ice.ProgramName"] = f"{process.getProcessType(current)}"
+        return props
+
     def getSSLProps(self, process, current):
         return {}
 
     def getOptions(self, current):
         options = {
+            # TODO BUGFIX: https://github.com/zeroc-ice/ice/issues/4056
+            #"protocol": ["ws", "wss"] if current.config.browser else ["tcp", "ws", "wss"],
             "protocol": ["ws", "wss"] if current.config.browser else ["tcp"],
             "compress": [False],
             "ipv6": [False],
@@ -4283,6 +4284,16 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
 
     def getCommonDir(self, current):
         return os.path.join(self.getPath(), "test", "Common")
+
+    def getEnv(self, process, current):
+        if not current.config.browser and current.config.protocol == "wss":
+            # When running with WSS in Node.js, we need to set the NODE_EXTRA_CA_CERTS environment variable
+            # so Node.js trusts our custom Certificate Authority (CA) used to sign the server certificate.
+            return {
+                "NODE_EXTRA_CA_CERTS": os.path.join(self.path, "..", "certs", "common", "ca", "ca_cert.pem")
+            }
+        else:
+            return {}
 
     def _getDefaultSource(self, processType):
         return {
@@ -4368,9 +4379,9 @@ class SwiftMapping(Mapping):
     def getSSLProps(self, process, current):
         props = Mapping.getByName("cpp").getSSLProps(process, current)
         props["IceSSL.DefaultDir"] = (
-            "certs"
-            if current.config.buildPlatform == "iphoneos"
-            else os.path.join(self.component.getSourceDir(), "certs")
+            "certs/common/ca"
+            if current.config.buildPlatform == "iphoneos" else
+            os.path.join(self.component.getSourceDir(), "certs/common/ca")
         )
         return props
 

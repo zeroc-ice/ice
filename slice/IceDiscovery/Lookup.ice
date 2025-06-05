@@ -4,12 +4,12 @@
 
 [["cpp:header-ext:h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceDiscovery"]]
 
 #include "Ice/Identity.ice"
 
+["java:identifier:com.zeroc.IceDiscovery"]
 module IceDiscovery
 {
     /// Represents a callback object implemented by IceDiscovery clients. It allows IceDiscovery clients to receive

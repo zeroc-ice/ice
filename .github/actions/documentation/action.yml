@@ -10,6 +10,12 @@ inputs:
   aws-s3-code-bucket:
     description: "AWS S3 bucket for storing the API reference"
     required: true
+  github-token:
+    description: "GitHub token used by phive to access the GitHub API (to get the versions of the packages)"
+    required: true
+
+# Disable the default permissions for the action.
+permissions: {}
 
 runs:
   using: "composite"
@@ -58,10 +64,20 @@ runs:
       run: |
         mkdir ./swift/docs
 
+        touch doc_output.log
+
         for target in Ice Glacier2 IceGrid IceStorm; do
-          swift package --allow-writing-to-directory ./swift/docs generate-documentation --output-path ./swift/docs/$target \
-            --target $target --transform-for-static-hosting --hosting-base-path  /ice/main/api/swift/$target
+          swift package --allow-writing-to-directory ./swift/docs generate-documentation \
+            --output-path ./swift/docs/$target --target $target \
+            --transform-for-static-hosting --hosting-base-path  /ice/main/api/swift/$target 2>&1 | tee -a doc_output.log
         done
+
+        # Check if the documentation generation had any warnings
+        if grep -q "^warning:" doc_output.log; then
+          echo "Documentation generation had warnings"
+          exit 1
+        fi
+
       shell: bash
 
     - name: Generate API reference for Java
@@ -69,6 +85,27 @@ runs:
       run: |
         make -C ../cpp slice2java
         ./gradlew :alljavadoc
+      shell: bash
+
+    - name: Generate API reference for Ruby
+      working-directory: ./ruby
+      run: |
+        gem install --user-install yard
+        export PATH="$(ruby -r rubygems -e 'puts Gem.user_dir')/bin:$PATH"
+        yard  doc 'ruby/**/*.rb'
+      shell: bash
+
+    - name: Generate API reference for PHP
+      working-directory: ./php
+      env:
+        # We need to set the GITHUB_AUTH_TOKEN to allow phive use the GitHub API to get the versions
+        # of the packages. If we don't set this, phive will likely fail with a 403 error.
+        GITHUB_AUTH_TOKEN: "${{ inputs.github-token }}"
+      run: |
+        set -x
+        brew install phive
+        phive install phpDocumentor --trust-gpg-keys 6DA3ACC4991FFAE5 --temporary
+        ./tools/phpDocumentor --config ./phpdoc.dist.xml
       shell: bash
 
     # This will perform a full sync of the documentation to S3 every time the workflow is run since
@@ -86,7 +123,7 @@ runs:
 
         aws s3 sync ./csharp/docfx/_site s3://${AWS_S3_CODE_BUCKET}/ice/main/api/csharp --delete
 
-        aws s3 sync ./js/docs s3://${AWS_S3_CODE_BUCKET}/ice/main/api/js --delete
+        aws s3 sync ./js/docs s3://${AWS_S3_CODE_BUCKET}/ice/main/api/javascript --delete
 
         aws s3 sync ./python/docs/_build/html s3://${AWS_S3_CODE_BUCKET}/ice/main/api/python --delete
 
@@ -95,6 +132,10 @@ runs:
         done
 
         aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/java --delete
+
+        aws s3 sync ./ruby/doc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/ruby --delete
+
+        aws s3 sync ./php/doc/api s3://${AWS_S3_CODE_BUCKET}/ice/main/api/php --delete
 
       env:
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}

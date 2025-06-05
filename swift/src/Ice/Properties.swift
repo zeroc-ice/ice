@@ -8,7 +8,7 @@ import Foundation
 public protocol Properties: AnyObject {
     /// Get a property by key. If the property is not set, an empty string is returned.
     ///
-    /// - parameter _: `String` The property key.
+    /// - parameter key: `String` The property key.
     ///
     /// - returns: `String` - The property value.
     func getProperty(_ key: String) -> String
@@ -32,7 +32,7 @@ public protocol Properties: AnyObject {
     /// Get a property as an integer. If the property is not set, 0 is returned.
     /// Throws PropertyException if the property value is not a valid integer.
     ///
-    /// - parameter _: `String` The property key.
+    /// - parameter key: `String` The property key.
     ///
     /// - returns: `Int32` - The property value interpreted as an integer.
     func getPropertyAsInt(_ key: String) throws -> Int32
@@ -61,7 +61,7 @@ public protocol Properties: AnyObject {
     /// or double quotes, you can escape the quote in question with a backslash, e.g. O'Reilly can be written as
     /// O'Reilly, "O'Reilly" or 'O\'Reilly'.
     ///
-    /// - parameter _: `String` The property key.
+    /// - parameter key: `String` The property key.
     ///
     /// - returns: `StringSeq` - The property value interpreted as a list of strings.
     func getPropertyAsList(_ key: String) -> StringSeq
@@ -93,7 +93,7 @@ public protocol Properties: AnyObject {
     /// Get all properties whose keys begins with prefix. If prefix is an empty string, then all
     /// properties are returned.
     ///
-    /// - parameter _: `String` The prefix to search for (empty string if none).
+    /// - parameter prefix: `String` The prefix to search for (empty string if none).
     ///
     /// - returns: `PropertyDict` - The matching property set.
     func getPropertiesForPrefix(_ prefix: String) -> PropertyDict
@@ -128,7 +128,7 @@ public protocol Properties: AnyObject {
     /// prefixes are converted into properties: --Ice, --IceBox, --IceGrid,
     /// --IceSSL, --IceStorm, and --Glacier2.
     ///
-    /// - parameter _: `StringSeq` The command-line options.
+    /// - parameter options: `StringSeq` The command-line options.
     ///
     /// - returns: `StringSeq` - The command-line options that do not start with one of the listed prefixes,
     /// in their original order.
@@ -136,7 +136,7 @@ public protocol Properties: AnyObject {
 
     /// Load properties from a file.
     ///
-    /// - parameter _: `String` The property file.
+    /// - parameter file: `String` The property file.
     func load(_ file: String) throws
 
     /// Create a copy of this property set.

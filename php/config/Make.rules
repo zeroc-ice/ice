@@ -118,6 +118,8 @@ distclean clean::
 
 generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.ice))
 
-$$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.ice)),$2,$(install_phpdir),install))
+# Install both generated and non generated .php files for the package
+$$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.ice)) \
+	$(filter-out $(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.ice)),$(wildcard $2/$3/*.php)),$2,$(install_phpdir),install))
 
 endef

@@ -53,12 +53,8 @@ public class AllTests {
 
         out.print("invoking proxy operations on interface hierarchy... ");
         out.flush();
-        IAPrx iao;
-        IB1Prx ib1o;
-        IB2Prx ib2o;
-        ICPrx ico;
 
-        iao = ia.iaop(ia);
+        IAPrx iao = ia.iaop(ia);
         test(iao.equals(ia));
         iao = ia.iaop(ib1);
         test(iao.equals(ib1));
@@ -93,7 +89,7 @@ public class AllTests {
 
         iao = ib1.ib1op(ib1);
         test(iao.equals(ib1));
-        ib1o = ib1.ib1op(ib1);
+        IB1Prx ib1o = ib1.ib1op(ib1);
         test(ib1o.equals(ib1));
         iao = ib1.ib1op(ic);
         test(iao.equals(ic));
@@ -110,7 +106,7 @@ public class AllTests {
 
         iao = ib2.ib2op(ib2);
         test(iao.equals(ib2));
-        ib2o = ib2.ib2op(ib2);
+        IB2Prx ib2o = ib2.ib2op(ib2);
         test(ib2o.equals(ib2));
         iao = ib2.ib2op(ic);
         test(iao.equals(ic));
@@ -131,7 +127,7 @@ public class AllTests {
         test(ib1o.equals(ic));
         ib2o = ic.icop(ic);
         test(ib2o.equals(ic));
-        ico = ic.icop(ic);
+        ICPrx ico = ic.icop(ic);
         test(ico.equals(ic));
         out.println("ok");
 

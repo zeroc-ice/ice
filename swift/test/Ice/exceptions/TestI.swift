@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-class RuntimeError: Error {}
+final class RuntimeError: Error {}
 
 class ThrowerI: Thrower {
     func shutdown(current: Ice.Current) async throws {

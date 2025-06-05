@@ -30,18 +30,28 @@ class InvocationFuture(Future):
 
     def cancel(self):
         """
-        Cancel the invocation.
+        Cancels the invocation.
 
-        This method prevents a queued invocation from being sent. If the invocation has already been sent,
+        This method invokes :py:meth:`Future.cancel` to cancel the underlying future. If the cancellation is
+        successful, the associated invocation is also cancelled.
+
+        Cancelling an invocation prevents a queued invocation from being sent. If the invocation has already been sent,
         cancellation ensures that any reply from the server is ignored.
 
         Cancellation is a local operation with no effect on the server.
 
-        After cancellation, `done()` returns `True`, and attempting to retrieve the result will raise
-        an `Ice.InvocationCanceledException`.
+        After cancellation, :py:meth:`done` returns ``True``, and attempting to retrieve the result raises an
+        :py:exc:`Ice.InvocationCanceledException`.
+
+        Returns
+        -------
+        bool
+            ``True`` if the operation was successfully cancelled, ``False`` otherwise.
         """
-        self._asyncInvocationContext.cancel()
-        return Future.cancel(self)
+        cancelled = Future.cancel(self)
+        if cancelled:
+            self._asyncInvocationContext.cancel()
+        return cancelled
 
     def is_sent(self):
         """

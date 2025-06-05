@@ -46,5 +46,3 @@ IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_isA', 'ice_isA', 2, 0, array(arra
 IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ping', 'ice_ping', 2, 0, null, null, null, null);
 IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_id', 'ice_id', 2, 0, null, null, array($IcePHP__t_string), null);
 IcePHP_defineOperation($Ice__t_ObjectPrx, 'ice_ids', 'ice_ids', 2, 0, null, null, array($Ice__t_StringSeq), null);
-
-?>

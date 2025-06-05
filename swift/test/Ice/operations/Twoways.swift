@@ -219,9 +219,9 @@ func testClasses(helper: TestHelper, prx p: MyClassPrx) async throws {
     do {
         var (r, c1, c2) = try await p.opMyClass(p)
 
-        try test(c1!.ice_getIdentity() == Ice.stringToIdentity("test"))
+        try test(c1!.ice_getIdentity() == Ice.Identity(name: "test"))
         try test(c2!.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
-        try test(r!.ice_getIdentity() == Ice.stringToIdentity("test"))
+        try test(r!.ice_getIdentity() == Ice.Identity(name: "test"))
         try await r!.opVoid()
         try await c1!.opVoid()
 
@@ -1199,6 +1199,9 @@ func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
         }
     }
 
+    // By default, there is no implicit context.
+    try test(helper.communicator().getImplicitContext() == nil)
+
     let conn = try await p.ice_getConnection()
     if conn != nil {
         //
@@ -1217,16 +1220,22 @@ func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
             prx: ic.stringToProxy("test:\(helper.getTestEndpoint(num: 0))")!,
             type: MyClassPrx.self)
 
-        ic.getImplicitContext().setContext(ctx)
-        try test(ic.getImplicitContext().getContext() == ctx)
+        guard let implicitContext = ic.getImplicitContext() else {
+            try test(false)
+            return  // never reached
+        }
+
+        implicitContext.setContext(ctx)
+        try test(implicitContext.getContext() == ctx)
         try await test(p3.opContext() == ctx)
 
-        try test(ic.getImplicitContext().containsKey("zero") == false)
-        let r = ic.getImplicitContext().put(key: "zero", value: "ZERO")
+        try test(implicitContext.containsKey("zero") == false)
+        let r = implicitContext.put(key: "zero", value: "ZERO")
         try test(r == "")
-        try test(ic.getImplicitContext().get("zero") == "ZERO")
+        try test(implicitContext.get("zero") == "ZERO")
+        implicitContext.put(key: "zero", value: "ZERO")  // can discard return value
 
-        ctx = ic.getImplicitContext().getContext()
+        ctx = implicitContext.getContext()
         try await test(p3.opContext() == ctx)
 
         let prxContext = ["one": "UN", "four": "QUATRE"]
@@ -1239,10 +1248,10 @@ func testContext(helper: TestHelper, prx p: MyClassPrx) async throws {
 
         p3 = uncheckedCast(prx: p3.ice_context(prxContext), type: MyClassPrx.self)
 
-        ic.getImplicitContext().setContext(Ice.Context())
+        implicitContext.setContext(Ice.Context())
         try await test(p3.opContext() == prxContext)
 
-        ic.getImplicitContext().setContext(ctx)
+        implicitContext.setContext(ctx)
         try await test(p3.opContext() == combined)
 
         ic.destroy()

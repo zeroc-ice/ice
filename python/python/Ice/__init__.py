@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-# ruff: noqa: F401, F821, E402, F403
+# ruff: noqa: F401, F821, E402, F403, F405
 
 """
 Ice module
@@ -42,7 +42,6 @@ from .Value import *
 from .Object import Object
 from .ObjectPrx import ObjectPrx, checkedCast, checkedCastAsync, uncheckedCast
 from .Blobject import Blobject
-from .BlobjectAsync import BlobjectAsync
 from .FormatType import *
 from .Util import *
 from .UnknownSlicedValue import *
@@ -113,3 +112,110 @@ Encoding_1_1 = Ice.EncodingVersion(1, 1)
 # Native PropertiesAdmin admin facet.
 #
 NativePropertiesAdmin = IcePy.NativePropertiesAdmin
+
+# __all__ defines the public symbols of the Ice module.
+# It controls what is imported when using `from Ice import *`.
+# Sphinx uses this list when generating API documentation via the `automodule` directive.
+__all__ = [
+    "AdapterAlreadyActiveException",
+    "AdapterNotFoundException",
+    "AlreadyRegisteredException",
+    "BatchRequestInterceptor",
+    "Blobject",
+    "CloseConnectionException",
+    "CloseTimeoutException",
+    "Communicator",
+    "CommunicatorDestroyedException",
+    "CompressBatch",
+    "ConnectFailedException",
+    "ConnectTimeoutException",
+    "ConnectionAbortedException",
+    "ConnectionClosedException",
+    "ConnectionLostException",
+    "ConnectionRefusedException",
+    "Current",
+    "DNSException",
+    "DatagramLimitException",
+    "DispatchException",
+    "EncodingVersion",
+    "EndpointSelectionType",
+    "EventLoopAdapter",
+    "Exception",
+    "FacetNotExistException",
+    "FeatureNotSupportedException",
+    "FixedProxyException",
+    "FormatType",
+    "Future",
+    "FutureBase",
+    "Identity",
+    "ImplicitContext",
+    "InitializationData",
+    "InitializationException",
+    "InvalidReplicaGroupIdException",
+    "InvocationCanceledException",
+    "InvocationFuture",
+    "InvocationTimeoutException",
+    "LocalException",
+    "Locator",
+    "LocatorFinder",
+    "LocatorFinderPrx",
+    "LocatorPrx",
+    "LocatorRegistry",
+    "LocatorRegistryPrx",
+    "LogMessage",
+    "LogMessageType",
+    "Logger",
+    "LoggerAdmin",
+    "LoggerAdminPrx",
+    "MarshalException",
+    "NoEndpointException",
+    "NotRegisteredException",
+    "Object",
+    "ObjectAdapter",
+    "ObjectAdapterDeactivatedException",
+    "ObjectAdapterDestroyedException",
+    "ObjectAdapterIdInUseException",
+    "ObjectNotExistException",
+    "ObjectNotFoundException",
+    "ObjectPrx",
+    "OperationMode",
+    "OperationNotExistException",
+    "ParseException",
+    "Process",
+    "ProcessPrx",
+    "Properties",
+    "PropertiesAdmin",
+    "PropertiesAdminPrx",
+    "PropertyException",
+    "ProtocolException",
+    "ProtocolVersion",
+    "RemoteLogger",
+    "RemoteLoggerPrx",
+    "ReplyStatus",
+    "RequestFailedException",
+    "Router",
+    "RouterPrx",
+    "SecurityException",
+    "ServantLocator",
+    "ServerNotFoundException",
+    "SocketException",
+    "SyscallException",
+    "TimeoutException",
+    "ToStringMode",
+    "TwowayOnlyException",
+    "UnknownException",
+    "UnknownLocalException",
+    "UnknownSlicedValue",
+    "UnknownUserException",
+    "UserException",
+    "Value",
+    "createProperties",
+    "getProcessLogger",
+    "getSliceDir",
+    "identityToString",
+    "initialize",
+    "proxyIdentityCompare",
+    "proxyIdentityEqual",
+    "setProcessLogger",
+    "stringToIdentity",
+    "wrap_future"]

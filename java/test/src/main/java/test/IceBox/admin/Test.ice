@@ -5,7 +5,7 @@
 
 #include "Ice/PropertyDict.ice"
 
-[["java:package:test.IceBox.admin"]]
+["java:identifier:test.IceBox.admin.Test"]
 module Test
 {
     interface TestFacet

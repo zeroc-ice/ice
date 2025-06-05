@@ -1,64 +1,90 @@
-# Ice for .NET
+# Ice for C-Sharp
 
-[Getting started] | [Examples] | [NuGet package] | [Documentation] | [Building from source]
+[Examples] | [Documentation] | [API Reference] | [Building from source]
 
-The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.
+The [Ice framework] provides everything you need to build networked applications,
+including RPC, pub/sub, server deployment, and more.
 
-Ice for .NET is the C# / .NET implementation of the Ice framework.
+Ice for C# is the C# (and .NET) implementation of the Ice framework.
 
 ## Sample Code
 
 ```slice
+// Slice definitions (Greeter.ice)
+
 #pragma once
 
-module Demo
+module VisitorCenter
 {
-    interface Hello
+    /// Represents a simple greeter.
+    interface Greeter
     {
-        void sayHello();
+        /// Creates a personalized greeting.
+        /// @param name The name of the person to greet.
+        /// @return The greeting.
+        ["cs:identifier:Greet"] // We prefer PascalCase for C# methods.
+        string greet(string name);
     }
 }
 ```
 
 ```csharp
 // Client application
-using(var communicator = Ice.Util.initialize(ref args))
-var hello = HelloPrxHelper.checkedCast(
-    communicator.stringToProxy("hello:default -h localhost -p 10000"));
-hello.sayHello();
+
+using VisitorCenter;
+
+await using Ice.Communicator communicator = Ice.Util.initialize(ref args);
+
+GreeterPrx greeter = GreeterPrxHelper.createProxy(
+    communicator,
+    "greeter:tcp -h localhost -p 4061");
+
+string greeting = await greeter.GreetAsync(Environment.UserName);
+Console.WriteLine(greeting);
 ```
 
 ```csharp
 // Server application
-using(var communicator = Ice.Util.initialize(ref args))
 
-// Shut down the communicator on Ctrl+C or Ctrl+Break.
+await using Ice.Communicator communicator = Ice.Util.initialize(ref args);
+
+Ice.ObjectAdapter adapter =
+    communicator.createObjectAdapterWithEndpoints("GreeterAdapter", "tcp -p 4061");
+
+adapter.add(new Server.Chatbot(), new Ice.Identity { name = "greeter" });
+
+adapter.activate();
+Console.WriteLine("Listening on port 4061...");
+
 Console.CancelKeyPress += (sender, eventArgs) =>
 {
     eventArgs.Cancel = true;
+    Console.WriteLine("Caught Ctrl+C, shutting down...");
     communicator.shutdown();
 };
 
-var adapter = communicator.createObjectAdapterWithEndpoints(
-    "Hello",
-    "default -h localhost -p 10000");
-adapter.add(new Printer(), Ice.Util.stringToIdentity("hello"));
-adapter.activate();
-communicator.waitForShutdown();
+await communicator.shutdownCompleted;
+```
 
-public class Printer : HelloDisp_
+```csharp
+// Greeter implementation
+
+using VisitorCenter;
+
+namespace Server;
+
+internal class Chatbot : GreeterDisp_
 {
-    /// <summary>Prints a message to the standard output.</summary>
-    public override void sayHello(Ice.Current current)
+    public override string Greet(string name, Ice.Current current)
     {
-        Console.WriteLine("Hello World!");
+        Console.WriteLine($"Dispatching greet request {{ name = '{name}' }}");
+        return $"Hello, {name}!";
     }
 }
 ```
 
-[Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-c-sharp
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/csharp
-[NuGet package]: https://www.nuget.org/packages/zeroc.ice.net
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/csharp
 [Documentation]: https://doc.zeroc.com/ice/3.7
-[Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/csharp/BUILDING.md
+[API Reference]: https://code.zeroc.com/ice/main/api/csharp/index.html
+[Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

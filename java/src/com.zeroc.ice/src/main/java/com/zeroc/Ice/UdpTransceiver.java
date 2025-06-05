@@ -3,7 +3,6 @@
 package com.zeroc.Ice;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.PortUnreachableException;
@@ -121,8 +120,6 @@ final class UdpTransceiver implements Transceiver {
                 throw new ConnectionLostException(ex);
             } catch (PortUnreachableException ex) {
                 throw new ConnectionLostException(ex);
-            } catch (InterruptedIOException ex) {
-                continue;
             } catch (IOException ex) {
                 throw new SocketException(ex);
             }
@@ -164,8 +161,6 @@ final class UdpTransceiver implements Transceiver {
                 throw new ConnectionLostException(ex);
             } catch (PortUnreachableException ex) {
                 throw new ConnectionLostException(ex);
-            } catch (InterruptedIOException ex) {
-                continue;
             } catch (IOException ex) {
                 throw new ConnectionLostException(ex);
             }

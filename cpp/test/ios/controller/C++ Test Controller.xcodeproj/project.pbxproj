@@ -14,14 +14,11 @@
 		1440D88C1E018B0C00CF7ED3 /* ControllerI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1440D8811E0188A600CF7ED3 /* ControllerI.mm */; };
 		148ABA441DFEEAEE00594F70 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C581DF98FD8002AE61B /* AppDelegate.m */; };
 		148ABA451DFEEAEE00594F70 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C551DF98FD8002AE61B /* main.m */; };
-		148ABA481DFEEAEE00594F70 /* client.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA171DFB12C800594F70 /* client.p12 */; };
 		148ABA491DFEEAEE00594F70 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C621DF98FD8002AE61B /* LaunchScreen.storyboard */; };
-		148ABA4B1DFEEAEE00594F70 /* server.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA181DFB12C800594F70 /* server.p12 */; };
 		148ABA4C1DFEEAEE00594F70 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14905C601DF98FD8002AE61B /* Assets.xcassets */; };
 		148ABA4D1DFEEAEE00594F70 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C5D1DF98FD8002AE61B /* Main.storyboard */; };
-		148ABA4E1DFEEAEE00594F70 /* certs in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA1C1DFB12DB00594F70 /* certs */; };
-		14C8F6211EB3972D009B4CEC /* cacert.pem in Resources */ = {isa = PBXBuildFile; fileRef = 143A09B01EB38CAD00C8F91F /* cacert.pem */; };
 		14E398391E01B30E00A89291 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14E398371E01B30500A89291 /* CFNetwork.framework */; };
+		822123442DE0EB2C00E183F2 /* certs in Resources */ = {isa = PBXBuildFile; fileRef = 822123432DE0EB2600E183F2 /* certs */; };
 		8267256920A9EF6E0089EA2D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8267256820A9EF6E0089EA2D /* Security.framework */; };
 		828491FE20C82DAB00B4B721 /* ControllerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 82A1B91620C0081200B3535B /* ControllerView.m */; };
 /* End PBXBuildFile section */
@@ -69,14 +66,10 @@
 
 /* Begin PBXFileReference section */
 		1419EB441E028A0700352FD7 /* Controller.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Controller.ice; path = ../../../../../scripts/Controller.ice; sourceTree = "<group>"; };
-		143A09B01EB38CAD00C8F91F /* cacert.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cacert.pem; path = ../../../../certs/cacert.pem; sourceTree = "<group>"; };
 		1440D86C1E0186FF00CF7ED3 /* CppControllerBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CppControllerBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		1440D8811E0188A600CF7ED3 /* ControllerI.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ControllerI.mm; path = Bundle/ControllerI.mm; sourceTree = SOURCE_ROOT; };
 		1440D8821E0188A600CF7ED3 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Bundle/Info.plist; sourceTree = SOURCE_ROOT; };
 		1440D8891E0189F300CF7ED3 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		148ABA171DFB12C800594F70 /* client.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = client.p12; path = ../../../../certs/client.p12; sourceTree = "<group>"; };
-		148ABA181DFB12C800594F70 /* server.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = server.p12; path = ../../../../certs/server.p12; sourceTree = "<group>"; };
-		148ABA1C1DFB12DB00594F70 /* certs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = certs; path = ../../IceSSL/certs; sourceTree = "<group>"; };
 		148ABA1E1DFB18A300594F70 /* C++ Test Controller.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "C++ Test Controller.entitlements"; sourceTree = "<group>"; };
 		148ABA551DFEEAEE00594F70 /* C++ Test Controller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "C++ Test Controller.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		14905C551DF98FD8002AE61B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -88,6 +81,7 @@
 		14905C651DF98FD8002AE61B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14B70D0F1E0160FD00118DE3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		14E398371E01B30500A89291 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		822123432DE0EB2600E183F2 /* certs */ = {isa = PBXFileReference; lastKnownFileType = folder; name = certs; path = ../../../../certs; sourceTree = "<group>"; };
 		8267256820A9EF6E0089EA2D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		82A1B91620C0081200B3535B /* ControllerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ControllerView.m; sourceTree = "<group>"; };
 		82A1B91720C0081200B3535B /* ControllerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerView.h; sourceTree = "<group>"; };
@@ -118,10 +112,7 @@
 		148ABA151DFB12A500594F70 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				143A09B01EB38CAD00C8F91F /* cacert.pem */,
-				148ABA1C1DFB12DB00594F70 /* certs */,
-				148ABA171DFB12C800594F70 /* client.p12 */,
-				148ABA181DFB12C800594F70 /* server.p12 */,
+				822123432DE0EB2600E183F2 /* certs */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -282,13 +273,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				148ABA481DFEEAEE00594F70 /* client.p12 in Resources */,
-				14C8F6211EB3972D009B4CEC /* cacert.pem in Resources */,
 				148ABA491DFEEAEE00594F70 /* LaunchScreen.storyboard in Resources */,
-				148ABA4B1DFEEAEE00594F70 /* server.p12 in Resources */,
 				148ABA4C1DFEEAEE00594F70 /* Assets.xcassets in Resources */,
+				822123442DE0EB2C00E183F2 /* certs in Resources */,
 				148ABA4D1DFEEAEE00594F70 /* Main.storyboard in Resources */,
-				148ABA4E1DFEEAEE00594F70 /* certs in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

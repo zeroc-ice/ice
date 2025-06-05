@@ -568,6 +568,8 @@ public sealed class Instance
         _initData.threadStop = threadStop;
     }
 
+    internal void addSliceLoader(SliceLoader loader) => _applicationSliceLoader.add(loader);
+
     //
     // Only for use by Ice.Communicator
     //
@@ -708,22 +710,17 @@ public sealed class Instance
 
             // Update _initData.sliceLoader
 
+            if (_initData.sliceLoader is not null)
+            {
+                _applicationSliceLoader.add(_initData.sliceLoader);
+            }
+
             // We create a lazy Slice loader that searches assemblies the first time we unmarshal a class or
             // exception. At that time, all the assemblies should have been loaded.
             var lazySliceLoader = new LazySliceLoader(
                 () => SliceLoader.fromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
-            if (_initData.sliceLoader is null)
-            {
-                _initData.sliceLoader = lazySliceLoader;
-            }
-            else
-            {
-                var compositeSliceLoader = new CompositeSliceLoader();
-                compositeSliceLoader.add(_initData.sliceLoader);
-                compositeSliceLoader.add(lazySliceLoader);
-                _initData.sliceLoader = compositeSliceLoader;
-            }
+            _initData.sliceLoader = new CompositeSliceLoader(_applicationSliceLoader, lazySliceLoader);
 
             string toStringModeStr = _initData.properties.getIceProperty("Ice.ToStringMode");
             if (toStringModeStr == "Unicode")
@@ -916,10 +913,10 @@ public sealed class Instance
             // Properties facet
             //
             string propertiesFacetName = "Properties";
-            PropertiesAdminI propsAdmin = null;
+            NativePropertiesAdmin propsAdmin = null;
             if (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(propertiesFacetName))
             {
-                propsAdmin = new PropertiesAdminI(this);
+                propsAdmin = new NativePropertiesAdmin(this);
                 _adminFacets.Add(propertiesFacetName, propsAdmin);
             }
 
@@ -1415,5 +1412,10 @@ public sealed class Instance
     private readonly Dictionary<short, BufSizeWarnInfo> _setBufSizeWarn = new();
     private ConnectionOptions _serverConnectionOptions; // set in initialize
     private Ice.SSL.SSLEngine _sslEngine;
+
+    // The Slice loader(s) added by the application: initData.sliceLoader followed by the loaders added by
+    // addSliceLoader.
+    private readonly CompositeSliceLoader _applicationSliceLoader = new();
+
     private readonly object _mutex = new object();
 }

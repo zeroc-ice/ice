@@ -6,6 +6,8 @@
 #include "Ice/Ice.h"
 #include "TestHelper.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace Test;
 
@@ -32,6 +34,17 @@ namespace
         test(ctx["_con.remotePort"] != "");
         test(ctx["_con.remoteAddress"] == "127.0.0.1");
     }
+
+    void testSubjectName(const string& subjectName)
+    {
+        test(subjectName.find("CN=ca.client") != string::npos);
+        test(subjectName.find("OU=Ice test infrastructure") != string::npos);
+        test(subjectName.find("O=ZeroC") != string::npos);
+        test(subjectName.find("L=Jupiter") != string::npos);
+        test(subjectName.find("ST=Florida") != string::npos);
+        test(subjectName.find("C=US") != string::npos);
+        test(subjectName.find("emailAddress=info@zeroc.com") != string::npos);
+    }
 }
 
 class PermissionsVerifierI final : public Glacier2::PermissionsVerifier
@@ -52,12 +65,7 @@ public:
         testContext(true, current.adapter->getCommunicator(), current.ctx);
 
         Ice::SSL::ScopedCertificate cert = Ice::SSL::decodeCertificate(info.certs[0]);
-        string subjectName = Ice::SSL::getSubjectName(cert.get());
-#if defined(_WIN32)
-        test(subjectName == "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=\"ZeroC, Inc.\",OU=Ice,CN=client");
-#else
-        test(subjectName == "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client");
-#endif
+        testSubjectName(Ice::SSL::getSubjectName(cert.get()));
         return true;
     }
 };
@@ -116,16 +124,7 @@ public:
         try
         {
             Ice::SSL::ScopedCertificate cert = Ice::SSL::decodeCertificate(info.certs[0]);
-            string subjectName = Ice::SSL::getSubjectName(cert.get());
-#if defined(_WIN32)
-            test(
-                subjectName ==
-                "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=\"ZeroC, Inc.\",OU=Ice,CN=client");
-#else
-            test(
-                subjectName ==
-                "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client");
-#endif
+            testSubjectName(Ice::SSL::getSubjectName(cert.get()));
         }
         catch (const Ice::SSL::CertificateReadException&)
         {

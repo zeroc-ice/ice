@@ -464,8 +464,15 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
   /* Matches any characters not matched by another metadata rule (except whitespace), and reports an error. */
-<METADATA>[^[:space:]] {
-    currentUnit->error("invalid character between metadata");
+<METADATA>[^[:space:]\"\],\n]+ {
+    ostringstream msg;
+    msg << "invalid tokens in metadata: '" << yytext << "' (maybe you forgot to wrap it in quotes?)";
+    currentUnit->error(msg.str());
+
+    StringTokPtr str = make_shared<StringTok>();
+    str->literal = yytext;
+    *yylval = str;
+    return BAD_TOKEN;
 }
 
   /* ========== Identifiers and Keywords ========== */
@@ -522,8 +529,18 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* ========== Others ========== */
 
-  /* Matches and consumes a BOM, but only when the scanner has just started scanning a new file. */
-<INITIAL>{bom} {}
+  /* Handles UTF-8 BOMs.
+   * The scanner has a special 'INITIAL' state, which it enters whenever it hits the start of a file.
+   * This occurs when parsing initially begins, but also when we see the start of an '#include'd file.
+   * As soon as the scanner sees a token, it will transition into a more specific state: SLICE, METADATA, etc.
+   * depending on what token it sees.
+   *
+   * Since BOMs are only allowed at the beginning of files, we only allow them in this 'INITIAL' state.
+   * If we see a BOM in any other state, we emit an error and throw it away. */
+<INITIAL>{bom} { /* do nothing */ }
+<SLICE,PREPROCESS,METADATA>{bom} {
+    currentUnit->error("encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files");
+}
 
   /* Matches invalid characters, one at a time to make this the 2nd lowest priority rule. All printable ASCII
    * characters are valid (those between 32 and 127 inclusively), anything outside this range is invalid. */
@@ -536,7 +553,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     s << "'";
 
     currentUnit->error(s.str());
-    return BAD_CHAR;
+    return BAD_TOKEN;
 }
 
   /* Matches any valid character (except newlines) not matched by another rule and fowards it to the parser.

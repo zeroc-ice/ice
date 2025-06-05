@@ -23,8 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="../Ice/Ice.csproj" />
   </ItemGroup>
-  <Import Project="../../msbuild/ice.sign.targets" />
-
   <ItemGroup>
     <!-- Packaging files -->
     <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />

@@ -3,7 +3,6 @@
 package test.Ice.faultTolerance;
 
 import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.Properties;
 
 import test.TestHelper;
 
@@ -17,11 +16,8 @@ public class Client extends TestHelper {
 
     public void run(String[] args) {
         List<String> remainingArgs = new ArrayList<String>();
-        Properties properties = createTestProperties(args, remainingArgs);
-        properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
-        //
+        var properties = createTestProperties(args, remainingArgs);
         // This test aborts servers, so we don't want warnings.
-        //
         properties.setProperty("Ice.Warn.Connections", "0");
 
         try (Communicator communicator = initialize(properties)) {

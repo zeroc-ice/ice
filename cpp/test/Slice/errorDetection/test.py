@@ -13,11 +13,13 @@ class SliceErrorDetectionTestCase(ClientTestCase):
         testdir = current.testsuite.getPath()
         slice2cpp = SliceTranslator("slice2cpp", quiet=True)
 
+        # Create a temporary directory for all the Slice compilers to write their output to.
         outdir = "{0}/tmp".format(testdir)
         if os.path.exists(outdir):
             shutil.rmtree(outdir)
         os.mkdir(outdir)
 
+        # Get all the '.ice' files in this script's directory.
         files = glob.glob("{0}/*.ice".format(testdir))
         files.sort()
         try:
@@ -59,28 +61,8 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                         i = i + 1
                     else:
                         current.writeln("ok")
-
-            current.write("Forward.ice... ")
-            for language in [
-                "cpp",
-                "cs",
-                "html",
-                "java",
-                "js",
-                "matlab",
-                "php",
-                "py",
-                "rb",
-                "swift",
-            ]:
-                compiler = SliceTranslator("slice2%s" % language)
-                if not os.path.isfile(compiler.getCommandLine(current)):
-                    continue
-                compiler.run(
-                    current, args=["forward/Forward.ice", "--output-dir", "tmp"]
-                )
-            current.writeln("ok")
         finally:
+            # Make sure we clean up the 'tmp' directory.
             if os.path.exists(outdir):
                 shutil.rmtree(outdir)
 

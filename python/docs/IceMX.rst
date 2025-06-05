@@ -1,10 +1,11 @@
 IceMX package
 =============
 
+.. currentmodule:: IceMX
+
 Module contents
 ---------------
 
 .. automodule:: IceMX
    :members:
-   :undoc-members:
    :show-inheritance:

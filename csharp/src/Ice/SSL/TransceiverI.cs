@@ -75,7 +75,8 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
     {
         if (_sslStream != null)
         {
-            _sslStream.Close(); // Closing the stream also closes the socket.
+            cancelSslHandshake();
+            _sslStream.Dispose(); // Disposing the stream also closes the socket.
             _sslStream = null;
         }
 
@@ -91,21 +92,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
     public void destroy()
     {
         _delegate.destroy();
-        if (!_verified && _writeResult is not null)
-        {
-            // If the SSL handshake is still in progress, cancel it and wait for its completion before disposing of the
-            // stream.
-            _sslHandshakeCts.Cancel();
-            try
-            {
-                _writeResult.Wait();
-                _writeResult = null;
-            }
-            catch
-            {
-            }
-        }
-        Debug.Assert(_writeResult is null || _writeResult.IsCompleted);
+        cancelSslHandshake();
         _sslStream?.Dispose();
         _sslHandshakeCts.Dispose();
     }
@@ -369,6 +356,27 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         _sslStream = null;
 
         _verifyPeer = _instance.properties().getIcePropertyAsInt("IceSSL.VerifyPeer");
+    }
+
+    /// <summary>
+    /// If the SSL handshake is in progress, cancel it and wait for it to finish. This is used to ensure that the
+    /// SSLStream is not disposed while the handshake is in progress.
+    /// </summary>
+    private void cancelSslHandshake()
+    {
+        if (!_verified && _writeResult is not null)
+        {
+            _sslHandshakeCts.Cancel();
+            try
+            {
+                _writeResult.Wait();
+                _writeResult = null;
+            }
+            catch
+            {
+            }
+        }
+        Debug.Assert(_writeResult is null || _writeResult.IsCompleted);
     }
 
     private bool startAuthenticate(Ice.Internal.AsyncCallback callback, object state)

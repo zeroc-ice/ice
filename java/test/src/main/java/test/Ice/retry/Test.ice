@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.retry"]]
+["java:identifier:test.Ice.retry.Test"]
 module Test
 {
     interface Retry

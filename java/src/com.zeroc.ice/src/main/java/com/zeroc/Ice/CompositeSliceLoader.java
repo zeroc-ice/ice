@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Implements SliceLoader by combining multiple SliceLoaders.
  */
-final public class CompositeSliceLoader implements SliceLoader {
+public final class CompositeSliceLoader implements SliceLoader {
     private final List<SliceLoader> _loaders;
 
     /**

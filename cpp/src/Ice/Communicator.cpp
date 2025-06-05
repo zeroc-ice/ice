@@ -216,6 +216,12 @@ Ice::Communicator::getLogger() const noexcept
     return _instance->initializationData().logger;
 }
 
+void
+Ice::Communicator::addSliceLoader(SliceLoaderPtr sliceLoader) noexcept
+{
+    _instance->addSliceLoader(std::move(sliceLoader));
+}
+
 Ice::Instrumentation::CommunicatorObserverPtr
 Ice::Communicator::getObserver() const noexcept
 {

@@ -15,28 +15,29 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
 - Replaced ACM and connection timeouts by idle, inactivity, connect, and close timeouts.
   - Idle timeout\
   Once a connection is established, this connection is considered healthy as long as it does not wait for more than idle
-  timeout to read a byte. If a connection waits for more than idle timeout to read a byte, it's deemed idle and aborted.
+  timeout to read a byte. If a connection waits for more than idle timeout to read a byte, it is considered idle and
+  aborted by the idle check mechanism.
   Idle is never a good state. To prevent connections from becoming idle, Ice ensures there is regular write activity on
   established connections: if there is no write on a connection for idle timeout / 2, Ice sends a heartbeat on this
   connection. A heartbeat is a one-way, unacknowledged, ValidateConnection message. The default idle timeout is
   60 seconds. You can change this value with the configuration property `Ice.Connection.Client.IdleTimeout` (for client
   connections) or `Ice.Connection.Server.IdleTimeout` (for server connections). The unit for this timeout is seconds.
    You can also override this value for a specific object adapter with the configuration property
-  `AdapterName.Connection.IdleTimeout`. Our general recommendation is to keep things simple: use the same value
-  (typically the default) for all your Ice applications. In particular, the idle timeout is not negotiated during
-  connection establishment and an idle timeout mismatch may result in untimely connection aborts.
+  `AdapterName.Connection.IdleTimeout`. We recommend keeping things simple: use the same value (typically the default)
+  for all your Ice applications. In particular, the idle timeout is not negotiated during connection establishment and
+  an idle timeout mismatch may result in untimely connection aborts.
     - **Interop with Ice 3.7 and earlier releases**\
     If your Ice 3.8 application connects to an older Ice server or accepts a connection from an older Ice client, you
     need to change the configuration of your older Ice application to send regular heartbeats. Otherwise, your Ice 3.8
-    application can deem the connection idle (after idle timeout) and abort this connection. With Ice 3.7 and Ice 3.6,
-    you can set the property `Ice.ACM.Heartbeat` to 3, and make sure the `Ice.ACM.Timeout` property matches your idle
-    timeout (the default for the ACM timeout is 60 seconds, just like the default idle timeout). If you are unable to
-    change the configuration of your older Ice application, you can switch off the idle detection on the Ice 3.8 side
+    application can consider the connection idle (after idle timeout) and abort this connection. With Ice 3.7 and Ice
+    3.6, you can set the property `Ice.ACM.Heartbeat` to 3, and make sure the `Ice.ACM.Timeout` property matches your
+    idle timeout (the default for the ACM timeout is 60 seconds, just like the default idle timeout). If you are unable
+    to change the configuration of your older Ice application, you can switch off the idle check on the Ice 3.8 side
     by setting `Ice.Connection.Client.EnableIdleCheck` or `Ice.Connection.Server.EnableIdleCheck` to 0. You can also
-    switch off the idle check for just a specific object adapter by setting `AdapterName.Connection.EnableIdleCheck` to
-    0.
+    switch off the idle check for just a specific object adapter by setting `AdapterName.Connection.EnableIdleCheck`
+    to 0.
     - **Interop with IceRPC**\
-    IceRPC uses the same idle timeout and idle check mechanism for connections that use the `ice` protocol.
+    [IceRPC] uses the same idle timeout and idle check mechanism for connections that use the `ice` protocol.
   - Inactivity timeout\
   A connection is considered inactive when there is no application-level activity on this connection:
   there is no outstanding invocation (we're not waiting for a response for a request we've sent), there is no
@@ -63,6 +64,17 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   client connections) or `Ice.Connection.Server.CloseTimeout` (for server connections). The unit for this timeout is
   seconds, as usual. You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.CloseTimeout`.
+
+- Add new properties for flow control.
+  - Max dispatches\
+  The maximum number of concurrent dispatches for each connection is now 100. You can change this value by setting
+  `Ice.Connection.Client.MaxDispatches` (for client connections) or `Ice.Connection.Server.MaxDispatches` (for server
+  connections). You can also override this value for a specific object adapter with the configuration
+  property `AdapterName.Connection.MaxDispatches`.
+  When the limit is reached, Ice stops reading from the connection, which applies back pressure on the peer.
+  - Max connections\
+  The property _adapter_.MaxConnections limits the number of incoming connections accepted by an object adapter. The
+  default is 0, which means no limit.
 
 - Simplify proxy creation.
   You can now create a typed proxy directly from a communicator and a string in all languages. For example:
@@ -120,15 +132,22 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   const greeter = new GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061");
   ```
 
-  The existing `stringToProxy` operation on `Communicator` remains available. However, the new
-  syntax is now the preferred way to create a proxy from a string.
+  The existing `stringToProxy` operation on `Communicator` remains available. However, the new syntax is now the
+  preferred way to create a proxy from a string.
+
+- Add new dispatcher API in C++, C#, Java, JavaScript, and Swift.
+  - Replaced dispatch interceptors by middleware. See the new forwarder and middleware demos.
+  - Changed the name of the Ice 3.7 dispatcher API: it's now called executor.
+
+- Add `setDefaultObjectAdapter` operation on Communicator to simplify the creation of bidir connections. See the updated
+  Ice/bidir demo.
 
 - Rework the published endpoints of object adapters
   - The published endpoints of an object adapter are the endpoint(s) included in the proxies returned by the `add` and
 `createProxy` operations on an object adapter. For indirect object adapters, the published endpoints are the endpoints
 registered with the Ice Locator (typically the IceGrid registry).
   - Improved the algorithm for computing the default published endpoints.
-  - Add new _AdapterName_.PublishedHost property, used to compute the default published endpoints.
+  - Add new _adapter_.PublishedHost property, used to compute the default published endpoints.
   - Removed the `refreshPublishedEndpoints` operation on `ObjectAdapter`.
 
 - The local exceptions that can be marshaled now have a common base class (`DispatchException`), and are no longer
@@ -172,6 +191,7 @@ classDiagram
 ```
 
 - Consolidate and refactor the exceptions derived from LocalException.
+
   | Local exception in Ice 3.7          | Replacement                | Notes    |
   |-------------------------------------|----------------------------| ---------|
   | BadMagicException                   | ProtocolException (base)   |          |
@@ -267,32 +287,173 @@ classDiagram
   user exceptions is currently ignored.
 
 - The plug-ins provided by Ice now have fixed names: IceIAP, IceBT, IceUDP, IceWS, IceDiscovery, IceLocatorDiscovery.
-This fixed name is the only name you can use when loading/configuring such a plug-in with the Ice.Plugin.name property.
+  This fixed name is the only name you can use when loading/configuring such a plug-in with the Ice.Plugin.name property.
+
+- The Windows MSI installer is now built using the WiX Toolset. The WiX project files are included in the packaging/msi
+  directory.
+
+- The RPM packaging files, previously distributed in the ice-packaging repository, are now included in the packaging/rpm
+  directory.
+
+- The DEB packaging files, previously distributed in the ice-packaging repository, are now included in the packaging/deb
+  directory.
+
+- Removed support for setting per-language plug-in entry points. In Ice 3.7 and earlier, it was possible to specify
+  plug-in entry points on a per-language basis using the `Ice.Plugin.<name>.<lang>` syntax. This feature was rarely used
+  and discouraged, as configuration files should not be shared across language mappings.
+
+- The default value for Ice.ClassGraphDepthMax is now `10`. In Ice 3.7, the default was `0`, which meant the class
+  graph depth was unlimited.
+
+- Removed the `stringToIdentity` method from the Communicator class. This method was deprecated in Ice 3.7.
 
 ## Slice Language Changes
 
 - Removed local Slice. `local` is no longer a Slice keyword.
 
-- Removed the `["preserve-slice"]` metadata. Slice classes encoded in the sliced format are now always preserved.
+- Removed the `["preserve-slice"]` metadata. Slice classes marshaled in the sliced format are now always preserved when
+  unmarshaled.
 
-- Exceptions are now always encoded in the sliced format and no longer support preservation of unknown slices.
+- Exceptions are now always marshaled in the sliced format and no longer support preservation of unknown slices during
+  unmarshaling.
 
 - Slice classes can no longer define operations or implement interfaces, and `implements` is no longer a Slice keyword.
 This feature has been deprecated since Ice 3.7.
 
-- Slice classes no longer represent remote Ice objects; the syntax `MyClass*` (a proxy to a class) is now invalid.
+- Slice classes can no longer represent remote Ice objects; the syntax `MyClass*` (a proxy to a class) is now invalid.
 
 - An interface can no longer be used as a type. This feature, known as "interface by value", has been deprecated since
 Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
 
-## Property Changes
+- The type of an optional field or parameter can no longer be a class or contain a class.
 
-- Removed `IceSSL.SchannelStrongCrypto`. Strong crypto is now enabled by default.
+- `:` is now an alias for the `extends` keyword.
+
+- Removed Slice checksums.
+
+## Slice Tools
+
+- Add new `ice2slice` compiler that converts Slice files in the `.ice` format (used by Ice) into Slice files in the
+`.slice` format (used by IceRPC).
+
+- Removed the `slice2html` compiler, which was previously used to convert Slice documentation comments to HTML. Doxygen
+  should be used to generate Slice API documentation.
+
+- Removed the `--impl` argument from the Slice compilers.
+
+- You can now use identifiers with underscores or with the Ice prefix without any special compiler option.
+
+## IceSSL Changes
+
+The ssl transport is no longer a plug-in. It is now built into the main Ice library and always available.
+
+### Integration with Platform SSL Engines
+
+Ice 3.8 introduces new IceSSL configuration APIs that allow you to configure the ssl transport using platform-native
+SSL engine APIs. This provides significantly greater flexibility for advanced use cases.
+
+- The ssl transport can now be fully configured programmatically, without relying on IceSSL properties.
+- Separate configurations for outgoing and incoming SSL connections are supported.
+- Per-ObjectAdapter configuration is also possible.
+
+> These APIs are platform-dependent. A good starting point is the `Ice/secure` demo for your target platform and
+> language mapping.
+
+### Removed Support for OpenSSL on Windows
+
+In Ice 3.7, IceSSL on Windows could be built with either Schannel or OpenSSL. In Ice 3.8, since IceSSL is now built-in,
+it always uses the platform’s native SSL APIs. On Windows, this means **Schannel is always used**;
+**OpenSSL is no longer supported** on Windows.
+
+### Removed IceSSL APIs
+
+- **Certificate API**\
+  The `IceSSL::Certificate` type and related APIs have been removed. Applications that require access to certificate
+  data must now use platform-native certificate APIs.
+
+- **Certificate Verifiers**\
+  Custom certificate verifiers have been replaced with new configuration APIs that allow applications to install
+  validation callbacks that directly use the underlying SSL engine APIs.
+
+- **Password Callbacks**\
+  Password callback support has been removed. Applications can now provide certificates and keys directly through the
+  new configuration APIs.
+
+### Updated IceSSL Properties
+
+- **IceSSL.CertFile**\
+  This property no longer accepts multiple files. In Ice 3.7, IceSSL with OpenSSL or Schannel allowed specifying two
+  files—one for RSA and one for DSA certificates. This uncommon use case is no longer supported. Applications requiring
+  more flexibility should use the new configuration APIs, which support selecting certificates on a per-connection
+  basis.
+
+- **IceSSL.CheckCertName**\
+  In Ice 3.7, this property controlled two unrelated features:
+  (1) matching the target host name against the peer's certificate Subject Alternative Name or Common Name, and
+  (2) enabling SNI (Server Name Indication).
+  In Ice 3.8, **SNI is always enabled** for outgoing connections when the target endpoint uses a DNS name. The property
+  now only controls certificate name matching.
+
+- **IceSSL.Truststore**\
+  The `IceSSL.Keystore` property is no longer used as a fallback for `IceSSL.Truststore`.
+
+- **IceSSL.VerifyPeer**\
+  Setting `IceSSL.VerifyPeer=0` no longer suppresses verification errors. In Ice 3.7, this was often used alongside
+  the now-removed certificate verifier APIs. Applications requiring custom trust logic should use the new validation
+  callbacks.
+
+### Removed IceSSL Properties
+
+Several IceSSL properties have been removed in Ice 3.8, either because better alternatives are now available, they are
+no longer useful, or they go against best practices:
+
+- **IceSSL.CertVerifier**\
+  Previously used to dynamically load custom certificate verifiers. This mechanism and the property have been removed.
+
+- **IceSSL.Ciphers**\
+  Used to configure the list of allowed SSL ciphers. Ice 3.8 now uses system-wide defaults by default. For advanced use
+  cases, the new configuration APIs provide direct access to the underlying SSL engine.
+
+- **IceSSL.DH.bits**, **IceSSL.DHParams**\
+  Used to configure Diffie-Hellman parameters for DH cipher suites. Since DH-based ciphers are no longer recommended,
+  these properties have been removed.
+
+- **IceSSL.EntropyDaemon**\
+  Relevant only for legacy OpenSSL versions that are no longer supported.
+
+- **IceSSL.InitOpenSSL**\
+  Controlled whether IceSSL performed global OpenSSL initialization. This is no longer needed with the OpenSSL versions
+  supported in Ice 3.8.
+
+- **IceSSL.Random**\
+  Used to provide seed data to the SSL engine. Modern SSL platforms handle this internally, so the property is no longer
+  necessary.
+
+- **IceSSL.SchannelStrongCrypto**\
+  Enabled the `SCH_USE_STRONG_CRYPTO` flag on Windows to disable weak cryptographic algorithms. This flag is now always
+  enabled by default, making the property redundant.
+
+- **IceSSL.PasswordCallback**, **IceSSL.PasswordRetryMax**\
+  Supported dynamic password callbacks, which are no longer supported. These properties and their underlying mechanism
+  have been removed.
+
+- **IceSSL.Protocols**, **IceSSL.ProtocolVersionMax**, **IceSSL.ProtocolVersionMin**\
+  Controlled which SSL/TLS protocol versions were allowed for connections. Ice 3.8 now uses the system defaults
+  (typically TLS 1.2 and TLS 1.3). Applications needing precise control can either adjust system settings or use the
+  new configuration APIs.
+
+- **IceSSL.VerifyDepthMax**\
+  Previously used to set the maximum certificate chain length. This feature was rarely used. Applications requiring this
+  functionality should implement a custom certificate validation callback.
 
 ## C++ Changes
 
 - There is now a single C++ mapping, based on the C++11 mapping provided by Ice 3.7. This new C++ mapping requires a
-C++ compiler with support for std=c++17 or higher.
+C++ compiler with support for C++17 or higher.
+
+- Generated proxy classes are now concrete classes with public constructors.
+
+- Nullable proxies are represented using `std::optional`.
 
 - All functions that create proxies, including `Communicator::stringToProxy`, `ObjectAdapter::add`,
   `Connection::createProxy` and more, are now template functions that allow you to choose the type of the returned
@@ -321,7 +482,22 @@ See `InitializationData::pluginFactories`.
 
 - Removed StringConverterPlugin and ThreadHookPlugin.
 
+- Removed the `--nowarn` option, which was used to suppress warnings in `icegridnode`, `glacier2router`,
+  `icegridregistry`, and `icebox`.
+
+- The C++ NuGet package has been renamed to `ZeroC.Ice.Cpp`. This package replaces the `zeroc.ice.vXXX` packages from
+  Ice 3.7. It includes the Slice tools for C++ and no longer requires the `zeroc.icebuilder.msbuild` package.
+  Additionally, it provides CMake support files in the cmake directory.
+
+- Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept
+  `std::chrono::duration` values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods
+  now return `std::chrono::milliseconds`.
+
 ## C# Changes
+
+- Added full support for nullable types:
+  - Both the Ice C# API and the code generated by the Slice compiler are `#nullable enable`.
+  - Ice now uses the standard `?` notation for all nullable types.
 
 - The thread pools created by Ice no longer set a synchronization context. As a result, the continuation from an async
 invocation made from an Ice thread pool thread executes in a .NET thread pool thread; previously, this continuation
@@ -332,19 +508,107 @@ was executed in a thread managed by the same Ice thread pool unless you specifie
 - Replaced the `Ice.Util.registerPluginFactory` mechanism by plug-in factories on InitializationData. The corresponding
 plug-ins are created during communicator initialization. See `InitializationData.pluginFactories`.
 
+- Slice structs are now mapped to record structs or record classes:
+  - a Slice struct with only numeric, bool, enum, or record struct fields is mapped to a record struct.
+  - a Slice struct with any other field type is mapped to a sealed record class.
+
+- Updated Ice.Communicator to implement IAsyncDisposable. The preferred way to create and dispose of a communicator is
+  now:
+
+  ```cs
+  await using Ice.Communicator communicator = Ice.Util.initialize(ref args);
+  ```
+
+- The preferred way to wait for communicator shutdown in an async context is now:
+
+  ```cs
+  await communicator.shutdownCompleted;
+  ```
+
 - Removed ThreadHookPlugin.
 
+- Removed support for serializable objects (the `cs:serializable` metadata directive).
+
+- The monolithic `zeroc.ice.net` package has been replaced with modular NuGet packages:
+
+  ### New C\# Packages
+
+    | Package                   | Description                                                                             |
+    |---------------------------|-----------------------------------------------------------------------------------------|
+    | iceboxnet                 | The IceBox server for .NET, packaged as a dotnet tool.                                  |
+    | ZeroC.Glacier2            | The Glacier2 assembly, used by Glacier2 client applications.                            |
+    | ZeroC.Ice                 | The main Ice assembly.                                                                  |
+    | ZeroC.Ice.Slice.Tools     | The Slice compiler (slice2cs) and MSBuild integration. Replaces the `zeroc.icebuilder.msbuild` package. |
+    | ZeroC.IceBox              | The IceBox assembly.                                                                    |
+    | ZeroC.IceDiscovery        | The IceDiscovery plug-in.                                                               |
+    | ZeroC.IceGrid             | The IceGrid assembly, used by IceGrid client applications.                              |
+    | ZeroC.IceLocatorDiscovery | The IceLocatorDiscovery plug-in.                                                        |
+    | ZeroC.IceStorm            | The IceStorm assembly, used by publishers and subscribers for IceStorm.                 |
+
+- Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept `TimeSpan`
+  values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods now return a `TimeSpan`.
+
+- Removed support for using `clr` as an alias for `cs` in metadata declarations.
+
 ## Java Changes
+
+- Removed the Java-Compat mapping.
 
 - Add plug-in factories to InitializationData. The corresponding plug-ins are created during communicator
 initialization. See `InitializationData.pluginFactories`.
 
+- Removed the `com.zeroc.Ice.Exception` base class. The common base class for all Ice exceptions is now
+  `java.lang.Exception`.
+
+- Removed the `Ice.ThreadInterruptSafe` property. You no longer need to set a property to use Ice for Java with
+  interrupts.
+
 - Removed ThreadHookPlugin.
+
+- Reworked IceMX to avoid creating split packages.
+
+- Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept
+  `java.time.Duration` values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods
+  now return a `java.time.Duration`.
+
+- Added support for the `Ice.ClassGraphDepthMax` property, which controls the maximum depth allowed when unmarshaling a
+  graph of Slice class instances.
+
+## JavaScript Changes
+
+- The Ice for JavaScript NPM package has been converted to a scoped package named `@zeroc/ice`.
+
+- The `slice2js` Slice compiler is now included in the `@zeroc/ice` package, so there is no longer a need to install a
+  separate `slice2js` NPM package.
+
+- Added support for `Symbol.asyncDispose` on `Ice.Communicator`. TypeScript applications can now use the communicator in
+  `await using` expressions.
+
+  ```ts
+  await using communicator = Ice.initialize(process.argv);
+  ```
+
+- Ice for JavaScript now uses `console.assert` with the label `DEV`. You must configure your build to strip out these
+  `DEV` assertions in release builds.
+
+- Fixed a bug where a reply could be processed before the corresponding request was marked as sent. This could break
+  at-most-once semantics.
+
+- Added support for `Ice.ClassGraphDepthMax` to control the maximum unmarshaling depth for graphs of Slice class
+  instances.
+
+- Removed support for the Internet Explorer browser.
+
+- Slice modules are now always mapped to JavaScript ES6 modules. The `js:es6-module` metadata has been removed, as a
+  single module mapping is now used by default.
 
 ## MATLAB Changes
 
 - The default value for property `Ice.ProgramName` is now `matlab-client`. It used to be the first element in the args
   cell given to `Ice.initialize`.
+
+- The `slice2matlab` function has been updated to accept multiple arguments, which are passed directly to the
+  `slice2matlab` compiler. In Ice 3.7, all arguments had to be provided as a single string, which was less convenient.
 
 ## Objective-C Changes
 
@@ -353,6 +617,81 @@ initialization. See `InitializationData.pluginFactories`.
 ## PHP Changes
 
 - Removed the flattened mapping deprecated in 3.7.
+
+- Removed support for Windows PHP builds.
+
+- Removed support for PHP 5 builds.
+
+## Python Changes
+
+- Added `Ice.EventLoopAdapter` for async event loop integration. This adapter enables integration of Ice with the
+  application’s event loop, eliminates the need for manual use of `Ice.wrap_future`, and supports alternative event
+  loops beyond the default asyncio loop.
+
+- Added async context manager support to `Ice.Communicator`. You can now use the communicator in `async with`
+  expressions.
+
+  ```python
+  async def main():
+      async with Ice.initialize(
+          sys.argv,
+          eventLoop=asyncio.get_running_loop()) as communicator:
+          ...
+
+  if __name__ == "__main__":
+      asyncio.run(main())
+  ```
+
+- Added a `checkedCastAsync` method to proxy objects to support asynchronous checked casts.
+
+- Added a `Communicator.shutdownCompleted` method to asynchronously wait for communicator to shut down.
+
+- Removed the copy parameter from the memory view factory. In Ice 3.8, the factory always receives a memory view over
+  the input stream data, making the copy parameter unnecessary.
+
+- Ice no longer uses `Ice.Unset` to represent unset optional parameters. Starting with Ice 3.8, `None` is used
+  instead. The Ice.Unset global has been removed. Furthermore, there is no distinction between a non-set
+  optional parameter and an optional parameter set to `None`.
+
+- Removed the `Ice.generateUUID` helper method. You should use Python’s built-in uuid module instead.
+
+- Added support for building pip packages directly from the Ice source distribution. In previous releases, the pip
+  package was built from a separate tarball that included pre-generated source code.
+
+## Ruby Changes
+
+## Swift Changes
+
+- Simplified the server-side mapping by removing the generated Disp structs.
+  - You can now use the generated server-side protocols as servants / dispatchers, like in other language mappings.
+  - If you want to reuse a servant implementation in a derived servant class, you need to define or override the
+    `dispatch` method in all your servant classes. See the Ice/filesystem demo for an example.
+
+## DataStorm Changes
+
+- The DataStorm publisher/subscriber framework has been integrated into the Ice distribution, and is no longer a
+  separate product.
+
+- Added support for running DataStorm callbacks using a custom executor. The executor can be set using the
+  `customExecutor` parameter of the Node's constructor.
+
+- Added `DataStorm.Node.Name` property to configure the name of a DataStorm node. The node names must be unique within
+  a DataStorm deployment.
+
+- Fixed a bug in DataStorm that can result in unexpected samples received after a session was recovered after
+  disconnection.
+
+- Fixed a bug in filter initialization that can result in segmentation fault when using a key or a sample filter.
+
+## Glacier2 Changes
+
+- Removed buffered mode. As a result, Glacier2 has now a single mode, the previous "unbuffered" mode.
+
+- Removed support for request overrides (the `_ovrd` request context).
+
+- Removed support for creating batches of requests (`Glacier2.Client.AlwaysBatch` and `Glacier2.Server.AlwayBatch`).
+
+- Removed Glacier2 helper classes.
 
 ## IceGrid Changes
 
@@ -363,4 +702,5 @@ service.
 
 - The IcePatch2 service was removed.
 
+[IceRPC]: https://github.com/icerpc
 [Slice/print]: cpp/test/Slice/print

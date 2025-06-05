@@ -277,7 +277,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
         DataMemberList dm = s->dataMembers();
         for (const auto& i : dm)
         {
-            if (!isValueType(i->type()) || i->defaultValue())
+            if (!isValueType(i->type()))
             {
                 return false;
             }
@@ -567,7 +567,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
     const TypePtr& type,
     const string& scope,
     const string& param,
-    int tag,
+    int32_t tag,
     bool marshal,
     const string& customStream)
 {
@@ -1239,15 +1239,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
 
             if (isGeneric && !isList && !isStack)
             {
-                if (isValueType(type))
-                {
-                    out << "e.Current";
-                }
-                else
-                {
-                    out << "(e.Current is null ? new ";
-                    out << typeS << "() : e.Current)";
-                }
+                out << "e.Current";
             }
             else
             {
@@ -1719,103 +1711,4 @@ Slice::CsGenerator::toArrayAlloc(const string& decl, const string& sz)
     ostringstream o;
     o << decl.substr(0, pos) << '[' << sz << ']' << decl.substr(pos + 2);
     return o.str();
-}
-
-void
-Slice::CsGenerator::validateMetadata(const UnitPtr& u)
-{
-    map<string, MetadataInfo> knownMetadata;
-
-    // "cs:attribute"
-    MetadataInfo attributeInfo = {
-        .validOn = {typeid(Enum), typeid(Enumerator), typeid(Const), typeid(DataMember)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
-        .mustBeUnique = false,
-    };
-    knownMetadata.emplace("cs:attribute", attributeInfo);
-
-    // "cs:class"
-    MetadataInfo classInfo = {
-        .validOn = {typeid(Struct)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-    };
-    knownMetadata.emplace("cs:class", std::move(classInfo));
-
-    // "cs:generic"
-    MetadataInfo genericInfo = {
-        .validOn = {typeid(Sequence), typeid(Dictionary)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
-        .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
-        {
-            const string& argument = meta->arguments();
-            if (auto seq = dynamic_pointer_cast<Sequence>(p); seq && seq->type()->isClassType())
-            {
-                if (argument == "LinkedList" || argument == "Queue" || argument == "Stack")
-                {
-                    return "'cs:generic:" + argument +
-                           "' is not supported on sequences of objects; only 'List' is supported for object sequences";
-                }
-            }
-            else if (dynamic_pointer_cast<Dictionary>(p))
-            {
-                if (argument != "SortedDictionary" && argument != "SortedList")
-                {
-                    return "the 'cs:generic' metadata only supports 'SortedDictionary' and 'SortedList' as arguments "
-                           "when applied to a dictionary";
-                }
-            }
-            return nullopt;
-        },
-    };
-    knownMetadata.emplace("cs:generic", genericInfo);
-
-    // "cs:identifier"
-    MetadataInfo identifierInfo = {
-        .validOn =
-            {typeid(Module),
-             typeid(InterfaceDecl),
-             typeid(Operation),
-             typeid(ClassDecl),
-             typeid(Slice::Exception),
-             typeid(Struct),
-             typeid(Sequence),
-             typeid(Dictionary),
-             typeid(Enum),
-             typeid(Enumerator),
-             typeid(Const),
-             typeid(Parameter),
-             typeid(DataMember)},
-        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-    };
-    knownMetadata.emplace("cs:identifier", std::move(identifierInfo));
-
-    // "cs:namespace"
-    MetadataInfo namespaceInfo = {
-        .validOn = {typeid(Module)},
-        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
-        {
-            const string msg = "'cs:namespace' is deprecated; use 'cs:identifier' to remap modules instead";
-            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
-
-            // 'cs:namespace' can only be applied to top-level modules
-            // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
-            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())
-            {
-                return "the 'cs:namespace' metadata can only be applied to top-level modules";
-            }
-            return nullopt;
-        },
-    };
-    knownMetadata.emplace("cs:namespace", std::move(namespaceInfo));
-
-    // "cs:property"
-    MetadataInfo propertyInfo = {
-        .validOn = {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-    };
-    knownMetadata.emplace("cs:property", std::move(propertyInfo));
-
-    // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "cs", std::move(knownMetadata));
 }

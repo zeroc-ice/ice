@@ -8,7 +8,6 @@
 
 [["cpp:include:Glacier2/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Glacier2"]]
 
@@ -17,6 +16,7 @@
 #include "Session.ice"
 
 /// Communicate through firewalls and across NATs.
+["java:identifier:com.zeroc.Glacier2"]
 module Glacier2
 {
     /// The exception that is thrown when a client tries to destroy a session with a router, but no session exists for

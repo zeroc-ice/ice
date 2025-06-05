@@ -1,0 +1,45 @@
+[ ca ]
+default_ca = CA_default
+
+[ CA_default ]
+dir = configuration/ca5
+crl_dir = $dir/crl
+new_certs_dir = $dir/newcerts
+database = $dir/index.txt
+serial = $dir/serial
+certificate = $dir/ca5_cert.pem
+private_key = $dir/ca5_key.pem
+default_md = sha256
+policy = policy_loose
+default_days = 398
+
+[ policy_loose ]
+commonName              = supplied
+countryName             = optional
+stateOrProvinceName     = optional
+localityName            = optional
+organizationName        = optional
+organizationalUnitName  = optional
+emailAddress            = optional
+
+[ req ]
+default_bits        = 2048
+prompt              = no
+default_md          = sha256
+distinguished_name  = req_distinguished_name
+x509_extensions     = v3_extensions
+
+[ req_distinguished_name ]
+C  = US
+ST = Florida
+L  = Jupiter
+O  = ZeroC
+OU = Ice test infrastructure
+CN = ca5
+emailAddress = info@zeroc.com
+
+[ v3_extensions ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign

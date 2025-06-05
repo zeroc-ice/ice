@@ -9,7 +9,6 @@
 namespace Slice
 {
     std::string relativePath(const std::string&, const std::string&);
-    std::string getJavaScriptModuleForType(const TypePtr& type);
     std::string getJavaScriptModule(const DefinitionContextPtr&);
 
     class JsGenerator
@@ -28,7 +27,8 @@ namespace Slice
         // Generate code to marshal or unmarshal a type
         //
         void writeMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, bool);
-        void writeOptionalMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, int, bool);
+        void
+        writeOptionalMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, std::int32_t, bool);
     };
 }
 

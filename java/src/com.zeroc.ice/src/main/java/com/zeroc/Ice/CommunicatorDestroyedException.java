@@ -8,6 +8,9 @@ package com.zeroc.Ice;
  * @see Communicator#destroy
  */
 public final class CommunicatorDestroyedException extends LocalException {
+    /**
+     * Constructs a {@code CommunicatorDestroyedException}.
+     */
     public CommunicatorDestroyedException() {
         super("communicator destroyed");
     }

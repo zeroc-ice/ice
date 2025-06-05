@@ -44,7 +44,7 @@ namespace Slice
             void writeImports();
 
         private:
-            void addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& toplevel);
+            void addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& usedBy);
             void addImport(const std::string& module);
 
             IceInternal::Output& out;
@@ -73,7 +73,7 @@ namespace Slice
             IceInternal::Output& out;
         };
 
-        // Generates the Disp structs and servant protocols.
+        // Generates the servant protocols.
         class ServantVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:

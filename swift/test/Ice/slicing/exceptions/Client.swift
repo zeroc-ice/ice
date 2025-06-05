@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-public class Client: TestHelperI {
+public class Client: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)

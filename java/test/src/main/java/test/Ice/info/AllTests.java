@@ -27,9 +27,7 @@ import test.Ice.info.Test.TestIntfPrx;
 import test.TestHelper;
 
 import java.io.PrintWriter;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -288,39 +286,15 @@ public class AllTests {
 
     static void checkPeerCertificate(com.zeroc.Ice.SSL.ConnectionInfo info) {
         test(info.certs.length > 0);
-        try {
-            byte[] thumbprint =
-                MessageDigest.getInstance("SHA-1").digest(info.certs[0].getEncoded());
-
-            // The SHA1 Thumbprint of the server certificate used in the test.
-            byte[] expected = {
-                (byte) 0x9E,
-                (byte) 0x75,
-                (byte) 0x4B,
-                (byte) 0x7A,
-                (byte) 0x7B,
-                (byte) 0xF5,
-                (byte) 0xE1,
-                (byte) 0x95,
-                (byte) 0x1C,
-                (byte) 0xB2,
-                (byte) 0xA4,
-                (byte) 0x6B,
-                (byte) 0x56,
-                (byte) 0x5F,
-                (byte) 0x8B,
-                (byte) 0xBB,
-                (byte) 0x8A,
-                (byte) 0x4A,
-                (byte) 0x35,
-                (byte) 0x5D
-            };
-            test(Arrays.equals(thumbprint, expected));
-        } catch (NoSuchAlgorithmException e) {
-            test(false);
-        } catch (CertificateEncodingException e) {
-            test(false);
-        }
+        test(info.certs[0] instanceof X509Certificate);
+        var cert = (X509Certificate) info.certs[0];
+        var subjectDN = cert.getSubjectX500Principal().getName();
+        test(subjectDN.contains("CN=ca.server"));
+        test(subjectDN.contains("OU=Ice test infrastructure"));
+        test(subjectDN.contains("O=ZeroC"));
+        test(subjectDN.contains("L=Jupiter"));
+        test(subjectDN.contains("ST=Florida"));
+        test(subjectDN.contains("C=US"));
     }
 
     private AllTests() {}

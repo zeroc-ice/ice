@@ -1,10 +1,10 @@
-// Copyright (c) ZeroC, Inc.
+﻿// Copyright (c) ZeroC, Inc.
+
+// This file is encoded in 'UTF-8 with BOM'
 
 #pragma once
 
-//
-// This file is encoded in UTF8 with BOM
-//
 module foo
 {
+﻿    // There is an illegal UTF-8 BOM at the start of this line.
 }

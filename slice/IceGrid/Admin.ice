@@ -8,7 +8,6 @@
 
 [["cpp:include:IceGrid/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceGrid"]]
 
@@ -18,6 +17,7 @@
 #include "Ice/BuiltinSequences.ice"
 #include "Ice/Identity.ice"
 
+["java:identifier:com.zeroc.IceGrid"]
 module IceGrid
 {
     interface Registry; // So that doc-comments can link to `IceGrid::Registry`.
@@ -591,7 +591,7 @@ module IceGrid
         /// message doesn't exceed the given size.
         /// @param lines The lines read from the file. If there was nothing to read from the file since the last call to
         /// read, an empty sequence is returned. The last line of the sequence is always incomplete (and therefore no
-        /// '\n' should be added when writing the last line to the to the output device).
+        /// newline character should be added when writing the last line to the to the output device).
         /// @return `true` if EOF is encountered.
         /// @throws FileNotAvailableException Thrown when the implementation failed to read from the file.
         bool read(int size, out Ice::StringSeq lines)

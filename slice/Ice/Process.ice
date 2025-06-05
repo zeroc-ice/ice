@@ -6,12 +6,12 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
 #include "LocatorRegistry.ice"
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// A server application managed by a locator implementation such as IceGrid hosts a Process object and registers a

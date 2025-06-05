@@ -339,6 +339,9 @@
     <ClCompile Include="..\..\MetricsAdminI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\NativePropertiesAdmin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -370,9 +373,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\PluginManagerI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\PropertiesAdminI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\PropertyNames.cpp">

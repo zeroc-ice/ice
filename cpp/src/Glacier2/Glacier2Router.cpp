@@ -88,12 +88,9 @@ RouterService::RouterService() = default;
 bool
 RouterService::start(int argc, char* argv[], int& status)
 {
-    bool nowarn;
-
     IceInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("", "nowarn");
 
     vector<string> args;
     try
@@ -119,7 +116,6 @@ RouterService::start(int argc, char* argv[], int& status)
         status = EXIT_SUCCESS;
         return false;
     }
-    nowarn = opts.isSet("nowarn");
 
     if (!args.empty())
     {
@@ -182,12 +178,9 @@ RouterService::start(int argc, char* argv[], int& status)
     }
     catch (const Ice::Exception& ex)
     {
-        if (!nowarn)
-        {
-            ServiceWarning warn(this);
-            warn << "unable to contact permissions verifier '" << properties->getIceProperty(verifierProperty) << "'\n"
-                 << ex;
-        }
+        ServiceWarning warn(this);
+        warn << "unable to contact permissions verifier '" << properties->getIceProperty(verifierProperty) << "'\n"
+             << ex;
     }
     catch (const std::exception& ex)
     {
@@ -213,12 +206,9 @@ RouterService::start(int argc, char* argv[], int& status)
     }
     catch (const Ice::Exception& ex)
     {
-        if (!nowarn)
-        {
-            ServiceWarning warn(this);
-            warn << "unable to contact session manager '" << properties->getIceProperty(sessionManagerProperty) << "'\n"
-                 << ex;
-        }
+        ServiceWarning warn(this);
+        warn << "unable to contact session manager '" << properties->getIceProperty(sessionManagerProperty) << "'\n"
+             << ex;
     }
     catch (const std::exception& ex)
     {
@@ -242,13 +232,10 @@ RouterService::start(int argc, char* argv[], int& status)
     }
     catch (const Ice::Exception& ex)
     {
-        if (!nowarn)
-        {
-            ServiceWarning warn(this);
-            warn << "unable to contact ssl permissions verifier '" << properties->getIceProperty(sslVerifierProperty)
-                 << "'\n"
-                 << ex;
-        }
+        ServiceWarning warn(this);
+        warn << "unable to contact ssl permissions verifier '" << properties->getIceProperty(sslVerifierProperty)
+             << "'\n"
+             << ex;
     }
     catch (const std::exception& ex)
     {
@@ -282,13 +269,10 @@ RouterService::start(int argc, char* argv[], int& status)
     }
     catch (const Ice::Exception& ex)
     {
-        if (!nowarn)
-        {
-            ServiceWarning warn(this);
-            warn << "unable to contact ssl session manager '" << properties->getIceProperty(sslSessionManagerProperty)
-                 << "'\n"
-                 << ex;
-        }
+        ServiceWarning warn(this);
+        warn << "unable to contact ssl session manager '" << properties->getIceProperty(sslSessionManagerProperty)
+             << "'\n"
+             << ex;
     }
     catch (const std::exception& ex)
     {
@@ -457,8 +441,7 @@ RouterService::usage(const string& appName)
 {
     string options = "Options:\n"
                      "-h, --help           Show this message.\n"
-                     "-v, --version        Display the Ice version.\n"
-                     "--nowarn             Suppress warnings.";
+                     "-v, --version        Display the Ice version.\n";
 #ifndef _WIN32
     options.append("\n"
                    "\n"

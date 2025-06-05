@@ -51,6 +51,8 @@ namespace Slice
 
     struct BoolTok final : public GrammarBase
     {
+        BoolTok(bool value) : v(value) {}
+
         bool v{false};
     };
 
@@ -93,13 +95,13 @@ namespace Slice
         TypePtr type;
         std::string name;
         const bool isOptional{false};
-        const int tag{0};
+        const std::int32_t tag{0};
     };
 
     struct ClassIdTok final : public GrammarBase
     {
         std::string v;
-        int t{0};
+        std::int32_t t{0};
     };
 
     struct TokenContext

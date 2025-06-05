@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.faultTolerance"]]
+["java:identifier:test.Ice.faultTolerance.Test"]
 module Test
 {
     interface TestIntf

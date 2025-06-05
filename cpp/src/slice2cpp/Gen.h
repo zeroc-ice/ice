@@ -35,11 +35,11 @@ namespace Slice
 
         /// Returns the header extension defined in the file metadata for a given file,
         /// or an empty string if no file metadata was found.
-        std::string getHeaderExt(const std::string& file, const UnitPtr& unit);
+        std::string getHeaderExt(std::string_view file, const UnitPtr& unit);
 
         /// Returns the source extension defined in the file metadata for a given file,
         /// or an empty string if no file metadata was found.
-        std::string getSourceExt(const std::string& file, const UnitPtr& unit);
+        std::string getSourceExt(std::string_view file, const UnitPtr& unit);
 
         IceInternal::Output H;
         IceInternal::Output C;

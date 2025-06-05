@@ -36,7 +36,7 @@
       }
     ],
     "sitemap": {
-      "baseUrl": "https://doc.zeroc.com/api/ice/main/csharp/"
+      "baseUrl": "https://code.zeroc.com/ice/main/api/csharp/index.html"
     },
     "overwrite": [
       {
@@ -57,8 +57,8 @@
       "_appName": "Docs",
       "_appFaviconPath": "images/favicon.ico",
       "_appLogoPath": "images/logo.png",
-      "_appLogoUrl": "https://doc.zeroc.com/api/ice/main/csharp",
-      "_appFooter": "© 2024 ZeroC",
+      "_appLogoUrl": "https://code.zeroc.com/ice/main/api/csharp/index.html",
+      "_appFooter": "© 2025 ZeroC",
       "_enableSearch": true,
       "_gitContribute": {
         "repo": "https://github.com/zeroc-ice/ice",

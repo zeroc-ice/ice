@@ -1,38 +1,51 @@
 # Ice for PHP
 
-[Getting started] | [Examples] | [Documentation] | [Building from source]
+[Examples] | [Documentation] | [API Reference] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
 
-Ice for PHP is the PHP implementation of the Ice framework.
+Ice for PHP is the PHP implementation of the Ice framework. As of this version, it
+supports only clients: you need to implement the server portion of your application in
+another programming language such as C++, C# or Java.
 
 ## Sample Code
 
 ```slice
-// Slice definitions (Hello.ice)
+// Slice definitions (Greeter.ice)
 
-module Demo
+#pragma once
+
+module VisitorCenter
 {
-    interface Hello
+    /// Represents a simple greeter.
+    interface Greeter
     {
-        void sayHello();
+        /// Creates a personalized greeting.
+        /// @param name The name of the person to greet.
+        /// @return The greeting.
+        string greet(string name);
     }
 }
 ```
 
 ```php
+<?php
 // Client application (Client.php)
+
 require_once 'Ice.php';
-require_once 'Hello.php';
+require_once 'Greeter.php';
 
 $communicator = Ice\initialize();
-$hello = Demo\HelloPrxHelper::createProxy($communicator,"hello:default -h localhost -p 10000");
-$hello->sayHello();
+$greeter = VisitorCenter\GreeterPrxHelper::createProxy($communicator, 'greeter:tcp -h localhost -p 4061');
+
+$greeting = $greeter->greet(get_current_user());
+echo "$greeting\n";
+?>
 ```
 
-[Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-php
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/php
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/php
 [Documentation]: https://doc.zeroc.com/ice/3.7
-[Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/php/BUILDING.md
+[API Reference]: https://code.zeroc.com/ice/main/api/php/index.html
+[Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

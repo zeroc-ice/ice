@@ -2,10 +2,9 @@
 
 #pragma once
 
-[["java:package:test.Ice.defaultValue"]]
-
 [["suppress-warning:deprecated"]] // For enumerator references
 
+["java:identifier:test.Ice.defaultValue.Test"]
 module Test
 {
     enum Color { red, green, blue }

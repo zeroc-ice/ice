@@ -1,0 +1,9 @@
+name: Setup Xcode
+runs:
+  using: "composite"
+  steps:
+    # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
+    - name: Use Xcode 16.4
+      if: runner.os == 'macOS'
+      shell: bash
+      run: sudo xcode-select --switch /Applications/Xcode_16.4.app/Contents/Developer

@@ -5,7 +5,7 @@ import TestCommon
 
 class EmptyI: Empty {}
 
-class Server: TestHelperI {
+class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
@@ -35,9 +35,9 @@ class Server: TestHelperI {
         let adapter3 = try communicator.createObjectAdapter("TestAdapter3")
 
         let obj = ThrowerI()
-        try adapter.add(servant: ThrowerDisp(obj), id: Ice.stringToIdentity("thrower"))
-        try adapter2.add(servant: ThrowerDisp(obj), id: Ice.stringToIdentity("thrower"))
-        try adapter3.add(servant: ThrowerDisp(obj), id: Ice.stringToIdentity("thrower"))
+        try adapter.add(servant: obj, id: Ice.stringToIdentity("thrower"))
+        try adapter2.add(servant: obj, id: Ice.stringToIdentity("thrower"))
+        try adapter3.add(servant: obj, id: Ice.stringToIdentity("thrower"))
 
         try adapter.activate()
         try adapter2.activate()

@@ -8,7 +8,6 @@
 
 [["cpp:include:IceGrid/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceGrid"]]
 
@@ -18,6 +17,7 @@
 #include "Session.ice"
 
 /// Deploy and manage Ice servers.
+["java:identifier:com.zeroc.IceGrid"]
 module IceGrid
 {
     /// Determines which load sampling interval to use.

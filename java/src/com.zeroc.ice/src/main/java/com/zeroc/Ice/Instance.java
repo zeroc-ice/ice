@@ -543,6 +543,10 @@ public final class Instance {
         _initData.threadStop = threadStop;
     }
 
+    void addSliceLoader(SliceLoader loader) {
+        _applicationSliceLoader.add(loader);
+    }
+
     Class<?> findClass(String className) {
         return Util.findClass(className, _initData.classLoader);
     }
@@ -681,26 +685,11 @@ public final class Instance {
 
             // Update _initData.sliceLoader.
 
-            var sliceLoader = new CompositeSliceLoader();
-
             if (_initData.sliceLoader != null) {
-                sliceLoader.add(_initData.sliceLoader);
+                _applicationSliceLoader.add(_initData.sliceLoader);
             }
 
-            final int notFoundCacheSize =
-                properties.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize");
-
-            if (notFoundCacheSize <= 0) {
-                _initData.sliceLoader = sliceLoader;
-            } else {
-                final Logger cacheFullLogger =
-                    properties.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0 ? _initData.logger : null;
-
-                _initData.sliceLoader = new NotFoundSliceLoaderDecorator(
-                    sliceLoader,
-                    notFoundCacheSize,
-                    cacheFullLogger);
-            }
+            var sliceLoader = new CompositeSliceLoader(_applicationSliceLoader);
 
             // Ice.Package.module loader.
             String packagePrefix = "Ice.Package";
@@ -742,6 +731,22 @@ public final class Instance {
 
             // Empty package prefix: module ::VisitorCenter maps to package VisitorCenter.
             sliceLoader.add(new DefaultPackageSliceLoader("", _initData.classLoader));
+
+            // Finally add decorator that caches NotFound, if needed.
+            final int notFoundCacheSize =
+                properties.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize");
+
+            if (notFoundCacheSize <= 0) {
+                _initData.sliceLoader = sliceLoader;
+            } else {
+                final Logger cacheFullLogger =
+                    properties.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0 ? _initData.logger : null;
+
+                _initData.sliceLoader = new NotFoundSliceLoaderDecorator(
+                    sliceLoader,
+                    notFoundCacheSize,
+                    cacheFullLogger);
+            }
 
             String toStringModeStr = properties.getIceProperty("Ice.ToStringMode");
             if ("Unicode".equals(toStringModeStr)) {
@@ -923,9 +928,9 @@ public final class Instance {
             // Properties facet
             //
             String propertiesFacetName = "Properties";
-            PropertiesAdminI propsAdmin = null;
+            NativePropertiesAdmin propsAdmin = null;
             if (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(propertiesFacetName)) {
-                propsAdmin = new PropertiesAdminI(this);
+                propsAdmin = new NativePropertiesAdmin(this);
                 _adminFacets.put(propertiesFacetName, propsAdmin);
             }
 
@@ -1457,4 +1462,8 @@ public final class Instance {
 
     private ConnectionOptions _clientConnectionOptions;
     private ConnectionOptions _serverConnectionOptions;
+
+    // The Slice loader(s) added by the application: initData.sliceLoader followed by the loaders added by
+    // addSliceLoader.
+    private final CompositeSliceLoader _applicationSliceLoader = new CompositeSliceLoader();
 }

@@ -4,7 +4,7 @@ import Dispatch
 import Ice
 import TestCommon
 
-class Server: TestHelperI {
+class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let communicator = try initialize(args)
         defer {
@@ -14,7 +14,7 @@ class Server: TestHelperI {
         communicator.getProperties().setProperty(
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: TestIntfDisp(TestI()), id: Ice.stringToIdentity("test"))
+        try adapter.add(servant: TestI(), id: Ice.Identity(name: "test"))
         try adapter.activate()
         serverReady()
         communicator.waitForShutdown()

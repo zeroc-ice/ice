@@ -9,9 +9,8 @@ import test.TestHelper;
 public class Server extends TestHelper {
     public void run(String[] args) {
         var properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.maxDispatches");
-        properties.setProperty(
-            "Ice.ThreadPool.Server.Size", "10"); // plenty of threads to handle the requests
+        // plenty of threads to handle the requests
+        properties.setProperty("Ice.ThreadPool.Server.Size", "10");
 
         try (var communicator = initialize(properties)) {
 

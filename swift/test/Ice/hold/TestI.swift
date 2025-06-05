@@ -36,15 +36,14 @@ class HoldI: Hold, @unchecked Sendable {
     }
 
     func waitForHold(current: Ice.Current) async throws {
+        let adapter = current.adapter
         _queue.async {
             do {
-                current.adapter.waitForHold()
-                try current.adapter.activate()
+                adapter.waitForHold()
+                try adapter.activate()
             } catch {
-                //
                 // This shouldn't occur. The test ensures all the waitForHold timers are
                 // finished before shutting down the communicator.
-                //
                 preconditionFailure()
             }
         }

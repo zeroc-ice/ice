@@ -2,13 +2,13 @@
 
 import IceImpl
 
-class AdminFacetFacade: ICEDispatchAdapter {
+final class AdminFacetFacade: ICEDispatchAdapter {
     private let communicator: Communicator
-    var dispatcher: Dispatcher
+    let servant: Dispatcher & Sendable
 
-    init(communicator: Communicator, dispatcher: Dispatcher) {
+    init(communicator: Communicator, servant: Dispatcher & Sendable) {
         self.communicator = communicator
-        self.dispatcher = dispatcher
+        self.servant = servant
     }
 
     func dispatch(
@@ -57,11 +57,15 @@ class AdminFacetFacade: ICEDispatchAdapter {
             bytes: Data(bytesNoCopy: inEncapsBytes, count: inEncapsCount, deallocator: .none))
 
         let request = IncomingRequest(current: current, inputStream: istr)
+        let servant = self.servant
 
         Task {
             let response: OutgoingResponse
+
+            // TODO: the request is in the Task capture and we need to send it. Is there a better syntax?
+            nonisolated(unsafe) let request = request
             do {
-                response = try await dispatcher.dispatch(request)
+                response = try await servant.dispatch(request)
             } catch {
                 response = current.makeOutgoingResponse(error: error)
             }
@@ -80,33 +84,24 @@ class AdminFacetFacade: ICEDispatchAdapter {
     func complete() {}
 }
 
-final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object {
-    func ice_id(current _: Current) -> String {
-        return ObjectTraits.staticId
+final class UnsupportedAdminFacet: Dispatcher & Sendable {
+    func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
+        throw Ice.OperationNotExistException()
     }
-
-    func ice_ids(current _: Current) -> [String] {
-        return ObjectTraits.staticIds
-    }
-
-    func ice_isA(id: String, current _: Current) -> Bool {
-        return id == ObjectTraits.staticId
-    }
-
-    func ice_ping(current _: Current) {}
 }
 
-class AdminFacetFactory: ICEAdminFacetFactory {
+final class AdminFacetFactory: ICEAdminFacetFactory {
     static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess)
         -> ICEDispatchAdapter
     {
+        // We create a new ProcessI each time, which does not really matter since users are not expected
+        // to compare the address of these servants.
+
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
-            dispatcher: ProcessDisp(
-                handle.getSwiftObject(ProcessI.self) {
-                    ProcessI(handle: handle)
-                }))
+            servant: ProcessI(handle: handle)
+        )
     }
 
     static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin)
@@ -114,23 +109,20 @@ class AdminFacetFactory: ICEAdminFacetFactory {
     {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
 
+        // We create a new NativePropertiesAdmin each time, which does not really matter since users are not expected
+        // to compare the address of these servants.
+
         return AdminFacetFacade(
             communicator: c,
-            dispatcher: PropertiesAdminDisp(
-                handle.getSwiftObject(PropertiesAdminI.self) {
-                    PropertiesAdminI(communicator: c, handle: handle)
-                }))
+            servant: NativePropertiesAdmin(handle: handle)
+        )
     }
 
-    static func createUnsupported(_ communicator: ICECommunicator, handle: ICEUnsupportedAdminFacet)
-        -> ICEDispatchAdapter
-    {
+    static func createUnsupported(_ communicator: ICECommunicator) -> ICEDispatchAdapter {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
-            dispatcher: ObjectDisp(
-                handle.getSwiftObject(UnsupportedAdminFacet.self) {
-                    UnsupportedAdminFacet(handle: handle)
-                }))
+            servant: UnsupportedAdminFacet()
+        )
     }
 }

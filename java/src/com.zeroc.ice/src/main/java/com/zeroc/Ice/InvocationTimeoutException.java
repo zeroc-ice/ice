@@ -4,10 +4,14 @@ package com.zeroc.Ice;
 
 /** This exception indicates that an invocation failed because it timed out. */
 public final class InvocationTimeoutException extends TimeoutException {
+    /**
+     * Constructs a {@code InvocationTimeoutException}.
+     */
     public InvocationTimeoutException() {
         super("Invocation timed out.");
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::InvocationTimeoutException";
     }

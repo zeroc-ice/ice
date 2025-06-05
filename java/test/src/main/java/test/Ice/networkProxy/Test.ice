@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.networkProxy"]]
+["java:identifier:test.Ice.networkProxy.Test"]
 module Test
 {
     interface TestIntf

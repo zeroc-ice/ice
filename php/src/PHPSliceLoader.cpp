@@ -42,7 +42,7 @@ IcePHP::PHPSliceLoader::newClassInstance(string_view typeId) const
     }
     zend_catch
     {
-        // obj;
+        // We throw AbortMarshaling below in case of an exception in the PHP call.
     }
     zend_end_try();
 

@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Parser.h"
-#include "GrammarUtil.h"
 #include "Ice/StringUtil.h"
 #include "Util.h"
 
@@ -24,13 +23,6 @@ bool
 Slice::containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs)
 {
     return lhs->scoped() == rhs->scoped();
-}
-
-template<typename T>
-bool
-compareTag(const T& lhs, const T& rhs)
-{
-    return lhs->tag() < rhs->tag();
 }
 
 // NOTE: It is important that this list is kept in alphabetical order!
@@ -144,7 +136,7 @@ Slice::Metadata::arguments() const
     return _arguments;
 }
 
-string
+const string&
 Slice::Metadata::file() const
 {
     return _file;
@@ -162,7 +154,7 @@ Slice::Metadata::line() const
 
 Slice::DefinitionContext::DefinitionContext(int includeLevel) : _includeLevel(includeLevel) {}
 
-string
+const string&
 Slice::DefinitionContext::filename() const
 {
     return _filename;
@@ -181,9 +173,9 @@ Slice::DefinitionContext::seenDefinition() const
 }
 
 void
-Slice::DefinitionContext::setFilename(const string& filename)
+Slice::DefinitionContext::setFilename(string filename)
 {
-    _filename = filename;
+    _filename = std::move(filename);
 }
 
 void
@@ -192,7 +184,7 @@ Slice::DefinitionContext::setSeenDefinition()
     _seenDefinition = true;
 }
 
-MetadataList
+const MetadataList&
 Slice::DefinitionContext::getMetadata() const
 {
     return _metadata;
@@ -300,23 +292,9 @@ namespace
         }
     }
 
-    StringList splitComment(string comment, bool stripMarkup, bool escapeXml)
+    StringList splitComment(string comment, bool escapeXml)
     {
         string::size_type pos = 0;
-
-        if (stripMarkup)
-        {
-            // Strip HTML markup.
-            while ((pos = comment.find('<', pos)) != string::npos)
-            {
-                string::size_type endpos = comment.find('>', pos);
-                if (endpos == string::npos)
-                {
-                    break;
-                }
-                comment.erase(pos, endpos - pos + 1);
-            }
-        }
 
         // Escape XML entities.
         if (escapeXml)
@@ -446,10 +424,10 @@ namespace
 }
 
 optional<DocComment>
-Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool stripMarkup, bool escapeXml)
+Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool escapeXml)
 {
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(p->docComment(), stripMarkup, escapeXml);
+    StringList lines = splitComment(p->docComment(), escapeXml);
     if (lines.empty())
     {
         return nullopt;
@@ -506,6 +484,8 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
     const string paramTag = "@param";
     const string throwsTag = "@throws";
     const string exceptionTag = "@exception";
+    const string remarkTag = "@remark";
+    const string remarksTag = "@remarks";
     const string seeTag = "@see";
     const string returnTag = "@return";
     const string deprecatedTag = "@deprecated";
@@ -551,7 +531,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 else
                 {
                     comment._parameters[name] = {};
-                    currentSection = &(comment._parameters[name]);
+                    currentSection = &comment._parameters[name];
                 }
             }
         }
@@ -601,14 +581,18 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                     else
                     {
                         comment._exceptions[name] = {};
-                        currentSection = &(comment._exceptions[name]);
+                        currentSection = &comment._exceptions[name];
                     }
                 }
             }
         }
+        else if (parseCommentLine(line, remarkTag, lineText) || parseCommentLine(line, remarksTag, lineText))
+        {
+            currentSection = &comment._remarks;
+        }
         else if (parseCommentLine(line, seeTag, lineText))
         {
-            currentSection = &(comment._seeAlso);
+            currentSection = &comment._seeAlso;
 
             // Remove any leading and trailing whitespace from the line.
             // There's no concern of losing formatting for `@see` due to its simplicity.
@@ -654,7 +638,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 }
                 else
                 {
-                    currentSection = &(comment._returns);
+                    currentSection = &comment._returns;
                 }
             }
         }
@@ -670,7 +654,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
             else
             {
                 comment._isDeprecated = true;
-                currentSection = &(comment._deprecated);
+                currentSection = &comment._deprecated;
             }
         }
         else // This line didn't introduce a new tag. Either we're in the overview or a tag whose content is multi-line.
@@ -687,7 +671,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 }
 
                 // '@see' tags are not allowed to span multiple lines.
-                if (currentSection == &(comment._seeAlso))
+                if (currentSection == &comment._seeAlso)
                 {
                     string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
@@ -713,6 +697,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
     }
 
     trimLines(comment._overview);
+    trimLines(comment._remarks);
     trimLines(comment._deprecated);
     trimLines(comment._returns);
 
@@ -725,37 +710,43 @@ Slice::DocComment::isDeprecated() const
     return _isDeprecated;
 }
 
-StringList
+const StringList&
 Slice::DocComment::deprecated() const
 {
     return _deprecated;
 }
 
-StringList
+const StringList&
 Slice::DocComment::overview() const
 {
     return _overview;
 }
 
-StringList
+const StringList&
+Slice::DocComment::remarks() const
+{
+    return _remarks;
+}
+
+const StringList&
 Slice::DocComment::seeAlso() const
 {
     return _seeAlso;
 }
 
-StringList
+const StringList&
 Slice::DocComment::returns() const
 {
     return _returns;
 }
 
-map<string, StringList>
+const map<string, StringList>&
 Slice::DocComment::parameters() const
 {
     return _parameters;
 }
 
-map<string, StringList>
+const map<string, StringList>&
 Slice::DocComment::exceptions() const
 {
     return _exceptions;
@@ -953,6 +944,19 @@ Slice::Contained::isTopLevel() const
     return dynamic_pointer_cast<Unit>(container()) != nullptr;
 }
 
+ModulePtr
+Slice::Contained::getTopLevelModule() const
+{
+    if (auto parent = dynamic_pointer_cast<Contained>(container()))
+    {
+        return parent->getTopLevelModule();
+    }
+    // `Module` has its own implementation of this function. So reaching here means we hit an
+    // element which is a top-level non-module. The parser will report an error for it, but
+    // until we exit (at the end of parsing) this element will exist, and needs to be handled.
+    return nullptr;
+}
+
 string
 Slice::Contained::name() const
 {
@@ -1007,7 +1011,7 @@ Slice::Contained::mappedScope(const string& separator) const
     return scoped + separator;
 }
 
-string
+const string&
 Slice::Contained::file() const
 {
     return _file;
@@ -1043,7 +1047,7 @@ Slice::Contained::unit() const
     return _container->unit();
 }
 
-MetadataList
+const MetadataList&
 Slice::Contained::getMetadata() const
 {
     return _metadata;
@@ -1216,7 +1220,7 @@ Slice::Container::createModule(const string& name, bool nestedSyntax)
 }
 
 ClassDefPtr
-Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& base)
+Slice::Container::createClassDef(const string& name, int32_t id, const ClassDefPtr& base)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
     for (const auto& p : matches)
@@ -1902,6 +1906,41 @@ Slice::Container::lookupContained(const string& identifier, bool emitErrors)
     }
 }
 
+InterfaceDefPtr
+Slice::Container::lookupInterfaceDef(const string& identifier, bool emitErrors)
+{
+    TypeList types = lookupType(identifier);
+    if (!types.empty())
+    {
+        auto interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
+        if (!interface)
+        {
+            if (emitErrors)
+            {
+                unit()->error("'" + identifier + "' is not an interface");
+            }
+        }
+        else
+        {
+            InterfaceDefPtr def = interface->definition();
+            if (!def)
+            {
+                if (emitErrors)
+                {
+                    unit()->error("'" + identifier + "' has been declared but not defined");
+                }
+            }
+            else
+            {
+                return def;
+            }
+        }
+    }
+
+    // If we failed to find a valid interface with the specified name.
+    return nullptr;
+}
+
 ExceptionPtr
 Slice::Container::lookupException(const string& identifier, bool emitErrors)
 {
@@ -2422,6 +2461,17 @@ Slice::Module::kindOf() const
     return "module";
 }
 
+ModulePtr
+Slice::Module::getTopLevelModule() const
+{
+    if (auto parent = dynamic_pointer_cast<Contained>(container()))
+    {
+        return parent->getTopLevelModule();
+    }
+    // Reaching here means that this module is at the top-level! We return it.
+    return dynamic_pointer_cast<Module>(const_pointer_cast<Container>(shared_from_this()));
+}
+
 void
 Slice::Module::visit(ParserVisitor* visitor)
 {
@@ -2516,7 +2566,7 @@ Slice::ClassDef::createDataMember(
     const string& name,
     const TypePtr& type,
     bool isOptional,
-    int tag,
+    int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
@@ -2723,13 +2773,13 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
     }
 }
 
-int
+int32_t
 Slice::ClassDef::compactId() const
 {
     return _compactId;
 }
 
-MetadataList
+const MetadataList&
 Slice::ClassDef::getMetadata() const
 {
     return _declaration->getMetadata();
@@ -2747,7 +2797,7 @@ Slice::ClassDef::appendMetadata(MetadataList metadata)
     _declaration->appendMetadata(std::move(metadata));
 }
 
-Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, ClassDefPtr base)
+Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int32_t id, ClassDefPtr base)
     : Contained(container, name),
       _base(std::move(base)),
       _compactId(id)
@@ -2985,7 +3035,7 @@ Slice::InterfaceDef::createOperation(
     const string& name,
     const TypePtr& returnType,
     bool isOptional,
-    int tag,
+    int32_t tag,
     Operation::Mode mode)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
@@ -3181,7 +3231,7 @@ Slice::InterfaceDef::ids() const
     return ids;
 }
 
-MetadataList
+const MetadataList&
 Slice::InterfaceDef::getMetadata() const
 {
     return _declaration->getMetadata();
@@ -3227,7 +3277,7 @@ Slice::Operation::returnIsOptional() const
     return _returnIsOptional;
 }
 
-int
+int32_t
 Slice::Operation::returnTag() const
 {
     return _returnTag;
@@ -3264,7 +3314,7 @@ Slice::Operation::hasMarshaledResult() const
 }
 
 ParameterPtr
-Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOptional, int tag)
+Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOptional, int32_t tag)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3631,7 +3681,7 @@ Slice::Operation::Operation(
     const string& name,
     TypePtr returnType,
     bool returnIsOptional,
-    int returnTag,
+    int32_t returnTag,
     Mode mode)
     : Contained(container, name),
       _returnType(std::move(returnType)),
@@ -3657,7 +3707,7 @@ Slice::Exception::createDataMember(
     const string& name,
     const TypePtr& type,
     bool isOptional,
-    int tag,
+    int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
@@ -3888,7 +3938,7 @@ Slice::Struct::createDataMember(
     const string& name,
     const TypePtr& type,
     bool isOptional,
-    int tag,
+    int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
@@ -4263,7 +4313,7 @@ Slice::Dictionary::Dictionary(
 // ----------------------------------------------------------------------
 
 EnumeratorPtr
-Slice::Enum::createEnumerator(const string& name, optional<int> explicitValue)
+Slice::Enum::createEnumerator(const string& name, optional<int32_t> explicitValue)
 {
     // Validate the enumerator's name.
     ContainedList matches = unit()->findContents(thisScope() + name);
@@ -4286,7 +4336,7 @@ Slice::Enum::createEnumerator(const string& name, optional<int> explicitValue)
     checkIdentifier(name); // Ignore return value.
 
     // Determine the enumerator's value, and check that it's valid.
-    int nextValue;
+    int32_t nextValue;
     if (explicitValue)
     {
         // If an explicit value was provided, the parser already checks that it's between `0` and `int32_t::max`.
@@ -4346,13 +4396,13 @@ Slice::Enum::hasExplicitValues() const
     return _hasExplicitValues;
 }
 
-int
+int32_t
 Slice::Enum::minValue() const
 {
     return static_cast<int>(_minValue);
 }
 
-int
+int32_t
 Slice::Enum::maxValue() const
 {
     return static_cast<int>(_maxValue);
@@ -4422,7 +4472,7 @@ Slice::Enumerator::hasExplicitValue() const
     return _hasExplicitValue;
 }
 
-int
+int32_t
 Slice::Enumerator::value() const
 {
     return _value;
@@ -4434,7 +4484,7 @@ Slice::Enumerator::visit(ParserVisitor*)
     // TODO we should probably visit enumerators, even if only for validation purposes.
 }
 
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int value, bool hasExplicitValue)
+Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int32_t value, bool hasExplicitValue)
     : Contained(container, name),
       _hasExplicitValue(hasExplicitValue),
       _value(value)
@@ -4535,7 +4585,7 @@ Slice::Parameter::optional() const
     return _optional;
 }
 
-int
+int32_t
 Slice::Parameter::tag() const
 {
     return _tag;
@@ -4553,7 +4603,12 @@ Slice::Parameter::visit(ParserVisitor* visitor)
     visitor->visitParameter(shared_from_this());
 }
 
-Slice::Parameter::Parameter(const ContainerPtr& container, const string& name, TypePtr type, bool isOptional, int tag)
+Slice::Parameter::Parameter(
+    const ContainerPtr& container,
+    const string& name,
+    TypePtr type,
+    bool isOptional,
+    int32_t tag)
     : Contained(container, name),
       _type(std::move(type)),
       _optional(isOptional),
@@ -4577,7 +4632,7 @@ Slice::DataMember::optional() const
     return _optional;
 }
 
-int
+int32_t
 Slice::DataMember::tag() const
 {
     return _tag;
@@ -4612,7 +4667,7 @@ Slice::DataMember::DataMember(
     const string& name,
     TypePtr type,
     bool isOptional,
-    int tag,
+    int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
     std::optional<string> defaultValueString)
     : Contained(container, name),
@@ -4723,7 +4778,7 @@ Slice::Unit::currentFile() const
     }
 }
 
-string
+const string&
 Slice::Unit::topLevelFile() const
 {
     return _topLevelFile;
@@ -4950,13 +5005,13 @@ Slice::Unit::findContents(const string& scopedName) const
 }
 
 void
-Slice::Unit::addTypeId(int compactId, const std::string& typeId)
+Slice::Unit::addTypeId(int32_t compactId, const std::string& typeId)
 {
     _typeIds.insert(make_pair(compactId, typeId));
 }
 
 std::string
-Slice::Unit::getTypeId(int compactId) const
+Slice::Unit::getTypeId(int32_t compactId) const
 {
     auto p = _typeIds.find(compactId);
     if (p != _typeIds.end())

@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-class Server: TestHelperI {
+class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         //
@@ -20,8 +20,8 @@ class Server: TestHelperI {
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.add(
-            servant: MyDerivedClassDisp(MyDerivedClassI()),
-            id: Ice.stringToIdentity("test"))
+            servant: MyDerivedClassI(),
+            id: Ice.Identity(name: "test"))
         try adapter.activate()
         serverReady()
         communicator.waitForShutdown()

@@ -3,7 +3,6 @@
 package com.zeroc.Ice;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.ConnectException;
 import java.net.DatagramSocket;
 import java.net.Inet6Address;
@@ -297,17 +296,13 @@ public final class Network {
     }
 
     public static SocketChannel doAccept(
-            ServerSocketChannel afd) {
+            ServerSocketChannel socketChannel) {
         SocketChannel fd = null;
         while (true) {
             try {
-                fd = afd.accept();
+                fd = socketChannel.accept();
                 break;
             } catch (IOException ex) {
-                if (ex instanceof InterruptedIOException) {
-                    continue;
-                }
-
                 throw new SocketException(ex);
             }
         }

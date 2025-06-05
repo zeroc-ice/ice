@@ -4,3 +4,6 @@ ruby/Glacier2/*
 ruby/IceBox/*
 ruby/IceGrid/*
 ruby/IceStorm/*
+
+doc
+.yardoc

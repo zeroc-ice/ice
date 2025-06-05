@@ -15,7 +15,6 @@ namespace Slice
 
     std::string getSwiftModule(const ModulePtr&, std::string&);
     std::string getSwiftModule(const ModulePtr&);
-    ModulePtr getTopLevelModule(const ContainedPtr&);
 
     class SwiftGenerator
     {
@@ -38,7 +37,6 @@ namespace Slice
             const StringList&,
             bool commentFirst = true,
             const std::string& space = " ");
-        void writeDocSentence(IceInternal::Output&, const StringList&);
         void writeSeeAlso(IceInternal::Output&, const StringList&, const ContainerPtr&);
         void writeDocSummary(IceInternal::Output&, const ContainedPtr&);
         void writeOpDocSummary(IceInternal::Output&, const OperationPtr&, bool);
@@ -92,7 +90,7 @@ namespace Slice
             const ContainedPtr&,
             const std::string&,
             bool,
-            int = -1);
+            std::int32_t = -1);
 
         bool usesMarshalHelper(const TypePtr&);
         void writeMarshalInParams(::IceInternal::Output&, const OperationPtr&);

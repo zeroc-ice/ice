@@ -4,8 +4,9 @@ package test.Ice.scope;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.InitializationData;
+import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import test.TestHelper;
@@ -259,9 +260,14 @@ public class Server extends TestHelper {
     }
 
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.scope");
-        try (Communicator communicator = initialize(properties)) {
+        var initData = new InitializationData();
+        initData.sliceLoader = new ModuleToPackageSliceLoader(
+            Map.of("::Test", "test.Ice.scope.Test", "::Inner", "test.Ice.scope.Inner"),
+            null
+        );
+        initData.properties = createTestProperties(args);
+
+        try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new MyInterface1(), Util.stringToIdentity("i1"));

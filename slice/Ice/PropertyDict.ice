@@ -11,10 +11,10 @@
 [["cpp:include:map"]]
 [["cpp:include:string"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// A simple collection of properties, represented as a dictionary of key/value pairs. Both key and value are

@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-public class Client: TestHelperI {
+public class Client: TestHelperI, @unchecked Sendable {
     override public func run(args _: [String]) async throws {
         let output = getWriter()
 
@@ -93,7 +93,8 @@ public class Client: TestHelperI {
                 communicator.destroy()
             }
             try test(
-                communicator.getProperties().getIcePropertyAsInt("Ice.Default.InvocationTimeout") == 12345)
+                communicator.getProperties().getIcePropertyAsInt("Ice.Default.InvocationTimeout")
+                    == 12345)
             try test(args1 == ["--Foo=1", "-T", "--Bar=2"])
             output.writeLine("ok")
         }
@@ -105,7 +106,8 @@ public class Client: TestHelperI {
             let toStringMode = properties.getIceProperty("Ice.ToStringMode")
             try test(toStringMode == "Unicode")
 
-            let closeTimeout = try properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout")
+            let closeTimeout = try properties.getIcePropertyAsInt(
+                "Ice.Connection.Client.CloseTimeout")
             try test(closeTimeout == 10)
 
             let retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals")

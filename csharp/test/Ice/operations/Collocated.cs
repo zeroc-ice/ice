@@ -41,11 +41,9 @@ public class Collocated : TestHelper
         adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
 
         var prx = Ice.ObjectPrxHelper.createProxy(communicator, $"test:tcp -h \"::1\" -p {port}");
-        prx = prx.ice_invocationTimeout(TimeSpan.FromMilliseconds(100));
         prx.ice_ping();
 
         prx = Ice.ObjectPrxHelper.createProxy(communicator, $"test:tcp -h \"0:0:0:0:0:0:0:1\" -p {port}");
-        prx = prx.ice_invocationTimeout(TimeSpan.FromMilliseconds(100));
         prx.ice_ping();
         output.WriteLine();
     }

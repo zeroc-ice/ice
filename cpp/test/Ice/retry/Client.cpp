@@ -32,7 +32,7 @@ Client::run(int argc, char** argv)
 
     initData.properties->setProperty("Ice.RetryIntervals", "0 1 10 1");
     installTransport(initData);
-    Ice::CommunicatorHolder ich1 = Ice::initialize(argc, argv, initData);
+    Ice::CommunicatorHolder ich1 = initialize(initData);
 
     //
     // Configure a second communicator for the invocation timeout
@@ -42,7 +42,7 @@ Client::run(int argc, char** argv)
     initData.properties = initData.properties->clone();
     initData.properties->setProperty("Ice.RetryIntervals", "0 1 10000");
     initData.observer = getObserver();
-    Ice::CommunicatorHolder ich2 = Ice::initialize(initData);
+    Ice::CommunicatorHolder ich2 = initialize(initData);
 
     RetryPrx allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
     RetryPrx retry = allTests(

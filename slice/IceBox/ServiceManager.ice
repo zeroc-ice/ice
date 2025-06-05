@@ -8,13 +8,13 @@
 
 [["cpp:include:IceBox/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceBox"]]
 
 #include "Ice/BuiltinSequences.ice"
 
 /// Host multiple independent services in the same Ice server.
+["java:identifier:com.zeroc.IceBox"]
 module IceBox
 {
     /// The exception that is thrown when attempting to start a service that is already running.

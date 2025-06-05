@@ -13,6 +13,7 @@
 
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
+#include "CsMetadataValidator.h"
 #include "Ice/UUID.h"
 #include <algorithm>
 #include <cassert>
@@ -377,12 +378,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
     //
     // Sort optional parameters by tag.
     //
-    class SortFn
-    {
-    public:
-        static bool compare(const ParameterPtr& lhs, const ParameterPtr& rhs) { return lhs->tag() < rhs->tag(); }
-    };
-    optionals.sort(SortFn::compare);
+    optionals.sort(Slice::compareTag<ParameterPtr>);
 
     //
     // Handle optional parameters.
@@ -766,21 +762,34 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers)
 void
 Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generatedType, const string& notes)
 {
-    optional<DocComment> comment = DocComment::parseFrom(p, csLinkFormatter, true, true);
+    optional<DocComment> comment = DocComment::parseFrom(p, csLinkFormatter, true);
+    StringList remarks;
     if (comment)
     {
         writeDocLines(_out, "summary", comment->overview());
+        remarks = comment->remarks();
     }
 
     if (!generatedType.empty())
     {
-        _out << nl << "/// <remarks>" << "The Slice compiler generated this " << generatedType << " from Slice "
-             << p->kindOf() << " <c>" << p->scoped() << "</c>.";
+        // If there's user-provided remarks, and a generated-type message, we introduce a paragraph between them.
+        if (!remarks.empty())
+        {
+            remarks.emplace_back("<para />");
+        }
+
+        remarks.push_back(
+            "The Slice compiler generated this " + generatedType + " from Slice " + p->kindOf() + " <c>" + p->scoped() +
+            "</c>.");
         if (!notes.empty())
         {
-            _out << nl << "/// " << notes;
+            remarks.push_back(notes);
         }
-        _out << "</remarks>";
+    }
+
+    if (!remarks.empty())
+    {
+        writeDocLines(_out, "remarks", remarks);
     }
 
     if (comment)
@@ -813,7 +822,7 @@ Slice::CsVisitor::writeHelperDocComment(
 void
 Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>& extraParams, bool isAsync)
 {
-    optional<DocComment> comment = DocComment::parseFrom(op, csLinkFormatter, true, true);
+    optional<DocComment> comment = DocComment::parseFrom(op, csLinkFormatter, true);
     if (!comment)
     {
         return;
@@ -852,13 +861,15 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
         writeDocLines(_out, openTag.str(), exceptionLines, "exception");
     }
 
+    writeDocLines(_out, "remarks", comment->remarks());
+
     writeSeeAlso(_out, comment->seeAlso());
 }
 
 void
 Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const ParameterList& parameters)
 {
-    auto commentParameters = comment.parameters();
+    const auto& commentParameters = comment.parameters();
     for (const auto& param : parameters)
     {
         auto q = commentParameters.find(param->name());
@@ -958,7 +969,7 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    CsGenerator::validateMetadata(p);
+    Slice::validateCsMetadata(p);
 
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor);
@@ -1553,6 +1564,27 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "ice_initialize();";
     _out << eb;
 
+    // If the struct is mapped to a struct and there is at least one default value, we need an explicit parameterless
+    // constructor to initialize the default values.
+    if (!isMappedToClass(p))
+    {
+        bool hasDefaultValue = false;
+        for (const auto& q : dataMembers)
+        {
+            if (q->defaultValue())
+            {
+                hasDefaultValue = true;
+                break;
+            }
+        }
+        if (hasDefaultValue)
+        {
+            _out << sp;
+            writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> struct.");
+            _out << nl << "public " << name << "() => ice_initialize();";
+        }
+    }
+
     // Unmarshaling constructor
     _out << sp;
     writeDocLine(
@@ -1683,31 +1715,28 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         addSemicolon = false;
     }
 
-    // Generate the default value for this field unless the enclosing type is a struct.
-    if (!st || isMappedToClass(st))
+    if (p->defaultValue())
     {
-        if (p->defaultValue())
-        {
-            string defaultValue = *p->defaultValue();
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
+        string defaultValue = *p->defaultValue();
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
 
-            // Don't explicitly initialize to default value.
-            if (!builtin || builtin->kind() == Builtin::KindString || defaultValue != "0")
-            {
-                _out << " = ";
-                writeConstantValue(p->type(), p->defaultValueType(), defaultValue);
-                addSemicolon = true;
-            }
-        }
-        else if (!p->optional())
+        // Don't explicitly initialize to default value.
+        if (!builtin || builtin->kind() == Builtin::KindString || defaultValue != "0")
         {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-            if (builtin && builtin->kind() == Builtin::KindString)
-            {
-                // This behavior is unfortunate but kept for backwards compatibility.
-                _out << " = \"\"";
-                addSemicolon = true;
-            }
+            _out << " = ";
+            writeConstantValue(p->type(), p->defaultValueType(), defaultValue);
+            addSemicolon = true;
+        }
+    }
+    else if (!p->optional())
+    {
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
+        if (builtin && builtin->kind() == Builtin::KindString)
+        {
+            // This behavior is unfortunate but kept for backwards compatibility.
+            // Note that since string is a reference type, the enclosing type can't be a record struct.
+            _out << " = \"\"";
+            addSemicolon = true;
         }
     }
 

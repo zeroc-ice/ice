@@ -8,12 +8,12 @@
 
 [["cpp:include:Glacier2/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Glacier2"]]
 
 #include "Ice/Metrics.ice"
 
+["java:identifier:com.zeroc.IceMX"]
 ["swift:identifier:Glacier2"]
 module IceMX
 {

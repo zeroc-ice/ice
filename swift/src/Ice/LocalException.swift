@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 /// Base class for Ice local exceptions.
-public class LocalException: Exception, CustomStringConvertible {
+public class LocalException: Exception, CustomStringConvertible, @unchecked Sendable {
     /// The error message.
     public let message: String
     /// The name of the file where this exception was thrown.
@@ -10,7 +10,7 @@ public class LocalException: Exception, CustomStringConvertible {
     public let line: Int32
 
     /// A textual representation of this Ice exception.
-    public var description: String { "\(file):\(line) \(ice_id()) \(message)" }
+    public var description: String { "\(file):\(line) \(ice_id().dropFirst(2)) \(message)" }
 
     /// Creates a LocalException.
     /// - Parameters:

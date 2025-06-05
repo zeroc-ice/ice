@@ -6,10 +6,10 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// Mapping from type IDs to Slice checksums. This dictionary allows verification at runtime that a client and a

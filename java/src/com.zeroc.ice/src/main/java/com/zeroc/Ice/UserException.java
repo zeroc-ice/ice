@@ -36,6 +36,9 @@ public abstract class UserException extends java.lang.Exception {
     }
 
     /**
+     * Marshals this exception into an output stream.
+     *
+     * @param os the output stream to marshal into
      * @hidden
      */
     public void _write(OutputStream os) {
@@ -45,6 +48,9 @@ public abstract class UserException extends java.lang.Exception {
     }
 
     /**
+     * Unmarshals a {@code UserException} from an input stream into this exception.
+     *
+     * @param is the input stream to unmarshal from
      * @hidden
      */
     public void _read(InputStream is) {
@@ -54,6 +60,9 @@ public abstract class UserException extends java.lang.Exception {
     }
 
     /**
+     * Returns {@code true} if this exception holds classes, {@code false} otherwise.
+     *
+     * @return {@code true} if this exception holds classes, {@code false} otherwise
      * @hidden
      */
     public boolean _usesClasses() {
@@ -61,11 +70,17 @@ public abstract class UserException extends java.lang.Exception {
     }
 
     /**
+     * Marshal this exception's fields into an output stream.
+     *
+     * @param os the output stream to marshal into
      * @hidden
      */
     protected abstract void _writeImpl(OutputStream os);
 
     /**
+     * Unmarshal this exception's fields from an input stream.
+     *
+     * @param is the input stream to unmarshal from
      * @hidden
      */
     protected abstract void _readImpl(InputStream is);
@@ -142,9 +157,7 @@ public abstract class UserException extends java.lang.Exception {
                         out.print("(recursive)");
                     } else {
                         if (objectTable == null) {
-                            objectTable =
-                                new IdentityHashMap<
-                                    java.lang.Object, java.lang.Object>();
+                            objectTable = new IdentityHashMap<java.lang.Object, java.lang.Object>();
                         }
                         objectTable.put(value, null);
                         writeFields(name, value, c, objectTable, out);

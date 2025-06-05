@@ -22,7 +22,8 @@ public:
 
     void opStringSpanAsync(
         Test::StringSeq dataIn,
-        std::function<void(std::span<std::string> returnValue, std::span<std::string> dataOut)> response,
+        std::function<void(std::span<const std::string_view> returnValue, std::span<const std::string_view> dataOut)>
+            response,
         std::function<void(std::exception_ptr)> exception,
         const Ice::Current& current) final;
 
@@ -44,9 +45,9 @@ public:
 
     void opOptionalStringSpanAsync(
         std::optional<Test::StringSeq> dataIn,
-        std::function<
-            void(std::optional<std::span<std::string>> returnValue, std::optional<std::span<std::string>> dataOut)>
-            response,
+        std::function<void(
+            std::optional<std::span<const std::string_view>> returnValue,
+            std::optional<std::span<const std::string_view>> dataOut)> response,
         std::function<void(std::exception_ptr)> exception,
         const Ice::Current& current) final;
 

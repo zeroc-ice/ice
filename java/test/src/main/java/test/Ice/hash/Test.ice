@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.hash"]]
+["java:identifier:test.Ice.hash.Test"]
 module Test
 {
     struct PointF

@@ -11,10 +11,21 @@ public enum CompressBatch {
     /** Compress the batch requests if at least one request was made on a compressed proxy. */
     BasedOnProxy(2);
 
+    /**
+     * Returns the integer value of this enumerator.
+     *
+     * @return the integer value of this enumerator
+     */
     public int value() {
         return _value;
     }
 
+    /**
+     * Returns the enumerator corresponding to the given integer value.
+     *
+     * @param v the integer value of the enumerator
+     * @return the enumerator corresponding to the given integer value, or {@code null} if no such enumerator exists
+     */
     public static CompressBatch valueOf(int v) {
         switch (v) {
             case 0:

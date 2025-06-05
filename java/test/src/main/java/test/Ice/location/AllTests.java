@@ -59,11 +59,11 @@ public class AllTests {
         out.print("testing stringToProxy... ");
         out.flush();
         ObjectPrx base = communicator.stringToProxy("test @ TestAdapter");
-        ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
-        ObjectPrx base3 = communicator.stringToProxy("test");
-        ObjectPrx base4 = communicator.stringToProxy("ServerManager");
-        ObjectPrx base5 = communicator.stringToProxy("test2");
-        ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
+        final ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
+        final ObjectPrx base3 = communicator.stringToProxy("test");
+        final ObjectPrx base4 = communicator.stringToProxy("ServerManager");
+        final ObjectPrx base5 = communicator.stringToProxy("test2");
+        final ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
         out.println("ok");
 
         out.print("testing ice_locator and ice_getLocator... ");

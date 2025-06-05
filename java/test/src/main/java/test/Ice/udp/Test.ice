@@ -3,7 +3,7 @@
 #pragma once
 #include "Ice/Identity.ice"
 
-[["java:package:test.Ice.udp"]]
+["java:identifier:test.Ice.udp.Test"]
 module Test
 {
     interface PingReply

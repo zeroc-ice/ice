@@ -1,0 +1,27 @@
+[ req ]
+default_bits        = 2048
+prompt              = no
+default_md          = sha256
+distinguished_name  = req_distinguished_name
+x509_extensions     = v3_extensions
+
+[ req_distinguished_name ]
+C  = US
+ST = Florida
+L  = Jupiter
+O  = ZeroC
+OU = Ice test infrastructure
+CN = ca3.i1.server_revoked
+emailAddress = info@zeroc.com
+
+[ v3_extensions ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+keyUsage = critical, digitalSignature, nonRepudiation, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+crlDistributionPoints = URI:http://127.0.0.1:20001/ca3/i1/i1.crl.pem
+
+[ alt_names ]
+IP.1  = 127.0.0.1
+DNS.1 = server

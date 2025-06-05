@@ -7,14 +7,23 @@ package com.zeroc.Ice;
  * connection.
  */
 public final class ConnectionRefusedException extends ConnectFailedException {
+    /**
+     * Constructs a {@code ConnectionRefusedException}.
+     */
     public ConnectionRefusedException() {
         super();
     }
 
+    /**
+     * Constructs a {@code ConnectionRefusedException} with a cause.
+     *
+     * @param cause the cause of the exception
+     */
     public ConnectionRefusedException(Throwable cause) {
         super(cause);
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::ConnectionRefusedException";
     }

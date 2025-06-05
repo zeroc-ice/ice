@@ -34,12 +34,12 @@ module Test
         optional(-0x80000001) long r5();  // out of range
         optional(-1) float r6();          // out of range
         optional(C1) string r7();         // ok
-        optional(C3) double r8();         // invalid tag
+        optional(C3) double r8();         // out of range
         optional(C4) byte r9();           // out of range
         optional(C5) bool r10();          // invalid tag
         optional(C6) bool r11();          // ok
-        optional(E::e1) int r12();           // ok
-        optional(E::e2) void r13();          // syntax error
+        optional(E::e1) int r12();        // ok
+        optional(E::e2) void r13();       // syntax error
 
         void i1(optional string p);             // missing tag
         void i2(optional() int p);              // missing tag
@@ -48,7 +48,7 @@ module Test
         void i5(optional(-0x80000001) long p);  // out of range
         void i6(optional(-1) float p);          // out of range
         void i7(optional(C1) string p);         // ok
-        void i8(optional(C3) double p);         // invalid tag
+        void i8(optional(C3) double p);         // out of range
         void i9(optional(C4) byte p);           // out of range
         void i10(optional(C5) bool p);          // invalid tag
         void i11(optional(C6) bool p);          // ok
@@ -61,7 +61,7 @@ module Test
         void o5(out optional(-0x80000001) long p);  // out of range
         void o6(out optional(-1) float p);          // out of range
         void o7(out optional(C1) string p);         // ok
-        void o8(out optional(C3) double p);         // invalid tag
+        void o8(out optional(C3) double p);         // out of range
         void o9(out optional(C4) byte p);           // out of range
         void o10(out optional(C5) bool p);          // invalid tag
         void o11(out optional(C6) bool p);          // ok

@@ -57,7 +57,7 @@ class ServantLocatorI: Ice.ServantLocator {
         try _helper.test(_requestId == -1)
         _requestId = curr.requestId
 
-        return (TestIntfDisp(TestI()), Cookie())
+        return (TestI(), Cookie())
     }
 
     func finished(curr: Ice.Current, servant _: Ice.Dispatcher, cookie: AnyObject?) throws {

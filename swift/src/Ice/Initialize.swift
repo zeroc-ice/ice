@@ -21,7 +21,7 @@ let factoriesRegistered: Bool = {
 
 /// Creates a communicator.
 ///
-/// - parameter _: `[String]` - A command-line argument vector. Any Ice-related options
+/// - parameter args: `[String]` - A command-line argument vector. Any Ice-related options
 ///   in this vector are used to initialize the communicator.
 ///
 /// - parameter initData: `Ice.InitializationData` - Additional initialization data. Property
@@ -36,7 +36,7 @@ public func initialize(_ args: [String], initData: InitializationData? = nil) th
 
 /// Creates a communicator.
 ///
-/// - parameter _: `[String]` - A command-line argument vector. Any Ice-related options
+/// - parameter args: `[String]` - A command-line argument vector. Any Ice-related options
 ///   in this vector are used to initialize the communicator. This method modifies the
 ///   argument vector by removing any Ice-related options.
 ///
@@ -90,7 +90,7 @@ public func initialize(args: inout [String], configFile: String) throws -> Commu
 
 /// Creates a communicator.
 ///
-/// - parameter _: `Ice.InitializationData` - Additional initialization data.
+/// - parameter initData: `Ice.InitializationData` - Additional initialization data.
 ///
 /// - returns: `Ice.Communicator` - The initialized communicator.
 public func initialize(_ initData: InitializationData? = nil) throws -> Communicator {
@@ -102,7 +102,7 @@ public func initialize(_ initData: InitializationData? = nil) throws -> Communic
 
 /// Creates a communicator.
 ///
-/// - parameter _: `String` - Path to a config file that sets the new communicator's default
+/// - parameter configFile: `String` - Path to a config file that sets the new communicator's default
 ///   properties.
 ///
 /// - returns: `Ice.Communicator` - The initialized communicator.
@@ -201,7 +201,7 @@ public func createProperties() -> Properties {
 
 /// Creates a property set initialized from an argument array.
 ///
-/// - parameter _: `[String]` - A command-line argument array, possibly containing options to
+/// - parameter args: `[String]` - A command-line argument array, possibly containing options to
 ///   set properties. If the command-line options include a `--Ice.Config` option, the
 ///   corresponding configuration files are parsed. If the same property is set in a configuration
 ///   file and in the argument array, the argument array takes precedence.
@@ -226,7 +226,7 @@ public func createProperties(_ args: [String], defaults: Properties? = nil) thro
 
 /// Creates a property set initialized from an argument array.
 ///
-/// - parameter _: `[String]` - A command-line argument array, possibly containing options to
+/// - parameter args: `[String]` - A command-line argument array, possibly containing options to
 ///   set properties. If the command-line options include a `--Ice.Config` option, the
 ///   corresponding configuration files are parsed. If the same property is set in a configuration
 ///   file and in the argument array, the argument array takes precedence. This method modifies the
@@ -274,7 +274,7 @@ public let currentEncoding = Encoding_1_1
 
 /// Converts a string to an object identity.
 ///
-/// - parameter _: `String` - The string to convert.
+/// - parameter string: `String` - The string to convert.
 ///
 /// - returns: `Ice.Identity` - The converted object identity.
 public func stringToIdentity(_ string: String) throws -> Identity {
@@ -304,7 +304,7 @@ public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Uni
 
 /// Converts an encoding version to a string.
 ///
-/// - parameter _: `Ice.EncodingVersion` - The encoding version to convert.
+/// - parameter encoding: `Ice.EncodingVersion` - The encoding version to convert.
 ///
 /// - returns: `String` - The converted string.
 public func encodingVersionToString(_ encoding: EncodingVersion) -> String {

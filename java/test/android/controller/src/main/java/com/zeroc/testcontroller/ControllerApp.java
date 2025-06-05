@@ -15,6 +15,10 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Time;
 
+import java.util.List;
+import java.util.Locale;
+import java.io.Writer;
+
 public class ControllerApp extends Application {
     private final String TAG = "ControllerApp";
     private ControllerI _controllerI;
@@ -282,11 +286,14 @@ public class ControllerApp extends Application {
 
         public java.io.InputStream loadResource(String path) {
             switch (path) {
-                case "server.bks" -> {
+                case "server.p12" -> {
                     return getResources().openRawResource(R.raw.server);
                 }
-                case "client.bks" -> {
+                case "client.p12" -> {
                     return getResources().openRawResource(R.raw.client);
+                }
+                case "ca.p12" -> {
+                    return getResources().openRawResource(R.raw.ca);
                 }
                 default -> {
                     return null;

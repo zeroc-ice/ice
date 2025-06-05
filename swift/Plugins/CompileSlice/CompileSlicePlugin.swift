@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 import Foundation
-import PackagePlugin
+@preconcurrency import PackagePlugin
 
 enum PluginError: Error {
     case invalidTarget(Target)
@@ -57,37 +57,48 @@ struct CompileSlicePlugin: BuildToolPlugin {
 
         // Search for the configuration file. If this plugin was loaded, the configuration file must be present, or
         // it's considered an error.
-        let configFilePath = try fm.contentsOfDirectory(atPath: target.directory.string).first { path in
-            path == Self.configFileName
-        }.map { target.directory.appending($0).string }
+        let targetDirectoryUrl = target.directoryURL
+        let configFilePath = try fm.contentsOfDirectory(
+            at: targetDirectoryUrl,
+            includingPropertiesForKeys: nil,
+            options: []
+        ).first { path in
+            path.lastPathComponent == Self.configFileName
+        }.map { path in
+            targetDirectoryUrl.appendingPathComponent(path.lastPathComponent).path
+        }
 
         guard let configFilePath else {
-            throw PluginError.missingConfigFile(Self.configFileName, target.directory.string)
+            throw PluginError.missingConfigFile(Self.configFileName, target.directoryURL.path)
         }
 
         let data = try Data(contentsOf: URL(fileURLWithPath: configFilePath))
         let config = try JSONDecoder().decode(Config.self, from: data)
 
-        let slice2swift = try context.tool(named: "slice2swift").path
+        let slice2swift = try context.tool(named: "slice2swift").url
 
         // Find the Ice Slice files for the corresponding Swift target
         let sources = try config.sources.map { source in
-            let fullSourcePath = target.directory.appending(source)
-            if fullSourcePath.string.hasSuffix(".ice") {
+            let fullSourcePath = targetDirectoryUrl.appendingPathComponent(source)
+            if fullSourcePath.path.hasSuffix(".ice") {
                 return [fullSourcePath]
             }
 
             // Directory
-            return try fm.contentsOfDirectory(atPath: fullSourcePath.string).filter { path in
-                return path.hasSuffix(".ice")
-            }.map { sliceFile in
-                fullSourcePath.appending(sliceFile)
+            return try fm.contentsOfDirectory(
+                at: fullSourcePath,
+                includingPropertiesForKeys: nil,
+                options: []
+            ).filter { url in
+                url.path.hasSuffix(".ice")
+            }.map { sliceFileURL in
+                fullSourcePath.appendingPathComponent(sliceFileURL.lastPathComponent)
             }
         }.joined()
 
-        let outputDir = context.pluginWorkDirectory
+        let outputDir = context.pluginWorkDirectoryURL
         let search_paths = (config.search_paths ?? []).map {
-            "-I\(target.directory.appending($0).string)"
+            "-I\(targetDirectoryUrl.appendingPathComponent($0).path)"
         }
 
         // Create a build command for each Slice file
@@ -96,20 +107,19 @@ struct CompileSlicePlugin: BuildToolPlugin {
             let inputFile = sliceFile
 
             // Absolute path to the output Slice file
-            let outputFile = Path(
-                URL(fileURLWithPath: outputDir.appending(sliceFile.lastComponent).string)
-                    .deletingPathExtension()
-                    .appendingPathExtension("swift").relativePath)
+            let outputFile = outputDir.appendingPathComponent(sliceFile.lastPathComponent)
+                .deletingPathExtension()
+                .appendingPathExtension("swift")
 
             // Arguments for the slice2swift command
             let arguments: [String] =
                 search_paths + [
                     "--output-dir",
-                    outputDir.string,
-                    inputFile.string,
+                    outputDir.path,
+                    inputFile.path,
                 ]
 
-            let displayName = slice2swift.string + " " + arguments.joined(separator: " ")
+            let displayName = slice2swift.path + " " + arguments.joined(separator: " ")
 
             return .buildCommand(
                 displayName: displayName,

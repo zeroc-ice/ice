@@ -95,29 +95,6 @@ Slice::getSwiftModule(const ModulePtr& module)
     return getSwiftModule(module, prefix);
 }
 
-ModulePtr
-Slice::getTopLevelModule(const ContainedPtr& cont)
-{
-    // Traverse to the top-level module.
-    ModulePtr m;
-    ContainedPtr p = cont;
-    while (true)
-    {
-        if (dynamic_pointer_cast<Module>(p))
-        {
-            m = dynamic_pointer_cast<Module>(p);
-        }
-
-        if (p->isTopLevel())
-        {
-            break;
-        }
-        p = dynamic_pointer_cast<Contained>(p->container());
-        assert(p);
-    }
-    return m;
-}
-
 void
 SwiftGenerator::writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space)
 {
@@ -139,63 +116,9 @@ SwiftGenerator::writeDocLines(IceInternal::Output& out, const StringList& lines,
 }
 
 void
-SwiftGenerator::writeDocSentence(IceInternal::Output& out, const StringList& lines)
-{
-    //
-    // Write the first sentence.
-    //
-    for (auto i = lines.begin(); i != lines.end(); ++i)
-    {
-        const string ws = " \t";
-
-        if (i->empty())
-        {
-            break;
-        }
-        if (i != lines.begin() && i->find_first_not_of(ws) == 0)
-        {
-            out << " ";
-        }
-        string::size_type pos = i->find('.');
-        if (pos == string::npos)
-        {
-            out << *i;
-        }
-        else if (pos == i->size() - 1)
-        {
-            out << *i;
-            break;
-        }
-        else
-        {
-            //
-            // Assume a period followed by whitespace indicates the end of the sentence.
-            //
-            while (pos != string::npos)
-            {
-                if (ws.find((*i)[pos + 1]) != string::npos)
-                {
-                    break;
-                }
-                pos = i->find('.', pos + 1);
-            }
-            if (pos != string::npos)
-            {
-                out << i->substr(0, pos + 1);
-                break;
-            }
-            else
-            {
-                out << *i;
-            }
-        }
-    }
-}
-
-void
 SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter, true);
+    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
     if (!doc)
     {
         return;
@@ -203,7 +126,7 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 
     bool hasStarted = false;
 
-    StringList docOverview = doc->overview();
+    const StringList& docOverview = doc->overview();
     if (!docOverview.empty())
     {
         writeDocLines(out, docOverview);
@@ -217,7 +140,7 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
             out << nl << "///";
         }
         out << nl << "/// ## Deprecated";
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
         {
             writeDocLines(out, docDeprecated);
@@ -230,7 +153,7 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 void
 SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool dispatch)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter, true);
+    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
     if (!doc)
     {
         return;
@@ -239,7 +162,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     bool hasStarted = false;
 
     // Write the overview.
-    StringList docOverview = doc->overview();
+    const StringList& docOverview = doc->overview();
     if (!docOverview.empty())
     {
         writeDocLines(out, docOverview);
@@ -256,14 +179,14 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         hasStarted = true;
 
         out << nl << "///  ## Deprecated";
-        StringList docDeprecated = doc->deprecated();
+        const StringList& docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
         {
             writeDocLines(out, docDeprecated);
         }
     }
 
-    auto docParameters = doc->parameters();
+    const auto& docParameters = doc->parameters();
 
     // Document all the in parameters.
     const ParameterList inParams = p->inParameters();
@@ -319,7 +242,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         }
 
         // First, check if the user supplied a message in the doc comment for this return type.
-        StringList docMessage = doc->returns();
+        const StringList& docMessage = doc->returns();
         if (useListStyle)
         {
             out << nl << "///   - " << returnValueName;
@@ -363,7 +286,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     }
 
     // Document what exceptions it can throw.
-    auto docExceptions = doc->exceptions();
+    const auto& docExceptions = doc->exceptions();
     if (!docExceptions.empty())
     {
         useListStyle = docExceptions.size() < 2;
@@ -388,7 +311,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 void
 SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter, true);
+    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
     if (!doc)
     {
         return;
@@ -396,7 +319,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
 
     const string prx = removeEscaping(getRelativeTypeString(p, swiftModule)) + "Prx";
 
-    StringList docOverview = doc->overview();
+    const StringList& docOverview = doc->overview();
     if (docOverview.empty())
     {
         out << nl << "/// " << prx << " overview.";
@@ -413,11 +336,11 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
         out << nl << "/// " << prx << " Methods:";
         for (const auto& op : ops)
         {
-            optional<DocComment> opdoc = DocComment::parseFrom(op, swiftLinkFormatter, true);
+            optional<DocComment> opdoc = DocComment::parseFrom(op, swiftLinkFormatter);
             optional<StringList> opDocOverview;
             if (opdoc)
             {
-                StringList overview = opdoc->overview();
+                const StringList& overview = opdoc->overview();
                 if (!overview.empty())
                 {
                     opDocOverview = overview;
@@ -429,15 +352,13 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
             out << nl << "///  - " << opName;
             if (auto overview = opDocOverview)
             {
-                out << ": ";
-                writeDocSentence(out, *overview);
+                out << ": " << getFirstSentence(*overview);
             }
 
             out << nl << "///  - " << opName << "Async";
             if (auto overview = opDocOverview)
             {
-                out << ": ";
-                writeDocSentence(out, *overview);
+                out << ": " << getFirstSentence(*overview);
             }
         }
     }
@@ -446,7 +367,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
 void
 SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter, true);
+    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
     if (!doc)
     {
         return;
@@ -454,7 +375,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
 
     const string name = removeEscaping(getRelativeTypeString(p, swiftModule));
 
-    StringList docOverview = doc->overview();
+    const StringList& docOverview = doc->overview();
     if (docOverview.empty())
     {
         out << nl << "/// " << name << " overview.";
@@ -472,14 +393,13 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
         for (const auto& op : ops)
         {
             out << nl << "///  - " << removeEscaping(op->mappedName());
-            optional<DocComment> opdoc = DocComment::parseFrom(op, swiftLinkFormatter, true);
+            optional<DocComment> opdoc = DocComment::parseFrom(op, swiftLinkFormatter);
             if (opdoc)
             {
-                StringList opdocOverview = opdoc->overview();
+                const StringList& opdocOverview = opdoc->overview();
                 if (!opdocOverview.empty())
                 {
-                    out << ": ";
-                    writeDocSentence(out, opdocOverview);
+                    out << ": " << getFirstSentence(opdocOverview);
                 }
             }
         }
@@ -536,13 +456,9 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
             const string msg = "'swift:module' is deprecated; use 'swift:identifier' to remap modules instead";
             p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
 
-            if (auto contained = dynamic_pointer_cast<Contained>(p))
+            if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("swift:identifier"))
             {
-                if (contained->hasMetadata("swift:identifier"))
-                {
-                    return "the 'swift:module' metadata cannot be used alongside 'swift:identifier' - both change the "
-                           "name of the mapped module";
-                }
+                return "A Slice element can only have one of 'swift:module' and 'swift:identifier' applied to it";
             }
             return nullopt;
         }};
@@ -612,7 +528,7 @@ SwiftGenerator::getRelativeTypeString(const ContainedPtr& contained, const strin
 
     // Determine which Swift module this element will be mapped into.
     string swiftPrefix;
-    string swiftModule = getSwiftModule(getTopLevelModule(contained), swiftPrefix);
+    string swiftModule = getSwiftModule(contained->getTopLevelModule(), swiftPrefix);
 
     // If a swift prefix was provided, we need to remove any escaping before appending it to the type string.
     string prefixedTypeString;
@@ -748,7 +664,7 @@ SwiftGenerator::writeConstantValue(
 }
 
 string
-SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, bool optional)
+SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& usedBy, bool optional)
 {
     static const char* builtinTable[] = {
         "Swift.UInt8",
@@ -759,7 +675,7 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, 
         "Swift.Float",
         "Swift.Double",
         "Swift.String",
-        "Ice.Disp",      // Object
+        "Ice.Value",     // Object, no longer used (see below)
         "Ice.ObjectPrx", // ObjectPrx
         "Ice.Value"      // Value
     };
@@ -770,12 +686,11 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, 
     }
 
     string t = "";
-    //
-    // The current module where the type is being used
-    //
-    string currentModule = getSwiftModule(getTopLevelModule(toplevel));
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
 
+    // The current module where the type is being used
+    string currentModule = getSwiftModule(usedBy->getTopLevelModule());
+
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
     {
         if (builtin->kind() == Builtin::KindObject)
@@ -933,12 +848,33 @@ SwiftGenerator::writeMemberwiseInitializer(
     {
         out << sp;
         out << nl;
-        out << "public init" << spar;
+        out << "public init(";
+        bool firstMember = true;
         for (const auto& m : allMembers)
         {
-            out << (m->mappedName() + ": " + typeToString(m->type(), p, m->optional()));
+            if (firstMember)
+            {
+                firstMember = false;
+            }
+            else
+            {
+                out << ", ";
+            }
+
+            out << m->mappedName() << ": " << typeToString(m->type(), p, m->optional());
+            if (m->defaultValueType())
+            {
+                out << " = ";
+                writeConstantValue(
+                    out,
+                    m->type(),
+                    m->defaultValueType(),
+                    m->defaultValue().value_or(""),
+                    getSwiftModule(p->getTopLevelModule()),
+                    m->optional());
+            }
         }
-        out << epar;
+        out << ")";
         out << sb;
         for (const auto& m : members)
         {
@@ -968,7 +904,7 @@ SwiftGenerator::writeMembers(
     const ContainedPtr& p,
     int typeCtx)
 {
-    string swiftModule = getSwiftModule(getTopLevelModule(p));
+    string swiftModule = getSwiftModule(p->getTopLevelModule());
     bool protocol = (typeCtx & TypeContextProtocol) != 0;
     string access = protocol ? "" : "public ";
     for (const auto& member : members)
@@ -984,8 +920,8 @@ SwiftGenerator::writeMembers(
             (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
              dynamic_pointer_cast<Dictionary>(type)))
         {
-            ModulePtr m = getTopLevelModule(dynamic_pointer_cast<Contained>(type));
-            alias = removeEscaping(m->mappedName()) + "_" + removeEscaping(memberType);
+            ModulePtr topLevelModule = (dynamic_pointer_cast<Contained>(type))->getTopLevelModule();
+            alias = removeEscaping(topLevelModule->mappedName()) + "_" + removeEscaping(memberType);
             out << nl << "typealias " << alias << " = " << memberType;
         }
 
@@ -1004,7 +940,7 @@ SwiftGenerator::writeMembers(
                     out,
                     type,
                     member->defaultValueType(),
-                    member->defaultValue().value_or(""), // TODO: revisit this code
+                    member->defaultValue().value_or(""),
                     swiftModule,
                     member->optional());
             }
@@ -1039,11 +975,11 @@ SwiftGenerator::writeMarshalUnmarshalCode(
     const ContainedPtr& p,
     const string& param,
     bool marshal,
-    int tag)
+    int32_t tag)
 {
     assert(!(type->isClassType() && tag >= 0)); // Optional classes are disallowed by the parser.
 
-    string swiftModule = getSwiftModule(getTopLevelModule(p));
+    string swiftModule = getSwiftModule(p->getTopLevelModule());
     string stream = dynamic_pointer_cast<Struct>(p) ? "self" : marshal ? "ostr" : "istr";
 
     string args;
@@ -1148,8 +1084,8 @@ SwiftGenerator::writeMarshalUnmarshalCode(
             string alias;
             if (memberType == memberName)
             {
-                ModulePtr m = getTopLevelModule(cl);
-                alias = removeEscaping(m->mappedName()) + "_" + removeEscaping(memberType);
+                ModulePtr topLevelModule = cl->getTopLevelModule();
+                alias = removeEscaping(topLevelModule->mappedName()) + "_" + removeEscaping(memberType);
                 out << nl << "typealias " << alias << " = " << memberType;
             }
             args += (alias.empty() ? memberType : alias) + ".self";
@@ -1396,6 +1332,11 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
 void
 SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
+    // We need a separate nested function for the nonisolated(unsafe) variable when unmarshaling classes.
+
+    out << sp;
+    out << nl << "func read(istr: Ice.InputStream) throws -> sending " << operationReturnType(op) << sb;
+
     const ParameterList outParams = op->outParameters();
     const bool returnsMultipleValues = op->returnsMultipleValues();
 
@@ -1406,8 +1347,6 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     // 3. optional (including optional return)
     //
 
-    out << "{ istr in";
-    out.inc();
     for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
     {
         const TypePtr paramType = param->type();
@@ -1417,7 +1356,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         string paramString;
         if (paramType->isClassType())
         {
-            out << nl << "var " << paramName << ": " << typeString;
+            out << nl << "nonisolated(unsafe) var " << paramName << ": " << typeString;
             paramString = paramName;
         }
         else
@@ -1432,6 +1371,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     }
 
     out << nl << "return ";
+
     if (returnsMultipleValues)
     {
         out << spar;
@@ -1460,8 +1400,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         out << epar;
     }
 
-    out.dec();
-    out << nl << "}";
+    out << eb;
 }
 
 void
@@ -1477,7 +1416,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
         string paramString;
         if (paramType->isClassType())
         {
-            out << nl << "var " << paramName << ": " << typeString;
+            out << nl << "nonisolated(unsafe) var " << paramName << ": " << typeString;
             paramString = paramName;
         }
         else
@@ -1496,7 +1435,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
 void
 SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(op));
+    const string swiftModule = getSwiftModule(op->getTopLevelModule());
 
     // Arrange exceptions into most-derived to least-derived order. If we don't
     // do this, a base exception handler can appear before a derived exception
@@ -1540,7 +1479,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
 {
     const ParameterList inParams = op->inParameters();
     const bool returnsAnyValues = op->returnsAnyValues();
-    const string swiftModule = getSwiftModule(getTopLevelModule(op));
+    const string swiftModule = getSwiftModule(op->getTopLevelModule());
 
     out << sp;
     writeOpDocSummary(out, op, false);
@@ -1593,9 +1532,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
 
     if (returnsAnyValues)
     {
-        out << nl << "read: ";
-        writeUnmarshalOutParams(out, op);
-        out << ",";
+        out << nl << "read: read,";
     }
 
     if (!op->throws().empty())
@@ -1606,8 +1543,13 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
     }
 
     out << nl << "context: context)";
+
     out.restoreIndent();
 
+    if (returnsAnyValues)
+    {
+        writeUnmarshalOutParams(out, op);
+    }
     out << eb;
 }
 
@@ -1623,7 +1565,6 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
         << "(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
 
     out << sb;
-    out << nl;
 
     if (op->mode() == Operation::Mode::Normal)
     {

@@ -9,7 +9,6 @@
 #import "include/Process.h"
 #import "include/Properties.h"
 #import "include/PropertiesAdmin.h"
-#import "include/UnsupportedAdminFacet.h"
 
 #import "Convert.h"
 #import "LoggerWrapperI.h"
@@ -155,10 +154,17 @@
     self.communicator->setDefaultObjectAdapter(adapter == nil ? nullptr : [adapter objectAdapter]);
 }
 
-- (ICEImplicitContext*)getImplicitContext
+- (nullable ICEImplicitContext*)getImplicitContext
 {
     auto implicitContext = self.communicator->getImplicitContext();
-    return [ICEImplicitContext getHandle:implicitContext];
+    if (implicitContext)
+    {
+        return [ICEImplicitContext getHandle:implicitContext];
+    }
+    else
+    {
+        return nil;
+    }
 }
 
 // id<ICELoggerProtocol> may be either a Swift logger or a wrapper around a C++ logger
@@ -388,16 +394,20 @@
     auto process = std::dynamic_pointer_cast<Ice::Process>(servant);
     if (process)
     {
-        return [factory createProcess:self handle:[ICEProcess getHandle:process]];
+        ICEProcess* processHandle = [[ICEProcess alloc] initWithCppProcess:process];
+        return [factory createProcess:self handle:processHandle];
     }
 
-    auto propertiesAdmin = std::dynamic_pointer_cast<Ice::PropertiesAdmin>(servant);
+    auto propertiesAdmin = std::dynamic_pointer_cast<Ice::NativePropertiesAdmin>(servant);
     if (propertiesAdmin)
     {
-        return [factory createProperties:self handle:[ICEPropertiesAdmin getHandle:propertiesAdmin]];
+        ICEPropertiesAdmin* propertiesAdminHandle =
+            [[ICEPropertiesAdmin alloc] initWithCppPropertiesAdmin:propertiesAdmin];
+
+        return [factory createProperties:self handle:propertiesAdminHandle];
     }
 
-    return [factory createUnsupported:self handle:[ICEUnsupportedAdminFacet getHandle:servant]];
+    return [factory createUnsupported:self];
 }
 
 - (BOOL)initializePlugins:(NSError**)error

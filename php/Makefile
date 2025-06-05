@@ -32,9 +32,13 @@ srcs:: $(projects)
 
 install:: | $(DESTDIR)$(install_phpdir)
 	$(E) "Installing generated code"
-	$(Q)$(INSTALL) -m 644 lib/Ice.php $(DESTDIR)$(install_phpdir)
+	$(Q)$(INSTALL) -m 644 lib/Glacier2.php lib/Ice.php lib/IceBox.php  lib/IceGrid.php lib/IceStorm.php $(DESTDIR)$(install_phpdir)
 
 $(eval $(call make-php-package,$(slicedir),lib,Ice))
+$(eval $(call make-php-package,$(slicedir),lib,Glacier2))
+$(eval $(call make-php-package,$(slicedir),lib,IceBox))
+$(eval $(call make-php-package,$(slicedir),lib,IceGrid))
+$(eval $(call make-php-package,$(slicedir),lib,IceStorm))
 
 #
 # Translate the Slice files from test directories

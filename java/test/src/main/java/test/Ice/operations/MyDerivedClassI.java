@@ -21,7 +21,41 @@ import test.Ice.operations.Test.MyEnum;
 import test.Ice.operations.Test.MyStruct;
 import test.Ice.operations.Test.MyStruct1;
 import test.Ice.operations.Test.Structure;
-import test.Ice.operations.Test.*;
+
+import test.Ice.operations.Test.s0;
+import test.Ice.operations.Test.s1;
+import test.Ice.operations.Test.s2;
+import test.Ice.operations.Test.s3;
+import test.Ice.operations.Test.s4;
+import test.Ice.operations.Test.s5;
+import test.Ice.operations.Test.s6;
+import test.Ice.operations.Test.s7;
+import test.Ice.operations.Test.s8;
+import test.Ice.operations.Test.s9;
+import test.Ice.operations.Test.s10;
+
+import test.Ice.operations.Test.su0;
+import test.Ice.operations.Test.su1;
+import test.Ice.operations.Test.su2;
+
+import test.Ice.operations.Test.ss0;
+import test.Ice.operations.Test.ss1;
+import test.Ice.operations.Test.ss2;
+import test.Ice.operations.Test.ss3;
+import test.Ice.operations.Test.ss4;
+import test.Ice.operations.Test.ss5;
+
+import test.Ice.operations.Test.sw0;
+import test.Ice.operations.Test.sw1;
+import test.Ice.operations.Test.sw2;
+import test.Ice.operations.Test.sw3;
+import test.Ice.operations.Test.sw4;
+import test.Ice.operations.Test.sw5;
+import test.Ice.operations.Test.sw6;
+import test.Ice.operations.Test.sw7;
+import test.Ice.operations.Test.sw8;
+import test.Ice.operations.Test.sw9;
+import test.Ice.operations.Test.sw10;
 
 public final class MyDerivedClassI implements MyDerivedClass {
     private static void test(boolean b) {

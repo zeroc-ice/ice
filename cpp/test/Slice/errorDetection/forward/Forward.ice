@@ -1,4 +1,0 @@
-module test
-{
-    class F;
-}

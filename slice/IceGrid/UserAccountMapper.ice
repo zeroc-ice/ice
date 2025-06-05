@@ -8,10 +8,10 @@
 
 [["cpp:include:IceGrid/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceGrid"]]
 
+["java:identifier:com.zeroc.IceGrid"]
 module IceGrid
 {
     /// The exception that is thrown when a user account for a given session identifier can't be found.

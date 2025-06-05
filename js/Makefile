@@ -24,4 +24,4 @@ npminstall:
 doc: srcs
 	mkdir -p dist
 	node dts-bundle.js
-	npx typedoc dist/bundle.d.ts --disableGit --disableSources
+	npx typedoc --router structure dist/bundle.d.ts --disableGit --disableSources

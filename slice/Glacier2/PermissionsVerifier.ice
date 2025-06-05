@@ -8,12 +8,12 @@
 
 [["cpp:include:Glacier2/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Glacier2"]]
 
 #include "SSLInfo.ice"
 
+["java:identifier:com.zeroc.Glacier2"]
 module Glacier2
 {
     /// The exception that is thrown when a client is not allowed to create a session.

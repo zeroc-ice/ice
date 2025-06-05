@@ -4,7 +4,7 @@
 
 #include "Ice/Context.ice"
 
-[["java:package:test.Ice.info"]]
+["java:identifier:test.Ice.info.Test"]
 module Test
 {
     interface TestIntf

@@ -4,7 +4,7 @@
 
 #include "Ice/Context.ice"
 
-[["java:package:test.Ice.proxy"]]
+["java:identifier:test.Ice.proxy.Test"]
 module Test
 {
     interface MyClass

@@ -15,7 +15,6 @@ public class Server extends TestHelper {
     public void run(String[] args) {
         InitializationData initData = new InitializationData();
         initData.properties = createTestProperties(args);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.binding");
         initData.logger =
             new Logger() {
                 @Override

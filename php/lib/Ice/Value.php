@@ -58,5 +58,3 @@ class SliceInfo
     public $hasOptionalMembers;
     public $isLastSlice;
 }
-
-?>

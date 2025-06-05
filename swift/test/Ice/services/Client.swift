@@ -6,7 +6,7 @@ import IceGrid
 import IceStorm
 import TestCommon
 
-public class Client: TestHelperI {
+public class Client: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         var initData = Ice.InitializationData()
         initData.properties = try createTestProperties(args)
@@ -48,7 +48,8 @@ public class Client: TestHelperI {
             }
 
             // topic is always nil, we're just checking the API compiling/linking here
-            let publisher = try await topic?.subscribeAndGetPublisher(theQoS: QoS(), subscriber: nil)
+            let publisher = try await topic?.subscribeAndGetPublisher(
+                theQoS: QoS(), subscriber: nil)
             try test(publisher == nil)
             out.writeLine("ok")
         }

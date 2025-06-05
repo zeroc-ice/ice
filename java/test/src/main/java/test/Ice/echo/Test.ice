@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.echo"]]
+["java:identifier:test.Ice.echo.Test"]
 module Test
 {
     //

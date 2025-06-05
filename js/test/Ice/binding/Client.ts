@@ -7,9 +7,9 @@ import { TestHelper } from "../../Common/TestHelper.js";
 const ArrayUtil = Ice.ArrayUtil;
 const test = TestHelper.test;
 
-const isConnectionFailed = (ex: Ice.Exception) =>
-    (!TestHelper.isBrowser() && ex instanceof Ice.ConnectionRefusedException) ||
-    (TestHelper.isBrowser() && ex instanceof Ice.ConnectFailedException) ||
+const isConnectionFailed = (defaultProtocol: string, ex: Ice.Exception) =>
+    (defaultProtocol === "tcp" && ex instanceof Ice.ConnectionRefusedException) ||
+    (defaultProtocol !== "tcp" && ex instanceof Ice.ConnectFailedException) ||
     ex instanceof Ice.ConnectTimeoutException;
 
 function shuffle<T>(values: T[]) {
@@ -46,6 +46,7 @@ export class Client extends TestHelper {
         const out = this.getWriter();
         let communicator = this.communicator();
         const properties = communicator.getProperties().clone();
+        const defaultProtocol = properties.getIceProperty("Ice.Default.Protocol");
         const ref = `communicator:${this.getTestEndpoint()}`;
         let com = new Test.RemoteCommunicatorPrx(communicator, ref);
 
@@ -70,7 +71,7 @@ export class Client extends TestHelper {
                 await test3.ice_ping();
                 test(false);
             } catch (ex) {
-                test(isConnectionFailed(ex), ex);
+                test(isConnectionFailed(defaultProtocol, ex), ex);
             }
         }
         out.writeLine("ok");
@@ -327,7 +328,7 @@ export class Client extends TestHelper {
             try {
                 await obj.getAdapterName();
             } catch (ex) {
-                test(isConnectionFailed(ex), ex);
+                test(isConnectionFailed(defaultProtocol, ex), ex);
             }
 
             const endpoints = obj.ice_getEndpoints();
@@ -383,7 +384,7 @@ export class Client extends TestHelper {
                 test((await test3.ice_getConnection()) == (await test1.ice_getConnection()));
                 test(false);
             } catch (ex) {
-                test(isConnectionFailed(ex), ex);
+                test(isConnectionFailed(defaultProtocol, ex), ex);
             }
         }
         out.writeLine("ok");
@@ -479,7 +480,7 @@ export class Client extends TestHelper {
             try {
                 await obj.getAdapterName();
             } catch (ex) {
-                test(isConnectionFailed(ex), ex);
+                test(isConnectionFailed(defaultProtocol, ex), ex);
             }
 
             const endpoints = obj.ice_getEndpoints();

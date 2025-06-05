@@ -3,7 +3,7 @@
 </p>
 
 [![Join the chat at https://gitter.im/zeroc-ice/ice](https://badges.gitter.im/zeroc-ice/ice.svg)][gitter]
-[![GPLv2](https://img.shields.io/github/license/zeroc-ice/ice?color=red)][GPLv2]
+[![GPLv2](https://img.shields.io/github/license/zeroc-ice/ice?color=red)][license]
 [![Static Badge](https://img.shields.io/badge/license-Commercial-blue)][Commercial]
 
 # The Ice framework
@@ -28,38 +28,44 @@ For example:
 
 ```slice
 // The contract specified using Slice.
-interface Hello
+
+/// Represents a simple greeter.
+interface Greeter
 {
-    // The caller says "hello".
-    void sayHello();
+    /// Creates a personalized greeting.
+    /// @param name The name of the person to greet.
+    /// @return The greeting.
+    string greet(string name);
 }
 ```
 
 ```shell
 # Compile the Slice contract with the Slice compiler for C++ (slice2cpp)
-slice2cpp Hello.ice
+slice2cpp Greeter.ice
 ```
 
 ```c++
 // C++ client
 
-// Call operation sayHello on a remote object that implements
-// interface Hello using the generated proxy class (HelloPrx).
-helloPrx->sayHello();
+// Call operation greet on a remote object that implements
+// interface Greeter using the generated proxy class (GreeterPrx).
+GreeterPrx greeter{communicator, "greeter:tcp -h localhost -p 4061"};
+string greeting = greeter->greet("alice");
 ```
 
 ```c++
 // C++ server
 
-// Implements the Hello interface by deriving from the generated
-// Hello abstract base class.
-class Printer final : public Hello
+// Implements the Greeter interface by deriving from the generated
+// Greeter abstract base class.
+class Chatbot : public Greeter
 {
 public:
-
-    string sayHello(const Ice::Current&) final
+    std::string greet(std::string name, const Ice::Current&) override
     {
-        cout << "Hello World!" << endl;
+        std::ostringstream os;
+        os << "Hello, " << name << "!";
+        return os.str();
     }
 };
 ```
@@ -81,12 +87,9 @@ Bluetooth...)
 - Server deployment, replication and monitoring ([IceGrid][icegrid])
 - Application gateway ([Glacier2][glacier2])
 
-The Ice API is defined almost entirely using Slice; as a result, it is essentially the same in all programming
-languages.
+## Language Support
 
-## Building Ice from source
-
-[C++](cpp/BUILDING.md) | [C#](csharp/BUILDING.md) | [Java](java/BUILDING.md) | [JavaScript/TypeScript](js/BUILDING.md) | [MATLAB](matlab/BUILDING.md) | [PHP](php/BUILDING.md) | [Python](python/BUILDING.md) | [Ruby](ruby/BUILDING.md) | [Swift](swift/BUILDING.md)
+[C++](cpp/README.md) | [C#](csharp/README.md) | [Java](java/README.md) | [JavaScript/TypeScript](js/README.md) | [MATLAB](matlab/README.md) | [PHP](php/README.md) | [Python](python/README.md) | [Ruby](ruby/README.md) | [Swift](swift/README.md)
 
 ## Copyright and license
 
@@ -95,7 +98,7 @@ Copyright &copy; ZeroC, Inc., with very few exceptions.
 
 As copyright owner, ZeroC can license Ice under different license terms, and offers the following licenses for Ice:
 
-- [GPLv2], a popular open-source license with strong [copyleft][copyleft] conditions (the default license)
+- [GPLv2][license], a popular open-source license with strong [copyleft][copyleft] conditions (the default license)
 - Commercial or closed-source licenses
 
 If you license Ice under GPLv2, there is no license fee or signed license agreement: you just need to comply with the
@@ -115,13 +118,13 @@ license terms.
 [examples]: https://github.com/zeroc-ice/ice-demos
 [gitter]: https://gitter.im/zeroc-ice/ice?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [glacier2]: https://doc.zeroc.com/ice/3.7/ice-services/glacier2
-[GPLv2]: https://github.com/zeroc-ice/ice/blob/3.7/LICENSE
 [ice-repo]: https://github.com/zeroc-ice/ice
 [icegrid]: https://doc.zeroc.com/ice/3.7/ice-services/icegrid
 [icemx]: https://doc.zeroc.com/ice/3.7/administration-and-diagnostics/administrative-facility/the-metrics-facet
 [icessl]: https://doc.zeroc.com/ice/3.7/ice-plugins/icessl
 [icestorm]: https://doc.zeroc.com/ice/3.7/ice-services/icestorm
 [idl]: https://en.wikipedia.org/wiki/Interface_description_language
+[license]: LICENSE
 [logger]: https://doc.zeroc.com/ice/3.7/administration-and-diagnostics/logger-facility
 [properties]: https://doc.zeroc.com/ice/3.7/properties-and-configuration
 [protocol]: https://doc.zeroc.com/ice/3.7/ice-protocol-and-encoding

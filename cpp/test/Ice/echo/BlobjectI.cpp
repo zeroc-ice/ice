@@ -69,9 +69,9 @@ BlobjectI::ice_invokeAsync(
                 current.operation,
                 current.mode,
                 inEncaps,
-                [](bool, const std::vector<byte>&) { assert(0); },
+                [](bool, const std::vector<byte>&) { assert(false); },
                 ex,
-                [&](bool) { response(true, vector<byte>()); },
+                [response = std::move(response)](bool) { response(true, vector<byte>()); },
                 current.ctx);
         }
     }
@@ -82,7 +82,14 @@ BlobjectI::ice_invokeAsync(
             obj = obj->ice_facet(current.facet);
         }
 
-        obj->ice_invokeAsync(current.operation, current.mode, inEncaps, response, ex, nullptr, current.ctx);
+        obj->ice_invokeAsync(
+            current.operation,
+            current.mode,
+            inEncaps,
+            std::move(response),
+            std::move(ex),
+            nullptr,
+            current.ctx);
     }
 }
 

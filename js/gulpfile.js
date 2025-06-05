@@ -14,6 +14,7 @@ import path from "path";
 import pump from "pump";
 import { rollup } from "rollup";
 import strip from "@rollup/plugin-strip";
+import resolve from "@rollup/plugin-node-resolve";
 import { fileURLToPath } from "url";
 import tsc from "gulp-typescript";
 
@@ -32,8 +33,8 @@ function parseArg(argv, key) {
     }
 }
 
-const platform = parseArg(process.argv, "--cppPlatform") || process.env.CPP_PLATFORM;
-const configuration = parseArg(process.argv, "--cppConfiguration") || process.env.CPP_CONFIGURATION;
+const platform = parseArg(process.argv, "--cppPlatform") || process.env.CPP_PLATFORM || "x64";
+const configuration = parseArg(process.argv, "--cppConfiguration") || process.env.CPP_CONFIGURATION || "Release";
 
 function slice2js(options) {
     const defaults = {};
@@ -146,23 +147,9 @@ gulp.task("test:common:generate", cb => {
     pump([gulp.src(["../scripts/Controller.ice"]), slice2js(), gulp.dest("test/Common")], cb);
 });
 
-// A rollup plug-in to resolve "net" module as a mockup file.
-
-const nodeMockups = ["net", "fs", "path"];
-function NodeMockupResolver() {
-    return {
-        name: "mockup-resolver",
-        async resolveId(source) {
-            if (nodeMockups.includes(source)) {
-                return `${__dirname}/test/Common/${source}.mockup.js`;
-            }
-            return null;
-        },
-    };
-}
-
 gulp.task("ice:bundle", async () => {
-    const plugins = [NodeMockupResolver()];
+    // Tell rollup to use the browser version of Ice.
+    const plugins = [resolve({ browser: true })];
     if (optimize) {
         plugins.push(
             strip({
@@ -252,11 +239,16 @@ for (const name of tests) {
 
         let bundle = await rollup({
             input: input,
-            plugins: [IceResolver(), NodeMockupResolver()],
+            plugins: [IceResolver()],
             onwarn: (warning, next) => {
                 // Ignore the "this is undefined" warning, let rollup silently rewrite it.
                 // This avoids warnings from the TypeScript polyfills for async disposable resources.
                 if (warning.code === "THIS_IS_UNDEFINED") return;
+
+                // Ignore unresolved fs/path dynamic imports (Node-only usage)
+                if (warning.code === "UNRESOLVED_IMPORT" && ["fs", "path"].includes(warning.source)) {
+                    return;
+                }
                 next(warning);
             },
         });
@@ -267,7 +259,7 @@ for (const name of tests) {
     });
 
     gulp.task(testTask(name, "copy:assets"), async cb => {
-        pump([gulp.src("test/Common/controller.html"), gulp.dest(`dist/${name}`)], cb);
+        pump([gulp.src(["test/Common/controller.html", "test/Common/style.css"]), gulp.dest(`dist/${name}`)], cb);
     });
 
     createCleanTask(testTask(name, "clean:js"), [`${name}/*.ice`], ".js");

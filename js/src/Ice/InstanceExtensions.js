@@ -23,6 +23,7 @@ import { WSEndpointFactory } from "./WSEndpointFactory.js";
 import { Promise } from "./Promise.js";
 import { ConnectionOptions } from "./ConnectionOptions.js";
 import { StringUtil } from "./StringUtil.js";
+import { FileLogger } from "./FileLogger.js";
 
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;
@@ -181,8 +182,17 @@ Instance.prototype.finishSetup = function (communicator) {
             this._initData.properties.getIcePropertyAsInt("Ice.Connection.Client.InactivityTimeout"),
         );
 
+        const programName = this._initData.properties.getIceProperty("Ice.ProgramName");
+        const logFile = this._initData.properties.getIceProperty("Ice.LogFile");
+        if (logFile.length > 0) {
+            if (FileLogger === null) {
+                throw new InitializationException("Ice.LogFile property is not supported in Web Browsers");
+            }
+            this._initData.logger = new FileLogger(programName, logFile);
+        }
+
         if (this._initData.logger === null) {
-            this._initData.logger = getProcessLogger();
+            this._initData.logger = getProcessLogger(programName);
         }
 
         this._traceLevels = new TraceLevels(this._initData.properties);

@@ -2,8 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.objects"]]
-
+["java:identifier:test.Ice.objects.Test"]
 module Test
 {
     struct S

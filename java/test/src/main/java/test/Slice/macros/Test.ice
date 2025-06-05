@@ -2,8 +2,6 @@
 
 #pragma once
 
-[["java:package:test.Slice.macros"]]
-
 //
 // This macro sets the default value only when compiling with slice2java.
 //
@@ -22,6 +20,7 @@
 #   define NODEFAULT(X) /**/
 #endif
 
+["java:identifier:test.Slice.macros.Test"]
 module Test
 {
     class Default

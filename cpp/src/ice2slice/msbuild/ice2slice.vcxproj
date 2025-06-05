@@ -108,6 +108,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Gen.cpp" />
+    <ClCompile Include="..\..\slice2cs\CsMetadataValidator.cpp" />
     <ClCompile Include="..\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -115,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h" />
+    <ClInclude Include="..\..\slice2cs\CsMetadataValidator.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\IceUtil\msbuild\iceutil\iceutil.vcxproj">
@@ -131,7 +133,6 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\msbuild\packages\mcpp.v143.2.7.2.17\build\native\mcpp.v143.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v143.2.7.2.17\build\native\mcpp.v143.targets')" />
   </ImportGroup>
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.optional.AMD"]]
+["java:identifier:test.Ice.optional.AMD.Test"]
 module Test
 {
     class OneOptional

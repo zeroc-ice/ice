@@ -15,11 +15,8 @@ public class Client extends TestHelper {
         InitializationData initData = new InitializationData();
         initData.observer = instrumentation.getObserver();
         initData.properties = createTestProperties(args);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
         initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
-        //
         // We don't want connection warnings because of the timeout
-        //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
 
         try (Communicator communicator = initialize(initData)) {

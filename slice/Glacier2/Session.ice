@@ -8,7 +8,6 @@
 
 [["cpp:include:Glacier2/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Glacier2"]]
 
@@ -16,6 +15,7 @@
 #include "Ice/Identity.ice"
 #include "SSLInfo.ice"
 
+["java:identifier:com.zeroc.Glacier2"]
 module Glacier2
 {
     interface Router; // So that doc-comments can link to `Glacier2::Router`.

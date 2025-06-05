@@ -20,6 +20,12 @@ on:
         required: false
       REPOSITORY_PASSWORD:
         required: false
+      AZURE_TENANT_ID:
+        required: true
+      AZURE_CLIENT_ID:
+        required: true
+      AZURE_CLIENT_SECRET:
+        required: true
   workflow_dispatch:
     inputs:
       ice_version:
@@ -80,7 +86,7 @@ jobs:
           nuget restore ..\cpp\msbuild\ice.sln
           MSBuild ..\cpp\msbuild\ice.sln /t:"slice2java;ice2slice" /p:Configuration=Release /p:Platform=x64
           ./gradlew.bat dist -PcppPlatform=x64 -PcppConfiguration=Release
-        working-directory: ice/java
+        working-directory: java
 
       # MSI packaging depends on VCInstallDir to locate The C++ merge modules
       - name: Add VCInstallDir to Environment
@@ -91,7 +97,7 @@ jobs:
 
       - name: Build MSI
         run: dotnet build -c Release -p:Platform=x64
-        working-directory: ice/packaging/msi
+        working-directory: packaging/msi
         env:
           StagingDir: "${{ github.workspace }}\\staging"
 
@@ -104,7 +110,7 @@ jobs:
           endpoint: https://eus.codesigning.azure.net/
           trusted-signing-account-name: zeroc
           certificate-profile-name: zeroc-ice
-          files-folder: ./ice/packaging/msi/bin/x64/Release/
+          files-folder: ./packaging/msi/bin/x64/Release/
           files-folder-filter: msi
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
@@ -116,7 +122,7 @@ jobs:
         with:
           name: windows-msi
           path: |
-            ice/packaging/msi/bin/x64/Release/*.msi
+            packaging/msi/bin/x64/Release/*.msi
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4
@@ -143,7 +149,7 @@ jobs:
         shell: bash
         run: |
           curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
-              --upload-file ice/packaging/msi/bin/x64/Release/*.msi \
+              --upload-file packaging/msi/bin/x64/Release/*.msi \
               --output /dev/null \
               --silent \
               --retry 3 \

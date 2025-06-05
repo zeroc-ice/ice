@@ -3,14 +3,15 @@
 import Ice
 import TestCommon
 
-class Collocated: TestHelperI {
+class Collocated: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.AcceptClassCycles", value: "1")
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
         var initData = Ice.InitializationData()
         initData.properties = properties
-        initData.sliceLoader = CompositeSliceLoader(CustomSliceLoader(), DefaultSliceLoader("IceObjects"))
+        initData.sliceLoader = CompositeSliceLoader(
+            CustomSliceLoader(), DefaultSliceLoader("IceObjects"))
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()
@@ -20,8 +21,8 @@ class Collocated: TestHelperI {
             key: "TestAdapter.Endpoints",
             value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
-        try adapter.add(servant: InitialDisp(InitialI(adapter)), id: Ice.stringToIdentity("initial"))
-        try adapter.add(servant: F2Disp(F2I()), id: Ice.stringToIdentity("F21"))
+        try adapter.add(servant: InitialI(adapter), id: Ice.stringToIdentity("initial"))
+        try adapter.add(servant: F2I(), id: Ice.stringToIdentity("F21"))
         try adapter.add(
             servant: UnexpectedObjectExceptionTestDispatcher(),
             id: Ice.stringToIdentity("uoet"))

@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.timeout"]]
+["java:identifier:test.Ice.timeout.Test"]
 module Test
 {
     sequence<byte> ByteSeq;

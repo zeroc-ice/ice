@@ -207,4 +207,3 @@ class Client extends TestHelper
         }
     }
 }
-?>

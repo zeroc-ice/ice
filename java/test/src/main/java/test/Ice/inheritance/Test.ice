@@ -2,8 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.inheritance"]]
-
+["java:identifier:test.Ice.inheritance.Test"]
 module Test
 {
     module MA

@@ -11,10 +11,10 @@
 [["cpp:include:map"]]
 [["cpp:include:string"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// Represents additional information carried by an Ice request. This information is filled-in by the application

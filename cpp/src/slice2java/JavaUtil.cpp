@@ -107,7 +107,7 @@ Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
     os << ";";
     for (const auto& member : members)
     {
-        const MetadataList metadata = member->getMetadata();
+        const MetadataList& metadata = member->getMetadata();
         const string typeString = JavaGenerator::typeToString(member->type(), TypeModeMember, "", metadata);
         os << member->mappedName() << ":" << typeString << ",";
     }
@@ -320,22 +320,15 @@ Slice::JavaGenerator::output() const
 string
 Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& contained)
 {
-    // Traverse to the top-level module.
-    ContainedPtr p = contained;
-    while (!p->isTopLevel())
-    {
-        p = dynamic_pointer_cast<Contained>(p->container());
-        assert(p);
-    }
-    assert(dynamic_pointer_cast<Module>(p));
+    ModulePtr topLevelModule = contained->getTopLevelModule();
 
     // The 'java:package' metadata can be defined as file metadata or applied to a top-level module.
     // We check for the metadata at the top-level module first and then fall back to the global scope.
-    if (auto metadataArgs = p->getMetadataArgs("java:package"))
+    if (auto metadataArgs = topLevelModule->getMetadataArgs("java:package"))
     {
         return *metadataArgs;
     }
-    string file = contained->file();
+    string_view file = contained->file();
     DefinitionContextPtr dc = contained->unit()->findDefinitionContext(file);
     assert(dc);
     return dc->getMetadataArgs("java:package").value_or("");
@@ -575,7 +568,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
     const TypePtr& type,
     OptionalMode mode,
     bool optionalMapping,
-    int tag,
+    int32_t tag,
     const string& param,
     bool marshal,
     int& iter,
@@ -1702,6 +1695,8 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
             {typeid(Module),
              typeid(InterfaceDecl),
              typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
              typeid(Struct),
              typeid(Sequence),
              typeid(Dictionary),
@@ -1718,8 +1713,16 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
     MetadataInfo packageInfo = {
         .validOn = {typeid(Unit), typeid(Module)},
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
+        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
         {
+            const string msg = "'java:package' is deprecated; use 'java:identifier' to remap modules instead";
+            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
+
+            if (auto element = dynamic_pointer_cast<Contained>(p); element && element->hasMetadata("java:identifier"))
+            {
+                return "A Slice element can only have one of 'java:package' and 'java:identifier' applied to it";
+            }
+
             // If 'java:package' is applied to a module, it must be a top-level module.
             // // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
             if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())

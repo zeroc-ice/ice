@@ -202,7 +202,7 @@ public final class Communicator implements AutoCloseable {
      *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null
      *     if the object adapter does not use secure endpoints, or if the ssl transport is
      *     configured through Ice.SSL configuration properties. Passing null is equivalent to
-     *     calling {@link createObjectAdapterWithEndpoints(String, String)}.
+     *     calling {@link #createObjectAdapterWithEndpoints(String, String)}.
      * @return The new object adapter.
      * @see #createObjectAdapterWithEndpoints
      * @see ObjectAdapter
@@ -233,7 +233,6 @@ public final class Communicator implements AutoCloseable {
         return createObjectAdapterWithEndpoints(name, endpoints, null);
     }
 
-    @SuppressWarnings("javadocparagraph")
     /**
      * Create a new object adapter with endpoints. This operation sets the property <code>
      * <em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided
@@ -247,7 +246,7 @@ public final class Communicator implements AutoCloseable {
      *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null
      *     if the object adapter does not use secure endpoints, or if the ssl transport is
      *     configured through Ice.SSL configuration properties. Passing null is equivalent to
-     *     calling {@link createObjectAdapterWithEndpoints(String, String)}.
+     *     calling {@link #createObjectAdapterWithEndpoints(String, String)}.
      * @return The new object adapter.
      * @see #createObjectAdapter
      * @see ObjectAdapter
@@ -342,6 +341,20 @@ public final class Communicator implements AutoCloseable {
      */
     public Logger getLogger() {
         return _instance.initializationData().logger;
+    }
+
+    /**
+     * Adds a Slice loader to this communicator, after the Slice loader set in {@link InitializationData}
+     * (if any) and after other Slice loaders added by this method.
+     *
+     * <p>This method is not thread-safe and should only be called right after the communicator is created.
+     * It's provided for applications that cannot set the Slice loader in the {@link InitializationData} of the
+     * communicator, such as IceBox services.</p>
+     *
+     * @param loader The Slice loader to add.
+     */
+    public void addSliceLoader(SliceLoader loader) {
+        _instance.addSliceLoader(loader);
     }
 
     /**
@@ -534,18 +547,7 @@ public final class Communicator implements AutoCloseable {
         _instance.initialize(this, initData);
     }
 
-    /**
-     * For compatibility with C#, we do not invoke methods on other objects from within a finalizer.
-     *
-     * <p>protected synchronized void finalize() throws Throwable { if(!_instance.destroyed()) {
-     * _instance.logger().warning("Ice::Communicator::destroy() has not been called"); }
-     *
-     * <p>super.finalize(); }
-     */
-
-    //
-    // Certain initialization tasks need to be completed after the constructor.
-    //
+    /** Certain initialization tasks need to be completed after the constructor. */
     void finishSetup(String[] args, List<String> rArgs) {
         try {
             args = _instance.finishSetup(args, this);
@@ -561,6 +563,12 @@ public final class Communicator implements AutoCloseable {
         }
     }
 
+    /**
+     * Get the {@code Instance} object associated with this communicator.
+     *
+     * @return the {@code Instance} object associated with this communicator
+     * @hidden
+     */
     public Instance getInstance() {
         return _instance;
     }

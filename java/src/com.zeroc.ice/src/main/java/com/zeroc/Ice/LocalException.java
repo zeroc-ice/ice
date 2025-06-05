@@ -8,10 +8,21 @@ package com.zeroc.Ice;
  * from java.lang.Exception.
  */
 public class LocalException extends RuntimeException {
+    /**
+     * Constructs a {@code LocalException} with a message.
+     *
+     * @param message the detail message for this exception
+     */
     public LocalException(String message) {
         super(message);
     }
 
+    /**
+     * Constructs a {@code LocalException} with a message and a cause.
+     *
+     * @param message the detail message for this exception
+     * @param cause   the cause of this exception
+     */
     public LocalException(String message, Throwable cause) {
         super(message, cause);
     }
@@ -19,7 +30,7 @@ public class LocalException extends RuntimeException {
     /**
      * Returns the type ID of this exception.
      *
-     * @return The type ID of this exception.
+     * @return the type ID of this exception
      */
     public String ice_id() {
         return "::Ice::LocalException";

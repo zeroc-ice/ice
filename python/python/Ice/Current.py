@@ -81,5 +81,3 @@ class Current:
         EncodingVersion: The encoding of the request payload.
         """
         return self._encoding
-
-    __module__ = "Ice"

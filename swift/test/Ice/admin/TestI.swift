@@ -4,7 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class TestFacetI: TestFacet {
+final class TestFacetI: TestFacet, Sendable {
     func op(current _: Ice.Current) {}
 }
 
@@ -110,22 +110,20 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         //
         // Install a custom admin facet.
         //
-        try communicator.addAdminFacet(servant: TestFacetDisp(TestFacetI()), facet: "TestFacet")
+        try communicator.addAdminFacet(servant: TestFacetI(), facet: "TestFacet")
 
         //
         // Set the callback on the admin facet.
         //
         let servant = RemoteCommunicatorI(communicator: communicator)
 
-        if let propDisp = communicator.findAdminFacet("Properties") as? PropertiesAdminDisp,
-            let propFacet = propDisp.servant as? NativePropertiesAdmin
-        {
+        if let propFacet = communicator.findAdminFacet("Properties") as? NativePropertiesAdmin {
             _ = propFacet.addUpdateCallback { changes in
                 servant.updated(changes: changes)
             }
         }
         return try uncheckedCast(
-            prx: current.adapter.addWithUUID(RemoteCommunicatorDisp(servant)),
+            prx: current.adapter.addWithUUID(servant),
             type: RemoteCommunicatorPrx.self)
     }
 

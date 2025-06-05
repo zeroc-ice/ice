@@ -4,7 +4,7 @@ import Dispatch
 import Ice
 import TestCommon
 
-class Server: TestHelperI {
+class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
 
@@ -44,11 +44,11 @@ class Server: TestHelperI {
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         let adapter2 = try communicator.createObjectAdapter("ControllerAdapter")
 
-        try adapter.add(servant: TestIntfDisp(TestI(helper: self)), id: Ice.stringToIdentity("test"))
-        try adapter.add(servant: OuterInnerTestIntfDisp(TestII()), id: Ice.stringToIdentity("test2"))
+        try adapter.add(servant: TestI(helper: self), id: Ice.Identity(name: "test"))
+        try adapter.add(servant: TestII(), id: Ice.stringToIdentity("test2"))
         try adapter.activate()
         try adapter2.add(
-            servant: TestIntfControllerDisp(TestControllerI(adapter: adapter)),
+            servant: TestControllerI(adapter: adapter),
             id: Ice.stringToIdentity("testController"))
         try adapter2.activate()
         serverReady()

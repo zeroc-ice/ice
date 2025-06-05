@@ -4,7 +4,7 @@ import Dispatch
 import Ice
 import TestCommon
 
-class Server: TestHelperI {
+class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         //
         // Register the server manager. The server manager creates a new
@@ -32,16 +32,16 @@ class Server: TestHelperI {
         //
         let registry = ServerLocatorRegistry()
         let object = ServerManagerI(registry: registry, helper: self)
-        try adapter.add(servant: ServerManagerDisp(object), id: Ice.stringToIdentity("ServerManager"))
+        try adapter.add(servant: object, id: Ice.stringToIdentity("ServerManager"))
         try registry.addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
         let registryPrx = try uncheckedCast(
             prx: adapter.add(
-                servant: TestLocatorRegistryDisp(registry),
+                servant: registry,
                 id: Ice.stringToIdentity("registry")),
             type: Ice.LocatorRegistryPrx.self)
 
         let locator = ServerLocator(registry: registry, registryPrx: registryPrx)
-        try adapter.add(servant: TestLocatorDisp(locator), id: Ice.stringToIdentity("locator"))
+        try adapter.add(servant: locator, id: Ice.stringToIdentity("locator"))
 
         try adapter.activate()
         serverReady()

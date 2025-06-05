@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.serialize"]]
+["java:identifier:test.Ice.serialize.Test"]
 module Test
 {
     enum MyEnum

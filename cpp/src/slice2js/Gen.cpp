@@ -22,27 +22,59 @@ using namespace IceInternal;
 namespace
 {
     /// Returns a JsDoc formatted link to the provided Slice identifier.
-    /// TODO: this is temporary and will be replaced when we add 'js:identifier' support.
-    string jsLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string jsLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
     {
-        string result = "{@link ";
-
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        ostringstream result;
+        result << "{@link ";
+        if (target)
         {
-            // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
-            if (hashPos != 0)
+            if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
             {
-                result += rawLink.substr(0, hashPos);
-                result += "#";
+                result << JsGenerator::typeToJsString(builtinTarget, true);
             }
-            result += rawLink.substr(hashPos + 1);
+            else
+            {
+                if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+                {
+                    string targetScoped = operationTarget->interface()->mappedScoped(".").substr(1);
+
+                    // link to the method on the proxy interface
+                    result << targetScoped << "Prx." << operationTarget->mappedName();
+                }
+                else
+                {
+                    string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".").substr(1);
+                    if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+                    {
+                        // link to the proxy interface
+                        result << targetScoped << "Prx";
+                    }
+                    else
+                    {
+                        result << targetScoped;
+                    }
+                }
+            }
         }
         else
         {
-            result += rawLink;
+            auto hashPos = rawLink.find('#');
+            if (hashPos != string::npos)
+            {
+                // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
+                if (hashPos != 0)
+                {
+                    result << rawLink.substr(0, hashPos) << "#";
+                }
+                result << rawLink.substr(hashPos + 1);
+            }
+            else
+            {
+                result << rawLink;
+            }
         }
-        return result + "}";
+        result << "}";
+        return result.str();
     }
 
     // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
@@ -164,77 +196,26 @@ namespace
     {
         // JavaScript doesn't provide a way to deprecate elements other than by using a comment, so we map both the
         // Slice @deprecated tag and the deprecated metadata argument to a `@deprecated` JSDoc tag.
+        if (comment && comment->isDeprecated())
+        {
+            // If a reason was supplied, append it after the `@deprecated` tag.
+            const StringList& deprecatedDoc = comment->deprecated();
+            if (!deprecatedDoc.empty())
+            {
+                out << nl << " * @deprecated ";
+                writeDocLines(out, deprecatedDoc, false);
+                return;
+            }
+        }
         if ((comment && comment->isDeprecated()) || contained->isDeprecated())
         {
+            // If no reason was supplied, fallback to the 'deprecated' metadata argument.
             out << nl << " * @deprecated";
-            // If a reason was supplied, append it after the `@deprecated` tag. If no reason was supplied, fallback to
-            // the deprecated metadata argument.
-            if (!comment->deprecated().empty())
-            {
-                out << " ";
-                writeDocLines(out, comment->deprecated(), false);
-            }
-            else if (auto deprecated = contained->getDeprecationReason())
+            if (auto deprecated = contained->getDeprecationReason())
             {
                 out << " " << *deprecated;
             }
         }
-    }
-
-    string getDocSentence(const StringList& lines)
-    {
-        //
-        // Extract the first sentence.
-        //
-        ostringstream ostr;
-        for (auto i = lines.begin(); i != lines.end(); ++i)
-        {
-            const string ws = " \t";
-
-            if (i->empty())
-            {
-                break;
-            }
-            if (i != lines.begin() && i->find_first_not_of(ws) == 0)
-            {
-                ostr << " ";
-            }
-            string::size_type pos = i->find('.');
-            if (pos == string::npos)
-            {
-                ostr << *i;
-            }
-            else if (pos == i->size() - 1)
-            {
-                ostr << *i;
-                break;
-            }
-            else
-            {
-                //
-                // Assume a period followed by whitespace indicates the end of the sentence.
-                //
-                while (pos != string::npos)
-                {
-                    if (ws.find((*i)[pos + 1]) != string::npos)
-                    {
-                        break;
-                    }
-                    pos = i->find('.', pos + 1);
-                }
-                if (pos != string::npos)
-                {
-                    ostr << i->substr(0, pos + 1);
-                    break;
-                }
-                else
-                {
-                    ostr << *i;
-                }
-            }
-        }
-
-        return ostr.str();
     }
 
     enum OpDocParamType
@@ -427,14 +408,16 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecat
 
     if (comment)
     {
-        if (!comment->overview().empty())
+        const StringList& overview = comment->overview();
+        if (!overview.empty())
         {
-            writeDocLines(_out, comment->overview(), true);
+            writeDocLines(_out, overview, true);
         }
 
-        if (!comment->seeAlso().empty())
+        const StringList seeAlso = comment->seeAlso();
+        if (!seeAlso.empty())
         {
-            writeSeeAlso(_out, comment->seeAlso());
+            writeSeeAlso(_out, seeAlso);
         }
     }
 
@@ -2273,7 +2256,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if (auto comment = DocComment::parseFrom(dataMember, jsLinkFormatter))
         {
-            _out << nl << " * @param " << dataMember->mappedName() << " " << getDocSentence(comment->overview());
+            _out << nl << " * @param " << dataMember->mappedName() << " " << getFirstSentence(comment->overview());
         }
     }
     _out << nl << " */";
@@ -2324,9 +2307,10 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
     optional<DocComment> comment = DocComment::parseFrom(op, jsLinkFormatter);
     if (comment)
     {
-        if (!comment->overview().empty())
+        const StringList& overview = comment->overview();
+        if (!overview.empty())
         {
-            writeDocLines(out, comment->overview(), true);
+            writeDocLines(out, overview, true);
         }
 
         paramDoc = comment->parameters();
@@ -2374,23 +2358,24 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
         writeDocLines(out, comment->returns(), false, "   ");
     }
 
-    for (const auto& param : op->outParameters())
-    {
-        auto q = paramDoc.find(param->name());
-        if (q != paramDoc.end())
-        {
-            out << nl << " * - " << typeToTsString(param->type(), true, false, param->optional()) << " : ";
-            writeDocLines(out, q->second, false, "   ");
-        }
-    }
-
     if (comment)
     {
+        for (const auto& param : op->outParameters())
+        {
+            auto q = paramDoc.find(param->name());
+            if (q != paramDoc.end())
+            {
+                out << nl << " * - " << typeToTsString(param->type(), true, false, param->optional()) << " : ";
+                writeDocLines(out, q->second, false, "   ");
+            }
+        }
+
         writeOpDocExceptions(out, op, *comment);
 
-        if (!comment->seeAlso().empty())
+        const StringList& seeAlso = comment->seeAlso();
+        if (!seeAlso.empty())
         {
-            writeSeeAlso(out, comment->seeAlso());
+            writeSeeAlso(out, seeAlso);
         }
     }
 
@@ -2627,7 +2612,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if (auto comment = DocComment::parseFrom(dataMember, jsLinkFormatter))
             {
-                _out << nl << " * @param " << dataMember->mappedName() << " " << getDocSentence(comment->overview());
+                _out << nl << " * @param " << dataMember->mappedName() << " " << getFirstSentence(comment->overview());
             }
         }
         _out << nl << " */";

@@ -2,7 +2,7 @@
 
 #pragma once
 
-[["java:package:test.Ice.enums"]]
+["java:identifier:test.Ice.enums.Test"]
 module Test
 {
     const byte ByteConst1 = 10;

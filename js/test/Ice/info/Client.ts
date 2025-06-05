@@ -57,21 +57,6 @@ export class Client extends TestHelper {
                 (ipEndpoint!.type() == Ice.WSSEndpointType && endpoint instanceof Ice.WSEndpointInfo),
         );
 
-        let ic = Ice.initialize();
-        ic.stringToProxy("test:default");
-        endpoints = p1.ice_getEndpoints();
-        endpoint = endpoints[0].getInfo();
-        ipEndpoint = getTCPEndpointInfo(endpoint);
-        test(
-            ipEndpoint!.type() ==
-                (TestHelper.isBrowser()
-                    ? ipEndpoint.secure()
-                        ? Ice.WSSEndpointType
-                        : Ice.WSEndpointType
-                    : Ice.TCPEndpointType),
-        );
-        ic.destroy();
-
         const opaqueEndpoint = endpoints[1].getInfo() as Ice.OpaqueEndpointInfo;
         test(opaqueEndpoint.rawEncoding.equals(new Ice.EncodingVersion(1, 8)));
         out.writeLine("ok");
@@ -125,12 +110,19 @@ export class Client extends TestHelper {
             test(parseInt(ctx.get("localPort")!) === ipConnectionInfo!.remotePort);
         }
 
+        function getHeader(ctx: Map<string, string>, key: string): string | undefined {
+            return ctx.get(key) || ctx.get(key.toLowerCase());
+        }
+
         if (conn.type() == "ws" || conn.type() == "wss") {
-            test(ctx.get("ws.Upgrade")!.toLowerCase() == "websocket");
-            test(ctx.get("ws.Connection")!.indexOf("Upgrade") >= 0);
-            test(ctx.get("ws.Sec-WebSocket-Protocol") == "ice.zeroc.com");
-            test(ctx.get("ws.Sec-WebSocket-Version") == "13");
-            test(ctx.get("ws.Sec-WebSocket-Key") !== null);
+            test(getHeader(ctx, "ws.Upgrade")!.toLowerCase() == "websocket");
+            test(
+                getHeader(ctx, "ws.Connection")!.indexOf("Upgrade") >= 0 ||
+                    getHeader(ctx, "ws.Connection")!.indexOf("upgrade") >= 0,
+            );
+            test(getHeader(ctx, "ws.Sec-WebSocket-Protocol") == "ice.zeroc.com");
+            test(getHeader(ctx, "ws.Sec-WebSocket-Version") == "13");
+            test(getHeader(ctx, "ws.Sec-WebSocket-Key") !== null);
         }
         out.writeLine("ok");
 

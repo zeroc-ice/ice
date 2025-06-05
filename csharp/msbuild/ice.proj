@@ -86,9 +86,9 @@
         <MSBuild Projects="@(SolutionFile)" Properties="%(Properties)" Targets="Clean" />
     </Target>
 
-    <Target Name="Pack" DependsOnTargets="BuildDist">
-        <Exec Command="dotnet pack @(ToolsSolution) /p:PackageVersion=$(PackageVersion);Platform=&quot;Any CPU&quot;" />
-        <Exec Command="dotnet pack @(DistSolutionFile) /p:PackageVersion=$(PackageVersion);Platform=&quot;Any CPU&quot;" />
+    <Target Name="Pack">
+        <Exec Command="dotnet pack --no-build @(ToolsSolution) /p:PackageVersion=$(PackageVersion);Platform=&quot;Any CPU&quot;" />
+        <Exec Command="dotnet pack --no-build @(DistSolutionFile) /p:PackageVersion=$(PackageVersion);Platform=&quot;Any CPU&quot;" />
     </Target>
 
     <Target Name="Publish" DependsOnTargets="Pack">

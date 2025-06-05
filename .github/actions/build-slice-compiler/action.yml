@@ -21,3 +21,18 @@ runs:
       run: |
         make -C cpp OPTIMIZE=yes V=1 ${{ inputs.compiler-name }}
       shell: bash
+
+    - name: Sign Compiler Artifact
+      if: runner.os == 'Windows'
+      uses: azure/trusted-signing-action@v0
+      with:
+        azure-tenant-id: ${{ env.AZURE_TENANT_ID }}
+        azure-client-id: ${{ env.AZURE_CLIENT_ID }}
+        azure-client-secret: ${{ env.AZURE_CLIENT_SECRET }}
+        endpoint: https://eus.codesigning.azure.net/
+        trusted-signing-account-name: zeroc
+        certificate-profile-name: zeroc-ice
+        files: ${{ github.workspace }}\cpp\bin\x64\Release\${{ inputs.compiler-name }}.exe
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256

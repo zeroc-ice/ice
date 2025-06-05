@@ -79,32 +79,6 @@ Slice::relativePath(const string& p1, const string& p2)
 }
 
 string
-Slice::getJavaScriptModuleForType(const TypePtr& type)
-{
-    static const char* builtinModuleTable[] = {
-        "",           // byte
-        "",           // bool
-        "",           // short
-        "",           // int
-        "_zeroc_ice", // long
-        "",           // float
-        "",           // double
-        "",           // string
-        "_zeroc_ice", // Ice.Value
-        "_zeroc_ice", // Ice.ObjectPrx
-        "_zeroc_ice"  // Ice.Object
-    };
-
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if (builtin)
-    {
-        return builtinModuleTable[builtin->kind()];
-    }
-
-    return getJavaScriptModule(dynamic_pointer_cast<Contained>(type)->definitionContext());
-}
-
-string
 Slice::getJavaScriptModule(const DefinitionContextPtr& dc)
 {
     // Check if the file contains the 'js:module' file metadata.
@@ -395,7 +369,7 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(
     Output& out,
     const TypePtr& type,
     const string& param,
-    int tag,
+    int32_t tag,
     bool marshal)
 {
     assert(!type->isClassType()); // Optional classes are disallowed by the parser.

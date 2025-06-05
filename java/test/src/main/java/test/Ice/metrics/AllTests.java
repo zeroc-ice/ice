@@ -339,11 +339,8 @@ public class AllTests {
 
         String host = helper.getTestHost();
         String port = Integer.toString(helper.getTestPort(0));
-        String hostAndPort = host + ":" + port;
         String protocol = helper.getTestProtocol();
         String endpoint = protocol + " -h " + host + " -p " + port;
-        String forwardingEndpoint =
-            protocol + " -h " + host + " -p " + Integer.toString(helper.getTestPort(1));
 
         MetricsPrx metrics =
             MetricsPrx.checkedCast(communicator.stringToProxy("metrics:" + endpoint));
@@ -518,11 +515,8 @@ public class AllTests {
             cm1 = cm2;
             sm1 = sm2;
 
-            bs =
-                new byte
-                    [1024 * 1024
-                        * 10]; // Try with large amount of data which should be sent in
-            // several chunks
+            // Try with large amount of data which should be sent in several chunks
+            bs = new byte[1024 * 1024 * 10];
             metrics.opByteS(bs);
 
             cm2 =
@@ -642,6 +636,7 @@ public class AllTests {
                 clientMetrics.getMetricsView("View")
                     .returnValue
                     .get("ConnectionEstablishment")[0];
+            String hostAndPort = host + ":" + port;
             test(m1.current == 0 && m1.total == 1 && m1.id.equals(hostAndPort));
 
             metrics.ice_getConnection().close();
@@ -965,6 +960,7 @@ public class AllTests {
 
         out.print("testing dispatch metrics with forwarding object adapter... ");
         out.flush();
+        final String forwardingEndpoint = protocol + " -h " + host + " -p " + Integer.toString(helper.getTestPort(1));
         MetricsPrx indirectMetrics =
             MetricsPrx.createProxy(communicator, "metrics:" + forwardingEndpoint);
         var secondOp = new InvokeOp(indirectMetrics);

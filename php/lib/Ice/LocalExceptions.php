@@ -101,8 +101,6 @@ final class FixedProxyException extends LocalException {}
 
 final class InitializationException extends LocalException {}
 
-final class InvocationCanceledException extends LocalException {}
-
 final class NoEndpointException extends LocalException {}
 
 final class NotRegisteredException extends LocalException

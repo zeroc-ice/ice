@@ -150,7 +150,7 @@ namespace Slice
             const TypePtr&,
             OptionalMode,
             bool,
-            int,
+            std::int32_t,
             const std::string&,
             bool,
             int&,

@@ -146,7 +146,7 @@ MetadataVisitor::visitUnitStart(const UnitPtr& p)
 bool
 MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    const MetadataList moduleMetadata = p->getMetadata();
+    const MetadataList& moduleMetadata = p->getMetadata();
     if (p->usesNestedSyntax && !moduleMetadata.empty())
     {
         // Metadata cannot be applied to modules that used nested-module-syntax, since it's ambiguous in meaning.

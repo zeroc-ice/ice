@@ -571,6 +571,7 @@
     <ClCompile Include="..\..\LoggerI.cpp" />
     <ClCompile Include="..\..\LoggerUtil.cpp" />
     <ClCompile Include="..\..\MetricsAdminI.cpp" />
+    <ClCompile Include="..\..\NativePropertiesAdmin.cpp" />
     <ClCompile Include="..\..\Network.cpp" />
     <ClCompile Include="..\..\NetworkProxy.cpp" />
     <ClCompile Include="..\..\Object.cpp" />
@@ -582,7 +583,6 @@
     <ClCompile Include="..\..\OutgoingAsync.cpp" />
     <ClCompile Include="..\..\OutputStream.cpp" />
     <ClCompile Include="..\..\PluginManagerI.cpp" />
-    <ClCompile Include="..\..\PropertiesAdminI.cpp" />
     <ClCompile Include="..\..\PropertyNames.cpp" />
     <ClCompile Include="..\..\PropertyUtil.cpp" />
     <ClCompile Include="..\..\Protocol.cpp" />
@@ -1047,7 +1047,6 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets" Condition="Exists('..\..\..\..\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bzip2.v143.targets')" />
   </ImportGroup>
-  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

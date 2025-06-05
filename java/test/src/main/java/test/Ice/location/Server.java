@@ -6,15 +6,13 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.LocatorRegistryPrx;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
 public class Server extends TestHelper {
     public void run(String[] args) {
-        Properties properties = createTestProperties(args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.location");
+        var properties = createTestProperties(args);
         properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
 

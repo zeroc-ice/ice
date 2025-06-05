@@ -875,23 +875,6 @@ IcePy::PrimitiveInfo::unmarshal(
     }
 }
 
-void
-IcePy::PrimitiveInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory*)
-{
-    if (!validate(value))
-    {
-        out << "<invalid value - expected " << getId() << ">";
-        return;
-    }
-    PyObjectHandle p{PyObject_Str(value)};
-    if (!p.get())
-    {
-        return;
-    }
-    assert(checkString(p.get()));
-    out << getString(p.get());
-}
-
 //
 // EnumInfo implementation.
 //
@@ -986,23 +969,6 @@ IcePy::EnumInfo::unmarshal(
     }
 
     cb->unmarshaled(p.get(), target, closure);
-}
-
-void
-IcePy::EnumInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory*)
-{
-    if (!validate(value))
-    {
-        out << "<invalid value - expected " << id << ">";
-        return;
-    }
-    PyObjectHandle p{PyObject_Str(value)};
-    if (!p.get())
-    {
-        return;
-    }
-    assert(checkString(p.get()));
-    out << getString(p.get());
 }
 
 void
@@ -1302,40 +1268,6 @@ IcePy::StructInfo::unmarshal(
 }
 
 void
-IcePy::StructInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
-{
-    if (!validate(value))
-    {
-        out << "<invalid value - expected " << id << ">";
-        return;
-    }
-
-    if (value == Py_None)
-    {
-        out << "<nil>";
-    }
-    else
-    {
-        out.sb();
-        for (auto q = members.begin(); q != members.end(); ++q)
-        {
-            const DataMemberPtr& member = *q;
-            PyObjectHandle attr{getAttr(value, member->name, true)};
-            out << nl << member->name << " = ";
-            if (!attr.get())
-            {
-                out << "<not defined>";
-            }
-            else
-            {
-                member->type->print(attr.get(), out, history);
-            }
-        }
-        out.eb();
-    }
-}
-
-void
 IcePy::StructInfo::destroy()
 {
     const_cast<DataMemberList&>(members).clear();
@@ -1582,44 +1514,6 @@ IcePy::SequenceInfo::unmarshal(
     }
 
     cb->unmarshaled(result.get(), target, closure);
-}
-
-void
-IcePy::SequenceInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
-{
-    if (!validate(value))
-    {
-        out << "<invalid value - expected " << id << ">";
-        return;
-    }
-
-    if (value == Py_None)
-    {
-        out << "{}";
-    }
-    else
-    {
-        PyObjectHandle fastSeq{PySequence_Fast(value, "expected a sequence value")};
-        if (!fastSeq.get())
-        {
-            return;
-        }
-
-        Py_ssize_t sz = PySequence_Fast_GET_SIZE(fastSeq.get());
-
-        out.sb();
-        for (Py_ssize_t i = 0; i < sz; ++i)
-        {
-            PyObject* item = PySequence_Fast_GET_ITEM(fastSeq.get(), i);
-            if (!item)
-            {
-                break;
-            }
-            out << nl << '[' << static_cast<int>(i) << "] = ";
-            elementType->print(item, out, history);
-        }
-        out.eb();
-    }
 }
 
 void
@@ -2675,45 +2569,6 @@ IcePy::DictionaryInfo::unmarshaled(PyObject* val, PyObject* target, void* closur
 }
 
 void
-IcePy::DictionaryInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
-{
-    if (!validate(value))
-    {
-        out << "<invalid value - expected " << id << ">";
-        return;
-    }
-
-    if (value == Py_None)
-    {
-        out << "{}";
-    }
-    else
-    {
-        Py_ssize_t pos = 0;
-        PyObject* elemKey;
-        PyObject* elemValue;
-        out.sb();
-        bool first = true;
-        while (PyDict_Next(value, &pos, &elemKey, &elemValue))
-        {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                out << nl;
-            }
-            out << nl << "key = ";
-            keyType->print(elemKey, out, history);
-            out << nl << "value = ";
-            valueType->print(elemValue, out, history);
-        }
-        out.eb();
-    }
-}
-
-void
 IcePy::DictionaryInfo::KeyCallback::unmarshaled(PyObject* val, PyObject*, void*)
 {
     key = Py_NewRef(val);
@@ -2882,93 +2737,10 @@ IcePy::ValueInfo::unmarshal(
 }
 
 void
-IcePy::ValueInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
-{
-    if (!validate(value))
-    {
-        out << "<invalid value - expected " << id << ">";
-        return;
-    }
-
-    if (value == Py_None)
-    {
-        out << "<nil>";
-    }
-    else
-    {
-        auto q = history->objects.find(value);
-        if (q != history->objects.end())
-        {
-            out << "<object #" << q->second << ">";
-        }
-        else
-        {
-            PyObjectHandle iceType{getAttr(value, "_ice_type", false)};
-            assert(iceType.get());
-
-            ValueInfoPtr info = dynamic_pointer_cast<ValueInfo>(getType(iceType.get()));
-            assert(info);
-
-            out << "object #" << history->index << " (" << info->id << ')';
-            history->objects.insert(map<PyObject*, int>::value_type(value, history->index));
-            ++history->index;
-            out.sb();
-            info->printMembers(value, out, history);
-            out.eb();
-        }
-    }
-}
-
-void
 IcePy::ValueInfo::destroy()
 {
     const_cast<ValueInfoPtr&>(base) = nullptr;
     const_cast<DataMemberList&>(members).clear();
-}
-
-void
-IcePy::ValueInfo::printMembers(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
-{
-    if (base)
-    {
-        base->printMembers(value, out, history);
-    }
-
-    DataMemberList::const_iterator q;
-
-    for (q = members.begin(); q != members.end(); ++q)
-    {
-        const DataMemberPtr& member = *q;
-        PyObjectHandle attr{getAttr(value, member->name, true)};
-        out << nl << member->name << " = ";
-        if (!attr.get())
-        {
-            out << "<not defined>";
-        }
-        else
-        {
-            member->type->print(attr.get(), out, history);
-        }
-    }
-
-    for (q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
-    {
-        const DataMemberPtr& member = *q;
-        PyObjectHandle attr{getAttr(value, member->name, true)};
-        out << nl << member->name << " = ";
-        if (!attr.get())
-        {
-            out << "<not defined>";
-        }
-        else if (attr.get() == Py_None)
-        {
-            out << "<not set>";
-        }
-        else
-        {
-            member->type->print(attr.get(), out, history);
-        }
-    }
 }
 
 //
@@ -3081,31 +2853,6 @@ IcePy::ProxyInfo::unmarshal(
 
     PyObjectHandle p{createProxy(proxy.value(), proxy->ice_getCommunicator(), pythonType)};
     cb->unmarshaled(p.get(), target, closure);
-}
-
-void
-IcePy::ProxyInfo::print(PyObject* value, IceInternal::Output& out, PrintObjectHistory*)
-{
-    if (!validate(value))
-    {
-        out << "<invalid value - expected " << getId() << ">";
-        return;
-    }
-
-    if (value == Py_None)
-    {
-        out << "<nil>";
-    }
-    else
-    {
-        PyObjectHandle p{PyObject_Str(value)};
-        if (!p.get())
-        {
-            return;
-        }
-        assert(checkString(p.get()));
-        out << getString(p.get());
-    }
 }
 
 //
@@ -3532,69 +3279,6 @@ IcePy::ExceptionInfo::unmarshal(Ice::InputStream* is)
     }
 
     return p.release();
-}
-
-void
-IcePy::ExceptionInfo::print(PyObject* value, IceInternal::Output& out)
-{
-    if (!PyObject_IsInstance(value, pythonType))
-    {
-        out << "<invalid value - expected " << id << ">";
-        return;
-    }
-
-    PrintObjectHistory history;
-    history.index = 0;
-
-    out << "exception " << id;
-    out.sb();
-    printMembers(value, out, &history);
-    out.eb();
-}
-
-void
-IcePy::ExceptionInfo::printMembers(PyObject* value, IceInternal::Output& out, PrintObjectHistory* history)
-{
-    if (base)
-    {
-        base->printMembers(value, out, history);
-    }
-
-    DataMemberList::iterator q;
-
-    for (q = members.begin(); q != members.end(); ++q)
-    {
-        const DataMemberPtr& member = *q;
-        PyObjectHandle attr{getAttr(value, member->name, true)};
-        out << nl << member->name << " = ";
-        if (!attr.get() || attr.get() == Py_None)
-        {
-            out << "<not defined>";
-        }
-        else
-        {
-            member->type->print(attr.get(), out, history);
-        }
-    }
-
-    for (q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
-    {
-        const DataMemberPtr& member = *q;
-        PyObjectHandle attr{getAttr(value, member->name, true)};
-        out << nl << member->name << " = ";
-        if (!attr.get())
-        {
-            out << "<not defined>";
-        }
-        else if (attr.get() == Py_None)
-        {
-            out << "<not set>";
-        }
-        else
-        {
-            member->type->print(attr.get(), out, history);
-        }
-    }
 }
 
 //
@@ -4152,49 +3836,4 @@ IcePy_defineException(PyObject*, PyObject* args)
     addExceptionInfo(id, info);
 
     return createException(info);
-}
-
-extern "C" PyObject*
-IcePy_stringify(PyObject*, PyObject* args)
-{
-    PyObject* value;
-    PyObject* type;
-    if (!PyArg_ParseTuple(args, "OO", &value, &type))
-    {
-        return nullptr;
-    }
-
-    TypeInfoPtr info = getType(type);
-    assert(info);
-
-    ostringstream ostr;
-    IceInternal::Output out(ostr);
-    PrintObjectHistory history;
-    history.index = 0;
-    info->print(value, out, &history);
-
-    string str = ostr.str();
-    return createString(str);
-}
-
-extern "C" PyObject*
-IcePy_stringifyException(PyObject*, PyObject* args)
-{
-    PyObject* value;
-    if (!PyArg_ParseTuple(args, "O", &value))
-    {
-        return nullptr;
-    }
-
-    PyObjectHandle iceType{getAttr(value, "_ice_type", false)};
-    assert(iceType.get());
-    ExceptionInfoPtr info = getException(iceType.get());
-    assert(info);
-
-    ostringstream ostr;
-    IceInternal::Output out(ostr);
-    info->print(value, out);
-
-    string str = ostr.str();
-    return createString(str);
 }

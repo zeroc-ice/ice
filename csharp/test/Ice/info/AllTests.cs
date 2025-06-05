@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Security.Cryptography.X509Certificates;
+
 namespace Ice.info;
 
 public class AllTests : global::Test.AllTests
@@ -218,17 +220,14 @@ public class AllTests : global::Test.AllTests
                 if (sslInfo != null)
                 {
                     test(sslInfo.certs.Length > 0);
-                    // The SHA1 Thumbprint of the server certificate used in the test.
-                    test(sslInfo.certs[0].Thumbprint == "9E754B7A7BF5E1951CB2A46B565F8BBB8A4A355D");
+                    checkPeerCertificateSubjectName(sslInfo.certs[0].SubjectName);
                 }
             }
             else if (@base.ice_getConnection().type() == "ssl")
             {
                 var sslInfo = info as Ice.SSL.ConnectionInfo;
                 test(sslInfo != null);
-                test(sslInfo.certs.Length > 0);
-                // The SHA1 Thumbprint of the server certificate used in the test.
-                test(sslInfo.certs[0].Thumbprint == "9E754B7A7BF5E1951CB2A46B565F8BBB8A4A355D");
+                checkPeerCertificateSubjectName(sslInfo.certs[0].SubjectName);
             }
 
             connection = @base.ice_datagram().ice_getConnection();
@@ -254,5 +253,17 @@ public class AllTests : global::Test.AllTests
 
         communicator.shutdown();
         communicator.waitForShutdown();
+    }
+
+    private static void checkPeerCertificateSubjectName(
+        X500DistinguishedName subjectName)
+    {
+        test(subjectName.Name.Contains("E=info@zeroc.com"));
+        test(subjectName.Name.Contains("CN=ca.server"));
+        test(subjectName.Name.Contains("OU=Ice test infrastructure"));
+        test(subjectName.Name.Contains("O=ZeroC"));
+        test(subjectName.Name.Contains("L=Jupiter"));
+        test(subjectName.Name.Contains("S=Florida"));
+        test(subjectName.Name.Contains("C=US"));
     }
 }

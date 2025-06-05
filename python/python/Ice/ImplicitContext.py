@@ -3,7 +3,7 @@
 from typing import final
 
 @final
-class ImplicitContext(object):
+class ImplicitContext:
     """
     An interface to associate implicit contexts with communicators.
 
@@ -24,8 +24,6 @@ class ImplicitContext(object):
     ImplicitContext also provides a number of operations to create, update, or retrieve an entry in the underlying
     context without first retrieving a copy of the entire context.
     """
-
-    __module__ = "Ice"
 
     def __init__(self, impl):
         self._impl = impl

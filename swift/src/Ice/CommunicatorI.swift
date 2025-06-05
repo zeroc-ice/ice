@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
+class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecked Sendable {
     let defaultsAndOverrides: DefaultsAndOverrides
     let initData: InitializationData
     let classGraphDepthMax: Int32
@@ -120,8 +120,10 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         handle.setDefaultObjectAdapter((adapter as? ObjectAdapterI)?.handle)
     }
 
-    func getImplicitContext() -> ImplicitContext {
-        let handle = self.handle.getImplicitContext()
+    func getImplicitContext() -> ImplicitContext? {
+        guard let handle = self.handle.getImplicitContext() else {
+            return nil
+        }
         return handle.getSwiftObject(ImplicitContextI.self) {
             ImplicitContextI(handle: handle)
         }
@@ -214,10 +216,10 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func addAdminFacet(servant dispatcher: Dispatcher, facet: String) throws {
+    func addAdminFacet(servant: Dispatcher & Sendable, facet: String) throws {
         try autoreleasepool {
             try handle.addAdminFacet(
-                AdminFacetFacade(communicator: self, dispatcher: dispatcher), facet: facet)
+                AdminFacetFacade(communicator: self, servant: servant), facet: facet)
         }
     }
 
@@ -227,7 +229,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
                 preconditionFailure()
             }
 
-            return facade.dispatcher
+            return facade.servant
         }
     }
 
@@ -237,7 +239,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
                 guard let facade = try handle.findAdminFacet(facet) as? AdminFacetFacade else {
                     return nil
                 }
-                return facade.dispatcher
+                return facade.servant
             }
         } catch is CommunicatorDestroyedException {
             // Ignored
@@ -251,7 +253,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         do {
             return try autoreleasepool {
                 try handle.findAllAdminFacets().mapValues { facade in
-                    (facade as! AdminFacetFacade).dispatcher
+                    (facade as! AdminFacetFacade).servant
                 }
             }
         } catch is CommunicatorDestroyedException {

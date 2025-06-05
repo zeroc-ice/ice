@@ -3,6 +3,8 @@
 #include "Gen.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
+#include "../slice2cs/CsMetadataValidator.h"
+#include "Ice/StringUtil.h"
 
 #include <cassert>
 
@@ -12,44 +14,54 @@ using namespace IceInternal;
 
 namespace
 {
-    static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamespaceAttribute)
+    static void writeCsIdentifier(const ContainedPtr& cont, Output& out)
     {
-        // Traverse to the top-level module.
-        ContainedPtr p = cont;
-        string csharpNamespace;
-        while (true)
-        {
-            if (dynamic_pointer_cast<Module>(p))
-            {
-                // TODO we should be using the `mappedName` here, not the slice `name`.
-                if (csharpNamespace.empty())
-                {
-                    csharpNamespace = p->name();
-                }
-                else
-                {
-                    csharpNamespace = p->name() + "." + csharpNamespace;
-                }
-            }
+        // Modules are not allowed to have a cs::identifier attribute in IceRPC Slice.
+        // they are handled separately in the getOutput function.
+        assert(!dynamic_pointer_cast<Module>(cont));
 
-            if (p->isTopLevel())
-            {
-                break;
-            }
-            p = dynamic_pointer_cast<Contained>(p->container());
-            assert(p);
+        if (auto metadata = cont->getMetadataArgs("cs:identifier"))
+        {
+            out << nl << "[cs::identifier(\"" << *metadata << "\")]";
         }
-        assert(dynamic_pointer_cast<Module>(p));
+    }
 
-        if (auto metadata = p->getMetadataArgs("cs:namespace"))
+    // We cannot use mappedName because it depends on the language name used to create the Unit.
+    static string getCsMappedName(const ContainedPtr& cont)
+    {
+        return cont->getMetadataArgs("cs:identifier").value_or(cont->name());
+    }
+
+    static string getCsMappedScoped(const ContainedPtr& cont);
+
+    // We cannot use mappedScope because it depends on the language name used to create the Unit.
+    static string getCsMappedScope(const ContainedPtr& cont)
+    {
+        string scoped;
+        auto container = dynamic_pointer_cast<Contained>(cont->container());
+        if (container)
         {
-            hasCSharpNamespaceAttribute = true;
-            return *metadata + "." + csharpNamespace;
+            scoped = getCsMappedScoped(container);
+        }
+        return scoped + '.';
+    }
+
+    // We cannot use mappedScoped because it depends on the language name used to create the Unit.
+    static string getCsMappedScoped(const ContainedPtr& cont) { return getCsMappedScope(cont) + getCsMappedName(cont); }
+
+    static string getCsMappedNamespace(const ContainedPtr& cont)
+    {
+        ModulePtr topLevelModule = cont->getTopLevelModule();
+        string csMappedScope = getCsMappedScope(cont).substr(1);
+        csMappedScope = csMappedScope.substr(0, csMappedScope.size() - 1); // Remove the trailing "."
+
+        if (auto csNamespacePrefix = topLevelModule->getMetadataArgs("cs:namespace"))
+        {
+            return *csNamespacePrefix + "." + csMappedScope;
         }
         else
         {
-            hasCSharpNamespaceAttribute = false;
-            return csharpNamespace;
+            return csMappedScope;
         }
     }
 
@@ -67,9 +79,8 @@ namespace
         return fileBase + scope + ".slice";
     }
 
-    string getUnqualified(const ContainedPtr& contained, const string& moduleName)
+    string getUnqualified(const string& scopedName, const string& moduleName)
     {
-        string scopedName = contained->scoped();
         if (scopedName.find("::") != string::npos && scopedName.find(moduleName) == 0 &&
             scopedName.find("::", moduleName.size()) == string::npos)
         {
@@ -81,22 +92,27 @@ namespace
         }
     }
 
+    string getUnqualified(const ContainedPtr& contained, const string& moduleName)
+    {
+        return getUnqualified(contained->scoped(), moduleName);
+    }
+
     string typeToString(const TypePtr& type, const string& scope, bool optional)
     {
         ostringstream os;
 
         static const char* builtinTable[] = {
-            "uint8",                     // KindByte
-            "bool",                      // KindBool
-            "int16",                     // KindShort
-            "int32",                     // KindInt
-            "int64",                     // KindLong
-            "float32",                   // KindFloat
-            "float64",                   // KindDouble
-            "string",                    // KindString
-            "AnyClass?",                 // KindObject
-            "::IceRpc::ServiceAddress?", // KindObjectProxy
-            "AnyClass?"                  // KindValue
+            "uint8",                   // KindByte
+            "bool",                    // KindBool
+            "int16",                   // KindShort
+            "int32",                   // KindInt
+            "int64",                   // KindLong
+            "float32",                 // KindFloat
+            "float64",                 // KindDouble
+            "string",                  // KindString
+            "AnyClass?",               // KindObject
+            "IceRpc::ServiceAddress?", // KindObjectProxy
+            "AnyClass?"                // KindValue
         };
 
         if (BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type))
@@ -115,7 +131,12 @@ namespace
         }
         else if (ContainedPtr contained = dynamic_pointer_cast<Contained>(type))
         {
-            os << getUnqualified(contained, scope);
+            string scopedName = contained->scoped();
+            if (scopedName == "::Ice::Identity")
+            {
+                scopedName = "::Ice::IdentityPath";
+            }
+            os << getUnqualified(scopedName, scope);
         }
 
         if (optional && !type->isClassType() && !isProxyType(type))
@@ -153,10 +174,7 @@ namespace
         ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
         if (contained)
         {
-            bool hasCSharpNamespaceAttribute;
-            string csharpNamespace = getCSharpNamespace(contained, hasCSharpNamespaceAttribute);
-
-            os << csharpNamespace << "." << contained->name();
+            os << getCsMappedNamespace(contained) << "." << getCsMappedName(contained);
             InterfaceDeclPtr interface = dynamic_pointer_cast<InterfaceDecl>(contained);
             if (interface)
             {
@@ -175,10 +193,16 @@ namespace
     string paramToString(const ParameterPtr& param, const string& scope, bool includeParamName = true)
     {
         ostringstream os;
+        if (auto identifier = param->getMetadataArgs("cs:identifier"))
+        {
+            os << "[cs::identifier(\"" << *identifier << "\")] ";
+        }
+
         if (param->optional())
         {
             os << "tag(" << param->tag() << ") ";
         }
+
         if (includeParamName)
         {
             os << param->name() << ": ";
@@ -205,26 +229,24 @@ namespace
     {
         // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
         // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
-        string formattedLink;
-        auto separatorPos = rawLink.find('#');
+        string formattedLink = rawLink;
+        auto separatorPos = formattedLink.find('#');
         if (separatorPos == 0)
         {
             // We want to avoid converting the relative link '#member' into the global link '::member'.
             // Instead we simply convert it to 'member' with no prefix.
-            formattedLink = rawLink.substr(1);
+            formattedLink = formattedLink.substr(1);
         }
         else if (separatorPos != string::npos)
         {
-            formattedLink = rawLink;
             formattedLink.replace(separatorPos, 1, "::");
         }
-
         return "{@link " + formattedLink + "}";
     }
 
     void writeDocComment(const ContainedPtr& contained, Output& out)
     {
-        optional<DocComment> comment = DocComment::parseFrom(contained, slice2LinkFormatter, true);
+        optional<DocComment> comment = DocComment::parseFrom(contained, slice2LinkFormatter);
         if (!comment)
         {
             return;
@@ -235,7 +257,7 @@ namespace
         OperationPtr operation = dynamic_pointer_cast<Operation>(contained);
         if (operation)
         {
-            std::map<std::string, StringList> parameterDocs = comment->parameters();
+            const map<string, StringList>& parameterDocs = comment->parameters();
 
             // Input parameters
             for (const auto& param : operation->inParameters())
@@ -266,7 +288,7 @@ namespace
             }
 
             // Return value
-            StringList returnDocs = comment->returns();
+            const StringList& returnDocs = comment->returns();
             if (!returnDocs.empty())
             {
                 out << nl << "/// @returns";
@@ -291,7 +313,11 @@ namespace
         {
             string memberComponent = "";
             string::size_type hashPos = ident.find('#');
-            if (hashPos != string::npos)
+            if (hashPos == 0)
+            {
+                ident = ident.substr(1);
+            }
+            else if (hashPos != string::npos)
             {
                 memberComponent = ident.substr(hashPos + 1);
                 ident.erase(hashPos);
@@ -318,6 +344,7 @@ namespace
         for (const auto& member : dataMembers)
         {
             writeDocComment(member, out);
+            writeCsIdentifier(member, out);
             out << nl;
             if (member->optional())
             {
@@ -333,6 +360,8 @@ Gen::Gen(std::string fileBase) : _fileBase(std::move(fileBase)) {}
 void
 Gen::generate(const UnitPtr& p)
 {
+    Slice::validateCsMetadata(p);
+
     OutputModulesVisitor outputModulesVisitor;
     p->visit(&outputModulesVisitor);
 
@@ -442,6 +471,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocComment(p, out);
+    writeCsIdentifier(p, out);
     out << nl << "interface " << p->name();
     if (bases.size() > 0)
     {
@@ -464,6 +494,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         OperationPtr op = *q;
         writeDocComment(op, out);
+        writeCsIdentifier(op, out);
         if (op->hasMetadata("marshaled-result"))
         {
             out << nl << "[cs::encodedReturn]";
@@ -544,6 +575,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
     writeDocComment(p, out);
+    writeCsIdentifier(p, out);
     out << nl << "exception " << p->name();
     if (ExceptionPtr base = p->base())
     {
@@ -567,6 +599,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     out << sp;
     writeDocComment(p, out);
+    writeCsIdentifier(p, out);
     out << nl << "compact struct " << p->name() << " {";
     out.inc();
 
@@ -648,6 +681,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
     writeDocComment(p, out);
+    writeCsIdentifier(p, out);
     out << nl << "enum " << p->name() << " {";
     out.inc();
 
@@ -702,6 +736,13 @@ Gen::TypesVisitor::getOutput(const ContainedPtr& contained)
     {
         string outputName = getOutputName(_fileBase, _modules.size() > 1 ? scope : "");
         unique_ptr<Output> out = make_unique<Output>(outputName.c_str());
+        if (!(*out))
+        {
+            ostringstream os;
+            os << "cannot open '" << outputName << "': " << IceInternal::errorToString(errno);
+            throw FileException(os.str());
+        }
+
         FileTracker::instance()->addFile(outputName);
         *out << "// This file was generated by ice2slice (" << ICE_STRING_VERSION << ") from: " << contained->file();
         *out << nl;
@@ -710,17 +751,25 @@ Gen::TypesVisitor::getOutput(const ContainedPtr& contained)
         *out << nl << "mode = Slice1";
         *out << nl;
 
-        bool hasCSharpNamespaceAttribute;
-        string csharpNamespace = getCSharpNamespace(contained, hasCSharpNamespaceAttribute);
-        if (hasCSharpNamespaceAttribute)
-        {
-            *out << nl << "[cs::namespace(\"" << csharpNamespace << "\")]";
-        }
-
         // The module name is the scoped named without the start and end scope operator '::'
         assert(scope.find("::") == 0);
         assert(scope.rfind("::") == scope.size() - 2);
         string moduleName = scope.substr(2).substr(0, scope.size() - 4);
+
+        string csNamespace = moduleName;
+        string::size_type pos = string::npos;
+        while ((pos = csNamespace.find("::")) != string::npos)
+        {
+            csNamespace.replace(pos, 2, ".");
+        }
+        string csMappedNamespace = getCsMappedNamespace(contained);
+
+        // If the mapped C# namespace is different than the default C# namespace, we need to add the
+        // cs::namespace attribute to the module.
+        if (csMappedNamespace != csNamespace)
+        {
+            *out << nl << "[cs::namespace(\"" << csMappedNamespace << "\")]";
+        }
 
         *out << nl << "module " << moduleName;
         auto inserted = _outputs.emplace(scope, std::move(out));

@@ -8,12 +8,12 @@
 
 [["cpp:source-include:Ice/LocatorRegistry.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
 #include "Identity.ice"
 
+["java:identifier:com.zeroc.Ice"]
 module Ice
 {
     /// The exception that is thrown by a {@link Locator} implementation when it cannot find an object adapter with the

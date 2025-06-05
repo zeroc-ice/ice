@@ -20,8 +20,6 @@ namespace Slice
         /// Convert a dimension-less array declaration to one with a dimension.
         [[nodiscard]] static std::string toArrayAlloc(const std::string& decl, const std::string& sz);
 
-        static void validateMetadata(const UnitPtr&);
-
         /// Returns the namespace of a Contained entity.
         [[nodiscard]] static std::string getNamespace(const ContainedPtr&);
 
@@ -70,7 +68,7 @@ namespace Slice
             const TypePtr&,
             const std::string&,
             const std::string&,
-            int,
+            std::int32_t,
             bool,
             const std::string& = "");
         void writeSequenceMarshalUnmarshalCode(

@@ -8,12 +8,12 @@
 
 [["cpp:include:IceGrid/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceGrid"]]
 
 #include "Admin.ice"
 
+["java:identifier:com.zeroc.IceGrid"]
 module IceGrid
 {
     /// The exception that is thrown when an error occurs during the parsing of an IceGrid XML file.

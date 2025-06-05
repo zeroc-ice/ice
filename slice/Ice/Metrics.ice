@@ -6,13 +6,13 @@
 [["cpp:doxygen:include:Ice/Ice.h"]]
 [["cpp:header-ext:h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:Ice"]]
 
 #include "BuiltinSequences.ice"
 
 /// The Ice Management eXtension facility.
+["java:identifier:com.zeroc.IceMX"]
 ["swift:identifier:Ice"]
 module IceMX
 {

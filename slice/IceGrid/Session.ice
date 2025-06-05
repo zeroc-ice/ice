@@ -8,13 +8,13 @@
 
 [["cpp:include:IceGrid/Config.h"]]
 
-[["java:package:com.zeroc"]]
 [["js:module:@zeroc/ice"]]
 [["python:pkgdir:IceGrid"]]
 
 #include "Exception.ice"
 #include "Glacier2/Session.ice"
 
+["java:identifier:com.zeroc.IceGrid"]
 module IceGrid
 {
     interface Registry; // For doc-comments.

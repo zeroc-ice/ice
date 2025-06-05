@@ -21,7 +21,7 @@ public class Server : Test.TestHelper
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Identity id = Ice.Util.stringToIdentity("factory");
-        adapter.add(new ServerFactoryI(args[0] + "/../certs"), id);
+        adapter.add(new ServerFactoryI(args[0]), id);
         adapter.activate();
 
         communicator.waitForShutdown();

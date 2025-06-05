@@ -69,13 +69,13 @@ class ServantLocatorI: Ice.ServantLocator {
         }
 
         if current.id.name == "router" {
-            return (RouterDisp(_router), Cookie())
+            return (_router, Cookie())
         }
 
         try _helper.test(current.id.category == "")
         try _helper.test(current.id.name == "test")
 
-        return (TestIntfDisp(TestI()), Cookie())
+        return (TestI(), Cookie())
     }
 
     func finished(curr current: Ice.Current, servant _: Ice.Dispatcher, cookie: AnyObject?) throws {

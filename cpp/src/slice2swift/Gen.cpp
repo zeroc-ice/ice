@@ -206,14 +206,15 @@ Gen::ImportVisitor::writeImports()
 }
 
 void
-Gen::ImportVisitor::addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& toplevel)
+Gen::ImportVisitor::addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& usedBy)
 {
-    // Only add imports for user defined constructs.
+    // Only add imports for user defined constructs...
     auto definition = dynamic_pointer_cast<Contained>(p);
     if (definition)
     {
-        string swiftM1 = getSwiftModule(getTopLevelModule(definition));
-        string swiftM2 = getSwiftModule(getTopLevelModule(toplevel));
+        // ... and only if the type lives in a different module than where it's being used.
+        string swiftM1 = getSwiftModule(definition->getTopLevelModule());
+        string swiftM2 = getSwiftModule(usedBy->getTopLevelModule());
         if (swiftM1 != swiftM2)
         {
             addImport(swiftM1);
@@ -236,7 +237,7 @@ bool
 Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string prefix = getClassResolverPrefix(p->unit());
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
 
     ClassDefPtr base = p->base();
@@ -315,17 +316,29 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         << ") throws";
     out << sb;
     out << nl << "_ = try istr.startSlice()";
-    for (const auto& member : members)
+    if (!members.empty())
     {
-        if (!member->optional())
+        out << nl << "nonisolated(unsafe) let iceP_self = self";
+
+        for (const auto& member : members)
         {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false);
+            if (!member->optional())
+            {
+                writeMarshalUnmarshalCode(out, member->type(), p, "iceP_self." + member->mappedName(), false);
+            }
+        }
+        for (const auto& member : optionalMembers)
+        {
+            writeMarshalUnmarshalCode(
+                out,
+                member->type(),
+                p,
+                "iceP_self." + member->mappedName(),
+                false,
+                member->tag());
         }
     }
-    for (const auto& member : optionalMembers)
-    {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false, member->tag());
-    }
+
     out << nl << "try istr.endSlice()";
     if (base)
     {
@@ -369,7 +382,7 @@ Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr&)
 bool
 Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
 
     ExceptionPtr base = p->base();
@@ -500,7 +513,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
     const string docName = removeEscaping(name);
     bool isLegalKeyType = Dictionary::isLegalKeyType(p);
@@ -513,11 +526,25 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     writeSwiftAttributes(out, p->getMetadata());
     out << nl << "public " << (usesClasses ? "class " : "struct ") << name;
 
-    // Only generate Hashable if this struct is a legal dictionary key type.
+    // Vector of protocols this struct conforms to.
+    vector<string> structProtocols;
     if (isLegalKeyType)
     {
-        out << ": Swift.Hashable";
+        structProtocols.emplace_back("Swift.Hashable");
     }
+    if (!usesClasses)
+    {
+        structProtocols.emplace_back("Swift.Sendable");
+    }
+
+    if (!structProtocols.empty())
+    {
+        out << ": ";
+        out.spar("");
+        out << structProtocols;
+        out.epar("");
+    }
+
     out << sb;
 
     writeMembers(out, members, p);
@@ -535,9 +562,17 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "/// Read a `" << docName << "` structured value from the stream.";
     out << nl << "///";
     out << nl << "/// - Returns: The structured value read from the stream.";
-    out << nl << "func read() throws -> " << name;
+    out << nl << "func read() throws -> sending " << name;
     out << sb;
-    out << nl << (usesClasses ? "let" : "var") << " v = " << name << "()";
+    if (usesClasses)
+    {
+        out << nl << "nonisolated(unsafe) let";
+    }
+    else
+    {
+        out << nl << "var";
+    }
+    out << " v = " << name << "()";
     for (const auto& member : members)
     {
         writeMarshalUnmarshalCode(out, member->type(), p, "v." + member->mappedName(), false);
@@ -551,7 +586,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The structured value read from the stream.";
-    out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
+    out << nl << "func read(tag: Swift.Int32) throws -> sending " << name << "?";
     out << sb;
     out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -617,7 +652,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
     const string unescapedName = removeEscaping(name);
 
@@ -658,18 +693,19 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "///";
     out << nl << "/// - Returns: The sequence read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
+    out << nl << "public static func read(from istr: " << istr << ") throws -> sending " << name;
     out << sb;
     out << nl << "let sz = try istr.readAndCheckSeqSize(minSize: " << p->type()->minWireSize() << ")";
 
     if (type->isClassType())
     {
-        out << nl << "var v = " << name << "(repeating: nil, count: sz)";
+        out << nl << "nonisolated(unsafe) var v = " << name << "(repeating: nil, count: sz)";
         out << nl << "for i in 0 ..< sz";
         out << sb;
         out << nl << "try Swift.withUnsafeMutablePointer(to: &v[i])";
         out << sb;
         out << " p in";
+        out << nl << "nonisolated(unsafe) let p = p";
         writeMarshalUnmarshalCode(out, type, p, "p.pointee", false);
         out << eb;
         out << eb;
@@ -695,7 +731,8 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The sequence read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << name << "?";
+    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> sending " << name
+        << "?";
     out << sb;
     out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -716,7 +753,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "/// Write a `" << unescapedName << "` sequence to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter ostr: The stream to write to.";
-    out << nl << "/// - Parameter value: The sequence value to write to the stream.";
+    out << nl << "/// - Parameter v: The sequence value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
@@ -732,7 +769,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "/// - Parameters:";
     out << nl << "///   - ostr: The stream to write to.";
     out << nl << "///   - tag: The numeric tag associated with the value.";
-    out << nl << "///   - value: The sequence value to write to the stream.";
+    out << nl << "///   - v: The sequence value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ",  tag: Swift.Int32, value v: " << name << "?)";
     out << sb;
     out << nl << "guard let val = v else";
@@ -771,7 +808,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 void
 Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
     const string unescapedName = removeEscaping(name);
 
@@ -800,14 +837,19 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "///";
     out << nl << "/// - Returns: The dictionary read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
+    out << nl << "public static func read(from istr: " << istr << ") throws -> sending " << name;
     out << sb;
     out << nl << "let sz = try Swift.Int(istr.readSize())";
-    out << nl << "var v = " << name << "()";
+    out << nl;
     if (p->valueType()->isClassType())
     {
-        out << nl << "let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "
-            << valueType << ">(size: sz)";
+        out << "nonisolated(unsafe) ";
+    }
+    out << "var v = " << name << "()";
+    if (p->valueType()->isClassType())
+    {
+        out << nl << "nonisolated(unsafe) let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<"
+            << keyType << ", " << valueType << ">(size: sz)";
         out << nl << "for i in 0 ..< sz";
         out << sb;
         string keyParam = "let key: " + keyType;
@@ -851,7 +893,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The dictionary read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << name << "?";
+    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> sending " << name
+        << "?";
     out << sb;
     out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -872,7 +915,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "/// Write a `" << unescapedName << "` dictionary to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter ostr: The stream to write to.";
-    out << nl << "/// - Parameter value: The dictionary value to write to the stream.";
+    out << nl << "/// - Parameter v: The dictionary value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
@@ -889,7 +932,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "/// - Parameters:";
     out << nl << "///   - ostr: The stream to write to.";
     out << nl << "///   - tag: The numeric tag associated with the value.";
-    out << nl << "///   - value: The dictionary value to write to the stream.";
+    out << nl << "///   - v: The dictionary value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", tag: Swift.Int32, value v: " << name << "?)";
     out << sb;
     out << nl << "guard let val = v else";
@@ -920,7 +963,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string name = getRelativeTypeString(p, swiftModule);
     const string docName = removeEscaping(name);
     const EnumeratorList enumerators = p->enumerators();
@@ -930,7 +973,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetadata());
-    out << nl << "public enum " << name << ": " << enumType;
+    out << nl << "@frozen public enum " << name << ": " << enumType;
     out << sb;
 
     for (const auto& enumerator : enumerators)
@@ -955,7 +998,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/// Read an enumerated value.";
     out << nl << "///";
     out << nl << "/// - Returns:  The enumerated value.";
-    out << nl << "func read() throws -> " << name;
+    out << nl << "func read() throws -> sending " << name;
     out << sb;
     out << nl << "let rawValue: " << enumType << " = try read(enumMaxValue: " << p->maxValue() << ")";
     out << nl << "guard let val = " << name << "(rawValue: rawValue) else";
@@ -971,7 +1014,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The enumerated value.";
-    out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
+    out << nl << "func read(tag: Swift.Int32) throws -> sending " << name << "?";
     out << sb;
     out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -1017,7 +1060,7 @@ void
 Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     const TypePtr type = p->type();
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
 
     writeDocSummary(out, p);
     out << nl << "public let " << p->mappedName() << ": " << typeToString(type, p) << " = ";
@@ -1030,7 +1073,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     InterfaceList bases = p->bases();
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string unescapedName = removeEscaping(getRelativeTypeString(p, swiftModule));
     const string traits = unescapedName + "Traits";
     const string prx = unescapedName + "Prx";
@@ -1062,21 +1105,19 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Proxy class
     out << sp;
     writeProxyDocSummary(out, p, swiftModule);
-    out << nl << "public protocol " << prx << ":";
+    out << nl << "public protocol " << prx << ": ";
     if (bases.size() == 0)
     {
-        out << " " << getUnqualified("Ice.ObjectPrx", swiftModule);
+        out << getUnqualified("Ice.ObjectPrx", swiftModule);
     }
     else
     {
-        for (auto i = bases.begin(); i != bases.end();)
+        out.spar("");
+        for (const auto& baseInterface : bases)
         {
-            out << " " << removeEscaping(getRelativeTypeString(*i, swiftModule)) << "Prx";
-            if (++i != bases.end())
-            {
-                out << ",";
-            }
+            out << (removeEscaping(getRelativeTypeString(baseInterface, swiftModule)) + "Prx");
         }
+        out.epar("");
     }
     out << sb;
     out << eb;
@@ -1091,7 +1132,8 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         out << "private ";
     }
-    out << "final class " << prxI << ": " << getUnqualified("Ice.ObjectPrxI", swiftModule) << ", " << prx;
+    out << "final class " << prxI << ": " << getUnqualified("Ice.ObjectPrxI", swiftModule) << ", " << prx
+        << ", @unchecked Sendable";
     out << sb;
 
     out << nl << "public override class func ice_staticId() -> Swift.String";
@@ -1195,7 +1237,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "/// - Parameter type: The type of the proxy to be extracted.";
     out << nl << "///";
     out << nl << "/// - Returns: The extracted proxy.";
-    out << nl << "func read(_ type: " << prx << ".Protocol) throws -> " << prx << "?";
+    out << nl << "func read(_ type: " << prx << ".Protocol) throws -> sending " << prx << "?";
     out << sb;
     out << nl << "return try read() as " << prxI << "?";
     out << eb;
@@ -1238,79 +1280,8 @@ Gen::ServantVisitor::ServantVisitor(::IceInternal::Output& o) : out(o) {}
 bool
 Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
-
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string servant = getRelativeTypeString(p, swiftModule);
-    const string unescapedName = removeEscaping(servant);
-    const string disp = unescapedName + "Disp";
-    const string traits = unescapedName + "Traits";
-
-    //
-    // Disp struct
-    //
-    out << sp;
-    out << sp;
-    out << nl << "/// Dispatcher for `" << unescapedName << "` servants.";
-    out << nl << "public struct " << disp << ": Ice.Dispatcher";
-    out << sb;
-    out << nl << "public let servant: " << servant;
-
-    out << nl << "private static let defaultObject = " << getUnqualified("Ice.ObjectI", swiftModule) << "<" << traits
-        << ">()";
-
-    out << sp;
-    out << nl << "public init(_ servant: " << servant << ")";
-    out << sb;
-    out << nl << "self.servant = servant";
-    out << eb;
-
-    const OperationList allOps = p->allOperations();
-
-    list<pair<string, string>> allOpNames;
-    transform(
-        allOps.begin(),
-        allOps.end(),
-        back_inserter(allOpNames),
-        [](const ContainedPtr& it) { return std::make_pair(it->name(), it->mappedName()); });
-
-    allOpNames.emplace_back("ice_id", "ice_id");
-    allOpNames.emplace_back("ice_ids", "ice_ids");
-    allOpNames.emplace_back("ice_isA", "ice_isA");
-    allOpNames.emplace_back("ice_ping", "ice_ping");
-
-    out << sp;
-    out << nl;
-    out << "public func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
-    out << sb;
-    out << nl;
-    out << "switch request.current.operation";
-    out << sb;
-    out.dec(); // to align case with switch
-    for (const auto& [sliceName, mappedName] : allOpNames)
-    {
-        const string mappedDispatchName = "_iceD_" + removeEscaping(mappedName);
-        out << nl << "case \"" << sliceName << "\":";
-        out.inc();
-        if (sliceName == "ice_id" || sliceName == "ice_ids" || sliceName == "ice_isA" || sliceName == "ice_ping")
-        {
-            out << nl << "try await (servant as? Ice.Object ?? " << disp << ".defaultObject)." << mappedDispatchName
-                << "(request)";
-        }
-        else
-        {
-            out << nl << "try await servant." << mappedDispatchName << "(request)";
-        }
-
-        out.dec();
-    }
-    out << nl << "default:";
-    out.inc();
-    out << nl << "throw Ice.OperationNotExistException()";
-    // missing dec to compensate for the extra dec after switch sb
-    out << eb;
-    out << eb;
-
-    out << eb;
 
     //
     // Protocol
@@ -1324,23 +1295,22 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
     writeDocSummary(out, p);
-    out << nl << "public protocol " << servant;
-    if (!baseNames.empty())
+    out << nl << "public protocol " << servant << ": ";
+    if (baseNames.empty())
     {
-        out << ":";
+        out << getUnqualified("Ice.Dispatcher", swiftModule);
     }
-
-    for (auto i = baseNames.begin(); i != baseNames.end();)
+    else
     {
-        out << " " << (*i);
-        if (++i != baseNames.end())
+        out.spar("");
+        for (const auto& baseName : baseNames)
         {
-            out << ",";
+            out << baseName;
         }
+        out.epar("");
     }
 
     out << sb;
-
     return true;
 }
 
@@ -1353,7 +1323,7 @@ Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Gen::ServantVisitor::visitOperation(const OperationPtr& op)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(op));
+    const string swiftModule = getSwiftModule(op->getTopLevelModule());
 
     out << sp;
     writeOpDocSummary(out, op, true);
@@ -1379,13 +1349,83 @@ Gen::ServantExtVisitor::ServantExtVisitor(::IceInternal::Output& o) : out(o) {}
 bool
 Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
+    const string swiftModule = getSwiftModule(p->getTopLevelModule());
+    const string servant = getRelativeTypeString(p, swiftModule);
+    const string unescapedName = removeEscaping(servant);
+    const string traits = unescapedName + "Traits";
 
     out << sp;
     writeServantDocSummary(out, p, swiftModule);
-    out << nl << "extension " << getRelativeTypeString(p, swiftModule);
-
+    out << nl << "extension " << servant;
     out << sb;
+    out << nl << "private static var defaultObject: " << getUnqualified("Ice.Object", swiftModule) << sb;
+    out << nl << getUnqualified("Ice.ObjectI", swiftModule) << "<" << traits << ">()";
+    out << eb;
+
+    const OperationList allOps = p->allOperations();
+
+    list<pair<string, string>> allOpNames;
+    transform(
+        allOps.begin(),
+        allOps.end(),
+        back_inserter(allOpNames),
+        [](const ContainedPtr& it) { return std::make_pair(it->name(), it->mappedName()); });
+
+    allOpNames.emplace_back("ice_id", "ice_id");
+    allOpNames.emplace_back("ice_ids", "ice_ids");
+    allOpNames.emplace_back("ice_isA", "ice_isA");
+    allOpNames.emplace_back("ice_ping", "ice_ping");
+
+    out << sp;
+    out << nl
+        << "/// Dispatches an incoming request to one of the instance methods of the generated protocol, based on the "
+           "operation name carried by the request.";
+    out << nl << "/// - Parameter request: The incoming request.";
+    out << nl << "/// - Returns: The outgoing response.";
+    out << nl << "public func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
+    out << nl << "try await Self.dispatch(self, request: request)";
+    out << eb;
+
+    out << sp;
+    out << nl
+        << "/// Dispatches an incoming request to one of the instance methods of the generated protocol, based on the "
+           "operation name carried by the request.";
+    out << nl
+        << "/// Call this static method from the `dispatch` method of your servant class when you want to reuse a base "
+           "servant class in a derived servant class.";
+    out << nl << "/// - Parameters:";
+    out << nl << "///   - servant: The servant to dispatch the request to.";
+    out << nl << "///   - request: The incoming request.";
+    out << nl << "/// - Returns: The outgoing response.";
+    out << nl << "public static func dispatch(_ servant: " << servant
+        << ", request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
+    out << nl << "switch request.current.operation";
+    out << sb;
+    out.dec(); // to align case with switch
+    for (const auto& [sliceName, mappedName] : allOpNames)
+    {
+        const string mappedDispatchName = "_iceD_" + removeEscaping(mappedName);
+        out << nl << "case \"" << sliceName << "\":";
+        out.inc();
+        if (sliceName == "ice_id" || sliceName == "ice_ids" || sliceName == "ice_isA" || sliceName == "ice_ping")
+        {
+            out << nl << "try await (servant as? Ice.Object ?? " << "Self.defaultObject)." << mappedDispatchName
+                << "(request)";
+        }
+        else
+        {
+            out << nl << "try await servant." << mappedDispatchName << "(request)";
+        }
+
+        out.dec();
+    }
+    out << nl << "default:";
+    out.inc();
+    out << nl << "throw Ice.OperationNotExistException()";
+    // missing dec to compensate for the extra dec after switch sb
+    out << eb;
+    out << eb;
+
     return true;
 }
 

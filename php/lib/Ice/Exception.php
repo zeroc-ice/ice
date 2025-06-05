@@ -11,5 +11,3 @@ abstract class UserException extends Exception
 {
     abstract public function ice_id();
 }
-
-?>

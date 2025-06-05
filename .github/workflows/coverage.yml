@@ -173,7 +173,7 @@ jobs:
 
       - name: Sync Coverage Report to S3
         working-directory: ./js/coverage-report
-        run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/main/coverage/js --delete
+        run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/main/coverage/javascript --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

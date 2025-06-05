@@ -18,6 +18,9 @@
     <ClCompile Include="..\Gen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\CsMetadataValidator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -32,6 +35,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Gen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\CsMetadataValidator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CsUtil.h">

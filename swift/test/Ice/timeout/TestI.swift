@@ -24,11 +24,12 @@ class ControllerI: Controller {
     func holdAdapter(to: Int32, current: Ice.Current) async throws {
         _adapter.hold()
         if to >= 0 {
+            let adapter = _adapter
             Task {
                 do {
-                    self._adapter.waitForHold()
+                    adapter.waitForHold()
                     try await Task.sleep(for: .milliseconds(Int(to)))
-                    try self._adapter.activate()
+                    try adapter.activate()
                 } catch {
                     fatalError("unexpected error: \(error)")
                 }

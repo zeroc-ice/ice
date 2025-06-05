@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.1
 
 import Foundation
 import PackageDescription
@@ -122,8 +122,8 @@ let package = Package(
     name: "ice-test",
     defaultLocalization: "en",
     platforms: [
-        .macOS(.v14),
-        .iOS(.v17),
+        .macOS(.v15),
+        .iOS(.v18),
     ],
     products: [
         .library(name: "TestCommon", targets: ["TestCommon"]),
@@ -156,7 +156,7 @@ let package = Package(
             path: "TestDriver"
         ),
     ],
-    swiftLanguageVersions: [SwiftVersion.v5]
+    swiftLanguageModes: [.v6]
 )
 
 package.targets += testTargets

@@ -9,7 +9,7 @@
 
 /// The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
 /// wire".
-public class DispatchException: LocalException {
+public class DispatchException: LocalException, @unchecked Sendable {
     public let replyStatus: UInt8
 
     /// Creates a DispatchException.
@@ -46,7 +46,7 @@ public class DispatchException: LocalException {
 }
 
 /// The base exception for the 3 NotExist exceptions.
-public class RequestFailedException: DispatchException {
+public class RequestFailedException: DispatchException, @unchecked Sendable {
     /// The identity of the Ice Object to which the request was sent.
     public let id: Identity
     /// The facet to which the request was sent.
@@ -83,13 +83,12 @@ public class RequestFailedException: DispatchException {
 }
 
 /// The dispatch could not find a servant for the identity carried by the request.
-public final class ObjectNotExistException: RequestFailedException {
+public final class ObjectNotExistException: RequestFailedException, @unchecked Sendable {
     /// Creates an ObjectNotExistException.
     /// - Parameters:
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
     ///   - operation: The operation name carried by the request.
-    ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public convenience init(
@@ -110,13 +109,12 @@ public final class ObjectNotExistException: RequestFailedException {
 }
 
 /// The dispatch could not find a servant for the identity + facet carried by the request.
-public final class FacetNotExistException: RequestFailedException {
+public final class FacetNotExistException: RequestFailedException, @unchecked Sendable {
     /// Creates a FacetNotExistException.
     /// - Parameters:
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
     ///   - operation: The operation name carried by the request.
-    ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public convenience init(
@@ -138,13 +136,12 @@ public final class FacetNotExistException: RequestFailedException {
 
 /// The dispatch could not find the operation carried by the request on the target servant. This is typically due
 /// to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
-public final class OperationNotExistException: RequestFailedException {
+public final class OperationNotExistException: RequestFailedException, @unchecked Sendable {
     /// Creates an OperationNotExistException.
     /// - Parameters:
     ///   - id: The identity of the target Ice object carried by the request.
     ///   - facet: The facet of the target Ice object.
     ///   - operation: The operation name carried by the request.
-    ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public convenience init(
@@ -165,7 +162,7 @@ public final class OperationNotExistException: RequestFailedException {
 }
 
 /// The dispatch failed with an exception that is not an `Ice.LocalException` or an `Ice.UserException`.
-public class UnknownException: DispatchException {
+public class UnknownException: DispatchException, @unchecked Sendable {
     @available(*, deprecated, renamed: "message")
     public var reason: String { message }
 
@@ -179,14 +176,14 @@ public class UnknownException: DispatchException {
 }
 
 /// The dispatch failed with an `Ice.LocalException` that is not one of the special marshal-able local exceptions.
-public final class UnknownLocalException: UnknownException {
+public final class UnknownLocalException: UnknownException, @unchecked Sendable {
     public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
         super.init(replyStatus: .unknownLocalException, message: message, file: file, line: line)
     }
 }
 
 /// The dispatch returned an `Ice.UserException` that was not declared in the operation's exception specification.
-public final class UnknownUserException: UnknownException {
+public final class UnknownUserException: UnknownException, @unchecked Sendable {
     public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
         super.init(replyStatus: .unknownUserException, message: message, file: file, line: line)
     }
@@ -208,63 +205,63 @@ public final class UnknownUserException: UnknownException {
 //
 
 /// The base class for Ice protocol exceptions.
-public class ProtocolException: LocalException {}
+public class ProtocolException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates that the connection has been gracefully shut down by the server. The operation call that
 /// caused this exception has not been executed by the server. In most cases you will not get this exception, because
 /// the client will automatically retry the operation call in case the server shut down the connection. However, if
 /// upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception is
 /// propagated to the application code.
-public final class CloseConnectionException: ProtocolException {}
+public final class CloseConnectionException: ProtocolException, @unchecked Sendable {}
 
 /// A datagram exceeds the configured size. This exception is raised if a datagram exceeds the configured send or
 /// receive buffer size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
-public final class DatagramLimitException: ProtocolException {}
+public final class DatagramLimitException: ProtocolException, @unchecked Sendable {}
 
 /// This exception is raised for errors during marshaling or unmarshaling data.
-public final class MarshalException: ProtocolException {}
+public final class MarshalException: ProtocolException, @unchecked Sendable {}
 
 //
 // Timeout exceptions
 //
 
 /// This exception indicates a timeout condition.
-public class TimeoutException: LocalException {}
+public class TimeoutException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates a connection establishment timeout condition.
-public final class ConnectTimeoutException: TimeoutException {}
+public final class ConnectTimeoutException: TimeoutException, @unchecked Sendable {}
 
 /// This exception indicates a connection closure timeout condition.
-public final class CloseTimeoutException: TimeoutException {}
+public final class CloseTimeoutException: TimeoutException, @unchecked Sendable {}
 
 /// This exception indicates that an invocation failed because it timed out.
-public final class InvocationTimeoutException: TimeoutException {}
+public final class InvocationTimeoutException: TimeoutException, @unchecked Sendable {}
 
 //
 // Syscall exceptions
 //
 
 /// This exception is raised if a system error occurred in the server or client process.
-public class SyscallException: LocalException {}
+public class SyscallException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates a DNS problem.
-public final class DNSException: SyscallException {}
+public final class DNSException: SyscallException, @unchecked Sendable {}
 
 //
 // Socket exceptions
 //
 
 /// This exception indicates a socket error.
-public class SocketException: SyscallException {}
+public class SocketException: SyscallException, @unchecked Sendable {}
 
 /// This exception indicates a connection failure.
-public class ConnectFailedException: SocketException {}
+public class ConnectFailedException: SocketException, @unchecked Sendable {}
 
 /// This exception indicates a connection failure for which the server host actively refuses a connection.
-public final class ConnectionRefusedException: ConnectFailedException {}
+public final class ConnectionRefusedException: ConnectFailedException, @unchecked Sendable {}
 
 /// This exception indicates a lost connection.
-public final class ConnectionLostException: SocketException {}
+public final class ConnectionLostException: SocketException, @unchecked Sendable {}
 
 //
 // Other leaf local exceptions in alphabetical order.
@@ -273,7 +270,7 @@ public final class ConnectionLostException: SocketException {}
 /// An attempt was made to register something more than once with the Ice run time. This exception is thrown if an
 /// attempt is made to register a servant, servant locator, facet,  plug-in, or object adapter more than once for the
 // same ID.
-public final class AlreadyRegisteredException: LocalException {
+public final class AlreadyRegisteredException: LocalException, @unchecked Sendable {
     /// The kind of object that could not be removed: "servant", "facet", "object", "default servant",
     /// "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
     public let kindOfObject: String
@@ -308,13 +305,13 @@ public final class AlreadyRegisteredException: LocalException {
 }
 
 /// This exception is raised if the Communicator has been destroyed.
-public final class CommunicatorDestroyedException: LocalException {}
+public final class CommunicatorDestroyedException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates that a connection was aborted by the idle check.
-public class ConnectionIdleException: LocalException {}
+public class ConnectionIdleException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates the connection was closed forcefully.
-public final class ConnectionAbortedException: LocalException {
+public final class ConnectionAbortedException: LocalException, @unchecked Sendable {
     /// When true, the connection was aborted by the application. When false, the connection was aborted by the Ice
     /// runtime.
     public let closedByApplication: Bool
@@ -331,7 +328,7 @@ public final class ConnectionAbortedException: LocalException {
 }
 
 /// This exception indicates the connection was closed gracefully.
-public final class ConnectionClosedException: LocalException {
+public final class ConnectionClosedException: LocalException, @unchecked Sendable {
     /// When true, the connection was aborted by the application. When false, the connection was aborted by the Ice
     /// runtime.
     public let closedByApplication: Bool
@@ -348,7 +345,7 @@ public final class ConnectionClosedException: LocalException {
 }
 
 /// Represents a C++ local exception or a std::exception without its own corresponding Swift class.
-internal final class CxxLocalException: LocalException {
+internal final class CxxLocalException: LocalException, @unchecked Sendable {
     private let typeId: String
 
     override public func ice_id() -> String { typeId }
@@ -365,19 +362,16 @@ internal final class CxxLocalException: LocalException {
 }
 
 /// This exception is raised if an unsupported feature is used.
-public final class FeatureNotSupportedException: LocalException {}
+public final class FeatureNotSupportedException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates that an attempt has been made to change the connection properties of a fixed proxy.
-public final class FixedProxyException: LocalException {}
+public final class FixedProxyException: LocalException, @unchecked Sendable {}
 
 /// This exception is raised when a failure occurs during initialization.
-public final class InitializationException: LocalException {}
-
-/// This exception indicates that an asynchronous invocation failed because it was canceled explicitly by the user.
-public final class InvocationCanceledException: LocalException {}
+public final class InitializationException: LocalException, @unchecked Sendable {}
 
 /// This exception is raised if no suitable endpoint is available.
-public final class NoEndpointException: LocalException {
+public final class NoEndpointException: LocalException, @unchecked Sendable {
     /// Creates a NoEndpointException.
     /// - Parameters:
     ///   - proxy: The proxy that carries the endpoints.
@@ -393,7 +387,7 @@ public final class NoEndpointException: LocalException {
 /// object adapter that is not currently registered. It's also raised if the Ice
 /// locator can't find an object or object adapter when resolving an indirect proxy or when an object adapter is
 /// activated.
-public final class NotRegisteredException: LocalException {
+public final class NotRegisteredException: LocalException, @unchecked Sendable {
     /// The kind of object that could not be removed: "servant", "facet", "object", "default servant",
     /// "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
     public let kindOfObject: String
@@ -427,14 +421,14 @@ public final class NotRegisteredException: LocalException {
 }
 
 /// This exception is raised if an attempt is made to use a deactivated ObjectAdapter.
-public final class ObjectAdapterDeactivatedException: LocalException {}
+public final class ObjectAdapterDeactivatedException: LocalException, @unchecked Sendable {}
 
 /// This exception is raised if an attempt is made to use a destroyed ObjectAdapter.
-public final class ObjectAdapterDestroyedException: LocalException {}
+public final class ObjectAdapterDestroyedException: LocalException, @unchecked Sendable {}
 
 /// This exception is raised if an ObjectAdapter cannot be activated. This happens if the Locator
 /// detects another active ObjectAdapter with the same adapter id.
-public final class ObjectAdapterIdInUseException: LocalException {
+public final class ObjectAdapterIdInUseException: LocalException, @unchecked Sendable {
     /// Creates an ObjectAdapterIdInUseException.
     /// - Parameters:
     ///   - id: The adapter ID that is already active in the Locator.
@@ -446,18 +440,18 @@ public final class ObjectAdapterIdInUseException: LocalException {
 }
 
 /// This exception is raised if there was an error while parsing a string.
-public final class ParseException: LocalException {}
+public final class ParseException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates that a failure occurred while initializing a plug-in.
-public final class PluginInitializationException: LocalException {}
+public final class PluginInitializationException: LocalException, @unchecked Sendable {}
 
 /// This exception indicates a failure in a security subsystem, such as the IceSSL plug-in.
-public final class SecurityException: LocalException {}
+public final class SecurityException: LocalException, @unchecked Sendable {}
 
 /// The operation can only be invoked with a twoway request. This exception is raised if an attempt is made to invoke
 /// an operation with ice_oneway, ice_batchOneway, ice_datagram, or
 /// ice_batchDatagram and the operation has a return value, out-parameters, or an exception specification.
-public final class TwowayOnlyException: LocalException {
+public final class TwowayOnlyException: LocalException, @unchecked Sendable {
     /// Creates a TwowayOnlyException.
     /// - Parameters:
     ///   - operation: The name of the two-way only operation.
@@ -471,4 +465,4 @@ public final class TwowayOnlyException: LocalException {
 }
 
 /// This exception is raised when there is an error while getting or setting a property.
-public final class PropertyException: LocalException {}
+public final class PropertyException: LocalException, @unchecked Sendable {}

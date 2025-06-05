@@ -185,6 +185,14 @@ OpenSSL::SSLEngine::initialize()
                 {
                     success = PKCS12_parse(p12, _password.c_str(), &key, &cert, &chain);
 
+                    if (!success)
+                    {
+                        ostringstream os;
+                        os << "IceSSL: error loading SSL certificate from PKCS12 file '" << certFile << "':\n"
+                           << sslErrors();
+                        throw InitializationException(__FILE__, __LINE__, os.str());
+                    }
+
                     if (!cert)
                     {
                         ostringstream os;
