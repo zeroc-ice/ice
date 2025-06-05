@@ -508,7 +508,9 @@ was executed in a thread managed by the same Ice thread pool unless you specifie
 - Replaced the `Ice.Util.registerPluginFactory` mechanism by plug-in factories on InitializationData. The corresponding
 plug-ins are created during communicator initialization. See `InitializationData.pluginFactories`.
 
-- Slice structs are now mapped to record structs or record classes.
+- Slice structs are now mapped to record structs or record classes:
+  - a Slice struct with only numeric, bool, enum, or record struct fields is mapped to a record struct.
+  - a Slice struct with any other field type is mapped to a sealed record class.
 
 - Updated Ice.Communicator to implement IAsyncDisposable. The preferred way to create and dispose of a communicator is
   now:

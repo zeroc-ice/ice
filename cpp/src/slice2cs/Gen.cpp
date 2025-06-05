@@ -1564,6 +1564,27 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "ice_initialize();";
     _out << eb;
 
+    // If the struct is mapped to a struct and there is at least one default value, we need an explicit parameterless
+    // constructor to initialize the default values.
+    if (!isMappedToClass(p))
+    {
+        bool hasDefaultValue = false;
+        for (const auto& q : dataMembers)
+        {
+            if (q->defaultValue())
+            {
+                hasDefaultValue = true;
+                break;
+            }
+        }
+        if (hasDefaultValue)
+        {
+            _out << sp;
+            writeDocLine(_out, "summary", "Initializes a new instance of the <see cref=\"" + name + "\" /> struct.");
+            _out << nl << "public " << name << "() => ice_initialize();";
+        }
+    }
+
     // Unmarshaling constructor
     _out << sp;
     writeDocLine(
@@ -1694,31 +1715,28 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         addSemicolon = false;
     }
 
-    // Generate the default value for this field unless the enclosing type is a struct.
-    if (!st || isMappedToClass(st))
+    if (p->defaultValue())
     {
-        if (p->defaultValue())
-        {
-            string defaultValue = *p->defaultValue();
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
+        string defaultValue = *p->defaultValue();
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
 
-            // Don't explicitly initialize to default value.
-            if (!builtin || builtin->kind() == Builtin::KindString || defaultValue != "0")
-            {
-                _out << " = ";
-                writeConstantValue(p->type(), p->defaultValueType(), defaultValue);
-                addSemicolon = true;
-            }
-        }
-        else if (!p->optional())
+        // Don't explicitly initialize to default value.
+        if (!builtin || builtin->kind() == Builtin::KindString || defaultValue != "0")
         {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-            if (builtin && builtin->kind() == Builtin::KindString)
-            {
-                // This behavior is unfortunate but kept for backwards compatibility.
-                _out << " = \"\"";
-                addSemicolon = true;
-            }
+            _out << " = ";
+            writeConstantValue(p->type(), p->defaultValueType(), defaultValue);
+            addSemicolon = true;
+        }
+    }
+    else if (!p->optional())
+    {
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
+        if (builtin && builtin->kind() == Builtin::KindString)
+        {
+            // This behavior is unfortunate but kept for backwards compatibility.
+            // Note that since string is a reference type, the enclosing type can't be a record struct.
+            _out << " = \"\"";
+            addSemicolon = true;
         }
     }
 
