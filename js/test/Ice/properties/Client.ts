@@ -2,8 +2,6 @@
 
 import { Ice } from "@zeroc/ice";
 import { TestHelper } from "../../Common/TestHelper.js";
-import * as fs from "fs";
-import * as path from "path";
 
 const test = TestHelper.test;
 
@@ -37,6 +35,8 @@ export class Client extends TestHelper {
         const properties = Ice.createProperties();
         /* eslint-disable no-sync */
         if (!TestHelper.isBrowser()) {
+            const fs = await import("fs");
+            const path = await import("path");
             //
             // We are running with NodeJS we load the properties file from the file system.
             //
