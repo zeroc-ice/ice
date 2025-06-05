@@ -2383,7 +2383,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << nl << "@Deprecated";
     }
 
-    out << nl << "public class " << p->mappedName() << " implements ";
+    out << nl << "public final class " << p->mappedName() << " implements ";
     out.useCurrentPosAsIndent();
     out << "java.lang.Cloneable";
     out << "," << nl << "java.io.Serializable";
