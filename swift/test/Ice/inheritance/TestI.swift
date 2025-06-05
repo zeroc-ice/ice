@@ -16,7 +16,7 @@ class IAI: MAIA, @unchecked Sendable {
 }
 
 // Tests implementation reuse by deriving from IAI.
-class IB1I: IAI, MBIB1, @unchecked Sendable  {
+class IB1I: IAI, MBIB1, @unchecked Sendable {
     func ib1op(p: MBIB1Prx?, current _: Ice.Current) async throws -> MBIB1Prx? {
         return p
     }
@@ -58,7 +58,7 @@ final class ICI: IB1I, MAIC, @unchecked Sendable {
     }
 }
 
-class InitialI: Initial {
+final class InitialI: Initial {
     let _ia: MAIAPrx
     let _ib1: MBIB1Prx
     let _ib2: MBIB2Prx

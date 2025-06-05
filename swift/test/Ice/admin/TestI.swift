@@ -8,10 +8,20 @@ final class TestFacetI: TestFacet, Sendable {
     func op(current _: Ice.Current) {}
 }
 
-class RemoteCommunicatorI: RemoteCommunicator {
-    var _communicator: Ice.Communicator
-    var _changes: [String: String] = [:]
-    var _lock = os_unfair_lock()
+actor Changes {
+    private var changes: [String: String] = [:]
+
+    func getChanges() -> [String: String] {
+        return changes
+    }
+    func setChanges(_ newChanges: [String: String]) {
+        changes = newChanges
+    }
+}
+
+final class RemoteCommunicatorI: RemoteCommunicator {
+    let _communicator: Ice.Communicator
+    let _changes: Changes = Changes()
 
     init(communicator: Ice.Communicator) {
         _communicator = communicator
@@ -22,9 +32,7 @@ class RemoteCommunicatorI: RemoteCommunicator {
     }
 
     func getChanges(current _: Ice.Current) async throws -> [String: String] {
-        return withLock(&_lock) {
-            _changes
-        }
+        return await _changes.getChanges()
     }
 
     func print(message: String, current _: Ice.Current) async throws {
@@ -60,13 +68,11 @@ class RemoteCommunicatorI: RemoteCommunicator {
     }
 
     func updated(changes: [String: String]) {
-        withLock(&_lock) {
-            _changes = changes
-        }
+        Task { await _changes.setChanges(changes) }
     }
 }
 
-class NullLogger: Ice.Logger {
+final class NullLogger: Ice.Logger {
     func print(_: String) {}
 
     func trace(category _: String, message _: String) {}
@@ -84,7 +90,7 @@ class NullLogger: Ice.Logger {
     }
 }
 
-class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
+final class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
     func createCommunicator(props: [String: String], current: Ice.Current) async throws
         -> RemoteCommunicatorPrx?
     {

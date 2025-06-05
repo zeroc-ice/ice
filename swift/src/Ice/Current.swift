@@ -17,7 +17,7 @@ public struct Current: Sendable {
     /// The operation mode (idempotent or not).
     public let mode: OperationMode
     /// The request context carried by the request.
-    public let ctx: Context
+    public var ctx: Context
     /// The request ID. 0 means the request is a one-way request.
     public let requestId: Int32
     /// The encoding of the request payload.

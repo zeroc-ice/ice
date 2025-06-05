@@ -4,14 +4,14 @@ import Foundation
 import Ice
 import TestCommon
 
-class HelloI: Hello {
+final class HelloI: Hello {
     func sayHello(current _: Ice.Current) {}
 }
 
-class TestI: TestIntf {
-    var _adapter1: Ice.ObjectAdapter
-    var _adapter2: Ice.ObjectAdapter
-    var _registry: ServerLocatorRegistry
+final class TestI: TestIntf {
+    let _adapter1: Ice.ObjectAdapter
+    let _adapter2: Ice.ObjectAdapter
+    let _registry: ServerLocatorRegistry
 
     init(
         adapter1: Ice.ObjectAdapter,
@@ -52,9 +52,9 @@ class TestI: TestIntf {
     }
 }
 
-class ServerManagerI: ServerManager {
-    var _registry: ServerLocatorRegistry
-    var _helper: TestHelper
+actor ServerManagerI: ServerManager {
+    let _registry: ServerLocatorRegistry
+    let _helper: TestHelper
     var _communicators = [Ice.Communicator]()
     var _nextPort: Int32 = 1
 
@@ -152,9 +152,9 @@ class ServerManagerI: ServerManager {
     }
 }
 
-class ServerLocator: TestLocator {
-    var _registry: ServerLocatorRegistry
-    var _registryPrx: Ice.LocatorRegistryPrx
+actor ServerLocator: TestLocator {
+    let _registry: ServerLocatorRegistry
+    let _registryPrx: Ice.LocatorRegistryPrx
     var _requestCount: Int32
 
     init(registry: ServerLocatorRegistry, registryPrx: Ice.LocatorRegistryPrx) {
@@ -194,13 +194,12 @@ class ServerLocator: TestLocator {
     }
 }
 
-class ServerLocatorRegistry: TestLocatorRegistry {
+class ServerLocatorRegistry: TestLocatorRegistry, @unchecked Sendable {
     var _adapters = [String: Ice.ObjectPrx]()
     var _objects = [Ice.Identity: Ice.ObjectPrx]()
     var _lock = os_unfair_lock()
 
     func setAdapterDirectProxy(id: String, proxy: ObjectPrx?, current _: Current) async throws {
-
         withLock(&_lock) {
             if let obj = proxy {
                 self._adapters[id] = obj

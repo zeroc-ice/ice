@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-final class MyObjectI: MyObject {
+final class MyObjectI: MyObject, Ice.Object {
     func ice_id(current: Ice.Current) async throws -> String {
         return try await Ice.DefaultObject<MyObjectTraits>().ice_id(current: current)
     }

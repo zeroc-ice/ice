@@ -186,14 +186,14 @@ final class TestI: TestIntf {
     }
 }
 
-class TestII: OuterInnerTestIntf {
+final class TestII: OuterInnerTestIntf {
     func op(i: Int32, current _: Ice.Current) throws -> (returnValue: Int32, j: Int32) {
         return (i, i)
     }
 }
 
-class TestControllerI: TestIntfController {
-    var _adapter: Ice.ObjectAdapter
+final class TestControllerI: TestIntfController {
+    let _adapter: Ice.ObjectAdapter
 
     init(adapter: Ice.ObjectAdapter) {
         _adapter = adapter

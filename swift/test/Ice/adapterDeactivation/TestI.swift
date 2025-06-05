@@ -46,7 +46,7 @@ final class RouterI: Ice.Router {
     }
 }
 
-actor ServantLocatorI: Ice.ServantLocator {
+final class ServantLocatorI: Ice.ServantLocator {
     let _helper: TestHelper
     var _deactivated: Bool
     let _router = RouterI()
@@ -60,7 +60,7 @@ actor ServantLocatorI: Ice.ServantLocator {
         precondition(_deactivated)
     }
 
-    func locate(_ current: Ice.Current) throws -> (returnValue: Dispatcher?, cookie: AnyObject?) {
+    func locate(_ current: Ice.Current) throws -> sending (returnValue: Dispatcher?, cookie: AnyObject?) {
         try _helper.test(!_deactivated)
         if current.id.name == "router" {
             return (_router, Cookie())

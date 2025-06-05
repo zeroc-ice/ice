@@ -4,7 +4,8 @@ import Foundation
 import Ice
 import TestCommon
 
-actor TestI: TestIntf {
+// TODO: Make this class an actor once https://github.com/swiftlang/swift/issues/76710 has shipped.
+final class TestI: TestIntf, @unchecked Sendable {
     let _helper: TestHelper
     var _values = [Value]()
 
@@ -18,7 +19,7 @@ actor TestI: TestIntf {
         }
     }
 
-    private func breakCycles(_ value: Value) {
+    private nonisolated func breakCycles(_ value: Value) {
         if let d1 = value as? D1 {
             let tmp = d1.pd1
             d1.pd1 = nil
@@ -76,31 +77,31 @@ actor TestI: TestIntf {
         }
     }
 
-    func SBaseAsObject(current _: Current) async throws -> Value? {
+    func SBaseAsObject(current _: Current) async throws -> sending Value? {
         return SBase(sb: "SBase.sb")
     }
 
-    func SBaseAsSBase(current _: Current) async throws -> SBase? {
+    func SBaseAsSBase(current _: Current) async throws -> sending SBase? {
         return SBase(sb: "SBase.sb")
     }
 
-    func SBSKnownDerivedAsSBase(current _: Current) async throws -> SBase? {
+    func SBSKnownDerivedAsSBase(current _: Current) async throws -> sending SBase? {
         return SBSKnownDerived(sb: "SBSKnownDerived.sb", sbskd: "SBSKnownDerived.sbskd")
     }
 
-    func SBSKnownDerivedAsSBSKnownDerived(current _: Current) async throws -> SBSKnownDerived? {
+    func SBSKnownDerivedAsSBSKnownDerived(current _: Current) async throws -> sending SBSKnownDerived? {
         return SBSKnownDerived(sb: "SBSKnownDerived.sb", sbskd: "SBSKnownDerived.sbskd")
     }
 
-    func SBSUnknownDerivedAsSBase(current _: Current) async throws -> SBase? {
+    func SBSUnknownDerivedAsSBase(current _: Current) async throws -> sending SBase? {
         return SBSUnknownDerived(sb: "SBSUnknownDerived.sb", sbsud: "SBSUnknownDerived.sbsud")
     }
 
-    func SBSUnknownDerivedAsSBaseCompact(current _: Current) async throws -> SBase? {
+    func SBSUnknownDerivedAsSBaseCompact(current _: Current) async throws -> sending SBase? {
         return SBSUnknownDerived(sb: "SBSUnknownDerived.sb", sbsud: "SBSUnknownDerived.sbsud")
     }
 
-    func SUnknownAsObject(current _: Current) async throws -> Value? {
+    func SUnknownAsObject(current _: Current) async throws -> sending Value? {
         let su = SUnknown()
         su.su = "SUnknown.su"
         su.cycle = su
@@ -108,7 +109,7 @@ actor TestI: TestIntf {
         return su
     }
 
-    func checkSUnknown(o: Value?, current: Current) async throws {
+    func checkSUnknown(o: sending Value?, current: Current) async throws {
         let su = o as? SUnknown
         if current.encoding == Encoding_1_0 {
             try _helper.test(su == nil)
@@ -118,7 +119,7 @@ actor TestI: TestIntf {
         }
     }
 
-    func oneElementCycle(current _: Current) async throws -> B? {
+    func oneElementCycle(current _: Current) async throws -> sending B? {
         let b = B()
         b.sb = "B1.sb"
         b.pb = b
@@ -126,7 +127,7 @@ actor TestI: TestIntf {
         return b
     }
 
-    func twoElementCycle(current _: Current) async throws -> B? {
+    func twoElementCycle(current _: Current) async throws -> sending B? {
         let b1 = B()
         b1.sb = "B1.sb"
         let b2 = B()
@@ -137,7 +138,7 @@ actor TestI: TestIntf {
         return b1
     }
 
-    func D1AsB(current _: Current) async throws -> B? {
+    func D1AsB(current _: Current) async throws -> sending B? {
         let d1 = D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -152,7 +153,7 @@ actor TestI: TestIntf {
         return d1
     }
 
-    func D1AsD1(current _: Current) async throws -> D1? {
+    func D1AsD1(current _: Current) async throws -> sending D1? {
         let d1 = D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -167,7 +168,7 @@ actor TestI: TestIntf {
         return d1
     }
 
-    func D2AsB(current _: Current) async throws -> B? {
+    func D2AsB(current _: Current) async throws -> sending B? {
         let d2 = D2()
         d2.sb = "D2.sb"
         d2.sd2 = "D2.sd2"
@@ -182,7 +183,7 @@ actor TestI: TestIntf {
         return d2
     }
 
-    func paramTest1(current _: Current) async throws -> (p1: B?, p2: B?) {
+    func paramTest1(current _: Current) async throws -> sending (p1: B?, p2: B?) {
         let d1 = D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -197,12 +198,12 @@ actor TestI: TestIntf {
         return (d1, d2)
     }
 
-    func paramTest2(current: Current) async throws -> (p2: B?, p1: B?) {
+    func paramTest2(current: Current) async throws -> sending (p2: B?, p1: B?) {
         let ret = try await paramTest1(current: current)
         return (ret.p2, ret.p1)
     }
 
-    func paramTest3(current _: Current) async throws -> (returnValue: B?, p1: B?, p2: B?) {
+    func paramTest3(current _: Current) async throws -> sending (returnValue: B?, p1: B?, p2: B?) {
         let d2 = D2()
         d2.sb = "D2.sb (p1 1)"
         d2.pb = nil
@@ -235,7 +236,7 @@ actor TestI: TestIntf {
         return (d3, d2, d4)
     }
 
-    func paramTest4(current _: Current) async throws -> (returnValue: B?, p: B?) {
+    func paramTest4(current _: Current) async throws -> sending (returnValue: B?, p: B?) {
         let d4 = D4()
         d4.sb = "D4.sb (1)"
         d4.pb = nil
@@ -247,23 +248,23 @@ actor TestI: TestIntf {
         return (d4.p2, d4)
     }
 
-    func returnTest1(current: Current) async throws -> (returnValue: B?, p1: B?, p2: B?) {
+    func returnTest1(current: Current) async throws -> sending (returnValue: B?, p1: B?, p2: B?) {
         let ret = try await paramTest1(current: current)
         return (ret.p1, ret.p1, ret.p2)
     }
 
-    func returnTest2(current: Current) async throws -> (returnValue: B?, p2: B?, p1: B?) {
+    func returnTest2(current: Current) async throws -> sending (returnValue: B?, p2: B?, p1: B?) {
         let ret = try await paramTest1(current: current)
         return (ret.p1, ret.p1, ret.p2)
     }
 
-    func returnTest3(p1: B?, p2: B?, current _: Current) -> B? {
+    func returnTest3(p1: sending B?, p2: sending B?, current _: Current) -> sending B? {
         _values.append(p1!)
         _values.append(p2!)
         return p1
     }
 
-    func sequenceTest(p1: SS1?, p2: SS2?, current _: Current) async throws -> SS3 {
+    func sequenceTest(p1: sending SS1?, p2: sending SS2?, current _: Current) async throws -> sending SS3 {
         let ss = SS3()
         ss.c1 = p1
         ss.c2 = p2
@@ -272,7 +273,7 @@ actor TestI: TestIntf {
         return ss
     }
 
-    func dictionaryTest(bin: BDict, current _: Current) async throws -> (
+    func dictionaryTest(bin: sending BDict, current _: Current) async throws -> sending (
         returnValue: BDict, bout: BDict
     ) {
         var bout = [Int32: B?]()
@@ -301,12 +302,12 @@ actor TestI: TestIntf {
         return (r, bout)
     }
 
-    func exchangePBase(pb: PBase?, current _: Current) async throws -> PBase? {
+    func exchangePBase(pb: sending PBase?, current _: Current) async throws -> sending PBase? {
         _values.append(pb!)
         return pb
     }
 
-    func PBSUnknownAsPreserved(current: Current) async throws -> Preserved? {
+    func PBSUnknownAsPreserved(current: Current) async throws -> sending Preserved? {
         let r = PSUnknown()
         r.pi = 5
         r.ps = "preserved"
@@ -322,7 +323,7 @@ actor TestI: TestIntf {
         return r
     }
 
-    func checkPBSUnknown(p: Preserved?, current: Current) async throws {
+    func checkPBSUnknown(p: sending Preserved?, current: Current) async throws {
         if current.encoding == Ice.Encoding_1_0 {
             try _helper.test(!(p is PSUnknown))
             try _helper.test(p!.pi == 5)
@@ -338,7 +339,7 @@ actor TestI: TestIntf {
     }
 
     // TODO: Doesn't seem to be called
-    func PBSUnknownAsPreservedWithGraph(current: Current) async throws -> Preserved? {
+    func PBSUnknownAsPreservedWithGraph(current: Current) async throws -> sending Preserved? {
         // This code requires a regular, non-colloc dispatch
         //TODO: there are not more dispatch queues
         // if let dq = try? current.adapter.getDispatchQueue() {
@@ -372,7 +373,7 @@ actor TestI: TestIntf {
         fatalError("not implemented")
     }
 
-    func checkPBSUnknownWithGraph(p: Preserved?, current: Current) async throws {
+    func checkPBSUnknownWithGraph(p: sending Preserved?, current: Current) async throws {
         if current.encoding == Encoding_1_0 {
             try _helper.test(!(p is PSUnknown))
             try _helper.test(p!.pi == 5)
@@ -394,7 +395,7 @@ actor TestI: TestIntf {
         }
     }
 
-    func PBSUnknown2AsPreservedWithGraph(current: Current) async throws -> Preserved? {
+    func PBSUnknown2AsPreservedWithGraph(current: Current) async throws -> sending Preserved? {
         fatalError("not implemented")
         // TODO: verify this is correct
         // return try await withCheckedThrowingContinuation { continuation in
@@ -413,7 +414,7 @@ actor TestI: TestIntf {
         // }
     }
 
-    func checkPBSUnknown2WithGraph(p: Preserved?, current: Current) async throws {
+    func checkPBSUnknown2WithGraph(p: sending Preserved?, current: Current) async throws {
         if current.encoding == Encoding_1_0 {
             try _helper.test(!(p is PSUnknown2))
             try _helper.test(p!.pi == 5)
@@ -427,7 +428,7 @@ actor TestI: TestIntf {
         }
     }
 
-    func exchangePNode(pn: PNode?, current _: Current) async throws -> PNode? {
+    func exchangePNode(pn: sending PNode?, current _: Current) async throws -> sending PNode? {
         return pn
     }
 
@@ -491,7 +492,7 @@ actor TestI: TestIntf {
         throw ude
     }
 
-    func useForward(current _: Current) async throws -> Forward? {
+    func useForward(current _: Current) async throws -> sending Forward? {
         let f = Forward()
         f.h = Hidden()
         f.h!.f = f
