@@ -4251,7 +4251,9 @@ class JavaScriptMixin:
 
     def getOptions(self, current):
         options = {
-            "protocol": ["ws", "wss"] if current.config.browser else ["tcp", "ws", "wss"],
+            # TODO BUGFIX: https://github.com/zeroc-ice/ice/issues/4056
+            #"protocol": ["ws", "wss"] if current.config.browser else ["tcp", "ws", "wss"],
+            "protocol": ["ws", "wss"] if current.config.browser else ["tcp"],
             "compress": [False],
             "ipv6": [False],
             "serialize": [False],
