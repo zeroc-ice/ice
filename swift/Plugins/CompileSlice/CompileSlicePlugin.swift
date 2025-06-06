@@ -1,18 +1,16 @@
 // Copyright (c) ZeroC, Inc.
 
 import Foundation
-@preconcurrency import PackagePlugin
+import PackagePlugin
 
 enum PluginError: Error {
-    case invalidTarget(Target)
+
     case missingCompiler(String)
     case missingConfigFile(String, String)
     case missingIceSliceFiles(String)
 
     var description: String {
         switch self {
-        case .invalidTarget(let target):
-            return "Expected a SwiftSourceModuleTarget but got '\(type(of: target))'."
         case .missingCompiler(let path):
             return "Missing slice compiler: '\(path)'."
         case .missingConfigFile(let path, let target):
