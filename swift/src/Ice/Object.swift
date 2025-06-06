@@ -89,7 +89,7 @@ public struct ObjectTraits: SliceTraits {
 
 /// DefaultObject provides the default implementation of Object operations (ice_id,
 /// ice_ping etc.) for a given Slice interface.
-public struct DefaultObject<T: SliceTraits>: Object, Sendable {
+public struct DefaultObject<T: SliceTraits>: Object {
     public init() {}
 
     public func ice_id(current _: Current) -> String {
