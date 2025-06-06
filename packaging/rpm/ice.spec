@@ -378,7 +378,7 @@ export CXXFLAGS="%{optflags}"
 export LDFLAGS="%{?__global_ldflags}"
 
 %ifarch %{_host_cpu}
-    make %{makebuildopts} PYTHON=%{python3} LANGUAGES="cpp java php python" srcs
+    make %{makebuildopts} PYTHON=python%{python3_pkgversion} LANGUAGES="cpp java php python" srcs
 %else
     %ifarch %{ix86}
         make %{makebuildopts} PLATFORMS=x86 LANGUAGES="cpp" srcs
@@ -391,7 +391,7 @@ export LDFLAGS="%{?__global_ldflags}"
     make           %{?_smp_mflags} %{makeinstallopts} install-slice
     make -C cpp    %{?_smp_mflags} %{makeinstallopts} install
     make -C php    %{?_smp_mflags} %{makeinstallopts} install
-    make -C python %{?_smp_mflags} %{makeinstallopts} PYTHON=%{python3} install_pythondir=%{python3_sitearch} install
+    make -C python %{?_smp_mflags} %{makeinstallopts} PYTHON=python%{python3_pkgversion} install_pythondir=%{python3_sitearch} install
     make -C java   %{?_smp_mflags} %{makeinstallopts} install-icegridgui
 %else
     %ifarch %{ix86}
