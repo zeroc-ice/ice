@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-class IAI: MAIA, @unchecked Sendable {
+class IAI: MAIA {
     func iaop(p: MAIAPrx?, current _: Ice.Current) async throws -> MAIAPrx? {
         return p
     }
@@ -16,7 +16,7 @@ class IAI: MAIA, @unchecked Sendable {
 }
 
 // Tests implementation reuse by deriving from IAI.
-class IB1I: IAI, MBIB1, @unchecked Sendable {
+class IB1I: IAI, MBIB1 {
     func ib1op(p: MBIB1Prx?, current _: Ice.Current) async throws -> MBIB1Prx? {
         return p
     }
@@ -29,7 +29,7 @@ class IB1I: IAI, MBIB1, @unchecked Sendable {
 }
 
 // Tests implementation reuse by deriving from IAI.
-class IB2I: IAI, MBIB2, @unchecked Sendable {
+class IB2I: IAI, MBIB2 {
     func ib2op(p: MBIB2Prx?, current _: Ice.Current) async throws -> MBIB2Prx? {
         return p
     }
@@ -42,7 +42,7 @@ class IB2I: IAI, MBIB2, @unchecked Sendable {
 }
 
 // Tests implementation reuse by deriving from IB1I.
-final class ICI: IB1I, MAIC, @unchecked Sendable {
+final class ICI: IB1I, MAIC {
     func ib2op(p: MBIB2Prx?, current _: Ice.Current) async throws -> MBIB2Prx? {
         return p
     }

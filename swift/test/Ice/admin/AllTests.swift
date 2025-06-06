@@ -4,7 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-final class RemoteLoggerI: Ice.RemoteLogger, @unchecked Sendable {
+final class RemoteLoggerI: Ice.RemoteLogger {
     let _helper: TestHelper
     var _prefix: String = ""
     var _initMessages: [Ice.LogMessage] = []

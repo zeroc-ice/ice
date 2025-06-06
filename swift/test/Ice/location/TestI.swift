@@ -21,9 +21,6 @@ final class TestI: TestIntf {
         _adapter1 = adapter1
         _adapter2 = adapter2
         _registry = registry
-
-        try _registry.addObject(
-            _adapter1.add(servant: HelloI(), id: Ice.stringToIdentity("hello")))
     }
 
     func shutdown(current _: Ice.Current) async throws {
@@ -45,9 +42,9 @@ final class TestI: TestIntf {
     func migrateHello(current _: Ice.Current) async throws {
         let id = try Ice.stringToIdentity("hello")
         do {
-            try _registry.addObject(_adapter2.add(servant: _adapter1.remove(id), id: id))
+            try await _registry.addObject(_adapter2.add(servant: _adapter1.remove(id), id: id))
         } catch is Ice.NotRegisteredException {
-            try _registry.addObject(_adapter1.add(servant: _adapter2.remove(id), id: id))
+            try await _registry.addObject(_adapter1.add(servant: _adapter2.remove(id), id: id))
         }
     }
 }
@@ -116,9 +113,11 @@ actor ServerManagerI: ServerManager {
                 try adapter2.setLocator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
 
                 let object = try TestI(adapter1: adapter, adapter2: adapter2, registry: _registry)
-                try _registry.addObject(
+                try await _registry.addObject(adapter.add(servant: HelloI(), id: Ice.stringToIdentity("hello")))
+
+                try await _registry.addObject(
                     adapter.add(servant: object, id: Ice.Identity(name: "test")))
-                try _registry.addObject(
+                try await _registry.addObject(
                     adapter.add(servant: object, id: Ice.stringToIdentity("test2")))
                 _ = try adapter.add(servant: object, id: Ice.stringToIdentity("test3"))
 
@@ -167,12 +166,12 @@ actor ServerLocator: TestLocator {
         _requestCount += 1
         if id == "TestAdapter10" || id == "TestAdapter10-2" {
             precondition(current.encoding == Encoding_1_0)
-            return try _registry.getAdapter("TestAdapter")
+            return try await _registry.getAdapter("TestAdapter")
         } else {
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
             try await Task.sleep(for: .milliseconds(100))
-            return try _registry.getAdapter(id)
+            return try await _registry.getAdapter(id)
         }
     }
 
@@ -182,7 +181,7 @@ actor ServerLocator: TestLocator {
         // running the test on a fast machine
 
         try await Task.sleep(for: .milliseconds(100))
-        return try _registry.getObject(id)
+        return try await _registry.getObject(id)
     }
 
     func getRegistry(current _: Ice.Current) async throws -> Ice.LocatorRegistryPrx? {
@@ -194,18 +193,15 @@ actor ServerLocator: TestLocator {
     }
 }
 
-class ServerLocatorRegistry: TestLocatorRegistry, @unchecked Sendable {
-    var _adapters = [String: Ice.ObjectPrx]()
-    var _objects = [Ice.Identity: Ice.ObjectPrx]()
-    var _lock = os_unfair_lock()
+actor ServerLocatorRegistry: TestLocatorRegistry {
+    private var _adapters = [String: Ice.ObjectPrx]()
+    private var _objects = [Ice.Identity: Ice.ObjectPrx]()
 
     func setAdapterDirectProxy(id: String, proxy: ObjectPrx?, current _: Current) async throws {
-        withLock(&_lock) {
-            if let obj = proxy {
-                self._adapters[id] = obj
-            } else {
-                self._adapters.removeValue(forKey: id)
-            }
+        if let obj = proxy {
+            self._adapters[id] = obj
+        } else {
+            self._adapters.removeValue(forKey: id)
         }
     }
 
@@ -215,26 +211,22 @@ class ServerLocatorRegistry: TestLocatorRegistry, @unchecked Sendable {
         proxy: Ice.ObjectPrx?,
         current _: Ice.Current
     ) async throws {
-        withLock(&_lock) {
-            if let obj = proxy {
-                _adapters[adapter] = obj
-                _adapters[replica] = obj
-            } else {
-                _adapters.removeValue(forKey: adapter)
-                _adapters.removeValue(forKey: replica)
-            }
+        if let obj = proxy {
+            _adapters[adapter] = obj
+            _adapters[replica] = obj
+        } else {
+            _adapters.removeValue(forKey: adapter)
+            _adapters.removeValue(forKey: replica)
         }
     }
 
-    func setServerProcessProxy(id _: String, proxy _: Ice.ProcessPrx?, current _: Ice.Current)
+    nonisolated func setServerProcessProxy(id _: String, proxy _: Ice.ProcessPrx?, current _: Ice.Current)
         async throws
     {
     }
 
     func addObject(_ obj: Ice.ObjectPrx?) {
-        withLock(&_lock) {
-            _objects[obj!.ice_getIdentity()] = obj
-        }
+        _objects[obj!.ice_getIdentity()] = obj
     }
 
     func addObject(obj: Ice.ObjectPrx?, current _: Ice.Current) async throws {
