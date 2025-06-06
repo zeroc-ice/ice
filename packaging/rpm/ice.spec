@@ -14,7 +14,6 @@
 %define phpname php
 %define phpcommon php-common
 %define phpdir %{_datadir}/php
-%define phplibdir %{_libdir}/php/modules
 # Macros are lazily evaluated we can can modify phpname later
 %define phplibdir %{_libdir}/%{phpname}/modules
 

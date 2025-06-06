@@ -2,16 +2,16 @@ name: Setup C++
 runs:
   using: "composite"
   steps:
-    - name: Install dependencies on macOS
-      if: runner.os == 'macOS'
-      shell: bash
-      run: brew install mcpp lmdb
-
     # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
     - name: Use Xcode 16.4
       if: runner.os == 'macOS'
       shell: bash
       run: sudo xcode-select --switch /Applications/Xcode_16.4.app/Contents/Developer
+
+    - name: Install dependencies on macOS
+      if: runner.os == 'macOS'
+      shell: bash
+      run: brew install mcpp lmdb
 
     - name: Install dependencies on Linux
       if: runner.os == 'Linux'
