@@ -14,14 +14,12 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecked Send
         self.initData = initData
         do {
             defaultsAndOverrides = try DefaultsAndOverrides(initData.properties!)
-            classGraphDepthMax = try initData.properties!.getIcePropertyAsInt(
-                "Ice.ClassGraphDepthMax")
+            classGraphDepthMax = try initData.properties!.getIcePropertyAsInt("Ice.ClassGraphDepthMax")
             precondition(
                 classGraphDepthMax >= 1 && classGraphDepthMax <= 0x7FFF_FFFF,
                 "Ice.ClassGraphDepthMax must be >= 0 and <= 0x7FFF_FFFF")
             traceSlicing = try initData.properties!.getIcePropertyAsInt("Ice.Trace.Slicing") > 0
-            acceptClassCycles =
-                try initData.properties!.getIcePropertyAsInt("Ice.AcceptClassCycles") > 0
+            acceptClassCycles = try initData.properties!.getIcePropertyAsInt("Ice.AcceptClassCycles") > 0
         } catch {
             fatalError("\(error)")
         }
@@ -63,8 +61,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecked Send
 
     func propertyToProxy(_ property: String) throws -> ObjectPrx? {
         return try autoreleasepool {
-            guard let handle = try handle.propertyToProxy(property: property) as? ICEObjectPrx
-            else {
+            guard let handle = try handle.propertyToProxy(property: property) as? ICEObjectPrx else {
                 return nil
             }
             return ObjectPrxI(handle: handle, communicator: self)

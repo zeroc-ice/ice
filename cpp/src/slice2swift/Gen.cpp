@@ -8,7 +8,6 @@
 #include "Ice/StringUtil.h"
 
 #include <algorithm>
-#include <any>
 #include <cassert>
 #include <iterator>
 
@@ -969,7 +968,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetadata());
-    out << nl << "public enum " << name << ": " << enumType << ", Sendable";
+    out << nl << "public enum " << name << ": " << enumType << ", Swift.Sendable";
     out << sb;
 
     for (const auto& enumerator : enumerators)
@@ -1337,14 +1336,8 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     if (op->returnsAnyValues())
     {
         out << " -> ";
-        auto params = op->returnAndOutParameters("");
-        bool usesClasses = std::any_of(
-            params.begin(),
-            params.end(),
-            [](const ParameterPtr& param) { return param->type()->usesClasses(); });
-
         // If the operation returns or out-parameters use classes, we need to specify 'sending'
-        if (usesClasses)
+        if (op->returnsClasses())
         {
             out << "sending ";
         }

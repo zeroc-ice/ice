@@ -68,7 +68,7 @@ final class RemoteCommunicatorI: RemoteCommunicator {
     }
 
     func updated(changes: [String: String]) {
-        Task { await _changes.setChanges(changes) }
+        Task { [_changes] in await _changes.setChanges(changes) }
     }
 }
 
