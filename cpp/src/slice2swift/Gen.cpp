@@ -524,7 +524,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetadata());
-    out << nl << "public " << (usesClasses ? "class " : "struct ") << name;
+    out << nl << "public " << (usesClasses ? "final class " : "struct ") << name;
 
     // Vector of protocols this struct conforms to.
     vector<string> structProtocols;
@@ -840,12 +840,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "public static func read(from istr: " << istr << ") throws -> sending " << name;
     out << sb;
     out << nl << "let sz = try Swift.Int(istr.readSize())";
-    out << nl;
-    if (p->valueType()->isClassType())
-    {
-        out << "nonisolated(unsafe) ";
-    }
-    out << "var v = " << name << "()";
+    out << nl << "var v = " << name << "()";
     if (p->valueType()->isClassType())
     {
         out << nl << "nonisolated(unsafe) let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<"
@@ -973,7 +968,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetadata());
-    out << nl << "@frozen public enum " << name << ": " << enumType;
+    out << nl << "public enum " << name << ": " << enumType << ", Swift.Sendable";
     out << sb;
 
     for (const auto& enumerator : enumerators)
@@ -998,7 +993,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/// Read an enumerated value.";
     out << nl << "///";
     out << nl << "/// - Returns:  The enumerated value.";
-    out << nl << "func read() throws -> sending " << name;
+    out << nl << "func read() throws -> " << name;
     out << sb;
     out << nl << "let rawValue: " << enumType << " = try read(enumMaxValue: " << p->maxValue() << ")";
     out << nl << "guard let val = " << name << "(rawValue: rawValue) else";
@@ -1014,7 +1009,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The enumerated value.";
-    out << nl << "func read(tag: Swift.Int32) throws -> sending " << name << "?";
+    out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
     out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -1237,7 +1232,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "/// - Parameter type: The type of the proxy to be extracted.";
     out << nl << "///";
     out << nl << "/// - Returns: The extracted proxy.";
-    out << nl << "func read(_ type: " << prx << ".Protocol) throws -> sending " << prx << "?";
+    out << nl << "func read(_ type: " << prx << ".Protocol) throws -> " << prx << "?";
     out << sb;
     out << nl << "return try read() as " << prxI << "?";
     out << eb;
@@ -1332,7 +1327,7 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     for (const auto& param : op->inParameters())
     {
         const string typeString = typeToString(param->type(), op, param->optional());
-        out << param->mappedName() + ": " + typeString;
+        out << param->mappedName() + ": " + (param->type()->usesClasses() ? "sending " : "") + typeString;
     }
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
@@ -1359,7 +1354,7 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "extension " << servant;
     out << sb;
     out << nl << "private static var defaultObject: " << getUnqualified("Ice.Object", swiftModule) << sb;
-    out << nl << getUnqualified("Ice.ObjectI", swiftModule) << "<" << traits << ">()";
+    out << nl << getUnqualified("Ice.DefaultObject", swiftModule) << "<" << traits << ">()";
     out << eb;
 
     const OperationList allOps = p->allOperations();
@@ -1382,7 +1377,8 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
            "operation name carried by the request.";
     out << nl << "/// - Parameter request: The incoming request.";
     out << nl << "/// - Returns: The outgoing response.";
-    out << nl << "public func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
+    out << nl << "public func dispatch(_ request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse"
+        << sb;
     out << nl << "try await Self.dispatch(self, request: request)";
     out << eb;
 
@@ -1398,7 +1394,7 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "///   - request: The incoming request.";
     out << nl << "/// - Returns: The outgoing response.";
     out << nl << "public static func dispatch(_ servant: " << servant
-        << ", request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
+        << ", request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
     out << nl << "switch request.current.operation";
     out << sb;
     out.dec(); // to align case with switch

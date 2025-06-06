@@ -4,9 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class TestI: TestIntf {
-    init() {}
-
+final class TestI: TestIntf {
     func transient(current: Ice.Current) async throws {
         let communicator = current.adapter.getCommunicator()
 
@@ -23,13 +21,13 @@ class TestI: TestIntf {
     }
 }
 
-class Cookie {
+final class Cookie {
     func message() -> String {
         return "blahblah"
     }
 }
 
-class RouterI: Ice.Router {
+final class RouterI: Ice.Router {
     func getClientProxy(current _: Ice.Current) async throws -> (
         returnValue: ObjectPrx?, hasRoutingTable: Bool?
     ) {
@@ -48,11 +46,11 @@ class RouterI: Ice.Router {
     }
 }
 
-class ServantLocatorI: Ice.ServantLocator {
-    var _helper: TestHelper
-    var _deactivated: Bool
-    var _router = RouterI()
-    var _lock = os_unfair_lock()
+final class ServantLocatorI: Ice.ServantLocator {
+    private let _helper: TestHelper
+    private var _deactivated: Bool
+    private let _router = RouterI()
+    private var _lock = os_unfair_lock()
 
     init(helper: TestHelper) {
         _deactivated = false
@@ -63,7 +61,7 @@ class ServantLocatorI: Ice.ServantLocator {
         precondition(_deactivated)
     }
 
-    func locate(_ current: Ice.Current) throws -> (returnValue: Dispatcher?, cookie: AnyObject?) {
+    func locate(_ current: Ice.Current) throws -> sending (returnValue: Dispatcher?, cookie: AnyObject?) {
         try withLock(&_lock) {
             try _helper.test(!_deactivated)
         }

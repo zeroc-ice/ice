@@ -2,7 +2,7 @@
 
 import Ice
 
-class TestIntfI: TestIntf {
+final class TestIntfI: TestIntf {
     func ping(reply: PingReplyPrx?, current _: Current) async throws {
         do {
             try await reply!.reply()

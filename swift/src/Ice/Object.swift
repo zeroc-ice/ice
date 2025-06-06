@@ -87,24 +87,24 @@ public struct ObjectTraits: SliceTraits {
     public static let staticId = "::Ice::Object"
 }
 
-/// class ObjectI provides the default implementation of Object operations (ice_id,
+/// DefaultObject provides the default implementation of Object operations (ice_id,
 /// ice_ping etc.) for a given Slice interface.
-open class ObjectI<T: SliceTraits>: Object {
+public struct DefaultObject<T: SliceTraits>: Object {
     public init() {}
 
-    open func ice_id(current _: Current) async throws -> String {
+    public func ice_id(current _: Current) -> String {
         return T.staticId
     }
 
-    open func ice_ids(current _: Current) async throws -> [String] {
+    public func ice_ids(current _: Current) -> [String] {
         return T.staticIds
     }
 
-    open func ice_isA(id: String, current _: Current) async throws -> Bool {
+    public func ice_isA(id: String, current _: Current) -> Bool {
         return T.staticIds.contains(id)
     }
 
-    open func ice_ping(current _: Current) async throws {
+    public func ice_ping(current _: Current) {
         // Do nothing
     }
 }

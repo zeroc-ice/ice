@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-class EmptyI: Empty {}
+final class EmptyI: Empty {}
 
 class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {

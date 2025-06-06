@@ -111,6 +111,10 @@ let package = Package(
             cxxSettings: [
                 .headerSearchPath("src"),
                 .headerSearchPath("include"),
+            ],
+            linkerSettings: [
+                // See https://github.com/zeroc-ice/ice/issues/3900
+                .unsafeFlags(["-Xlinker", "-max_default_common_align", "-Xlinker", "0x4000"])
             ]
         ),
         .plugin(

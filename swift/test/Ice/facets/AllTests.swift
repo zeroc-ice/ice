@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-class EmptyI: Empty {}
+final class EmptyI: Empty {}
 
 func allTests(_ helper: TestHelper) async throws -> GPrx {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {

@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-class ServantManager: Dispatcher {
+final class ServantManager: Dispatcher {
     private let adapterName: String
     private let communicator: Communicator
 
@@ -175,10 +175,6 @@ class ServantManager: Dispatcher {
     }
 
     func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
-
-        // TODO: the compiler is confused by the control flow in this method, with two separate calls using request.
-        nonisolated(unsafe) let request = request
-
         let current = request.current
         var servant = findServant(id: current.id, facet: current.facet)
 

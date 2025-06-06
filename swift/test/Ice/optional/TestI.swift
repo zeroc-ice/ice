@@ -4,7 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class InitialI: Initial {
+final class InitialI: Initial {
     func shutdown(current: Ice.Current) async throws {
         current.adapter.getCommunicator().shutdown()
     }
