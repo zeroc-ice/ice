@@ -1377,7 +1377,8 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
            "operation name carried by the request.";
     out << nl << "/// - Parameter request: The incoming request.";
     out << nl << "/// - Returns: The outgoing response.";
-    out << nl << "public func dispatch(_ request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
+    out << nl << "public func dispatch(_ request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse"
+        << sb;
     out << nl << "try await Self.dispatch(self, request: request)";
     out << eb;
 
