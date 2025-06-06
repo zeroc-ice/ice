@@ -3,8 +3,8 @@
 import Ice
 import TestCommon
 
-class TestI: TestIntf {
-    var _helper: TestHelper
+final class TestI: TestIntf {
+    let _helper: TestHelper
 
     init(_ helper: TestHelper) {
         _helper = helper

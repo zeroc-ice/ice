@@ -3,7 +3,7 @@
 import Foundation
 
 /// Provides information about an incoming request being dispatched.
-public final class Current {
+public struct Current: Sendable {
     /// The object adapter that received the request.
     public let adapter: ObjectAdapter
     /// The connection that received the request. It's nil when the invocation and dispatch are collocated.

@@ -24,7 +24,7 @@ func getIPConnectionInfo(_ info: Ice.ConnectionInfo) -> Ice.IPConnectionInfo? {
     return nil
 }
 
-class TestI: TestIntf {
+final class TestI: TestIntf {
     func shutdown(current: Ice.Current) async throws {
         current.adapter.getCommunicator().shutdown()
     }

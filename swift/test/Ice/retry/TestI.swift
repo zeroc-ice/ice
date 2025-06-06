@@ -3,7 +3,7 @@
 import Foundation
 import Ice
 
-class RetryI: Retry {
+actor RetryI: Retry {
     var _counter: Int32
 
     init() {

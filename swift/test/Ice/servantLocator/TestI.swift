@@ -4,7 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class TestI: TestIntf {
+final class TestI: TestIntf {
     func requestFailedException(current _: Current) async throws {}
 
     func unknownUserException(current _: Current) async throws {}
@@ -48,8 +48,8 @@ class TestI: TestIntf {
     }
 }
 
-class TestActivationI: TestActivation {
-    var _helper: TestHelper
+final class TestActivationI: TestActivation {
+    let _helper: TestHelper
 
     init(_ helper: TestHelper) {
         _helper = helper

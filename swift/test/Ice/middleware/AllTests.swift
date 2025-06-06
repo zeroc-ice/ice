@@ -39,8 +39,8 @@ func allTests(_ helper: TestHelper) async throws {
         try await p.ice_ping()
 
         // Assert
-        try test(log.inLog == ["A", "B", "C"])
-        try test(log.outLog == ["C", "B", "A"])
+        try await test(log.inLog == ["A", "B", "C"])
+        try await test(log.outLog == ["C", "B", "A"])
 
         output.writeLine("ok")
         oa.destroy()
@@ -49,25 +49,32 @@ func allTests(_ helper: TestHelper) async throws {
     final class Middleware: Dispatcher {
         private let next: Dispatcher
         private let name: String
-        private var log: MiddlewareLog
-
-        func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
-            log.inLog.append(name)
-            let response = try await next.dispatch(request)
-            log.outLog.append(name)
-            return response
-        }
+        private let log: MiddlewareLog
 
         init(_ next: Dispatcher, _ name: String, _ log: MiddlewareLog) {
             self.next = next
             self.name = name
             self.log = log
         }
+
+        func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
+            await log.appendInLog(name)
+            let response = try await next.dispatch(request)
+            await log.appendOutLog(name)
+            return response
+        }
     }
 
-    final class MiddlewareLog {
+    actor MiddlewareLog {
         var inLog: [String] = []
         var outLog: [String] = []
+
+        func appendInLog(_ value: String) async {
+            inLog.append(value)
+        }
+        func appendOutLog(_ value: String) async {
+            outLog.append(value)
+        }
     }
 
     final class MyObjectI: MyObject {

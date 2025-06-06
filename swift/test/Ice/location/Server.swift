@@ -33,7 +33,7 @@ class Server: TestHelperI, @unchecked Sendable {
         let registry = ServerLocatorRegistry()
         let object = ServerManagerI(registry: registry, helper: self)
         try adapter.add(servant: object, id: Ice.stringToIdentity("ServerManager"))
-        try registry.addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
+        try await registry.addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
         let registryPrx = try uncheckedCast(
             prx: adapter.add(
                 servant: registry,

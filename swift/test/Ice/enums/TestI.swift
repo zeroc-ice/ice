@@ -2,7 +2,7 @@
 
 import Ice
 
-class TestI: TestIntf {
+final class TestI: TestIntf {
     func opByte(b1: ByteEnum, current _: Ice.Current) async throws -> (
         returnValue: ByteEnum, b2: ByteEnum
     ) {
