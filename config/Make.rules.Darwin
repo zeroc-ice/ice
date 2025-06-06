@@ -43,7 +43,7 @@ LMDB_HOME                      ?= $(shell brew --prefix lmdb)
 endif
 
 # Always link with the static version of libmcpp on macos.
-mcpp_ldflags                   := $(MCPP_HOME)/lib/libmcpp.a
+mcpp_ldflags                   := $(MCPP_HOME)/lib/libmcpp.a -Wl,-max_default_common_align,0x4000
 
 # On macos, objects are always PIC/PIE, and executables are always PIE. So there is no need to pass -fPIC or -fPIE to
 # the compiler.
