@@ -3,7 +3,7 @@
 import IceImpl
 
 /// Helps applications handle Ctrl+C (SIGINT) and similar signals (SIGHUP and SIGTERM). Only available on macOS.
-@available(macOS 14, *)
+@available(macOS 15, *)
 public struct CtrlCHandler {
     private let handle = ICECtrlCHandler()
 
