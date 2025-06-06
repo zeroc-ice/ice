@@ -993,7 +993,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/// Read an enumerated value.";
     out << nl << "///";
     out << nl << "/// - Returns:  The enumerated value.";
-    out << nl << "func read() throws -> sending " << name;
+    out << nl << "func read() throws -> " << name;
     out << sb;
     out << nl << "let rawValue: " << enumType << " = try read(enumMaxValue: " << p->maxValue() << ")";
     out << nl << "guard let val = " << name << "(rawValue: rawValue) else";
@@ -1009,7 +1009,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The enumerated value.";
-    out << nl << "func read(tag: Swift.Int32) throws -> sending " << name << "?";
+    out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
     out << nl << "guard try readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -1232,7 +1232,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "/// - Parameter type: The type of the proxy to be extracted.";
     out << nl << "///";
     out << nl << "/// - Returns: The extracted proxy.";
-    out << nl << "func read(_ type: " << prx << ".Protocol) throws -> sending " << prx << "?";
+    out << nl << "func read(_ type: " << prx << ".Protocol) throws -> " << prx << "?";
     out << sb;
     out << nl << "return try read() as " << prxI << "?";
     out << eb;

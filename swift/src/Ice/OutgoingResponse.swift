@@ -3,7 +3,7 @@
 import Foundation
 
 /// Represents the response to an incoming request. It's returned by Dispatcher.dispatch.
-public final class OutgoingResponse {
+public struct OutgoingResponse {
     /// Gets the exception ID of the response.
     /// It's nil when replyStatus is ok or userException. Otherwise, this ID is the value returned by `ice_id` for
     /// Ice local exceptions. For other exceptions, this ID is the full name of the exception's type.
@@ -37,7 +37,7 @@ public final class OutgoingResponse {
 
     /// Creates an OutgoingResponse object with the ok status.
     /// - Parameter outputStream: The output stream that holds the response.
-    internal convenience init(_ outputStream: OutputStream) {
+    internal init(_ outputStream: OutputStream) {
         self.init(
             replyStatus: ReplyStatus.ok.rawValue, exceptionId: nil, exceptionDetails: nil, outputStream: outputStream)
     }

@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class EndpointInfoFactory: ICEEndpointInfoFactory {
+final class EndpointInfoFactory: ICEEndpointInfoFactory {
     static func createTCPEndpointInfo(
         _ timeout: Int32,
         compress: Bool,

@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class PropertiesI: LocalObject<ICEProperties>, Properties {
+final class PropertiesI: LocalObject<ICEProperties>, Properties {
     public func getProperty(_ key: String) -> String {
         handle.getProperty(key)
     }

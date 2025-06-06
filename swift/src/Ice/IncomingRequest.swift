@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 /// Represents a request received by a connection. It's the argument given to `Dispatcher.dispatch`.
-public final class IncomingRequest {
+public struct IncomingRequest {
     /// Gets the current object for the request.
     public let current: Current
 

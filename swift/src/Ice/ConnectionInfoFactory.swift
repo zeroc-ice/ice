@@ -3,7 +3,7 @@
 import Foundation
 import IceImpl
 
-class ConnectionInfoFactory: ICEConnectionInfoFactory {
+final class ConnectionInfoFactory: ICEConnectionInfoFactory {
     static func createTCPConnectionInfo(
         _ incoming: Bool,
         adapterName: String,
