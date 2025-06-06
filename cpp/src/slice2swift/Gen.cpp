@@ -1327,7 +1327,7 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     for (const auto& param : op->inParameters())
     {
         const string typeString = typeToString(param->type(), op, param->optional());
-        out << param->mappedName() + ": " + (param->type()->usesClasses() ? "sending " : "") + typeString;
+        out << param->mappedName() + ": " + typeString;
     }
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
@@ -1335,14 +1335,7 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     out << " async throws";
     if (op->returnsAnyValues())
     {
-        out << " -> ";
-        // If the operation returns or out-parameters use classes, we need to specify 'sending'
-        if (op->returnsClasses())
-        {
-            out << "sending ";
-        }
-
-        out << operationReturnType(op);
+        out << " -> " << operationReturnType(op);
     }
 }
 

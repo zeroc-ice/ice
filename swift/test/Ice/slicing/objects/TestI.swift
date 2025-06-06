@@ -5,9 +5,9 @@ import Ice
 import TestCommon
 
 // TODO: Make this class an actor once https://github.com/swiftlang/swift/issues/76710 has shipped.
-final class TestI: TestIntf, @unchecked Sendable {
-    let _helper: TestHelper
-    var _values = [Value]()
+final class TestI: TestIntf {
+    private let _helper: TestHelper
+    private var _values = [Value]()
 
     init(_ helper: TestHelper) {
         _helper = helper
@@ -77,31 +77,31 @@ final class TestI: TestIntf, @unchecked Sendable {
         }
     }
 
-    func SBaseAsObject(current _: Current) -> sending Value? {
+    func SBaseAsObject(current _: Current) -> Value? {
         return SBase(sb: "SBase.sb")
     }
 
-    func SBaseAsSBase(current _: Current) -> sending SBase? {
+    func SBaseAsSBase(current _: Current) -> SBase? {
         return SBase(sb: "SBase.sb")
     }
 
-    func SBSKnownDerivedAsSBase(current _: Current) -> sending SBase? {
+    func SBSKnownDerivedAsSBase(current _: Current) -> SBase? {
         return SBSKnownDerived(sb: "SBSKnownDerived.sb", sbskd: "SBSKnownDerived.sbskd")
     }
 
-    func SBSKnownDerivedAsSBSKnownDerived(current _: Current) -> sending SBSKnownDerived? {
+    func SBSKnownDerivedAsSBSKnownDerived(current _: Current) -> SBSKnownDerived? {
         return SBSKnownDerived(sb: "SBSKnownDerived.sb", sbskd: "SBSKnownDerived.sbskd")
     }
 
-    func SBSUnknownDerivedAsSBase(current _: Current) -> sending SBase? {
+    func SBSUnknownDerivedAsSBase(current _: Current) -> SBase? {
         return SBSUnknownDerived(sb: "SBSUnknownDerived.sb", sbsud: "SBSUnknownDerived.sbsud")
     }
 
-    func SBSUnknownDerivedAsSBaseCompact(current _: Current) -> sending SBase? {
+    func SBSUnknownDerivedAsSBaseCompact(current _: Current) -> SBase? {
         return SBSUnknownDerived(sb: "SBSUnknownDerived.sb", sbsud: "SBSUnknownDerived.sbsud")
     }
 
-    func SUnknownAsObject(current _: Current) -> sending Value? {
+    func SUnknownAsObject(current _: Current) -> Value? {
         let su = SUnknown()
         su.su = "SUnknown.su"
         su.cycle = su
@@ -109,7 +109,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         return su
     }
 
-    func checkSUnknown(o: sending Value?, current: Current) throws {
+    func checkSUnknown(o: Value?, current: Current) throws {
         let su = o as? SUnknown
         if current.encoding == Encoding_1_0 {
             try _helper.test(su == nil)
@@ -119,7 +119,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         }
     }
 
-    func oneElementCycle(current _: Current) -> sending B? {
+    func oneElementCycle(current _: Current) -> B? {
         let b = B()
         b.sb = "B1.sb"
         b.pb = b
@@ -127,7 +127,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         return b
     }
 
-    func twoElementCycle(current _: Current) -> sending B? {
+    func twoElementCycle(current _: Current) -> B? {
         let b1 = B()
         b1.sb = "B1.sb"
         let b2 = B()
@@ -138,7 +138,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         return b1
     }
 
-    func D1AsB(current _: Current) -> sending B? {
+    func D1AsB(current _: Current) -> B? {
         let d1 = D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -153,7 +153,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         return d1
     }
 
-    func D1AsD1(current _: Current) -> sending D1? {
+    func D1AsD1(current _: Current) -> D1? {
         let d1 = D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -168,7 +168,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         return d1
     }
 
-    func D2AsB(current _: Current) -> sending B? {
+    func D2AsB(current _: Current) -> B? {
         let d2 = D2()
         d2.sb = "D2.sb"
         d2.sd2 = "D2.sd2"
@@ -183,7 +183,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         return d2
     }
 
-    func paramTest1(current _: Current) -> sending (p1: B?, p2: B?) {
+    func paramTest1(current _: Current) -> (p1: B?, p2: B?) {
         let d1 = D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -198,12 +198,12 @@ final class TestI: TestIntf, @unchecked Sendable {
         return (d1, d2)
     }
 
-    func paramTest2(current: Current) -> sending (p2: B?, p1: B?) {
+    func paramTest2(current: Current) -> (p2: B?, p1: B?) {
         let ret = paramTest1(current: current)
         return (ret.p2, ret.p1)
     }
 
-    func paramTest3(current _: Current) -> sending (returnValue: B?, p1: B?, p2: B?) {
+    func paramTest3(current _: Current) -> (returnValue: B?, p1: B?, p2: B?) {
         let d2 = D2()
         d2.sb = "D2.sb (p1 1)"
         d2.pb = nil
@@ -236,7 +236,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         return (d3, d2, d4)
     }
 
-    func paramTest4(current _: Current) -> sending (returnValue: B?, p: B?) {
+    func paramTest4(current _: Current) -> (returnValue: B?, p: B?) {
         let d4 = D4()
         d4.sb = "D4.sb (1)"
         d4.pb = nil
@@ -248,23 +248,23 @@ final class TestI: TestIntf, @unchecked Sendable {
         return (d4.p2, d4)
     }
 
-    func returnTest1(current: Current) -> sending (returnValue: B?, p1: B?, p2: B?) {
+    func returnTest1(current: Current) -> (returnValue: B?, p1: B?, p2: B?) {
         let ret = paramTest1(current: current)
         return (ret.p1, ret.p1, ret.p2)
     }
 
-    func returnTest2(current: Current) -> sending (returnValue: B?, p2: B?, p1: B?) {
+    func returnTest2(current: Current) -> (returnValue: B?, p2: B?, p1: B?) {
         let ret = paramTest1(current: current)
         return (ret.p1, ret.p1, ret.p2)
     }
 
-    func returnTest3(p1: sending B?, p2: sending B?, current _: Current) -> sending B? {
+    func returnTest3(p1: B?, p2: B?, current _: Current) -> B? {
         _values.append(p1!)
         _values.append(p2!)
         return p1
     }
 
-    func sequenceTest(p1: sending SS1?, p2: sending SS2?, current _: Current) -> sending SS3 {
+    func sequenceTest(p1: SS1?, p2: SS2?, current _: Current) -> SS3 {
         let ss = SS3()
         ss.c1 = p1
         ss.c2 = p2
@@ -273,7 +273,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         return ss
     }
 
-    func dictionaryTest(bin: sending BDict, current _: Current) -> sending (
+    func dictionaryTest(bin: BDict, current _: Current) -> (
         returnValue: BDict, bout: BDict
     ) {
         var bout = [Int32: B?]()
@@ -302,12 +302,12 @@ final class TestI: TestIntf, @unchecked Sendable {
         return (r, bout)
     }
 
-    func exchangePBase(pb: sending PBase?, current _: Current) -> sending PBase? {
+    func exchangePBase(pb: PBase?, current _: Current) -> PBase? {
         _values.append(pb!)
         return pb
     }
 
-    func PBSUnknownAsPreserved(current: Current) -> sending Preserved? {
+    func PBSUnknownAsPreserved(current: Current) -> Preserved? {
         let r = PSUnknown()
         r.pi = 5
         r.ps = "preserved"
@@ -323,7 +323,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         return r
     }
 
-    func checkPBSUnknown(p: sending Preserved?, current: Current) throws {
+    func checkPBSUnknown(p: Preserved?, current: Current) throws {
         if current.encoding == Ice.Encoding_1_0 {
             try _helper.test(!(p is PSUnknown))
             try _helper.test(p!.pi == 5)
@@ -339,7 +339,7 @@ final class TestI: TestIntf, @unchecked Sendable {
     }
 
     // TODO: Doesn't seem to be called
-    func PBSUnknownAsPreservedWithGraph(current: Current) -> sending Preserved? {
+    func PBSUnknownAsPreservedWithGraph(current: Current) -> Preserved? {
         // This code requires a regular, non-colloc dispatch
         //TODO: there are not more dispatch queues
         // if let dq = try? current.adapter.getDispatchQueue() {
@@ -373,7 +373,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         fatalError("not implemented")
     }
 
-    func checkPBSUnknownWithGraph(p: sending Preserved?, current: Current) throws {
+    func checkPBSUnknownWithGraph(p: Preserved?, current: Current) throws {
         if current.encoding == Encoding_1_0 {
             try _helper.test(!(p is PSUnknown))
             try _helper.test(p!.pi == 5)
@@ -395,7 +395,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         }
     }
 
-    func PBSUnknown2AsPreservedWithGraph(current: Current) -> sending Preserved? {
+    func PBSUnknown2AsPreservedWithGraph(current: Current) -> Preserved? {
         fatalError("not implemented")
         // TODO: verify this is correct
         // return try await withCheckedThrowingContinuation { continuation in
@@ -414,7 +414,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         // }
     }
 
-    func checkPBSUnknown2WithGraph(p: sending Preserved?, current: Current) throws {
+    func checkPBSUnknown2WithGraph(p: Preserved?, current: Current) throws {
         if current.encoding == Encoding_1_0 {
             try _helper.test(!(p is PSUnknown2))
             try _helper.test(p!.pi == 5)
@@ -428,7 +428,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         }
     }
 
-    func exchangePNode(pn: sending PNode?, current _: Current) -> sending PNode? {
+    func exchangePNode(pn: PNode?, current _: Current) -> PNode? {
         return pn
     }
 
@@ -492,7 +492,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         throw ude
     }
 
-    func useForward(current _: Current) -> sending Forward? {
+    func useForward(current _: Current) -> Forward? {
         let f = Forward()
         f.h = Hidden()
         f.h!.f = f

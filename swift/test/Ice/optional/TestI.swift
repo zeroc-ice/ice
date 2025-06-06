@@ -9,7 +9,7 @@ final class InitialI: Initial {
         current.adapter.getCommunicator().shutdown()
     }
 
-    func pingPong(o: sending Ice.Value?, current _: Ice.Current) async throws -> sending Ice.Value? {
+    func pingPong(o: Ice.Value?, current _: Ice.Current) async throws -> Ice.Value? {
         return o
     }
 
@@ -114,7 +114,7 @@ final class InitialI: Initial {
         return (p1, p1)
     }
 
-    func opOneOptional(p1: sending OneOptional?, current _: Ice.Current) async throws -> sending (
+    func opOneOptional(p1: OneOptional?, current _: Ice.Current) async throws -> (
         returnValue: OneOptional?,
         p3: OneOptional?
     ) {
@@ -242,7 +242,7 @@ final class InitialI: Initial {
 
     func opClassAndUnknownOptional(p _: A?, current _: Ice.Current) async throws {}
 
-    func opG(g: sending G?, current _: Ice.Current) async throws -> sending G? {
+    func opG(g: G?, current _: Ice.Current) async throws -> G? {
         return g
     }
 

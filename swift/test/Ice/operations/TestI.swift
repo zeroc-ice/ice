@@ -460,7 +460,7 @@ final class MyDerivedClassI: MyDerivedClass {
         return byteBoolD
     }
 
-    func opMyClass1(opMyClass1: sending MyClass1?, current _: Ice.Current) async throws -> sending MyClass1? {
+    func opMyClass1(opMyClass1: MyClass1?, current _: Ice.Current) async throws -> MyClass1? {
         return opMyClass1
     }
 

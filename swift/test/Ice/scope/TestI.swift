@@ -17,17 +17,17 @@ final class MyInterface1: MyInterface {
         return (s1, s1)
     }
 
-    func opMyClass(c1: sending MyClass?, current _: Current) -> sending (returnValue: MyClass?, c2: MyClass?) {
+    func opMyClass(c1: MyClass?, current _: Current) -> (returnValue: MyClass?, c2: MyClass?) {
         return (c1, c1)
     }
 
-    func opMyClassSeq(s1: sending MyClassSeq, current _: Current) -> sending (
+    func opMyClassSeq(s1: MyClassSeq, current _: Current) -> (
         returnValue: MyClassSeq, s2: MyClassSeq
     ) {
         return (s1, s1)
     }
 
-    func opMyClassMap(c1: sending MyClassMap, current _: Current) -> sending (
+    func opMyClassMap(c1: MyClassMap, current _: Current) -> (
         returnValue: MyClassMap, c2: MyClassMap
     ) {
         return (c1, c1)
@@ -41,7 +41,7 @@ final class MyInterface1: MyInterface {
         return s1
     }
 
-    func opMyOtherClass(c1: sending MyOtherClass?, current _: Current) -> sending MyOtherClass? {
+    func opMyOtherClass(c1: MyOtherClass?, current _: Current) -> MyOtherClass? {
         return c1
     }
 
@@ -77,19 +77,19 @@ final class MyInterface2: InnerMyInterface {
         return (s1, s1)
     }
 
-    func opMyClass(c1: sending InnerInner2MyClass?, current _: Current) -> sending (
+    func opMyClass(c1: InnerInner2MyClass?, current _: Current) -> (
         returnValue: InnerInner2MyClass?, c2: InnerInner2MyClass?
     ) {
         return (c1, c1)
     }
 
-    func opMyClassSeq(c1: sending InnerInner2MyClassSeq, current _: Current) -> sending (
+    func opMyClassSeq(c1: InnerInner2MyClassSeq, current _: Current) -> (
         returnValue: InnerInner2MyClassSeq, c2: InnerInner2MyClassSeq
     ) {
         return (c1, c1)
     }
 
-    func opMyClassMap(c1: sending InnerInner2MyClassMap, current _: Current) -> sending (
+    func opMyClassMap(c1: InnerInner2MyClassMap, current _: Current) -> (
         returnValue: InnerInner2MyClassMap, c2: InnerInner2MyClassMap
     ) {
         return (c1, c1)
@@ -119,19 +119,19 @@ final class MyInterface3: InnerInner2MyInterface {
         return (s1, s1)
     }
 
-    func opMyClass(c1: sending InnerInner2MyClass?, current _: Current) -> sending (
+    func opMyClass(c1: InnerInner2MyClass?, current _: Current) -> (
         returnValue: InnerInner2MyClass?, c2: InnerInner2MyClass?
     ) {
         return (c1, c1)
     }
 
-    func opMyClassSeq(c1: sending InnerInner2MyClassSeq, current _: Current) -> sending (
+    func opMyClassSeq(c1: InnerInner2MyClassSeq, current _: Current) -> (
         returnValue: InnerInner2MyClassSeq, c2: InnerInner2MyClassSeq
     ) {
         return (c1, c1)
     }
 
-    func opMyClassMap(c1: sending InnerInner2MyClassMap, current _: Current) -> sending (
+    func opMyClassMap(c1: InnerInner2MyClassMap, current _: Current) -> (
         returnValue: InnerInner2MyClassMap, c2: InnerInner2MyClassMap
     ) {
         return (c1, c1)
@@ -155,19 +155,19 @@ final class MyInterface4: InnerTestInner2MyInterface {
         return (s1, s1)
     }
 
-    func opMyClass(c1: sending MyClass?, current _: Current) -> sending (
+    func opMyClass(c1: MyClass?, current _: Current) -> (
         returnValue: MyClass?, c2: MyClass?
     ) {
         return (c1, c1)
     }
 
-    func opMyClassSeq(c1: sending MyClassSeq, current _: Current) -> sending (
+    func opMyClassSeq(c1: MyClassSeq, current _: Current) -> (
         returnValue: MyClassSeq, c2: MyClassSeq
     ) {
         return (c1, c1)
     }
 
-    func opMyClassMap(c1: sending MyClassMap, current _: Current) -> sending (
+    func opMyClassMap(c1: MyClassMap, current _: Current) -> (
         returnValue: MyClassMap, c2: MyClassMap
     ) {
         return (c1, c1)
@@ -185,7 +185,7 @@ final class DPMyInterface: DifferentMyInterface {
         return (s1, s1)
     }
 
-    func opMyClass(c1: sending DifferentMyClass?, current _: Current) -> sending (
+    func opMyClass(c1: DifferentMyClass?, current _: Current) -> (
         returnValue: DifferentMyClass?, c2: DifferentMyClass?
     ) {
         return (c1, c1)
@@ -199,7 +199,7 @@ final class NPMyInterface: NoPrefixMyInterface {
         return (s1, s1)
     }
 
-    func opMyClass(c1: sending NoPrefixMyClass?, current _: Current) -> sending (
+    func opMyClass(c1: NoPrefixMyClass?, current _: Current) -> (
         returnValue: NoPrefixMyClass?, c2: NoPrefixMyClass?
     ) {
         return (c1, c1)
