@@ -45,6 +45,9 @@
 #    include <Security/SecureTransport.h>
 #    include <Security/Security.h>
 #else
+#    ifndef OPENSSL_API_COMPAT
+#        define OPENSSL_API_COMPAT 0x30000000L // Target OpenSSL 3.0 or later
+#    endif
 #    define ICE_USE_OPENSSL
 #    include <openssl/err.h>
 #    include <openssl/ssl.h>

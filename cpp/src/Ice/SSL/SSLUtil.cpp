@@ -576,56 +576,25 @@ Ice::SSL::ScopedCertificate::~ScopedCertificate()
 }
 
 string
-Ice::SSL::getErrors(bool verbose)
+Ice::SSL::getErrors()
 {
     ostringstream ostr;
 
-    const char* file;
-    const char* data;
-    int line;
-    int flags;
     unsigned long err;
     int count = 0;
-    while ((err = ERR_get_error_line_data(&file, &line, &data, &flags)) != 0)
+    while ((err = ERR_get_error()) != 0)
     {
         if (count > 0)
         {
             ostr << endl;
         }
 
-        if (verbose)
-        {
-            if (count > 0)
-            {
-                ostr << endl;
-            }
-
-            char buf[200];
-            ERR_error_string_n(err, buf, sizeof(buf));
-
-            ostr << "error # = " << err << endl;
-            ostr << "message = " << buf << endl;
-            ostr << "location = " << file << ", " << line;
-            if (flags & ERR_TXT_STRING)
-            {
-                ostr << endl;
-                ostr << "data = " << data;
-            }
-        }
-        else
-        {
-            const char* reason = ERR_reason_error_string(err);
-            ostr << (reason == nullptr ? "unknown reason" : reason);
-            if (flags & ERR_TXT_STRING)
-            {
-                ostr << ": " << data;
-            }
-        }
+        char buf[256];
+        ERR_error_string_n(err, buf, sizeof(buf));
+        ostr << "error #" << err << ": " << buf;
 
         ++count;
     }
-
-    ERR_clear_error();
 
     return ostr.str();
 }
@@ -651,7 +620,7 @@ Ice::SSL::encodeCertificate(X509* certificate)
     if (i <= 0)
     {
         BIO_free(out);
-        throw CertificateEncodingException(__FILE__, __LINE__, getErrors(false));
+        throw CertificateEncodingException(__FILE__, __LINE__, getErrors());
     }
     BUF_MEM* p;
     BIO_get_mem_ptr(out, &p);
@@ -667,12 +636,12 @@ Ice::SSL::decodeCertificate(const string& data)
     BIO_free(cert);
     if (x == nullptr)
     {
-        throw CertificateEncodingException(__FILE__, __LINE__, getErrors(false));
+        throw CertificateEncodingException(__FILE__, __LINE__, getErrors());
     }
     // Calling it with -1 for the side effects, this ensure that the extensions info is loaded
     if (X509_check_purpose(x, -1, -1) == -1)
     {
-        throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getErrors(false));
+        throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getErrors());
     }
     return x;
 }

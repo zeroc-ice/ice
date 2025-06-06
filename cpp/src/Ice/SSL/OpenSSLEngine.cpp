@@ -494,7 +494,7 @@ OpenSSL::SSLEngine::validationCallback(bool ok, X509_STORE_CTX* ctx, const Ice::
 string
 OpenSSL::SSLEngine::sslErrors() const
 {
-    return getErrors(securityTraceLevel() >= 1);
+    return getErrors();
 }
 
 void

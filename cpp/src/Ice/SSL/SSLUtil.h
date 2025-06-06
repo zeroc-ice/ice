@@ -83,7 +83,7 @@ namespace Ice::SSL
     ICE_API SecCertificateRef decodeCertificate(const std::string&);
 #elif defined(ICE_USE_OPENSSL)
     // Accumulate the OpenSSL error stack into a string.
-    std::string getErrors(bool);
+    std::string getErrors();
     ICE_API std::string getSubjectName(X509*);
     std::vector<std::pair<int, std::string>> getSubjectAltNames(X509*);
     ICE_API std::string encodeCertificate(X509*);
