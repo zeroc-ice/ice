@@ -52,13 +52,13 @@ struct CompileSlicePlugin: BuildToolPlugin {
     static let configFileName = "slice-plugin.json"
     
     /// Helper function to find slice files given a base directory and config
-    private static func findSliceFiles(config: Config, baseDirectory: String) throws -> [String] {
+    private static func findSliceFiles(config: Config, baseDirectory: String) throws -> [URL] {
         let fm = FileManager.default
         
         return try config.sources.map { source in
             let fullSourcePath = (baseDirectory as NSString).appendingPathComponent(source)
             if fullSourcePath.hasSuffix(".ice") {
-                return [fullSourcePath]
+                return [URL(fileURLWithPath: fullSourcePath)]
             }
             
             // Directory - scan for .ice files
@@ -69,8 +69,6 @@ struct CompileSlicePlugin: BuildToolPlugin {
                 options: []
             ).filter { url in
                 url.path.hasSuffix(".ice")
-            }.map { sliceFileURL in
-                sliceFileURL.path
             }
         }.joined().map { $0 }
     }
@@ -133,13 +131,13 @@ struct CompileSlicePlugin: BuildToolPlugin {
         }
 
         // Create build commands using helper
-        return sliceFiles.map { sliceFile in
-            let outputFile = outputDir.appendingPathComponent((sliceFile as NSString).lastPathComponent)
+        return sliceFiles.map { sliceFileURL in
+            let outputFile = outputDir.appendingPathComponent(sliceFileURL.lastPathComponent)
                 .deletingPathExtension()
                 .appendingPathExtension("swift")
             
             return Self.createBuildCommand(
-                inputFile: sliceFile,
+                inputFile: sliceFileURL.path,
                 outputFile: outputFile.path,
                 outputDir: outputDir.path,
                 searchPaths: searchPaths,
@@ -185,14 +183,14 @@ extension CompileSlicePlugin: XcodeBuildToolPlugin {
         }
         
         // Create build commands using helper, but with Xcode-specific modifications
-        return sliceFiles.map { sliceFile in
-            let outputFileName = ((sliceFile as NSString).lastPathComponent as NSString).deletingPathExtension + ".swift"
+        return sliceFiles.map { sliceFileURL in
+            let outputFileName = sliceFileURL.lastPathComponent.replacingOccurrences(of: ".ice", with: ".swift")
             let outputFile = outputDir.appending(outputFileName)
             
             let arguments: [String] = searchPaths + [
                 "--output-dir",
                 outputDir.string,
-                sliceFile,
+                sliceFileURL.path,
             ]
             
             let displayName = slice2swift.string + " " + arguments.joined(separator: " ")
@@ -201,7 +199,7 @@ extension CompileSlicePlugin: XcodeBuildToolPlugin {
                 displayName: displayName,
                 executable: slice2swift,
                 arguments: arguments,
-                inputFiles: [Path(sliceFile)],
+                inputFiles: [Path(sliceFileURL.path)],
                 outputFiles: [outputFile]
             )
         }
