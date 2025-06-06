@@ -50,13 +50,59 @@ struct CompileSlicePlugin: BuildToolPlugin {
 
     /// The name of the configuration file
     static let configFileName = "slice-plugin.json"
+    
+    /// Helper function to find slice files given a base directory and config
+    private static func findSliceFiles(config: Config, baseDirectory: String) throws -> [String] {
+        let fm = FileManager.default
+        
+        return try config.sources.map { source in
+            let fullSourcePath = (baseDirectory as NSString).appendingPathComponent(source)
+            if fullSourcePath.hasSuffix(".ice") {
+                return [fullSourcePath]
+            }
+            
+            // Directory - scan for .ice files
+            let directoryURL = URL(fileURLWithPath: fullSourcePath)
+            return try fm.contentsOfDirectory(
+                at: directoryURL,
+                includingPropertiesForKeys: nil,
+                options: []
+            ).filter { url in
+                url.path.hasSuffix(".ice")
+            }.map { sliceFileURL in
+                sliceFileURL.path
+            }
+        }.joined().map { $0 }
+    }
+    
+    /// Helper function to create build commands
+    private static func createBuildCommand(
+        inputFile: String,
+        outputFile: String,
+        outputDir: String,
+        searchPaths: [String],
+        slice2swiftPath: String
+    ) -> Command {
+        let arguments: [String] = searchPaths + [
+            "--output-dir",
+            outputDir,
+            inputFile,
+        ]
+        
+        let displayName = slice2swiftPath + " " + arguments.joined(separator: " ")
+        
+        return .buildCommand(
+            displayName: displayName,
+            executable: URL(fileURLWithPath: slice2swiftPath),
+            arguments: arguments,
+            outputFiles: [URL(fileURLWithPath: outputFile)]
+        )
+    }
 
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
-
         let fm = FileManager.default
 
-        // Search for the configuration file. If this plugin was loaded, the configuration file must be present, or
-        // it's considered an error.
+        // Search for the configuration file
         let targetDirectoryUrl = target.directoryURL
         let configFilePath = try fm.contentsOfDirectory(
             at: targetDirectoryUrl,
@@ -76,56 +122,28 @@ struct CompileSlicePlugin: BuildToolPlugin {
         let config = try JSONDecoder().decode(Config.self, from: data)
 
         let slice2swift = try context.tool(named: "slice2swift").url
-
-        // Find the Ice Slice files for the corresponding Swift target
-        let sources = try config.sources.map { source in
-            let fullSourcePath = targetDirectoryUrl.appendingPathComponent(source)
-            if fullSourcePath.path.hasSuffix(".ice") {
-                return [fullSourcePath]
-            }
-
-            // Directory
-            return try fm.contentsOfDirectory(
-                at: fullSourcePath,
-                includingPropertiesForKeys: nil,
-                options: []
-            ).filter { url in
-                url.path.hasSuffix(".ice")
-            }.map { sliceFileURL in
-                fullSourcePath.appendingPathComponent(sliceFileURL.lastPathComponent)
-            }
-        }.joined()
-
         let outputDir = context.pluginWorkDirectoryURL
-        let search_paths = (config.search_paths ?? []).map {
+        
+        // Find slice files using helper
+        let sliceFiles = try Self.findSliceFiles(config: config, baseDirectory: targetDirectoryUrl.path)
+        
+        // Create search paths
+        let searchPaths = (config.search_paths ?? []).map {
             "-I\(targetDirectoryUrl.appendingPathComponent($0).path)"
         }
 
-        // Create a build command for each Slice file
-        return sources.map { (sliceFile) -> Command in
-            // Absolute path to the input Slice file
-            let inputFile = sliceFile
-
-            // Absolute path to the output Slice file
-            let outputFile = outputDir.appendingPathComponent(sliceFile.lastPathComponent)
+        // Create build commands using helper
+        return sliceFiles.map { sliceFile in
+            let outputFile = outputDir.appendingPathComponent((sliceFile as NSString).lastPathComponent)
                 .deletingPathExtension()
                 .appendingPathExtension("swift")
-
-            // Arguments for the slice2swift command
-            let arguments: [String] =
-                search_paths + [
-                    "--output-dir",
-                    outputDir.path,
-                    inputFile.path,
-                ]
-
-            let displayName = slice2swift.path + " " + arguments.joined(separator: " ")
-
-            return .buildCommand(
-                displayName: displayName,
-                executable: slice2swift,
-                arguments: arguments,
-                outputFiles: [outputFile]
+            
+            return Self.createBuildCommand(
+                inputFile: sliceFile,
+                outputFile: outputFile.path,
+                outputDir: outputDir.path,
+                searchPaths: searchPaths,
+                slice2swiftPath: slice2swift.path
             )
         }
     }
@@ -140,10 +158,7 @@ extension CompileSlicePlugin: XcodeBuildToolPlugin {
     
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
         
-        let fm = FileManager.default
-        
-        // For Xcode targets, we need to find the config file among the input files
-        // First, try to find it in the target's input files
+        // Find the config file among the input files
         guard let configFile = target.inputFiles.first(where: { file in
             file.path.lastComponent == Self.configFileName
         }) else {
@@ -156,50 +171,29 @@ extension CompileSlicePlugin: XcodeBuildToolPlugin {
         
         // Get the slice2swift tool
         let slice2swift = try context.tool(named: "slice2swift").path
+        let outputDir = context.pluginWorkDirectory
         
         // Get the directory containing the config file as the base directory
         let targetDirectoryPath = configFile.path.removingLastComponent()
         
-        // Find the Ice Slice files for the corresponding target
-        let sources = try config.sources.map { source in
-            let fullSourcePath = targetDirectoryPath.appending(source)
-            if fullSourcePath.string.hasSuffix(".ice") {
-                return [fullSourcePath]
-            }
-            
-            // Directory - scan for .ice files
-            let directoryURL = URL(fileURLWithPath: fullSourcePath.string)
-            return try fm.contentsOfDirectory(
-                at: directoryURL,
-                includingPropertiesForKeys: nil,
-                options: []
-            ).filter { url in
-                url.path.hasSuffix(".ice")
-            }.map { sliceFileURL in
-                Path(sliceFileURL.path)
-            }
-        }.joined()
+        // Find slice files using helper
+        let sliceFiles = try Self.findSliceFiles(config: config, baseDirectory: targetDirectoryPath.string)
         
-        let outputDir = context.pluginWorkDirectory
-        let search_paths = (config.search_paths ?? []).map {
+        // Create search paths
+        let searchPaths = (config.search_paths ?? []).map {
             "-I\(targetDirectoryPath.appending($0).string)"
         }
         
-        // Create a build command for each Slice file
-        return sources.map { (sliceFile) -> Command in
-            // Absolute path to the input Slice file
-            let inputFile = sliceFile
+        // Create build commands using helper, but with Xcode-specific modifications
+        return sliceFiles.map { sliceFile in
+            let outputFileName = ((sliceFile as NSString).lastPathComponent as NSString).deletingPathExtension + ".swift"
+            let outputFile = outputDir.appending(outputFileName)
             
-            // Absolute path to the output Swift file
-            let outputFile = outputDir.appending(sliceFile.stem + ".swift")
-            
-            // Arguments for the slice2swift command
-            let arguments: [String] =
-                search_paths + [
-                    "--output-dir",
-                    outputDir.string,
-                    inputFile.string,
-                ]
+            let arguments: [String] = searchPaths + [
+                "--output-dir",
+                outputDir.string,
+                sliceFile,
+            ]
             
             let displayName = slice2swift.string + " " + arguments.joined(separator: " ")
             
@@ -207,7 +201,7 @@ extension CompileSlicePlugin: XcodeBuildToolPlugin {
                 displayName: displayName,
                 executable: slice2swift,
                 arguments: arguments,
-                inputFiles: [inputFile],
+                inputFiles: [Path(sliceFile)],
                 outputFiles: [outputFile]
             )
         }
