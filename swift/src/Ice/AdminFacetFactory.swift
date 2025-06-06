@@ -84,8 +84,8 @@ final class AdminFacetFacade: ICEDispatchAdapter, @unchecked Sendable {
     func complete() {}
 }
 
-public struct UnsupportedAdminFacet: Dispatcher {
-    public func dispatch(_ request: sending IncomingRequest) throws -> OutgoingResponse {
+struct UnsupportedAdminFacet: Dispatcher {
+    func dispatch(_ request: sending IncomingRequest) throws -> OutgoingResponse {
         throw Ice.OperationNotExistException()
     }
 }
