@@ -253,7 +253,7 @@ final class TestI: TestIntf, @unchecked Sendable {
         return (ret.p1, ret.p1, ret.p2)
     }
 
-    func returnTest2(current: Current) -> sending (returnValue: B?, p2: B?, p1: B?)  {
+    func returnTest2(current: Current) -> sending (returnValue: B?, p2: B?, p1: B?) {
         let ret = paramTest1(current: current)
         return (ret.p1, ret.p1, ret.p2)
     }

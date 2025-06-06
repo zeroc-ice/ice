@@ -164,7 +164,7 @@ final class TestI: TestIntf {
         current.con!.abort()
     }
 
-    func sleep(ms: Int32, current _: Current)  async throws {
+    func sleep(ms: Int32, current _: Current) async throws {
         try await _state.sleep(ms: ms)
     }
 

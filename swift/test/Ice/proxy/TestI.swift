@@ -20,17 +20,17 @@ actor MyDerivedClassI: MyDerivedClass, Ice.Object {
 
     func ice_isA(id: String, current: Ice.Current) -> Bool {
         _ctx = current.ctx
-        return  Ice.DefaultObject<MyDerivedClassTraits>().ice_isA(id: id, current: current)
+        return Ice.DefaultObject<MyDerivedClassTraits>().ice_isA(id: id, current: current)
     }
 
     func ice_id(current: Ice.Current) -> String {
         _ctx = current.ctx
-        return  Ice.DefaultObject<MyDerivedClassTraits>().ice_id(current: current)
+        return Ice.DefaultObject<MyDerivedClassTraits>().ice_id(current: current)
     }
 
     func ice_ids(current: Ice.Current) -> [String] {
         _ctx = current.ctx
-        return  Ice.DefaultObject<MyDerivedClassTraits>().ice_ids(current: current)
+        return Ice.DefaultObject<MyDerivedClassTraits>().ice_ids(current: current)
     }
 
     func ice_ping(current: Current) {

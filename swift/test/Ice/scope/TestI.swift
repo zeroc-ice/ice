@@ -9,13 +9,11 @@ final class MyInterface1: MyInterface {
         return (s1, s1)
     }
 
-    func opMyStructSeq(s1: MyStructSeq, current _: Current) -> (returnValue: MyStructSeq, s2: MyStructSeq)
-    {
+    func opMyStructSeq(s1: MyStructSeq, current _: Current) -> (returnValue: MyStructSeq, s2: MyStructSeq) {
         return (s1, s1)
     }
 
-    func opMyStructMap(s1: MyStructMap, current _: Current) -> (returnValue: MyStructMap, s2: MyStructMap)
-    {
+    func opMyStructMap(s1: MyStructMap, current _: Current) -> (returnValue: MyStructMap, s2: MyStructMap) {
         return (s1, s1)
     }
 
@@ -23,7 +21,8 @@ final class MyInterface1: MyInterface {
         return (c1, c1)
     }
 
-    func opMyClassSeq(s1: sending MyClassSeq, current _: Current) -> sending (returnValue: MyClassSeq, s2: MyClassSeq
+    func opMyClassSeq(s1: sending MyClassSeq, current _: Current) -> sending (
+        returnValue: MyClassSeq, s2: MyClassSeq
     ) {
         return (s1, s1)
     }
@@ -148,13 +147,11 @@ final class MyInterface4: InnerTestInner2MyInterface {
         return (s1, s1)
     }
 
-    func opMyStructSeq(s1: MyStructSeq, current _: Current) -> (returnValue: MyStructSeq, s2: MyStructSeq)
-    {
+    func opMyStructSeq(s1: MyStructSeq, current _: Current) -> (returnValue: MyStructSeq, s2: MyStructSeq) {
         return (s1, s1)
     }
 
-    func opMyStructMap(s1: MyStructMap, current _: Current) -> (returnValue: MyStructMap, s2: MyStructMap)
-    {
+    func opMyStructMap(s1: MyStructMap, current _: Current) -> (returnValue: MyStructMap, s2: MyStructMap) {
         return (s1, s1)
     }
 

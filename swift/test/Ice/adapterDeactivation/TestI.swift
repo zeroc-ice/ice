@@ -46,10 +46,11 @@ final class RouterI: Ice.Router {
     }
 }
 
-actor ServantLocatorI: Ice.ServantLocator {
-    let _helper: TestHelper
-    var _deactivated: Bool
-    let _router = RouterI()
+final class ServantLocatorI: Ice.ServantLocator {
+    private let _helper: TestHelper
+    private var _deactivated: Bool
+    private let _router = RouterI()
+    private var _lock = os_unfair_lock()
 
     init(helper: TestHelper) {
         _deactivated = false
@@ -61,7 +62,10 @@ actor ServantLocatorI: Ice.ServantLocator {
     }
 
     func locate(_ current: Ice.Current) throws -> sending (returnValue: Dispatcher?, cookie: AnyObject?) {
-        try _helper.test(!_deactivated)
+        try withLock(&_lock) {
+            try _helper.test(!_deactivated)
+        }
+
         if current.id.name == "router" {
             return (_router, Cookie())
         }
@@ -73,7 +77,9 @@ actor ServantLocatorI: Ice.ServantLocator {
     }
 
     func finished(curr current: Ice.Current, servant _: Ice.Dispatcher, cookie: AnyObject?) throws {
-        try _helper.test(!_deactivated)
+        try withLock(&_lock) {
+            try _helper.test(!_deactivated)
+        }
 
         if current.id.name == "router" {
             return
@@ -84,8 +90,10 @@ actor ServantLocatorI: Ice.ServantLocator {
 
     func deactivate(_: String) {
         do {
-            try _helper.test(!_deactivated)
-            _deactivated = true
+            try withLock(&_lock) {
+                try _helper.test(!_deactivated)
+                _deactivated = true
+            }
         } catch {
             fatalError("\(error)")
         }
