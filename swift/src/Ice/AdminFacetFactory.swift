@@ -91,8 +91,7 @@ struct UnsupportedAdminFacet: Dispatcher {
 }
 
 final class AdminFacetFactory: ICEAdminFacetFactory {
-    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter
-    {
+    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter {
         // We create a new ProcessI each time, which does not really matter since users are not expected
         // to compare the address of these servants.
 
@@ -103,8 +102,7 @@ final class AdminFacetFactory: ICEAdminFacetFactory {
         )
     }
 
-    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter
-    {
+    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
 
         // We create a new NativePropertiesAdmin each time, which does not really matter since users are not expected
