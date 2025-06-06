@@ -602,6 +602,9 @@ initialization. See `InitializationData.pluginFactories`.
 - Slice modules are now always mapped to JavaScript ES6 modules. The `js:es6-module` metadata has been removed, as a
   single module mapping is now used by default.
 
+- **Slice `long` is now mapped to JavaScript `BigInt`.** For input parameters, both `number` and `BigInt` are accepted.
+  The `Ice.Long` class has been removed.
+
 ## MATLAB Changes
 
 - The default value for property `Ice.ProgramName` is now `matlab-client`. It used to be the first element in the args
