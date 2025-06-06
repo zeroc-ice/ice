@@ -137,43 +137,6 @@ Description: Glacier2 router
  network programming interfaces and allows you to focus your efforts on
  your application logic.
 
-Package: zeroc-ice-all-dev
-Architecture: all
-Section: devel
-Depends: libzeroc-ice-dev (>= ${source:Version}),
-         zeroc-ice-compilers (>= ${source:Version}),
-         zeroc-ice-slice (= ${source:Version}),
-         ${misc:Depends}
-Description: Ice development packages (metapackage)
- This is a metapackage that depends on all development packages for Ice.
- .
- Ice is a comprehensive RPC framework that helps you network your software
- with minimal effort. Ice takes care of all interactions with low-level
- network programming interfaces and allows you to focus your efforts on
- your application logic.
-
-Package: zeroc-ice-all-runtime
-Architecture: all
-Section: net
-Depends: libzeroc-ice3.8 (>= ${source:Version}),
-         libzeroc-icestorm3.8 (>= ${source:Version}),
-         php-zeroc-ice (>= ${source:Version}),
-         python3-zeroc-ice (>= ${source:Version}) <!no-python312>,
-         zeroc-glacier2 (>= ${source:Version}),
-         zeroc-ice-slice (>= ${source:Version}),
-         zeroc-ice-utils (>= ${source:Version}),
-         zeroc-icebox (>= ${source:Version}),
-         zeroc-icegrid (>= ${source:Version}),
-         zeroc-icebridge (>= ${source:Version}),
-         ${misc:Depends}
-Description: Ice run-time packages (metapackage)
- This is a metapackage that depends on all run-time packages for Ice.
- .
- Ice is a comprehensive RPC framework that helps you network your software
- with minimal effort. Ice takes care of all interactions with low-level
- network programming interfaces and allows you to focus your efforts on
- your application logic.
-
 Package: zeroc-ice-compilers
 Architecture: any
 Multi-Arch: foreign
@@ -284,3 +247,21 @@ Description: Bridge service
  with minimal effort. Ice takes care of all interactions with low-level
  network programming interfaces and allows you to focus your efforts on
  your application logic.
+
+Package: zeroc-ice-all-dev
+Architecture: all
+Section: oldlibs
+Priority: optional
+Depends: ${misc:Depends}
+Description: transitional dummy package for Ice 3.7 all-dev metapackage
+ This empty package ensures a smooth upgrade from Ice 3.7 by replacing
+ the obsolete zeroc-ice-all-dev metapackage. It can be safely removed.
+
+Package: zeroc-ice-all-runtime
+Architecture: all
+Section: oldlibs
+Priority: optional
+Depends: ${misc:Depends}
+Description: transitional dummy package for Ice 3.7 all-runtime metapackage
+ This empty package ensures a smooth upgrade from Ice 3.7 by replacing
+ the obsolete zeroc-ice-all-runtime metapackage. It can be safely removed.
