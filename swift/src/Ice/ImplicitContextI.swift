@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class ImplicitContextI: LocalObject<ICEImplicitContext>, ImplicitContext {
+final class ImplicitContextI: LocalObject<ICEImplicitContext>, ImplicitContext {
     func getContext() -> Context {
         return handle.getContext()
     }

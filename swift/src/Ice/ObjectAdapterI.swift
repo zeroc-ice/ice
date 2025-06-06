@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable,
+final class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable,
     @unchecked Sendable
 {
     let servantManager: ServantManager

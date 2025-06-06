@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class EndpointI: LocalObject<ICEEndpoint>, Endpoint {
+final class EndpointI: LocalObject<ICEEndpoint>, Endpoint {
     func toString() -> String {
         return handle.toString()
     }

@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-class ServantManager: Dispatcher {
+final class ServantManager: Dispatcher {
     private let adapterName: String
     private let communicator: Communicator
 
