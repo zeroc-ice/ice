@@ -18,11 +18,14 @@ on:
 
 jobs:
   build-swift-packages:
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: ./.github/actions/setup-xcode
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
