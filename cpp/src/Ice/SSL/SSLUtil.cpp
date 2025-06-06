@@ -581,10 +581,14 @@ Ice::SSL::getErrors()
     ostringstream ostr;
 
     unsigned long err;
-    int count = 0;
+    bool firstError = true;
     while ((err = ERR_get_error()) != 0)
     {
-        if (count > 0)
+        if (firstError)
+        {
+            firstError = false;
+        }
+        else
         {
             ostr << endl;
         }
@@ -592,8 +596,6 @@ Ice::SSL::getErrors()
         char buf[256];
         ERR_error_string_n(err, buf, sizeof(buf));
         ostr << "error #" << err << ": " << buf;
-
-        ++count;
     }
 
     return ostr.str();
