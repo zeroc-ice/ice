@@ -5,35 +5,35 @@ import Ice
 actor MyDerivedClassI: MyDerivedClass, Ice.Object {
     var _ctx: [String: String] = [:]
 
-    func echo(obj: Ice.ObjectPrx?, current _: Ice.Current) async throws -> Ice.ObjectPrx? {
+    func echo(obj: Ice.ObjectPrx?, current _: Ice.Current) -> Ice.ObjectPrx? {
         return obj
     }
 
-    func shutdown(current: Ice.Current) async throws {
+    func shutdown(current: Ice.Current) {
         let adapter = current.adapter
         adapter.getCommunicator().shutdown()
     }
 
-    func getContext(current _: Ice.Current) async throws -> [String: String] {
+    func getContext(current _: Ice.Current) -> [String: String] {
         return _ctx
     }
 
-    func ice_isA(id: String, current: Ice.Current) async throws -> Bool {
+    func ice_isA(id: String, current: Ice.Current) -> Bool {
         _ctx = current.ctx
-        return try await Ice.DefaultObject<MyDerivedClassTraits>().ice_isA(id: id, current: current)
+        return  Ice.DefaultObject<MyDerivedClassTraits>().ice_isA(id: id, current: current)
     }
 
-    func ice_id(current: Ice.Current) async throws -> String {
+    func ice_id(current: Ice.Current) -> String {
         _ctx = current.ctx
-        return try await Ice.DefaultObject<MyDerivedClassTraits>().ice_id(current: current)
+        return  Ice.DefaultObject<MyDerivedClassTraits>().ice_id(current: current)
     }
 
-    func ice_ids(current: Ice.Current) async throws -> [String] {
+    func ice_ids(current: Ice.Current) -> [String] {
         _ctx = current.ctx
-        return try await Ice.DefaultObject<MyDerivedClassTraits>().ice_ids(current: current)
+        return  Ice.DefaultObject<MyDerivedClassTraits>().ice_ids(current: current)
     }
 
-    func ice_ping(current: Current) async {
+    func ice_ping(current: Current) {
         _ctx = current.ctx
     }
 }

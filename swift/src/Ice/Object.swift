@@ -92,19 +92,19 @@ public struct ObjectTraits: SliceTraits {
 public struct DefaultObject<T: SliceTraits>: Object, Sendable {
     public init() {}
 
-    public func ice_id(current _: Current) async throws -> String {
+    public func ice_id(current _: Current) -> String {
         return T.staticId
     }
 
-    public func ice_ids(current _: Current) async throws -> [String] {
+    public func ice_ids(current _: Current) -> [String] {
         return T.staticIds
     }
 
-    public func ice_isA(id: String, current _: Current) async throws -> Bool {
+    public func ice_isA(id: String, current _: Current) -> Bool {
         return T.staticIds.contains(id)
     }
 
-    public func ice_ping(current _: Current) async throws {
+    public func ice_ping(current _: Current) {
         // Do nothing
     }
 }

@@ -63,7 +63,7 @@ final class FI: F {
 }
 
 final class GI: G {
-    let _communicator: Ice.Communicator
+    private let _communicator: Ice.Communicator
 
     public init(communicator: Ice.Communicator) {
         _communicator = communicator
@@ -79,7 +79,7 @@ final class GI: G {
 }
 
 final class HI: H {
-    let _communicator: Ice.Communicator
+    private let _communicator: Ice.Communicator
 
     init(communicator: Ice.Communicator) {
         _communicator = communicator

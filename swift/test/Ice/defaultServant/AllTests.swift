@@ -4,19 +4,19 @@ import Ice
 import TestCommon
 
 final class MyObjectI: MyObject, Ice.Object {
-    func ice_id(current: Ice.Current) async throws -> String {
-        return try await Ice.DefaultObject<MyObjectTraits>().ice_id(current: current)
+    func ice_id(current: Ice.Current) -> String {
+        return Ice.DefaultObject<MyObjectTraits>().ice_id(current: current)
     }
 
-    func ice_ids(current: Ice.Current) async throws -> [String] {
-        return try await Ice.DefaultObject<MyObjectTraits>().ice_ids(current: current)
+    func ice_ids(current: Ice.Current) -> [String] {
+        return Ice.DefaultObject<MyObjectTraits>().ice_ids(current: current)
     }
 
-    func ice_isA(id: String, current: Ice.Current) async throws -> Bool {
-        return try await Ice.DefaultObject<MyObjectTraits>().ice_isA(id: id, current: current)
+    func ice_isA(id: String, current: Ice.Current) -> Bool {
+        return Ice.DefaultObject<MyObjectTraits>().ice_isA(id: id, current: current)
     }
 
-    func ice_ping(current: Ice.Current) async throws {
+    func ice_ping(current: Ice.Current) throws {
         if current.id.name == "ObjectNotExist" {
             throw Ice.ObjectNotExistException()
         } else if current.id.name == "FacetNotExist" {
@@ -24,7 +24,7 @@ final class MyObjectI: MyObject, Ice.Object {
         }
     }
 
-    func getName(current: Ice.Current) async throws -> String {
+    func getName(current: Ice.Current) throws -> String {
         if current.id.name == "ObjectNotExist" {
             throw Ice.ObjectNotExistException()
         } else if current.id.name == "FacetNotExist" {

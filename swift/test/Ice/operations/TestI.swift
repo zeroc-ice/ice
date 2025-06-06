@@ -22,7 +22,7 @@ actor OpByteSOnewayCallCount {
 
 final class MyDerivedClassI: MyDerivedClass {
     let _helper: TestHelper
-    let _opByteSOnewayCallCount: OpByteSOnewayCallCount = OpByteSOnewayCallCount()
+    let _opByteSOnewayCallCount = OpByteSOnewayCallCount()
 
     init(_ helper: TestHelper) {
         _helper = helper
