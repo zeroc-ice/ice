@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-class ServantManager: Dispatcher, @unchecked Sendable {
+class ServantManager: Dispatcher {
     private let adapterName: String
     private let communicator: Communicator
 
