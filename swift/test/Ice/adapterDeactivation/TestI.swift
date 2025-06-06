@@ -46,7 +46,7 @@ final class RouterI: Ice.Router {
     }
 }
 
-final class ServantLocatorI: Ice.ServantLocator {
+actor ServantLocatorI: Ice.ServantLocator {
     let _helper: TestHelper
     var _deactivated: Bool
     let _router = RouterI()

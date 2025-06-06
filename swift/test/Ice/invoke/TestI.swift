@@ -5,7 +5,7 @@ import Ice
 import TestCommon
 
 final class ServantLocatorI: Ice.ServantLocator {
-    let _dispatcher: Ice.Dispatcher = DispatcherI()
+    private let _dispatcher: Ice.Dispatcher = DispatcherI()
 
     func locate(_: Ice.Current) -> (returnValue: Ice.Dispatcher?, cookie: AnyObject?) {
         return (_dispatcher, nil)
