@@ -1327,7 +1327,7 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     for (const auto& param : op->inParameters())
     {
         const string typeString = typeToString(param->type(), op, param->optional());
-        out << param->mappedName() + ": " + typeString;
+        out << param->mappedName() + ": " + (param->type()->usesClasses() ? "sending " : "") + typeString;
     }
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
@@ -1377,7 +1377,7 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
            "operation name carried by the request.";
     out << nl << "/// - Parameter request: The incoming request.";
     out << nl << "/// - Returns: The outgoing response.";
-    out << nl << "public func dispatch(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
+    out << nl << "public func dispatch(_ request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
     out << nl << "try await Self.dispatch(self, request: request)";
     out << eb;
 
@@ -1393,7 +1393,7 @@ Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "///   - request: The incoming request.";
     out << nl << "/// - Returns: The outgoing response.";
     out << nl << "public static func dispatch(_ servant: " << servant
-        << ", request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
+        << ", request: sending Ice.IncomingRequest) async throws -> Ice.OutgoingResponse" << sb;
     out << nl << "switch request.current.operation";
     out << sb;
     out.dec(); // to align case with switch
