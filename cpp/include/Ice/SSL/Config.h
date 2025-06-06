@@ -45,14 +45,6 @@
 #    include <Security/SecureTransport.h>
 #    include <Security/Security.h>
 #else
-#    ifndef OPENSSL_API_COMPAT
-         // Default to OpenSSL 3.0.0 compatibility (decimal mmnnpp format)
-#        define OPENSSL_API_COMPAT 30000
-#    endif
-#    ifndef OPENSSL_NO_DEPRECATED
-         // Hide deprecated APIs unless the user explicitly wants them
-#        define OPENSSL_NO_DEPRECATED
-#    endif
 #    define ICE_USE_OPENSSL
 #    include <openssl/err.h>
 #    include <openssl/ssl.h>

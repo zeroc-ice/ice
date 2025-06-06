@@ -1,5 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
+// Default to OpenSSL 3.0.0 compatibility (decimal mmnnpp format)
+// Hide deprecated APIs unless the user explicitly wants them
+#define OPENSSL_API_COMPAT 30000
+#define OPENSSL_NO_DEPRECATED
+
 #include "OpenSSLTransceiverI.h"
 #include "Ice/Buffer.h"
 #include "Ice/Communicator.h"

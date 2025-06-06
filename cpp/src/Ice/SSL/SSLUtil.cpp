@@ -1,5 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
+// Default to OpenSSL 3.0.0 compatibility (decimal mmnnpp format)
+// Hide deprecated APIs unless the user explicitly wants them
+#define OPENSSL_API_COMPAT 30000
+#define OPENSSL_NO_DEPRECATED
+
 #include "SSLUtil.h"
 #include "../Base64.h"
 #include "../FileUtil.h"
@@ -461,8 +466,6 @@ Ice::SSL::ScopedCertificate::~ScopedCertificate()
 //
 #    if defined(__GNUC__)
 #        pragma GCC diagnostic ignored "-Wold-style-cast"
-#        // Ignore OpenSSL 3.0 deprecation warning
-#        pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #    endif
 
 namespace
