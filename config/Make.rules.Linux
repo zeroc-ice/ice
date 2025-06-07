@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-known_distributions             := rhel fedora debian ubuntu
+known_distributions             := rhel amzn fedora debian ubuntu
 
 # Assign the linux_ids from the ID and ID_LIKE variables in /etc/os-release if available.
 linux_ids                       := $(if $(wildcard /etc/os-release),$(shell . /etc/os-release && echo $${ID} $${ID_LIKE}),)
@@ -137,8 +137,11 @@ static_cppflags = -fPIE
 static_objdir   = obj/pie
 static_ldflags  = -pie
 
-# Link the Slice compilers without any shared library at all.
+# Link the Slice compilers without any shared libraries.
+# On Amazon Linux 2023, disable static linking since libmcpp-devel provides only the shared library.
+ifeq ($(filter amzn,$(linux_id)),)
 fully_static_ldflags = -static
+endif
 
 cppflags        = -fvisibility=hidden -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)

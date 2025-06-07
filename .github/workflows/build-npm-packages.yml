@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-latest
+          - os: macos-15
             target: macos-arm64
             artifact-path: cpp/bin/slice2js
           - os: windows-latest

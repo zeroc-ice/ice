@@ -11,12 +11,20 @@
 %define javapackagestools javapackages-tools
 # Unfortunately bzip2-devel does not provide pkgconfig(bzip2) as of EL7
 %define bzip2devel bzip2-devel
-%define phpdir %{_datadir}/php
-%define phplibdir %{_libdir}/php/modules
+%define phpname php
 %define phpcommon php-common
+%define phpdir %{_datadir}/php
+# Macros are lazily evaluated we can can modify phpname later
+%define phplibdir %{_libdir}/%{phpname}/modules
 
 # Use Python 3.12
 %global python3_pkgversion 3.12
+
+%if "%{dist}" == ".amzn2023"
+# We use php8.4 on Amazon Linux 2023
+%define phpname php8.4
+%define phpcommon %{phpname}
+%endif
 
 %if "%{_prefix}" == "/usr"
    %define runpath embedded_runpath=no
@@ -45,12 +53,24 @@ Source0:  https://github.com/zeroc-ice/ice/archive/%{archive_tag}.tar.gz#/%{name
 BuildRequires: glibc-devel, libstdc++-devel
 BuildRequires: pkgconfig(expat), pkgconfig(libedit), pkgconfig(openssl), %{bzip2devel}
 # Use lmdb-devel and mcpp-devel packages instead of pkgconfig as a workaround for https://github.com/zeroc-ice/dist-utils/issues/257
-BuildRequires: lmdb-devel, mcpp-devel
+BuildRequires: lmdb-devel
 BuildRequires: pkgconfig(libsystemd)
-BuildRequires: java-17-openjdk-devel, java-17-openjdk-jmods
+
+# Amazon Linux 2023 does not provide pkgconfig(mcpp)
+%if "%{dist}" == ".amzn2023"
+BuildRequires: libmcpp-devel
+%else
+BuildRequires: pkgconfig(mcpp)
+%endif
+
+%if "%{dist}" == ".amzn2023"
+BuildRequires: java-17-amazon-corretto, java-17-amazon-corretto-jmods
+%else
+BuildRequires: java-17-openjdk, java-17-openjdk-jmods
+%endif
 
 %ifarch %{_host_cpu}
-BuildRequires: php-devel
+BuildRequires: %{phpname}-devel
 BuildRequires: python3.12-devel, python3-rpm-macros
 %endif
 
@@ -104,46 +124,27 @@ your application logic.
 
 %endif
 
-#
-# This "meta" package includes all run-time components and services.
-#
+# Transitional dummy package for clean upgrade from Ice 3.7
 %package -n %{?nameprefix}ice-all-runtime
-Summary: Ice run-time packages (meta package).
+Summary: Transitional package for Ice run-time components.
 Group: System Environment/Libraries
-Requires: %{?nameprefix}icebox%{?_isa} = %{version}-%{release}
-Requires: lib%{?nameprefix}icestorm3.7%{?_isa} = %{version}-%{release}
-%ifarch %{_host_cpu}
-Requires: %{?nameprefix}dsnode%{?_isa} = %{version}-%{release}
-Requires: %{?nameprefix}glacier2%{?_isa} = %{version}-%{release}
-Requires: %{?nameprefix}icegrid%{?_isa} = %{version}-%{release}
-Requires: %{?nameprefix}icebridge%{?_isa} = %{version}-%{release}
-Requires: php-%{?nameprefix}ice%{?_isa} = %{version}-%{release}
-Requires: python3-%{?nameprefix}ice%{?_isa} = %{version}-%{release}
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
-Requires: %{?nameprefix}icegridgui = %{version}-%{release}
-%endif
+Obsoletes: %{?nameprefix}ice-all-runtime < %{version}-%{release}
+Provides: %{?nameprefix}ice-all-runtime = %{version}-%{release}
+
 %description -n %{?nameprefix}ice-all-runtime
-This is a meta package that depends on all run-time packages for Ice.
+This transitional package exists to support upgrades from Ice 3.7.
+It does not install any content and can be safely removed.
 
-Ice is a comprehensive RPC framework that helps you network your software
-with minimal effort. Ice takes care of all interactions with low-level
-network programming interfaces and allows you to focus your efforts on
-your application logic.
-
-#
-# This "meta" package includes all development kits.
-#
+# Transitional dummy package for clean upgrade from Ice 3.7
 %package -n %{?nameprefix}ice-all-devel
-Summary: Ice development packages (meta package).
+Summary: Transitional package for Ice development components.
 Group: Development/Tools
-Requires: lib%{?nameprefix}ice-c++-devel%{?_isa} = %{version}-%{release}
-%description -n %{?nameprefix}ice-all-devel
-This is a meta package that depends on all development packages for Ice.
+Obsoletes: %{?nameprefix}ice-all-devel < %{version}-%{release}
+Provides: %{?nameprefix}ice-all-devel = %{version}-%{release}
 
-Ice is a comprehensive RPC framework that helps you network your software
-with minimal effort. Ice takes care of all interactions with low-level
-network programming interfaces and allows you to focus your efforts on
-your application logic.
+%description -n %{?nameprefix}ice-all-devel
+This transitional package exists to support upgrades from Ice 3.7.
+It does not install any content and can be safely removed.
 
 #
 # libiceMm-c++ package
@@ -333,13 +334,13 @@ your application logic.
 #
 # php-ice package
 #
-%package -n php-%{?nameprefix}ice
+%package -n %{phpname}-%{?nameprefix}ice
 Summary: PHP extension for Ice.
 Group: System Environment/Libraries
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 Requires: %{phpcommon}%{?_isa}
 
-%description -n php-%{?nameprefix}ice
+%description -n %{phpname}-%{?nameprefix}ice
 This package contains a PHP extension for communicating with Ice.
 
 Ice is a comprehensive RPC framework that helps you network your software
@@ -376,7 +377,7 @@ export CXXFLAGS="%{optflags}"
 export LDFLAGS="%{?__global_ldflags}"
 
 %ifarch %{_host_cpu}
-    make %{makebuildopts} PYTHON=%{python3} LANGUAGES="cpp java php python" srcs
+    make %{makebuildopts} PYTHON=python%{python3_pkgversion} LANGUAGES="cpp java php python" srcs
 %else
     %ifarch %{ix86}
         make %{makebuildopts} PLATFORMS=x86 LANGUAGES="cpp" srcs
@@ -389,7 +390,7 @@ export LDFLAGS="%{?__global_ldflags}"
     make           %{?_smp_mflags} %{makeinstallopts} install-slice
     make -C cpp    %{?_smp_mflags} %{makeinstallopts} install
     make -C php    %{?_smp_mflags} %{makeinstallopts} install
-    make -C python %{?_smp_mflags} %{makeinstallopts} PYTHON=%{python3} install_pythondir=%{python3_sitearch} install
+    make -C python %{?_smp_mflags} %{makeinstallopts} PYTHON=python%{python3_pkgversion} install_pythondir=%{python3_sitearch} install
     make -C java   %{?_smp_mflags} %{makeinstallopts} install-icegridgui
 %else
     %ifarch %{ix86}
@@ -732,7 +733,7 @@ exit 0
 #
 # php-ice package
 #
-%files -n php-%{?nameprefix}ice
+%files -n %{phpname}-%{?nameprefix}ice
 %license LICENSE
 %license ICE_LICENSE
 %doc packaging/rpm/README
