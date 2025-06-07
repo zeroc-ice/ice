@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class LocalExceptionFactory: ICELocalExceptionFactory {
+final class LocalExceptionFactory: ICELocalExceptionFactory {
     static func dispatchException(_ replyStatus: UInt8, message: String, file: String, line: Int32) -> Error {
         if let replyStatusEnum = ReplyStatus(rawValue: replyStatus) {
             switch replyStatusEnum {

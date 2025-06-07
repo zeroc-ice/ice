@@ -58,7 +58,7 @@ final class ICI: IB1I, MAIC {
     }
 }
 
-class InitialI: Initial {
+final class InitialI: Initial {
     let _ia: MAIAPrx
     let _ib1: MBIB1Prx
     let _ib2: MBIB2Prx

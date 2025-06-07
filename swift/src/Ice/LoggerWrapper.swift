@@ -3,7 +3,7 @@
 import IceImpl
 
 // Wraps Swift Loggers so they can be called by ObjC/C++
-class LoggerWrapper: ICELoggerProtocol {
+final class LoggerWrapper: ICELoggerProtocol {
     let handle: Logger
 
     init(handle: Logger) {
@@ -36,7 +36,7 @@ class LoggerWrapper: ICELoggerProtocol {
 }
 
 // Wraps Ice C++ logger
-class ObjcLoggerWrapper: LocalObject<ICELogger>, Logger {
+final class ObjcLoggerWrapper: LocalObject<ICELogger>, Logger {
     func print(_ message: String) {
         handle.print(message)
     }

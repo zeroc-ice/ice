@@ -1,10 +1,8 @@
-//
-import Foundation
 // Copyright (c) ZeroC, Inc.
-//
+
 import Ice
 
-class TimeoutI: Timeout {
+final class TimeoutI: Timeout {
     func op(current _: Current) async throws {}
 
     func sendData(seq _: ByteSeq, current _: Current) async throws {}
@@ -14,8 +12,8 @@ class TimeoutI: Timeout {
     }
 }
 
-class ControllerI: Controller {
-    var _adapter: Ice.ObjectAdapter
+final class ControllerI: Controller {
+    let _adapter: Ice.ObjectAdapter
 
     init(_ adapter: Ice.ObjectAdapter) {
         _adapter = adapter

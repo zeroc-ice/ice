@@ -2,13 +2,13 @@
 
 import Ice
 
-class AI: A {
+final class AI: A {
     func callA(current _: Ice.Current) async throws -> String {
         return "A"
     }
 }
 
-class BI: B {
+final class BI: B {
     func callA(current _: Ice.Current) async throws -> String {
         return "A"
     }
@@ -18,7 +18,7 @@ class BI: B {
     }
 }
 
-class CI: C {
+final class CI: C {
     func callA(current _: Ice.Current) async throws -> String {
         return "A"
     }
@@ -28,7 +28,7 @@ class CI: C {
     }
 }
 
-class DI: D {
+final class DI: D {
     func callA(current _: Ice.Current) async throws -> String {
         return "A"
     }
@@ -46,13 +46,13 @@ class DI: D {
     }
 }
 
-class EI: E {
+final class EI: E {
     func callE(current _: Ice.Current) async throws -> String {
         return "E"
     }
 }
 
-class FI: F {
+final class FI: F {
     func callE(current _: Ice.Current) async throws -> String {
         return "E"
     }
@@ -62,8 +62,8 @@ class FI: F {
     }
 }
 
-class GI: G {
-    var _communicator: Ice.Communicator
+final class GI: G {
+    private let _communicator: Ice.Communicator
 
     public init(communicator: Ice.Communicator) {
         _communicator = communicator
@@ -78,8 +78,8 @@ class GI: G {
     }
 }
 
-class HI: H {
-    let _communicator: Ice.Communicator
+final class HI: H {
+    private let _communicator: Ice.Communicator
 
     init(communicator: Ice.Communicator) {
         _communicator = communicator

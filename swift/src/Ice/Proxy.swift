@@ -910,7 +910,7 @@ open class ObjectPrxI: ObjectPrx, @unchecked Sendable {
         }
     }
 
-    public static func ice_read(from istr: InputStream) throws -> sending Self? {
+    public static func ice_read(from istr: InputStream) throws -> Self? {
         //
         // Unmarshaling of proxies is done in C++. Since we don't know how big this proxy will
         // be we pass the current buffer position and remaining buffer capacity.

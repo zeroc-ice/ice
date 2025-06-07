@@ -5,7 +5,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class PingReplyI: PingReply {
+class PingReplyI: PingReply, @unchecked Sendable {
     var _replies: Int32 = 0
     var _lock = os_unfair_lock()
     var _semaphore = DispatchSemaphore(value: 0)

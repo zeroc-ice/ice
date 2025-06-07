@@ -2,11 +2,10 @@
 
 import Dispatch
 import Foundation
-// @preconcurrency is needed as 'Ice.Current' does not conform to the 'Sendable' protocol
-@preconcurrency import Ice
+import Ice
 import TestCommon
 
-class HoldI: Hold, @unchecked Sendable {
+class HoldI: Hold {
     var _adapter: Ice.ObjectAdapter
     var _helper: TestHelper
     var _last: Int32 = 0
@@ -24,7 +23,7 @@ class HoldI: Hold, @unchecked Sendable {
             _adapter.hold()
             try _adapter.activate()
         } else {
-            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(delay))) { [self] in
+            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(delay))) { [_adapter] in
                 do {
                     _adapter.hold()
                     try _adapter.activate()

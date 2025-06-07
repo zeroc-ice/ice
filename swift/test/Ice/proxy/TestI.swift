@@ -2,42 +2,38 @@
 
 import Ice
 
-final class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
-    var _ctx: [String: String]
+actor MyDerivedClassI: MyDerivedClass, Ice.Object {
+    var _ctx: [String: String] = [:]
 
-    override init() {
-        _ctx = [String: String]()
-    }
-
-    func echo(obj: Ice.ObjectPrx?, current _: Ice.Current) async throws -> Ice.ObjectPrx? {
+    func echo(obj: Ice.ObjectPrx?, current _: Ice.Current) -> Ice.ObjectPrx? {
         return obj
     }
 
-    func shutdown(current: Ice.Current) async throws {
+    func shutdown(current: Ice.Current) {
         let adapter = current.adapter
         adapter.getCommunicator().shutdown()
     }
 
-    func getContext(current _: Ice.Current) async throws -> [String: String] {
+    func getContext(current _: Ice.Current) -> [String: String] {
         return _ctx
     }
 
-    override func ice_isA(id: String, current: Ice.Current) async throws -> Bool {
+    func ice_isA(id: String, current: Ice.Current) -> Bool {
         _ctx = current.ctx
-        return try await super.ice_isA(id: id, current: current)
+        return Ice.DefaultObject<MyDerivedClassTraits>().ice_isA(id: id, current: current)
     }
 
-    override func ice_id(current: Ice.Current) async throws -> String {
+    func ice_id(current: Ice.Current) -> String {
         _ctx = current.ctx
-        return try await super.ice_id(current: current)
+        return Ice.DefaultObject<MyDerivedClassTraits>().ice_id(current: current)
     }
 
-    override func ice_ids(current: Ice.Current) async throws -> [String] {
+    func ice_ids(current: Ice.Current) -> [String] {
         _ctx = current.ctx
-        return try await super.ice_ids(current: current)
+        return Ice.DefaultObject<MyDerivedClassTraits>().ice_ids(current: current)
     }
 
-    override func ice_ping(current: Current) async {
+    func ice_ping(current: Current) {
         _ctx = current.ctx
     }
 }
