@@ -8,7 +8,7 @@ on:
     branches: ["main"]
 
 jobs:
-  rewriteCatch:
+  checkstyle:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
@@ -23,6 +23,25 @@ jobs:
       - name: Build slice2java
         run: make -C cpp slice2java
 
-      - name: Run rewriteDryRun with build failure enabled
+      - name: Run checkstyle formatter
+        working-directory: java
+        run: ./gradlew check
+
+  rewrite:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Java
+        uses: ./.github/actions/setup-java
+
+      - name: Build slice2java
+        run: make -C cpp slice2java
+
+      - name: Run rewrite linter
         working-directory: java
         run: ./gradlew rewriteDryRun

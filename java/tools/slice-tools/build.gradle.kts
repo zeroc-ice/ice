@@ -2,6 +2,8 @@
  * Gradle build file for the Slice Tools plugin.
  */
 
+val runningInCi = providers.environmentVariable("CI").isPresent
+
 plugins {
     // Apply the Java Gradle Plugin Development plugin
     `java-gradle-plugin`
@@ -14,7 +16,7 @@ plugins {
     id("checkstyle")
 
     // Automated code formatting based on Checkstyle with OpenRewrite
-    id("org.openrewrite.rewrite") version "7.3.0"
+    id("org.openrewrite.rewrite") version "7.7.0"
 }
 
 repositories {
@@ -92,8 +94,22 @@ tasks.named<Test>("test") {
     useJUnitPlatform()
 }
 
+checkstyle {
+    toolVersion = "10.21.4"
+
+    // If we're running in CI, we want the build to fail if any warnings are emitted.
+    // This doesn't affect what checkstyle emits, just whether it 'fails' or 'succeeds' from Gradle's perspective.
+    if (runningInCi) {
+        maxWarnings = 0
+    }
+}
+
 rewrite {
-  activeRecipe(
-      "org.openrewrite.java.OrderImports",
-  )
+    activeRecipe("com.zeroc.IceRewriteRecipes")
+    activeStyle("com.zeroc.IceRewriteStyle")
+}
+
+// Set whether or not 'rewriteDryRun' should be considered 'failed' when it would make changes.
+tasks.named("rewriteDryRun").configure {
+    rewrite.failOnDryRunResults = runningInCi
 }

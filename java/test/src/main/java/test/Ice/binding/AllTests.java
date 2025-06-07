@@ -713,7 +713,7 @@ public class AllTests {
                 }
 
                 rcom.createObjectAdapter(
-                    "Adapter83", (test.ice_getEndpoints()[1]).toString()); // Reactive tcp OA.
+                    "Adapter83", test.ice_getEndpoints()[1].toString()); // Reactive tcp OA.
 
                 for (i = 0; i < 5; i++) {
                     test("Adapter83".equals(test.getAdapterName()));
