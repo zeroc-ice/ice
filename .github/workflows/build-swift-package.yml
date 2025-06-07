@@ -24,9 +24,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Xcode
-        uses: ./.github/actions/setup-xcode
-
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
 
