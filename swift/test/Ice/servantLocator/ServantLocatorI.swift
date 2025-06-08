@@ -2,6 +2,7 @@
 
 import Foundation
 import Ice
+import Synchronization
 import TestCommon
 
 class Cookie {
@@ -10,29 +11,27 @@ class Cookie {
     }
 }
 
-class ServantLocatorI: Ice.ServantLocator {
-    var _deactivated: Bool
-    var _category: String
-    var _requestId: Int32
-    var _helper: TestHelper
-    var _lock = os_unfair_lock()
+final class ServantLocatorI: Ice.ServantLocator {
+    private let _deactivated = Mutex<Bool>(false)
+    private let _category: String
+    private var _requestId: Int32
+    private let _helper: TestHelper
 
     init(_ category: String, _ helper: TestHelper) {
         _category = category
-        _deactivated = false
         _requestId = -1
         _helper = helper
     }
 
     deinit {
-        withLock(&_lock) {
-            precondition(_deactivated)
+        _deactivated.withLock {
+            precondition($0, "ServantLocatorI deactivated must be true before deinit")
         }
     }
 
     func locate(_ curr: Ice.Current) throws -> (returnValue: Ice.Dispatcher?, cookie: AnyObject?) {
-        try withLock(&_lock) {
-            try _helper.test(!_deactivated)
+        try _deactivated.withLock {
+            try _helper.test(!$0)
         }
 
         try _helper.test(curr.id.category == _category || _category == "")
@@ -61,8 +60,8 @@ class ServantLocatorI: Ice.ServantLocator {
     }
 
     func finished(curr: Ice.Current, servant _: Ice.Dispatcher, cookie: AnyObject?) throws {
-        try withLock(&_lock) {
-            try _helper.test(!_deactivated)
+        try _deactivated.withLock {
+            try _helper.test(!$0)
         }
 
         //
@@ -82,9 +81,9 @@ class ServantLocatorI: Ice.ServantLocator {
     }
 
     func deactivate(_: String) {
-        withLock(&_lock) {
-            precondition(!_deactivated)
-            self._deactivated = true
+        _deactivated.withLock {
+            precondition(!$0)
+            $0 = true
         }
     }
 
