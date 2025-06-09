@@ -4,8 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-// TODO: Make this class an actor once https://github.com/swiftlang/swift/issues/76710 has shipped.
-final class TestI: TestIntf {
+final class TestI: TestIntf, @unchecked Sendable {
     private let _helper: TestHelper
     private var _values = [Value]()
 

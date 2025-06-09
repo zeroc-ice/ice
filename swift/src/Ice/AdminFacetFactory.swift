@@ -2,7 +2,7 @@
 
 import IceImpl
 
-final class AdminFacetFacade: ICEDispatchAdapter, @unchecked Sendable {
+final class AdminFacetFacade: ICEDispatchAdapter {
     private let communicator: Communicator
     let servant: Dispatcher
 

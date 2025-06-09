@@ -5,11 +5,11 @@ import Foundation
 import Ice
 import TestCommon
 
-class HoldI: Hold {
-    var _adapter: Ice.ObjectAdapter
-    var _helper: TestHelper
-    var _last: Int32 = 0
-    var _queue = DispatchQueue(label: "ice.hold.Server")
+actor HoldI: Hold {
+    private let _adapter: Ice.ObjectAdapter
+    private let _helper: TestHelper
+    private var _last: Int32 = 0
+    private let _queue = DispatchQueue(label: "ice.hold.Server")
 
     init(adapter: Ice.ObjectAdapter, helper: TestHelper) {
         _adapter = adapter
