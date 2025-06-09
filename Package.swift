@@ -41,28 +41,24 @@ let package = Package(
             name: "Ice",
             dependencies: ["IceImpl"],
             path: "swift/src/Ice",
-            exclude: ["slice-plugin.json"],
             plugins: [.plugin(name: "CompileSlice")]
         ),
         .target(
             name: "Glacier2",
             dependencies: ["Ice"],
             path: "swift/src/Glacier2",
-            exclude: ["slice-plugin.json"],
             plugins: [.plugin(name: "CompileSlice")]
         ),
         .target(
             name: "IceGrid",
             dependencies: ["Ice", "Glacier2"],
             path: "swift/src/IceGrid",
-            exclude: ["slice-plugin.json"],
             plugins: [.plugin(name: "CompileSlice")]
         ),
         .target(
             name: "IceStorm",
             dependencies: ["Ice"],
             path: "swift/src/IceStorm",
-            exclude: ["slice-plugin.json"],
             plugins: [.plugin(name: "CompileSlice")]
         ),
         .target(

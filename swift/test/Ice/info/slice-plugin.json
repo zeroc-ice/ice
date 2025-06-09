@@ -1,4 +1,4 @@
 {
-  "sources": ["Test.ice"],
   "search_paths": ["../../../../slice"]
 }
+ 

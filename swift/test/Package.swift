@@ -91,11 +91,9 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
     ]
 
     var plugins: [Target.PluginUsage] = []
-    var excludes = [String]()
 
     if !testConfig.sliceFiles.isEmpty {
         plugins.append(.plugin(name: "CompileSlice", package: "ice"))
-        excludes.append(contentsOf: testConfig.sliceFiles + ["slice-plugin.json"])
     }
 
     let name = testPathToTargetName(testPath)
@@ -109,7 +107,6 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
         name: name,
         dependencies: dependencies,
         path: testPath,
-        exclude: excludes,
         sources: sources,
         resources: testConfig.resources,
         plugins: plugins
@@ -139,9 +136,6 @@ let package = Package(
                 .product(name: "Ice", package: "ice")
             ],
             path: "TestCommon",
-            resources: [
-                .copy("slice-plugin.json")
-            ],
             plugins: [.plugin(name: "CompileSlice", package: "ice")]
         ),
         // TestBundle is a library target that contains all the test targets
