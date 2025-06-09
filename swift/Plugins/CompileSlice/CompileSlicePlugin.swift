@@ -16,18 +16,18 @@ extension CompileSlicePlugin: BuildToolPlugin {
 
 #if canImport(XcodeProjectPlugin)
 
-import XcodeProjectPlugin
+    import XcodeProjectPlugin
 
-// The entry point for Xcode project builds.
-extension CompileSlicePlugin: XcodeBuildToolPlugin {
-    func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
-        return try createBuildCommands(
-            pluginWorkDirectoryUrl: context.pluginWorkDirectoryURL,
-            targetDirectoryUrl: target.directoryURL,
-            slice2swiftUrl: try context.tool(named: "slice2swift").url
-        )
+    // The entry point for Xcode project builds.
+    extension CompileSlicePlugin: XcodeBuildToolPlugin {
+        func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
+            return try createBuildCommands(
+                pluginWorkDirectoryUrl: context.pluginWorkDirectoryURL,
+                targetDirectoryUrl: target.directoryURL,
+                slice2swiftUrl: try context.tool(named: "slice2swift").url
+            )
+        }
     }
-}
 
 #endif
 
@@ -89,9 +89,11 @@ struct CompileSlicePlugin {
             if url.pathExtension == "ice" {
                 sliceFiles.append(url)
             } else {
-                sliceFiles.append(contentsOf: try fm.contentsOfDirectory(
-                    at: url,
-                    includingPropertiesForKeys: nil).filter { $0.pathExtension == "ice" })
+                sliceFiles.append(
+                    contentsOf: try fm.contentsOfDirectory(
+                        at: url,
+                        includingPropertiesForKeys: nil
+                    ).filter { $0.pathExtension == "ice" })
             }
         }
         return sliceFiles
