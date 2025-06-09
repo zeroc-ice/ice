@@ -274,8 +274,8 @@ classDiagram
   Slice loader implemented by Ice, and you don't need to do anything to help Ice locate these generated classes.
   However, in Java and MATLAB, there is no such registration at startup, and you need to help Ice locate these generated
   classes when:
-  - you remap either the class name or an enclosing module using the `["java:identifier"]`, `["java:package"]`, or
-    `["matlab:identifier"]` metadata; or
+  - you remap either the class name or an enclosing module using the `java:identifier`, `java:package`, or
+    `matlab:identifier` metadata; or
   - you assign a compact ID to your class
 
   You help Ice locate these classes by installing a Slice loader in `InitializationData`, just like when you provide a
@@ -312,33 +312,34 @@ classDiagram
 - Removed local Slice. `local` is no longer a Slice keyword.
 
 - Added new metadata for customizing the mapped names of Slice definitions in each language.
-  This metadata is of the form: `["<lang>:<identifier>"]`, where `<lang>` can be any of the standard language prefixes,
-  and that definition's identifier will be `<identifier>` in the specified language, with no additional processing.
+  This metadata is of the form: `["<lang>:identifier:<identifier>"]`, where `<lang>` can be any of the standard language
+  prefixes, and that definition's identifier will be `<identifier>` in the specified language, with no additional
+  processing.
 
   For example:
 
   ```slice
   ["cs:identifier:MyNamespace"]
-  ["java:identifier:com.example.my_package"]
+  ["java:identifier:com.example.mypackage"]
   module MyModule {}
   ```
 
   The argument is used as a drop-in replacement for the Slice identifier, with no additional processing.
   With the above example, `slice2cs` will generate `namespace MyNamespace {}` and `slice2java` will generate
-  `package com.example.my_package;`. All other compilers will map the module using its Slice-provided identifier,
+  `package com.example.mypackage;`. All other compilers will map the module using its Slice-provided identifier,
   as usual.
 
   This metadata can be applied to any Slice definitions with an identifier, and is available for all languages.
 
   Note that this only affects the _mapped_ name of Slice definitions.
-  It has no effect on type-ids, or a definition's on-the-wire representation.
+  It has no effect on Slice type IDs, or a definition's on-the-wire representation.
 
-- Deprecated the `["cs:namespace"]`, `["java:package"]`, `["python:package"]`, and `["swift:module"]` metadata.
-  `["<lang>:identifier"]` metadata is now the preferred way to change how Slice modules are mapped.
+- Deprecated the `cs:namespace`, `java:package`, `python:package`, and `swift:module` metadata.
+  `<lang>:identifier` metadata is now the preferred way to change how Slice modules are mapped.
 
 - Removed automatic escaping of Slice identifiers. Previously, the Slice compilers had a list of each language's
   keywords and reserved identifiers, and would automatically escape conflicting identifiers during code-generation.
-  Now that this has been removed, conflicting identifiers should be fixed using `["<lang>:identifier"]` metadata.
+  Now that this has been removed, conflicting identifiers should be fixed using `<lang>:identifier` metadata.
 
 - Added a shorthand syntax for defining nested modules. For example, the following two definitions are equivalent:
 
@@ -368,12 +369,12 @@ classDiagram
 
 - Metadata can now be applied to Slice enumerators.
 
+- Added `["deprecated"]` as an alias for the `["deprecate"]` metadata.
+
 - Removed the `["protected"]` metadata. This was primarily for classes with operations, which are no longer allowed.
 
 - Removed the `["preserve-slice"]` metadata. Slice classes marshaled in the sliced format are now always preserved when
   unmarshaled.
-
-- Added `["deprecated"]` as an alias for the `["deprecate"]` metadata.
 
 - Exceptions are now always marshaled in the sliced format and no longer support preservation of unknown slices during
   unmarshaling.
