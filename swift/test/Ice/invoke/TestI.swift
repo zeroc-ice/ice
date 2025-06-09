@@ -4,7 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-final class ServantLocatorI: Ice.ServantLocator {
+struct ServantLocatorI: Ice.ServantLocator {
     private let _dispatcher: Ice.Dispatcher = DispatcherI()
 
     func locate(_: Ice.Current) -> (returnValue: Ice.Dispatcher?, cookie: AnyObject?) {
@@ -16,8 +16,8 @@ final class ServantLocatorI: Ice.ServantLocator {
     func deactivate(_: String) {}
 }
 
-final class DispatcherI: Ice.Dispatcher {
-    public func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
+struct DispatcherI: Ice.Dispatcher {
+    public func dispatch(_ request: sending IncomingRequest) throws -> OutgoingResponse {
         let current = request.current
         let communicator = current.adapter.getCommunicator()
         let (inEncaps, _) = try request.inputStream.readEncapsulation()

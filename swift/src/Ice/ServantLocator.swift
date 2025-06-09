@@ -3,7 +3,7 @@
 import Foundation
 
 /// A servant locator is called by an object adapter to locate a servant that is not found in its active servant map.
-public protocol ServantLocator: AnyObject {
+public protocol ServantLocator: Sendable {
     /// Called before a request is dispatched if a servant cannot be found in the object adapter's active servant map.
     /// Note that the object adapter does not automatically insert the returned servant into its active servant map.
     /// This must be done by the servant locator implementation, if this is desired. locate can throw any

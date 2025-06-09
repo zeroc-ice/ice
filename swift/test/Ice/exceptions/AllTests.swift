@@ -3,7 +3,7 @@
 import Ice
 import TestCommon
 
-class ServantLocatorI: Ice.ServantLocator {
+private struct ServantLocatorI: Ice.ServantLocator {
     func locate(_: Current) throws -> (returnValue: Dispatcher?, cookie: AnyObject?) {
         return (nil, nil)
     }
