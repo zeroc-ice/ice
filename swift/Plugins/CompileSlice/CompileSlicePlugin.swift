@@ -78,11 +78,11 @@ struct CompileSlicePlugin {
 
     /// The name of the configuration file
     private static let configFileName = "slice-plugin.json"
-    
+
     /// Helper function to find slice files given a base directory and config
     private static func findSliceFiles(config: Config, baseDirectory: String) throws -> [URL] {
         let fm = FileManager.default
-        
+
         var sliceFiles: [URL] = []
         for source in config.sources {
             let url = URL(fileURLWithPath: baseDirectory).appendingPathComponent(source)
@@ -120,10 +120,10 @@ struct CompileSlicePlugin {
 
         let data = try Data(contentsOf: configFilePath)
         let config = try JSONDecoder().decode(Config.self, from: data)
-        
+
         // Find slice files using helper
         let sliceFiles = try Self.findSliceFiles(config: config, baseDirectory: targetDirectoryUrl.path)
-        
+
         // Create search paths
         let searchPaths = (config.search_paths ?? []).map {
             "-I\(targetDirectoryUrl.appendingPathComponent($0).path)"
