@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.CollocatedObserver;
+import com.zeroc.Ice.Instrumentation.InvocationObserver;
+import com.zeroc.Ice.Instrumentation.RemoteObserver;
 import com.zeroc.IceMX.CollocatedMetrics;
 import com.zeroc.IceMX.InvocationMetrics;
 import com.zeroc.IceMX.MetricsHelper;
@@ -9,9 +12,6 @@ import com.zeroc.IceMX.MetricsHelper.AttributeResolver;
 import com.zeroc.IceMX.Observer.MetricsUpdate;
 import com.zeroc.IceMX.ObserverWithDelegate;
 import com.zeroc.IceMX.RemoteMetrics;
-import com.zeroc.Ice.Instrumentation.CollocatedObserver;
-import com.zeroc.Ice.Instrumentation.InvocationObserver;
-import com.zeroc.Ice.Instrumentation.RemoteObserver;
 
 /**
  * @hidden Public because it's used by IceMX (via reflection).

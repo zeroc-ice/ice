@@ -2,9 +2,9 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.RemoteObserver;
 import com.zeroc.IceMX.ObserverWithDelegate;
 import com.zeroc.IceMX.RemoteMetrics;
-import com.zeroc.Ice.Instrumentation.RemoteObserver;
 
 /**
  * @hidden Public because it's used by IceMX (via reflection).

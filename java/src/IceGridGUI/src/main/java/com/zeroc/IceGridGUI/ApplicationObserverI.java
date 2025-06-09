@@ -8,9 +8,9 @@ import com.zeroc.IceGrid.ApplicationInfo;
 import com.zeroc.IceGrid.ApplicationObserver;
 import com.zeroc.IceGrid.ApplicationUpdateInfo;
 
-import javax.swing.SwingUtilities;
-
 import java.util.List;
+
+import javax.swing.SwingUtilities;
 
 class ApplicationObserverI implements ApplicationObserver {
     ApplicationObserverI(String instanceName, Coordinator coordinator) {

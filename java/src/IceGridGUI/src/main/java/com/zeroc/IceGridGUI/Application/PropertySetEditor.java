@@ -4,13 +4,14 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
+
 import com.zeroc.IceGrid.PropertyDescriptor;
 import com.zeroc.IceGrid.PropertySetDescriptor;
 import com.zeroc.IceGridGUI.Utils;
 
-import javax.swing.JComponent;
-
 import java.util.Arrays;
+
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;

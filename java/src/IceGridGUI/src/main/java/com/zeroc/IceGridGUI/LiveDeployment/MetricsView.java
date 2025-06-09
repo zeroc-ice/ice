@@ -5,12 +5,12 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 import com.zeroc.Ice.CommunicatorDestroyedException;
 import com.zeroc.Ice.ConnectionRefusedException;
 import com.zeroc.Ice.FacetNotExistException;
-import com.zeroc.IceMX.MetricsAdminPrx;
-import com.zeroc.IceMX.MetricsFailures;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.IceGridGUI.LiveActions;
 import com.zeroc.IceGridGUI.Utils;
+import com.zeroc.IceMX.MetricsAdminPrx;
+import com.zeroc.IceMX.MetricsFailures;
 
 import java.awt.Component;
 import java.util.concurrent.CompletableFuture;

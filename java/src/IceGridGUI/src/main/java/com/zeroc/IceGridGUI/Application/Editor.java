@@ -5,6 +5,7 @@ package com.zeroc.IceGridGUI.Application;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
+
 import com.zeroc.IceGridGUI.EditorBase;
 import com.zeroc.IceGridGUI.Utils;
 

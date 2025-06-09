@@ -7,7 +7,6 @@ import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 
-import test.TestHelper;
 import test.Ice.operations.Test.AnotherStruct;
 import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
@@ -16,6 +15,7 @@ import test.Ice.operations.Test.MyDerivedClassPrx;
 import test.Ice.operations.Test.MyEnum;
 import test.Ice.operations.Test.MyStruct;
 import test.Ice.operations.Test.Structure;
+import test.TestHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;

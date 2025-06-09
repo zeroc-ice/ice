@@ -2,9 +2,9 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.DispatchObserver;
 import com.zeroc.IceMX.DispatchMetrics;
 import com.zeroc.IceMX.ObserverWithDelegate;
-import com.zeroc.Ice.Instrumentation.DispatchObserver;
 
 /**
  * @hidden Public because it's used by IceMX (via reflection).

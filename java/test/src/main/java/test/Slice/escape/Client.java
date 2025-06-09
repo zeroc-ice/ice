@@ -9,6 +9,8 @@ import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;
 
+import test.TestHelper;
+import test.escaped_abstract.CloneException;
 import test.escaped_abstract._assert;
 import test.escaped_abstract._break;
 import test.escaped_abstract._catch;
@@ -19,9 +21,7 @@ import test.escaped_abstract._finalize;
 import test.escaped_abstract._finalizePrx;
 import test.escaped_abstract._hashCode;
 import test.escaped_abstract._notify;
-import test.escaped_abstract.CloneException;
 import test.escaped_abstract.escaped_synchronized;
-import test.TestHelper;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;

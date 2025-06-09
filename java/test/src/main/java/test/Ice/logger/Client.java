@@ -5,9 +5,9 @@ package test.Ice.logger;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Properties;
 
-import java.io.File;
-
 import test.TestHelper;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;

@@ -2,11 +2,11 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.ThreadObserver;
+import com.zeroc.Ice.Instrumentation.ThreadState;
 import com.zeroc.IceMX.Observer;
 import com.zeroc.IceMX.ObserverWithDelegate;
 import com.zeroc.IceMX.ThreadMetrics;
-import com.zeroc.Ice.Instrumentation.ThreadObserver;
-import com.zeroc.Ice.Instrumentation.ThreadState;
 
 /**
  * @hidden Public because it's used by IceMX (via reflection).
