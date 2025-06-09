@@ -14,7 +14,7 @@ public typealias PropertiesAdminRemoveCallback = () -> Void
 
 /// The default implementation for the "Properties" admin facet.
 public struct NativePropertiesAdmin: PropertiesAdmin {
-    nonisolated(unsafe) private let handle: ICEPropertiesAdmin
+    private let handle: ICEPropertiesAdmin
 
     init(handle: ICEPropertiesAdmin) {
         self.handle = handle
