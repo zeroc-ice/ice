@@ -5,33 +5,36 @@ import Ice
 import Synchronization
 import TestCommon
 
-class Cookie {
+private class Cookie {
     func message() -> String {
         return "blahblah"
     }
 }
 
+private struct State {
+    var deactivated = false
+    var requestId: Int32 = -1
+}
+
 final class ServantLocatorI: Ice.ServantLocator {
-    private let _deactivated = Mutex<Bool>(false)
     private let _category: String
-    private var _requestId: Int32
     private let _helper: TestHelper
+    private let _state = Mutex<State>(State())
 
     init(_ category: String, _ helper: TestHelper) {
         _category = category
-        _requestId = -1
         _helper = helper
     }
 
     deinit {
-        _deactivated.withLock {
-            precondition($0, "ServantLocatorI deactivated must be true before deinit")
+        _state.withLock {
+            precondition($0.deactivated, "ServantLocatorI deactivated must be true before deinit")
         }
     }
 
     func locate(_ curr: Ice.Current) throws -> (returnValue: Ice.Dispatcher?, cookie: AnyObject?) {
-        try _deactivated.withLock {
-            try _helper.test(!$0)
+        try _state.withLock {
+            try _helper.test(!$0.deactivated)
         }
 
         try _helper.test(curr.id.category == _category || _category == "")
@@ -50,25 +53,23 @@ final class ServantLocatorI: Ice.ServantLocator {
             try exception(curr)
         }
 
-        //
         // Ensure locate() is only called once per request.
-        //
-        try _helper.test(_requestId == -1)
-        _requestId = curr.requestId
+        try _state.withLock {
+            try _helper.test($0.requestId == -1)
+            $0.requestId = curr.requestId
+        }
 
         return (TestI(), Cookie())
     }
 
     func finished(curr: Ice.Current, servant _: Ice.Dispatcher, cookie: AnyObject?) throws {
-        try _deactivated.withLock {
-            try _helper.test(!$0)
-        }
+        try _state.withLock {
+            try _helper.test(!$0.deactivated)
 
-        //
-        // Ensure finished() is only called once per request.
-        //
-        try _helper.test(_requestId == curr.requestId)
-        _requestId = -1
+            // Ensure finished() is only called once per request.
+            try _helper.test($0.requestId == curr.requestId)
+            $0.requestId = -1
+        }
 
         try _helper.test(curr.id.category == _category || _category == "")
         try _helper.test(curr.id.name == "locate" || curr.id.name == "finished")
@@ -81,9 +82,9 @@ final class ServantLocatorI: Ice.ServantLocator {
     }
 
     func deactivate(_: String) {
-        _deactivated.withLock {
-            precondition(!$0)
-            $0 = true
+        _state.withLock {
+            precondition(!$0.deactivated)
+            $0.deactivated = true
         }
     }
 
