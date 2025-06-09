@@ -8,7 +8,6 @@ import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OutputStream;
 
-import test.TestHelper;
 import test.Ice.enums.Test.ByteConst1;
 import test.Ice.enums.Test.ByteConst2;
 import test.Ice.enums.Test.ByteEnum;
@@ -23,6 +22,7 @@ import test.Ice.enums.Test.ShortEnum;
 import test.Ice.enums.Test.SimpleEnum;
 import test.Ice.enums.Test.TestIntf;
 import test.Ice.enums.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 

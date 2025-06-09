@@ -2,17 +2,6 @@
 
 package test.Ice.middleware;
 
-import test.Ice.middleware.Test.MyObject;
-import test.Ice.middleware.Test.MyObjectPrx;
-import test.TestHelper;
-
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.ErrorObserverMiddleware;
@@ -24,6 +13,17 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OutgoingResponse;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UserException;
+
+import test.Ice.middleware.Test.MyObject;
+import test.Ice.middleware.Test.MyObjectPrx;
+import test.TestHelper;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public class AllTests {
 

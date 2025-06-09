@@ -4,13 +4,14 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
+
 import com.zeroc.IceGrid.AdapterDescriptor;
 import com.zeroc.IceGrid.ObjectDescriptor;
 import com.zeroc.IceGridGUI.Utils;
 
-import javax.swing.JCheckBox;
-
 import java.util.Map;
+
+import javax.swing.JCheckBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;

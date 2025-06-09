@@ -2,15 +2,6 @@
 
 package test.Ice.defaultValue;
 
-import test.TestHelper;
-
-import java.io.PrintWriter;
-
-import test.Ice.defaultValue.Test.StructNoDefaults;
-
-import test.Ice.defaultValue.Test.ExceptionNoDefaults;
-import test.Ice.defaultValue.Test.Struct1;
-import test.Ice.defaultValue.Test.Struct2;
 import test.Ice.defaultValue.Test.Base;
 import test.Ice.defaultValue.Test.BaseEx;
 import test.Ice.defaultValue.Test.ClassNoDefaults;
@@ -31,6 +22,13 @@ import test.Ice.defaultValue.Test.ConstShort;
 import test.Ice.defaultValue.Test.ConstString;
 import test.Ice.defaultValue.Test.Derived;
 import test.Ice.defaultValue.Test.DerivedEx;
+import test.Ice.defaultValue.Test.ExceptionNoDefaults;
+import test.Ice.defaultValue.Test.Struct1;
+import test.Ice.defaultValue.Test.Struct2;
+import test.Ice.defaultValue.Test.StructNoDefaults;
+import test.TestHelper;
+
+import java.io.PrintWriter;
 
 public class AllTests {
     private static void test(boolean b) {

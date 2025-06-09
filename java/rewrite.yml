@@ -18,7 +18,7 @@ recipeList:
   - org.openrewrite.staticanalysis.ReplaceThreadRunWithThreadStart
   - org.openrewrite.staticanalysis.TypecastParenPad
   - org.openrewrite.staticanalysis.UnnecessaryParentheses
-  # - org.openrewrite.java.OrderImports TODO enable this in a separate PR
+  - org.openrewrite.java.OrderImports
   - org.openrewrite.java.RemoveUnusedImports
   - org.openrewrite.java.format.BlankLines
   - org.openrewrite.java.format.EmptyNewlineAtEndOfFile

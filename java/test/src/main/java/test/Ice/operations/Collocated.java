@@ -9,9 +9,9 @@ import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Util;
 
-import java.io.PrintWriter;
-
 import test.TestHelper;
+
+import java.io.PrintWriter;
 
 public class Collocated extends TestHelper {
     public void run(String[] args) {

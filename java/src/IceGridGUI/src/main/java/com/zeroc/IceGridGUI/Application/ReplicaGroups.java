@@ -7,12 +7,12 @@ import com.zeroc.IceGrid.ReplicaGroupDescriptor;
 import com.zeroc.IceGridGUI.ApplicationActions;
 import com.zeroc.IceGridGUI.TreeNodeBase;
 
-import javax.swing.JPopupMenu;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.swing.JPopupMenu;
 
 class ReplicaGroups extends ListTreeNode {
     public static List<ReplicaGroupDescriptor> copyDescriptors(

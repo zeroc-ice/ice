@@ -20,12 +20,12 @@ import test.Ice.objects.Test.F2Prx;
 import test.Ice.objects.Test.F3;
 import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.Initial;
+import test.Ice.objects.Test.Inner.A;
+import test.Ice.objects.Test.Inner.Ex;
 import test.Ice.objects.Test.K;
 import test.Ice.objects.Test.L;
 import test.Ice.objects.Test.M;
 import test.Ice.objects.Test.Recursive;
-import test.Ice.objects.Test.Inner.A;
-import test.Ice.objects.Test.Inner.Ex;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

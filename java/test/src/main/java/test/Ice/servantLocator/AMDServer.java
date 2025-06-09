@@ -3,9 +3,9 @@
 package test.Ice.servantLocator;
 
 import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
+import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;
 
 import test.TestHelper;

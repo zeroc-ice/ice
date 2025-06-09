@@ -2,12 +2,12 @@
 
 package com.zeroc.IceBT;
 
-import android.bluetooth.BluetoothAdapter;
-
 import com.zeroc.Ice.BTSEndpointType;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.PluginInitializationException;
 import com.zeroc.Ice.ProtocolInstance;
+
+import android.bluetooth.BluetoothAdapter;
 
 class Instance extends ProtocolInstance {
     Instance(Communicator communicator, short type, String protocol) {

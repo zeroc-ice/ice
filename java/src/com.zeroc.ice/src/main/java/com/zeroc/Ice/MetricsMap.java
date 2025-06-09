@@ -2,11 +2,11 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.MetricsMap.SubMap;
 import com.zeroc.IceMX.Metrics;
 import com.zeroc.IceMX.MetricsFailures;
 import com.zeroc.IceMX.MetricsHelper;
 import com.zeroc.IceMX.Observer;
-import com.zeroc.Ice.MetricsMap.SubMap;
 
 import java.util.ArrayList;
 import java.util.Deque;

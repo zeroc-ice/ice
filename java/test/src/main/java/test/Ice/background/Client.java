@@ -5,11 +5,11 @@ package test.Ice.background;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
 
-import java.util.Collections;
-
 import test.Ice.background.PluginFactory.PluginI;
 import test.Ice.background.Test.BackgroundPrx;
 import test.TestHelper;
+
+import java.util.Collections;
 
 public class Client extends TestHelper {
     public void run(String[] args) {

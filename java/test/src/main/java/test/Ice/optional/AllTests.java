@@ -13,7 +13,6 @@ import com.zeroc.Ice.SliceLoader;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.Value;
 
-import test.TestHelper;
 import test.Ice.optional.Test.A;
 import test.Ice.optional.Test.B;
 import test.Ice.optional.Test.C;
@@ -41,6 +40,7 @@ import test.Ice.optional.Test.StringIntDictHelper;
 import test.Ice.optional.Test.VarStruct;
 import test.Ice.optional.Test.VarStructSeqHelper;
 import test.Ice.optional.Test.WD;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;

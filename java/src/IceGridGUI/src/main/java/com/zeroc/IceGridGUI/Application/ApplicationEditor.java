@@ -4,6 +4,7 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
+
 import com.zeroc.IceGrid.ApplicationDescriptor;
 import com.zeroc.IceGridGUI.MainPane;
 import com.zeroc.IceGridGUI.Utils;

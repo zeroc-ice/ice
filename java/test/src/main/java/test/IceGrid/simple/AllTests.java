@@ -27,8 +27,8 @@ import com.zeroc.IceLocatorDiscovery.PluginFactory;
 import test.IceGrid.simple.Test.TestIntfPrx;
 import test.TestHelper;
 
-import java.util.Collections;
 import java.io.PrintWriter;
+import java.util.Collections;
 
 public class AllTests {
     private static void test(boolean b) {

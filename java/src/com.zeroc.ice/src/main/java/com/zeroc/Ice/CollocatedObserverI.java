@@ -2,9 +2,9 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.CollocatedObserver;
 import com.zeroc.IceMX.CollocatedMetrics;
 import com.zeroc.IceMX.ObserverWithDelegate;
-import com.zeroc.Ice.Instrumentation.CollocatedObserver;
 
 /**
  * @hidden Public because it's used by IceMX (via reflection).

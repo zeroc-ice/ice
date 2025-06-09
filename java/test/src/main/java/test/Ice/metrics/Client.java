@@ -3,9 +3,9 @@
 package test.Ice.metrics;
 
 import com.zeroc.Ice.Communicator;
-import com.zeroc.IceMX.UnknownMetricsView;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
+import com.zeroc.IceMX.UnknownMetricsView;
 
 import test.Ice.metrics.Test.MetricsPrx;
 import test.TestHelper;
