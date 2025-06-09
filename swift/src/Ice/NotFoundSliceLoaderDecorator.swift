@@ -1,12 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
+import Synchronization
+
 /// Decorates SliceLoader to cache nil results.
 final class NotFoundSliceLoaderDecorator: SliceLoader {
     private let decoratee: SliceLoader
     private let cacheSize: Int32
     private var logger: Logger?
-    private var notFoundSet = Set<String>()
-    private var mutex = Mutex()
+    private let notFoundSet = Mutex<Set<String>>([])
 
     /// Creates a NotFoundSliceLoaderDecorator.
     ///
@@ -21,16 +22,16 @@ final class NotFoundSliceLoaderDecorator: SliceLoader {
     }
 
     func newInstance(_ typeId: String) -> AnyObject? {
-        if mutex.sync({ notFoundSet.contains(typeId) }) {
+        if notFoundSet.withLock({ $0.contains(typeId) }) {
             return nil
         }
 
         let instance = decoratee.newInstance(typeId)
         if instance == nil {
             var cacheFullLogger: Logger? = nil
-            mutex.sync {
-                if notFoundSet.count < cacheSize {
-                    notFoundSet.insert(typeId)
+            notFoundSet.withLock {
+                if $0.count < cacheSize {
+                    $0.insert(typeId)
                 } else {
                     cacheFullLogger = logger
                     logger = nil  // we log only once outside the synchronization block

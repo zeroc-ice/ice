@@ -3,26 +3,24 @@
 import Combine
 import Foundation
 import Ice
+import Synchronization
 import TestCommon
 
 class Condition {
-    var _lock = os_unfair_lock()
-    var _value: Bool
+    let _value: Mutex<Bool>
 
     init(_ value: Bool) {
-        _value = value
+        _value = Mutex(value)
     }
 
     func set(_ value: Bool) {
-        withLock(&_lock) {
-            self._value = value
+        _value.withLock {
+            $0 = value
         }
     }
 
     func value() -> Bool {
-        return withLock(&_lock) {
-            self._value
-        }
+        _value.withLock { $0 }
     }
 }
 

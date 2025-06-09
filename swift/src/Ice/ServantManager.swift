@@ -12,7 +12,7 @@ final class ServantManager: Dispatcher {
     // when a servant is not found on a Swift Admin OA.
     private var adminId: Identity?
 
-    private var mutex = Mutex()
+    private var mutex = UncheckedMutex()
 
     init(adapterName: String, communicator: Communicator) {
         self.adapterName = adapterName

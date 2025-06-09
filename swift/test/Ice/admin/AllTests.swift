@@ -2,31 +2,29 @@
 
 import Foundation
 import Ice
+import Synchronization
 import TestCommon
 
 final class RemoteLoggerI: Ice.RemoteLogger {
-    let _helper: TestHelper
-    var _prefix: String = ""
-    var _initMessages: [Ice.LogMessage] = []
-    var _logMessages: [Ice.LogMessage] = []
-    var _lock = os_unfair_lock()
-    var _semaphore = DispatchSemaphore(value: 0)
+    private let _helper: TestHelper
+    private let _state = Mutex<State>(State())
+    private let _semaphore = DispatchSemaphore(value: 0)
 
     init(helper: TestHelper) {
         _helper = helper
     }
 
     func initialize(prefix: String, logMessages: [Ice.LogMessage], current _: Ice.Current) async throws {
-        withLock(&_lock) {
-            _prefix = prefix
-            _initMessages += logMessages
+        _state.withLock {
+            $0.prefix = prefix
+            $0.initMessages += logMessages
         }
         _semaphore.signal()
     }
 
     func log(message: Ice.LogMessage, current _: Ice.Current) async throws {
-        withLock(&_lock) {
-            _logMessages.append(message)
+        _state.withLock {
+            $0.logMessages.append(message)
         }
         _semaphore.signal()
     }
@@ -34,10 +32,10 @@ final class RemoteLoggerI: Ice.RemoteLogger {
     func checkNextInit(prefix: String, type: Ice.LogMessageType, message: String, category: String)
         throws
     {
-        try withLock(&_lock) {
-            try _helper.test(self._prefix == prefix)
-            try _helper.test(self._initMessages.count > 0)
-            let logMessage = _initMessages.removeFirst()
+        try _state.withLock {
+            try _helper.test($0.prefix == prefix)
+            try _helper.test($0.initMessages.count > 0)
+            let logMessage = $0.initMessages.removeFirst()
             try _helper.test(logMessage.type == type)
             try _helper.test(logMessage.message == message)
             try _helper.test(logMessage.traceCategory == category)
@@ -45,9 +43,9 @@ final class RemoteLoggerI: Ice.RemoteLogger {
     }
 
     func checkNextLog(type: Ice.LogMessageType, message: String, category: String) throws {
-        try withLock(&_lock) {
-            try _helper.test(_logMessages.count > 0)
-            let logMessage = _logMessages.removeFirst()
+        try _state.withLock {
+            try _helper.test($0.logMessages.count > 0)
+            let logMessage = $0.logMessages.removeFirst()
             try _helper.test(logMessage.type == type)
             try _helper.test(logMessage.message == message)
             try _helper.test(logMessage.traceCategory == category)
@@ -58,6 +56,12 @@ final class RemoteLoggerI: Ice.RemoteLogger {
         for _ in 0..<calls {
             _semaphore.wait()
         }
+    }
+
+    private struct State {
+        var prefix: String = ""
+        var initMessages: [Ice.LogMessage] = []
+        var logMessages: [Ice.LogMessage] = []
     }
 }
 

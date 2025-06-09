@@ -2,6 +2,7 @@
 
 import Foundation
 import Ice
+import Synchronization
 import TestCommon
 
 final class TestI: TestIntf {
@@ -48,22 +49,20 @@ final class RouterI: Ice.Router {
 
 final class ServantLocatorI: Ice.ServantLocator {
     private let _helper: TestHelper
-    private var _deactivated: Bool
+    private let _deactivated = Mutex<Bool>(false)
     private let _router = RouterI()
-    private var _lock = os_unfair_lock()
 
     init(helper: TestHelper) {
-        _deactivated = false
         _helper = helper
     }
 
     deinit {
-        precondition(_deactivated)
+        precondition(_deactivated.withLock { $0 }, "ServantLocatorI deactivated must be true before deinit")
     }
 
     func locate(_ current: Ice.Current) throws -> sending (returnValue: Dispatcher?, cookie: AnyObject?) {
-        try withLock(&_lock) {
-            try _helper.test(!_deactivated)
+        try _deactivated.withLock {
+            try _helper.test(!$0)
         }
 
         if current.id.name == "router" {
@@ -77,8 +76,8 @@ final class ServantLocatorI: Ice.ServantLocator {
     }
 
     func finished(curr current: Ice.Current, servant _: Ice.Dispatcher, cookie: AnyObject?) throws {
-        try withLock(&_lock) {
-            try _helper.test(!_deactivated)
+        try _deactivated.withLock {
+            try _helper.test(!$0)
         }
 
         if current.id.name == "router" {
@@ -90,9 +89,9 @@ final class ServantLocatorI: Ice.ServantLocator {
 
     func deactivate(_: String) {
         do {
-            try withLock(&_lock) {
-                try _helper.test(!_deactivated)
-                _deactivated = true
+            try _deactivated.withLock {
+                try _helper.test(!$0)
+                $0 = true
             }
         } catch {
             fatalError("\(error)")

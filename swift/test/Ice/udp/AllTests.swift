@@ -6,37 +6,25 @@ import Ice
 import TestCommon
 
 class PingReplyI: PingReply, @unchecked Sendable {
-    var _replies: Int32 = 0
-    var _lock = os_unfair_lock()
-    var _semaphore = DispatchSemaphore(value: 0)
+    private let _semaphore = DispatchSemaphore(value: 0)
 
-    func reset() {
-        withLock(&_lock) {
-            _replies = 0
-        }
+    func reply(current _: Current) {
+        _semaphore.signal()
     }
 
-    func reply(current _: Current) async throws {
-        withLock(&_lock) {
-            _replies += 1
-            _semaphore.signal()
-        }
+    func getProxy(_ adapter: ObjectAdapter) throws -> PingReplyPrx {
+        try uncheckedCast(prx: adapter.addWithUUID(self), type: PingReplyPrx.self).ice_datagram()
     }
 
     func waitReply(expectedReplies: Int, timeout: Int) -> Bool {
+        precondition(timeout > 0, "Timeout must be greater than 0")
         let end = DispatchTime.now() + .milliseconds(timeout)
-        while _replies < expectedReplies {
-            let begin = DispatchTime.now()
-            let delay = end.uptimeNanoseconds - begin.uptimeNanoseconds
-            if delay > 0 {
-                if _semaphore.wait(timeout: end) == .timedOut {
-                    break
-                }
-            } else {
-                break
+        for _ in 0..<expectedReplies {
+            if _semaphore.wait(timeout: end) == .timedOut {
+                return false  // timed out
             }
         }
-        return _replies == expectedReplies
+        return true  // success
     }
 }
 
@@ -48,11 +36,6 @@ public func allTests(_ helper: TestHelper) async throws {
     let communicator = helper.communicator()
     communicator.getProperties().setProperty(key: "ReplyAdapter.Endpoints", value: "udp")
     let adapter = try communicator.createObjectAdapter("ReplyAdapter")
-    var replyI = PingReplyI()
-    var reply = try uncheckedCast(
-        prx: adapter.addWithUUID(replyI),
-        type: PingReplyPrx.self
-    ).ice_datagram()
     try adapter.activate()
 
     let output = helper.getWriter()
@@ -64,7 +47,9 @@ public func allTests(_ helper: TestHelper) async throws {
 
     var ret = false
     for _ in 0..<5 {
-        replyI.reset()
+        let replyI = PingReplyI()
+        let reply = try replyI.getProxy(adapter)
+
         try await obj.ping(reply)
         try await obj.ping(reply)
         try await obj.ping(reply)
@@ -75,11 +60,6 @@ public func allTests(_ helper: TestHelper) async throws {
 
         // If the 3 datagrams were not received within the 2 seconds, we try again to
         // receive 3 new datagrams using a new object. We give up after 5 retries.
-        replyI = PingReplyI()
-        reply = try uncheckedCast(
-            prx: adapter.addWithUUID(replyI),
-            type: PingReplyPrx.self
-        ).ice_datagram()
     }
     try test(ret)
 
@@ -91,11 +71,12 @@ public func allTests(_ helper: TestHelper) async throws {
         var seq: ByteSeq
         do {
             seq = ByteSeq(repeating: 0, count: 1024)
+            let replyI = PingReplyI()
+            let reply = try replyI.getProxy(adapter)
+
             while true {
                 seq = ByteSeq(repeating: 0, count: seq.count * 2 + 10)
-                replyI.reset()
                 try await obj.sendByteSeq(seq: seq, reply: reply)
-                _ = replyI.waitReply(expectedReplies: 1, timeout: 10000)
             }
         } catch is Ice.DatagramLimitException {
             //
@@ -108,7 +89,9 @@ public func allTests(_ helper: TestHelper) async throws {
         communicator.getProperties().setProperty(key: "Ice.UDP.SndSize", value: "64000")
         seq = ByteSeq(repeating: 0, count: 50000)
         do {
-            replyI.reset()
+            let replyI = PingReplyI()
+            let reply = try replyI.getProxy(adapter)
+
             try await obj.sendByteSeq(seq: seq, reply: reply)
             let b = replyI.waitReply(expectedReplies: 1, timeout: 500)
             //
@@ -136,7 +119,8 @@ public func allTests(_ helper: TestHelper) async throws {
     let objMcast = uncheckedCast(prx: base, type: TestIntfPrx.self)
 
     for _ in 0..<5 {
-        replyI.reset()
+        let replyI = PingReplyI()
+        let reply = try replyI.getProxy(adapter)
         do {
             try await objMcast.ping(reply)
             ret = replyI.waitReply(expectedReplies: 5, timeout: 5000)
@@ -150,11 +134,6 @@ public func allTests(_ helper: TestHelper) async throws {
         if ret {
             break
         }
-
-        replyI = PingReplyI()
-        reply = try uncheckedCast(
-            prx: adapter.addWithUUID(replyI).ice_datagram(),
-            type: PingReplyPrx.self)
     }
 
     try test(ret)
@@ -163,7 +142,8 @@ public func allTests(_ helper: TestHelper) async throws {
     output.write("testing udp bi-dir connection... ")
     try await obj.ice_getConnection()!.setAdapter(adapter)
     for _ in 0..<5 {
-        replyI.reset()
+        let replyI = PingReplyI()
+        let reply = try replyI.getProxy(adapter)
         try await obj.pingBiDir(reply.ice_getIdentity())
         try await obj.pingBiDir(reply.ice_getIdentity())
         try await obj.pingBiDir(reply.ice_getIdentity())
@@ -171,11 +151,6 @@ public func allTests(_ helper: TestHelper) async throws {
         if ret {
             break  // Success
         }
-        replyI = PingReplyI()
-        reply = try uncheckedCast(
-            prx: adapter.addWithUUID(replyI),
-            type: PingReplyPrx.self
-        ).ice_datagram()
     }
     try test(ret)
     output.writeLine("ok")
