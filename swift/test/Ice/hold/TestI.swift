@@ -16,7 +16,7 @@ actor HoldI: Hold {
         _helper = helper
     }
 
-    func putOnHold(delay: Int32, current _: Ice.Current) async throws {
+    func putOnHold(delay: Int32, current _: Ice.Current) throws {
         if delay < 0 {
             _adapter.hold()
         } else if delay == 0 {
@@ -34,7 +34,7 @@ actor HoldI: Hold {
         }
     }
 
-    func waitForHold(current: Ice.Current) async throws {
+    func waitForHold(current: Ice.Current) throws {
         let adapter = current.adapter
         _queue.async {
             do {
@@ -48,7 +48,7 @@ actor HoldI: Hold {
         }
     }
 
-    func shutdown(current _: Ice.Current) async throws {
+    func shutdown(current _: Ice.Current) throws {
         _adapter.hold()
         _adapter.getCommunicator().shutdown()
     }

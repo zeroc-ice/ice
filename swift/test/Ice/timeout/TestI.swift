@@ -5,7 +5,7 @@ import Ice
 final class TimeoutI: Timeout {
     func op(current _: Current) async throws {}
 
-    func sendData(seq _: ByteSeq, current _: Current) async throws {}
+    func sendData(seq _: ByteSeq, current _: Current) {}
 
     func sleep(to: Int32, current _: Current) async throws {
         try await Task.sleep(for: .milliseconds(Int(to)))
@@ -36,7 +36,7 @@ final class ControllerI: Controller {
         }
     }
 
-    func resumeAdapter(current _: Ice.Current) async throws {
+    func resumeAdapter(current _: Ice.Current) throws {
         try _adapter.activate()
     }
 

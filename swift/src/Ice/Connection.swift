@@ -118,9 +118,7 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     ///
     /// - parameter compress: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
     /// being sent over the wire.
-    func flushBatchRequests(
-        _ compress: CompressBatch
-    ) async throws
+    func flushBatchRequests(_ compress: CompressBatch) async throws
 
     /// Set a close callback on the connection. The callback is called by the connection when it's closed. The callback
     /// is called from the Ice thread pool associated with the connection. If the callback needs more information about

@@ -78,7 +78,7 @@ func allTests(_ helper: TestHelper) async throws {
     }
 
     final class MyObjectI: MyObject {
-        func getName(current: Ice.Current) async throws -> String {
+        func getName(current: Ice.Current) -> String {
             "Foo"
         }
     }
