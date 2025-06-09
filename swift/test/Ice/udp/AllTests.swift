@@ -99,7 +99,10 @@ public func allTests(_ helper: TestHelper) async throws {
             // should not be delivered.
             //
             try test(!b)
-        } catch is Ice.DatagramLimitException {}
+        } catch {
+            print("Failed to send large request over udp: \(error)")
+            try test(false)
+        }
     }
     output.writeLine("ok")
 

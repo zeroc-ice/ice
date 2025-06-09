@@ -130,10 +130,7 @@ public class AllTests : global::Test.AllTests
                 //
                 test(!b);
             }
-            catch (Ice.DatagramLimitException)
-            {
-            }
-            catch (Ice.LocalException ex)
+            catch (LocalException ex)
             {
                 Console.Out.WriteLine(ex);
                 test(false);
