@@ -3,7 +3,7 @@
 import IceImpl
 
 struct ProcessI: Process {
-    private let handle: ICEProcess
+    nonisolated(unsafe) private let handle: ICEProcess
 
     func shutdown(current _: Current) {
         handle.shutdown()
