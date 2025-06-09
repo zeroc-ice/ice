@@ -6,8 +6,6 @@ import Synchronization
 final class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable,
     @unchecked Sendable
 {
-    let servantManager: ServantManager
-
     var dispatchPipeline: Dispatcher {
         dispatchPipelineValue.withLock {
             guard let value = $0 else {
@@ -24,6 +22,7 @@ final class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDis
     }
 
     private let communicator: Communicator
+    private let servantManager: ServantManager
     private let dispatchPipelineValue = Mutex<Dispatcher?>(nil)
     private var middlewareFactoryList: [(Dispatcher) -> Dispatcher] = []  // not thread-safe
 
@@ -280,5 +279,9 @@ final class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDis
 
     func complete() {
         servantManager.destroy()
+    }
+
+    func setAdminId(_ adminId: Identity) {
+        servantManager.setAdminId(adminId)
     }
 }
