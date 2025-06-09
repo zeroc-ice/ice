@@ -150,7 +150,7 @@ final class ServantManager: Dispatcher {
 
     func setAdminId(_ id: Identity) {
         mutex.sync {
-            adminId = id
+            self.adminId = id
         }
     }
 

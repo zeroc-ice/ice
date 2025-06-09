@@ -196,10 +196,10 @@ final class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecke
                 name: adminId.name,
                 category: adminId.category)
             if let adapter = adminAdapter {
-                // Register the admin OA's id with the servant manager. This is used to distingish between
+                // Register the admin OA's id with the servant manager. This is used to distinguish between
                 // ObjectNotExistException and FacetNotExistException when a servant is not found on
                 // a Swift Admin OA.
-                (adapter as! ObjectAdapterI).servantManager.setAdminId(adminId)
+                (adapter as! ObjectAdapterI).setAdminId(adminId)
             }
 
             return ObjectPrxI(handle: handle, communicator: self)
