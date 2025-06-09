@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-final class ServantManager: Dispatcher {
+// TODO: use Mutex and remove @unchecked Sendable
+final class ServantManager: Dispatcher, @unchecked Sendable {
     private let adapterName: String
     private let communicator: Communicator
 
