@@ -6,13 +6,12 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.MarshalException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OperationNotExistException;
-import com.zeroc.Ice.SlicedData;
 import com.zeroc.Ice.SliceLoader;
+import com.zeroc.Ice.SlicedData;
 import com.zeroc.Ice.UnknownSlicedValue;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.Value;
 
-import test.TestHelper;
 import test.Ice.slicing.objects.client.Test.B;
 import test.Ice.slicing.objects.client.Test.BaseException;
 import test.Ice.slicing.objects.client.Test.CompactPCDerived;
@@ -36,6 +35,7 @@ import test.Ice.slicing.objects.client.Test.SS2;
 import test.Ice.slicing.objects.client.Test.SS3;
 import test.Ice.slicing.objects.client.Test.TestIntf;
 import test.Ice.slicing.objects.client.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 import java.util.HashMap;

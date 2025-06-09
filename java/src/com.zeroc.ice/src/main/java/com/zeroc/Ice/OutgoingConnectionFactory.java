@@ -2,6 +2,9 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
+import com.zeroc.Ice.Instrumentation.Observer;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,9 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
-import com.zeroc.Ice.Instrumentation.Observer;
 
 final class OutgoingConnectionFactory {
     //

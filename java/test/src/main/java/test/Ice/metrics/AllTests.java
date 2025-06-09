@@ -16,6 +16,15 @@ import com.zeroc.Ice.PropertiesAdminPrx;
 import com.zeroc.Ice.RequestFailedException;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.Util;
+import com.zeroc.IceMX.ChildInvocationMetrics;
+import com.zeroc.IceMX.ConnectionMetrics;
+import com.zeroc.IceMX.DispatchMetrics;
+import com.zeroc.IceMX.InvocationMetrics;
+import com.zeroc.IceMX.Metrics;
+import com.zeroc.IceMX.MetricsAdmin;
+import com.zeroc.IceMX.MetricsAdminPrx;
+import com.zeroc.IceMX.MetricsFailures;
+import com.zeroc.IceMX.UnknownMetricsView;
 
 import test.Ice.metrics.Test.ControllerPrx;
 import test.Ice.metrics.Test.MetricsPrx;
@@ -27,16 +36,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-
-import com.zeroc.IceMX.ChildInvocationMetrics;
-import com.zeroc.IceMX.ConnectionMetrics;
-import com.zeroc.IceMX.DispatchMetrics;
-import com.zeroc.IceMX.InvocationMetrics;
-import com.zeroc.IceMX.Metrics;
-import com.zeroc.IceMX.MetricsAdmin;
-import com.zeroc.IceMX.MetricsAdminPrx;
-import com.zeroc.IceMX.MetricsFailures;
-import com.zeroc.IceMX.UnknownMetricsView;
 
 public class AllTests {
     private static void test(boolean b) {

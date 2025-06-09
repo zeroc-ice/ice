@@ -9,13 +9,13 @@ import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;
 
-import test.TestHelper;
 import test.Ice.scope.Test.MyClass;
 import test.Ice.scope.Test.MyEnum;
 import test.Ice.scope.Test.MyInterface;
 import test.Ice.scope.Test.MyOtherClass;
 import test.Ice.scope.Test.MyOtherStruct;
 import test.Ice.scope.Test.MyStruct;
+import test.TestHelper;
 
 import java.util.Map;
 

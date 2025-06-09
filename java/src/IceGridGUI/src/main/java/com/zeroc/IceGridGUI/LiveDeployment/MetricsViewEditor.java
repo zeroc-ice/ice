@@ -7,13 +7,13 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 import com.zeroc.Ice.FacetNotExistException;
 import com.zeroc.Ice.FileException;
 import com.zeroc.Ice.HashUtil;
-import com.zeroc.IceMX.Metrics;
-import com.zeroc.IceMX.MetricsAdminPrx;
-import com.zeroc.IceMX.MetricsFailures;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
 import com.zeroc.IceGridGUI.Coordinator;
+import com.zeroc.IceMX.Metrics;
+import com.zeroc.IceMX.MetricsAdminPrx;
+import com.zeroc.IceMX.MetricsFailures;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

@@ -2,10 +2,10 @@
 
 package test.Ice.objects;
 
-import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ClassSliceLoader;
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.CompositeSliceLoader;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Util;

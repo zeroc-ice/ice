@@ -3,12 +3,12 @@
 package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.Ice.FacetNotExistException;
-import com.zeroc.IceMX.MetricsAdminPrx;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.LoggerAdminPrx;
 import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.PropertiesAdminPrx;
+import com.zeroc.IceMX.MetricsAdminPrx;
 
 import java.util.ArrayList;
 import java.util.Enumeration;

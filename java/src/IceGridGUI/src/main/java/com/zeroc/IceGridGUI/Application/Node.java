@@ -2,6 +2,15 @@
 
 package com.zeroc.IceGridGUI.Application;
 
+import com.zeroc.IceGrid.BoxedString;
+import com.zeroc.IceGrid.IceBoxDescriptor;
+import com.zeroc.IceGrid.NodeDescriptor;
+import com.zeroc.IceGrid.NodeUpdateDescriptor;
+import com.zeroc.IceGrid.PropertyDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGrid.ServerDescriptor;
+import com.zeroc.IceGrid.ServerInstanceDescriptor;
+import com.zeroc.IceGrid.TemplateDescriptor;
 import com.zeroc.IceGridGUI.ApplicationActions;
 import com.zeroc.IceGridGUI.TreeNodeBase;
 import com.zeroc.IceGridGUI.Utils;
@@ -26,16 +35,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-
-import com.zeroc.IceGrid.BoxedString;
-import com.zeroc.IceGrid.IceBoxDescriptor;
-import com.zeroc.IceGrid.NodeDescriptor;
-import com.zeroc.IceGrid.NodeUpdateDescriptor;
-import com.zeroc.IceGrid.PropertyDescriptor;
-import com.zeroc.IceGrid.PropertySetDescriptor;
-import com.zeroc.IceGrid.ServerDescriptor;
-import com.zeroc.IceGrid.ServerInstanceDescriptor;
-import com.zeroc.IceGrid.TemplateDescriptor;
 
 class Node extends TreeNode implements PropertySetParent {
     public static NodeDescriptor copyDescriptor(NodeDescriptor nd) {

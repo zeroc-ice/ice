@@ -8,6 +8,7 @@ import com.jgoodies.looks.BorderStyle;
 import com.jgoodies.looks.HeaderStyle;
 import com.jgoodies.looks.Options;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
+
 import com.zeroc.IceGrid.ServerDescriptor;
 import com.zeroc.IceGrid.ServerState;
 import com.zeroc.IceGridGUI.Coordinator;

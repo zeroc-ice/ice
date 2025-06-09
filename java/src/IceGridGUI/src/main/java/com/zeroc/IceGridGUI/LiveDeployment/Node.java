@@ -4,6 +4,24 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectPrx;
+import com.zeroc.IceGrid.AdapterDynamicInfo;
+import com.zeroc.IceGrid.AdminPrx;
+import com.zeroc.IceGrid.AdminSessionPrx;
+import com.zeroc.IceGrid.ApplicationDescriptor;
+import com.zeroc.IceGrid.FileIteratorPrx;
+import com.zeroc.IceGrid.FileNotAvailableException;
+import com.zeroc.IceGrid.NodeDescriptor;
+import com.zeroc.IceGrid.NodeDynamicInfo;
+import com.zeroc.IceGrid.NodeInfo;
+import com.zeroc.IceGrid.NodeNotExistException;
+import com.zeroc.IceGrid.NodeUnreachableException;
+import com.zeroc.IceGrid.NodeUpdateDescriptor;
+import com.zeroc.IceGrid.PropertySetDescriptor;
+import com.zeroc.IceGrid.ServerDescriptor;
+import com.zeroc.IceGrid.ServerDynamicInfo;
+import com.zeroc.IceGrid.ServerInstanceDescriptor;
+import com.zeroc.IceGrid.ServerState;
+import com.zeroc.IceGrid.TemplateDescriptor;
 import com.zeroc.IceGridGUI.LiveActions;
 import com.zeroc.IceGridGUI.Utils;
 
@@ -28,25 +46,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
-
-import com.zeroc.IceGrid.AdapterDynamicInfo;
-import com.zeroc.IceGrid.AdminPrx;
-import com.zeroc.IceGrid.AdminSessionPrx;
-import com.zeroc.IceGrid.ApplicationDescriptor;
-import com.zeroc.IceGrid.FileIteratorPrx;
-import com.zeroc.IceGrid.FileNotAvailableException;
-import com.zeroc.IceGrid.NodeDescriptor;
-import com.zeroc.IceGrid.NodeDynamicInfo;
-import com.zeroc.IceGrid.NodeInfo;
-import com.zeroc.IceGrid.NodeNotExistException;
-import com.zeroc.IceGrid.NodeUnreachableException;
-import com.zeroc.IceGrid.NodeUpdateDescriptor;
-import com.zeroc.IceGrid.PropertySetDescriptor;
-import com.zeroc.IceGrid.ServerDescriptor;
-import com.zeroc.IceGrid.ServerDynamicInfo;
-import com.zeroc.IceGrid.ServerInstanceDescriptor;
-import com.zeroc.IceGrid.ServerState;
-import com.zeroc.IceGrid.TemplateDescriptor;
 
 class Node extends Communicator {
     // Actions

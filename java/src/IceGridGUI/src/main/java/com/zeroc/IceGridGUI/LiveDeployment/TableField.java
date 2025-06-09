@@ -11,13 +11,13 @@ import com.zeroc.IceGrid.ObjectInfo;
 import com.zeroc.IceGrid.PropertyDescriptor;
 import com.zeroc.IceGridGUI.Utils;
 
-import javax.swing.JTable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
+
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 

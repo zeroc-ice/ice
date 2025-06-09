@@ -392,7 +392,7 @@ classDiagram
 
 - Removed Slice checksums.
 
-- Sequences can no longer be used as the type of dictionary keys.
+- Sequences can no longer be used as dictionary key types.
   This feature has been deprecated since Ice 3.3.0.
 
 - Improved validation of metadata and doc-comments.

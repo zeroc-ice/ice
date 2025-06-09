@@ -4,12 +4,12 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGridGUI.Utils;
 
-import javax.swing.DefaultCellEditor;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;

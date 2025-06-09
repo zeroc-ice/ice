@@ -3,6 +3,7 @@
 package com.zeroc.IceGridGUI;
 
 import com.jgoodies.forms.factories.Borders;
+
 import com.zeroc.IceGridGUI.Application.Editor;
 import com.zeroc.IceGridGUI.Application.Root;
 import com.zeroc.IceGridGUI.Application.TreeNode;

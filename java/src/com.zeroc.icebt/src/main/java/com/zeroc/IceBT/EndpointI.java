@@ -2,8 +2,6 @@
 
 package com.zeroc.IceBT;
 
-import android.bluetooth.BluetoothAdapter;
-
 import com.zeroc.Ice.Acceptor;
 import com.zeroc.Ice.Connector;
 import com.zeroc.Ice.EndpointI_connectors;
@@ -13,6 +11,8 @@ import com.zeroc.Ice.OutputStream;
 import com.zeroc.Ice.ParseException;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 import com.zeroc.Ice.Transceiver;
+
+import android.bluetooth.BluetoothAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;

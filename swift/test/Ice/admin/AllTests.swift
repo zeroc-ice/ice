@@ -6,6 +6,13 @@ import Synchronization
 import TestCommon
 
 final class RemoteLoggerI: Ice.RemoteLogger {
+
+    private struct State {
+        var prefix: String = ""
+        var initMessages: [Ice.LogMessage] = []
+        var logMessages: [Ice.LogMessage] = []
+    }
+
     private let _helper: TestHelper
     private let _state = Mutex<State>(State())
     private let _semaphore = DispatchSemaphore(value: 0)
@@ -54,12 +61,6 @@ final class RemoteLoggerI: Ice.RemoteLogger {
         for _ in 0..<calls {
             _semaphore.wait()
         }
-    }
-
-    private struct State {
-        var prefix: String = ""
-        var initMessages: [Ice.LogMessage] = []
-        var logMessages: [Ice.LogMessage] = []
     }
 }
 

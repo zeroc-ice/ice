@@ -4,6 +4,7 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
+
 import com.zeroc.IceGrid.CommunicatorDescriptor;
 import com.zeroc.IceGrid.PropertyDescriptor;
 import com.zeroc.IceGridGUI.Utils;
@@ -16,7 +17,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.JScrollPane;
-
 import javax.swing.JTextArea;
 
 class CommunicatorSubEditor {

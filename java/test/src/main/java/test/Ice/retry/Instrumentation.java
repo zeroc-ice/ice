@@ -5,8 +5,6 @@ package test.Ice.retry;
 import com.zeroc.Ice.ConnectionInfo;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Endpoint;
-import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Instrumentation.CollocatedObserver;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.Instrumentation.ConnectionObserver;
@@ -18,6 +16,8 @@ import com.zeroc.Ice.Instrumentation.ObserverUpdater;
 import com.zeroc.Ice.Instrumentation.RemoteObserver;
 import com.zeroc.Ice.Instrumentation.ThreadObserver;
 import com.zeroc.Ice.Instrumentation.ThreadState;
+import com.zeroc.Ice.ObjectAdapter;
+import com.zeroc.Ice.ObjectPrx;
 
 import java.util.Map;
 

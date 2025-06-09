@@ -2,9 +2,9 @@
 
 package com.zeroc.Ice;
 
+import com.zeroc.Ice.Instrumentation.ConnectionObserver;
 import com.zeroc.IceMX.ConnectionMetrics;
 import com.zeroc.IceMX.ObserverWithDelegate;
-import com.zeroc.Ice.Instrumentation.ConnectionObserver;
 
 /**
  * @hidden Public because it's used by IceMX (via reflection).

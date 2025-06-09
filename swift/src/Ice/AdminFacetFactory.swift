@@ -33,7 +33,7 @@ final class AdminFacetFacade: ICEDispatchAdapter {
             // Register the admin OA's id with the servant manager. This is used to distinguish between
             // ObjectNotExistException and FacetNotExistException when a servant is not found on
             // a Swift Admin OA.
-            oa.servantManager.setAdminId(Identity(name: name, category: category))
+            oa.setAdminId(Identity(name: name, category: category))
             return oa
         }
 
