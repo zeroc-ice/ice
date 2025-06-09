@@ -7,7 +7,7 @@ import PackagePlugin
 extension CompileSlicePlugin: BuildToolPlugin {
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
         guard let swiftTarget = target as? SwiftSourceModuleTarget else {
-            throw PluginError.invalidTarget(target)
+            throw PluginError.invalidTarget("\(type(of: target))")
         }
 
         return try createBuildCommands(
@@ -36,13 +36,15 @@ extension CompileSlicePlugin: BuildToolPlugin {
 #endif
 
 enum PluginError: Error {
-
+    case invalidTarget(String)
     case missingCompiler(String)
     case missingConfigFile(String, String)
     case missingIceSliceFiles(String)
 
     var description: String {
         switch self {
+        case .invalidTarget(let targetType):
+            return "Expected a SwiftSourceModuleTarget but got '\(targetType))'."
         case .missingCompiler(let path):
             return "Missing slice compiler: '\(path)'."
         case .missingConfigFile(let path, let target):
