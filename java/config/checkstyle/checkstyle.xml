@@ -30,6 +30,11 @@
 
   <property name="severity" value="${org.checkstyle.google.severity}" default="warning"/>
 
+  <!-- It's standard practice to separate any exceptions/suppressions into a separate XML file. -->
+  <module name="SuppressionFilter">
+    <property name="file" value="${config_loc}/suppressions.xml" />
+  </module>
+
   <property name="fileExtensions" value="java, properties, xml"/>
   <!-- Excludes all 'module-info.java' files              -->
   <!-- See https://checkstyle.org/filefilters/index.html -->
@@ -66,7 +71,7 @@
     <property name="fileExtensions" value="java"/>
     <property name="max" value="120"/>
     <property name="ignorePattern"
-             value="^package.*|^import.*|href\s*=\s*&quot;[^&quot;]*&quot;|http://|https://|ftp://"/>
+             value="^package.*|^import.*|^\s*&quot;|href\s*=\s*&quot;[^&quot;]*&quot;|http://|https://|ftp://"/>
   </module>
 
   <module name="TreeWalker">
