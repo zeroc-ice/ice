@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- Suppress all warnings in the generated code. -->
+    <suppress files="[/\\]build[/\\]generated[/\\]" checks="[_a-zA-Z0-9]*"/>
+
+    <!-- Suppress array-style and line-length warnings in the generated 'PropertyNames' file. -->
+    <suppress files="[/\\]com[/\\]zeroc[/\\]Ice[/\\]PropertyNames.java" checks="ArrayTypeStyle|LineLength"/>
+</suppressions>

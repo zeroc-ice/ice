@@ -2,8 +2,8 @@
 
 import IceImpl
 
-class ProcessI: Process, @unchecked Sendable {
-    private let handle: ICEProcess
+struct ProcessI: Process {
+    nonisolated(unsafe) private let handle: ICEProcess
 
     func shutdown(current _: Current) {
         handle.shutdown()

@@ -2,11 +2,10 @@
 
 import Foundation
 import Ice
+import Synchronization
 import TestCommon
 
-class TestI: TestIntf {
-    init() {}
-
+final class TestI: TestIntf {
     func transient(current: Ice.Current) async throws {
         let communicator = current.adapter.getCommunicator()
 
@@ -23,13 +22,13 @@ class TestI: TestIntf {
     }
 }
 
-class Cookie {
+final class Cookie {
     func message() -> String {
         return "blahblah"
     }
 }
 
-class RouterI: Ice.Router {
+final class RouterI: Ice.Router {
     func getClientProxy(current _: Ice.Current) async throws -> (
         returnValue: ObjectPrx?, hasRoutingTable: Bool?
     ) {
@@ -48,24 +47,22 @@ class RouterI: Ice.Router {
     }
 }
 
-class ServantLocatorI: Ice.ServantLocator {
-    var _helper: TestHelper
-    var _deactivated: Bool
-    var _router = RouterI()
-    var _lock = os_unfair_lock()
+final class ServantLocatorI: Ice.ServantLocator {
+    private let _helper: TestHelper
+    private let _deactivated = Mutex<Bool>(false)
+    private let _router = RouterI()
 
     init(helper: TestHelper) {
-        _deactivated = false
         _helper = helper
     }
 
     deinit {
-        precondition(_deactivated)
+        precondition(_deactivated.withLock { $0 }, "ServantLocatorI deactivated must be true before deinit")
     }
 
-    func locate(_ current: Ice.Current) throws -> (returnValue: Dispatcher?, cookie: AnyObject?) {
-        try withLock(&_lock) {
-            try _helper.test(!_deactivated)
+    func locate(_ current: Ice.Current) throws -> sending (returnValue: Dispatcher?, cookie: AnyObject?) {
+        try _deactivated.withLock {
+            try _helper.test(!$0)
         }
 
         if current.id.name == "router" {
@@ -79,8 +76,8 @@ class ServantLocatorI: Ice.ServantLocator {
     }
 
     func finished(curr current: Ice.Current, servant _: Ice.Dispatcher, cookie: AnyObject?) throws {
-        try withLock(&_lock) {
-            try _helper.test(!_deactivated)
+        try _deactivated.withLock {
+            try _helper.test(!$0)
         }
 
         if current.id.name == "router" {
@@ -92,9 +89,9 @@ class ServantLocatorI: Ice.ServantLocator {
 
     func deactivate(_: String) {
         do {
-            try withLock(&_lock) {
-                try _helper.test(!_deactivated)
-                _deactivated = true
+            try _deactivated.withLock {
+                try _helper.test(!$0)
+                $0 = true
             }
         } catch {
             fatalError("\(error)")

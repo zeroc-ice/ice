@@ -3,7 +3,7 @@
 plugins {
     id 'com.zeroc.ice.slice-tools' apply false
     id 'checkstyle'
-    id 'org.openrewrite.rewrite' version '7.3.0'
+    id 'org.openrewrite.rewrite' version '7.7.0'
 }
 
 allprojects {
@@ -45,14 +45,6 @@ subprojects {
         options.encoding = "UTF-8"
         options.deprecation = true
     }
-
-    // We want Checkstyle to generally run before Rewrite and to exclude files generated from Slice.
-    tasks.withType(Checkstyle) {
-        task ->
-            rewriteDryRun.dependsOn(task)
-            rewriteRun.dependsOn(task)
-    }
-
 }
 
 task clean(type: Delete) {
@@ -109,21 +101,9 @@ checkstyle {
 }
 
 rewrite {
-    activeRecipe(
-        'org.openrewrite.staticanalysis.RemoveCallsToObjectFinalize',
-        'org.openrewrite.staticanalysis.DefaultComesLast',
-        'org.openrewrite.java.RemoveUnusedImports',
-        'org.openrewrite.java.format.NormalizeFormat',
-        'org.openrewrite.java.format.BlankLines',
-        'org.openrewrite.java.format.Spaces',
-        'org.openrewrite.java.format.NormalizeTabsOrSpaces',
-        'org.openrewrite.java.format.TabsAndIndents',
-        'org.openrewrite.java.format.NormalizeLineBreaks',
-        'org.openrewrite.java.format.RemoveTrailingWhitespace',
-        'org.openrewrite.staticanalysis.CodeCleanup'
-    )
-    checkstyleConfigFile = file("config/checkstyle/checkstyle.xml")
-    activeStyle('com.zeroc.IceRewriteRules')
+    activeRecipe('com.zeroc.IceRewriteRecipes')
+    activeStyle('com.zeroc.IceRewriteStyle')
+
     setExportDatatables(true)
     exclusion(
         // OpenRewrite is technically capable of modifying Groovy and Kotlin files, but we are avoiding this for now.
@@ -151,6 +131,7 @@ dependencies {
 }
 
 // Causes build failure when rewriteRun would make changes.
+def runningInCi = providers.environmentVariable("CI").isPresent()
 tasks.named('rewriteDryRun') {
-    rewrite.failOnDryRunResults = true
+    rewrite.failOnDryRunResults = runningInCi
 }

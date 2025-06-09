@@ -4,10 +4,25 @@ import Foundation
 import Ice
 import TestCommon
 
-class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
-    var _helper: TestHelper
-    var _opByteSOnewayCallCount: Int32 = 0
-    var _lock = os_unfair_lock()
+actor OpByteSOnewayCallCount {
+    private var count: Int32 = 0
+
+    /// Returns the current count by 1.
+    func increment() {
+        count += 1
+    }
+
+    /// Resets count and returns the previous value.
+    func reset() -> Int32 {
+        let currentCount = count
+        count = 0
+        return currentCount
+    }
+}
+
+final class MyDerivedClassI: MyDerivedClass {
+    let _helper: TestHelper
+    let _opByteSOnewayCallCount = OpByteSOnewayCallCount()
 
     init(_ helper: TestHelper) {
         _helper = helper
@@ -334,17 +349,11 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     }
 
     func opByteSOneway(s _: ByteSeq, current _: Ice.Current) async throws {
-        withLock(&_lock) {
-            _opByteSOnewayCallCount += 1
-        }
+        await _opByteSOnewayCallCount.increment()
     }
 
     func opByteSOnewayCallCount(current _: Ice.Current) async throws -> Int32 {
-        return withLock(&_lock) {
-            let count = _opByteSOnewayCallCount
-            _opByteSOnewayCallCount = 0
-            return count
-        }
+        return await _opByteSOnewayCallCount.reset()
     }
 
     func opContext(current: Ice.Current) async throws -> Ice.Context {

@@ -3,14 +3,6 @@
 import Foundation
 import Ice
 
-public func withLock<T>(_ lock: os_unfair_lock_t, block: () throws -> T) rethrows -> T {
-    os_unfair_lock_lock(lock)
-    defer {
-        os_unfair_lock_unlock(lock)
-    }
-    return try block()
-}
-
 public protocol TextWriter {
     func write(_ data: String)
     func writeLine(_ data: String)

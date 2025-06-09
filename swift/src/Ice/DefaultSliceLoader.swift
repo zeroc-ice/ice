@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 import Foundation
+import Synchronization
 
 /// Implements SliceLoader using the generated code.
 public final class DefaultSliceLoader: NSObject, SliceLoader {
@@ -8,8 +9,7 @@ public final class DefaultSliceLoader: NSObject, SliceLoader {
 
     // We cache successful resolutions. The size of this cache is bounded by the number of Slice classes and exceptions
     // in the program.
-    private var typeIdToClassMap: [String: AnyObject.Type] = [:]
-    private var mutex = Mutex()
+    private let typeIdToClassMap = Mutex<[String: AnyObject.Type]>([:])
 
     /// Creates a DefaultSliceLoader.
     /// - Parameter classResolverPrefix: The prefix to use when resolving Slice classes and exceptions. This prefix
@@ -20,15 +20,11 @@ public final class DefaultSliceLoader: NSObject, SliceLoader {
 
     public func newInstance(_ typeId: String) -> AnyObject? {
         var cls: AnyObject.Type?
-        mutex.sync {
-            cls = typeIdToClassMap[typeId]
-        }
+        typeIdToClassMap.withLock { cls = $0[typeId] }
         if cls == nil {
             cls = Self.resolve(typeId: typeId, prefix: classResolverPrefix)
             if cls != nil {
-                mutex.sync {
-                    typeIdToClassMap[typeId] = cls
-                }
+                typeIdToClassMap.withLock { $0[typeId] = cls }
             }
         }
         if let cls = cls {

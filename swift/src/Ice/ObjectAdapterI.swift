@@ -1,21 +1,22 @@
 // Copyright (c) ZeroC, Inc.
 
 import IceImpl
+import Synchronization
 
-class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable,
+final class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchAdapter, Hashable,
     @unchecked Sendable
 {
     let servantManager: ServantManager
 
     var dispatchPipeline: Dispatcher {
-        mutex.sync {
-            guard let value = dispatchPipelineValue else {
+        dispatchPipelineValue.withLock {
+            guard let value = $0 else {
                 var value: Dispatcher = servantManager
                 for factory in middlewareFactoryList.reversed() {
                     value = factory(value)
                 }
                 middlewareFactoryList.removeAll()  // we're done with the factories, release their memory
-                dispatchPipelineValue = value
+                $0 = value
                 return value
             }
             return value
@@ -23,9 +24,8 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
     }
 
     private let communicator: Communicator
-    private var dispatchPipelineValue: Dispatcher?
-    private var middlewareFactoryList: [(Dispatcher) -> Dispatcher] = []
-    private var mutex = Mutex()
+    private let dispatchPipelineValue = Mutex<Dispatcher?>(nil)
+    private var middlewareFactoryList: [(Dispatcher) -> Dispatcher] = []  // not thread-safe
 
     init(handle: ICEObjectAdapter, communicator: Communicator) {
         self.communicator = communicator
@@ -82,9 +82,10 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
     @discardableResult
     func use(_ middlewareFactory: @escaping (_ next: Dispatcher) -> Dispatcher) -> Self {
-        // We don't lock as none of this code is thread-safe
         precondition(
-            dispatchPipelineValue == nil,
+            dispatchPipelineValue.withLock {
+                $0 == nil
+            },
             "All middleware must be installed before the first dispatch.")
         middlewareFactoryList.append(middlewareFactory)
         return self

@@ -1,5 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
+// Default to OpenSSL 3.0.0 compatibility (decimal mmnnpp format)
+// Hide deprecated APIs unless the user explicitly wants them
+#define OPENSSL_API_COMPAT 30000
+#define OPENSSL_NO_DEPRECATED
+
 #include "OpenSSLEngine.h"
 #include "../FileUtil.h"
 #include "Ice/Communicator.h"
@@ -494,7 +499,7 @@ OpenSSL::SSLEngine::validationCallback(bool ok, X509_STORE_CTX* ctx, const Ice::
 string
 OpenSSL::SSLEngine::sslErrors() const
 {
-    return getErrors(securityTraceLevel() >= 1);
+    return getErrors();
 }
 
 void

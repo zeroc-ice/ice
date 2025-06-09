@@ -1,5 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
+// Default to OpenSSL 3.0.0 compatibility (decimal mmnnpp format)
+// Hide deprecated APIs unless the user explicitly wants them
+#define OPENSSL_API_COMPAT 30000
+#define OPENSSL_NO_DEPRECATED
+
 #include "OpenSSLTransceiverI.h"
 #include "Ice/Buffer.h"
 #include "Ice/Communicator.h"
@@ -225,13 +230,14 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     if (!_peerCertificate)
     {
         // When calling on the server side the peer certificate is not included in SSL_get_peer_cert_chain and must be
-        // obtained separately using SSL_get_peer_certificate.
+        // obtained separately using SSL_get1_peer_certificate.
         if (_incoming)
         {
-            X509* peerCertificate = SSL_get_peer_certificate(_ssl);
+            // SSL_get1_peer_certificate increases the reference count of the certificate before returning it.
+            X509* peerCertificate = SSL_get1_peer_certificate(_ssl);
             if (peerCertificate)
             {
-                _peerCertificate = X509_dup(peerCertificate);
+                _peerCertificate = peerCertificate;
             }
         }
         else

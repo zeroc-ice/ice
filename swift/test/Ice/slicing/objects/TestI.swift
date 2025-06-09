@@ -4,9 +4,9 @@ import Foundation
 import Ice
 import TestCommon
 
-class TestI: TestIntf {
-    var _helper: TestHelper
-    var _values = [Value]()
+final class TestI: TestIntf, @unchecked Sendable {
+    private let _helper: TestHelper
+    private var _values = [Value]()
 
     init(_ helper: TestHelper) {
         _helper = helper
@@ -18,7 +18,7 @@ class TestI: TestIntf {
         }
     }
 
-    private func breakCycles(_ value: Value) {
+    private nonisolated func breakCycles(_ value: Value) {
         if let d1 = value as? D1 {
             let tmp = d1.pd1
             d1.pd1 = nil
@@ -76,31 +76,31 @@ class TestI: TestIntf {
         }
     }
 
-    func SBaseAsObject(current _: Current) async throws -> Value? {
+    func SBaseAsObject(current _: Current) -> Value? {
         return SBase(sb: "SBase.sb")
     }
 
-    func SBaseAsSBase(current _: Current) async throws -> SBase? {
+    func SBaseAsSBase(current _: Current) -> SBase? {
         return SBase(sb: "SBase.sb")
     }
 
-    func SBSKnownDerivedAsSBase(current _: Current) async throws -> SBase? {
+    func SBSKnownDerivedAsSBase(current _: Current) -> SBase? {
         return SBSKnownDerived(sb: "SBSKnownDerived.sb", sbskd: "SBSKnownDerived.sbskd")
     }
 
-    func SBSKnownDerivedAsSBSKnownDerived(current _: Current) async throws -> SBSKnownDerived? {
+    func SBSKnownDerivedAsSBSKnownDerived(current _: Current) -> SBSKnownDerived? {
         return SBSKnownDerived(sb: "SBSKnownDerived.sb", sbskd: "SBSKnownDerived.sbskd")
     }
 
-    func SBSUnknownDerivedAsSBase(current _: Current) async throws -> SBase? {
+    func SBSUnknownDerivedAsSBase(current _: Current) -> SBase? {
         return SBSUnknownDerived(sb: "SBSUnknownDerived.sb", sbsud: "SBSUnknownDerived.sbsud")
     }
 
-    func SBSUnknownDerivedAsSBaseCompact(current _: Current) async throws -> SBase? {
+    func SBSUnknownDerivedAsSBaseCompact(current _: Current) -> SBase? {
         return SBSUnknownDerived(sb: "SBSUnknownDerived.sb", sbsud: "SBSUnknownDerived.sbsud")
     }
 
-    func SUnknownAsObject(current _: Current) async throws -> Value? {
+    func SUnknownAsObject(current _: Current) -> Value? {
         let su = SUnknown()
         su.su = "SUnknown.su"
         su.cycle = su
@@ -108,7 +108,7 @@ class TestI: TestIntf {
         return su
     }
 
-    func checkSUnknown(o: Value?, current: Current) async throws {
+    func checkSUnknown(o: Value?, current: Current) throws {
         let su = o as? SUnknown
         if current.encoding == Encoding_1_0 {
             try _helper.test(su == nil)
@@ -118,7 +118,7 @@ class TestI: TestIntf {
         }
     }
 
-    func oneElementCycle(current _: Current) async throws -> B? {
+    func oneElementCycle(current _: Current) -> B? {
         let b = B()
         b.sb = "B1.sb"
         b.pb = b
@@ -126,7 +126,7 @@ class TestI: TestIntf {
         return b
     }
 
-    func twoElementCycle(current _: Current) async throws -> B? {
+    func twoElementCycle(current _: Current) -> B? {
         let b1 = B()
         b1.sb = "B1.sb"
         let b2 = B()
@@ -137,7 +137,7 @@ class TestI: TestIntf {
         return b1
     }
 
-    func D1AsB(current _: Current) async throws -> B? {
+    func D1AsB(current _: Current) -> B? {
         let d1 = D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -152,7 +152,7 @@ class TestI: TestIntf {
         return d1
     }
 
-    func D1AsD1(current _: Current) async throws -> D1? {
+    func D1AsD1(current _: Current) -> D1? {
         let d1 = D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -167,7 +167,7 @@ class TestI: TestIntf {
         return d1
     }
 
-    func D2AsB(current _: Current) async throws -> B? {
+    func D2AsB(current _: Current) -> B? {
         let d2 = D2()
         d2.sb = "D2.sb"
         d2.sd2 = "D2.sd2"
@@ -182,7 +182,7 @@ class TestI: TestIntf {
         return d2
     }
 
-    func paramTest1(current _: Current) async throws -> (p1: B?, p2: B?) {
+    func paramTest1(current _: Current) -> (p1: B?, p2: B?) {
         let d1 = D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -197,12 +197,12 @@ class TestI: TestIntf {
         return (d1, d2)
     }
 
-    func paramTest2(current: Current) async throws -> (p2: B?, p1: B?) {
-        let ret = try await paramTest1(current: current)
+    func paramTest2(current: Current) -> (p2: B?, p1: B?) {
+        let ret = paramTest1(current: current)
         return (ret.p2, ret.p1)
     }
 
-    func paramTest3(current _: Current) async throws -> (returnValue: B?, p1: B?, p2: B?) {
+    func paramTest3(current _: Current) -> (returnValue: B?, p1: B?, p2: B?) {
         let d2 = D2()
         d2.sb = "D2.sb (p1 1)"
         d2.pb = nil
@@ -235,7 +235,7 @@ class TestI: TestIntf {
         return (d3, d2, d4)
     }
 
-    func paramTest4(current _: Current) async throws -> (returnValue: B?, p: B?) {
+    func paramTest4(current _: Current) -> (returnValue: B?, p: B?) {
         let d4 = D4()
         d4.sb = "D4.sb (1)"
         d4.pb = nil
@@ -247,13 +247,13 @@ class TestI: TestIntf {
         return (d4.p2, d4)
     }
 
-    func returnTest1(current: Current) async throws -> (returnValue: B?, p1: B?, p2: B?) {
-        let ret = try await paramTest1(current: current)
+    func returnTest1(current: Current) -> (returnValue: B?, p1: B?, p2: B?) {
+        let ret = paramTest1(current: current)
         return (ret.p1, ret.p1, ret.p2)
     }
 
-    func returnTest2(current: Current) async throws -> (returnValue: B?, p2: B?, p1: B?) {
-        let ret = try await paramTest1(current: current)
+    func returnTest2(current: Current) -> (returnValue: B?, p2: B?, p1: B?) {
+        let ret = paramTest1(current: current)
         return (ret.p1, ret.p1, ret.p2)
     }
 
@@ -263,7 +263,7 @@ class TestI: TestIntf {
         return p1
     }
 
-    func sequenceTest(p1: SS1?, p2: SS2?, current _: Current) async throws -> SS3 {
+    func sequenceTest(p1: SS1?, p2: SS2?, current _: Current) -> SS3 {
         let ss = SS3()
         ss.c1 = p1
         ss.c2 = p2
@@ -272,7 +272,7 @@ class TestI: TestIntf {
         return ss
     }
 
-    func dictionaryTest(bin: BDict, current _: Current) async throws -> (
+    func dictionaryTest(bin: BDict, current _: Current) -> (
         returnValue: BDict, bout: BDict
     ) {
         var bout = [Int32: B?]()
@@ -301,12 +301,12 @@ class TestI: TestIntf {
         return (r, bout)
     }
 
-    func exchangePBase(pb: PBase?, current _: Current) async throws -> PBase? {
+    func exchangePBase(pb: PBase?, current _: Current) -> PBase? {
         _values.append(pb!)
         return pb
     }
 
-    func PBSUnknownAsPreserved(current: Current) async throws -> Preserved? {
+    func PBSUnknownAsPreserved(current: Current) -> Preserved? {
         let r = PSUnknown()
         r.pi = 5
         r.ps = "preserved"
@@ -322,7 +322,7 @@ class TestI: TestIntf {
         return r
     }
 
-    func checkPBSUnknown(p: Preserved?, current: Current) async throws {
+    func checkPBSUnknown(p: Preserved?, current: Current) throws {
         if current.encoding == Ice.Encoding_1_0 {
             try _helper.test(!(p is PSUnknown))
             try _helper.test(p!.pi == 5)
@@ -338,7 +338,7 @@ class TestI: TestIntf {
     }
 
     // TODO: Doesn't seem to be called
-    func PBSUnknownAsPreservedWithGraph(current: Current) async throws -> Preserved? {
+    func PBSUnknownAsPreservedWithGraph(current: Current) -> Preserved? {
         // This code requires a regular, non-colloc dispatch
         //TODO: there are not more dispatch queues
         // if let dq = try? current.adapter.getDispatchQueue() {
@@ -372,7 +372,7 @@ class TestI: TestIntf {
         fatalError("not implemented")
     }
 
-    func checkPBSUnknownWithGraph(p: Preserved?, current: Current) async throws {
+    func checkPBSUnknownWithGraph(p: Preserved?, current: Current) throws {
         if current.encoding == Encoding_1_0 {
             try _helper.test(!(p is PSUnknown))
             try _helper.test(p!.pi == 5)
@@ -394,7 +394,7 @@ class TestI: TestIntf {
         }
     }
 
-    func PBSUnknown2AsPreservedWithGraph(current: Current) async throws -> Preserved? {
+    func PBSUnknown2AsPreservedWithGraph(current: Current) -> Preserved? {
         fatalError("not implemented")
         // TODO: verify this is correct
         // return try await withCheckedThrowingContinuation { continuation in
@@ -413,7 +413,7 @@ class TestI: TestIntf {
         // }
     }
 
-    func checkPBSUnknown2WithGraph(p: Preserved?, current: Current) async throws {
+    func checkPBSUnknown2WithGraph(p: Preserved?, current: Current) throws {
         if current.encoding == Encoding_1_0 {
             try _helper.test(!(p is PSUnknown2))
             try _helper.test(p!.pi == 5)
@@ -427,11 +427,11 @@ class TestI: TestIntf {
         }
     }
 
-    func exchangePNode(pn: PNode?, current _: Current) async throws -> PNode? {
+    func exchangePNode(pn: PNode?, current _: Current) -> PNode? {
         return pn
     }
 
-    func throwBaseAsBase(current _: Current) async throws {
+    func throwBaseAsBase(current _: Current) throws {
         let be = BaseException()
         be.sbe = "sbe"
         be.pb = B()
@@ -441,7 +441,7 @@ class TestI: TestIntf {
         throw be
     }
 
-    func throwDerivedAsBase(current _: Current) async throws {
+    func throwDerivedAsBase(current _: Current) throws {
         let de = DerivedException()
         de.sbe = "sbe"
         de.pb = B()
@@ -458,7 +458,7 @@ class TestI: TestIntf {
         throw de
     }
 
-    func throwDerivedAsDerived(current _: Current) async throws {
+    func throwDerivedAsDerived(current _: Current) throws {
         let de = DerivedException()
         de.sbe = "sbe"
         de.pb = B()
@@ -475,7 +475,7 @@ class TestI: TestIntf {
         throw de
     }
 
-    func throwUnknownDerivedAsBase(current _: Current) async throws {
+    func throwUnknownDerivedAsBase(current _: Current) throws {
         let d2 = D2()
         d2.sb = "sb d2"
         d2.pb = d2
@@ -491,7 +491,7 @@ class TestI: TestIntf {
         throw ude
     }
 
-    func useForward(current _: Current) async throws -> Forward? {
+    func useForward(current _: Current) -> Forward? {
         let f = Forward()
         f.h = Hidden()
         f.h!.f = f
@@ -499,7 +499,7 @@ class TestI: TestIntf {
         return f
     }
 
-    func shutdown(current: Current) async throws {
+    func shutdown(current: Current) {
         current.adapter.getCommunicator().shutdown()
     }
 }

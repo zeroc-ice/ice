@@ -4,9 +4,9 @@ import IceImpl
 
 final class AdminFacetFacade: ICEDispatchAdapter {
     private let communicator: Communicator
-    let servant: Dispatcher & Sendable
+    let servant: Dispatcher
 
-    init(communicator: Communicator, servant: Dispatcher & Sendable) {
+    init(communicator: Communicator, servant: Dispatcher) {
         self.communicator = communicator
         self.servant = servant
     }
@@ -84,16 +84,14 @@ final class AdminFacetFacade: ICEDispatchAdapter {
     func complete() {}
 }
 
-final class UnsupportedAdminFacet: Dispatcher & Sendable {
-    func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
+struct UnsupportedAdminFacet: Dispatcher {
+    func dispatch(_ request: sending IncomingRequest) throws -> OutgoingResponse {
         throw Ice.OperationNotExistException()
     }
 }
 
 final class AdminFacetFactory: ICEAdminFacetFactory {
-    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess)
-        -> ICEDispatchAdapter
-    {
+    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter {
         // We create a new ProcessI each time, which does not really matter since users are not expected
         // to compare the address of these servants.
 
@@ -104,9 +102,7 @@ final class AdminFacetFactory: ICEAdminFacetFactory {
         )
     }
 
-    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin)
-        -> ICEDispatchAdapter
-    {
+    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
 
         // We create a new NativePropertiesAdmin each time, which does not really matter since users are not expected

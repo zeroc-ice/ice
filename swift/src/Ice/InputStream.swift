@@ -765,7 +765,7 @@ extension InputStream {
     /// Reads a proxy from the stream (internal helper).
     ///
     /// - returns: `ProxyImpl?` - The proxy read from the stream.
-    public func read<ProxyImpl>() throws -> sending ProxyImpl? where ProxyImpl: ObjectPrxI {
+    public func read<ProxyImpl>() throws -> ProxyImpl? where ProxyImpl: ObjectPrxI {
         return try ProxyImpl.ice_read(from: self)
     }
 
@@ -774,7 +774,7 @@ extension InputStream {
     /// - parameter tag: `Int32` - The tag of the optional data member or parameter.
     ///
     /// - returns: `ProxyImpl?` - The proxy read from the stream.
-    public func read<ProxyImpl>(tag: Int32) throws -> sending ProxyImpl?
+    public func read<ProxyImpl>(tag: Int32) throws -> ProxyImpl?
     where ProxyImpl: ObjectPrxI {
         guard try readOptional(tag: tag, expectedFormat: .FSize) else {
             return nil
@@ -786,7 +786,7 @@ extension InputStream {
     /// Reads a base proxy from the stream.
     ///
     /// - returns: `ObjectPrx?` - The proxy read from the stream.
-    public func read(_: ObjectPrx.Protocol) throws -> sending ObjectPrx? {
+    public func read(_: ObjectPrx.Protocol) throws -> ObjectPrx? {
         return try read() as ObjectPrxI?
     }
 
@@ -797,7 +797,7 @@ extension InputStream {
     /// - parameter type: `ObjectPrx.Protocol` - The proxy type.
     ///
     /// - returns: `ObjectPrx?` - The proxy read from the stream.
-    public func read(tag: Int32, type _: ObjectPrx.Protocol) throws -> sending ObjectPrx? {
+    public func read(tag: Int32, type _: ObjectPrx.Protocol) throws -> ObjectPrx? {
         return try read(tag: tag) as ObjectPrxI?
     }
 
@@ -1665,7 +1665,7 @@ public struct DictEntry<K, V> {
     }
 }
 
-public class DictEntryArray<K, V> {
+public final class DictEntryArray<K, V> {
     public var values: [DictEntry<K, V>]
 
     public init(size: Int) {

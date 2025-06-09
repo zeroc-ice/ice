@@ -72,31 +72,31 @@ actor State {
     }
 }
 
-class TestI: TestIntf {
-    var _state = State()
-    var _helper: TestHelper
+final class TestI: TestIntf {
+    private let _state = State()
+    private let _helper: TestHelper
 
     init(helper: TestHelper) {
         _helper = helper
     }
 
-    func op(current _: Current) async throws {}
+    func op(current _: Current) {}
 
-    func opWithPayload(seq _: ByteSeq, current _: Current) async throws {}
+    func opWithPayload(seq _: ByteSeq, current _: Current) {}
 
-    func opWithResult(current _: Current) async throws -> Int32 {
+    func opWithResult(current _: Current) -> Int32 {
         return 15
     }
 
-    func opWithUE(current _: Current) async throws {
+    func opWithUE(current _: Current) throws {
         throw TestIntfException()
     }
 
-    func opWithResultAndUE(current _: Current) async throws -> Int32 {
+    func opWithResultAndUE(current _: Current) throws -> Int32 {
         throw TestIntfException()
     }
 
-    func opWithArgs(current _: Current) async throws -> (
+    func opWithArgs(current _: Current) -> (
         one: Int32,
         two: Int32,
         three: Int32,
@@ -112,7 +112,7 @@ class TestI: TestIntf {
         return (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
     }
 
-    func startDispatch(current _: Current) async throws {
+    func startDispatch(current _: Current) async {
         await _state.setContinuation()
     }
 
@@ -130,15 +130,15 @@ class TestI: TestIntf {
         }
     }
 
-    func opBatch(current _: Current) async throws {
+    func opBatch(current _: Current) async {
         await _state.incrementBatchCount()
     }
 
-    func opBatchCount(current _: Current) async throws -> Int32 {
+    func opBatchCount(current _: Current) async -> Int32 {
         return await _state.getBatchCount()
     }
 
-    func waitForBatch(count: Int32, current _: Current) async throws -> Bool {
+    func waitForBatch(count: Int32, current _: Current) async -> Bool {
         await _state.waitForBatch(count)
         // Check the batch count again after the sink has been cancelled to get the current value.
         // The client only ever sends the expect number of batches so it is impossible that the
@@ -149,7 +149,7 @@ class TestI: TestIntf {
         return result
     }
 
-    func closeConnection(current: Current) async throws {
+    func closeConnection(current: Current) {
         let connection = current.con!
         Task {
             do {
@@ -160,7 +160,7 @@ class TestI: TestIntf {
         }
     }
 
-    func abortConnection(current: Current) async throws {
+    func abortConnection(current: Current) {
         current.con!.abort()
     }
 
@@ -168,32 +168,32 @@ class TestI: TestIntf {
         try await _state.sleep(ms: ms)
     }
 
-    func finishDispatch(current _: Current) async throws {
+    func finishDispatch(current _: Current) async {
         await _state.callContinuation()
     }
 
-    func shutdown(current: Current) async throws {
+    func shutdown(current: Current) async {
         await _state.shutdown()
         current.adapter.getCommunicator().shutdown()
     }
 
-    func supportsFunctionalTests(current _: Current) async throws -> Bool {
+    func supportsFunctionalTests(current _: Current) -> Bool {
         return false
     }
 
-    func supportsBackPressureTests(current _: Current) async throws -> Bool {
+    func supportsBackPressureTests(current _: Current) -> Bool {
         return false
     }
 }
 
-class TestII: OuterInnerTestIntf {
+final class TestII: OuterInnerTestIntf {
     func op(i: Int32, current _: Ice.Current) throws -> (returnValue: Int32, j: Int32) {
         return (i, i)
     }
 }
 
-class TestControllerI: TestIntfController {
-    var _adapter: Ice.ObjectAdapter
+final class TestControllerI: TestIntfController {
+    let _adapter: Ice.ObjectAdapter
 
     init(adapter: Ice.ObjectAdapter) {
         _adapter = adapter

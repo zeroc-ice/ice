@@ -3,13 +3,13 @@
 import Ice
 import TestCommon
 
-class BreakI: `break` {
+final class BreakI: `break` {
     func `case`(class _: Int32, current _: Current) async throws -> Int32 {
         return 0
     }
 }
 
-class DoI: `do` {
+final class DoI: `do` {
     func `public`(current _: Current) async throws {}
 
     func `case`(class _: Int32, current _: Current) async throws -> Int32 {

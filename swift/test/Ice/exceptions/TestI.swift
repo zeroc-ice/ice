@@ -5,7 +5,7 @@ import TestCommon
 
 final class RuntimeError: Error {}
 
-class ThrowerI: Thrower {
+final class ThrowerI: Thrower {
     func shutdown(current: Ice.Current) async throws {
         current.adapter.getCommunicator().shutdown()
     }

@@ -2,7 +2,7 @@
 
 import IceImpl
 
-class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecked Sendable {
+final class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecked Sendable {
     let defaultsAndOverrides: DefaultsAndOverrides
     let initData: InitializationData
     let classGraphDepthMax: Int32
@@ -216,7 +216,7 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecked Send
         }
     }
 
-    func addAdminFacet(servant: Dispatcher & Sendable, facet: String) throws {
+    func addAdminFacet(servant: Dispatcher, facet: String) throws {
         try autoreleasepool {
             try handle.addAdminFacet(
                 AdminFacetFacade(communicator: self, servant: servant), facet: facet)

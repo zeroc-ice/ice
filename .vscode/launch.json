@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:ice}",
+            "name": "Debug slice2swift",
+            "program": "${workspaceFolder:ice}/.build/debug/slice2swift",
+            "preLaunchTask": "swift: Build Debug slice2swift"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:ice}",
+            "name": "Release slice2swift",
+            "program": "${workspaceFolder:ice}/.build/release/slice2swift",
+            "preLaunchTask": "swift: Build Release slice2swift"
+        }
+    ]
+}

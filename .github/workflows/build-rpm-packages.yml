@@ -52,6 +52,12 @@ jobs:
           - distribution: rhel9
             arch: aarch64
 
+          - distribution: amzn2023
+            arch: x86_64
+
+          - distribution: amzn2023
+            arch: aarch64
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
