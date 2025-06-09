@@ -5,7 +5,7 @@ import Ice
 import Synchronization
 import TestCommon
 
-final class TestI: TestIntf {
+private struct TestI: TestIntf {
     func transient(current: Ice.Current) async throws {
         let communicator = current.adapter.getCommunicator()
 
@@ -28,7 +28,7 @@ final class Cookie {
     }
 }
 
-final class RouterI: Ice.Router {
+private struct RouterI: Ice.Router {
     func getClientProxy(current _: Ice.Current) async throws -> (
         returnValue: ObjectPrx?, hasRoutingTable: Bool?
     ) {
