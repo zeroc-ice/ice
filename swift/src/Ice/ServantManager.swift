@@ -3,6 +3,14 @@
 import Synchronization
 
 final class ServantManager: Dispatcher {
+
+    private struct State {
+        var servantMapMap = [Identity: [String: Dispatcher]]()
+        var defaultServantMap = [String: Dispatcher]()
+        var locatorMap = [String: ServantLocator]()
+        var adminId: Identity?
+    }
+
     private let adapterName: String
     private let communicator: Communicator
     private let state = Mutex<State>(State())
@@ -207,12 +215,5 @@ final class ServantManager: Dispatcher {
         } else {
             throw ObjectNotExistException()
         }
-    }
-
-    private struct State {
-        var servantMapMap = [Identity: [String: Dispatcher]]()
-        var defaultServantMap = [String: Dispatcher]()
-        var locatorMap = [String: ServantLocator]()
-        var adminId: Identity?
     }
 }
