@@ -1,19 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
-// TODO: use Mutex and remove @unchecked Sendable
-final class ServantManager: Dispatcher, @unchecked Sendable {
+import Synchronization
+
+final class ServantManager: Dispatcher {
     private let adapterName: String
     private let communicator: Communicator
-
-    private var servantMapMap = [Identity: [String: Dispatcher]]()
-    private var defaultServantMap = [String: Dispatcher]()
-    private var locatorMap = [String: ServantLocator]()
-
-    // This is used to distinguish between ObjectNotExistException and FacetNotExistException
-    // when a servant is not found on a Swift Admin OA.
-    private var adminId: Identity?
-
-    private var mutex = UncheckedMutex()
+    private let state = Mutex<State>(State())
 
     init(adapterName: String, communicator: Communicator) {
         self.adapterName = adapterName
@@ -21,8 +13,8 @@ final class ServantManager: Dispatcher, @unchecked Sendable {
     }
 
     func addServant(servant: Dispatcher, id ident: Identity, facet: String) throws {
-        try mutex.sync {
-            if var m = servantMapMap[ident] {
+        try state.withLock {
+            if var m = $0.servantMapMap[ident] {
                 if m[facet] != nil {
                     var id = communicator.identityToString(ident)
                     if !facet.isEmpty {
@@ -31,26 +23,26 @@ final class ServantManager: Dispatcher, @unchecked Sendable {
                     throw AlreadyRegisteredException(kindOfObject: "servant", id: id)
                 }
                 m[facet] = servant
-                servantMapMap[ident] = m
+                $0.servantMapMap[ident] = m
             } else {
-                servantMapMap[ident] = [facet: servant]
+                $0.servantMapMap[ident] = [facet: servant]
             }
         }
     }
 
     func addDefaultServant(servant: Dispatcher, category: String) throws {
-        try mutex.sync {
-            guard defaultServantMap[category] == nil else {
+        try state.withLock {
+            guard $0.defaultServantMap[category] == nil else {
                 throw AlreadyRegisteredException(kindOfObject: "default servant", id: category)
             }
 
-            defaultServantMap[category] = servant
+            $0.defaultServantMap[category] = servant
         }
     }
 
     func removeServant(id ident: Identity, facet: String) throws -> Dispatcher {
-        return try mutex.sync {
-            guard var m = servantMapMap[ident], let obj = m.removeValue(forKey: facet) else {
+        return try state.withLock {
+            guard var m = $0.servantMapMap[ident], let obj = m.removeValue(forKey: facet) else {
                 var id = communicator.identityToString(ident)
                 if !facet.isEmpty {
                     id += " -f \(facet)"
@@ -59,17 +51,17 @@ final class ServantManager: Dispatcher, @unchecked Sendable {
             }
 
             if m.isEmpty {
-                servantMapMap.removeValue(forKey: ident)
+                $0.servantMapMap.removeValue(forKey: ident)
             } else {
-                servantMapMap[ident] = m
+                $0.servantMapMap[ident] = m
             }
             return obj
         }
     }
 
     func removeDefaultServant(category: String) throws -> Dispatcher {
-        return try mutex.sync {
-            guard let obj = defaultServantMap.removeValue(forKey: category) else {
+        return try state.withLock {
+            guard let obj = $0.defaultServantMap.removeValue(forKey: category) else {
                 throw NotRegisteredException(kindOfObject: "default servant", id: category)
             }
 
@@ -78,8 +70,8 @@ final class ServantManager: Dispatcher, @unchecked Sendable {
     }
 
     func removeAllFacets(id: Identity) throws -> FacetMap {
-        return try mutex.sync {
-            guard let m = servantMapMap.removeValue(forKey: id) else {
+        return try state.withLock {
+            guard let m = $0.servantMapMap.removeValue(forKey: id) else {
                 throw NotRegisteredException(kindOfObject: "servant", id: identityToString(id: id))
             }
 
@@ -88,10 +80,10 @@ final class ServantManager: Dispatcher, @unchecked Sendable {
     }
 
     func findServant(id: Identity, facet: String) -> Dispatcher? {
-        return mutex.sync {
-            guard let m = servantMapMap[id] else {
-                guard let obj = defaultServantMap[id.category] else {
-                    return defaultServantMap[""]
+        return state.withLock {
+            guard let m = $0.servantMapMap[id] else {
+                guard let obj = $0.defaultServantMap[id.category] else {
+                    return $0.defaultServantMap[""]
                 }
 
                 return obj
@@ -102,14 +94,14 @@ final class ServantManager: Dispatcher, @unchecked Sendable {
     }
 
     func findDefaultServant(category: String) -> Dispatcher? {
-        return mutex.sync {
-            defaultServantMap[category]
+        return state.withLock {
+            $0.defaultServantMap[category]
         }
     }
 
     func findAllFacets(id: Identity) -> FacetMap {
-        return mutex.sync {
-            guard let m = servantMapMap[id] else {
+        return state.withLock {
+            guard let m = $0.servantMapMap[id] else {
                 return FacetMap()
             }
 
@@ -118,24 +110,24 @@ final class ServantManager: Dispatcher, @unchecked Sendable {
     }
 
     func hasServant(id: Identity) -> Bool {
-        return mutex.sync {
-            servantMapMap[id] != nil
+        return state.withLock {
+            $0.servantMapMap[id] != nil
         }
     }
 
     func addServantLocator(locator: ServantLocator, category: String) throws {
-        return try mutex.sync {
-            guard locatorMap[category] == nil else {
+        return try state.withLock {
+            guard $0.locatorMap[category] == nil else {
                 throw AlreadyRegisteredException(kindOfObject: "servant locator", id: category)
             }
 
-            locatorMap[category] = locator
+            $0.locatorMap[category] = locator
         }
     }
 
     func removeServantLocator(category: String) throws -> ServantLocator {
-        return try mutex.sync {
-            guard let l = locatorMap.removeValue(forKey: category) else {
+        return try state.withLock {
+            guard let l = $0.locatorMap.removeValue(forKey: category) else {
                 throw NotRegisteredException(kindOfObject: "servant locator", id: category)
             }
 
@@ -144,30 +136,30 @@ final class ServantManager: Dispatcher, @unchecked Sendable {
     }
 
     func findServantLocator(category: String) -> ServantLocator? {
-        return mutex.sync {
-            locatorMap[category]
+        return state.withLock {
+            $0.locatorMap[category]
         }
     }
 
     func setAdminId(_ id: Identity) {
-        mutex.sync {
-            self.adminId = id
+        state.withLock {
+            $0.adminId = id
         }
     }
 
     func isAdminId(_ id: Identity) -> Bool {
-        return mutex.sync {
-            adminId == id
+        return state.withLock {
+            $0.adminId == id
         }
     }
 
     func destroy() {
         var m = [String: ServantLocator]()
-        mutex.sync {
-            servantMapMap.removeAll()
-            defaultServantMap.removeAll()
-            m = locatorMap
-            locatorMap.removeAll()
+        state.withLock {
+            $0.servantMapMap.removeAll()
+            $0.defaultServantMap.removeAll()
+            m = $0.locatorMap
+            $0.locatorMap.removeAll()
         }
 
         for (category, locator) in m {
@@ -215,5 +207,12 @@ final class ServantManager: Dispatcher, @unchecked Sendable {
         } else {
             throw ObjectNotExistException()
         }
+    }
+
+    private struct State {
+        var servantMapMap = [Identity: [String: Dispatcher]]()
+        var defaultServantMap = [String: Dispatcher]()
+        var locatorMap = [String: ServantLocator]()
+        var adminId: Identity?
     }
 }
