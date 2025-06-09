@@ -8,7 +8,7 @@ import TestCommon
 final class RemoteLoggerI: Ice.RemoteLogger {
     private let _helper: TestHelper
     private let _state = Mutex<State>(State())
-    private var _semaphore = DispatchSemaphore(value: 0)
+    private let _semaphore = DispatchSemaphore(value: 0)
 
     init(helper: TestHelper) {
         _helper = helper
