@@ -5,18 +5,18 @@ import Ice
 import Synchronization
 import TestCommon
 
-private class Cookie {
-    func message() -> String {
-        return "blahblah"
-    }
-}
-
-private struct State {
-    var deactivated = false
-    var requestId: Int32 = -1
-}
-
 final class ServantLocatorI: Ice.ServantLocator {
+    private class Cookie {
+        func message() -> String {
+            return "blahblah"
+        }
+    }
+
+    private struct State {
+        var deactivated = false
+        var requestId: Int32 = -1
+    }
+
     private let _category: String
     private let _helper: TestHelper
     private let _state = Mutex<State>(State())

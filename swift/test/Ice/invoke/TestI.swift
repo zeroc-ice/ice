@@ -17,7 +17,7 @@ struct ServantLocatorI: Ice.ServantLocator {
 }
 
 struct DispatcherI: Ice.Dispatcher {
-    public func dispatch(_ request: sending IncomingRequest) async throws -> OutgoingResponse {
+    public func dispatch(_ request: sending IncomingRequest) throws -> OutgoingResponse {
         let current = request.current
         let communicator = current.adapter.getCommunicator()
         let (inEncaps, _) = try request.inputStream.readEncapsulation()
