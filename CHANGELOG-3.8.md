@@ -313,8 +313,7 @@ classDiagram
 
 - Added new metadata for customizing the mapped names of Slice definitions in each language.
   This metadata is of the form: `["<lang>:identifier:<identifier>"]`, where `<lang>` can be any of the standard language
-  prefixes, and that definition's identifier will be `<identifier>` in the specified language, with no additional
-  processing.
+  prefixes, and that definition's identifier will be `<identifier>` in the specified language.
 
   For example:
 
@@ -325,11 +324,11 @@ classDiagram
   ```
 
   The argument is used as a drop-in replacement for the Slice identifier, with no additional processing.
-  With the above example, `slice2cs` will generate `namespace MyNamespace {}` and `slice2java` will generate
+  For the above example, `slice2cs` will generate `namespace MyNamespace {}` and `slice2java` will generate
   `package com.example.mypackage;`. All other compilers will map the module using its Slice-provided identifier,
   as usual.
 
-  This metadata can be applied to any Slice definitions with an identifier, and is available for all languages.
+  This metadata can be applied to any Slice definition with an identifier, and is available for all languages.
 
   Note that this only affects the _mapped_ name of Slice definitions.
   It has no effect on Slice type IDs, or a definition's on-the-wire representation.
@@ -349,7 +348,7 @@ classDiagram
   module Foo::Bar::Baz { /*...*/ }
   ```
 
-  Note: metadata cannot be applied to modules using this syntax, due to it being ambiguous which module it applies to.
+  Note: metadata cannot be applied to modules using this syntax, since it's ambiguous which module it would apply to.
 
 - Lists of metadata can be split into separate brackets now, allowing for longer metadata to be placed on separate lines
   or for metadata to be grouped by functionality. For example, you can now write:
