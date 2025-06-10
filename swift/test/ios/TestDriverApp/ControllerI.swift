@@ -56,7 +56,7 @@ final class ProcessControllerI: CommonProcessController {
         }
 
         let helper = ControllerHelperI(view: _view, testName: currentTest, args: args, exe: exe)
-        
+
         helper.run()
         return try uncheckedCast(
             prx: current.adapter.addWithUUID(
@@ -74,7 +74,7 @@ final class ProcessControllerI: CommonProcessController {
 
 class ControllerI {
     private let _communicator: Ice.Communicator
-    
+
     private static var _controller: ControllerI? = nil
 
     private init(view: ViewController, ipv4: String, ipv6: String) throws {
@@ -109,7 +109,7 @@ class ControllerI {
     private func destroy() {
         _communicator.destroy()
     }
-    
+
     public class func startController(view: ViewController, ipv4: String, ipv6: String) throws {
         _controller = try ControllerI(view: view, ipv4: ipv4, ipv6: ipv6)
     }
