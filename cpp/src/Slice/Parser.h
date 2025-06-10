@@ -1051,9 +1051,10 @@ namespace Slice
 
         [[nodiscard]] std::string languageName() const;
 
-        void setDocComment(const std::string& comment);
-        void addToDocComment(const std::string& comment);
+        void setDocComment(const std::string& comment); // Only used for JavaDoc style comments.
+        void addToDocComment(const std::string& comment); // Only used for triple-slash style comments.
         std::string currentDocComment(); // Not const, as this function removes the current doc-comment.
+
         [[nodiscard]] std::string currentFile() const;
         [[nodiscard]] const std::string& topLevelFile() const;
         [[nodiscard]] int currentLine() const;
