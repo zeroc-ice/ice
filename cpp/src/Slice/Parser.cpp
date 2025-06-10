@@ -4747,7 +4747,7 @@ Slice::Unit::setDocComment(const string& comment)
 }
 
 void
-Slice::Unit::addToDocComment(const string& comment)
+Slice::Unit::appendToDocComment(const string& comment)
 {
     if (!_currentDocComment.empty())
     {
