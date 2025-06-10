@@ -44,7 +44,7 @@ enum PluginError: Error {
     var description: String {
         switch self {
         case .invalidTarget(let targetType):
-            return "Expected a SwiftSourceModuleTarget but got '\(targetType))'."
+            return "Expected a SwiftSourceModuleTarget but got '\(targetType)'."
         case .missingCompiler(let path):
             return "Missing slice compiler: '\(path)'."
         case .missingConfigFile(let path, let target):
