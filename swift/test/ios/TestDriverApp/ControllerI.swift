@@ -20,7 +20,7 @@ class ProcessI: CommonProcess {
         return try _helper.waitSuccess(timeout: timeout)
     }
 
-    func terminate(current: Ice.Current) -> String {
+    func terminate(current: Ice.Current) throws -> String {
         _helper.shutdown()
         let adapter = current.adapter
         try adapter.remove(current.id)
