@@ -9,11 +9,8 @@ on:
       repository_url:
         required: false
         type: string
-      repository_username:
-        required: false
-        type: string
     secrets:
-      REPOSITORY_PASSWORD:
+      ICE_NIGHTLY_PUBLISH_TOKEN:
         required: false
 
 jobs:
@@ -39,3 +36,5 @@ jobs:
 
           echo "Testing ice-swift build..."
           swift build --package-path ice-swift-nightly --configuration release
+        env:
+          ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}

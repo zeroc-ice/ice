@@ -96,6 +96,7 @@ jobs:
       repository_username: ${{ inputs.repository_username }}
     secrets:
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+      ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
 
   build-cpp-windows-packages:
     name: Build C++ NuGet Package
@@ -230,6 +231,5 @@ jobs:
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
       repository_url: "${{ inputs.repository_url }}/nightly/"
-      repository_username: ${{ inputs.repository_username }}
     secrets:
-      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+      ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
