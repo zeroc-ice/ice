@@ -45,45 +45,11 @@ jobs:
         with:
           prefix: build-brew-packages
 
-      - name: Tap Nightly Repository
-        env:
-          NIGHTLY_URL: "https://download.zeroc.com/nexus/repository/nightly/homebrew-nightly.git"
+      - name: Update Nightly Tap
+        run: ./packaging/brew/update-nightly-tap.sh "${{ inputs.ice_version }}" "${{ inputs.repository_url }}/nightly"
+
+      - name: Upload Nightly Bottle
         run: |
-          if git ls-remote $NIGHTLY_URL; then
-            brew tap zeroc-ice/nightly $NIGHTLY_URL
-          fi
-
-      - name: Create Nightly Tap
-        run: ./packaging/brew/create-tap.sh "zeroc-ice/nightly" "${{ inputs.ice_version }}"
-
-      - name: Create Brew bottle
-        run: |
-
-          # Install the Ice formula and build the bottle
-          brew install --build-bottle zeroc-ice/nightly/ice
-          brew bottle zeroc-ice/nightly/ice --root-url="${{ inputs.repository_url }}/nightly" --json
-          # Merge the bottle JSON files into formula
-          brew bottle --merge ./ice--*.bottle.json --write
-
-          # Rename file to fix `--`. See https://github.com/orgs/Homebrew/discussions/4541
-          for file in ice--*.bottle.*tar.gz; do
-            mv "$file" "${file/--/-}"
-          done
-
-      - name: Create Bare Tap Repository
-        run: |
-
-          # Create a bare repository for the tap
-          git clone --bare $(brew --repo zeroc-ice/nightly) homebrew-nightly.git
-          cd homebrew-nightly.git
-          # Update auxiliary info file to help dumb servers
-          git update-server-info
-        if: inputs.repository_url != ''
-
-      - name: Upload Nightly Tap
-        run: |
-
-          # Upload bottle
           curl -u "${{ inputs.repository_username }}:${{ secrets.REPOSITORY_PASSWORD }}" \
             --ftp-create-dirs \
             --upload-file ice-*.bottle.*tar.gz \
@@ -94,19 +60,10 @@ jobs:
             --show-error \
             ${{ inputs.repository_url }}/nightly/ || { echo "Upload failed"; exit 1; }
 
-          # Upload tap
-          cd homebrew-nightly.git
-          find . -type f | while IFS= read -r file; do
-            curl -u "${{ inputs.repository_username }}:${{ secrets.REPOSITORY_PASSWORD }}" \
-                --ftp-create-dirs \
-                --upload-file "$file" \
-                --output /dev/null \
-                --silent \
-                --retry 3 \
-                --fail \
-                --show-error \
-                ${{ inputs.repository_url }}/nightly/homebrew-nightly.git/$file || { echo "Upload failed"; exit 1; }
-          done
+      - name: Push Nightly Tap
+        run: |
+          cd $(brew --repo zeroc-ice/nightly)
+          git push origin main || { echo "Push failed"; exit 1; }
         if: inputs.repository_url != ''
 
       - name: Upload Artifacts
