@@ -8,19 +8,21 @@ set -eux -o pipefail
 # zeroc-ice/ice repository.
 
 usage() {
-    echo "Usage: $0 <tap_name> <ice_version>"
+    echo "Usage: $0 <ice_version> <root_url>"
+    echo "  <ice_version>  The version of Ice to build (e.g., 3.8.0-nightly-20231020)"
+    echo "  <root_url>     The root URL for the bottles (e.g., https://download.zeroc.com/nexus/repository/nightly)"
 }
 
-tap_name="${1:-}"
+ice_version="${1:-}"
 
-if [ -z "$tap_name" ]; then
+if [ -z "$ice_version" ]; then
     usage
     exit 1
 fi
 
-ice_version="${2:-}"
+root_url="${2:-}"
 
-if [ -z "$ice_version" ]; then
+if [ -z "$root_url" ]; then
     usage
     exit 1
 fi
@@ -36,15 +38,14 @@ echo "Computing SHA256 of ice.tar.gz"
 archive_hash=$(shasum -a 256 "ice.tar.gz" | cut -d ' ' -f 1)
 rm ice.tar.gz
 
+tap_name="zeroc-ice/nightly"
 tap_path=$(brew --repo $tap_name)
 
 # Create the tap if it does not exist
 if [ -d "$tap_path" ]; then
     echo "Tap $tap_name already exists at $tap_path"
 else
-    echo "Creating tap $tap_name"
-    mkdir -p "$tap_path/Formula"
-    git init --initial-branch=main "$tap_path"
+    brew tap "$tap_name"
 fi
 
 tap_formula_path=$tap_path/Formula/ice.rb
@@ -55,6 +56,15 @@ export ICE_VERSION=$ice_version
 export ICE_URL_SHA256=$archive_hash
 
 envsubst < "$ice_formula_template" > "$tap_formula_path"
+
+brew install --build-bottle zeroc-ice/nightly/ice
+brew bottle zeroc-ice/nightly/ice --root-url="$root_url" --json
+brew bottle --merge ./ice--*.bottle.json --write --no-commit
+
+# Rename file to fix `--`. See https://github.com/orgs/Homebrew/discussions/4541
+for file in ice--*.bottle.*tar.gz; do
+    mv "$file" "${file/--/-}"
+done
 
 cd "$tap_path"
 

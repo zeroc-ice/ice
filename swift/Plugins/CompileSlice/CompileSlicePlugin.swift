@@ -3,14 +3,48 @@
 import Foundation
 import PackagePlugin
 
-enum PluginError: Error {
+// The entry point for command line builds with SPM.
+extension CompileSlicePlugin: BuildToolPlugin {
+    func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
+        guard let swiftTarget = target as? SwiftSourceModuleTarget else {
+            throw PluginError.invalidTarget("\(type(of: target))")
+        }
 
+        return try createBuildCommands(
+            outputDir: context.pluginWorkDirectoryURL,
+            inputFiles: swiftTarget.sourceFiles,
+            slice2swift: try context.tool(named: "slice2swift").url
+        )
+    }
+}
+
+#if canImport(XcodeProjectPlugin)
+
+    import XcodeProjectPlugin
+
+    // The entry point for Xcode project builds.
+    extension CompileSlicePlugin: XcodeBuildToolPlugin {
+        func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command] {
+            return try createBuildCommands(
+                outputDir: context.pluginWorkDirectoryURL,
+                inputFiles: target.inputFiles,
+                slice2swift: try context.tool(named: "slice2swift").url
+            )
+        }
+    }
+
+#endif
+
+enum PluginError: Error {
+    case invalidTarget(String)
     case missingCompiler(String)
     case missingConfigFile(String, String)
     case missingIceSliceFiles(String)
 
     var description: String {
         switch self {
+        case .invalidTarget(let targetType):
+            return "Expected a SwiftSourceModuleTarget but got '\(targetType)'."
         case .missingCompiler(let path):
             return "Missing slice compiler: '\(path)'."
         case .missingConfigFile(let path, let target):
@@ -22,108 +56,104 @@ enum PluginError: Error {
     }
 }
 
-/// Represents the contents of a `slice-plugin.json` file
-/// - sources: List of Slice files or directories containing Slice files. Can not be empty.
-/// - search_paths: List of directories to add as search paths when calling slice2swift. Can be omitted.
+/// Represents the contents of a `slice-plugin.json` file.
+///
+/// - `sources`: Optional list of Slice files or directories containing Slice files. Paths are relative to the
+///   directory containing the `slice-plugin.json` file. Slice files declared directly in the target's source files
+///   are always included and do not need to be listed here.
+///
+/// - `search_paths`: Optional list of directories to add as `-I` search paths when invoking `slice2swift`.
+///   These paths are also relative to the config file location.
+///
 /// - Example:
-/// ```
+/// ```json
 /// {
 ///     "sources": ["Slice"],
 ///     "search_paths": ["Slice", "../OtherModule/Slice"]
 /// }
 /// ```
 struct Config: Codable {
-    /// List of Slice files or directories containing Slice files
-    var sources: [String]
-    /// List of directories to add as search paths when calling slice2swift.
+    /// Optional list of Slice files or directories containing Slice files.
+    /// Paths are relative to the `slice-plugin.json` file. Slice files in the target's sources are always included.
+    var sources: [String]?
+
+    /// Optional list of directories to add as `-I` search paths when invoking `slice2swift`.
+    /// Paths are relative to the `slice-plugin.json` file.
     var search_paths: [String]?
 }
 
 /// The CompileSlicePlugin for SwiftPM compiles Ice Slice files to Swift files using the `slice2swift` compiler.
-/// The plugin expects a `slice-plugin.json` file as one of the target's sources.
-/// The `slice-plugin.json` file must contain a list of Slice files or directories containing Slice files.
-/// SwiftPM will compile the Slice files to Swift files before compiling Swift sources.
+/// The `slice2swift` compilation can be configured using a `slice-plugin.json` file in the target's source files.
+/// By default the plugin will compile all `.ice` files in the target's source files.
 @main
-struct CompileSlicePlugin: BuildToolPlugin {
+struct CompileSlicePlugin {
 
-    /// The name of the configuration file
-    static let configFileName = "slice-plugin.json"
+    /// The name of the configuration file.
+    private static let configFileName = "slice-plugin.json"
 
-    func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
+    private func createBuildCommands(
+        outputDir: URL,
+        inputFiles: FileList,
+        slice2swift: URL
+    ) throws -> [Command] {
 
-        let fm = FileManager.default
+        // Collect .ice input files in the target's source files.
+        var sliceSources =
+            inputFiles
+            .filter { $0.url.pathExtension == "ice" }
+            .map { $0.url }
 
-        // Search for the configuration file. If this plugin was loaded, the configuration file must be present, or
-        // it's considered an error.
-        let targetDirectoryUrl = target.directoryURL
-        let configFilePath = try fm.contentsOfDirectory(
-            at: targetDirectoryUrl,
-            includingPropertiesForKeys: nil,
-            options: []
-        ).first { path in
-            path.lastPathComponent == Self.configFileName
-        }.map { path in
-            targetDirectoryUrl.appendingPathComponent(path.lastPathComponent).path
-        }
+        // Locate the config file (slice-plugin.json) in the input files.
+        let configFileURL =
+            inputFiles
+            .first(where: { $0.url.lastPathComponent == Self.configFileName })?
+            .url
 
-        guard let configFilePath else {
-            throw PluginError.missingConfigFile(Self.configFileName, target.directoryURL.path)
-        }
+        // By default we use an empty search path for Slice compilation.
+        var searchPaths: [String] = []
 
-        let data = try Data(contentsOf: URL(fileURLWithPath: configFilePath))
-        let config = try JSONDecoder().decode(Config.self, from: data)
+        // Decode config and apply additional sources and search paths.
+        if let configFileURL = configFileURL {
+            let configData = try Data(contentsOf: configFileURL)
+            let config = try JSONDecoder().decode(Config.self, from: configData)
 
-        let slice2swift = try context.tool(named: "slice2swift").url
-
-        // Find the Ice Slice files for the corresponding Swift target
-        let sources = try config.sources.map { source in
-            let fullSourcePath = targetDirectoryUrl.appendingPathComponent(source)
-            if fullSourcePath.path.hasSuffix(".ice") {
-                return [fullSourcePath]
+            // Add additional slice files from config.sources. The files are relative to the config file location.
+            let baseDirectory = configFileURL.deletingLastPathComponent()
+            for source in config.sources ?? [] {
+                let sourceFileOrDirectory = baseDirectory.appendingPathComponent(source)
+                if sourceFileOrDirectory.pathExtension == "ice" {
+                    sliceSources.append(sourceFileOrDirectory)
+                } else {
+                    sliceSources.append(
+                        contentsOf: try FileManager.default.contentsOfDirectory(
+                            at: sourceFileOrDirectory,
+                            includingPropertiesForKeys: nil
+                        ).filter { $0.pathExtension == "ice" })
+                }
             }
 
-            // Directory
-            return try fm.contentsOfDirectory(
-                at: fullSourcePath,
-                includingPropertiesForKeys: nil,
-                options: []
-            ).filter { url in
-                url.path.hasSuffix(".ice")
-            }.map { sliceFileURL in
-                fullSourcePath.appendingPathComponent(sliceFileURL.lastPathComponent)
+            // Construct the search paths from config.search_paths.
+            // These paths are also relative to the config file location.
+            searchPaths = (config.search_paths ?? []).map {
+                "-I\(baseDirectory.appendingPathComponent($0).path)"
             }
-        }.joined()
-
-        let outputDir = context.pluginWorkDirectoryURL
-        let search_paths = (config.search_paths ?? []).map {
-            "-I\(targetDirectoryUrl.appendingPathComponent($0).path)"
         }
 
-        // Create a build command for each Slice file
-        return sources.map { (sliceFile) -> Command in
-            // Absolute path to the input Slice file
-            let inputFile = sliceFile
-
-            // Absolute path to the output Slice file
-            let outputFile = outputDir.appendingPathComponent(sliceFile.lastPathComponent)
+        // Create the build commands for each slice file.
+        return sliceSources.map { sliceSource in
+            let outputFile = outputDir.appendingPathComponent(sliceSource.lastPathComponent)
                 .deletingPathExtension()
                 .appendingPathExtension("swift")
 
-            // Arguments for the slice2swift command
-            let arguments: [String] =
-                search_paths + [
-                    "--output-dir",
-                    outputDir.path,
-                    inputFile.path,
-                ]
-
-            let displayName = slice2swift.path + " " + arguments.joined(separator: " ")
-
             return .buildCommand(
-                displayName: displayName,
+                displayName: "Compile Slice \(sliceSource.lastPathComponent)",
                 executable: slice2swift,
-                arguments: arguments,
-                outputFiles: [outputFile]
+                arguments: searchPaths + ["--output-dir", outputDir.path, sliceSource.path],
+                // It's important to declare both the Slice file and the config file as input files so the build system can
+                // detect changes. This also avoids warnings about unused files.
+                // TODO: We should also include imported Slice dependencies as inputs.
+                inputFiles: [sliceSource] + (configFileURL.map { [$0] } ?? []),
+                outputFiles: [URL(fileURLWithPath: outputFile.path)],
             )
         }
     }
