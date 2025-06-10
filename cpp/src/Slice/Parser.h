@@ -1060,7 +1060,7 @@ namespace Slice
         /// @param comment The raw comment string. It shouldn't contain newlines, nor any comment formatting characters.
         ///     Unlike `setDocComment`, this function doesn't process the comment string in any way.
         // Note that this is only called for triple-slash style comments, where each line is added separately.
-        void addToDocComment(const std::string& comment);
+        void appendToDocComment(const std::string& comment);
         /// Returns the current doc-comment string. This function uses move semantics. After calling it, the currently
         /// stored doc-comment will be cleared. This string can span multiple lines, and won't include formatting like
         /// leading '///' or opening '/**' etc.
