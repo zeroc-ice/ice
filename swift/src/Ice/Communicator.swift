@@ -177,9 +177,7 @@ public protocol Communicator: AnyObject, Sendable {
     ///
     /// - parameter compress: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
     /// being sent over the wire.
-    func flushBatchRequests(
-        _ compress: CompressBatch
-    ) async throws
+    func flushBatchRequests(_ compress: CompressBatch) async throws
 
     /// Add the Admin object with all its facets to the provided object adapter. If Ice.Admin.ServerId is
     /// set and the provided object adapter has a Locator, createAdmin registers the Admin's Process facet with

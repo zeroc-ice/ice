@@ -41,7 +41,7 @@ final class TestIntfI: TestIntf {
         }
     }
 
-    func shutdown(current: Current) async throws {
+    func shutdown(current: Current) {
         current.adapter.getCommunicator().shutdown()
     }
 }

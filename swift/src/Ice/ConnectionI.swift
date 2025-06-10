@@ -49,9 +49,7 @@ final class ConnectionI: LocalObject<ICEConnection>, Connection, @unchecked Send
         }
     }
 
-    func flushBatchRequests(
-        _ compress: CompressBatch
-    ) async throws {
+    func flushBatchRequests(_ compress: CompressBatch) async throws {
         return try await withCheckedThrowingContinuation { continuation in
             handle.flushBatchRequests(
                 compress.rawValue,

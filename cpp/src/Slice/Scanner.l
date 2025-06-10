@@ -327,7 +327,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches and records a triple-slash style doc-comment. */
 <*>"///".* {
-    currentUnit->addToDocComment(yytext + 3);
+    currentUnit->appendToDocComment(yytext + 3);
 }
 
   /* Matches and consumes a C++ style comment. */
@@ -359,25 +359,25 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches the end of a C style comment, and reverts the scanner state to what it previously was. */
 <C_COMMENT,C_DOC_COMMENT>"*/" {
-    popState();
-
     string comment(yytext);
     // The last 2 characters are the '*/' matched by this rule.
     if (YY_START == C_DOC_COMMENT)
     {
         currentUnit->setDocComment(comment.substr(0, yyleng - 2));
     }
+
+    popState();
 }
 
   /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
 <C_COMMENT,C_DOC_COMMENT><<EOF>> {
-    popState();
-
     currentUnit->error("encountered EOF while scanning a comment");
     if (YY_START == C_DOC_COMMENT)
     {
         currentUnit->setDocComment(yytext);
     }
+
+    popState();
 }
 
   /* ========== Preprocessor Statements ========== */

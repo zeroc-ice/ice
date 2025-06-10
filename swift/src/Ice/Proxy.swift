@@ -392,9 +392,7 @@ extension ObjectPrx {
     /// Sends ping request to the target object.
     ///
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
-    public func ice_ping(
-        context: Context? = nil
-    ) async throws {
+    public func ice_ping(context: Context? = nil) async throws {
         return try await _impl._invoke(
             operation: "ice_ping",
             mode: .idempotent,
@@ -408,9 +406,7 @@ extension ObjectPrx {
     /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
     ///
     /// - returns: `Bool` - The result of the invocation.
-    public func ice_isA(
-        id: String, context: Context? = nil
-    ) async throws -> Bool {
+    public func ice_isA(id: String, context: Context? = nil) async throws -> Bool {
         return try await _impl._invoke(
             operation: "ice_isA",
             mode: .idempotent,
@@ -426,9 +422,7 @@ extension ObjectPrx {
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
     /// - returns: `String` The result of the invocation.
-    public func ice_id(
-        context: Context? = nil
-    ) async throws -> String {
+    public func ice_id(context: Context? = nil) async throws -> String {
         return try await _impl._invoke(
             operation: "ice_id",
             mode: .idempotent,
@@ -441,9 +435,7 @@ extension ObjectPrx {
     /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
     ///
     /// - returns: `Ice.StringSeq` - The result of the invocation.
-    public func ice_ids(
-        context: Context? = nil
-    ) async throws -> StringSeq {
+    public func ice_ids(context: Context? = nil) async throws -> StringSeq {
         return try await _impl._invoke(
             operation: "ice_ids",
             mode: .idempotent,

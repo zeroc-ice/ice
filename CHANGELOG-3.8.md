@@ -350,6 +350,23 @@ classDiagram
 
   Note: metadata cannot be applied to modules using this syntax, since it's ambiguous which module it would apply to.
 
+- Added support for triple-slash doc comments, in addition to the already supported JavaDoc comment syntax.
+  For example, the following two definitions are equivalent:
+
+  ```slice
+  /// Sends a request.
+  /// @param message the message.
+  /// @return a response code.
+  int sendRequest(string message);
+
+  /**
+   * Sends a request.
+   * @param message the message.
+   * @return a response code.
+   */
+  int sendRequest(string message);
+  ```
+
 - Lists of metadata can be split into separate brackets now, allowing for longer metadata to be placed on separate lines
   or for metadata to be grouped by functionality. For example, you can now write:
 

@@ -5,23 +5,23 @@ import Ice
 import TestCommon
 
 final class TestI: TestIntf {
-    func requestFailedException(current _: Current) async throws {}
+    func requestFailedException(current _: Current) {}
 
-    func unknownUserException(current _: Current) async throws {}
+    func unknownUserException(current _: Current) {}
 
-    func unknownLocalException(current _: Current) async throws {}
+    func unknownLocalException(current _: Current) {}
 
-    func unknownException(current _: Current) async throws {}
+    func unknownException(current _: Current) {}
 
-    func localException(current _: Current) async throws {}
+    func localException(current _: Current) {}
 
-    func userException(current _: Current) async throws {}
+    func userException(current _: Current) {}
 
-    func unknownExceptionWithServantException(current: Current) async throws {
+    func unknownExceptionWithServantException(current: Current) throws {
         throw ObjectNotExistException()
     }
 
-    func impossibleException(shouldThrow: Bool, current _: Current) async throws -> String {
+    func impossibleException(shouldThrow: Bool, current _: Current) throws -> String {
         if shouldThrow {
             throw TestImpossibleException()
         }
@@ -32,7 +32,7 @@ final class TestI: TestIntf {
         return "Hello"
     }
 
-    func intfUserException(shouldThrow: Bool, current _: Current) async throws -> String {
+    func intfUserException(shouldThrow: Bool, current _: Current) throws -> String {
         if shouldThrow {
             throw TestIntfUserException()
         }
@@ -43,7 +43,7 @@ final class TestI: TestIntf {
         return "Hello"
     }
 
-    func shutdown(current: Current) async throws {
+    func shutdown(current: Current) {
         current.adapter.deactivate()
     }
 }
@@ -55,7 +55,7 @@ final class TestActivationI: TestActivation {
         _helper = helper
     }
 
-    func activateServantLocator(activate: Bool, current: Current) async throws {
+    func activateServantLocator(activate: Bool, current: Current) throws {
         if activate {
             try current.adapter.addServantLocator(locator: ServantLocatorI("", _helper), category: "")
             try current.adapter.addServantLocator(
