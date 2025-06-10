@@ -1051,9 +1051,21 @@ namespace Slice
 
         [[nodiscard]] std::string languageName() const;
 
+        /// Sets `_currentDocComment` to the provided string, erasing anything currently stored in it.
+        /// @param comment The raw comment string. It can span multiple lines and include comment formatting characters
+        ///     like '/**' and leading '*'. All such comment formatting will be removed by this function though.
+        // Note that this is only called for JavaDoc style comments, where the comment is set in one-shot.
         void setDocComment(const std::string& comment);
-        void addToDocComment(const std::string& comment);
-        std::string currentDocComment(); // Not const, as this function removes the current doc-comment.
+        /// Appends the provided comment to `_currentDocComment` with a newline separator.
+        /// @param comment The raw comment string. It shouldn't contain newlines, nor any comment formatting characters.
+        ///     Unlike `setDocComment`, this function doesn't process the comment string in any way.
+        // Note that this is only called for triple-slash style comments, where each line is added separately.
+        void appendToDocComment(const std::string& comment);
+        /// Returns the current doc-comment string. This function uses move semantics. After calling it, the currently
+        /// stored doc-comment will be cleared. This string can span multiple lines, and won't include formatting like
+        /// leading '///' or opening '/**' etc.
+        std::string currentDocComment();
+
         [[nodiscard]] std::string currentFile() const;
         [[nodiscard]] const std::string& topLevelFile() const;
         [[nodiscard]] int currentLine() const;

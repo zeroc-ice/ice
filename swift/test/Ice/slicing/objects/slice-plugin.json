@@ -1,3 +1,0 @@
-{
-  "sources": ["Test.ice", "ServerPrivate.ice", "ClientPrivate.ice"]
-}

@@ -492,8 +492,9 @@ SwiftGenerator::validateSwiftModuleMappings(const UnitPtr& unit)
         else if (swiftModule != mappedModuleName)
         {
             ostringstream os;
-            os << "invalid module mapping: Slice module '" << mod->scoped() << "' should map to Swift module '"
-               << mappedModuleName << "'" << endl;
+            os << "invalid module mapping: the contents of a Slice file must map to a single Swift module" << endl;
+            os << "note: you can use 'swift:identifier:" << mappedModuleName << "' metadata to map Slice module '"
+               << mod->scoped() << "' to Swift module '" << mappedModuleName << "'" << endl;
             unit->error(mod->file(), mod->line(), os.str());
         }
     }
