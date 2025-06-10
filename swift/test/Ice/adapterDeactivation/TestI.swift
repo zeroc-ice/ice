@@ -6,7 +6,7 @@ import Synchronization
 import TestCommon
 
 private struct TestI: TestIntf {
-    func transient(current: Ice.Current) async throws {
+    func transient(current: Ice.Current) throws {
         let communicator = current.adapter.getCommunicator()
 
         let adapter = try communicator.createObjectAdapterWithEndpoints(
@@ -29,17 +29,15 @@ final class Cookie {
 }
 
 private struct RouterI: Ice.Router {
-    func getClientProxy(current _: Ice.Current) async throws -> (
-        returnValue: ObjectPrx?, hasRoutingTable: Bool?
-    ) {
+    func getClientProxy(current _: Ice.Current) -> (returnValue: ObjectPrx?, hasRoutingTable: Bool?) {
         return (nil, false)
     }
 
-    func addProxies(proxies _: [ObjectPrx?], current _: Current) async throws -> [ObjectPrx?] {
+    func addProxies(proxies _: [ObjectPrx?], current _: Current) -> [ObjectPrx?] {
         return []
     }
 
-    func getServerProxy(current: Ice.Current) async throws -> Ice.ObjectPrx? {
+    func getServerProxy(current: Ice.Current) throws -> Ice.ObjectPrx? {
         return try makeProxy(
             communicator: current.adapter.getCommunicator(),
             proxyString: "dummy:tcp -h localhost -p 23456 -t 30000",

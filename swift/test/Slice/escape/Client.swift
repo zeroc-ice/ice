@@ -4,15 +4,15 @@ import Ice
 import TestCommon
 
 final class BreakI: `break` {
-    func `case`(class _: Int32, current _: Current) async throws -> Int32 {
+    func `case`(class _: Int32, current _: Current) -> Int32 {
         return 0
     }
 }
 
 final class DoI: `do` {
-    func `public`(current _: Current) async throws {}
+    func `public`(current _: Current) {}
 
-    func `case`(class _: Int32, current _: Current) async throws -> Int32 {
+    func `case`(class _: Int32, current _: Current) -> Int32 {
         return 0
     }
 

@@ -23,17 +23,17 @@ final class TestI: TestIntf {
         _registry = registry
     }
 
-    func shutdown(current _: Ice.Current) async throws {
+    func shutdown(current _: Ice.Current) {
         _adapter1.getCommunicator().shutdown()
     }
 
-    func getHello(current _: Ice.Current) async throws -> HelloPrx? {
+    func getHello(current _: Ice.Current) throws -> HelloPrx? {
         return try uncheckedCast(
             prx: _adapter1.createIndirectProxy(Ice.stringToIdentity("hello")),
             type: HelloPrx.self)
     }
 
-    func getReplicatedHello(current _: Ice.Current) async throws -> HelloPrx? {
+    func getReplicatedHello(current _: Ice.Current) throws -> HelloPrx? {
         return try uncheckedCast(
             prx: _adapter1.createProxy(Ice.stringToIdentity("hello")),
             type: HelloPrx.self)
@@ -142,7 +142,7 @@ actor ServerManagerI: ServerManager {
         }
     }
 
-    func shutdown(current: Ice.Current) async throws {
+    func shutdown(current: Ice.Current) {
         for c in _communicators {
             c.destroy()
         }
@@ -184,11 +184,11 @@ actor ServerLocator: TestLocator {
         return try await _registry.getObject(id)
     }
 
-    func getRegistry(current _: Ice.Current) async throws -> Ice.LocatorRegistryPrx? {
+    func getRegistry(current _: Ice.Current) -> Ice.LocatorRegistryPrx? {
         return _registryPrx
     }
 
-    func getRequestCount(current _: Ice.Current) async throws -> Int32 {
+    func getRequestCount(current _: Ice.Current) -> Int32 {
         return _requestCount
     }
 }
@@ -197,7 +197,7 @@ actor ServerLocatorRegistry: TestLocatorRegistry {
     private var _adapters = [String: Ice.ObjectPrx]()
     private var _objects = [Ice.Identity: Ice.ObjectPrx]()
 
-    func setAdapterDirectProxy(id: String, proxy: ObjectPrx?, current _: Current) async throws {
+    func setAdapterDirectProxy(id: String, proxy: ObjectPrx?, current _: Current) {
         if let obj = proxy {
             self._adapters[id] = obj
         } else {
@@ -220,16 +220,13 @@ actor ServerLocatorRegistry: TestLocatorRegistry {
         }
     }
 
-    nonisolated func setServerProcessProxy(id _: String, proxy _: Ice.ProcessPrx?, current _: Ice.Current)
-        async throws
-    {
-    }
+    nonisolated func setServerProcessProxy(id _: String, proxy _: Ice.ProcessPrx?, current _: Ice.Current) {}
 
     func addObject(_ obj: Ice.ObjectPrx?) {
         _objects[obj!.ice_getIdentity()] = obj
     }
 
-    func addObject(obj: Ice.ObjectPrx?, current _: Ice.Current) async throws {
+    func addObject(obj: Ice.ObjectPrx?, current _: Ice.Current) {
         addObject(obj)
     }
 

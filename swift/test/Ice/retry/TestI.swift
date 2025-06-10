@@ -10,7 +10,7 @@ actor RetryI: Retry {
         _counter = 0
     }
 
-    func op(kill: Bool, current: Ice.Current) async throws {
+    func op(kill: Bool, current: Ice.Current) throws {
         if kill {
             if let con = current.con {
                 con.abort()
@@ -20,7 +20,7 @@ actor RetryI: Retry {
         }
     }
 
-    func opIdempotent(c: Int32, current _: Ice.Current) async throws -> Int32 {
+    func opIdempotent(c: Int32, current _: Ice.Current) throws -> Int32 {
         if c < 0 {
             _counter = 0
             return 0
@@ -34,7 +34,7 @@ actor RetryI: Retry {
         return counter
     }
 
-    func opNotIdempotent(current _: Ice.Current) async throws {
+    func opNotIdempotent(current _: Ice.Current) throws {
         throw Ice.ConnectionLostException("opNotIdempotent failed")
     }
 

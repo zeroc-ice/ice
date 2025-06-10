@@ -27,35 +27,35 @@ final class RemoteCommunicatorI: RemoteCommunicator {
         _communicator = communicator
     }
 
-    func getAdmin(current _: Ice.Current) async throws -> Ice.ObjectPrx? {
+    func getAdmin(current _: Ice.Current) throws -> Ice.ObjectPrx? {
         return try _communicator.getAdmin()
     }
 
-    func getChanges(current _: Ice.Current) async throws -> [String: String] {
+    func getChanges(current _: Ice.Current) async -> [String: String] {
         return await _changes.getChanges()
     }
 
-    func print(message: String, current _: Ice.Current) async throws {
+    func print(message: String, current _: Ice.Current) {
         _communicator.getLogger().print(message)
     }
 
-    func trace(category: String, message: String, current _: Ice.Current) async throws {
+    func trace(category: String, message: String, current _: Ice.Current) {
         _communicator.getLogger().trace(category: category, message: message)
     }
 
-    func warning(message: String, current _: Ice.Current) async throws {
+    func warning(message: String, current _: Ice.Current) {
         _communicator.getLogger().warning(message)
     }
 
-    func error(message: String, current _: Ice.Current) async throws {
+    func error(message: String, current _: Ice.Current) {
         _communicator.getLogger().error(message)
     }
 
-    func shutdown(current _: Ice.Current) async throws {
+    func shutdown(current _: Ice.Current) {
         _communicator.shutdown()
     }
 
-    func waitForShutdown(current _: Ice.Current) async throws {
+    func waitForShutdown(current _: Ice.Current) {
         //
         // Note that we are executing in a thread of the *main* communicator,
         // not the one that is being shut down.
@@ -63,7 +63,7 @@ final class RemoteCommunicatorI: RemoteCommunicator {
         _communicator.waitForShutdown()
     }
 
-    func destroy(current _: Ice.Current) async throws {
+    func destroy(current _: Ice.Current) {
         _communicator.destroy()
     }
 
@@ -91,9 +91,7 @@ final class NullLogger: Ice.Logger {
 }
 
 final class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
-    func createCommunicator(props: [String: String], current: Ice.Current) async throws
-        -> RemoteCommunicatorPrx?
-    {
+    func createCommunicator(props: [String: String], current: Ice.Current) throws -> RemoteCommunicatorPrx? {
         //
         // Prepare the property set using the given properties.
         //
@@ -133,7 +131,7 @@ final class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
             type: RemoteCommunicatorPrx.self)
     }
 
-    func shutdown(current: Ice.Current) async throws {
+    func shutdown(current: Ice.Current) {
         current.adapter.getCommunicator().shutdown()
     }
 }

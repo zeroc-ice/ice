@@ -21,7 +21,7 @@ final class RemoteLoggerI: Ice.RemoteLogger {
         _helper = helper
     }
 
-    func initialize(prefix: String, logMessages: [Ice.LogMessage], current _: Ice.Current) async throws {
+    func initialize(prefix: String, logMessages: [Ice.LogMessage], current _: Ice.Current) {
         _state.withLock {
             $0.prefix = prefix
             $0.initMessages += logMessages
@@ -29,16 +29,14 @@ final class RemoteLoggerI: Ice.RemoteLogger {
         _semaphore.signal()
     }
 
-    func log(message: Ice.LogMessage, current _: Ice.Current) async throws {
+    func log(message: Ice.LogMessage, current _: Ice.Current) {
         _state.withLock {
             $0.logMessages.append(message)
         }
         _semaphore.signal()
     }
 
-    func checkNextInit(prefix: String, type: Ice.LogMessageType, message: String, category: String)
-        throws
-    {
+    func checkNextInit(prefix: String, type: Ice.LogMessageType, message: String, category: String) throws {
         try _state.withLock {
             try _helper.test($0.prefix == prefix)
             try _helper.test($0.initMessages.count > 0)
