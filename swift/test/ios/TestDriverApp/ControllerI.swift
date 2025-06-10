@@ -39,7 +39,8 @@ final class ProcessControllerI: CommonProcessController {
         _ipv4 = ipv4
         _ipv6 = ipv6
     }
-
+    
+    @MainActor
     func start(
         testsuite: String,
         exe: String,
@@ -75,7 +76,7 @@ final class ProcessControllerI: CommonProcessController {
 class ControllerI {
     private let _communicator: Ice.Communicator
 
-    private static var _controller: ControllerI? = nil
+    private static let _controller: Mutex<ControllerI?> = Mutex(nil)
 
     private init(view: ViewController, ipv4: String, ipv6: String) throws {
         let properties = Ice.createProperties()
@@ -111,12 +112,17 @@ class ControllerI {
     }
 
     public class func startController(view: ViewController, ipv4: String, ipv6: String) throws {
-        _controller = try ControllerI(view: view, ipv4: ipv4, ipv6: ipv6)
+        try _controller.withLock {
+            $0 = try ControllerI(view: view, ipv4: ipv4, ipv6: ipv6)
+        }
+        
     }
 
     public class func stopController() {
-        _controller?.destroy()
-        _controller = nil
+        _controller.withLock {
+            $0?.destroy()
+            $0 = nil
+        }
     }
 }
 
