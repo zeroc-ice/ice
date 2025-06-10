@@ -2,11 +2,12 @@
 
 import Foundation
 import Ice
+import Synchronization
 import TestBundle
 import TestCommon
 
-class ProcessI: CommonProcess {
-    var _helper: ControllerHelperI
+struct ProcessI: CommonProcess {
+    private let _helper: ControllerHelperI
 
     init(helper: ControllerHelperI) {
         _helper = helper
@@ -28,27 +29,15 @@ class ProcessI: CommonProcess {
     }
 }
 
-class ProcessControllerI: CommonProcessController {
-    var _view: ViewController
-    var _ipv4: String
-    var _ipv6: String
-
-    var _currentTest: String = ""
-
-    //
-    // Run each process in its own queue
-    //
-    var _serverDispatchQueue: DispatchQueue
-    var _clientDispatchQueue: DispatchQueue
+final class ProcessControllerI: CommonProcessController {
+    private let _view: ViewController
+    private let _ipv4: String
+    private let _ipv6: String
 
     init(view: ViewController, ipv4: String, ipv6: String) {
         _view = view
         _ipv4 = ipv4
         _ipv6 = ipv6
-
-        //TODO: remove the queues
-        _serverDispatchQueue = DispatchQueue(label: "Server", qos: .background)
-        _clientDispatchQueue = DispatchQueue(label: "Client", qos: .background)
     }
 
     func start(
@@ -60,18 +49,14 @@ class ProcessControllerI: CommonProcessController {
 
         _view.println("starting \(testsuite) \(exe)... ")
 
-        _currentTest = testsuite.replacingOccurrences(of: "/", with: "_")
+        var currentTest = testsuite.replacingOccurrences(of: "/", with: "_")
 
         if exe == "ServerAMD" {
-            _currentTest += "AMD"
+            currentTest += "AMD"
         }
 
-        let helper = ControllerHelperI(
-            view: _view,
-            testName: _currentTest,
-            args: args,
-            exe: exe,
-            queue: (exe == "Server" || exe == "ServerAMD") ? _serverDispatchQueue : _clientDispatchQueue)
+        let helper = ControllerHelperI(view: _view, testName: currentTest, args: args, exe: exe)
+        
         helper.run()
         return try uncheckedCast(
             prx: current.adapter.addWithUUID(
@@ -88,10 +73,11 @@ class ProcessControllerI: CommonProcessController {
 }
 
 class ControllerI {
-    var _communicator: Ice.Communicator!
-    static var _controller: ControllerI!
+    private let _communicator: Ice.Communicator
+    
+    private static var _controller: ControllerI? = nil
 
-    init(view: ViewController, ipv4: String, ipv6: String) throws {
+    private init(view: ViewController, ipv4: String, ipv6: String) throws {
         let properties = Ice.createProperties()
         properties.setProperty(key: "Ice.Plugin.IceDiscovery", value: "1")
         properties.setProperty(key: "Ice.ThreadPool.Server.SizeMax", value: "10")
@@ -120,39 +106,33 @@ class ControllerI {
         try adapter.activate()
     }
 
-    public func destroy() {
-        precondition(_communicator != nil)
+    private func destroy() {
         _communicator.destroy()
     }
-
-    public class func stopController() {
-        if _controller != nil {
-            _controller.destroy()
-            _controller = nil
-        }
-    }
-
+    
     public class func startController(view: ViewController, ipv4: String, ipv6: String) throws {
         _controller = try ControllerI(view: view, ipv4: ipv4, ipv6: ipv6)
     }
+
+    public class func stopController() {
+        _controller?.destroy()
+        _controller = nil
+    }
 }
 
-class ControllerHelperI: ControllerHelper, TextWriter {
-    var _view: ViewController
-    var _args: [String]
-    var _ready: Bool
-    var _completed: Bool
-    var _status: Int32
-    var _out: String
-    var _communicator: Ice.Communicator!
-    var _semaphore: DispatchSemaphore
-    var _exe: String
-    var _queue: DispatchQueue
-    var _testName: String
+class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
+    private let _view: ViewController
+    private let _args: [String]
+    private var _ready: Bool
+    private var _completed: Bool
+    private var _status: Int32
+    private var _out: String
+    private var _communicator: Ice.Communicator!
+    private let _semaphore: DispatchSemaphore
+    private let _exe: String
+    private let _testName: String
 
-    public init(
-        view: ViewController, testName: String, args: [String], exe: String, queue: DispatchQueue
-    ) {
+    public init(view: ViewController, testName: String, args: [String], exe: String) {
         _view = view
         _testName = testName
         _args = args
@@ -163,7 +143,6 @@ class ControllerHelperI: ControllerHelper, TextWriter {
         _communicator = nil
         _exe = exe
         _semaphore = DispatchSemaphore(value: 0)
-        _queue = queue
     }
 
     public func serverReady() {
