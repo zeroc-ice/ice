@@ -15,6 +15,8 @@ on:
     secrets:
       REPOSITORY_PASSWORD:
         required: false
+      ICE_NIGHTLY_PUBLISH_TOKEN:
+        required: false
   workflow_dispatch:
     inputs:
       ice_version:
@@ -66,8 +68,8 @@ jobs:
       - name: Push Nightly Tap
         run: |
           cd "$(brew --repo zeroc-ice/nightly)"
+          git remote set-url origin "https://x-access-token:${{secrets.ICE_NIGHTLY_PUBLISH_TOKEN}}@github.com/zeroc-ice/homebrew-nightly.git"
           git push origin main || { echo "Push failed"; exit 1; }
-        if: inputs.repository_url != ''
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
