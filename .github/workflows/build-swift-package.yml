@@ -10,7 +10,7 @@ on:
         required: false
         type: string
     secrets:
-      ICE_SWIFT_NIGHTLY_TOKEN:
+      ICE_NIGHTLY_PUBLISH_TOKEN:
         required: false
 
 jobs:
@@ -37,4 +37,4 @@ jobs:
           echo "Testing ice-swift build..."
           swift build --package-path ice-swift-nightly --configuration release
         env:
-          ICE_SWIFT_NIGHTLY_TOKEN: ${{ secrets.ICE_SWIFT_NIGHTLY_TOKEN }}
+          ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}

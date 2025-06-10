@@ -17,8 +17,8 @@ if [ -z "$repository_url" ]; then
     exit 1
 fi
 
-if [ -z "${ICE_SWIFT_NIGHTLY_TOKEN:-}" ]; then
-    echo "Error: ICE_SWIFT_NIGHTLY_TOKEN environment variable is not set"
+if [ -z "${ICE_NIGHTLY_PUBLISH_TOKEN:-}" ]; then
+    echo "Error: ICE_NIGHTLY_PUBLISH_TOKEN environment variable is not set"
     exit 1
 fi
 
@@ -28,7 +28,7 @@ cd "$root_dir/packaging/swift"
 
 # Clone the ice-swift-nightly repository and add the Ice for Swift sources
 [ -d ice-swift-nightly ] && rm -rf ice-swift-nightly
-git clone "https://x-access-token:${ICE_SWIFT_NIGHTLY_TOKEN}@github.com/zeroc-ice/ice-swift-nightly.git" -b main
+git clone "https://x-access-token:${ICE_NIGHTLY_PUBLISH_TOKEN}@github.com/zeroc-ice/ice-swift-nightly.git" -b main
 cd ice-swift-nightly
 
 cp -rfv ../../../cpp .
@@ -54,4 +54,4 @@ git config user.name "ZeroC"
 git config user.email "git@zeroc.com"
 git commit -m "ice: $ice_version Nightly build"
 git tag -a "$ice_version" -m "ice: $ice_version"
-git push "https://x-access-token:${ICE_SWIFT_NIGHTLY_TOKEN}@github.com/zeroc-ice/ice-swift-nightly.git" main --tags
+git push origin main --tags

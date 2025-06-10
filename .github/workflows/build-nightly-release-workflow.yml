@@ -231,4 +231,4 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
       repository_url: "${{ inputs.repository_url }}/nightly/"
     secrets:
-      ICE_SWIFT_NIGHTLY_TOKEN: ${{ secrets.ICE_SWIFT_NIGHTLY_TOKEN }}
+      ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
