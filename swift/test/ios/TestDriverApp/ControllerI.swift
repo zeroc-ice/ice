@@ -39,7 +39,7 @@ final class ProcessControllerI: CommonProcessController {
         _ipv4 = ipv4
         _ipv6 = ipv6
     }
-    
+
     @MainActor
     func start(
         testsuite: String,
@@ -115,7 +115,7 @@ class ControllerI {
         try _controller.withLock {
             $0 = try ControllerI(view: view, ipv4: ipv4, ipv6: ipv6)
         }
-        
+
     }
 
     public class func stopController() {
