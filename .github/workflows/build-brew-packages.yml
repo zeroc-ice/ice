@@ -65,7 +65,7 @@ jobs:
 
       - name: Push Nightly Tap
         run: |
-          cd $(brew --repo zeroc-ice/nightly)
+          cd "$(brew --repo zeroc-ice/nightly)"
           git push origin main || { echo "Push failed"; exit 1; }
         if: inputs.repository_url != ''
 
