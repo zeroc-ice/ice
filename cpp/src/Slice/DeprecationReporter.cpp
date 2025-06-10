@@ -7,13 +7,6 @@
 using namespace std;
 using namespace Slice;
 
-void
-Slice::emitDeprecationWarningsFor(const UnitPtr& unit)
-{
-    DeprecationVisitor visitor;
-    unit->visit(&visitor);
-}
-
 namespace
 {
     class DeprecationVisitor final : public ParserVisitor
@@ -43,6 +36,13 @@ namespace
             }
         }
     }
+}
+
+void
+Slice::emitDeprecationWarningsFor(const UnitPtr& unit)
+{
+    DeprecationVisitor visitor;
+    unit->visit(&visitor);
 }
 
 bool
