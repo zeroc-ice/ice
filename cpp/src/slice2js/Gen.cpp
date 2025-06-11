@@ -1028,33 +1028,17 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         for (const auto& dataMember : dataMembers)
         {
             string value;
-            if (dataMember->optional())
+            if (dataMember->defaultValue())
             {
-                if (dataMember->defaultValue())
-                {
-                    value = writeConstantValue(
-                        dataMember->type(),
-                        dataMember->defaultValueType(),
-                        *dataMember->defaultValue());
-                }
-                else
-                {
-                    value = "undefined";
-                }
+                value = writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
+            }
+            else if (dataMember->optional())
+            {
+                value = "undefined";
             }
             else
             {
-                if (dataMember->defaultValue())
-                {
-                    value = writeConstantValue(
-                        dataMember->type(),
-                        dataMember->defaultValueType(),
-                        *dataMember->defaultValue());
-                }
-                else
-                {
-                    value = getValue(dataMember->type());
-                }
+                value = getValue(dataMember->type());
             }
             _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
         }
@@ -1470,29 +1454,17 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     for (const auto& dataMember : dataMembers)
     {
         string value;
-        if (dataMember->optional())
+        if (dataMember->defaultValue())
         {
-            if (dataMember->defaultValue())
-            {
-                value =
-                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
-            }
-            else
-            {
-                value = "undefined";
-            }
+            value = writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
+        }
+        else if (dataMember->optional())
+        {
+            value = "undefined";
         }
         else
         {
-            if (dataMember->defaultValue())
-            {
-                value =
-                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
-            }
-            else
-            {
-                value = getValue(dataMember->type());
-            }
+            value = getValue(dataMember->type());
         }
         _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
     }
@@ -1574,29 +1546,17 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     for (const auto& dataMember : dataMembers)
     {
         string value;
-        if (dataMember->optional())
+        if (dataMember->defaultValue())
         {
-            if (dataMember->defaultValue())
-            {
-                value =
-                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
-            }
-            else
-            {
-                value = "undefined";
-            }
+            value = writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
+        }
+        else if (dataMember->optional())
+        {
+            value = "undefined";
         }
         else
         {
-            if (dataMember->defaultValue())
-            {
-                value =
-                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
-            }
-            else
-            {
-                value = getValue(dataMember->type());
-            }
+            value = getValue(dataMember->type());
         }
         _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
     }
