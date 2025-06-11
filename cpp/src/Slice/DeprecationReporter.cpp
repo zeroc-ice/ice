@@ -30,8 +30,8 @@ namespace
             if (contained->isDeprecated())
             {
                 ostringstream msg;
-                msg << source->kindOf() << " " << source->name() << " " << usePhrase << " deprecated "
-                    << contained->kindOf() << " " << contained->name();
+                msg << source->kindOf() << " '" << source->name() << "' " << usePhrase << " deprecated "
+                    << contained->kindOf() << " '" << contained->name() + "'";
                 p->unit()->warning(source->file(), source->line(), Deprecated, msg.str());
             }
         }
@@ -133,7 +133,7 @@ void
 DeprecationVisitor::visitSequence(const SequencePtr& sequence)
 {
     // If the sequence itself is deprecated, we don't need to check its type.
-    if (!sequence->isDeprecated())
+    if (sequence->isDeprecated())
     {
         return;
     }
