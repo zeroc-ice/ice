@@ -143,13 +143,13 @@ namespace
         ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
         if (cl)
         {
-            return cl->mappedScoped(".").substr(1);
+            return cl->mappedScoped(".", false);
         }
 
         InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
         if (proxy)
         {
-            return proxy->mappedScoped(".").substr(1) + "Prx";
+            return proxy->mappedScoped(".", false) + "Prx";
         }
 
         DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
@@ -168,7 +168,7 @@ namespace
         ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
         if (contained)
         {
-            return contained->mappedScoped(".").substr(1);
+            return contained->mappedScoped(".", false);
         }
 
         return "???";
@@ -253,7 +253,7 @@ namespace
         ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
         if (constant)
         {
-            return constant->mappedScoped(".").substr(1) + ".value";
+            return constant->mappedScoped(".", false); + ".value";
         }
         else
         {
@@ -290,7 +290,7 @@ namespace
             {
                 EnumeratorPtr e = dynamic_pointer_cast<Enumerator>(valueType);
                 assert(e);
-                return e->mappedScoped(".").substr(1);
+                return e->mappedScoped(".", false);
             }
             else
             {
@@ -359,13 +359,13 @@ namespace
             if (en)
             {
                 const EnumeratorList enumerators = en->enumerators();
-                return (*enumerators.begin())->mappedScoped(".").substr(1);
+                return (*enumerators.begin())->mappedScoped(".", false);
             }
 
             StructPtr st = dynamic_pointer_cast<Struct>(m->type());
             if (st)
             {
-                return st->mappedScoped(".").substr(1) + "()";
+                return st->mappedScoped(".", false) + "()";
             }
 
             return "[]";
@@ -427,13 +427,13 @@ namespace
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if (seq)
         {
-            out << nl << dest << " = " << seq->mappedScoped(".").substr(1) << ".convert(" << src << ");";
+            out << nl << dest << " = " << seq->mappedScoped(".", false) << ".convert(" << src << ");";
         }
 
         DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
         if (d)
         {
-            out << nl << dest << " = " << d->mappedScoped(".").substr(1) << ".convert(" << src << ");";
+            out << nl << dest << " = " << d->mappedScoped(".", false) << ".convert(" << src << ");";
         }
 
         StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -523,7 +523,7 @@ namespace
                     }
                     else
                     {
-                        out << c.front()->mappedScoped(".").substr(1);
+                        out << c.front()->mappedScoped(".", false);
                     }
 
                     if (!rest.empty())
@@ -794,7 +794,7 @@ namespace
                 ExceptionPtr ex = p->container()->lookupException(docException.first, false);
                 if (ex)
                 {
-                    out << ex->mappedScoped(".").substr(1);
+                    out << ex->mappedScoped(".", false);
                 }
                 else
                 {
@@ -1032,7 +1032,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList allMembers = p->allDataMembers();
 
     IceInternal::Output out;
-    openClass(p->mappedScoped(".").substr(1), _dir, out);
+    openClass(p->mappedScoped(".", false), _dir, out);
 
     writeDocSummary(out, p);
     writeCopyright(out, p->file());
@@ -1041,7 +1041,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << name;
     if (base)
     {
-        out << " < " << base->mappedScoped(".").substr(1);
+        out << " < " << base->mappedScoped(".", false);
     }
     else
     {
@@ -1117,7 +1117,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out.dec();
             out << nl << "end";
 
-            out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << "(v{:});";
+            out << nl << self << " = " << self << "@" << base->mappedScoped(".", false) << "(v{:});";
 
             out << nl << "if ne(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
             out.inc();
@@ -1190,7 +1190,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         if (base)
         {
-            out << nl << "icePostUnmarshal@" << base->mappedScoped(".").substr(1) << "(obj);";
+            out << nl << "icePostUnmarshal@" << base->mappedScoped(".", false) << "(obj);";
         }
         out.dec();
         out << nl << "end";
@@ -1221,7 +1221,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "os.endSlice();";
     if (base)
     {
-        out << nl << "iceWriteImpl@" << base->mappedScoped(".").substr(1) << "(obj, os);";
+        out << nl << "iceWriteImpl@" << base->mappedScoped(".", false) << "(obj, os);";
     }
     out.dec();
     out << nl << "end";
@@ -1250,7 +1250,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "is.endSlice();";
     if (base)
     {
-        out << nl << "iceReadImpl@" << base->mappedScoped(".").substr(1) << "(obj, is);";
+        out << nl << "iceReadImpl@" << base->mappedScoped(".", false) << "(obj, is);";
     }
     out.dec();
     out << nl << "end";
@@ -1312,7 +1312,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     const InterfaceList bases = p->bases();
     const string prxName = p->mappedName() + "Prx";
-    const string prxAbs = p->mappedScoped(".").substr(1) + "Prx";
+    const string prxAbs = p->mappedScoped(".", false) + "Prx";
 
     IceInternal::Output out;
     openClass(prxAbs, _dir, out);
@@ -1329,7 +1329,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 out << " & ";
             }
-            out << (*q)->mappedScoped(".").substr(1) + "Prx";
+            out << (*q)->mappedScoped(".", false) + "Prx";
         }
     }
     else
@@ -1706,7 +1706,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     {
                         out << ", ";
                     }
-                    out << "'" + (*e)->mappedScoped(".").substr(1) + "'";
+                    out << "'" + (*e)->mappedScoped(".", false) + "'";
                 }
                 out << " }";
             }
@@ -1728,7 +1728,7 @@ bool
 CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const string name = p->mappedName();
-    const string abs = p->mappedScoped(".").substr(1);
+    const string abs = p->mappedScoped(".", false);
 
     IceInternal::Output out;
     openClass(abs, _dir, out);
@@ -1742,7 +1742,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "classdef " << name;
     if (base)
     {
-        out << " < " << base->mappedScoped(".").substr(1);
+        out << " < " << base->mappedScoped(".", false);
     }
     else
     {
@@ -1815,7 +1815,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     else
     {
-        out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << spar << "errID" << "msg"
+        out << nl << self << " = " << self << "@" << base->mappedScoped(".", false) << spar << "errID" << "msg"
             << epar << ';';
     }
     out.dec();
@@ -1848,7 +1848,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         if (base && base->usesClasses())
         {
-            out << nl << "obj = icePostUnmarshal@" << base->mappedScoped(".").substr(1) << "(obj);";
+            out << nl << "obj = icePostUnmarshal@" << base->mappedScoped(".", false) << "(obj);";
         }
         out.dec();
         out << nl << "end";
@@ -1895,7 +1895,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "is.endSlice();";
     if (base)
     {
-        out << nl << "obj = iceReadImpl@" << base->mappedScoped(".").substr(1) << "(obj, is);";
+        out << nl << "obj = iceReadImpl@" << base->mappedScoped(".", false) << "(obj, is);";
     }
     out.dec();
     out << nl << "end";
@@ -1921,7 +1921,7 @@ bool
 CodeVisitor::visitStructStart(const StructPtr& p)
 {
     const string name = p->mappedName();
-    const string abs = p->mappedScoped(".").substr(1);
+    const string abs = p->mappedScoped(".", false);
 
     IceInternal::Output out;
     openClass(abs, _dir, out);
@@ -2117,7 +2117,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     StructPtr structContent = dynamic_pointer_cast<Struct>(content);
     DictionaryPtr dictContent = dynamic_pointer_cast<Dictionary>(content);
 
-    const string abs = p->mappedScoped(".").substr(1);
+    const string abs = p->mappedScoped(".", false);
     const bool cls = content->isClassType();
     const bool proxy = isProxy(content);
     const bool convert = needsConversion(content);
@@ -2206,10 +2206,10 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     else if (enumContent)
     {
         const EnumeratorList enumerators = enumContent->enumerators();
-        out << nl << "r = " << enumContent->mappedScoped(".").substr(1) << ".empty();";
+        out << nl << "r = " << enumContent->mappedScoped(".", false) << ".empty();";
         out << nl << "if sz > 0";
         out.inc();
-        out << nl << "r(1, sz) = " << (*enumerators.begin())->mappedScoped(".").substr(1) << ";";
+        out << nl << "r(1, sz) = " << (*enumerators.begin())->mappedScoped(".", false) << ";";
         out << nl << "for i = 1:sz";
         out.inc();
         unmarshal(out, "is", "r(i)", content, false, 0);
@@ -2225,10 +2225,10 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         // syntax "arr(1, sz) = Type()". Additionally, we also have to inline the unmarshaling code for
         // the struct members.
         //
-        out << nl << "r = " << structContent->mappedScoped(".").substr(1) << ".empty();";
+        out << nl << "r = " << structContent->mappedScoped(".", false) << ".empty();";
         out << nl << "if sz > 0";
         out.inc();
-        out << nl << "r(1, sz) = " << structContent->mappedScoped(".").substr(1) << "();";
+        out << nl << "r(1, sz) = " << structContent->mappedScoped(".", false) << "();";
         out << nl << "for i = 1:sz";
         out.inc();
         unmarshalStruct(out, structContent, "r(i)");
@@ -2380,7 +2380,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const StructPtr st = dynamic_pointer_cast<Struct>(key);
 
     const string name = p->mappedName();
-    const string abs = p->mappedScoped(".").substr(1);
+    const string abs = p->mappedScoped(".", false);
     const string self = name == "obj" ? "this" : "obj";
 
     IceInternal::Output out;
@@ -2616,7 +2616,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    const string abs = p->mappedScoped(".").substr(1);
+    const string abs = p->mappedScoped(".", false);
     const EnumeratorList enumerators = p->enumerators();
 
     IceInternal::Output out;
@@ -2734,7 +2734,7 @@ void
 CodeVisitor::visitConst(const ConstPtr& p)
 {
     IceInternal::Output out;
-    openClass(p->mappedScoped(".").substr(1), _dir, out);
+    openClass(p->mappedScoped(".", false), _dir, out);
 
     writeDocSummary(out, p);
     writeCopyright(out, p->file());
@@ -2945,7 +2945,7 @@ CodeVisitor::marshal(
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        const string typeS = st->mappedScoped(".").substr(1);
+        const string typeS = st->mappedScoped(".", false);
         if (optional)
         {
             out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
@@ -2960,7 +2960,7 @@ CodeVisitor::marshal(
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        const string typeS = en->mappedScoped(".").substr(1);
+        const string typeS = en->mappedScoped(".", false);
         if (optional)
         {
             out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
@@ -2975,7 +2975,7 @@ CodeVisitor::marshal(
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if (dict)
     {
-        const string typeS = dict->mappedScoped(".").substr(1);
+        const string typeS = dict->mappedScoped(".", false);
         if (optional)
         {
             out << nl << typeS << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
@@ -3012,7 +3012,7 @@ CodeVisitor::marshal(
             return;
         }
 
-        const string typeS = seq->mappedScoped(".").substr(1);
+        const string typeS = seq->mappedScoped(".", false);
         if (optional)
         {
             out << nl << typeS << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
@@ -3163,7 +3163,7 @@ CodeVisitor::unmarshal(
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if (prx)
     {
-        const string typeS = prx->mappedScoped(".").substr(1) + "Prx";
+        const string typeS = prx->mappedScoped(".", false) + "Prx";
         if (optional)
         {
             out << nl << v << " = " << stream << ".readProxyOpt(" << tag << ", '" << typeS << "');";
@@ -3180,7 +3180,7 @@ CodeVisitor::unmarshal(
     if (cl)
     {
         assert(!optional); // Optional classes are disallowed by the parser.
-        const string cls = cl->mappedScoped(".").substr(1);
+        const string cls = cl->mappedScoped(".", false);
         out << nl << stream << ".readValue(" << v << ", '" << cls << "');";
         return;
     }
@@ -3188,7 +3188,7 @@ CodeVisitor::unmarshal(
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        const string typeS = st->mappedScoped(".").substr(1);
+        const string typeS = st->mappedScoped(".", false);
         if (optional)
         {
             out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
@@ -3203,7 +3203,7 @@ CodeVisitor::unmarshal(
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        const string typeS = en->mappedScoped(".").substr(1);
+        const string typeS = en->mappedScoped(".", false);
         if (optional)
         {
             out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
@@ -3218,7 +3218,7 @@ CodeVisitor::unmarshal(
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if (dict)
     {
-        const string typeS = dict->mappedScoped(".").substr(1);
+        const string typeS = dict->mappedScoped(".", false);
         if (optional)
         {
             out << nl << v << " = " << typeS << ".readOpt(" << stream << ", " << tag << ");";
@@ -3254,7 +3254,7 @@ CodeVisitor::unmarshal(
             return;
         }
 
-        const string typeS = seq->mappedScoped(".").substr(1);
+        const string typeS = seq->mappedScoped(".", false);
         if (optional)
         {
             out << nl << v << " = " << typeS << ".readOpt(" << stream << ", " << tag << ");";

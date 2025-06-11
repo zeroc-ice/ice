@@ -36,14 +36,14 @@ namespace
             {
                 if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
                 {
-                    string targetScoped = operationTarget->interface()->mappedScoped(".").substr(1);
+                    string targetScoped = operationTarget->interface()->mappedScoped(".", false);
 
                     // link to the method on the proxy interface
                     result << targetScoped << "Prx." << operationTarget->mappedName();
                 }
                 else
                 {
-                    string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".").substr(1);
+                    string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".", false);
                     if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
                     {
                         // link to the proxy interface
@@ -233,7 +233,7 @@ namespace
             string mappedName = name;
             if (ExceptionPtr ex = op->container()->lookupException(name, false))
             {
-                mappedName = ex->mappedScoped(".").substr(1);
+                mappedName = ex->mappedScoped(".", false);
             }
             out << nl << " * @throws {@link " << mappedName << "} ";
             writeDocLines(out, lines, false);
@@ -343,7 +343,7 @@ Slice::JsVisitor::getValue(const TypePtr& type)
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        return (*en->enumerators().begin())->mappedScoped(".").substr(1);
+        return (*en->enumerators().begin())->mappedScoped(".", false);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -362,7 +362,7 @@ Slice::JsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        os << constant->mappedScoped(".").substr(1);
+        os << constant->mappedScoped(".", false);
     }
     else
     {
@@ -383,7 +383,7 @@ Slice::JsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
-            os << lte->mappedScoped(".").substr(1);
+            os << lte->mappedScoped(".", false);
         }
         else
         {
@@ -953,7 +953,7 @@ Slice::Gen::ExportsVisitor::visitModuleStart(const ModulePtr& p)
     //
     // Foo.Bar = Foo.Bar || {};
     //
-    const string scoped = p->mappedScoped(".").substr(1);
+    const string scoped = p->mappedScoped(".", false);
     if (_exportedModules.insert(scoped).second)
     {
         if (p->isTopLevel())
@@ -986,9 +986,9 @@ Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : JsVisitor(out
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    const string scopedName = p->mappedScoped(".").substr(1);
+    const string scopedName = p->mappedScoped(".", false);
     ClassDefPtr base = p->base();
-    string baseRef = base ? base->mappedScoped(".").substr(1) : "Ice.Value";
+    string baseRef = base ? base->mappedScoped(".", false) : "Ice.Value";
 
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
@@ -1112,7 +1112,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string serviceType = p->mappedScoped(".").substr(1);
+    const string serviceType = p->mappedScoped(".", false);
     const string proxyType = serviceType + "Prx";
     const string flattenedIdsName = "iceC_" + p->mappedScoped("_").substr(1) + "_ids";
 
@@ -1154,7 +1154,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         for (auto q = bases.begin(); q != bases.end();)
         {
             InterfaceDefPtr base = *q;
-            _out << nl << base->mappedScoped(".").substr(1);
+            _out << nl << base->mappedScoped(".", false);
             if (++q != bases.end())
             {
                 _out << ",";
@@ -1186,7 +1186,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             InterfaceDefPtr base = *q;
 
-            _out << nl << base->mappedScoped(".").substr(1) + "Prx";
+            _out << nl << base->mappedScoped(".", false) + "Prx";
             if (++q != bases.end())
             {
                 _out << ",";
@@ -1377,7 +1377,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     {
                         _out << ',';
                     }
-                    _out << nl << (*eli)->mappedScoped(".").substr(1);
+                    _out << nl << (*eli)->mappedScoped(".", false);
                 }
                 _out.dec();
                 _out << nl << ']';
@@ -1409,7 +1409,7 @@ void
 Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     // Stream helpers for sequences are lazy initialized as the required types might not be available until later.
-    const string helperName = p->mappedScoped(".").substr(1) + "Helper";
+    const string helperName = p->mappedScoped(".", false) + "Helper";
     const TypePtr type = p->type();
     const bool fixed = !type->isVariableLength();
 
@@ -1427,13 +1427,13 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 bool
 Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    const string scopedName = p->mappedScoped(".").substr(1);
+    const string scopedName = p->mappedScoped(".", false);
     const ExceptionPtr base = p->base();
     string baseRef;
 
     if (base)
     {
-        baseRef = base->mappedScoped(".").substr(1);
+        baseRef = base->mappedScoped(".", false);
     }
     else
     {
@@ -1561,7 +1561,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    const string scopedName = p->mappedScoped(".").substr(1);
+    const string scopedName = p->mappedScoped(".", false);
     const DataMemberList dataMembers = p->dataMembers();
 
     _out << sp;
@@ -1658,7 +1658,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     // Stream helpers for dictionaries of objects are lazy initialized
     // as the required object type might not be available until later.
-    const string scopedName = p->mappedScoped(".").substr(1);
+    const string scopedName = p->mappedScoped(".", false);
     const string helperName = scopedName + "Helper";
     bool fixed = !keyType->isVariableLength() && !valueType->isVariableLength();
 
@@ -1677,7 +1677,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    const string scopedName = p->mappedScoped(".").substr(1);
+    const string scopedName = p->mappedScoped(".", false);
     _out << sp;
     writeDocCommentFor(p);
     _out << nl << scopedName << " = Ice.defineEnum([";
@@ -1712,7 +1712,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
-    string scope = p->mappedScope(".").substr(1);
+    string scope = p->mappedScope(".", false);
     scope.pop_back(); // Remove the trailing '.' from the scope.
 
     _out << sp;
@@ -1753,37 +1753,37 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return "\"" + proxy->mappedScoped(".").substr(1) + "Prx" + "\"";
+        return "\"" + proxy->mappedScoped(".", false) + "Prx" + "\"";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if (seq)
     {
-        return seq->mappedScoped(".").substr(1) + "Helper";
+        return seq->mappedScoped(".", false) + "Helper";
     }
 
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        return d->mappedScoped(".").substr(1) + "Helper";
+        return d->mappedScoped(".", false) + "Helper";
     }
 
     EnumPtr e = dynamic_pointer_cast<Enum>(type);
     if (e)
     {
-        return e->mappedScoped(".").substr(1) + "._helper";
+        return e->mappedScoped(".", false) + "._helper";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return st->mappedScoped(".").substr(1);
+        return st->mappedScoped(".", false);
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return "\"" + cl->mappedScoped(".").substr(1) + "\"";
+        return "\"" + cl->mappedScoped(".", false) + "\"";
     }
 
     return "???";
@@ -1794,7 +1794,7 @@ Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceInternal::Output
 void
 Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
 {
-    const string definitionId = definition->mappedScoped(".").substr(1);
+    const string definitionId = definition->mappedScoped(".", false);
 
     string jsImportedModule = getJavaScriptModule(definition->definitionContext());
     if (jsImportedModule.empty())
@@ -2087,7 +2087,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        const string scopedName = cl->mappedScoped(".").substr(1);
+        const string scopedName = cl->mappedScoped(".", false);
         t = importPrefix(scopedName) + scopedName;
         if (nullable)
         {
@@ -2098,7 +2098,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        const string scopedName = proxy->mappedScoped(".").substr(1);
+        const string scopedName = proxy->mappedScoped(".", false);
         t = importPrefix(scopedName) + scopedName + "Prx";
         if (nullable)
         {
@@ -2149,7 +2149,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
     ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if (t.empty() && contained)
     {
-        const string scopedName = contained->mappedScoped(".").substr(1);
+        const string scopedName = contained->mappedScoped(".", false);
         t = importPrefix(scopedName) + scopedName;
     }
 
@@ -2242,7 +2242,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
     if (base)
     {
-        const string baseName = base->mappedScoped(".").substr(1);
+        const string baseName = base->mappedScoped(".", false);
         _out << importPrefix(baseName) << baseName;
     }
     else
@@ -2593,7 +2593,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     string baseRef;
     if (base)
     {
-        const string baseName = base->mappedScoped(".").substr(1);
+        const string baseName = base->mappedScoped(".", false);
         baseRef = importPrefix(baseName) + baseName;
     }
     else
