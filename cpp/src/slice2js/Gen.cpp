@@ -1114,7 +1114,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string serviceType = p->mappedScoped(".", false);
     const string proxyType = serviceType + "Prx";
-    const string flattenedIdsName = "iceC_" + p->mappedScoped("_").substr(1) + "_ids";
+    const string flattenedIdsName = "iceC" + p->mappedScoped("_") + "_ids";
 
     InterfaceList bases = p->bases();
     StringList ids = p->ids();
