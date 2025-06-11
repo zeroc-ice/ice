@@ -1030,7 +1030,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             string value;
             if (dataMember->defaultValue())
             {
-                value = writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
+                value =
+                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
             }
             else if (dataMember->optional())
             {
