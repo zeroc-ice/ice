@@ -23,6 +23,10 @@ namespace
         void visitConst(const ConstPtr& constDef) final;
     };
 
+    /// Checks if the provided Slice element is deprecated. If it is, this will emit a deprecation warning.
+    /// @param p The Slice element to check for deprecation.
+    /// @param source This element's file and line number will be used in the warning message. Can be the same as @p p.
+    /// @param usePhrase A short description of how @p p is being used in context. Only used to emit better warnings.
     void reportIfDeprecated(const SyntaxTreeBasePtr& p, const ContainedPtr& source, string_view usePhrase = "uses")
     {
         if (auto contained = dynamic_pointer_cast<Contained>(p))
