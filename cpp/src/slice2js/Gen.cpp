@@ -295,6 +295,28 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
     }
 }
 
+void
+Slice::JsVisitor::writeOneShotConstructorArguments(const DataMemberList& members)
+{
+    for (const auto& dataMember : dataMembers)
+    {
+        string value;
+        if (dataMember->defaultValue())
+        {
+            value = writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
+        }
+        else if (dataMember->optional())
+        {
+            value = "undefined";
+        }
+        else
+        {
+            value = getValue(dataMember->type());
+        }
+        _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
+    }
+}
+
 string
 Slice::JsVisitor::getValue(const TypePtr& type)
 {
@@ -1025,24 +1047,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << baseDataMember->mappedName();
         }
 
-        for (const auto& dataMember : dataMembers)
-        {
-            string value;
-            if (dataMember->defaultValue())
-            {
-                value =
-                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
-            }
-            else if (dataMember->optional())
-            {
-                value = "undefined";
-            }
-            else
-            {
-                value = getValue(dataMember->type());
-            }
-            _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
-        }
+        writeOneShotConstructorArguments(dataMembers);
 
         _out << epar << sb;
         _out << nl << "super" << spar << baseParamNames << epar << ';';
@@ -1452,23 +1457,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << baseDataMember->mappedName();
     }
 
-    for (const auto& dataMember : dataMembers)
-    {
-        string value;
-        if (dataMember->defaultValue())
-        {
-            value = writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
-        }
-        else if (dataMember->optional())
-        {
-            value = "undefined";
-        }
-        else
-        {
-            value = getValue(dataMember->type());
-        }
-        _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
-    }
+    writeOneShotConstructorArguments(dataMembers);
 
     _out << "_cause = \"\"" << epar;
     _out << sb;
@@ -1544,23 +1533,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << nl << "constructor" << spar;
 
-    for (const auto& dataMember : dataMembers)
-    {
-        string value;
-        if (dataMember->defaultValue())
-        {
-            value = writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
-        }
-        else if (dataMember->optional())
-        {
-            value = "undefined";
-        }
-        else
-        {
-            value = getValue(dataMember->type());
-        }
-        _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
-    }
+    writeOneShotConstructorArguments(dataMembers);
 
     _out << epar;
     _out << sb;
