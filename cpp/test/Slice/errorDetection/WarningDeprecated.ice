@@ -55,23 +55,23 @@ module Test
 
     class NormalClass {}
     ["deprecated"] class DeprecatedClass {}
-    class ExtendsDeprecatedClass1 : DeprecatedClass {} // warning
+    class ExtendsDeprecatedClass1 : DeprecatedClass {}
     ["deprecated"] class ExtendsDeprecatedClass2 : DeprecatedClass {}
 
     exception NormalException {}
     ["deprecated"] exception DeprecatedException {}
-    exception ExtendsDeprecatedException1 : DeprecatedException {} // warning
+    exception ExtendsDeprecatedException1 : DeprecatedException {}
     ["deprecated"] exception ExtendsDeprecatedException2 : DeprecatedException {}
 
     sequence<NormalStruct> NormalSequence1;
-    sequence<DeprecatedStruct> DeprecatedSequence1;               // warning!
+    sequence<DeprecatedStruct> DeprecatedSequence1;
     ["deprecated"] sequence<NormalStruct> NormalSequence2;
     ["deprecated"] sequence<DeprecatedStruct> DeprecatedSequence2;
 
     dictionary<NormalEnum, NormalClass> NormalDictionary1;
-    dictionary<DeprecatedEnum, NormalClass> DeprecatedKeyDictionary1;       // warning!
-    dictionary<NormalEnum, DeprecatedClass> DeprecatedValueDictionary1;     // warning!
-    dictionary<DeprecatedEnum, DeprecatedClass> DeprecatedBothDictionary1;  // 2 warnings!
+    dictionary<DeprecatedEnum, NormalClass> DeprecatedKeyDictionary1;
+    dictionary<NormalEnum, DeprecatedClass> DeprecatedValueDictionary1;
+    dictionary<DeprecatedEnum, DeprecatedClass> DeprecatedBothDictionary1;
     ["deprecated"] dictionary<NormalEnum, NormalClass> NormalDictionary2;
     ["deprecated"] dictionary<DeprecatedEnum, NormalClass> DeprecatedKeyDictionary2;
     ["deprecated"] dictionary<NormalEnum, DeprecatedClass> DeprecatedValueDictionary2;
@@ -95,6 +95,6 @@ module Test
         DeprecatedEnum deprecated2(DeprecatedClass dc, NormalDictionary2 nd, DeprecatedSequence1 ds)
             throws NormalException, DeprecatedException;
     }
-    interface Extends1 : NormalInterface, DeprecatedInterface {} // warning
+    interface Extends1 : NormalInterface, DeprecatedInterface {}
     ["deprecated"] interface Extends2 : NormalInterface, DeprecatedInterface {}
 }
