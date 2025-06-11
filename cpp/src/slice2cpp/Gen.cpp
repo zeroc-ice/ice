@@ -2814,7 +2814,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         C << sp;
         C << nl << "void";
-        C << nl << scoped << "::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse)";
+        C << nl << scoped
+          << "::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse)";
         C << sb;
 
         C << sp;

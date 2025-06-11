@@ -1815,8 +1815,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     else
     {
-        out << nl << self << " = " << self << "@" << base->mappedScoped(".", false) << spar << "errID" << "msg"
-            << epar << ';';
+        out << nl << self << " = " << self << "@" << base->mappedScoped(".", false) << spar << "errID" << "msg" << epar
+            << ';';
     }
     out.dec();
     out << nl << "end";
