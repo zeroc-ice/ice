@@ -253,7 +253,7 @@ namespace
         ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
         if (constant)
         {
-            return constant->mappedScoped(".", false); + ".value";
+            return constant->mappedScoped(".", false) + ".value";
         }
         else
         {
