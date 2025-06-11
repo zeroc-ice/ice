@@ -54,7 +54,7 @@ ifeq (,$(filter no-python312,$(DEB_BUILD_PROFILES)))
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="python" srcs
 endif
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-	$(MAKE) $(MAKEOPTS) OPTIMIZE=no LANGUAGES=cpp CONFIGS="shared" tests
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES=cpp CONFIGS="shared" tests
 endif
 	for v in $(PHP_VERSIONS); do \
 	  cp -a php php-$${v}; \

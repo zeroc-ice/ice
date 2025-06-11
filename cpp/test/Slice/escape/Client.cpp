@@ -81,13 +81,13 @@ testtypes(const Ice::CommunicatorPtr& communicator)
 
 // Work-around for:
 // error: array subscript -6 is outside array bounds of ‘int (* [1152921504606846975])(...)’ [-Werror=array-bounds]
-#if defined(NDEBUG) && defined(__GNUC__)
+#if defined(__GNUC__)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
     g->escaped_case(0, d2);
     g->escaped_explicit();
-#if defined(NDEBUG) && defined(__GNUC__)
+#if defined(__GNUC__)
 #    pragma GCC diagnostic pop
 #endif
     escaped_and::escaped_doPtr g1 = std::make_shared<doI>();
