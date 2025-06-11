@@ -298,22 +298,22 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
 void
 Slice::JsVisitor::writeOneShotConstructorArguments(const DataMemberList& members)
 {
-    for (const auto& dataMember : dataMembers)
+    for (const auto& member : members)
     {
         string value;
-        if (dataMember->defaultValue())
+        if (member->defaultValue())
         {
-            value = writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
+            value = writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
         }
-        else if (dataMember->optional())
+        else if (member->optional())
         {
             value = "undefined";
         }
         else
         {
-            value = getValue(dataMember->type());
+            value = getValue(member->type());
         }
-        _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
+        _out << (member->mappedName() + (value.empty() ? value : (" = " + value)));
     }
 }
 
