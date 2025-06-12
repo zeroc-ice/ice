@@ -10,7 +10,6 @@ classdef EncapsDecoder11_InstanceData < handle
             obj.slices = {};
             obj.indirectionTables = {};
             obj.sliceFlags = uint8(0);
-            obj.indirectPatchList = [];
         end
     end
     properties
@@ -23,7 +22,7 @@ classdef EncapsDecoder11_InstanceData < handle
         typeId
         typeIdIndex
         compactId
-        indirectPatchList
+        indirectPatchList dictionary = dictionary % unconfigured dictionary
         previous
         next
     end
