@@ -1071,11 +1071,21 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         const_cast<ConnectionOptions&>(_clientConnectionOptions) = readConnectionOptions("Ice.Connection.Client");
         const_cast<ConnectionOptions&>(_serverConnectionOptions) = readConnectionOptions("Ice.Connection.Server");
 
+        // The max size of an Ice protocol message in bytes. The maximum value is 0x7fffffff, which is the maximum
+        // value for an int32_t.
+        const int32_t size_max = 0x7fffffff;
         {
             int32_t num = _initData.properties->getIcePropertyAsInt("Ice.MessageSizeMax");
-            if (num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
+            if (static_cast<size_t>(num) > static_cast<size_t>(size_max / 1024))
             {
-                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
+                ostringstream os;
+                os << "Ice.MessageSizeMax '" << num << "' is too large, it must be less than or equal to '"
+                   << (size_max / 1024) << "'";
+                throw InitializationException(__FILE__, __LINE__, os.str());
+            }
+            else if (num < 1)
+            {
+                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(size_max);
             }
             else
             {
@@ -1095,13 +1105,16 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         else
         {
             int32_t num = _initData.properties->getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB default
-            if (num < 1)
+            if (static_cast<size_t>(num) > static_cast<size_t>(size_max / 1024))
             {
-                const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num);
+                ostringstream os;
+                os << "Ice.BatchAutoFlushSize '" << num << "' is too large, it must be less than or equal to '"
+                   << (size_max / 1024) << "'";
+                throw InitializationException(__FILE__, __LINE__, os.str());
             }
-            else if (static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
+            else if (num < 1)
             {
-                const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(0x7fffffff);
+                const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(size_max);
             }
             else
             {
@@ -1112,9 +1125,9 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         {
             int32_t num = _initData.properties->getIcePropertyAsInt("Ice.ClassGraphDepthMax");
-            if (num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff))
+            if (num < 1)
             {
-                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(0x7fffffff);
+                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(size_max);
             }
             else
             {
