@@ -643,7 +643,7 @@ classdef AllTests
             c = tccp.getContext();
             assert(c.numEntries == 0);
 
-            c = configureDictionary('char', 'char');;
+            c = configureDictionary('char', 'char');
             c('one') = 'hello';
             c('two') = 'world';
             tccp = MyClassPrx.checkedCast(base, c);
