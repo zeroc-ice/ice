@@ -766,16 +766,14 @@ classdef LocalTests
             end
 
             %
-            % Test: dictionary with struct key and class value type. The dictionary maps to a struct array and
-            % temporarily stores IceInternal.ValueHolder objects as its values until converted.
+            % Test: dictionary with struct key and class value type.
             %
 
             out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
-            d = struct.empty();
+            d = configureDictionary('LocalTest.StructKey', 'cell');
             for i = 1:10
-                d(i).key = StructKey(i, i);
-                d(i).value = C1(i);
+                d{StructKey(i, i)} = C1(i);
             end
             StructDict1.write(out, d);
             out.writePendingValues();
@@ -786,28 +784,26 @@ classdef LocalTests
             r = StructDict1.read(is);
             is.readPendingValues();
             is.endEncapsulation();
-            % The result should be a struct array
-            assert(isa(r, 'struct'));
-            assert(length(r) == length(d));
+            % The result should be a dictionary
+            assert(isa(r, 'dictionary'));
+            assert(r.numEntries == d.numEntries);
             % The entry values haven't been converted yet
-            assert(isa(r(1).value, 'IceInternal.ValueHolder'));
+            assert(isa(r(StructKey(1, 1)), 'IceInternal.ValueHolder'));
             r = StructDict1.convert(r);
-            assert(isa(r(1).value, symbol('C1')));
+            assert(isa(r{StructKey(1, 1)}, symbol('C1')));
             for i = 1:10
-                assert(r(i).value.i == i);
+                assert(r{StructKey(i, i)}.i == i);
             end
 
             %
-            % Test: dictionary with struct key and struct value type containing class. The dictionary maps to a
-            % struct array and temporarily stores IceInternal.ValueHolder objects as its values until converted.
+            % Test: dictionary with struct key and struct value type containing class.
             %
 
             out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
-            d = struct.empty();
+            d = configureDictionary('LocalTest.StructKey', 'LocalTest.S1');
             for i = 1:10
-                d(i).key = StructKey(i, i);
-                d(i).value = S1(C1(i));
+                d(StructKey(i, i)) = S1(C1(i));
             end
             StructDict2.write(out, d);
             out.writePendingValues();
@@ -818,15 +814,15 @@ classdef LocalTests
             r = StructDict2.read(is);
             is.readPendingValues();
             is.endEncapsulation();
-            % The result should be a struct array
-            assert(isa(r, 'struct'));
-            assert(length(r) == length(d));
+            % The result should be a dictionary
+            assert(isa(r, 'dictionary'));
+            assert(r.numEntries == d.numEntries);
             % The entry values haven't been converted yet
-            assert(isa(r(1).value.c1, 'IceInternal.ValueHolder'));
+            assert(isa(r(StructKey(1, 1)).c1, 'IceInternal.ValueHolder'));
             r = StructDict2.convert(r);
-            assert(isa(r(1).value.c1, symbol('C1')));
+            assert(isa(r(StructKey(1, 1)).c1, symbol('C1')));
             for i = 1:10
-                assert(r(i).value.c1.i == i);
+                assert(r(StructKey(i, i)).c1.i == i);
             end
 
             %

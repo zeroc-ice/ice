@@ -513,41 +513,27 @@ classdef TwowaysAMI
             assert(strcmp(r(int32(MyEnum.enum2)), 'Hello!!'));
             assert(strcmp(r(int32(MyEnum.enum3)), 'qwerty'));
 
-            s11 = MyStruct(1, 1);
-            s12 = MyStruct(1, 2);
-            di1 = struct.empty();
-            di1(1).key = s11;
-            di1(1).value = MyEnum.enum1;
-            di1(2).key = s12;
-            di1(2).value = MyEnum.enum2;
+            mys11 = MyStruct(1, 1);
+            mys12 = MyStruct(1, 2);
+            di1 = configureDictionary('Test.MyStruct', 'Test.MyEnum');
+            di1(mys11) = MyEnum.enum1;
+            di1(mys12) = MyEnum.enum2;
 
-            s22 = MyStruct(2, 2);
-            s23 = MyStruct(2, 3);
-            di2 = struct.empty();
-            di2(1).key = s11;
-            di2(1).value = MyEnum.enum1;
-            di2(2).key = s22;
-            di2(2).value = MyEnum.enum3;
-            di2(3).key = s23;
-            di2(3).value = MyEnum.enum2;
+            mys22 = MyStruct(2, 2);
+            mys23 = MyStruct(2, 3);
+            di2 = configureDictionary('Test.MyStruct', 'Test.MyEnum');
+            di2(mys11) = MyEnum.enum1;
+            di2(mys22) = MyEnum.enum3;
+            di2(mys23) = MyEnum.enum2;
 
             [r, p3] = call(p, 'opMyStructMyEnumD', di1, di2);
 
             assert(isequal(p3, di1));
-            assert(length(r) == 4);
-            for i = 1:length(r)
-                if isequal(r(i).key, s11)
-                    assert(r(i).value == MyEnum.enum1);
-                elseif isequal(r(i).key, s12)
-                    assert(r(i).value == MyEnum.enum2);
-                elseif isequal(r(i).key, s22)
-                    assert(r(i).value == MyEnum.enum3);
-                elseif isequal(r(i).key, s23)
-                    assert(r(i).value == MyEnum.enum2);
-                else
-                    assert(false);
-                end
-            end
+            assert(r.numEntries == 4);
+            assert(isequal(r(mys11), MyEnum.enum1));
+            assert(isequal(r(mys12), MyEnum.enum2));
+            assert(isequal(r(mys22), MyEnum.enum3));
+            assert(isequal(r(mys23), MyEnum.enum2));
 
             di1 = configureDictionary('uint8', 'logical');
             di1(10) = true;
@@ -755,61 +741,47 @@ classdef TwowaysAMI
             assert(strcmp(p3{3}(int32(MyEnum.enum2)), 'Hello!!'));
             assert(strcmp(p3{3}(int32(MyEnum.enum3)), 'qwerty'));
 
-            s11 = MyStruct(1, 1);
-            s12 = MyStruct(1, 2);
-            di1 = struct.empty();
-            di1(1).key = s11;
-            di1(1).value = MyEnum.enum1;
-            di1(2).key = s12;
-            di1(2).value = MyEnum.enum2;
+            mys11 = MyStruct(1, 1);
+            mys12 = MyStruct(1, 2);
+            di1 = configureDictionary('Test.MyStruct', 'Test.MyEnum');
+            di1(mys11) = MyEnum.enum1;
+            di1(mys12) = MyEnum.enum2;
 
-            s22 = MyStruct(2, 2);
-            s23 = MyStruct(2, 3);
-            di2 = struct.empty();
-            di2(1).key = s11;
-            di2(1).value = MyEnum.enum1;
-            di2(2).key = s22;
-            di2(2).value = MyEnum.enum3;
-            di2(3).key = s23;
-            di2(3).value = MyEnum.enum2;
+            mys22 = MyStruct(2, 2);
+            mys23 = MyStruct(2, 3);
+            di2 = configureDictionary('Test.MyStruct', 'Test.MyEnum');
+            di2(mys11) = MyEnum.enum1;
+            di2(mys22) = MyEnum.enum3;
+            di2(mys23) = MyEnum.enum2;
 
-            di3 = struct.empty();
-            di3(1).key = s23;
-            di3(1).value = MyEnum.enum2;
+            di3 = configureDictionary('Test.MyStruct', 'Test.MyEnum');
+            di3(mys23) = MyEnum.enum2;
 
             dsi1 = {di1, di2};
             dsi2 = {di3};
 
             [r, p3] = call(p, 'opMyStructMyEnumDS', dsi1, dsi2);
 
-            function checkStructDict(d)
-                import Test.*;
-                for i = 1:length(d)
-                    if isequal(d(i).key, s11)
-                        assert(d(i).value == MyEnum.enum1);
-                    elseif isequal(d(i).key, s12)
-                        assert(d(i).value == MyEnum.enum2);
-                    elseif isequal(d(i).key, s22)
-                        assert(d(i).value == MyEnum.enum3);
-                    elseif isequal(d(i).key, s23)
-                        assert(d(i).value == MyEnum.enum2);
-                    else
-                        assert(false);
-                    end
-                end
-            end
             assert(length(r) == 2);
-            assert(length(r{1}) == 3);
-            checkStructDict(r{1});
-            checkStructDict(r{2});
+            assert(r{1}.numEntries == 3);
+            assert(r{1}(mys11) == MyEnum.enum1);
+            assert(r{1}(mys22) == MyEnum.enum3);
+            assert(r{1}(mys23) == MyEnum.enum2);
+
+            assert(r{2}.numEntries == 2);
+            assert(r{2}(mys11) == MyEnum.enum1);
+            assert(r{2}(mys12) == MyEnum.enum2);
 
             assert(length(p3) == 3);
-            assert(length(p3{1}) == 1);
-            checkStructDict(p3{1});
-            assert(length(p3{2}) == 2);
-            checkStructDict(p3{2});
-            assert(length(p3{3}) == 3);
-            checkStructDict(p3{3});
+            assert(p3{1}.numEntries == 1);
+            assert(p3{1}(mys23) == MyEnum.enum2);
+            assert(p3{2}.numEntries == 2);
+            assert(p3{2}(mys11) == MyEnum.enum1);
+            assert(p3{2}(mys12) == MyEnum.enum2);
+            assert(p3{3}.numEntries == 3);
+            assert(p3{3}(mys11) == MyEnum.enum1);
+            assert(p3{3}(mys22) == MyEnum.enum3);
+            assert(p3{3}(mys23) == MyEnum.enum2);
 
             sdi1 = configureDictionary('uint8', 'cell');
             sdi2 = configureDictionary('uint8', 'cell');
