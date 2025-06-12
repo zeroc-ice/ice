@@ -9,7 +9,6 @@ classdef EncapsEncoder11_InstanceData < handle
             obj.previous = previous;
             obj.next = [];
             obj.indirectionTable = {};
-            obj.indirectionMap = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
         end
     end
     properties
@@ -21,7 +20,7 @@ classdef EncapsEncoder11_InstanceData < handle
         writeSlice    % Position of the slice data members
         sliceFlagsPos % Position of the slice flags
         indirectionTable
-        indirectionMap
+        indirectionMap dictionary = configureDictionary('int32', 'int32')
         previous
         next
     end

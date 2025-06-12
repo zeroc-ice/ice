@@ -59,7 +59,6 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
 
         function startSlice(obj, typeId, compactId, last)
             import IceInternal.Protocol;
-            %assert(isempty(obj.current.indirectionTable) && isempty(obj.current.indirectionMap));
 
             obj.current.sliceFlagsPos = obj.os.getPos() + 1;
 
@@ -147,7 +146,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
                     obj.writeInstance(obj.current.indirectionTable{i});
                 end
                 obj.current.indirectionTable = {};
-                obj.current.indirectionMap = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
+                obj.current.indirectionMap = configureDictionary('int32', 'int32'); % clear dictionary
             end
 
             %
