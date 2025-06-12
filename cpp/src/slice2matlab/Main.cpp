@@ -168,7 +168,6 @@ namespace
     }
 
     // Is this dictionary value type mapped to a MATLAB scalar as opposed to a cell?
-    // TODO: merge with function above.
     bool isDictionaryValueMappedToScalar(const TypePtr& type)
     {
         if (auto builtin = dynamic_pointer_cast<Builtin>(type))
