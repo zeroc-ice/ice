@@ -641,7 +641,7 @@ classdef AllTests
             fprintf('testing checked cast with context... ');
             tccp = MyClassPrx.checkedCast(base);
             c = tccp.getContext();
-            assert(c.numEntries() == 0);
+            assert(c.numEntries == 0);
 
             c = configureDictionary('char', 'char');;
             c('one') = 'hello';
