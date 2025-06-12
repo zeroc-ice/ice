@@ -672,10 +672,10 @@ IceInternal::HttpParser::getHeader(const string& name, string& value, bool toLow
     return false;
 }
 
-map<string, string>
+map<string, string, std::less<>>
 IceInternal::HttpParser::getHeaders() const
 {
-    map<string, string> headers;
+    map<string, string, std::less<>> headers;
     for (const auto& header : _headers)
     {
         headers.insert(make_pair(header.second.first, IceInternal::trim(header.second.second)));
