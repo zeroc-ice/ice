@@ -13,9 +13,9 @@ classdef AllTests
             sref = ['testController:', helper.getTestEndpoint(1)];
             testController = TestIntfControllerPrx(communicator, sref);
 
-            fprintf('testing begin/end invocation... ');
+            fprintf('testing async invocation... ');
 
-            ctx = containers.Map('KeyType', 'char', 'ValueType', 'char');
+            ctx = configureDictionary('char', 'char');
 
             assert(p.ice_isAAsync('::Test::TestIntf').fetchOutputs());
             assert(p.ice_isAAsync('::Test::TestIntf', ctx).fetchOutputs());

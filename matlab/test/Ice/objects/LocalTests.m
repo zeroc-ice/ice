@@ -115,9 +115,9 @@ classdef LocalTests
 
             out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
-            d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            d = configureDictionary('int32', 'cell');
             for i = 1:10
-                d(i) = C1(i);
+                d{i} = C1(i);
             end
             C1Dict.write(out, d);
             out.writePendingValues();
@@ -128,15 +128,15 @@ classdef LocalTests
             r = C1Dict.read(is);
             is.readPendingValues();
             is.endEncapsulation();
-            % The result should be a map
-            assert(isa(r, 'containers.Map'));
-            assert(length(r) == length(d));
+            % The result should be a dictionary
+            assert(isa(r, 'dictionary'));
+            assert(r.numEntries == d.numEntries);
             % The entry values haven't been converted yet
             assert(isa(r(1), 'IceInternal.ValueHolder'));
             r = C1Dict.convert(r);
-            assert(isa(r(1), symbol('C1')));
+            assert(isa(r{1}, symbol('C1')));
             for i = 1:10
-                assert(r(i).i == i);
+                assert(r{i}.i == i);
             end
 
             %
@@ -146,7 +146,7 @@ classdef LocalTests
 
             out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
-            d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            d = configureDictionary('int32', 'LocalTest.S1');
             for i = 1:10
                 d(i) = S1(C1(i));
             end
@@ -159,9 +159,9 @@ classdef LocalTests
             r = S1Dict.read(is);
             is.readPendingValues();
             is.endEncapsulation();
-            % The result should be a map
-            assert(isa(r, 'containers.Map'));
-            assert(length(r) == length(d));
+            % The result should be a dictionary
+            assert(isa(r, 'dictionary'));
+            assert(r.numEntries == d.numEntries);
             % The entry values haven't been converted yet
             assert(isa(r(1).c1, 'IceInternal.ValueHolder'));
             r = S1Dict.convert(r);
@@ -332,7 +332,7 @@ classdef LocalTests
             out.startEncapsulation(format);
             s5 = S5();
             for i = 1:10
-                s5.c1dict(i) = C1(i);
+                s5.c1dict{i} = C1(i);
             end
             S5.ice_write(out, s5);
             out.writePendingValues();
@@ -343,15 +343,15 @@ classdef LocalTests
             r = S5.ice_read(is);
             is.readPendingValues();
             is.endEncapsulation();
-            % The member should be a map
-            assert(isa(r.c1dict, 'containers.Map'));
-            assert(length(r.c1dict) == length(s5.c1dict));
+            % The member should be a dictionary
+            assert(isa(r.c1dict, 'dictionary'));
+            assert(r.c1dict.numEntries == s5.c1dict.numEntries);
             % The entry values haven't been converted yet
             assert(isa(r.c1dict(1), 'IceInternal.ValueHolder'));
             r = r.ice_convert();
-            assert(isa(r.c1dict(1), symbol('C1')));
+            assert(isa(r.c1dict{1}, symbol('C1')));
             for i = 1:10
-                assert(r.c1dict(i).i == i);
+                assert(r.c1dict{i}.i == i);
             end
 
             %
@@ -374,9 +374,9 @@ classdef LocalTests
             r = S6.ice_read(is);
             is.readPendingValues();
             is.endEncapsulation();
-            % The member should be a map
-            assert(isa(r.s1dict, 'containers.Map'));
-            assert(length(r.s1dict) == length(s6.s1dict));
+            % The member should be a dictionary
+            assert(isa(r.s1dict, 'dictionary'));
+            assert(r.s1dict.numEntries == s6.s1dict.numEntries);
             % The entry values haven't been converted yet
             assert(isa(r.s1dict(1).c1, 'IceInternal.ValueHolder'));
             r = r.ice_convert();
@@ -571,7 +571,7 @@ classdef LocalTests
             out.startEncapsulation(format);
             cb = CB4();
             for i = 1:10
-                cb.c1dict(i) = C1(i);
+                cb.c1dict{i} = C1(i);
             end
             out.writeValue(cb);
             out.writePendingValues();
@@ -585,17 +585,17 @@ classdef LocalTests
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
             assert(~isempty(h.value));
             assert(~h.value.postUnmarshalInvoked);
-            % The member should be a map
-            assert(isa(h.value.c1dict, 'containers.Map'));
+            % The member should be a dictionary
+            assert(isa(h.value.c1dict, 'dictionary'));
             % The entry values haven't been converted yet
             assert(isa(h.value.c1dict(1), 'IceInternal.ValueHolder'));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
-            assert(length(h.value.c1dict) == length(cb.c1dict));
-            assert(isa(h.value.c1dict(1), symbol('C1')));
+            assert(h.value.c1dict.numEntries == cb.c1dict.numEntries);
+            assert(isa(h.value.c1dict{1}, symbol('C1')));
             for i = 1:10
-                assert(h.value.c1dict(i).i == i);
+                assert(h.value.c1dict{i}.i == i);
             end
 
             %
@@ -623,14 +623,14 @@ classdef LocalTests
             % At this point, h.value should hold the instance, but ice_postUnmarshal should not have been called yet.
             assert(~isempty(h.value));
             assert(~h.value.postUnmarshalInvoked);
-            % The member should be a map
-            assert(isa(h.value.s1dict, 'containers.Map'));
+            % The member should be a dictionary
+            assert(isa(h.value.s1dict, 'dictionary'));
             % The entry values haven't been converted yet
             assert(isa(h.value.s1dict(1).c1, 'IceInternal.ValueHolder'));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
-            assert(length(h.value.s1dict) == length(cb.s1dict));
+            assert(h.value.s1dict.numEntries == cb.s1dict.numEntries);
             assert(isa(h.value.s1dict(1).c1, symbol('C1')));
             for i = 1:10
                 assert(h.value.s1dict(i).c1.i == i);
@@ -836,13 +836,13 @@ classdef LocalTests
 
             out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
-            d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            d = configureDictionary('int32', 'cell');
             for i = 1:10
-                inner = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-                d(i) = inner;
+                inner = configureDictionary('int32', 'cell');
                 for j = 1:5
-                    inner(j) = C1(i);
+                    inner{j} = C1(i);
                 end
+                d{i} = inner;
             end
             C1DictDict.write(out, d);
             out.writePendingValues();
@@ -854,19 +854,19 @@ classdef LocalTests
             is.readPendingValues();
             is.endEncapsulation();
             % The result should be a map
-            assert(isa(r, 'containers.Map'));
-            assert(length(r) == length(d));
+            assert(isa(r, 'dictionary'));
+            assert(r.numEntries == d.numEntries);
             % The entry values haven't been converted yet
-            tmp = r(1);
+            tmp = r{1};
             assert(isa(tmp(1), 'IceInternal.ValueHolder'));
             r = C1DictDict.convert(r);
-            tmp = r(1);
-            assert(isa(tmp(1), symbol('C1')));
-            assert(length(r) == length(d));
+            tmp = r{1};
+            assert(isa(tmp{1}, symbol('C1')));
+            assert(r.numEntries == d.numEntries);
             for i = 1:10
-                inner = r(i);
+                inner = r{i};
                 for j = 1:5
-                    assert(inner(j).i == i);
+                    assert(inner{j}.i == i);
                 end
             end
 
@@ -877,13 +877,13 @@ classdef LocalTests
 
             out = Ice.OutputStream(encoding, communicator.getFormat());
             out.startEncapsulation(format);
-            d = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            d = configureDictionary('int32', 'cell');
             for i = 1:10
-                inner = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-                d(i) = inner;
+                inner = configureDictionary('int32', 'LocalTest.S1');
                 for j = 1:5
                     inner(j) = S1(C1(i));
                 end
+                d{i} = inner;
             end
             S1DictDict.write(out, d);
             out.writePendingValues();
@@ -894,18 +894,18 @@ classdef LocalTests
             r = S1DictDict.read(is);
             is.readPendingValues();
             is.endEncapsulation();
-            % The result should be a map
-            assert(isa(r, 'containers.Map'));
-            assert(length(r) == length(d));
+            % The result should be a dictionary
+            assert(isa(r, 'dictionary'));
+            assert(r.numEntries == d.numEntries);
             % The entry values haven't been converted yet
-            tmp = r(1);
+            tmp = r{1};
             assert(isa(tmp(1).c1, 'IceInternal.ValueHolder'));
             r = S1DictDict.convert(r);
-            tmp = r(1);
+            tmp = r{1};
             assert(isa(tmp(1).c1, symbol('C1')));
-            assert(length(r) == length(d));
+            assert(r.numEntries == d.numEntries);
             for i = 1:10
-                inner = r(i);
+                inner = r{i};
                 for j = 1:5
                     assert(inner(j).c1.i == i);
                 end

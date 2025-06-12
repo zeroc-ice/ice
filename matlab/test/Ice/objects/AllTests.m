@@ -94,11 +94,11 @@ classdef AllTests
             [v2, v3] = initial.opValueSeq({L('l')});
             assert(strcmp(v2{1}.data, 'l'));
             assert(strcmp(v3{1}.data, 'l'));
-            d = containers.Map('KeyType', 'char', 'ValueType', 'any');
-            d('l') = L('l');
+            d = configureDictionary('char', 'cell');
+            d{'l'} = L('l');
             [v2, v3] = initial.opValueMap(d);
-            assert(strcmp(v2('l').data, 'l'));
-            assert(strcmp(v3('l').data, 'l'));
+            assert(strcmp(v2{'l'}.data, 'l'));
+            assert(strcmp(v3{'l'}.data, 'l'));
             fprintf('ok\n');
 
             fprintf('getting D1... ');
