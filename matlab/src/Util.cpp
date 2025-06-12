@@ -50,6 +50,8 @@ namespace
         mxArray* params[1];
         params[0] = cellArray;
         mexCallMATLAB(1, &stringArray, 1, params, "string");
+
+        mxDestroyArray(cellArray);
         return stringArray;
     }
 
@@ -60,6 +62,8 @@ namespace
         mxArray* params[1];
         params[0] = stringArray;
         mexCallMATLAB(1, &cellArray, 1, params, "cellstr");
+
+        mxDestroyArray(stringArray);
         return cellArray;
     }
 }
