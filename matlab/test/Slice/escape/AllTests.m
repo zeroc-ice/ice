@@ -81,7 +81,7 @@ classdef AllTests
             assert(p.while_ == 1);
             assert(p.if_ == 2);
             assert(isempty(p.spmd_));
-            assert(p.otherwise_.numEntries() == 0);
+            assert(p.otherwise_.numEntries == 0);
             % Exercise the marshaling code.
             os = Ice.OutputStream(communicator.getEncoding());
             os.writeValue(p);
