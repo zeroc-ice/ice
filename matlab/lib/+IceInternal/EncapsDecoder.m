@@ -10,7 +10,6 @@ classdef (Abstract) EncapsDecoder < handle
             obj.patchMap = {};
             obj.patchMapLength = 0;
             obj.unmarshaledMap = {};
-            obj.typeIdMap = {};
             obj.valueList = {};
             obj.delayedPostUnmarshal = {};
         end
@@ -182,7 +181,7 @@ classdef (Abstract) EncapsDecoder < handle
     end
     properties(Access=private)
         unmarshaledMap
-        typeIdMap
+        typeIdMap cell = {} % a cell array in this class
         valueList
         delayedPostUnmarshal
     end
