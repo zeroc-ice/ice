@@ -671,7 +671,7 @@ initialization. See `InitializationData.pluginFactories`.
 - **Slice `long` is now mapped to JavaScript `BigInt`.** For input parameters, both `number` and `BigInt` are accepted.
   The `Ice.Long` class has been removed.
 
-- WebSocket transport is now supported with Node.js 24 and higher. In Node.js 23 and earlier, WebSocket connections do
+- The WebSocket transport is now supported with Node.js 24 and higher. In Node.js 23 and earlier, WebSocket connections do
   not reliably report errors during connection establishment. We advise against using the WebSocket transport on these
   versions.
 
