@@ -167,39 +167,6 @@ namespace
         return "???";
     }
 
-    // Is this a sequence type that is mapped to a regular MATLAB array in MATLAB (and not a cell array)?
-    bool isSequenceMappedToArray(const TypePtr& p)
-    {
-        assert(p);
-
-        SequencePtr seq = dynamic_pointer_cast<Sequence>(p);
-        if (!seq)
-        {
-            return false;
-        }
-
-        auto type = seq->type();
-
-        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
-        {
-            switch (builtin->kind())
-            {
-                case Builtin::KindBool:
-                case Builtin::KindByte:
-                case Builtin::KindShort:
-                case Builtin::KindInt:
-                case Builtin::KindLong:
-                case Builtin::KindFloat:
-                case Builtin::KindDouble:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        return dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Struct>(type);
-    }
-
     // Is this dictionary value type mapped to a MATLAB scalar as opposed to a cell?
     // TODO: merge with function above.
     bool isDictionaryValueMappedToScalar(const TypePtr& type)
