@@ -756,18 +756,16 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Removed the dependency on `PromiseKit`. Functions which previously returned a `Promise` are now async functions.
 
-- Functions in dispatch protocols generated from Slice interfaces are now always async. Using `amd` metadata has no
-  effect on the generated code.
+- Functions in dispatch protocols generated from Slice interfaces are now always async. The `amd` metadata directive has
+  no effect on the generated code.
 
 - Servants must now conform to the `Sendable` protocol.
 
-- Proxy functions generated from Slice interfaces are now always async. The `Async` suffixed functions have been
+- Proxy methods generated from Slice interfaces are now always async. The `Async` suffixed functions have been
   removed.
 
-- Simplified the server-side mapping by removing the generated Disp structs.
-  - You can now use the generated server-side protocols as servants / dispatchers, like in other language mappings.
-  - If you want to reuse a servant implementation in a derived servant class, you need to define or override the
-    `dispatch` method in all your servant classes. See the Ice/filesystem demo for an example.
+- Simplified the server-side mapping by removing the generated Disp structs. You can now use the generated server-side
+  protocols as servants / dispatchers, like in other language mappings.
 
 - Added a SwiftPM plugin, `CompileSlice`, that lets you compile Slice files as part of SwiftPM and Xcode builds.
 
