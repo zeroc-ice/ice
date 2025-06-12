@@ -6,7 +6,6 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             obj@IceInternal.EncapsEncoder(os, encaps);
             obj.current = [];
             obj.valueIdIndex = 1;
-            obj.marshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
         end
 
         function writeValue(obj, v)
@@ -237,6 +236,6 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
     properties(Access=private)
         current
         valueIdIndex
-        marshaledMap
+        marshaledMap dictionary = configureDictionary('int32', 'int32');
     end
 end
