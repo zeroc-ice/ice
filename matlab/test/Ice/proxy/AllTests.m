@@ -665,7 +665,7 @@ classdef AllTests
                 ctx('one') = 'hello';
                 ctx('two') = 'world';
                 assert(cl.ice_fixed(connection).ice_getContext().numEntries == 0);
-                assert(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().numEntries() == 2);
+                assert(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().numEntries == 2);
                 assert(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
                 assert(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
                 assert(cl.ice_fixed(connection).ice_getConnection() == connection);
