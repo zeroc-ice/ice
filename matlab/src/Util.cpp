@@ -124,8 +124,7 @@ IceMatlab::getEnumerator(mxArray* p, const string& type)
     mxArray* i;
     mexCallMATLAB(1, &i, 1, &p, "int32");
     int r = static_cast<int>(mxGetScalar(i));
-    // Calling this causes MATLAB to crash:
-    // mxFree(i);
+    mxDestroyArray(i);
     return r;
 }
 
@@ -137,6 +136,8 @@ IceMatlab::createIdentity(const Ice::Identity& id)
     params[1] = createStringFromUTF8(id.category);
     mxArray* r;
     mexCallMATLAB(1, &r, 2, params, "Ice.Identity");
+    mxDestroyArray(params[0]);
+    mxDestroyArray(params[1]);
     return r;
 }
 
@@ -250,6 +251,9 @@ IceMatlab::createEncodingVersion(const Ice::EncodingVersion& v)
     params[1] = mxCreateDoubleScalar(v.minor);
     mxArray* r;
     mexCallMATLAB(1, &r, 2, params, "Ice.EncodingVersion");
+
+    mxDestroyArray(params[0]);
+    mxDestroyArray(params[1]);
     return r;
 }
 
@@ -271,6 +275,9 @@ IceMatlab::createProtocolVersion(const Ice::ProtocolVersion& v)
     params[1] = mxCreateDoubleScalar(v.minor);
     mxArray* r;
     mexCallMATLAB(1, &r, 2, params, "Ice.ProtocolVersion");
+
+    mxDestroyArray(params[0]);
+    mxDestroyArray(params[1]);
     return r;
 }
 
