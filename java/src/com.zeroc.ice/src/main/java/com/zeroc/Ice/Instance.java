@@ -646,12 +646,19 @@ public final class Instance {
             _serverConnectionOptions = readConnectionOptions("Ice.Connection.Server");
 
             {
+                // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
+                // the maximum value of a 32-bit signed integer (int).
+                final int messageSizeMaxUpperLimit = Integer.MAX_VALUE;
                 int num = properties.getIcePropertyAsInt("Ice.MessageSizeMax");
-                if (num < 1 || num > 0x7fffffff / 1024) {
-                    _messageSizeMax = 0x7fffffff;
+                if (num > messageSizeMaxUpperLimit / 1024) {
+                    throw new InitializationException(
+                        "Ice.MessageSizeMax '" + num + "' is too large, it must be less than or equal to '" + 
+                        (messageSizeMaxUpperLimit / 1024) + "' KiB");
+                } else if (num < 1) {
+                    _messageSizeMax = messageSizeMaxUpperLimit;
                 } else {
-                    _messageSizeMax =
-                        num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                    // The property is specified in kibibytes (KiB); _messageSizeMax is stored in bytes.
+                    _messageSizeMax = num * 1024;
                 }
             }
 
@@ -663,14 +670,17 @@ public final class Instance {
                     _batchAutoFlushSize = 0;
                 }
             } else {
+                final int messageSizeMaxUpperLimit = Integer.MAX_VALUE;
                 int num = properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB
-                if (num < 1) {
-                    _batchAutoFlushSize = num;
-                } else if (num > 0x7fffffff / 1024) {
-                    _batchAutoFlushSize = 0x7fffffff;
+                if (num > messageSizeMaxUpperLimit / 1024) {
+                    throw new InitializationException(
+                        "Ice.BatchAutoFlushSize '" + num + "' is too large, it must be less than or equal to '" + 
+                        (messageSizeMaxUpperLimit / 1024) + "' KiB");
+                } else if (num < 1) {
+                    _batchAutoFlushSize = messageSizeMaxUpperLimit;
                 } else {
-                    _batchAutoFlushSize =
-                        num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
+                    // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
+                    _batchAutoFlushSize = num * 1024;
                 }
             }
 

@@ -662,14 +662,24 @@ public sealed class Instance
             clientConnectionOptions = readConnectionOptions("Ice.Connection.Client");
             _serverConnectionOptions = readConnectionOptions("Ice.Connection.Server");
 
+            // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
+            // the maximum value of a 32-bit signed integer (int).
+            const int messageSizeMaxUpperLimit = int.MaxValue;
             int messageSizeMax = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
-            if (messageSizeMax < 1 || messageSizeMax > 0x7fffffff / 1024)
+            if (messageSizeMax > messageSizeMaxUpperLimit / 1024)
             {
-                _messageSizeMax = 0x7fffffff;
+                throw new Ice.InitializationException(
+                    $"Ice.MessageSizeMax '{messageSizeMax}' is too large, it must be less than or equal to " + 
+                    $"'{messageSizeMaxUpperLimit / 1024}' KiB");
+            }
+            else if (messageSizeMax < 1)
+            {
+                _messageSizeMax = messageSizeMaxUpperLimit;
             }
             else
             {
-                _messageSizeMax = messageSizeMax * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                // The property is specified in kibibytes (KiB); _messageSizeMax is stored in bytes.
+                _messageSizeMax = messageSizeMax * 1024;
             }
 
             if (_initData.properties.getIceProperty("Ice.BatchAutoFlushSize").Length == 0 &&
@@ -682,18 +692,21 @@ public sealed class Instance
             }
             else
             {
+                const int messageSizeMaxUpperLimit = int.MaxValue;
                 int batchAutoFlushSize = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
-                if (batchAutoFlushSize < 1)
+                if (batchAutoFlushSize > messageSizeMaxUpperLimit / 1024)
                 {
-                    _batchAutoFlushSize = batchAutoFlushSize;
+                    throw new Ice.InitializationException(
+                        $"Ice.BatchAutoFlushSize '{batchAutoFlushSize}' is too large, it must be less than or equal to " + 
+                        $"'{messageSizeMaxUpperLimit / 1024}' KiB");
                 }
-                else if (batchAutoFlushSize > 0x7fffffff / 1024)
+                else if (batchAutoFlushSize < 1)
                 {
-                    _batchAutoFlushSize = 0x7fffffff;
+                    _batchAutoFlushSize = messageSizeMaxUpperLimit;
                 }
                 else
                 {
-                    // Property is in kilobytes, _batchAutoFlushSize in bytes
+                    // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
                     _batchAutoFlushSize = batchAutoFlushSize * 1024;
                 }
             }

@@ -199,11 +199,20 @@ Instance.prototype.finishSetup = function (communicator) {
 
         this._defaultsAndOverrides = new DefaultsAndOverrides(this._initData.properties, this._initData.logger);
 
+        // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
+        // the maximum value of a 32-bit signed integer.
+        const messageSizeMaxUpperLimit = 0x7fffffff;
         let num = this._initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
-        if (num < 1 || num > 0x7fffffff / 1024) {
-            this._messageSizeMax = 0x7fffffff;
+        if (num > messageSizeMaxUpperLimit / 1024) {
+            throw new InitializationException(
+                `Ice.MessageSizeMax '${num}' is too large, it must be less than or equal to ` +
+                `'${messageSizeMaxUpperLimit / 1024}' KiB`
+            );
+        } else if (num < 1) {
+            this._messageSizeMax = messageSizeMaxUpperLimit;
         } else {
-            this._messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+            // The property is specified in kibibytes (KiB); _messageSizeMax is stored in bytes.
+            this._messageSizeMax = num * 1024;
         }
 
         if (
@@ -214,13 +223,18 @@ Instance.prototype.finishSetup = function (communicator) {
                 this._batchAutoFlushSize = this._messageSizeMax;
             }
         } else {
+            const messageSizeMaxUpperLimit = 0x7fffffff;
             num = this._initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
-            if (num < 1) {
-                this._batchAutoFlushSize = num;
-            } else if (num > 0x7fffffff / 1024) {
-                this._batchAutoFlushSize = 0x7fffffff;
+            if (num > messageSizeMaxUpperLimit / 1024) {
+                throw new InitializationException(
+                    `Ice.BatchAutoFlushSize '${num}' is too large, it must be less than or equal to ` +
+                    `'${messageSizeMaxUpperLimit / 1024}' KiB`
+                );
+            } else if (num < 1) {
+                this._batchAutoFlushSize = messageSizeMaxUpperLimit;
             } else {
-                this._batchAutoFlushSize = num * 1024; // Property is in kilobytes, _batchAutoFlushSize in bytes
+                // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
+                this._batchAutoFlushSize = num * 1024;
             }
         }
 
