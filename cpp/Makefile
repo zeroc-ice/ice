@@ -64,8 +64,12 @@ endef
 
 
 ifeq ($(os),Darwin)
-$(eval $(call install-cmake-files,macosx))
+  # Only install CMake files for macosx on Darwin.
+  # We skip iphoneos and iphonesimulator platforms.
+  ifneq ($(filter macosx, $(platforms)),)
+    $(eval $(call install-cmake-files,macosx))
+  endif
 else
-$(foreach p,$(platforms),$(eval $(call install-cmake-files,$p)))
+  $(foreach p,$(platforms),$(eval $(call install-cmake-files,$p)))
 endif
 
