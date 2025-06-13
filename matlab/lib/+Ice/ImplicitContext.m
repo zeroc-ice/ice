@@ -43,7 +43,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
         function r = getContext(obj)
             % getContext - Get a copy of the underlying context.
             %
-            % Returns (containers.Map): A copy of the underlying context.
+            % Returns (dictionary): A copy of the underlying context.
 
             r = obj.iceCallWithResult('getContext');
         end
@@ -51,7 +51,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
             % setContext - Set the underlying context.
             %
             % Parameters:
-            %   newContext (containers.Map) - The new context.
+            %   newContext (dictionary) - The new context.
 
             obj.iceCall('setContext', newContext);
         end

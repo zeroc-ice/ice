@@ -155,14 +155,7 @@ namespace
         DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
         if (dict)
         {
-            if (dynamic_pointer_cast<Struct>(dict->keyType()))
-            {
-                return "struct";
-            }
-            else
-            {
-                return "containers.Map";
-            }
+            return "dictionary";
         }
 
         ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
@@ -174,60 +167,28 @@ namespace
         return "???";
     }
 
-    string dictionaryTypeToString(const TypePtr& type, bool key)
+    // Is this dictionary value type mapped to a MATLAB scalar as opposed to a cell?
+    bool isDictionaryValueMappedToScalar(const TypePtr& type)
     {
-        assert(type);
-
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-        if (builtin)
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
             switch (builtin->kind())
             {
                 case Builtin::KindBool:
                 case Builtin::KindByte:
                 case Builtin::KindShort:
-                {
-                    //
-                    // containers.Map supports a limited number of key types.
-                    //
-                    return key ? "int32" : typeToString(type);
-                }
                 case Builtin::KindInt:
                 case Builtin::KindLong:
-                case Builtin::KindString:
-                {
-                    return typeToString(type);
-                }
                 case Builtin::KindFloat:
                 case Builtin::KindDouble:
-                {
-                    assert(!key);
-                    return typeToString(type);
-                }
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindValue:
-                {
-                    assert(!key);
-                    return "any";
-                }
+                case Builtin::KindString:
+                    return true;
                 default:
-                {
-                    return "???";
-                }
+                    return false;
             }
         }
 
-        EnumPtr en = dynamic_pointer_cast<Enum>(type);
-        if (en)
-        {
-            //
-            // containers.Map doesn't natively support enumerators as keys but we can work around it using int32.
-            //
-            return key ? "int32" : "any";
-        }
-
-        return "any";
+        return dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Struct>(type);
     }
 
     bool declarePropertyType(const TypePtr& type, bool optional)
@@ -339,20 +300,10 @@ namespace
             {
                 const TypePtr key = dict->keyType();
                 const TypePtr value = dict->valueType();
-                if (dynamic_pointer_cast<Struct>(key))
-                {
-                    //
-                    // We use a struct array when the key is a structure type because we can't use containers.Map.
-                    //
-                    return "struct('key', {}, 'value', {})";
-                }
-                else
-                {
-                    ostringstream ostr;
-                    ostr << "containers.Map('KeyType', '" << dictionaryTypeToString(key, true) << "', 'ValueType', '"
-                         << dictionaryTypeToString(value, false) << "')";
-                    return ostr.str();
-                }
+                ostringstream ostr;
+                ostr << "configureDictionary('" << typeToString(key) << "', '"
+                     << (isDictionaryValueMappedToScalar(value) ? typeToString(value) : "cell") << "')";
+                return ostr.str();
             }
 
             EnumPtr en = dynamic_pointer_cast<Enum>(m->type());
@@ -712,7 +663,7 @@ namespace
                 writeDocLines(out, r->second, false, "     ");
             }
         }
-        out << nl << "%   " << ctxName << " (containers.Map) - Optional request context.";
+        out << nl << "%   " << ctxName << " (dictionary) - Optional request context.";
 
         if (async)
         {
@@ -1060,6 +1011,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             if (declarePropertyType(q->type(), q->optional()))
             {
                 out << " " << typeToString(q->type());
+
+                // We need the default value for dictionaries.
+                // TODO: do the same for other types too.
+                if (auto dict = dynamic_pointer_cast<Dictionary>(q->type()))
+                {
+                    out << " = " << defaultValue(q);
+                }
             }
         }
         out.dec();
@@ -1761,6 +1719,13 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             if (declarePropertyType(member->type(), member->optional()))
             {
                 out << " " << typeToString(member->type());
+
+                // We need the default value for dictionaries.
+                // TODO: do the same for other types too.
+                if (auto dict = dynamic_pointer_cast<Dictionary>(member->type()))
+                {
+                    out << " = " << defaultValue(member);
+                }
             }
         }
         out.dec();
@@ -1932,7 +1897,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList members = p->dataMembers();
     const DataMemberList classMembers = p->classDataMembers();
 
-    out << nl << "classdef " << name;
+    out << nl << "classdef (Sealed) " << name;
 
     out.inc();
     out << nl << "properties";
@@ -1948,6 +1913,12 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         if (declarePropertyType(member->type(), false))
         {
             out << " " << typeToString(member->type());
+
+            // We need the default value for dictionaries.
+            if (auto dict = dynamic_pointer_cast<Dictionary>(member->type()))
+            {
+                out << " = " << defaultValue(member);
+            }
         }
 
         if (needsConversion(member->type()))
@@ -2375,9 +2346,8 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const TypePtr key = p->keyType();
     const TypePtr value = p->valueType();
     const bool cls = value->isClassType();
+    const bool scalarValue = isDictionaryValueMappedToScalar(value);
     const bool convert = needsConversion(value);
-
-    const StructPtr st = dynamic_pointer_cast<Struct>(key);
 
     const string name = p->mappedName();
     const string abs = p->mappedScoped(".").substr(1);
@@ -2412,32 +2382,26 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out.dec();
     out << nl << "else";
     out.inc();
-    if (st)
+
+    out << nl << "sz = d.numEntries;";
+    out << nl << "os.writeSize(sz);";
+    out << nl << "entries = d.entries;";
+    out << nl << "for i = 1:sz";
+    out.inc();
+
+    marshal(out, "os", "entries{i, 1}", key, false, 0);
+
+    if (scalarValue)
     {
-        out << nl << "sz = length(d);";
-        out << nl << "os.writeSize(sz);";
-        out << nl << "for i = 1:sz";
-        out.inc();
-        marshal(out, "os", "d(i).key", key, false, 0);
-        marshal(out, "os", "d(i).value", value, false, 0);
-        out.dec();
-        out << nl << "end";
+        marshal(out, "os", "entries{i, 2}", value, false, 0);
     }
     else
     {
-        out << nl << "sz = d.Count;";
-        out << nl << "os.writeSize(sz);";
-        out << nl << "keys = d.keys();";
-        out << nl << "values = d.values();";
-        out << nl << "for i = 1:sz";
-        out.inc();
-        out << nl << "k = keys{i};";
-        out << nl << "v = values{i};";
-        marshal(out, "os", "k", key, false, 0);
-        marshal(out, "os", "v", value, false, 0);
-        out.dec();
-        out << nl << "end";
+        marshal(out, "os", "entries{i, 2}{1, 1}", value, false, 0); // "unwrap" the cell array
     }
+
+    out.dec();
+    out << nl << "end";
     out.dec();
     out << nl << "end";
     out.dec();
@@ -2446,18 +2410,11 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "function r = read(is)";
     out.inc();
     out << nl << "sz = is.readSize();";
-    if (st)
-    {
-        //
-        // We use a struct array when the key is a structure type because we can't use containers.Map.
-        //
-        out << nl << "r = struct('key', {}, 'value', {});";
-    }
-    else
-    {
-        out << nl << "r = containers.Map('KeyType', '" << dictionaryTypeToString(key, true) << "', 'ValueType', '"
-            << dictionaryTypeToString(value, false) << "');";
-    }
+
+    string valueType = scalarValue ? typeToString(value) : "cell";
+
+    // Can be a temporary dictionary that needs to be converted later.
+    out << nl << "r = configureDictionary('" << typeToString(key) << "', '" << valueType << "');";
     out << nl << "for i = 1:sz";
     out.inc();
 
@@ -2473,18 +2430,13 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         unmarshal(out, "is", "v", value, false, 0);
     }
 
-    if (st)
+    if (scalarValue)
     {
-        out << nl << "r(i).key = k;";
-        out << nl << "r(i).value = v;";
-    }
-    else if (dynamic_pointer_cast<Enum>(key))
-    {
-        out << nl << "r(int32(k)) = v;";
+        out << nl << "r(k) = v;";
     }
     else
     {
-        out << nl << "r(k) = v;";
+        out << nl << "r{k} = v;"; // cell array value
     }
 
     out.dec();
@@ -2496,7 +2448,8 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     {
         out << nl << "function writeOpt(os, tag, d)";
         out.inc();
-        out << nl << "if d ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+        // We can't compare against Ice.Unset because dictionary doesn't implement equality.
+        out << nl << "if isa(d, 'dictionary') && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
         out.inc();
         if (key->isVariableLength() || value->isVariableLength())
         {
@@ -2507,14 +2460,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         else
         {
             const size_t sz = key->minWireSize() + value->minWireSize();
-            if (cls)
-            {
-                out << nl << "len = length(d.array);";
-            }
-            else
-            {
-                out << nl << "len = length(d);";
-            }
+            out << nl << "len = d.numEntries;";
             out << nl << "if len > 254";
             out.inc();
             out << nl << "os.writeSize(len * " << sz << " + 5);";
@@ -2558,47 +2504,38 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     {
         out << nl << "function r = convert(d)";
         out.inc();
-        if (st)
+        out << nl << "r = d;"; // rewrite input argument
+        out << nl << "keys = d.keys;";
+        out << nl << "values = d.values;";
+        out << nl << "for i = 1:d.numEntries";
+        out.inc();
+        out << nl << "k = keys(i);";
+
+        if (scalarValue)
         {
-            out << nl << "for i = 1:length(d)";
-            out.inc();
-            if (cls)
-            {
-                //
-                // Each entry has a temporary ValueHolder that we need to replace with the actual value.
-                //
-                out << nl << "d(i).value = d(i).value.value;";
-            }
-            else
-            {
-                convertValueType(out, "d(i).value", "d(i).value", value, false);
-            }
-            out.dec();
-            out << nl << "end";
+            out << nl << "v = values(i);";
         }
         else
         {
-            out << nl << "keys = d.keys();";
-            out << nl << "values = d.values();";
-            out << nl << "for i = 1:d.Count";
-            out.inc();
-            out << nl << "k = keys{i};";
             out << nl << "v = values{i};";
-            if (cls)
-            {
-                //
-                // Each entry has a temporary ValueHolder that we need to replace with the actual value.
-                //
-                out << nl << "d(k) = v.value;";
-            }
-            else
-            {
-                convertValueType(out, "d(k)", "v", value, false);
-            }
-            out.dec();
-            out << nl << "end";
         }
-        out << nl << "r = d;";
+
+        if (cls)
+        {
+            // Each entry has a temporary ValueHolder that we need to replace with the actual value wrapped in a
+            // cell.
+            out << nl << "r{k} = v.value;";
+        }
+        else if (scalarValue)
+        {
+            convertValueType(out, "r(k)", "v", value, false);
+        }
+        else
+        {
+            convertValueType(out, "r{k}", "v", value, false); // cell value syntax
+        }
+        out.dec();
+        out << nl << "end";
         out.dec();
         out << nl << "end";
     }

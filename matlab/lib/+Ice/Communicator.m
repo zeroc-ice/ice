@@ -173,10 +173,10 @@ classdef Communicator < IceInternal.WrapperObject
             %   proxy (Ice.ObjectPrx) - The proxy.
             %   property (char) - The base property name.
             %
-            % Returns (containers.Map) - The property set.
+            % Returns (dictionary) - The property set.
 
             if isempty(proxy)
-                r = containers.Map('KeyType', 'char', 'ValueType', 'char');
+                r = configureDictionary('char', 'char');
             elseif ~isa(proxy, 'Ice.ObjectPrx')
                 throw(LocalException('Ice:ArgumentException', 'expecting a proxy'));
             else

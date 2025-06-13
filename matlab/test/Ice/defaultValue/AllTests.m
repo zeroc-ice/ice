@@ -108,14 +108,14 @@ classdef AllTests
             assert(isempty(v.bs));
             assert(isempty(v.is));
             assert(~isempty(v.st));
-            assert(isempty(v.dict));
+            assert(v.dict.numEntries == 0);
 
             cl = ClassNoDefaults();
             assert(strcmp(cl.str, ''));
             assert(cl.c1 == Color.red);
             assert(isempty(cl.bs));
             assert(~isempty(cl.st));
-            assert(isempty(cl.dict));
+            assert(cl.dict.numEntries == 0);
 
             fprintf('ok\n');
         end
