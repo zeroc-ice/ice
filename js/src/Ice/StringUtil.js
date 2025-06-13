@@ -210,39 +210,29 @@ export class StringUtil {
     }
 
     static parseSafeInt32(s) {
-        // Handle edge cases first
-        if (typeof s !== 'string') {
-            throw new RangeError(`conversion of '${s}' to int failed`);
-        }
-        
         // Check for empty string
         if (s.length === 0) {
             throw new RangeError(`conversion of '' to int failed`);
         }
-        
-        // Trim whitespace
-        const trimmed = s.trim();
-        
-        // If original string !== trimmed, reject (this rejects strings with leading/trailing whitespace)
-        if (s !== trimmed) {
+
+        // If original string is different than the trimmed string, reject (this rejects strings with 
+        // leading/trailing whitespace)
+        if (s !== s.trim()) {
             throw new RangeError(`conversion of '${s}' to int failed`);
         }
-        
+
         try {
-            const b = BigInt(trimmed); // Let BigInt throw if input is invalid
+            const b = BigInt(s);
             const int32MinValue = -2147483648n;
             const int32MaxValue = 2147483647n;
             if (b < int32MinValue || b > int32MaxValue) {
                 throw new RangeError(`Value out of Int32 range: ${s}`);
             }
-            return Number(b); // Safe: all 32-bit ints are exactly representable
+            return Number(b);
         } catch {
-            // Re-throw with our message format
             throw new RangeError(`conversion of '${s}' to int failed`);
         }
     }
-
-
 }
 
 function encodeChar(c, sb, special, toStringMode) {
