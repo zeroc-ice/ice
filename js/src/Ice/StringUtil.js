@@ -228,11 +228,6 @@ export class StringUtil {
             throw new RangeError(`conversion of '${s}' to int failed`);
         }
         
-        // Check if trimmed is empty (this shouldn't happen given the above logic, but kept for safety)
-        if (trimmed.length === 0) {
-            throw new RangeError(`conversion of '${s}' to int failed`);
-        }
-        
         try {
             const b = BigInt(trimmed); // Let BigInt throw if input is invalid
             const int32MinValue = -2147483648n;
