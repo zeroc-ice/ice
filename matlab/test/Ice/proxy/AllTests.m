@@ -329,7 +329,7 @@ classdef AllTests
             b1 = b1.ice_locator(locator);
 
             proxyProps = communicator.proxyToProperty(b1, 'Test');
-            assert(length(proxyProps) == 21);
+            assert(proxyProps.numEntries == 21);
 
             assert(strcmp(proxyProps('Test'), 'test -e 1.0'));
             %assert(strcmp(proxyProps('Test.CollocationOptimized'), '1'));

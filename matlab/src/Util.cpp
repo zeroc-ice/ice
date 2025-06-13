@@ -43,27 +43,23 @@ namespace
         minor = static_cast<uint8_t>(mxGetScalar(min));
     }
 
-    // This function consumes the cell array input argument and returns a MATLAB string array.
+    // This function converts the cell array input argument and returns a MATLAB string array.
     mxArray* cellArrayToString(mxArray* cellArray)
     {
         mxArray* stringArray;
         mxArray* params[1];
         params[0] = cellArray;
         mexCallMATLAB(1, &stringArray, 1, params, "string");
-
-        mxDestroyArray(cellArray);
         return stringArray;
     }
 
-    // This function consumes the string array input argument and returns a cell array of char arrays.
+    // This function converts the string array input argument and returns a cell array of char arrays.
     mxArray* stringToCellArray(mxArray* stringArray)
     {
         mxArray* cellArray;
         mxArray* params[1];
         params[0] = stringArray;
         mexCallMATLAB(1, &cellArray, 1, params, "cellstr");
-
-        mxDestroyArray(stringArray);
         return cellArray;
     }
 }
@@ -169,6 +165,7 @@ IceMatlab::createStringMap(const map<string, string, std::less<>>& m)
         params[0] = mxCreateString("char");
         params[1] = params[0];
         mexCallMATLAB(1, &r, 2, params, "configureDictionary");
+        mxDestroyArray(params[0]);
     }
     else
     {
@@ -177,7 +174,7 @@ IceMatlab::createStringMap(const map<string, string, std::less<>>& m)
         auto keysCell = mxCreateCellArray(2, dims);
         auto valuesCell = mxCreateCellArray(2, dims);
         int idx = 0;
-        for (auto p : m)
+        for (const auto& p : m)
         {
             mxSetCell(keysCell, idx, createStringFromUTF8(p.first));
             mxSetCell(valuesCell, idx, createStringFromUTF8(p.second));
@@ -187,6 +184,9 @@ IceMatlab::createStringMap(const map<string, string, std::less<>>& m)
         mxArray* params[2];
         params[0] = cellArrayToString(keysCell);
         params[1] = cellArrayToString(valuesCell);
+        mxDestroyArray(keysCell);
+        mxDestroyArray(valuesCell);
+
         mexCallMATLAB(1, &r, 2, params, "dictionary");
     }
     return r;
@@ -207,13 +207,16 @@ IceMatlab::getContext(mxArray* p, Ice::Context& m)
     {
         mxArray* params[1];
         params[0] = p;
+
         mxArray* keysString;
         mexCallMATLAB(1, &keysString, 1, params, "keys");
+        mxArray* keys = stringToCellArray(keysString);
+        mxDestroyArray(keysString);
+
         mxArray* valuesString;
         mexCallMATLAB(1, &valuesString, 1, params, "values");
-
-        mxArray* keys = stringToCellArray(keysString);
         mxArray* values = stringToCellArray(valuesString);
+        mxDestroyArray(valuesString);
 
         assert(mxGetM(keys) == mxGetM(values));
         assert(mxGetN(keys) == 1 && mxGetN(values) == 1);
