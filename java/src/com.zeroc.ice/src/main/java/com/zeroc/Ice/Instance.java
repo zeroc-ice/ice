@@ -660,7 +660,7 @@ public final class Instance {
                 _messageSizeMax = messageSizeMax * 1024;
             }
 
-            int batchAutoFlushSize = properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB
+            int batchAutoFlushSize = properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
             if (batchAutoFlushSize > messageSizeMaxUpperLimit / 1024) {
                 throw new InitializationException(
                     "Ice.BatchAutoFlushSize '" + batchAutoFlushSize + "' is too large, it must be less than or equal to '" + (messageSizeMaxUpperLimit / 1024) + "' KiB");
