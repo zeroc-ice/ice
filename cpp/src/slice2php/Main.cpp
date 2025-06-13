@@ -826,7 +826,7 @@ CodeVisitor::startNamespace(const ContainedPtr& p)
     // This function should only be called on module level elements.
     ModulePtr container = dynamic_pointer_cast<Module>(p->container());
     assert(container);
-    _out << sp << nl << "namespace " << container->mappedScoped("\\").substr(1);
+    _out << sp << nl << "namespace " << container->mappedScoped("\\", false);
     _out << sb;
 }
 
@@ -839,7 +839,7 @@ CodeVisitor::endNamespace()
 string
 CodeVisitor::getTypeVar(const ContainedPtr& p)
 {
-    return "$" + p->mappedScope("_").substr(1) + "_t_" + p->mappedName();
+    return "$" + p->mappedScope("_", false) + "_t_" + p->mappedName();
 }
 
 string

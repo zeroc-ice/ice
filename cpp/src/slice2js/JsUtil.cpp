@@ -116,13 +116,13 @@ Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return cl->mappedScoped(".").substr(1);
+        return cl->mappedScoped(".", false);
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return proxy->mappedScoped(".").substr(1) + "Prx";
+        return proxy->mappedScoped(".", false) + "Prx";
     }
 
     if (definition)
@@ -162,7 +162,7 @@ Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
     ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if (contained)
     {
-        return contained->mappedScoped(".").substr(1);
+        return contained->mappedScoped(".", false);
     }
 
     return "???";
@@ -469,7 +469,7 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
 
     if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
     {
-        return dynamic_pointer_cast<Contained>(type)->mappedScoped(".").substr(1) + "Helper";
+        return dynamic_pointer_cast<Contained>(type)->mappedScoped(".", false) + "Helper";
     }
 
     if (dynamic_pointer_cast<ClassDecl>(type))

@@ -32,29 +32,23 @@ namespace
         return cont->getMetadataArgs("cs:identifier").value_or(cont->name());
     }
 
-    static string getCsMappedScoped(const ContainedPtr& cont);
-
     // We cannot use mappedScope because it depends on the language name used to create the Unit.
-    static string getCsMappedScope(const ContainedPtr& cont)
+    static string getCsMappedScope(const ContainedPtr& p)
     {
-        string scoped;
-        auto container = dynamic_pointer_cast<Contained>(cont->container());
-        if (container)
+        if (auto container = dynamic_pointer_cast<Contained>(p->container()))
         {
-            scoped = getCsMappedScoped(container);
+            return getCsMappedScope(container) + getCsMappedName(container) + '.';
         }
-        return scoped + '.';
+        return "";
     }
-
-    // We cannot use mappedScoped because it depends on the language name used to create the Unit.
-    static string getCsMappedScoped(const ContainedPtr& cont) { return getCsMappedScope(cont) + getCsMappedName(cont); }
 
     static string getCsMappedNamespace(const ContainedPtr& cont)
     {
-        ModulePtr topLevelModule = cont->getTopLevelModule();
-        string csMappedScope = getCsMappedScope(cont).substr(1);
-        csMappedScope = csMappedScope.substr(0, csMappedScope.size() - 1); // Remove the trailing "."
+        assert(!dynamic_pointer_cast<Module>(cont));
+        string csMappedScope = getCsMappedScope(cont);
+        csMappedScope.pop_back(); // Remove the trailing "."
 
+        ModulePtr topLevelModule = cont->getTopLevelModule();
         if (auto csNamespacePrefix = topLevelModule->getMetadataArgs("cs:namespace"))
         {
             return *csNamespacePrefix + "." + csMappedScope;
@@ -727,6 +721,8 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 IceInternal::Output&
 Gen::TypesVisitor::getOutput(const ContainedPtr& contained)
 {
+    assert(!dynamic_pointer_cast<Module>(contained));
+
     const string scope = contained->scope();
     if (auto it = _outputs.find(scope); it != _outputs.end())
     {
