@@ -573,10 +573,10 @@ Ice::Properties::getUnusedProperties()
     return unusedProperties;
 }
 
-pair<map<string, string>, StringSeq>
+pair<PropertyDict, StringSeq>
 Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
 {
-    map<string, string> matched;
+    PropertyDict matched;
 
     string pfx = string{prefix};
     if (!pfx.empty() && pfx[pfx.size() - 1] != '.')
