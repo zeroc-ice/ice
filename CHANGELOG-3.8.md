@@ -694,8 +694,8 @@ initialization. See `InitializationData.pluginFactories`.
 
 ## MATLAB Changes
 
-- Changed the mapping for Slice dictionaries to MATLAB. A Slice dictionary now always maps to a MATLAB dictionary; the
-  old `containers.Map` are no longer used.
+- Changed the mapping for Slice dictionaries. A Slice dictionary now always maps to a MATLAB dictionary; the old
+  `containers.Map` are no longer used.
   The dictionary key type is the mapped key type. The MATLAB value type is the mapped value type as a scalar when the
   Slice value type is a bool, numeric type, string, enum, or struct. Otherwise, the value type is a `cell` that holds
   the mapped type.

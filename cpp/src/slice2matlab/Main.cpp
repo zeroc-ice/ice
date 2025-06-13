@@ -2411,19 +2411,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out.inc();
     out << nl << "sz = is.readSize();";
 
-    string valueType;
-    if (scalarValue)
-    {
-        valueType = typeToString(value);
-    }
-    else if (cls)
-    {
-        valueType = "IceInternal.ValueHolder";
-    }
-    else
-    {
-        valueType = "cell";
-    }
+    string valueType = scalarValue ? typeToString(value) : "cell";
 
     // Can be a temporary dictionary that needs to be converted later.
     out << nl << "r = configureDictionary('" << typeToString(key) << "', '" << valueType << "');";
@@ -2442,7 +2430,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         unmarshal(out, "is", "v", value, false, 0);
     }
 
-    if (cls || scalarValue)
+    if (scalarValue)
     {
         out << nl << "r(k) = v;";
     }
@@ -2516,15 +2504,14 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     {
         out << nl << "function r = convert(d)";
         out.inc();
-        out << nl << "r = configureDictionary('" << typeToString(key) << "', '"
-            << (scalarValue ? typeToString(value) : "cell") << "');";
+        out << nl << "r = d;"; // rewrite input argument
         out << nl << "keys = d.keys;";
         out << nl << "values = d.values;";
         out << nl << "for i = 1:d.numEntries";
         out.inc();
         out << nl << "k = keys(i);";
 
-        if (cls || scalarValue) // the temporary ValueHolder is a scalar too
+        if (scalarValue)
         {
             out << nl << "v = values(i);";
         }

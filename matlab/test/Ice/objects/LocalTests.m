@@ -132,7 +132,7 @@ classdef LocalTests
             assert(isa(r, 'dictionary'));
             assert(r.numEntries == d.numEntries);
             % The entry values haven't been converted yet
-            assert(isa(r(1), 'IceInternal.ValueHolder'));
+            assert(isa(r{1}, 'IceInternal.ValueHolder'));
             r = C1Dict.convert(r);
             assert(isa(r{1}, symbol('C1')));
             for i = 1:10
@@ -347,7 +347,7 @@ classdef LocalTests
             assert(isa(r.c1dict, 'dictionary'));
             assert(r.c1dict.numEntries == s5.c1dict.numEntries);
             % The entry values haven't been converted yet
-            assert(isa(r.c1dict(1), 'IceInternal.ValueHolder'));
+            assert(isa(r.c1dict{1}, 'IceInternal.ValueHolder'));
             r = r.ice_convert();
             assert(isa(r.c1dict{1}, symbol('C1')));
             for i = 1:10
@@ -588,7 +588,7 @@ classdef LocalTests
             % The member should be a dictionary
             assert(isa(h.value.c1dict, 'dictionary'));
             % The entry values haven't been converted yet
-            assert(isa(h.value.c1dict(1), 'IceInternal.ValueHolder'));
+            assert(isa(h.value.c1dict{1}, 'IceInternal.ValueHolder'));
             % Ending the encapsulation should trigger the conversion and the ice_postUnmarshal callback
             is.endEncapsulation();
             assert(h.value.postUnmarshalInvoked);
@@ -788,7 +788,7 @@ classdef LocalTests
             assert(isa(r, 'dictionary'));
             assert(r.numEntries == d.numEntries);
             % The entry values haven't been converted yet
-            assert(isa(r(StructKey(1, 1)), 'IceInternal.ValueHolder'));
+            assert(isa(r{StructKey(1, 1)}, 'IceInternal.ValueHolder'));
             r = StructDict1.convert(r);
             assert(isa(r{StructKey(1, 1)}, symbol('C1')));
             for i = 1:10
@@ -854,7 +854,7 @@ classdef LocalTests
             assert(r.numEntries == d.numEntries);
             % The entry values haven't been converted yet
             tmp = r{1};
-            assert(isa(tmp(1), 'IceInternal.ValueHolder'));
+            assert(isa(tmp{1}, 'IceInternal.ValueHolder'));
             r = C1DictDict.convert(r);
             tmp = r{1};
             assert(isa(tmp{1}, symbol('C1')));
