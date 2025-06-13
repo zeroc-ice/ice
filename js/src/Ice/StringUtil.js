@@ -210,14 +210,8 @@ export class StringUtil {
     }
 
     static parseSafeInt32(s) {
-        // Check for empty string
-        if (s.length === 0) {
-            throw new RangeError(`conversion of '' to int failed`);
-        }
-
-        // If original string is different than the trimmed string, reject (this rejects strings with
-        // leading/trailing whitespace)
-        if (s !== s.trim()) {
+        // Reject empty strings and strings with leading or trailing whitespace.
+        if (s.length === 0 || s !== s.trim()) {
             throw new RangeError(`conversion of '${s}' to int failed`);
         }
 
