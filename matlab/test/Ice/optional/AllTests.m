@@ -589,10 +589,7 @@ classdef AllTests
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
 
             % string array mapping (since Ice 3.8)
-            p1 = string.empty;
-            for i = 1:100
-                p1(i) = "test";
-            end
+            p1 = repmat("test", 1, 100);
             [p2, p3] = initial.opStringSeq(p1);
             assert(isequal(p2, p1) && isequal(p3, p1));
             f = initial.opStringSeqAsync(p1);
