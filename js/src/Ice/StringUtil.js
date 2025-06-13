@@ -215,7 +215,7 @@ export class StringUtil {
             throw new RangeError(`conversion of '' to int failed`);
         }
 
-        // If original string is different than the trimmed string, reject (this rejects strings with 
+        // If original string is different than the trimmed string, reject (this rejects strings with
         // leading/trailing whitespace)
         if (s !== s.trim()) {
             throw new RangeError(`conversion of '${s}' to int failed`);
