@@ -653,8 +653,7 @@ public final class Instance {
                 int num = properties.getIcePropertyAsInt("Ice.MessageSizeMax");
                 if (num > messageSizeMaxUpperLimit / 1024) {
                     throw new InitializationException(
-                        "Ice.MessageSizeMax '" + num + "' is too large, it must be less than or equal to '" + 
-                        (messageSizeMaxUpperLimit / 1024) + "' KiB");
+                        "Ice.MessageSizeMax '" + num + "' is too large, it must be less than or equal to '" + (messageSizeMaxUpperLimit / 1024) + "' KiB");
                 } else if (num < 1) {
                     _messageSizeMax = messageSizeMaxUpperLimit;
                 } else {
@@ -667,8 +666,7 @@ public final class Instance {
                 int num = properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB
                 if (num > messageSizeMaxUpperLimit / 1024) {
                     throw new InitializationException(
-                        "Ice.BatchAutoFlushSize '" + num + "' is too large, it must be less than or equal to '" + 
-                        (messageSizeMaxUpperLimit / 1024) + "' KiB");
+                        "Ice.BatchAutoFlushSize '" + num + "' is too large, it must be less than or equal to '" + (messageSizeMaxUpperLimit / 1024) + "' KiB");
                 } else if (num < 1) {
                     _batchAutoFlushSize = messageSizeMaxUpperLimit;
                 } else {
