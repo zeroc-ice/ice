@@ -92,7 +92,6 @@ internal sealed class PropertyNames
             new(pattern: @"Admin.Logger.Properties", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Admin.ServerId", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"BackgroundLocatorCacheUpdates", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
-            new(pattern: @"BatchAutoFlush", usesRegex: false, defaultValue: "", deprecated: true, propertyArray: null),
             new(pattern: @"BatchAutoFlushSize", usesRegex: false, defaultValue: "1024", deprecated: false, propertyArray: null),
             new(pattern: @"ClassGraphDepthMax", usesRegex: false, defaultValue: "10", deprecated: false, propertyArray: null),
             new(pattern: @"Compression.Level", usesRegex: false, defaultValue: "1", deprecated: false, propertyArray: null),

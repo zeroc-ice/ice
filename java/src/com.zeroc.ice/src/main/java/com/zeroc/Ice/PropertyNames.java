@@ -93,7 +93,6 @@ final class PropertyNames
             new Property("Admin.Logger.Properties", false, "", false, null),
             new Property("Admin.ServerId", false, "", false, null),
             new Property("BackgroundLocatorCacheUpdates", false, "0", false, null),
-            new Property("BatchAutoFlush", false, "", true, null),
             new Property("BatchAutoFlushSize", false, "1024", false, null),
             new Property("ClassGraphDepthMax", false, "10", false, null),
             new Property("Compression.Level", false, "1", false, null),
