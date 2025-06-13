@@ -70,8 +70,12 @@ export class Properties {
         const pv = this._properties.get(key);
         if (pv !== undefined) {
             pv.used = true;
-            const value = StringUtil.parseSafeInt32(pv.value);
-            return value;
+            try {
+                const value = StringUtil.parseSafeInt32(pv.value);
+                return value;
+            } catch {
+                throw new PropertyException(`property '${key}' has an invalid integer value: '${pv.value}'`);
+            }
         } else {
             return defaultValue;
         }

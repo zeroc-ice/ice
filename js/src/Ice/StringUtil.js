@@ -220,8 +220,15 @@ export class StringUtil {
             throw new RangeError(`conversion of '' to int failed`);
         }
         
-        // Trim whitespace and check if it becomes empty
+        // Trim whitespace
         const trimmed = s.trim();
+        
+        // If original string !== trimmed, reject (this rejects strings with leading/trailing whitespace)
+        if (s !== trimmed) {
+            throw new RangeError(`conversion of '${s}' to int failed`);
+        }
+        
+        // Check if trimmed is empty (this shouldn't happen given the above logic, but kept for safety)
         if (trimmed.length === 0) {
             throw new RangeError(`conversion of '${s}' to int failed`);
         }
@@ -234,16 +241,13 @@ export class StringUtil {
                 throw new RangeError(`Value out of Int32 range: ${s}`);
             }
             return Number(b); // Safe: all 32-bit ints are exactly representable
-        } catch (error) {
+        } catch {
             // Re-throw with our message format
             throw new RangeError(`conversion of '${s}' to int failed`);
         }
     }
 
-    // Legacy alias for backward compatibility
-    static toInt(s) {
-        return StringUtil.parseSafeInt32(s);
-    }
+
 }
 
 function encodeChar(c, sb, special, toStringMode) {
