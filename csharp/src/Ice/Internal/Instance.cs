@@ -668,7 +668,8 @@ public sealed class Instance
             int messageSizeMax = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
             if (messageSizeMax > messageSizeMaxUpperLimit / 1024)
             {
-                throw new Ice.InitializationException($"Ice.MessageSizeMax '{messageSizeMax}' is too large, it must be less than or equal to '{messageSizeMaxUpperLimit / 1024}' KiB");
+                throw new Ice.InitializationException(
+                    $"Ice.MessageSizeMax '{messageSizeMax}' is too large, it must be less than or equal to '{messageSizeMaxUpperLimit / 1024}' KiB");
             }
             else if (messageSizeMax < 1)
             {
@@ -683,7 +684,8 @@ public sealed class Instance
             int batchAutoFlushSize = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
             if (batchAutoFlushSize > messageSizeMaxUpperLimit / 1024)
             {
-                throw new Ice.InitializationException($"Ice.BatchAutoFlushSize '{batchAutoFlushSize}' is too large, it must be less than or equal to '{messageSizeMaxUpperLimit / 1024}' KiB");
+                throw new Ice.InitializationException(
+                    $"Ice.BatchAutoFlushSize '{batchAutoFlushSize}' is too large, it must be less than or equal to '{messageSizeMaxUpperLimit / 1024}' KiB");
             }
             else if (batchAutoFlushSize < 1)
             {

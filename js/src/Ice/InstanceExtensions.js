@@ -202,31 +202,35 @@ Instance.prototype.finishSetup = function (communicator) {
         // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
         // the maximum value of a 32-bit signed integer.
         const messageSizeMaxUpperLimit = 0x7fffffff;
-        let num = this._initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
-        if (num > messageSizeMaxUpperLimit / 1024) {
-            throw new InitializationException(`Ice.MessageSizeMax '${num}' is too large, it must be less than or equal to '${messageSizeMaxUpperLimit / 1024}' KiB`);
-        } else if (num < 1) {
+        let messageSizeMax = this._initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
+        if (messageSizeMax > messageSizeMaxUpperLimit / 1024) {
+            throw new InitializationException(
+                `Ice.MessageSizeMax '${messageSizeMax}' is too large, it must be less than or equal to '${messageSizeMaxUpperLimit / 1024}' KiB`,
+            );
+        } else if (messageSizeMax < 1) {
             this._messageSizeMax = messageSizeMaxUpperLimit;
         } else {
             // The property is specified in kibibytes (KiB); _messageSizeMax is stored in bytes.
-            this._messageSizeMax = num * 1024;
+            this._messageSizeMax = messageSizeMax * 1024;
         }
 
-        num = this._initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
-        if (num > messageSizeMaxUpperLimit / 1024) {
-            throw new InitializationException(`Ice.BatchAutoFlushSize '${num}' is too large, it must be less than or equal to '${messageSizeMaxUpperLimit / 1024}' KiB`);
-        } else if (num < 1) {
+        let batchAutoFlushSize = this._initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
+        if (batchAutoFlushSize > messageSizeMaxUpperLimit / 1024) {
+            throw new InitializationException(
+                `Ice.BatchAutoFlushSize '${batchAutoFlushSize}' is too large, it must be less than or equal to '${messageSizeMaxUpperLimit / 1024}' KiB`,
+            );
+        } else if (batchAutoFlushSize < 1) {
             this._batchAutoFlushSize = messageSizeMaxUpperLimit;
         } else {
             // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
-            this._batchAutoFlushSize = num * 1024;
+            this._batchAutoFlushSize = batchAutoFlushSize * 1024;
         }
 
-        num = this._initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
-        if (num < 1) {
+        let classGraphDepthMax = this._initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
+        if (classGraphDepthMax < 1) {
             this._classGraphDepthMax = 0x7fffffff;
         } else {
-            this._classGraphDepthMax = num;
+            this._classGraphDepthMax = classGraphDepthMax;
         }
 
         const toStringModeStr = this._initData.properties.getIceProperty("Ice.ToStringMode");
