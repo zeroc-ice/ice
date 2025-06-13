@@ -204,10 +204,7 @@ Instance.prototype.finishSetup = function (communicator) {
         const messageSizeMaxUpperLimit = 0x7fffffff;
         let num = this._initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
         if (num > messageSizeMaxUpperLimit / 1024) {
-            throw new InitializationException(
-                `Ice.MessageSizeMax '${num}' is too large, it must be less than or equal to ` +
-                `'${messageSizeMaxUpperLimit / 1024}' KiB`
-            );
+            throw new InitializationException(`Ice.MessageSizeMax '${num}' is too large, it must be less than or equal to '${messageSizeMaxUpperLimit / 1024}' KiB`);
         } else if (num < 1) {
             this._messageSizeMax = messageSizeMaxUpperLimit;
         } else {
@@ -215,27 +212,14 @@ Instance.prototype.finishSetup = function (communicator) {
             this._messageSizeMax = num * 1024;
         }
 
-        if (
-            this._initData.properties.getIceProperty("Ice.BatchAutoFlushSize").length === 0 &&
-            this._initData.properties.getIceProperty("Ice.BatchAutoFlush").length > 0
-        ) {
-            if (this._initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0) {
-                this._batchAutoFlushSize = this._messageSizeMax;
-            }
+        num = this._initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
+        if (num > messageSizeMaxUpperLimit / 1024) {
+            throw new InitializationException(`Ice.BatchAutoFlushSize '${num}' is too large, it must be less than or equal to '${messageSizeMaxUpperLimit / 1024}' KiB`);
+        } else if (num < 1) {
+            this._batchAutoFlushSize = messageSizeMaxUpperLimit;
         } else {
-            const messageSizeMaxUpperLimit = 0x7fffffff;
-            num = this._initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
-            if (num > messageSizeMaxUpperLimit / 1024) {
-                throw new InitializationException(
-                    `Ice.BatchAutoFlushSize '${num}' is too large, it must be less than or equal to ` +
-                    `'${messageSizeMaxUpperLimit / 1024}' KiB`
-                );
-            } else if (num < 1) {
-                this._batchAutoFlushSize = messageSizeMaxUpperLimit;
-            } else {
-                // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
-                this._batchAutoFlushSize = num * 1024;
-            }
+            // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
+            this._batchAutoFlushSize = num * 1024;
         }
 
         num = this._initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");

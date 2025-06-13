@@ -668,9 +668,7 @@ public sealed class Instance
             int messageSizeMax = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
             if (messageSizeMax > messageSizeMaxUpperLimit / 1024)
             {
-                throw new Ice.InitializationException(
-                    $"Ice.MessageSizeMax '{messageSizeMax}' is too large, it must be less than or equal to " + 
-                    $"'{messageSizeMaxUpperLimit / 1024}' KiB");
+                throw new Ice.InitializationException($"Ice.MessageSizeMax '{messageSizeMax}' is too large, it must be less than or equal to '{messageSizeMaxUpperLimit / 1024}' KiB");
             }
             else if (messageSizeMax < 1)
             {
@@ -682,33 +680,19 @@ public sealed class Instance
                 _messageSizeMax = messageSizeMax * 1024;
             }
 
-            if (_initData.properties.getIceProperty("Ice.BatchAutoFlushSize").Length == 0 &&
-               _initData.properties.getIceProperty("Ice.BatchAutoFlush").Length > 0)
+            int batchAutoFlushSize = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
+            if (batchAutoFlushSize > messageSizeMaxUpperLimit / 1024)
             {
-                if (_initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0)
-                {
-                    _batchAutoFlushSize = _messageSizeMax;
-                }
+                throw new Ice.InitializationException($"Ice.BatchAutoFlushSize '{batchAutoFlushSize}' is too large, it must be less than or equal to '{messageSizeMaxUpperLimit / 1024}' KiB");
+            }
+            else if (batchAutoFlushSize < 1)
+            {
+                _batchAutoFlushSize = messageSizeMaxUpperLimit;
             }
             else
             {
-                const int messageSizeMaxUpperLimit = int.MaxValue;
-                int batchAutoFlushSize = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
-                if (batchAutoFlushSize > messageSizeMaxUpperLimit / 1024)
-                {
-                    throw new Ice.InitializationException(
-                        $"Ice.BatchAutoFlushSize '{batchAutoFlushSize}' is too large, it must be less than or equal to " + 
-                        $"'{messageSizeMaxUpperLimit / 1024}' KiB");
-                }
-                else if (batchAutoFlushSize < 1)
-                {
-                    _batchAutoFlushSize = messageSizeMaxUpperLimit;
-                }
-                else
-                {
-                    // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
-                    _batchAutoFlushSize = batchAutoFlushSize * 1024;
-                }
+                // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
+                _batchAutoFlushSize = batchAutoFlushSize * 1024;
             }
 
             int classGraphDepthMax = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");

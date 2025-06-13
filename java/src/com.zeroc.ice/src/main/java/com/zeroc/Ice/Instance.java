@@ -645,10 +645,11 @@ public final class Instance {
             _clientConnectionOptions = readConnectionOptions("Ice.Connection.Client");
             _serverConnectionOptions = readConnectionOptions("Ice.Connection.Server");
 
+            // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
+            // the maximum value of a 32-bit signed integer (int).
+            final int messageSizeMaxUpperLimit = Integer.MAX_VALUE;
+
             {
-                // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
-                // the maximum value of a 32-bit signed integer (int).
-                final int messageSizeMaxUpperLimit = Integer.MAX_VALUE;
                 int num = properties.getIcePropertyAsInt("Ice.MessageSizeMax");
                 if (num > messageSizeMaxUpperLimit / 1024) {
                     throw new InitializationException(
@@ -662,15 +663,7 @@ public final class Instance {
                 }
             }
 
-            if (properties.getIceProperty("Ice.BatchAutoFlushSize").isEmpty()
-                && !properties.getIceProperty("Ice.BatchAutoFlush").isEmpty()) {
-                if (properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0) {
-                    _batchAutoFlushSize = _messageSizeMax;
-                } else {
-                    _batchAutoFlushSize = 0;
-                }
-            } else {
-                final int messageSizeMaxUpperLimit = Integer.MAX_VALUE;
+            {
                 int num = properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB
                 if (num > messageSizeMaxUpperLimit / 1024) {
                     throw new InitializationException(
