@@ -62,4 +62,10 @@ $(eval $(call install-data-files,$(wildcard $(lang_srcdir)/config/*.cmake),$(lan
 install-cmake:: install-cmake-$(1)
 endef
 
+
+ifeq ($(os),Darwin)
+$(eval $(call install-cmake-files,macosx))
+else
 $(foreach p,$(platforms),$(eval $(call install-cmake-files,$p)))
+endif
+
