@@ -21,7 +21,7 @@ namespace Slice
     protected:
         void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&);
         void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&);
-        void writeInitDataMembers(const DataMemberList&);
+        void writeOneShotConstructorArguments(const DataMemberList& members);
 
         std::string getValue(const TypePtr&);
 
