@@ -1092,7 +1092,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(messageSizeMax) * 1024;
         }
 
-        int32_t batchAutoFlushSize = _initData.properties->getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB default
+        int32_t batchAutoFlushSize = _initData.properties->getIcePropertyAsInt("Ice.BatchAutoFlushSize");
         if (static_cast<size_t>(batchAutoFlushSize) > static_cast<size_t>(messageSizeMaxUpperLimit / 1024))
         {
             ostringstream os;
