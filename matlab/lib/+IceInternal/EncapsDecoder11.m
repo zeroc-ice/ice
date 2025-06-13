@@ -30,13 +30,13 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 % derive an index into the indirection table that we'll read
                 % at the end of the slice.
                 %
-                if isempty(current.indirectPatchList) % Lazy initialization
-                    current.indirectPatchList = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+                if ~isConfigured(current.indirectPatchList) % Lazy initialization
+                    current.indirectPatchList = configureDictionary('int32', 'IceInternal.IndirectPatchEntry');
                 end
                 e = IceInternal.IndirectPatchEntry();
                 e.index = index; % MATLAB indexing starts at 1
                 e.cb = cb;
-                sz = length(current.indirectPatchList);
+                sz = current.indirectPatchList.numEntries;
                 current.indirectPatchList(sz) = e;
             else
                 obj.readInstance(index, cb);
@@ -95,7 +95,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             current = obj.current;
             current.slices = {};
             current.indirectionTables = {};
-            current.indirectPatchList = [];
+            current.indirectPatchList = dictionary; % unconfigured dictionary
             obj.current = current.previous;
             r = slicedData;
         end
@@ -188,7 +188,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 if isempty(indirectionTable)
                     throw(Ice.MarshalException('empty indirection table'));
                 end
-                if isempty(current.indirectPatchList) && ...
+                if ~isConfigured(current.indirectPatchList) && ...
                    bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS) == 0
                     throw(Ice.MarshalException('no references to indirection table'));
                 end
@@ -196,17 +196,17 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
                 %
                 % Convert indirect references into direct references.
                 %
-                if ~isempty(current.indirectPatchList)
-                    keys = current.indirectPatchList.keys();
+                if isConfigured(current.indirectPatchList)
+                    keys = current.indirectPatchList.keys;
                     for i = 1:length(keys)
-                        e = current.indirectPatchList(keys{i});
+                        e = current.indirectPatchList(keys(i));
                         %assert(e.index > 0); % MATLAB starts indexing at 1
                         if e.index > length(indirectionTable)
                             throw(Ice.MarshalException('indirection out of range'));
                         end
                         obj.addPatchEntry(indirectionTable{e.index}, e.cb);
                     end
-                    current.indirectPatchList = [];
+                    current.indirectPatchList = dictionary; % unconfigured dictionary
                 end
             end
         end

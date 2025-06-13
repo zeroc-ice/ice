@@ -13,10 +13,11 @@ namespace IceMatlab
     int getEnumerator(mxArray*, const std::string&);
     mxArray* createIdentity(const Ice::Identity&);
     void getIdentity(mxArray*, Ice::Identity&);
-    mxArray* createStringMap(const std::map<std::string, std::string>&);
-    void getStringMap(mxArray*, std::map<std::string, std::string>&);
-    mxArray* createContext(const Ice::Context&);
+
+    mxArray* createStringMap(const std::map<std::string, std::string, std::less<>>&);
+    inline mxArray* createContext(const Ice::Context& ctx) { return createStringMap(ctx); }
     void getContext(mxArray*, Ice::Context&);
+
     mxArray* createProtocolVersion(const Ice::ProtocolVersion&);
     mxArray* createEncodingVersion(const Ice::EncodingVersion&);
     void getEncodingVersion(mxArray*, Ice::EncodingVersion&);

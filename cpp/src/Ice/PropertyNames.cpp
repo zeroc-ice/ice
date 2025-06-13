@@ -121,7 +121,6 @@ const Property IcePropsData[] =
     Property{"Admin.Logger.Properties", "", false, false, nullptr},
     Property{"Admin.ServerId", "", false, false, nullptr},
     Property{"BackgroundLocatorCacheUpdates", "0", false, false, nullptr},
-    Property{"BatchAutoFlush", "", false, true, nullptr},
     Property{"BatchAutoFlushSize", "1024", false, false, nullptr},
     Property{"ClassGraphDepthMax", "10", false, false, nullptr},
     Property{"Compression.Level", "1", false, false, nullptr},
@@ -205,7 +204,7 @@ const PropertyArray PropertyNames::IceProps
     .prefixOnly=false,
     .isOptIn=false,
     .properties=IcePropsData,
-    .length=87
+    .length=86
 };
 
 const Property IceMXPropsData[] =

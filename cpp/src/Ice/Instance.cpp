@@ -1071,50 +1071,54 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         const_cast<ConnectionOptions&>(_clientConnectionOptions) = readConnectionOptions("Ice.Connection.Client");
         const_cast<ConnectionOptions&>(_serverConnectionOptions) = readConnectionOptions("Ice.Connection.Server");
 
+        // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
+        // the maximum value of a 32-bit signed integer (int32_t).
+        const int32_t messageSizeMaxUpperLimit = numeric_limits<int32_t>::max();
         {
             int32_t num = _initData.properties->getIcePropertyAsInt("Ice.MessageSizeMax");
-            if (num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
+            if (static_cast<size_t>(num) > static_cast<size_t>(messageSizeMaxUpperLimit / 1024))
             {
-                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
+                ostringstream os;
+                os << "Ice.MessageSizeMax '" << num << "' is too large, it must be less than or equal to '"
+                   << (messageSizeMaxUpperLimit / 1024) << "' KiB";
+                throw InitializationException(__FILE__, __LINE__, os.str());
+            }
+            else if (num < 1)
+            {
+                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(messageSizeMaxUpperLimit);
             }
             else
             {
-                // Property is in kilobytes, _messageSizeMax in bytes.
+                // The property is specified in kibibytes (KiB); _messageSizeMax is stored in bytes.
                 const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(num) * 1024;
             }
         }
 
-        if (_initData.properties->getIceProperty("Ice.BatchAutoFlushSize").empty() &&
-            !_initData.properties->getIceProperty("Ice.BatchAutoFlush").empty())
-        {
-            if (_initData.properties->getIcePropertyAsInt("Ice.BatchAutoFlush") > 0)
-            {
-                const_cast<size_t&>(_batchAutoFlushSize) = _messageSizeMax;
-            }
-        }
-        else
         {
             int32_t num = _initData.properties->getIcePropertyAsInt("Ice.BatchAutoFlushSize"); // 1MB default
-            if (num < 1)
+            if (static_cast<size_t>(num) > static_cast<size_t>(messageSizeMaxUpperLimit / 1024))
             {
-                const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num);
+                ostringstream os;
+                os << "Ice.BatchAutoFlushSize '" << num << "' is too large, it must be less than or equal to '"
+                   << (messageSizeMaxUpperLimit / 1024) << "' KiB";
+                throw InitializationException(__FILE__, __LINE__, os.str());
             }
-            else if (static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
+            else if (num < 1)
             {
-                const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(0x7fffffff);
+                const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(messageSizeMaxUpperLimit);
             }
             else
             {
-                // Property is in kilobytes, convert in bytes.
+                // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
                 const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num) * 1024;
             }
         }
 
         {
             int32_t num = _initData.properties->getIcePropertyAsInt("Ice.ClassGraphDepthMax");
-            if (num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff))
+            if (num < 1)
             {
-                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(0x7fffffff);
+                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(numeric_limits<int32_t>::max());
             }
             else
             {

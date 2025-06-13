@@ -5,7 +5,6 @@ classdef (Abstract) EncapsEncoder < handle
         function obj = EncapsEncoder(os, encaps)
             obj.os = os;
             obj.encaps = encaps;
-            obj.typeIdMap = containers.Map('KeyType', 'char', 'ValueType', 'int32');
             obj.typeIdIndex = 0;
         end
 
@@ -42,7 +41,7 @@ classdef (Abstract) EncapsEncoder < handle
         encaps
     end
     properties(Access=private)
-        typeIdMap
+        typeIdMap dictionary = configureDictionary('char', 'int32')
         typeIdIndex
     end
 end

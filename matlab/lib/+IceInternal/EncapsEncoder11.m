@@ -6,7 +6,6 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             obj@IceInternal.EncapsEncoder(os, encaps);
             obj.current = [];
             obj.valueIdIndex = 1;
-            obj.marshaledMap = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
         end
 
         function writeValue(obj, v)
@@ -59,7 +58,6 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
 
         function startSlice(obj, typeId, compactId, last)
             import IceInternal.Protocol;
-            %assert(isempty(obj.current.indirectionTable) && isempty(obj.current.indirectionMap));
 
             obj.current.sliceFlagsPos = obj.os.getPos() + 1;
 
@@ -147,7 +145,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
                     obj.writeInstance(obj.current.indirectionTable{i});
                 end
                 obj.current.indirectionTable = {};
-                obj.current.indirectionMap = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
+                obj.current.indirectionMap = configureDictionary('int32', 'int32'); % clear dictionary
             end
 
             %
@@ -238,6 +236,6 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
     properties(Access=private)
         current
         valueIdIndex
-        marshaledMap
+        marshaledMap dictionary = configureDictionary('int32', 'int32');
     end
 end
