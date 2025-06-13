@@ -300,7 +300,7 @@ classdef InputStream < handle
         end
         function r = readStringSeq(obj) % returns a string array
             sz = obj.readAndCheckSeqSize(1);
-            r = strings(sz); % preallocate array
+            r = strings(1, sz); % preallocate array
             for i = 1:sz
                 r(i) = obj.readString();
             end

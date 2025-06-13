@@ -280,7 +280,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Parameters:
             %   context - Optional context map for the invocation.
             %
-            % Returns (cell array of char) - The Slice type IDs of the
+            % Returns (string array) - The Slice type IDs of the
             %   interfaces supported by the target object, in alphabetical order.
 
             is = obj.iceInvoke('ice_ids', 2, true, [], true, {}, varargin{:});
