@@ -696,7 +696,7 @@ public sealed class Instance
             }
 
             int classGraphDepthMax = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
-            if (classGraphDepthMax < 1 || classGraphDepthMax > 0x7fffffff)
+            if (classGraphDepthMax < 1)
             {
                 _classGraphDepthMax = 0x7fffffff;
             }

@@ -677,7 +677,7 @@ public final class Instance {
 
             {
                 var num = properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
-                if (num < 1 || num > 0x7fffffff) {
+                if (num < 1) {
                     _classGraphDepthMax = 0x7fffffff;
                 } else {
                     _classGraphDepthMax = num;

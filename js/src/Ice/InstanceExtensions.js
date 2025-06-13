@@ -223,7 +223,7 @@ Instance.prototype.finishSetup = function (communicator) {
         }
 
         num = this._initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
-        if (num < 1 || num > 0x7fffffff) {
+        if (num < 1) {
             this._classGraphDepthMax = 0x7fffffff;
         } else {
             this._classGraphDepthMax = num;
