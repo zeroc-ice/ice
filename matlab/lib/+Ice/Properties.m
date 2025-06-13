@@ -178,7 +178,7 @@ classdef Properties < IceInternal.WrapperObject
             % Parameters:
             %   prefix (char) - The prefix to search for (empty string if none).
             %
-            % Returns (containers.Map) - The matching property set.
+            % Returns (dictionary) - The matching property set.
 
             r = obj.iceCallWithResult('getPropertiesForPrefix', prefix);
         end
