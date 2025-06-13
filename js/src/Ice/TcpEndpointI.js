@@ -224,7 +224,7 @@ export class TcpEndpointI extends IPEndpointI {
             } else {
                 let invalid = false;
                 try {
-                    this._timeout = StringUtil.toInt(argument);
+                    this._timeout = StringUtil.parseSafeInt32(argument);
                 } catch {
                     invalid = true;
                 }

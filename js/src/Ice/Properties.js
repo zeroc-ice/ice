@@ -61,8 +61,7 @@ export class Properties {
         const defaultValueString = Properties.getDefaultProperty(key);
         let defaultValue = 0;
         if (defaultValueString != "") {
-            defaultValue = parseInt(defaultValueString);
-            DEV: console.assert(!isNaN(defaultValue));
+            defaultValue = StringUtil.parseSafeInt32(defaultValueString);
         }
         return this.getPropertyAsIntWithDefault(key, defaultValue);
     }
@@ -71,10 +70,7 @@ export class Properties {
         const pv = this._properties.get(key);
         if (pv !== undefined) {
             pv.used = true;
-            const value = parseInt(pv.value);
-            if (isNaN(value)) {
-                throw new PropertyException(`property '${key}' has an invalid integer value: '${pv.value}'`);
-            }
+            const value = StringUtil.parseSafeInt32(pv.value);
             return value;
         } else {
             return defaultValue;

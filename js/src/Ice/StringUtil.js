@@ -209,12 +209,40 @@ export class StringUtil {
         return hash;
     }
 
-    static toInt(s) {
-        const n = parseInt(s, 10);
-        if (isNaN(n)) {
-            throw new RangeError("conversion of `" + s + "' to int failed");
+    static parseSafeInt32(s) {
+        // Handle edge cases first
+        if (typeof s !== 'string') {
+            throw new RangeError(`conversion of '${s}' to int failed`);
         }
-        return n;
+        
+        // Check for empty string
+        if (s.length === 0) {
+            throw new RangeError(`conversion of '' to int failed`);
+        }
+        
+        // Trim whitespace and check if it becomes empty
+        const trimmed = s.trim();
+        if (trimmed.length === 0) {
+            throw new RangeError(`conversion of '${s}' to int failed`);
+        }
+        
+        try {
+            const b = BigInt(trimmed); // Let BigInt throw if input is invalid
+            const int32MinValue = -2147483648n;
+            const int32MaxValue = 2147483647n;
+            if (b < int32MinValue || b > int32MaxValue) {
+                throw new RangeError(`Value out of Int32 range: ${s}`);
+            }
+            return Number(b); // Safe: all 32-bit ints are exactly representable
+        } catch (error) {
+            // Re-throw with our message format
+            throw new RangeError(`conversion of '${s}' to int failed`);
+        }
+    }
+
+    // Legacy alias for backward compatibility
+    static toInt(s) {
+        return StringUtil.parseSafeInt32(s);
     }
 }
 
