@@ -15,7 +15,7 @@ function r = identityToString(id, varargin)
     elseif isempty(varargin)
         mode = Ice.ToStringMode.Unicode;
     elseif length(varargin) > 2
-        throw(LocalException('Ice:ArgumentException', 'too many arguments'));
+        throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments'));
     end
     r = IceInternal.Util.callWithResult('Ice_identityToString', id, int32(mode));
 end

@@ -33,7 +33,7 @@ classdef Properties < IceInternal.WrapperObject
     methods
         function obj = Properties(impl)
             if ~isa(impl, 'lib.pointer')
-                throw(LocalException('Ice:ArgumentException', 'invalid argument'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
             end
             obj@IceInternal.WrapperObject(impl);
         end

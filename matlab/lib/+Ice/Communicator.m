@@ -33,7 +33,7 @@ classdef Communicator < IceInternal.WrapperObject
     methods
         function obj = Communicator(impl, initData)
             if ~isa(impl, 'lib.pointer')
-                throw(LocalException('Ice:ArgumentException', 'invalid argument'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
             end
             obj@IceInternal.WrapperObject(impl);
 
@@ -64,7 +64,7 @@ classdef Communicator < IceInternal.WrapperObject
             else
                 arr = sscanf(enc, '%u.%u');
                 if length(arr) ~= 2
-                    throw(LocalException('Ice:ArgumentException', 'invalid value for Ice.Default.EncodingVersion'));
+                    throw(Ice.LocalException('Ice:ArgumentException', 'invalid value for Ice.Default.EncodingVersion'));
                 end
                 obj.encoding = Ice.EncodingVersion(arr(1), arr(2));
             end
@@ -134,7 +134,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isempty(proxy)
                 r = '';
             elseif ~isa(proxy, 'Ice.ObjectPrx')
-                throw(LocalException('Ice:ArgumentException', 'expecting a proxy'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a proxy'));
             else
                 r = proxy.ice_toString();
             end
@@ -178,7 +178,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isempty(proxy)
                 r = configureDictionary('char', 'char');
             elseif ~isa(proxy, 'Ice.ObjectPrx')
-                throw(LocalException('Ice:ArgumentException', 'expecting a proxy'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a proxy'));
             else
                 r = obj.iceCallWithResult('proxyToProperty', proxy.iceGetImpl(), prop);
             end
@@ -261,7 +261,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isempty(proxy)
                 impl = libpointer('voidPtr');
             elseif ~isa(proxy, 'Ice.RouterPrx')
-                throw(LocalException('Ice:ArgumentException', 'expecting a router proxy'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a router proxy'));
             else
                 impl = proxy.iceGetImpl();
             end
@@ -296,7 +296,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isempty(proxy)
                 impl = libpointer('voidPtr');
             elseif ~isa(proxy, 'Ice.LocatorPrx')
-                throw(LocalException('Ice:ArgumentException', 'expecting a locator proxy'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a locator proxy'));
             else
                 impl = proxy.iceGetImpl();
             end

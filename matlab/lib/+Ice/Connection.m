@@ -26,7 +26,7 @@ classdef Connection < IceInternal.WrapperObject
     methods
         function obj = Connection(impl, communicator)
             if ~isa(impl, 'lib.pointer')
-                throw(LocalException('Ice:ArgumentException', 'invalid argument'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
             end
             obj@IceInternal.WrapperObject(impl);
             obj.communicator = communicator;

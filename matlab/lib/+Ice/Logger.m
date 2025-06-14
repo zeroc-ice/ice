@@ -16,7 +16,7 @@ classdef Logger < IceInternal.WrapperObject
     methods
         function obj = Logger(impl)
             if ~isa(impl, 'lib.pointer')
-                throw(LocalException('Ice:ArgumentException', 'invalid argument'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
             end
             obj@IceInternal.WrapperObject(impl);
         end

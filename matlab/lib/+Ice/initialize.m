@@ -22,7 +22,7 @@ function [communicator, args] = initialize(varargin)
     % Copyright (c) ZeroC, Inc.
 
     if length(varargin) > 2
-        throw(LocalException('Ice:ArgumentException', 'too many arguments to Ice.initialize'));
+        throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments to Ice.initialize'));
     end
 
     args = [];
@@ -66,7 +66,7 @@ function [communicator, args] = initialize(varargin)
     props = libpointer('voidPtr');
     if ~isempty(initData.properties_)
         if ~isa(initData.properties_, 'Ice.Properties')
-            throw(LocalException('Ice:ArgumentException', 'invalid value for properties_ member'));
+            throw(Ice.LocalException('Ice:ArgumentException', 'invalid value for properties_ member'));
         else
             props = initData.properties_.impl_;
         end
