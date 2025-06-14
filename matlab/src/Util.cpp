@@ -144,12 +144,15 @@ IceMatlab::getIdentity(mxArray* p, Ice::Identity& id)
     {
         throw std::invalid_argument("argument is not Ice.Identity");
     }
-    auto name = mxGetProperty(p, 0, "name");
+    mxArray* name = mxGetProperty(p, 0, "name"); // makes a copy
     assert(name);
     id.name = getStringFromUTF16(name);
-    auto category = mxGetProperty(p, 0, "category");
+    mxDestroyArray(name);
+
+    mxArray* category = mxGetProperty(p, 0, "category");
     assert(category);
     id.category = getStringFromUTF16(category);
+    mxDestroyArray(category);
 }
 
 mxArray*
@@ -275,11 +278,21 @@ IceMatlab::createProtocolVersion(const Ice::ProtocolVersion& v)
 
 namespace
 {
+    template<size_t N> void destroyParams(std::array<mxArray*, N> params)
+    {
+        for (auto p : params)
+        {
+            mxDestroyArray(p);
+        }
+    }
+
     template<size_t N> mxArray* createMatlabException(const char* typeId, std::array<mxArray*, N> params)
     {
         string className = replace(string{typeId}.substr(2), "::", ".");
         mxArray* ex;
         mexCallMATLAB(1, &ex, static_cast<int>(N), params.data(), className.c_str()); // error is fatal
+
+        destroyParams(std::move(params));
         return ex;
     }
 
@@ -298,6 +311,8 @@ namespace
         {
             mexCallMATLAB(1, &ex, static_cast<int>(params.size()), params.data(), "Ice.LocalException");
         }
+
+        destroyParams(std::move(params));
         return ex;
     }
 }
@@ -417,7 +432,7 @@ IceMatlab::createResultValue(mxArray* result)
 {
     mwSize dims[2] = {1, 1};
     auto r = mxCreateStructArray(2, dims, 2, resultFields);
-    mxSetFieldByNumber(r, 0, 1, result);
+    mxSetFieldByNumber(r, 0, 1, result); // The memory is not copied.
     return r;
 }
 
@@ -426,7 +441,7 @@ IceMatlab::createResultException(mxArray* ex)
 {
     mwSize dims[2] = {1, 1};
     auto r = mxCreateStructArray(2, dims, 2, resultFields);
-    mxSetFieldByNumber(r, 0, 0, ex);
+    mxSetFieldByNumber(r, 0, 0, ex); // The memory is not copied.
     return r;
 }
 
@@ -440,7 +455,7 @@ IceMatlab::createOptionalValue(bool hasValue, mxArray* value)
     mxSetFieldByNumber(r, 0, 0, createBool(hasValue));
     if (hasValue)
     {
-        mxSetFieldByNumber(r, 0, 1, value);
+        mxSetFieldByNumber(r, 0, 1, value); // The memory is not copied.
     }
     return r;
 }
