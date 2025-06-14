@@ -98,15 +98,15 @@ classdef AllTests
             fprintf('testing exception... ');
 
             e = classdef_.bitand_();
-            assert(isempty(e.identifier_));
-            assert(isempty(e.message_));
+            assert(strcmp(e.identifier_, '1'));
+            assert(strcmp(e.message_, '2'));
             assert(isempty(e.end_));
 
             g = classdef_.escaped_bitor();
-            assert(isempty(g.identifier_));
-            assert(isempty(g.message_));
+            assert(strcmp(g.identifier_, '1'));
+            assert(strcmp(g.message_, '2'));
             assert(isempty(g.end_));
-            assert(isempty(g.enumeration_));
+            assert(g.enumeration_ == 1);
 
             fprintf('ok\n');
 

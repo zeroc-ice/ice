@@ -110,6 +110,10 @@ classdef AllTests
             assert(~isempty(v.st));
             assert(v.dict.numEntries == 0);
 
+            % Check we can assign empty into bs and is.
+            v.bs = uint8.empty;
+            v.is = int32.empty;
+
             cl = ClassNoDefaults();
             assert(strcmp(cl.str, ''));
             assert(cl.c1 == Color.red);
