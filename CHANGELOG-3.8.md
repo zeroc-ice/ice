@@ -688,17 +688,26 @@ initialization. See `InitializationData.pluginFactories`.
 - **Slice `long` is now mapped to JavaScript `BigInt`.** For input parameters, both `number` and `BigInt` are accepted.
   The `Ice.Long` class has been removed.
 
-- The WebSocket transport is now supported with Node.js 24 and higher. In Node.js 23 and earlier, WebSocket connections do
-  not reliably report errors during connection establishment. We advise against using the WebSocket transport on these
-  versions.
+- The WebSocket transport is now supported with Node.js 24 and higher. In Node.js 23 and earlier, WebSocket connections
+  do not reliably report errors during connection establishment. We advise against using the WebSocket transport on
+  these versions.
 
 ## MATLAB Changes
 
+- Changed the mapping for `sequence<string>`. A `sequence<string>` now maps to a MATLAB string array. This new mapping
+  remains highly compatible with the previous mapping (cell array of char arrays).
+
 - Changed the mapping for Slice dictionaries. A Slice dictionary now always maps to a MATLAB dictionary; the old
   `containers.Map` are no longer used.
-  The dictionary key type is the mapped key type. The MATLAB value type is the mapped value type as a scalar when the
-  Slice value type is a bool, numeric type, string, enum, or struct. Otherwise, the value type is a `cell` that holds
-  the mapped type.
+  The dictionary key type is the mapped key type. The dictionary value type is as per the table below:
+
+  | Slice type T mapped to MATLAB MT    | Value type of MATLAB dictionary | Mapping for `sequence<T>`                 |
+  |-------------------------------------|---------------------------------|-------------------------------------------|
+  | bool, numeric, struct, enum         | MT                              | array of MT                               |
+  | string                              | string (1)                      | array of string                           |
+  | sequence, dictionary, class, proxy  | cell holding a MT               | cell array of MT                          |
+
+  (1) A single Slice string maps to a MATLAB char array, not to a MATLAB string.
 
 - The default value for property `Ice.ProgramName` is now `matlab-client`. It used to be the first element in the args
   cell given to `Ice.initialize`.

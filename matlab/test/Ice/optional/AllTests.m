@@ -587,6 +587,16 @@ classdef AllTests
 
             [p2, p3] = initial.opStringSeq(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
+
+            % string array mapping (since Ice 3.8)
+            p1 = repmat("test", 1, 100);
+            [p2, p3] = initial.opStringSeq(p1);
+            assert(isequal(p2, p1) && isequal(p3, p1));
+            f = initial.opStringSeqAsync(p1);
+            [p2, p3] = f.fetchOutputs();
+            assert(isequal(p2, p1) && isequal(p3, p1));
+
+            % can still use the old syntax with cell arrays of char arrays
             p1 = cell(1, 100);
             for i = 1:length(p1)
                 p1{i} = 'test';
