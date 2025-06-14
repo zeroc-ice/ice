@@ -107,7 +107,7 @@ classdef AllTests
             assert(v.c1 == Color.red);
             assert(isempty(v.bs));
             assert(isempty(v.is));
-            assert(~isempty(v.st));
+            assert(isempty(v.st));
             assert(v.dict.numEntries == 0);
 
             % Check we can assign empty into bs and is.
@@ -118,7 +118,7 @@ classdef AllTests
             assert(strcmp(cl.str, ''));
             assert(cl.c1 == Color.red);
             assert(isempty(cl.bs));
-            assert(~isempty(cl.st));
+            assert(isempty(cl.st));
             assert(cl.dict.numEntries == 0);
 
             fprintf('ok\n');

@@ -293,12 +293,6 @@ namespace
                 return (*enumerators.begin())->mappedScoped(".").substr(1);
             }
 
-            StructPtr st = dynamic_pointer_cast<Struct>(m->type());
-            if (st)
-            {
-                return st->mappedScoped(".").substr(1) + "()";
-            }
-
             if (auto seq = dynamic_pointer_cast<Sequence>(m->type()))
             {
                 if (isMappedToScalar(seq->type()))
@@ -313,7 +307,10 @@ namespace
                 }
             }
 
-            return typeToString(m->type()) + ".empty"; // Default value for other types.
+            // Use .empty for all other types. Note that .empty is not a valid value for a struct field/property;
+            // so either Ice later unmarshals into this property or the struct must replace this value before
+            // marshaling this instance.
+            return typeToString(m->type()) + ".empty";
         }
     }
 

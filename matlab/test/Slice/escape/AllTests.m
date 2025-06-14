@@ -36,11 +36,11 @@ classdef AllTests
             fprintf('testing class... ');
 
             c = classdef_.logical_();
+            defaultFor = classdef_.global_();
             assert(c.else_ == classdef_.persistent_.break_);
-            assert(c.for_.case_ == classdef_.persistent_.catch_);
-            assert(c.for_.continue_ == 1);
-            assert(c.for_.eq_ == 2);
+            assert(isempty(c.for_));
             assert(c.int64 == true);
+            % Even though c.for_ is empty, we can still marshal it.
             % Exercise the marshaling code.
             os = Ice.OutputStream(communicator.getEncoding());
             os.writeValue(c);
@@ -50,18 +50,17 @@ classdef AllTests
             is.readValue(@v.set, 'classdef_.logical_');
             is.readPendingValues();
             assert(v.value.else_ == c.else_);
-            assert(v.value.for_.case_ == c.for_.case_);
-            assert(v.value.for_.continue_ == c.for_.continue_);
-            assert(v.value.for_.eq_ == c.for_.eq_);
+            assert(v.value.for_.case_ == defaultFor.case_);
+            assert(v.value.for_.continue_ == defaultFor.continue_);
+            assert(v.value.for_.eq_ == defaultFor.eq_);
             assert(v.value.int64 == c.int64);
 
             d = classdef_.escaped_xor();
             assert(d.else_ == classdef_.persistent_.break_);
-            assert(d.for_.case_ == classdef_.persistent_.catch_);
-            assert(d.for_.continue_ == 1);
-            assert(d.for_.eq_ == 2);
+            assert(isempty(d.for_));
             assert(d.int64 == true);
             assert(d.return_ == 1);
+            % Even though d.for_ is empty, we can still marshal it.
             % Exercise the marshaling code.
             os = Ice.OutputStream(communicator.getEncoding());
             os.writeValue(d);
@@ -71,9 +70,9 @@ classdef AllTests
             is.readValue(@v.set, 'classdef_.escaped_xor');
             is.readPendingValues();
             assert(v.value.else_ == d.else_);
-            assert(v.value.for_.case_ == d.for_.case_);
-            assert(v.value.for_.continue_ == d.for_.continue_);
-            assert(v.value.for_.eq_ == d.for_.eq_);
+            assert(v.value.for_.case_ == defaultFor.case_);
+            assert(v.value.for_.continue_ == defaultFor.continue_);
+            assert(v.value.for_.eq_ == defaultFor.eq_);
             assert(v.value.int64 == d.int64);
             assert(v.value.return_ == d.return_);
 
