@@ -281,7 +281,7 @@ Instance.prototype.finishSetup = function (communicator) {
                 let v;
 
                 try {
-                    v = StringUtil.parseSafeInt32(retryIntervals[i]);
+                    v = StringUtil.toInt32(retryIntervals[i]);
                 } catch {
                     v = 0;
                 }

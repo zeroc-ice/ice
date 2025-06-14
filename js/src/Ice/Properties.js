@@ -62,7 +62,7 @@ export class Properties {
         let defaultValue = 0;
         if (defaultValueString != "") {
             try {
-                defaultValue = StringUtil.parseSafeInt32(defaultValueString);
+                defaultValue = StringUtil.toInt32(defaultValueString);
             } catch (err) {
                 throw new PropertyException(
                     `property '${key}' has an invalid default integer value: '${defaultValueString}'`,
@@ -78,7 +78,7 @@ export class Properties {
         if (pv !== undefined) {
             pv.used = true;
             try {
-                const value = StringUtil.parseSafeInt32(pv.value);
+                const value = StringUtil.toInt32(pv.value);
                 return value;
             } catch (err) {
                 throw new PropertyException(`property '${key}' has an invalid integer value: '${pv.value}'`, {

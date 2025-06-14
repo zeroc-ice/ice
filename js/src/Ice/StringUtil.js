@@ -209,7 +209,10 @@ export class StringUtil {
         return hash;
     }
 
-    static parseSafeInt32(s) {
+    // Converts a string to an int32 number. We avoid using parseInt or the Number constructor because they do not
+    // detect overflow. This method throws a RangeError if the input is not a valid integer string or if the value
+    // is outside the 32-bit signed integer range.
+    static toInt32(s) {
         // Reject empty strings and strings with leading or trailing whitespace.
         if (s.length === 0 || s !== s.trim()) {
             throw new RangeError(`conversion of '${s}' to int failed`);

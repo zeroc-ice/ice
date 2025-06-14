@@ -241,7 +241,7 @@ export class OpaqueEndpointI extends EndpointI {
                 let type;
 
                 try {
-                    type = StringUtil.parseSafeInt32(argument);
+                    type = StringUtil.toInt32(argument);
                 } catch {
                     throw new ParseException(`invalid type value '${argument}' in endpoint ${endpoint}`);
                 }
