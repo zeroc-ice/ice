@@ -47,19 +47,15 @@ namespace
     mxArray* cellArrayToString(mxArray* cellArray)
     {
         mxArray* stringArray;
-        mxArray* params[1];
-        params[0] = cellArray;
-        mexCallMATLAB(1, &stringArray, 1, params, "string");
+        mexCallMATLAB(1, &stringArray, 1, &cellArray, "string");
         return stringArray;
     }
 
-    // This function converts the string array input argument and returns a cell array of char arrays.
+    // This function converts the string array input argument and returns a cell array of char.
     mxArray* stringToCellArray(mxArray* stringArray)
     {
         mxArray* cellArray;
-        mxArray* params[1];
-        params[0] = stringArray;
-        mexCallMATLAB(1, &cellArray, 1, params, "cellstr");
+        mexCallMATLAB(1, &cellArray, 1, &stringArray, "cellstr");
         return cellArray;
     }
 }
@@ -170,10 +166,9 @@ IceMatlab::createStringMap(const map<string, string, std::less<>>& m)
     }
     else
     {
-        mwSize dims[2] = {1, 0};
-        dims[1] = static_cast<int>(m.size());
-        auto keysCell = mxCreateCellArray(2, dims);
-        auto valuesCell = mxCreateCellArray(2, dims);
+        mwSize size = static_cast<int>(m.size());
+        auto keysCell = mxCreateCellMatrix(1, size);
+        auto valuesCell = mxCreateCellMatrix(1, size);
         int idx = 0;
         for (const auto& p : m)
         {
@@ -206,16 +201,13 @@ IceMatlab::getContext(mxArray* p, Ice::Context& m)
     }
     else
     {
-        mxArray* params[1];
-        params[0] = p;
-
         mxArray* keysString;
-        mexCallMATLAB(1, &keysString, 1, params, "keys");
+        mexCallMATLAB(1, &keysString, 1, &p, "keys");
         mxArray* keys = stringToCellArray(keysString);
         mxDestroyArray(keysString);
 
         mxArray* valuesString;
-        mexCallMATLAB(1, &valuesString, 1, params, "values");
+        mexCallMATLAB(1, &valuesString, 1, &p, "values");
         mxArray* values = stringToCellArray(valuesString);
         mxDestroyArray(valuesString);
 
@@ -456,32 +448,57 @@ IceMatlab::createOptionalValue(bool hasValue, mxArray* value)
 mxArray*
 IceMatlab::createStringList(const vector<string>& strings)
 {
-    auto r = mxCreateCellMatrix(1, static_cast<int>(strings.size()));
+    auto cellArray = mxCreateCellMatrix(1, static_cast<int>(strings.size()));
     mwIndex i = 0;
     for (auto s : strings)
     {
-        mxSetCell(r, i++, createStringFromUTF8(s));
+        mxSetCell(cellArray, i++, createStringFromUTF8(s));
     }
+
+    auto r = cellArrayToString(cellArray);
+    mxDestroyArray(cellArray);
     return r;
 }
 
 void
 IceMatlab::getStringList(mxArray* m, vector<string>& v)
 {
-    if (!mxIsCell(m))
+    // m is either a string array, a cell array of char, or an empty array.
+    if (mxIsEmpty(m))
     {
-        throw std::invalid_argument("argument is not a cell array");
+        v.clear();
+        return;
     }
+
+    bool ownArray = false;
+
+    // If m is a string array, convert it to a cell array of char.
+    if (mxIsClass(m, "string"))
+    {
+        m = stringToCellArray(m);
+        ownArray = true;
+    }
+    else if (!mxIsCell(m))
+    {
+        throw std::invalid_argument("argument must be a string array or a cell array of char");
+    }
+
     if (mxGetM(m) > 1)
     {
         throw std::invalid_argument("invalid dimension in cell array");
     }
+
     size_t n = mxGetN(m);
     v.clear();
     for (mwIndex i = 0; i < n; ++i)
     {
-        mxArray* c = mxGetCell(m, i);
+        mxArray* c = mxGetCell(m, i); // not to be destroyed
         v.push_back(getStringFromUTF16(c));
+    }
+
+    if (ownArray)
+    {
+        mxDestroyArray(m); // destroy the cell array created from the string array
     }
 }
 

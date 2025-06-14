@@ -285,7 +285,7 @@ classdef InputStream < handle
                 r = IceInternal.UnsetI.Instance;
             end
         end
-        function r = readString(obj)
+        function r = readString(obj) % returns a char array
             sz = obj.readSize();
             if sz == 0
                 r = '';
@@ -298,11 +298,11 @@ classdef InputStream < handle
                 obj.pos = pos + sz;
             end
         end
-        function r = readStringSeq(obj)
+        function r = readStringSeq(obj) % returns a string array
             sz = obj.readAndCheckSeqSize(1);
-            r = cell(1, sz);
+            r = strings(1, sz); % preallocate array
             for i = 1:sz
-                r{i} = obj.readString();
+                r(i) = obj.readString();
             end
         end
         function r = readStringOpt(obj, tag)
