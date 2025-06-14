@@ -290,7 +290,7 @@ export class Client extends TestHelper {
         b1 = communicator.stringToProxy("test -e 1.0");
         test(b1.ice_getEncodingVersion().major === 1 && b1.ice_getEncodingVersion().minor === 0);
 
-        b1 = communicator.stringToProxy("test -e 6z.5");
+        b1 = communicator.stringToProxy("test -e 6.5");
         test(b1.ice_getEncodingVersion().major === 6 && b1.ice_getEncodingVersion().minor === 5);
 
         b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");

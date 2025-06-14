@@ -206,7 +206,7 @@ export class IPEndpointI extends EndpointI {
             }
 
             try {
-                this._port = StringUtil.toInt(argument);
+                this._port = StringUtil.toInt32(argument);
             } catch {
                 throw new ParseException(`invalid port value '${argument}' in endpoint ${str}`);
             }
