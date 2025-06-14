@@ -2081,7 +2081,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         out.dec();
         out << nl << "end";
     }
-    else if ((b && b->kind() == Builtin::KindString) || dictContent || seqContent || proxy)
+    else if (dictContent || seqContent || proxy)
     {
         //
         // These types require a cell array.
@@ -2449,8 +2449,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
         if (cls)
         {
-            // Each entry has a temporary ValueHolder that we need to replace with the actual value wrapped in a
-            // cell.
+            // Each entry has a temporary ValueHolder that we need to replace with the actual value wrapped in a cell.
             out << nl << "r{k} = v.value;";
         }
         else if (scalarValue)
