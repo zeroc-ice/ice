@@ -323,32 +323,7 @@ namespace
 
     bool needsConversion(const TypePtr& type)
     {
-        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-        if (seq)
-        {
-            return seq->type()->isClassType() || needsConversion(seq->type());
-        }
-
-        StructPtr st = dynamic_pointer_cast<Struct>(type);
-        if (st)
-        {
-            for (const auto& dm : st->dataMembers())
-            {
-                if (needsConversion(dm->type()) || dm->type()->isClassType())
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-        if (d)
-        {
-            return needsConversion(d->valueType()) || d->valueType()->isClassType();
-        }
-
-        return false;
+        return type->usesClasses() && !type->isClassType();
     }
 
     void convertValueType(
@@ -903,10 +878,10 @@ namespace
         // For some types, we could use an empty array, but this does not work for sequences mapped to arrays or cells,
         // nor does it work for dictionaries.
         //
-        // We also can't specify a type for class fields (in structs and exceptions, because we convert them "in place";
+        // We also can't specify a type for class fields (in structs and exceptions, because we convert them in place;
         // we do the same for class fields in classes for consistency). Likewise, we can't specify a type for fields
-        // that "need conversion", since the conversion occurs "in place".
-        if (!field->optional() && !type->isClassType() && !needsConversion(type))
+        // that use classes (but are not classes), since we convert them in place.
+        if (!field->optional() && !type->usesClasses())
         {
             if (auto seq = dynamic_pointer_cast<Sequence>(type))
             {
@@ -928,22 +903,6 @@ namespace
 
         // Always specify the default value.
         out << " = " << defaultValue(field);
-    }
-
-    // Generate an iceSetProperty_name method for all class fields.
-    void emitIceSetProperty(IceInternal::Output& out, const DataMemberList& fields)
-    {
-        for (const auto& field : fields)
-        {
-            assert(field->type()->isClassType());
-
-            string m = field->mappedName();
-            out << nl << "function iceSetProperty_" << m << "(obj, v)";
-            out.inc();
-            out << nl << "obj." << m << " = v;";
-            out.dec();
-            out << nl << "end";
-        }
     }
 
     void validateMetadata(const UnitPtr& unit)
@@ -1007,7 +966,7 @@ private:
     void unmarshalStruct(IceInternal::Output&, const StructPtr&, const string&);
     void convertStruct(IceInternal::Output&, const StructPtr&, const string&);
 
-    void writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers, bool noInit);
+    void writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers);
 
     const string _dir;
 };
@@ -1063,19 +1022,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Constructor
     //
-    if (allMembers.empty())
-    {
-        out << nl << "function " << self << " = " << name << spar << "noInit" << epar;
-        out.inc();
-        out << nl << "if nargin == 1 && ne(noInit, IceInternal.NoInit.Instance)";
-        out.inc();
-        out << nl << "narginchk(0,0);";
-        out.dec();
-        out << nl << "end";
-        out.dec();
-        out << nl << "end";
-    }
-    else
+    if (!allMembers.empty())
     {
         const auto firstMember = *allMembers.begin();
 
@@ -1092,44 +1039,33 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out << nl << "if nargin == 0";
             out.inc();
-            for (const auto& member : allMembers)
-            {
-                out << nl << member->mappedName() << " = " << defaultValue(member) << ';';
-            }
-            writeBaseClassArrayParams(out, baseMembers, false);
-            out.dec();
-            out << nl << "elseif eq(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
-            out.inc();
-            writeBaseClassArrayParams(out, baseMembers, true);
+            out << nl << "superArgs = {};";
             out.dec();
             out << nl << "else";
             out.inc();
-            writeBaseClassArrayParams(out, baseMembers, false);
+            writeBaseClassArrayParams(out, baseMembers);
             out.dec();
             out << nl << "end";
 
-            out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << "(v{:});";
+            out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << "(superArgs{:});";
 
-            out << nl << "if ne(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
-            out.inc();
-            for (const auto& member : members)
+            if (!members.empty())
             {
-                const string memberName = member->mappedName();
-                out << nl << self << "." << memberName << " = " << memberName << ';';
+                // Set this class properties.
+                out << nl << "if nargin ~= 0";
+                out.inc();
+                for (const auto& member : members)
+                {
+                    const string memberName = member->mappedName();
+                    out << nl << self << "." << memberName << " = " << memberName << ';';
+                }
+                out.dec();
+                out << nl << "end";
             }
-            out.dec();
-            out << nl << "end";
         }
         else
         {
-            out << nl << "if nargin == 0";
-            out.inc();
-            for (const auto& member : allMembers)
-            {
-                out << nl << self << "." << member->mappedName() << " = " << defaultValue(member) << ';';
-            }
-            out.dec();
-            out << nl << "elseif ne(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
+            out << nl << "if nargin ~= 0";
             out.inc();
             for (const auto& member : allMembers)
             {
@@ -1246,7 +1182,16 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    emitIceSetProperty(out, p->classDataMembers());
+    // Generate an iceSetProperty_name method for all class fields.
+    for (const auto& classField : p->classDataMembers())
+    {
+        string m = classField->mappedName();
+        out << nl << "function iceSetProperty_" << m << "(obj, v)";
+        out.inc();
+        out << nl << "obj." << m << " = v;";
+        out.dec();
+        out << nl << "end";
+    }
 
     out.dec();
     out << nl << "end";
@@ -1852,15 +1797,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     for (const auto& dm : optionalMembers)
     {
         const string m = dm->mappedName();
-        if (dm->type()->isClassType())
-        {
-            out << nl << "obj." << m << " = IceInternal.ValueHolder();";
-            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", dm->type(), true, dm->tag());
-        }
-        else
-        {
-            unmarshal(out, "is", "obj." + m, dm->type(), true, dm->tag());
-        }
+        assert(!dm->type()->isClassType()); // guaranteed by the parser.
+        unmarshal(out, "is", "obj." + m, dm->type(), true, dm->tag());
     }
     out << nl << "is.endSlice();";
     if (base)
@@ -3232,24 +3170,15 @@ CodeVisitor::convertStruct(IceInternal::Output& out, const StructPtr& p, const s
 }
 
 void
-CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers, bool noInit)
+CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers)
 {
-    out << nl << "v = { ";
-    bool first = true;
+    out << nl << "superArgs = ";
+    out.spar("{");
     for (const auto& member : baseMembers)
     {
-        const string memberName = member->mappedName();
-        if (first)
-        {
-            out << (noInit ? "IceInternal.NoInit.Instance" : memberName);
-            first = false;
-        }
-        else
-        {
-            out << ", " << (noInit ? "[]" : memberName);
-        }
+        out << member->mappedName();
     }
-    out << " };";
+    out.epar("};");
 }
 
 namespace
