@@ -1928,14 +1928,8 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     string self = name == "obj" ? "this" : "obj";
     out << nl << "function " << self << " = " << name << spar << memberNames << epar;
     out.inc();
-    out << nl << "if nargin == 0";
-    out.inc();
-    for (const auto& member : members)
-    {
-        out << nl << self << "." << member->mappedName() << " = " << defaultValue(member) << ';';
-    }
-    out.dec();
-    out << nl << "elseif ne(" << (*members.begin())->mappedName() << ", IceInternal.NoInit.Instance)";
+    // We rely on the default values when nargin is 0.
+    out << nl << "if nargin ~= 0";
     out.inc();
     for (const auto& memberName : memberNames)
     {
@@ -1943,6 +1937,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     }
     out.dec();
     out << nl << "end";
+
     out.dec();
     out << nl << "end";
     out << nl << "function r = eq(obj, other)";
@@ -1972,7 +1967,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.inc();
     out << nl << "function r = ice_read(is)";
     out.inc();
-    out << nl << "r = " << abs << "(IceInternal.NoInit.Instance);";
+    out << nl << "r = " << abs << "();";
     unmarshalStruct(out, p, "r");
     out.dec();
     out << nl << "end";
