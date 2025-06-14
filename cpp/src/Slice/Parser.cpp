@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Parser.h"
+#include "DeprecationReporter.h"
 #include "Ice/StringUtil.h"
 #include "Util.h"
 
@@ -5078,6 +5079,8 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debugMode)
         popContainer();
         assert(_definitionContextStack.size() == 1);
         popDefinitionContext();
+
+        emitDeprecationWarningsFor(unit());
     }
 
     Slice::currentUnit = nullptr;

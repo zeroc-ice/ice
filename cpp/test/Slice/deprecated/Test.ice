@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+[["suppress-warning:deprecated"]]
+
 module DeprecatedTest
 {
     // Applies the deprecated metadata on various Slice definitions.

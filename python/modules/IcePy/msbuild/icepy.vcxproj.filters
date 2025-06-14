@@ -72,6 +72,9 @@
     <ClCompile Include="..\PySliceLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\cpp\src\Slice\DeprecationReporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\Slice\FileTracker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
