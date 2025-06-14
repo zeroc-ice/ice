@@ -662,44 +662,43 @@ public sealed class Instance
             clientConnectionOptions = readConnectionOptions("Ice.Connection.Client");
             _serverConnectionOptions = readConnectionOptions("Ice.Connection.Server");
 
+            // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
+            // the maximum value of a 32-bit signed integer (int).
+            const int messageSizeMaxUpperLimit = int.MaxValue;
             int messageSizeMax = _initData.properties.getIcePropertyAsInt("Ice.MessageSizeMax");
-            if (messageSizeMax < 1 || messageSizeMax > 0x7fffffff / 1024)
+            if (messageSizeMax > messageSizeMaxUpperLimit / 1024)
             {
-                _messageSizeMax = 0x7fffffff;
+                throw new Ice.InitializationException(
+                    $"Ice.MessageSizeMax '{messageSizeMax}' is too large, it must be less than or equal to '{messageSizeMaxUpperLimit / 1024}' KiB");
+            }
+            else if (messageSizeMax < 1)
+            {
+                _messageSizeMax = messageSizeMaxUpperLimit;
             }
             else
             {
-                _messageSizeMax = messageSizeMax * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                // The property is specified in kibibytes (KiB); _messageSizeMax is stored in bytes.
+                _messageSizeMax = messageSizeMax * 1024;
             }
 
-            if (_initData.properties.getIceProperty("Ice.BatchAutoFlushSize").Length == 0 &&
-               _initData.properties.getIceProperty("Ice.BatchAutoFlush").Length > 0)
+            int batchAutoFlushSize = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
+            if (batchAutoFlushSize > messageSizeMaxUpperLimit / 1024)
             {
-                if (_initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0)
-                {
-                    _batchAutoFlushSize = _messageSizeMax;
-                }
+                throw new Ice.InitializationException(
+                    $"Ice.BatchAutoFlushSize '{batchAutoFlushSize}' is too large, it must be less than or equal to '{messageSizeMaxUpperLimit / 1024}' KiB");
+            }
+            else if (batchAutoFlushSize < 1)
+            {
+                _batchAutoFlushSize = messageSizeMaxUpperLimit;
             }
             else
             {
-                int batchAutoFlushSize = _initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlushSize");
-                if (batchAutoFlushSize < 1)
-                {
-                    _batchAutoFlushSize = batchAutoFlushSize;
-                }
-                else if (batchAutoFlushSize > 0x7fffffff / 1024)
-                {
-                    _batchAutoFlushSize = 0x7fffffff;
-                }
-                else
-                {
-                    // Property is in kilobytes, _batchAutoFlushSize in bytes
-                    _batchAutoFlushSize = batchAutoFlushSize * 1024;
-                }
+                // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
+                _batchAutoFlushSize = batchAutoFlushSize * 1024;
             }
 
             int classGraphDepthMax = _initData.properties.getIcePropertyAsInt("Ice.ClassGraphDepthMax");
-            if (classGraphDepthMax < 1 || classGraphDepthMax > 0x7fffffff)
+            if (classGraphDepthMax < 1)
             {
                 _classGraphDepthMax = 0x7fffffff;
             }
