@@ -50,7 +50,7 @@ namespace IceInternal
 
         bool getHeader(const std::string&, std::string&, bool) const;
 
-        [[nodiscard]] std::map<std::string, std::string> getHeaders() const;
+        [[nodiscard]] std::map<std::string, std::string, std::less<>> getHeaders() const;
 
     private:
         Type _type{TypeUnknown};

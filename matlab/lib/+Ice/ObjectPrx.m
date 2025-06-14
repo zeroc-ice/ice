@@ -330,7 +330,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         function r = ice_getContext(obj)
             % ice_getContext - Returns the per-proxy context for this proxy.
             %
-            % Returns (containers.Map) - The per-proxy context. If the proxy
+            % Returns (dictionary) - The per-proxy context. If the proxy
             % does not have a per-proxy (implicit) context, the return value
             % is an empty array.
 
@@ -342,7 +342,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   except for the per-proxy context.
             %
             % Parameters:
-            %   ctx (containers.Map) - The context for the new proxy.
+            %   ctx (dictionary) - The context for the new proxy.
             %
             % Returns - The proxy with the new per-proxy context.
 
@@ -1134,13 +1134,13 @@ classdef ObjectPrx < IceInternal.WrapperObject
             facet = [];
             context = {};
             if isscalar(varargin)
-                if isa(varargin{1}, 'containers.Map')
+                if isa(varargin{1}, 'dictionary')
                     context = varargin(1);
                 elseif isempty(varargin{1}) || isa(varargin{1}, 'char')
                     hasFacet = true;
                     facet = varargin{1};
                 else
-                    throw(LocalException('Ice:ArgumentException', 'expecting string or containers.Map'));
+                    throw(LocalException('Ice:ArgumentException', 'expecting string or context dictionary'));
                 end
             elseif length(varargin) == 2
                 hasFacet = true;

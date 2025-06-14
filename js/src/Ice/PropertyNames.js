@@ -48,7 +48,6 @@ PropertyNames.LMDBProps.properties = [
 PropertyNames.IceProps = new PropertyArray("Ice", false, false);
 PropertyNames.IceProps.properties = [
     new Property("BackgroundLocatorCacheUpdates", false, "0", false, null),
-    new Property("BatchAutoFlush", false, "", true, null),
     new Property("BatchAutoFlushSize", false, "1024", false, null),
     new Property("ClassGraphDepthMax", false, "10", false, null),
     new Property("Connection.Client", false, "", false, PropertyNames.ConnectionProps),

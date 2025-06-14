@@ -989,21 +989,21 @@ classdef AllTests
 
             fprintf('dictionary slicing... ');
 
-            bin = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            bin = configureDictionary('int32', 'cell');
             for i = 0:9
                 s = ['D1.', num2str(i)];
                 d1 = D1();
                 d1.sb = s;
                 d1.pb = d1;
                 d1.sd1 = s;
-                bin(i) = d1;
+                bin{i} = d1;
             end
 
             [r, bout] = proxy.dictionaryTest(bin);
 
-            assert(bout.Count == 10);
+            assert(bout.numEntries == 10);
             for i = 0:9
-                b = bout(i * 10);
+                b = bout{i * 10};
                 assert(~isempty(b));
                 s = ['D1.', num2str(i)];
                 assert(strcmp(b.sb, s));
@@ -1013,16 +1013,16 @@ classdef AllTests
                 assert(b.pb.pb == b.pb);
             end
 
-            assert(r.Count == 10);
+            assert(r.numEntries == 10);
             for i = 0:9
-                b = r(i * 20);
+                b = r{i * 20};
                 assert(~isempty(b));
                 s = ['D1.', num2str(i * 20)];
                 assert(strcmp(b.sb, s));
                 if i == 0
                     assert(isempty(b.pb));
                 else
-                    assert(b.pb == r((i - 1) * 20));
+                    assert(b.pb == r{(i - 1) * 20});
                 end
                 d1 = b;
                 assert(~isempty(d1));
@@ -1034,21 +1034,21 @@ classdef AllTests
 
             fprintf('dictionary slicing (AMI)... ');
 
-            bin = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            bin = configureDictionary('int32', 'cell');
             for i = 0:9
                 s = ['D1.', num2str(i)];
                 d1 = D1();
                 d1.sb = s;
                 d1.pb = d1;
                 d1.sd1 = s;
-                bin(i) = d1;
+                bin{i} = d1;
             end
 
             [r, bout] = proxy.dictionaryTestAsync(bin).fetchOutputs();
 
-            assert(bout.Count == 10);
+            assert(bout.numEntries == 10);
             for i = 0:9
-                b = bout(i * 10);
+                b = bout{i * 10};
                 assert(~isempty(b));
                 s = ['D1.', num2str(i)];
                 assert(strcmp(b.sb, s));
@@ -1058,16 +1058,16 @@ classdef AllTests
                 assert(b.pb.pb == b.pb);
             end
 
-            assert(r.Count == 10);
+            assert(r.numEntries == 10);
             for i = 0:9
-                b = r(i * 20);
+                b = r{i * 20};
                 assert(~isempty(b));
                 s = ['D1.', num2str(i * 20)];
                 assert(strcmp(b.sb, s));
                 if i == 0
                     assert(isempty(b.pb));
                 else
-                    assert(b.pb == r((i - 1) * 20));
+                    assert(b.pb == r{(i - 1) * 20});
                 end
                 d1 = b;
                 assert(~isempty(d1));

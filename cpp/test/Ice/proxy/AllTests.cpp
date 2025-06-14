@@ -1217,7 +1217,7 @@ allTests(TestHelper* helper)
         optional<ObjectPrx> p = communicator->stringToProxy("test:tcp -h localhost -p 10000 -t 20000");
         p = p->ice_invocationTimeout(10000);
         p = p->ice_locatorCacheTimeout(20000);
-        map<string, string> properties = communicator->proxyToProperty(p, "Test");
+        PropertyDict properties = communicator->proxyToProperty(p, "Test");
         test(properties["Test"] == "test:tcp -h localhost -p 10000 -t 20000");
         test(properties["Test.InvocationTimeout"] == "10000");
         test(properties["Test.LocatorCacheTimeout"] == "20000");
