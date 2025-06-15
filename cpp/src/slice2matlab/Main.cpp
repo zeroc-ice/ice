@@ -1058,7 +1058,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Constructor
     //
-    if (!allMembers.empty())
+    if (!members.empty()) // else no need to define a constructor: we inherit the base class constructor
     {
         const auto firstMember = *allMembers.begin();
 
@@ -1750,6 +1750,10 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         errID[pos] = ':';
         pos = errID.find('.', pos);
     }
+
+    // InputStream always create a user exception with no argument. A derived exception class created with no argument
+    // gives two arguments to its base class constructor. That's why the constructor needs to accept two arguments as
+    // well.
 
     out << nl << "if nargin == 0";
     out.inc();
