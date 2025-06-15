@@ -16,25 +16,25 @@ classdef NotRegisteredException < Ice.LocalException
     properties
         % kindOfObject - The kind of object that could not be removed: "servant", "facet", "object", "default servant",
         % "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
-        kindOfObject char
+        kindOfObject char = ''
         % id - The ID (or name) of the object that could not be removed.
-        id char
+        id char = ''
     end
     methods
         % Convenience constructor without an errID or what message.
         function obj = NotRegisteredException(kindOfObject, id)
             if nargin == 0 % default constructor
                 superArgs = {};
-                kindOfObject = '';
-                id = '';
             else
                 assert(nargin == 2, 'Invalid number of arguments');
                 superArgs = {'Ice:NotRegisteredException', sprintf('No %s is registered with ID ''%s''.', ...
                     kindOfObject, id)};
             end
             obj@Ice.LocalException(superArgs{:});
-            obj.kindOfObject = kindOfObject;
-            obj.id = id;
+            if nargin > 0
+                obj.kindOfObject = kindOfObject;
+                obj.id = id;
+            end
         end
     end
 end

@@ -14,28 +14,26 @@
 classdef RequestFailedException < Ice.DispatchException
     properties
         % id - The identity of the Ice Object to which the request was sent.
-        id Ice.Identity
+        id Ice.Identity = Ice.Identity.empty
         % facet - The facet to which the request was sent.
-        facet char
+        facet char = ''
         % operation - The operation name of the request.
-        operation char
+        operation char = ''
     end
     methods
         function obj = RequestFailedException(replyStatus, id, facet, operation, errID, what)
             if nargin == 0
-                id = Ice.Identity();
-                facet = '';
-                operation = '';
                 superArgs = {};
             else
                 assert(nargin == 6, 'Invalid number of arguments');
                 superArgs = {replyStatus, errID, what};
             end
-
             obj@Ice.DispatchException(superArgs{:});
-            obj.id = id;
-            obj.facet = facet;
-            obj.operation = operation;
+            if nargin > 0
+                obj.id = id;
+                obj.facet = facet;
+                obj.operation = operation;
+            end
         end
     end
 end
