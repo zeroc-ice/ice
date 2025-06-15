@@ -1040,6 +1040,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out.dec();
             out << nl << "else";
             out.inc();
+            out << nl << "assert(nargin == " << allMembers.size() << ", 'Invalid number of arguments');";
             writeBaseClassArrayParams(out, baseMembers);
             out.dec();
             out << nl << "end";
@@ -1049,7 +1050,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             if (!members.empty())
             {
                 // Set this class properties.
-                out << nl << "if nargin ~= 0";
+                out << nl << "if nargin > 0";
                 out.inc();
                 for (const auto& member : members)
                 {
@@ -1062,8 +1063,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            out << nl << "if nargin ~= 0";
+            out << nl << "if nargin > 0";
             out.inc();
+            out << nl << "assert(nargin == " << allMembers.size() << ", 'Invalid number of arguments');";
             for (const auto& member : allMembers)
             {
                 const string memberName = member->mappedName();
@@ -1864,8 +1866,9 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "function " << self << " = " << name << spar << memberNames << epar;
     out.inc();
     // We rely on the default values when nargin is 0.
-    out << nl << "if nargin ~= 0";
+    out << nl << "if nargin > 0";
     out.inc();
+    out << nl << "assert(nargin == " << members.size() << ", 'Invalid number of arguments');";
     for (const auto& memberName : memberNames)
     {
         out << nl << self << "." << memberName << " = " << memberName << ';';
