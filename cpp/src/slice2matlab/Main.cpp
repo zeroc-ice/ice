@@ -321,10 +321,7 @@ namespace
         return (b && b->kind() == Builtin::KindObjectProxy) || p;
     }
 
-    bool needsConversion(const TypePtr& type)
-    {
-        return type->usesClasses() && !type->isClassType();
-    }
+    bool needsConversion(const TypePtr& type) { return type->usesClasses() && !type->isClassType(); }
 
     void convertValueType(
         IceInternal::Output& out,
