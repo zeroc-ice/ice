@@ -120,8 +120,7 @@ IceMatlab::getEnumerator(mxArray* p, const string& type)
     mxArray* i;
     mexCallMATLAB(1, &i, 1, &p, "int32");
     int r = static_cast<int>(mxGetScalar(i));
-    // Calling this causes MATLAB to crash:
-    // mxFree(i);
+    mxDestroyArray(i);
     return r;
 }
 
@@ -133,6 +132,8 @@ IceMatlab::createIdentity(const Ice::Identity& id)
     params[1] = createStringFromUTF8(id.category);
     mxArray* r;
     mexCallMATLAB(1, &r, 2, params, "Ice.Identity");
+    mxDestroyArray(params[0]);
+    mxDestroyArray(params[1]);
     return r;
 }
 
@@ -143,12 +144,15 @@ IceMatlab::getIdentity(mxArray* p, Ice::Identity& id)
     {
         throw std::invalid_argument("argument is not Ice.Identity");
     }
-    auto name = mxGetProperty(p, 0, "name");
+    mxArray* name = mxGetProperty(p, 0, "name"); // makes a copy
     assert(name);
     id.name = getStringFromUTF16(name);
-    auto category = mxGetProperty(p, 0, "category");
+    mxDestroyArray(name);
+
+    mxArray* category = mxGetProperty(p, 0, "category");
     assert(category);
     id.category = getStringFromUTF16(category);
+    mxDestroyArray(category);
 }
 
 mxArray*
@@ -242,6 +246,9 @@ IceMatlab::createEncodingVersion(const Ice::EncodingVersion& v)
     params[1] = mxCreateDoubleScalar(v.minor);
     mxArray* r;
     mexCallMATLAB(1, &r, 2, params, "Ice.EncodingVersion");
+
+    mxDestroyArray(params[0]);
+    mxDestroyArray(params[1]);
     return r;
 }
 
@@ -263,16 +270,29 @@ IceMatlab::createProtocolVersion(const Ice::ProtocolVersion& v)
     params[1] = mxCreateDoubleScalar(v.minor);
     mxArray* r;
     mexCallMATLAB(1, &r, 2, params, "Ice.ProtocolVersion");
+
+    mxDestroyArray(params[0]);
+    mxDestroyArray(params[1]);
     return r;
 }
 
 namespace
 {
+    template<size_t N> void destroyParams(std::array<mxArray*, N> params)
+    {
+        for (auto p : params)
+        {
+            mxDestroyArray(p);
+        }
+    }
+
     template<size_t N> mxArray* createMatlabException(const char* typeId, std::array<mxArray*, N> params)
     {
         string className = replace(string{typeId}.substr(2), "::", ".");
         mxArray* ex;
         mexCallMATLAB(1, &ex, static_cast<int>(N), params.data(), className.c_str()); // error is fatal
+
+        destroyParams(std::move(params));
         return ex;
     }
 
@@ -291,6 +311,8 @@ namespace
         {
             mexCallMATLAB(1, &ex, static_cast<int>(params.size()), params.data(), "Ice.LocalException");
         }
+
+        destroyParams(std::move(params));
         return ex;
     }
 }
@@ -410,7 +432,7 @@ IceMatlab::createResultValue(mxArray* result)
 {
     mwSize dims[2] = {1, 1};
     auto r = mxCreateStructArray(2, dims, 2, resultFields);
-    mxSetFieldByNumber(r, 0, 1, result);
+    mxSetFieldByNumber(r, 0, 1, result); // The memory is not copied.
     return r;
 }
 
@@ -419,7 +441,7 @@ IceMatlab::createResultException(mxArray* ex)
 {
     mwSize dims[2] = {1, 1};
     auto r = mxCreateStructArray(2, dims, 2, resultFields);
-    mxSetFieldByNumber(r, 0, 0, ex);
+    mxSetFieldByNumber(r, 0, 0, ex); // The memory is not copied.
     return r;
 }
 
@@ -433,7 +455,7 @@ IceMatlab::createOptionalValue(bool hasValue, mxArray* value)
     mxSetFieldByNumber(r, 0, 0, createBool(hasValue));
     if (hasValue)
     {
-        mxSetFieldByNumber(r, 0, 1, value);
+        mxSetFieldByNumber(r, 0, 1, value); // The memory is not copied.
     }
     return r;
 }
