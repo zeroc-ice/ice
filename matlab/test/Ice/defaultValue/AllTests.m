@@ -25,7 +25,7 @@ classdef AllTests
             assert(v.nc1 == Test.Nested.Color.red);
             assert(v.nc2 == Test.Nested.Color.green);
             assert(v.nc3 == Test.Nested.Color.blue);
-            assert(strcmp(v.noDefault, ''));
+            assert(isempty(v.noDefault));
             assert(v.zeroI == 0);
             assert(v.zeroL == 0);
             assert(v.zeroF == 0);
@@ -59,7 +59,7 @@ classdef AllTests
             assert(v.f == single(5.1));
             assert(v.d == 6.2);
             assert(strcmp(v.str, sprintf('foo \\ "bar\n \r\n\t\v\f\a\b? \a \a')));
-            assert(strcmp(v.noDefault, ''));
+            assert(isempty(v.noDefault));
             assert(v.zeroI == 0);
             assert(v.zeroL == 0);
             assert(v.zeroF == 0);
@@ -83,7 +83,7 @@ classdef AllTests
             assert(v.nc1 == Test.Nested.Color.red);
             assert(v.nc2 == Test.Nested.Color.green);
             assert(v.nc3 == Test.Nested.Color.blue);
-            assert(strcmp(v.noDefault, ''));
+            assert(isempty(v.noDefault));
             assert(v.zeroI == 0);
             assert(v.zeroL == 0);
             assert(v.zeroF == 0);
@@ -103,7 +103,7 @@ classdef AllTests
             assert(v.l == 0);
             assert(v.f == 0.0);
             assert(v.d == 0.0);
-            assert(strcmp(v.str, ''));
+            assert(isempty(v.str));
             assert(v.c1 == Color.red);
             assert(isempty(v.bs));
             assert(isempty(v.is));
@@ -115,7 +115,7 @@ classdef AllTests
             v.is = int32.empty;
 
             cl = ClassNoDefaults();
-            assert(strcmp(cl.str, ''));
+            assert(isempty(cl.str));
             assert(cl.c1 == Color.red);
             assert(isempty(cl.bs));
             assert(isempty(cl.st));

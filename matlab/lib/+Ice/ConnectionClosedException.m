@@ -10,7 +10,7 @@
 classdef ConnectionClosedException < Ice.LocalException
     properties
         % ConnectionClosedException - True if the connection was closed by the application, false if it was closed by the Ice runtime.
-        closedByApplication logical = false
+        closedByApplication (1, 1) logical = false
     end
     methods
         function obj = ConnectionClosedException(closedByApplication, errID, what)

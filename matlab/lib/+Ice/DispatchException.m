@@ -11,7 +11,7 @@
 classdef DispatchException < Ice.LocalException
     properties
         % replyStatus - The reply status byte.
-        replyStatus uint8 = Ice.ReplyStatus.UnknownException
+        replyStatus (1, 1) uint8 = Ice.ReplyStatus.UnknownException
     end
     methods
         function obj = DispatchException(replyStatus, errID, what)

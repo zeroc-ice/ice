@@ -16,9 +16,9 @@ classdef NotRegisteredException < Ice.LocalException
     properties
         % kindOfObject - The kind of object that could not be removed: "servant", "facet", "object", "default servant",
         % "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
-        kindOfObject char = ''
+        kindOfObject (1, :) char = ''
         % id - The ID (or name) of the object that could not be removed.
-        id char = ''
+        id (1, :) char = ''
     end
     methods
         % Convenience constructor without an errID or what message.

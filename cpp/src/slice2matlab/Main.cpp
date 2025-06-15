@@ -871,6 +871,20 @@ namespace
 
         TypePtr type = field->type();
 
+        // First the dimensions: (1,1) for simple scalar types, enums and dictionaries, and (1,:) for everything else.
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type); builtin && builtin->kind() < Builtin::KindString)
+        {
+            out << " (1, 1)";
+        }
+        else if (dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type))
+        {
+            out << " (1, 1)";
+        }
+        else
+        {
+            out << " (1, :)";
+        }
+
         // We can't specify a type for optional fields because we can't represent "not set" with the same MATLAB type.
         // For some types, we could use an empty array, but this does not work for sequences mapped to arrays or cells,
         // nor does it work for dictionaries.
@@ -884,8 +898,7 @@ namespace
             {
                 if (isMappedToScalar(seq->type()))
                 {
-                    // For sequences of scalar, we specify the dimension (1,:).
-                    out << " (1,:) " << typeToString(seq->type());
+                    out << " " << typeToString(seq->type());
                 }
                 else
                 {
