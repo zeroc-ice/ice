@@ -871,18 +871,38 @@ namespace
 
         TypePtr type = field->type();
 
-        // First the dimensions: (1,1) for simple scalar types, enums and dictionaries, and (1,:) for everything else.
-        if (auto builtin = dynamic_pointer_cast<Builtin>(type); builtin && builtin->kind() < Builtin::KindString)
+        // First the dimensions:
+        // - (1, 1) for simple scalar types, enums and dictionaries.
+        // - (1, :) for strings and sequences.
+        // - no dimensions for proxies, classes, structs because we add later the {mustBeScalarOrEmpty} constraint.
+
+        bool mustBeScalarOrEmpty = false;
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
-            out << " (1, 1)";
+            if (builtin->kind() < Builtin::KindString)
+            {
+                out << " (1, 1)";
+            }
+            else if (builtin->kind() == Builtin::KindString)
+            {
+                out << " (1, :)";
+            }
+            else
+            {
+                mustBeScalarOrEmpty = true;
+            }
         }
         else if (dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type))
         {
             out << " (1, 1)";
         }
-        else
+        else if (dynamic_pointer_cast<Sequence>(type))
         {
             out << " (1, :)";
+        }
+        else // proxies, classes, structs
+        {
+            mustBeScalarOrEmpty = true;
         }
 
         // We can't specify a type for optional fields because we can't represent "not set" with the same MATLAB type.
@@ -909,6 +929,12 @@ namespace
             {
                 out << " " << typeToString(field->type());
             }
+        }
+
+        if (mustBeScalarOrEmpty)
+        {
+            // Generate constraint.
+            out << " {mustBeScalarOrEmpty}";
         }
 
         // Always specify the default value.
