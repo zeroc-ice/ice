@@ -46,6 +46,6 @@ classdef (Sealed) CompositeSliceLoader < Ice.SliceLoader
         end
     end
     properties(Access = private)
-        sliceLoaders(1,:)
+        sliceLoaders (1, :) cell
     end
 end

@@ -14,25 +14,25 @@ classdef (Sealed) AlreadyRegisteredException < Ice.LocalException
     properties
         % kindOfObject - The kind of object that could not be removed: "servant", "facet", "object", "default servant",
         % "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
-        kindOfObject char
+        kindOfObject (1, :) char = ''
         % id - The ID (or name) of the object that is registered already.
-        id char
+        id (1, :) char = ''
     end
     methods
         % Convenience constructor without an errID or what message.
         function obj = AlreadyRegisteredException(kindOfObject, id)
             if nargin == 0 % default constructor
                 superArgs = {};
-                kindOfObject = '';
-                id = '';
             else
                 assert(nargin == 2, 'Invalid number of arguments');
                 superArgs = {'Ice:AlreadyRegisteredException', sprintf('Another %s is already registered with ID ''%s''.', ...
                     kindOfObject, id)};
             end
             obj@Ice.LocalException(superArgs{:});
-            obj.kindOfObject = kindOfObject;
-            obj.id = id;
+            if nargin > 0
+                obj.kindOfObject = kindOfObject;
+                obj.id = id;
+            end
         end
     end
 end

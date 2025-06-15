@@ -11,20 +11,20 @@
 classdef DispatchException < Ice.LocalException
     properties
         % replyStatus - The reply status byte.
-        replyStatus uint8
+        replyStatus (1, 1) uint8 = Ice.ReplyStatus.UnknownException
     end
     methods
         function obj = DispatchException(replyStatus, errID, what)
             if nargin == 0 % default constructor
-                replyStatus = Ice.ReplyStatus.UnknownException;
                 superArgs = {};
             else
                 assert(nargin == 3, 'Invalid number of arguments');
                 superArgs = {errID, what};
             end
-
             obj@Ice.LocalException(superArgs{:});
-            obj.replyStatus = replyStatus;
+            if nargin > 0
+                obj.replyStatus = replyStatus;
+            end
         end
     end
 end
