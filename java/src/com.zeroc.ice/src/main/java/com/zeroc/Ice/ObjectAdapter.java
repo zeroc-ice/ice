@@ -1124,16 +1124,20 @@ public final class ObjectAdapter {
                 ex);
         }
 
-        {
-            final int defaultMessageSizeMax = instance.messageSizeMax() / 1024;
-            int num =
-                properties.getPropertyAsIntWithDefault(
-                    _name + ".MessageSizeMax", defaultMessageSizeMax);
-            if (num < 1 || num > 0x7fffffff / 1024) {
-                _messageSizeMax = 0x7fffffff;
-            } else {
-                _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
-            }
+        // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
+        // the maximum value of a 32-bit signed integer (int).
+        final int messageSizeMaxUpperLimit = Integer.MAX_VALUE;
+        final int defaultMessageSizeMax = instance.messageSizeMax() / 1024;
+        int messageSizeMax = properties.getPropertyAsIntWithDefault(
+            _name + ".MessageSizeMax", defaultMessageSizeMax);
+        if (messageSizeMax > messageSizeMaxUpperLimit / 1024) {
+            throw new InitializationException(
+                _name + ".MessageSizeMax '" + messageSizeMax + "' is too large, it must be less than or equal to '" + (messageSizeMaxUpperLimit / 1024) + "' KiB");
+        } else if (messageSizeMax < 1) {
+            _messageSizeMax = messageSizeMaxUpperLimit;
+        } else {
+            // The property is specified in kibibytes (KiB); _messageSizeMax is stored in bytes.
+            _messageSizeMax = messageSizeMax * 1024;
         }
 
         try {

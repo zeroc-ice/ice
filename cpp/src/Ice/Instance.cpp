@@ -1075,49 +1075,49 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         // the maximum value of a 32-bit signed integer (int32_t).
         const int32_t messageSizeMaxUpperLimit = numeric_limits<int32_t>::max();
         int32_t messageSizeMax = _initData.properties->getIcePropertyAsInt("Ice.MessageSizeMax");
-        if (static_cast<size_t>(messageSizeMax) > static_cast<size_t>(messageSizeMaxUpperLimit / 1024))
+        if (messageSizeMax > messageSizeMaxUpperLimit / 1024)
         {
             ostringstream os;
             os << "Ice.MessageSizeMax '" << messageSizeMax << "' is too large, it must be less than or equal to '"
                << (messageSizeMaxUpperLimit / 1024) << "' KiB";
-            throw InitializationException(__FILE__, __LINE__, os.str());
+            throw InitializationException{__FILE__, __LINE__, os.str()};
         }
         else if (messageSizeMax < 1)
         {
-            const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(messageSizeMaxUpperLimit);
+            const_cast<int32_t&>(_messageSizeMax) = messageSizeMaxUpperLimit;
         }
         else
         {
             // The property is specified in kibibytes (KiB); _messageSizeMax is stored in bytes.
-            const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(messageSizeMax) * 1024;
+            const_cast<int32_t&>(_messageSizeMax) = messageSizeMax * 1024;
         }
 
         int32_t batchAutoFlushSize = _initData.properties->getIcePropertyAsInt("Ice.BatchAutoFlushSize");
-        if (static_cast<size_t>(batchAutoFlushSize) > static_cast<size_t>(messageSizeMaxUpperLimit / 1024))
+        if (batchAutoFlushSize > messageSizeMaxUpperLimit / 1024)
         {
             ostringstream os;
             os << "Ice.BatchAutoFlushSize '" << batchAutoFlushSize
                << "' is too large, it must be less than or equal to '" << (messageSizeMaxUpperLimit / 1024) << "' KiB";
-            throw InitializationException(__FILE__, __LINE__, os.str());
+            throw InitializationException{__FILE__, __LINE__, os.str()};
         }
         else if (batchAutoFlushSize < 1)
         {
-            const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(messageSizeMaxUpperLimit);
+            const_cast<int32_t&>(_batchAutoFlushSize) = messageSizeMaxUpperLimit;
         }
         else
         {
             // The property is specified in kibibytes (KiB); _batchAutoFlushSize is stored in bytes.
-            const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(batchAutoFlushSize) * 1024;
+            const_cast<int32_t&>(_batchAutoFlushSize) = batchAutoFlushSize * 1024;
         }
 
         int32_t classGraphDepthMax = _initData.properties->getIcePropertyAsInt("Ice.ClassGraphDepthMax");
         if (classGraphDepthMax < 1)
         {
-            const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(numeric_limits<int32_t>::max());
+            const_cast<int32_t&>(_classGraphDepthMax) = numeric_limits<int32_t>::max();
         }
         else
         {
-            const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(classGraphDepthMax);
+            const_cast<int32_t&>(_classGraphDepthMax) = classGraphDepthMax;
         }
 
         // Update _initData.sliceLoader.

@@ -46,7 +46,7 @@ IceInternal::Ex::throwUOE(const char* file, int line, const string& expectedType
 }
 
 void
-IceInternal::Ex::throwMemoryLimitException(const char* file, int line, size_t requested, size_t maximum)
+IceInternal::Ex::throwMemoryLimitException(const char* file, int line, size_t requested, int32_t maximum)
 {
     throw MarshalException{
         file,

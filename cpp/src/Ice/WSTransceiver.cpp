@@ -254,7 +254,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                     // Enlarge the buffer and try to read more.
                     //
                     const auto oldSize = static_cast<size_t>(_readBuffer.i - _readBuffer.b.begin());
-                    if (oldSize + 1024 > _instance->messageSizeMax())
+                    if (oldSize + 1024 > static_cast<size_t>(_instance->messageSizeMax()))
                     {
                         Ex::throwMemoryLimitException(__FILE__, __LINE__, oldSize + 1024, _instance->messageSizeMax());
                     }

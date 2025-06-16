@@ -1307,13 +1307,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         }
 
                         // Resize the read buffer to the message size.
-                        if (size > static_cast<int32_t>(_messageSizeMax))
+                        if (size > _messageSizeMax)
                         {
-                            Ex::throwMemoryLimitException(
-                                __FILE__,
-                                __LINE__,
-                                static_cast<size_t>(size),
-                                _messageSizeMax);
+                            Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(size), _messageSizeMax);
                         }
                         if (static_cast<size_t>(size) > _readStream.b.size())
                         {
@@ -3118,7 +3114,7 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
             "unexpected message size after uncompress: " + to_string(uncompressedSize)};
     }
 
-    if (uncompressedSize > static_cast<int32_t>(_messageSizeMax))
+    if (uncompressedSize > _messageSizeMax)
     {
         Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(uncompressedSize), _messageSizeMax);
     }
