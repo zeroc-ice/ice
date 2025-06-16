@@ -1315,7 +1315,7 @@ Slice::JavaVisitor::writeRemarksDocComment(Output& out, const DocComment& commen
     }
 
     out << nl << " * <p><b>Remarks:</b>";
-    out << " * ";
+    out << nl << " * ";
     writeDocCommentLines(out, remarks);
     out << "</p>";
 }
