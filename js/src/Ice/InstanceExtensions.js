@@ -14,7 +14,7 @@ import { RouterManager } from "./RouterManager.js";
 import { Timer } from "./Timer.js";
 import { TraceLevels } from "./TraceLevels.js";
 import { LocalException } from "./LocalException.js";
-import { CommunicatorDestroyedException, InitializationException } from "./LocalExceptions.js";
+import { CommunicatorDestroyedException, InitializationException, ParseException } from "./LocalExceptions.js";
 import { getProcessLogger } from "./ProcessLogger.js";
 import { ToStringMode } from "./ToStringMode.js";
 import { ProtocolInstance } from "./ProtocolInstance.js";
@@ -279,13 +279,13 @@ Instance.prototype.finishSetup = function (communicator) {
 
             for (let i = 0; i < retryIntervals.length; i++) {
                 let v;
-
                 try {
-                    v = StringUtil.toInt(retryIntervals[i]);
+                    v = StringUtil.toInt32(retryIntervals[i]);
                 } catch {
-                    v = 0;
+                    throw new ParseException(
+                        `invalid value '${retryIntervals[i]}' in property Ice.RetryIntervals; expected a list of integers`,
+                    );
                 }
-
                 // If -1 is the first value, no retry and wait intervals.
                 if (i === 0 && v === -1) {
                     break;

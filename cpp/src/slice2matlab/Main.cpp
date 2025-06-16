@@ -241,7 +241,7 @@ namespace
 
     string defaultValue(const DataMemberPtr& m)
     {
-        if (m->defaultValue())
+        if (m->defaultValue()) // explicit default value
         {
             return constantValue(m->type(), m->defaultValueType(), *m->defaultValue());
         }
@@ -257,27 +257,26 @@ namespace
             {
                 switch (builtin->kind())
                 {
-                    case Builtin::KindString:
-                        return "''";
                     case Builtin::KindBool:
-                        return "false";
                     case Builtin::KindByte:
                     case Builtin::KindShort:
                     case Builtin::KindInt:
                     case Builtin::KindLong:
                     case Builtin::KindFloat:
                     case Builtin::KindDouble:
-                        return "0";
+                    case Builtin::KindString:
+                        return ""; // use implicit default
                     case Builtin::KindObjectProxy:
                         return "Ice.ObjectPrx.empty";
-                    default: // Object, Value
+                    case Builtin::KindObject:
+                    case Builtin::KindValue:
                         return "Ice.UnknownSlicedValue.empty";
                 }
             }
 
-            DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(m->type());
-            if (dict)
+            if (auto dict = dynamic_pointer_cast<Dictionary>(m->type()))
             {
+                // Generate configured empty dictionary.
                 const TypePtr key = dict->keyType();
                 const TypePtr value = dict->valueType();
                 ostringstream ostr;
@@ -286,31 +285,20 @@ namespace
                 return ostr.str();
             }
 
-            EnumPtr en = dynamic_pointer_cast<Enum>(m->type());
-            if (en)
+            if (auto seq = dynamic_pointer_cast<Sequence>(m->type()); seq && seq->type()->usesClasses())
             {
-                const EnumeratorList enumerators = en->enumerators();
-                return (*enumerators.begin())->mappedScoped(".").substr(1);
+                // Property has no type, so we need to generate an empty cell array.
+                return "{}";
             }
 
-            if (auto seq = dynamic_pointer_cast<Sequence>(m->type()))
+            if (dynamic_pointer_cast<InterfaceDecl>(m->type()) || dynamic_pointer_cast<Struct>(m->type()) ||
+                m->type()->usesClasses())
             {
-                if (isMappedToScalar(seq->type()))
-                {
-                    // Empty array with the correct type.
-                    return typeToString(seq->type()) + ".empty";
-                }
-                else
-                {
-                    // Empty cell array.
-                    return "{}";
-                }
+                // Use .empty for proxies, structs and untyped properties.
+                return typeToString(m->type()) + ".empty";
             }
 
-            // Use .empty for all other types. Note that .empty is not a valid value for a struct field/property;
-            // so either Ice later unmarshals into this property or the struct must replace this value before
-            // marshaling this instance.
-            return typeToString(m->type()) + ".empty";
+            return ""; // use implicit default
         }
     }
 
@@ -937,8 +925,12 @@ namespace
             out << " {mustBeScalarOrEmpty}";
         }
 
-        // Always specify the default value.
-        out << " = " << defaultValue(field);
+        // Specify the default value.
+        string defaultValueStr = defaultValue(field);
+        if (!defaultValueStr.empty())
+        {
+            out << " = " << defaultValueStr;
+        }
     }
 
     void validateMetadata(const UnitPtr& unit)

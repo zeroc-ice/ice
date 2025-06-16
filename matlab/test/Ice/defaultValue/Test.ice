@@ -116,6 +116,8 @@ module Test
 
     sequence<byte> ByteSeq;
     sequence<int> IntSeq;
+    sequence<IntSeq> IntSeqSeq;
+    sequence<Derived> DerivedSeq;
     dictionary<int, string> IntStringDict;
 
     struct InnerStruct
@@ -138,6 +140,8 @@ module Test
         IntSeq is;
         InnerStruct st;
         IntStringDict dict;
+        DerivedSeq derivedSeq;
+        IntSeqSeq intSeqSeq;
     }
 
     class ClassNoDefaultsBase
