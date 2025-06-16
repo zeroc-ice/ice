@@ -278,7 +278,7 @@ Instance.prototype.finishSetup = function (communicator) {
             this._retryIntervals = [];
 
             for (let i = 0; i < retryIntervals.length; i++) {
-                let v = 0;
+                let v;
                 try {
                     v = StringUtil.toInt32(retryIntervals[i]);
                 } catch {
