@@ -14,7 +14,7 @@ import { RouterManager } from "./RouterManager.js";
 import { Timer } from "./Timer.js";
 import { TraceLevels } from "./TraceLevels.js";
 import { LocalException } from "./LocalException.js";
-import { CommunicatorDestroyedException, InitializationException } from "./LocalExceptions.js";
+import { CommunicatorDestroyedException, InitializationException, ParseException } from "./LocalExceptions.js";
 import { getProcessLogger } from "./ProcessLogger.js";
 import { ToStringMode } from "./ToStringMode.js";
 import { ProtocolInstance } from "./ProtocolInstance.js";
