@@ -83,13 +83,13 @@ namespace
         ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
         if (cl)
         {
-            return cl->mappedScoped(".", false);
+            return cl->mappedScoped(".");
         }
 
         StructPtr st = dynamic_pointer_cast<Struct>(type);
         if (st)
         {
-            return st->mappedScoped(".", false);
+            return st->mappedScoped(".");
         }
 
         InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
@@ -97,7 +97,7 @@ namespace
         {
             ostringstream os;
             os << "(";
-            os << proxy->mappedScoped(".", false) + "Prx";
+            os << proxy->mappedScoped(".") + "Prx";
             os << " or None)";
             return os.str();
         }
@@ -105,7 +105,7 @@ namespace
         EnumPtr en = dynamic_pointer_cast<Enum>(type);
         if (en)
         {
-            return en->mappedScoped(".", false);
+            return en->mappedScoped(".");
         }
 
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -212,14 +212,14 @@ namespace
             }
             else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
             {
-                string targetScoped = operationTarget->interface()->mappedScoped(".", false);
+                string targetScoped = operationTarget->interface()->mappedScoped(".");
 
                 // link to the method on the proxy interface
                 result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "`";
             }
             else
             {
-                string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".", false);
+                string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".");
                 result << ":class:`" << targetScoped;
                 if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
                 {
@@ -387,7 +387,7 @@ namespace Slice::Python
 static void
 writeModuleHasDefinitionCheck(Output& out, const ContainedPtr& cont, const string& name)
 {
-    string scope = cont->mappedScope(".", false);
+    string scope = cont->mappedScope(".");
     assert(!scope.empty());
 
     string package = Slice::Python::getPackageMetadata(cont);
@@ -2457,7 +2457,7 @@ Slice::Python::getAbsolute(const ContainedPtr& p)
 {
     const string package = getPackageMetadata(p);
     const string packagePrefix = package + (package.empty() ? "" : ".");
-    return packagePrefix + p->mappedScoped(".", false);
+    return packagePrefix + p->mappedScoped(".");
 }
 
 string

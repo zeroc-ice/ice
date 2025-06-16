@@ -78,13 +78,13 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
 int64_t
 Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 {
-    string name = p->mappedScoped(".");
+    string name = p->mappedScoped(".", true);
     DataMemberList members;
     optional<string> baseName;
     if (ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p))
     {
         members = cl->dataMembers();
-        baseName = (cl->base()) ? cl->base()->mappedScoped(".") : "";
+        baseName = (cl->base()) ? cl->base()->mappedScoped(".", true) : "";
     }
     if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
     {
@@ -337,7 +337,7 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& contained)
 string
 Slice::JavaGenerator::getPackage(const ContainedPtr& contained)
 {
-    string scope = contained->mappedScope(".", false);
+    string scope = contained->mappedScope(".");
     scope.pop_back(); // Remove the trailing '.' separator.
 
     string prefix = getPackagePrefix(contained);
