@@ -267,7 +267,7 @@ namespace
                     case Builtin::KindString:
                         return ""; // use implicit default
                     case Builtin::KindObjectProxy:
-                       return "Ice.ObjectPrx.empty";
+                        return "Ice.ObjectPrx.empty";
                     case Builtin::KindObject:
                     case Builtin::KindValue:
                         return "Ice.UnknownSlicedValue.empty";
@@ -291,9 +291,8 @@ namespace
                 return "{}";
             }
 
-            if (dynamic_pointer_cast<InterfaceDecl>(m->type()) ||
-                dynamic_pointer_cast<Struct>(m->type()) ||
-                 m->type()->usesClasses())
+            if (dynamic_pointer_cast<InterfaceDecl>(m->type()) || dynamic_pointer_cast<Struct>(m->type()) ||
+                m->type()->usesClasses())
             {
                 // Use .empty for proxies, structs and untyped properties.
                 return typeToString(m->type()) + ".empty";
