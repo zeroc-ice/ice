@@ -257,7 +257,6 @@ namespace
             {
                 switch (builtin->kind())
                 {
-                    case Builtin::KindString:
                     case Builtin::KindBool:
                     case Builtin::KindByte:
                     case Builtin::KindShort:
@@ -265,8 +264,10 @@ namespace
                     case Builtin::KindLong:
                     case Builtin::KindFloat:
                     case Builtin::KindDouble:
-                    case Builtin::KindObjectProxy:
+                    case Builtin::KindString:
                         return ""; // use implicit default
+                    case Builtin::KindObjectProxy:
+                       return "Ice.ObjectPrx.empty";
                     case Builtin::KindObject:
                     case Builtin::KindValue:
                         return "Ice.UnknownSlicedValue.empty";
@@ -290,9 +291,11 @@ namespace
                 return "{}";
             }
 
-            if (dynamic_pointer_cast<Struct>(m->type()) || m->type()->usesClasses())
+            if (dynamic_pointer_cast<InterfaceDecl>(m->type()) ||
+                dynamic_pointer_cast<Struct>(m->type()) ||
+                 m->type()->usesClasses())
             {
-                // Use .empty for structs and untyped properties.
+                // Use .empty for proxies, structs and untyped properties.
                 return typeToString(m->type()) + ".empty";
             }
 
