@@ -927,7 +927,7 @@ namespace
         string defaultValueStr = defaultValue(field);
         if (!defaultValueStr.empty())
         {
-            out << " = " << defaultValue(field);
+            out << " = " << defaultValueStr;
         }
     }
 
