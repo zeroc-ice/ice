@@ -78,13 +78,13 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
 int64_t
 Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 {
-    string name = p->mappedScoped();
+    string name = p->mappedScoped(".");
     DataMemberList members;
     optional<string> baseName;
     if (ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p))
     {
         members = cl->dataMembers();
-        baseName = (cl->base()) ? cl->base()->mappedScoped() : "";
+        baseName = (cl->base()) ? cl->base()->mappedScoped(".") : "";
     }
     if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
     {

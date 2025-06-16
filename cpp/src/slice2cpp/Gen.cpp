@@ -99,7 +99,7 @@ namespace
         ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
         if (constant)
         {
-            out << getUnqualified(constant->mappedScoped(), scope);
+            out << getUnqualified(constant->mappedScoped("::"), scope);
         }
         else
         {
@@ -138,7 +138,7 @@ namespace
                 {
                     EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                     assert(enumerator);
-                    out << getUnqualified(enumerator->mappedScoped(), scope);
+                    out << getUnqualified(enumerator->mappedScoped("::"), scope);
                 }
                 else if (!ep)
                 {
@@ -193,7 +193,7 @@ namespace
             // Generate a catch block for each legal user exception.
             for (const auto& ex : throws)
             {
-                C << nl << "catch (const " << getUnqualified(ex->mappedScoped(), scope) << "&)";
+                C << nl << "catch (const " << getUnqualified(ex->mappedScoped("::"), scope) << "&)";
                 C << sb;
                 C << nl << "throw;";
                 C << eb;
@@ -242,14 +242,14 @@ namespace
                 ContainedPtr parent = dynamic_pointer_cast<Contained>(memberTarget->container());
                 assert(parent);
 
-                string parentName = getUnqualified(parent->mappedScoped(), source->mappedScope());
+                string parentName = getUnqualified(parent->mappedScoped("::"), source->mappedScope("::"));
                 return parentName + "#" + memberTarget->mappedName();
             }
             if (auto enumTarget = dynamic_pointer_cast<Enum>(target))
             {
                 // If a link to an enum isn't qualified (ie. the source and target are in the same module),
                 // we have to place a '#' character in front, so Doxygen looks in the current scope.
-                string link = getUnqualified(enumTarget->mappedScoped(), source->mappedScope());
+                string link = getUnqualified(enumTarget->mappedScoped("::"), source->mappedScope("::"));
                 if (link.find("::") == string::npos)
                 {
                     link.insert(0, "#");
@@ -259,7 +259,7 @@ namespace
             if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
             {
                 // Links to Slice interfaces should always point to the generated proxy type, not the servant type.
-                return getUnqualified(interfaceTarget->mappedScoped() + "Prx", source->mappedScope());
+                return getUnqualified(interfaceTarget->mappedScoped("::") + "Prx", source->mappedScope("::"));
             }
             if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
             {
@@ -268,7 +268,7 @@ namespace
                 // See: https://www.doxygen.nl/manual/autolink.html#linkfunc.
 
                 InterfaceDefPtr parent = operationTarget->interface();
-                return getUnqualified(parent->mappedScoped() + "Prx", source->mappedScope()) +
+                return getUnqualified(parent->mappedScoped("::") + "Prx", source->mappedScope("::")) +
                        "::" + operationTarget->mappedName();
             }
             if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
@@ -278,7 +278,7 @@ namespace
 
             ContainedPtr containedTarget = dynamic_pointer_cast<Contained>(target);
             assert(containedTarget);
-            return getUnqualified(containedTarget->mappedScoped(), source->mappedScope());
+            return getUnqualified(containedTarget->mappedScoped("::"), source->mappedScope("::"));
         }
         else
         {
@@ -1281,7 +1281,7 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
     }
 
     const string name = p->mappedName();
-    const string scope = p->mappedScope();
+    const string scope = p->mappedScope("::");
     const TypePtr type = p->type();
     const TypeContext typeCtx = _useWstring;
 
@@ -1323,7 +1323,7 @@ Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
     }
 
     const string name = p->mappedName();
-    const string scope = p->mappedScope();
+    const string scope = p->mappedScope("::");
     const string dictType = findMetadata(p->getMetadata());
     const TypeContext typeCtx = _useWstring;
 
@@ -1361,7 +1361,7 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     }
 
     const string name = p->mappedName();
-    const string scope = p->mappedScope();
+    const string scope = p->mappedScope("::");
     writeDocSummary(H, p);
     H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ")
       << typeToString(p->type(), false, scope, p->typeMetadata(), _useWstring) << " " << name << " "
@@ -1402,7 +1402,7 @@ Slice::Gen::SliceLoaderVisitor::visitUnitEnd(const UnitPtr&)
 bool
 Slice::Gen::SliceLoaderVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    const string scopedName = p->mappedScoped();
+    const string scopedName = p->mappedScoped("::");
     const string flatScopedName = p->mappedScoped("_");
 
     C << nl << "const IceInternal::ClassInit<" << scopedName << "> iceC" << flatScopedName << "_init";
@@ -1418,7 +1418,7 @@ Slice::Gen::SliceLoaderVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::SliceLoaderVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    const string scopedName = p->mappedScoped();
+    const string scopedName = p->mappedScoped("::");
     const string flatScopedName = p->mappedScoped("_");
 
     C << nl << "const IceInternal::ExceptionInit<" << scopedName << "> iceC" << flatScopedName << "_init;";
@@ -1470,7 +1470,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    const string scope = p->mappedScope();
+    const string scope = p->mappedScope("::");
     const string prx = p->mappedName() + "Prx";
     const string scopedPrx = p->mappedScoped("::", false) + "Prx";
     const InterfaceList bases = p->bases();
@@ -1487,7 +1487,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         for (const auto& base : bases)
         {
-            H << getUnqualified(base->mappedScoped() + "Prx", scope);
+            H << getUnqualified(base->mappedScoped("::") + "Prx", scope);
         }
     }
     H.epar(">");
@@ -1622,7 +1622,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
     const InterfaceDefPtr container = p->interface();
     const string opName = p->mappedName();
-    const string interfaceScope = container->mappedScope();
+    const string interfaceScope = container->mappedScope("::");
     const string interfaceName = container->mappedName();
 
     const string scopedPrxPrefix = (interfaceScope + interfaceName + "Prx::").substr(2);
@@ -1883,7 +1883,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     const InterfaceDefPtr container = p->interface();
     const string opName = p->mappedName();
     const string opImplName = prefix + opName;
-    const string interfaceScope = container->mappedScope();
+    const string interfaceScope = container->mappedScope("::");
     const string scopedPrxPrefix = container->mappedScoped("::", false) + "Prx" + "::";
 
     const TypePtr ret = p->returnType();
@@ -2132,7 +2132,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     const string name = p->mappedName();
-    const string scope = p->mappedScope();
+    const string scope = p->mappedScope("::");
     const string scoped = p->mappedScoped("::", false);
     const ExceptionPtr base = p->base();
     const DataMemberList dataMembers = p->dataMembers();
@@ -2159,7 +2159,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         baseDataMembers = base->allDataMembers();
     }
 
-    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : "Ice::UserException";
+    const string baseClass = base ? getUnqualified(base->mappedScoped("::"), scope) : "Ice::UserException";
     const string baseName = base ? base->mappedName() : "UserException";
 
     writeDocSummary(H, p, {.includeHeaderFile = true});
@@ -2324,12 +2324,12 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
-    const string scope = p->mappedScope();
+    const string scope = p->mappedScope("::");
     const string scoped = p->mappedScoped("::", false);
     const DataMemberList dataMembers = p->dataMembers();
 
     const ExceptionPtr base = p->base();
-    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : "Ice::UserException";
+    const string baseClass = base ? getUnqualified(base->mappedScoped("::"), scope) : "Ice::UserException";
 
     H.dec();
     H << sp << nl << "protected:";
@@ -2389,12 +2389,12 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     const string name = p->mappedName();
-    const string scope = p->mappedScope();
+    const string scope = p->mappedScope("::");
     const string scoped = p->mappedScoped("::", false);
     const ClassDefPtr base = p->base();
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
-    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : "Ice::Value";
+    const string baseClass = base ? getUnqualified(base->mappedScoped("::"), scope) : "Ice::Value";
 
     writeDocSummary(H, p, {.includeHeaderFile = true});
     H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << name << " : public " << baseClass;
@@ -2405,7 +2405,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if (base && dataMembers.empty())
     {
-        H << "using " << getUnqualified(base->mappedScoped(), scope) << "::" << base->mappedName() << ";";
+        H << "using " << getUnqualified(base->mappedScoped("::"), scope) << "::" << base->mappedName() << ";";
     }
     else
     {
@@ -2479,11 +2479,11 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     const string name = p->mappedName();
     const string scoped = p->mappedScoped("::", false);
-    const string scope = p->mappedScope();
+    const string scope = p->mappedScope("::");
     const ClassDefPtr base = p->base();
 
     const DataMemberList dataMembers = p->dataMembers();
-    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : "Ice::Value";
+    const string baseClass = base ? getUnqualified(base->mappedScoped("::"), scope) : "Ice::Value";
 
     H << sp;
     for (const auto& dataMember : dataMembers)
@@ -2579,7 +2579,7 @@ Slice::Gen::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
     }
     upcall += ")";
 
-    H << nl << getUnqualified(base->mappedScoped(), p->mappedScope()) << upcall;
+    H << nl << getUnqualified(base->mappedScoped("::"), p->mappedScope("::")) << upcall;
     return true;
 }
 
@@ -2755,7 +2755,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     const string name = p->mappedName();
-    const string scope = p->mappedScope();
+    const string scope = p->mappedScope("::");
     const string scoped = p->mappedScoped("::", false);
     const InterfaceList bases = p->bases();
 
@@ -2770,7 +2770,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         for (const auto& base : bases)
         {
-            H << ("public virtual " + getUnqualified(base->mappedScoped(), scope));
+            H << ("public virtual " + getUnqualified(base->mappedScoped("::"), scope));
         }
     }
     H.epar("");
@@ -2923,7 +2923,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     const string name = p->mappedName();
     const string scope = p->mappedScope("::", false);
     const InterfaceDefPtr container = p->interface();
-    const string interfaceScope = container->mappedScope();
+    const string interfaceScope = container->mappedScope("::");
 
     TypePtr ret = p->returnType();
 
@@ -3319,7 +3319,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 
     H << nl << "/// @cond INTERNAL";
     H << nl << "template<>";
-    H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
+    H << nl << "struct StreamableTraits<" << p->mappedScoped("::") << ">";
     H << sb;
     H << nl << "static constexpr StreamHelperCategory helper = StreamHelperCategoryStruct;";
     H << nl << "static constexpr int minWireSize = " << p->minWireSize() << ";";
@@ -3346,7 +3346,7 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
 
     H << nl << "/// @cond INTERNAL";
     H << nl << "template<>";
-    H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
+    H << nl << "struct StreamableTraits<" << p->mappedScoped("::") << ">";
     H << sb;
     H << nl << "static constexpr StreamHelperCategory helper = StreamHelperCategoryEnum;";
     H << nl << "static constexpr int minValue = " << p->minValue() << ";";

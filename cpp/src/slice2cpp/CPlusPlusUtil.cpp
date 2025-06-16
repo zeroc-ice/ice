@@ -97,7 +97,7 @@ namespace
         }
         else
         {
-            return getUnqualified(seq->mappedScoped(), scope);
+            return getUnqualified(seq->mappedScoped("::"), scope);
         }
     }
 
@@ -110,7 +110,7 @@ namespace
         string dictType = findMetadata(metadata, typeCtx);
         if (dictType.empty())
         {
-            return getUnqualified(dict->mappedScoped(), scope);
+            return getUnqualified(dict->mappedScoped("::"), scope);
         }
         else
         {
@@ -515,25 +515,25 @@ Slice::typeToString(
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return getUnqualified(cl->mappedScoped() + "Ptr", scope);
+        return getUnqualified(cl->mappedScoped("::") + "Ptr", scope);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return getUnqualified(st->mappedScoped(), scope);
+        return getUnqualified(st->mappedScoped("::"), scope);
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return "std::optional<" + getUnqualified(proxy->mappedScoped() + "Prx", scope) + ">";
+        return "std::optional<" + getUnqualified(proxy->mappedScoped("::") + "Prx", scope) + ">";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        return getUnqualified(en->mappedScoped(), scope);
+        return getUnqualified(en->mappedScoped("::"), scope);
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -720,7 +720,7 @@ writeMarshalUnmarshalAllInHolder(
 void
 Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& dataMembers)
 {
-    string fullName = p->mappedScoped();
+    string fullName = p->mappedScoped("::");
 
     out << nl << "template<>";
     out << nl << "struct StreamReader<" << fullName << ">";
