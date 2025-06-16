@@ -34,6 +34,18 @@ using namespace IceInternal;
 
 namespace
 {
+    string checkAndEscapeParam(string_view param, const ParameterList& allParams)
+    {
+        for (const auto& p : allParams)
+        {
+            if (p->mappedName() == param)
+            {
+                return string{param} + "_";
+            }
+        }
+        return string{param};
+    }
+
     void writeCopyright(IceInternal::Output& out, string_view file)
     {
         string::size_type pos = file.find_last_of('/');
@@ -124,7 +136,7 @@ namespace
             "single",
             "double",
             "char",
-            "Ice.Object",    // Object
+            "Ice.Value",    // Object
             "Ice.ObjectPrx", // ObjectPrx
             "Ice.Value"      // Value
         };
@@ -593,19 +605,13 @@ namespace
         out << nl << "% Parameters:";
         const auto& docParameters = doc->parameters();
         const ParameterList inParams = p->inParameters();
-        string ctxName = "context";
-        string resultName = "result";
+        const ParameterList allParams = p->parameters();
+
+        string contextParam = checkAndEscapeParam("context", allParams);
+        string resultName = checkAndEscapeParam("result", allParams);
+
         for (const auto& inParam : inParams)
         {
-            if (inParam->mappedName() == "context")
-            {
-                ctxName = "context_";
-            }
-            if (inParam->mappedName() == "result")
-            {
-                resultName = "result_";
-            }
-
             out << nl << "%   " << inParam->mappedName() << " (" << typeToString(inParam->type()) << ")";
             auto r = docParameters.find(inParam->name());
             if (r != docParameters.end() && !r->second.empty())
@@ -614,7 +620,7 @@ namespace
                 writeDocLines(out, r->second, false, "     ");
             }
         }
-        out << nl << "%   " << ctxName << " (dictionary) - Optional request context.";
+        out << nl << "%   " << contextParam << " (dictionary) - Optional request context.";
 
         if (async)
         {
@@ -626,14 +632,6 @@ namespace
             if (p->returnsAnyValues())
             {
                 const ParameterList outParams = p->outParameters();
-                for (const auto& outParam : outParams)
-                {
-                    if (outParam->mappedName() == "result")
-                    {
-                        resultName = "result_";
-                    }
-                }
-
                 out << nl << "%";
                 if (p->returnType() && outParams.empty())
                 {
@@ -915,7 +913,7 @@ namespace
             }
             else
             {
-                out << " " << typeToString(field->type());
+                out << " " << typeToString(type);
             }
         }
 
@@ -931,6 +929,95 @@ namespace
         {
             out << " = " << defaultValueStr;
         }
+    }
+
+    void declareArgument(IceInternal::Output& out, const ParameterPtr& param)
+    {
+        out << nl << param->mappedName();
+
+        TypePtr type = param->type();
+
+        // First the dimensions
+
+        bool mustBeScalarOrEmpty = false;
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
+        {
+            if (builtin->kind() < Builtin::KindString)
+            {
+                out << " (1, 1)";
+            }
+            else if (builtin->kind() == Builtin::KindString)
+            {
+                out << " (1, :)";
+            }
+            else // ObjectPrx and Value
+            {
+                mustBeScalarOrEmpty = true;
+            }
+        }
+        else if (dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type) || dynamic_pointer_cast<Struct>(type))
+        {
+            out << " (1, 1)";
+        }
+        else if (dynamic_pointer_cast<Sequence>(type))
+        {
+            out << " (1, :)";
+        }
+        else // proxies and classes
+        {
+            mustBeScalarOrEmpty = true;
+        }
+
+        // We can't specify a type for optional parameter because we can't represent "not set" with the same MATLAB
+        // type.
+        if (!param->optional())
+        {
+            if (auto seq = dynamic_pointer_cast<Sequence>(type))
+            {
+                TypePtr seqType = seq->type();
+                if (isMappedToScalar(seqType))
+                {
+                    // sequence<string> maps to array of string, not to array of char.
+                    if (auto builtin = dynamic_pointer_cast<Builtin>(seqType);
+                        builtin && builtin->kind() == Builtin::KindString)
+                    {
+                        out << " string";
+                    }
+                    else
+                    {
+                        out << " " << typeToString(seqType);
+                    }
+                }
+                else
+                {
+                    out << " cell";
+                }
+            }
+            else
+            {
+                out << " " << typeToString(type);
+            }
+        }
+
+        if (mustBeScalarOrEmpty)
+        {
+            // Generate constraint.
+            out << " {mustBeScalarOrEmpty}";
+        }
+    }
+
+    void writeArguments(IceInternal::Output& out, const string& self, const string& proxyType, const ParameterList& inParams, const string& contextParam)
+    {
+        out << nl << "arguments";
+        out.inc();
+        out << nl << self << " (1, 1) " << proxyType;
+        for (const auto& param : inParams)
+        {
+            declareArgument(out, param);
+        }
+        out << nl << contextParam << " (1, 1) dictionary = dictionary";
+        out.dec();
+        out << nl << "end";
     }
 
     void validateMetadata(const UnitPtr& unit)
@@ -1302,6 +1389,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const ParameterList inParams = op->inParameters();
         const ParameterList sortedInParams = op->sortedInParameters();
         const ParameterList outParams = op->outParameters();
+        const ParameterList allParams = op->parameters();
         const bool returnsMultipleValues = op->returnsMultipleValues();
         const bool returnsAnyValues = op->returnsAnyValues();
 
@@ -1323,24 +1411,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             hasExceptions = true;
         }
 
-        // Check if we need to escape the "obj" parameter.
-        string self = "obj";
-        for (const auto& param : outParams)
-        {
-            if (param->mappedName() == "obj")
-            {
-                self = "obj_";
-                break;
-            }
-        }
-        for (const auto& param : inParams)
-        {
-            if (param->mappedName() == "obj")
-            {
-                self = "obj_";
-                break;
-            }
-        }
+        string self = checkAndEscapeParam("obj", allParams);
+        string contextParam = checkAndEscapeParam("context", allParams);
 
         //
         // Synchronous method.
@@ -1367,11 +1439,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << param->mappedName();
         }
-        out << "varargin"; // For the optional context
+        out << contextParam;
         out << epar;
         out.inc();
 
         writeOpDocSummary(out, op, false);
+        writeArguments(out, self, prxAbs, inParams, contextParam);
 
         if (!inParams.empty())
         {
@@ -1410,7 +1483,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
         }
-        out << ", varargin{:});";
+        out << ", " << contextParam << ");";
 
         if (twowayOnly && returnsAnyValues)
         {
@@ -1479,11 +1552,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << param->mappedName();
         }
-        out << "varargin"; // For the optional context
+        out << contextParam;
         out << epar;
         out.inc();
 
         writeOpDocSummary(out, op, true);
+        writeArguments(out, self, prxAbs, inParams, contextParam);
 
         if (!inParams.empty())
         {
@@ -1574,7 +1648,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
         }
-        out << ", varargin{:});";
+        out << ", " << contextParam << ");";
 
         out.dec();
         out << nl << "end";
@@ -1598,16 +1672,24 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "function r = checkedCast(p, varargin)";
     out.inc();
     out << nl << "% checkedCast   Contacts the remote server to verify that the object implements this type.";
-    out << nl << "%   Raises a local exception if a communication error occurs. You can optionally supply a";
-    out << nl << "%   facet name and a context map.";
     out << nl << "%";
     out << nl << "% Parameters:";
-    out << nl << "%   p - The proxy to be cast.";
-    out << nl << "%   facet - The optional name of the desired facet.";
-    out << nl << "%   context - The optional context map to send with the invocation.";
+    out << nl << "%   p - The proxy to be check.";
+    out << nl << "%   facet - The desired facet (optional).";
+    out << nl << "%   context - The request context (optional).";
     out << nl << "%";
     out << nl << "% Returns (" << prxAbs << ") - A proxy for this type, or an empty array if the object"
         << " does not support this type.";
+    out << nl << "arguments";
+    out.inc();
+    out << nl << "p Ice.ObjectPrx {mustBeScalarOrEmpty}";
+    out.dec();
+    out << nl << "end";
+    out << nl << "arguments (Repeating)";
+    out.inc();
+    out << nl << "varargin % facet or context, or both, or neither";
+    out.dec();
+    out << nl << "end";
     out << nl << "r = Ice.ObjectPrx.iceCheckedCast(p, " << prxAbs << ".ice_staticId(), '" << prxAbs
         << "', varargin{:});";
     out.dec();
@@ -1615,13 +1697,22 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "function r = uncheckedCast(p, varargin)";
     out.inc();
     out << nl << "% uncheckedCast   Downcasts the given proxy to this type without contacting the remote server.";
-    out << nl << "%   You can optionally specify a facet name.";
     out << nl << "%";
     out << nl << "% Parameters:";
     out << nl << "%   p - The proxy to be cast.";
-    out << nl << "%   facet - The optional name of the desired facet.";
+    out << nl << "%   facet - The desired facet (optional).";
     out << nl << "%";
     out << nl << "% Returns (" << prxAbs << ") - A proxy for this type.";
+    out << nl << "arguments";
+    out.inc();
+    out << nl << "p Ice.ObjectPrx {mustBeScalarOrEmpty}";
+    out.dec();
+    out << nl << "end";
+    out << nl << "arguments (Repeating)";
+    out.inc();
+    out << nl << "varargin (1, :) char";
+    out.dec();
+    out << nl << "end";
     out << nl << "r = Ice.ObjectPrx.iceUncheckedCast(p, '" << prxAbs << "', varargin{:});";
     out.dec();
     out << nl << "end";

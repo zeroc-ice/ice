@@ -468,8 +468,6 @@ classdef AllTests
             p1 = SmallStruct(56);
             [p2, p3] = initial.opSmallStruct(p1);
             assert(p2 == p1 && p3 == p1);
-            [p2, p3] = initial.opSmallStruct([]); % Test null struct
-            assert(p2.m == 0 && p3.m == 0);
             f = initial.opSmallStructAsync(p1);
             [p2, p3] = f.fetchOutputs();
             assert(p2 == p1 && p3 == p1);
