@@ -56,10 +56,7 @@ extern "C"
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_read(void*, mxArray*, mxArray*, int, void**, int*);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_write(void*, void*, mxArray*);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_invoke(void*, const char*, int, mxArray*, unsigned int, mxArray*);
-    ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_invokeNC(void*, const char*, int, mxArray*, unsigned int);
-    ICE_MATLAB_API mxArray*
-    Ice_ObjectPrx_ice_invokeAsync(void*, const char*, int, mxArray*, unsigned int, mxArray*, void**);
-    ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_invokeAsyncNC(void*, const char*, int, mxArray*, unsigned int, void**);
+    ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_invokeAsync(void*, const char*, int, mxArray*, unsigned int, mxArray*, void**);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_toString(void*);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_getIdentity(void*);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_identity(void*, void**, mxArray*);

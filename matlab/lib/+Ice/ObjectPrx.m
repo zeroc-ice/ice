@@ -946,6 +946,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 if length(varargin) > 1
                     throw(Ice.LocalException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
                 end
+                ctx = [];
+                if isscalar(varargin)
+                    ctx = varargin{1};
+                end
 
                 if twowayOnly && ~obj.isTwoway
                     throw(Ice.TwowayOnlyException(op));
@@ -959,22 +963,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     size = os.buf.size;
                 end
 
-                if isscalar(varargin)
-                    %
-                    % Avoid the string concatenation
-                    %
-                    % res = obj.iceCallWithResult('ice_invoke', op, mode, buf, size, varargin{1});
-                    %
-                    res = IceInternal.Util.callWithResult('Ice_ObjectPrx_ice_invoke', obj.impl_, op, mode, buf, ...
-                                                          size, varargin{1});
-                else
-                    %
-                    % Avoid the string concatenation
-                    %
-                    % res = obj.iceCallWithResult('ice_invokeNC', op, mode, buf, size);
-                    %
-                    res = IceInternal.Util.callWithResult('Ice_ObjectPrx_ice_invokeNC', obj.impl_, op, mode, buf, size);
-                end
+                res = IceInternal.Util.callWithResult('Ice_ObjectPrx_ice_invoke', obj.impl_, op, mode, buf, size, ctx);
 
                 is = [];
                 if ~isempty(res.params)
@@ -1045,6 +1034,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 if length(varargin) > 1
                     throw(Ice.LocalException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
                 end
+                ctx = [];
+                if isscalar(varargin)
+                    ctx = varargin{1};
+                end
+
                 if twowayOnly && ~isTwoway
                     throw(Ice.TwowayOnlyException(op));
                 end
@@ -1056,22 +1050,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     size = os.buf.size;
                 end
                 futPtr = libpointer('voidPtr'); % Output param
-                if isscalar(varargin)
-                    %
-                    % Avoid the string concatenation
-                    %
-                    % obj.iceCall('ice_invokeAsync', op, mode, buf, size, varargin{1}, futPtr);
-                    %
-                    IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsync', obj.impl_, op, mode, buf, size, ...
-                                          varargin{1}, futPtr);
-                else
-                    %
-                    % Avoid the string concatenation
-                    %
-                    % obj.iceCall('ice_invokeAsyncNC', op, mode, buf, size, futPtr);
-                    %
-                    IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsyncNC', obj.impl_, op, mode, buf, size, futPtr);
-                end
+                IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsync', obj.impl_, op, mode, buf, size, ctx, futPtr);
                 assert(~isNull(futPtr));
                 fut = Ice.Future(futPtr, op, numOutArgs, 'Ice_InvocationFuture', @fetch);
             catch ex
