@@ -286,7 +286,7 @@ namespace
 
             if (auto seq = dynamic_pointer_cast<Sequence>(m->type()); seq && seq->type()->usesClasses())
             {
-                // Property has not type, so we need to generate empty cell array.
+                // Property has no type, so we need to generate an empty cell array.
                 return "{}";
             }
 
