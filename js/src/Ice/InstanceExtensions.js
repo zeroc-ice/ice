@@ -278,14 +278,7 @@ Instance.prototype.finishSetup = function (communicator) {
             this._retryIntervals = [];
 
             for (let i = 0; i < retryIntervals.length; i++) {
-                let v;
-
-                try {
-                    v = StringUtil.toInt32(retryIntervals[i]);
-                } catch {
-                    v = 0;
-                }
-
+                let v = StringUtil.toInt32(retryIntervals[i]);
                 // If -1 is the first value, no retry and wait intervals.
                 if (i === 0 && v === -1) {
                     break;

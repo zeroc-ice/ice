@@ -218,17 +218,13 @@ export class StringUtil {
             throw new RangeError(`conversion of '${s}' to int failed`);
         }
 
-        try {
-            const b = BigInt(s);
-            const int32MinValue = -2147483648n;
-            const int32MaxValue = 2147483647n;
-            if (b < int32MinValue || b > int32MaxValue) {
-                throw new RangeError(`Value out of Int32 range: ${s}`);
-            }
-            return Number(b);
-        } catch {
-            throw new RangeError(`conversion of '${s}' to int failed`);
+        const b = BigInt(s);
+        const int32MinValue = -2147483648n;
+        const int32MaxValue = 2147483647n;
+        if (b < int32MinValue || b > int32MaxValue) {
+            throw new RangeError(`Value out of Int32 range: ${s}`);
         }
+        return Number(b);
     }
 }
 
