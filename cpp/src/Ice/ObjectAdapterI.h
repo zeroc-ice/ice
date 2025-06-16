@@ -92,7 +92,7 @@ namespace Ice
 
         [[nodiscard]] IceInternal::ThreadPoolPtr getThreadPool() const;
         void setAdapterOnConnection(const ConnectionIPtr&);
-        [[nodiscard]] size_t messageSizeMax() const { return _messageSizeMax; }
+        [[nodiscard]] std::int32_t messageSizeMax() const { return _messageSizeMax; }
 
         ObjectAdapterI(
             IceInternal::InstancePtr,
@@ -153,7 +153,7 @@ namespace Ice
         IceInternal::LocatorInfoPtr _locatorInfo;
         int _directCount{0}; // The number of direct proxies dispatching on this object adapter.
         bool _noConfig;
-        size_t _messageSizeMax{0};
+        std::int32_t _messageSizeMax{0};
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _conditionVariable;
         const std::optional<SSL::ServerAuthenticationOptions> _serverAuthenticationOptions;

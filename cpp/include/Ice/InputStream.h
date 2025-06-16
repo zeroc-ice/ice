@@ -25,7 +25,7 @@
 namespace IceInternal::Ex
 {
     ICE_API void throwUOE(const char* file, int line, const std::string&, const Ice::ValuePtr&);
-    ICE_API void throwMemoryLimitException(const char* file, int line, size_t, size_t);
+    ICE_API void throwMemoryLimitException(const char* file, int line, size_t, std::int32_t);
     ICE_API void throwMarshalException(const char* file, int line, std::string);
 }
 
@@ -721,7 +721,7 @@ namespace Ice
             virtual void readPendingValues() {}
 
         protected:
-            EncapsDecoder(InputStream* stream, Encaps* encaps, size_t classGraphDepthMax)
+            EncapsDecoder(InputStream* stream, Encaps* encaps, std::int32_t classGraphDepthMax)
                 : _stream(stream),
                   _encaps(encaps),
                   _classGraphDepthMax(classGraphDepthMax)
@@ -742,15 +742,15 @@ namespace Ice
             {
                 PatchFunc patchFunc;
                 void* patchAddr;
-                size_t classGraphDepth;
+                std::int32_t classGraphDepth;
             };
             using PatchList = std::vector<PatchEntry>;
             using PatchMap = std::map<std::int32_t, PatchList>;
 
             InputStream* _stream;
             Encaps* _encaps;
-            const size_t _classGraphDepthMax;
-            size_t _classGraphDepth{0};
+            const std::int32_t _classGraphDepthMax;
+            std::int32_t _classGraphDepth{0};
 
             // Encapsulation attributes for object un-marshaling
             PatchMap _patchMap;
@@ -766,7 +766,7 @@ namespace Ice
         class ICE_API EncapsDecoder10 : public EncapsDecoder
         {
         public:
-            EncapsDecoder10(InputStream* stream, Encaps* encaps, size_t classGraphDepthMax)
+            EncapsDecoder10(InputStream* stream, Encaps* encaps, std::int32_t classGraphDepthMax)
                 : EncapsDecoder(stream, encaps, classGraphDepthMax)
             {
             }
@@ -797,7 +797,7 @@ namespace Ice
         class ICE_API EncapsDecoder11 : public EncapsDecoder
         {
         public:
-            EncapsDecoder11(InputStream* stream, Encaps* encaps, size_t classGraphDepthMax)
+            EncapsDecoder11(InputStream* stream, Encaps* encaps, std::int32_t classGraphDepthMax)
                 : EncapsDecoder(stream, encaps, classGraphDepthMax),
                   _preAllocatedInstanceData(nullptr)
             {
@@ -925,7 +925,7 @@ namespace Ice
         Encaps _preAllocatedEncaps;
 
         // Retrieved during construction and cached.
-        const size_t _classGraphDepthMax;
+        const std::int32_t _classGraphDepthMax;
 
         void* _closure{nullptr};
 

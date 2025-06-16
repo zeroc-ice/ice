@@ -372,7 +372,7 @@ namespace Ice
 
         std::exception_ptr _exception;
 
-        const size_t _messageSizeMax;
+        const std::int32_t _messageSizeMax;
         IceInternal::BatchRequestQueuePtr _batchRequestQueue;
 
         std::deque<OutgoingMessage> _sendStreams;

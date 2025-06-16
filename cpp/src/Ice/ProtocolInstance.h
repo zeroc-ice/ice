@@ -47,7 +47,7 @@ namespace IceInternal
         [[nodiscard]] const Address& defaultSourceAddress() const;
         [[nodiscard]] const Ice::EncodingVersion& defaultEncoding() const;
         [[nodiscard]] NetworkProxyPtr networkProxy() const;
-        [[nodiscard]] size_t messageSizeMax() const;
+        [[nodiscard]] std::int32_t messageSizeMax() const;
 
         void resolve(
             const std::string&,
