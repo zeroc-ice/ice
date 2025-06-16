@@ -56,7 +56,7 @@ classdef TwowaysAMI
             si1.s = AnotherStruct();
             si1.s.s = 'abc';
             si2 = Structure();
-            si2.p = [];
+            si2.p = Test.MyClassPrx.empty;
             si2.e = MyEnum.enum2;
             si2.s = AnotherStruct();
             si2.s.s = 'def';
@@ -1190,7 +1190,7 @@ classdef TwowaysAMI
             d = MyDerivedClassPrx.uncheckedCast(p);
             s = MyStruct1();
             s.tesT = 'Test.MyStruct1.s';
-            s.myClass = [];
+            s.myClass = Test.MyClassPrx.empty;
             s.myStruct1 = 'Test.MyStruct1.myStruct1';
             s = call(d, 'opMyStruct1', s);
             assert(strcmp(s.tesT, 'Test.MyStruct1.s'));
@@ -1199,7 +1199,7 @@ classdef TwowaysAMI
 
             c = MyClass1();
             c.tesT = 'Test.MyClass1.testT';
-            c.myClass = [];
+            c.myClass = Test.MyClassPrx.empty;
             c.myClass1 = 'Test.MyClass1.myClass1';
             c = call(d, 'opMyClass1', c);
             assert(strcmp(c.tesT, 'Test.MyClass1.testT'));

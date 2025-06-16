@@ -134,32 +134,27 @@ namespace
             return "void";
         }
 
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-        if (builtin)
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
             return builtinTable[builtin->kind()];
         }
 
-        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-        if (cl)
+        if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
         {
             return cl->mappedScoped(".").substr(1);
         }
 
-        InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-        if (proxy)
+        if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
         {
             return proxy->mappedScoped(".").substr(1) + "Prx";
         }
 
-        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-        if (dict)
+        if (dynamic_pointer_cast<Dictionary>(type))
         {
             return "dictionary";
         }
 
-        ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
-        if (contained)
+        if (auto contained = dynamic_pointer_cast<Contained>(type))
         {
             return contained->mappedScoped(".").substr(1);
         }
@@ -167,8 +162,10 @@ namespace
         return "???";
     }
 
-    // Is this dictionary value type mapped to a MATLAB scalar as opposed to a cell?
-    bool isDictionaryValueMappedToScalar(const TypePtr& type)
+    // Type represents a dictionary value type or the type of a sequence element.
+    // Returns true if when the mapped dictionary value type is a scalar, as opposed to a cell array. For sequences,
+    // returns true when the sequence maps to a regular array as opposed to a cell array.
+    bool isMappedToScalar(const TypePtr& type)
     {
         if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
@@ -189,24 +186,6 @@ namespace
         }
 
         return dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Struct>(type);
-    }
-
-    bool declarePropertyType(const TypePtr& type, bool optional)
-    {
-        if (optional || dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<InterfaceDecl>(type) ||
-            dynamic_pointer_cast<ClassDecl>(type))
-        {
-            return false;
-        }
-
-        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-        if (b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindObjectProxy ||
-                  b->kind() == Builtin::KindValue))
-        {
-            return false;
-        }
-
-        return true;
     }
 
     string constantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
@@ -266,9 +245,10 @@ namespace
         {
             return constantValue(m->type(), m->defaultValueType(), *m->defaultValue());
         }
-        else if (m->optional())
+        else if (m->optional() && !isProxyType(m->type()))
         {
-            return isProxyType(m->type()) ? "[]" : "IceInternal.UnsetI.Instance";
+            // We don't distinguish between unset and "null" (empty) for proxy types. We always use empty for them.
+            return "IceInternal.UnsetI.Instance";
         }
         else
         {
@@ -288,10 +268,10 @@ namespace
                     case Builtin::KindFloat:
                     case Builtin::KindDouble:
                         return "0";
-                    case Builtin::KindObject:
                     case Builtin::KindObjectProxy:
-                    case Builtin::KindValue:
-                        return "[]";
+                        return "Ice.ObjectPrx.empty";
+                    default: // Object, Value
+                        return "Ice.UnknownSlicedValue.empty";
                 }
             }
 
@@ -302,7 +282,7 @@ namespace
                 const TypePtr value = dict->valueType();
                 ostringstream ostr;
                 ostr << "configureDictionary('" << typeToString(key) << "', '"
-                     << (isDictionaryValueMappedToScalar(value) ? typeToString(value) : "cell") << "')";
+                     << (isMappedToScalar(value) ? typeToString(value) : "cell") << "')";
                 return ostr.str();
             }
 
@@ -313,13 +293,24 @@ namespace
                 return (*enumerators.begin())->mappedScoped(".").substr(1);
             }
 
-            StructPtr st = dynamic_pointer_cast<Struct>(m->type());
-            if (st)
+            if (auto seq = dynamic_pointer_cast<Sequence>(m->type()))
             {
-                return st->mappedScoped(".").substr(1) + "()";
+                if (isMappedToScalar(seq->type()))
+                {
+                    // Empty array with the correct type.
+                    return typeToString(seq->type()) + ".empty";
+                }
+                else
+                {
+                    // Empty cell array.
+                    return "{}";
+                }
             }
 
-            return "[]";
+            // Use .empty for all other types. Note that .empty is not a valid value for a struct field/property;
+            // so either Ice later unmarshals into this property or the struct must replace this value before
+            // marshaling this instance.
+            return typeToString(m->type()) + ".empty";
         }
     }
 
@@ -330,35 +321,7 @@ namespace
         return (b && b->kind() == Builtin::KindObjectProxy) || p;
     }
 
-    bool needsConversion(const TypePtr& type)
-    {
-        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-        if (seq)
-        {
-            return seq->type()->isClassType() || needsConversion(seq->type());
-        }
-
-        StructPtr st = dynamic_pointer_cast<Struct>(type);
-        if (st)
-        {
-            for (const auto& dm : st->dataMembers())
-            {
-                if (needsConversion(dm->type()) || dm->type()->isClassType())
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-        if (d)
-        {
-            return needsConversion(d->valueType()) || d->valueType()->isClassType();
-        }
-
-        return false;
-    }
+    bool needsConversion(const TypePtr& type) { return type->usesClasses() && !type->isClassType(); }
 
     void convertValueType(
         IceInternal::Output& out,
@@ -901,6 +864,83 @@ namespace
         }
     }
 
+    void declareProperty(IceInternal::Output& out, const DataMemberPtr& field)
+    {
+        writeMemberDoc(out, field);
+        out << nl << field->mappedName();
+
+        TypePtr type = field->type();
+
+        // First the dimensions:
+        // - (1, 1) for simple scalar types, enums and dictionaries.
+        // - (1, :) for strings and sequences.
+        // - no dimensions for proxies, classes, structs because we add later the {mustBeScalarOrEmpty} constraint.
+
+        bool mustBeScalarOrEmpty = false;
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
+        {
+            if (builtin->kind() < Builtin::KindString)
+            {
+                out << " (1, 1)";
+            }
+            else if (builtin->kind() == Builtin::KindString)
+            {
+                out << " (1, :)";
+            }
+            else
+            {
+                mustBeScalarOrEmpty = true;
+            }
+        }
+        else if (dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type))
+        {
+            out << " (1, 1)";
+        }
+        else if (dynamic_pointer_cast<Sequence>(type))
+        {
+            out << " (1, :)";
+        }
+        else // proxies, classes, structs
+        {
+            mustBeScalarOrEmpty = true;
+        }
+
+        // We can't specify a type for optional fields because we can't represent "not set" with the same MATLAB type.
+        // For some types, we could use an empty array, but this does not work for sequences mapped to arrays or cells,
+        // nor does it work for dictionaries.
+        //
+        // We also can't specify a type for class fields (in structs and exceptions, because we convert them in place;
+        // we do the same for class fields in classes for consistency). Likewise, we can't specify a type for fields
+        // that use classes (but are not classes), since we convert them in place.
+        if (!field->optional() && !type->usesClasses())
+        {
+            if (auto seq = dynamic_pointer_cast<Sequence>(type))
+            {
+                if (isMappedToScalar(seq->type()))
+                {
+                    out << " " << typeToString(seq->type());
+                }
+                else
+                {
+                    out << " cell";
+                }
+            }
+            else
+            {
+                out << " " << typeToString(field->type());
+            }
+        }
+
+        if (mustBeScalarOrEmpty)
+        {
+            // Generate constraint.
+            out << " {mustBeScalarOrEmpty}";
+        }
+
+        // Always specify the default value.
+        out << " = " << defaultValue(field);
+    }
+
     void validateMetadata(const UnitPtr& unit)
     {
         map<string, MetadataInfo> knownMetadata;
@@ -962,7 +1002,7 @@ private:
     void unmarshalStruct(IceInternal::Output&, const StructPtr&, const string&);
     void convertStruct(IceInternal::Output&, const StructPtr&, const string&);
 
-    void writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers, bool noInit);
+    void writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers);
 
     const string _dir;
 };
@@ -1006,19 +1046,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.inc();
         for (const auto& q : members)
         {
-            writeMemberDoc(out, q);
-            out << nl << q->mappedName();
-            if (declarePropertyType(q->type(), q->optional()))
-            {
-                out << " " << typeToString(q->type());
-
-                // We need the default value for dictionaries.
-                // TODO: do the same for other types too.
-                if (auto dict = dynamic_pointer_cast<Dictionary>(q->type()))
-                {
-                    out << " = " << defaultValue(q);
-                }
-            }
+            declareProperty(out, q);
         }
         out.dec();
         out << nl << "end";
@@ -1030,19 +1058,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Constructor
     //
-    if (allMembers.empty())
-    {
-        out << nl << "function " << self << " = " << name << spar << "noInit" << epar;
-        out.inc();
-        out << nl << "if nargin == 1 && ne(noInit, IceInternal.NoInit.Instance)";
-        out.inc();
-        out << nl << "narginchk(0,0);";
-        out.dec();
-        out << nl << "end";
-        out.dec();
-        out << nl << "end";
-    }
-    else
+    if (!members.empty()) // else no need to define a constructor: we inherit the base class constructor
     {
         const auto firstMember = *allMembers.begin();
 
@@ -1059,45 +1075,36 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out << nl << "if nargin == 0";
             out.inc();
-            for (const auto& member : allMembers)
-            {
-                out << nl << member->mappedName() << " = " << defaultValue(member) << ';';
-            }
-            writeBaseClassArrayParams(out, baseMembers, false);
-            out.dec();
-            out << nl << "elseif eq(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
-            out.inc();
-            writeBaseClassArrayParams(out, baseMembers, true);
+            out << nl << "superArgs = {};";
             out.dec();
             out << nl << "else";
             out.inc();
-            writeBaseClassArrayParams(out, baseMembers, false);
+            out << nl << "assert(nargin == " << allMembers.size() << ", 'Invalid number of arguments');";
+            writeBaseClassArrayParams(out, baseMembers);
             out.dec();
             out << nl << "end";
 
-            out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << "(v{:});";
+            out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << "(superArgs{:});";
 
-            out << nl << "if ne(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
-            out.inc();
-            for (const auto& member : members)
+            if (!members.empty())
             {
-                const string memberName = member->mappedName();
-                out << nl << self << "." << memberName << " = " << memberName << ';';
+                // Set this class properties.
+                out << nl << "if nargin > 0";
+                out.inc();
+                for (const auto& member : members)
+                {
+                    const string memberName = member->mappedName();
+                    out << nl << self << "." << memberName << " = " << memberName << ';';
+                }
+                out.dec();
+                out << nl << "end";
             }
-            out.dec();
-            out << nl << "end";
         }
         else
         {
-            out << nl << "if nargin == 0";
+            out << nl << "if nargin > 0";
             out.inc();
-            for (const auto& member : allMembers)
-            {
-                out << nl << self << "." << member->mappedName() << " = " << defaultValue(member) << ';';
-            }
-            out.dec();
-            out << nl << "elseif ne(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
-            out.inc();
+            out << nl << "assert(nargin == " << allMembers.size() << ", 'Invalid number of arguments');";
             for (const auto& member : allMembers)
             {
                 const string memberName = member->mappedName();
@@ -1192,7 +1199,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if (dm->type()->isClassType())
             {
-                unmarshal(out, "is", "@obj.iceSetMember_" + dm->mappedName(), dm->type(), false, 0);
+                unmarshal(out, "is", "@obj.iceSetProperty_" + dm->mappedName(), dm->type(), false, 0);
             }
             else
             {
@@ -1213,22 +1220,15 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    DataMemberList classMembers = p->classDataMembers();
-    if (!classMembers.empty())
+    // Generate an iceSetProperty_name method for all class fields.
+    for (const auto& classField : p->classDataMembers())
     {
-        //
-        // For each class data member, we generate an "iceSetMember_<name>" method that is called when the
-        // instance is eventually unmarshaled.
-        //
-        for (const auto& classMember : classMembers)
-        {
-            string m = classMember->mappedName();
-            out << nl << "function iceSetMember_" << m << "(obj, v)";
-            out.inc();
-            out << nl << "obj." << m << " = v;";
-            out.dec();
-            out << nl << "end";
-        }
+        string m = classField->mappedName();
+        out << nl << "function iceSetProperty_" << m << "(obj, v)";
+        out.inc();
+        out << nl << "obj." << m << " = v;";
+        out.dec();
+        out << nl << "end";
     }
 
     out.dec();
@@ -1714,19 +1714,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out.inc();
         for (const auto& member : members)
         {
-            writeMemberDoc(out, member);
-            out << nl << member->mappedName();
-            if (declarePropertyType(member->type(), member->optional()))
-            {
-                out << " " << typeToString(member->type());
-
-                // We need the default value for dictionaries.
-                // TODO: do the same for other types too.
-                if (auto dict = dynamic_pointer_cast<Dictionary>(member->type()))
-                {
-                    out << " = " << defaultValue(member);
-                }
-            }
+            declareProperty(out, member);
         }
         out.dec();
         out << nl << "end";
@@ -1762,6 +1750,10 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         errID[pos] = ':';
         pos = errID.find('.', pos);
     }
+
+    // InputStream always create a user exception with no argument. A derived exception class created with no argument
+    // gives two arguments to its base class constructor. That's why the constructor needs to accept two arguments as
+    // well.
 
     out << nl << "if nargin == 0";
     out.inc();
@@ -1847,15 +1839,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     for (const auto& dm : optionalMembers)
     {
         const string m = dm->mappedName();
-        if (dm->type()->isClassType())
-        {
-            out << nl << "obj." << m << " = IceInternal.ValueHolder();";
-            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", dm->type(), true, dm->tag());
-        }
-        else
-        {
-            unmarshal(out, "is", "obj." + m, dm->type(), true, dm->tag());
-        }
+        assert(!dm->type()->isClassType()); // guaranteed by the parser.
+        unmarshal(out, "is", "obj." + m, dm->type(), true, dm->tag());
     }
     out << nl << "is.endSlice();";
     if (base)
@@ -1908,18 +1893,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     {
         const string m = member->mappedName();
         memberNames.push_back(m);
-        writeMemberDoc(out, member);
-        out << nl << m;
-        if (declarePropertyType(member->type(), false))
-        {
-            out << " " << typeToString(member->type());
-
-            // We need the default value for dictionaries.
-            if (auto dict = dynamic_pointer_cast<Dictionary>(member->type()))
-            {
-                out << " = " << defaultValue(member);
-            }
-        }
+        declareProperty(out, member);
 
         if (needsConversion(member->type()))
         {
@@ -1934,21 +1908,17 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     string self = name == "obj" ? "this" : "obj";
     out << nl << "function " << self << " = " << name << spar << memberNames << epar;
     out.inc();
-    out << nl << "if nargin == 0";
+    // We rely on the default values when nargin is 0.
+    out << nl << "if nargin > 0";
     out.inc();
-    for (const auto& member : members)
-    {
-        out << nl << self << "." << member->mappedName() << " = " << defaultValue(member) << ';';
-    }
-    out.dec();
-    out << nl << "elseif ne(" << (*members.begin())->mappedName() << ", IceInternal.NoInit.Instance)";
-    out.inc();
+    out << nl << "assert(nargin == " << members.size() << ", 'Invalid number of arguments');";
     for (const auto& memberName : memberNames)
     {
         out << nl << self << "." << memberName << " = " << memberName << ';';
     }
     out.dec();
     out << nl << "end";
+
     out.dec();
     out << nl << "end";
     out << nl << "function r = eq(obj, other)";
@@ -1978,7 +1948,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.inc();
     out << nl << "function r = ice_read(is)";
     out.inc();
-    out << nl << "r = " << abs << "(IceInternal.NoInit.Instance);";
+    out << nl << "r = " << abs << "();";
     unmarshalStruct(out, p, "r");
     out.dec();
     out << nl << "end";
@@ -2346,7 +2316,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const TypePtr key = p->keyType();
     const TypePtr value = p->valueType();
     const bool cls = value->isClassType();
-    const bool scalarValue = isDictionaryValueMappedToScalar(value);
+    const bool scalarValue = isMappedToScalar(value);
     const bool convert = needsConversion(value);
 
     const string name = p->mappedName();
@@ -3242,24 +3212,15 @@ CodeVisitor::convertStruct(IceInternal::Output& out, const StructPtr& p, const s
 }
 
 void
-CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers, bool noInit)
+CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers)
 {
-    out << nl << "v = { ";
-    bool first = true;
+    out << nl << "superArgs = ";
+    out.spar("{");
     for (const auto& member : baseMembers)
     {
-        const string memberName = member->mappedName();
-        if (first)
-        {
-            out << (noInit ? "IceInternal.NoInit.Instance" : memberName);
-            first = false;
-        }
-        else
-        {
-            out << ", " << (noInit ? "[]" : memberName);
-        }
+        out << member->mappedName();
     }
-    out << " };";
+    out.epar("};");
 }
 
 namespace

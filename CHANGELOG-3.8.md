@@ -695,7 +695,7 @@ initialization. See `InitializationData.pluginFactories`.
 ## MATLAB Changes
 
 - Changed the mapping for `sequence<string>`. A `sequence<string>` now maps to a MATLAB string array. This new mapping
-  remains highly compatible with the previous mapping (cell array of char arrays).
+  remains highly compatible with the previous mapping (cell array of char).
 
 - Changed the mapping for Slice dictionaries. A Slice dictionary now always maps to a MATLAB dictionary; the old
   `containers.Map` are no longer used.
@@ -708,6 +708,17 @@ initialization. See `InitializationData.pluginFactories`.
   | sequence, dictionary, class, proxy  | cell holding a MT               | cell array of MT                          |
 
   (1) A single Slice string maps to a MATLAB char array, not to a MATLAB string.
+
+- All fields are now mapped to typed MATLAB properties except optional fields and fields whose type is a class or uses
+  a class.
+  - In such properties, a null proxy is represented by an empty array of the proxy type, for example `GreeterPrx.empty`.
+    Likewise, an empty sequence (array) is represented by an empty array of the correct type, such as `string.empty` or
+    `int32.empty`.
+  - `[]` is no longer a valid value for proxy and sequence properties: always use a typed array. `[]` is still accepted
+    as an operation argument for proxy and sequence parameters.
+
+- Changed the default value for properties mapped from a Slice struct type. It's now an empty array of the mapped class;
+  it was previously a new instance of the mapped class created with no argument.
 
 - The default value for property `Ice.ProgramName` is now `matlab-client`. It used to be the first element in the args
   cell given to `Ice.initialize`.
