@@ -209,12 +209,22 @@ export class StringUtil {
         return hash;
     }
 
-    static toInt(s) {
-        const n = parseInt(s, 10);
-        if (isNaN(n)) {
-            throw new RangeError("conversion of `" + s + "' to int failed");
+    // Converts a string to an int32 number. We avoid using parseInt or the Number constructor because they do not
+    // detect overflow. This method throws a RangeError if the input is not a valid integer string or if the value
+    // is outside the 32-bit signed integer range.
+    static toInt32(s) {
+        // Reject empty strings and strings with leading or trailing whitespace.
+        if (s.length === 0 || s !== s.trim()) {
+            throw new RangeError(`conversion of '${s}' to int failed`);
         }
-        return n;
+
+        const b = BigInt(s);
+        const int32MinValue = -2147483648n;
+        const int32MaxValue = 2147483647n;
+        if (b < int32MinValue || b > int32MaxValue) {
+            throw new RangeError(`Value out of Int32 range: ${s}`);
+        }
+        return Number(b);
     }
 }
 

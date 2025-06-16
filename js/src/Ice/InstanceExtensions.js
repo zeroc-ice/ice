@@ -279,13 +279,13 @@ Instance.prototype.finishSetup = function (communicator) {
 
             for (let i = 0; i < retryIntervals.length; i++) {
                 let v;
-
                 try {
-                    v = StringUtil.toInt(retryIntervals[i]);
+                    v = StringUtil.toInt32(retryIntervals[i]);
                 } catch {
-                    v = 0;
+                    throw new ParseException(
+                        `invalid value '${retryIntervals[i]}' in property Ice.RetryIntervals; expected a list of integers`,
+                    );
                 }
-
                 // If -1 is the first value, no retry and wait intervals.
                 if (i === 0 && v === -1) {
                     break;

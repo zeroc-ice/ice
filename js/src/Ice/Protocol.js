@@ -221,7 +221,7 @@ function stringToMajor(str) {
     }
 
     try {
-        const majVersion = StringUtil.toInt(str.substring(0, pos));
+        const majVersion = StringUtil.toInt32(str.substring(0, pos));
         if (majVersion < 1 || majVersion > 255) {
             throw new ParseException(`range error in version ${str}'`);
         }
@@ -238,7 +238,7 @@ function stringToMinor(str) {
     }
 
     try {
-        const minVersion = StringUtil.toInt(str.substring(pos + 1));
+        const minVersion = StringUtil.toInt32(str.substring(pos + 1));
         if (minVersion < 0 || minVersion > 255) {
             throw new ParseException(`range error in version '${str}'`);
         }
