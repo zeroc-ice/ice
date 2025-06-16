@@ -109,6 +109,10 @@ classdef AllTests
             assert(isempty(v.is));
             assert(isempty(v.st));
             assert(v.dict.numEntries == 0);
+            assert(iscell(v.derivedSeq));
+            assert(isempty(v.derivedSeq));
+            assert(iscell(v.intSeqSeq));
+            assert(isempty(v.intSeqSeq));
 
             % Check we can assign empty into bs and is.
             v.bs = uint8.empty;
