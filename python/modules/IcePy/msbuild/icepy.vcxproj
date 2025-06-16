@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\cpp\src\slice2py\Python.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\slice2py\PythonUtil.cpp" />
+    <ClCompile Include="..\..\..\..\cpp\src\Slice\DeprecationReporter.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\FileTracker.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Grammar.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\MetadataValidation.cpp" />
