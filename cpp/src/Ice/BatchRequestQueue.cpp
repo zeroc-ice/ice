@@ -54,8 +54,7 @@ BatchRequestQueue::BatchRequestQueue(const InstancePtr& instance, bool datagram)
     if (_maxSize > 0 && datagram)
     {
         const Ice::InitializationData& initData = instance->initializationData();
-        int32_t udpSndSize =
-            initData.properties->getPropertyAsIntWithDefault("Ice.UDP.SndSize", 65535 - udpOverhead);
+        int32_t udpSndSize = initData.properties->getPropertyAsIntWithDefault("Ice.UDP.SndSize", 65535 - udpOverhead);
         if (udpSndSize < _maxSize)
         {
             _maxSize = udpSndSize;

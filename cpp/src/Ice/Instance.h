@@ -155,9 +155,9 @@ namespace IceInternal
         Ice::InitializationData _initData;
         const TraceLevelsPtr _traceLevels;                                 // Immutable, not reset by destroy().
         const DefaultsAndOverridesPtr _defaultsAndOverrides;               // Immutable, not reset by destroy().
-        const int32_t _messageSizeMax{0};                                   // Immutable, not reset by destroy().
-        const int32_t _batchAutoFlushSize{0};                               // Immutable, not reset by destroy().
-        const int32_t _classGraphDepthMax{0};                               // Immutable, not reset by destroy().
+        const int32_t _messageSizeMax{0};                                  // Immutable, not reset by destroy().
+        const int32_t _batchAutoFlushSize{0};                              // Immutable, not reset by destroy().
+        const int32_t _classGraphDepthMax{0};                              // Immutable, not reset by destroy().
         const Ice::ToStringMode _toStringMode{Ice::ToStringMode::Unicode}; // Immutable, not reset by destroy().
         const bool _acceptClassCycles{false};                              // Immutable, not reset by destroy().
         Ice::ConnectionOptions _clientConnectionOptions;
