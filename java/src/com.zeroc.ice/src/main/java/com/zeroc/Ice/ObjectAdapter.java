@@ -1132,7 +1132,8 @@ public final class ObjectAdapter {
             _name + ".MessageSizeMax", defaultMessageSizeMax);
         if (messageSizeMax > messageSizeMaxUpperLimit / 1024) {
             throw new InitializationException(
-                _name + ".MessageSizeMax '" + messageSizeMax + "' is too large, it must be less than or equal to '" + (messageSizeMaxUpperLimit / 1024) + "' KiB");
+                _name + ".MessageSizeMax '" + messageSizeMax + "' is too large, it must be less than or equal to '"
+                    + (messageSizeMaxUpperLimit / 1024) + "' KiB");
         } else if (messageSizeMax < 1) {
             _messageSizeMax = messageSizeMaxUpperLimit;
         } else {
