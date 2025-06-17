@@ -5,19 +5,20 @@ classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
     %   ClassSliceLoader - Constructs a ClassSliceLoader from an array of meta classes.
     %   newInstance - Creates a class or exception instance from a Slice type ID.
     methods
-        function obj = ClassSliceLoader(metaclassArray)
-            % ClassSliceLoader - Constructs a ClassSliceLoader from an array of meta classes.
+        function obj = ClassSliceLoader(metaclass)
+            % ClassSliceLoader - Constructs a ClassSliceLoader from one or more meta classes.
             %
             % Parameters:
-            %   metaclassArray (matlab.metadata.Class) - An array of matlab.metadata.Class objects.
+            %   metaclass (matlab.metadata.Class) - One or more matlab.metadata.Class objects.
+
+            arguments (Repeating)
+                metaclass (1, 1) matlab.metadata.Class
+            end
 
             obj.typeIdToConstructorMap = configureDictionary('string', 'function_handle');
 
-            for i = 1:length(metaclassArray)
-                mc = metaclassArray(i);
-                if ~isa(mc, 'matlab.metadata.Class')
-                    throw(Ice.LocalException('Ice:ArgumentException', 'Expected array of matlab.metadata.Class.'));
-                end
+            for i = 1:length(metaclass)
+                mc = metaclass{i};
                 typeId = Ice.ClassSliceLoader.resolveConstant(mc, 'TypeId');
                 if isempty(typeId)
                     throw(Ice.LocalException('Ice:ArgumentException', ...
@@ -33,6 +34,10 @@ classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
         end
 
         function r = newInstance(obj, typeId)
+            arguments
+                obj (1, 1) Ice.ClassSliceLoader
+                typeId (1, :) char
+            end
             constructor = lookup(obj.typeIdToConstructorMap, typeId, FallbackValue=obj.CreateEmptyArray);
             r = constructor();
         end

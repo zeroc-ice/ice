@@ -145,12 +145,10 @@ classdef Communicator < IceInternal.WrapperObject
 
             arguments
                 ~
-                proxy (1, 1) Ice.ObjectPrx
+                proxy Ice.ObjectPrx {mustBeScalarOrEmpty}
             end
             if isempty(proxy)
                 r = '';
-            elseif ~isa(proxy, 'Ice.ObjectPrx')
-                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a proxy'));
             else
                 r = proxy.ice_toString();
             end
