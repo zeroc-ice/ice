@@ -62,4 +62,12 @@ $(eval $(call install-data-files,$(wildcard $(lang_srcdir)/config/*.cmake),$(lan
 install-cmake:: install-cmake-$(1)
 endef
 
-$(foreach p,$(platforms),$(eval $(call install-cmake-files,$p)))
+ifeq ($(os),Darwin)
+  # Only install CMake files for macosx on Darwin.
+  # We skip iphoneos and iphonesimulator platforms.
+  ifneq ($(filter macosx, $(platforms)),)
+    $(eval $(call install-cmake-files,macosx))
+  endif
+else
+  $(foreach p,$(platforms),$(eval $(call install-cmake-files,$p)))
+endif

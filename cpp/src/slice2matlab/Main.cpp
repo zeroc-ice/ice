@@ -34,6 +34,18 @@ using namespace IceInternal;
 
 namespace
 {
+    string checkAndEscapeParam(string_view param, const ParameterList& allParams)
+    {
+        for (const auto& p : allParams)
+        {
+            if (p->mappedName() == param)
+            {
+                return string{param} + "_";
+            }
+        }
+        return string{param};
+    }
+
     void writeCopyright(IceInternal::Output& out, string_view file)
     {
         string::size_type pos = file.find_last_of('/');
@@ -124,7 +136,7 @@ namespace
             "single",
             "double",
             "char",
-            "Ice.Object",    // Object
+            "Ice.Value",     // Object
             "Ice.ObjectPrx", // ObjectPrx
             "Ice.Value"      // Value
         };
@@ -134,39 +146,27 @@ namespace
             return "void";
         }
 
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-        if (builtin)
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
             return builtinTable[builtin->kind()];
         }
 
-        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-        if (cl)
+        if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
         {
             return cl->mappedScoped(".");
         }
 
-        InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-        if (proxy)
+        if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
         {
             return proxy->mappedScoped(".") + "Prx";
         }
 
-        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-        if (dict)
+        if (dynamic_pointer_cast<Dictionary>(type))
         {
-            if (dynamic_pointer_cast<Struct>(dict->keyType()))
-            {
-                return "struct";
-            }
-            else
-            {
-                return "containers.Map";
-            }
+            return "dictionary";
         }
 
-        ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
-        if (contained)
+        if (auto contained = dynamic_pointer_cast<Contained>(type))
         {
             return contained->mappedScoped(".");
         }
@@ -174,78 +174,30 @@ namespace
         return "???";
     }
 
-    string dictionaryTypeToString(const TypePtr& type, bool key)
+    // Type represents a dictionary value type or the type of a sequence element.
+    // Returns true if when the mapped dictionary value type is a scalar, as opposed to a cell array. For sequences,
+    // returns true when the sequence maps to a regular array as opposed to a cell array.
+    bool isMappedToScalar(const TypePtr& type)
     {
-        assert(type);
-
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-        if (builtin)
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
             switch (builtin->kind())
             {
                 case Builtin::KindBool:
                 case Builtin::KindByte:
                 case Builtin::KindShort:
-                {
-                    //
-                    // containers.Map supports a limited number of key types.
-                    //
-                    return key ? "int32" : typeToString(type);
-                }
                 case Builtin::KindInt:
                 case Builtin::KindLong:
-                case Builtin::KindString:
-                {
-                    return typeToString(type);
-                }
                 case Builtin::KindFloat:
                 case Builtin::KindDouble:
-                {
-                    assert(!key);
-                    return typeToString(type);
-                }
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindValue:
-                {
-                    assert(!key);
-                    return "any";
-                }
+                case Builtin::KindString:
+                    return true;
                 default:
-                {
-                    return "???";
-                }
+                    return false;
             }
         }
 
-        EnumPtr en = dynamic_pointer_cast<Enum>(type);
-        if (en)
-        {
-            //
-            // containers.Map doesn't natively support enumerators as keys but we can work around it using int32.
-            //
-            return key ? "int32" : "any";
-        }
-
-        return "any";
-    }
-
-    bool declarePropertyType(const TypePtr& type, bool optional)
-    {
-        if (optional || dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<InterfaceDecl>(type) ||
-            dynamic_pointer_cast<ClassDecl>(type))
-        {
-            return false;
-        }
-
-        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-        if (b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindObjectProxy ||
-                  b->kind() == Builtin::KindValue))
-        {
-            return false;
-        }
-
-        return true;
+        return dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Struct>(type);
     }
 
     string constantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
@@ -301,13 +253,14 @@ namespace
 
     string defaultValue(const DataMemberPtr& m)
     {
-        if (m->defaultValue())
+        if (m->defaultValue()) // explicit default value
         {
             return constantValue(m->type(), m->defaultValueType(), *m->defaultValue());
         }
-        else if (m->optional())
+        else if (m->optional() && !isProxyType(m->type()))
         {
-            return isProxyType(m->type()) ? "[]" : "IceInternal.UnsetI.Instance";
+            // We don't distinguish between unset and "null" (empty) for proxy types. We always use empty for them.
+            return "IceInternal.UnsetI.Instance";
         }
         else
         {
@@ -316,59 +269,48 @@ namespace
             {
                 switch (builtin->kind())
                 {
-                    case Builtin::KindString:
-                        return "''";
                     case Builtin::KindBool:
-                        return "false";
                     case Builtin::KindByte:
                     case Builtin::KindShort:
                     case Builtin::KindInt:
                     case Builtin::KindLong:
                     case Builtin::KindFloat:
                     case Builtin::KindDouble:
-                        return "0";
-                    case Builtin::KindObject:
+                    case Builtin::KindString:
+                        return ""; // use implicit default
                     case Builtin::KindObjectProxy:
+                        return "Ice.ObjectPrx.empty";
+                    case Builtin::KindObject:
                     case Builtin::KindValue:
-                        return "[]";
+                        return "Ice.UnknownSlicedValue.empty";
                 }
             }
 
-            DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(m->type());
-            if (dict)
+            if (auto dict = dynamic_pointer_cast<Dictionary>(m->type()))
             {
+                // Generate configured empty dictionary.
                 const TypePtr key = dict->keyType();
                 const TypePtr value = dict->valueType();
-                if (dynamic_pointer_cast<Struct>(key))
-                {
-                    //
-                    // We use a struct array when the key is a structure type because we can't use containers.Map.
-                    //
-                    return "struct('key', {}, 'value', {})";
-                }
-                else
-                {
-                    ostringstream ostr;
-                    ostr << "containers.Map('KeyType', '" << dictionaryTypeToString(key, true) << "', 'ValueType', '"
-                         << dictionaryTypeToString(value, false) << "')";
-                    return ostr.str();
-                }
+                ostringstream ostr;
+                ostr << "configureDictionary('" << typeToString(key) << "', '"
+                     << (isMappedToScalar(value) ? typeToString(value) : "cell") << "')";
+                return ostr.str();
             }
 
-            EnumPtr en = dynamic_pointer_cast<Enum>(m->type());
-            if (en)
+            if (auto seq = dynamic_pointer_cast<Sequence>(m->type()); seq && seq->type()->usesClasses())
             {
-                const EnumeratorList enumerators = en->enumerators();
-                return (*enumerators.begin())->mappedScoped(".");
+                // Property has no type, so we need to generate an empty cell array.
+                return "{}";
             }
 
-            StructPtr st = dynamic_pointer_cast<Struct>(m->type());
-            if (st)
+            if (dynamic_pointer_cast<InterfaceDecl>(m->type()) || dynamic_pointer_cast<Struct>(m->type()) ||
+                m->type()->usesClasses())
             {
-                return st->mappedScoped(".") + "()";
+                // Use .empty for proxies, structs and untyped properties.
+                return typeToString(m->type()) + ".empty";
             }
 
-            return "[]";
+            return ""; // use implicit default
         }
     }
 
@@ -379,35 +321,7 @@ namespace
         return (b && b->kind() == Builtin::KindObjectProxy) || p;
     }
 
-    bool needsConversion(const TypePtr& type)
-    {
-        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-        if (seq)
-        {
-            return seq->type()->isClassType() || needsConversion(seq->type());
-        }
-
-        StructPtr st = dynamic_pointer_cast<Struct>(type);
-        if (st)
-        {
-            for (const auto& dm : st->dataMembers())
-            {
-                if (needsConversion(dm->type()) || dm->type()->isClassType())
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-        if (d)
-        {
-            return needsConversion(d->valueType()) || d->valueType()->isClassType();
-        }
-
-        return false;
-    }
+    bool needsConversion(const TypePtr& type) { return type->usesClasses() && !type->isClassType(); }
 
     void convertValueType(
         IceInternal::Output& out,
@@ -691,19 +605,13 @@ namespace
         out << nl << "% Parameters:";
         const auto& docParameters = doc->parameters();
         const ParameterList inParams = p->inParameters();
-        string ctxName = "context";
-        string resultName = "result";
+        const ParameterList allParams = p->parameters();
+
+        string contextParam = checkAndEscapeParam("context", allParams);
+        string resultName = checkAndEscapeParam("result", allParams);
+
         for (const auto& inParam : inParams)
         {
-            if (inParam->mappedName() == "context")
-            {
-                ctxName = "context_";
-            }
-            if (inParam->mappedName() == "result")
-            {
-                resultName = "result_";
-            }
-
             out << nl << "%   " << inParam->mappedName() << " (" << typeToString(inParam->type()) << ")";
             auto r = docParameters.find(inParam->name());
             if (r != docParameters.end() && !r->second.empty())
@@ -712,7 +620,7 @@ namespace
                 writeDocLines(out, r->second, false, "     ");
             }
         }
-        out << nl << "%   " << ctxName << " (containers.Map) - Optional request context.";
+        out << nl << "%   " << contextParam << " (dictionary) - Optional request context.";
 
         if (async)
         {
@@ -724,14 +632,6 @@ namespace
             if (p->returnsAnyValues())
             {
                 const ParameterList outParams = p->outParameters();
-                for (const auto& outParam : outParams)
-                {
-                    if (outParam->mappedName() == "result")
-                    {
-                        resultName = "result_";
-                    }
-                }
-
                 out << nl << "%";
                 if (p->returnType() && outParams.empty())
                 {
@@ -950,6 +850,183 @@ namespace
         }
     }
 
+    void declareProperty(IceInternal::Output& out, const DataMemberPtr& field)
+    {
+        writeMemberDoc(out, field);
+        out << nl << field->mappedName();
+
+        TypePtr type = field->type();
+
+        // First the dimensions:
+        // - (1, 1) for simple scalar types, enums and dictionaries.
+        // - (1, :) for strings and sequences.
+        // - no dimensions for proxies, classes, structs because we add later the {mustBeScalarOrEmpty} constraint.
+
+        bool mustBeScalarOrEmpty = false;
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
+        {
+            if (builtin->kind() < Builtin::KindString)
+            {
+                out << " (1, 1)";
+            }
+            else if (builtin->kind() == Builtin::KindString)
+            {
+                out << " (1, :)";
+            }
+            else
+            {
+                mustBeScalarOrEmpty = true;
+            }
+        }
+        else if (dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type))
+        {
+            out << " (1, 1)";
+        }
+        else if (dynamic_pointer_cast<Sequence>(type))
+        {
+            out << " (1, :)";
+        }
+        else // proxies, classes, structs
+        {
+            mustBeScalarOrEmpty = true;
+        }
+
+        // We can't specify a type for optional fields because we can't represent "not set" with the same MATLAB type.
+        // For some types, we could use an empty array, but this does not work for sequences mapped to arrays or cells,
+        // nor does it work for dictionaries.
+        //
+        // We also can't specify a type for class fields (in structs and exceptions, because we convert them in place;
+        // we do the same for class fields in classes for consistency). Likewise, we can't specify a type for fields
+        // that use classes (but are not classes), since we convert them in place.
+        if (!field->optional() && !type->usesClasses())
+        {
+            if (auto seq = dynamic_pointer_cast<Sequence>(type))
+            {
+                if (isMappedToScalar(seq->type()))
+                {
+                    out << " " << typeToString(seq->type());
+                }
+                else
+                {
+                    out << " cell";
+                }
+            }
+            else
+            {
+                out << " " << typeToString(type);
+            }
+        }
+
+        if (mustBeScalarOrEmpty)
+        {
+            // Generate constraint.
+            out << " {mustBeScalarOrEmpty}";
+        }
+
+        // Specify the default value.
+        string defaultValueStr = defaultValue(field);
+        if (!defaultValueStr.empty())
+        {
+            out << " = " << defaultValueStr;
+        }
+    }
+
+    void declareArgument(IceInternal::Output& out, const ParameterPtr& param)
+    {
+        out << nl << param->mappedName();
+
+        TypePtr type = param->type();
+
+        // First the dimensions
+
+        bool mustBeScalarOrEmpty = false;
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
+        {
+            if (builtin->kind() == Builtin::KindString)
+            {
+                out << " (1, :)";
+            }
+            else if (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)
+            {
+                mustBeScalarOrEmpty = true;
+            }
+            else
+            {
+                out << " (1, 1)";
+            }
+        }
+        else if (
+            dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type) ||
+            dynamic_pointer_cast<Struct>(type))
+        {
+            out << " (1, 1)";
+        }
+        else if (dynamic_pointer_cast<Sequence>(type))
+        {
+            out << " (1, :)";
+        }
+        else // proxies and classes
+        {
+            mustBeScalarOrEmpty = true;
+        }
+
+        // We can't specify a type for optional parameter because we can't represent "not set" with the same MATLAB
+        // type.
+        if (!param->optional())
+        {
+            if (auto seq = dynamic_pointer_cast<Sequence>(type))
+            {
+                TypePtr seqType = seq->type();
+                if (isMappedToScalar(seqType))
+                {
+                    // sequence<string> maps to array of string, not to array of char.
+                    if (auto builtin = dynamic_pointer_cast<Builtin>(seqType);
+                        builtin && builtin->kind() == Builtin::KindString)
+                    {
+                        out << " string";
+                    }
+                    else
+                    {
+                        out << " " << typeToString(seqType);
+                    }
+                }
+                else
+                {
+                    out << " cell";
+                }
+            }
+            else
+            {
+                out << " " << typeToString(type);
+            }
+        }
+
+        if (mustBeScalarOrEmpty)
+        {
+            // Generate constraint.
+            out << " {mustBeScalarOrEmpty}";
+        }
+    }
+
+    void writeArguments(
+        IceInternal::Output& out,
+        const string& self,
+        const string& proxyType,
+        const ParameterList& inParams,
+        const string& contextParam)
+    {
+        out << nl << "arguments";
+        out.inc();
+        out << nl << self << " (1, 1) " << proxyType;
+        for (const auto& param : inParams)
+        {
+            declareArgument(out, param);
+        }
+        out << nl << contextParam << " (1, 1) dictionary = dictionary";
+        out.dec();
+        out << nl << "end";
+    }
+
     void validateMetadata(const UnitPtr& unit)
     {
         map<string, MetadataInfo> knownMetadata;
@@ -1011,7 +1088,7 @@ private:
     void unmarshalStruct(IceInternal::Output&, const StructPtr&, const string&);
     void convertStruct(IceInternal::Output&, const StructPtr&, const string&);
 
-    void writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers, bool noInit);
+    void writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers);
 
     const string _dir;
 };
@@ -1055,12 +1132,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.inc();
         for (const auto& q : members)
         {
-            writeMemberDoc(out, q);
-            out << nl << q->mappedName();
-            if (declarePropertyType(q->type(), q->optional()))
-            {
-                out << " " << typeToString(q->type());
-            }
+            declareProperty(out, q);
         }
         out.dec();
         out << nl << "end";
@@ -1072,19 +1144,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Constructor
     //
-    if (allMembers.empty())
-    {
-        out << nl << "function " << self << " = " << name << spar << "noInit" << epar;
-        out.inc();
-        out << nl << "if nargin == 1 && ne(noInit, IceInternal.NoInit.Instance)";
-        out.inc();
-        out << nl << "narginchk(0,0);";
-        out.dec();
-        out << nl << "end";
-        out.dec();
-        out << nl << "end";
-    }
-    else
+    if (!members.empty()) // else no need to define a constructor: we inherit the base class constructor
     {
         const auto firstMember = *allMembers.begin();
 
@@ -1101,45 +1161,36 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out << nl << "if nargin == 0";
             out.inc();
-            for (const auto& member : allMembers)
-            {
-                out << nl << member->mappedName() << " = " << defaultValue(member) << ';';
-            }
-            writeBaseClassArrayParams(out, baseMembers, false);
-            out.dec();
-            out << nl << "elseif eq(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
-            out.inc();
-            writeBaseClassArrayParams(out, baseMembers, true);
+            out << nl << "superArgs = {};";
             out.dec();
             out << nl << "else";
             out.inc();
-            writeBaseClassArrayParams(out, baseMembers, false);
+            out << nl << "assert(nargin == " << allMembers.size() << ", 'Invalid number of arguments');";
+            writeBaseClassArrayParams(out, baseMembers);
             out.dec();
             out << nl << "end";
 
-            out << nl << self << " = " << self << "@" << base->mappedScoped(".") << "(v{:});";
+            out << nl << self << " = " << self << "@" << base->mappedScoped(".") << "(superArgs{:});";
 
-            out << nl << "if ne(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
-            out.inc();
-            for (const auto& member : members)
+            if (!members.empty())
             {
-                const string memberName = member->mappedName();
-                out << nl << self << "." << memberName << " = " << memberName << ';';
+                // Set this class properties.
+                out << nl << "if nargin > 0";
+                out.inc();
+                for (const auto& member : members)
+                {
+                    const string memberName = member->mappedName();
+                    out << nl << self << "." << memberName << " = " << memberName << ';';
+                }
+                out.dec();
+                out << nl << "end";
             }
-            out.dec();
-            out << nl << "end";
         }
         else
         {
-            out << nl << "if nargin == 0";
+            out << nl << "if nargin > 0";
             out.inc();
-            for (const auto& member : allMembers)
-            {
-                out << nl << self << "." << member->mappedName() << " = " << defaultValue(member) << ';';
-            }
-            out.dec();
-            out << nl << "elseif ne(" << firstMember->mappedName() << ", IceInternal.NoInit.Instance)";
-            out.inc();
+            out << nl << "assert(nargin == " << allMembers.size() << ", 'Invalid number of arguments');";
             for (const auto& member : allMembers)
             {
                 const string memberName = member->mappedName();
@@ -1234,7 +1285,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if (dm->type()->isClassType())
             {
-                unmarshal(out, "is", "@obj.iceSetMember_" + dm->mappedName(), dm->type(), false, 0);
+                unmarshal(out, "is", "@obj.iceSetProperty_" + dm->mappedName(), dm->type(), false, 0);
             }
             else
             {
@@ -1255,22 +1306,15 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    DataMemberList classMembers = p->classDataMembers();
-    if (!classMembers.empty())
+    // Generate an iceSetProperty_name method for all class fields.
+    for (const auto& classField : p->classDataMembers())
     {
-        //
-        // For each class data member, we generate an "iceSetMember_<name>" method that is called when the
-        // instance is eventually unmarshaled.
-        //
-        for (const auto& classMember : classMembers)
-        {
-            string m = classMember->mappedName();
-            out << nl << "function iceSetMember_" << m << "(obj, v)";
-            out.inc();
-            out << nl << "obj." << m << " = v;";
-            out.dec();
-            out << nl << "end";
-        }
+        string m = classField->mappedName();
+        out << nl << "function iceSetProperty_" << m << "(obj, v)";
+        out.inc();
+        out << nl << "obj." << m << " = v;";
+        out.dec();
+        out << nl << "end";
     }
 
     out.dec();
@@ -1352,6 +1396,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const ParameterList inParams = op->inParameters();
         const ParameterList sortedInParams = op->sortedInParameters();
         const ParameterList outParams = op->outParameters();
+        const ParameterList allParams = op->parameters();
         const bool returnsMultipleValues = op->returnsMultipleValues();
         const bool returnsAnyValues = op->returnsAnyValues();
 
@@ -1373,24 +1418,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             hasExceptions = true;
         }
 
-        // Check if we need to escape the "obj" parameter.
-        string self = "obj";
-        for (const auto& param : outParams)
-        {
-            if (param->mappedName() == "obj")
-            {
-                self = "obj_";
-                break;
-            }
-        }
-        for (const auto& param : inParams)
-        {
-            if (param->mappedName() == "obj")
-            {
-                self = "obj_";
-                break;
-            }
-        }
+        string self = checkAndEscapeParam("obj", allParams);
+        string contextParam = checkAndEscapeParam("context", allParams);
 
         //
         // Synchronous method.
@@ -1417,11 +1446,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << param->mappedName();
         }
-        out << "varargin"; // For the optional context
+        out << contextParam;
         out << epar;
         out.inc();
 
         writeOpDocSummary(out, op, false);
+        writeArguments(out, self, prxAbs, inParams, contextParam);
 
         if (!inParams.empty())
         {
@@ -1460,7 +1490,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
         }
-        out << ", varargin{:});";
+        out << ", " << contextParam << ");";
 
         if (twowayOnly && returnsAnyValues)
         {
@@ -1529,11 +1559,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << param->mappedName();
         }
-        out << "varargin"; // For the optional context
+        out << contextParam;
         out << epar;
         out.inc();
 
         writeOpDocSummary(out, op, true);
+        writeArguments(out, self, prxAbs, inParams, contextParam);
 
         if (!inParams.empty())
         {
@@ -1624,7 +1655,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
         }
-        out << ", varargin{:});";
+        out << ", " << contextParam << ");";
 
         out.dec();
         out << nl << "end";
@@ -1648,16 +1679,24 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "function r = checkedCast(p, varargin)";
     out.inc();
     out << nl << "% checkedCast   Contacts the remote server to verify that the object implements this type.";
-    out << nl << "%   Raises a local exception if a communication error occurs. You can optionally supply a";
-    out << nl << "%   facet name and a context map.";
     out << nl << "%";
     out << nl << "% Parameters:";
-    out << nl << "%   p - The proxy to be cast.";
-    out << nl << "%   facet - The optional name of the desired facet.";
-    out << nl << "%   context - The optional context map to send with the invocation.";
+    out << nl << "%   p - The proxy to be check.";
+    out << nl << "%   facet - The desired facet (optional).";
+    out << nl << "%   context - The request context (optional).";
     out << nl << "%";
     out << nl << "% Returns (" << prxAbs << ") - A proxy for this type, or an empty array if the object"
         << " does not support this type.";
+    out << nl << "arguments";
+    out.inc();
+    out << nl << "p Ice.ObjectPrx {mustBeScalarOrEmpty}";
+    out.dec();
+    out << nl << "end";
+    out << nl << "arguments (Repeating)";
+    out.inc();
+    out << nl << "varargin % facet or context, or both, or neither";
+    out.dec();
+    out << nl << "end";
     out << nl << "r = Ice.ObjectPrx.iceCheckedCast(p, " << prxAbs << ".ice_staticId(), '" << prxAbs
         << "', varargin{:});";
     out.dec();
@@ -1665,13 +1704,22 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "function r = uncheckedCast(p, varargin)";
     out.inc();
     out << nl << "% uncheckedCast   Downcasts the given proxy to this type without contacting the remote server.";
-    out << nl << "%   You can optionally specify a facet name.";
     out << nl << "%";
     out << nl << "% Parameters:";
     out << nl << "%   p - The proxy to be cast.";
-    out << nl << "%   facet - The optional name of the desired facet.";
+    out << nl << "%   facet - The desired facet (optional).";
     out << nl << "%";
     out << nl << "% Returns (" << prxAbs << ") - A proxy for this type.";
+    out << nl << "arguments";
+    out.inc();
+    out << nl << "p Ice.ObjectPrx {mustBeScalarOrEmpty}";
+    out.dec();
+    out << nl << "end";
+    out << nl << "arguments (Repeating)";
+    out.inc();
+    out << nl << "varargin (1, :) char";
+    out.dec();
+    out << nl << "end";
     out << nl << "r = Ice.ObjectPrx.iceUncheckedCast(p, '" << prxAbs << "', varargin{:});";
     out.dec();
     out << nl << "end";
@@ -1756,12 +1804,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out.inc();
         for (const auto& member : members)
         {
-            writeMemberDoc(out, member);
-            out << nl << member->mappedName();
-            if (declarePropertyType(member->type(), member->optional()))
-            {
-                out << " " << typeToString(member->type());
-            }
+            declareProperty(out, member);
         }
         out.dec();
         out << nl << "end";
@@ -1797,6 +1840,10 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         errID[pos] = ':';
         pos = errID.find('.', pos);
     }
+
+    // InputStream always create a user exception with no argument. A derived exception class created with no argument
+    // gives two arguments to its base class constructor. That's why the constructor needs to accept two arguments as
+    // well.
 
     out << nl << "if nargin == 0";
     out.inc();
@@ -1882,15 +1929,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     for (const auto& dm : optionalMembers)
     {
         const string m = dm->mappedName();
-        if (dm->type()->isClassType())
-        {
-            out << nl << "obj." << m << " = IceInternal.ValueHolder();";
-            unmarshal(out, "is", "@(v) obj." + m + ".set(v)", dm->type(), true, dm->tag());
-        }
-        else
-        {
-            unmarshal(out, "is", "obj." + m, dm->type(), true, dm->tag());
-        }
+        assert(!dm->type()->isClassType()); // guaranteed by the parser.
+        unmarshal(out, "is", "obj." + m, dm->type(), true, dm->tag());
     }
     out << nl << "is.endSlice();";
     if (base)
@@ -1932,7 +1972,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList members = p->dataMembers();
     const DataMemberList classMembers = p->classDataMembers();
 
-    out << nl << "classdef " << name;
+    out << nl << "classdef (Sealed) " << name;
 
     out.inc();
     out << nl << "properties";
@@ -1943,12 +1983,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     {
         const string m = member->mappedName();
         memberNames.push_back(m);
-        writeMemberDoc(out, member);
-        out << nl << m;
-        if (declarePropertyType(member->type(), false))
-        {
-            out << " " << typeToString(member->type());
-        }
+        declareProperty(out, member);
 
         if (needsConversion(member->type()))
         {
@@ -1963,21 +1998,17 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     string self = name == "obj" ? "this" : "obj";
     out << nl << "function " << self << " = " << name << spar << memberNames << epar;
     out.inc();
-    out << nl << "if nargin == 0";
+    // We rely on the default values when nargin is 0.
+    out << nl << "if nargin > 0";
     out.inc();
-    for (const auto& member : members)
-    {
-        out << nl << self << "." << member->mappedName() << " = " << defaultValue(member) << ';';
-    }
-    out.dec();
-    out << nl << "elseif ne(" << (*members.begin())->mappedName() << ", IceInternal.NoInit.Instance)";
-    out.inc();
+    out << nl << "assert(nargin == " << members.size() << ", 'Invalid number of arguments');";
     for (const auto& memberName : memberNames)
     {
         out << nl << self << "." << memberName << " = " << memberName << ';';
     }
     out.dec();
     out << nl << "end";
+
     out.dec();
     out << nl << "end";
     out << nl << "function r = eq(obj, other)";
@@ -2007,7 +2038,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.inc();
     out << nl << "function r = ice_read(is)";
     out.inc();
-    out << nl << "r = " << abs << "(IceInternal.NoInit.Instance);";
+    out << nl << "r = " << abs << "();";
     unmarshalStruct(out, p, "r");
     out.dec();
     out << nl << "end";
@@ -2183,7 +2214,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         out.dec();
         out << nl << "end";
     }
-    else if ((b && b->kind() == Builtin::KindString) || dictContent || seqContent || proxy)
+    else if (dictContent || seqContent || proxy)
     {
         //
         // These types require a cell array.
@@ -2375,9 +2406,8 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const TypePtr key = p->keyType();
     const TypePtr value = p->valueType();
     const bool cls = value->isClassType();
+    const bool scalarValue = isMappedToScalar(value);
     const bool convert = needsConversion(value);
-
-    const StructPtr st = dynamic_pointer_cast<Struct>(key);
 
     const string name = p->mappedName();
     const string abs = p->mappedScoped(".");
@@ -2412,32 +2442,26 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out.dec();
     out << nl << "else";
     out.inc();
-    if (st)
+
+    out << nl << "sz = d.numEntries;";
+    out << nl << "os.writeSize(sz);";
+    out << nl << "entries = d.entries;";
+    out << nl << "for i = 1:sz";
+    out.inc();
+
+    marshal(out, "os", "entries{i, 1}", key, false, 0);
+
+    if (scalarValue)
     {
-        out << nl << "sz = length(d);";
-        out << nl << "os.writeSize(sz);";
-        out << nl << "for i = 1:sz";
-        out.inc();
-        marshal(out, "os", "d(i).key", key, false, 0);
-        marshal(out, "os", "d(i).value", value, false, 0);
-        out.dec();
-        out << nl << "end";
+        marshal(out, "os", "entries{i, 2}", value, false, 0);
     }
     else
     {
-        out << nl << "sz = d.Count;";
-        out << nl << "os.writeSize(sz);";
-        out << nl << "keys = d.keys();";
-        out << nl << "values = d.values();";
-        out << nl << "for i = 1:sz";
-        out.inc();
-        out << nl << "k = keys{i};";
-        out << nl << "v = values{i};";
-        marshal(out, "os", "k", key, false, 0);
-        marshal(out, "os", "v", value, false, 0);
-        out.dec();
-        out << nl << "end";
+        marshal(out, "os", "entries{i, 2}{1, 1}", value, false, 0); // "unwrap" the cell array
     }
+
+    out.dec();
+    out << nl << "end";
     out.dec();
     out << nl << "end";
     out.dec();
@@ -2446,18 +2470,11 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "function r = read(is)";
     out.inc();
     out << nl << "sz = is.readSize();";
-    if (st)
-    {
-        //
-        // We use a struct array when the key is a structure type because we can't use containers.Map.
-        //
-        out << nl << "r = struct('key', {}, 'value', {});";
-    }
-    else
-    {
-        out << nl << "r = containers.Map('KeyType', '" << dictionaryTypeToString(key, true) << "', 'ValueType', '"
-            << dictionaryTypeToString(value, false) << "');";
-    }
+
+    string valueType = scalarValue ? typeToString(value) : "cell";
+
+    // Can be a temporary dictionary that needs to be converted later.
+    out << nl << "r = configureDictionary('" << typeToString(key) << "', '" << valueType << "');";
     out << nl << "for i = 1:sz";
     out.inc();
 
@@ -2473,18 +2490,13 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         unmarshal(out, "is", "v", value, false, 0);
     }
 
-    if (st)
+    if (scalarValue)
     {
-        out << nl << "r(i).key = k;";
-        out << nl << "r(i).value = v;";
-    }
-    else if (dynamic_pointer_cast<Enum>(key))
-    {
-        out << nl << "r(int32(k)) = v;";
+        out << nl << "r(k) = v;";
     }
     else
     {
-        out << nl << "r(k) = v;";
+        out << nl << "r{k} = v;"; // cell array value
     }
 
     out.dec();
@@ -2496,7 +2508,8 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     {
         out << nl << "function writeOpt(os, tag, d)";
         out.inc();
-        out << nl << "if d ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
+        // We can't compare against Ice.Unset because dictionary doesn't implement equality.
+        out << nl << "if isa(d, 'dictionary') && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
         out.inc();
         if (key->isVariableLength() || value->isVariableLength())
         {
@@ -2507,14 +2520,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         else
         {
             const size_t sz = key->minWireSize() + value->minWireSize();
-            if (cls)
-            {
-                out << nl << "len = length(d.array);";
-            }
-            else
-            {
-                out << nl << "len = length(d);";
-            }
+            out << nl << "len = d.numEntries;";
             out << nl << "if len > 254";
             out.inc();
             out << nl << "os.writeSize(len * " << sz << " + 5);";
@@ -2558,47 +2564,37 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     {
         out << nl << "function r = convert(d)";
         out.inc();
-        if (st)
+        out << nl << "r = d;"; // rewrite input argument
+        out << nl << "keys = d.keys;";
+        out << nl << "values = d.values;";
+        out << nl << "for i = 1:d.numEntries";
+        out.inc();
+        out << nl << "k = keys(i);";
+
+        if (scalarValue)
         {
-            out << nl << "for i = 1:length(d)";
-            out.inc();
-            if (cls)
-            {
-                //
-                // Each entry has a temporary ValueHolder that we need to replace with the actual value.
-                //
-                out << nl << "d(i).value = d(i).value.value;";
-            }
-            else
-            {
-                convertValueType(out, "d(i).value", "d(i).value", value, false);
-            }
-            out.dec();
-            out << nl << "end";
+            out << nl << "v = values(i);";
         }
         else
         {
-            out << nl << "keys = d.keys();";
-            out << nl << "values = d.values();";
-            out << nl << "for i = 1:d.Count";
-            out.inc();
-            out << nl << "k = keys{i};";
             out << nl << "v = values{i};";
-            if (cls)
-            {
-                //
-                // Each entry has a temporary ValueHolder that we need to replace with the actual value.
-                //
-                out << nl << "d(k) = v.value;";
-            }
-            else
-            {
-                convertValueType(out, "d(k)", "v", value, false);
-            }
-            out.dec();
-            out << nl << "end";
         }
-        out << nl << "r = d;";
+
+        if (cls)
+        {
+            // Each entry has a temporary ValueHolder that we need to replace with the actual value wrapped in a cell.
+            out << nl << "r{k} = v.value;";
+        }
+        else if (scalarValue)
+        {
+            convertValueType(out, "r(k)", "v", value, false);
+        }
+        else
+        {
+            convertValueType(out, "r{k}", "v", value, false); // cell value syntax
+        }
+        out.dec();
+        out << nl << "end";
         out.dec();
         out << nl << "end";
     }
@@ -3306,24 +3302,15 @@ CodeVisitor::convertStruct(IceInternal::Output& out, const StructPtr& p, const s
 }
 
 void
-CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers, bool noInit)
+CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers)
 {
-    out << nl << "v = { ";
-    bool first = true;
+    out << nl << "superArgs = ";
+    out.spar("{");
     for (const auto& member : baseMembers)
     {
-        const string memberName = member->mappedName();
-        if (first)
-        {
-            out << (noInit ? "IceInternal.NoInit.Instance" : memberName);
-            first = false;
-        }
-        else
-        {
-            out << ", " << (noInit ? "[]" : memberName);
-        }
+        out << member->mappedName();
     }
-    out << " };";
+    out.epar("};");
 }
 
 namespace

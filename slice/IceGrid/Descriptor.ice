@@ -450,6 +450,7 @@ module IceGrid
         BoxedString description;
 
         /// The updated distribution application descriptor.
+        ["deprecated"]
         BoxedDistributionDescriptor distrib;
 
         /// The variables to update.

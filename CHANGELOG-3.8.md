@@ -192,34 +192,34 @@ classDiagram
 
 - Consolidate and refactor the exceptions derived from LocalException.
 
-  | Local exception in Ice 3.7          | Replacement                | Notes    |
-  |-------------------------------------|----------------------------| ---------|
-  | BadMagicException                   | ProtocolException (base)   |          |
-  | CFNetworkException                  | SocketException (base)     |          |
-  | CloneNotImplementedException        | std::logic_error           | C++ only |
-  | CompressionException                | ProtocolException (base)   |          |
-  | ConnectionManuallyClosedException   | ConnectionAbortedException, ConnectionClosedException   | |
-  | ConnectionNotValidatedException     | ProtocolException (base)   |          |
-  | EncapsulationException              | MarshalException (base)    |          |
-  | EndpointParseException              | ParseException             |          |
-  | EndpointSelectionTypeParseException | ParseException             |          |
-  | IllegalIdentityException            | ArgumentException (C#), std::invalid_argument (C++), IllegalArgumentException (Java)     | |
-  | IllegalMessageSizeException         | MarshalException           |          |
-  | IllegalServantException             | ArgumentNullException (C#), std::invalid_argument (C++), IllegalArgumentException (Java) | |
-  | IdentityParseException              | ParseException             |          |
-  | MemoryLimitException                | MarshalException (base)    |          |
-  | NoValueFactoryException             | MarshalException (base)    |          |
-  | ProxyParseException                 | ParseException             |          |
-  | ProxyUnmarshalException             | MarshalException (base)    |          |
-  | StringConversionException           | MarshalException (base)    |          |
-  | UnexpectedObjectException           | MarshalException (base)    |          |
-  | UnknownMessageException             | ProtocolException (base)   |          |
-  | UnknownReplyStatusException         | None: all values are now valid | |
-  | UnmarshalOutOfBoundsException       | MarshalException (base)    |          |
-  | UnsupportedEncodingException        | MarshalException           |          |
-  | UnsupportedProtocolException        | MarshalException, FeatureNotSupportedException | |
-  | VersionMismatchException            | InitializationException    |          |
-  | VersionParseException               | ParseException             |          |
+  | Local exception in Ice 3.7          | Replacement                                                                              | Notes    |
+  | ----------------------------------- | ---------------------------------------------------------------------------------------- | -------- |
+  | BadMagicException                   | ProtocolException (base)                                                                 |          |
+  | CFNetworkException                  | SocketException (base)                                                                   |          |
+  | CloneNotImplementedException        | std::logic_error                                                                         | C++ only |
+  | CompressionException                | ProtocolException (base)                                                                 |          |
+  | ConnectionManuallyClosedException   | ConnectionAbortedException, ConnectionClosedException                                    |          |
+  | ConnectionNotValidatedException     | ProtocolException (base)                                                                 |          |
+  | EncapsulationException              | MarshalException (base)                                                                  |          |
+  | EndpointParseException              | ParseException                                                                           |          |
+  | EndpointSelectionTypeParseException | ParseException                                                                           |          |
+  | IllegalIdentityException            | ArgumentException (C#), std::invalid_argument (C++), IllegalArgumentException (Java)     |          |
+  | IllegalMessageSizeException         | MarshalException                                                                         |          |
+  | IllegalServantException             | ArgumentNullException (C#), std::invalid_argument (C++), IllegalArgumentException (Java) |          |
+  | IdentityParseException              | ParseException                                                                           |          |
+  | MemoryLimitException                | MarshalException (base)                                                                  |          |
+  | NoValueFactoryException             | MarshalException (base)                                                                  |          |
+  | ProxyParseException                 | ParseException                                                                           |          |
+  | ProxyUnmarshalException             | MarshalException (base)                                                                  |          |
+  | StringConversionException           | MarshalException (base)                                                                  |          |
+  | UnexpectedObjectException           | MarshalException (base)                                                                  |          |
+  | UnknownMessageException             | ProtocolException (base)                                                                 |          |
+  | UnknownReplyStatusException         | None: all values are now valid                                                           |          |
+  | UnmarshalOutOfBoundsException       | MarshalException (base)                                                                  |          |
+  | UnsupportedEncodingException        | MarshalException                                                                         |          |
+  | UnsupportedProtocolException        | MarshalException, FeatureNotSupportedException                                           |          |
+  | VersionMismatchException            | InitializationException                                                                  |          |
+  | VersionParseException               | ParseException                                                                           |          |
 
   base = was existing base class
 
@@ -616,17 +616,17 @@ plug-ins are created during communicator initialization. See `InitializationData
 
   ### New C\# Packages
 
-    | Package                   | Description                                                                             |
-    |---------------------------|-----------------------------------------------------------------------------------------|
-    | iceboxnet                 | The IceBox server for .NET, packaged as a dotnet tool.                                  |
-    | ZeroC.Glacier2            | The Glacier2 assembly, used by Glacier2 client applications.                            |
-    | ZeroC.Ice                 | The main Ice assembly.                                                                  |
+    | Package                   | Description                                                                                             |
+    | ------------------------- | ------------------------------------------------------------------------------------------------------- |
+    | iceboxnet                 | The IceBox server for .NET, packaged as a dotnet tool.                                                  |
+    | ZeroC.Glacier2            | The Glacier2 assembly, used by Glacier2 client applications.                                            |
+    | ZeroC.Ice                 | The main Ice assembly.                                                                                  |
     | ZeroC.Ice.Slice.Tools     | The Slice compiler (slice2cs) and MSBuild integration. Replaces the `zeroc.icebuilder.msbuild` package. |
-    | ZeroC.IceBox              | The IceBox assembly.                                                                    |
-    | ZeroC.IceDiscovery        | The IceDiscovery plug-in.                                                               |
-    | ZeroC.IceGrid             | The IceGrid assembly, used by IceGrid client applications.                              |
-    | ZeroC.IceLocatorDiscovery | The IceLocatorDiscovery plug-in.                                                        |
-    | ZeroC.IceStorm            | The IceStorm assembly, used by publishers and subscribers for IceStorm.                 |
+    | ZeroC.IceBox              | The IceBox assembly.                                                                                    |
+    | ZeroC.IceDiscovery        | The IceDiscovery plug-in.                                                                               |
+    | ZeroC.IceGrid             | The IceGrid assembly, used by IceGrid client applications.                                              |
+    | ZeroC.IceLocatorDiscovery | The IceLocatorDiscovery plug-in.                                                                        |
+    | ZeroC.IceStorm            | The IceStorm assembly, used by publishers and subscribers for IceStorm.                                 |
 
 - Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept `TimeSpan`
   values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods now return a `TimeSpan`.
@@ -688,7 +688,41 @@ initialization. See `InitializationData.pluginFactories`.
 - **Slice `long` is now mapped to JavaScript `BigInt`.** For input parameters, both `number` and `BigInt` are accepted.
   The `Ice.Long` class has been removed.
 
+- The WebSocket transport is now supported with Node.js 24 and higher. In Node.js 23 and earlier, WebSocket connections
+  do not reliably report errors during connection establishment. We advise against using the WebSocket transport on
+  these versions.
+
 ## MATLAB Changes
+
+- Added argument validation for generated proxy methods.
+  - All argument types are now validated, except for parameters that correspond to optional Slice parameters.
+  - A proxy or class argument to set to "null" must now be an empty array of the associated type, such as
+    `GreeterPrx.empty`. `[]` is no longer a valid value for such arguments.
+
+- Changed the mapping for `sequence<string>`. A `sequence<string>` now maps to a MATLAB string array. This new mapping
+  remains highly compatible with the previous mapping (cell array of char).
+
+- Changed the mapping for Slice dictionaries. A Slice dictionary now always maps to a MATLAB dictionary; the old
+  `containers.Map` are no longer used.
+  The dictionary key type is the mapped key type. The dictionary value type is as per the table below:
+
+  | Slice type T mapped to MATLAB MT    | Value type of MATLAB dictionary | Mapping for `sequence<T>`                 |
+  |-------------------------------------|---------------------------------|-------------------------------------------|
+  | bool, numeric, struct, enum         | MT                              | array of MT                               |
+  | string                              | string (1)                      | array of string                           |
+  | sequence, dictionary, class, proxy  | cell holding a MT               | cell array of MT                          |
+
+  (1) A single Slice string maps to a MATLAB char array, not to a MATLAB string.
+
+- All fields are now mapped to typed MATLAB properties except optional fields and fields whose type is a class or uses
+  a class.
+  - In such properties, a null proxy is represented by an empty array of the proxy type, for example `GreeterPrx.empty`.
+    Likewise, an empty sequence (array) is represented by an empty array of the correct type, such as `string.empty` or
+    `int32.empty`.
+  - `[]` is no longer a valid value for proxy and sequence properties: always use a typed array.
+
+- Changed the default value for properties mapped from a Slice struct type. It's now an empty array of the mapped class;
+  it was previously a new instance of the mapped class created with no argument.
 
 - The default value for property `Ice.ProgramName` is now `matlab-client`. It used to be the first element in the args
   cell given to `Ice.initialize`.
@@ -748,10 +782,26 @@ initialization. See `InitializationData.pluginFactories`.
 
 ## Swift Changes
 
-- Simplified the server-side mapping by removing the generated Disp structs.
-  - You can now use the generated server-side protocols as servants / dispatchers, like in other language mappings.
-  - If you want to reuse a servant implementation in a derived servant class, you need to define or override the
-    `dispatch` method in all your servant classes. See the Ice/filesystem demo for an example.
+- Ice for Swift now requires Swift 6.1.
+
+- Removed support for Carthage. Ice for Swift now uses the Swift Package Manager (SwiftPM) for dependency management.
+
+- Updated to use async/await and fully support Swift's Structured Concurrency model.
+
+- Removed the dependency on `PromiseKit`. Functions which previously returned a `Promise` are now async functions.
+
+- Functions in dispatch protocols generated from Slice interfaces are now always async. The `amd` metadata directive has
+  no effect on the generated code.
+
+- Servants must now conform to the `Sendable` protocol.
+
+- Proxy methods generated from Slice interfaces are now always async. The `Async` suffixed functions have been
+  removed.
+
+- Simplified the server-side mapping by removing the generated Disp structs. You can now use the generated server-side
+  protocols as servants / dispatchers, like in other language mappings.
+
+- Added a SwiftPM plugin, `CompileSlice`, that lets you compile Slice files as part of SwiftPM and Xcode builds.
 
 ## DataStorm Changes
 

@@ -39,7 +39,7 @@ namespace Ice
     };
 
     /// Represents a collection of HTTP headers.
-    using HeaderDict = std::map<std::string, std::string>;
+    using HeaderDict = std::map<std::string, std::string, std::less<>>;
 
     /// The callback function given to Connection::setCloseCallback.
     /// @param con The connection that was closed. It's never a nullptr.

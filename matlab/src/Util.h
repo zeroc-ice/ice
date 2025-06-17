@@ -13,10 +13,16 @@ namespace IceMatlab
     int getEnumerator(mxArray*, const std::string&);
     mxArray* createIdentity(const Ice::Identity&);
     void getIdentity(mxArray*, Ice::Identity&);
-    mxArray* createStringMap(const std::map<std::string, std::string>&);
-    void getStringMap(mxArray*, std::map<std::string, std::string>&);
-    mxArray* createContext(const Ice::Context&);
+
+    /// Converts a C++ string map into a MATLAB dictionary.
+    mxArray* createStringMap(const std::map<std::string, std::string, std::less<>>&);
+
+    /// Alias for createStringMap.
+    inline mxArray* createContext(const Ice::Context& ctx) { return createStringMap(ctx); }
+
+    /// Converts a MATLAB dictionary into a C++ context (string map).
     void getContext(mxArray*, Ice::Context&);
+
     mxArray* createProtocolVersion(const Ice::ProtocolVersion&);
     mxArray* createEncodingVersion(const Ice::EncodingVersion&);
     void getEncodingVersion(mxArray*, Ice::EncodingVersion&);
@@ -24,8 +30,13 @@ namespace IceMatlab
     mxArray* createResultValue(mxArray*);
     mxArray* createResultException(mxArray*);
     mxArray* createOptionalValue(bool, mxArray*);
+
+    /// Converts a vector<string> into a MATLAB string array.
     mxArray* createStringList(const std::vector<std::string>&);
+
+    /// Converts a MATLAB string array or MATLAB cell array of char into a vector<string>.
     void getStringList(mxArray*, std::vector<std::string>&);
+
     mxArray* createByteArray(const std::byte*, const std::byte*);
 
     template<typename T> std::shared_ptr<T> deref(void* p) { return *reinterpret_cast<std::shared_ptr<T>*>(p); }

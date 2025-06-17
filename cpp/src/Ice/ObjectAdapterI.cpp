@@ -897,14 +897,26 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 
         {
             const int defaultMessageSizeMax = static_cast<int>(_instance->messageSizeMax() / 1024);
-            int32_t num = properties->getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
-            if (num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
+            int32_t messageSizeMax =
+                properties->getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
+            // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
+            // the maximum value of a 32-bit signed integer (int32_t).
+            const int32_t messageSizeMaxUpperLimit = numeric_limits<int32_t>::max();
+            if (messageSizeMax > messageSizeMaxUpperLimit / 1024)
             {
-                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
+                ostringstream os;
+                os << _name << ".MessageSizeMax '" << messageSizeMax
+                   << "' is too large, it must be less than or equal to '" << (messageSizeMaxUpperLimit / 1024)
+                   << "' KiB";
+                throw InitializationException{__FILE__, __LINE__, os.str()};
+            }
+            else if (messageSizeMax < 1)
+            {
+                const_cast<int32_t&>(_messageSizeMax) = 0x7fffffff;
             }
             else
             {
-                const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(num) * 1024;
+                const_cast<int32_t&>(_messageSizeMax) = messageSizeMax * 1024;
             }
         }
 

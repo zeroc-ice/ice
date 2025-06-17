@@ -92,6 +92,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\DeprecationReporter.cpp" />
     <ClCompile Include="..\FileTracker.cpp" />
     <ClCompile Include="..\Grammar.cpp" />
     <ClCompile Include="..\MetadataValidation.cpp" />
@@ -102,6 +103,7 @@
     <ClCompile Include="..\StringLiteralUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\DeprecationReporter.h" />
     <ClInclude Include="..\FileTracker.h" />
     <ClInclude Include="..\Grammar.h" />
     <ClInclude Include="..\GrammarUtil.h" />

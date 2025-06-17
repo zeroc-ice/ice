@@ -94,11 +94,11 @@ classdef AllTests
             [v2, v3] = initial.opValueSeq({L('l')});
             assert(strcmp(v2{1}.data, 'l'));
             assert(strcmp(v3{1}.data, 'l'));
-            d = containers.Map('KeyType', 'char', 'ValueType', 'any');
-            d('l') = L('l');
+            d = configureDictionary('char', 'cell');
+            d{'l'} = L('l');
             [v2, v3] = initial.opValueMap(d);
-            assert(strcmp(v2('l').data, 'l'));
-            assert(strcmp(v3('l').data, 'l'));
+            assert(strcmp(v2{'l'}.data, 'l'));
+            assert(strcmp(v3{'l'}.data, 'l'));
             fprintf('ok\n');
 
             fprintf('getting D1... ');
@@ -214,38 +214,24 @@ classdef AllTests
 
             fprintf('testing class containing complex dictionary... ');
             m = M();
-            m.v(1).key = StructKey(1, '1');
-            m.v(1).value = L('one');
+            k1 = StructKey(1, '1');
+            k2 = StructKey(2, '2');
 
-            m.v(2).key = StructKey(2, '2');
-            m.v(2).value = L('two');
+            m.v{k1} = L('one');
+            m.v{k2} = L('two');
 
-            assert(length(m.v) == 2);
+            assert(m.v.numEntries == 2);
 
             [m1, m2] = initial.opM(m);
 
-            assert(length(m1.v) == length(m.v));
-            assert(length(m2.v) == length(m.v));
+            assert(m1.v.numEntries == 2);
+            assert(m2.v.numEntries == 2);
 
-            for i = 1:2
-                if isequal(m1.v(i).key, m.v(1).key)
-                    assert(strcmp(m1.v(i).value.data, m.v(1).value.data));
-                elseif isequal(m1.v(i).key, m.v(2).key)
-                    assert(strcmp(m1.v(i).value.data, m.v(2).value.data));
-                else
-                    assert(false);
-                end
-            end
+            assert(strcmp(m1.v{k1}.data, 'one'));
+            assert(strcmp(m2.v{k1}.data, 'one'));
 
-            for i = 1:2
-                if isequal(m2.v(i).key, m.v(1).key)
-                    assert(strcmp(m2.v(i).value.data, m.v(1).value.data));
-                elseif isequal(m2.v(i).key, m.v(2).key)
-                    assert(strcmp(m2.v(i).value.data, m.v(2).value.data));
-                else
-                    assert(false);
-                end
-            end
+            assert(strcmp(m1.v{k2}.data, 'two'));
+            assert(strcmp(m2.v{k2}.data, 'two'));
 
             fprintf('ok\n');
 

@@ -158,7 +158,7 @@ IceInternal::ProtocolInstance::networkProxy() const
     return instance->networkProxy();
 }
 
-size_t
+int32_t
 IceInternal::ProtocolInstance::messageSizeMax() const
 {
     InstancePtr instance = _instance.lock();

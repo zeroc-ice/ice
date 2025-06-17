@@ -53,18 +53,18 @@ classdef AllTests
             ss = SmallStruct();
             fs = FixedStruct(78);
             vs = VarStruct('hello');
-            iid = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
+            iid = configureDictionary('int32', 'int32');
             iid(4) = 3;
-            sid = containers.Map('KeyType', 'char', 'ValueType', 'int32');
+            sid = configureDictionary('char', 'int32');
             sid('test') = 10;
-            ied = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            ied = configureDictionary('int32', 'Test.MyEnum');
             ied(4) = MyEnum.MyEnumMember;
-            ifsd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            ifsd = configureDictionary('int32', 'Test.FixedStruct');
             ifsd(4) = fs;
-            ivsd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            ivsd = configureDictionary('int32', 'Test.VarStruct');
             ivsd(5) = vs;
-            imipd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
-            imipd(5) = MyInterfacePrx(communicator, 'test');
+            imipd = configureDictionary('int32', 'cell');
+            imipd{5} = MyInterfacePrx(communicator, 'test');
             mo1 = MultiOptional(15, true, 19, 78, 99, 5.5, 1.0, 'test', MyEnum.MyEnumMember, ...
                                      MyInterfacePrx(communicator, 'test'), ...
                                      [5], {'test', 'test2'}, iid, sid, fs, vs, [1], ...
@@ -98,7 +98,7 @@ classdef AllTests
             assert(mo1.ied(4) == MyEnum.MyEnumMember);
             assert(isequal(mo1.ifsd(4), FixedStruct(78)));
             assert(isequal(mo1.ivsd(5), VarStruct('hello')));
-            assert(mo1.imipd(5) == communicator.stringToProxy('test'));
+            assert(mo1.imipd{5} == communicator.stringToProxy('test'));
 
             assert(isequal(mo1.bos, [false, true, false]));
 
@@ -177,7 +177,7 @@ classdef AllTests
             assert(mo5.ied(4) == MyEnum.MyEnumMember);
             assert(mo5.ifsd(4) == FixedStruct(78));
             assert(mo5.ivsd(5) == VarStruct('hello'));
-            assert(mo5.imipd(5) == communicator.stringToProxy('test'));
+            assert(mo5.imipd{5} == communicator.stringToProxy('test'));
 
             assert(isequal(mo5.bos, mo1.bos));
 
@@ -273,7 +273,7 @@ classdef AllTests
             assert(mo9.ied(4) == MyEnum.MyEnumMember);
             assert(mo9.ifsd == Ice.Unset);
             assert(mo9.ivsd(5) == VarStruct('hello'));
-            assert(mo9.imipd(5) == communicator.stringToProxy('test'));
+            assert(mo9.imipd{5} == communicator.stringToProxy('test'));
 
             assert(mo9.bos == Ice.Unset);
 
@@ -305,7 +305,7 @@ classdef AllTests
                 mc.fss(i) = FixedStruct();
             end
 
-            mc.ifsd = containers.Map('KeyType', 'int32', 'ValueType', 'any');
+            mc.ifsd = configureDictionary('int32', 'Test.FixedStruct');
             for i = 1:300
                 mc.ifsd(i) = FixedStruct();
             end
@@ -314,7 +314,7 @@ classdef AllTests
             assert(length(mc.bs) == 1000);
             assert(length(mc.shs) == 300);
             assert(length(mc.fss) == 300);
-            assert(length(mc.ifsd) == 300);
+            assert(mc.ifsd.numEntries == 300);
 
             fprintf('ok\n');
 
@@ -468,8 +468,6 @@ classdef AllTests
             p1 = SmallStruct(56);
             [p2, p3] = initial.opSmallStruct(p1);
             assert(p2 == p1 && p3 == p1);
-            [p2, p3] = initial.opSmallStruct([]); % Test null struct
-            assert(p2.m == 0 && p3.m == 0);
             f = initial.opSmallStructAsync(p1);
             [p2, p3] = f.fetchOutputs();
             assert(p2 == p1 && p3 == p1);
@@ -587,6 +585,16 @@ classdef AllTests
 
             [p2, p3] = initial.opStringSeq(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
+
+            % string array mapping (since Ice 3.8)
+            p1 = repmat("test", 1, 100);
+            [p2, p3] = initial.opStringSeq(p1);
+            assert(isequal(p2, p1) && isequal(p3, p1));
+            f = initial.opStringSeqAsync(p1);
+            [p2, p3] = f.fetchOutputs();
+            assert(isequal(p2, p1) && isequal(p3, p1));
+
+            % can still use the old syntax with cell arrays of char arrays
             p1 = cell(1, 100);
             for i = 1:length(p1)
                 p1{i} = 'test';
@@ -664,7 +672,7 @@ classdef AllTests
 
             [p2, p3] = initial.opIntIntDict(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = containers.Map('KeyType', 'int32', 'ValueType', 'int32');
+            p1 = configureDictionary('int32', 'int32');
             p1(1) = 2;
             p1(2) = 3;
             [p2, p3] = initial.opIntIntDict(p1);
@@ -675,7 +683,7 @@ classdef AllTests
 
             [p2, p3] = initial.opStringIntDict(Ice.Unset);
             assert(p2 == Ice.Unset && p3 == Ice.Unset);
-            p1 = containers.Map('KeyType', 'char', 'ValueType', 'int32');
+            p1 = configureDictionary('char', 'int32');
             p1('1') = 2;
             p1('2') = 3;
             [p2, p3] = initial.opStringIntDict(p1);

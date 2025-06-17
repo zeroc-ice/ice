@@ -87,9 +87,10 @@ classdef TestHelper < handle
         function [properties, args] = createTestProperties(~, varargin)
             nargs = length(varargin);
             if nargs == 0
-                args = {};
+                args = [];
             else
-                args = varargin{1};
+                % createProperties works with both a string array and a cell array of char arrays.
+                args = string(varargin{1});
             end
             [properties, args] = Ice.createProperties(args);
             args = properties.parseCommandLineOptions('Test', args);
@@ -103,9 +104,9 @@ classdef TestHelper < handle
                 else
                     initData = Ice.InitializationData();
                     if isa(varargin{1}, 'Ice.Properties')
-                        initData.properties_ = varargin{1};
+                        initData.Properties = varargin{1};
                     else
-                        initData.properties_ = obj.createTestProperties(varargin{1});
+                        initData.Properties = obj.createTestProperties(varargin{1});
                     end
                 end
             end

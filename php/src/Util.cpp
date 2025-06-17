@@ -290,31 +290,11 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id)
 }
 
 bool
-IcePHP::createStringMap(zval* zv, const map<string, string>& ctx)
+IcePHP::createStringMap(zval* zv, const map<string, string, std::less<>>& map)
 {
     array_init(zv);
 
-    for (auto p = ctx.begin(); p != ctx.end(); ++p)
-    {
-        add_assoc_stringl_ex(
-            zv,
-            const_cast<char*>(p->first.c_str()),
-            static_cast<uint32_t>(p->first.length()),
-            const_cast<char*>(p->second.c_str()),
-            static_cast<uint32_t>(p->second.length()));
-    }
-
-    return true;
-}
-
-// TODO: avoid duplication with code above.
-
-bool
-IcePHP::createContext(zval* zv, const Ice::Context& ctx)
-{
-    array_init(zv);
-
-    for (auto p = ctx.begin(); p != ctx.end(); ++p)
+    for (auto p = map.begin(); p != map.end(); ++p)
     {
         add_assoc_stringl_ex(
             zv,

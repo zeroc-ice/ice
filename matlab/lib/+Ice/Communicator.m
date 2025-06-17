@@ -33,15 +33,15 @@ classdef Communicator < IceInternal.WrapperObject
     methods
         function obj = Communicator(impl, initData)
             if ~isa(impl, 'lib.pointer')
-                throw(LocalException('Ice:ArgumentException', 'invalid argument'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
             end
             obj@IceInternal.WrapperObject(impl);
 
             % The caller (initialize) consumes initData.properties_ and we don't use them at all in this class.
             obj.initData = initData;
 
-            if obj.initData.sliceLoader ~= IceInternal.DefaultSliceLoader.Instance
-                obj.initData.sliceLoader = Ice.CompositeSliceLoader(obj.initData.sliceLoader, ...
+            if obj.initData.SliceLoader ~= IceInternal.DefaultSliceLoader.Instance
+                obj.initData.SliceLoader = Ice.CompositeSliceLoader(obj.initData.SliceLoader, ...
                     IceInternal.DefaultSliceLoader.Instance);
             end
 
@@ -54,8 +54,8 @@ classdef Communicator < IceInternal.WrapperObject
                     cacheFullLogger = [];
                 end
 
-                obj.initData.sliceLoader = IceInternal.NotFoundSliceLoaderDecorator(...
-                    obj.initData.sliceLoader, notFoundCacheSize, cacheFullLogger);
+                obj.initData.SliceLoader = IceInternal.NotFoundSliceLoaderDecorator(...
+                    obj.initData.SliceLoader, notFoundCacheSize, cacheFullLogger);
             end
 
             enc = obj.getProperties().getProperty('Ice.Default.EncodingVersion');
@@ -64,7 +64,7 @@ classdef Communicator < IceInternal.WrapperObject
             else
                 arr = sscanf(enc, '%u.%u');
                 if length(arr) ~= 2
-                    throw(LocalException('Ice:ArgumentException', 'invalid value for Ice.Default.EncodingVersion'));
+                    throw(Ice.LocalException('Ice:ArgumentException', 'invalid value for Ice.Default.EncodingVersion'));
                 end
                 obj.encoding = Ice.EncodingVersion(arr(1), arr(2));
             end
@@ -134,7 +134,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isempty(proxy)
                 r = '';
             elseif ~isa(proxy, 'Ice.ObjectPrx')
-                throw(LocalException('Ice:ArgumentException', 'expecting a proxy'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a proxy'));
             else
                 r = proxy.ice_toString();
             end
@@ -173,12 +173,12 @@ classdef Communicator < IceInternal.WrapperObject
             %   proxy (Ice.ObjectPrx) - The proxy.
             %   property (char) - The base property name.
             %
-            % Returns (containers.Map) - The property set.
+            % Returns (dictionary) - The property set.
 
             if isempty(proxy)
-                r = containers.Map('KeyType', 'char', 'ValueType', 'char');
+                r = configureDictionary('char', 'char');
             elseif ~isa(proxy, 'Ice.ObjectPrx')
-                throw(LocalException('Ice:ArgumentException', 'expecting a proxy'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a proxy'));
             else
                 r = obj.iceCallWithResult('proxyToProperty', proxy.iceGetImpl(), prop);
             end
@@ -261,7 +261,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isempty(proxy)
                 impl = libpointer('voidPtr');
             elseif ~isa(proxy, 'Ice.RouterPrx')
-                throw(LocalException('Ice:ArgumentException', 'expecting a router proxy'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a router proxy'));
             else
                 impl = proxy.iceGetImpl();
             end
@@ -296,7 +296,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isempty(proxy)
                 impl = libpointer('voidPtr');
             elseif ~isa(proxy, 'Ice.LocatorPrx')
-                throw(LocalException('Ice:ArgumentException', 'expecting a locator proxy'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a locator proxy'));
             else
                 impl = proxy.iceGetImpl();
             end
@@ -341,7 +341,7 @@ classdef Communicator < IceInternal.WrapperObject
             r = obj.format;
         end
         function r = getSliceLoader(obj)
-            r = obj.initData.sliceLoader;
+            r = obj.initData.SliceLoader;
         end
     end
     properties(Access=private)

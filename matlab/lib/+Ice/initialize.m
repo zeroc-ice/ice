@@ -10,40 +10,41 @@ function [communicator, args] = initialize(varargin)
     %   [communicator, remArgs] = Ice.initialize(args, configFile);
     %
     % Parameters:
-    %   args (cell array of char) - An optional argument vector. Any Ice-related
-    %     options in this vector are used to initialize the communicator.
+    %   args (cell array of char or string array) - An optional argument vector. Any Ice-related options in this vector
+    %     are used to initialize the communicator.
     %   initData (Ice.InitializationData) - Optional additional initialization data.
     %   configFile (char) - Optional configuration file name.
     %
     % Returns:
     %   communicator (Ice.Communicator) - The new communicator.
-    %   args (cell array of char) - Contains the remaining command-line arguments
-    %     that were not used to set properties.
+    %   args (string array) - Contains the remaining command-line arguments that were not used to set properties.
 
     % Copyright (c) ZeroC, Inc.
 
     if length(varargin) > 2
-        throw(LocalException('Ice:ArgumentException', 'too many arguments to Ice.initialize'));
+        throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments to Ice.initialize'));
     end
 
-    args = {};
+    args = [];
     initData = [];
     configFile = '';
 
     for i = 1:length(varargin)
         if isa(varargin{i}, 'cell') && isempty(args)
+            args = string(varargin{i}); % convert cell array to string array
+        elseif isa(varargin{i}, 'string') && isempty(args)
             args = varargin{i};
         elseif isa(varargin{i}, 'Ice.InitializationData') && isempty(initData)
             initData = varargin{i};
         elseif isa(varargin{i}, 'char') && isempty(configFile)
             configFile = varargin{i};
         else
-            throw(LocalException('Ice:ArgumentException', 'unexpected argument to Ice.initialize'));
+            throw(Ice.LocalException('Ice:ArgumentException', 'unexpected argument to Ice.initialize'));
         end
     end
 
     if ~isempty(initData) && ~isempty(configFile)
-        throw(LocalException('Ice:ArgumentException', ...
+        throw(Ice.LocalException('Ice:ArgumentException', ...
                          'initialize accepts either Ice.InitializationData or a configuration filename'));
     end
 
@@ -51,8 +52,7 @@ function [communicator, args] = initialize(varargin)
         initData = Ice.InitializationData();
 
         if ~isempty(configFile)
-            initData.properties_ = Ice.createProperties();
-            initData.properties_.load(configFile);
+            initData.Properties.load(configFile);
         end
     end
 
@@ -62,14 +62,7 @@ function [communicator, args] = initialize(varargin)
     % We need to extract and pass the libpointer object for properties to the C function. Passing the wrapper
     % (Ice.Properties) object won't work because the C code has no way to obtain the inner pointer.
     %
-    props = libpointer('voidPtr');
-    if ~isempty(initData.properties_)
-        if ~isa(initData.properties_, 'Ice.Properties')
-            throw(LocalException('Ice:ArgumentException', 'invalid value for properties_ member'));
-        else
-            props = initData.properties_.impl_;
-        end
-    end
+    props = initData.Properties.impl_;
 
     impl = libpointer('voidPtr');
     args = IceInternal.Util.callWithResult('Ice_initialize', args, props, impl);

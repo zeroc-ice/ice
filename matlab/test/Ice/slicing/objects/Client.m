@@ -7,13 +7,13 @@ function client(args)
     end
 
     helper = TestHelper();
-    initData = Ice.InitializationData();
-    initData.properties_ = helper.createTestProperties(args);
+    customSliceLoader = CustomSliceLoader();
+
+    initData = Ice.InitializationData(SliceLoader = customSliceLoader, Properties = Ice.createProperties(args));
+
+    % Use deprecated properties_ field to check it still works.
     initData.properties_.setProperty('Ice.SliceLoader.NotFoundCacheSize', '5');
     initData.properties_.setProperty('Ice.Warn.SliceLoader', '0'); % comment out to see the warning
-
-    customSliceLoader = CustomSliceLoader();
-    initData.sliceLoader = customSliceLoader;
 
     communicator = helper.initialize(initData);
     cleanup = onCleanup(@() communicator.destroy());

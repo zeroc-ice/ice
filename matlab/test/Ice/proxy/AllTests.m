@@ -329,7 +329,7 @@ classdef AllTests
             b1 = b1.ice_locator(locator);
 
             proxyProps = communicator.proxyToProperty(b1, 'Test');
-            assert(length(proxyProps) == 21);
+            assert(proxyProps.numEntries == 21);
 
             assert(strcmp(proxyProps('Test'), 'test -e 1.0'));
             %assert(strcmp(proxyProps('Test.CollocationOptimized'), '1'));
@@ -533,11 +533,11 @@ classdef AllTests
             %assert(compObj.ice_router(rtr1) < compObj.ice_router(rtr2));
             %assert(~(compObj.ice_router(rtr2) < compObj.ice_router(rtr1)));
 
-            ctx1 = containers.Map('KeyType', 'char', 'ValueType', 'char');
+            ctx1 = configureDictionary('char', 'char');
             ctx1('ctx1') = 'v1';
-            ctx2 = containers.Map('KeyType', 'char', 'ValueType', 'char');
+            ctx2 = configureDictionary('char', 'char');
             ctx2('ctx2') = 'v2';
-            empty = containers.Map('KeyType', 'char', 'ValueType', 'char');
+            empty = configureDictionary('char', 'char');
             assert(compObj.ice_context(empty) == compObj.ice_context(empty));
             assert(compObj.ice_context(ctx1) == compObj.ice_context(ctx1));
             assert(compObj.ice_context(ctx1) ~= compObj.ice_context(empty));
@@ -641,9 +641,9 @@ classdef AllTests
             fprintf('testing checked cast with context... ');
             tccp = MyClassPrx.checkedCast(base);
             c = tccp.getContext();
-            assert(isempty(c));
+            assert(c.numEntries == 0);
 
-            c = containers.Map('KeyType', 'char', 'ValueType', 'char');
+            c = configureDictionary('char', 'char');
             c('one') = 'hello';
             c('two') = 'world';
             tccp = MyClassPrx.checkedCast(base, c);
@@ -661,11 +661,11 @@ classdef AllTests
                 assert(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                 assert(strcmp(cl.ice_facet('facet').ice_fixed(connection).ice_getFacet(), 'facet'));
                 assert(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
-                ctx = containers.Map('KeyType', 'char', 'ValueType', 'char');
+                ctx = configureDictionary('char', 'char');
                 ctx('one') = 'hello';
                 ctx('two') = 'world';
-                assert(isempty(cl.ice_fixed(connection).ice_getContext()));
-                assert(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().length() == 2);
+                assert(cl.ice_fixed(connection).ice_getContext().numEntries == 0);
+                assert(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().numEntries == 2);
                 assert(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
                 assert(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
                 assert(cl.ice_fixed(connection).ice_getConnection() == connection);

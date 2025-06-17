@@ -77,7 +77,6 @@
         <property name="Admin.Logger.Properties" languages="cpp,csharp,java" />
         <property name="Admin.ServerId" languages="cpp,csharp,java" />
         <property name="BackgroundLocatorCacheUpdates" languages="all" default="0" />
-        <property name="BatchAutoFlush" deprecated="true" languages="all" />
         <property name="BatchAutoFlushSize" default="1024" languages="all" />
         <property name="ClassGraphDepthMax" languages="all" default="10" />
         <property name="Compression.Level" languages="cpp,csharp,java" default="1" />

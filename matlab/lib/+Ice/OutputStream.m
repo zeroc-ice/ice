@@ -257,7 +257,7 @@ classdef OutputStream < handle
             sz = length(v);
             obj.writeSize(sz);
             for i = 1:sz
-                obj.writeString(v{i});
+                obj.writeString(char(v(i)));
             end
         end
         function writeStringSeqOpt(obj, tag, v)

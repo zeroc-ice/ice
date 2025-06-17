@@ -1,7 +1,7 @@
 classdef ImplicitContext < IceInternal.WrapperObject
     % ImplicitContext   Summary of ImplicitContext
     %
-    % An interface to associate implict contexts with communicators.
+    % An interface to associate implicit contexts with communicators.
     %
     % When you make a remote invocation without an explicit context parameter,
     % Ice uses the per-proxy context (if any) combined with the ImplicitContext
@@ -36,14 +36,14 @@ classdef ImplicitContext < IceInternal.WrapperObject
     methods
         function obj = ImplicitContext(impl)
             if ~isa(impl, 'lib.pointer')
-                throw(LocalException('Ice:ArgumentException', 'invalid argument'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
             end
             obj@IceInternal.WrapperObject(impl);
         end
         function r = getContext(obj)
             % getContext - Get a copy of the underlying context.
             %
-            % Returns (containers.Map): A copy of the underlying context.
+            % Returns (dictionary): A copy of the underlying context.
 
             r = obj.iceCallWithResult('getContext');
         end
@@ -51,7 +51,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
             % setContext - Set the underlying context.
             %
             % Parameters:
-            %   newContext (containers.Map) - The new context.
+            %   newContext (dictionary) - The new context.
 
             obj.iceCall('setContext', newContext);
         end

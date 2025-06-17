@@ -285,7 +285,7 @@ classdef InputStream < handle
                 r = IceInternal.UnsetI.Instance;
             end
         end
-        function r = readString(obj)
+        function r = readString(obj) % returns a char array
             sz = obj.readSize();
             if sz == 0
                 r = '';
@@ -298,11 +298,11 @@ classdef InputStream < handle
                 obj.pos = pos + sz;
             end
         end
-        function r = readStringSeq(obj)
+        function r = readStringSeq(obj) % returns a string array
             sz = obj.readAndCheckSeqSize(1);
-            r = cell(1, sz);
+            r = strings(1, sz); % preallocate array
             for i = 1:sz
-                r{i} = obj.readString();
+                r(i) = obj.readString();
             end
         end
         function r = readStringOpt(obj, tag)
@@ -647,14 +647,21 @@ classdef InputStream < handle
             % Skips bytes decoded by the C++ code
             obj.skip(bytesRead.Value);
 
-            if isNull(impl) % decoded a null proxy
-                r = [];
-            elseif nargin == 2
-                % Instantiate a proxy of the requested type.
-                constructor = str2func(cls);
-                r = constructor(obj.communicator, '', impl);
+            if nargin == 2
+                if isNull(impl)
+                    emptyFunc = str2func(strcat(cls, '.empty'));
+                    r = emptyFunc();
+                else
+                    % Instantiate a proxy of the requested type.
+                    constructor = str2func(cls);
+                    r = constructor(obj.communicator, '', impl);
+                end
             else
-                r = Ice.ObjectPrx(obj.communicator, '', impl);
+                if isNull(impl)
+                   r = Ice.ObjectPrx.empty;
+                else
+                    r = Ice.ObjectPrx(obj.communicator, '', impl);
+                end
             end
         end
         function r = readProxyOpt(obj, tag, cls)
@@ -665,8 +672,11 @@ classdef InputStream < handle
                 else
                     r = obj.readProxy(cls);
                 end
+            elseif nargin == 1
+                r = Ice.ObjectPrx.empty;
             else
-                r = [];
+                emptyFunc = str2func(strcat(cls, '.empty'));
+                r = emptyFunc();
             end
         end
         function r = readEnum(obj, maxValue)
@@ -687,7 +697,11 @@ classdef InputStream < handle
                 obj.initEncaps();
             end
             function check(v)
-                if isempty(v) || isa(v, formalType)
+                if isempty(v)
+                    % Pass empty array of the formalType.
+                    emptyFunc = str2func(strcat(formalType, '.empty'));
+                    cb(emptyFunc());
+                elseif isa(v, formalType)
                     cb(v);
                 else
                     Ice.InputStream.throwUOE(formalType, v);

@@ -33,7 +33,7 @@ classdef Properties < IceInternal.WrapperObject
     methods
         function obj = Properties(impl)
             if ~isa(impl, 'lib.pointer')
-                throw(LocalException('Ice:ArgumentException', 'invalid argument'));
+                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
             end
             obj@IceInternal.WrapperObject(impl);
         end
@@ -162,10 +162,10 @@ classdef Properties < IceInternal.WrapperObject
             %
             % Parameters:
             %   key (char) - The property key.
-            %   def (cell array of char) - The default value to use if the
+            %   def (cell array of char or string array) - The default value to use if the
             %     property is not set.
             %
-            % Returns (cell arry of char) - The property value interpreted as
+            % Returns (string array) - The property value interpreted as
             %   a list of strings, or the default value.
 
             r = obj.iceCallWithResult('getPropertyAsListWithDefault', key, def);
@@ -178,7 +178,7 @@ classdef Properties < IceInternal.WrapperObject
             % Parameters:
             %   prefix (char) - The prefix to search for (empty string if none).
             %
-            % Returns (containers.Map) - The matching property set.
+            % Returns (dictionary) - The matching property set.
 
             r = obj.iceCallWithResult('getPropertiesForPrefix', prefix);
         end
@@ -198,7 +198,7 @@ classdef Properties < IceInternal.WrapperObject
             %   returned sequence is a command-line option of the form
             %   --key=value.
             %
-            % Returns (cell array of char) - The command line options for this
+            % Returns (string array) - The command line options for this
             %   property set.
 
             r = obj.iceCallWithResult('getCommandLineOptions');
@@ -213,9 +213,9 @@ classdef Properties < IceInternal.WrapperObject
             % Parameters:
             %   prefix (char) - The property prefix, or an empty string to
             %     convert all options starting with "--".
-            %   options (cell array of char) - The command-line options.
+            %   options (cell array of char or string array) - The command-line options.
             %
-            % Returns (cell array of char) The command-line options that do
+            % Returns (string array) The command-line options that do
             %   not start with the specified prefix, in their original order.
 
             r = obj.iceCallWithResult('parseCommandLineOptions', prefix, options);
@@ -228,9 +228,9 @@ classdef Properties < IceInternal.WrapperObject
             %   "--IceStorm", and "--Glacier2".
             %
             % Parameters:
-            %   options (cell array of char) - The command-line options.
+            %   options (cell array of char or string array) - The command-line options.
             %
-            % Returns (cell array of char) - The command-line options that do
+            % Returns (string array) - The command-line options that do
             %   not start with one of the listed prefixes, in their original
             %   order.
 
