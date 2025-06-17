@@ -30,7 +30,7 @@ classdef (Sealed) TCPEndpointInfo < Ice.IPEndpointInfo
         end
     end
     properties(GetAccess=private, SetAccess=immutable)
-        type_ int16
-        secure_ logical
+        type_ (1, 1) int16
+        secure_ (1, 1) logical
     end
 end

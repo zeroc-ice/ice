@@ -35,9 +35,9 @@ classdef (Sealed) UDPEndpointInfo < Ice.IPEndpointInfo
     end
     properties(SetAccess=immutable)
         % mcastInterface - The multicast interface.
-        mcastInterface char
+        mcastInterface (1, :) char
 
         % mcastTtl - The multicast time-to-live (or hops).
-        mcastTtl int32
+        mcastTtl (1, 1) int32
     end
 end

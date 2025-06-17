@@ -13,21 +13,21 @@ classdef IPConnectionInfo < Ice.ConnectionInfo
 
     properties(SetAccess=immutable)
         % localAddress - The local address.
-        localAddress char
+        localAddress (1, :) char
 
         % localPort - The local port.
-        localPort int32
+        localPort (1, 1) int32
 
         % remoteAddress - The remote address.
-        remoteAddress char
+        remoteAddress (1, :) char
 
         % remotePort - The remote port.
-        remotePort int32
+        remotePort (1, 1) int32
     end
     methods(Access=protected)
         function obj = IPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort)
             assert(nargin == 5, 'Invalid number of arguments');
-            obj@Ice.ConnectionInfo([], connectionId);
+            obj@Ice.ConnectionInfo(Ice.ConnectionInfo.empty, connectionId);
             obj.localAddress = localAddress;
             obj.localPort = localPort;
             obj.remoteAddress = remoteAddress;

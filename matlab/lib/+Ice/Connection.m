@@ -206,7 +206,7 @@ classdef Connection < IceInternal.WrapperObject
 
     methods(Access=private)
         function r = createConnectionInfo(obj, info)
-            underlying = [];
+            underlying = Ice.ConnectionInfo.empty;
             if ~isempty(info.underlying)
                 underlying = obj.createConnectionInfo(info.underlying);
             end

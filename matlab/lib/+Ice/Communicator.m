@@ -63,7 +63,7 @@ classdef Communicator < IceInternal.WrapperObject
             else
                 arr = sscanf(enc, '%u.%u');
                 if length(arr) ~= 2
-                    throw(Ice.LocalException('Ice:ArgumentException', 'invalid value for Ice.Default.EncodingVersion'));
+                    error('Ice:ArgumentException', 'Invalid value for Ice.Default.EncodingVersion');
                 end
                 obj.encoding = Ice.EncodingVersion(arr(1), arr(2));
             end

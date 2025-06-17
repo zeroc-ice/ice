@@ -21,8 +21,8 @@ classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
                 mc = metaclass{i};
                 typeId = Ice.ClassSliceLoader.resolveConstant(mc, 'TypeId');
                 if isempty(typeId)
-                    throw(Ice.LocalException('Ice:ArgumentException', ...
-                        sprintf('%s is not a generated class and does not derive from one.', mc.Name)));
+                    error('Ice:ArgumentException', ...
+                        sprintf('%s is not a generated class and does not derive from one.', mc.Name));
                 else
                     obj.typeIdToConstructorMap(typeId) = str2func(mc.Name);
                     compactId = Ice.ClassSliceLoader.resolveConstant(mc, 'CompactId');

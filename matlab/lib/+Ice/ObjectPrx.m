@@ -114,20 +114,31 @@ classdef ObjectPrx < IceInternal.WrapperObject
         function obj = ObjectPrx(communicator, proxyString, impl, encoding)
             if nargin == 0 % default constructor, typically called with multiple inheritance
                 superArgs = {};
-            elseif nargin == 2
-                impl = libpointer('voidPtr');
-                communicator.iceCall('stringToProxy', proxyString, impl);
-                assert(~isNull(impl), 'Invalid proxy string');
-                encoding = [];
-                superArgs = {impl, 'Ice_ObjectPrx'};
             else
-                assert(nargin == 3 || nargin == 4, 'Invalid number of arguments');
-                assert(isempty(proxyString), 'proxyString must be empty');
-                assert(~isempty(impl), 'impl must be non-empty');
-                if nargin == 3
-                    encoding = [];
+                assert(nargin >= 2 && nargin <= 4, 'ObjectPrx constructor requires 2 to 4 arguments');
+
+                % validate arguments
+                if ~isa(communicator, 'Ice.Communicator')
+                    error('Ice:ArgumentException', 'communicator must be an Ice.Communicator');
                 end
-                superArgs = {impl, 'Ice_ObjectPrx'};
+                if ~ischar(proxyString)
+                    error('Ice:ArgumentException', 'proxyString must be a char array');
+                end
+
+                if nargin < 3
+                    impl = libpointer('voidPtr');
+                    communicator.iceCall('stringToProxy', proxyString, impl);
+                    assert(~isNull(impl), 'Invalid proxy string');
+                    encoding = [];
+                    superArgs = {impl, 'Ice_ObjectPrx'};
+                else
+                    assert(isempty(proxyString), 'proxyString must be empty');
+                    assert(~isempty(impl), 'impl must be non-empty');
+                    if nargin == 3
+                        encoding = [];
+                    end
+                    superArgs = {impl, 'Ice_ObjectPrx'};
+                end
             end
             obj@IceInternal.WrapperObject(superArgs{:});
 
@@ -162,6 +173,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (char) - A stringified proxy.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_toString');
         end
 
@@ -172,6 +186,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (Ice.Communicator) - The communicator that created this
             %   proxy.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.communicator;
         end
 
@@ -346,6 +363,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (Ice.Identity) - The identity of the target object.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_getIdentity');
         end
 
@@ -358,6 +378,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (Ice.ObjectPrx) - The proxy with the new identity.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                id (1, 1) Ice.Identity
+            end
             r = obj.factory_('ice_identity', false, id);
         end
 
@@ -396,6 +420,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (char) - The facet for this proxy. If the proxy uses the
             %   default facet, the return value is the empty string.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_getFacet');
         end
 
@@ -408,6 +435,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (Ice.ObjectPrx) - The proxy with the new facet.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                f (1, :) char
+            end
             r = obj.factory_('ice_facet', false, f);
         end
 
@@ -417,6 +448,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (char) - The adapter ID. If the proxy does not have an
             %   adapter ID, the return value is the empty string.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_getAdapterId');
         end
 
@@ -429,6 +463,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the new adapter ID.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                id (1, :) char
+            end
             r = obj.factory_('ice_adapterId', true, id);
         end
 
@@ -438,6 +476,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (cell array of Ice.Endpoint) - The endpoints used by
             %   this proxy.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             num = obj.iceCallWithResult('ice_getNumEndpoints');
             r = cell(1, num);
             for i = 1:num
@@ -448,13 +489,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function r = ice_endpoints(obj, endpts)
-            % ice_endpoints - Returns a proxy that is identical to this proxy,
-            %   except for the endpoints.
+        function r = ice_endpoints(obj, endpoints)
+            % ice_endpoints - Returns a proxy that is identical to this proxy, except for the endpoints.
             %
             % Parameters:
-            %   endpts (cell array of Ice.Endpoint) - The endpoints for the
-            %     new proxy.
+            %   endpoints (cell array of Ice.Endpoint) - The endpoints for the new proxy.
             %
             % Returns - The proxy with the new endpoints.
 
@@ -463,15 +502,19 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % and populate it one element at a time.
             %
 
-            for i = 1:length(endpts)
-                if ~isa(endpts{i}, 'Ice.Endpoint')
-                    throw(Ice.LocalException('Ice:ArgumentException', 'expected an Ice.Endpoint'))
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                endpoints (1, :) cell
+            end
+            for i = 1:length(endpoints)
+                if ~isa(endpoints{i}, 'Ice.Endpoint')
+                   error('Ice:ArgumentException', 'Expected an Ice.Endpoint');
                 end
             end
             arr = libpointer('voidPtr');
-            obj.iceCall('ice_createEndpointList', length(endpts), arr);
-            for i = 1:length(endpts)
-                obj.iceCall('ice_setEndpoint', arr, i - 1, endpts{i}.impl_); % C-style index
+            obj.iceCall('ice_createEndpointList', length(endpoints), arr);
+            for i = 1:length(endpoints)
+                obj.iceCall('ice_setEndpoint', arr, i - 1, endpoints{i}.impl_); % C-style index
             end
             r = obj.factory_('ice_endpoints', true, arr); % The C function also destroys the temporary array.
         end
@@ -482,6 +525,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (int32) - The locator cache timeout value (in seconds).
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_getLocatorCacheTimeout');
         end
 
@@ -494,6 +540,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the new timeout.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                t (1, 1) int32
+            end
             r = obj.factory_('ice_locatorCacheTimeout', true, t);
         end
 
@@ -503,6 +553,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (int32) - The invocation timeout value (in seconds).
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_getInvocationTimeout');
         end
 
@@ -515,6 +568,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the new timeout.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                t (1, 1) int32
+            end
             r = obj.factory_('ice_invocationTimeout', true, t);
         end
 
@@ -523,6 +580,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (char) - The connection id.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_getConnectionId');
         end
 
@@ -536,6 +596,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - A proxy with the specified connection ID.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                id (1, :) char
+            end
             r = obj.factory_('ice_connectionId', true, id);
         end
 
@@ -546,6 +610,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (logical) - True if this proxy caches connections;
             %   false otherwise.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_isConnectionCached');
         end
 
@@ -559,6 +626,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the specified caching policy.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                b (1, 1) logical
+            end
             if b
                 val = 1;
             else
@@ -574,6 +645,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (Ice.EndpointSelectionType) - The endpoint selection
             %   policy.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = Ice.EndpointSelectionType.ice_getValue(obj.iceCallWithResult('ice_getEndpointSelection'));
         end
 
@@ -586,6 +660,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the specified endpoint selection policy.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                t (1, 1) Ice.EndpointSelectionType
+            end
             r = obj.factory_('ice_endpointSelection', true, t);
         end
 
@@ -595,6 +673,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (Ice.EncodingVersion) - The encoding version.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.encoding;
         end
 
@@ -608,6 +689,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the specified encoding version.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                ver (1, 1) Ice.EncodingVersion
+            end
             r = obj.factory_('ice_encodingVersion', true, ver);
             r.encoding = ver;
         end
@@ -619,10 +704,13 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   is configured for the proxy, the return value is an empty
             %   array.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             v = libpointer('voidPtr');
             obj.iceCall('ice_getRouter', v);
             if isNull(v)
-                r = [];
+                r = Ice.RouterPrx.empty;
             else
                 r = Ice.RouterPrx(obj.communicator, '', v);
             end
@@ -637,6 +725,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the specified router.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                rtr Ice.RouterPrx {mustBeScalarOrEmpty}
+            end
             if isempty(rtr)
                 impl = libpointer('voidPtr');
             else
@@ -652,10 +744,13 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   locator is configured for the proxy, the return value is
             %   an empty array.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             v = libpointer('voidPtr');
             obj.iceCall('ice_getLocator', v);
             if isNull(v)
-                r = [];
+                r = Ice.LocatorPrx.empty;
             else
                 r = Ice.LocatorPrx(obj.communicator, '', v);
             end
@@ -670,6 +765,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the specified locator.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                loc Ice.LocatorPrx {mustBeScalarOrEmpty}
+            end
             if isempty(loc)
                 impl = libpointer('voidPtr');
             else
@@ -685,6 +784,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (logical) - True if this proxy communicates only via
             %   secure endpoints; false otherwise.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_isSecure');
         end
 
@@ -699,6 +801,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the specified selection policy.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                b (1, 1) logical
+            end
             if b
                 val = 1;
             else
@@ -715,6 +821,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   via secure endpoints before it attempts to use insecure
             %   endpoints; false otherwise.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_isPreferSecure');
         end
 
@@ -731,6 +840,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the specified selection policy.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                b (1, 1) logical
+            end
             if b
                 val = 1;
             else
@@ -745,6 +858,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (logical) - True if this proxy uses twoway invocations;
             %   false otherwise.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.isTwoway;
         end
 
@@ -754,6 +870,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - A proxy that uses twoway invocations.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.factory_('ice_twoway', true);
         end
 
@@ -763,6 +882,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (logical) - True if this proxy uses oneway invocations;
             %   false otherwise.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_isOneway');
         end
 
@@ -772,6 +894,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - A proxy that uses oneway invocations.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.factory_('ice_oneway', true);
         end
 
@@ -791,6 +916,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - A new proxy that uses batch oneway invocations.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.factory_('ice_batchOneway', true);
         end
 
@@ -801,6 +929,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (logical) - True if this proxy uses datagram invocations;
             %   false otherwise.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_isDatagram');
         end
 
@@ -810,6 +941,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - A new proxy that uses datagram invocations.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.factory_('ice_datagram', true);
         end
 
@@ -820,6 +954,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (logical) - True if this proxy uses batch datagram
             %   invocations; false otherwise.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_isBatchDatagram');
         end
 
@@ -829,6 +966,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - A new proxy that uses batch datagram invocations.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.factory_('ice_batchDatagram', true);
         end
 
@@ -842,6 +982,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - A proxy with the specified compression override setting.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                b (1, 1) logical
+            end
             if b
                 val = 1;
             else
@@ -857,6 +1001,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   is returned, no override is set. Otherwise, true if compression is
             %   enabled, false otherwise.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             opt = obj.iceCallWithResult('ice_getCompress');
             if opt.hasValue
                 r = opt.value;
@@ -874,10 +1021,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (Ice.ObjectPrx) - A fixed proxy bound to the given connection.
 
-            if isempty(connection)
-                throw(Ice.LocalException('Ice:ArgumentException', 'invalid null connection passed to ice_fixed'));
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                connection (1, 1) Ice.Connection
             end
-
             r = obj.factory_('ice_fixed', true, connection.iceGetImpl());
         end
 
@@ -886,6 +1033,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (logical) - True if this proxy is a fixed proxy, false otherwise.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_isFixed');
         end
 
@@ -896,10 +1046,13 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (Ice.Connection) - The Connection for this proxy.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             v = libpointer('voidPtr');
             obj.iceCall('ice_getConnection', v);
             if isNull(v)
-                r = [];
+                r = Ice.Connection.empty;
             else
                 r = Ice.Connection(v, obj.communicator);
             end
@@ -913,6 +1066,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             future = libpointer('voidPtr');
             obj.iceCall('ice_getConnectionAsync', future);
             assert(~isNull(future));
@@ -934,6 +1090,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   or an empty array if the proxy does not have an established
             %   connection.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             v = libpointer('voidPtr');
             obj.iceCall('ice_getCachedConnection', v);
             if isNull(v)
@@ -947,6 +1106,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % ice_flushBatchRequests - Flushes any pending batched requests for
             %   this communicator. The call blocks until the flush is complete.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             obj.iceCall('ice_flushBatchRequests');
         end
 
@@ -957,6 +1119,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             future = libpointer('voidPtr');
             obj.iceCall('ice_flushBatchRequestsAsync', future);
             assert(~isNull(future));
@@ -1164,17 +1329,17 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     elseif isempty(varargin{1}) || isa(varargin{1}, 'char')
                        p = p.ice_facet(varargin{1});
                     else
-                        throw(Ice.LocalException('Ice:ArgumentException', 'expecting char or context dictionary'));
+                        error('Ice:ArgumentException', 'Expecting char or context dictionary');
                     end
                 elseif length(varargin) == 2
                     if isa(varargin{1}, 'char')
                         p = p.ice_facet(varargin{1});
                     else
-                        throw(Ice.LocalException('Ice:ArgumentException', 'expecting char array for facet'));
+                        error('Ice:ArgumentException', 'Expecting char array for facet');
                     end
                     context = varargin{2};
                 elseif length(varargin) > 2
-                    throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments to checkedCast'));
+                    error('Ice:ArgumentException', 'Too many arguments to checkedCast');
                 end
 
                 if p.ice_isA(id, context)
@@ -1195,7 +1360,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 if isscalar(varargin)
                     p = p.ice_facet(varargin{1});
                 elseif length(varargin) > 1
-                    throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments to uncheckedCast'));
+                    error('Ice:ArgumentException', 'Too many arguments to uncheckedCast');
                 end
                 constructor = str2func(cls);
                 r = constructor(p.communicator, '', p.clone_(), p.encoding);

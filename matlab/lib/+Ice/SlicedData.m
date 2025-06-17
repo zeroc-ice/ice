@@ -4,14 +4,12 @@ classdef SlicedData < handle
     % Holds class slices that cannot be unmarshaled because their types are not known locally.
     %
     % SlicedData Properties:
-    %   slices - The details of each slice, in order of most-derived to
-    %     least-derived.
+    %   slices - The details of each slice, in order of most-derived to least-derived.
 
     % Copyright (c) ZeroC, Inc.
 
     properties(SetAccess=immutable)
-        % The details of each slice, in order of most-derived to least-derived.
-        slices
+        slices (1, :) cell % cell array of SliceInfo objects
     end
     methods
         function obj = SlicedData(slices)

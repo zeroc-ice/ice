@@ -18,29 +18,29 @@ classdef SliceInfo < handle
         %
         % The Slice type ID for this slice.
         %
-        typeId
+        typeId (1, :) char
         %
         % The Slice compact type ID for this slice.
         %
-        compactId
+        compactId (1, 1) int32
         %
         % The encoded bytes for this slice, including the leading size integer.
         %
-        bytes
+        bytes (1, :) uint8
         %
         % Whether or not the slice contains optional members.
         %
-        hasOptionalMembers
+        hasOptionalMembers (1, 1) logical
         %
         % Whether or not this is the last slice.
         %
-        isLastSlice
+        isLastSlice (1, 1) logical
     end
     properties
         %
         % The class instances referenced by this slice.
         %
-        instances
+        instances (1, :) cell = {}
     end
     methods
         function obj = SliceInfo(typeId, compactId, bytes, hasOptionalMembers, isLastSlice)
@@ -49,7 +49,6 @@ classdef SliceInfo < handle
             obj.bytes = bytes;
             obj.hasOptionalMembers = hasOptionalMembers;
             obj.isLastSlice = isLastSlice;
-            obj.instances = [];
         end
     end
 end
