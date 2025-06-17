@@ -107,7 +107,7 @@ classdef Future < IceInternal.WrapperObject
             %   once.
 
             if obj.Read
-                error('Ice:InvalidStateException', 'outputs already read');
+                error('Ice:InvalidStateException', 'Outputs already read');
             end
             if ~isempty(obj.fetchFunc)
                 %

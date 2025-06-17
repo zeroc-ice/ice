@@ -1,8 +1,8 @@
 classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
-    % ClassSliceLoader   Implements SliceLoader using an array of meta classes.
+    % ClassSliceLoader   Implements SliceLoader using meta classes.
     %
     % ClassSliceLoader methods:
-    %   ClassSliceLoader - Constructs a ClassSliceLoader from an array of meta classes.
+    %   ClassSliceLoader - Constructs a ClassSliceLoader from one or more meta classes.
     %   newInstance - Creates a class or exception instance from a Slice type ID.
     methods
         function obj = ClassSliceLoader(metaclass)
@@ -22,7 +22,7 @@ classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
                 typeId = Ice.ClassSliceLoader.resolveConstant(mc, 'TypeId');
                 if isempty(typeId)
                     error('Ice:ArgumentException', ...
-                        sprintf('%s is not a generated class and does not derive from one.', mc.Name));
+                        '%s is not a generated class and does not derive from one.', mc.Name);
                 else
                     obj.typeIdToConstructorMap(typeId) = str2func(mc.Name);
                     compactId = Ice.ClassSliceLoader.resolveConstant(mc, 'CompactId');
