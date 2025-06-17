@@ -165,6 +165,17 @@ classdef ObjectPrx < IceInternal.WrapperObject
             r = obj.iceCallWithResult('ice_toString');
         end
 
+        function disp(obj)
+            % disp - Displays the stringified version of this proxy.
+            %
+            % This method is called when the object is displayed in the command window.
+
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
+            disp(obj.ice_toString());
+        end
+
         function r = ice_getCommunicator(obj)
             % ice_getCommunicator - Returns the communicator that created this
             %   proxy.
