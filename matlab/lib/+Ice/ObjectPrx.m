@@ -368,6 +368,9 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % does not have a per-proxy (implicit) context, the return value
             % is an empty array.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_getContext');
         end
 
@@ -380,6 +383,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns - The proxy with the new per-proxy context.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                ctx (1, 1) dictionary {Ice.mustBeStringStringDictionary}
+            end
             r = obj.factory_('ice_context', true, ctx);
         end
 

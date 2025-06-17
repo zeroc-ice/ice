@@ -58,7 +58,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
 
             arguments
                 obj (1, 1) Ice.ImplicitContext
-                newContext (1, 1) dictionary % must be configured
+                newContext (1, 1) dictionary {Ice.mustBeStringStringDictionary}
             end
             obj.iceCall('setContext', newContext);
         end

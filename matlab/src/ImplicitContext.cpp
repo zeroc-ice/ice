@@ -29,13 +29,12 @@ extern "C"
 
     mxArray* Ice_ImplicitContext_setContext(void* self, mxArray* newContext)
     {
+        // Caller makes sure it's a configured dictionary string -> string.
+        assert(!mxIsEmpty(newContext));
         try
         {
             Ice::Context ctx;
-            if (!mxIsEmpty(newContext))
-            {
-                getContext(newContext, ctx);
-            }
+            getContext(newContext, ctx);
             deref<Ice::ImplicitContext>(self)->setContext(ctx);
         }
         catch (...)
