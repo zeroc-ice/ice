@@ -245,12 +245,6 @@ Slice::JsVisitor::JsVisitor(Output& out) : _out(out) {}
 
 Slice::JsVisitor::~JsVisitor() = default;
 
-vector<pair<string, string>>
-Slice::JsVisitor::imports() const
-{
-    return _imports;
-}
-
 void
 Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
 {

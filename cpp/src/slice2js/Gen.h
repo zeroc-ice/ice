@@ -13,8 +13,6 @@ namespace Slice
         JsVisitor(::IceInternal::Output& output);
         ~JsVisitor() override;
 
-        [[nodiscard]] std::vector<std::pair<std::string, std::string>> imports() const;
-
     protected:
         void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&);
         void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&);
@@ -27,8 +25,6 @@ namespace Slice
         void writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated = true);
 
         ::IceInternal::Output& _out;
-
-        std::vector<std::pair<std::string, std::string>> _imports{};
     };
 
     class Gen final : public JsGenerator
