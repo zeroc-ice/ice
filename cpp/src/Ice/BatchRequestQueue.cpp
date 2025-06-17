@@ -54,8 +54,7 @@ BatchRequestQueue::BatchRequestQueue(const InstancePtr& instance, bool datagram)
     if (_maxSize > 0 && datagram)
     {
         const Ice::InitializationData& initData = instance->initializationData();
-        auto udpSndSize = static_cast<size_t>(
-            initData.properties->getPropertyAsIntWithDefault("Ice.UDP.SndSize", 65535 - udpOverhead));
+        int32_t udpSndSize = initData.properties->getPropertyAsIntWithDefault("Ice.UDP.SndSize", 65535 - udpOverhead);
         if (udpSndSize < _maxSize)
         {
             _maxSize = udpSndSize;
@@ -91,7 +90,7 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrx& pr
     {
         _batchStreamCanFlush = true; // Allow flush to proceed even if the stream is marked in use.
 
-        if (_maxSize > 0 && _batchStream.b.size() >= _maxSize)
+        if (_maxSize > 0 && _batchStream.b.size() >= static_cast<size_t>(_maxSize))
         {
             proxy->ice_flushBatchRequestsAsync(nullptr); // auto-flush, don't wait for response
         }

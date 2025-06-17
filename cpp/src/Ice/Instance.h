@@ -86,9 +86,9 @@ namespace IceInternal
         IceInternal::TimerPtr timer();
         [[nodiscard]] EndpointFactoryManagerPtr endpointFactoryManager() const;
         [[nodiscard]] Ice::PluginManagerPtr pluginManager() const;
-        [[nodiscard]] size_t messageSizeMax() const { return _messageSizeMax; }
-        [[nodiscard]] size_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
-        [[nodiscard]] size_t classGraphDepthMax() const { return _classGraphDepthMax; }
+        [[nodiscard]] std::int32_t messageSizeMax() const { return _messageSizeMax; }
+        [[nodiscard]] std::int32_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
+        [[nodiscard]] std::int32_t classGraphDepthMax() const { return _classGraphDepthMax; }
         [[nodiscard]] Ice::ToStringMode toStringMode() const { return _toStringMode; }
         [[nodiscard]] bool acceptClassCycles() const { return _acceptClassCycles; }
 
@@ -155,9 +155,9 @@ namespace IceInternal
         Ice::InitializationData _initData;
         const TraceLevelsPtr _traceLevels;                                 // Immutable, not reset by destroy().
         const DefaultsAndOverridesPtr _defaultsAndOverrides;               // Immutable, not reset by destroy().
-        const size_t _messageSizeMax{0};                                   // Immutable, not reset by destroy().
-        const size_t _batchAutoFlushSize{0};                               // Immutable, not reset by destroy().
-        const size_t _classGraphDepthMax{0};                               // Immutable, not reset by destroy().
+        const std::int32_t _messageSizeMax{0};                             // Immutable, not reset by destroy().
+        const std::int32_t _batchAutoFlushSize{0};                         // Immutable, not reset by destroy().
+        const std::int32_t _classGraphDepthMax{0};                         // Immutable, not reset by destroy().
         const Ice::ToStringMode _toStringMode{Ice::ToStringMode::Unicode}; // Immutable, not reset by destroy().
         const bool _acceptClassCycles{false};                              // Immutable, not reset by destroy().
         Ice::ConnectionOptions _clientConnectionOptions;

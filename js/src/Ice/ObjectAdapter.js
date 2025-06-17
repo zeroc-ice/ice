@@ -95,14 +95,23 @@ export class ObjectAdapter {
             }
         }
 
-        {
-            const defaultMessageSizeMax = this._instance.messageSizeMax() / 1024;
-            const num = properties.getPropertyAsIntWithDefault(this._name + ".MessageSizeMax", defaultMessageSizeMax);
-            if (num < 1 || num > 0x7fffffff / 1024) {
-                this._messageSizeMax = 0x7fffffff;
-            } else {
-                this._messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
-            }
+        // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
+        // the maximum value of a 32-bit signed integer.
+        const messageSizeMaxUpperLimit = 0x7fffffff;
+        const defaultMessageSizeMax = this._instance.messageSizeMax() / 1024;
+        const messageSizeMax = properties.getPropertyAsIntWithDefault(
+            `${this._name}.MessageSizeMax`,
+            defaultMessageSizeMax,
+        );
+        if (messageSizeMax > messageSizeMaxUpperLimit / 1024) {
+            throw new InitializationException(
+                `${this._name}.MessageSizeMax '${messageSizeMax}' is too large, it must be less than or equal to '${messageSizeMaxUpperLimit / 1024}' KiB`,
+            );
+        } else if (messageSizeMax < 1) {
+            this._messageSizeMax = messageSizeMaxUpperLimit;
+        } else {
+            // The property is specified in kibibytes (KiB); _messageSizeMax is stored in bytes.
+            this._messageSizeMax = messageSizeMax * 1024;
         }
 
         try {

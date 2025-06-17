@@ -40,8 +40,8 @@ classdef Communicator < IceInternal.WrapperObject
             % The caller (initialize) consumes initData.properties_ and we don't use them at all in this class.
             obj.initData = initData;
 
-            if obj.initData.sliceLoader ~= IceInternal.DefaultSliceLoader.Instance
-                obj.initData.sliceLoader = Ice.CompositeSliceLoader(obj.initData.sliceLoader, ...
+            if obj.initData.SliceLoader ~= IceInternal.DefaultSliceLoader.Instance
+                obj.initData.SliceLoader = Ice.CompositeSliceLoader(obj.initData.SliceLoader, ...
                     IceInternal.DefaultSliceLoader.Instance);
             end
 
@@ -54,8 +54,8 @@ classdef Communicator < IceInternal.WrapperObject
                     cacheFullLogger = [];
                 end
 
-                obj.initData.sliceLoader = IceInternal.NotFoundSliceLoaderDecorator(...
-                    obj.initData.sliceLoader, notFoundCacheSize, cacheFullLogger);
+                obj.initData.SliceLoader = IceInternal.NotFoundSliceLoaderDecorator(...
+                    obj.initData.SliceLoader, notFoundCacheSize, cacheFullLogger);
             end
 
             enc = obj.getProperties().getProperty('Ice.Default.EncodingVersion');
@@ -341,7 +341,7 @@ classdef Communicator < IceInternal.WrapperObject
             r = obj.format;
         end
         function r = getSliceLoader(obj)
-            r = obj.initData.sliceLoader;
+            r = obj.initData.SliceLoader;
         end
     end
     properties(Access=private)

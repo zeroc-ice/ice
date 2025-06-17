@@ -38,7 +38,7 @@ namespace IceInternal
         int _batchRequestNum{0};
         size_t _batchMarker;
         std::exception_ptr _exception;
-        size_t _maxSize;
+        std::int32_t _maxSize;
 
         std::mutex _mutex;
         std::condition_variable _conditionVariable;
