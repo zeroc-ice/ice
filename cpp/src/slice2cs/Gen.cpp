@@ -128,9 +128,8 @@ namespace
             }
             else
             {
-                // TODO: remove once mappedScope() is fixed.
-                string sourceScope = source->mappedScope(".").substr(1);
-                sourceScope.pop_back();
+                string sourceScope = source->mappedScope(".");
+                sourceScope.pop_back(); // Remove the trailing '.' scope separator.
 
                 result << "cref=\"";
                 if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
@@ -715,7 +714,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        _out << constant->mappedScoped(".").substr(1) << ".value";
+        _out << constant->mappedScoped(".") << ".value";
     }
     else
     {
@@ -736,7 +735,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
-            _out << lte->mappedScoped(".").substr(1);
+            _out << lte->mappedScoped(".");
         }
         else
         {
@@ -852,7 +851,7 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
         ExceptionPtr ex = op->container()->lookupException(exceptionName, false);
         if (ex)
         {
-            name = ex->mappedScoped(".").substr(1);
+            name = ex->mappedScoped(".");
         }
 
         ostringstream openTag;
