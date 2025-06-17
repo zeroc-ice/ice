@@ -136,7 +136,7 @@ namespace
             "single",
             "double",
             "char",
-            "Ice.Value",    // Object
+            "Ice.Value",     // Object
             "Ice.ObjectPrx", // ObjectPrx
             "Ice.Value"      // Value
         };
@@ -955,7 +955,9 @@ namespace
                 mustBeScalarOrEmpty = true;
             }
         }
-        else if (dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type) || dynamic_pointer_cast<Struct>(type))
+        else if (
+            dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type) ||
+            dynamic_pointer_cast<Struct>(type))
         {
             out << " (1, 1)";
         }
@@ -1006,7 +1008,12 @@ namespace
         }
     }
 
-    void writeArguments(IceInternal::Output& out, const string& self, const string& proxyType, const ParameterList& inParams, const string& contextParam)
+    void writeArguments(
+        IceInternal::Output& out,
+        const string& self,
+        const string& proxyType,
+        const ParameterList& inParams,
+        const string& contextParam)
     {
         out << nl << "arguments";
         out.inc();
