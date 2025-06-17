@@ -106,12 +106,13 @@ namespace Slice
         // Handle doc comments.
         //
         void writeExceptionDocComment(IceInternal::Output& out, const OperationPtr& op, const DocComment& dc);
+        void writeRemarksDocComment(IceInternal::Output& out, const DocComment& comment);
         void writeHiddenDocComment(IceInternal::Output&);
         void writeDocCommentLines(IceInternal::Output&, const StringList&);
         void writeDocCommentLines(IceInternal::Output&, const std::string&);
         void writeDocComment(IceInternal::Output&, const UnitPtr&, const std::optional<DocComment>&);
         void writeDocComment(IceInternal::Output&, const std::string&);
-        void writeProxyDocComment(
+        void writeProxyOpDocComment(
             IceInternal::Output&,
             const OperationPtr&,
             const std::string&,
@@ -119,7 +120,7 @@ namespace Slice
             bool,
             const std::string&);
         void writeHiddenProxyDocComment(IceInternal::Output&, const OperationPtr&);
-        void writeServantDocComment(IceInternal::Output&, const OperationPtr&, const std::string&, bool);
+        void writeServantOpDocComment(IceInternal::Output&, const OperationPtr&, const std::string&, bool);
         void writeSeeAlso(IceInternal::Output&, const UnitPtr&, const std::string&);
         void writeParamDocComments(IceInternal::Output& out, const DataMemberList& members);
     };

@@ -699,7 +699,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
 
     // Generate a synchronous version of this operation which doesn't takes a context parameter.
     out << sp;
-    writeProxyDocComment(out, p, package, dc, false, "");
+    writeProxyOpDocComment(out, p, package, dc, false, "");
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -717,7 +717,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
 
     // Generate a synchronous version of this operation which takes a context parameter.
     out << sp;
-    writeProxyDocComment(out, p, package, dc, false, contextDoc);
+    writeProxyOpDocComment(out, p, package, dc, false, contextDoc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -787,7 +787,7 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
 
     // Generate an overload of '<NAME>Async' that doesn't take a context parameter.
     out << sp;
-    writeProxyDocComment(out, p, package, dc, true, "");
+    writeProxyOpDocComment(out, p, package, dc, true, "");
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -799,7 +799,7 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
 
     // Generate an overload of '<NAME>Async' that takes a context parameter.
     out << sp;
-    writeProxyDocComment(out, p, package, dc, true, contextDoc);
+    writeProxyOpDocComment(out, p, package, dc, true, contextDoc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -1306,6 +1306,21 @@ Slice::JavaVisitor::writeExceptionDocComment(Output& out, const OperationPtr& op
 }
 
 void
+Slice::JavaVisitor::writeRemarksDocComment(Output& out, const DocComment& comment)
+{
+    const StringList& remarks = comment.remarks();
+    if (remarks.empty())
+    {
+        return;
+    }
+
+    out << nl << " * <p><b>Remarks:</b>";
+    out << nl << " * ";
+    writeDocCommentLines(out, remarks);
+    out << "</p>";
+}
+
+void
 Slice::JavaVisitor::writeHiddenDocComment(Output& out)
 {
     out << nl << "/** @hidden */";
@@ -1397,6 +1412,7 @@ Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unt, const optio
         out << nl << " * ";
         writeDocCommentLines(out, overview);
     }
+    writeRemarksDocComment(out, *dc);
 
     const StringList& seeAlso = dc->seeAlso();
     if (!seeAlso.empty())
@@ -1436,7 +1452,7 @@ Slice::JavaVisitor::writeDocComment(Output& out, const string& text)
 }
 
 void
-Slice::JavaVisitor::writeProxyDocComment(
+Slice::JavaVisitor::writeProxyOpDocComment(
     Output& out,
     const OperationPtr& p,
     const string& package,
@@ -1456,6 +1472,7 @@ Slice::JavaVisitor::writeProxyDocComment(
         out << nl << " * ";
         writeDocCommentLines(out, overview);
     }
+    writeRemarksDocComment(out, *dc);
 
     //
     // Show in-params in order of declaration, but only those with docs.
@@ -1592,7 +1609,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
 }
 
 void
-Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, const string& package, bool async)
+Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p, const string& package, bool async)
 {
     optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     if (!dc)
@@ -1611,6 +1628,7 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
         out << nl << " * ";
         writeDocCommentLines(out, overview);
     }
+    writeRemarksDocComment(out, *dc);
 
     // Show in-params in order of declaration, but only those with docs.
     for (const auto& param : p->inParameters())
@@ -3862,7 +3880,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         ExceptionList throws = op->throws();
 
         out << sp;
-        writeServantDocComment(out, op, package, amd);
+        writeServantOpDocComment(out, op, package, amd);
 
         if (amd)
         {
