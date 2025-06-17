@@ -173,7 +173,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             arguments
                 obj (1, 1) Ice.ObjectPrx
             end
-            disp(obj.ice_toString());
+            builtin('disp', obj.ice_toString());
         end
 
         function r = ice_getCommunicator(obj)
