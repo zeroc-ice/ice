@@ -104,9 +104,9 @@ classdef TestHelper < handle
                 else
                     initData = Ice.InitializationData();
                     if isa(varargin{1}, 'Ice.Properties')
-                        initData.properties_ = varargin{1};
+                        initData.Properties = varargin{1};
                     else
-                        initData.properties_ = obj.createTestProperties(varargin{1});
+                        initData.Properties = obj.createTestProperties(varargin{1});
                     end
                 end
             end

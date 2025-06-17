@@ -52,8 +52,7 @@ function [communicator, args] = initialize(varargin)
         initData = Ice.InitializationData();
 
         if ~isempty(configFile)
-            initData.properties_ = Ice.createProperties();
-            initData.properties_.load(configFile);
+            initData.Properties.load(configFile);
         end
     end
 
@@ -63,14 +62,7 @@ function [communicator, args] = initialize(varargin)
     % We need to extract and pass the libpointer object for properties to the C function. Passing the wrapper
     % (Ice.Properties) object won't work because the C code has no way to obtain the inner pointer.
     %
-    props = libpointer('voidPtr');
-    if ~isempty(initData.properties_)
-        if ~isa(initData.properties_, 'Ice.Properties')
-            throw(Ice.LocalException('Ice:ArgumentException', 'invalid value for properties_ member'));
-        else
-            props = initData.properties_.impl_;
-        end
-    end
+    props = initData.Properties.impl_;
 
     impl = libpointer('voidPtr');
     args = IceInternal.Util.callWithResult('Ice_initialize', args, props, impl);

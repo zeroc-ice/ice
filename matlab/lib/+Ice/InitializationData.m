@@ -2,14 +2,32 @@ classdef (Sealed) InitializationData
     % InitializationData   Represents a set of options that you can specify when initializing a communicator.
     %
     % InitializationData Properties:
-    %   properties_ - The properties of the communicator.
-    %   sliceLoader - The Slice loader, used to unmarshal Slice classes and exceptions.
+    %   Properties - The properties of the communicator.
+    %   SliceLoader - The Slice loader, used to unmarshal Slice classes and exceptions.
 
     properties
-        % properties_ (Ice.Properties) - The properties for the communicator.
-        properties_ Ice.Properties
+        Properties (1, 1) Ice.Properties = Ice.createProperties() % The properties of the communicator.
 
-        % sliceLoader (Ice.SliceLoader) - The Slice loader, used to unmarshal Slice classes and exceptions.
-        sliceLoader Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance
+        SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance % The Slice loader.
+    end
+    properties (Dependent)
+        properties_ (1, 1) Ice.Properties % Deprecated: Use Properties instead.
+    end
+    methods
+        function obj = InitializationData(options)
+            arguments
+                options.?Ice.InitializationData
+            end
+            for prop = string(fieldnames(options))'
+                obj.(prop) = options.(prop);
+            end
+        end
+
+        function value = get.properties_(obj)
+            value = obj.Properties;
+        end
+        function obj = set.properties_(obj, value)
+            obj.Properties = value;
+        end
     end
 end
