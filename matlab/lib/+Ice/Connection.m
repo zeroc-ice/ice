@@ -23,14 +23,14 @@ classdef Connection < IceInternal.WrapperObject
 
     % Copyright (c) ZeroC, Inc.
 
-    methods
+    methods (Hidden, Access = ?Ice.ObjectPrx)
         function obj = Connection(impl, communicator)
-            if ~isa(impl, 'lib.pointer')
-                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
-            end
+            assert(isa(impl, 'lib.pointer'));
             obj@IceInternal.WrapperObject(impl);
             obj.communicator = communicator;
         end
+    end
+    methods
         function r = eq(obj, other)
             %
             % Override == operator.
@@ -48,6 +48,9 @@ classdef Connection < IceInternal.WrapperObject
             % abort   Aborts this connection.
             %
 
+            arguments
+                obj (1, 1) Ice.Connection
+            end
             obj.iceCall('abort');
         end
         function f = close(obj)
@@ -55,6 +58,9 @@ classdef Connection < IceInternal.WrapperObject
             %
             % Returns (Ice.Future) - A future that completes when the connnection is closed.
 
+            arguments
+                obj (1, 1) Ice.Connection
+            end
             future = libpointer('voidPtr');
             obj.iceCall('close', future);
             assert(~isNull(future));
@@ -75,6 +81,10 @@ classdef Connection < IceInternal.WrapperObject
             % Returns (Ice.ObjectPrx) - A proxy that matches the given identity
             %   and uses this connection.
 
+            arguments
+                obj (1, 1) Ice.Connection
+                id (1, 1) Ice.Identity
+            end
             proxy = libpointer('voidPtr');
             obj.iceCall('createProxy', id, proxy);
             r = Ice.ObjectPrx(obj.communicator, '', proxy, obj.communicator.getEncoding());
@@ -86,6 +96,9 @@ classdef Connection < IceInternal.WrapperObject
             % Returns (Ice.Endpoint) - The endpoint from which the connection
             %   was created.
 
+            arguments
+                obj (1, 1) Ice.Connection
+            end
             endpoint = libpointer('voidPtr');
             obj.iceCall('getEndpoint', endpoint);
             r = Ice.Endpoint(endpoint);
@@ -100,9 +113,13 @@ classdef Connection < IceInternal.WrapperObject
             %     queued batch requests should be compressed before being sent
             %     over the wire.
 
+            arguments
+                obj (1, 1) Ice.Connection
+                compress (1, 1) Ice.CompressBatch
+            end
             obj.iceCall('flushBatchRequests', compress);
         end
-        function r = flushBatchRequestsAsync(obj)
+        function r = flushBatchRequestsAsync(obj, compress)
             % flushBatchRequestsAsync   Flush any pending batch requests for
             %   this connection. This means all batch requests invoked on fixed
             %   proxies associated with the connection.
@@ -115,8 +132,12 @@ classdef Connection < IceInternal.WrapperObject
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.
 
+            arguments
+                obj (1, 1) Ice.Connection
+                compress (1, 1) Ice.CompressBatch
+            end
             future = libpointer('voidPtr');
-            obj.iceCall('flushBatchRequestsAsync', future);
+            obj.iceCall('flushBatchRequestsAsync', compress, future);
             assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
@@ -126,6 +147,9 @@ classdef Connection < IceInternal.WrapperObject
             %
             % Returns (char) - The type of the connection.
 
+            arguments
+                obj (1, 1) Ice.Connection
+            end
             r = obj.iceCallWithResult('type');
         end
         function r = toString(obj)
@@ -135,6 +159,9 @@ classdef Connection < IceInternal.WrapperObject
             % Returns (char) - The description of the connection as human
             %   readable text.
 
+            arguments
+                obj (1, 1) Ice.Connection
+            end
             r = obj.iceCallWithResult('toString');
         end
         function r = getInfo(obj)
@@ -142,6 +169,9 @@ classdef Connection < IceInternal.WrapperObject
             %
             % Returns (Ice.ConnectionInfo) - The connection information.
 
+            arguments
+                obj (1, 1) Ice.Connection
+            end
             info = obj.iceCallWithResult('getInfo');
             r = obj.createConnectionInfo(info);
         end
@@ -152,6 +182,11 @@ classdef Connection < IceInternal.WrapperObject
             %   rcvSize (int32) - The connection receive buffer size.
             %   sndSize (int32) - The connection send buffer size.
 
+            arguments
+                obj (1, 1) Ice.Connection
+                rcvSize (1, 1) int32
+                sndSize (1, 1) int32
+            end
             obj.iceCall('setBufferSize', rcvSize, sndSize);
         end
         function throwException(obj)
@@ -162,6 +197,9 @@ classdef Connection < IceInternal.WrapperObject
             %   if the connection was manually closed by the application. This
             %   operation does nothing if the connection is not yet closed.
 
+            arguments
+                obj (1, 1) Ice.Connection
+            end
             obj.iceCall('throwException');
         end
     end

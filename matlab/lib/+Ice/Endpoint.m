@@ -9,13 +9,13 @@ classdef Endpoint < IceInternal.WrapperObject
 
     % Copyright (c) ZeroC, Inc.
 
-    methods
+    methods (Hidden, Access = {?Ice.Connection, ?Ice.ObjectPrx})
         function obj = Endpoint(impl)
-            if ~isa(impl, 'lib.pointer')
-                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
-            end
+            assert(isa(impl, 'lib.pointer'));
             obj@IceInternal.WrapperObject(impl);
         end
+    end
+    methods
         %
         % Override == operator.
         %

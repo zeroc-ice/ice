@@ -33,9 +33,9 @@ classdef ImplicitContext < IceInternal.WrapperObject
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden, Access = ?Ice.Communicator)
+    methods (Hidden, Access = ?Ice.Communicator)
         function obj = ImplicitContext(impl)
-            assert(isa(impl, 'lib.pointer'))
+            assert(isa(impl, 'lib.pointer'));
             obj@IceInternal.WrapperObject(impl);
         end
     end

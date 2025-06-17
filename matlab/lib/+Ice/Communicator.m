@@ -33,7 +33,7 @@ classdef Communicator < IceInternal.WrapperObject
     methods(Hidden)
         function obj = Communicator(impl, initData)
             % Called by Ice.initialize.
-            assert(isa(impl, 'lib.pointer'))
+            assert(isa(impl, 'lib.pointer'));
             obj@IceInternal.WrapperObject(impl);
 
             % The caller (initialize) consumes initData.Properties and we don't use them at all in this class.
