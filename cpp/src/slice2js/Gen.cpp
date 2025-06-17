@@ -2198,7 +2198,9 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << sp;
         writeDocCommentFor(dataMember);
-        _out << nl << dataMember->mappedName() << ": " << typeToTsString(dataMember->type(), true) << ";";
+        const string optionalModifier = dataMember->optional() ? "?" : "";
+        _out << nl << dataMember->mappedName() << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
+             << ";";
     }
     _out << eb;
 
@@ -2556,7 +2558,6 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         _out << sp;
         writeDocCommentFor(dataMember);
-        // TODO why do we only have this optional check for exception members, but not for class members?
         const string optionalModifier = dataMember->optional() ? "?" : "";
         _out << nl << dataMember->mappedName() << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
              << ";";
