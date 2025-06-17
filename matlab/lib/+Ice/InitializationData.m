@@ -10,7 +10,7 @@ classdef (Sealed) InitializationData
 
         SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance % The Slice loader.
     end
-    properties (Dependent)
+    properties (Dependent, Hidden)
         properties_ (1, 1) Ice.Properties % Deprecated: Use Properties instead.
     end
     methods
