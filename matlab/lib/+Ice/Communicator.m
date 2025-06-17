@@ -30,14 +30,13 @@ classdef Communicator < IceInternal.WrapperObject
 
     % Copyright (c) ZeroC, Inc.
 
-    methods
+    methods(Hidden)
         function obj = Communicator(impl, initData)
-            if ~isa(impl, 'lib.pointer')
-                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
-            end
+            % Called by Ice.initialize.
+            assert(isa(impl, 'lib.pointer'))
             obj@IceInternal.WrapperObject(impl);
 
-            % The caller (initialize) consumes initData.properties_ and we don't use them at all in this class.
+            % The caller (initialize) consumes initData.Properties and we don't use them at all in this class.
             obj.initData = initData;
 
             if obj.initData.SliceLoader ~= IceInternal.DefaultSliceLoader.Instance
@@ -74,10 +73,16 @@ classdef Communicator < IceInternal.WrapperObject
                 obj.format = Ice.FormatType.CompactFormat;
             end
         end
+    end
+    methods
         function destroy(obj)
             % destroy   Destroy the communicator. Calling destroy cleans up
             % memory, and shuts down this communicator's client functionality.
             % Subsequent calls to destroy are ignored.
+
+            arguments
+                obj (1, 1) Ice.Communicator
+            end
             obj.iceCall('destroy');
         end
         function f = destroyAsync(obj)
@@ -88,6 +93,9 @@ classdef Communicator < IceInternal.WrapperObject
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+            end
             future = libpointer('voidPtr');
             obj.iceCall('destroyAsync', future);
             assert(~isNull(future));
@@ -113,10 +121,14 @@ classdef Communicator < IceInternal.WrapperObject
             % Returns (Ice.ObjectPrx) - The proxy, or an empty array if str is
             %   an empty string.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+                str (1, :) char
+            end
             impl = libpointer('voidPtr');
             obj.iceCall('stringToProxy', str, impl);
             if isNull(impl)
-                r = [];
+                r = Ice.ObjectPrx.empty;
             else
                 r = Ice.ObjectPrx(obj, '', impl);
             end
@@ -131,6 +143,10 @@ classdef Communicator < IceInternal.WrapperObject
             % Returns (char) - The stringified proxy, or an empty string if
             %   proxy is an empty array.
 
+            arguments
+                ~
+                proxy (1, 1) Ice.ObjectPrx
+            end
             if isempty(proxy)
                 r = '';
             elseif ~isa(proxy, 'Ice.ObjectPrx')
@@ -158,10 +174,14 @@ classdef Communicator < IceInternal.WrapperObject
             %
             % Returns (Ice.ObjectPrx) - The proxy.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+                prop (1, :) char
+            end
             impl = libpointer('voidPtr');
             obj.iceCall('propertyToProxy', prop, impl);
             if isNull(impl)
-                r = [];
+                r = Ice.ObjectPrx.empty;
             else
                 r = Ice.ObjectPrx(obj, '', impl);
             end
@@ -175,10 +195,13 @@ classdef Communicator < IceInternal.WrapperObject
             %
             % Returns (dictionary) - The property set.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+                proxy Ice.ObjectPrx {mustBeScalarOrEmpty}
+                prop (1, :) char
+            end
             if isempty(proxy)
                 r = configureDictionary('char', 'char');
-            elseif ~isa(proxy, 'Ice.ObjectPrx')
-                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a proxy'));
             else
                 r = obj.iceCallWithResult('proxyToProperty', proxy.iceGetImpl(), prop);
             end
@@ -191,6 +214,10 @@ classdef Communicator < IceInternal.WrapperObject
             %
             % Returns (char) - The stringified identity.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+                id (1, 1) Ice.Identity
+            end
             r = obj.iceCallWithResult('identityToString', id);
         end
         function r = getImplicitContext(obj)
@@ -201,6 +228,9 @@ classdef Communicator < IceInternal.WrapperObject
             %   with this communicator; returns an empty array when the property
             %   Ice.ImplicitContext is not set or is set to None.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+            end
             if isempty(obj.implicitContext)
                 impl = libpointer('voidPtr');
                 obj.iceCall('getImplicitContext', impl);
@@ -213,6 +243,9 @@ classdef Communicator < IceInternal.WrapperObject
             %
             % Returns (Ice.Properties) - This communicator's properties.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+            end
             if isempty(obj.properties_)
                 impl = libpointer('voidPtr');
                 obj.iceCall('getProperties', impl);
@@ -225,6 +258,9 @@ classdef Communicator < IceInternal.WrapperObject
             %
             % Returns (Ice.Logger) - This communicator's logger.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+            end
             if isempty(obj.logger)
                 impl = libpointer('voidPtr');
                 obj.iceCall('getLogger', impl);
@@ -237,12 +273,15 @@ classdef Communicator < IceInternal.WrapperObject
             %
             % Returns (Ice.RouterPrx) - This communicator's default router.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+            end
             impl = libpointer('voidPtr');
             obj.iceCall('getDefaultRouter', impl);
             if ~isNull(impl)
                 r = Ice.RouterPrx(obj, '', impl);
             else
-                r = [];
+                r = Ice.RouterPrx.empty;
             end
         end
         function setDefaultRouter(obj, proxy)
@@ -258,10 +297,12 @@ classdef Communicator < IceInternal.WrapperObject
             %   proxy (Ice.RouterPrx) - The default router to use for this
             %     communicator.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+                proxy Ice.RouterPrx {mustBeScalarOrEmpty}
+            end
             if isempty(proxy)
                 impl = libpointer('voidPtr');
-            elseif ~isa(proxy, 'Ice.RouterPrx')
-                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a router proxy'));
             else
                 impl = proxy.iceGetImpl();
             end
@@ -272,12 +313,15 @@ classdef Communicator < IceInternal.WrapperObject
             %
             % Returns (Ice.LocatorPrx) - This communicator's default locator.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+            end
             impl = libpointer('voidPtr');
             obj.iceCall('getDefaultLocator', impl);
             if ~isNull(impl)
                 r = Ice.LocatorPrx(obj, '', impl);
             else
-                r = [];
+                r = Ice.LocatorPrx.empty;
             end
         end
         function setDefaultLocator(obj, proxy)
@@ -293,10 +337,12 @@ classdef Communicator < IceInternal.WrapperObject
             %   proxy (Ice.LocatorPrx) - The default locator to use for this
             %     communicator.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+                proxy Ice.LocatorPrx {mustBeScalarOrEmpty}
+            end
             if isempty(proxy)
                 impl = libpointer('voidPtr');
-            elseif ~isa(proxy, 'Ice.LocatorPrx')
-                throw(Ice.LocalException('Ice:ArgumentException', 'expecting a locator proxy'));
             else
                 impl = proxy.iceGetImpl();
             end
@@ -313,6 +359,10 @@ classdef Communicator < IceInternal.WrapperObject
             %     batch requests should be compressed before being sent over
             %     the wire.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+                mode (1, 1) Ice.CompressBatch
+            end
             obj.iceCall('flushBatchRequests', mode);
         end
         function r = flushBatchRequestsAsync(obj, mode)
@@ -329,18 +379,34 @@ classdef Communicator < IceInternal.WrapperObject
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.
 
+            arguments
+                obj (1, 1) Ice.Communicator
+                mode (1, 1) Ice.CompressBatch
+            end
             future = libpointer('voidPtr');
             obj.iceCall('flushBatchRequestsAsync', mode, future);
             assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
+
         function r = getEncoding(obj)
+            arguments
+                obj (1, 1) Ice.Communicator
+            end
             r = obj.encoding;
         end
+
         function r = getFormat(obj)
+            arguments
+                obj (1, 1) Ice.Communicator
+            end
             r = obj.format;
         end
+
         function r = getSliceLoader(obj)
+            arguments
+                obj (1, 1) Ice.Communicator
+            end
             r = obj.initData.SliceLoader;
         end
     end
