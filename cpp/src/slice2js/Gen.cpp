@@ -241,15 +241,9 @@ namespace
     }
 }
 
-Slice::JsVisitor::JsVisitor(Output& out, const vector<pair<string, string>>& imports) : _out(out), _imports(imports) {}
+Slice::JsVisitor::JsVisitor(Output& out) : _out(out) {}
 
 Slice::JsVisitor::~JsVisitor() = default;
-
-vector<pair<string, string>>
-Slice::JsVisitor::imports() const
-{
-    return _imports;
-}
 
 void
 Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
@@ -2204,7 +2198,9 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << sp;
         writeDocCommentFor(dataMember);
-        _out << nl << dataMember->mappedName() << ": " << typeToTsString(dataMember->type(), true) << ";";
+        const string optionalModifier = dataMember->optional() ? "?" : "";
+        _out << nl << dataMember->mappedName() << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
+             << ";";
     }
     _out << eb;
 
@@ -2325,7 +2321,7 @@ bool
 Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     //
-    // Define servant an proxy types
+    // Define servant and proxy types.
     //
     const string prxName = p->mappedName() + "Prx";
     _out << sp;
@@ -2558,13 +2554,16 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << epar << ";";
     }
 
-    for (const auto& dataMember : allDataMembers)
+    for (const auto& dataMember : dataMembers)
     {
+        _out << sp;
+        writeDocCommentFor(dataMember);
         const string optionalModifier = dataMember->optional() ? "?" : "";
         _out << nl << dataMember->mappedName() << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
              << ";";
     }
     _out << eb;
+
     return false;
 }
 
@@ -2636,10 +2635,10 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     {
         _out << sp;
         writeDocCommentFor(dataMember);
-        _out << nl << dataMember->mappedName() << ":" << typeToTsString(dataMember->type(), true) << ";";
+        _out << nl << dataMember->mappedName() << ": " << typeToTsString(dataMember->type(), true) << ";";
     }
-
     _out << eb;
+
     return false;
 }
 
