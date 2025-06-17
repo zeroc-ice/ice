@@ -1181,10 +1181,11 @@ classdef TwowaysAMI
             assert(call(p, 'opDouble1', 1.0) == 1.0);
             assert(strcmp(call(p, 'opString1', 'opString1'), 'opString1'));
             assert(length(call(p, 'opStringS1', {})) == 0);
-            empty = call(p, 'opByteBoolD1', []);
+            emptyByteBoolD = configureDictionary('uint8', 'logical');
+            empty = call(p, 'opByteBoolD1', emptyByteBoolD);
             assert(empty.numEntries == 0);
             assert(length(call(p, 'opStringS2', [])) == 0);
-            empty = call(p, 'opByteBoolD2', []);
+            empty = call(p, 'opByteBoolD2', emptyByteBoolD);
             assert(empty.numEntries == 0);
 
             d = MyDerivedClassPrx.uncheckedCast(p);

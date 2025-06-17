@@ -32,7 +32,10 @@ extern "C"
         try
         {
             Ice::Context ctx;
-            getContext(newContext, ctx);
+            if (!mxIsEmpty(newContext))
+            {
+                getContext(newContext, ctx);
+            }
             deref<Ice::ImplicitContext>(self)->setContext(ctx);
         }
         catch (...)
