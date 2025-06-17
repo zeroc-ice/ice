@@ -175,17 +175,21 @@ classdef ObjectPrx < IceInternal.WrapperObject
             r = obj.communicator;
         end
 
-        function ice_ping(obj, varargin)
+        function ice_ping(obj, ctx)
             % ice_ping - Tests whether the target object of this proxy can
             %   be reached.
             %
             % Parameters:
             %   context - Optional context map for the invocation.
 
-            obj.iceInvoke('ice_ping', 2, false, [], false, {}, varargin{:});
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                ctx (1, 1) dictionary = dictionary
+            end
+            obj.iceInvoke('ice_ping', 2, false, [], false, {}, ctx);
         end
 
-        function r = ice_pingAsync(obj, varargin)
+        function r = ice_pingAsync(obj, ctx)
             % ice_pingAsync - Tests whether the target object of this proxy can
             %   be reached.
             %
@@ -195,10 +199,14 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.
 
-            r = obj.iceInvokeAsync('ice_ping', 2, false, [], 0, [], {}, varargin{:});
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                ctx (1, 1) dictionary = dictionary
+            end
+            r = obj.iceInvokeAsync('ice_ping', 2, false, [], 0, [], {}, ctx);
         end
 
-        function r = ice_isA(obj, id, varargin)
+        function r = ice_isA(obj, id, ctx)
             % ice_isA - Tests whether this object supports a specific
             %   Slice interface.
             %
@@ -209,16 +217,21 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (logical) - True if the target object has the interface
             %   specified by id or derives from the interface specified by id.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                id (1, :) char
+                ctx (1, 1) dictionary = dictionary
+            end
             os = obj.iceStartWriteParams([]);
             os.writeString(id);
             obj.iceEndWriteParams(os);
-            is = obj.iceInvoke('ice_isA', 2, true, os, true, {}, varargin{:});
+            is = obj.iceInvoke('ice_isA', 2, true, os, true, {}, ctx);
             is.startEncapsulation();
             r = is.readBool();
             is.endEncapsulation();
         end
 
-        function r = ice_isAAsync(obj, id, varargin)
+        function r = ice_isAAsync(obj, id, ctx)
             % ice_isAAsync - Tests whether this object supports a specific
             %   Slice interface.
             %
@@ -229,6 +242,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                id (1, :) char
+                ctx (1, 1) dictionary = dictionary
+            end
             os = obj.iceStartWriteParams([]);
             os.writeString(id);
             obj.iceEndWriteParams(os);
@@ -237,10 +255,10 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 varargout{1} = is.readBool();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_isA', 2, true, os, 1, @unmarshal, {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_isA', 2, true, os, 1, @unmarshal, {}, ctx);
         end
 
-        function r = ice_id(obj, varargin)
+        function r = ice_id(obj, ctx)
             % ice_id - Returns the Slice type ID of the most-derived interface
             %   supported by the target object of this proxy.
             %
@@ -249,13 +267,17 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             % Returns (char) - The Slice type ID of the most-derived interface.
 
-            is = obj.iceInvoke('ice_id', 2, true, [], true, {}, varargin{:});
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                ctx (1, 1) dictionary = dictionary
+            end
+            is = obj.iceInvoke('ice_id', 2, true, [], true, {}, ctx);
             is.startEncapsulation();
             r = is.readString();
             is.endEncapsulation();
         end
 
-        function r = ice_idAsync(obj, varargin)
+        function r = ice_idAsync(obj, ctx)
             % ice_idAsync - Returns the Slice type ID of the most-derived
             %   interface supported by the target object of this proxy.
             %
@@ -265,15 +287,19 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                ctx (1, 1) dictionary = dictionary
+            end
             function varargout = unmarshal(is)
                 is.startEncapsulation();
                 varargout{1} = is.readString();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_id', 2, true, [], 1, @unmarshal, {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_id', 2, true, [], 1, @unmarshal, {}, ctx);
         end
 
-        function r = ice_ids(obj, varargin)
+        function r = ice_ids(obj, ctx)
             % ice_ids - Returns the Slice type IDs of the interfaces supported
             %   by the target object of this proxy.
             %
@@ -283,13 +309,17 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (string array) - The Slice type IDs of the
             %   interfaces supported by the target object, in alphabetical order.
 
-            is = obj.iceInvoke('ice_ids', 2, true, [], true, {}, varargin{:});
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                ctx (1, 1) dictionary = dictionary
+            end
+            is = obj.iceInvoke('ice_ids', 2, true, [], true, {}, ctx);
             is.startEncapsulation();
             r = is.readStringSeq();
             is.endEncapsulation();
         end
 
-        function r = ice_idsAsync(obj, varargin)
+        function r = ice_idsAsync(obj, ctx)
             % ice_idsAsync - Returns the Slice type IDs of the interfaces
             %   supported by the target object of this proxy.
             %
@@ -299,12 +329,16 @@ classdef ObjectPrx < IceInternal.WrapperObject
             % Returns (Ice.Future) - A future that will be completed when the
             %   invocation completes.
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+                ctx (1, 1) dictionary = dictionary
+            end
             function varargout = unmarshal(is)
                 is.startEncapsulation();
                 varargout{1} = is.readStringSeq();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_ids', 2, true, [], 1, @unmarshal, {}, varargin{:});
+            r = obj.iceInvokeAsync('ice_ids', 2, true, [], 1, @unmarshal, {}, ctx);
         end
 
         function r = ice_getIdentity(obj)
@@ -940,11 +974,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
             os.endEncapsulation();
         end
 
-        function is = iceInvoke(obj, op, mode, twowayOnly, os, hasOutParams, exceptions, varargin)
+        function is = iceInvoke(obj, op, mode, twowayOnly, os, hasOutParams, exceptions, ctx)
             try
-                % Vararg accepted for optional context argument.
-                if length(varargin) > 1
-                    throw(Ice.LocalException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
+                % Replace unconfigured dictionary with empty array.
+                if ~isConfigured(ctx)
+                    ctx = [];
                 end
 
                 if twowayOnly && ~obj.isTwoway
@@ -959,22 +993,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     size = os.buf.size;
                 end
 
-                if isscalar(varargin)
-                    %
-                    % Avoid the string concatenation
-                    %
-                    % res = obj.iceCallWithResult('ice_invoke', op, mode, buf, size, varargin{1});
-                    %
-                    res = IceInternal.Util.callWithResult('Ice_ObjectPrx_ice_invoke', obj.impl_, op, mode, buf, ...
-                                                          size, varargin{1});
-                else
-                    %
-                    % Avoid the string concatenation
-                    %
-                    % res = obj.iceCallWithResult('ice_invokeNC', op, mode, buf, size);
-                    %
-                    res = IceInternal.Util.callWithResult('Ice_ObjectPrx_ice_invokeNC', obj.impl_, op, mode, buf, size);
-                end
+                res = IceInternal.Util.callWithResult('Ice_ObjectPrx_ice_invoke', obj.impl_, op, mode, buf, size, ctx);
 
                 is = [];
                 if ~isempty(res.params)
@@ -999,7 +1018,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function fut = iceInvokeAsync(obj, op, mode, twowayOnly, os, numOutArgs, unmarshalFunc, exceptions, varargin)
+        function fut = iceInvokeAsync(obj, op, mode, twowayOnly, os, numOutArgs, unmarshalFunc, exceptions, ctx)
             isTwoway = obj.isTwoway;
 
             % This nested function is invoked by Future.fetchOutputs()
@@ -1041,10 +1060,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
 
             try
-                % Vararg accepted for optional context argument.
-                if length(varargin) > 1
-                    throw(Ice.LocalException('Ice:ArgumentException', 'one optional argument is allowed for request context'))
+                % Replace unconfigured dictionary with empty array.
+                if ~isConfigured(ctx)
+                    ctx = [];
                 end
+
                 if twowayOnly && ~isTwoway
                     throw(Ice.TwowayOnlyException(op));
                 end
@@ -1056,22 +1076,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
                     size = os.buf.size;
                 end
                 futPtr = libpointer('voidPtr'); % Output param
-                if isscalar(varargin)
-                    %
-                    % Avoid the string concatenation
-                    %
-                    % obj.iceCall('ice_invokeAsync', op, mode, buf, size, varargin{1}, futPtr);
-                    %
-                    IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsync', obj.impl_, op, mode, buf, size, ...
-                                          varargin{1}, futPtr);
-                else
-                    %
-                    % Avoid the string concatenation
-                    %
-                    % obj.iceCall('ice_invokeAsyncNC', op, mode, buf, size, futPtr);
-                    %
-                    IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsyncNC', obj.impl_, op, mode, buf, size, futPtr);
-                end
+                IceInternal.Util.call('Ice_ObjectPrx_ice_invokeAsync', obj.impl_, op, mode, buf, size, ctx, futPtr);
                 assert(~isNull(futPtr));
                 fut = Ice.Future(futPtr, op, numOutArgs, 'Ice_InvocationFuture', @fetch);
             catch ex
@@ -1106,85 +1111,90 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = checkedCast(p, varargin)
-            if isempty(varargin)
-                r = p;
-            else
-                r = Ice.ObjectPrx.iceCheckedCast(p, Ice.ObjectPrx.ice_staticId(), 'Ice.ObjectPrx', varargin{:});
+            % checkedCast   Contacts the remote server to verify that the object implements this type.
+            %
+            % Parameters:
+            %   p - The proxy to be check.
+            %   facet - The desired facet (optional).
+            %   context - The request context (optional).
+            %
+            % Returns (Ice.InitialPrx) - A proxy for this type, or an empty array if the object does not support this
+            %  type.
+            arguments
+                p Ice.ObjectPrx {mustBeScalarOrEmpty}
             end
+            arguments (Repeating)
+                varargin % facet or context or both, so can't specify types
+            end
+            r = Ice.ObjectPrx.iceCheckedCast(p, Ice.ObjectPrx.ice_staticId(), 'Ice.ObjectPrx', varargin{:});
         end
 
         function r = uncheckedCast(p, varargin)
-            if isempty(varargin)
-                r = p;
-            elseif isscalar(varargin)
-                if ~isempty(p)
-                    r = p.ice_facet(varargin{1});
-                else
-                    r = p;
-                end
-            else
-                throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments to uncheckedCast'));
+            % uncheckedCast   Downcasts the given proxy to this type without contacting the remote server.
+            %
+            % Parameters:
+            %   p - The proxy to be cast.
+            %   facet - The desired facet (optional).
+            %
+            % Returns (Test.InitialPrx) - A proxy for this type.
+            arguments
+                p Ice.ObjectPrx {mustBeScalarOrEmpty}
             end
+            arguments (Repeating)
+                varargin (1, :) char
+            end
+            r = Ice.ObjectPrx.iceUncheckedCast(p, 'Ice.ObjectPrx', varargin{:});
         end
     end
 
     methods(Static,Access=protected)
         function r = iceCheckedCast(p, id, cls, varargin)
-            hasFacet = false;
-            facet = [];
-            context = {};
-            if isscalar(varargin)
-                if isa(varargin{1}, 'dictionary')
-                    context = varargin(1);
-                elseif isempty(varargin{1}) || isa(varargin{1}, 'char')
-                    hasFacet = true;
-                    facet = varargin{1};
-                else
-                    throw(Ice.LocalException('Ice:ArgumentException', 'expecting string or context dictionary'));
-                end
-            elseif length(varargin) == 2
-                hasFacet = true;
-                facet = varargin{1};
-                context = varargin(2);
-            elseif length(varargin) > 2
-                throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments to checkedCast'));
-            end
             if ~isempty(p)
-                if hasFacet
-                    p = p.ice_facet(facet);
+                context = dictionary; % unconfigured dictionary
+                if isscalar(varargin)
+                    if isa(varargin{1}, 'dictionary')
+                        context = varargin{1};
+                    elseif isempty(varargin{1}) || isa(varargin{1}, 'char')
+                       p = p.ice_facet(varargin{1});
+                    else
+                        throw(Ice.LocalException('Ice:ArgumentException', 'expecting char or context dictionary'));
+                    end
+                elseif length(varargin) == 2
+                    if isa(varargin{1}, 'char')
+                        p = p.ice_facet(varargin{1});
+                    else
+                        throw(Ice.LocalException('Ice:ArgumentException', 'expecting char array for facet'));
+                    end
+                    context = varargin{2};
+                elseif length(varargin) > 2
+                    throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments to checkedCast'));
                 end
-                if p.ice_isA(id, context{:})
+
+                if p.ice_isA(id, context)
                     constructor = str2func(cls);
                     r = constructor(p.communicator, '',  p.clone_(), p.encoding);
                 else
-                    r = [];
+                    emptyFunc = str2func(strcat(cls, '.empty'));
+                    r = emptyFunc();
                 end
             else
-                r = p;
+                emptyFunc = str2func(strcat(cls, '.empty'));
+                r = emptyFunc();
             end
         end
 
         function r = iceUncheckedCast(p, cls, varargin)
-            hasFacet = false;
-            facet = [];
-            if isscalar(varargin)
-                hasFacet = true;
-                facet = varargin{1};
-            elseif length(varargin) > 1
-                throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments to uncheckedCast'));
-            end
             if ~isempty(p)
-                if hasFacet
-                    p = p.ice_facet(facet);
+                if isscalar(varargin)
+                    p = p.ice_facet(varargin{1});
+                elseif length(varargin) > 1
+                    throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments to uncheckedCast'));
                 end
-                if isa(p, cls)
-                    r = p;
-                else
-                    constructor = str2func(cls);
-                    r = constructor(p.communicator, '', p.clone_(), p.encoding);
-                end
+                constructor = str2func(cls);
+                r = constructor(p.communicator, '', p.clone_(), p.encoding);
             else
-                r = p;
+                emptyFunc = str2func(strcat(cls, '.empty'));
+                r = emptyFunc();
             end
         end
     end
