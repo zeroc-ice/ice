@@ -1,7 +1,7 @@
 classdef ImplicitContext < IceInternal.WrapperObject
     % ImplicitContext   Summary of ImplicitContext
     %
-    % An interface to associate implict contexts with communicators.
+    % An interface to associate implicit contexts with communicators.
     %
     % When you make a remote invocation without an explicit context parameter,
     % Ice uses the per-proxy context (if any) combined with the ImplicitContext

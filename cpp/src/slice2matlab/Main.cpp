@@ -942,17 +942,17 @@ namespace
         bool mustBeScalarOrEmpty = false;
         if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
-            if (builtin->kind() < Builtin::KindString)
-            {
-                out << " (1, 1)";
-            }
-            else if (builtin->kind() == Builtin::KindString)
+            if (builtin->kind() == Builtin::KindString)
             {
                 out << " (1, :)";
             }
-            else // ObjectPrx and Value
+            else if (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)
             {
                 mustBeScalarOrEmpty = true;
+            }
+            else
+            {
+                out << " (1, 1)";
             }
         }
         else if (
