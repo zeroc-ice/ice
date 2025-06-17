@@ -977,8 +977,8 @@ CodeVisitor::writeAssign(const DataMemberPtr& member)
     const string memberName = member->mappedName();
     if (StructPtr st = dynamic_pointer_cast<Struct>(member->type()))
     {
-        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << st->mappedScoped("\\", true)
-             << " : $" << memberName << ';';
+        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new "
+             << st->mappedScoped("\\", true) << " : $" << memberName << ';';
     }
     else
     {
