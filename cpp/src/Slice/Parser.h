@@ -385,20 +385,34 @@ namespace Slice
         [[nodiscard]] bool isTopLevel() const;
         [[nodiscard]] virtual ModulePtr getTopLevelModule() const;
 
+        // Functions for getting the Slice name of an element.
+
         /// Returns the Slice identifier of this element.
         [[nodiscard]] std::string name() const;
+
         /// Returns the Slice scope that this element is contained within (with a trailing '::').
         [[nodiscard]] std::string scope() const;
+
         /// Returns the fully-scoped Slice identifier of this element (equivalent to `scope() + name()`).
         [[nodiscard]] std::string scoped() const;
 
+        // Functions for getting the mapped name of an element.
+
         /// Returns the mapped identifier that this element will use in the target language.
         [[nodiscard]] std::string mappedName() const;
+
         /// Returns the mapped scope that this element will be generated in in the target language.
-        /// (equivalent to `mappedScope(separator) + mappedName()`).
-        [[nodiscard]] std::string mappedScoped(const std::string& separator = "::") const;
+        /// @param separator This string will be used to separate scope segments.
+        /// @param leading If true, the returned string will have a leading `separator` (defaults to false).
+        /// @remark Equivalent to `mappedScope(separator, leading) + mappedName()`.
+        [[nodiscard]] std::string mappedScoped(const std::string& separator, bool leading = false) const;
+
         /// Returns the mapped fully-scoped identifier that this element will use in the target language.
-        [[nodiscard]] std::string mappedScope(const std::string& separator = "::") const;
+        /// @param separator This string will be used to separate scope segments.
+        /// @param leading If true, the returned string will have a leading `separator` (defaults to false).
+        [[nodiscard]] std::string mappedScope(const std::string& separator, bool leading = false) const;
+
+        // Functions to get information about where a Slice element was defined at.
 
         [[nodiscard]] const std::string& file() const;
         [[nodiscard]] int line() const;

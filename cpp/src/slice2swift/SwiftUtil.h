@@ -37,7 +37,6 @@ namespace Slice
             const StringList&,
             bool commentFirst = true,
             const std::string& space = " ");
-        void writeSeeAlso(IceInternal::Output&, const StringList&, const ContainerPtr&);
         void writeDocSummary(IceInternal::Output&, const ContainedPtr&);
         void writeOpDocSummary(IceInternal::Output&, const OperationPtr&, bool);
 

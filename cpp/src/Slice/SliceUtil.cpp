@@ -509,8 +509,7 @@ Slice::isProxyType(const TypePtr& type)
 bool
 Slice::isFirstElement(const ContainedPtr& p)
 {
-    ContainerPtr container = dynamic_pointer_cast<Container>(p->container());
-    return p == container->contents().front();
+    return p == p->container()->contents().front();
 }
 
 string

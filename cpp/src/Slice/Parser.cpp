@@ -996,20 +996,24 @@ Slice::Contained::mappedName() const
 }
 
 string
-Slice::Contained::mappedScoped(const string& separator) const
+Slice::Contained::mappedScoped(const string& separator, bool leading) const
 {
-    return mappedScope(separator) + mappedName();
+    return mappedScope(separator, leading) + mappedName();
 }
 
 string
-Slice::Contained::mappedScope(const string& separator) const
+Slice::Contained::mappedScope(const string& separator, bool leading) const
 {
     string scoped;
     if (auto container = dynamic_pointer_cast<Contained>(_container))
     {
-        scoped = container->mappedScoped(separator);
+        scoped = container->mappedScoped(separator, leading) + separator;
     }
-    return scoped + separator;
+    else if (leading)
+    {
+        scoped = separator;
+    }
+    return scoped;
 }
 
 const string&

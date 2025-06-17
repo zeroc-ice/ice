@@ -173,7 +173,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << "class " << name;
     if (base)
     {
-        _out << " extends " << base->mappedScoped("\\");
+        _out << " extends " << base->mappedScoped("\\", true);
     }
     else
     {
@@ -268,7 +268,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     // Emit the type information.
-    const string abs = p->mappedScoped(R"(\\)");
+    const string abs = p->mappedScoped("\\\\", true);
     _out << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << abs << "', " << p->compactId() << ", ";
     if (!base)
     {
@@ -548,7 +548,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "class " << name << " extends ";
     if (base)
     {
-        _out << base->mappedScoped("\\");
+        _out << base->mappedScoped("\\", true);
     }
     else
     {
@@ -595,7 +595,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     // Emit the type information.
-    const string abs = p->mappedScoped("\\\\");
+    const string abs = p->mappedScoped("\\\\", true);
     _out << sp << nl << type << " = IcePHP_defineException('" << scoped << "', '" << abs << "', ";
     if (!base)
     {
@@ -696,7 +696,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     }
 
     // Emit the type information.
-    const string abs = p->mappedScoped("\\\\");
+    const string abs = p->mappedScoped("\\\\", true);
     _out << nl << type << " = IcePHP_defineStruct('" << scoped << "', '" << abs << "', array(";
 
     // Data members are represented as an array:
@@ -809,7 +809,7 @@ CodeVisitor::visitConst(const ConstPtr& p)
 {
     startNamespace(p);
 
-    _out << sp << nl << "if(!defined('" << p->mappedScoped("\\\\") << "'))";
+    _out << sp << nl << "if(!defined('" << p->mappedScoped("\\\\", true) << "'))";
     _out << sb;
     _out << sp << nl << "define(__NAMESPACE__ . '\\\\" << p->mappedName() << "', ";
     writeConstantValue(p->type(), p->valueType(), p->value());
@@ -826,7 +826,7 @@ CodeVisitor::startNamespace(const ContainedPtr& p)
     // This function should only be called on module level elements.
     ModulePtr container = dynamic_pointer_cast<Module>(p->container());
     assert(container);
-    _out << sp << nl << "namespace " << container->mappedScoped("\\").substr(1);
+    _out << sp << nl << "namespace " << container->mappedScoped("\\");
     _out << sb;
 }
 
@@ -839,7 +839,7 @@ CodeVisitor::endNamespace()
 string
 CodeVisitor::getTypeVar(const ContainedPtr& p)
 {
-    return "$" + p->mappedScope("_").substr(1) + "_t_" + p->mappedName();
+    return "$" + p->mappedScope("_") + "_t_" + p->mappedName();
 }
 
 string
@@ -953,7 +953,7 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
     if (en)
     {
         string firstEnumerator = en->enumerators().front()->mappedName();
-        _out << en->mappedScoped("\\") << "::" << firstEnumerator;
+        _out << en->mappedScoped("\\", true) << "::" << firstEnumerator;
         return;
     }
 
@@ -977,8 +977,8 @@ CodeVisitor::writeAssign(const DataMemberPtr& member)
     const string memberName = member->mappedName();
     if (StructPtr st = dynamic_pointer_cast<Struct>(member->type()))
     {
-        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << st->mappedScoped("\\")
-             << " : $" << memberName << ';';
+        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new "
+             << st->mappedScoped("\\", true) << " : $" << memberName << ';';
     }
     else
     {
@@ -992,7 +992,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        _out << constant->mappedScoped("\\");
+        _out << constant->mappedScoped("\\", true);
     }
     else
     {
@@ -1042,7 +1042,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
-            _out << en->mappedScoped("\\") << "::" << lte->mappedName();
+            _out << en->mappedScoped("\\", true) << "::" << lte->mappedName();
         }
         else
         {
