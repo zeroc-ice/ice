@@ -241,7 +241,7 @@ namespace
     }
 }
 
-Slice::JsVisitor::JsVisitor(Output& out, const vector<pair<string, string>>& imports) : _out(out), _imports(imports) {}
+Slice::JsVisitor::JsVisitor(Output& out) : _out(out) {}
 
 Slice::JsVisitor::~JsVisitor() = default;
 
@@ -2325,7 +2325,7 @@ bool
 Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     //
-    // Define servant an proxy types
+    // Define servant and proxy types.
     //
     const string prxName = p->mappedName() + "Prx";
     _out << sp;
@@ -2558,13 +2558,17 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << epar << ";";
     }
 
-    for (const auto& dataMember : allDataMembers)
+    for (const auto& dataMember : dataMembers)
     {
+        _out << sp;
+        writeDocCommentFor(dataMember);
+        // TODO why do we only have this optional check for exception members, but not for class members?
         const string optionalModifier = dataMember->optional() ? "?" : "";
         _out << nl << dataMember->mappedName() << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
              << ";";
     }
     _out << eb;
+
     return false;
 }
 
@@ -2636,10 +2640,10 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     {
         _out << sp;
         writeDocCommentFor(dataMember);
-        _out << nl << dataMember->mappedName() << ":" << typeToTsString(dataMember->type(), true) << ";";
+        _out << nl << dataMember->mappedName() << ": " << typeToTsString(dataMember->type(), true) << ";";
     }
-
     _out << eb;
+
     return false;
 }
 

@@ -4,7 +4,7 @@
 #include "Ice/StringConverter.h"
 #include <cassert>
 #include <cstring>
-#include <string.h> // NOLINT(modernize-deprecated-headers):for strerror_r
+#include <string.h> // NOLINT(modernize-deprecated-headers): for strerror_r
 
 #include <iomanip>
 #include <sstream>

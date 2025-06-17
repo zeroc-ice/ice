@@ -10,10 +10,7 @@ namespace Slice
     class JsVisitor : public JsGenerator, public ParserVisitor
     {
     public:
-        JsVisitor(
-            ::IceInternal::Output&,
-            const std::vector<std::pair<std::string, std::string>>& imports =
-                std::vector<std::pair<std::string, std::string>>());
+        JsVisitor(::IceInternal::Output& output);
         ~JsVisitor() override;
 
         [[nodiscard]] std::vector<std::pair<std::string, std::string>> imports() const;
@@ -31,7 +28,7 @@ namespace Slice
 
         ::IceInternal::Output& _out;
 
-        std::vector<std::pair<std::string, std::string>> _imports;
+        std::vector<std::pair<std::string, std::string>> _imports{};
     };
 
     class Gen final : public JsGenerator
