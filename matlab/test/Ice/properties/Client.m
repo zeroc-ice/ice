@@ -17,7 +17,7 @@ function client(args)
     fprintf('ok\n');
 
     fprintf("testing load properties exception... ");
-    props = Ice.createProperties();
+    props = Ice.Properties();
     try
         props.load('./config/xxxx.config')
         assert(false)
@@ -30,7 +30,7 @@ function client(args)
     fprintf('ok\n');
 
     fprintf('testing ice properties with set default values...');
-    props = Ice.createProperties();
+    props = Ice.createProperties(); % deprecated function
     toStringMode = props.getIceProperty('Ice.ToStringMode');
     assert(strcmp(toStringMode, 'Unicode'));
     closeTimeout = props.getIcePropertyAsInt('Ice.Connection.Client.CloseTimeout');

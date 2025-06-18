@@ -92,7 +92,7 @@ classdef TestHelper < handle
                 % createProperties works with both a string array and a cell array of char arrays.
                 args = string(varargin{1});
             end
-            [properties, args] = Ice.createProperties(args);
+            [properties, args] = Ice.Properties(args);
             args = properties.parseCommandLineOptions('Test', args);
         end
 

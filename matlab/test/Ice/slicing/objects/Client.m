@@ -9,7 +9,7 @@ function client(args)
     helper = TestHelper();
     customSliceLoader = CustomSliceLoader();
 
-    initData = Ice.InitializationData(SliceLoader = customSliceLoader, Properties = Ice.createProperties(args));
+    initData = Ice.InitializationData(SliceLoader = customSliceLoader, Properties = Ice.Properties(args));
 
     % Use deprecated properties_ field to check it still works.
     initData.properties_.setProperty('Ice.SliceLoader.NotFoundCacheSize', '5');

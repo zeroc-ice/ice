@@ -247,7 +247,7 @@ classdef Communicator < IceInternal.WrapperObject
             if isempty(obj.properties_)
                 impl = libpointer('voidPtr');
                 obj.iceCall('getProperties', impl);
-                obj.properties_ = Ice.Properties(impl);
+                obj.properties_ = Ice.Properties({}, Ice.Properties.empty, impl);
             end
             r = obj.properties_;
         end
