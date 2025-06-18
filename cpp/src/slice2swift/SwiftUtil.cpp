@@ -60,6 +60,59 @@ namespace
 
         return result + "`";
     }
+
+    void writeDocLines(Output& out, const StringList& lines, bool commentFirst = true, string_view space = " ")
+    {
+        StringList l = lines;
+        if (!commentFirst)
+        {
+            out << l.front();
+            l.pop_front();
+        }
+
+        for (const auto& line : l)
+        {
+            out << nl << "///";
+            if (!line.empty())
+            {
+                out << space << line;
+            }
+        }
+    }
+
+    bool writeDeprecatedDocComment(Output& out, const DocComment& comment, bool needsNewline)
+    {
+        if (!comment.isDeprecated())
+        {
+            return false;
+        }
+
+        if (needsNewline)
+        {
+            out << nl << "///";
+        }
+        out << nl << "/// ## Deprecated";
+        const StringList& docDeprecated = comment.deprecated();
+        writeDocLines(out, docDeprecated);
+        return true;
+    }
+
+    bool writeRemarksDocComment(Output& out, const DocComment& comment, bool needsNewline)
+    {
+        const StringList& remarks = comment.remarks();
+        if (remarks.empty())
+        {
+            return false;
+        }
+
+        if (needsNewline)
+        {
+            out << nl;
+        }
+        out << nl << "/// ## Remarks";
+        writeDocLines(out, remarks);
+        return true;
+    }
 }
 
 string
@@ -96,26 +149,6 @@ Slice::getSwiftModule(const ModulePtr& module)
 }
 
 void
-SwiftGenerator::writeDocLines(IceInternal::Output& out, const StringList& lines, bool commentFirst, const string& space)
-{
-    StringList l = lines;
-    if (!commentFirst)
-    {
-        out << l.front();
-        l.pop_front();
-    }
-
-    for (const auto& line : l)
-    {
-        out << nl << "///";
-        if (!line.empty())
-        {
-            out << space << line;
-        }
-    }
-}
-
-void
 SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 {
     optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
@@ -133,21 +166,11 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
         hasStarted = true;
     }
 
-    if (doc->isDeprecated())
-    {
-        if (hasStarted)
-        {
-            out << nl << "///";
-        }
-        out << nl << "/// ## Deprecated";
-        const StringList& docDeprecated = doc->deprecated();
-        if (!docDeprecated.empty())
-        {
-            writeDocLines(out, docDeprecated);
-        }
-    }
+    hasStarted |= writeDeprecatedDocComment(out, *doc, hasStarted);
 
     // TODO we should add a section for '@see' tags.
+
+    writeRemarksDocComment(out, *doc, hasStarted);
 }
 
 void
@@ -170,21 +193,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     }
 
     // If the comment contained an `@deprecated` include it as a section in the overview.
-    if (doc->isDeprecated())
-    {
-        if (hasStarted)
-        {
-            out << nl << "///";
-        }
-        hasStarted = true;
-
-        out << nl << "///  ## Deprecated";
-        const StringList& docDeprecated = doc->deprecated();
-        if (!docDeprecated.empty())
-        {
-            writeDocLines(out, docDeprecated);
-        }
-    }
+    hasStarted |= writeDeprecatedDocComment(out, *doc, hasStarted);
 
     const auto& docParameters = doc->parameters();
 
@@ -306,6 +315,8 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
             }
         }
     }
+
+    writeRemarksDocComment(out, *doc, true);
 }
 
 void

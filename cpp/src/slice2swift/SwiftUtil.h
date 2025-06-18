@@ -32,11 +32,6 @@ namespace Slice
         static void validateSwiftModuleMappings(const UnitPtr&);
 
     protected:
-        void writeDocLines(
-            IceInternal::Output&,
-            const StringList&,
-            bool commentFirst = true,
-            const std::string& space = " ");
         void writeDocSummary(IceInternal::Output&, const ContainedPtr&);
         void writeOpDocSummary(IceInternal::Output&, const OperationPtr&, bool);
 
