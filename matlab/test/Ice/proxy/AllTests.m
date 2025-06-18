@@ -511,10 +511,10 @@ classdef AllTests
 
             loc1 = Ice.LocatorPrx(communicator, 'loc1:default -p 10000');
             loc2 = Ice.LocatorPrx(communicator, 'loc2:default -p 10000');
-            assert(compObj.ice_locator([]) == compObj.ice_locator([]));
+            assert(compObj.ice_locator(Ice.LocatorPrx.empty) == compObj.ice_locator(Ice.LocatorPrx.empty));
             assert(compObj.ice_locator(loc1) == compObj.ice_locator(loc1));
-            assert(compObj.ice_locator(loc1) ~= compObj.ice_locator([]));
-            assert(compObj.ice_locator([]) ~= compObj.ice_locator(loc2));
+            assert(compObj.ice_locator(loc1) ~= compObj.ice_locator(Ice.LocatorPrx.empty));
+            assert(compObj.ice_locator(Ice.LocatorPrx.empty) ~= compObj.ice_locator(loc2));
             assert(compObj.ice_locator(loc1) ~= compObj.ice_locator(loc2));
             %assert(compObj.ice_locator([]) < compObj.ice_locator(loc1));
             %assert(~(compObj.ice_locator(loc1) < compObj.ice_locator([])));
@@ -523,10 +523,10 @@ classdef AllTests
 
             rtr1 = Ice.RouterPrx(communicator, 'rtr1:default -p 10000');
             rtr2 = Ice.RouterPrx(communicator, 'rtr2:default -p 10000');
-            assert(compObj.ice_router([]) == compObj.ice_router([]));
+            assert(compObj.ice_router(Ice.RouterPrx.empty) == compObj.ice_router(Ice.RouterPrx.empty));
             assert(compObj.ice_router(rtr1) == compObj.ice_router(rtr1));
-            assert(compObj.ice_router(rtr1) ~= compObj.ice_router([]));
-            assert(compObj.ice_router([]) ~= compObj.ice_router(rtr2));
+            assert(compObj.ice_router(rtr1) ~= compObj.ice_router(Ice.RouterPrx.empty));
+            assert(compObj.ice_router(Ice.RouterPrx.empty) ~= compObj.ice_router(rtr2));
             assert(compObj.ice_router(rtr1) ~= compObj.ice_router(rtr2));
             %assert(compObj.ice_router([]) < compObj.ice_router(rtr1));
             %assert(~(compObj.ice_router(rtr1) < compObj.ice_router([])));
@@ -582,6 +582,11 @@ classdef AllTests
             endpts1 = communicator.stringToProxy('foo:tcp -h 127.0.0.1 -p 10000').ice_getEndpoints();
             endpts2 = communicator.stringToProxy('foo:tcp -h 127.0.0.1 -p 10001').ice_getEndpoints();
             assert(endpts1{1} ~= endpts2{1});
+            prx = Ice.ObjectPrx(communicator, 'foo');
+            prx = prx.ice_endpoints(endpts1);
+            endpts2 = prx.ice_getEndpoints();
+            assert(endpts1{1} == endpts2{1});
+
             %assert(endpts1 < endpts2);
             %assert(~(endpts2 < endpts1));
             endpts3 = communicator.stringToProxy('foo:tcp -h 127.0.0.1 -p 10000').ice_getEndpoints();

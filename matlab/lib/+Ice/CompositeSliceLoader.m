@@ -6,20 +6,16 @@ classdef (Sealed) CompositeSliceLoader < Ice.SliceLoader
     %   add - Adds a new Slice loader to the composite loader.
     %   newInstance - Creates a class or exception instance from a Slice type ID.
     methods
-        function obj = CompositeSliceLoader(varargin)
+        function obj = CompositeSliceLoader(sliceLoader)
             % Constructs a CompositeSliceLoader.
             %
             % Parameters:
-            %   varargin - A variable number of Ice.SliceLoader objects.
+            %   sliceLoader - One or more Ice.SliceLoader objects.
 
-            obj.sliceLoaders = cell(1, length(varargin));
-            for i = 1:length(varargin)
-                if isa(varargin{i}, 'Ice.SliceLoader')
-                    obj.sliceLoaders{i} = varargin{i};
-                else
-                    error('Invalid argument type. Expected Ice.SliceLoader.');
-                end
+            arguments (Repeating)
+                sliceLoader (1, 1) Ice.SliceLoader
             end
+            obj.sliceLoaders = sliceLoader; % sliceLoader is a cell array
         end
 
         function add(obj, loader)
@@ -28,14 +24,18 @@ classdef (Sealed) CompositeSliceLoader < Ice.SliceLoader
             % Parameters:
             %   loader (Ice.SliceLoader) - The Slice loader to add.
 
-            if isa(loader, 'Ice.SliceLoader')
-                obj.sliceLoaders{end + 1} = loader;
-            else
-                error('Invalid argument type. Expected Ice.SliceLoader.');
+            arguments
+                obj (1, 1) Ice.CompositeSliceLoader
+                loader (1, 1) Ice.SliceLoader
             end
+            obj.sliceLoaders{end + 1} = loader;
         end
 
         function r = newInstance(obj, typeId)
+            arguments
+                obj (1, 1) Ice.CompositeSliceLoader
+                typeId (1, :) char
+            end
             for i = 1:length(obj.sliceLoaders)
                 r = obj.sliceLoaders{i}.newInstance(typeId);
                 if ~isempty(r)

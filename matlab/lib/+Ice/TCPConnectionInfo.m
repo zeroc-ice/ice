@@ -20,9 +20,9 @@ classdef (Sealed) TCPConnectionInfo < Ice.IPConnectionInfo
     end
     properties(SetAccess=immutable)
         % rcvSize - The connection buffer receive size.
-        rcvSize int32
+        rcvSize (1, 1) int32
 
         % The connection buffer send size.
-        sndSize int32
+        sndSize (1, 1) int32
     end
 end

@@ -345,6 +345,7 @@ extern "C"
 
     mxArray* Ice_ObjectPrx_ice_context(void* self, void** r, mxArray* c)
     {
+        // Caller makes sure it's a configured dictionary string -> string.
         try
         {
             Ice::Context ctx;

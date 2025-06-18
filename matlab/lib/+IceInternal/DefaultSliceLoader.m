@@ -9,6 +9,11 @@ classdef (Sealed) DefaultSliceLoader < Ice.SliceLoader
 
     methods
         function r = newInstance(obj, typeId)
+            arguments
+                obj (1, 1) IceInternal.DefaultSliceLoader
+                typeId (1, :) char
+            end
+
             if startsWith(typeId, '::')
                 % First check the cache.
                 constructor = lookup(obj.typeIdToConstructorMap, typeId, FallbackValue=obj.CreateEmptyArray);

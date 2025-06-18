@@ -7,6 +7,11 @@ classdef InputStream < handle
 
     methods
         function obj = InputStream(communicator, encoding, buf)
+            arguments
+                communicator (1, 1) Ice.Communicator
+                encoding (1, 1) Ice.EncodingVersion
+                buf (1, :) uint8
+            end
             obj.communicator = communicator;
             obj.buf = buf;
             obj.pos = int32(1);
@@ -46,7 +51,7 @@ classdef InputStream < handle
         function r = readBoolSeq(obj)
             sz = obj.readAndCheckSeqSize(1);
             if sz == 0
-                r = logical([]);
+                r = logical.empty;
             else
                 pos = obj.pos;
                 if pos + sz - 1 > obj.size
@@ -81,7 +86,7 @@ classdef InputStream < handle
         function r = readByteSeq(obj)
             sz = obj.readAndCheckSeqSize(1);
             if sz == 0
-                r = uint8([]);
+                r = uint8.empty;
             else
                 pos = obj.pos;
                 if pos + sz - 1 > obj.size
@@ -116,7 +121,7 @@ classdef InputStream < handle
         function r = readShortSeq(obj)
             sz = obj.readAndCheckSeqSize(2);
             if sz == 0
-                r = int16([]);
+                r = int16.empty;
             else
                 pos = obj.pos;
                 if pos + sz * 2 - 1 > obj.size
@@ -152,7 +157,7 @@ classdef InputStream < handle
         function r = readIntSeq(obj)
             sz = obj.readAndCheckSeqSize(4);
             if sz == 0
-                r = int32([]);
+                r = int32.empty;
             else
                 pos = obj.pos;
                 if pos + sz * 4 - 1 > obj.size
@@ -188,7 +193,7 @@ classdef InputStream < handle
         function r = readLongSeq(obj)
             sz = obj.readAndCheckSeqSize(8);
             if sz == 0
-                r = int64([]);
+                r = int64.empty;
             else
                 pos = obj.pos;
                 if pos + sz * 8 - 1 > obj.size
@@ -224,7 +229,7 @@ classdef InputStream < handle
         function r = readFloatSeq(obj)
             sz = obj.readAndCheckSeqSize(4);
             if sz == 0
-                r = single([]);
+                r = single.empty;
             else
                 pos = obj.pos;
                 if pos + sz * 4 - 1 > obj.size
@@ -260,7 +265,7 @@ classdef InputStream < handle
         function r = readDoubleSeq(obj)
             sz = obj.readAndCheckSeqSize(8);
             if sz == 0
-                r = double([]);
+                r = double.empty;
             else
                 pos = obj.pos;
                 if pos + sz * 8 - 1 > obj.size

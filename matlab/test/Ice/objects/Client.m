@@ -12,7 +12,7 @@ function client(args)
     % without a compact ID.
     initData = Ice.InitializationData(Properties = Ice.createProperties(args), ...
         SliceLoader = Ice.CompositeSliceLoader(CustomSliceLoader(), ...
-            Ice.ClassSliceLoader([?DI, ?Test.Compact, ?Test.CompactExt])));
+            Ice.ClassSliceLoader(?DI, ?Test.Compact, ?Test.CompactExt)));
 
     initData.Properties.setProperty('Ice.Warn.Connections', '0');
 

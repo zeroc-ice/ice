@@ -11,7 +11,7 @@ classdef (Sealed) OpaqueEndpointInfo < Ice.EndpointInfo
 
     methods
         function obj = OpaqueEndpointInfo(type, rawEncoding, rawBytes)
-            obj@Ice.EndpointInfo([], -1, false);
+            obj@Ice.EndpointInfo(Ice.EndpointInfo.empty, -1, false);
             obj.type_ = type;
             obj.rawEncoding = rawEncoding;
             obj.rawBytes = rawBytes;
@@ -28,12 +28,12 @@ classdef (Sealed) OpaqueEndpointInfo < Ice.EndpointInfo
     properties(SetAccess=immutable)
         % rawEncoding - The encoding version of the opaque endpoint (to decode
         %   or encode the rawBytes).
-        rawEncoding
+        rawEncoding (1, 1) Ice.EncodingVersion
 
         % rawBytes - The raw encoding of the opaque endpoint.
-        rawBytes uint8
+        rawBytes (1, :) uint8
     end
     properties(GetAccess=private, SetAccess=immutable)
-        type_ int16
+        type_ (1, 1) int16
     end
 end

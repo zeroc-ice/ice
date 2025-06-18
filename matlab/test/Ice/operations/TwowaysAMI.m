@@ -1153,7 +1153,7 @@ classdef TwowaysAMI
 
                 p3 = p3.ice_context(prxContext);
 
-                ic.getImplicitContext().setContext([]);
+                ic.getImplicitContext().setContext(configureDictionary('char', 'char'));
                 assert(isequal(p3.opContext(), prxContext));
 
                 ic.getImplicitContext().setContext(ctx);

@@ -22,6 +22,9 @@ classdef EndpointInfo < handle
             %
             % Returns (int16) - The endpoint type.
 
+            arguments
+                obj (1, 1) Ice.EndpointInfo
+            end
             if ~isempty(obj.underlying)
                 r = obj.underlying.type();
             else
@@ -33,6 +36,9 @@ classdef EndpointInfo < handle
             %
             % Returns (logical) - True for a datagram endpoint.
 
+            arguments
+                obj (1, 1) Ice.EndpointInfo
+            end
             if ~isempty(obj.underlying)
                 r = obj.underlying.datagram();
             else
@@ -44,6 +50,9 @@ classdef EndpointInfo < handle
             %
             % Returns (logical) - True for a secure endpoint.
 
+            arguments
+                obj (1, 1) Ice.EndpointInfo
+            end
             if ~isempty(obj.underlying)
                 r = obj.underlying.secure();
             else
@@ -53,13 +62,13 @@ classdef EndpointInfo < handle
     end
     properties(SetAccess=immutable)
         % underlying   The information of the underlying endpoint or an empty array if there's no underlying endpoint.
-        underlying
+        underlying Ice.EndpointInfo {mustBeScalarOrEmpty}
 
         % timeout   The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
-        timeout int32
+        timeout (1, 1) int32
 
         % compress   Specifies whether or not compression should be used if available when using this endpoint.
-        compress logical
+        compress (1, 1) logical
     end
     methods(Access=protected)
         function obj = EndpointInfo(underlying, timeout, compress)

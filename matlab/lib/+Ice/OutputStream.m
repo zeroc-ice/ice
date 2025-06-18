@@ -7,11 +7,9 @@ classdef OutputStream < handle
 
     methods
         function obj = OutputStream(encoding, format)
-            if nargin < 1
-                encoding = Ice.currentEncoding();
-            end
-            if nargin < 2
-                format = Ice.FormatType.CompactFormat;
+            arguments
+                encoding (1, 1) Ice.EncodingVersion = Ice.currentEncoding();
+                format (1, 1) uint8 = Ice.FormatType.CompactFormat;
             end
             obj.encoding = encoding;
             obj.format = format;

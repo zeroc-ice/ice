@@ -17,6 +17,6 @@ classdef (Sealed) ConnectionInfo < Ice.ConnectionInfo
     end
     properties(SetAccess=immutable)
         % peerCertificate - The peer certificate.
-        peerCertificate
+        peerCertificate (1, :) char
     end
 end

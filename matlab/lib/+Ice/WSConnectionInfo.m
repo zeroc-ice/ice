@@ -17,6 +17,6 @@ classdef (Sealed) WSConnectionInfo < Ice.ConnectionInfo
     end
     properties(SetAccess=immutable)
         % headers - The headers from the HTTP upgrade request.
-        headers
+        headers (1, 1) dictionary {Ice.mustBeStringStringDictionary} = configureDictionary('string', 'string')
     end
 end

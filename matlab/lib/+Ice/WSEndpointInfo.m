@@ -17,6 +17,6 @@ classdef (Sealed) WSEndpointInfo < Ice.EndpointInfo
     end
     properties(SetAccess=immutable)
         % resource - The URI configured with the endpoint.
-        resource char
+        resource (1, :) char
     end
 end

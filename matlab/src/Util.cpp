@@ -194,11 +194,8 @@ IceMatlab::createStringMap(const map<string, string, std::less<>>& m)
 void
 IceMatlab::getContext(mxArray* p, Ice::Context& m)
 {
-    // TODO: should be enforced by the caller, replace with assert.
-    if (!mxIsClass(p, "dictionary"))
-    {
-        throw std::invalid_argument("argument is not a dictionary");
-    }
+    // Caller makes sure p is a configured dictionary string -> string.
+    assert(mxIsClass(p, "dictionary"));
 
     mxArray* keysString;
     mexCallMATLAB(1, &keysString, 1, &p, "keys");

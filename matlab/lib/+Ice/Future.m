@@ -40,7 +40,7 @@ classdef Future < IceInternal.WrapperObject
         %   transitions from 'running' to 'sent' to 'finished'.
         State char = 'running'
     end
-    methods
+    methods (Hidden, Access = {?Ice.Communicator, ?Ice.Connection, ?Ice.ObjectPrx})
         function obj = Future(impl, op, numOutArgs, type, fetchFunc)
             %
             % The nextId variable is persistent, which acts somewhat like a static variable. It retains its
@@ -62,6 +62,8 @@ classdef Future < IceInternal.WrapperObject
             end
             nextId = nextId + 1;
         end
+    end
+    methods
         function delete(obj)
             if ~isempty(obj.impl_)
                 obj.iceCall('unref');
@@ -105,7 +107,7 @@ classdef Future < IceInternal.WrapperObject
             %   once.
 
             if obj.Read
-                throw(Ice.LocalException('Ice:InvalidStateException', 'outputs already read'));
+                error('Ice:InvalidStateException', 'Outputs already read');
             end
             if ~isempty(obj.fetchFunc)
                 %
