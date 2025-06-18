@@ -22,7 +22,7 @@ namespace Slice
 
         std::string writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
-        void writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated = true);
+        void writeDocCommentFor(const ContainedPtr& p, bool includeRemarks = true, bool includeDeprecated = true);
 
         ::IceInternal::Output& _out;
     };
