@@ -110,7 +110,7 @@ classdef TestHelper < handle
                     end
                 end
             end
-            communicator = Ice.initialize(initData);
+            communicator = Ice.Communicator(Properties = initData.Properties, SliceLoader = initData.SliceLoader);
             if(isempty(obj.communicator_))
                 obj.communicator_ = communicator;
             end

@@ -41,7 +41,7 @@ function client(args)
         loadlibrary('ice', @iceproto);
     end
 
-    communicator = Ice.initialize(args);
+    communicator = Ice.Communicator(args);
     cleanup = onCleanup(@() communicator.destroy());
 
     greeter = visitorcenter.GreeterPrx(communicator, 'greeter:tcp -h localhost -p 4061');
