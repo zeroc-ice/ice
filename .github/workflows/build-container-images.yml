@@ -1,0 +1,110 @@
+name: "Build Docker CI Images"
+
+on:
+  workflow_dispatch
+
+jobs:
+  build-images:
+    name: "Build ${{ matrix.image }} (${{ matrix.platform }})"
+    runs-on: ${{ matrix.platform == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    strategy:
+      matrix:
+        include:
+          - platform: amd64
+            image: rpm-repo-builder
+            context: packaging/rpm/docker/rpm-repo-builder
+          - platform: arm64
+            image: rpm-repo-builder
+            context: packaging/rpm/docker/rpm-repo-builder
+          - platform: amd64
+            image: ice-rpm-builder-rhel9
+            context: packaging/rpm/docker/rhel9
+          - platform: arm64
+            image: ice-rpm-builder-rhel10
+            context: packaging/rpm/docker/rhel10
+          - platform: amd64
+            image: ice-rpm-builder-rhel10
+            context: packaging/rpm/docker/rhel10
+          - platform: arm64
+            image: ice-rpm-builder-rhel10
+            context: packaging/rpm/docker/rhel10
+          - platform: amd64
+            image: ice-rpm-builder-amzn2023
+            context: packaging/rpm/docker/amzn2023
+          - platform: arm64
+            image: ice-rpm-builder-amzn2023
+            context: packaging/rpm/docker/amzn2023
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: zeroc-ice
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add RH credentials
+        if: ${{ matrix.image == 'ice-rpm-builder-rhel10' }}
+        run: |
+          umask 077
+          echo "RH_USERNAME=\"${{ secrets.RH_USERNAME }}\"" >> rh_credentials
+          echo "RH_PASSWORD=\"${{ secrets.RH_PASSWORD }}\"" >> rh_credentials
+
+      - name: Build and push image
+        run: |
+          args=(
+            --platform "linux/${{ matrix.platform }}"
+            --tag "ghcr.io/zeroc-ice/${{ matrix.image }}:${{ matrix.platform }}"
+            --push
+            -f Dockerfile
+          )
+
+          # Add secret mount only for RHEL10
+          if [[ "${{ matrix.image }}" == "ice-rpm-builder-rhel10" ]]; then
+            args+=( --secret id=rh_credentials,src=rh_credentials )
+          fi
+
+          docker buildx build "${args[@]}" .
+        working-directory: ice/${{ matrix.context }}
+
+      - name: Clean up RH credentials
+        if: ${{ always() && matrix.image == 'ice-rpm-builder-rhel10' }}
+        run: rm -f rh_credentials
+
+  create-manifests:
+    name: "Create and Push Multi-Arch Manifests"
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        image:
+          - rpm-repo-builder
+          - ice-rpm-builder-rhel9
+          - ice-rpm-builder-rhel10
+          - ice-rpm-builder-amzn2023
+
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: zeroc-ice
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and push manifest
+        run: |
+          docker manifest create ghcr.io/zeroc-ice/${{ matrix.image }}:latest \
+            --amend ghcr.io/zeroc-ice/${{ matrix.image }}:amd64 \
+            --amend ghcr.io/zeroc-ice/${{ matrix.image }}:arm64
+
+          docker manifest push ghcr.io/zeroc-ice/${{ matrix.image }}:latest

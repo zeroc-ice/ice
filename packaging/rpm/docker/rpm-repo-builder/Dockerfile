@@ -1,0 +1,11 @@
+FROM rockylinux:9
+
+RUN dnf install -y \
+    rpmdevtools \
+    createrepo_c \
+    gnupg2 \
+    rpm-sign && \
+    dnf clean all
+
+COPY ice/packaging/rpm/rpm-sign.sh /usr/local/bin/rpm-sign
+RUN chmod +x /usr/local/bin/rpm-sign
