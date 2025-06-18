@@ -107,7 +107,7 @@ namespace
 
         if (needsNewline)
         {
-            out << nl;
+            out << nl << "///";
         }
         out << nl << "/// ## Remarks";
         writeDocLines(out, remarks);
