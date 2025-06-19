@@ -1,4 +1,4 @@
-function r = identityToString(id, varargin)
+function r = identityToString(id, mode)
     % identityToString  Converts an object identity to a string.
     %
     % Parameters:
@@ -10,12 +10,9 @@ function r = identityToString(id, varargin)
 
     % Copyright (c) ZeroC, Inc.
 
-    if isscalar(varargin)
-        mode = varargin{1};
-    elseif isempty(varargin)
-        mode = Ice.ToStringMode.Unicode;
-    elseif length(varargin) > 2
-        throw(Ice.LocalException('Ice:ArgumentException', 'too many arguments'));
+    arguments
+        id (1, 1) Ice.Identity
+        mode (1, 1) Ice.ToStringMode = Ice.ToStringMode.Unicode
     end
     r = IceInternal.Util.callWithResult('Ice_identityToString', id, int32(mode));
 end

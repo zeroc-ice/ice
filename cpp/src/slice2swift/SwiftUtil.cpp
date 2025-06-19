@@ -504,7 +504,7 @@ string
 SwiftGenerator::getRelativeTypeString(const ContainedPtr& contained, const string& currentModule)
 {
     // Get the fully scoped identifier for this element, and split it up by '::' separators.
-    vector<string> ids = splitScopedName(contained->mappedScoped());
+    vector<string> ids = splitScopedName(contained->mappedScoped("::", true));
 
     // Remove the top-level module's identifier from the vector,
     // it's going to be replaced with the mapped Swift module later.

@@ -194,47 +194,39 @@ IceMatlab::createStringMap(const map<string, string, std::less<>>& m)
 void
 IceMatlab::getContext(mxArray* p, Ice::Context& m)
 {
-    if (mxIsEmpty(p))
-    {
-        m.clear();
-    }
-    else if (!mxIsClass(p, "dictionary"))
-    {
-        throw std::invalid_argument("argument is not a dictionary");
-    }
-    else
-    {
-        mxArray* keysString;
-        mexCallMATLAB(1, &keysString, 1, &p, "keys");
-        mxArray* keys = stringToCellArray(keysString);
-        mxDestroyArray(keysString);
+    // Caller makes sure p is a configured dictionary string -> string.
+    assert(mxIsClass(p, "dictionary"));
 
-        mxArray* valuesString;
-        mexCallMATLAB(1, &valuesString, 1, &p, "values");
-        mxArray* values = stringToCellArray(valuesString);
-        mxDestroyArray(valuesString);
+    mxArray* keysString;
+    mexCallMATLAB(1, &keysString, 1, &p, "keys");
+    mxArray* keys = stringToCellArray(keysString);
+    mxDestroyArray(keysString);
 
-        assert(mxGetM(keys) == mxGetM(values));
-        assert(mxGetN(keys) == 1 && mxGetN(values) == 1);
+    mxArray* valuesString;
+    mexCallMATLAB(1, &valuesString, 1, &p, "values");
+    mxArray* values = stringToCellArray(valuesString);
+    mxDestroyArray(valuesString);
 
-        const size_t size = mxGetM(keys);
-        try
+    assert(mxGetM(keys) == mxGetM(values));
+    assert(mxGetN(keys) == 1 && mxGetN(values) == 1);
+
+    const size_t size = mxGetM(keys);
+    try
+    {
+        for (size_t i = 0; i < size; ++i)
         {
-            for (size_t i = 0; i < size; ++i)
-            {
-                auto k = getStringFromUTF16(mxGetCell(keys, static_cast<int>(i)));
-                auto v = getStringFromUTF16(mxGetCell(values, static_cast<int>(i)));
-                m[k] = v;
-            }
-            mxDestroyArray(keys);
-            mxDestroyArray(values);
+            auto k = getStringFromUTF16(mxGetCell(keys, static_cast<int>(i)));
+            auto v = getStringFromUTF16(mxGetCell(values, static_cast<int>(i)));
+            m[k] = v;
         }
-        catch (...)
-        {
-            mxDestroyArray(keys);
-            mxDestroyArray(values);
-            throw;
-        }
+        mxDestroyArray(keys);
+        mxDestroyArray(values);
+    }
+    catch (...)
+    {
+        mxDestroyArray(keys);
+        mxDestroyArray(values);
+        throw;
     }
 }
 

@@ -8,5 +8,8 @@ function r = stringToIdentity(s)
 
     % Copyright (c) ZeroC, Inc.
 
+    arguments
+        s (1, :) char
+    end
     r = IceInternal.Util.callWithResult('Ice_stringToIdentity', s);
 end

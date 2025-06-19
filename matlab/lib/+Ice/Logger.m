@@ -13,13 +13,13 @@ classdef Logger < IceInternal.WrapperObject
 
     % Copyright (c) ZeroC, Inc.
 
-    methods
+    methods (Hidden, Access = ?Ice.Communicator)
         function obj = Logger(impl)
-            if ~isa(impl, 'lib.pointer')
-                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
-            end
+            assert(isa(impl, 'lib.pointer'));
             obj@IceInternal.WrapperObject(impl);
         end
+    end
+    methods
         function print(obj, message)
             % print - Print a message. The message is printed literally, without
             % any decorations such as executable name or time stamp.
@@ -27,6 +27,10 @@ classdef Logger < IceInternal.WrapperObject
             % Parameters:
             %   message (char) - The message to log.
 
+            arguments
+                obj (1, 1) Ice.Logger
+                message (1, :) char
+            end
             obj.iceCall('print', message);
         end
         function trace(obj, category, message)
@@ -36,6 +40,11 @@ classdef Logger < IceInternal.WrapperObject
             %   category (char) - The trace category.
             %   message (char) - The trace message to log.
 
+            arguments
+                obj (1, 1) Ice.Logger
+                category (1, :) char
+                message (1, :) char
+            end
             obj.iceCall('trace', category, message);
         end
         function warning(obj, message)
@@ -44,6 +53,10 @@ classdef Logger < IceInternal.WrapperObject
             % Parameters:
             %   message - The warning message to log.
 
+            arguments
+                obj (1, 1) Ice.Logger
+                message (1, :) char
+            end
             obj.iceCall('warning', message);
         end
         function error(obj, message)
@@ -52,6 +65,10 @@ classdef Logger < IceInternal.WrapperObject
             % Parameters:
             %   message - The error message to log.
 
+            arguments
+                obj (1, 1) Ice.Logger
+                message (1, :) char
+            end
             obj.iceCall('error', message);
         end
         function r = getPrefix(obj)
@@ -59,6 +76,9 @@ classdef Logger < IceInternal.WrapperObject
             %
             % Returns (char) - The prefix.
 
+            arguments
+                obj (1, 1) Ice.Logger
+            end
             r = obj.iceCallWithResult('getPrefix');
         end
         function r = cloneWithPrefix(obj, prefix)
@@ -69,6 +89,10 @@ classdef Logger < IceInternal.WrapperObject
             %
             % Returns (Ice.Logger) - A logger instance.
 
+            arguments
+                obj (1, 1) Ice.Logger
+                prefix (1, :) char
+            end
             impl = libpointer('voidPtr');
             obj.iceCall('cloneWithPrefix', prefix, impl);
             if isNull(impl)

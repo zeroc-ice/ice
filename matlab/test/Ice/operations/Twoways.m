@@ -165,14 +165,6 @@ classdef Twoways
             assert(p2 == MyEnum.enum2);
             assert(r == MyEnum.enum3);
 
-            %
-            % Test marshaling of null enum (first enum value is
-            % marshaled in this case).
-            %
-            [r, p2] = p.opMyEnum([]);
-            assert(p2 == MyEnum.enum1);
-            assert(r == MyEnum.enum3);
-
             [r, p2, p3] = p.opMyClass(p);
             assert(Ice.proxyIdentityAndFacetCompare(p2, p) == 0);
             assert(Ice.proxyIdentityAndFacetCompare(p3, p) ~= 0);
@@ -189,7 +181,7 @@ classdef Twoways
                 assert(isa(ex, 'Ice.ObjectNotExistException'));
             end
 
-            [r, p2, p3] = p.opMyClass([]);
+            [r, p2, p3] = p.opMyClass(MyClassPrx.empty);
             assert(isempty(p2));
             assert(~isempty(p3));
             assert(Ice.proxyIdentityAndFacetCompare(r, p) == 0);
@@ -216,12 +208,11 @@ classdef Twoways
             p3.p.opVoid();
 
             %
-            % Test marshaling of null structs and structs with default member values.
+            % Test marshaling of structs with default property values.
             %
             si1 = Structure();
-            si2 = [];
 
-            [r, p3] = p.opStruct(si1, si2);
+            [r, p3] = p.opStruct(si1, si1);
             assert(isempty(r.p));
             assert(r.e == MyEnum.enum1);
             assert(isempty(r.s.s));
@@ -1346,7 +1337,7 @@ classdef Twoways
 
                 p3 = p3.ice_context(prxContext);
 
-                ic.getImplicitContext().setContext([]);
+                ic.getImplicitContext().setContext(configureDictionary('char', 'char'));
                 assert(isequal(p3.opContext(), prxContext));
 
                 ic.getImplicitContext().setContext(ctx);
@@ -1374,9 +1365,10 @@ classdef Twoways
             assert(p.opDouble1(1.0) == 1.0);
             assert(strcmp(p.opString1('opString1'), 'opString1'));
             assert(length(p.opStringS1({})) == 0);
-            assert(p.opByteBoolD1([]).numEntries == 0);
+            emptyByteBoolD = configureDictionary('uint8', 'logical');
+            assert(p.opByteBoolD1(emptyByteBoolD).numEntries == 0);
             assert(length(p.opStringS2([])) == 0);
-            assert(p.opByteBoolD2([]).numEntries == 0);
+            assert(p.opByteBoolD2(emptyByteBoolD).numEntries == 0);
 
             d = MyDerivedClassPrx.uncheckedCast(p);
             s = MyStruct1();

@@ -8,8 +8,8 @@ function r = encodingVersionToString(v)
 
     % Copyright (c) ZeroC, Inc.
 
-    if ~isa(v, 'Ice.EncodingVersion')
-        throw(Ice.LocalException('Ice:ArgumentException', 'expecting an Ice.EncodingVersion'));
+    arguments
+        v (1, 1) Ice.EncodingVersion
     end
     r = sprintf('%d.%d', v.major, v.minor);
 end

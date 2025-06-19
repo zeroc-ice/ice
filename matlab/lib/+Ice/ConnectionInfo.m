@@ -10,10 +10,10 @@ classdef ConnectionInfo < handle
 
     properties(SetAccess=immutable)
         % underlying   The information of the underlying transport or an empty array if there's no underlying transport.
-        underlying
+        underlying Ice.ConnectionInfo {mustBeScalarOrEmpty}
 
         % connectionId   The connection id.
-        connectionId char
+        connectionId (1, :) char
     end
     methods(Access=protected)
         function obj = ConnectionInfo(underlying, connectionId)

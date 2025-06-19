@@ -34,6 +34,18 @@ using namespace IceInternal;
 
 namespace
 {
+    string checkAndEscapeParam(string_view param, const ParameterList& allParams)
+    {
+        for (const auto& p : allParams)
+        {
+            if (p->mappedName() == param)
+            {
+                return string{param} + "_";
+            }
+        }
+        return string{param};
+    }
+
     void writeCopyright(IceInternal::Output& out, string_view file)
     {
         string::size_type pos = file.find_last_of('/');
@@ -124,7 +136,7 @@ namespace
             "single",
             "double",
             "char",
-            "Ice.Object",    // Object
+            "Ice.Value",     // Object
             "Ice.ObjectPrx", // ObjectPrx
             "Ice.Value"      // Value
         };
@@ -141,12 +153,12 @@ namespace
 
         if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
         {
-            return cl->mappedScoped(".").substr(1);
+            return cl->mappedScoped(".");
         }
 
         if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
         {
-            return proxy->mappedScoped(".").substr(1) + "Prx";
+            return proxy->mappedScoped(".") + "Prx";
         }
 
         if (dynamic_pointer_cast<Dictionary>(type))
@@ -156,7 +168,7 @@ namespace
 
         if (auto contained = dynamic_pointer_cast<Contained>(type))
         {
-            return contained->mappedScoped(".").substr(1);
+            return contained->mappedScoped(".");
         }
 
         return "???";
@@ -193,7 +205,7 @@ namespace
         ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
         if (constant)
         {
-            return constant->mappedScoped(".").substr(1) + ".value";
+            return constant->mappedScoped(".") + ".value";
         }
         else
         {
@@ -230,7 +242,7 @@ namespace
             {
                 EnumeratorPtr e = dynamic_pointer_cast<Enumerator>(valueType);
                 assert(e);
-                return e->mappedScoped(".").substr(1);
+                return e->mappedScoped(".");
             }
             else
             {
@@ -329,13 +341,13 @@ namespace
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if (seq)
         {
-            out << nl << dest << " = " << seq->mappedScoped(".").substr(1) << ".convert(" << src << ");";
+            out << nl << dest << " = " << seq->mappedScoped(".") << ".convert(" << src << ");";
         }
 
         DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
         if (d)
         {
-            out << nl << dest << " = " << d->mappedScoped(".").substr(1) << ".convert(" << src << ");";
+            out << nl << dest << " = " << d->mappedScoped(".") << ".convert(" << src << ");";
         }
 
         StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -425,7 +437,7 @@ namespace
                     }
                     else
                     {
-                        out << c.front()->mappedScoped(".").substr(1);
+                        out << c.front()->mappedScoped(".");
                     }
 
                     if (!rest.empty())
@@ -593,19 +605,13 @@ namespace
         out << nl << "% Parameters:";
         const auto& docParameters = doc->parameters();
         const ParameterList inParams = p->inParameters();
-        string ctxName = "context";
-        string resultName = "result";
+        const ParameterList allParams = p->parameters();
+
+        string contextParam = checkAndEscapeParam("context", allParams);
+        string resultName = checkAndEscapeParam("result", allParams);
+
         for (const auto& inParam : inParams)
         {
-            if (inParam->mappedName() == "context")
-            {
-                ctxName = "context_";
-            }
-            if (inParam->mappedName() == "result")
-            {
-                resultName = "result_";
-            }
-
             out << nl << "%   " << inParam->mappedName() << " (" << typeToString(inParam->type()) << ")";
             auto r = docParameters.find(inParam->name());
             if (r != docParameters.end() && !r->second.empty())
@@ -614,7 +620,7 @@ namespace
                 writeDocLines(out, r->second, false, "     ");
             }
         }
-        out << nl << "%   " << ctxName << " (dictionary) - Optional request context.";
+        out << nl << "%   " << contextParam << " (dictionary) - Optional request context.";
 
         if (async)
         {
@@ -626,14 +632,6 @@ namespace
             if (p->returnsAnyValues())
             {
                 const ParameterList outParams = p->outParameters();
-                for (const auto& outParam : outParams)
-                {
-                    if (outParam->mappedName() == "result")
-                    {
-                        resultName = "result_";
-                    }
-                }
-
                 out << nl << "%";
                 if (p->returnType() && outParams.empty())
                 {
@@ -696,7 +694,7 @@ namespace
                 ExceptionPtr ex = p->container()->lookupException(docException.first, false);
                 if (ex)
                 {
-                    out << ex->mappedScoped(".").substr(1);
+                    out << ex->mappedScoped(".");
                 }
                 else
                 {
@@ -915,7 +913,7 @@ namespace
             }
             else
             {
-                out << " " << typeToString(field->type());
+                out << " " << typeToString(type);
             }
         }
 
@@ -931,6 +929,102 @@ namespace
         {
             out << " = " << defaultValueStr;
         }
+    }
+
+    void declareArgument(IceInternal::Output& out, const ParameterPtr& param)
+    {
+        out << nl << param->mappedName();
+
+        TypePtr type = param->type();
+
+        // First the dimensions
+
+        bool mustBeScalarOrEmpty = false;
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
+        {
+            if (builtin->kind() == Builtin::KindString)
+            {
+                out << " (1, :)";
+            }
+            else if (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)
+            {
+                mustBeScalarOrEmpty = true;
+            }
+            else
+            {
+                out << " (1, 1)";
+            }
+        }
+        else if (
+            dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type) ||
+            dynamic_pointer_cast<Struct>(type))
+        {
+            out << " (1, 1)";
+        }
+        else if (dynamic_pointer_cast<Sequence>(type))
+        {
+            out << " (1, :)";
+        }
+        else // proxies and classes
+        {
+            mustBeScalarOrEmpty = true;
+        }
+
+        // We can't specify a type for optional parameter because we can't represent "not set" with the same MATLAB
+        // type.
+        if (!param->optional())
+        {
+            if (auto seq = dynamic_pointer_cast<Sequence>(type))
+            {
+                TypePtr seqType = seq->type();
+                if (isMappedToScalar(seqType))
+                {
+                    // sequence<string> maps to array of string, not to array of char.
+                    if (auto builtin = dynamic_pointer_cast<Builtin>(seqType);
+                        builtin && builtin->kind() == Builtin::KindString)
+                    {
+                        out << " string";
+                    }
+                    else
+                    {
+                        out << " " << typeToString(seqType);
+                    }
+                }
+                else
+                {
+                    out << " cell";
+                }
+            }
+            else
+            {
+                out << " " << typeToString(type);
+            }
+        }
+
+        if (mustBeScalarOrEmpty)
+        {
+            // Generate constraint.
+            out << " {mustBeScalarOrEmpty}";
+        }
+    }
+
+    void writeArguments(
+        IceInternal::Output& out,
+        const string& self,
+        const string& proxyType,
+        const ParameterList& inParams,
+        const string& contextParam)
+    {
+        out << nl << "arguments";
+        out.inc();
+        out << nl << self << " (1, 1) " << proxyType;
+        for (const auto& param : inParams)
+        {
+            declareArgument(out, param);
+        }
+        out << nl << contextParam << " (1, 1) dictionary = dictionary";
+        out.dec();
+        out << nl << "end";
     }
 
     void validateMetadata(const UnitPtr& unit)
@@ -1015,7 +1109,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList allMembers = p->allDataMembers();
 
     IceInternal::Output out;
-    openClass(p->mappedScoped(".").substr(1), _dir, out);
+    openClass(p->mappedScoped("."), _dir, out);
 
     writeDocSummary(out, p);
     writeCopyright(out, p->file());
@@ -1024,7 +1118,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << name;
     if (base)
     {
-        out << " < " << base->mappedScoped(".").substr(1);
+        out << " < " << base->mappedScoped(".");
     }
     else
     {
@@ -1076,7 +1170,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out.dec();
             out << nl << "end";
 
-            out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << "(superArgs{:});";
+            out << nl << self << " = " << self << "@" << base->mappedScoped(".") << "(superArgs{:});";
 
             if (!members.empty())
             {
@@ -1147,7 +1241,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         if (base)
         {
-            out << nl << "icePostUnmarshal@" << base->mappedScoped(".").substr(1) << "(obj);";
+            out << nl << "icePostUnmarshal@" << base->mappedScoped(".") << "(obj);";
         }
         out.dec();
         out << nl << "end";
@@ -1178,7 +1272,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "os.endSlice();";
     if (base)
     {
-        out << nl << "iceWriteImpl@" << base->mappedScoped(".").substr(1) << "(obj, os);";
+        out << nl << "iceWriteImpl@" << base->mappedScoped(".") << "(obj, os);";
     }
     out.dec();
     out << nl << "end";
@@ -1207,7 +1301,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "is.endSlice();";
     if (base)
     {
-        out << nl << "iceReadImpl@" << base->mappedScoped(".").substr(1) << "(obj, is);";
+        out << nl << "iceReadImpl@" << base->mappedScoped(".") << "(obj, is);";
     }
     out.dec();
     out << nl << "end";
@@ -1262,7 +1356,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     const InterfaceList bases = p->bases();
     const string prxName = p->mappedName() + "Prx";
-    const string prxAbs = p->mappedScoped(".").substr(1) + "Prx";
+    const string prxAbs = p->mappedScoped(".") + "Prx";
 
     IceInternal::Output out;
     openClass(prxAbs, _dir, out);
@@ -1279,7 +1373,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 out << " & ";
             }
-            out << (*q)->mappedScoped(".").substr(1) + "Prx";
+            out << (*q)->mappedScoped(".") + "Prx";
         }
     }
     else
@@ -1302,6 +1396,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const ParameterList inParams = op->inParameters();
         const ParameterList sortedInParams = op->sortedInParameters();
         const ParameterList outParams = op->outParameters();
+        const ParameterList allParams = op->parameters();
         const bool returnsMultipleValues = op->returnsMultipleValues();
         const bool returnsAnyValues = op->returnsAnyValues();
 
@@ -1323,24 +1418,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             hasExceptions = true;
         }
 
-        // Check if we need to escape the "obj" parameter.
-        string self = "obj";
-        for (const auto& param : outParams)
-        {
-            if (param->mappedName() == "obj")
-            {
-                self = "obj_";
-                break;
-            }
-        }
-        for (const auto& param : inParams)
-        {
-            if (param->mappedName() == "obj")
-            {
-                self = "obj_";
-                break;
-            }
-        }
+        string self = checkAndEscapeParam("obj", allParams);
+        string contextParam = checkAndEscapeParam("context", allParams);
 
         //
         // Synchronous method.
@@ -1367,11 +1446,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << param->mappedName();
         }
-        out << "varargin"; // For the optional context
+        out << contextParam;
         out << epar;
         out.inc();
 
         writeOpDocSummary(out, op, false);
+        writeArguments(out, self, prxAbs, inParams, contextParam);
 
         if (!inParams.empty())
         {
@@ -1410,7 +1490,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
         }
-        out << ", varargin{:});";
+        out << ", " << contextParam << ");";
 
         if (twowayOnly && returnsAnyValues)
         {
@@ -1479,11 +1559,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << param->mappedName();
         }
-        out << "varargin"; // For the optional context
+        out << contextParam;
         out << epar;
         out.inc();
 
         writeOpDocSummary(out, op, true);
+        writeArguments(out, self, prxAbs, inParams, contextParam);
 
         if (!inParams.empty())
         {
@@ -1574,7 +1655,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
         }
-        out << ", varargin{:});";
+        out << ", " << contextParam << ");";
 
         out.dec();
         out << nl << "end";
@@ -1598,16 +1679,24 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "function r = checkedCast(p, varargin)";
     out.inc();
     out << nl << "% checkedCast   Contacts the remote server to verify that the object implements this type.";
-    out << nl << "%   Raises a local exception if a communication error occurs. You can optionally supply a";
-    out << nl << "%   facet name and a context map.";
     out << nl << "%";
     out << nl << "% Parameters:";
-    out << nl << "%   p - The proxy to be cast.";
-    out << nl << "%   facet - The optional name of the desired facet.";
-    out << nl << "%   context - The optional context map to send with the invocation.";
+    out << nl << "%   p - The proxy to be check.";
+    out << nl << "%   facet - The desired facet (optional).";
+    out << nl << "%   context - The request context (optional).";
     out << nl << "%";
     out << nl << "% Returns (" << prxAbs << ") - A proxy for this type, or an empty array if the object"
         << " does not support this type.";
+    out << nl << "arguments";
+    out.inc();
+    out << nl << "p Ice.ObjectPrx {mustBeScalarOrEmpty}";
+    out.dec();
+    out << nl << "end";
+    out << nl << "arguments (Repeating)";
+    out.inc();
+    out << nl << "varargin % facet or context, or both, or neither";
+    out.dec();
+    out << nl << "end";
     out << nl << "r = Ice.ObjectPrx.iceCheckedCast(p, " << prxAbs << ".ice_staticId(), '" << prxAbs
         << "', varargin{:});";
     out.dec();
@@ -1615,13 +1704,22 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "function r = uncheckedCast(p, varargin)";
     out.inc();
     out << nl << "% uncheckedCast   Downcasts the given proxy to this type without contacting the remote server.";
-    out << nl << "%   You can optionally specify a facet name.";
     out << nl << "%";
     out << nl << "% Parameters:";
     out << nl << "%   p - The proxy to be cast.";
-    out << nl << "%   facet - The optional name of the desired facet.";
+    out << nl << "%   facet - The desired facet (optional).";
     out << nl << "%";
     out << nl << "% Returns (" << prxAbs << ") - A proxy for this type.";
+    out << nl << "arguments";
+    out.inc();
+    out << nl << "p Ice.ObjectPrx {mustBeScalarOrEmpty}";
+    out.dec();
+    out << nl << "end";
+    out << nl << "arguments (Repeating)";
+    out.inc();
+    out << nl << "varargin (1, :) char";
+    out.dec();
+    out << nl << "end";
     out << nl << "r = Ice.ObjectPrx.iceUncheckedCast(p, '" << prxAbs << "', varargin{:});";
     out.dec();
     out << nl << "end";
@@ -1656,7 +1754,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     {
                         out << ", ";
                     }
-                    out << "'" + (*e)->mappedScoped(".").substr(1) + "'";
+                    out << "'" + (*e)->mappedScoped(".") + "'";
                 }
                 out << " }";
             }
@@ -1678,7 +1776,7 @@ bool
 CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const string name = p->mappedName();
-    const string abs = p->mappedScoped(".").substr(1);
+    const string abs = p->mappedScoped(".");
 
     IceInternal::Output out;
     openClass(abs, _dir, out);
@@ -1692,7 +1790,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "classdef " << name;
     if (base)
     {
-        out << " < " << base->mappedScoped(".").substr(1);
+        out << " < " << base->mappedScoped(".");
     }
     else
     {
@@ -1743,9 +1841,9 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         pos = errID.find('.', pos);
     }
 
-    // InputStream always create a user exception with no argument. A derived exception class created with no argument
-    // gives two arguments to its base class constructor. That's why the constructor needs to accept two arguments as
-    // well.
+    // DefaultSliceLoader always create a user exception with no argument. A derived exception class created with no
+    // argument gives two arguments to its base class constructor. That's why the constructor needs to accept two
+    // arguments as well.
 
     out << nl << "if nargin == 0";
     out.inc();
@@ -1764,8 +1862,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     else
     {
-        out << nl << self << " = " << self << "@" << base->mappedScoped(".").substr(1) << spar << "errID" << "msg"
-            << epar << ';';
+        out << nl << self << " = " << self << "@" << base->mappedScoped(".") << spar << "errID" << "msg" << epar << ';';
     }
     out.dec();
     out << nl << "end";
@@ -1797,7 +1894,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         if (base && base->usesClasses())
         {
-            out << nl << "obj = icePostUnmarshal@" << base->mappedScoped(".").substr(1) << "(obj);";
+            out << nl << "obj = icePostUnmarshal@" << base->mappedScoped(".") << "(obj);";
         }
         out.dec();
         out << nl << "end";
@@ -1837,7 +1934,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "is.endSlice();";
     if (base)
     {
-        out << nl << "obj = iceReadImpl@" << base->mappedScoped(".").substr(1) << "(obj, is);";
+        out << nl << "obj = iceReadImpl@" << base->mappedScoped(".") << "(obj, is);";
     }
     out.dec();
     out << nl << "end";
@@ -1863,7 +1960,7 @@ bool
 CodeVisitor::visitStructStart(const StructPtr& p)
 {
     const string name = p->mappedName();
-    const string abs = p->mappedScoped(".").substr(1);
+    const string abs = p->mappedScoped(".");
 
     IceInternal::Output out;
     openClass(abs, _dir, out);
@@ -2050,7 +2147,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     StructPtr structContent = dynamic_pointer_cast<Struct>(content);
     DictionaryPtr dictContent = dynamic_pointer_cast<Dictionary>(content);
 
-    const string abs = p->mappedScoped(".").substr(1);
+    const string abs = p->mappedScoped(".");
     const bool cls = content->isClassType();
     const bool proxy = isProxy(content);
     const bool convert = needsConversion(content);
@@ -2139,10 +2236,10 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     else if (enumContent)
     {
         const EnumeratorList enumerators = enumContent->enumerators();
-        out << nl << "r = " << enumContent->mappedScoped(".").substr(1) << ".empty();";
+        out << nl << "r = " << enumContent->mappedScoped(".") << ".empty();";
         out << nl << "if sz > 0";
         out.inc();
-        out << nl << "r(1, sz) = " << (*enumerators.begin())->mappedScoped(".").substr(1) << ";";
+        out << nl << "r(1, sz) = " << (*enumerators.begin())->mappedScoped(".") << ";";
         out << nl << "for i = 1:sz";
         out.inc();
         unmarshal(out, "is", "r(i)", content, false, 0);
@@ -2158,10 +2255,10 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         // syntax "arr(1, sz) = Type()". Additionally, we also have to inline the unmarshaling code for
         // the struct members.
         //
-        out << nl << "r = " << structContent->mappedScoped(".").substr(1) << ".empty();";
+        out << nl << "r = " << structContent->mappedScoped(".") << ".empty();";
         out << nl << "if sz > 0";
         out.inc();
-        out << nl << "r(1, sz) = " << structContent->mappedScoped(".").substr(1) << "();";
+        out << nl << "r(1, sz) = " << structContent->mappedScoped(".") << "();";
         out << nl << "for i = 1:sz";
         out.inc();
         unmarshalStruct(out, structContent, "r(i)");
@@ -2312,7 +2409,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const bool convert = needsConversion(value);
 
     const string name = p->mappedName();
-    const string abs = p->mappedScoped(".").substr(1);
+    const string abs = p->mappedScoped(".");
     const string self = name == "obj" ? "this" : "obj";
 
     IceInternal::Output out;
@@ -2514,7 +2611,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    const string abs = p->mappedScoped(".").substr(1);
+    const string abs = p->mappedScoped(".");
     const EnumeratorList enumerators = p->enumerators();
 
     IceInternal::Output out;
@@ -2632,7 +2729,7 @@ void
 CodeVisitor::visitConst(const ConstPtr& p)
 {
     IceInternal::Output out;
-    openClass(p->mappedScoped(".").substr(1), _dir, out);
+    openClass(p->mappedScoped("."), _dir, out);
 
     writeDocSummary(out, p);
     writeCopyright(out, p->file());
@@ -2843,7 +2940,7 @@ CodeVisitor::marshal(
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        const string typeS = st->mappedScoped(".").substr(1);
+        const string typeS = st->mappedScoped(".");
         if (optional)
         {
             out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
@@ -2858,7 +2955,7 @@ CodeVisitor::marshal(
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        const string typeS = en->mappedScoped(".").substr(1);
+        const string typeS = en->mappedScoped(".");
         if (optional)
         {
             out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
@@ -2873,7 +2970,7 @@ CodeVisitor::marshal(
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if (dict)
     {
-        const string typeS = dict->mappedScoped(".").substr(1);
+        const string typeS = dict->mappedScoped(".");
         if (optional)
         {
             out << nl << typeS << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
@@ -2910,7 +3007,7 @@ CodeVisitor::marshal(
             return;
         }
 
-        const string typeS = seq->mappedScoped(".").substr(1);
+        const string typeS = seq->mappedScoped(".");
         if (optional)
         {
             out << nl << typeS << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
@@ -3061,7 +3158,7 @@ CodeVisitor::unmarshal(
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
     if (prx)
     {
-        const string typeS = prx->mappedScoped(".").substr(1) + "Prx";
+        const string typeS = prx->mappedScoped(".") + "Prx";
         if (optional)
         {
             out << nl << v << " = " << stream << ".readProxyOpt(" << tag << ", '" << typeS << "');";
@@ -3078,7 +3175,7 @@ CodeVisitor::unmarshal(
     if (cl)
     {
         assert(!optional); // Optional classes are disallowed by the parser.
-        const string cls = cl->mappedScoped(".").substr(1);
+        const string cls = cl->mappedScoped(".");
         out << nl << stream << ".readValue(" << v << ", '" << cls << "');";
         return;
     }
@@ -3086,7 +3183,7 @@ CodeVisitor::unmarshal(
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        const string typeS = st->mappedScoped(".").substr(1);
+        const string typeS = st->mappedScoped(".");
         if (optional)
         {
             out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
@@ -3101,7 +3198,7 @@ CodeVisitor::unmarshal(
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        const string typeS = en->mappedScoped(".").substr(1);
+        const string typeS = en->mappedScoped(".");
         if (optional)
         {
             out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
@@ -3116,7 +3213,7 @@ CodeVisitor::unmarshal(
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if (dict)
     {
-        const string typeS = dict->mappedScoped(".").substr(1);
+        const string typeS = dict->mappedScoped(".");
         if (optional)
         {
             out << nl << v << " = " << typeS << ".readOpt(" << stream << ", " << tag << ");";
@@ -3152,7 +3249,7 @@ CodeVisitor::unmarshal(
             return;
         }
 
-        const string typeS = seq->mappedScoped(".").substr(1);
+        const string typeS = seq->mappedScoped(".");
         if (optional)
         {
             out << nl << v << " = " << typeS << ".readOpt(" << stream << ", " << tag << ");";

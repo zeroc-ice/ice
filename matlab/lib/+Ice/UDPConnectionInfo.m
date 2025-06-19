@@ -24,15 +24,15 @@ classdef (Sealed) UDPConnectionInfo < Ice.IPConnectionInfo
     end
     properties(SetAccess=immutable)
         % mcastAddress - The multicast address.
-        mcastAddress char
+        mcastAddress (1, :) char
 
         % mcastPort - The multicast port.
-        mcastPort int32
+        mcastPort (1, 1) int32
 
         % rcvSize - The connection buffer receive size.
-        rcvSize int32
+        rcvSize (1, 1) int32
 
         % sndSize - The connection buffer send size.
-        sndSize int32
+        sndSize (1, 1) int32
     end
 end

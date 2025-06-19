@@ -10,13 +10,8 @@ namespace Slice
     class JsVisitor : public JsGenerator, public ParserVisitor
     {
     public:
-        JsVisitor(
-            ::IceInternal::Output&,
-            const std::vector<std::pair<std::string, std::string>>& imports =
-                std::vector<std::pair<std::string, std::string>>());
+        JsVisitor(::IceInternal::Output& output);
         ~JsVisitor() override;
-
-        [[nodiscard]] std::vector<std::pair<std::string, std::string>> imports() const;
 
     protected:
         void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&);
@@ -27,11 +22,14 @@ namespace Slice
 
         std::string writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
-        void writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated = true);
+        /// Generates and outputs a doc-comment for Slice definition @p p.
+        /// @param p The Slice definition to be documented.
+        /// @param includeRemarks If false, `@@remarks` tags in @p p's doc-comment will be ignored.
+        ///     This should always be 'true' for typescript generated code, and 'false' for javascript generated code.
+        /// @param includeDeprecated If false, `@@deprecated` tags in @p p's doc-comment will be ignored.
+        void writeDocCommentFor(const ContainedPtr& p, bool includeRemarks = true, bool includeDeprecated = true);
 
         ::IceInternal::Output& _out;
-
-        std::vector<std::pair<std::string, std::string>> _imports;
     };
 
     class Gen final : public JsGenerator

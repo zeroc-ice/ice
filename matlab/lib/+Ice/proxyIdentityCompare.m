@@ -10,6 +10,11 @@ function r = proxyIdentityCompare(lhs, rhs)
 
     % Copyright (c) ZeroC, Inc.
 
+    arguments
+        lhs Ice.ObjectPrx {mustBeScalarOrEmpty}
+        rhs Ice.ObjectPrx {mustBeScalarOrEmpty}
+    end
+
     if isempty(lhs) && isempty(rhs)
         r = 0;
     elseif isempty(lhs) && ~isempty(rhs)

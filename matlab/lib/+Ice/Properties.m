@@ -30,13 +30,13 @@ classdef Properties < IceInternal.WrapperObject
 
     % Copyright (c) ZeroC, Inc.
 
-    methods
+    methods (Hidden)
         function obj = Properties(impl)
-            if ~isa(impl, 'lib.pointer')
-                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
-            end
+            assert(isa(impl, 'lib.pointer'));
             obj@IceInternal.WrapperObject(impl);
         end
+    end
+    methods
         function r = getProperty(obj, key)
             % getProperty - Get a property by key. If the property is not set,
             %   an empty string is returned.
@@ -46,6 +46,10 @@ classdef Properties < IceInternal.WrapperObject
             %
             % Returns (char) - The property value.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                key (1, :) char
+            end
             r = obj.iceCallWithResult('getProperty', key);
         end
         function r = getIceProperty(obj, key)
@@ -57,6 +61,10 @@ classdef Properties < IceInternal.WrapperObject
             %
             % Returns (char) - The property value.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                key (1, :) char
+            end
             r = obj.iceCallWithResult('getIceProperty', key);
         end
         function r = getPropertyWithDefault(obj, key, def)
@@ -81,6 +89,10 @@ classdef Properties < IceInternal.WrapperObject
             %
             % Returns (int32) - The property value interpreted as an integer.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                key (1, :) char
+            end
             v = libpointer('int32Ptr', 0);
             obj.iceCall('getPropertyAsInt', key, v);
             r = v.Value;
@@ -94,6 +106,10 @@ classdef Properties < IceInternal.WrapperObject
             %
             % Returns (int32) - The property value interpreted as an integer.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                key (1, :) char
+            end
             v = libpointer('int32Ptr', 0);
             obj.iceCall('getIcePropertyAsInt', key, v);
             r = v.Value;
@@ -110,6 +126,11 @@ classdef Properties < IceInternal.WrapperObject
             % Returns (int32) - The property value interpreted as an integer,
             %   or the default value.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                key (1, :) char
+                def (1, 1) int32
+            end
             v = libpointer('int32Ptr', 0);
             obj.iceCall('getPropertyAsIntWithDefault', key, def, v);
             r = v.Value;
@@ -127,9 +148,13 @@ classdef Properties < IceInternal.WrapperObject
             % Parameters:
             %   key (char) - The property key.
             %
-            % Returns (cell arry of char) - The property value interpreted as
+            % Returns (string array) - The property value interpreted as
             %   a list of strings.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                key (1, :) char
+            end
             r = obj.iceCallWithResult('getPropertyAsList', key);
         end
         function r = getIcePropertyAsList(obj, key)
@@ -145,9 +170,13 @@ classdef Properties < IceInternal.WrapperObject
             % Parameters:
             %   key (char) - The property key.
             %
-            % Returns (cell arry of char) - The property value interpreted as
+            % Returns (string array) - The property value interpreted as
             %   a list of strings.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                key (1, :) char
+            end
             r = obj.iceCallWithResult('getIcePropertyAsList', key);
         end
         function r = getPropertyAsListWithDefault(obj, key, def)
@@ -168,6 +197,11 @@ classdef Properties < IceInternal.WrapperObject
             % Returns (string array) - The property value interpreted as
             %   a list of strings, or the default value.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                key (1, :) char
+                def (1, :) string
+            end
             r = obj.iceCallWithResult('getPropertyAsListWithDefault', key, def);
         end
         function r = getPropertiesForPrefix(obj, prefix)
@@ -180,6 +214,10 @@ classdef Properties < IceInternal.WrapperObject
             %
             % Returns (dictionary) - The matching property set.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                prefix (1, :) char
+            end
             r = obj.iceCallWithResult('getPropertiesForPrefix', prefix);
         end
         function setProperty(obj, key, value)
@@ -190,6 +228,11 @@ classdef Properties < IceInternal.WrapperObject
             %   key (char) - The property key.
             %   value (char) - The property value.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                key (1, :) char
+                value (1, :) char
+            end
             obj.iceCall('setProperty', key, value);
         end
         function r = getCommandLineOptions(obj)
@@ -218,6 +261,11 @@ classdef Properties < IceInternal.WrapperObject
             % Returns (string array) The command-line options that do
             %   not start with the specified prefix, in their original order.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                prefix (1, :) char
+                options (1, :) string
+            end
             r = obj.iceCallWithResult('parseCommandLineOptions', prefix, options);
         end
         function r = parseIceCommandLineOptions(obj, options)
@@ -234,6 +282,10 @@ classdef Properties < IceInternal.WrapperObject
             %   not start with one of the listed prefixes, in their original
             %   order.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                options (1, :) string
+            end
             r = obj.iceCallWithResult('parseIceCommandLineOptions', options);
         end
         function load(obj, file)
@@ -242,6 +294,10 @@ classdef Properties < IceInternal.WrapperObject
             % Parameters:
             %   file (char) - The property file.
 
+            arguments
+                obj (1, 1) Ice.Properties
+                file (1, :) char
+            end
             obj.iceCall('load', file);
         end
         function r = clone(obj)
@@ -249,6 +305,9 @@ classdef Properties < IceInternal.WrapperObject
             %
             % Returns (Ice.Properties) - A copy of this property set.
 
+            arguments
+                obj (1, 1) Ice.Properties
+            end
             impl = libpointer('voidPtr');
             obj.iceCall('clone', impl);
             r = Ice.Properties(impl);

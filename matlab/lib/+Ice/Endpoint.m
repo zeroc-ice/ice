@@ -9,13 +9,13 @@ classdef Endpoint < IceInternal.WrapperObject
 
     % Copyright (c) ZeroC, Inc.
 
-    methods
+    methods (Hidden, Access = {?Ice.Connection, ?Ice.ObjectPrx})
         function obj = Endpoint(impl)
-            if ~isa(impl, 'lib.pointer')
-                throw(Ice.LocalException('Ice:ArgumentException', 'invalid argument'));
-            end
+            assert(isa(impl, 'lib.pointer'));
             obj@IceInternal.WrapperObject(impl);
         end
+    end
+    methods
         %
         % Override == operator.
         %
@@ -34,6 +34,9 @@ classdef Endpoint < IceInternal.WrapperObject
             %
             % Returns (char) - The string representation of the endpoint.
 
+            arguments
+                obj (1, 1) Ice.Endpoint
+            end
             r = obj.iceCallWithResult('toString');
         end
         function r = getInfo(obj)
@@ -41,13 +44,16 @@ classdef Endpoint < IceInternal.WrapperObject
             %
             % Returns (Ice.EndpointInfo) - The endpoint information class.
 
+            arguments
+                obj (1, 1) Ice.Endpoint
+            end
             info = obj.iceCallWithResult('getInfo');
             r = obj.createEndpointInfo(info);
         end
     end
     methods(Access=private)
         function r = createEndpointInfo(obj, info)
-            underlying = [];
+            underlying = Ice.EndpointInfo.empty;
             if ~isempty(info.underlying)
                 underlying = obj.createEndpointInfo(info.underlying);
             end

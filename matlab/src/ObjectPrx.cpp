@@ -236,38 +236,16 @@ extern "C"
 
         try
         {
-            Ice::Context ctx;
-            getContext(context, ctx);
-            auto ok = restoreProxy(self)->ice_invoke(op, mode, params, v, ctx);
-            mxArray* results = 0;
-            if (!v.empty())
+            const Ice::Context* ctxPtr = &Ice::noExplicitContext;
+            Ice::Context cppContext;
+            if (!mxIsEmpty(context))
             {
-                results = createByteArray(&v[0], &v[0] + v.size());
+                getContext(context, cppContext);
+                ctxPtr = &cppContext;
             }
-            return createResultValue(createInvokeResultValue(createBool(ok), results));
-        }
-        catch (...)
-        {
-            return createResultException(convertException(std::current_exception()));
-        }
-        return 0;
-    }
 
-    mxArray* Ice_ObjectPrx_ice_invokeNC(void* self, const char* op, int m, mxArray* inParams, unsigned int size)
-    {
-        pair<const byte*, const byte*> params(0, 0);
-        if (!mxIsEmpty(inParams))
-        {
-            params.first = reinterpret_cast<byte*>(mxGetData(inParams));
-            params.second = params.first + size;
-        }
-        auto mode = static_cast<Ice::OperationMode>(m);
-        vector<byte> v;
-
-        try
-        {
-            auto ok = restoreProxy(self)->ice_invoke(op, mode, params, v);
-            mxArray* results = 0;
+            auto ok = restoreProxy(self)->ice_invoke(op, mode, params, v, *ctxPtr);
+            mxArray* results = nullptr;
             if (!v.empty())
             {
                 results = createByteArray(&v[0], &v[0] + v.size());
@@ -306,8 +284,14 @@ extern "C"
 
         try
         {
-            Ice::Context ctx;
-            getContext(context, ctx);
+            const Ice::Context* ctxPtr = &Ice::noExplicitContext;
+            Ice::Context cppContext;
+            if (!mxIsEmpty(context))
+            {
+                getContext(context, cppContext);
+                ctxPtr = &cppContext;
+            }
+
             function<void()> token = proxy->ice_invokeAsync(
                 op,
                 mode,
@@ -316,49 +300,7 @@ extern "C"
                 { f->finished(proxy->ice_getCommunicator(), proxy->ice_getEncodingVersion(), ok, outParams); },
                 [f](exception_ptr e) { f->exception(e); },
                 [f](bool /*sentSynchronously*/) { f->sent(); },
-                ctx);
-            f->token(token);
-            *future = new shared_ptr<InvocationFuture>(move(f));
-        }
-        catch (...)
-        {
-            return convertException(std::current_exception());
-        }
-        return 0;
-    }
-
-    mxArray* Ice_ObjectPrx_ice_invokeAsyncNC(
-        void* self,
-        const char* op,
-        int m,
-        mxArray* inParams,
-        unsigned int size,
-        void** future)
-    {
-        const auto proxy = restoreProxy(self);
-        pair<const byte*, const byte*> params(0, 0);
-        if (!mxIsEmpty(inParams))
-        {
-            params.first = reinterpret_cast<byte*>(mxGetData(inParams));
-            params.second = params.first + size;
-        }
-        auto mode = static_cast<Ice::OperationMode>(m);
-
-        *future = 0;
-        auto f = make_shared<InvocationFuture>(
-            proxy->ice_isTwoway(),
-            proxy->ice_isBatchOneway() || proxy->ice_isBatchDatagram());
-
-        try
-        {
-            function<void()> token = proxy->ice_invokeAsync(
-                op,
-                mode,
-                params,
-                [proxy, f](bool ok, pair<const byte*, const byte*> outParams)
-                { f->finished(proxy->ice_getCommunicator(), proxy->ice_getEncodingVersion(), ok, outParams); },
-                [f](exception_ptr e) { f->exception(e); },
-                [f](bool /*sentSynchronously*/) { f->sent(); });
+                *ctxPtr);
             f->token(token);
             *future = new shared_ptr<InvocationFuture>(move(f));
         }
@@ -403,6 +345,7 @@ extern "C"
 
     mxArray* Ice_ObjectPrx_ice_context(void* self, void** r, mxArray* c)
     {
+        // Caller makes sure it's a configured dictionary string -> string.
         try
         {
             Ice::Context ctx;

@@ -70,7 +70,7 @@ module classdef
     ["matlab:identifier:MyInterface"]
     interface operations
     {
-        ["matlab:identifier:foobar"] void events();
+        ["matlab:identifier:foobar"] void events(Object* obj, string context);
         ["matlab:identifier:func"] void function();
     }
 

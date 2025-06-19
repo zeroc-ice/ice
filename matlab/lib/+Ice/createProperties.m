@@ -1,45 +1,36 @@
-function [properties, remArgs] = createProperties(varargin)
-    % createProperties  Creates a property set, optionally initialized from an
-    %   argument vector and default properties.
+function [properties, remArgs] = createProperties(args, defaults)
+    % createProperties  Creates a property set, optionally initialized from an argument vector and default properties.
     %
     % Examples:
     %   props = Ice.createProperties();
     %   [props, remArgs] = Ice.createProperties(args);
-    %   props = Ice.createProperties(defaults);
     %   [props, remArgs] = Ice.createProperties(args, defaults);
     %
     % Parameters:
-    %   args (cell array of char or string array) - A command-line argument vector, possibly
-    %     containing options to set properties. If the command-line options include
-    %     a --Ice.Config option, the corresponding configuration files are parsed.
-    %     If the same property is set in a configuration file and in the argument
-    %     vector, the argument vector takes precedence.
-    %   defaults (Ice.Properties) - A property set used to initialize the default
-    %     state of the new property set. Settings in configuration files and the
-    %     argument vector override these defaults.
+    %   args (cell array of char or string array) - A command-line argument vector, possibly containing options to set
+    %     properties. If the command-line options include a --Ice.Config option, the corresponding configuration files
+    %     are parsed. If the same property is set in a configuration file and in the argument vector, the argument
+    %     vector takes precedence.
+    %   defaults (Ice.Properties) - A property set used to initialize the default state of the new property set.
+    %     Settings in configuration files and the argument vector override these defaults.
     %
     % Returns:
-    %   properties (Ice.Properties) - A new property set initialized with the property
-    %     settings that were removed from the argument vector and the default property set.
-    %   remArgs (string array) - Contains the remaining command-line arguments
-    %     that were not used to set properties.
+    %   properties (Ice.Properties) - A new property set initialized with the property settings that were removed from
+    %      the argument vector and the default property set.
+    %   remArgs (string array) - Contains the remaining command-line arguments that were not used to set properties.
 
     % Copyright (c) ZeroC, Inc.
 
-    if length(varargin) >= 1 && ~isempty(varargin{1})
-        args = varargin{1};
-    else
-        args = [];
+    arguments
+        args (1, :) = {}
+        defaults Ice.Properties {mustBeScalarOrEmpty} = Ice.Properties.empty
     end
-    if length(varargin) >= 2 && ~isempty(varargin{2})
-        if ~isa(varargin{2}, 'Ice.Properties')
-            throw(Ice.LocalException('Ice:ArgumentException', 'expecting Ice.Properties object'));
-        end
-        defaults = varargin{2}.impl_;
+    if isempty(defaults)
+        defaultsImpl = libpointer('voidPtr');
     else
-        defaults = libpointer('voidPtr');
+        defaultsImpl = defaults.impl_;
     end
     impl = libpointer('voidPtr');
-    remArgs = IceInternal.Util.callWithResult('Ice_createProperties', args, defaults, impl);
+    remArgs = IceInternal.Util.callWithResult('Ice_createProperties', args, defaultsImpl, impl);
     properties = Ice.Properties(impl);
 end

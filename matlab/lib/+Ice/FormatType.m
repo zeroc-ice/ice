@@ -1,4 +1,4 @@
-classdef FormatType < uint32
+classdef FormatType < uint8
     % FormatType   Summary of FormatType
     %
     % This enumeration describes the possible formats for classes and exceptions.
