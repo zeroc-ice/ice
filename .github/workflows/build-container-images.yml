@@ -35,9 +35,12 @@ jobs:
             image: ice-rpm-builder-amzn2023
             dockerfile: packaging/rpm/docker/amzn2023/Dockerfile
 
-    # On Red Hat-based images, we need to provide credentials to access the Red Hat repositories.
     env:
+      # On Red Hat-based images, we need to provide credentials to access the Red Hat repositories.
       USE_RH_CREDENTIALS: ${{ startsWith(matrix.image, 'ice-rpm-builder-rhel') && 'true' || 'false' }}
+      # Disable attestations for compatibility with ghcr.io registry.
+      # See: https://github.com/orgs/community/discussions/45969
+      BUILDX_NO_DEFAULT_ATTESTATIONS: 1
 
     steps:
       - name: Check out repository
