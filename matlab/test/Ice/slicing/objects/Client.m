@@ -8,14 +8,11 @@ function client(args)
 
     helper = TestHelper();
     customSliceLoader = CustomSliceLoader();
+    properties = Ice.Properties(args);
+    properties.setProperty('Ice.SliceLoader.NotFoundCacheSize', '5');
+    properties.setProperty('Ice.Warn.SliceLoader', '0'); % comment out to see the warning
 
-    initData = Ice.InitializationData(SliceLoader = customSliceLoader, Properties = Ice.Properties(args));
-
-    % Use deprecated properties_ field to check it still works.
-    initData.properties_.setProperty('Ice.SliceLoader.NotFoundCacheSize', '5');
-    initData.properties_.setProperty('Ice.Warn.SliceLoader', '0'); % comment out to see the warning
-
-    communicator = helper.initialize(initData);
+    communicator = helper.initialize(Properties = properties, SliceLoader = customSliceLoader);
     cleanup = onCleanup(@() communicator.destroy());
     test = AllTests.allTests(helper, customSliceLoader);
     test.shutdown();

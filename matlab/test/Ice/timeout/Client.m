@@ -20,7 +20,7 @@ function client(args)
     %
     properties.setProperty('Ice.TCP.SndSize', '50000');
 
-    communicator = helper.initialize(properties);
+    communicator = helper.initialize(Properties = properties);
     cleanup = onCleanup(@() communicator.destroy());
 
     AllTests.allTests(helper);

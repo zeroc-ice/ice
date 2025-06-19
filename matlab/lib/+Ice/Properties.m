@@ -254,6 +254,17 @@ classdef Properties < IceInternal.WrapperObject
             end
             r = obj.iceCallWithResult('getPropertiesForPrefix', prefix);
         end
+        function disp(obj)
+            % disp - Displays this Properties object.
+            %
+            % This method is called when the object is displayed in the command window.
+
+            arguments
+                obj (1, 1) Ice.Properties
+            end
+            dict = obj.getPropertiesForPrefix('');
+            disp(dict); % can't use builtin('disp') with dictionary
+        end
         function setProperty(obj, key, value)
             % setProperty - Set a property. To unset a property, set it to
             %   the empty string.

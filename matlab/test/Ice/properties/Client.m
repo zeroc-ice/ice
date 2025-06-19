@@ -24,6 +24,7 @@ function client(args)
     assert(remainingArgs(1) == args1(1));
     assert(remainingArgs(2) == args1(2));
     assert(communicator.getProperties().getIceProperty('Ice.Trace.Network') == '3');
+    % display(communicator.getProperties());
     communicator.destroy();
     fprintf('ok\n');
 
