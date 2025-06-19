@@ -17,17 +17,17 @@ jobs:
             image: rpm-repo-builder
             dockerfile: packaging/rpm/docker/rpm-repo-builder/Dockerfile
           - platform: amd64
-            image: ice-rpm-builder-rhel9
-            dockerfile: packaging/rpm/docker/rhel9/Dockerfile
+            image: ice-rpm-builder-el9
+            dockerfile: packaging/rpm/docker/el9/Dockerfile
           - platform: arm64
-            image: ice-rpm-builder-rhel9
-            dockerfile: packaging/rpm/docker/rhel9/Dockerfile
+            image: ice-rpm-builder-el9
+            dockerfile: packaging/rpm/docker/el9/Dockerfile
           - platform: amd64
-            image: ice-rpm-builder-rhel10
-            dockerfile: packaging/rpm/docker/rhel10/Dockerfile
+            image: ice-rpm-builder-el10
+            dockerfile: packaging/rpm/docker/el10/Dockerfile
           - platform: arm64
-            image: ice-rpm-builder-rhel10
-            dockerfile: packaging/rpm/docker/rhel10/Dockerfile
+            image: ice-rpm-builder-el10
+            dockerfile: packaging/rpm/docker/el10/Dockerfile
           - platform: amd64
             image: ice-rpm-builder-amzn2023
             dockerfile: packaging/rpm/docker/amzn2023/Dockerfile
@@ -37,7 +37,7 @@ jobs:
 
     env:
       # On Red Hat-based images, we need to provide credentials to access the Red Hat repositories.
-      USE_RH_CREDENTIALS: ${{ startsWith(matrix.image, 'ice-rpm-builder-rhel') && 'true' || 'false' }}
+      USE_RH_CREDENTIALS: ${{ startsWith(matrix.image, 'ice-rpm-builder-el') && 'true' || 'false' }}
       # Disable attestations for compatibility with ghcr.io registry.
       # See: https://github.com/orgs/community/discussions/45969
       BUILDX_NO_DEFAULT_ATTESTATIONS: 1
@@ -94,8 +94,8 @@ jobs:
       matrix:
         image:
           - rpm-repo-builder
-          - ice-rpm-builder-rhel9
-          - ice-rpm-builder-rhel10
+          - ice-rpm-builder-el9
+          - ice-rpm-builder-el10
           - ice-rpm-builder-amzn2023
 
     steps:
