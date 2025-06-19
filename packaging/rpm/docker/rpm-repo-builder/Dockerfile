@@ -7,5 +7,5 @@ RUN dnf install -y \
     rpm-sign && \
     dnf clean all
 
-COPY ice/packaging/rpm/rpm-sign.sh /usr/local/bin/rpm-sign
+COPY packaging/rpm/rpm-sign.sh /usr/local/bin/rpm-sign
 RUN chmod +x /usr/local/bin/rpm-sign
