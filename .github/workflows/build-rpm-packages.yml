@@ -6,35 +6,16 @@ on:
       ice_version:
         description: "The Ice version to build"
         required: false
-      repository_url:
-        description: "The URL of the Nexus repository to publish to"
-        required: false
-        type: string
-      repository_suffix:
-        description: "The suffix to append to the repository URL"
-        required: false
-        type: string
-      repository_username:
-        description: "The username to authenticate with the repository"
-        required: false
-        type: string
   workflow_call:
     inputs:
       ice_version:
         required: false
         type: string
-      repository_url:
-        required: false
-        type: string
-      repository_suffix:
-        required: false
-        type: string
-      repository_username:
-        required: false
-        type: string
     secrets:
-      REPOSITORY_PASSWORD:
-        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
 
 jobs:
   build:
@@ -43,13 +24,16 @@ jobs:
     strategy:
       matrix:
         include:
-          - distribution: rhel9
+          - distribution: el9
             arch: x86_64
 
-          - distribution: rhel9
-            arch: i686
+          - distribution: el9
+            arch: aarch64
 
-          - distribution: rhel9
+          - distribution: el10
+            arch: x86_64
+
+          - distribution: el10
             arch: aarch64
 
           - distribution: amzn2023
@@ -64,14 +48,65 @@ jobs:
         with:
           path: ice
 
-      - name: Call Build RPM Package Action
-        uses: ./ice/.github/actions/build-rpm-package
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          ice_version: ${{ inputs.ice_version || '' }}
-          distribution: ${{ matrix.distribution }}
-          arch: ${{ matrix.arch }}
-          repository_url: ${{ inputs.repository_url || ''}}
-          repository_suffix: ${{ inputs.repository_suffix || '' }}
+          registry: ghcr.io
+          username: zeroc-ice
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build RPM packages
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e ICE_VERSION="${{ inputs.ice_version }}" \
+            -e GIT_TAG="${{ github.ref_name }}" \
+            ghcr.io/zeroc-ice/ice-rpm-builder-${{ inputs.distribution }} \
+            /workspace/ice/packaging/rpm/build-package.sh
+
+      - name: Sign RPM packages and create repository
+        run: |
+          docker_args=(
+            --rm
+            -v "$GITHUB_WORKSPACE:/workspace"
+            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}"
+            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}"
+            ghcr.io/zeroc-ice/rpm-repo-builder
+          )
+
+          docker run "${docker_args[@]}" /usr/local/bin/rpm-sign /workspace/build/
+
+      - name:  Create RPM repository
+        run: |
+          aws s3 sync s3://zeroc-downloads/ice/nightly/${{ inputs.distribution }} ${{ inputs.distribution }}
+
+          # Prune RPMs older than 3 days
+          for arch in x86_64 aarch64 SRPMS; do
+            find "${{ inputs.distribution }}/$arch" -type f -name "*.rpm" -mtime +3 -exec rm -v {} \;
+          done
+
+          docker_args=(
+            --rm
+            -v "$GITHUB_WORKSPACE:/workspace"
+            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}"
+            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}"
+            ghcr.io/zeroc-ice/rpm-repo-builder
+          )
+
+          docker run "${docker_args[@]}" /workspace/ice/packaging/rpm/create-repo.sh /workspace/build/ ${{ inputs.distribution }}
+
+          aws s3 sync ${{ inputs.distribution }} s3://zeroc-downloads/ice/nightly/${{ inputs.distribution }} --delete
         env:
-          REPOSITORY_USERNAME: ${{ inputs.repository_username }}
-          REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpm-packages-${{ inputs.distribution }}-${{ inputs.arch }}
+          path: |
+            build/RPMS/*
+            build/SRPMS/*
