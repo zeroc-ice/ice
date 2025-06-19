@@ -34,6 +34,18 @@ jobs:
           - platform: arm64
             image: ice-rpm-builder-amzn2023
             dockerfile: packaging/rpm/docker/amzn2023/Dockerfile
+          - platform: amd64
+            image: ice-deb-builder-debian12
+            dockerfile: packaging/dpkg/docker/debian12/Dockerfile
+          - platform: arm64
+            image: ice-deb-builder-debian12
+            dockerfile: packaging/dpkg/docker/debian12/Dockerfile
+          - platform: amd64
+            image: ice-deb-builder-ubuntu24.04
+            dockerfile: packaging/dpkg/docker/ubuntu24.04/Dockerfile
+          - platform: arm64
+            image: ice-deb-builder-ubuntu24.04
+            dockerfile: packaging/dpkg/docker/ubuntu24.04/Dockerfile
 
     env:
       # On Red Hat-based images, we need to provide credentials to access the Red Hat repositories.
