@@ -64,7 +64,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace" \
             -e ICE_VERSION="${{ inputs.ice_version }}" \
             -e GIT_TAG="${{ github.ref_name }}" \
-            ghcr.io/zeroc-ice/ice-rpm-package-builder-${{ inputs.distribution }} \
+            ghcr.io/zeroc-ice/ice-rpm-builder-${{ inputs.distribution }} \
             /workspace/ice/packaging/rpm/build-package.sh
 
       - name: Sign RPM packages and create repository
