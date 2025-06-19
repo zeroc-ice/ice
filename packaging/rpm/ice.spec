@@ -7,6 +7,16 @@
   %define archive_tag main
 %endif
 
+%define javaversion 17-openjdk
+
+%if "%{dist}" == ".amzn2023"
+%define javaversion 17-amazon-corretto
+%endif
+
+%if "%{dist}" == ".el10"
+%define javaversion 21-openjdk
+%endif
+
 %define shadow shadow-utils
 %define javapackagestools javapackages-tools
 # Unfortunately bzip2-devel does not provide pkgconfig(bzip2) as of EL7
@@ -63,11 +73,7 @@ BuildRequires: libmcpp-devel
 BuildRequires: pkgconfig(mcpp)
 %endif
 
-%if "%{dist}" == ".amzn2023"
-BuildRequires: java-17-amazon-corretto, java-17-amazon-corretto-jmods
-%else
-BuildRequires: java-17-openjdk, java-17-openjdk-jmods
-%endif
+BuildRequires: java-%{javaversion}, java-%{javaversion}-jmods
 
 %ifarch %{_host_cpu}
 BuildRequires: %{phpname}-devel
