@@ -17,7 +17,7 @@ function client(args)
     fprintf('ok\n');
 
     fprintf("testing Ice.Communicator constructor... ");
-    args1 = ["--Foo.Bar=1", "--Foo.Baz=2" "--Ice.Trace.Network=3"];
+    args1 = ["--Foo.Bar=1", "--Foo.Baz=2", "--Ice.Trace.Network=3"];
     [communicator, remainingArgs] = Ice.Communicator(args1);
     assert(isa(remainingArgs, 'string'));
     assert(length(remainingArgs) == 2);
