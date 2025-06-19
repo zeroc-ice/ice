@@ -7,13 +7,10 @@ function client(args)
     end
 
     helper = TestHelper();
-
-    % Can even use deprecated properties_ name in constructor (not recommended obviously).
-    initData = Ice.InitializationData(properties_ = helper.createTestProperties(args));
-    initData.SliceLoader = Ice.ClassSliceLoader(?classdef_.logical_, ?classdef_.escaped_xor, ?classdef_.Base, ...
+    sliceLoader = Ice.ClassSliceLoader(?classdef_.logical_, ?classdef_.escaped_xor, ?classdef_.Base, ...
         ?classdef_.Derived, ?classdef_.bitand_, ?classdef_.escaped_bitor);
 
-    communicator = helper.initialize(initData);
+    communicator = helper.initialize(args, SliceLoader = sliceLoader);
     cleanup = onCleanup(@() communicator.destroy());
     AllTests.allTests(helper);
 

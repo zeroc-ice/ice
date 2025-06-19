@@ -1,4 +1,7 @@
-function status = slice2matlab(varargin)
+function status = slice2matlab(args)
+    arguments (Repeating)
+        args (1, :) char
+    end
 
     % SLICE2MATLAB Compile Slice files.
     %
@@ -6,7 +9,7 @@ function status = slice2matlab(varargin)
     %
     % Parameters:
     %
-    %   varargin - The arguments passed to the Slice-to-MATLAB compiler.
+    %   args - The arguments passed to the Slice-to-MATLAB compiler.
     %
     % Returns:
     %
@@ -48,5 +51,5 @@ function status = slice2matlab(varargin)
         error('Cannot locate slice dir.');
     end
 
-    status = system(sprintf('"%s" -I"%s" %s', path, search_path, strjoin(varargin, ' ')));
+    status = system(sprintf('"%s" -I"%s" %s', path, search_path, strjoin(args, ' ')));
 end

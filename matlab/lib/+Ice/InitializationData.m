@@ -6,8 +6,7 @@ classdef (Sealed) InitializationData
     %   SliceLoader - The Slice loader, used to unmarshal Slice classes and exceptions.
 
     properties
-        Properties (1, 1) Ice.Properties = Ice.createProperties() % The properties of the communicator.
-
+        Properties (1, 1) Ice.Properties = Ice.Properties() % The properties of the communicator.
         SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance % The Slice loader.
     end
     properties (Dependent, Hidden)

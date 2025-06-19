@@ -1118,7 +1118,7 @@ classdef TwowaysAMI
                 properties = helper.communicator().getProperties().clone();
                 properties.setProperty('Ice.ImplicitContext', impls{i});
 
-                ic = helper.initialize(properties);
+                ic = helper.initialize(Properties = properties);
 
                 ctx = configureDictionary('char', 'char');
                 ctx('one') = 'ONE';
