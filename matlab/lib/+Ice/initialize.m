@@ -1,6 +1,6 @@
 function [communicator, remArgs] = initialize(varargin)
     % initialize  Creates a communicator. This function is provided for consistency with other Ice language mappings,
-    %   and for backwards compatibility. You should use instead the Ice.Communicator constructor directly.
+    %   and for backwards compatibility. Call instead the Ice.Communicator constructor.
     %
     % Examples:
     %   communicator = Ice.initialize();
