@@ -2,7 +2,7 @@
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 # Copy Ice spec file into the container
-COPY ice/packaging/rpm/ice.spec /usr/src/ice.spec
+COPY packaging/rpm/ice.spec /usr/src/ice.spec
 
 # Install required build tools and dependencies
 RUN dnf config-manager --set-enabled codeready-builder-for-rhel-9-$(arch)-rpms && \

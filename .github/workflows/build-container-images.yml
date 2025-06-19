@@ -12,28 +12,32 @@ jobs:
         include:
           - platform: amd64
             image: rpm-repo-builder
-            context: packaging/rpm/docker/rpm-repo-builder
+            dockerfile: packaging/rpm/docker/rpm-repo-builder/Dockerfile
           - platform: arm64
             image: rpm-repo-builder
-            context: packaging/rpm/docker/rpm-repo-builder
+            dockerfile: packaging/rpm/docker/rpm-repo-builder/Dockerfile
           - platform: amd64
             image: ice-rpm-builder-rhel9
-            context: packaging/rpm/docker/rhel9
+            dockerfile: packaging/rpm/docker/rhel9/Dockerfile
           - platform: arm64
-            image: ice-rpm-builder-rhel10
-            context: packaging/rpm/docker/rhel10
+            image: ice-rpm-builder-rhel9
+            dockerfile: packaging/rpm/docker/rhel9/Dockerfile
           - platform: amd64
             image: ice-rpm-builder-rhel10
-            context: packaging/rpm/docker/rhel10
+            dockerfile: packaging/rpm/docker/rhel10/Dockerfile
           - platform: arm64
             image: ice-rpm-builder-rhel10
-            context: packaging/rpm/docker/rhel10
+            dockerfile: packaging/rpm/docker/rhel10/Dockerfile
           - platform: amd64
             image: ice-rpm-builder-amzn2023
-            context: packaging/rpm/docker/amzn2023
+            dockerfile: packaging/rpm/docker/amzn2023/Dockerfile
           - platform: arm64
             image: ice-rpm-builder-amzn2023
-            context: packaging/rpm/docker/amzn2023
+            dockerfile: packaging/rpm/docker/amzn2023/Dockerfile
+
+    # On Red Hat-based images, we need to provide credentials to access the Red Hat repositories.
+    env:
+      USE_RH_CREDENTIALS: ${{ startsWith(matrix.image, 'ice-rpm-builder-rhel') && 'true' || 'false' }}
 
     steps:
       - name: Check out repository
@@ -52,7 +56,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Add RH credentials
-        if: ${{ matrix.image == 'ice-rpm-builder-rhel10' }}
+        if: env.USE_RH_CREDENTIALS == 'true'
         run: |
           umask 077
           echo "RH_USERNAME=\"${{ secrets.RH_USERNAME }}\"" >> rh_credentials
@@ -64,19 +68,19 @@ jobs:
             --platform "linux/${{ matrix.platform }}"
             --tag "ghcr.io/zeroc-ice/${{ matrix.image }}:${{ matrix.platform }}"
             --push
-            -f Dockerfile
+            -f ${{ matrix.dockerfile }}
           )
 
-          # Add secret mount only for RHEL10
-          if [[ "${{ matrix.image }}" == "ice-rpm-builder-rhel10" ]]; then
+          # Add secret with Red Hat credentials if needed
+          if [[ "$USE_RH_CREDENTIALS" == "true" ]]; then
             args+=( --secret id=rh_credentials,src=rh_credentials )
           fi
 
           docker buildx build "${args[@]}" .
-        working-directory: ice/${{ matrix.context }}
+        working-directory: ice
 
       - name: Clean up RH credentials
-        if: ${{ always() && matrix.image == 'ice-rpm-builder-rhel10' }}
+        if: always() && env.USE_RH_CREDENTIALS == 'true'
         run: rm -f rh_credentials
 
   create-manifests:

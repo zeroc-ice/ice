@@ -1,7 +1,7 @@
 FROM registry.access.redhat.com/ubi9
 
 # Copy Ice spec file into the container
-COPY ice/packaging/rpm/ice.spec /usr/src/ice.spec
+COPY packaging/rpm/ice.spec /usr/src/ice.spec
 
 # Install required tools and build dependencies:
 # - Enable the Ice 3.8 repository to install mcpp-devel
