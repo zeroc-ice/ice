@@ -86,6 +86,7 @@ jobs:
   create-manifests:
     name: "Create and Push Multi-Arch Manifests"
     runs-on: ubuntu-24.04
+    needs: build-images
     strategy:
       matrix:
         image:
