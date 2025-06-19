@@ -228,6 +228,17 @@ Client::run(int, char**)
         }
         cout << "ok" << endl;
     }
+
+    {
+        cout << "testing createProperties with args... " << flush;
+        Ice::StringSeq args{"--Foo=Bar", "--Ice.Trace.Network=3"};
+        Ice::PropertiesPtr properties = Ice::createProperties(args);
+        test(args.size() == 1);
+        test(args[0] == "--Foo=Bar");
+        test(properties->getIceProperty("Ice.ProgramName") == "--Foo=Bar");
+        test(properties->getIceProperty("Ice.Trace.Network") == "3");
+        cout << "ok" << endl;
+    }
 }
 
 DEFINE_TEST(Client)
