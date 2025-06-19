@@ -23,7 +23,7 @@ install -pm 644 %{SOURCE0} %{buildroot}%{_sysconfdir}/yum.repos.d/zeroc-ice-3.8.
 
 %files
 %defattr(-,root,root,-)
-%config(noreplace) %{_sysconfdir}/yum.repos.d/zeroc-ice3.8.repo
+%config(noreplace) %{_sysconfdir}/yum.repos.d/zeroc-ice-3.8.repo
 
 %changelog
 * Thu Jun 19 2025 Jose Gutierrez de la Concha <jose@zeroc.com> 1.0.0-1
