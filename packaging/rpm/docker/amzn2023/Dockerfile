@@ -5,8 +5,7 @@ FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 COPY packaging/rpm/ice.spec /usr/src/ice.spec
 
 # Install required build tools and dependencies
-RUN dnf config-manager --set-enabled codeready-builder-for-rhel-9-$(arch)-rpms && \
-    dnf install -y \
+RUN dnf install -y \
     rpmdevtools \
     make \
     curl-minimal \
