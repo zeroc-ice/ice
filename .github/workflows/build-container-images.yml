@@ -73,7 +73,7 @@ jobs:
 
           # Add secret with Red Hat credentials if needed
           if [[ "$USE_RH_CREDENTIALS" == "true" ]]; then
-            args+=( --secret id=rh_credentials,src=rh_credentials )
+            args+=( --secret id=rh_credentials,src=../rh_credentials )
           fi
 
           docker buildx build "${args[@]}" .
