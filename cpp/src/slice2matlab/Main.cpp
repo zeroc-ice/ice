@@ -34,7 +34,8 @@ using namespace IceInternal;
 
 namespace
 {
-    void documentArgument(IceInternal::Output& out, const ParameterPtr& param, const string& argName, StringList docLines);
+    void
+    documentArgument(IceInternal::Output& out, const ParameterPtr& param, const string& argName, StringList docLines);
     void documentProperty(IceInternal::Output& out, const DataMemberPtr& field);
 
     string checkAndEscapeParam(string_view param, const ParameterList& allParams)
@@ -634,8 +635,8 @@ namespace
             out << nl << "%";
             out << nl << "% Output Arguments";
             out << nl << "%   " << futureName
-                << " - A future that will be completed with the result of the invocation. See "
-                << p->mappedName() << ".";
+                << " - A future that will be completed with the result of the invocation. See " << p->mappedName()
+                << ".";
             out << nl << "%     Ice.Future scalar";
         }
         else
@@ -758,7 +759,8 @@ namespace
         }
         out << nl << "%";
         out << nl << "% " << name << " Static Methods:";
-        out << nl << "%   checkedCast - Contacts the remote server to check if the target object implements Slice interface "
+        out << nl
+            << "%   checkedCast - Contacts the remote server to check if the target object implements Slice interface "
             << p->scoped() << ".";
         out << nl << "%   uncheckedCast - Creates a " << name << " from another proxy without any validation.";
 
@@ -1027,8 +1029,13 @@ namespace
     void documentProperty(IceInternal::Output& out, const DataMemberPtr& field)
     {
         optional<DocComment> doc = DocComment::parseFrom(field, matlabLinkFormatter);
-        documentArgumentOrProperty(out, field->mappedScoped("."), field->type(), field->optional(),
-            doc ? doc->overview() : StringList{}, 0);
+        documentArgumentOrProperty(
+            out,
+            field->mappedScoped("."),
+            field->type(),
+            field->optional(),
+            doc ? doc->overview() : StringList{},
+            0);
 
         writeSeeAlso(out, doc, field->container());
         writeDeprecated(out, doc, field);
@@ -1673,9 +1680,10 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << nl << "end";
         }
 
-        out << nl << futureName << " = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
-            << ", " << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
-            << returnAndOutParameters.size() << ", " << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
+        out << nl << futureName << " = " << self << ".iceInvokeAsync('" << op->name() << "', "
+            << getOperationMode(op->mode()) << ", " << (twowayOnly ? "true" : "false") << ", "
+            << (inParams.empty() ? "[]" : "os_") << ", " << returnAndOutParameters.size() << ", "
+            << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
         if (exceptions.empty())
         {
             out << ", {}";

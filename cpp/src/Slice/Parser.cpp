@@ -3460,8 +3460,8 @@ Slice::Operation::returnParameter()
             }
         }
 
-        ParameterPtr returnParam = make_shared<Parameter>(
-            shared_from_this(), returnName, _returnType, _returnIsOptional, _returnTag);
+        ParameterPtr returnParam =
+            make_shared<Parameter>(shared_from_this(), returnName, _returnType, _returnIsOptional, _returnTag);
 
         // TODO: presumably, this yields a bad mapped name when the operation name is remapped with xxx:identifier.
         returnParam->setMetadata(getMetadata());
