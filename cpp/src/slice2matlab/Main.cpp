@@ -388,14 +388,14 @@ namespace
         }
     }
 
-    void writeDocLines(IceInternal::Output& out, const StringList& lines, int indentation = 0)
+    void writeDocLines(IceInternal::Output& out, const StringList& lines, size_t indentation = 0)
     {
         for (const auto& line : lines)
         {
             out << nl << "%";
             if (!line.empty())
             {
-                out << string(indentation + 1, ' ') << line;
+                out << " " << string(indentation, ' ') << line;
             }
         }
     }
@@ -933,7 +933,7 @@ namespace
         const TypePtr& type,
         bool optional,
         StringList docLines,
-        int indentation)
+        size_t indentation)
     {
         auto typeStr = typeToString(type);
 
