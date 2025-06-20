@@ -1668,10 +1668,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << nl << "end";
         }
 
-        out << nl << "future = " << self << ".iceInvokeAsync('" << op->name() << "', "
-            << getOperationMode(op->mode()) << ", " << (twowayOnly ? "true" : "false") << ", "
-            << (inParams.empty() ? "[]" : "os_") << ", " << returnAndOutParameters.size() << ", "
-            << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
+        out << nl << "future = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
+            << ", " << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
+            << returnAndOutParameters.size() << ", " << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
         if (exceptions.empty())
         {
             out << ", {}";

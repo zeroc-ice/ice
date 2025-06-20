@@ -1312,7 +1312,12 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
     out << nl << "let " << operationReturnDeclaration(op) << " = value";
     for (const auto& param : op->sortedReturnAndOutParameters(getEscapedParamName(op->outParameters(), "returnValue")))
     {
-        writeMarshalUnmarshalCode(out, param->type(), op, "iceP_" + removeEscaping(param->mappedName()), true,
+        writeMarshalUnmarshalCode(
+            out,
+            param->type(),
+            op,
+            "iceP_" + removeEscaping(param->mappedName()),
+            true,
             param->tag());
     }
     if (op->returnsClasses())
