@@ -25,6 +25,20 @@ public final class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo {
     /** The connection buffer send size. */
     public final int sndSize;
 
+    /**
+     * Constructs a new ConnectionInfo with the specified connection parameters.
+     *
+     * @param incoming whether this connection is incoming
+     * @param adapterName the name of the adapter associated with this connection
+     * @param connectionId the ID of this connection
+     * @param localAddress the local Bluetooth address of this connection
+     * @param localChannel the local RFCOMM channel of this connection
+     * @param remoteAddress the remote Bluetooth address of this connection
+     * @param remoteChannel the remote RFCOMM channel of this connection
+     * @param uuid the UUID of the service being offered or targeted
+     * @param rcvSize the receive buffer size for this connection
+     * @param sndSize the send buffer size for this connection
+     */
     ConnectionInfo(
             boolean incoming,
             String adapterName,
