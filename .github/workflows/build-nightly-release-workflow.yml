@@ -207,11 +207,9 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.rpm_version }}
-      repository_url: ${{ inputs.repository_url }}
-      repository_suffix: "-nightly"
-      repository_username: ${{ inputs.repository_username }}
     secrets:
-      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
 
   build-xcframework-packages:
     name: Build XCFramework Packages

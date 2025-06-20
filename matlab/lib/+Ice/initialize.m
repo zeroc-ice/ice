@@ -1,5 +1,6 @@
-function [communicator, args] = initialize(varargin)
-    % initialize  Creates a communicator.
+function [communicator, remArgs] = initialize(varargin)
+    % initialize  Creates a communicator. This function is provided for consistency with other Ice language mappings,
+    %   and for backwards compatibility. Call instead the Ice.Communicator constructor.
     %
     % Examples:
     %   communicator = Ice.initialize();
@@ -17,7 +18,7 @@ function [communicator, args] = initialize(varargin)
     %
     % Returns:
     %   communicator (Ice.Communicator) - The new communicator.
-    %   args (string array) - Contains the remaining command-line arguments that were not used to set properties.
+    %   remArgs (string array) - Contains the remaining command-line arguments that were not used to set properties.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -31,7 +32,7 @@ function [communicator, args] = initialize(varargin)
 
     for i = 1:length(varargin)
         if isa(varargin{i}, 'cell') && isempty(args)
-            args = string(varargin{i}); % convert cell array to string array
+            args = varargin{i}; % keep cell array
         elseif isa(varargin{i}, 'string') && isempty(args)
             args = varargin{i};
         elseif isa(varargin{i}, 'Ice.InitializationData') && isempty(initData)
@@ -55,15 +56,6 @@ function [communicator, args] = initialize(varargin)
         end
     end
 
-    %
-    % Implementation notes:
-    %
-    % We need to extract and pass the libpointer object for properties to the C function. Passing the wrapper
-    % (Ice.Properties) object won't work because the C code has no way to obtain the inner pointer.
-    %
-    props = initData.Properties.impl_;
-
-    impl = libpointer('voidPtr');
-    args = IceInternal.Util.callWithResult('Ice_initialize', args, props, impl);
-    communicator = Ice.Communicator(impl, initData);
+    [communicator, remArgs] = Ice.Communicator(args, Properties = initData.Properties, ...
+        SliceLoader = initData.SliceLoader);
 end
