@@ -1318,7 +1318,7 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
     // Marshal parameters in this order '(required..., optional...)'.
 
     out << nl << "let " << operationReturnDeclaration(op) << " = value";
-    for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
+    for (const auto& param : op->sortedReturnAndOutParameters())
     {
         // 'isOutParam' fails for return types, and for return types, we don't want the 'mappedName'.
         const string paramName = (param->isOutParam() ? param->mappedName() : param->name());
@@ -1348,7 +1348,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     // 3. optional (including optional return)
     //
 
-    for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
+    for (const auto& param : op->sortedReturnAndOutParameters())
     {
         const TypePtr paramType = param->type();
         const string typeString = typeToString(paramType, op, param->optional());

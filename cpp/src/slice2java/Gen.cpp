@@ -220,7 +220,7 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
 {
     int iter = 0;
 
-    for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
+    for (const auto& param : op->sortedReturnAndOutParameters())
     {
         const bool isOptional = param->optional();
         const bool isReturn = param->isOutParam() == false; // The return value is not an out parameter.

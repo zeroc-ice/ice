@@ -509,7 +509,13 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << epar;
 
         // Write the operation's return type.
-        const ParameterList returnAndOutParams = op->returnAndOutParameters("returnValue");
+        ParameterList returnAndOutParams = op->outParameters();
+        ParameterPtr returnParam = op->returnParameter();
+        if (returnParam)
+        {
+            returnAndOutParams.push_back(returnParam); // push to the back for encoding compatibility
+        }
+
         if (returnAndOutParams.size() > 1)
         {
             out << " -> ";
