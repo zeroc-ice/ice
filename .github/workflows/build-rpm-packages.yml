@@ -64,7 +64,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace" \
             -e ICE_VERSION="${{ inputs.ice_version }}" \
             -e GIT_TAG="${{ github.ref_name }}" \
-            ghcr.io/zeroc-ice/ice-rpm-builder-${{ inputs.distribution }} \
+            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }} \
             /workspace/ice/packaging/rpm/build-package.sh
 
       - name: Sign RPM packages and create repository
@@ -81,11 +81,11 @@ jobs:
 
       - name:  Create RPM repository
         run: |
-          aws s3 sync s3://zeroc-downloads/ice/nightly/${{ inputs.distribution }} ${{ inputs.distribution }}
+          aws s3 sync s3://zeroc-downloads/ice/nightly/${{ matrix.distribution }} ${{ matrix.distribution }}
 
           # Prune RPMs older than 3 days
           for arch in x86_64 aarch64 SRPMS; do
-            find "${{ inputs.distribution }}/$arch" -type f -name "*.rpm" -mtime +3 -exec rm -v {} \;
+            find "${{ matrix.distribution }}/$arch" -type f -name "*.rpm" -mtime +3 -exec rm -v {} \;
           done
 
           docker_args=(
@@ -96,9 +96,9 @@ jobs:
             ghcr.io/zeroc-ice/rpm-repo-builder
           )
 
-          docker run "${docker_args[@]}" /workspace/ice/packaging/rpm/create-repo.sh /workspace/build/ ${{ inputs.distribution }}
+          docker run "${docker_args[@]}" /workspace/ice/packaging/rpm/create-repo.sh /workspace/build/ ${{ matrix.distribution }}
 
-          aws s3 sync ${{ inputs.distribution }} s3://zeroc-downloads/ice/nightly/${{ inputs.distribution }} --delete
+          aws s3 sync ${{ matrix.distribution }} s3://zeroc-downloads/ice/nightly/${{ matrix.distribution }} --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -106,7 +106,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rpm-packages-${{ inputs.distribution }}-${{ inputs.arch }}
+          name: rpm-packages-${{ matrix.distribution }}-${{ matrix.arch }}
           path: |
             build/RPMS/*
             build/SRPMS/*
