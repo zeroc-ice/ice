@@ -3442,29 +3442,25 @@ Slice::Operation::outParameters() const
 }
 
 ParameterPtr
-Slice::Operation::returnParameter()
+Slice::Operation::returnParameter(const string& name)
 {
     if (_returnType)
     {
-        // MATLAB allows input and output arguments to share the same name. Likewise, the .slice syntax allows in and
-        // return parameters to share the same name. So we only check out-parameters here.
-        string returnName = "returnValue";
-        for (const auto& param : outParameters())
-        {
-            if (param->mappedName() == returnName)
-            {
-                // If the return parameter name collides with an existing out parameter name, we escape it.
-                // The returnName is used as both Slice identifier and mapped identifier.
-                returnName += "_";
-                break;
-            }
-        }
-
         ParameterPtr returnParam =
-            make_shared<Parameter>(shared_from_this(), returnName, _returnType, _returnIsOptional, _returnTag);
+            make_shared<Parameter>(shared_from_this(), name, _returnType, _returnIsOptional, _returnTag);
 
-        // TODO: presumably, this yields a bad mapped name when the operation name is remapped with xxx:identifier.
-        returnParam->setMetadata(getMetadata());
+        // Remove xxx:identifier metadata: we don't want to rename the return parameter to be the remapped operation
+        // name.
+        MetadataList metadata = getMetadata();
+        const string xxxIdentifier = unit()->languageName() + ":identifier";
+        metadata.erase(
+            remove_if(
+                metadata.begin(),
+                metadata.end(),
+                [&xxxIdentifier](const MetadataPtr& m) { return m->directive() == xxxIdentifier; }),
+            metadata.end());
+
+        returnParam->setMetadata(metadata);
         return returnParam;
     }
     else
@@ -3474,13 +3470,13 @@ Slice::Operation::returnParameter()
 }
 
 ParameterList
-Slice::Operation::sortedReturnAndOutParameters()
+Slice::Operation::sortedReturnAndOutParameters(const string& returnName)
 {
     // We get the return and out parameters, and filter out any optional parameters into a separate 'optional' list.
     ParameterList required = outParameters();
     if (_returnType)
     {
-        required.push_back(returnParameter());
+        required.push_back(returnParameter(returnName));
     }
 
     ParameterList optional;

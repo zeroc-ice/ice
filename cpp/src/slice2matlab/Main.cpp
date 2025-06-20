@@ -38,18 +38,6 @@ namespace
     documentArgument(IceInternal::Output& out, const ParameterPtr& param, const string& argName, StringList docLines);
     void documentProperty(IceInternal::Output& out, const DataMemberPtr& field);
 
-    string checkAndEscapeParam(string_view param, const ParameterList& allParams)
-    {
-        for (const auto& p : allParams)
-        {
-            if (p->mappedName() == param)
-            {
-                return string{param} + "_";
-            }
-        }
-        return string{param};
-    }
-
     void writeGeneratedFrom(IceInternal::Output& out, string_view file)
     {
         string::size_type pos = file.find_last_of('/');
@@ -608,11 +596,10 @@ namespace
         out << nl << "%";
         out << nl << "% Input Arguments";
         const ParameterList inParams = p->inParameters();
-        const ParameterList allParams = p->parameters();
+        const ParameterList outParams = p->outParameters();
 
-        string contextParam = checkAndEscapeParam("context", allParams);
-        string returnValueName = checkAndEscapeParam("returnValue", allParams);
-        string futureName = checkAndEscapeParam("future", allParams);
+        const string contextParam = getEscapedParamName(inParams, "context");
+        const string returnValueName = getEscapedParamName(outParams, "returnValue");
 
         for (const auto& inParam : inParams)
         {
@@ -634,7 +621,7 @@ namespace
         {
             out << nl << "%";
             out << nl << "% Output Arguments";
-            out << nl << "%   " << futureName
+            out << nl << "%   future"
                 << " - A future that will be completed with the result of the invocation. See " << p->mappedName()
                 << ".";
             out << nl << "%     Ice.Future scalar";
@@ -645,7 +632,9 @@ namespace
             {
                 out << nl << "%";
                 out << nl << "% Output Arguments";
-                ParameterPtr returnParam = p->returnParameter();
+
+                // returnValueName was checked and escaped against the _mapped_ parameter names.
+                ParameterPtr returnParam = p->returnParameter(returnValueName);
                 if (returnParam)
                 {
                     StringList docLines;
@@ -1434,12 +1423,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const ParameterList inParams = op->inParameters();
         const ParameterList sortedInParams = op->sortedInParameters();
         const ParameterList outParams = op->outParameters();
-        const ParameterList allParams = op->parameters();
+        const string returnValueName = getEscapedParamName(outParams, "returnValue");
         const bool returnsMultipleValues = op->returnsMultipleValues();
         const bool returnsAnyValues = op->returnsAnyValues();
 
         ParameterList returnAndOutParameters = op->outParameters();
-        ParameterPtr returnParam = op->returnParameter();
+        ParameterPtr returnParam = op->returnParameter(returnValueName);
         if (returnParam)
         {
             returnAndOutParameters.push_front(returnParam);
@@ -1453,8 +1442,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             hasExceptions = true;
         }
 
-        string self = checkAndEscapeParam("obj", allParams);
-        string contextParam = checkAndEscapeParam("context", allParams);
+        const string self = getEscapedParamName(inParams, "obj");
+        const string contextParam = getEscapedParamName(inParams, "context");
 
         //
         // Synchronous method.
@@ -1539,7 +1528,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             ParameterList classParams;
             ParameterList convertParams;
-            for (const auto& param : op->sortedReturnAndOutParameters())
+            for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
             {
                 const TypePtr paramType = param->type();
                 const string paramName = param->mappedName();
@@ -1588,8 +1577,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         // Asynchronous method.
         //
-        string futureName = checkAndEscapeParam("future", allParams);
-        out << nl << "function " << futureName << " = " << op->mappedName() << "Async" << spar;
+        out << nl << "function future = " << op->mappedName() << "Async" << spar;
         out << self;
         for (const auto& param : inParams)
         {
@@ -1635,7 +1623,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             // * unmarshal the required return value (if any)
             // * unmarshal all optional out parameters (this includes an optional return value)
             //
-            for (const auto& param : op->sortedReturnAndOutParameters())
+            for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
             {
                 const TypePtr paramType = param->type();
                 const string paramName = param->mappedName();
@@ -1680,7 +1668,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << nl << "end";
         }
 
-        out << nl << futureName << " = " << self << ".iceInvokeAsync('" << op->name() << "', "
+        out << nl << "future = " << self << ".iceInvokeAsync('" << op->name() << "', "
             << getOperationMode(op->mode()) << ", " << (twowayOnly ? "true" : "false") << ", "
             << (inParams.empty() ? "[]" : "os_") << ", " << returnAndOutParameters.size() << ", "
             << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
@@ -2050,7 +2038,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     out << nl << "methods";
     out.inc();
-    string self = "obj";
+    const string self = "obj";
     out << nl << "function " << self << " = " << name << spar << memberNames << epar;
     out.inc();
     // We rely on the default values when nargin is 0.
