@@ -8,13 +8,12 @@ public final class NoEndpointException extends LocalException {
         super(message);
     }
 
-    public String ice_id() {
-        return "::Ice::NoEndpointException";
+    public NoEndpointException(ObjectPrx proxy) {
+        super("No suitable endpoint available for proxy '" + proxy + "'");
     }
 
-    public static NoEndpointException fromProxyString(String proxyString) {
-        return new NoEndpointException(
-            "No suitable endpoint available for proxy '" + proxyString + "'");
+    public String ice_id() {
+        return "::Ice::NoEndpointException";
     }
 
     private static final long serialVersionUID = -5026638954785808518L;

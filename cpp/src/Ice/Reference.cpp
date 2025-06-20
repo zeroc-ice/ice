@@ -637,7 +637,10 @@ IceInternal::FixedReference::getRequestHandler() const
         {
             if (_fixedConnection->endpoint()->datagram())
             {
-                throw NoEndpointException(__FILE__, __LINE__, toString());
+                throw NoEndpointException(
+                    __FILE__,
+                    __LINE__,
+                    ObjectPrx::_fromReference(const_cast<FixedReference*>(this)->shared_from_this()));
             }
             break;
         }
@@ -647,7 +650,10 @@ IceInternal::FixedReference::getRequestHandler() const
         {
             if (!_fixedConnection->endpoint()->datagram())
             {
-                throw NoEndpointException(__FILE__, __LINE__, toString());
+                throw NoEndpointException(
+                    __FILE__,
+                    __LINE__,
+                    ObjectPrx::_fromReference(const_cast<FixedReference*>(this)->shared_from_this()));
             }
             break;
         }
@@ -669,7 +675,10 @@ IceInternal::FixedReference::getRequestHandler() const
     }
     if (secure && !_fixedConnection->endpoint()->secure())
     {
-        throw NoEndpointException(__FILE__, __LINE__, toString());
+        throw NoEndpointException(
+            __FILE__,
+            __LINE__,
+            ObjectPrx::_fromReference(const_cast<FixedReference*>(this)->shared_from_this()));
     }
 
     _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
@@ -1383,7 +1392,8 @@ IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
         {
             if (endpoints.empty())
             {
-                _exception(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, _reference->toString())));
+                _exception(make_exception_ptr(
+                    Ice::NoEndpointException(__FILE__, __LINE__, ObjectPrx::_fromReference(_reference))));
                 return;
             }
 
@@ -1460,7 +1470,10 @@ IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
     }
     else
     {
-        exception(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, toString())));
+        exception(make_exception_ptr(Ice::NoEndpointException(
+            __FILE__,
+            __LINE__,
+            ObjectPrx::_fromReference(const_cast<RoutableReference*>(this)->shared_from_this()))));
     }
 }
 
@@ -1473,7 +1486,10 @@ IceInternal::RoutableReference::createConnectionAsync(
     vector<EndpointIPtr> endpoints = filterEndpoints(allEndpoints);
     if (endpoints.empty())
     {
-        exception(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, toString())));
+        exception(make_exception_ptr(Ice::NoEndpointException(
+            __FILE__,
+            __LINE__,
+            ObjectPrx::_fromReference(const_cast<RoutableReference*>(this)->shared_from_this()))));
         return;
     }
 

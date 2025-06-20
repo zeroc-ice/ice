@@ -448,7 +448,7 @@ class RoutableReference extends Reference {
                     public void setEndpoints(EndpointI[] endpoints, final boolean cached) {
                         if (endpoints.length == 0) {
                             callback.setException(
-                                NoEndpointException.fromProxyString(self.toString()));
+                                new NoEndpointException(new _ObjectPrxI(self)));
                             return;
                         }
 
@@ -501,7 +501,7 @@ class RoutableReference extends Reference {
                     }
                 });
         } else {
-            callback.setException(NoEndpointException.fromProxyString(toString()));
+            callback.setException(new NoEndpointException(new _ObjectPrxI(this)));
         }
     }
 
@@ -669,7 +669,7 @@ class RoutableReference extends Reference {
             EndpointI[] allEndpoints, final GetConnectionCallback callback) {
         final EndpointI[] endpoints = filterEndpoints(allEndpoints);
         if (endpoints.length == 0) {
-            callback.setException(NoEndpointException.fromProxyString(toString()));
+            callback.setException(new NoEndpointException(new _ObjectPrxI(this)));
             return;
         }
 
