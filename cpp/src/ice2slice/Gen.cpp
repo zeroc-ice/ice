@@ -509,7 +509,24 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << epar;
 
         // Write the operation's return type.
-        const ParameterList returnAndOutParams = op->returnAndOutParameters("returnValue");
+        string returnValueName = "returnValue";
+        // Make sure returnValueName does not collide with any out parameter name:
+        for (const auto& param : op->outParameters())
+        {
+            if (param->name() == returnValueName)
+            {
+                returnValueName += "_";
+                break; // multiple collisions means the user is trying to get a collision.
+            }
+        }
+
+        ParameterList returnAndOutParams = op->outParameters();
+        ParameterPtr returnParam = op->returnParameter(returnValueName);
+        if (returnParam)
+        {
+            returnAndOutParams.push_back(returnParam); // push to the back for encoding compatibility
+        }
+
         if (returnAndOutParams.size() > 1)
         {
             out << " -> ";

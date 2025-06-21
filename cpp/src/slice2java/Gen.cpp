@@ -57,18 +57,6 @@ namespace
         }
     }
 
-    string getEscapedParamName(const ParameterList& params, const string& name)
-    {
-        for (const auto& param : params)
-        {
-            if (param->mappedName() == name)
-            {
-                return name + "_";
-            }
-        }
-        return name;
-    }
-
     // Returns java.util.OptionalXXX.ofYYY depending on the type
     string ofFactory(const TypePtr& type)
     {
@@ -220,7 +208,9 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
 {
     int iter = 0;
 
-    for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
+    const string retval = getEscapedParamName(op->outParameters(), "returnValue");
+
+    for (const auto& param : op->sortedReturnAndOutParameters(retval))
     {
         const bool isOptional = param->optional();
         const bool isReturn = param->isOutParam() == false; // The return value is not an out parameter.

@@ -269,18 +269,6 @@ namespace
         }
     }
 
-    string getEscapedParamName(const OperationPtr& p, const string& name)
-    {
-        for (const auto& param : p->parameters())
-        {
-            if (param->mappedName() == name)
-            {
-                return name + "_";
-            }
-        }
-        return name;
-    }
-
     string resultStructReturnValueName(const ParameterList& outParams)
     {
         for (const auto& outParam : outParams)
@@ -679,7 +667,7 @@ Slice::CsVisitor::getDispatchParams(
         retS = typeToString(op->returnType(), ns, op->returnIsOptional());
     }
 
-    string currentParamName = getEscapedParamName(op, "current");
+    string currentParamName = getEscapedParamName(op->parameters(), "current");
     params.push_back("Ice.Current " + currentParamName);
     args.push_back(currentParamName);
     return name;
@@ -1812,7 +1800,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
         ParameterList outParams = op->outParameters();
 
-        string context = getEscapedParamName(op, "context");
+        string context = getEscapedParamName(op->parameters(), "context");
 
         _out << sp;
         _out << nl << "public " << retS << " " << opName << spar << params
@@ -1876,9 +1864,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         ParameterList inParams = op->inParameters();
         ParameterList outParams = op->outParameters();
 
-        string context = getEscapedParamName(op, "context");
-        string cancel = getEscapedParamName(op, "cancel");
-        string progress = getEscapedParamName(op, "progress");
+        string context = getEscapedParamName(op->parameters(), "context");
+        string cancel = getEscapedParamName(op->parameters(), "cancel");
+        string progress = getEscapedParamName(op->parameters(), "progress");
 
         TypePtr ret = op->returnType();
 
@@ -2225,7 +2213,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         //
         // Write the synchronous version of the operation.
         //
-        string context = getEscapedParamName(p, "context");
+        string context = getEscapedParamName(p->parameters(), "context");
         _out << sp;
         writeOpDocComment(p, {"<param name=\"" + context + "\">The request context.</param>"}, false);
         emitObsoleteAttribute(p, _out);
@@ -2238,9 +2226,9 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         //
         // Write the async version of the operation (using Async Task API)
         //
-        string context = getEscapedParamName(p, "context");
-        string cancel = getEscapedParamName(p, "cancel");
-        string progress = getEscapedParamName(p, "progress");
+        string context = getEscapedParamName(p->parameters(), "context");
+        string cancel = getEscapedParamName(p->parameters(), "cancel");
+        string progress = getEscapedParamName(p->parameters(), "progress");
 
         _out << sp;
         writeOpDocComment(

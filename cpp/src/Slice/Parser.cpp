@@ -3441,41 +3441,44 @@ Slice::Operation::outParameters() const
     return result;
 }
 
-ParameterList
-Slice::Operation::returnAndOutParameters(const string& returnsName)
+ParameterPtr
+Slice::Operation::returnParameter(const string& name)
 {
-    ParameterList outParams = outParameters();
-
-    // Check if this operation has a non-void return type.
     if (_returnType)
     {
-        // Then check if any of the out parameter's mapped names collide with the return name.
-        bool shouldEscapeReturnsName = false;
-        for (const auto& param : outParams)
-        {
-            if (param->mappedName() == returnsName)
-            {
-                shouldEscapeReturnsName = true;
-            }
-        }
-
-        // Create the dummy return-value parameter.
-        const string fixedName = returnsName + (shouldEscapeReturnsName ? "_" : "");
         ParameterPtr returnParam =
-            make_shared<Parameter>(shared_from_this(), fixedName, _returnType, _returnIsOptional, _returnTag);
-        returnParam->setMetadata(getMetadata());
+            make_shared<Parameter>(shared_from_this(), name, _returnType, _returnIsOptional, _returnTag);
 
-        outParams.push_back(returnParam);
+        // Remove xxx:identifier metadata: we don't want to rename the return parameter to be the remapped operation
+        // name.
+        MetadataList metadata = getMetadata();
+        const string xxxIdentifier = unit()->languageName() + ":identifier";
+        metadata.erase(
+            remove_if(
+                metadata.begin(),
+                metadata.end(),
+                [&xxxIdentifier](const MetadataPtr& m) { return m->directive() == xxxIdentifier; }),
+            metadata.end());
+
+        returnParam->setMetadata(metadata);
+        return returnParam;
     }
-
-    return outParams;
+    else
+    {
+        return nullptr;
+    }
 }
 
 ParameterList
-Slice::Operation::sortedReturnAndOutParameters(const string& returnsName)
+Slice::Operation::sortedReturnAndOutParameters(const string& returnName)
 {
     // We get the return and out parameters, and filter out any optional parameters into a separate 'optional' list.
-    ParameterList required = returnAndOutParameters(returnsName);
+    ParameterList required = outParameters();
+    if (_returnType)
+    {
+        required.push_back(returnParameter(returnName));
+    }
+
     ParameterList optional;
 
     // First sort each parameter into either 'required' or 'optional'.

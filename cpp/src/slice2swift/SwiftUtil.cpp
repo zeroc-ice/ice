@@ -231,15 +231,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     }
     if (p->returnType())
     {
-        string returnValueName = "returnValue";
-        for (const auto& q : outParams)
-        {
-            if (q->mappedName() == returnValueName)
-            {
-                returnValueName += '_';
-                break;
-            }
-        }
+        string returnValueName = getEscapedParamName(outParams, "returnValue");
 
         // First, check if the user supplied a message in the doc comment for this return type.
         const StringList& docMessage = doc->returns();
@@ -1318,11 +1310,15 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
     // Marshal parameters in this order '(required..., optional...)'.
 
     out << nl << "let " << operationReturnDeclaration(op) << " = value";
-    for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
+    for (const auto& param : op->sortedReturnAndOutParameters(getEscapedParamName(op->outParameters(), "returnValue")))
     {
-        // 'isOutParam' fails for return types, and for return types, we don't want the 'mappedName'.
-        const string paramName = (param->isOutParam() ? param->mappedName() : param->name());
-        writeMarshalUnmarshalCode(out, param->type(), op, "iceP_" + removeEscaping(paramName), true, param->tag());
+        writeMarshalUnmarshalCode(
+            out,
+            param->type(),
+            op,
+            "iceP_" + removeEscaping(param->mappedName()),
+            true,
+            param->tag());
     }
     if (op->returnsClasses())
     {
@@ -1348,12 +1344,11 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     // 3. optional (including optional return)
     //
 
-    for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
+    for (const auto& param : op->sortedReturnAndOutParameters(getEscapedParamName(op->outParameters(), "returnValue")))
     {
         const TypePtr paramType = param->type();
         const string typeString = typeToString(paramType, op, param->optional());
-        // 'isOutParam' fails for return types, and for return types, we don't want the 'mappedName'.
-        const string paramName = "iceP_" + removeEscaping((param->isOutParam() ? param->mappedName() : param->name()));
+        const string paramName = "iceP_" + removeEscaping(param->mappedName());
         string paramString;
         if (paramType->isClassType())
         {
@@ -1380,15 +1375,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
 
     if (op->returnType())
     {
-        string returnValueName = "returnValue";
-        for (const auto& q : outParams)
-        {
-            if (removeEscaping(q->mappedName()) == returnValueName)
-            {
-                returnValueName += '_';
-                break;
-            }
-        }
+        string returnValueName = getEscapedParamName(outParams, "returnValue");
         out << ("iceP_" + returnValueName);
     }
     for (const auto& param : outParams)

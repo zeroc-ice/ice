@@ -17,20 +17,6 @@ using namespace IceInternal;
 
 namespace
 {
-    string getEscapedParamName(const OperationPtr& p, const string& name)
-    {
-        ParameterList params = p->parameters();
-
-        for (const auto& param : params)
-        {
-            if (param->mappedName() == name)
-            {
-                return name + "_";
-            }
-        }
-        return name;
-    }
-
     const char* const tripleQuotes = R"(""")";
 
     string typeToDocstring(const TypePtr& type, bool optional)
@@ -592,7 +578,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
             }
         }
 
-        const string currentParamName = getEscapedParamName(operation, "current");
+        const string currentParamName = getEscapedParamName(operation->parameters(), "current");
         _out << ", " << currentParamName;
         _out << "):";
         _out.inc();
@@ -868,7 +854,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << ", " << inParamsDecl;
         }
-        const string contextParamName = getEscapedParamName(operation, "context");
+        const string contextParamName = getEscapedParamName(operation->parameters(), "context");
         _out << ", " << contextParamName << "=None):";
         _out.inc();
         writeDocstring(operation, DocSync);
@@ -2199,14 +2185,14 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
         if (mode == DocSync || mode == DocAsync)
         {
-            const string contextParamName = getEscapedParamName(op, "context");
+            const string contextParamName = getEscapedParamName(op->parameters(), "context");
             _out << nl << contextParamName << " : dict[str, str]";
             _out << nl << "    The request context for the invocation.";
         }
 
         if (mode == DocDispatch)
         {
-            const string currentParamName = getEscapedParamName(op, "current");
+            const string currentParamName = getEscapedParamName(op->parameters(), "current");
             _out << nl << currentParamName << " : Ice.Current";
             _out << nl << "    The Current object for the dispatch.";
         }
