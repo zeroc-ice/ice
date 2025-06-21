@@ -521,15 +521,11 @@ namespace
     }
 
     // The main doc-comment for a class, struct, exception, enum, enumerator, and const.
-    void writeDocSummary(IceInternal::Output& out, const ContainedPtr& p, bool startWithNewLine = false)
+    // Per MATLAB conventions, it's the first comment inside the class.
+    void writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
     {
         const string name = p->mappedScoped(".");
-
-        if (startWithNewLine)
-        {
-            out << nl;
-        }
-        out << "% " << name;
+        out << nl << "% " << name;
 
         optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter);
         StringList docOverview;
@@ -693,9 +689,7 @@ namespace
     void writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p)
     {
         const string name = p->mappedScoped(".") + "Prx";
-
-        // No leading newline.
-        out << "% " << name;
+        out << nl << "% " << name;
 
         optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter);
         StringList docOverview;
@@ -714,6 +708,11 @@ namespace
                 writeDocLines(out, docOverview, 2); // indent with 2 spaces
             }
         }
+
+        // We document the inherited constructor here because:
+        // - documenting the inherited constructor (Ice.ObjectPrx/ObjectPrx) inside Methods is rather confusing, and
+        // - we don't want to generate a constructor for documentation purposes because it would introduce a lot of
+        //   complexity with multiple inheritance.
 
         out << nl << "%";
         out << nl << "% Creation";
@@ -1133,11 +1132,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     IceInternal::Output out;
     openClass(p->mappedScoped("."), _dir, out);
 
-    writeDocSummary(out, p);
-    writeGeneratedFrom(out, p->file());
-
-    out << nl << "classdef ";
-    out << name;
+    out << "classdef " << name;
     if (base)
     {
         out << " < " << base->mappedScoped(".");
@@ -1146,7 +1141,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << " < Ice.Value";
     }
+
     out.inc();
+    writeDocSummary(out, p);
+    writeGeneratedFrom(out, p->file());
 
     if (!members.empty())
     {
@@ -1388,10 +1386,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     IceInternal::Output out;
     openClass(prxAbs, _dir, out);
 
-    writeProxyDocSummary(out, p);
-    writeGeneratedFrom(out, p->file());
-
-    out << nl << "classdef " << prxName << " < ";
+    out << "classdef " << prxName << " < ";
     if (!bases.empty())
     {
         for (auto q = bases.begin(); q != bases.end(); ++q)
@@ -1409,6 +1404,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     out.inc();
+    writeProxyDocSummary(out, p);
+    writeGeneratedFrom(out, p->file());
 
     out << nl << "methods";
     out.inc();
@@ -1813,13 +1810,10 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     IceInternal::Output out;
     openClass(abs, _dir, out);
 
-    writeDocSummary(out, p);
-    writeGeneratedFrom(out, p->file());
-
     const ExceptionPtr base = p->base();
     const DataMemberList members = p->dataMembers();
 
-    out << nl << "classdef " << name;
+    out << "classdef " << name;
     if (base)
     {
         out << " < " << base->mappedScoped(".");
@@ -1828,7 +1822,10 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         out << " < Ice.UserException";
     }
+
     out.inc();
+    writeDocSummary(out, p);
+    writeGeneratedFrom(out, p->file());
 
     if (!members.empty())
     {
@@ -2002,15 +1999,15 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     IceInternal::Output out;
     openClass(abs, _dir, out);
 
-    writeDocSummary(out, p);
-    writeGeneratedFrom(out, p->file());
-
     const DataMemberList members = p->dataMembers();
     const DataMemberList classMembers = p->classDataMembers();
 
-    out << nl << "classdef (Sealed) " << name;
+    out << "classdef (Sealed) " << name;
 
     out.inc();
+    writeDocSummary(out, p);
+    writeGeneratedFrom(out, p->file());
+
     out << nl << "properties";
     out.inc();
     vector<string> memberNames;
@@ -2660,10 +2657,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     IceInternal::Output out;
     openClass(abs, _dir, out);
 
-    writeDocSummary(out, p);
-    writeGeneratedFrom(out, p->file());
-
-    out << nl << "classdef " << p->mappedName();
+    out << "classdef " << p->mappedName();
     if (p->maxValue() <= 255)
     {
         out << " < uint8";
@@ -2674,6 +2668,9 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     }
 
     out.inc();
+    writeDocSummary(out, p);
+    writeGeneratedFrom(out, p->file());
+
     out << nl << "enumeration";
     out.inc();
     for (const auto& enumerator : enumerators)
@@ -2683,7 +2680,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
             out << nl; // blank line between enumerators
         }
 
-        writeDocSummary(out, enumerator, true); // start with newline if there is any doc-comment.
+        writeDocSummary(out, enumerator);
         out << nl << enumerator->mappedName() << " (" << enumerator->value() << ")";
     }
     out.dec();
@@ -2773,12 +2770,11 @@ CodeVisitor::visitConst(const ConstPtr& p)
     IceInternal::Output out;
     openClass(p->mappedScoped("."), _dir, out);
 
+    out << "classdef " << p->mappedName();
+    out.inc();
     writeDocSummary(out, p);
     writeGeneratedFrom(out, p->file());
 
-    out << nl << "classdef " << p->mappedName();
-
-    out.inc();
     out << nl << "properties(Constant)";
     out.inc();
     out << nl << "value " << typeToString(p->type()) << " = " << constantValue(p->type(), p->valueType(), p->value());
