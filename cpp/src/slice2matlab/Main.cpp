@@ -46,7 +46,7 @@ namespace
             file = file.substr(pos + 1);
         }
         out << nl << "%";
-        out << nl << "% Generated from " << file << " by slice2matlab version " << ICE_STRING_VERSION;
+        out << nl << "%   Generated from " << file << " by slice2matlab version " << ICE_STRING_VERSION;
         out << sp;
     }
 
@@ -404,7 +404,7 @@ namespace
         // All references must be on one line.
         //
         out << nl << "%";
-        out << nl << "% See also ";
+        out << nl << "%   See also ";
         for (auto p = seeAlso.begin(); p != seeAlso.end(); ++p)
         {
             if (p != seeAlso.begin())
@@ -454,7 +454,7 @@ namespace
         if (doc && doc->isDeprecated())
         {
             out << nl << "%";
-            out << nl << "% Deprecated";
+            out << nl << "%   Deprecated";
             StringList docDeprecated = doc->deprecated();
             if (!docDeprecated.empty())
             {
@@ -462,14 +462,14 @@ namespace
                 docDeprecated.pop_front();
                 if (!docDeprecated.empty())
                 {
-                    writeDocLines(out, docDeprecated, 2);
+                    writeDocLines(out, docDeprecated, 4);
                 }
             }
         }
         else if (p->isDeprecated())
         {
             out << nl << "%";
-            out << nl << "% Deprecated";
+            out << nl << "%   Deprecated";
             optional<string> deprecationReason = p->getDeprecationReason();
             if (deprecationReason)
             {
@@ -481,12 +481,12 @@ namespace
     void writeConstructorDoc(IceInternal::Output& out, const string& name, const DataMemberList& fields)
     {
         out << nl << "%";
-        out << nl << "% Creation";
-        out << nl << "%   Syntax";
-        out << nl << "%     obj = " << name << "()";
+        out << nl << "%   Creation";
+        out << nl << "%     Syntax";
+        out << nl << "%       obj = " << name << "()";
         if (!fields.empty())
         {
-            out << nl << "%     obj = " << name << spar;
+            out << nl << "%       obj = " << name << spar;
             for (const auto& field : fields)
             {
                 out << field->mappedName();
@@ -494,7 +494,7 @@ namespace
             out << epar;
 
             out << nl << "%";
-            out << nl << "%   The input arguments correspond to the properties, in order.";
+            out << nl << "%     The input arguments correspond to the properties, in order.";
         }
     }
 
@@ -504,10 +504,10 @@ namespace
         if (!list.empty())
         {
             out << nl << "%";
-            out << nl << "% " << name << " Properties:";
+            out << nl << "%   " << name << " Properties:";
             for (const auto& field : list)
             {
-                out << nl << "%   " << field->mappedName();
+                out << nl << "%     " << field->mappedName();
                 if (auto fieldDoc = DocComment::parseFrom(field, matlabLinkFormatter))
                 {
                     const StringList& fieldOverview = fieldDoc->overview();
@@ -524,8 +524,9 @@ namespace
     // Per MATLAB conventions, it's the first comment inside the class.
     void writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
     {
-        const string name = p->mappedScoped(".");
-        out << nl << "% " << name;
+        const string name = p->mappedName();
+        // No space and upper-case, per MATLAB conventions.
+        out << nl << "%" << toUpper(name);
 
         optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter);
         StringList docOverview;
@@ -536,7 +537,7 @@ namespace
         if (!docOverview.empty())
         {
             // Use the first line as the summary.
-            out << " - " << docOverview.front();
+            out << " " << docOverview.front();
             docOverview.pop_front();
 
             if (!docOverview.empty())
@@ -551,12 +552,12 @@ namespace
         }
         else if (StructPtr st = dynamic_pointer_cast<Struct>(p))
         {
-            writeConstructorDoc(out, name, st->dataMembers());
+            writeConstructorDoc(out, p->mappedScoped("."), st->dataMembers());
             writePropertiesSummary(out, name, st->dataMembers());
         }
         else if (ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p))
         {
-            writeConstructorDoc(out, name, cl->dataMembers());
+            writeConstructorDoc(out, p->mappedScoped("."), cl->dataMembers());
             writePropertiesSummary(out, name, cl->dataMembers());
         }
         else if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
@@ -570,7 +571,7 @@ namespace
 
     void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async)
     {
-        out << nl << "% " << p->mappedName() << (async ? "Async" : "");
+        out << nl << "%" << toUpper(p->mappedName() + (async ? "Async" : ""));
 
         optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter);
         if (doc)
@@ -578,7 +579,7 @@ namespace
             StringList docOverview = doc->overview();
             if (!docOverview.empty())
             {
-                out << " - ";
+                out << " ";
                 // TODO: it would be much better to extract and print the first sentence, however, this is currently no
                 // helper to remove this first sentence.
                 out << docOverview.front();
@@ -590,7 +591,7 @@ namespace
         writeDeprecated(out, doc, p);
 
         out << nl << "%";
-        out << nl << "% Input Arguments";
+        out << nl << "%   Input Arguments";
         const ParameterList inParams = p->inParameters();
         const ParameterList outParams = p->outParameters();
 
@@ -610,24 +611,24 @@ namespace
             }
             documentArgument(out, inParam, inParam->mappedName(), docLines);
         }
-        out << nl << "%   " << contextParam << " - The request context.";
-        out << nl << "%     unconfigured dictionary (default) | dictionary(string, string) scalar";
+        out << nl << "%     " << contextParam << " - The request context.";
+        out << nl << "%       unconfigured dictionary (default) | dictionary(string, string) scalar";
 
         if (async)
         {
             out << nl << "%";
-            out << nl << "% Output Arguments";
-            out << nl << "%   future"
+            out << nl << "%   Output Arguments";
+            out << nl << "%     future"
                 << " - A future that will be completed with the result of the invocation. See " << p->mappedName()
                 << ".";
-            out << nl << "%     Ice.Future scalar";
+            out << nl << "%       Ice.Future scalar";
         }
         else
         {
             if (p->returnsAnyValues())
             {
                 out << nl << "%";
-                out << nl << "% Output Arguments";
+                out << nl << "%   Output Arguments";
 
                 // returnValueName was checked and escaped against the _mapped_ parameter names.
                 ParameterPtr returnParam = p->returnParameter(returnValueName);
@@ -659,10 +660,10 @@ namespace
             if (!exceptions.empty())
             {
                 out << nl << "%";
-                out << nl << "% Exceptions";
+                out << nl << "%   Exceptions";
                 for (const auto& exception : exceptions)
                 {
-                    out << nl << "%   " << exception->mappedScoped(".");
+                    out << nl << "%     " << exception->mappedScoped(".");
                     if (doc)
                     {
                         StringList docLines;
@@ -675,7 +676,7 @@ namespace
                         {
                             out << " - " << docLines.front();
                             docLines.pop_front();
-                            writeDocLines(out, docLines, 4);
+                            writeDocLines(out, docLines, 6);
                         }
                     }
                 }
@@ -688,8 +689,8 @@ namespace
 
     void writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p)
     {
-        const string name = p->mappedScoped(".") + "Prx";
-        out << nl << "% " << name;
+        const string name = p->mappedName() + "Prx";
+        out << nl << "%" << toUpper(name);
 
         optional<DocComment> doc = DocComment::parseFrom(p, matlabLinkFormatter);
         StringList docOverview;
@@ -700,7 +701,7 @@ namespace
         if (!docOverview.empty())
         {
             // Use the first line as the summary.
-            out << " - " << docOverview.front();
+            out << " " << docOverview.front();
             docOverview.pop_front();
 
             if (!docOverview.empty())
@@ -715,17 +716,17 @@ namespace
         //   complexity with multiple inheritance.
 
         out << nl << "%";
-        out << nl << "% Creation";
-        out << nl << "%   Syntax";
-        out << nl << "%     prx = " << name << "(communicator, proxyString)";
+        out << nl << "%   Creation";
+        out << nl << "%     Syntax";
+        out << nl << "%       prx = " << p->mappedScoped(".") << "Prx(communicator, proxyString)";
         out << nl << "%";
-        out << nl << "%   Input Arguments";
-        out << nl << "%     communicator - The associated communicator.";
-        out << nl << "%       Ice.Communicator scalar";
-        out << nl << "%     proxyString - A stringified proxy, such as 'name:tcp -p localhost -p 4061'.";
-        out << nl << "%       character vector";
+        out << nl << "%     Input Arguments";
+        out << nl << "%       communicator - The associated communicator.";
+        out << nl << "%         Ice.Communicator scalar";
+        out << nl << "%       proxyString - A stringified proxy, such as 'name:tcp -p localhost -p 4061'.";
+        out << nl << "%         character vector";
         out << nl << "%";
-        out << nl << "% " << name << " Methods:";
+        out << nl << "%   " << name << " Methods:";
         const OperationList ops = p->operations();
         if (!ops.empty())
         {
@@ -733,7 +734,7 @@ namespace
             {
                 const string opName = op->mappedName();
                 const optional<DocComment> opdoc = DocComment::parseFrom(op, matlabLinkFormatter);
-                out << nl << "%   " << opName;
+                out << nl << "%     " << opName;
                 if (opdoc)
                 {
                     const StringList& opdocOverview = opdoc->overview();
@@ -742,15 +743,16 @@ namespace
                         out << " - " << getFirstSentence(opdocOverview);
                     }
                 }
-                out << nl << "%   " << opName << "Async - An asynchronous " << opName << ".";
+                out << nl << "%     " << opName << "Async - An asynchronous " << opName << ".";
             }
         }
         out << nl << "%";
-        out << nl << "% " << name << " Static Methods:";
+        out << nl << "%   " << name << " Static Methods:";
         out << nl
-            << "%   checkedCast - Contacts the remote server to check if the target object implements Slice interface "
+            << "%     checkedCast - Contacts the remote server to check if the target object implements Slice "
+               "interface "
             << p->scoped() << ".";
-        out << nl << "%   uncheckedCast - Creates a " << name << " from another proxy without any validation.";
+        out << nl << "%     uncheckedCast - Creates a " << name << " from another proxy without any validation.";
 
         writeSeeAlso(out, doc, p->container());
         writeDeprecated(out, doc, p);
@@ -848,17 +850,19 @@ namespace
         bool mustBeScalarOrEmpty = false;
         if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
-            if (builtin->kind() == Builtin::KindString)
+            switch (builtin->kind())
             {
-                out << " (1, :)";
-            }
-            else if (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)
-            {
-                mustBeScalarOrEmpty = true;
-            }
-            else
-            {
-                out << " (1, 1)";
+                case Builtin::KindString:
+                    out << " (1, :)";
+                    break;
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindValue:
+                    mustBeScalarOrEmpty = true;
+                    break;
+                default:
+                    out << " (1, 1)";
+                    break;
             }
         }
         else if (
@@ -921,36 +925,55 @@ namespace
         const TypePtr& type,
         bool optional,
         StringList docLines,
-        size_t indentation)
+        bool itemInList)
     {
         auto typeStr = typeToString(type);
+        int indentation = 0;
 
-        out << nl << "% " << string(indentation, ' ') << name;
+        if (itemInList)
+        {
+            indentation = 4;
+            out << nl << "% " << string(indentation, ' ') << name;
+        }
+        else
+        {
+            out << nl << "% " << toUpper(name);
+        }
+
         if (!docLines.empty())
         {
-            out << " - ";
+            if (itemInList)
+            {
+                out << " - ";
+            }
+            else
+            {
+                out << " ";
+            }
             // TODO: it would be much better to extract and print the first sentence, however, this is currently no
             // helper to remove this first sentence.
             out << docLines.front();
             docLines.pop_front();
-            writeDocLines(out, docLines, indentation);
+            writeDocLines(out, docLines, indentation + 2);
         }
         // Always put type description on next line.
         out << nl << "% " << string(indentation + 2, ' ');
 
         if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
-            if (builtin->kind() == Builtin::KindString)
+            switch (builtin->kind())
             {
-                out << "character vector";
-            }
-            else if (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)
-            {
-                out << typeStr << " scalar | " << typeStr << " empty array";
-            }
-            else
-            {
-                out << typeStr << " scalar";
+                case Builtin::KindString:
+                    out << "character vector";
+                    break;
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindValue:
+                    out << typeStr << " scalar | " << typeStr << " empty array";
+                    break;
+                default:
+                    out << typeStr << " scalar";
+                    break;
             }
         }
         else if (dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Struct>(type))
@@ -1011,7 +1034,7 @@ namespace
 
     void documentArgument(IceInternal::Output& out, const ParameterPtr& param, const string& name, StringList docLines)
     {
-        documentArgumentOrProperty(out, name, param->type(), param->optional(), std::move(docLines), 2);
+        documentArgumentOrProperty(out, name, param->type(), param->optional(), std::move(docLines), true);
     }
 
     void documentProperty(IceInternal::Output& out, const DataMemberPtr& field)
@@ -1019,11 +1042,11 @@ namespace
         optional<DocComment> doc = DocComment::parseFrom(field, matlabLinkFormatter);
         documentArgumentOrProperty(
             out,
-            field->mappedScoped("."),
+            toUpper(field->mappedName()),
             field->type(),
             field->optional(),
             doc ? doc->overview() : StringList{},
-            0);
+            false);
 
         writeSeeAlso(out, doc, field->container());
         writeDeprecated(out, doc, field);
@@ -1407,283 +1430,294 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     writeProxyDocSummary(out, p);
     writeGeneratedFrom(out, p->file());
 
-    out << nl << "methods";
-    out.inc();
-
     //
     // Operations.
     //
     bool hasExceptions = false;
     const OperationList ops = p->operations();
-    for (const auto& op : ops)
+    if (!ops.empty())
     {
-        const ParameterList inParams = op->inParameters();
-        const ParameterList sortedInParams = op->sortedInParameters();
-        const ParameterList outParams = op->outParameters();
-        const string returnValueName = getEscapedParamName(outParams, "returnValue");
-        const bool returnsMultipleValues = op->returnsMultipleValues();
-        const bool returnsAnyValues = op->returnsAnyValues();
+        out << nl << "methods";
+        out.inc();
 
-        ParameterList returnAndOutParameters = op->outParameters();
-        ParameterPtr returnParam = op->returnParameter(returnValueName);
-        if (returnParam)
+        for (const auto& op : ops)
         {
-            returnAndOutParameters.push_front(returnParam);
-        }
+            const ParameterList inParams = op->inParameters();
+            const ParameterList sortedInParams = op->sortedInParameters();
+            const ParameterList outParams = op->outParameters();
+            const string returnValueName = getEscapedParamName(outParams, "returnValue");
+            const bool returnsMultipleValues = op->returnsMultipleValues();
+            const bool returnsAnyValues = op->returnsAnyValues();
 
-        const bool twowayOnly = op->returnsData();
-        const ExceptionList exceptions = op->throws();
+            ParameterList returnAndOutParameters = op->outParameters();
+            ParameterPtr returnParam = op->returnParameter(returnValueName);
+            if (returnParam)
+            {
+                returnAndOutParameters.push_front(returnParam);
+            }
 
-        if (!exceptions.empty())
-        {
-            hasExceptions = true;
-        }
+            const bool twowayOnly = op->returnsData();
+            const ExceptionList exceptions = op->throws();
 
-        const string self = getEscapedParamName(inParams, "obj");
-        const string contextParam = getEscapedParamName(inParams, "context");
+            if (!exceptions.empty())
+            {
+                hasExceptions = true;
+            }
 
-        //
-        // Synchronous method.
-        //
-        out << nl << "function ";
-        if (returnsMultipleValues)
-        {
-            out.spar("[");
-            for (const auto& param : returnAndOutParameters)
+            const string self = getEscapedParamName(inParams, "obj");
+            const string contextParam = getEscapedParamName(inParams, "context");
+
+            if (!isFirstElement(op))
+            {
+                out << sp;
+            }
+
+            //
+            // Synchronous method.
+            //
+            out << nl << "function ";
+            if (returnsMultipleValues)
+            {
+                out.spar("[");
+                for (const auto& param : returnAndOutParameters)
+                {
+                    out << param->mappedName();
+                }
+                out.epar("]");
+                out << " = ";
+            }
+            else if (returnsAnyValues)
+            {
+                out << (*returnAndOutParameters.begin())->mappedName() << " = ";
+            }
+            out << op->mappedName() << spar;
+
+            out << self;
+            for (const auto& param : inParams)
             {
                 out << param->mappedName();
             }
-            out.epar("]");
-            out << " = ";
-        }
-        else if (returnsAnyValues)
-        {
-            out << (*returnAndOutParameters.begin())->mappedName() << " = ";
-        }
-        out << op->mappedName() << spar;
-
-        out << self;
-        for (const auto& param : inParams)
-        {
-            out << param->mappedName();
-        }
-        out << contextParam;
-        out << epar;
-        out.inc();
-
-        writeOpDocSummary(out, op, false);
-        writeArguments(out, self, prxAbs, inParams, contextParam);
-
-        if (!inParams.empty())
-        {
-            if (op->format())
-            {
-                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(*op->format()) << ");";
-            }
-            else
-            {
-                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
-            }
-            for (const auto& param : sortedInParams)
-            {
-                marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
-            }
-            if (op->sendsClasses())
-            {
-                out << nl << "os_.writePendingValues();";
-            }
-            out << nl << self << ".iceEndWriteParams(os_);";
-        }
-
-        out << nl;
-        if (returnsAnyValues)
-        {
-            out << "is_ = ";
-        }
-        out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->mode()) << ", "
-            << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
-            << (returnsAnyValues ? "true" : "false");
-        if (exceptions.empty())
-        {
-            out << ", {}";
-        }
-        else
-        {
-            out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
-        }
-        out << ", " << contextParam << ");";
-
-        if (twowayOnly && returnsAnyValues)
-        {
-            out << nl << "is_.startEncapsulation();";
-            //
-            // To unmarshal results:
-            //
-            // * unmarshal all required out parameters
-            // * unmarshal the required return value (if any)
-            // * unmarshal all optional out parameters (this includes an optional return value)
-            //
-            ParameterList classParams;
-            ParameterList convertParams;
-            for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
-            {
-                const TypePtr paramType = param->type();
-                const string paramName = param->mappedName();
-                string paramString;
-
-                if (paramType->isClassType())
-                {
-                    out << nl << paramName << "_h_ = IceInternal.ValueHolder();";
-                    paramString = "@(v) " + paramName + "_h_.set(v)";
-                    classParams.push_back(param);
-                }
-                else
-                {
-                    paramString = paramName;
-                }
-                unmarshal(out, "is_", paramString, paramType, param->optional(), param->tag());
-
-                if (needsConversion(paramType))
-                {
-                    convertParams.push_back(param);
-                }
-            }
-            if (op->returnsClasses())
-            {
-                out << nl << "is_.readPendingValues();";
-            }
-            out << nl << "is_.endEncapsulation();";
-
-            // After calling readPendingValues(), all callback functions have been invoked.
-            // Now we need to collect the values.
-            for (const auto& param : classParams)
-            {
-                const string paramName = param->mappedName();
-                out << nl << paramName << " = " << paramName << "_h_.value;";
-            }
-            for (const auto& param : convertParams)
-            {
-                const string paramName = param->mappedName();
-                convertValueType(out, paramName, paramName, param->type(), param->optional());
-            }
-        }
-
-        out.dec();
-        out << nl << "end";
-
-        //
-        // Asynchronous method.
-        //
-        out << nl << "function future = " << op->mappedName() << "Async" << spar;
-        out << self;
-        for (const auto& param : inParams)
-        {
-            out << param->mappedName();
-        }
-        out << contextParam;
-        out << epar;
-        out.inc();
-
-        writeOpDocSummary(out, op, true);
-        writeArguments(out, self, prxAbs, inParams, contextParam);
-
-        if (!inParams.empty())
-        {
-            if (op->format())
-            {
-                out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(*op->format()) << ");";
-            }
-            else
-            {
-                out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
-            }
-            for (const auto& param : sortedInParams)
-            {
-                marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
-            }
-            if (op->sendsClasses())
-            {
-                out << nl << "os_.writePendingValues();";
-            }
-            out << nl << self << ".iceEndWriteParams(os_);";
-        }
-
-        if (twowayOnly && returnsAnyValues)
-        {
-            out << nl << "function varargout = unmarshal(is_)";
+            out << contextParam;
+            out << epar;
             out.inc();
-            out << nl << "is_.startEncapsulation();";
-            //
-            // To unmarshal results:
-            //
-            // * unmarshal all required out parameters
-            // * unmarshal the required return value (if any)
-            // * unmarshal all optional out parameters (this includes an optional return value)
-            //
-            for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
+
+            writeOpDocSummary(out, op, false);
+            writeArguments(out, self, prxAbs, inParams, contextParam);
+
+            if (!inParams.empty())
             {
-                const TypePtr paramType = param->type();
-                const string paramName = param->mappedName();
-                string paramString;
-                if (paramType->isClassType())
+                if (op->format())
                 {
-                    out << nl << paramName << " = IceInternal.ValueHolder();";
-                    paramString = "@(v) " + paramName + ".set(v)";
+                    out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(*op->format()) << ");";
                 }
                 else
                 {
-                    paramString = paramName;
+                    out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
                 }
-                unmarshal(out, "is_", paramString, paramType, param->optional(), param->tag());
-            }
-            if (op->returnsClasses())
-            {
-                out << nl << "is_.readPendingValues();";
-            }
-            out << nl << "is_.endEncapsulation();";
-            int i = 1;
-            for (const auto& param : returnAndOutParameters)
-            {
-                const string paramName = param->mappedName();
-                if (param->type()->isClassType())
+                for (const auto& param : sortedInParams)
                 {
-                    out << nl << "varargout{" << i << "} = " << paramName << ".value;";
+                    marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
                 }
-                else if (needsConversion(param->type()))
+                if (op->sendsClasses())
                 {
-                    ostringstream dest;
-                    dest << "varargout{" << i << "}";
-                    convertValueType(out, dest.str(), paramName, param->type(), param->optional());
+                    out << nl << "os_.writePendingValues();";
+                }
+                out << nl << self << ".iceEndWriteParams(os_);";
+            }
+
+            out << nl;
+            if (returnsAnyValues)
+            {
+                out << "is_ = ";
+            }
+            out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->mode()) << ", "
+                << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
+                << (returnsAnyValues ? "true" : "false");
+            if (exceptions.empty())
+            {
+                out << ", {}";
+            }
+            else
+            {
+                out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
+            }
+            out << ", " << contextParam << ");";
+
+            if (twowayOnly && returnsAnyValues)
+            {
+                out << nl << "is_.startEncapsulation();";
+                //
+                // To unmarshal results:
+                //
+                // * unmarshal all required out parameters
+                // * unmarshal the required return value (if any)
+                // * unmarshal all optional out parameters (this includes an optional return value)
+                //
+                ParameterList classParams;
+                ParameterList convertParams;
+                for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
+                {
+                    const TypePtr paramType = param->type();
+                    const string paramName = param->mappedName();
+                    string paramString;
+
+                    if (paramType->isClassType())
+                    {
+                        out << nl << paramName << "_h_ = IceInternal.ValueHolder();";
+                        paramString = "@(v) " + paramName + "_h_.set(v)";
+                        classParams.push_back(param);
+                    }
+                    else
+                    {
+                        paramString = paramName;
+                    }
+                    unmarshal(out, "is_", paramString, paramType, param->optional(), param->tag());
+
+                    if (needsConversion(paramType))
+                    {
+                        convertParams.push_back(param);
+                    }
+                }
+                if (op->returnsClasses())
+                {
+                    out << nl << "is_.readPendingValues();";
+                }
+                out << nl << "is_.endEncapsulation();";
+
+                // After calling readPendingValues(), all callback functions have been invoked.
+                // Now we need to collect the values.
+                for (const auto& param : classParams)
+                {
+                    const string paramName = param->mappedName();
+                    out << nl << paramName << " = " << paramName << "_h_.value;";
+                }
+                for (const auto& param : convertParams)
+                {
+                    const string paramName = param->mappedName();
+                    convertValueType(out, paramName, paramName, param->type(), param->optional());
+                }
+            }
+
+            out.dec();
+            out << nl << "end";
+
+            //
+            // Asynchronous method.
+            //
+            out << sp;
+            out << nl << "function future = " << op->mappedName() << "Async" << spar;
+            out << self;
+            for (const auto& param : inParams)
+            {
+                out << param->mappedName();
+            }
+            out << contextParam;
+            out << epar;
+            out.inc();
+
+            writeOpDocSummary(out, op, true);
+            writeArguments(out, self, prxAbs, inParams, contextParam);
+
+            if (!inParams.empty())
+            {
+                if (op->format())
+                {
+                    out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(*op->format()) << ");";
                 }
                 else
                 {
-                    out << nl << "varargout{" << i << "} = " << paramName << ';';
+                    out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
                 }
-                i++;
+                for (const auto& param : sortedInParams)
+                {
+                    marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
+                }
+                if (op->sendsClasses())
+                {
+                    out << nl << "os_.writePendingValues();";
+                }
+                out << nl << self << ".iceEndWriteParams(os_);";
             }
+
+            if (twowayOnly && returnsAnyValues)
+            {
+                out << nl << "function varargout = unmarshal(is_)";
+                out.inc();
+                out << nl << "is_.startEncapsulation();";
+                //
+                // To unmarshal results:
+                //
+                // * unmarshal all required out parameters
+                // * unmarshal the required return value (if any)
+                // * unmarshal all optional out parameters (this includes an optional return value)
+                //
+                for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
+                {
+                    const TypePtr paramType = param->type();
+                    const string paramName = param->mappedName();
+                    string paramString;
+                    if (paramType->isClassType())
+                    {
+                        out << nl << paramName << " = IceInternal.ValueHolder();";
+                        paramString = "@(v) " + paramName + ".set(v)";
+                    }
+                    else
+                    {
+                        paramString = paramName;
+                    }
+                    unmarshal(out, "is_", paramString, paramType, param->optional(), param->tag());
+                }
+                if (op->returnsClasses())
+                {
+                    out << nl << "is_.readPendingValues();";
+                }
+                out << nl << "is_.endEncapsulation();";
+                int i = 1;
+                for (const auto& param : returnAndOutParameters)
+                {
+                    const string paramName = param->mappedName();
+                    if (param->type()->isClassType())
+                    {
+                        out << nl << "varargout{" << i << "} = " << paramName << ".value;";
+                    }
+                    else if (needsConversion(param->type()))
+                    {
+                        ostringstream dest;
+                        dest << "varargout{" << i << "}";
+                        convertValueType(out, dest.str(), paramName, param->type(), param->optional());
+                    }
+                    else
+                    {
+                        out << nl << "varargout{" << i << "} = " << paramName << ';';
+                    }
+                    i++;
+                }
+                out.dec();
+                out << nl << "end";
+            }
+
+            out << nl << "future = " << self << ".iceInvokeAsync('" << op->name() << "', "
+                << getOperationMode(op->mode()) << ", " << (twowayOnly ? "true" : "false") << ", "
+                << (inParams.empty() ? "[]" : "os_") << ", " << returnAndOutParameters.size() << ", "
+                << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
+            if (exceptions.empty())
+            {
+                out << ", {}";
+            }
+            else
+            {
+                out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
+            }
+            out << ", " << contextParam << ");";
+
             out.dec();
             out << nl << "end";
         }
 
-        out << nl << "future = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
-            << ", " << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
-            << returnAndOutParameters.size() << ", " << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
-        if (exceptions.empty())
-        {
-            out << ", {}";
-        }
-        else
-        {
-            out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
-        }
-        out << ", " << contextParam << ");";
-
         out.dec();
         out << nl << "end";
+        out << sp;
     }
-
-    out.dec();
-    out << nl << "end";
 
     out << nl << "methods(Static)";
     out.inc();
@@ -1692,27 +1726,30 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "id = '" << p->scoped() << "';";
     out.dec();
     out << nl << "end";
+    out << sp;
     out << nl << "function r = ice_read(is)";
     out.inc();
     out << nl << "r = is.readProxy('" << prxAbs << "');";
     out.dec();
     out << nl << "end";
+    out << sp;
     out << nl << "function r = checkedCast(p, varargin)";
     out.inc();
-    out << nl << "% checkedCast   Contacts the remote server to check if the target object implements Slice interface "
+    out << nl << "%CHECKEDCAST Contacts the remote server to check if the target object implements Slice interface "
         << p->scoped() << ".";
     out << nl << "%";
-    out << nl << "% Input Arguments";
-    out << nl << "%   p - The proxy to check.";
-    out << nl << "%     Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx";
-    out << nl << "%   facet - The desired facet (optional).";
-    out << nl << "%     character vector";
-    out << nl << "%   context - The request context (optional).";
-    out << nl << "%     dictionary(string, string) scalar";
+    out << nl << "%   Input Arguments";
+    out << nl << "%     p - The proxy to check.";
+    out << nl << "%       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx";
+    out << nl << "%     facet - The desired facet (optional).";
+    out << nl << "%       character vector";
+    out << nl << "%     context - The request context (optional).";
+    out << nl << "%       dictionary(string, string) scalar";
     out << nl << "%";
-    out << nl << "% Output Arguments";
-    out << nl << "%   r - A " << prxAbs << " scalar if the target object implements Slice interface ";
-    out << nl << "%     " << p->scoped() << "; otherwise, an empty array of " << prxAbs << ".";
+    out << nl << "%   Output Arguments";
+    out << nl << "%     r - A " << prxAbs << " scalar if the target object implements Slice interface ";
+    out << nl << "%       " << p->scoped() << "; otherwise, an empty array of " << prxAbs << ".";
+    out << nl << "%";
     out << nl << "arguments";
     out.inc();
     out << nl << "p Ice.ObjectPrx {mustBeScalarOrEmpty}";
@@ -1727,18 +1764,20 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         << "', varargin{:});";
     out.dec();
     out << nl << "end";
+    out << sp;
     out << nl << "function r = uncheckedCast(p, varargin)";
     out.inc();
-    out << nl << "% uncheckedCast   Creates a " << prxAbs << " from another proxy without any validation.";
+    out << nl << "%UNCHECKEDCAST Creates a " << prxAbs << " from another proxy without any validation.";
     out << nl << "%";
-    out << nl << "% Input Arguments";
-    out << nl << "%   p - The source proxy.";
-    out << nl << "%     Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx";
-    out << nl << "%   facet - The desired facet (optional).";
-    out << nl << "%     character vector";
+    out << nl << "%   Input Arguments";
+    out << nl << "%     p - The source proxy.";
+    out << nl << "%       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx";
+    out << nl << "%     facet - The desired facet (optional).";
+    out << nl << "%       character vector";
     out << nl << "%";
-    out << nl << "% Output Arguments";
-    out << nl << "%   r - A new " << prxAbs << " scalar, or an empty array when p is an empty array.";
+    out << nl << "%   Output Arguments";
+    out << nl << "%     r - A new " << prxAbs << " scalar, or an empty array when p is an empty array.";
+    out << nl << "%";
     out << nl << "arguments";
     out.inc();
     out << nl << "p Ice.ObjectPrx {mustBeScalarOrEmpty}";
@@ -1763,6 +1802,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Generate a constant property for each operation that throws user exceptions. The property is
         // a cell array containing the class names of the exceptions.
         //
+        out << sp;
         out << nl << "properties(Constant,Access=private)";
         out.inc();
         for (const auto& op : ops)
