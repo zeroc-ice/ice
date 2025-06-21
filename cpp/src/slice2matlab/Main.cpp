@@ -536,7 +536,7 @@ namespace
         if (!docOverview.empty())
         {
             // Use the first line as the summary.
-            out << " - " << docOverview.front();
+            out << " " << docOverview.front();
             docOverview.pop_front();
 
             if (!docOverview.empty())
@@ -578,10 +578,9 @@ namespace
             StringList docOverview = doc->overview();
             if (!docOverview.empty())
             {
-                out << " - ";
                 // TODO: it would be much better to extract and print the first sentence, however, this is currently no
                 // helper to remove this first sentence.
-                out << docOverview.front();
+                out << " " << docOverview.front();
                 docOverview.pop_front();
                 writeDocLines(out, docOverview, 2); // indent with 2 spaces
             }
@@ -700,7 +699,7 @@ namespace
         if (!docOverview.empty())
         {
             // Use the first line as the summary.
-            out << " - " << docOverview.front();
+            out << " " << docOverview.front();
             docOverview.pop_front();
 
             if (!docOverview.empty())
