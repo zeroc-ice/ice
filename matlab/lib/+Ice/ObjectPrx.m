@@ -151,46 +151,53 @@ classdef ObjectPrx < IceInternal.WrapperObject
             r = obj.iceInvokeAsync('ice_ping', 2, false, [], 0, [], {}, context);
         end
 
-        function r = ice_isA(obj, id, ctx)
-            % ice_isA - Tests whether this object supports a specific
-            %   Slice interface.
+        function r = ice_isA(obj, id, context)
+            %ICE_ISA Tests whether this object supports a specific Slice interface.
             %
-            % Parameters:
-            %   id - The type ID of the Slice interface to test against.
-            %   context - Optional context map for the invocation.
+            %   Input Arguments
+            %     id - The type ID of the Slice interface to test against.
+            %       character vector
+            %     context - The request context.
+            %       unconfigured dictionary (default) | dictionary(string, string) scalar
             %
-            % Returns (logical) - True if the target object has the interface
-            %   specified by id or derives from the interface specified by id.
+            %   Output Arguments
+            %     r - True if the target object implements the Slice interface specified by id or implements a
+            %       derived interface, false otherwise.
+            %       logical scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
                 id (1, :) char
-                ctx (1, 1) dictionary = dictionary
+                context (1, 1) dictionary = dictionary
             end
             os = obj.iceStartWriteParams([]);
             os.writeString(id);
             obj.iceEndWriteParams(os);
-            is = obj.iceInvoke('ice_isA', 2, true, os, true, {}, ctx);
+            is = obj.iceInvoke('ice_isA', 2, true, os, true, {}, context);
             is.startEncapsulation();
             r = is.readBool();
             is.endEncapsulation();
         end
 
-        function r = ice_isAAsync(obj, id, ctx)
-            % ice_isAAsync - Tests whether this object supports a specific
-            %   Slice interface.
+        function r = ice_isAAsync(obj, id, context)
+            %ICE_ISAASYNC Tests whether this object supports a specific Slice interface.
             %
-            % Parameters:
-            %   id - The type ID of the Slice interface to test against.
-            %   context - Optional context map for the invocation.
+            %   Input Arguments
+            %     id - The type ID of the Slice interface to test against.
+            %       character vector
+            %     context - The request context.
+            %       unconfigured dictionary (default) | dictionary(string, string) scalar
             %
-            % Returns (Ice.Future) - A future that will be completed when the
-            %   invocation completes.
+            %   Output Arguments
+            %     r - A future that will be completed with the result of the invocation.
+            %       Ice.Future scalar
+            %
+            %   See also ice_isA, Ice.Future.
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
                 id (1, :) char
-                ctx (1, 1) dictionary = dictionary
+                context (1, 1) dictionary = dictionary
             end
             os = obj.iceStartWriteParams([]);
             os.writeString(id);
@@ -200,96 +207,109 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 varargout{1} = is.readBool();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_isA', 2, true, os, 1, @unmarshal, {}, ctx);
+            r = obj.iceInvokeAsync('ice_isA', 2, true, os, 1, @unmarshal, {}, context);
         end
 
-        function r = ice_id(obj, ctx)
-            % ice_id - Returns the Slice type ID of the most-derived interface
-            %   supported by the target object of this proxy.
+        function r = ice_id(obj, context)
+            %ICE_ID Returns the Slice type ID of the most-derived interface supported by the target object of this
+            %   proxy.
             %
-            % Parameters:
-            %   context - Optional context map for the invocation.
+            %   Input Arguments
+            %     context - The request context.
+            %       unconfigured dictionary (default) | dictionary(string, string) scalar
             %
-            % Returns (char) - The Slice type ID of the most-derived interface.
+            %   Output Arguments
+            %     r - The Slice type ID of the most-derived interface.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
-                ctx (1, 1) dictionary = dictionary
+                context (1, 1) dictionary = dictionary
             end
-            is = obj.iceInvoke('ice_id', 2, true, [], true, {}, ctx);
+            is = obj.iceInvoke('ice_id', 2, true, [], true, {}, context);
             is.startEncapsulation();
             r = is.readString();
             is.endEncapsulation();
         end
 
-        function r = ice_idAsync(obj, ctx)
-            % ice_idAsync - Returns the Slice type ID of the most-derived
-            %   interface supported by the target object of this proxy.
+        function r = ice_idAsync(obj, context)
+            %ICE_IDASYNC Returns the Slice type ID of the most-derived interface supported by the target object of this
+            %   proxy.
             %
-            % Parameters:
-            %   context - Optional context map for the invocation.
+            %   Input Arguments
+            %     context - The request context.
+            %       unconfigured dictionary (default) | dictionary(string, string) scalar
             %
-            % Returns (Ice.Future) - A future that will be completed when the
-            %   invocation completes.
+            %   Output Arguments
+            %     r - A future that will be completed with the result of the invocation.
+            %       Ice.Future scalar
+            %
+            %   See also ice_id, Ice.Future.
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
-                ctx (1, 1) dictionary = dictionary
+                context (1, 1) dictionary = dictionary
             end
             function varargout = unmarshal(is)
                 is.startEncapsulation();
                 varargout{1} = is.readString();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_id', 2, true, [], 1, @unmarshal, {}, ctx);
+            r = obj.iceInvokeAsync('ice_id', 2, true, [], 1, @unmarshal, {}, context);
         end
 
-        function r = ice_ids(obj, ctx)
-            % ice_ids - Returns the Slice type IDs of the interfaces supported
-            %   by the target object of this proxy.
+        function r = ice_ids(obj, context)
+            %ICE_IDS Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
             %
-            % Parameters:
-            %   context - Optional context map for the invocation.
+            %   Input Arguments
+            %     context - The request context.
+            %       unconfigured dictionary (default) | dictionary(string, string) scalar
             %
-            % Returns (string array) - The Slice type IDs of the
-            %   interfaces supported by the target object, in alphabetical order.
+            %   Output Arguments
+            %     r - The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
+            %       string array
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
-                ctx (1, 1) dictionary = dictionary
+                context (1, 1) dictionary = dictionary
             end
-            is = obj.iceInvoke('ice_ids', 2, true, [], true, {}, ctx);
+            is = obj.iceInvoke('ice_ids', 2, true, [], true, {}, context);
             is.startEncapsulation();
             r = is.readStringSeq();
             is.endEncapsulation();
         end
 
-        function r = ice_idsAsync(obj, ctx)
-            % ice_idsAsync - Returns the Slice type IDs of the interfaces
-            %   supported by the target object of this proxy.
+        function r = ice_idsAsync(obj, context)
+            %ICE_IDSASYNC Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
             %
-            % Parameters:
-            %   context - Optional context map for the invocation.
+            %   Input Arguments
+            %     context - The request context.
+            %       unconfigured dictionary (default) | dictionary(string, string) scalar
             %
-            % Returns (Ice.Future) - A future that will be completed when the
-            %   invocation completes.
+            %   Output Arguments
+            %     r - A future that will be completed with the result of the invocation.
+            %       Ice.Future scalar
+            %
+            %   See also ice_ids, Ice.Future.
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
-                ctx (1, 1) dictionary = dictionary
+                context (1, 1) dictionary = dictionary
             end
             function varargout = unmarshal(is)
                 is.startEncapsulation();
                 varargout{1} = is.readStringSeq();
                 is.endEncapsulation();
             end
-            r = obj.iceInvokeAsync('ice_ids', 2, true, [], 1, @unmarshal, {}, ctx);
+            r = obj.iceInvokeAsync('ice_ids', 2, true, [], 1, @unmarshal, {}, context);
         end
 
         function r = ice_getIdentity(obj)
-            % ice_getIdentity - Returns the identity embedded in this proxy.
+            %ICE_GETIDENTITY Returns the identity embedded in this proxy.
             %
-            % Returns (Ice.Identity) - The identity of the target object.
+            %   Output Arguments
+            %     r - The identity of the target object.
+            %       Ice.Identity scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -298,13 +318,15 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_identity(obj, id)
-            % ice_identity - Returns a proxy that is identical to this proxy,
-            %   except for the identity.
+            %ICE_IDENTITY Returns a proxy that is identical to this proxy, except for the identity.
             %
-            % Parameters:
-            %   id (Ice.Identity) - The identity for the new proxy.
+            %   Input Arguments
+            %     id - The identity for the new proxy.
+            %       Ice.Identity scalar
             %
-            % Returns (Ice.ObjectPrx) - The proxy with the new identity.
+            %   Output Arguments
+            %     r - The proxy with the new identity.
+            %       Ice.ObjectPrx scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -314,11 +336,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getContext(obj)
-            % ice_getContext - Returns the per-proxy context for this proxy.
+            %ICE_GETCONTEXT Returns the per-proxy context for this proxy.
             %
-            % Returns (dictionary) - The per-proxy context. If the proxy
-            % does not have a per-proxy (implicit) context, the return value
-            % is an empty array.
+            %   Output Arguments
+            %     r - The per-proxy context.
+            %       dictionary(string, string) scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -326,27 +348,30 @@ classdef ObjectPrx < IceInternal.WrapperObject
             r = obj.iceCallWithResult('ice_getContext');
         end
 
-        function r = ice_context(obj, ctx)
-            % ice_context - Returns a proxy that is identical to this proxy,
-            %   except for the per-proxy context.
+        function r = ice_context(obj, context)
+            %ICE_CONTEXT Returns a proxy that is identical to this proxy, except for the per-proxy context.
             %
-            % Parameters:
-            %   ctx (dictionary) - The context for the new proxy.
+            %   Input Arguments
+            %     context - The context for the new proxy.
+            %       dictionary(string, string) scalar
             %
-            % Returns - The proxy with the new per-proxy context.
+            %   Output Arguments
+            %     r - The proxy with the new per-proxy context.
+            %       proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
-                ctx (1, 1) dictionary {Ice.mustBeStringStringDictionary}
+                context (1, 1) dictionary {Ice.mustBeStringStringDictionary}
             end
-            r = obj.factory_('ice_context', true, ctx);
+            r = obj.factory_('ice_context', true, context);
         end
 
         function r = ice_getFacet(obj)
-            % ice_getFacet - Returns the facet for this proxy.
+            %ICE_GETFACET Returns the facet for this proxy.
             %
-            % Returns (char) - The facet for this proxy. If the proxy uses the
-            %   default facet, the return value is the empty string.
+            %   Output Arguments
+            %     r - The facet for this proxy.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -355,13 +380,15 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_facet(obj, f)
-            % ice_facet - Returns a proxy that is identical to this proxy,
-            %   except for the facet.
+            %ICE_FACET Returns a proxy that is identical to this proxy, except for the facet.
             %
-            % Parameters:
-            %   f (char) - The facet for the new proxy.
+            %   Input Arguments
+            %     f - The facet for the new proxy.
+            %       character vector
             %
-            % Returns (Ice.ObjectPrx) - The proxy with the new facet.
+            %   Output Arguments
+            %     r - The proxy with the new facet.
+            %       Ice.ObjectPrx scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -371,10 +398,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getAdapterId(obj)
-            % ice_getAdapter - Returns the adapter ID for this proxy.
+            %ICE_GETADAPTERID Returns the adapter ID for this proxy.
             %
-            % Returns (char) - The adapter ID. If the proxy does not have an
-            %   adapter ID, the return value is the empty string.
+            %   Output Arguments
+            %     r - The adapter ID. If the proxy does not have an adapter ID, r is the empty string.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -383,13 +411,15 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_adapterId(obj, id)
-            % ice_adapterId - Returns a proxy that is identical to this proxy,
-            %   except for the adapter ID.
+            %ICE_ADAPTERID Returns a proxy that is identical to this proxy, except for the adapter ID.
             %
-            % Parameters:
-            %   id (char) - The adapter ID for the new proxy.
+            %   Input Arguments
+            %     id - The adapter ID for the new proxy.
+            %       character vector
             %
-            % Returns - The proxy with the new adapter ID.
+            %   Output Arguments
+            %     r - The proxy with the new adapter ID.
+            %        proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -399,10 +429,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getEndpoints(obj)
-            % ice_getEndpoints - Returns the endpoints used by this proxy.
+            %ICE_GETENDPOINTS Returns the endpoints used by this proxy.
             %
-            % Returns (cell array of Ice.Endpoint) - The endpoints used by
-            %   this proxy.
+            %   Output Arguments
+            %     r - The endpoints used by this proxy.
+            %       cell array of Ice.Endpoint
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -418,22 +449,23 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_endpoints(obj, endpoints)
-            % ice_endpoints - Returns a proxy that is identical to this proxy, except for the endpoints.
+            %ICE_ENDPOINTS Returns a proxy that is identical to this proxy, except for the endpoints.
             %
-            % Parameters:
-            %   endpoints (cell array of Ice.Endpoint) - The endpoints for the new proxy.
+            %   Input Arguments
+            %     endpoints - The endpoints for the new proxy.
+            %       cell array of Ice.Endpoint
             %
-            % Returns - The proxy with the new endpoints.
-
-            %
-            % It's not clear how we can pass a vector of void* to a C function. So we create a temporary C vector
-            % and populate it one element at a time.
-            %
+            %   Output Arguments
+            %     r - The proxy with the new endpoints.
+            %        proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
                 endpoints (1, :) cell
             end
+
+            % It's not clear how we can pass a vector of void* to a C function. So we create a temporary C vector
+            % and populate it one element at a time.
             for i = 1:length(endpoints)
                 if ~isa(endpoints{i}, 'Ice.Endpoint')
                    error('Ice:ArgumentException', 'Expected an Ice.Endpoint');
@@ -448,10 +480,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getLocatorCacheTimeout(obj)
-            % ice_getLocatorCacheTimeout - Returns the locator cache timeout
-            %   of this proxy.
+            %ICE_GETLOCATORCACHETIMEOUT Returns the locator cache timeout of this proxy.
             %
-            % Returns (int32) - The locator cache timeout value (in seconds).
+            %   Output Arguments
+            %     r - The locator cache timeout value (in seconds).
+            %       int32 scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -460,13 +493,16 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_locatorCacheTimeout(obj, t)
-            % ice_locatorCacheTimeout - Returns a proxy that is identical to
-            %   this proxy, except for the locator cache timeout.
+            %ICE_LOCATORCACHETIMEOUT Returns a proxy that is identical to this proxy, except for the locator cache
+            %   timeout.
             %
-            % Parameters:
-            %   t (int32) - The new locator cache timeout (in seconds).
+            %   Input Arguments
+            %     t - The new locator cache timeout (in seconds).
+            %       int32 scalar
             %
-            % Returns - The proxy with the new timeout.
+            %   Output Arguments
+            %     r - The proxy with the new timeout.
+            %       proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -476,10 +512,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getInvocationTimeout(obj)
-            % ice_getInvocationTimeout - Returns the invocation timeout of
-            %   this proxy.
+            %ICE_GETINVOCATIONTIMEOUT Returns the invocation timeout of this proxy.
             %
-            % Returns (int32) - The invocation timeout value (in seconds).
+            %   Output Arguments
+            %     r - The invocation timeout value (in seconds).
+            %       int32 scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -488,13 +525,15 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_invocationTimeout(obj, t)
-            % ice_invocationTimeout - Returns a proxy that is identical to
-            %   this proxy, except for the invocation timeout.
+            %ICE_INVOCATIONTIMEOUT Returns a proxy that is identical to this proxy, except for the invocation timeout.
             %
-            % Parameters:
-            %   t (int32) - The new invocation timeout (in seconds).
+            %   Input Arguments
+            %     t - The new invocation timeout (in seconds).
+            %       int32 scalar
             %
-            % Returns - The proxy with the new timeout.
+            %   Output Arguments
+            %     r - The proxy with the new timeout.
+            %       proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -504,9 +543,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getConnectionId(obj)
-            % ice_getConnectionId - Returns the connection id of this proxy.
+            %ICE_GETCONNECTIONID Returns the connection ID of this proxy.
             %
-            % Returns (char) - The connection id.
+            %   Output Arguments
+            %      r - The connection ID.
+            %        character vector
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -515,14 +556,15 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_connectionId(obj, id)
-            % ice_connectionId - Returns a proxy that is identical to this
-            %   proxy, except for its connection ID.
+            %ICE_CONNECTIONID Returns a proxy that is identical to this proxy, except for its connection ID.
             %
-            % Parameters:
-            %   id (char) - The connection ID for the new proxy. An empty
-            %   string removes the connection ID.
+            %   Input Arguments
+            %      id - The connection ID for the new proxy. An empty string removes the connection ID.
+            %        character vector
             %
-            % Returns - A proxy with the specified connection ID.
+            %   Output Arguments
+            %      r - A proxy with the specified connection ID.
+            %        proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -532,11 +574,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isConnectionCached(obj)
-            % ice_isConnectionCached - Returns whether this proxy caches
-            %   connections.
+            %ICE_ISCONNECTIONCACHED Returns whether this proxy caches connections.
             %
-            % Returns (logical) - True if this proxy caches connections;
-            %   false otherwise.
+            %   Output Arguments
+            %      r - True if this proxy caches connections; false otherwise.
+            %        logical scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -545,14 +587,15 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_connectionCached(obj, b)
-            % ice_connectionCached - Returns a proxy that is identical to this
-            %   proxy, except for connection caching.
+            %ICE_CONNECTIONCACHED Returns a proxy that is identical to this proxy, except for connection caching.
             %
-            % Parameters:
-            %   b (logical) - True if the new proxy should cache connections;
-            %     false otherwise.
+            %   Input Arguments
+            %      b - True if the new proxy should cache connections; false otherwise.
+            %        logical scalar
             %
-            % Returns - The proxy with the specified caching policy.
+            %   Output Arguments
+            %      r - The proxy with the specified caching policy.
+            %        proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -567,11 +610,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getEndpointSelection(obj)
-            % ice_getEndpointSelection - Returns how this proxy selects
-            %   endpoints (randomly or ordered).
+            %ICE_GETENDPOINTSELECTION Returns how this proxy selects endpoints (randomly or ordered).
             %
-            % Returns (Ice.EndpointSelectionType) - The endpoint selection
-            %   policy.
+            %   Output Arguments
+            %      r - The endpoint selection policy.
+            %        Ice.EndpointSelectionType scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -580,13 +623,16 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_endpointSelection(obj, t)
-            % ice_endpointSelection - Returns a proxy that is identical to
-            %   this proxy, except for the endpoint selection policy.
+            %ICE_ENDPOINTSELECTION Returns a proxy that is identical to this proxy, except for the endpoint
+            %   selection policy.
             %
-            % Parameters:
-            %   t (Ice.EndpointSelectionType) - The new endpoint selection policy.
+            %   Input Arguments
+            %      t - The new endpoint selection policy.
+            %        Ice.EndpointSelectionType scalar
             %
-            % Returns - The proxy with the specified endpoint selection policy.
+            %   Output Arguments
+            %      r - The proxy with the specified endpoint selection policy.
+            %        proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -596,10 +642,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getEncodingVersion(obj)
-            % ice_getEncodingVersion - Returns the encoding version used to
-            %   marshal requests parameters.
+            %ICE_GETENCODINGVERSION Returns the encoding version used to marshal requests parameters.
             %
-            % Returns (Ice.EncodingVersion) - The encoding version.
+            %   Output Arguments
+            %      r - The encoding version.
+            %        Ice.EncodingVersion scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -608,14 +655,16 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_encodingVersion(obj, ver)
-            % ice_encodingVersion - Returns a proxy that is identical to this
-            %   proxy, except for the encoding used to marshal parameters.
+            %ICE_ENCODINGVERSION Returns a proxy that is identical to this proxy, except for the encoding used to
+            %   marshal parameters.
             %
-            % Parameters:
-            %   ver (Ice.EncodingVersion) - The encoding version to use to
-            %   marshal request parameters.
+            %   Input Arguments
+            %      ver - The encoding version to use to marshal request parameters.
+            %        Ice.EncodingVersion scalar
             %
-            % Returns - The proxy with the specified encoding version.
+            %   Output Arguments
+            %      r - The proxy with the specified encoding version.
+            %        proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -626,11 +675,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getRouter(obj)
-            % ice_getRouter - Returns the router for this proxy.
+            %ICE_GETROUTER Returns the router for this proxy.
             %
-            % Returns (Ice.RouterPrx) - The router for the proxy. If no router
-            %   is configured for the proxy, the return value is an empty
-            %   array.
+            %   Output Arguments
+            %      r - The router for the proxy.
+            %        Ice.RouterPrx scalar | Ice.RouterPrx empty array
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -645,13 +694,15 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_router(obj, rtr)
-            % ice_router - Returns a proxy that is identical to this proxy,
-            %   except for the router.
+            %ICE_ROUTER Returns a proxy that is identical to this proxy, except for the router.
             %
-            % Parameters:
-            %   rtr (Ice.RouterPrx) - The router for the new proxy.
+            %   Input Arguments
+            %      rtr - The router for the new proxy.
+            %        Ice.RouterPrx scalar | Ice.RouterPrx empty array
             %
-            % Returns - The proxy with the specified router.
+            %   Output Arguments
+            %      r - The proxy with the specified router.
+            %        proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -666,11 +717,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getLocator(obj)
-            % ice_getLocator - Returns the locator for this proxy.
+            %ICE_GETLOCATOR Returns the locator for this proxy.
             %
-            % Returns (Ice.LocatorPrx) - The locator for the proxy. If no
-            %   locator is configured for the proxy, the return value is
-            %   an empty array.
+            %   Output Arguments
+            %      r - The locator for the proxy.
+            %        Ice.LocatorPrx scalar | Ice.LocatorPrx empty array
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -685,13 +736,15 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_locator(obj, loc)
-            % ice_locator - Returns a proxy that is identical to this proxy,
-            %   except for the locator.
+            %ICE_LOCATOR Returns a proxy that is identical to this proxy, except for the locator.
             %
-            % Parameters:
-            %   loc (Ice.LocatorPrx) - The locator for the new proxy.
+            %   Input Arguments
+            %      loc - The locator for the new proxy.
+            %        Ice.LocatorPrx scalar | Ice.LocatorPrx empty array
             %
-            % Returns - The proxy with the specified locator.
+            %   Output Arguments
+            %      r - The proxy with the specified locator.
+            %        proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -706,11 +759,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isSecure(obj)
-            % ice_isSecure - Returns whether this proxy uses only secure
-            %   endpoints.
+            %ICE_ISSECURE Returns whether this proxy uses only secure endpoints.
             %
-            % Returns (logical) - True if this proxy communicates only via
-            %   secure endpoints; false otherwise.
+            %   Output Arguments
+            %      r - True if this proxy communicates only via secure endpoints; false otherwise.
+            %        logical scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -719,15 +772,16 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_secure(obj, b)
-            % ice_secure - Returns a proxy that is identical to this proxy,
-            %   except for how it selects endpoints.
+            %ICE_SECURE Returns a proxy that is identical to this proxy, except for how it selects endpoints.
             %
-            % Parameters:
-            %   b (logical) - If b is true, only endpoints that use a secure
-            %     transport are used by the new proxy. If b is false, the
-            %     returned proxy uses both secure and insecure endpoints.
+            %   Input Arguments
+            %      b - If b is true, only endpoints that use a secure transport are used by the new proxy. If b is
+            %        false, the returned proxy uses both secure and insecure endpoints.
+            %        logical scalar
             %
-            % Returns - The proxy with the specified selection policy.
+            %   Output Arguments
+            %      r - The proxy with the specified selection policy.
+            %        proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -742,12 +796,12 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isPreferSecure(obj)
-            % ice_isPreferSecure - Returns whether this proxy prefers secure
-            %   endpoints.
+            %ICE_ISPREFERSECURE Returns whether this proxy prefers secure endpoints.
             %
-            % Returns (logical) - True if the proxy always attempts to invoke
-            %   via secure endpoints before it attempts to use insecure
-            %   endpoints; false otherwise.
+            %   Output Arguments
+            %      r - True if the proxy always attempts to invoke via secure endpoints before it attempts to use
+            %        insecure endpoints; false otherwise.
+            %        logical scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -756,17 +810,19 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_preferSecure(obj, b)
-            % ice_preferSecure - Returns a proxy that is identical to this
-            %   proxy, except for its endpoint selection policy.
+            %ICE_PREFERSECURE Returns a proxy that is identical to this proxy, except for its endpoint selection
+            %   policy.
             %
-            % Parameters:
-            %   b (logical) - If b is true, the new proxy will use secure
-            %     endpoints for invocations and only use insecure endpoints
-            %     if an invocation cannot be made via secure endpoints.
-            %     If b is false, the proxy prefers insecure endpoints to
-            %     secure ones.
+            %   Input Arguments
+            %      b - If b is true, the new proxy will use secure endpoints for invocations and only use insecure
+            %        endpoints if an invocation cannot be made via secure endpoints. If b is false, the proxy prefers
+            %        insecure endpoints to secure ones.
+            %        logical scalar
+
             %
-            % Returns - The proxy with the specified selection policy.
+            %   Output Arguments
+            %      r - The proxy with the specified selection policy.
+            %        proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -781,10 +837,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isTwoway(obj)
-            % ice_isTwoway - Returns whether this proxy uses twoway invocations.
+            %ICE_ISTWOWAY Returns whether this proxy uses twoway invocations.
             %
-            % Returns (logical) - True if this proxy uses twoway invocations;
-            %   false otherwise.
+            %   Output Arguments
+            %     r - True if this proxy uses twoway invocations; false otherwise.
+            %       logical scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -793,10 +850,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_twoway(obj)
-            % ice_twoway - Returns a proxy that is identical to this proxy,
-            %   but uses twoway invocations.
+            %ICE_TWOWAY Returns a proxy that is identical to this proxy, but uses twoway invocations.
             %
-            % Returns - A proxy that uses twoway invocations.
+            %   Output Arguments
+            %     r - A proxy that uses twoway invocations.
+            %       proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -805,10 +863,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isOneway(obj)
-            % ice_isOneway - Returns whether this proxy uses oneway invocations.
+            %ICE_ISONEWAY Returns whether this proxy uses oneway invocations.
             %
-            % Returns (logical) - True if this proxy uses oneway invocations;
-            %   false otherwise.
+            %   Output Arguments
+            %     r - True if this proxy uses oneway invocations; false otherwise.
+            %       logical scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -817,10 +876,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_oneway(obj)
-            % ice_oneway - Returns a proxy that is identical to this proxy,
-            %   but uses oneway invocations.
+            %ICE_ONEWAY Returns a proxy that is identical to this proxy, but uses oneway invocations.
             %
-            % Returns - A proxy that uses oneway invocations.
+            %   Output Arguments
+            %     r - A proxy that uses oneway invocations.
+            %       proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -829,20 +889,24 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isBatchOneway(obj)
-            % ice_isBatchOneway - Returns whether this proxy uses batch oneway
-            %   invocations.
+            %ICE_ISBATCHONEWAY Returns whether this proxy uses batch oneway invocations.
             %
-            % Returns (logical) - True if this proxy uses batch oneway
-            %   invocations; false otherwise.
+            %   Output Arguments
+            %     r - True if this proxy uses batch oneway invocations; false otherwise.
+            %       logical scalar
 
+            arguments
+                obj (1, 1) Ice.ObjectPrx
+            end
             r = obj.iceCallWithResult('ice_isBatchOneway');
         end
 
         function r = ice_batchOneway(obj)
-            % ice_batchOneway - Returns a proxy that is identical to this
-            %   proxy, but uses batch oneway invocations.
+            %ICE_BATCHONEWAY Returns a proxy that is identical to this proxy, but uses batch oneway invocations.
             %
-            % Returns - A new proxy that uses batch oneway invocations.
+            %   Output Arguments
+            %     r - A new proxy that uses batch oneway invocations.
+            %       proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -851,11 +915,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isDatagram(obj)
-            % ice_isDatagram - Returns whether this proxy uses datagram
-            %   invocations.
+            %ICE_ISDATAGRAM Returns whether this proxy uses datagram invocations.
             %
-            % Returns (logical) - True if this proxy uses datagram invocations;
-            %   false otherwise.
+            %   Output Arguments
+            %     r - True if this proxy uses datagram invocations; false otherwise.
+            %       logical scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -864,10 +928,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_datagram(obj)
-            % ice_datagram - Returns a proxy that is identical to this proxy,
-            %   but uses datagram invocations.
+            %ICE_DATAGRAM Returns a proxy that is identical to this proxy, but uses datagram invocations.
             %
-            % Returns - A new proxy that uses datagram invocations.
+            %   Output Arguments
+            %     r - A new proxy that uses datagram invocations.
+            %       proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -876,11 +941,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isBatchDatagram(obj)
-            % ice_isBatchDatagram - Returns whether this proxy uses batch
-            %   datagram invocations.
+            %ICE_ISBATCHDATAGRAM Returns whether this proxy uses batch datagram invocations.
             %
-            % Returns (logical) - True if this proxy uses batch datagram
-            %   invocations; false otherwise.
+            %   Output Arguments
+            %     r - True if this proxy uses batch datagram invocations; false otherwise.
+            %       logical scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -889,10 +954,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_batchDatagram(obj)
-            % ice_batchDatagram - Returns a proxy that is identical to this
-            %   proxy, but uses batch datagram invocations.
+            %ICE_BATCHDATAGRAM Returns a proxy that is identical to this proxy, but uses batch datagram invocations.
             %
-            % Returns - A new proxy that uses batch datagram invocations.
+            %   Output Arguments
+            %     r - A new proxy that uses batch datagram invocations.
+            %       proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -901,14 +967,15 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_compress(obj, b)
-            % ice_compress - Returns a proxy that is identical to this proxy,
-            %   except for compression.
+            %ICE_COMPRESS Returns a proxy that is identical to this proxy, except for compression.
             %
-            % Parameters:
-            %   b (logical) - True enables compression for the new proxy;
-            %     false disables compression.
+            %   Input Arguments
+            %     b - True enables compression for the new proxy; false disables compression.
+            %       logical scalar
             %
-            % Returns - A proxy with the specified compression override setting.
+            %   Output Arguments
+            %     r - A proxy with the specified compression override setting.
+            %       proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -923,11 +990,12 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getCompress(obj)
-            % ice_getCompress - Obtains the compression override setting of this proxy.
+            %ICE_GETCOMPRESS Obtains the compression override setting of this proxy.
             %
-            % Returns (optional bool) - The compression override setting. If Ice.Unset
-            %   is returned, no override is set. Otherwise, true if compression is
-            %   enabled, false otherwise.
+            %   Output Arguments
+            %     r - The compression override setting. If Ice.Unset is returned, no override is set. Otherwise,
+            %       true if compression is enabled, false otherwise.
+            %       logical scalar | Ice.Unset scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -941,13 +1009,16 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_fixed(obj, connection)
-            % ice_fixed - Obtains a proxy that is identical to this proxy, except it's
-            %   a fixed proxy bound to the given connection.
+            %ICE_FIXED Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound to the
+            %   given connection.
             %
-            % Parameters:
-            %   connection (Ice.Connection) - The fixed proxy connection.
+            %   Input Arguments
+            %     connection - The fixed proxy connection.
+            %       Ice.Connection scalar
             %
-            % Returns (Ice.ObjectPrx) - A fixed proxy bound to the given connection.
+            %   Output Arguments
+            %     r - A fixed proxy bound to the given connection.
+            %       proxy scalar with the same type as obj
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -957,9 +1028,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_isFixed(obj)
-            % ice_isFixed - Determines whether this proxy is a fixed proxy.
+            %ICE_ISFIXED Determines whether this proxy is a fixed proxy.
             %
-            % Returns (logical) - True if this proxy is a fixed proxy, false otherwise.
+            %   Output Arguments
+            %     r - True if this proxy is a fixed proxy, false otherwise.
+            %       logical scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -968,11 +1041,12 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getConnection(obj)
-            % ice_getConnection - Returns the Connection for this proxy. If the
-            %   proxy does not yet have an established connection, it first
-            %   attempts to create a connection.
+            %ICE_GETCONNECTION Returns the Connection for this proxy. If the proxy does not yet have an
+            %   established connection, it first attempts to create a connection.
             %
-            % Returns (Ice.Connection) - The Connection for this proxy.
+            %   Output Arguments
+            %     r - The Connection for this proxy.
+            %       Ice.Connection scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -987,12 +1061,12 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getConnectionAsync(obj)
-            % ice_getConnectionAsync - Returns the Connection for this proxy.
-            %   If the proxy does not yet have an established connection, it
-            %   first attempts to create a connection.
+            %ICE_GETCONNECTIONASYNC Returns the Connection for this proxy.
+            %   If the proxy does not yet have an established connection, it first attempts to create a connection.
             %
-            % Returns (Ice.Future) - A future that will be completed when the
-            %   invocation completes.
+            %   Output Arguments
+            %     r - A future that will be completed when the invocation completes.
+            %       Ice.Future scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -1010,13 +1084,13 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_getCachedConnection(obj)
-            % ice_getCachedConnection - Returns the cached Connection for this
-            %   proxy. If the proxy does not yet have an established
-            %   connection, it does not attempt to create a connection.
+            %ICE_GETCACHEDCONNECTION Returns the cached Connection for this proxy.
+            %   If the proxy does not yet have an established connection, it does not attempt to create a connection.
             %
-            % Returns (Ice.Connection) - The cached Connection for this proxy,
-            %   or an empty array if the proxy does not have an established
-            %   connection.
+            %   Output Arguments
+            %     r - The cached Connection for this proxy, or an empty array if the proxy does not have a cached
+            %       connection.
+            %       Ice.Connection scalar | Ice.Connection empty array
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -1031,8 +1105,8 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function ice_flushBatchRequests(obj)
-            % ice_flushBatchRequests - Flushes any pending batched requests for
-            %   this communicator. The call blocks until the flush is complete.
+            %ICE_FLUSHBATCHREQUESTS Flushes any pending batched requests for this communicator.
+            %   The call blocks until the flush is complete.
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -1041,11 +1115,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = ice_flushBatchRequestsAsync(obj)
-            % ice_flushBatchRequestsAsync - Flushes asynchronously any pending batched
-            %   requests for this communicator.
+            %ICE_FLUSHBATCHREQUESTSASYNC Flushes asynchronously any pending batched requests for this communicator.
             %
-            % Returns (Ice.Future) - A future that will be completed when the
-            %   invocation completes.
+            %   Output Arguments
+            %     r - A future that will be completed when the invocation completes.
+            %       Ice.Future scalar
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -1184,7 +1258,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             end
         end
 
-        function iceThrowUserException(~, is, varargin) % Varargs are user exception type names
+        function iceThrowUserException(~, is, varargin) % varargs are user exception type names
             try
                 is.startEncapsulation();
                 is.throwException();
@@ -1211,15 +1285,21 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = checkedCast(p, varargin)
-            % checkedCast   Contacts the remote server to verify that the object implements this type.
+            %CHECKEDCAST Contacts the remote server to check if the target object implements the pseudo-Slice interface
+            %   Ice::Object.
             %
-            % Parameters:
-            %   p - The proxy to be check.
-            %   facet - The desired facet (optional).
-            %   context - The request context (optional).
+            %   Input Arguments
+            %     p - The proxy to check.
+            %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
+            %     facet - The desired facet (optional).
+            %       character vector
+            %     context - The request context (optional).
+            %       dictionary(string, string) scalar
             %
-            % Returns (Ice.InitialPrx) - A proxy for this type, or an empty array if the object does not support this
-            %  type.
+            %   Output Arguments
+            %     r - An Ice.ObjectPrx scalar if the target object implements Slice interface
+            %       ::Ice::Object; otherwise, an empty array of Ice.ObjectPrx.
+            %
             arguments
                 p Ice.ObjectPrx {mustBeScalarOrEmpty}
             end
@@ -1230,13 +1310,17 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = uncheckedCast(p, varargin)
-            % uncheckedCast   Downcasts the given proxy to this type without contacting the remote server.
+            %UNCHECKEDCAST Creates an Ice.ObjectPrx from another proxy without any validation.
             %
-            % Parameters:
-            %   p - The proxy to be cast.
-            %   facet - The desired facet (optional).
+            %   Input Arguments
+            %     p - The source proxy.
+            %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
+            %     facet - The desired facet (optional).
+            %       character vector
             %
-            % Returns (Test.InitialPrx) - A proxy for this type.
+            %   Output Arguments
+            %     r - A new Ice.ObjectPrx scalar, or an empty array when p is an empty array.
+            %
             arguments
                 p Ice.ObjectPrx {mustBeScalarOrEmpty}
             end
