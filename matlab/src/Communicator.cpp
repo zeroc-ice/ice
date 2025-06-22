@@ -22,7 +22,7 @@ extern "C"
     mxArray* Ice_Communicator_destroy(void* self)
     {
         deref<Ice::Communicator>(self)->destroy();
-        return createEmptyArray();;
+        return createEmptyArray();
     }
 
     mxArray* Ice_Communicator_destroyAsync(void* self, void** future)
