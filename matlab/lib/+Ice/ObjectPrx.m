@@ -10,6 +10,69 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %         Ice.Communicator scalar
     %       proxyString - A stringified proxy, such as 'name:tcp -p localhost -p 4061'.
     %         character vector
+    %
+    %   ObjectPrx Methods:
+    %     disp - Displays this proxy as a string.
+    %     eq - Compares this proxy with another ObjectPrx for equality.
+    %     ice_adapterId - Returns a proxy that is identical to this proxy, except for the adapter ID.
+    %     ice_batchDatagram - Returns a proxy that is identical to this proxy, but uses batch datagram invocations.
+    %     ice_batchOneway - Returns a proxy that is identical to this proxy, but uses batch oneway invocations.
+    %     ice_compress - Returns a proxy that is identical to this proxy, except for compression.
+    %     ice_connectionCached - Returns a proxy that is identical to this proxy, except for connection caching.
+    %     ice_connectionId - Returns a proxy that is identical to this proxy, except for its connection ID.
+    %     ice_context - Returns a proxy that is identical to this proxy, except for the per-proxy context.
+    %     ice_datagram - Returns a proxy that is identical to this proxy, but uses datagram invocations.
+    %     ice_encodingVersion - Returns a proxy that is identical to this proxy, except for the encoding used to marshal parameters.
+    %     ice_endpointSelection - Returns a proxy that is identical to this proxy, except for the endpoint selection policy.
+    %     ice_endpoints - Returns a proxy that is identical to this proxy, except for the endpoints.
+    %     ice_facet - Returns a proxy that is identical to this proxy, except for the facet.
+    %     ice_fixed - Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound to the given connection.
+    %     ice_flushBatchRequests - Flushes any pending batched requests for this communicator.
+    %     ice_flushBatchRequestsAsync - An asynchronous ice_flushBatchRequests.
+    %     ice_getAdapterId - Returns the adapter ID for this proxy.
+    %     ice_getCachedConnection - Returns the cached Connection for this proxy.
+    %     ice_getCommunicator - Gets the communicator that created this proxy.
+    %     ice_getCompress - Obtains the compression override setting of this proxy.
+    %     ice_getConnection - Returns the Connection for this proxy.
+    %     ice_getConnectionAsync - An asynchronous ice_getConnection.
+    %     ice_getConnectionId - Returns the connection id of this proxy.
+    %     ice_getContext - Returns the per-proxy context for this proxy.
+    %     ice_getEncodingVersion - Returns the encoding version used to marshal requests parameters.
+    %     ice_getEndpoints - Returns the endpoints used by this proxy.
+    %     ice_getEndpointSelection - Returns how this proxy selects endpoints (randomly or ordered).
+    %     ice_getFacet - Returns the facet for this proxy.
+    %     ice_getIdentity - Returns the identity embedded in this proxy.
+    %     ice_getInvocationTimeout - Returns the invocation timeout of this proxy.
+    %     ice_getLocator - Returns the locator for this proxy.
+    %     ice_getLocatorCacheTimeout - Returns the locator cache timeout of this proxy.
+    %     ice_getRouter - Returns the router for this proxy.
+    %     ice_id - Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+    %     ice_idAsync - An asynchronous ice_id.
+    %     ice_identity - Returns a proxy that is identical to this proxy, except for the identity.
+    %     ice_ids - Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+    %     ice_idsAsync - Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+    %     ice_invocationTimeout - Returns a proxy that is identical to this proxy, except for the invocation timeout.
+    %     ice_isA - Tests whether this object supports a specific Slice interface.
+    %     ice_isAAsync - An asynchronous ice_isA.
+    %     ice_isBatchDatagram - Returns whether this proxy uses batch datagram invocations.
+    %     ice_isBatchOneway - Returns whether this proxy uses batch oneway invocations.
+    %     ice_isConnectionCached - Returns whether this proxy caches connections.
+    %     ice_isDatagram - Returns whether this proxy uses datagram invocations.
+    %     ice_isFixed - Determines whether this proxy is a fixed proxy.
+    %     ice_isOneway - Returns whether this proxy uses oneway invocations.
+    %     ice_isPreferSecure - Returns whether this proxy prefers secure endpoints.
+    %     ice_isSecure - Returns whether this proxy uses only secure endpoints.
+    %     ice_isTwoway - Returns whether this proxy uses twoway invocations.
+    %     ice_locator - Returns a proxy that is identical to this proxy, except for the locator.
+    %     ice_locatorCacheTimeout - Returns a proxy that is identical to this proxy, except for the locator cache timeout.
+    %     ice_oneway - Returns a proxy that is identical to this proxy, but uses oneway invocations.
+    %     ice_ping - Tests whether the target object of this proxy can be reached.
+    %     ice_pingAsync - An asynchronous ice_ping.
+    %     ice_preferSecure - Returns a proxy that is identical to this proxy, except for its endpoint selection policy.
+    %     ice_router - Returns a proxy that is identical to this proxy, except for the router.
+    %     ice_secure - Returns a proxy that is identical to this proxy, except for how it selects endpoints.
+    %     ice_toString - Creates a stringified version of this proxy.
+    %     ice_twoway - Returns a proxy that is identical to this proxy, but uses twoway invocations.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -69,7 +132,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = eq(obj, other)
-            %EQ Compares this proxy with another Ice.ObjectPrx for equality.
+            %EQ Compares this proxy with another ObjectPrx for equality.
             %   See also eq.
             if isempty(other) || ~isa(other, 'Ice.ObjectPrx')
                 r = false;
