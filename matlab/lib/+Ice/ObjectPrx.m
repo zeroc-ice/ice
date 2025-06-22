@@ -15,7 +15,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
     methods
         function obj = ObjectPrx(communicator, proxyString, impl, encoding)
-            % ObjectPrx - Constructs an Ice.ObjectPrx from a communicator and a proxy string.
+            %OBJECTPRX Constructs an Ice.ObjectPrx from a communicator and a proxy string.
             %
             %   Input Arguments
             %     communicator - The associated communicator.
