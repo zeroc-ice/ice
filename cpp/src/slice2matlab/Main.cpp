@@ -618,10 +618,10 @@ namespace
         {
             out << nl << "%";
             out << nl << "%   Output Arguments";
-            out << nl << "%     future"
-                << " - A future that will be completed with the result of the invocation. See " << p->mappedName()
-                << ".";
+            out << nl << "%     future - A future that will be completed with the result of the invocation.";
             out << nl << "%       Ice.Future scalar";
+            out << nl << "%";
+            out << nl << "%   See also " << p->mappedName() << ", Ice.Future.";
         }
         else
         {
