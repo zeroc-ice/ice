@@ -503,6 +503,9 @@ namespace
     {
         if (!list.empty())
         {
+            // We keep the declaration order for this summary; sorting the properties in alphabetical order would be
+            // confusing wrt the primary constructor.
+
             out << nl << "%";
             out << nl << "%   " << name << " Properties:";
             for (const auto& field : list)
@@ -727,9 +730,12 @@ namespace
         out << nl << "%         character vector";
         out << nl << "%";
         out << nl << "%   " << name << " Methods:";
-        const OperationList ops = p->operations();
+        OperationList ops = p->operations();
         if (!ops.empty())
         {
+            // The summary is in alphabetical order.
+            ops.sort([](const OperationPtr& a, const OperationPtr& b) { return a->mappedName() < b->mappedName(); });
+
             for (const auto& op : ops)
             {
                 const string opName = op->mappedName();
