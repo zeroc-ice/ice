@@ -934,7 +934,7 @@ namespace
         bool itemInList)
     {
         auto typeStr = typeToString(type);
-        int indentation = 0;
+        size_t indentation = 0;
 
         if (itemInList)
         {
