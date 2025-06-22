@@ -367,7 +367,6 @@ classdef AllTests
 
             assert(strcmp(communicator.identityToString(base.ice_identity(Ice.stringToIdentity('other')).ice_getIdentity()), 'other'));
 
-
             % Verify that ToStringMode is passed correctly
             %
             % Testing bytes 127 (\x7F) and €
