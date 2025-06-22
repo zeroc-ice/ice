@@ -16,13 +16,13 @@ extern "C"
     mxArray* Ice_Communicator_unref(void* self)
     {
         delete reinterpret_cast<shared_ptr<Ice::Communicator>*>(self);
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_Communicator_destroy(void* self)
     {
         deref<Ice::Communicator>(self)->destroy();
-        return 0;
+        return createEmptyArray();;
     }
 
     mxArray* Ice_Communicator_destroyAsync(void* self, void** future)
@@ -46,7 +46,7 @@ extern "C"
             });
         t.detach();
         *future = new shared_ptr<SimpleFuture>(move(f));
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_Communicator_stringToProxy(void* self, const char* s, void** proxy)
@@ -54,12 +54,12 @@ extern "C"
         try
         {
             *proxy = createProxy(deref<Ice::Communicator>(self)->stringToProxy(s));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Communicator_proxyToString(void* self, void* proxy)
@@ -81,12 +81,12 @@ extern "C"
         try
         {
             *proxy = createProxy(deref<Ice::Communicator>(self)->propertyToProxy(prop));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Communicator_proxyToProperty(void* self, void* proxy, const char* prop)
@@ -124,12 +124,12 @@ extern "C"
         {
             auto p = deref<Ice::Communicator>(self)->getImplicitContext();
             *ctx = createShared<Ice::ImplicitContext>(p);
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Communicator_getProperties(void* self, void** props)
@@ -138,12 +138,12 @@ extern "C"
         {
             auto p = deref<Ice::Communicator>(self)->getProperties();
             *props = new shared_ptr<Ice::Properties>(move(p));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Communicator_getLogger(void* self, void** logger)
@@ -152,12 +152,12 @@ extern "C"
         {
             auto l = deref<Ice::Communicator>(self)->getLogger();
             *logger = createShared<Ice::Logger>(l);
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Communicator_getDefaultRouter(void* self, void** proxy)
@@ -165,12 +165,12 @@ extern "C"
         try
         {
             *proxy = createProxy(deref<Ice::Communicator>(self)->getDefaultRouter());
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Communicator_setDefaultRouter(void* self, void* proxy)
@@ -179,12 +179,12 @@ extern "C"
         {
             optional<Ice::RouterPrx> p = Ice::uncheckedCast<Ice::RouterPrx>(restoreNullableProxy(proxy));
             deref<Ice::Communicator>(self)->setDefaultRouter(p);
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Communicator_getDefaultLocator(void* self, void** proxy)
@@ -192,12 +192,12 @@ extern "C"
         try
         {
             *proxy = createProxy(deref<Ice::Communicator>(self)->getDefaultLocator());
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Communicator_setDefaultLocator(void* self, void* proxy)
@@ -206,12 +206,12 @@ extern "C"
         {
             optional<Ice::LocatorPrx> p = Ice::uncheckedCast<Ice::LocatorPrx>(restoreNullableProxy(proxy));
             deref<Ice::Communicator>(self)->setDefaultLocator(p);
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Communicator_flushBatchRequests(void* self, mxArray* mode)
@@ -220,12 +220,12 @@ extern "C"
         {
             auto m = static_cast<Ice::CompressBatch>(getEnumerator(mode, "Ice.CompressBatch"));
             deref<Ice::Communicator>(self)->flushBatchRequests(m);
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Communicator_flushBatchRequestsAsync(void* self, mxArray* mode, void** future)
@@ -242,11 +242,11 @@ extern "C"
                 [f](bool /*sentSynchronously*/) { f->done(); });
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 }

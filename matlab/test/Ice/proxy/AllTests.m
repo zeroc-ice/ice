@@ -367,33 +367,31 @@ classdef AllTests
 
             assert(strcmp(communicator.identityToString(base.ice_identity(Ice.stringToIdentity('other')).ice_getIdentity()), 'other'));
 
-            %{
-            % TODO
-            %
+
             % Verify that ToStringMode is passed correctly
             %
-            euroStr = sprintf('\x7F\xE2\x82\xAC');
+            % Testing bytes 127 (\x7F) and €
+            euroStr = char([0x007F, 0x20AC]);
             ident = Ice.Identity('test', euroStr);
 
             idStr = Ice.identityToString(ident, Ice.ToStringMode.Unicode);
-            assert(strcmp(idStr, sprintf('\x007f\xe2\x82\xac/test')));
+            assert(strcmp(idStr, sprintf('\\u007f\x20ac/test')));
             ident2 = Ice.stringToIdentity(idStr);
             assert(ident == ident2);
             assert(strcmp(Ice.identityToString(ident), idStr));
 
-            idStr = Ice.identityToString(ident, Ice.ToStringMode.ASCII)
-            assert(idStr == "\\u007f\\u20ac/test")
-            ident2 = Ice.stringToIdentity(idStr)
-            assert(ident == ident2)
+            idStr = Ice.identityToString(ident, Ice.ToStringMode.ASCII);
+            assert(strcmp(idStr, sprintf('\\u007f\\u20ac/test')));
+            ident2 = Ice.stringToIdentity(idStr);
+            assert(ident == ident2);
 
-            idStr = Ice.identityToString(ident, Ice.ToStringMode.Compat)
-            assert(idStr == "\\177\\342\\202\\254/test")
-            ident2 = Ice.stringToIdentity(idStr)
-            assert(ident == ident2)
+            idStr = Ice.identityToString(ident, Ice.ToStringMode.Compat);
+            assert(strcmp(idStr, '\177\342\202\254/test'));
+            ident2 = Ice.stringToIdentity(idStr);
+            assert(ident == ident2);
 
-            ident2 = Ice.stringToIdentity(communicator.identityToString(ident))
-            assert(ident == ident2)
-            %}
+            ident2 = Ice.stringToIdentity(communicator.identityToString(ident));
+            assert(ident == ident2);
 
             assert(strcmp(base.ice_facet('facet').ice_getFacet(), 'facet'));
             assert(strcmp(base.ice_adapterId('id').ice_getAdapterId(), 'id'));
