@@ -6,9 +6,15 @@ on:
       channel:
         description: "The channel to publish to (e.g., 3.8, nightly)"
         required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
   workflow_call:
     inputs:
       channel:
+        required: true
+        type: string
+      run_id:
         required: true
         type: string
 
@@ -22,9 +28,7 @@ jobs:
           - distribution: debian12
           - distribution: ubuntu-24.04
     env:
-      # The distribution to publish.
       DISTRIBUTION: ${{ matrix.distribution }}
-      # The channel to publish to (e.g., 3.8, nightly).
       CHANNEL: ${{ inputs.channel }}
     steps:
       - name: Check out repository
@@ -35,18 +39,11 @@ jobs:
       - name: Download DEB artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ github.run_id }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
-
           mkdir -p staging
-
-          # Download DEB artifacts from the current run of build-deb-packages.yml
-          echo "Downloading Ice RPMs from current run..."
-          gh run download "$RUN_ID" \
-            --repo zeroc-ice/ice \
-            --pattern "deb-packages-${DISTRIBUTION}-*" \
-            --dir staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "deb-packages-${DISTRIBUTION}-*" --dir staging
 
       - name: Create DEB repository
         run: |
@@ -56,13 +53,13 @@ jobs:
           mkdir -p "${DISTRIBUTION}"
           aws s3 sync "s3://zeroc-downloads/ice/${CHANNEL}/${DISTRIBUTION}" "${DISTRIBUTION}"
 
-          echo "Creating/updating repository with new RPMs..."
+          echo "Creating/updating repository with new DEB packages..."
           docker_args=(
             --rm
             -v "$GITHUB_WORKSPACE:/workspace"
             -e GPG_KEY="${GPG_KEY}"
             -e GPG_KEY_ID="${GPG_KEY_ID}"
-            ghcr.io/zeroc-ice/rpm-repo-builder
+            ghcr.io/zeroc-ice/deb-repo-builder
           )
           docker run "${docker_args[@]}" /workspace/ice/packaging/deb/create-deb-repo.sh \
             --staging /workspace/staging/

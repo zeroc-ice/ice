@@ -6,17 +6,17 @@ on:
       channel:
         description: "The channel to publish to (e.g., 3.8, nightly)"
         required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
   workflow_call:
     inputs:
       channel:
         required: true
         type: string
-    secrets:
-      AWS_SECRET_ACCESS_KEY:
+      run_id:
         required: true
-      AWS_ACCESS_KEY_ID:
-        required: true
-
+        type: string
 jobs:
   build:
     name: "Publish Python PIP Packages"
@@ -25,7 +25,7 @@ jobs:
       - name: Download PIP artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ github.run_id }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
           mkdir -p staging

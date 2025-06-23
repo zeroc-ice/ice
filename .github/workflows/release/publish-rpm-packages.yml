@@ -6,16 +6,17 @@ on:
       channel:
         description: "The channel to publish to (e.g., 3.8, nightly)"
         required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
   workflow_call:
     inputs:
       channel:
         required: true
         type: string
-    secrets:
-      AWS_SECRET_ACCESS_KEY:
+      run_id:
         required: true
-      AWS_ACCESS_KEY_ID:
-        required: true
+        type: string
 
 jobs:
   build:
@@ -28,35 +29,26 @@ jobs:
           - distribution: el10
           - distribution: amzn2023
     env:
-      # The distribution to publish.
       DISTRIBUTION: ${{ matrix.distribution }}
-      # The channel to publish to (e.g., 3.8, nightly).
       CHANNEL: ${{ inputs.channel }}
-      # The MCPP version to include in RHEL 9 and 10 RPM repositories.
       MCPP_VERSION: v2.7.2.19
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-            path: ice
-
       - name: Download RPM artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ github.run_id }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
-
           mkdir -p staging
 
-          # Download RPM artifacts from the current run of build-rpm-packages.yml
+          # Download RPM artifacts from the specified run.
           echo "Downloading Ice RPMs from current run..."
           gh run download "$RUN_ID" \
             --repo zeroc-ice/ice \
             --pattern "rpm-packages-${DISTRIBUTION}-*" \
             --dir staging
 
-          # If building for RHEL 9 or 10, also download MCPP RPMs
+          # If building for RHEL 9 or 10, also download MCPP RPMs.
           if [[ "$DISTRIBUTION" == "rhel9" || "$DISTRIBUTION" == "rhel10" ]]; then
             echo "Also downloading MCPP RPMs for $DISTRIBUTION..."
             mkdir -p staging/mcpp

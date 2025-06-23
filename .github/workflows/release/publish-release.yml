@@ -3,9 +3,6 @@ name: "Publis Ice Release"
 on:
   workflow_dispatch:
     inputs:
-      ice_version:
-        description: "The Ice version to build"
-        required: false
       channel:
         description: "The release channel (e.g., 3.8, nightly)"
         required: false
@@ -15,9 +12,6 @@ on:
         required: true
   workflow_call:
     inputs:
-      ice_version:
-        required: true
-        type: string
       channel:
         required: true
         type: string

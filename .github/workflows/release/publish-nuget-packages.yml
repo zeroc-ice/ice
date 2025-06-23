@@ -6,9 +6,15 @@ on:
       channel:
         description: "The channel to publish to (e.g., 3.8, nightly)"
         required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
   workflow_call:
     inputs:
       channel:
+        required: true
+        type: string
+      run_id:
         required: true
         type: string
 
