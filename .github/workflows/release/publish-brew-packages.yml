@@ -1,0 +1,59 @@
+name: "Publish Brew Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  build-swift-packages:
+    runs-on: macos-15
+    env:
+      CHANNEL: ${{ inputs.channel }}
+
+    steps:
+      - name: Check channel is supported
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CHANNEL}" ]; then
+            echo "Channel is not set. Please provide a valid channel."
+            exit 1
+          fi
+
+          if [ "${CHANNEL}" != "nightly" ]; then
+            echo "Publishing to channel '${CHANNEL}' is not supported for this workflow."
+            echo "Stable brew packages must be built manually."
+            exit 1
+          fi
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Homebrew Bottle XCFramework artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "homebrew-bottle" --dir staging
+      - name: Publish Homebrew Bottle Packages
+        run: |
+          aws s3 sync "staging/" "s3://zeroc-downloads/${CHANNEL}/" --exclude "*" --include "*.bottle.tar.gz"
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

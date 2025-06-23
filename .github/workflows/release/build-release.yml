@@ -56,38 +56,14 @@ jobs:
           # - RPM: 3.8.0~0.nightly<YYYYMMDD>.<BUILD>
           echo "rpm_version=${VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
 
-      - name: Create latest.json
-        run: |
-          echo "{
-            \"semver_version\": \"${{ steps.set-vars.outputs.semver_version }}\",
-            \"deb_version\": \"${{ steps.set-vars.outputs.deb_version }}\",
-            \"gem_version\": \"${{ steps.set-vars.outputs.gem_version }}\",
-            \"maven_version\": \"${{ steps.set-vars.outputs.maven_version }}\",
-            \"pypi_version\": \"${{ steps.set-vars.outputs.pypi_version }}\",
-            \"rpm_version\": \"${{ steps.set-vars.outputs.rpm_version }}\"
-          }" > latest.json
-        shell: bash
-
-      - name: Upload latest.json to nightly repository
-        uses: ./.github/actions/upload-nightly
-        with:
-          upload_file: latest.json
-          repository_url: https://download.zeroc.com/nexus/repository/nightly/
-        env:
-          REPOSITORY_USERNAME: nightly
-          REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
-
   build-brew-packages:
     name: Build Brew Packages
     uses: ./.github/workflows/release/build-brew-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
-      repository_url: https://download.zeroc.com/nexus/repository/nightly/
-      repository_username: nightly
-    secrets:
-      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
-      ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
+      channel: ${{ inputs.channel }}
+    secrets: inherit
 
   build-cpp-windows-packages:
     name: Build C++ NuGet Package
@@ -151,6 +127,7 @@ jobs:
     with:
       ice_version: ${{ needs.set-version.outputs.pypi_version }}
     secrets: inherit
+
   build-rpm-packages:
     name: Build RPM Packages
     uses: ./.github/workflows/release/build-rpm-packages.yml
@@ -166,16 +143,6 @@ jobs:
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
     secrets: inherit
-
-  build-swift-package:
-    name: Build Swift Package
-    uses: ./.github/workflows/release/build-swift-package.yml
-    needs: [set-version, build-xcframework-packages]
-    with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
-      repository_url: "https://download.zeroc.com/nexus/repository/nightly/"
-    secrets:
-      ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
 
   publish-release:
     needs:
@@ -195,3 +162,4 @@ jobs:
     with:
       channel: ${ inputs.channel }
       run_id: ${{ github.run_id }}
+    secrets: inherit

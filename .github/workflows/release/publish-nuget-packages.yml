@@ -26,7 +26,7 @@ jobs:
       - name: Download NuGet artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUN_ID: ${{ github.run_id }}
+          RUN_ID: ${{ inputs.run_id }}
         run: |
           set -euo pipefail
           mkdir -p staging
