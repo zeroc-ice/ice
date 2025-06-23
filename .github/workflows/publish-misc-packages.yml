@@ -1,0 +1,153 @@
+name: "Publish MISC Packages"
+# This workflow publishes various packages (MSI, MATLAB, XCFramework, Swift) to S3.
+# We don't use separate workflows to avoid the reusable workflow limit in GitHub Actions.
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+
+  build-msi-packages:
+    name: "Publish MSI Packages"
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name: Download MSI artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "windows-msi" --dir staging
+      - name: Publish MSI Packages
+        run: |
+          set -euo pipefail
+          aws s3 sync "staging/" "s3://zeroc-downloads/${CHANNEL}/" --exclude "*" --include "*.msi"
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            CHANNEL: ${{ inputs.channel }}
+
+  build-matlab-packages:
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name: Download MATLAB artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "matlab-packages-*" --dir staging
+
+      - name: Publish MATLAB Packages
+        run: |
+          set -euo pipefail
+          aws s3 sync "staging/" "s3://zeroc-downloads/${CHANNEL}/" --exclude "*" --include "*.mltbx"
+
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            CHANNEL: ${{ inputs.channel }}
+
+  build-xcframework-packages:
+    name: "Publish XCFramework Packages"
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name: Download XCFramework artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
+
+      - name: Publish XCFramework Packages
+        run: |
+          set -euo pipefail
+          aws s3 sync "staging/" "s3://zeroc-downloads/${CHANNEL}/" --exclude "*" --include "*.xcframework.zip"
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            CHANNEL: ${{ inputs.channel }}
+        
+  build-swift-packages:
+    runs-on: macos-15
+    # Stable Swift release must be published manually.
+    if: ${{ inputs.channel == 'nightly' }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download XCFramework artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
+
+      - name: Create ice-swift repository
+        run: ./update-ice-swift-nightly.sh
+        working-directory: packaging/swift
+        env:
+          ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
+        if: ${{ inputs.channel == 'nightly' }}
+
+  build-brew-packages:
+    runs-on: macos-15
+    # Stable brew release must be published manually.
+    if: ${{ inputs.channel == 'nightly' }}
+    env:
+      CHANNEL: ${{ inputs.channel }}
+
+    steps:
+      - name: Check channel is supported
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CHANNEL}" ]; then
+            echo "Channel is not set. Please provide a valid channel."
+            exit 1
+          fi
+
+          if [ "${CHANNEL}" != "nightly" ]; then
+            echo "Publishing to channel '${CHANNEL}' is not supported for this workflow."
+            echo "Stable brew packages must be built manually."
+            exit 1
+          fi
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Homebrew Bottle XCFramework artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "homebrew-bottle" --dir staging
+      - name: Publish Homebrew Bottle Packages
+        run: |
+          aws s3 sync "staging/" "s3://zeroc-downloads/${CHANNEL}/" --exclude "*" --include "*.bottle.tar.gz"
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
