@@ -1,15 +1,5 @@
 classdef Logger < IceInternal.WrapperObject
-    % Logger   Summary of Logger
-    %
-    % The Ice message logger.
-    %
-    % Logger Methods:
-    %   print - Print a message.
-    %   trace - Log a trace message.
-    %   warning - Log a warning message.
-    %   error - Log an error message.
-    %   getPrefix - Return this logger's prefix.
-    %   cloneWithPrefix - Returns a clone of the logger with a new prefix.
+    %LOGGER Represents Ice's abstraction for logging and tracing.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -21,11 +11,12 @@ classdef Logger < IceInternal.WrapperObject
     end
     methods
         function print(obj, message)
-            % print - Print a message. The message is printed literally, without
-            % any decorations such as executable name or time stamp.
+            %PRINT Prints a message. The message is printed literally, without any decorations such as executable name
+            %   or time stamp.
             %
-            % Parameters:
-            %   message (char) - The message to log.
+            %   Input Arguments
+            %     message - The message to log.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Logger
@@ -33,12 +24,15 @@ classdef Logger < IceInternal.WrapperObject
             end
             obj.iceCall('print', message);
         end
+
         function trace(obj, category, message)
-            % trace - Log a trace message.
+            %TRACE Logs a trace message.
             %
-            % Parameters:
-            %   category (char) - The trace category.
-            %   message (char) - The trace message to log.
+            %   Input Arguments
+            %     category - The trace category.
+            %       character vector
+            %     message - The trace message to log.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Logger
@@ -47,11 +41,13 @@ classdef Logger < IceInternal.WrapperObject
             end
             obj.iceCall('trace', category, message);
         end
+
         function warning(obj, message)
-            % warning - Log a warning message.
+            %WARNING Logs a warning message.
             %
-            % Parameters:
-            %   message - The warning message to log.
+            %   Input Arguments
+            %     message - The warning message to log.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Logger
@@ -59,11 +55,13 @@ classdef Logger < IceInternal.WrapperObject
             end
             obj.iceCall('warning', message);
         end
+
         function error(obj, message)
-            % error - Log an error message.
+            %ERROR Logs an error message.
             %
-            % Parameters:
-            %   message - The error message to log.
+            %   Input Arguments
+            %     message - The error message to log.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Logger
@@ -71,23 +69,30 @@ classdef Logger < IceInternal.WrapperObject
             end
             obj.iceCall('error', message);
         end
+
         function r = getPrefix(obj)
-            % getPrefix - Returns this logger's prefix.
+            %GETPREFIX Returns this logger's prefix.
             %
-            % Returns (char) - The prefix.
+            %   Output Arguments
+            %     r - The prefix.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Logger
             end
             r = obj.iceCallWithResult('getPrefix');
         end
+
         function r = cloneWithPrefix(obj, prefix)
-            % cloneWithPrefix - Returns a clone of the logger with a new prefix.
+            %CLONEWITHPREFIX Returns a clone of the logger with a new prefix.
             %
-            % Parameters:
-            %   prefix - The new prefix for the logger.
+            %   Input Arguments
+            %     prefix - The new prefix for the logger.
+            %       character vector
             %
-            % Returns (Ice.Logger) - A logger instance.
+            %   Output Arguments
+            %     r - A new logger instance.
+            %       Ice.Logger scalar
 
             arguments
                 obj (1, 1) Ice.Logger
