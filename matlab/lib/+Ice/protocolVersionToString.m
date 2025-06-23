@@ -1,10 +1,13 @@
 function r = protocolVersionToString(v)
-    % protocolVersionToString  Converts a protocol version to a string.
+    %PROTOCOLVERSIONTOSTRING Converts a protocol version to a string.
     %
-    % Parameters:
-    %   v (Ice.ProtocolVersion) - The protocol version to convert.
+    %   Input Arguments
+    %     v - The protocol version to convert.
+    %       Ice.ProtocolVersion scalar
     %
-    % Returns (char) - The protocol version as a string.
+    %   Output Arguments
+    %     r - The protocol version as a string.
+    %       character vector
 
     % Copyright (c) ZeroC, Inc.
 

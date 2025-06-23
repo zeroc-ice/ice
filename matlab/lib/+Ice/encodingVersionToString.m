@@ -1,10 +1,13 @@
 function r = encodingVersionToString(v)
-    % encodingVersionToString  Converts an encoding version to a string.
+    %ENCODINGVERSIONTOSTRING Converts an encoding version to a string.
     %
-    % Parameters:
-    %   v (Ice.EncodingVersion) - The encoding version to convert.
+    %   Input Arguments
+    %     v - The encoding version to convert.
+    %       Ice.EncodingVersion scalar
     %
-    % Returns (char) - The encoding version as a string.
+    %   Output Arguments
+    %     r - The encoding version as a string.
+    %       character vector
 
     % Copyright (c) ZeroC, Inc.
 

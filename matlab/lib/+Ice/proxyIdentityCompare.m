@@ -1,12 +1,16 @@
 function r = proxyIdentityCompare(lhs, rhs)
-    % proxyIdentityCompare  Compares the object identities of two proxies.
+    %PROXYIDENTITYCOMPARE Compares the object identities of two proxies.
     %
-    % Parameters:
-    %   lhs (Ice.ObjectPrx) - A proxy.
-    %   rhs (Ice.ObjectPrx) - A proxy.
+    %   Input Arguments
+    %     lhs - A proxy.
+    %       Ice.ObjectPrx scalar | Ice.ObjectPrx empty array
+    %     rhs - Another proxy.
+    %       Ice.ObjectPrx scalar | Ice.ObjectPrx empty array
     %
-    % Returns (int32) - -1 if the identity in lhs compares less than the
-    %   identity in rhs; 0 if the identities compare equal; 1, otherwise.
+    %   Output Arguments
+    %     r - -1 if the identity in lhs compares less than the identity in rhs; 0 if the identities compare equal;
+    %       1, otherwise.
+    %       int32 scalar
 
     % Copyright (c) ZeroC, Inc.
 

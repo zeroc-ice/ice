@@ -1,12 +1,16 @@
 function r = identityToString(id, mode)
-    % identityToString  Converts an object identity to a string.
+    %IDENTITYTOSTRING Converts an object identity to a string.
     %
-    % Parameters:
-    %   id (Ice.Identity) - The object identity to convert.
-    %   mode (Ice.ToStringMode) - Optional argument specifying if and how
-    %     non-printable ASCII characters are escaped in the result.
+    %   Input Arguments
+    %     id - The object identity to convert.
+    %       Ice.Identity scalar
+    %     mode - Specifies how non-printable ASCII characters are escaped in the result. Defaults to
+    %       Ice.ToStringMode.Unicode.
+    %       Ice.ToStringMode scalar
     %
-    % Returns (char) - The string representation of the object identity.
+    %   Output Arguments
+    %     r - The string representation of the object identity.
+    %       character vector
 
     % Copyright (c) ZeroC, Inc.
 

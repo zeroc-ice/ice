@@ -1,24 +1,29 @@
 function [communicator, remArgs] = initialize(varargin)
-    % initialize  Creates a communicator. This function is provided for consistency with other Ice language mappings,
+    %INITIALIZE Creates a communicator. This function is provided for consistency with other Ice language mappings,
     %   and for backwards compatibility. Call instead the Ice.Communicator constructor.
     %
-    % Examples:
-    %   communicator = Ice.initialize();
-    %   [communicator, remArgs] = Ice.initialize(args);
-    %   communicator = Ice.initialize(initData);
-    %   [communicator, remArgs] = Ice.initialize(args, initData);
-    %   communicator = Ice.initialize(configFile);
-    %   [communicator, remArgs] = Ice.initialize(args, configFile);
+    %   Examples:
+    %     communicator = Ice.initialize()
+    %     [communicator, remArgs] = Ice.initialize(args)
+    %     communicator = Ice.initialize(initData)
+    %     [communicator, remArgs] = Ice.initialize(args, initData)
+    %     communicator = Ice.initialize(configFile)
+    %     [communicator, remArgs] = Ice.initialize(args, configFile)
     %
-    % Parameters:
-    %   args (cell array of char or string array) - An optional argument vector. Any Ice-related options in this vector
-    %     are used to initialize the communicator.
-    %   initData (Ice.InitializationData) - Optional additional initialization data.
-    %   configFile (char) - Optional configuration file name.
+    %   Input Arguments
+    %     args - An optional argument vector. Any Ice-related options in this vector are used to initialize the
+    %       communicator.
+    %       cell array of char | string array
+    %     initData - Optional additional initialization data.
+    %       Ice.InitializationData scalar | Ice.InitializationData empty array
+    %     configFile - Optional configuration file name.
+    %       character vector | string scalar
     %
-    % Returns:
-    %   communicator (Ice.Communicator) - The new communicator.
-    %   remArgs (string array) - Contains the remaining command-line arguments that were not used to set properties.
+    %   Output Arguments
+    %     communicator - The new communicator.
+    %       Ice.Communicator scalar
+    %     remArgs - Contains the remaining command-line arguments that were not used to set properties.
+    %       string array
 
     % Copyright (c) ZeroC, Inc.
 
