@@ -1,27 +1,29 @@
 classdef IPConnectionInfo < Ice.ConnectionInfo
-    % IPConnectionInfo   Summary of IPConnectionInfo
+    %IPCONNECTIONINFO Provides access to the connection details of an IP connection.
     %
-    % Provides access to the connection details of an IP connection.
-    %
-    % IPConnectionInfo Properties:
-    %   localAddress - The local address.
-    %   localPort - The local port.
-    %   remoteAddress - The remote address.
-    %   remotePort - The remote port.
+    %   IPConnectionInfo Properties:
+    %     localAddress - The local address.
+    %     localPort - The local port.
+    %     remoteAddress - The remote address.
+    %     remotePort - The remote port.
 
     % Copyright (c) ZeroC, Inc.
 
     properties(SetAccess=immutable)
-        % localAddress - The local address.
+        %LOCAADDRESS The local address.
+        %  character vector
         localAddress (1, :) char
 
-        % localPort - The local port.
+        %LOCALPORT The local port.
+        %  int32 scalar
         localPort (1, 1) int32
 
-        % remoteAddress - The remote address.
+        %REMOTEADDRESS The remote address.
+        %  character vector
         remoteAddress (1, :) char
 
-        % remotePort - The remote port.
+        %REMOTEPORT The remote port.
+        %  int32 scalar
         remotePort (1, 1) int32
     end
     methods(Access=protected)
