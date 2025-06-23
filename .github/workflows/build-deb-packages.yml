@@ -47,6 +47,16 @@ jobs:
         with:
           path: ice
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: zeroc-ice
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build DEB Packages
         run: |
           docker run --rm \
@@ -56,7 +66,8 @@ jobs:
             -e ICE_VERSION=${{ inputs.ice_version }} \
             -e DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" \
             -e DEB_BUILD_PROFILES="${{ matrix.deb_build_profiles }}" \
-            ice-deb-package-builder /workspace/ice/packaging/dpkg/build-package.sh
+            ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }} \
+            /workspace/ice/packaging/deb/build-package.sh
         shell: bash
 
       - name: Upload Artifacts
