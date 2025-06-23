@@ -5,9 +5,9 @@ classdef SliceInfo < handle
     %     typeId - The Slice type ID for this slice.
     %     compactId - The Slice compact type ID for this slice.
     %     bytes - The encoded bytes for this slice, including the leading size integer.
-    %     instances - The class instances referenced by this slice.
     %     hasOptionalMembers - Whether or not the slice contains optional members.
     %     isLastSlice - Whether or not this is the last slice.
+    %     instances - The class instances referenced by this slice.
 
     % Copyright (c) ZeroC, Inc.
 

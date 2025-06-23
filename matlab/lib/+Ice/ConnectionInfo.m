@@ -1,16 +1,22 @@
 classdef ConnectionInfo < handle
     %CONNECTIONINFO Base class for all connection info classes.
+    %
+    %   ConnectionInfo Properties:
+    %     underlying - The information of the underlying transport or an empty array if there's no underlying transport.
+    %     connectionId - The connection id.
 
     % Copyright (c) ZeroC, Inc.
 
     properties(SetAccess=immutable)
-        % underlying   The information of the underlying transport or an empty array if there's no underlying transport.
+        %UNDERLYING The information of the underlying transport or an empty array if there's no underlying transport.
+        %   Ice.ConnectionInfo scalar | Ice.ConnectionInfo empty array
         underlying Ice.ConnectionInfo {mustBeScalarOrEmpty}
 
-        % connectionId   The connection id.
+        %CONNECTIONID The connection id.
+        %   character vector
         connectionId (1, :) char
     end
-    methods(Access=protected)
+    methods(Hidden, Access=protected)
         function obj = ConnectionInfo(underlying, connectionId)
             if nargin == 1
                 assert(~isempty(underlying), 'underlying cannot be empty');

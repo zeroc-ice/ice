@@ -1,10 +1,19 @@
 classdef EndpointInfo < handle
     %ENDPOINTINFO Base class for the endpoint info classes.
+    %
+    %   EndpointInfo Properties:
+    %     underlying - The EndpointInfo of the underlying endpoint, if any.
+    %     timeout - The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
+    %     compress - Specifies whether or not compression should be used if available when using this endpoint.
+    %
+    %   EndpointInfo Methods:
+    %     type - Returns the type of the endpoint.
+    %     datagram - Returns true if this endpoint is a datagram endpoint.
+    %     secure - Returns true if this endpoint is a secure endpoint.
 
     % Copyright (c) ZeroC, Inc.
 
     methods
-
         function r = type(obj)
             %TYPE Returns the type of the endpoint.
             %
@@ -56,6 +65,7 @@ classdef EndpointInfo < handle
             end
         end
     end
+
     properties(SetAccess=immutable)
         %UNDERLYING The EndpointInfo of the underlying endpoint, if any.
         %   Ice.EndpointInfo scalar | Ice.EndpointInfo empty array
@@ -69,7 +79,7 @@ classdef EndpointInfo < handle
         %   logical scalar
         compress (1, 1) logical
     end
-    methods(Access=protected)
+    methods(Hidden, Access=protected)
         function obj = EndpointInfo(underlying, timeout, compress)
             if nargin == 1
                 assert(~isempty(underlying), 'underlying cannot be empty');
