@@ -152,7 +152,7 @@ extern "C"
     mxArray* Ice_ObjectPrx_unref(void* self)
     {
         delete reinterpret_cast<Ice::ObjectPrx*>(self);
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_ObjectPrx_equals(void* self, void* other)
@@ -186,12 +186,12 @@ extern "C"
             in.read(proxy);
             *r = createProxy(std::move(proxy)); // can return nullptr for a null proxy
             *bytesRead = static_cast<int>(in.pos());
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_write(void* proxy, void* communicator, mxArray* encoding)
@@ -256,7 +256,6 @@ extern "C"
         {
             return createResultException(convertException(std::current_exception()));
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_invokeAsync(
@@ -303,12 +302,12 @@ extern "C"
                 *ctxPtr);
             f->token(token);
             *future = new shared_ptr<InvocationFuture>(move(f));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_toString(void* self)
@@ -330,12 +329,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_identity(ident);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getContext(void* self)
@@ -353,12 +352,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_context(ctx);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getFacet(void* self)
@@ -373,12 +372,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_facet(f);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getAdapterId(void* self)
@@ -393,12 +392,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_adapterId(id);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getNumEndpoints(void* self)
@@ -423,18 +422,18 @@ extern "C"
                 throw std::invalid_argument("index outside range");
             }
             *r = createShared<Ice::Endpoint>(endpoints[idx]);
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_createEndpointList(void* /*self*/, unsigned int num, void** r)
     {
         *r = new vector<shared_ptr<Ice::Endpoint>>(num);
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_ObjectPrx_ice_setEndpoint(void* /*self*/, void* arr, unsigned int idx, void* e)
@@ -451,12 +450,12 @@ extern "C"
                 throw std::invalid_argument("index outside range");
             }
             (*v)[idx] = deref<Ice::Endpoint>(e);
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_endpoints(void* self, void** r, void* arr)
@@ -473,12 +472,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_endpoints(tmp);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getLocatorCacheTimeout(void* self)
@@ -495,12 +494,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_locatorCacheTimeout(t);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getInvocationTimeout(void* self)
@@ -516,12 +515,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_invocationTimeout(t);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getConnectionId(void* self)
@@ -537,12 +536,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_connectionId(id);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_isConnectionCached(void* self)
@@ -557,12 +556,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_connectionCached(v == 1);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getEndpointSelection(void* self)
@@ -585,12 +584,12 @@ extern "C"
             auto newProxy = proxy->ice_endpointSelection(
                 static_cast<Ice::EndpointSelectionType>(getEnumerator(type, "Ice.EndpointSelectionType")));
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getEncodingVersion(void* self)
@@ -607,19 +606,19 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_encodingVersion(ev);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getRouter(void* self, void** r)
     {
         auto router = restoreProxy(self)->ice_getRouter();
         *r = createProxy(std::move(router));
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_ObjectPrx_ice_router(void* self, void** r, void* rtr)
@@ -630,19 +629,19 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_router(Ice::uncheckedCast<Ice::RouterPrx>(router));
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getLocator(void* self, void** r)
     {
         auto locator = restoreProxy(self)->ice_getLocator();
         *r = createProxy(std::move(locator));
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_ObjectPrx_ice_locator(void* self, void** r, void* loc)
@@ -653,12 +652,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_isSecure(void* self)
@@ -673,12 +672,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_secure(b == 1);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_isPreferSecure(void* self)
@@ -693,12 +692,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_preferSecure(b == 1);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_isTwoway(void* self)
@@ -713,12 +712,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_twoway();
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_isOneway(void* self)
@@ -733,12 +732,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_oneway();
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_isBatchOneway(void* self)
@@ -753,12 +752,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_batchOneway();
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_isDatagram(void* self)
@@ -773,12 +772,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_datagram();
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_isBatchDatagram(void* self)
@@ -793,12 +792,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_batchDatagram();
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_compress(void* self, void** r, unsigned char b)
@@ -808,12 +807,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_compress(b == 1);
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getCompress(void* self)
@@ -837,12 +836,12 @@ extern "C"
             auto proxy = restoreProxy(self);
             auto newProxy = proxy->ice_fixed(deref<Ice::Connection>(connection));
             *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_isFixed(void* self)
@@ -860,12 +859,12 @@ extern "C"
             {
                 *r = new shared_ptr<Ice::Connection>(move(conn));
             }
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getConnectionAsync(void* self, void** future)
@@ -881,12 +880,12 @@ extern "C"
                 nullptr);
             f->token(token);
             *future = new shared_ptr<GetConnectionFuture>(move(f));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_getCachedConnection(void* self, void** r)
@@ -899,12 +898,12 @@ extern "C"
             {
                 *r = new shared_ptr<Ice::Connection>(move(conn));
             }
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_flushBatchRequests(void* self)
@@ -912,12 +911,12 @@ extern "C"
         try
         {
             restoreProxy(self)->ice_flushBatchRequests();
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_ice_flushBatchRequestsAsync(void* self, void** future)
@@ -932,30 +931,30 @@ extern "C"
                 [f](bool /*sentSynchronously*/) { f->done(); });
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ObjectPrx_clone(void* self, void** r)
     {
         *r = createProxy(restoreProxy(self));
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_InvocationFuture_unref(void* self)
     {
         delete reinterpret_cast<shared_ptr<InvocationFuture>*>(self);
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_InvocationFuture_id(void* self, unsigned long long* id)
     {
         *id = reinterpret_cast<unsigned long long>(self);
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_InvocationFuture_wait(void* self)
@@ -1013,7 +1012,7 @@ extern "C"
     mxArray* Ice_InvocationFuture_cancel(void* self)
     {
         deref<InvocationFuture>(self)->cancel();
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_InvocationFuture_check(void* self)
@@ -1034,19 +1033,19 @@ extern "C"
         //
         delete reinterpret_cast<shared_ptr<InvocationFuture>*>(self);
 
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_GetConnectionFuture_unref(void* self)
     {
         delete reinterpret_cast<shared_ptr<GetConnectionFuture>*>(self);
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_GetConnectionFuture_id(void* self, unsigned long long* id)
     {
         *id = reinterpret_cast<unsigned long long>(self);
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_GetConnectionFuture_wait(void* self)
@@ -1089,7 +1088,7 @@ extern "C"
         //
         delete reinterpret_cast<shared_ptr<GetConnectionFuture>*>(self);
 
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_GetConnectionFuture_state(void* self)
@@ -1100,6 +1099,6 @@ extern "C"
     mxArray* Ice_GetConnectionFuture_cancel(void* self)
     {
         deref<GetConnectionFuture>(self)->cancel();
-        return 0;
+        return createEmptyArray();
     }
 }

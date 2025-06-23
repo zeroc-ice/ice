@@ -697,20 +697,29 @@ namespace Slice
 
         ParameterPtr createParameter(const std::string& name, const TypePtr& type, bool isOptional, std::int32_t tag);
 
+        /// Returns all parameters of this operation.
         [[nodiscard]] ParameterList parameters() const;
+
         /// Returns a list of all this operation's in-parameters (all parameters not marked with 'out').
         [[nodiscard]] ParameterList inParameters() const;
+
         /// Returns all of this operation's in-parameters sorted in this order: '(required..., optional...)'.
         /// Required parameters are kept in definition order and optional parameters are sorted by tag.
         [[nodiscard]] ParameterList sortedInParameters() const;
+
         /// Returns a list of all this operation's out-parameters (all parameters marked with 'out').
         [[nodiscard]] ParameterList outParameters() const;
-        /// Returns this operation's out parameters and return type (if the operation is non-void), in that order.
-        /// @param returnsName The name that should be returned by `returnValueParam->name()`.
-        //
-        // Creating this temporary Parameter doesn't introduce cycles, since nothing from the AST points to it,
-        // even if it points back into the AST. So it will be destroyed when the returned list goes out of scope.
-        [[nodiscard]] ParameterList returnAndOutParameters(const std::string& returnsName);
+
+        /// Creates a temporary Parameter that represents this operation's return value.
+        /// @param name The name of the return parameter.
+        /// @return A dummy Parameter that represents this operation's return value, or nullptr if this operation is
+        /// void.
+        /// @remark The returned Parameter is not "saved" by this operation - it's completely ephemeral.
+        /// The provided name is not checked for uniqueness: the caller must ensure it's unique enough for its purpose.
+        /// Furthermore, there is no way to specify a lang:identifier metadata for this parameter, so the mapped
+        /// parameter name is always the default (i.e., simply name).
+        [[nodiscard]] ParameterPtr returnParameter(const std::string& name);
+
         /// Returns this operation's out parameters and return type sorted in this order: '(required..., optional...)'.
         /// If the this operation's return type is non-void and non-optional, it is at the end of the 'required' list.
         /// Otherwise, required parameters are kept in definition order and optional parameters are sorted by tag.
@@ -718,11 +727,11 @@ namespace Slice
         /// For convenience, non-void return types are represented by a dummy `Parameter` in this list.
         /// However it's important to note that it is not _actually_ a parameter.
         ///
-        /// @param returnsName The name that should be returned by `returnValueParam->name()`.
-        //
         // Creating this temporary Parameter doesn't introduce cycles, since nothing from the AST points to it,
         // even if it points back into the AST. So it will be destroyed when the returned list goes out of scope.
-        [[nodiscard]] ParameterList sortedReturnAndOutParameters(const std::string& returnsName);
+        /// @param returnName The name of the return parameter. See #returnParameter for more details.
+        /// @return A list of all this operation's out-parameters and return type, sorted in the order described above.
+        [[nodiscard]] ParameterList sortedReturnAndOutParameters(const std::string& returnName);
 
         [[nodiscard]] ExceptionList throws() const;
         void setExceptionList(const ExceptionList& exceptions);

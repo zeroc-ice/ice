@@ -120,6 +120,7 @@ IceMatlab::getEnumerator(mxArray* p, const string& type)
     mxArray* i;
     mexCallMATLAB(1, &i, 1, &p, "int32");
     int r = static_cast<int>(mxGetScalar(i));
+
     mxDestroyArray(i);
     return r;
 }

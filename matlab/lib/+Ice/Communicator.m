@@ -30,18 +30,43 @@ classdef Communicator < IceInternal.WrapperObject
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
-        function obj = Communicator(impl, initData)
-            % Called by Ice.initialize.
-            assert(isa(impl, 'lib.pointer'));
+    methods
+        function [obj, remArgs] = Communicator(args, options)
+            % Communicator  Constructs a new communicator.
+            %
+            % Examples:
+            %   communicator = Ice.Communicator();
+            %   [communicator, remArgs] = Ice.Communicator(args);
+            %   communicator = Ice.Communicator(Properties = props, SliceLoader = sliceLoader);
+            %   [communicator, remArgs] = Ice.Communicator(args, SliceLoader = sliceLoader);
+            %
+            % Parameters:
+            %   args (cell array of char or string array) - An optional argument vector. Any Ice-related options in this
+            %     vector are used to initialize the communicator properties.
+            %   options - Name=Value options provided by the Ice.InitializationData class.
+            %
+            % Returns:
+            %   communicator (Ice.Communicator) - The new communicator.
+            %   remArgs (string array) - Contains the remaining command-line arguments that were not used to set
+            %     properties.
+            arguments
+                args (1, :) = {}
+                options.?Ice.InitializationData
+                options.Properties (1, 1) Ice.Properties = Ice.Properties()
+                options.SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance
+            end
+
+            % We need to extract and pass the libpointer object for properties to the C function. Passing the wrapper
+            % (Ice.Properties) object won't work because the C code has no way to obtain the inner pointer.
+            propsImpl = options.Properties.impl_;
+            impl = libpointer('voidPtr');
+            remArgs = IceInternal.Util.callWithResult('Ice_initialize', args, propsImpl, impl);
+
             obj@IceInternal.WrapperObject(impl);
 
-            % The caller (initialize) consumes initData.Properties and we don't use them at all in this class.
-            obj.initData = initData;
-
-            if obj.initData.SliceLoader ~= IceInternal.DefaultSliceLoader.Instance
-                obj.initData.SliceLoader = Ice.CompositeSliceLoader(obj.initData.SliceLoader, ...
-                    IceInternal.DefaultSliceLoader.Instance);
+            obj.SliceLoader = options.SliceLoader;
+            if obj.SliceLoader ~= IceInternal.DefaultSliceLoader.Instance
+                obj.SliceLoader = Ice.CompositeSliceLoader(obj.SliceLoader, IceInternal.DefaultSliceLoader.Instance);
             end
 
             notFoundCacheSize = obj.getProperties().getIcePropertyAsInt('Ice.SliceLoader.NotFoundCacheSize');
@@ -53,13 +78,13 @@ classdef Communicator < IceInternal.WrapperObject
                     cacheFullLogger = [];
                 end
 
-                obj.initData.SliceLoader = IceInternal.NotFoundSliceLoaderDecorator(...
-                    obj.initData.SliceLoader, notFoundCacheSize, cacheFullLogger);
+                obj.SliceLoader = IceInternal.NotFoundSliceLoaderDecorator(...
+                    obj.SliceLoader, notFoundCacheSize, cacheFullLogger);
             end
 
             enc = obj.getProperties().getProperty('Ice.Default.EncodingVersion');
             if isempty(enc)
-                obj.encoding = Ice.currentEncoding();
+                obj.encoding = IceInternal.Protocol.CurrentEncoding;
             else
                 arr = sscanf(enc, '%u.%u');
                 if length(arr) ~= 2
@@ -73,8 +98,6 @@ classdef Communicator < IceInternal.WrapperObject
                 obj.format = Ice.FormatType.CompactFormat;
             end
         end
-    end
-    methods
         function destroy(obj)
             % destroy   Destroy the communicator. Calling destroy cleans up
             % memory, and shuts down this communicator's client functionality.
@@ -244,12 +267,12 @@ classdef Communicator < IceInternal.WrapperObject
             arguments
                 obj (1, 1) Ice.Communicator
             end
-            if isempty(obj.properties_)
+            if isempty(obj.Properties)
                 impl = libpointer('voidPtr');
                 obj.iceCall('getProperties', impl);
-                obj.properties_ = Ice.Properties(impl);
+                obj.Properties = Ice.Properties({}, Ice.Properties.empty, impl);
             end
-            r = obj.properties_;
+            r = obj.Properties;
         end
         function r = getLogger(obj)
             % getLogger   Get the logger for this communicator.
@@ -405,15 +428,15 @@ classdef Communicator < IceInternal.WrapperObject
             arguments
                 obj (1, 1) Ice.Communicator
             end
-            r = obj.initData.SliceLoader;
+            r = obj.SliceLoader;
         end
     end
     properties(Access=private)
-        initData
+        SliceLoader
         encoding
         format
         implicitContext
-        properties_
+        Properties
         logger
     end
 end

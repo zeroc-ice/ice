@@ -183,7 +183,7 @@ class FixedReference extends Reference {
             case Reference.ModeBatchOneway:
             {
                 if (_fixedConnection.endpoint().datagram()) {
-                    throw NoEndpointException.fromProxyString(toString());
+                    throw new NoEndpointException(new _ObjectPrxI(this));
                 }
                 break;
             }
@@ -192,7 +192,7 @@ class FixedReference extends Reference {
             case Reference.ModeBatchDatagram:
             {
                 if (!_fixedConnection.endpoint().datagram()) {
-                    throw NoEndpointException.fromProxyString(toString());
+                    throw new NoEndpointException(new _ObjectPrxI(this));
                 }
                 break;
             }
@@ -210,7 +210,7 @@ class FixedReference extends Reference {
             secure = getSecure();
         }
         if (secure && !_fixedConnection.endpoint().secure()) {
-            throw NoEndpointException.fromProxyString(toString());
+            throw new NoEndpointException(new _ObjectPrxI(this));
         }
 
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.

@@ -17,20 +17,6 @@ using namespace IceInternal;
 
 namespace
 {
-    string getEscapedParamName(const OperationPtr& p, const string& name)
-    {
-        ParameterList params = p->parameters();
-
-        for (const auto& param : params)
-        {
-            if (param->mappedName() == name)
-            {
-                return name + "_";
-            }
-        }
-        return name;
-    }
-
     const char* const tripleQuotes = R"(""")";
 
     string typeToDocstring(const TypePtr& type, bool optional)
@@ -371,6 +357,9 @@ namespace Slice::Python
         /// Write constructor parameters with default values.
         void writeConstructorParams(const DataMemberList& members);
 
+        /// Writes the provided @p remarks in its own subheading in the current comment (if @p remarks is non-empty).
+        void writeRemarksDocComment(const StringList& remarks, bool needsNewline);
+
         void writeDocstring(const optional<DocComment>&, const string& = "");
         void writeDocstring(const optional<DocComment>&, const DataMemberList&);
         void writeDocstring(const optional<DocComment>&, const EnumeratorList&);
@@ -592,7 +581,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
             }
         }
 
-        const string currentParamName = getEscapedParamName(operation, "current");
+        const string currentParamName = getEscapedParamName(operation->parameters(), "current");
         _out << ", " << currentParamName;
         _out << "):";
         _out.inc();
@@ -868,7 +857,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << ", " << inParamsDecl;
         }
-        const string contextParamName = getEscapedParamName(operation, "context");
+        const string contextParamName = getEscapedParamName(operation->parameters(), "context");
         _out << ", " << contextParamName << "=None):";
         _out.inc();
         writeDocstring(operation, DocSync);
@@ -1975,20 +1964,44 @@ Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
 }
 
 void
+Slice::Python::CodeVisitor::writeRemarksDocComment(const StringList& remarks, bool needsNewline)
+{
+    if (!remarks.empty())
+    {
+        if (needsNewline)
+        {
+            _out << nl;
+        }
+        _out << nl << "Notes";
+        _out << nl << "-----";
+        for (const auto& line : remarks)
+        {
+            _out << nl << "    " << line;
+        }
+    }
+}
+
+void
 Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const string& prefix)
 {
     if (comment)
     {
         const StringList& overview = comment->overview();
-        if (!overview.empty())
+        const StringList& remarks = comment->remarks();
+        if (overview.empty() && remarks.empty())
         {
-            _out << nl << prefix << tripleQuotes;
-            for (const auto& line : overview)
-            {
-                _out << nl << line;
-            }
-            _out << nl << tripleQuotes;
+            return;
         }
+
+        _out << nl << prefix << tripleQuotes;
+        for (const auto& line : overview)
+        {
+            _out << nl << line;
+        }
+
+        writeRemarksDocComment(remarks, !overview.empty());
+
+        _out << nl << tripleQuotes;
     }
 }
 
@@ -2015,7 +2028,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     }
 
     const StringList& overview = comment->overview();
-    if (overview.empty() && docs.empty())
+    const StringList& remarks = comment->remarks();
+    if (overview.empty() && remarks.empty() && docs.empty())
     {
         return;
     }
@@ -2050,6 +2064,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         }
     }
 
+    writeRemarksDocComment(remarks, !overview.empty() || !docs.empty());
+
     _out << nl << tripleQuotes;
 }
 
@@ -2076,7 +2092,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     }
 
     const StringList& overview = comment->overview();
-    if (overview.empty() && docs.empty())
+    const StringList& remarks = comment->remarks();
+    if (overview.empty() && remarks.empty() && docs.empty())
     {
         return;
     }
@@ -2098,21 +2115,20 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         _out << nl << "Enumerators:";
         for (const auto& enumerator : enumerators)
         {
-            _out << nl << enumerator->mappedName() << " -- ";
+            _out << nl << nl << "- " << enumerator->mappedName();
             auto p = docs.find(enumerator->name());
             if (p != docs.end())
             {
-                for (auto q = p->second.begin(); q != p->second.end(); ++q)
+                _out << ":"; // Only emit a trailing ':' if there's documentation to emit for it.
+                for (const auto& line : p->second)
                 {
-                    if (q != p->second.begin())
-                    {
-                        _out << nl;
-                    }
-                    _out << *q;
+                    _out << nl << "    " << line;
                 }
             }
         }
     }
+
+    writeRemarksDocComment(remarks, !overview.empty() || !docs.empty());
 
     _out << nl << tripleQuotes;
 }
@@ -2132,11 +2148,12 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     ParameterList outParams = op->outParameters();
 
     const StringList& overview = comment->overview();
+    const StringList& remarks = comment->remarks();
     const StringList& returnsDoc = comment->returns();
     const auto& parametersDoc = comment->parameters();
     const auto& exceptionsDoc = comment->exceptions();
 
-    if (overview.empty())
+    if (overview.empty() && remarks.empty())
     {
         if ((mode == DocSync || mode == DocDispatch) && parametersDoc.empty() && exceptionsDoc.empty() &&
             returnsDoc.empty())
@@ -2199,14 +2216,14 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
         if (mode == DocSync || mode == DocAsync)
         {
-            const string contextParamName = getEscapedParamName(op, "context");
+            const string contextParamName = getEscapedParamName(op->parameters(), "context");
             _out << nl << contextParamName << " : dict[str, str]";
             _out << nl << "    The request context for the invocation.";
         }
 
         if (mode == DocDispatch)
         {
-            const string currentParamName = getEscapedParamName(op, "current");
+            const string currentParamName = getEscapedParamName(op->parameters(), "current");
             _out << nl << currentParamName << " : Ice.Current";
             _out << nl << "    The Current object for the dispatch.";
         }
@@ -2333,6 +2350,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
             }
         }
     }
+
+    writeRemarksDocComment(remarks, true);
+
     _out << nl << tripleQuotes;
 }
 

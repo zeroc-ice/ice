@@ -31,6 +31,9 @@ namespace Slice
         // within a single Slice file, that they all map to the same Swift package.
         static void validateSwiftModuleMappings(const UnitPtr&);
 
+        /// Removes any Swift escaping from the provided identifier (any leading or trailing backticks will be removed).
+        static std::string removeEscaping(std::string ident);
+
     protected:
         void writeDocSummary(IceInternal::Output&, const ContainedPtr&);
         void writeOpDocSummary(IceInternal::Output&, const OperationPtr&, bool);
@@ -43,9 +46,6 @@ namespace Slice
         std::string operationReturnDeclaration(const OperationPtr&);
 
         std::string typeToString(const TypePtr&, const ContainedPtr&, bool = false);
-
-        /// Removes any Swift escaping from the provided identifier (any leading or trailing backticks will be removed).
-        static std::string removeEscaping(std::string ident);
 
         std::string getUnqualified(const std::string&, const std::string&);
         std::string modeToString(Operation::Mode);

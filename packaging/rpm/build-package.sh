@@ -19,13 +19,6 @@ if [[ -n "${ICE_VERSION:-}" ]]; then
     sed -i "s/^Version:.*/Version: $ICE_VERSION/" "$ICE_SPEC_DEST"
 fi
 
-# Validate TARGET_ARCH
-VALID_ARCHS=("x86_64" "i686" "aarch64")
-if [[ -z "${TARGET_ARCH:-}" || ! " ${VALID_ARCHS[@]} " =~ " ${TARGET_ARCH} " ]]; then
-    echo "Error: TARGET_ARCH is not set or invalid. Use one of: ${VALID_ARCHS[*]}"
-    exit 1
-fi
-
 # Define common RPM macros
 RPM_MACROS=()
 RPM_MACROS+=(--define "_topdir $RPM_BUILD_ROOT")
@@ -40,7 +33,7 @@ cd "$RPM_BUILD_ROOT/SOURCES"
 spectool -g "${RPM_MACROS[@]}" "$ICE_SPEC_DEST" || { echo "Error: Failed to download sources."; exit 1; }
 
 # Build source RPM
-rpmbuild -bs "$ICE_SPEC_DEST" "${RPM_MACROS[@]}" --target="$TARGET_ARCH"
+rpmbuild -bs "$ICE_SPEC_DEST" "${RPM_MACROS[@]}"
 
 # Build binary RPM
-rpmbuild -bb "$ICE_SPEC_DEST" "${RPM_MACROS[@]}" --target="$TARGET_ARCH"
+rpmbuild -bb "$ICE_SPEC_DEST" "${RPM_MACROS[@]}"

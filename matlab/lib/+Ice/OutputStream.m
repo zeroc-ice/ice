@@ -8,7 +8,7 @@ classdef OutputStream < handle
     methods
         function obj = OutputStream(encoding, format)
             arguments
-                encoding (1, 1) Ice.EncodingVersion = Ice.currentEncoding();
+                encoding (1, 1) Ice.EncodingVersion = IceInternal.Protocol.CurrentEncoding;
                 format (1, 1) uint8 = Ice.FormatType.CompactFormat;
             end
             obj.encoding = encoding;

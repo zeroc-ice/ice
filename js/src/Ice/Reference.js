@@ -9,6 +9,7 @@ import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
 import { identityToString } from "./IdentityToString.js";
 import { MapUtil } from "./MapUtil.js";
+import { ObjectPrx } from "./ObjectPrx.js";
 import { OpaqueEndpointI } from "./OpaqueEndpoint.js";
 import { ReferenceMode } from "./ReferenceMode.js";
 import { StringUtil } from "./StringUtil.js";
@@ -497,7 +498,7 @@ export class FixedReference extends Reference {
             case ReferenceMode.ModeOneway:
             case ReferenceMode.ModeBatchOneway: {
                 if (this._fixedConnection.endpoint().datagram()) {
-                    throw new NoEndpointException(this.toString());
+                    throw new NoEndpointException(new ObjectPrx(this));
                 }
                 break;
             }
@@ -505,7 +506,7 @@ export class FixedReference extends Reference {
             case ReferenceMode.ModeDatagram:
             case ReferenceMode.ModeBatchDatagram: {
                 if (!this._fixedConnection.endpoint().datagram()) {
-                    throw new NoEndpointException(this.toString());
+                    throw new NoEndpointException(new ObjectPrx(this));
                 }
                 break;
             }
@@ -525,7 +526,7 @@ export class FixedReference extends Reference {
             ? defaultsAndOverrides.overrideSecureValue
             : this.getSecure();
         if (secure && !this._fixedConnection.endpoint().secure()) {
-            throw new NoEndpointException(this.toString());
+            throw new NoEndpointException(new ObjectPrx(this));
         }
 
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
@@ -933,7 +934,7 @@ export class RoutableReference extends Reference {
                 .then(values => {
                     const [endpoints, cached] = values;
                     if (endpoints.length === 0) {
-                        p.reject(new NoEndpointException(this.toString()));
+                        p.reject(new NoEndpointException(new ObjectPrx(this)));
                         return;
                     }
 
@@ -968,7 +969,7 @@ export class RoutableReference extends Reference {
                 })
                 .catch(p.reject);
         } else {
-            p.reject(new NoEndpointException(this.toString()));
+            p.reject(new NoEndpointException(new ObjectPrx(this)));
         }
     }
 
@@ -1104,7 +1105,7 @@ export class RoutableReference extends Reference {
     createConnection(allEndpoints) {
         const endpoints = this.filterEndpoints(allEndpoints);
         if (endpoints.length === 0) {
-            return Promise.reject(new NoEndpointException(this.toString()));
+            return Promise.reject(new NoEndpointException(new ObjectPrx(this)));
         }
 
         //

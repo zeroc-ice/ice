@@ -5,6 +5,9 @@
 
 namespace IceMatlab
 {
+    // We return an empty mxArray to signal success when calling a "void" function with calllib.
+    inline mxArray* createEmptyArray() { return mxCreateDoubleMatrix(0, 0, mxREAL); }
+
     mxArray* createStringFromUTF8(const std::string&);
     std::string getStringFromUTF16(mxArray*);
     mxArray* createBool(bool);

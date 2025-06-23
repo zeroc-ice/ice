@@ -27,8 +27,16 @@ jobs:
 
       - name: Run Clang Format
         run: |
-          find . -name "*.h" -o -name "*.c" -o -name "*.cpp" -o -name "*.mm" | xargs clang-format-19 --style=file --fallback-style=none --Werror --dry-run
-          find cpp -name "*.m" | xargs clang-format-19 --style=file --fallback-style=none --Werror --dry-run
+          find . -name "*.h" -o -name "*.c" -o -name "*.cpp" -o -name "*.mm" | xargs clang-format-19 --style=file --fallback-style=none -i
+          find cpp -name "*.m" | xargs clang-format-19 --style=file --fallback-style=none -i
+
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "clang-format found issues, please run it locally and commit the changes."
+            git diff
+            exit 1
+          else
+            echo "clang-format passed successfully."
+          fi
 
   clang-tidy:
     runs-on: ubuntu-24.04

@@ -81,7 +81,7 @@ classdef AllTests
             % Check that CommunicatorDestroyedException is raised directly.
             %
             if ~isempty(p.ice_getConnection())
-                ic = helper.initialize(communicator.getProperties().clone());
+                ic = helper.initialize(Properties = communicator.getProperties().clone());
                 o = ic.stringToProxy(p.ice_toString());
                 p2 = TestIntfPrx.checkedCast(o);
                 ic.destroy();

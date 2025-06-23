@@ -92,25 +92,20 @@ classdef TestHelper < handle
                 % createProperties works with both a string array and a cell array of char arrays.
                 args = string(varargin{1});
             end
-            [properties, args] = Ice.createProperties(args);
+            [properties, args] = Ice.Properties(args);
             args = properties.parseCommandLineOptions('Test', args);
         end
 
-        function communicator = initialize(obj, varargin)
-            nargs = length(varargin);
-            if nargs > 0
-                if isa(varargin{1}, 'Ice.InitializationData')
-                    initData = varargin{1};
-                else
-                    initData = Ice.InitializationData();
-                    if isa(varargin{1}, 'Ice.Properties')
-                        initData.Properties = varargin{1};
-                    else
-                        initData.Properties = obj.createTestProperties(varargin{1});
-                    end
-                end
+        function communicator = initialize(obj, args, options)
+            arguments
+                obj (1, 1) TestHelper
+                args (1, :) = {}
+                options.?Ice.InitializationData
+                options.Properties (1, 1) Ice.Properties = obj.createTestProperties(args)
+                options.SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance
             end
-            communicator = Ice.initialize(initData);
+
+            communicator = Ice.Communicator(Properties = options.Properties, SliceLoader = options.SliceLoader);
             if(isempty(obj.communicator_))
                 obj.communicator_ = communicator;
             end
