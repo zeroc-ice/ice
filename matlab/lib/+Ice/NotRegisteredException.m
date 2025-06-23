@@ -1,5 +1,3 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef NotRegisteredException < Ice.LocalException
     %NOTREGISTEREDEXCEPTION An attempt was made to find or deregister something that is not registered with the Ice
     %   run time or Ice locator. This exception is raised if an attempt is made to remove a servant, servant locator,
@@ -10,6 +8,8 @@ classdef NotRegisteredException < Ice.LocalException
     %   NotRegisteredException Properties:
     %     kindOfObject - The kind of object that could not be removed.
     %     id - The ID (or name) of the object that could not be removed.
+
+    % Copyright (c) ZeroC, Inc.
 
     properties
         %KINDOFOBJECT The kind of object that could not be removed.

@@ -1,11 +1,11 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef DispatchException < Ice.LocalException
     %DISPATCHEXCEPTION The dispatch failed. This is the base class for local exceptions that can be marshaled and
     %   transmitted "over the wire".
     %
     %   DispatchException Properties:
     %     replyStatus - The reply status byte.
+
+    % Copyright (c) ZeroC, Inc.
 
     properties
         %REPLYSTATUS The reply status byte.

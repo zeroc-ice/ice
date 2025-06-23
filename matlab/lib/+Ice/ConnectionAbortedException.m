@@ -1,10 +1,10 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef ConnectionAbortedException < Ice.LocalException
     %CONNECTIONABORTEDEXCEPTION This exception indicates that the connection was closed forcefully.
     %
     %   ConnectionAbortedException Properties:
     %     closedByApplication - True if the connection was closed by the application, false if it was closed by the Ice runtime.
+
+    % Copyright (c) ZeroC, Inc.
 
     properties
         %CLOSEDBYAPPLICATION True if the connection was closed by the application, false if it was closed by the Ice

@@ -1,5 +1,3 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef RequestFailedException < Ice.DispatchException
     %REQUESTFAILEDEXCEPTION This exception is raised if a request failed. This exception, and all exceptions derived
     %   from RequestFailedException, are transmitted by the Ice protocol, even though they are declared local.
@@ -8,6 +6,8 @@ classdef RequestFailedException < Ice.DispatchException
     %     id - The identity of the Ice Object to which the request was sent.
     %     facet - The facet to which the request was sent.
     %     operation - The operation name of the request.
+
+    % Copyright (c) ZeroC, Inc.
 
     properties
         %ID The identity of the Ice Object to which the request was sent.
