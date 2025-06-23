@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef IndirectPatchEntry < handle
+    % Copyright (c) ZeroC, Inc.
+
     properties
         index
         cb

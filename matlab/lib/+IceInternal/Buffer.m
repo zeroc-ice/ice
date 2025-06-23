@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef Buffer < matlab.mixin.Copyable
+    % Copyright (c) ZeroC, Inc.
+
     methods
         function obj = Buffer(data)
             if nargin == 1

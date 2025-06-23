@@ -5,6 +5,8 @@ classdef (Sealed) NotFoundSliceLoaderDecorator < Ice.SliceLoader
     %     NotFoundSliceLoaderDecorator - Constructs a NotFoundSliceLoaderDecorator.
     %     newInstance - Creates a class or exception instance from a Slice type ID.
 
+    % Copyright (c) ZeroC, Inc.
+
     methods
         function obj = NotFoundSliceLoaderDecorator(decoratee, cacheSize, logger)
             %NOTFOUNDSLICELOADERDECORATOR Constructs a NotFoundSliceLoaderDecorator.

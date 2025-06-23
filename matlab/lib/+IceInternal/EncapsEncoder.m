@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef (Abstract) EncapsEncoder < handle
+    % Copyright (c) ZeroC, Inc.
+
     methods
         function obj = EncapsEncoder(os, encaps)
             obj.os = os;

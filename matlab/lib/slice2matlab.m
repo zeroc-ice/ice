@@ -34,10 +34,7 @@ function status = slice2matlab(args)
         error('Cannot locate slice2matlab compiler');
     end
 
-    search_paths = {
-        fullfile(root_dir, 'slice'),
-        fullfile(root_dir, '..', '..', 'slice'),
-    };
+    search_paths = {fullfile(root_dir, 'slice'), fullfile(root_dir, '..', '..', 'slice')};
 
     % Find the first path in search_paths that is a folder.
     idx = find(cellfun(@isfolder, search_paths), 1);

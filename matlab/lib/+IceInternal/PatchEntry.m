@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef PatchEntry < handle
+    % Copyright (c) ZeroC, Inc.
+
     properties
         cb
         classGraphDepth

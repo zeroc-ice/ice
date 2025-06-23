@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef WriteEncaps < handle
+    % Copyright (c) ZeroC, Inc.
+
     properties
         start
         format

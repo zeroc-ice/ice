@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef Util
+    % Copyright (c) ZeroC, Inc.
+
     methods(Static)
         %
         % Internal method - invoke a C function with the given name.

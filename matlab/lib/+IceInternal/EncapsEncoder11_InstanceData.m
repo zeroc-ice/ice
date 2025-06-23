@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef EncapsEncoder11_InstanceData < handle
+    % Copyright (c) ZeroC, Inc.
+
     methods
         function obj = EncapsEncoder11_InstanceData(previous)
             if ~isempty(previous)

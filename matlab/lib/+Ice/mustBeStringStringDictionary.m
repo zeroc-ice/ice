@@ -1,5 +1,3 @@
-% Copyright (c) ZeroC, Inc.
-
 function mustBeStringStringDictionary(dict)
     %MUSTBESTRINGSTRINGDICTIONARY Verify dict is a string-string dictionary.
     %

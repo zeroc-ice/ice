@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef (Abstract) EncapsDecoder < handle
+    % Copyright (c) ZeroC, Inc.
+
     methods
         function obj = EncapsDecoder(is, encaps, classGraphDepthMax)
             obj.is = is;

@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef EncapsEncoder10 < IceInternal.EncapsEncoder
+    % Copyright (c) ZeroC, Inc.
+
     methods
         function obj = EncapsEncoder10(os, encaps)
             obj@IceInternal.EncapsEncoder(os, encaps);
