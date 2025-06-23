@@ -25,6 +25,8 @@ jobs:
       channel: ${{ inputs.channel }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
+    # Stable brew release must be published manually.
+    if: ${{ inputs.channel == 'nightly' }}
 
   publish-deb-packages:
     uses: ./.github/workflows/release/publish-deb-packages.yml
@@ -95,6 +97,7 @@ jobs:
       channel: ${{ inputs.channel }}
       run_id: ${{ inputs.run_id }}
     secrets: inherit
+    # Stable swift release must be published manually.
     if: ${{ inputs.channel == 'nightly' }}
 
   publish-xcframework-packages:

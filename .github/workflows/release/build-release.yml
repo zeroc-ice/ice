@@ -63,6 +63,8 @@ jobs:
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
       channel: ${{ inputs.channel }}
+    # Stable brew release must be built manually.
+    if: ${{ inputs.channel == 'nightly' }}
     secrets: inherit
 
   build-cpp-windows-packages:
@@ -157,7 +159,6 @@ jobs:
       - build-pip-packages
       - build-rpm-packages
       - build-xcframework-packages
-      - build-swift-package
     uses: ./.github/workflows/release/publish-release.yml
     with:
       channel: ${ inputs.channel }
