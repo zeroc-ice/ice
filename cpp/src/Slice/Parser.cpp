@@ -345,46 +345,62 @@ namespace
 
     bool parseNamedCommentLine(string_view l, string_view tag, string& name, string& doc)
     {
+        const string ws = " \t";
+        const auto tagLength = tag.size();
+
+        // Check if the line starts with the provided tag (leading whitespace has already been stripped off).
         if (l.find(tag) == 0)
         {
-            const string ws = " \t";
-
-            auto nameStart = l.find_first_not_of(ws, tag.size());
-            if (nameStart == string::npos)
+            // The tag must be immediately followed by whitespace, or be the entire line (for multiline tags).
+            const auto tagEnd = l.find_first_of(ws, tagLength);
+            if (tagEnd == tagLength || l.length() == tagLength)
             {
-                return false; // Malformed line, ignore it.
-            }
+                auto nameStart = l.find_first_not_of(ws, tagLength);
+                if (nameStart == string::npos)
+                {
+                    return false; // Malformed line, ignore it.
+                }
 
-            auto nameEnd = l.find_first_of(ws, nameStart);
-            if (nameEnd == string::npos)
-            {
-                return false; // Malformed line, ignore it.
-            }
-            name = l.substr(nameStart, nameEnd - nameStart);
+                auto nameEnd = l.find_first_of(ws, nameStart);
+                if (nameEnd == string::npos)
+                {
+                    return false; // Malformed line, ignore it.
+                }
+                name = l.substr(nameStart, nameEnd - nameStart);
 
-            // Store whatever remains of the doc comment in the `doc` string.
-            auto docSplitPos = l.find_first_not_of(ws, nameEnd);
-            if (docSplitPos != string::npos)
-            {
-                doc = l.substr(docSplitPos);
-            }
+                // Store whatever remains of the doc comment in the `doc` string.
+                auto docSplitPos = l.find_first_not_of(ws, nameEnd);
+                if (docSplitPos != string::npos)
+                {
+                    doc = l.substr(docSplitPos);
+                }
 
-            return true;
+                return true;
+            }
         }
         return false;
     }
 
     bool parseCommentLine(string_view l, string_view tag, string& doc)
     {
+        const string ws = " \t";
+        const auto tagLength = tag.size();
+
+        // Check if the line starts with the provided tag (leading whitespace has already been stripped off).
         if (l.find(tag) == 0)
         {
-            // Find the first whitespace that appears after the tag. Everything after it is part of the `doc` string.
-            auto docSplitPos = l.find_first_not_of(" \t", tag.size());
-            if (docSplitPos != string::npos)
+            // The tag must be immediately followed by whitespace, or be the entire line (for multiline tags).
+            const auto tagEnd = l.find_first_of(ws, tagLength);
+            if (tagEnd == tagLength || l.length() == tagLength)
             {
-                doc = l.substr(docSplitPos);
+                // Find the first non-whitespace character after the tag. This marks the start of the `doc` string.
+                const auto docSplitPos = l.find_first_not_of(ws, tag.size());
+                if (docSplitPos != string::npos)
+                {
+                    doc = l.substr(docSplitPos);
+                }
+                return true;
             }
-            return true;
         }
         return false;
     }
@@ -665,7 +681,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 // We've encountered an unknown doc tag.
                 if (line[0] == '@')
                 {
-                    auto unknownTag = line.substr(0, line.find_first_of(" \t:"));
+                    auto unknownTag = line.substr(0, line.find_first_of(" \t"));
                     const string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     currentSection = nullptr;
