@@ -1,0 +1,43 @@
+name: "Publish MATLAB Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: "Publish MATLAB Packages"
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name: Download MATLAB artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "matlab-packages-*" --dir staging
+
+      - name: Publish MATLAB Packages
+        run: |
+          set -euo pipefail
+          aws s3 sync "staging/" "s3://zeroc-downloads/${CHANNEL}/" --exclude "*" --include "*.mltbx"
+
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            CHANNEL: ${{ inputs.channel }}

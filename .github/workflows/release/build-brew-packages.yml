@@ -1,0 +1,51 @@
+name: "Build Brew Packages"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: true
+        type: string
+      channel:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version number to use"
+        required: true
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-brew-packages:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: build-brew-packages
+
+      - name: Update and Push Nightly Tap
+        run: |
+          ./packaging/brew/update-nightly-tap.sh "${{ inputs.ice_version }}" "https://download.zeroc.com/ice/nightly"
+          cd "$(brew --repo zeroc-ice/nightly)"
+          git remote set-url origin "https://x-access-token:${{secrets.ICE_NIGHTLY_PUBLISH_TOKEN}}@github.com/zeroc-ice/homebrew-nightly.git"
+          git push origin main || { echo "Push failed"; exit 1; }
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: homebrew-bottle
+          path: ./*.bottle.tar.gz

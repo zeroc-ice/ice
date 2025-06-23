@@ -20,7 +20,7 @@ if [[ -n "${ICE_VERSION:-}" ]]; then
 fi
 
 # Validate TARGET_ARCH
-VALID_ARCHS=("x86_64" "i686" "aarch64")
+VALID_ARCHS=("x86_64" "aarch64")
 if [[ -z "${TARGET_ARCH:-}" || ! " ${VALID_ARCHS[@]} " =~ " ${TARGET_ARCH} " ]]; then
     echo "Error: TARGET_ARCH is not set or invalid. Use one of: ${VALID_ARCHS[*]}"
     exit 1

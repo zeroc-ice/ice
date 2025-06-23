@@ -57,6 +57,7 @@ passwords
 # Makefile Build System
 build
 !.github/actions/build
+!.github/workflows/build*
 generated
 .depend
 
@@ -71,6 +72,8 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+
+!.github/workflows/release
 
 # Visual Studio
 *.opendb

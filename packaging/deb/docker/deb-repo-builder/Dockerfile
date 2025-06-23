@@ -5,5 +5,5 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-COPY packaging/dpkg/create-repo.sh /usr/local/bin/create-repo
-RUN chmod +x /usr/local/bin/create-repo
+COPY packaging/dpkg/create-repo.sh /usr/local/bin/create-deb-repo
+RUN chmod +x /usr/local/bin/create-deb-repo

@@ -11,11 +11,6 @@ on:
       ice_version:
         required: false
         type: string
-    secrets:
-      AWS_SECRET_ACCESS_KEY:
-        required: true
-      AWS_ACCESS_KEY_ID:
-        required: true
 
 jobs:
   build:
@@ -67,7 +62,7 @@ jobs:
             ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }} \
             /workspace/ice/packaging/rpm/build-package.sh
 
-      - name: Sign RPM packages and create repository
+      - name: Sign RPM packages
         run: |
           docker_args=(
             --rm
@@ -78,30 +73,6 @@ jobs:
           )
 
           docker run "${docker_args[@]}" /usr/local/bin/rpm-sign /workspace/build/
-
-      - name:  Create RPM repository
-        run: |
-          aws s3 sync s3://zeroc-downloads/ice/nightly/${{ matrix.distribution }} ${{ matrix.distribution }}
-
-          # Prune RPMs older than 3 days
-          for arch in x86_64 aarch64 SRPMS; do
-            find "${{ matrix.distribution }}/$arch" -type f -name "*.rpm" -mtime +3 -exec rm -v {} \;
-          done
-
-          docker_args=(
-            --rm
-            -v "$GITHUB_WORKSPACE:/workspace"
-            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}"
-            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}"
-            ghcr.io/zeroc-ice/rpm-repo-builder
-          )
-
-          docker run "${docker_args[@]}" /workspace/ice/packaging/rpm/create-repo.sh /workspace/build/ ${{ matrix.distribution }}
-
-          aws s3 sync ${{ matrix.distribution }} s3://zeroc-downloads/ice/nightly/${{ matrix.distribution }} --delete
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

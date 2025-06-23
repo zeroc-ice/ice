@@ -1,0 +1,50 @@
+name: "Build GEM Packages"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+
+jobs:
+  build-gem-packages:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Ruby
+        uses: ./.github/actions/setup-ruby
+
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: build-gem-packages
+
+      - name: Install Build Dependencies
+        run: gem install rake
+
+      - name: Update GEM Version
+        working-directory: ruby
+        run: sed -i "s/spec.version.*/spec.version = '${{ inputs.ice_version }}'/" ice.gemspec
+        if: ${{ inputs.ice_version != '' }}
+
+      - name: Build GEM Package
+        working-directory: ruby
+        run: rake
+
+      - name: Upload Gem Packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: gem-packages
+          path: ruby/zeroc-ice-*.gem

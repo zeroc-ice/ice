@@ -1,0 +1,108 @@
+name: "Publish Ice Release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The release channel (e.g., 3.8, nightly)"
+        required: false
+        default: "nightly"
+      run_id:
+        description: "The GitHub run ID to use for artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+jobs:
+  publish-brew-packages:
+    uses: ./.github/workflows/release/publish-brew-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+    # Stable brew release must be published manually.
+    if: ${{ inputs.channel == 'nightly' }}
+
+  publish-deb-packages:
+    uses: ./.github/workflows/release/publish-deb-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
+  publish-gem-packages:
+    uses: ./.github/workflows/release/publish-gem-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
+  publish-matlab-packages:
+    uses: ./.github/workflows/release/publish-matlab-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
+  publish-maven-packages:
+    uses: ./.github/workflows/release/publish-maven-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
+  publish-msi-packages:
+    uses: ./.github/workflows/release/publish-msi-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
+  publish-npm-packages:
+    uses: ./.github/workflows/release/publish-npm-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
+  publish-nuget-packages:
+    uses: ./.github/workflows/release/publish-nuget-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
+  publish-pip-packages:
+    uses: ./.github/workflows/release/publish-pip-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
+  publish-rpm-packages:
+    uses: ./.github/workflows/release/publish-rpm-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+
+  publish-swift-packages:
+    uses: ./.github/workflows/release/publish-swift-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
+    # Stable swift release must be published manually.
+    if: ${{ inputs.channel == 'nightly' }}
+
+  publish-xcframework-packages:
+    uses: ./.github/workflows/release/publish-xcframework-packages.yml
+    with:
+      channel: ${{ inputs.channel }}
+      run_id: ${{ inputs.run_id }}
+    secrets: inherit
