@@ -11,7 +11,7 @@ public class SocketException extends SyscallException {
         super((String) null);
     }
 
-     /**
+    /**
      * Constructs a {@code SocketException} with the specified cause.
      *
      * @param cause the cause of this exception
