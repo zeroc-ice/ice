@@ -1,15 +1,23 @@
 classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
-    % ClassSliceLoader   Implements SliceLoader using meta classes.
+    %CLASSSLICELOADER Implements Ice.SliceLoader using meta classes.
     %
-    % ClassSliceLoader methods:
-    %   ClassSliceLoader - Constructs a ClassSliceLoader from one or more meta classes.
-    %   newInstance - Creates a class or exception instance from a Slice type ID.
+    %   ClassSliceLoader Methods:
+    %     ClassSliceLoader - Constructs a ClassSliceLoader from one or more meta classes.
+    %     newInstance - Creates a class or exception instance from a Slice type ID.
+
+    % Copyright (c) ZeroC, Inc.
+
     methods
         function obj = ClassSliceLoader(metaclass)
-            % ClassSliceLoader - Constructs a ClassSliceLoader from one or more meta classes.
+            %CLASSSLICELOADER - Constructs a ClassSliceLoader from one or more meta classes.
             %
-            % Parameters:
-            %   metaclass (matlab.metadata.Class) - One or more matlab.metadata.Class objects.
+            %   Input Arguments (Repeating)
+            %     metaclass - The meta class of a generated class or exception.
+            %       matlab.metadata.Class
+            %
+            %   Output Arguments
+            %     obj - The new ClassSliceLoader.
+            %       Ice.ClassSliceLoader scalar
 
             arguments (Repeating)
                 metaclass (1, 1) matlab.metadata.Class
@@ -44,13 +52,14 @@ classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
     end
     methods(Static, Access = private)
         function r = resolveConstant(mc, name)
-            % resolveConstant - Resolves a constant value in a meta class.
+            % Resolves a constant value in a meta class.
             %
-            % Parameters:
-            %   mc (matlab.metadata.Class) - The meta class.
-            %   name (char) - The name of the constant.
+            %   Input Arguments
+            %     mc - The meta class.
+            %     name - The name of the constant.
             %
-            % Returns (char) - The resolved constant value.
+            %   Output Arguments
+            %     r - The resolved constant value.
 
             for i = 1:length(mc.PropertyList)
                 prop = mc.PropertyList(i);

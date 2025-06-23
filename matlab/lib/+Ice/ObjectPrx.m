@@ -88,6 +88,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             %   Output Arguments
             %     obj - The new ObjectPrx.
+            %       Ice.ObjectPrx scalar
 
             if nargin == 0 % default constructor, typically called with multiple inheritance
                 superArgs = {};
@@ -133,6 +134,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = eq(obj, other)
             %EQ Compares this proxy with another ObjectPrx for equality.
+            %
             %   See also eq.
             if isempty(other) || ~isa(other, 'Ice.ObjectPrx')
                 r = false;

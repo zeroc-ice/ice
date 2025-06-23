@@ -20,7 +20,7 @@
 
 namespace Ice
 {
-    /// Encapsulates the details of a class or exception slice with an unknown type.
+    /// Encapsulates the details of a class slice with an unknown type.
     /// @headerfile Ice/Ice.h
     struct SliceInfo
     {

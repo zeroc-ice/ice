@@ -1,21 +1,14 @@
 classdef (Abstract) Value < matlab.mixin.Copyable
-    % Value   Summary of Value
-    %
-    % The base class for instances of Slice classes.
-    %
-    % Value Methods:
-    %   ice_preMarshal - The Ice run time invokes this method prior to
-    %     marshaling an object's data members.
-    %   ice_postUnmarshal - The Ice run time invokes this method after
-    %     unmarshaling an object's data members.
-    %   ice_getSlicedData - Returns the sliced data if the value has a
-    %     preserved-slice base class and has been sliced during unmarshaling.
+    %VALUE The base class for instances of Slice-defined classes.
 
     % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = Value()
-            % Value constructor
+            %VALUE Constructs a new Value instance.
+            %
+            %   Output Arguments
+            %     obj - The new Value instance.
 
             %
             % We need to assign each Value instance a unique identifier for marshaling purposes. This persistent
@@ -30,23 +23,23 @@ classdef (Abstract) Value < matlab.mixin.Copyable
             %assert(index > 0); % Check for rollover
             obj.iceInternal_ = index;
         end
+
         function ice_preMarshal(~)
-            % ice_preMarshal - The Ice run time invokes this method prior to
-            %   marshaling an object's data members. This allows a subclass
-            %   to override this method in order to validate its data members.
+            %ICE_PREMARSHAL - Ice invokes this method prior to marshaling the fields of this object. This allows a
+            %   subclass to override this method in order to validate its fields.
         end
+
         function ice_postUnmarshal(~)
-            % ice_postUnmarshal - The Ice run time invokes this method after
-            %   unmarshaling an object's data members. This allows a subclass
-            %   to override this method in order to perform additional
-            %   initialization.
+            %ICE_POSTUNMARSHAL - Ice invokes this method after unmarshaling the fields of this object. This allows a
+            %   subclass to override this method in order to perform additional initialization.
         end
+
         function r = ice_getSlicedData(obj)
-            % ice_getSlicedData - Returns the sliced data of this value.
+            %ICE_GETSLICEDDATA - Returns the sliced-off data of this object.
             r = obj.iceSlicedData_;
         end
     end
-    methods(Abstract)
+    methods(Abstract, Hidden)
         id = ice_id(obj)
     end
     methods(Static)
@@ -54,7 +47,7 @@ classdef (Abstract) Value < matlab.mixin.Copyable
             id = '::Ice::Object';
         end
     end
-    methods(Hidden=true)
+    methods(Hidden)
         function iceWrite(obj, os)
             os.startValue(obj.iceSlicedData_);
             obj.iceWriteImpl(os);

@@ -1,11 +1,10 @@
 classdef Endpoint < IceInternal.WrapperObject
-    % Endpoint   Summary of Endpoint
+    %ENDPOINT Specifies the address of the server-end of an Ice connection: an object adapter listens on one or more
+    %    endpoints and a client establishes a connection to an endpoint.
     %
-    % The user-level interface to an endpoint.
-    %
-    % Endpoint Methods:
-    %   toString - Return a string representation of the endpoint.
-    %   getInfo - Returns the endpoint information.
+    %   Endpoint Methods:
+    %     getInfo - Returns the endpoint information.
+    %     toString - Returns a string representation of the endpoint.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -16,10 +15,10 @@ classdef Endpoint < IceInternal.WrapperObject
         end
     end
     methods
-        %
-        % Override == operator.
-        %
         function r = eq(obj, other)
+            %EQ Compares this Endpoint with another Endpoint for equality.
+            %
+            %   See also eq.
             if isempty(other) || ~isa(other, 'Ice.Endpoint')
                 r = false;
             else
@@ -29,20 +28,26 @@ classdef Endpoint < IceInternal.WrapperObject
                 r = obj.iceCallWithResult('equals', other.impl_);
             end
         end
+
         function r = toString(obj)
-            % toString   Return a string representation of the endpoint.
+            %TOSTRING Returns a string representation of the endpoint.
             %
-            % Returns (char) - The string representation of the endpoint.
+            %   Output Arguments
+            %     The string representation of the endpoint.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Endpoint
             end
             r = obj.iceCallWithResult('toString');
         end
+
         function r = getInfo(obj)
-            % getInfo   Returns the endpoint information.
+            %GETINFO Returns the endpoint information.
             %
-            % Returns (Ice.EndpointInfo) - The endpoint information class.
+            %   Output Arguments
+            %     r - The endpoint information.
+            %       Ice.EndpointInfo scalar
 
             arguments
                 obj (1, 1) Ice.Endpoint

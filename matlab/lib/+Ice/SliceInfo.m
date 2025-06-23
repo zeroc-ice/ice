@@ -1,48 +1,43 @@
 classdef SliceInfo < handle
-    % SliceInfo   Summary of SliceInfo
+    %SLICEINFO Encapsulates the details of a class slice with an unknown type.
     %
-    % Encapsulates the details of a slice with an unknown type.
-    %
-    % SliceInfo Properties:
-    %   typeId - The Slice type ID for this slice.
-    %   compactId - The Slice compact type ID for this slice.
-    %   bytes - The encoded bytes for this slice, including the leading size
-    %     integer.
-    %   instances - The class instances referenced by this slice.
-    %   hasOptionalMembers - Whether or not the slice contains optional members.
-    %   isLastSlice - Whether or not this is the last slice.
+    %   SliceInfo Properties:
+    %     typeId - The Slice type ID for this slice.
+    %     compactId - The Slice compact type ID for this slice.
+    %     bytes - The encoded bytes for this slice, including the leading size integer.
+    %     instances - The class instances referenced by this slice.
+    %     hasOptionalMembers - Whether or not the slice contains optional members.
+    %     isLastSlice - Whether or not this is the last slice.
 
     % Copyright (c) ZeroC, Inc.
 
     properties(SetAccess=immutable)
-        %
-        % The Slice type ID for this slice.
-        %
+        %TYPEID The Slice type ID for this slice.
+        %   character vector
         typeId (1, :) char
-        %
-        % The Slice compact type ID for this slice.
-        %
+
+        %COMPACTID The Slice compact type ID for this slice.
+        %   int32 scalar
         compactId (1, 1) int32
-        %
-        % The encoded bytes for this slice, including the leading size integer.
-        %
+
+        %BYTES The encoded bytes for this slice, including the leading size integer.
+        %   uint8 vector
         bytes (1, :) uint8
-        %
-        % Whether or not the slice contains optional members.
-        %
+
+        %HASOPTIONALMEMBERS Whether or not the slice contains optional members.
+        %   logical scalar
         hasOptionalMembers (1, 1) logical
-        %
-        % Whether or not this is the last slice.
-        %
+
+        %ISLASTSLICE Whether or not this is the last slice.
+        %   logical scalar
         isLastSlice (1, 1) logical
     end
     properties
-        %
-        % The class instances referenced by this slice.
-        %
+        %INSTANCES The class instances referenced by this slice.
+        %   cell array of Ice.Value
         instances (1, :) cell = {}
     end
-    methods
+    methods(Hidden)
         function obj = SliceInfo(typeId, compactId, bytes, hasOptionalMembers, isLastSlice)
             obj.typeId = typeId;
             obj.compactId = compactId;

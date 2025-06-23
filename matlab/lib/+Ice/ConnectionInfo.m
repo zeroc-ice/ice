@@ -1,10 +1,5 @@
 classdef ConnectionInfo < handle
-    % ConnectionInfo   Base class providing access to the connection details.
-    %
-    % ConnectionInfo Properties:
-    %   underlying (Ice.ConnectionInfo) - The information of the underlying transport or an empty array if there's no
-    %     underlying transport.
-    %   connectionId (char) - The connection id.
+    %CONNECTIONINFO Base class for all connection info classes.
 
     % Copyright (c) ZeroC, Inc.
 

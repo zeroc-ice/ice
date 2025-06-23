@@ -1,17 +1,20 @@
 classdef (Abstract) SliceLoader < handle
-    % SliceLoader   Creates class and exception instances from Slice type IDs.
+    %SLICELOADER Creates class and exception instances from Slice type IDs.
     %
-    % SliceLoader methods:
-    %   newInstance - Creates a class or exception instance from a Slice type ID.
+    %   SliceLoader Methods:
+    %     newInstance - Creates a class or exception instance from a Slice type ID.
 
     methods(Abstract)
-        % newInstance - Creates a class or exception instance from a Slice type ID.
+        %NEWINSTANCE Creates a class or exception instance from a Slice type ID.
         %
-        % Parameters:
-        %   typeId (char) - The Slice type ID or compact ID.
+        %   Input Arguments
+        %     typeId - The Slice type ID or compact ID.
+        %       character vector
         %
-        % Returns (handle or []) - The new class instance or exception instance, or an empty array if the implementation
-        %   cannot find a class or exception for typeId.
+        %    Output Arguments
+        %      r - The new class instance or exception instance, or an empty array if the implementation cannot find a
+        %        class or exception for typeId.
+        %        Ice.Value | Ice.UserException | empty array
         r = newInstance(obj, typeId)
     end
 end
