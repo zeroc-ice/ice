@@ -20,10 +20,9 @@ on:
         type: string
 
 jobs:
-
   build-msi-packages:
     name: "Publish MSI Packages"
-    runs-on: 'ubuntu-24.04'
+    runs-on: "ubuntu-24.04"
     steps:
       - name: Download MSI artifacts
         env:
@@ -38,12 +37,12 @@ jobs:
           set -euo pipefail
           aws s3 sync "staging/" "s3://zeroc-downloads/${CHANNEL}/" --exclude "*" --include "*.msi"
         env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            CHANNEL: ${{ inputs.channel }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CHANNEL: ${{ inputs.channel }}
 
   build-matlab-packages:
-    runs-on: 'ubuntu-24.04'
+    runs-on: "ubuntu-24.04"
     steps:
       - name: Download MATLAB artifacts
         env:
@@ -60,13 +59,13 @@ jobs:
           aws s3 sync "staging/" "s3://zeroc-downloads/${CHANNEL}/" --exclude "*" --include "*.mltbx"
 
         env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            CHANNEL: ${{ inputs.channel }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CHANNEL: ${{ inputs.channel }}
 
   build-xcframework-packages:
     name: "Publish XCFramework Packages"
-    runs-on: 'ubuntu-24.04'
+    runs-on: "ubuntu-24.04"
     steps:
       - name: Download XCFramework artifacts
         env:
@@ -82,10 +81,10 @@ jobs:
           set -euo pipefail
           aws s3 sync "staging/" "s3://zeroc-downloads/${CHANNEL}/" --exclude "*" --include "*.xcframework.zip"
         env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            CHANNEL: ${{ inputs.channel }}
-        
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          CHANNEL: ${{ inputs.channel }}
+
   build-swift-packages:
     runs-on: macos-15
     # Stable Swift release must be published manually.
@@ -149,5 +148,5 @@ jobs:
         run: |
           aws s3 sync "staging/" "s3://zeroc-downloads/${CHANNEL}/" --exclude "*" --include "*.bottle.tar.gz"
         env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
