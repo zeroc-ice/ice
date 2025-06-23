@@ -7,7 +7,7 @@ on:
 jobs:
   build-nightly-release:
     if: github.repository == 'zeroc-ice/ice'
-    uses: ./.github/workflows/release/build-release-workflow.yml
+    uses: ./.github/workflows/release/build-release.yml
     secrets: inherit
     with:
       channel: nightly

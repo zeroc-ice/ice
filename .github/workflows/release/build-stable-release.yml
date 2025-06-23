@@ -5,7 +5,7 @@ on:
 jobs:
   build-stable-release:
     if: github.repository == 'zeroc-ice/ice'
-    uses: ./.github/workflows/release/build-release-workflow.yml
+    uses: ./.github/workflows/release/build-release.yml
     secrets: inherit
     with:
       channel: 3.8

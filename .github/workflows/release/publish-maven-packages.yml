@@ -1,0 +1,60 @@
+name: "Publish NuGet Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: "Publish Maven Packages"
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download GEM artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir staging
+
+      - name: Publish Nightly GEM Packages
+        run: |
+          set -euo pipefail
+
+          CHANNEL="${{ inputs.channel }}"
+
+          case "$CHANNEL" in
+            "3.8")
+              SOURCE_URL="https://api.nuget.org/v3/index.json"
+              NUGET_API_KEY="${{ secrets.NUGET_RELEASE_API_KEY }}"
+              ;;
+            "nightly")
+              SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-nightly/"
+              MAVEN_USERNAME="nightly"
+              MAVEN_PASSWORD="${{ secrets.NUGET_NIGHTLY_API_KEY }}"
+              ;;
+            *)
+              echo "Unsupported channel: $CHANNEL"
+              exit 1
+              ;;
+          esac
+
+          mkdir -p ice/java/lib
+          cp -pf staging/java-packages/java/lib/*.jar lib
+          cp -pf staging/java-packages/java/lib/*.pom lib
+          cp -pf staging/java-packages/java/tools/slice-tools/build/libs/*.jar tools/slice-tools/build/libs/
+
+          ./gradlew publish -PiceVersion=${{ inputs.ice_version }}
+        working-directory: ice/java
