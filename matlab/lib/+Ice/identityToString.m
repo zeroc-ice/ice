@@ -14,5 +14,5 @@ function r = identityToString(id, mode)
         id (1, 1) Ice.Identity
         mode (1, 1) Ice.ToStringMode = Ice.ToStringMode.Unicode
     end
-    r = IceInternal.Util.callWithResult('Ice_identityToString', id, int32(mode));
+    r = IceInternal.Util.callWithResult('Ice_identityToString', id, mode);
 end

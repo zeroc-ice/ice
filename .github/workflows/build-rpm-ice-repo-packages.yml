@@ -1,0 +1,106 @@
+name: "Build Ice Repo RPM Packages"
+
+on:
+  workflow_dispatch
+
+jobs:
+  build:
+    name: "Build Ice Repo RPM packages for ${{ matrix.distribution }}"
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include:
+          - distribution: el9
+            channel: 3.8
+
+          - distribution: el10
+            channel: 3.8
+
+          - distribution: amzn2023
+            channel: 3.8
+
+          - distribution: el9
+            channel: nightly
+
+          - distribution: el10
+            channel: nightly
+
+          - distribution: amzn2023
+            channel: nightly
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: zeroc-ice
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build RPM packages
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e PLATFORM="${{ matrix.distribution }}" \
+            -e CHANNEL="${{ matrix.channel }}" \
+            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }} \
+            /workspace/ice/packaging/rpm/build-repo-package.sh
+
+      - name: Sign RPM packages and create repository
+        run: |
+          docker_args=(
+            --rm
+            -v "$GITHUB_WORKSPACE:/workspace"
+            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}"
+            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}"
+            ghcr.io/zeroc-ice/rpm-repo-builder
+          )
+
+          docker run "${docker_args[@]}" /usr/local/bin/rpm-sign /workspace/build/
+
+      - name: Sync RPM packages to S3
+        run: |
+          # Validate CHANNEL
+          case "$CHANNEL" in
+            3.8|nightly) ;;
+            *)
+              echo "Invalid CHANNEL: $CHANNEL"
+              exit 1
+              ;;
+          esac
+
+          # Validate DISTRIBUTION
+          case "$DISTRIBUTION" in
+            el9|el10|amzn2023) ;;
+            *)
+              echo "Invalid DISTRIBUTION: $DISTRIBUTION"
+              exit 1
+              ;;
+          esac
+
+          aws s3 sync s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION $DISTRIBUTION
+
+          rpm="ice-repo-${CHANNEL}-1.0.0-1.${DISTRIBUTION}.noarch.rpm"
+          cp -n "build/RPMS/noarch/$rpm" "${DISTRIBUTION}/$rpm"
+
+          aws s3 sync "$DISTRIBUTION" s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION --delete
+        env:
+          CHANNEL: ${{ matrix.channel }}
+          DISTRIBUTION: ${{ matrix.distribution }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rpm-packages-${{ matrix.channel }}-${{ matrix.distribution }}
+          path: |
+            build/RPMS/*
+            build/SRPMS/*

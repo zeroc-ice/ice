@@ -10,7 +10,7 @@ function client(args)
 
     % We need to use the ClassSliceLoader for the classes with compact IDs. Naturally, it also works for classes
     % without a compact ID.
-    properties = Ice.Properties(args)
+    properties = Ice.Properties(args);
     properties.setProperty('Ice.Warn.Connections', '0');
 
     sliceLoader = Ice.CompositeSliceLoader(CustomSliceLoader(), ...

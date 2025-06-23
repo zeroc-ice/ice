@@ -43,7 +43,7 @@ namespace
         Slice::validateMetadata(unit, "ruby", std::move(knownMetadata));
     }
 
-    string getEscapedParamName(const OperationPtr& p, const string& name)
+    string getEscapedRubyParamName(const OperationPtr& p, const string& name)
     {
         for (const auto& param : p->parameters())
         {
@@ -346,7 +346,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << inParams << ", ";
         }
-        const string contextParamName = getEscapedParamName(op, "context");
+        const string contextParamName = getEscapedRubyParamName(op, "context");
         _out << contextParamName << "=nil)";
         _out.inc();
         _out << nl << proxyName << "_mixin::OP_" << op->name() << ".invoke(self, [" << inParams;
