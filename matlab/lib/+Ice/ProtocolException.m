@@ -1,5 +1,5 @@
 classdef ProtocolException < Ice.LocalException
-    %PROTOCOLEXCEPTION A generic exception base for all kinds of protocol error conditions.
+    %PROTOCOLEXCEPTION The base class for exceptions related to the Ice protocol.
 
     % Copyright (c) ZeroC, Inc.
 end

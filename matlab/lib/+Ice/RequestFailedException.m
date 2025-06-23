@@ -1,6 +1,5 @@
 classdef RequestFailedException < Ice.DispatchException
-    %REQUESTFAILEDEXCEPTION This exception is raised if a request failed. This exception, and all exceptions derived
-    %   from RequestFailedException, are transmitted by the Ice protocol, even though they are declared local.
+    %REQUESTFAILEDEXCEPTION The base class for the 3 NotExist exceptions.
     %
     %   RequestFailedException Properties:
     %     id - The identity of the Ice Object to which the request was sent.

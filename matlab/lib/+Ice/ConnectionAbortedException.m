@@ -1,5 +1,6 @@
 classdef ConnectionAbortedException < Ice.LocalException
-    %CONNECTIONABORTEDEXCEPTION This exception indicates that the connection was closed forcefully.
+    %CONNECTIONABORTEDEXCEPTION The exception that is thrown when an operation fails because the connection has been
+    %   aborted.
     %
     %   ConnectionAbortedException Properties:
     %     closedByApplication - True if the connection was closed by the application, false if it was closed by the Ice runtime.

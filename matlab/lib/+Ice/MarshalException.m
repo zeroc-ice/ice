@@ -1,5 +1,5 @@
 classdef (Sealed) MarshalException < Ice.ProtocolException
-    %MARSHALEXCEPTION This exception is raised for errors during marshaling or unmarshaling data.
+    %MARSHALEXCEPTION The exception that is thrown when an error occurs during marshaling or unmarshaling.
 
     % Copyright (c) ZeroC, Inc.
 

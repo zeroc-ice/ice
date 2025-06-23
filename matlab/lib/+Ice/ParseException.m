@@ -1,5 +1,5 @@
 classdef (Sealed) ParseException < Ice.LocalException
-    %PARSEEXCEPTION This exception is raised if there was an error while parsing a string.
+    %PARSEEXCEPTION The exception that is thrown when the parsing of a string fails.
 
     % Copyright (c) ZeroC, Inc.
 end

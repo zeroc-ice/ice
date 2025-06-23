@@ -1,5 +1,5 @@
 classdef SyscallException < Ice.LocalException
-    %SYSCALLEXCEPTION This exception is raised if a system error occurred in the server or client process.
+    %SYSCALLEXCEPTION The exception that is thrown to report the failure of a system call.
 
     % Copyright (c) ZeroC, Inc.
 end

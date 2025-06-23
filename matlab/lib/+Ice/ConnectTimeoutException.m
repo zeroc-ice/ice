@@ -1,5 +1,5 @@
 classdef (Sealed) ConnectTimeoutException < Ice.TimeoutException
-    %CONNECTTIMEOUTEXCEPTION This exception indicates a connection establishment timeout condition.
+    %CONNECTTIMEOUTEXCEPTION The exception that is thrown when a connection establishment times out.
 
     % Copyright (c) ZeroC, Inc.
 end

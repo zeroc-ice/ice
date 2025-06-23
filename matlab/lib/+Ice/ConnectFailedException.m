@@ -1,5 +1,5 @@
 classdef ConnectFailedException < Ice.SocketException
-    %CONNECTFAILEDEXCEPTION This exception indicates connection failures.
+    %CONNECTFAILEDEXCEPTION The exception that is thrown when a connection establishment fails.
 
     % Copyright (c) ZeroC, Inc.
 end

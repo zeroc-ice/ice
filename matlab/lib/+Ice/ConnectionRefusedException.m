@@ -1,6 +1,5 @@
 classdef (Sealed) ConnectionRefusedException < Ice.ConnectFailedException
-    %CONNECTIONREFUSEDEXCEPTION This exception indicates a connection failure for which the server host actively
-    %   refuses a connection.
+    %CONNECTIONREFUSEDEXCEPTION The exception that is thrown when the server host actively refuses a connection.
 
     % Copyright (c) ZeroC, Inc.
 end

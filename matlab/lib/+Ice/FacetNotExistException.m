@@ -1,6 +1,6 @@
 classdef (Sealed) FacetNotExistException < Ice.RequestFailedException
-    %FACETNOTEXISTEXCEPTION This exception is raised if no facet with the given name exists, but at least one facet
-    %   with the given identity exists.
+    %FACETNOTEXISTEXCEPTION The exception that is thrown when a dispatch cannot find a servant for the identity +
+    %   facet carried by the request.
 
     % Copyright (c) ZeroC, Inc.
 end

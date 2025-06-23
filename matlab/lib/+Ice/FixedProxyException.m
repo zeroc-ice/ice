@@ -1,6 +1,6 @@
 classdef (Sealed) FixedProxyException < Ice.LocalException
-    %FIXEDPROXYEXCEPTION This exception indicates that an attempt has been made to change the connection properties
-    %   of a fixed proxy.
+    %FIXEDPROXYEXCEPTION The exception that is thrown when attempting to change a connection-related property on a
+    %   fixed proxy.
 
     % Copyright (c) ZeroC, Inc.
 end

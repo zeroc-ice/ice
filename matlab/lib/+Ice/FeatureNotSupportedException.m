@@ -1,5 +1,5 @@
 classdef (Sealed) FeatureNotSupportedException < Ice.LocalException
-    %FEATURENOTSUPPORTEDEXCEPTION This exception is raised if an unsupported feature is used.
+    %FEATURENOTSUPPORTEDEXCEPTION The exception that is thrown when attempting to use an unsupported feature.
 
     % Copyright (c) ZeroC, Inc.
 end

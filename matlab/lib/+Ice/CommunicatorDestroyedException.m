@@ -1,7 +1,6 @@
 classdef (Sealed) CommunicatorDestroyedException < Ice.LocalException
-    %COMMUNICATORDESTROYEDEXCEPTION This exception is raised if the Communicator has been destroyed.
-    %
-    %   See also Communicator.destroy
+    %COMMUNICATORDESTROYEDEXCEPTION The exception that is thrown when an operation fails because the communicator has
+    %   been destroyed.
 
     % Copyright (c) ZeroC, Inc.
 end

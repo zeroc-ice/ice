@@ -1,5 +1,6 @@
 classdef ConnectionClosedException < Ice.LocalException
-    %CONNECTIONCLOSEDEXCEPTION This exception indicates that the connection was closed gracefully.
+    %CONNECTIONCLOSEDEXCEPTION The exception that is thrown when an operation fails because the connection has been
+    %   closed gracefully.
     %
     %   ConnectionClosedException Properties:
     %     closedByApplication - True if the connection was closed by the application, false if it was closed by the Ice runtime.

@@ -1,6 +1,6 @@
 classdef (Sealed) PropertyException < Ice.LocalException
-    %PROPERTYEXCEPTION This exception is raised when there is an error while getting or setting a property. For
-    %   example, when trying to set an unknown Ice property.
+    %PROPERTYEXCEPTION The exception that is thrown when a property cannot be set or retrieved. For example, this
+    %   exception is thrown when attempting to set an unknown Ice property.
 
     % Copyright (c) ZeroC, Inc.
 end

@@ -1,7 +1,7 @@
 classdef UnknownException < Ice.DispatchException
-    %UNKNOWNEXCEPTION This exception is raised if an operation call on a server raises an unknown exception. For
-    %   example, for C++, this exception is raised if the server throws a C++ exception that is not directly or
-    %   indirectly derived from Ice::LocalException or Ice::UserException.
+    %UNKNOWNEXCEPTION
+    %   The exception that is thrown when a dispatch failed with an exception that is not a LocalException or a
+    %   UserException.
 
     % Copyright (c) ZeroC, Inc.
 end

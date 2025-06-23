@@ -1,5 +1,5 @@
 classdef (Sealed) InitializationException < Ice.LocalException
-    %INITIALIZATIONEXCEPTION This exception is raised when a failure occurs during initialization.
+    %INITIALIZATIONEXCEPTION The exception that is thrown when communicator initialization fails.
 
     % Copyright (c) ZeroC, Inc.
 end
