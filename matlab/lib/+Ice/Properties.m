@@ -1,32 +1,7 @@
 classdef Properties < IceInternal.WrapperObject
-    % Properties   Summary of Properties
-    %
-    % A property set used to configure Ice and Ice applications.
-    % Properties are key/value pairs, with both keys and values
-    % being strings. By convention, property keys should have the
-    % form application-name[.category[.sub-category]].name.
-    %
-    % Property Methods:
-    %   getProperty - Get a property by key.
-    %   getIceProperty - Get an Ice property by key.
-    %   getPropertyWithDefault - Get a property by key.
-    %   getPropertyAsInt - Get a property as an integer.
-    %   getIcePropertyAsInt - Get an Ice property as an integer.
-    %   getPropertyAsIntWithDefault - Get a property as an integer.
-    %   getPropertyAsList - Get a property as a list of strings.
-    %   getIcePropertyAsList - Get an Ice property as a list of strings.
-    %   getPropertyAsListWithDefault - Get a property as a list of strings.
-    %   getPropertiesForPrefix - Get all properties whose keys begins with
-    %     a prefix.
-    %   setProperty - Set a property.
-    %   getCommandLineOptions - Get a sequence of command-line options that
-    %     is equivalent to this property set.
-    %   parseCommandLineOptions - Convert a sequence of command-line options
-    %     into properties.
-    %   parseIceCommandLineOptions - Convert a sequence of command-line options
-    %     into properties.
-    %   load - Load properties from a file.
-    %   clone - Create a copy of this property set.
+    %PROPERTIES Represents a set of properties used to configure Ice and Ice-based applications.
+    %    A property is a key/value pair, where both the key and the value are strings. By convention, property keys
+    %    should have the form `application-name>[.category[.sub-category]].name`.
 
     % Copyright (c) ZeroC, Inc.
 
