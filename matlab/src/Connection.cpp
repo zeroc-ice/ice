@@ -123,7 +123,7 @@ extern "C"
     mxArray* Ice_Connection_unref(void* self)
     {
         delete reinterpret_cast<shared_ptr<Ice::Connection>*>(self);
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_Connection_equals(void* self, void* other)
@@ -142,7 +142,7 @@ extern "C"
     mxArray* Ice_Connection_abort(void* self)
     {
         deref<Ice::Connection>(self)->abort();
-        return nullptr;
+        return createEmptyArray();
     }
 
     mxArray* Ice_Connection_close(void* self, void** future)
@@ -155,7 +155,7 @@ extern "C"
             [futurePtr](exception_ptr closeException) { futurePtr->exception(closeException); });
 
         *future = new shared_ptr<SimpleFuture>(move(futurePtr));
-        return nullptr;
+        return createEmptyArray();
     }
 
     mxArray* Ice_Connection_createProxy(void* self, mxArray* id, void** r)
@@ -166,12 +166,12 @@ extern "C"
             getIdentity(id, ident);
             Ice::ObjectPrx proxy = deref<Ice::Connection>(self)->createProxy(ident);
             *r = createProxy(std::move(proxy));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Connection_flushBatchRequests(void* self, mxArray* c)
@@ -180,12 +180,12 @@ extern "C"
         {
             auto mode = static_cast<Ice::CompressBatch>(getEnumerator(c, "Ice.CompressBatch"));
             deref<Ice::Connection>(self)->flushBatchRequests(mode);
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Connection_flushBatchRequestsAsync(void* self, mxArray* c, void** future)
@@ -202,12 +202,12 @@ extern "C"
                 [f](bool /*sentSynchronously*/) { f->done(); });
             f->token(token);
             *future = new shared_ptr<SimpleFuture>(move(f));
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Connection_getEndpoint(void* self, void** endpoint)
@@ -215,12 +215,12 @@ extern "C"
         try
         {
             *endpoint = createShared<Ice::Endpoint>(deref<Ice::Connection>(self)->getEndpoint());
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Connection_type(void* self)
@@ -265,12 +265,12 @@ extern "C"
         try
         {
             deref<Ice::Connection>(self)->setBufferSize(rcvSize, sndSize);
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_Connection_throwException(void* self)
@@ -278,11 +278,11 @@ extern "C"
         try
         {
             deref<Ice::Connection>(self)->throwException();
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 }

@@ -29,9 +29,6 @@ extern "C"
     ICE_MATLAB_API mxArray* Ice_identityToString(mxArray*, mxArray*);
     ICE_MATLAB_API mxArray* Ice_stringVersion();
     ICE_MATLAB_API mxArray* Ice_intVersion(int*);
-    ICE_MATLAB_API mxArray* Ice_currentEncoding();
-    ICE_MATLAB_API mxArray* Ice_currentProtocol();
-    ICE_MATLAB_API mxArray* Ice_currentProtocolEncoding();
 
     ICE_MATLAB_API mxArray* Ice_Communicator_unref(void*);
     ICE_MATLAB_API mxArray* Ice_Communicator_destroy(void*);

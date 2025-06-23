@@ -12,7 +12,7 @@ extern "C"
     mxArray* Ice_ImplicitContext_unref(void* self)
     {
         delete reinterpret_cast<shared_ptr<Ice::ImplicitContext>*>(self);
-        return 0;
+        return createEmptyArray();
     }
 
     mxArray* Ice_ImplicitContext_getContext(void* self)
@@ -36,12 +36,12 @@ extern "C"
             Ice::Context ctx;
             getContext(newContext, ctx);
             deref<Ice::ImplicitContext>(self)->setContext(ctx);
+            return createEmptyArray();
         }
         catch (...)
         {
             return convertException(std::current_exception());
         }
-        return 0;
     }
 
     mxArray* Ice_ImplicitContext_containsKey(void* self, mxArray* key)

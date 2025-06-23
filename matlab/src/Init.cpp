@@ -97,15 +97,6 @@ extern "C"
         return 0;
     }
 
-    mxArray* Ice_currentEncoding() { return createResultValue(createEncodingVersion(Ice::currentEncoding)); }
-
-    mxArray* Ice_currentProtocol() { return createResultValue(createProtocolVersion(Ice::currentProtocol)); }
-
-    mxArray* Ice_currentProtocolEncoding()
-    {
-        return createResultValue(createEncodingVersion(Ice::currentProtocolEncoding));
-    }
-
     //
     // This function exists so that mex may be used to compile the library. It is not otherwise needed.
     //
