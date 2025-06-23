@@ -564,3 +564,16 @@ Slice::getFirstSentence(const StringList& lines)
 
     return ostr.str();
 }
+
+string
+Slice::getEscapedParamName(const ParameterList& params, std::string_view param)
+{
+    for (const auto& p : params)
+    {
+        if (p->mappedName() == param)
+        {
+            return string{param} + "_"; // stop after adding a trailing underscore
+        }
+    }
+    return string{param};
+}

@@ -11,20 +11,7 @@
     </ItemDefinitionGroup>
 
     <ItemGroup>
-        <SliceCompile Include="..\..\..\slice\Ice\BuiltinSequences.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\Context.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\EndpointTypes.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\Identity.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\Locator.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\Metrics.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\OperationMode.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\Process.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\PropertiesAdmin.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\PropertyDict.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\RemoteLogger.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\ReplyStatus.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\Router.ice" />
-        <SliceCompile Include="..\..\..\slice\Ice\Version.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\*.ice" />
         <SliceCompile Include="..\..\..\slice\Glacier2\*.ice" />
         <SliceCompile Include="..\..\..\slice\IceStorm\*.ice" />
         <SliceCompile Include="..\..\..\slice\IceGrid\*.ice" />

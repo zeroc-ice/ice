@@ -70,5 +70,12 @@ namespace Slice
 
     /// Returns the first sentence in the provided list of lines.
     std::string getFirstSentence(const StringList& lines);
+
+    /// Checks if @p param collides with any mapped name in @p params. If yes, return param followed by an underscore;
+    /// otherwise, return param as is.
+    /// @param params The parameter list to check against.
+    /// @param param The parameter name to check.
+    /// @return The parameter name, possibly modified to avoid collisions.
+    std::string getEscapedParamName(const ParameterList& params, std::string_view param);
 }
 #endif
