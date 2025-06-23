@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception is raised if a system error occurred in the server or client process. */
 public class SyscallException extends LocalException {
     /**
-     * Constructs a SyscallException} with a {@code null detail message and the specified cause.
+     * Constructs a SyscallException with a {@code null} detail message and the specified cause.
      *
      * @param cause the cause of this exception
      */
