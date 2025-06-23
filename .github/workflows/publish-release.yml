@@ -19,15 +19,6 @@ on:
         required: true
         type: string
 jobs:
-  publish-brew-packages:
-    uses: ./.github/workflows/publish-brew-packages.yml
-    with:
-      channel: ${{ inputs.channel }}
-      run_id: ${{ inputs.run_id }}
-    secrets: inherit
-    # Stable brew release must be published manually.
-    if: ${{ inputs.channel == 'nightly' }}
-
   publish-deb-packages:
     uses: ./.github/workflows/publish-deb-packages.yml
     with:
@@ -42,13 +33,6 @@ jobs:
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
-  publish-matlab-packages:
-    uses: ./.github/workflows/publish-matlab-packages.yml
-    with:
-      channel: ${{ inputs.channel }}
-      run_id: ${{ inputs.run_id }}
-    secrets: inherit
-
   publish-maven-packages:
     uses: ./.github/workflows/publish-maven-packages.yml
     with:
@@ -56,8 +40,8 @@ jobs:
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
-  publish-msi-packages:
-    uses: ./.github/workflows/publish-msi-packages.yml
+  publish-misc-packages:
+    uses: ./.github/workflows/publish-misc-packages.yml
     with:
       channel: ${{ inputs.channel }}
       run_id: ${{ inputs.run_id }}
@@ -86,22 +70,6 @@ jobs:
 
   publish-rpm-packages:
     uses: ./.github/workflows/publish-rpm-packages.yml
-    with:
-      channel: ${{ inputs.channel }}
-      run_id: ${{ inputs.run_id }}
-    secrets: inherit
-
-  publish-swift-packages:
-    uses: ./.github/workflows/publish-swift-packages.yml
-    with:
-      channel: ${{ inputs.channel }}
-      run_id: ${{ inputs.run_id }}
-    secrets: inherit
-    # Stable swift release must be published manually.
-    if: ${{ inputs.channel == 'nightly' }}
-
-  publish-xcframework-packages:
-    uses: ./.github/workflows/publish-xcframework-packages.yml
     with:
       channel: ${{ inputs.channel }}
       run_id: ${{ inputs.run_id }}
