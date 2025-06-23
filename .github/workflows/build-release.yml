@@ -58,7 +58,7 @@ jobs:
 
   build-brew-packages:
     name: Build Brew Packages
-    uses: ./.github/workflows/release/build-brew-packages.yml
+    uses: ./.github/workflows/build-brew-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
@@ -69,7 +69,7 @@ jobs:
 
   build-cpp-windows-packages:
     name: Build C++ NuGet Package
-    uses: ./.github/workflows/release/build-cpp-windows-packages.yml
+    uses: ./.github/workflows/build-cpp-windows-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
@@ -77,7 +77,7 @@ jobs:
 
   build-deb-packages:
     name: Build DEB Packages
-    uses: ./.github/workflows/release/build-deb-packages.yml
+    uses: ./.github/workflows/build-deb-packages.yml
     needs: set-version
     secrets: inherit
     with:
@@ -85,7 +85,7 @@ jobs:
 
   build-dotnet-packages:
     name: Build .NET Packages
-    uses: ./.github/workflows/release/build-dotnet-packages.yml
+    uses: ./.github/workflows/build-dotnet-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
@@ -93,14 +93,14 @@ jobs:
 
   build-gem-packages:
     name: Build GEM Packages
-    uses: ./.github/workflows/release/build-gem-packages.yml
+    uses: ./.github/workflows/build-gem-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.gem_version }}
 
   build-matlab-packages:
     name: Build MATLAB Packages
-    uses: ./.github/workflows/release/build-matlab-packages.yml
+    uses: ./.github/workflows/build-matlab-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
@@ -108,7 +108,7 @@ jobs:
 
   build-maven-packages:
     name: Build Maven Packages
-    uses: ./.github/workflows/release/build-maven-packages.yml
+    uses: ./.github/workflows/build-maven-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.maven_version }}
@@ -116,7 +116,7 @@ jobs:
 
   build-npm-packages:
     name: Build NPM Packages
-    uses: ./.github/workflows/release/build-npm-packages.yml
+    uses: ./.github/workflows/build-npm-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
@@ -124,7 +124,7 @@ jobs:
 
   build-pip-packages:
     name: Build PIP Packages
-    uses: ./.github/workflows/release/build-pip-packages.yml
+    uses: ./.github/workflows/build-pip-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.pypi_version }}
@@ -132,7 +132,7 @@ jobs:
 
   build-rpm-packages:
     name: Build RPM Packages
-    uses: ./.github/workflows/release/build-rpm-packages.yml
+    uses: ./.github/workflows/build-rpm-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.rpm_version }}
@@ -140,7 +140,7 @@ jobs:
 
   build-xcframework-packages:
     name: Build XCFramework Packages
-    uses: ./.github/workflows/release/build-xcframework-packages.yml
+    uses: ./.github/workflows/build-xcframework-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
@@ -159,7 +159,7 @@ jobs:
       - build-pip-packages
       - build-rpm-packages
       - build-xcframework-packages
-    uses: ./.github/workflows/release/publish-release.yml
+    uses: ./.github/workflows/publish-release.yml
     with:
       channel: ${ inputs.channel }
       run_id: ${{ github.run_id }}
