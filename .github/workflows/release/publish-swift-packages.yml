@@ -33,7 +33,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p staging
-          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging          
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "xcframework-packages" --dir staging
 
       - name: Create ice-swift repository
         run: ./update-ice-swift-nightly.sh
@@ -41,4 +41,3 @@ jobs:
         env:
           ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
         if: ${{ inputs.channel == 'nightly' }}
-
