@@ -35,6 +35,12 @@ jobs:
             image: ice-rpm-builder-amzn2023
             dockerfile: packaging/rpm/docker/amzn2023/Dockerfile
           - platform: amd64
+            image: deb-repo-builder
+            dockerfile: packaging/dpkg/docker/deb-repo-builder/Dockerfile
+          - platform: arm64
+            image: deb-repo-builder
+            dockerfile: packaging/dpkg/docker/deb-repo-builder/Dockerfile
+          - platform: amd64
             image: ice-deb-builder-debian12
             dockerfile: packaging/dpkg/docker/debian12/Dockerfile
           - platform: arm64
