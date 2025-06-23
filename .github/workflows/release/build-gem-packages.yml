@@ -37,7 +37,7 @@ jobs:
       - name: Update GEM Version
         working-directory: ruby
         run: sed -i "s/spec.version.*/spec.version = '${{ inputs.ice_version }}'/" ice.gemspec
-        if: inputs.ice_version != ''
+        if: ${{ inputs.ice_version != '' }}
 
       - name: Build GEM Package
         working-directory: ruby

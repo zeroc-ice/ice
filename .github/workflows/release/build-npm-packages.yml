@@ -104,7 +104,7 @@ jobs:
       - name: Update Version
         working-directory: ice/js
         run: npm version ${{ inputs.ice_version }}
-        if: inputs.ice_version != ''
+        if: ${{ inputs.ice_version != '' }}
 
       - name: Pack npm
         run: npm pack

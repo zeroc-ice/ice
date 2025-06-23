@@ -106,7 +106,7 @@ jobs:
           sed -i "s/^iceVersion = .*/iceVersion = ${{ inputs.ice_version }}/" gradle.properties
           sed -i "s/^sliceToolsVersion = .*/sliceToolsVersion = ${{ inputs.ice_version }}/" tools/slice-tools/gradle.properties
         working-directory: ice/java
-        if: inputs.ice_version != ''
+        if: ${{ inputs.ice_version != '' }}
 
       - name: Build Java Packages
         run: ./gradlew dist
@@ -120,8 +120,8 @@ jobs:
             -exec gpg -u "$GPG_KEY_ID" --armor --detach-sign --batch --yes --output '{}.asc' '{}' \;
         working-directory: ice/java
         env:
-          GPG_KEY: ${{ secrets.GPG_KEY }}
-          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+          GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
+          GPG_KEY_ID: ${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
