@@ -1,0 +1,103 @@
+name: "Publis Ice Release"
+
+on:
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+      channel:
+        description: "The release channel (e.g., 3.8, nightly)"
+        required: false
+        default: "nightly"
+      run_id:
+        description: "The GitHub run ID to use for artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      ice_version:
+        required: true
+        type: string
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+jobs:
+  publish-release:
+    runs-on: 'ubuntu-24.04'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Publish DEB Packages
+        uses: ./.github/workflows/release/publish-deb-packages.yml
+        with:
+          channel: ${{ inputs.channel }}
+          run_id: ${{ inputs.run_id }}
+        secrets: inherit
+
+      - name: Publish GEM Packages
+        uses: ./.github/workflows/release/publish-gem-packages.yml
+        with:
+          channel: ${{ inputs.channel }}
+          run_id: ${{ inputs.run_id }}
+        secrets: inherit
+
+      - name: Publish MATLAB Packages
+        uses: ./.github/workflows/release/publish-matlab-packages.yml
+        with:
+          channel: ${{ inputs.channel }}
+          run_id: ${{ inputs.run_id }}
+        secrets: inherit
+
+      - name: Publish MATLAB Packages
+        uses: ./.github/workflows/release/publish-matlab-packages.yml
+        with:
+          channel: ${{ inputs.channel }}
+          run_id: ${{ inputs.run_id }}
+        secrets: inherit
+
+      - name: Publish Maven Packages
+        uses: ./.github/workflows/release/publish-maven-packages.yml
+        with:
+          channel: ${{ inputs.channel }}
+          run_id: ${{ inputs.run_id }}
+        secrets: inherit
+
+      - name: Publish MSI Packages
+        uses: ./.github/workflows/release/publish-msi-packages.yml
+        with:
+          channel: ${{ inputs.channel }}
+          run_id: ${{ inputs.run_id }}
+        secrets: inherit
+
+      - name: Publish NPM Packages
+        uses: ./.github/workflows/release/publish-npm-packages.yml
+        with:
+          channel: ${{ inputs.channel }}
+          run_id: ${{ inputs.run_id }}
+        secrets: inherit
+
+      - name: Publish NuGet Packages
+        uses: ./.github/workflows/release/publish-nuget-packages.yml
+        with:
+          channel: ${{ inputs.channel }}
+          run_id: ${{ inputs.run_id }}
+        secrets: inherit
+
+      - name: Publish RPM Packages
+        uses: ./.github/workflows/release/publish-rpm-packages.yml
+        with:
+          channel: ${{ inputs.channel }}
+          run_id: ${{ inputs.run_id }}
+        secrets: inherit
+
+      - name: Publish XCFramework Packages
+        uses: ./.github/workflows/release/publish-xcframework-packages.yml
+        with:
+          channel: ${{ inputs.channel }}
+          run_id: ${{ inputs.run_id }}
+        secrets: inherit

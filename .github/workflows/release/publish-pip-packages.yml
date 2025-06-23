@@ -1,0 +1,65 @@
+name: "Publish NuGet Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+    secrets:
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+
+jobs:
+  build:
+    name: "Publish Python PIP Packages"
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name: Download PIP artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-packages-*" --dir staging
+
+      - name: Publish PIP Package
+        run: |
+          set -euo pipefail
+
+          CHANNEL="${{ inputs.channel }}"
+
+          case "$CHANNEL" in
+            "3.8")
+              REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-nightly/"
+              TWINE_USERNAME="__token__"
+              TWINE_PASSWORD="${{ secrets.PYPI_RELEASE_AUTH_TOKEN }}"
+              ;;
+            "nightly")
+              REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-nightly/"
+              TWINE_USERNAME="nightly"
+              TWINE_PASSWORD="${{ secrets.PYPI_NIGHTLY_PASSWORD }}"
+              ;;
+            *)
+              echo "Unsupported channel: $CHANNEL"
+              exit 1
+              ;;
+          esac
+
+          mkdir -p dist
+          find staging -name 'zeroc_ice-*' -type f | while read -r file; do
+            cp -vf $file dist
+          done
+
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install twine
+          twine upload --verbose --repository-url ${REPOSITORY_URL} dist/*

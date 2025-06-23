@@ -3,31 +3,14 @@ name: "Build MATLAB Packages"
 on:
   workflow_call:
     inputs:
-      repository_url:
+      ice_version:
         required: false
         type: string
-      repository_username:
-        required: false
-        type: string
-    secrets:
-      REPOSITORY_PASSWORD:
-        required: false
-      AZURE_TENANT_ID:
-        required: true
-      AZURE_CLIENT_ID:
-        required: true
-      AZURE_CLIENT_SECRET:
-        required: true
   workflow_dispatch:
     inputs:
-      repository_url:
-        description: "The URL of the repository to publish to"
+      ice_version:
+        description: "The Ice version to build"
         required: false
-        type: string
-      repository_username:
-        description: "The username to authenticate with the repository"
-        required: false
-        type: string
 
 jobs:
   build-matlab-packages:
@@ -95,19 +78,3 @@ jobs:
         with:
           name: matlab-packages-${{ matrix.os }}
           path: matlab/toolbox/*.mltbx
-
-      - name: Publish MATLAB ToolBox
-        shell: bash
-        run: |
-          curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
-              --upload-file matlab/toolbox/*.mltbx \
-              --output /dev/null \
-              --silent \
-              --retry 3 \
-              --fail \
-              --show-error \
-              ${{ inputs.repository_url }}/ || { echo "Upload failed"; exit 1; }
-        if: inputs.repository_url != ''
-        env:
-          REPOSITORY_USERNAME: ${{ inputs.repository_username }}
-          REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}

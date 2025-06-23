@@ -1,0 +1,13 @@
+name: Build Nightly Release
+on:
+  schedule:
+    # Run every day at 2:00 AM
+    - cron: "0 2 * * *"
+
+jobs:
+  build-nightly-release:
+    if: github.repository == 'zeroc-ice/ice'
+    uses: ./.github/workflows/release/build-release-workflow.yml
+    secrets: inherit
+    with:
+      channel: nightly

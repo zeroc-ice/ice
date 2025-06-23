@@ -1,0 +1,73 @@
+name: "Build DEB Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+      deb_build_options:
+        description: "DEB_BUILD_OPTIONS for the build"
+        required: false
+        default: "nocheck parallel=4"
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      deb_build_options:
+        type: string
+        required: false
+
+jobs:
+  build:
+    name: "Build for ${{ matrix.distribution }}-${{ matrix.arch }}"
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    strategy:
+      matrix:
+        include:
+          - distribution: ubuntu24.04
+            arch: amd64
+
+          - distribution: ubuntu24.04
+            arch: arm64
+
+          - distribution: debian12
+            arch: amd64
+            deb_build_profiles: "no-python312"
+
+          - distribution: debian12
+            arch: arm64
+            deb_build_profiles: "no-python312"
+    env:
+      DEB_BUILD_OPTIONS: "nocheck parallel=4"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
+      - name: Build DEB Packages
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e DEBEMAIL="ci@zeroc.com" \
+            -e DEBFULLNAME="CI" \
+            -e ICE_VERSION=${{ inputs.ice_version }} \
+            -e DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" \
+            -e DEB_BUILD_PROFILES="${{ matrix.deb_build_profiles }}" \
+            ice-deb-package-builder /workspace/ice/packaging/dpkg/build-package.sh
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages-${{ matrix.distribution }}-${{ matrix.arch }}
+          path: |
+            *.deb
+            *.ddeb
+            *.dsc
+            *.tar.xz
+            *.tar.gz
+            *.changes
+            *.buildinfo

@@ -6,43 +6,11 @@ on:
       ice_version:
         required: false
         type: string
-      nuget_source_url:
-        required: false
-        type: string
-      repository_url:
-        required: false
-        type: string
-      repository_username:
-        required: false
-        type: string
-    secrets:
-      NUGET_API_KEY:
-        required: false
-      REPOSITORY_PASSWORD:
-        required: false
-      AZURE_TENANT_ID:
-        required: true
-      AZURE_CLIENT_ID:
-        required: true
-      AZURE_CLIENT_SECRET:
-        required: true
   workflow_dispatch:
     inputs:
       ice_version:
         description: "The Ice version to build"
         required: false
-      nuget_source_url:
-        description: "The URL of the NuGet repository to publish to"
-        required: false
-        type: string
-      repository_url:
-        description: "The URL of the repository to upload MSI to"
-        required: false
-        type: string
-      repository_username:
-        description: "The username to authenticate with the repository"
-        required: false
-        type: string
 
 jobs:
   build-cpp-nuget-package:
@@ -77,8 +45,14 @@ jobs:
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
+      - name: Ice Package Version
+        if: ${{ inputs.ice_version != '' }}
+        run: |
+          "IcePackageVersion=${{ inputs.ice_version }}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        shell: pwsh
+
       - name: Build C++ NuGet Packages
-        run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes /p:IcePackageVersion="${{ inputs.ice_version }}"
+        run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes
         working-directory: cpp/msbuild
 
       - name: Build IceGrid GUI
@@ -130,33 +104,3 @@ jobs:
           name: windows-cpp-nuget-packages
           path: |
             cpp/msbuild/ZeroC.Ice.Cpp/*.nupkg
-
-      - name: Publish NuGet Packages
-        run: |
-          $packages = @(
-              Get-ChildItem -Path cpp\msbuild\ZeroC.Ice.Cpp -Filter "*.nupkg" -File -Recurse
-              Get-ChildItem -Path cpp\msbuild\ZeroC.Ice.Cpp -Filter "*.snupkg" -File -Recurse
-          )
-
-          foreach ($package in $packages) {
-              Write-Host "Publishing package: $($package.FullName)"
-              nuget push $package.FullName -Source ${{ inputs.nuget_source_url }} -ApiKey ${{ secrets.NUGET_API_KEY }}
-              if ($LASTEXITCODE -ne 0) { throw "nuget push failed" }
-          }
-        if: inputs.nuget_source_url != ''
-
-      - name: Publish MSI
-        shell: bash
-        run: |
-          curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
-              --upload-file packaging/msi/bin/x64/Release/*.msi \
-              --output /dev/null \
-              --silent \
-              --retry 3 \
-              --fail \
-              --show-error \
-              ${{ inputs.repository_url }}/ || { echo "Upload failed"; exit 1; }
-        if: inputs.repository_url != ''
-        env:
-          REPOSITORY_USERNAME: ${{ inputs.repository_username }}
-          REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
