@@ -1,0 +1,61 @@
+name: "Publish NuGet Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: "Publish NuGet Packages"
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name: Download NuGet artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "*-nuget-packages" --dir staging
+
+      - name: Publish NuGet Packages
+        run: |
+          set -euo pipefail
+
+          CHANNEL="${{ inputs.channel }}"
+
+          case "$CHANNEL" in
+            "3.8")
+              SOURCE_URL="https://api.nuget.org/v3/index.json"
+              NUGET_API_KEY="${{ secrets.NUGET_RELEASE_API_KEY }}"
+              ;;
+            "nightly")
+              SOURCE_URL="https://download.zeroc.com/nexus/repository/nuget-nightly/"
+              NUGET_API_KEY="${{ secrets.NUGET_NIGHTLY_API_KEY }}"
+              ;;
+            *)
+              echo "Unsupported channel: $CHANNEL"
+              exit 1
+              ;;
+          esac
+
+          mapfile -t packages < <(find staging -type f \( -name "*.nupkg" -o -name "*.snupkg" \))
+
+          for package in "${packages[@]}"; do
+            echo "Publishing package: $package"
+            dotnet nuget push "$package" --source "$SOURCE_URL" --api-key "$NUGET_API_KEY"
+          done

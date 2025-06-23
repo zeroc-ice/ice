@@ -6,27 +6,11 @@ on:
       ice_version:
         required: false
         type: string
-      registry_url:
-        required: false
-        type: string
-    secrets:
-      NPM_AUTH_TOKEN:
-        required: false
-      AZURE_TENANT_ID:
-        required: true
-      AZURE_CLIENT_ID:
-        required: true
-      AZURE_CLIENT_SECRET:
-        required: true
   workflow_dispatch:
     inputs:
       ice_version:
         description: "The Ice version to build"
         required: false
-      registry_url:
-        description: "The URL of the NPM registry to publish to"
-        required: false
-        type: string
 
 jobs:
   build-slice-compilers:
@@ -120,7 +104,7 @@ jobs:
       - name: Update Version
         working-directory: ice/js
         run: npm version ${{ inputs.ice_version }}
-        if: inputs.ice_version != ''
+        if: ${{ inputs.ice_version != '' }}
 
       - name: Pack npm
         run: npm pack
@@ -131,19 +115,3 @@ jobs:
         with:
           name: js-npm-packages
           path: ice/js/*.tgz
-
-      - name: Publish NPM Packages
-        working-directory: ice/js
-        run: |
-          # Compute the prefix for .npmrc by removing http: or https: from the registry URL
-          export REPOSITORY_PREFIX=$(echo "${{ inputs.registry_url }}" | sed -E 's|^https?:||')
-
-          # Write authentication token reference to .npmrc (keeps it as an env variable)
-          echo "${REPOSITORY_PREFIX}:_auth=\${NPM_AUTH_TOKEN}" > ~/.npmrc
-          echo "always-auth=true" >> ~/.npmrc
-
-          # Publish package
-          npm publish *.tgz --registry ${{ inputs.registry_url }}
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-        if: inputs.registry_url != ''

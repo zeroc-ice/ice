@@ -10,18 +10,6 @@ on:
         description: "DEB_BUILD_OPTIONS for the build"
         required: false
         default: "nocheck parallel=4"
-      repository_url:
-        description: "The URL of the Nexus repository to publish to"
-        required: false
-        type: string
-      repository_suffix:
-        description: "The suffix to append to the repository URL"
-        required: false
-        type: string
-      repository_username:
-        description: "The username to authenticate with the repository"
-        required: false
-        type: string
   workflow_call:
     inputs:
       ice_version:
@@ -30,56 +18,67 @@ on:
       deb_build_options:
         type: string
         required: false
-      repository_url:
-        required: false
-        type: string
-      repository_suffix:
-        required: false
-        type: string
-      repository_username:
-        required: false
-        type: string
-    secrets:
-      REPOSITORY_PASSWORD:
-        required: false
 
 jobs:
   build:
     name: "Build for ${{ matrix.distribution }}-${{ matrix.arch }}"
-    runs-on: ${{ matrix.arch == 'aarch64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     strategy:
       matrix:
         include:
           - distribution: ubuntu24.04
-            arch: x86_64
+            arch: amd64
 
           - distribution: ubuntu24.04
-            arch: aarch64
+            arch: arm64
 
           - distribution: debian12
-            arch: x86_64
+            arch: amd64
             deb_build_profiles: "no-python312"
 
           - distribution: debian12
-            arch: aarch64
+            arch: arm64
             deb_build_profiles: "no-python312"
-
+    env:
+      DEB_BUILD_OPTIONS: "nocheck parallel=4"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
           path: ice
 
-      - name: Call Build Debian Package Action
-        uses: ./ice/.github/actions/build-deb-package
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          ice_version: ${{ inputs.ice_version || ''}}
-          deb_build_options: ${{ inputs.deb_build_options || '' }}
-          deb_build_profiles: ${{ matrix.deb_build_profiles || '' }}
-          distribution: ${{ matrix.distribution }}
-          arch: ${{ matrix.arch }}
-          repository_url: ${{ inputs.repository_url || ''}}
-          repository_suffix: ${{ inputs.repository_suffix || '' }}
-        env:
-          REPOSITORY_USERNAME: ${{ inputs.repository_username }}
-          REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
+          registry: ghcr.io
+          username: zeroc-ice
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build DEB Packages
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e DEBEMAIL="ci@zeroc.com" \
+            -e DEBFULLNAME="CI" \
+            -e ICE_VERSION=${{ inputs.ice_version }} \
+            -e DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" \
+            -e DEB_BUILD_PROFILES="${{ matrix.deb_build_profiles }}" \
+            ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }} \
+            /workspace/ice/packaging/deb/build-package.sh
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages-${{ matrix.distribution }}-${{ matrix.arch }}
+          path: |
+            *.deb
+            *.ddeb
+            *.dsc
+            *.tar.xz
+            *.tar.gz
+            *.changes
+            *.buildinfo

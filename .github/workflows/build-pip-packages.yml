@@ -6,29 +6,11 @@ on:
       ice_version:
         required: false
         type: string
-      repository_url:
-        required: false
-        type: string
-      repository_username:
-        description: "The username to authenticate with the repository"
-        required: false
-        type: string
-    secrets:
-      PYPI_PASSWORD:
-        required: false
   workflow_dispatch:
     inputs:
       ice_version:
         description: "The Ice version to build"
         required: false
-      repository_url:
-        description: "The URL of the PYPI registry to publish to"
-        required: false
-        type: string
-      repository_username:
-        description: "The username to authenticate with the repository"
-        required: false
-        type: string
 
 jobs:
   build-python-packages:
@@ -93,20 +75,3 @@ jobs:
         with:
           path: artifacts
           pattern: pip-packages-*
-
-      - name: Publish PIP Package
-        run: |
-          set -eux
-          mkdir -p ${{ github.workspace }}/dist
-          find artifacts -name 'zeroc_ice-*' -type f | while read -r file; do
-            cp -vf $file ${{ github.workspace }}/dist
-          done
-
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install twine
-          twine upload --verbose --repository-url ${{ inputs.repository_url }} ${{ github.workspace }}/dist/*
-        env:
-          TWINE_USERNAME: ${{ inputs.repository_username }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        if: inputs.repository_url != ''
