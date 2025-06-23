@@ -7,25 +7,29 @@ classdef Properties < IceInternal.WrapperObject
 
     methods
         function [obj, remArgs] = Properties(args, defaults, impl)
-            % Properties - Constructs a new property set.
+            %PROPERTIES Constructs a new property set.
             %
-            % Examples:
-            %   properties = Ice.Properties();
-            %   [properties, remArgs] = Ice.Properties(args);
-            %   [properties, remArgs] = Ice.Properties(args, defaults);
+            %   Examples
+            %     properties = Ice.Properties()
+            %     [properties, remArgs] = Ice.Properties(args)
+            %     [properties, remArgs] = Ice.Properties(args, defaults)
             %
-            % Parameters:
-            %   args (cell array of char or string array) - A command-line argument vector, possibly containing options
-            %     to set properties. If the command-line options include a --Ice.Config option, the corresponding
-            %     configuration files are parsed. If the same property is set in a configuration file and in the
-            %     argument vector, the argument vector takes precedence.
-            %   defaults (Ice.Properties) - A property set used to initialize the default state of the new property set.
-            %     Settings in configuration files and the argument vector override these defaults.
-            % Returns:
-            %   obj (Ice.Properties) - A new property set initialized with the property settings that were removed from
-            %      the argument vector and the default property set.
-            %   remArgs (string array) - Contains the remaining command-line arguments that were not used to set
-            %     properties.
+            %   Input Arguments
+            %     args - A command-line argument vector, possibly containing options to set properties. If the
+            %       command-line options include an --Ice.Config option, the corresponding configuration file is parsed.
+            %       If the same property is set in a configuration file and in the argument vector, the argument vector
+            %       takes precedence.
+            %       empty cell array (default) | cell array of character | string array
+            %     defaults - A property set used to initialize the default state of the new property set. Settings in
+            %       configuration files and the argument vector override these defaults.
+            %       Ice.Properties empty array (default) | Ice.Properties scalar
+            %
+            %   Output Arguments
+            %     obj - A new property set initialized with the property settings that were removed from the argument
+            %       vector and the default property set.
+            %       Ice.Properties scalar
+            %     remArgs - Contains the remaining command-line arguments that were not used to set properties.
+            %       string array
             arguments
                 args (1, :) = {}
                 defaults Ice.Properties {mustBeScalarOrEmpty} = Ice.Properties.empty
@@ -47,13 +51,15 @@ classdef Properties < IceInternal.WrapperObject
         end
 
         function r = getProperty(obj, key)
-            % getProperty - Get a property by key. If the property is not set,
-            %   an empty string is returned.
+            %GETPROPERTY Gets a property by key. If the property is not set, an empty string is returned.
             %
-            % Parameters:
-            %   key (char) - The property key.
+            %   Input Arguments
+            %     key - The property key.
+            %       character vector
             %
-            % Returns (char) - The property value.
+            %   Output Arguments
+            %     r - The property value.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -61,14 +67,17 @@ classdef Properties < IceInternal.WrapperObject
             end
             r = obj.iceCallWithResult('getProperty', key);
         end
+
         function r = getIceProperty(obj, key)
-            % getIceProperty - Get an Ice property by key. If the property is not set,
-            %   its default value is returned.
+            %GETICEPROPERTY Gets an Ice property by key. If the property is not set, its default value is returned.
             %
-            % Parameters:
-            %   key (char) - The property key.
+            %   Input Arguments
+            %     key - The property key.
+            %       character vector
             %
-            % Returns (char) - The property value.
+            %   Output Arguments
+            %     r - The property value.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -76,27 +85,39 @@ classdef Properties < IceInternal.WrapperObject
             end
             r = obj.iceCallWithResult('getIceProperty', key);
         end
-        function r = getPropertyWithDefault(obj, key, def)
-            % getPropertyWithDefault - Get a property by key. If the property
-            %   is not set, the given default value is returned.
-            %
-            % Parameters:
-            %   key (char) - The property key.
-            %   def (char) - The default value to use if the property does not
-            %     exist.
-            %
-            % Returns (char) - The property value or the default value.
 
+        function r = getPropertyWithDefault(obj, key, def)
+            %GETPROPERTYWITHDEFAULT Gets a property by key. If the property is not set, the given default value is
+            %   returned.
+            %
+            %   Input Arguments
+            %     key - The property key.
+            %       character vector
+            %     def - The default value to use if the property does not exist.
+            %       character vector
+            %
+            %   Output Arguments
+            %     r - The property value or the default value.
+            %       character vector
+
+            arguments
+                obj (1, 1) Ice.Properties
+                key (1, :) char
+                def (1, :) char
+            end
             r = obj.iceCallWithResult('getPropertyWithDefault', key, def);
         end
+
         function r = getPropertyAsInt(obj, key)
-            % getPropertyAsInt - Get a property as an integer. If the property
-            %   is not set, 0 is returned.
+            %GETPROPERTYASINT Gets a property as an integer. If the property is not set, 0 is returned.
             %
-            % Parameters:
-            %   key (char) - The property key.
+            %   Input Arguments
+            %     key - The property key.
+            %       character vector
             %
-            % Returns (int32) - The property value interpreted as an integer.
+            %   Output Arguments
+            %     r - The property value interpreted as an integer.
+            %       int32 scalar
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -106,34 +127,40 @@ classdef Properties < IceInternal.WrapperObject
             obj.iceCall('getPropertyAsInt', key, v);
             r = v.Value;
         end
+
         function r = getIcePropertyAsInt(obj, key)
-            % getIcePropertyAsInt - Get an Ice property as an integer. If the property
-            %   is not set, its default value is returned.
+            %GETICEPROPERTYASINT Gets an Ice property as an integer. If the property is not set, its default value is
+            %   returned.
             %
-            % Parameters:
-            %   key (char) - The property key.
+            %   Input Arguments
+            %     key - The property key.
+            %       character vector
             %
-            % Returns (int32) - The property value interpreted as an integer.
+            %   Output Arguments
+            %     r - The property value interpreted as an integer.
+            %       int32 scalar
 
             arguments
                 obj (1, 1) Ice.Properties
                 key (1, :) char
             end
             v = libpointer('int32Ptr', 0);
-            obj.iceCall('getIcePropertyAsInt', key, v);
-            r = v.Value;
+            obj.iceCall('getIcePropertyAsInt', key, v);            r = v.Value;
         end
+
         function r = getPropertyAsIntWithDefault(obj, key, def)
-            % getPropertyAsIntWithDefault - Get a property as an integer. If
-            %   the property is not set, the given default value is returned.
+            %GETPROPERTYASINTWITHDEFAULT Gets a property as an integer. If the property is not set, the given default
+            %   value is returned.
             %
-            % Parameters:
-            %   key (char) - The property key.
-            %   def (int32) - The default value to use if the property does
-            %     not exist.
+            %   Input Arguments
+            %     key - The property key.
+            %       character vector
+            %     def - The default value to use if the property does not exist.
+            %       int32 scalar
             %
-            % Returns (int32) - The property value interpreted as an integer,
-            %   or the default value.
+            %   Output Arguments
+            %     r - The property value interpreted as an integer, or the default value.
+            %       int32 scalar
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -144,21 +171,22 @@ classdef Properties < IceInternal.WrapperObject
             obj.iceCall('getPropertyAsIntWithDefault', key, def, v);
             r = v.Value;
         end
+
         function r = getPropertyAsList(obj, key)
-            % getPropertyAsList - Get a property as a list of strings. The
-            %   strings must be separated by whitespace or comma. If the
-            %   property is not set, an empty list is returned. The strings
-            %   in the list can contain whitespace and commas if they are
-            %   enclosed in single or double quotes. If quotes are mismatched,
-            %   an empty list is returned. Within single quotes or double
-            %   quotes, you can escape the quote in question with \, e.g.
-            %   O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+            %GETPROPERTYASLIST Gets a property as a list of strings.
+            %   The strings must be separated by whitespace or comma. If the property is not set, an empty list is
+            %   returned. The strings in the list can contain whitespace and commas if they are enclosed in single or
+            %   double quotes. If quotes are mismatched, an empty list is returned. Within single quotes or double
+            %   quotes, you can escape the quote in question with \, e.g. O'Reilly can be written as O'Reilly,
+            %   "O'Reilly" or 'O\'Reilly'.
             %
-            % Parameters:
-            %   key (char) - The property key.
+            %   Input Arguments
+            %     key - The property key.
+            %       character vector
             %
-            % Returns (string array) - The property value interpreted as
-            %   a list of strings.
+            %   Output Arguments
+            %     r - The property value interpreted as a list of strings.
+            %       string array
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -166,21 +194,22 @@ classdef Properties < IceInternal.WrapperObject
             end
             r = obj.iceCallWithResult('getPropertyAsList', key);
         end
+
         function r = getIcePropertyAsList(obj, key)
-            % getIcePropertyAsList - Get an Ice property as a list of strings. The
-            %   strings must be separated by whitespace or comma. If the
-            %   property is not set, its default is returned. The strings
-            %   in the list can contain whitespace and commas if they are
-            %   enclosed in single or double quotes. If quotes are mismatched,
-            %   an empty list is returned. Within single quotes or double
-            %   quotes, you can escape the quote in question with \, e.g.
-            %   O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+            %GETICEPROPERTYASLIST Gets an Ice property as a list of strings.
+             %  The strings must be separated by whitespace or comma. If the property is not set, an empty list is
+            %   returned. The strings in the list can contain whitespace and commas if they are enclosed in single or
+            %   double quotes. If quotes are mismatched, an empty list is returned. Within single quotes or double
+            %   quotes, you can escape the quote in question with \, e.g. O'Reilly can be written as O'Reilly,
+            %   "O'Reilly" or 'O\'Reilly'.
             %
-            % Parameters:
-            %   key (char) - The property key.
+            %   Input Arguments
+            %     key - The property key.
+            %       character vector
             %
-            % Returns (string array) - The property value interpreted as
-            %   a list of strings.
+            %   Output Arguments
+            %     r - The property value interpreted as a list of strings.
+            %       string array
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -188,40 +217,44 @@ classdef Properties < IceInternal.WrapperObject
             end
             r = obj.iceCallWithResult('getIcePropertyAsList', key);
         end
+
         function r = getPropertyAsListWithDefault(obj, key, def)
-            % getPropertyAsListWithDefault - Get a property as a list of
-            %   strings. The strings must be separated by whitespace or comma.
-            %   If the property is not set, the given default value is returned.
-            %   The strings in the list can contain whitespace and commas if
-            %   they are enclosed in single or double quotes. If quotes are
-            %   mismatched, an empty list is returned. Within single quotes or
-            %   double quotes, you can escape the quote in question with \, e.g.
-            %   O'Reilly can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
+            %GETPROPERTYASLISTWITHDEFAULT Gets a property as a list of strings.
+            %   The strings must be separated by whitespace or comma. If the property is not set, the default value is
+            %   returned. The strings in the list can contain whitespace and commas if they are enclosed in single or
+            %   double quotes. If quotes are mismatched, an empty list is returned. Within single quotes or double
+            %   quotes, you can escape the quote in question with \, e.g. O'Reilly can be written as O'Reilly,
+            %   "O'Reilly" or 'O\'Reilly'.
             %
-            % Parameters:
-            %   key (char) - The property key.
-            %   def (cell array of char or string array) - The default value to use if the
-            %     property is not set.
+            %   Input Arguments
+            %     key - The property key.
+            %       character vector
+            %     def - The default value to use if the property is not set.
+            %       cell array of character | string array
             %
-            % Returns (string array) - The property value interpreted as
-            %   a list of strings, or the default value.
+            %   Output Arguments
+            %     r - The property value interpreted as a list of strings, or the default value.
+            %       string array
 
             arguments
                 obj (1, 1) Ice.Properties
                 key (1, :) char
-                def (1, :) string
+                def (1, :)
             end
             r = obj.iceCallWithResult('getPropertyAsListWithDefault', key, def);
         end
+
         function r = getPropertiesForPrefix(obj, prefix)
-            % getPropertiesForPrefix - Get all properties whose keys begins with
-            %   prefix. If prefix is an empty string, then all properties are
-            %   returned.
+            %GETPROPERTIESFORPREFIX Gets all properties whose keys begins with prefix. If prefix is an empty string,
+            %   then all properties are returned.
             %
-            % Parameters:
-            %   prefix (char) - The prefix to search for (empty string if none).
+            %   Input Arguments
+            %     prefix - The prefix to search for (empty string if none).
+            %       character vector
             %
-            % Returns (dictionary) - The matching property set.
+            %   Output Arguments
+            %     r - The matching property set.
+            %       dictionary(string, string) scalar
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -229,10 +262,10 @@ classdef Properties < IceInternal.WrapperObject
             end
             r = obj.iceCallWithResult('getPropertiesForPrefix', prefix);
         end
+
         function disp(obj)
-            % disp - Displays this Properties object.
-            %
-            % This method is called when the object is displayed in the command window.
+            %DISP Displays this Properties object.
+            %   This method is called when the object is displayed in the command window.
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -240,13 +273,15 @@ classdef Properties < IceInternal.WrapperObject
             dict = obj.getPropertiesForPrefix('');
             disp(dict); % can't use builtin('disp') with dictionary
         end
+
         function setProperty(obj, key, value)
-            % setProperty - Set a property. To unset a property, set it to
-            %   the empty string.
+            %SETPROPERTY Sets a property. To unset a property, set it to the empty string.
             %
-            % Parameters:
-            %   key (char) - The property key.
-            %   value (char) - The property value.
+            %   Input Arguments
+            %     key - The property key.
+            %       character vector
+            %     value - The property value.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -255,64 +290,70 @@ classdef Properties < IceInternal.WrapperObject
             end
             obj.iceCall('setProperty', key, value);
         end
-        function r = getCommandLineOptions(obj)
-            % getCommandLineOptions - Get a sequence of command-line options
-            %   that is equivalent to this property set. Each element of the
-            %   returned sequence is a command-line option of the form
-            %   --key=value.
-            %
-            % Returns (string array) - The command line options for this
-            %   property set.
 
+        function r = getCommandLineOptions(obj)
+            %GETCOMMANDLINEOPTIONS Gets a sequence of command-line options that is equivalent to this property set. Each
+            %   element of the returned sequence is a command-line option of the form --key=value.
+            %
+            %   Output Arguments
+            %     r - The command line options for this property set.
+            %       string array
+
+            arguments
+                obj (1, 1) Ice.Properties
+            end
             r = obj.iceCallWithResult('getCommandLineOptions');
         end
+
         function r = parseCommandLineOptions(obj, prefix, options)
-            % parseCommandLineOptions - Convert a sequence of command-line
-            %   options into properties. All options that begin with
-            %   "--prefix." are converted into properties. If the prefix is
-            %   empty, all options that begin with "--" are converted to
-            %   properties.
+            %PARSECOMMANDLINEOPTIONS Converts a sequence of command-line options into properties. All options that begin
+            %   with "--prefix." are converted into properties. If the prefix is empty, all options that begin with "--"
+            %   are converted to properties.
             %
-            % Parameters:
-            %   prefix (char) - The property prefix, or an empty string to
-            %     convert all options starting with "--".
-            %   options (cell array of char or string array) - The command-line options.
+            %   Input Arguments
+            %     prefix - The property prefix, or an empty string to convert all options starting with "--".
+            %       character vector
+            %     options - The command-line options.
+            %       cell array of character | string array
             %
-            % Returns (string array) The command-line options that do
-            %   not start with the specified prefix, in their original order.
+            %   Output Arguments
+            %     r - The command-line options that do not start with the specified prefix, in their original order.
+            %       string array
 
             arguments
                 obj (1, 1) Ice.Properties
                 prefix (1, :) char
-                options (1, :) string
+                options (1, :)
             end
             r = obj.iceCallWithResult('parseCommandLineOptions', prefix, options);
         end
+
         function r = parseIceCommandLineOptions(obj, options)
-            % parseIceCommandLineOptions - Convert a sequence of command-line
-            %   options into properties. All options that begin with one of the
-            %   following prefixes are converted into properties: "--Ice",
-            %   "--IceBox", "--IceGrid", "--IceSSL",
-            %   "--IceStorm", and "--Glacier2".
+            %PARSEICECOMMANDLINEOPTIONS Converts a sequence of command-line options into properties. All options that
+            %   begin with one of the following prefixes are converted into properties: "--Ice", "--IceBox",
+            %   "--IceGrid", "--IceSSL", "--IceStorm", and "--Glacier2".
             %
-            % Parameters:
-            %   options (cell array of char or string array) - The command-line options.
+            %   Input Arguments
+            %     options - The command-line options.
+            %       cell array of character | string array
             %
-            % Returns (string array) - The command-line options that do
-            %   not start with one of the listed prefixes, in their original
-            %   order.
+            %   Output Arguments
+            %     r - The command-line options that do not start with one of the listed prefixes, in their original order.
+            %       string array
 
             arguments
                 obj (1, 1) Ice.Properties
-                options (1, :) string
+                options (1, :)
             end
             r = obj.iceCallWithResult('parseIceCommandLineOptions', options);
         end
+
         function load(obj, file)
-            % load - Load properties from a file.
+            %LOAD Loads properties from a file.
             %
-            % Parameters:
-            %   file (char) - The property file.
+            %   Input Arguments
+            %     file - The property file.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Properties
@@ -320,10 +361,13 @@ classdef Properties < IceInternal.WrapperObject
             end
             obj.iceCall('load', file);
         end
+
         function r = clone(obj)
-            % clone - Create a copy of this property set.
+            %CLONE Creates a copy of this property set.
             %
-            % Returns (Ice.Properties) - A copy of this property set.
+            %   Output Arguments
+            %     r - A copy of this property set.
+            %       Ice.Properties scalar
 
             arguments
                 obj (1, 1) Ice.Properties

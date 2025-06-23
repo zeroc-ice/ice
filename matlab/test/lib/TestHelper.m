@@ -89,7 +89,7 @@ classdef TestHelper < handle
             if nargs == 0
                 args = [];
             else
-                % createProperties works with both a string array and a cell array of char arrays.
+                % The Properties constructor works with both a string array and a cell array of char arrays.
                 args = string(varargin{1});
             end
             [properties, args] = Ice.Properties(args);
