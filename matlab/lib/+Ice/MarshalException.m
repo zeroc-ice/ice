@@ -1,13 +1,11 @@
-% MarshalException   Summary of MarshalException
-%
-% This exception is raised for errors during marshaling or unmarshaling data.
-
 % Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) MarshalException < Ice.ProtocolException
-    methods
-        % Convenience constructor without an errID.
+    %MARSHALEXCEPTION This exception is raised for errors during marshaling or unmarshaling data.
+
+    methods(Hidden)
         function obj = MarshalException(what)
+            % Convenience constructor without an errID.
             if nargin == 0 % default constructor
                 superArgs = {};
             else

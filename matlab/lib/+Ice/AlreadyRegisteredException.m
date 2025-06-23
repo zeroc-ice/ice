@@ -3,8 +3,8 @@ classdef (Sealed) AlreadyRegisteredException < Ice.LocalException
     %   the Ice runtime.
     %
     %   AlreadyRegisteredException Properties:
-    %      kindOfObject - The kind of object that could not be removed.
-    %      id - The ID (or name) of the object that is registered already.
+    %     kindOfObject - The kind of object that could not be removed.
+    %     id - The ID (or name) of the object that is registered already.
 
     % Copyright (c) ZeroC, Inc.
 

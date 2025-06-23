@@ -1,19 +1,18 @@
-% DispatchException   Summary of DispatchException
-%
-% The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
-% wire".
-%
-% DispatchException Properties:
-%   replyStatus - The reply status byte.
-
 % Copyright (c) ZeroC, Inc.
 
 classdef DispatchException < Ice.LocalException
+    %DISPATCHEXCEPTION The dispatch failed. This is the base class for local exceptions that can be marshaled and
+    %   transmitted "over the wire".
+    %
+    %   DispatchException Properties:
+    %     replyStatus - The reply status byte.
+
     properties
-        % replyStatus - The reply status byte.
+        %REPLYSTATUS The reply status byte.
+        %   uint8 scalar
         replyStatus (1, 1) uint8 = Ice.ReplyStatus.UnknownException
     end
-    methods
+    methods(Hidden)
         function obj = DispatchException(replyStatus, errID, what)
             if nargin == 0 % default constructor
                 superArgs = {};

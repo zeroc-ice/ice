@@ -1,14 +1,12 @@
 classdef (Abstract) UserException < Ice.Exception
-    % UserException   Summary of UserException
-    %
-    % Base class for exceptions defined in Slice.
+    %USEREXCEPTION Base class for exceptions defined in Slice.
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Abstract)
+    methods(Abstract, Hidden)
         ice_id(obj)
     end
-    methods(Hidden=true)
+    methods(Hidden)
         function obj = iceRead(obj, is)
             is.startException();
             obj = obj.iceReadImpl(is);
