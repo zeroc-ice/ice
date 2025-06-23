@@ -6,6 +6,8 @@ package com.zeroc.Ice;
 public class SyscallException extends LocalException {
     /**
      * Constructs a {@code SyscallException} with a {@code null} detail message and the specified cause.
+     *
+     * @param cause the cause of this exception
      */
     public SyscallException(Throwable cause) {
         super(null, cause);

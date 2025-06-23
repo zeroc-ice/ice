@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception indicates a connection establishment timeout condition. */
 public final class ConnectTimeoutException extends TimeoutException {
     /**
-     * Constructs a new {@code ConnectTimeoutException}.
+     * Constructs a {@code ConnectTimeoutException}.
      */
     public ConnectTimeoutException() {
         super("Connect timed out.");
