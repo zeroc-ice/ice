@@ -13,10 +13,6 @@ classdef UnknownSlicedValue < Ice.Value
     end
     methods
         function id = ice_id(obj)
-            %ICE_ID Returns the Slice type ID associated with this instance.
-            %   Output Arguments
-            %     id - The Slice type ID.
-            %       character vector
             id = obj.unknownTypeId;
         end
     end

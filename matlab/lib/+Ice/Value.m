@@ -39,7 +39,12 @@ classdef (Abstract) Value < matlab.mixin.Copyable
             r = obj.iceSlicedData_;
         end
     end
-    methods(Abstract, Hidden)
+    methods(Abstract)
+        %ICE_ID Returns the Slice type ID associated with this instance.
+        %
+        %   Output Arguments
+        %     id - The Slice type ID.
+        %       character vector
         id = ice_id(obj)
     end
     methods(Static)
