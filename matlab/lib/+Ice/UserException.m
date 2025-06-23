@@ -1,6 +1,5 @@
 classdef (Abstract) UserException < Ice.Exception
-    %USEREXCEPTION
-    %   Abstract base class for all Ice exceptions defined in Slice.
+    %USEREXCEPTION Abstract base class for all Ice exceptions defined in Slice.
 
     % Copyright (c) ZeroC, Inc.
 
