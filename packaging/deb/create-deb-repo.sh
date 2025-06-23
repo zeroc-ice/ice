@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: ./create-repo.sh --distro <distro> --channel <channel> --staging <staging-dir> --repo <repo-dir>
+# Usage: ./create-deb-repo.sh --distribution <distribution> --channel <channel> --staging <staging-dir> --repo <repo-dir>
 # Required environment: GPG_KEY, GPG_KEY_ID
 
 # Default values
-DISTRO=""
+DISTRIBUTION=""
 CHANNEL=""
 STAGING=""
 REPODIR=""
@@ -13,8 +13,8 @@ REPODIR=""
 # Parse arguments
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --distro)
-            DISTRO="$2"
+        --distribution)
+            DISTRIBUTION="$2"
             shift 2
             ;;
         --channel)
@@ -37,18 +37,18 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Validate required inputs
-: "${DISTRO:?Missing --distro}"
+: "${DISTRIBUTION:?Missing --distribution}"
 : "${CHANNEL:?Missing --channel}"
 : "${STAGING:?Missing --staging}"
 : "${REPODIR:?Missing --repo}"
 : "${GPG_KEY:?GPG_KEY environment variable is not set}"
 : "${GPG_KEY_ID:?GPG_KEY_ID environment variable is not set}"
 
-# Validate distro
-case "$DISTRO" in
+# Validate distribution
+case "$DISTRIBUTION" in
     debian12|ubuntu-24.04) ;;
     *)
-        echo "Error: DISTRO must be 'debian12' or 'ubuntu-24.04'" >&2
+        echo "Error: DISTRIBUTION must be 'debian12' or 'ubuntu-24.04'" >&2
         exit 1
         ;;
 esac
@@ -62,9 +62,13 @@ case "$CHANNEL" in
         ;;
 esac
 
-# Import GPG key if not present
+# Import the GPG key
+echo "$GPG_KEY" | gpg --batch --import
+
+# Check that the key was successfully imported
 if ! gpg --list-secret-keys "$GPG_KEY_ID" > /dev/null 2>&1; then
-    echo "$GPG_KEY" | gpg --batch --import
+  echo "Error: GPG key ID $GPG_KEY_ID was not imported successfully."
+  exit 1
 fi
 
 declare -A CODENAMES=(
@@ -72,11 +76,11 @@ declare -A CODENAMES=(
     ["ubuntu-24.04"]="noble"
 )
 
-CODENAME="${CODENAMES[$DISTRO]}"
-DIST_DIR="$REPODIR/$DISTRO"
+CODENAME="${CODENAMES[$DISTRIBUTION]}"
+DIST_DIR="$REPODIR/$DISTRIBUTION"
 CONF_DIR="$DIST_DIR/conf"
 
-echo "Creating APT repository layout for $DISTRO in $DIST_DIR..."
+echo "Creating APT repository layout for $DISTRIBUTION in $DIST_DIR..."
 
 mkdir -p "$CONF_DIR"
 
@@ -95,7 +99,7 @@ Suite: stable
 Version: $CHANNEL
 Architectures: amd64 arm64 source
 Components: main
-Description: ZeroC Ice $CHANNEL packages for $DISTRO
+Description: ZeroC Ice $CHANNEL packages for $DISTRIBUTION
 SignWith: $GPG_KEY_ID
 EOF
 
@@ -132,15 +136,15 @@ fi
 packages=()
 while IFS= read -r file;
     do packages+=("$file");
-done < <(find "$STAGING/deb-packages-$DISTRO-x86_64" -type f -name "*_amd64.deb")
+done < <(find "$STAGING/deb-packages-$DISTRIBUTION-amd64" -type f -name "*_amd64.deb")
 
 while IFS= read -r file; do
     packages+=("$file");
-done < <(find "$STAGING/deb-packages-$DISTRO-aarch64" -type f -name "*_arm64.deb")
+done < <(find "$STAGING/deb-packages-$DISTRIBUTION-arm64" -type f -name "*_arm64.deb")
 
 while IFS= read -r file; do
     packages+=("$file");
-done < <(find "$STAGING/deb-packages-$DISTRO-x86_64" -type f -name "*_all.deb")
+done < <(find "$STAGING/deb-packages-$DISTRIBUTION-amd64" -type f -name "*_all.deb")
 
 # Add binary packages
 for package in "${packages[@]}"; do
@@ -151,7 +155,7 @@ done
 src_packages=()
 while IFS= read -r file; do
     src_packages+=("$file");
-done < <(find "$STAGING/deb-packages-$DISTRO-x86_64" -type f -name "*.dsc")
+done < <(find "$STAGING/deb-packages-$DISTRIBUTION-amd64" -type f -name "*.dsc")
 
 # Add source packages
 for package in "${src_packages[@]}"; do

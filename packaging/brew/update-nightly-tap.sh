@@ -10,7 +10,7 @@ set -eux -o pipefail
 usage() {
     echo "Usage: $0 <ice_version> <root_url>"
     echo "  <ice_version>  The version of Ice to build (e.g., 3.8.0-nightly-20231020)"
-    echo "  <root_url>     The root URL for the bottles (e.g., https://download.zeroc.com/nexus/repository/nightly)"
+    echo "  <root_url>     The root URL for the bottles (e.g., https://download.zeroc.com/ice/nightly)"
 }
 
 ice_version="${1:-}"

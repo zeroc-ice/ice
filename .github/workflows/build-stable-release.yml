@@ -1,0 +1,11 @@
+name: Build Stable Release
+on:
+  workflow_call:
+
+jobs:
+  build-stable-release:
+    if: github.repository == 'zeroc-ice/ice'
+    uses: ./.github/workflows/build-release.yml
+    secrets: inherit
+    with:
+      channel: 3.8

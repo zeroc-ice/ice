@@ -3,7 +3,7 @@ set -eux  # Exit on error, print commands
 
 # Create build directory and copy Debian packaging files
 mkdir -p /workspace/build
-cp -rfv /workspace/ice/packaging/dpkg/debian /workspace/build
+cp -rfv /workspace/ice/packaging/deb/debian /workspace/build
 
 # If ICE_VERSION is set, update the changelog entry to the given version. Otherwise use ICE_VERSION from the changelog.
 if [[ -n "${ICE_VERSION:-}" ]]; then

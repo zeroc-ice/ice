@@ -1,0 +1,68 @@
+name: "Publish NuGet Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: "Publish Maven Packages"
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Java artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir staging
+
+      - name: Publish Nightly GEM Packages
+        run: |
+          set -euo pipefail
+
+          CHANNEL="${{ inputs.channel }}"
+
+          case "$CHANNEL" in
+            "3.8")
+              SOURCE_URL="https://central.sonatype.com"
+              MAVEN_USERNAME="${{ secrets.MAVEN_CENTRAL_USERNAME }}"
+              MAVEN_PASSWORD="${{ secrets.MAVEN_CENTRAL_API_KEY }}"
+              ;;
+            "nightly")
+              SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-nightly/"
+              MAVEN_USERNAME="nightly"
+              MAVEN_PASSWORD="${{ secrets.NUGET_NIGHTLY_PASSWORD }}"
+              ;;
+            *)
+              echo "Unsupported channel: $CHANNEL"
+              exit 1
+              ;;
+          esac
+
+          mkdir -p ice/java/lib
+          cp -pf staging/java-packages/java/lib/*.jar lib
+          cp -pf staging/java-packages/java/lib/*.pom lib
+          cp -pf staging/java-packages/java/tools/slice-tools/build/libs/*.jar tools/slice-tools/build/libs/
+
+          ice_version=$(basename "$(ls ib/ice-*-sources.jar)" | sed -E 's/^ice-(.+)-sources\.jar$/\1/')
+          ./gradlew publish -PiceVersion="${ice_version}"
+        working-directory: ice/java
