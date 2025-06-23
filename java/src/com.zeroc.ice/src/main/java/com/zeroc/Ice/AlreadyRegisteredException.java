@@ -9,7 +9,7 @@ package com.zeroc.Ice;
  */
 public final class AlreadyRegisteredException extends LocalException {
     /**
-     * Creates an AlreadyRegisteredException with the specified kind of object and ID.
+     * Constructs an AlreadyRegisteredException with the specified kind of object and ID.
      *
      * @param kindOfObject the kind of object
      * @param id           the ID of the object
