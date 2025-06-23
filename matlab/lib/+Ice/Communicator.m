@@ -4,6 +4,25 @@ classdef Communicator < IceInternal.WrapperObject
     %   - creating and managing outgoing connections
     %   - managing properties (configuration), retries, logging, and more.
     %
+    %   Communicator Methods:
+    %     Communicator - Constructs a new communicator.
+    %     destroy - Destroys the communicator and cleans up memory, shutting down this communicator's client functionality.
+    %     destroyAsync - An asynchronous destroy.
+    %     flushBatchRequests - Flushes any pending batch requests for this communicator.
+    %     flushBatchRequestsAsync - An asynchronous flushBatchRequests.
+    %     getDefaultLocator - Gets the default locator for this communicator.
+    %     getDefaultRouter - Gets the default router for this communicator.
+    %     getImplicitContext - Gets the implicit context associated with this communicator.
+    %     getLogger - Gets the logger for this communicator.
+    %     getProperties - Gets the Ice properties for this communicator.
+    %     identityToString - Convert an identity into a string.
+    %     propertyToProxy - Converts a set of proxy properties into a proxy.
+    %     proxyToProperty - Converts a proxy to a set of proxy properties.
+    %     proxyToString - Converts a proxy into a string.
+    %     setDefaultLocator - Sets a default locator for this communicator.
+    %     setDefaultRouter - Sets a default router for this communicator.
+    %     stringToProxy - Converts a stringified proxy into a proxy.
+
     % Copyright (c) ZeroC, Inc.
 
     methods
