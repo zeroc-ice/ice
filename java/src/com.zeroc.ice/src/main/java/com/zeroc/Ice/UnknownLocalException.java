@@ -10,6 +10,11 @@ package com.zeroc.Ice;
  * though they are declared <code>local</code>.
  */
 public final class UnknownLocalException extends UnknownException {
+    /**
+     * Constructs an {@code UnknownLocalException} with a message.
+     *
+     * @param message the detail message for this exception
+     */
     public UnknownLocalException(String message) {
         super(ReplyStatus.UnknownLocalException, message);
     }

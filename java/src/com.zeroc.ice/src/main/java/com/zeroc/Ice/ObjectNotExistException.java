@@ -7,10 +7,20 @@ package com.zeroc.Ice;
  * could not find a servant for the identity carried by the request.
  */
 public final class ObjectNotExistException extends RequestFailedException {
+    /**
+     * Constructs an {@code ObjectNotExistException}.
+     */
     public ObjectNotExistException() {
         super(ReplyStatus.ObjectNotExist);
     }
 
+    /**
+     * Constructs an {@code ObjectNotExistException} with object details.
+     *
+     * @param id        the identity of the Ice Object to which the request was sent
+     * @param facet     the facet to which the request was sent
+     * @param operation the operation name of the request
+     */
     public ObjectNotExistException(Identity id, String facet, String operation) {
         super(ReplyStatus.ObjectNotExist, id, facet, operation);
     }

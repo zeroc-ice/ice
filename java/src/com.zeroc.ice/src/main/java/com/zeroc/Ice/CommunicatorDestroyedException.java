@@ -15,6 +15,7 @@ public final class CommunicatorDestroyedException extends LocalException {
         super("communicator destroyed");
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::CommunicatorDestroyedException";
     }

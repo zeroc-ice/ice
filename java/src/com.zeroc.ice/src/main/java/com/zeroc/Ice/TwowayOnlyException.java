@@ -9,6 +9,11 @@ package com.zeroc.Ice;
  * out-parameters, or an exception specification.
  */
 public final class TwowayOnlyException extends LocalException {
+    /**
+     * Constructs a {@code TwowayOnlyException} with the operation name.
+     *
+     * @param operation the operation that can only be invoked with a twoway request
+     */
     public TwowayOnlyException(String operation) {
         super(
             "Cannot invoke operation '"
@@ -17,6 +22,7 @@ public final class TwowayOnlyException extends LocalException {
         this.operation = operation;
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::TwowayOnlyException";
     }

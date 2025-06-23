@@ -9,10 +9,16 @@ package com.zeroc.Ice;
 public final class PropertyException extends LocalException {
     private static final long serialVersionUID = 3503752114859671311L;
 
+    /**
+     * Constructs a {@code PropertyException} with a message.
+     *
+     * @param message the detail message for this exception
+     */
     public PropertyException(String message) {
         super(message);
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::PropertyException";
     }

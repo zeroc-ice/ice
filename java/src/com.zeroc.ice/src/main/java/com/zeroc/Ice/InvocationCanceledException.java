@@ -7,10 +7,14 @@ package com.zeroc.Ice;
  * cancel() on the future returned by an asynchronous invocation.
  */
 final class InvocationCanceledException extends LocalException {
+    /**
+     * Constructs an {@code InvocationCanceledException}.
+     */
     InvocationCanceledException() {
         super("Invocation canceled.");
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::InvocationCanceledException";
     }

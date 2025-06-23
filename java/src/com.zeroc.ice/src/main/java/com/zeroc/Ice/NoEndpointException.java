@@ -19,7 +19,7 @@ public final class NoEndpointException extends LocalException {
     }
 
     /**
-     * Creates a {@code NoEndpointException} from an invalid proxy string.
+     * Constructs a {@code NoEndpointException} from an invalid proxy string.
      *
      * @param proxyString the invalid proxy string
      */
