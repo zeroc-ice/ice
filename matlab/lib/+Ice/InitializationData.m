@@ -1,9 +1,11 @@
 classdef (Sealed) InitializationData
-    % InitializationData   Represents a set of options that you can specify when initializing a communicator.
+    %INITIALIZATIONDATA Represents a set of options that you can specify when initializing a communicator.
     %
-    % InitializationData Properties:
-    %   Properties - The properties of the communicator.
-    %   SliceLoader - The Slice loader, used to unmarshal Slice classes and exceptions.
+    %   InitializationData Properties:
+    %     Properties - The properties of the communicator.
+    %     SliceLoader - The Slice loader, used to unmarshal Slice classes and exceptions.
+    %
+    %   See also Ice.initialize, Ice.Communicator.
 
     properties
         Properties (1, 1) Ice.Properties = Ice.Properties() % The properties of the communicator.

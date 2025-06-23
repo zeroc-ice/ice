@@ -1,7 +1,5 @@
 classdef InputStream < handle
-    % InputStream   Summary of InputStream
-    %
-    % Unmarshals Slice types.
+    %INPUTSTREAM Represents a byte buffer used for unmarshaling data encoded using the Slice encoding.
 
     % Copyright (c) ZeroC, Inc.
 

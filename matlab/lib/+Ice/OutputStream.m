@@ -1,7 +1,5 @@
 classdef OutputStream < handle
-    % OutputStream   Summary of OutputStream
-    %
-    % Marshals Slice types.
+    %OUTPUTSTREAM Represents a byte buffer used for marshaling data using the Slice encoding.
 
     % Copyright (c) ZeroC, Inc.
 

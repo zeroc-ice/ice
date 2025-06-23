@@ -1,5 +1,5 @@
 classdef Future < IceInternal.WrapperObject
-    % Future Represents the future result of an asynchronous invocation.
+    %FUTURE Represents the future result of an asynchronous invocation.
     %
     %   Future Methods:
     %     wait - Blocks until the invocation reaches a certain state, or a timeout expires.
@@ -115,7 +115,7 @@ classdef Future < IceInternal.WrapperObject
         end
 
         function cancel(obj)
-            %CANCELS If the invocation is still pending, calling this method instructs the local Ice runtime to ignore
+            %CANCEL If the invocation is still pending, calling this method instructs the local Ice runtime to ignore
             %   its results.
 
             if ~isempty(obj.impl_)
