@@ -1,21 +1,18 @@
 function status = slice2matlab(args)
+    %SLICE2MATLAB Compile one or more Slice files using the Slice-to-MATLAB compiler.
+    %   This MATLAB function launches the Slice-to-MATLAB compiler and forwards all its arguments to the compiler.
+    %   The Slice-to-MATLAB compiler, slice2matlab.exe on Windows and slice2matlab on Linux, is included with the Ice
+    %   toolbox.
+    %
+    %   Example
+    %     slice2matlab -I/opt/shared/slice file1.ice file2.ice
+    %     slice2matlab --help
+
+    % Copyright (c) ZeroC, Inc.
+
     arguments (Repeating)
         args (1, :) char
     end
-
-    % SLICE2MATLAB Compile Slice files.
-    %
-    % Compiles Slice files using the Slice-to-MATLAB compiler included with the Ice toolbox.
-    %
-    % Parameters:
-    %
-    %   args - The arguments passed to the Slice-to-MATLAB compiler.
-    %
-    % Returns:
-    %
-    %   status - The Slice-to-MATLAB compiler exit status code.
-
-    % Copyright (c) ZeroC, Inc.
 
     root_dir = fileparts(mfilename('fullpath'));
 
