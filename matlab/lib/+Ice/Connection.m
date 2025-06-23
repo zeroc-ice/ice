@@ -1,25 +1,5 @@
 classdef Connection < IceInternal.WrapperObject
-    % Connection   Summary of Connection
-    %
-    % The user-level interface to a connection.
-    %
-    % Connection Methods:
-    %   close - Manually close the connection using the specified closure mode.
-    %   closeAsync - Manually close the connection using the specified closure
-    %     mode.
-    %   createProxy - Create a special proxy that always uses this connection.
-    %   getEndpoint - Get the endpoint from which the connection was created.
-    %   flushBatchRequests - Flush any pending batch requests for this
-    %     connection.
-    %   flushBatchRequestsAsync - Flush any pending batch requests for this
-    %     connection.
-    %   type - Return the connection type.
-    %   toString - Return a description of the connection as human readable
-    %     text, suitable for logging or error messages.
-    %   getInfo - Returns the connection information.
-    %   setBufferSize - Set the connection buffer receive/send size.
-    %   throwException - Throw an exception indicating the reason for
-    %     connection closure.
+    %CONNECTION Represents a connection that uses the Ice protocol.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -32,9 +12,8 @@ classdef Connection < IceInternal.WrapperObject
     end
     methods
         function r = eq(obj, other)
-            %
-            % Override == operator.
-            %
+            %EQ Compares this connection with another Connection for equality.
+            %   See also eq.
             if isempty(other) || ~isa(other, 'Ice.Connection')
                 r = false;
             else
@@ -56,7 +35,7 @@ classdef Connection < IceInternal.WrapperObject
         function f = close(obj)
             % close   Closes the connection gracefully after waiting for all outstanding invocations to complete.
             %
-            % Returns (Ice.Future) - A future that completes when the connnection is closed.
+            % Returns (Ice.Future) - A future that completes when the connection is closed.
 
             arguments
                 obj (1, 1) Ice.Connection
