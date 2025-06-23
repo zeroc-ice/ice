@@ -1,54 +1,38 @@
 classdef Communicator < IceInternal.WrapperObject
-    % Communicator   Summary of Communicator
+    %COMMUNICATOR The central object in Ice.
+    %   Communicator is the central object in Ice. Its responsibilities include:
+    %   - creating and managing outgoing connections
+    %   - managing properties (configuration), retries, logging, and more.
     %
-    % The central object in Ice. One or more communicators can be
-    % instantiated for an Ice application. Communicator instantiation
-    % is language-specific, and not specified in Slice code.
-    %
-    % Communicator Methods:
-    %   destroy - Destroy the communicator.
-    %   destroyAsync - Destroy the communicator.
-    %   stringToProxy - Convert a stringified proxy into a proxy.
-    %   proxyToString - Convert a proxy into a string.
-    %   propertyToProxy - Convert a set of proxy properties into a proxy.
-    %   proxyToProperty - Convert a proxy to a set of proxy properties.
-    %   identityToString - Convert an identity into a string.
-    %   getImplicitContext - Get the implicit context associated with this
-    %     communicator.
-    %   getProperties - Get the properties for this communicator.
-    %   getLogger - Get the logger for this communicator.
-    %   getDefaultRouter - Get the default router for this communicator.
-    %   setDefaultRouter - Set a default router for this communicator.
-    %   getDefaultLocator - Get the default locator for this communicator.
-    %   setDefaultLocator - Set a default locator for this communicator.
-    %   getEncoding - Get the encoding version for this communicator.
-    %   getFormat - Get the class format for this communicator.
-    %   flushBatchRequests - Flush any pending batch requests for this
-    %     communicator.
-    %   flushBatchRequestsAsync - Flush any pending batch requests for this
-    %     communicator.
-
     % Copyright (c) ZeroC, Inc.
 
     methods
         function [obj, remArgs] = Communicator(args, options)
-            % Communicator  Constructs a new communicator.
+            %COMMUNICATOR Constructs a new communicator.
             %
-            % Examples:
-            %   communicator = Ice.Communicator();
-            %   [communicator, remArgs] = Ice.Communicator(args);
-            %   communicator = Ice.Communicator(Properties = props, SliceLoader = sliceLoader);
-            %   [communicator, remArgs] = Ice.Communicator(args, SliceLoader = sliceLoader);
+            %   Examples
+            %     communicator = Ice.Communicator();
+            %     [communicator, remArgs] = Ice.Communicator(args);
+            %     communicator = Ice.Communicator(Properties = props, SliceLoader = sliceLoader);
+            %     [communicator, remArgs] = Ice.Communicator(args, SliceLoader = sliceLoader);
             %
-            % Parameters:
-            %   args (cell array of char or string array) - An optional argument vector. Any Ice-related options in this
-            %     vector are used to initialize the communicator properties.
-            %   options - Name=Value options provided by the Ice.InitializationData class.
+            %   Input Arguments
+            %     args - Argument vector. Any Ice-related options in this vector are used to set the communicator
+            %       properties.
+            %       empty cell array (default) | cell array of character | string array
             %
-            % Returns:
-            %   communicator (Ice.Communicator) - The new communicator.
-            %   remArgs (string array) - Contains the remaining command-line arguments that were not used to set
-            %     properties.
+            %   Input Name-Value Arguments
+            %     Properties - Properties object used to initialize the communicator properties. If args is non-empty,
+            %       any reserved properties specified in args override these in properties.
+            %       Ice.Properties scalar
+            %     SliceLoader - Slice loader used to load Slice classes and exceptions.
+            %       Ice.SliceLoader scalar
+            %
+            %   Output Arguments
+            %     communicator - The new communicator.
+            %       Ice.Communicator scalar
+            %     remArgs - Remaining command-line arguments that were not used to set properties.
+            %       string array
             arguments
                 args (1, :) = {}
                 options.?Ice.InitializationData
