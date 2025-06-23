@@ -10,7 +10,7 @@ package com.zeroc.Ice;
  */
 public final class TwowayOnlyException extends LocalException {
     /**
-     * Constructs a {@code TwowayOnlyException} with the operation name.
+     * Constructs a TwowayOnlyException with the operation name.
      *
      * @param operation the operation that can only be invoked with a twoway request
      */

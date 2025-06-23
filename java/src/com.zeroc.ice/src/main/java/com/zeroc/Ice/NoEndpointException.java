@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception is raised if no suitable endpoint is available. */
 public final class NoEndpointException extends LocalException {
     /**
-     * Constructs a {@code NoEndpointException} with a message.
+     * Constructs a NoEndpointException with a message.
      *
      * @param message the detail message for this exception
      */
@@ -14,7 +14,7 @@ public final class NoEndpointException extends LocalException {
     }
 
     /**
-     * Constructs a {@code NoEndpointException} with a proxy.
+     * Constructs a NoEndpointException with a proxy.
      *
      * @param proxy the proxy for which no suitable endpoint is available
      */

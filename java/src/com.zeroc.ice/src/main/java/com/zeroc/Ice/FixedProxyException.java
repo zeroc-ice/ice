@@ -8,7 +8,7 @@ package com.zeroc.Ice;
  */
 public final class FixedProxyException extends LocalException {
     /**
-     * Constructs a {@code FixedProxyException}.
+     * Constructs a FixedProxyException.
      */
     public FixedProxyException() {
         super("Cannot change the connection properties of a fixed proxy.");

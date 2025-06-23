@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception indicates a DNS problem. */
 public final class DNSException extends SyscallException {
     /**
-     * Constructs a {@code DNSException} with a message.
+     * Constructs a DNSException with a message.
      *
      * @param host the host that could not be resolved
      */
@@ -14,7 +14,7 @@ public final class DNSException extends SyscallException {
     }
 
     /**
-     * Constructs a {@code DNSException} with a message and a cause.
+     * Constructs a DNSException with a message and a cause.
      *
      * @param host  the host that could not be resolved
      * @param cause the cause of this exception

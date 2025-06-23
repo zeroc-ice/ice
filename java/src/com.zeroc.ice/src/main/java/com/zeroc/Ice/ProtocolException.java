@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** The base class for Ice protocol exceptions. */
 public class ProtocolException extends LocalException {
     /**
-     * Constructs a {@code ProtocolException} with a message.
+     * Constructs a ProtocolException with a message.
      *
      * @param message the detail message for this exception
      */
@@ -14,7 +14,7 @@ public class ProtocolException extends LocalException {
     }
 
     /**
-     * Constructs a {@code ProtocolException} with a message and a cause.
+     * Constructs a ProtocolException with a message and a cause.
      *
      * @param message the detail message for this exception
      * @param cause   the cause of this exception

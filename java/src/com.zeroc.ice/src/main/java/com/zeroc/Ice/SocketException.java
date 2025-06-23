@@ -12,7 +12,7 @@ public class SocketException extends SyscallException {
     }
 
     /**
-     * Constructs a {@code SocketException} with the specified cause.
+     * Constructs a SocketException with the specified cause.
      *
      * @param cause the cause of this exception
      */

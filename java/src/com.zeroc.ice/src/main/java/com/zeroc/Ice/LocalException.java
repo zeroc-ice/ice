@@ -9,7 +9,7 @@ package com.zeroc.Ice;
  */
 public class LocalException extends RuntimeException {
     /**
-     * Constructs a {@code LocalException} with a message.
+     * Constructs a LocalException with a message.
      *
      * @param message the detail message for this exception
      */
@@ -18,7 +18,7 @@ public class LocalException extends RuntimeException {
     }
 
     /**
-     * Constructs a {@code LocalException} with a message and a cause.
+     * Constructs a LocalException with a message and a cause.
      *
      * @param message the detail message for this exception
      * @param cause   the cause of this exception

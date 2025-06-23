@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception is raised for errors during marshaling or unmarshaling. */
 public final class MarshalException extends ProtocolException {
     /**
-     * Constructs a {@code MarshalException} with a message.
+     * Constructs a MarshalException with a message.
      *
      * @param message the detail message for this exception
      */
@@ -14,7 +14,7 @@ public final class MarshalException extends ProtocolException {
     }
 
     /**
-     * Constructs a {@code MarshalException} with a message and a cause.
+     * Constructs a MarshalException with a message and a cause.
      *
      * @param message the detail message for this exception
      * @param cause   the cause of this exception

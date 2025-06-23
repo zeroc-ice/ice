@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception indicates a failure in a security subsystem. */
 public final class SecurityException extends LocalException {
     /**
-     * Constructs a {@code SecurityException} with a message.
+     * Constructs a SecurityException with a message.
      *
      * @param message the detail message for this exception
      */
@@ -14,7 +14,7 @@ public final class SecurityException extends LocalException {
     }
 
     /**
-     * Constructs a {@code SecurityException} with a message and a cause.
+     * Constructs a SecurityException with a message and a cause.
      *
      * @param message the detail message for this exception
      * @param cause   the cause of this exception

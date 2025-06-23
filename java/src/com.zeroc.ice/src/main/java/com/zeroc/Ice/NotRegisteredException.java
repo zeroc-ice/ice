@@ -10,7 +10,7 @@ package com.zeroc.Ice;
  */
 public final class NotRegisteredException extends LocalException {
     /**
-     * Constructs a {@code NotRegisteredException} with the object kind and ID.
+     * Constructs a NotRegisteredException with the object kind and ID.
      *
      * @param kindOfObject the kind of object that was not found
      * @param id           the ID of the object that was not found
