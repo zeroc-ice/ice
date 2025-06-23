@@ -6,13 +6,15 @@ class CompressBatch(EnumBase):
     """
     The batch compression option when flushing queued batch requests.
 
-    Enumerators
-    -----------
-    Yes : CompressBatch
+    Enumerators:
+
+    - Yes:
         Compress the batch requests.
-    No : CompressBatch
+
+    - No:
         Don't compress the batch requests.
-    BasedOnProxy : CompressBatch
+
+    - BasedOnProxy:
         Compress the batch requests if at least one request was made on a compressed proxy.
     """
 
