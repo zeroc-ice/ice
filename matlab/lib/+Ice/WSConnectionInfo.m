@@ -6,7 +6,7 @@ classdef (Sealed) WSConnectionInfo < Ice.ConnectionInfo
 
     % Copyright (c) ZeroC, Inc.
 
-    methods
+    methods(Hidden)
         function obj = WSConnectionInfo(underlying, headers)
             assert(nargin == 2, 'Invalid number of arguments');
             obj@Ice.ConnectionInfo(underlying);

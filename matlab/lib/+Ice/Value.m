@@ -1,5 +1,11 @@
 classdef (Abstract) Value < matlab.mixin.Copyable
     %VALUE The base class for instances of Slice-defined classes.
+    %
+    %   Value Methods:
+    %     Value - Constructs a new Value instance.
+    %     ice_getSlicedData - Gets the sliced data if this object has a preserved-slice base class and has been sliced during unmarshaling.
+    %     ice_postUnmarshal - Ice invokes this method after unmarshaling the fields of this object.
+    %     ice_preMarshal - Ice invokes this method prior to marshaling the fields of this object.
 
     % Copyright (c) ZeroC, Inc.
 

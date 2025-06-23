@@ -1,5 +1,13 @@
 classdef Logger < IceInternal.WrapperObject
     %LOGGER Represents Ice's abstraction for logging and tracing.
+    %
+    %   Logger Methods:
+    %     cloneWithPrefix - Creates a new logger with a different prefix.
+    %     error - Logs an error message.
+    %     getPrefix - Gets the prefix for this logger.
+    %     print - Prints a message.
+    %     trace - Logs a trace message.
+    %     warning - Logs a warning message.
 
     % Copyright (c) ZeroC, Inc.
 

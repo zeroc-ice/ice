@@ -1,7 +1,27 @@
 classdef Properties < IceInternal.WrapperObject
     %PROPERTIES Represents a set of properties used to configure Ice and Ice-based applications.
-    %    A property is a key/value pair, where both the key and the value are strings. By convention, property keys
-    %    should have the form `application-name>[.category[.sub-category]].name`.
+    %   A property is a key/value pair, where both the key and the value are strings. By convention, property keys
+    %   should have the form `application-name>[.category[.sub-category]].name`.
+    %
+    %   Ice.Properties Methods:
+    %     Properties - Constructs a new property set.
+    %     clone - Creates a copy of this property set.
+    %     disp - Displays this property set.
+    %     getCommandLineOptions - Gets the command-line options for this property set.
+    %     getIceProperty - Gets the value of an Ice property.
+    %     getIcePropertyAsInt - Gets the value of an Ice property as an integer.
+    %     getIcePropertyAsList - Gets the value of an Ice property as a list.
+    %     getPropertiesForPrefix - Gets all properties whose keys begin with the specified prefix.
+    %     getProperty - Gets the value of a property.
+    %     getPropertyAsInt - Gets the value of a property as an integer.
+    %     getPropertyAsIntWithDefault - Gets the value of a property as an integer with a default value.
+    %     getPropertyAsList - Gets the value of a property as a list.
+    %     getPropertyAsListWithDefault - Gets the value of a property as a list with a default value.
+    %     getPropertyWithDefault - Gets the value of a property with a default value.
+    %     load - Loads properties from a file.
+    %     parseCommandLineOptions - Parses command-line options and sets properties.
+    %     parseIceCommandLineOptions - Parses Ice command-line options and sets properties.
+    %     setProperty - Sets a property to the given value.
 
     % Copyright (c) ZeroC, Inc.
 

@@ -1,5 +1,19 @@
 classdef Connection < IceInternal.WrapperObject
     %CONNECTION Represents a connection that uses the Ice protocol.
+    %
+    %   Connection Methods:
+    %     abort - Aborts this connection.
+    %     close - Closes the connection gracefully after waiting for all outstanding invocations to complete.
+    %     createProxy - Creates a proxy that uses this connection.
+    %     eq - Compares this connection with another Connection for equality.
+    %     flushBatchRequests - Flushes any pending batch requests for this connection.
+    %     flushBatchRequestsAsync - An asynchronous flushBatchRequests.
+    %     getEndpoint - Gets the endpoint from which this connection was created.
+    %     getInfo - Gets the connection information for this connection.
+    %     setBufferSize - Sets the buffer sizes for this connection.
+    %     throwException - Manually throws an exception to indicate that the connection is lost.
+    %     toString - Gets a description of this connection.
+    %     type - Gets the type of this connection.
 
     % Copyright (c) ZeroC, Inc.
 

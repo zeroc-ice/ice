@@ -96,7 +96,7 @@ namespace Ice
         /// @param unknownTypeId The Slice type ID of the unknown value.
         UnknownSlicedValue(std::string unknownTypeId) noexcept;
 
-        /// Determine the Slice type ID associated with this instance.
+        /// Returns the Slice type ID associated with this instance.
         /// @return The type ID supplied to the constructor.
         [[nodiscard]] const char* ice_id() const noexcept final;
 

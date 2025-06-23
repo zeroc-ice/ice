@@ -1,8 +1,9 @@
 classdef Endpoint < IceInternal.WrapperObject
     %ENDPOINT Specifies the address of the server-end of an Ice connection: an object adapter listens on one or more
-    %    endpoints and a client establishes a connection to an endpoint.
+    %   endpoints and a client establishes a connection to an endpoint.
     %
     %   Endpoint Methods:
+    %     eq - Compares this Endpoint with another Endpoint for equality.
     %     getInfo - Returns the endpoint information.
     %     toString - Returns a string representation of the endpoint.
 
