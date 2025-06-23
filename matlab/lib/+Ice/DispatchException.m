@@ -1,9 +1,6 @@
 classdef DispatchException < Ice.LocalException
-    %DISPATCHEXCEPTION
-    %   The exception that is thrown when a dispatch failed. This is the base class for local exceptions that can be
-    %   marshaled and transmitted "over the wire".
-    %   You can throw this exception in the implementation of an operation, or in a middleware. The Ice runtime then
-    %   logically rethrows this exception to the client.
+    %DISPATCHEXCEPTION The exception that is thrown when a dispatch failed. This is the base class for local exceptions
+    %   that can be marshaled and transmitted "over the wire".
     %
     %   DispatchException Properties:
     %     replyStatus - The reply status byte.
