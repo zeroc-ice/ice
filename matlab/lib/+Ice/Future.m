@@ -1,30 +1,41 @@
 classdef Future < IceInternal.WrapperObject
     %FUTURE Represents the future result of an asynchronous invocation.
     %
+    %   Future Properties:
+    %     ID - A unique identifier for this object.
+    %     NumOutputArguments - The number of output arguments that will be returned by fetchOutputs upon successful completion.
+    %     Operation - The name of the operation that was invoked.
+    %     Read - True if fetchOutputs has already been called.
+    %     State - The current state of the future.
+    %
     %   Future Methods:
-    %     wait - Blocks until the invocation reaches a certain state, or a timeout expires.
+    %     cancel - If the invocation is still pending, calling this method instructs the local Ice runtime to ignore its results.
     %     fetchOutputs - Blocks until the invocation completes and then returns the results or throws an exception.
-    %     cancel - If the invocation is still pending, calling this method instructs the local Ice runtime to ignore
-    %       its results.
+    %     wait - Blocks until the invocation reaches a certain state, or a timeout expires.
 
     % Copyright (c) ZeroC, Inc.
 
     properties(SetAccess=private)
-        % A unique identifier for this object.
-        ID int32 = 0
+        %ID A unique identifier for this object.
+        %   int32 scalar
+        ID (1, 1) int32 = 0
 
-        % The number of output arguments that will be returned by fetchOutputs upon successful completion.
-        NumOutputArguments int32
+        %NUMOUTPUTARGUMENTS The number of output arguments that will be returned by fetchOutputs upon successful
+        %   completion.
+        %   int32 scalar
+        NumOutputArguments (1, 1) int32
 
-        % The name of the operation that was invoked.
-        Operation char
+        %OPERATION The name of the operation that was invoked.
+        %   character vector
+        Operation (1, :) char
 
-        % True if fetchOutputs has already been called.
-        Read logical = false
+        %READ True if fetchOutputs has already been called.
+        %   logical scalar
+        Read (1, 1) logical = false
 
-        % The current state of the future. Its initial value is 'running' and its final value is 'finished'. A remote
-        % invocation transitions from 'running' to 'sent' to 'finished'.
-        State char = 'running'
+        %STATE The current state of the future. Its initial value is 'running' and its final value is 'finished'.
+        %   'running' | 'sent' | 'finished'
+        State (1, :) char = 'running'
     end
     methods (Hidden, Access = {?Ice.Communicator, ?Ice.Connection, ?Ice.ObjectPrx})
         function obj = Future(impl, op, numOutArgs, type, fetchFunc)
