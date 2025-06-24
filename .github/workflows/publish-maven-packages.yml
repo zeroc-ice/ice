@@ -39,8 +39,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          CHANNEL="${{ inputs.channel }}"
-
           case "$CHANNEL" in
             "3.8")
               SOURCE_URL="https://central.sonatype.com"
@@ -58,11 +56,13 @@ jobs:
               ;;
           esac
 
-          mkdir -p ice/java/lib
-          cp -pf staging/java-packages/java/lib/*.jar lib
-          cp -pf staging/java-packages/java/lib/*.pom lib
-          cp -pf staging/java-packages/java/tools/slice-tools/build/libs/*.jar tools/slice-tools/build/libs/
+          mkdir -p lib
+          cp -pf ../staging/java-packages/java/lib/*.jar lib
+          cp -pf ../staging/java-packages/java/lib/*.pom lib
+          cp -pf ../staging/java-packages/java/tools/slice-tools/build/libs/*.jar tools/slice-tools/build/libs/
 
           ice_version=$(basename "$(ls ib/ice-*-sources.jar)" | sed -E 's/^ice-(.+)-sources\.jar$/\1/')
           ./gradlew publish -PiceVersion="${ice_version}"
-        working-directory: ice/java
+        working-directory: java
+        env:
+          CHANNEL: ${{ inputs.channel }}

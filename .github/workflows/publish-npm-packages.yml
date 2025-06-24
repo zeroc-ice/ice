@@ -35,8 +35,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          CHANNEL="${{ inputs.channel }}"
-
           case "$CHANNEL" in
             "3.8")
               REGISTRY_URL="https://registry.npmjs.org/"
@@ -61,3 +59,5 @@ jobs:
 
           # Publish package
           npm publish staging/js-npm-packages/*.tgz --registry "${REGISTRY_URL}"
+        env:
+          CHANNEL: ${{ inputs.channel }}

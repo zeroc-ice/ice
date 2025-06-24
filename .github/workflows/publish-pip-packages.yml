@@ -35,8 +35,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          CHANNEL="${{ inputs.channel }}"
-
           case "$CHANNEL" in
             "3.8")
               REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-nightly/"
@@ -63,3 +61,5 @@ jobs:
           source venv/bin/activate
           pip install twine
           twine upload --verbose --repository-url ${REPOSITORY_URL} dist/*
+        env:
+          CHANNEL: ${{ inputs.channel }}

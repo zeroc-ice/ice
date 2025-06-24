@@ -35,9 +35,6 @@ jobs:
       - name: Publish NuGet Packages
         run: |
           set -euo pipefail
-
-          CHANNEL="${{ inputs.channel }}"
-
           case "$CHANNEL" in
             "3.8")
               SOURCE_URL="https://api.nuget.org/v3/index.json"
@@ -59,3 +56,5 @@ jobs:
             echo "Publishing package: $package"
             dotnet nuget push "$package" --source "$SOURCE_URL" --api-key "$NUGET_API_KEY"
           done
+        env:
+          CHANNEL: ${{ inputs.channel }}
