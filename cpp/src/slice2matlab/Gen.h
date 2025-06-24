@@ -29,6 +29,8 @@ namespace Slice
         bool visitStructStart(const StructPtr&) final;
         void visitStructEnd(const StructPtr&) final;
 
+        void visitDataMember(const DataMemberPtr&) final;
+
         void visitSequence(const SequencePtr&) final;
         void visitDictionary(const DictionaryPtr&) final;
         void visitEnum(const EnumPtr&) final;
@@ -52,10 +54,9 @@ namespace Slice
         void unmarshalStruct(IceInternal::Output&, const StructPtr&, const std::string&);
         void convertStruct(IceInternal::Output&, const StructPtr&, const std::string&);
 
-        void writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers);
-
         const std::string _dir;
 
+        // The current class file being written.
         std::unique_ptr<IceInternal::Output> _out;
     };
 }

@@ -712,87 +712,6 @@ namespace
         writeRemarks(out, doc);
     }
 
-    void declareProperty(IceInternal::Output& out, const DataMemberPtr& field)
-    {
-        documentProperty(out, field);
-        out << nl << field->mappedName();
-
-        TypePtr type = field->type();
-
-        // First the dimensions:
-        // - (1, 1) for simple scalar types, enums and dictionaries.
-        // - (1, :) for strings and sequences.
-        // - no dimensions for proxies, classes, structs because we add later the {mustBeScalarOrEmpty} constraint.
-
-        bool mustBeScalarOrEmpty = false;
-        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
-        {
-            if (builtin->kind() < Builtin::KindString)
-            {
-                out << " (1, 1)";
-            }
-            else if (builtin->kind() == Builtin::KindString)
-            {
-                out << " (1, :)";
-            }
-            else
-            {
-                mustBeScalarOrEmpty = true;
-            }
-        }
-        else if (dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type))
-        {
-            out << " (1, 1)";
-        }
-        else if (dynamic_pointer_cast<Sequence>(type))
-        {
-            out << " (1, :)";
-        }
-        else // proxies, classes, structs
-        {
-            mustBeScalarOrEmpty = true;
-        }
-
-        // We can't specify a type for optional fields because we can't represent "not set" with the same MATLAB type.
-        // For some types, we could use an empty array, but this does not work for sequences mapped to arrays or cells,
-        // nor does it work for dictionaries.
-        //
-        // We also can't specify a type for class fields (in structs and exceptions, because we convert them in place;
-        // we do the same for class fields in classes for consistency). Likewise, we can't specify a type for fields
-        // that use classes (but are not classes), since we convert them in place.
-        if (!field->optional() && !type->usesClasses())
-        {
-            if (auto seq = dynamic_pointer_cast<Sequence>(type))
-            {
-                if (isMappedToScalar(seq->type()))
-                {
-                    out << " " << typeToString(seq->type());
-                }
-                else
-                {
-                    out << " cell";
-                }
-            }
-            else
-            {
-                out << " " << typeToString(type);
-            }
-        }
-
-        if (mustBeScalarOrEmpty)
-        {
-            // Generate constraint.
-            out << " {mustBeScalarOrEmpty}";
-        }
-
-        // Specify the default value.
-        string defaultValueStr = defaultValue(field);
-        if (!defaultValueStr.empty())
-        {
-            out << " = " << defaultValueStr;
-        }
-    }
-
     void declareArgument(IceInternal::Output& out, const ParameterPtr& param)
     {
         out << nl << param->mappedName();
@@ -1036,11 +955,7 @@ bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string name = p->mappedName();
-    const string scoped = p->scoped();
-    const string self = "obj";
     const ClassDefPtr base = p->base();
-    const DataMemberList members = p->dataMembers();
-    const DataMemberList allMembers = p->allDataMembers();
 
     openClass(p->mappedScoped("."), _dir);
     IceInternal::Output& out = *_out;
@@ -1059,21 +974,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeDocSummary(out, p);
     writeGeneratedFrom(out, p->file());
 
-    if (!members.empty())
+    if (!p->dataMembers().empty())
     {
         out << nl << "properties";
         out.inc();
-        for (const auto& q : members)
-        {
-            if (!isFirstElement(q))
-            {
-                out << nl; // blank line between properties
-            }
-
-            declareProperty(out, q);
-        }
-        out.dec();
-        out << nl << "end";
     }
 
     return true;
@@ -1089,6 +993,12 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
     const ClassDefPtr base = p->base();
     const DataMemberList members = p->dataMembers();
     const DataMemberList allMembers = p->allDataMembers();
+
+    if (!members.empty())
+    {
+        out.dec();
+        out << nl << "end";
+    }
 
     out << nl << "methods";
     out.inc();
@@ -1118,7 +1028,13 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
             out << nl << "else";
             out.inc();
             out << nl << "assert(nargin == " << allMembers.size() << ", 'Invalid number of arguments');";
-            writeBaseClassArrayParams(out, baseMembers);
+            out << nl << "superArgs = ";
+            out.spar("{");
+            for (const auto& member : baseMembers)
+            {
+                out << member->mappedName();
+            }
+            out.epar("};");
             out.dec();
             out << nl << "end";
 
@@ -1766,7 +1682,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     IceInternal::Output& out = *_out;
 
     const ExceptionPtr base = p->base();
-    const DataMemberList members = p->dataMembers();
 
     out << "classdef " << name;
     if (base)
@@ -1782,21 +1697,10 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     writeDocSummary(out, p);
     writeGeneratedFrom(out, p->file());
 
-    if (!members.empty())
+    if (!p->dataMembers().empty())
     {
         out << nl << "properties";
         out.inc();
-        for (const auto& q : members)
-        {
-            if (!isFirstElement(q))
-            {
-                out << nl; // blank line between properties
-            }
-
-            declareProperty(out, q);
-        }
-        out.dec();
-        out << nl << "end";
     }
 
     return true;
@@ -1821,6 +1725,13 @@ CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
             convertMembers.push_back(member);
         }
     }
+
+    if (!members.empty())
+    {
+        out.dec();
+        out << nl << "end";
+    }
+
     out << nl << "methods";
     out.inc();
 
@@ -1966,8 +1877,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     openClass(abs, _dir);
     IceInternal::Output& out = *_out;
 
-    const DataMemberList members = p->dataMembers();
-
     out << "classdef (Sealed) " << name;
 
     out.inc();
@@ -1976,17 +1885,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     out << nl << "properties";
     out.inc();
-    for (const auto& q : members)
-    {
-        if (!isFirstElement(q))
-        {
-            out << nl; // blank line between properties
-        }
-
-        declareProperty(out, q);
-    }
-    out.dec();
-    out << nl << "end";
     return true;
 }
 
@@ -2010,6 +1908,9 @@ CodeVisitor::visitStructEnd(const StructPtr& p)
             convertMembers.push_back(q);
         }
     }
+
+    out.dec();
+    out << nl << "end";
 
     out << nl << "methods";
     out.inc();
@@ -2127,6 +2028,95 @@ CodeVisitor::visitStructEnd(const StructPtr& p)
     out << nl;
 
     closeClass();
+}
+
+void
+CodeVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    IceInternal::Output& out = *_out;
+
+    if (!isFirstElement(p))
+    {
+        out << nl; // blank line between properties
+    }
+
+    documentProperty(out, p);
+    out << nl << p->mappedName();
+
+    TypePtr type = p->type();
+
+    // First the dimensions:
+    // - (1, 1) for simple scalar types, enums and dictionaries.
+    // - (1, :) for strings and sequences.
+    // - no dimensions for proxies, classes, structs because we add later the {mustBeScalarOrEmpty} constraint.
+
+    bool mustBeScalarOrEmpty = false;
+    if (auto builtin = dynamic_pointer_cast<Builtin>(type))
+    {
+        if (builtin->kind() < Builtin::KindString)
+        {
+            out << " (1, 1)";
+        }
+        else if (builtin->kind() == Builtin::KindString)
+        {
+            out << " (1, :)";
+        }
+        else
+        {
+            mustBeScalarOrEmpty = true;
+        }
+    }
+    else if (dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<Dictionary>(type))
+    {
+        out << " (1, 1)";
+    }
+    else if (dynamic_pointer_cast<Sequence>(type))
+    {
+        out << " (1, :)";
+    }
+    else // proxies, classes, structs
+    {
+        mustBeScalarOrEmpty = true;
+    }
+
+    // We can't specify a type for optional fields because we can't represent "not set" with the same MATLAB type.
+    // For some types, we could use an empty array, but this does not work for sequences mapped to arrays or cells,
+    // nor does it work for dictionaries.
+    //
+    // We also can't specify a type for class fields (in structs and exceptions, because we convert them in place;
+    // we do the same for class fields in classes for consistency). Likewise, we can't specify a type for fields
+    // that use classes (but are not classes), since we convert them in place.
+    if (!p->optional() && !type->usesClasses())
+    {
+        if (auto seq = dynamic_pointer_cast<Sequence>(type))
+        {
+            if (isMappedToScalar(seq->type()))
+            {
+                out << " " << typeToString(seq->type());
+            }
+            else
+            {
+                out << " cell";
+            }
+        }
+        else
+        {
+            out << " " << typeToString(type);
+        }
+    }
+
+    if (mustBeScalarOrEmpty)
+    {
+        // Generate constraint.
+        out << " {mustBeScalarOrEmpty}";
+    }
+
+    // Specify the default value.
+    string defaultValueStr = defaultValue(p);
+    if (!defaultValueStr.empty())
+    {
+        out << " = " << defaultValueStr;
+    }
 }
 
 void
@@ -3390,16 +3380,4 @@ CodeVisitor::convertStruct(IceInternal::Output& out, const StructPtr& p, const s
             out << nl << v << "." << m << " = " << v << "." << m << ".value;";
         }
     }
-}
-
-void
-CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers)
-{
-    out << nl << "superArgs = ";
-    out.spar("{");
-    for (const auto& member : baseMembers)
-    {
-        out << member->mappedName();
-    }
-    out.epar("};");
 }
