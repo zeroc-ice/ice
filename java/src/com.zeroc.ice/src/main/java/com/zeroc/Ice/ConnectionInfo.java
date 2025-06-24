@@ -17,7 +17,7 @@ public class ConnectionInfo {
     public final String connectionId;
 
     /**
-     * Creates a new ConnectionInfo that wraps the specified underlying connection info.
+     * Constructs a ConnectionInfo that wraps the specified underlying connection info.
      *
      * @param underlying the underlying connection info to wrap
      */
@@ -30,7 +30,7 @@ public class ConnectionInfo {
     }
 
     /**
-     * Creates a new ConnectionInfo with the specified connection parameters.
+     * Constructs a ConnectionInfo with the specified connection parameters.
      *
      * @param incoming   whether this connection is incoming
      * @param adapterName the name of the adapter associated with this connection

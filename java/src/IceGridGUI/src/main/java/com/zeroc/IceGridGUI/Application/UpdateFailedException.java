@@ -7,7 +7,7 @@ package com.zeroc.IceGridGUI.Application;
  */
 public class UpdateFailedException extends java.lang.Exception {
     /**
-     * Constructs an {@code UpdateFailedException} for a duplicate child ID.
+     * Constructs an UpdateFailedException for a duplicate child ID.
      *
      * @param parent the parent node
      * @param id     the conflicting child ID
@@ -17,7 +17,7 @@ public class UpdateFailedException extends java.lang.Exception {
     }
 
     /**
-     * Constructs an {@code UpdateFailedException} with a custom message.
+     * Constructs an UpdateFailedException with a custom message.
      *
      * @param message the detail message for this exception
      */

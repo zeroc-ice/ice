@@ -8,7 +8,7 @@ package com.zeroc.Ice;
  */
 public class UnknownException extends DispatchException {
     /**
-     * Constructs an {@code UnknownException} with a message and a cause.
+     * Constructs an UnknownException with a message and a cause.
      *
      * @param message the detail message for this exception
      * @param cause   the cause of this exception
@@ -18,7 +18,7 @@ public class UnknownException extends DispatchException {
     }
 
     /**
-     * Constructs an {@code UnknownException} with a message.
+     * Constructs an UnknownException with a message.
      *
      * @param message the detail message for this exception
      */
@@ -27,7 +27,7 @@ public class UnknownException extends DispatchException {
     }
 
     /**
-     * Constructs an {@code UnknownException} with a cause.
+     * Constructs an UnknownException with a cause.
      *
      * @param cause the cause of this exception
      */

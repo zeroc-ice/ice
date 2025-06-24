@@ -8,6 +8,15 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 class StreamSocket {
+    /**
+     * Constructs a StreamSocket and initiates a connection to the specified address.
+     *
+     * @param instance The protocol instance.
+     * @param proxy The network proxy, or null if not using a proxy.
+     * @param addr The remote address to connect to.
+     * @param sourceAddr The local address to bind to, or null for default.
+     * @throws LocalException if the socket cannot be created or connected.
+     */
     public StreamSocket(
             ProtocolInstance instance,
             NetworkProxy proxy,
@@ -33,6 +42,13 @@ class StreamSocket {
         _desc = Network.fdToString(_fd, _proxy, _addr);
     }
 
+    /**
+     * Constructs a StreamSocket from an existing SocketChannel.
+     *
+     * @param instance The protocol instance.
+     * @param fd The connected SocketChannel.
+     * @throws LocalException if initialization fails.
+     */
     public StreamSocket(ProtocolInstance instance, SocketChannel fd) {
         _instance = instance;
         _proxy = null;
@@ -61,10 +77,23 @@ class StreamSocket {
         }
     }
 
+    /**
+     * Sets the receive and send buffer sizes for the socket.
+     *
+     * @param rcvSize The receive buffer size in bytes.
+     * @param sndSize The send buffer size in bytes.
+     */
     public void setBufferSize(int rcvSize, int sndSize) {
         Network.setTcpBufSize(_fd, rcvSize, sndSize, _instance);
     }
 
+    /**
+     * Initiates or completes a connection, including proxy handshake if needed.
+     *
+     * @param readBuffer The buffer for reading data.
+     * @param writeBuffer The buffer for writing data.
+     * @return The next SocketOperation to perform, or SocketOperation.None if connected.
+     */
     public int connect(Buffer readBuffer, Buffer writeBuffer) {
         if (_state == StateNeedConnect) {
             _state = StateConnectPending;
@@ -94,14 +123,30 @@ class StreamSocket {
         return SocketOperation.None;
     }
 
+    /**
+     * Returns true if the socket is connected.
+     *
+     * @return true if connected, false otherwise.
+     */
     public boolean isConnected() {
         return _state == StateConnected;
     }
 
+    /**
+     * Returns the underlying SocketChannel.
+     *
+     * @return The SocketChannel for this socket.
+     */
     public SocketChannel fd() {
         return _fd;
     }
 
+    /**
+     * Reads data into the provided buffer.
+     *
+     * @param buf The buffer to read data into.
+     * @return The next SocketOperation to perform, or SocketOperation.None if done.
+     */
     public int read(Buffer buf) {
         if (_state == StateProxyRead) {
             while (true) {
@@ -119,6 +164,12 @@ class StreamSocket {
         return buf.b.hasRemaining() ? SocketOperation.Read : SocketOperation.None;
     }
 
+    /**
+     * Writes data from the provided buffer.
+     *
+     * @param buf The buffer containing data to write.
+     * @return The next SocketOperation to perform, or SocketOperation.None if done.
+     */
     public int write(Buffer buf) {
         if (_state == StateProxyWrite) {
             while (true) {
@@ -136,6 +187,13 @@ class StreamSocket {
         return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.None;
     }
 
+    /**
+     * Reads bytes from the socket into the given ByteBuffer.
+     *
+     * @param buf The ByteBuffer to read data into.
+     * @return The number of bytes read.
+     * @throws ConnectionLostException if the connection is closed.
+     */
     public int read(ByteBuffer buf) {
         assert (_fd != null);
 
@@ -158,6 +216,13 @@ class StreamSocket {
         return read;
     }
 
+    /**
+     * Writes bytes from the given ByteBuffer to the socket.
+     *
+     * @param buf The ByteBuffer containing data to write.
+     * @return The number of bytes written.
+     * @throws ConnectionLostException or SocketException if the connection is closed or an error occurs.
+     */
     public int write(ByteBuffer buf) {
         assert (_fd != null);
 
@@ -189,6 +254,11 @@ class StreamSocket {
         return sent;
     }
 
+    /**
+     * Closes the socket.
+     *
+     * @throws SocketException if an error occurs while closing the socket.
+     */
     public void close() {
         assert (_fd != null);
         try {
@@ -200,6 +270,11 @@ class StreamSocket {
         }
     }
 
+    /**
+     * Returns a string representation of the socket.
+     *
+     * @return A string describing the socket.
+     */
     @Override
     public String toString() {
         return _desc;

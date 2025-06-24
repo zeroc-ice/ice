@@ -10,7 +10,7 @@ package com.zeroc.Ice;
  */
 public final class ObjectAdapterDeactivatedException extends LocalException {
     /**
-     * Constructs an {@code ObjectAdapterDeactivatedException} with the object adapter name.
+     * Constructs an ObjectAdapterDeactivatedException with the object adapter name.
      *
      * @param name the name of the deactivated object adapter
      */

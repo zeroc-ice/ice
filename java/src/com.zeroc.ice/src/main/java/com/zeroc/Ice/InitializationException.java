@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception is raised when a failure occurs during initialization. */
 public final class InitializationException extends LocalException {
     /**
-     * Constructs an {@code InitializationException} with a message.
+     * Constructs an InitializationException with a message.
      *
      * @param message the detail message for this exception
      */
@@ -14,7 +14,7 @@ public final class InitializationException extends LocalException {
     }
 
     /**
-     * Constructs an {@code InitializationException} with a message and a cause.
+     * Constructs an InitializationException with a message and a cause.
      *
      * @param message the detail message for this exception
      * @param cause   the cause of this exception

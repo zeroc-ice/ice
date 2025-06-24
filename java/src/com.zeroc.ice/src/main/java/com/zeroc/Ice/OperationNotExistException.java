@@ -9,14 +9,14 @@ package com.zeroc.Ice;
  */
 public final class OperationNotExistException extends RequestFailedException {
     /**
-     * Constructs an {@code OperationNotExistException}.
+     * Constructs an OperationNotExistException.
      */
     public OperationNotExistException() {
         super(ReplyStatus.OperationNotExist);
     }
 
     /**
-     * Constructs an {@code OperationNotExistException} with object details.
+     * Constructs an OperationNotExistException with object details.
      *
      * @param id        the identity of the Ice Object to which the request was sent
      * @param facet     the facet to which the request was sent

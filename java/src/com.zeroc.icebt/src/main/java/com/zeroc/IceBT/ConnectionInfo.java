@@ -26,7 +26,7 @@ public final class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo {
     public final int sndSize;
 
     /**
-     * Constructs a new ConnectionInfo with the specified connection parameters.
+     * Constructs a ConnectionInfo with the specified connection parameters.
      *
      * @param incoming whether this connection is incoming
      * @param adapterName the name of the adapter associated with this connection

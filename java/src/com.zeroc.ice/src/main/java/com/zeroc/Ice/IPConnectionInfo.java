@@ -17,7 +17,7 @@ public class IPConnectionInfo extends ConnectionInfo {
     public final int remotePort;
 
     /**
-     * Constructs a new IPConnectionInfo with the specified connection parameters.
+     * Constructs an IPConnectionInfo with the specified connection parameters.
      *
      * @param incoming whether this connection is incoming
      * @param adapterName the name of the adapter associated with this connection

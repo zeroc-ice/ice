@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception is raised if an unsupported feature is used. */
 public final class FeatureNotSupportedException extends LocalException {
     /**
-     * Constructs a new FeatureNotSupportedException with a message.
+     * Constructs a FeatureNotSupportedException with a message.
      *
      * @param message the message explaining why the feature is not supported
      */

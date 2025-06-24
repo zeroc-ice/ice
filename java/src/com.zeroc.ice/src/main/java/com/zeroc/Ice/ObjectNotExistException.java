@@ -8,14 +8,14 @@ package com.zeroc.Ice;
  */
 public final class ObjectNotExistException extends RequestFailedException {
     /**
-     * Constructs an {@code ObjectNotExistException}.
+     * Constructs an ObjectNotExistException.
      */
     public ObjectNotExistException() {
         super(ReplyStatus.ObjectNotExist);
     }
 
     /**
-     * Constructs an {@code ObjectNotExistException} with object details.
+     * Constructs an ObjectNotExistException with object details.
      *
      * @param id        the identity of the Ice Object to which the request was sent
      * @param facet     the facet to which the request was sent

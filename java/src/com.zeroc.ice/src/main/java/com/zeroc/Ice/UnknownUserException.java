@@ -10,7 +10,7 @@ package com.zeroc.Ice;
  */
 public final class UnknownUserException extends UnknownException {
     /**
-     * Constructs an {@code UnknownUserException} with a message.
+     * Constructs an UnknownUserException with a message.
      *
      * @param message the detail message for this exception
      */
@@ -24,10 +24,10 @@ public final class UnknownUserException extends UnknownException {
     }
 
     /**
-     * Creates an {@code UnknownUserException} from a type ID.
+     * Creates an UnknownUserException from a type ID.
      *
      * @param typeId the type ID of the user exception
-     * @return an {@code UnknownUserException}
+     * @return an UnknownUserException
      */
     public static UnknownUserException fromTypeId(String typeId) {
         return new UnknownUserException(

@@ -11,7 +11,7 @@ package com.zeroc.Ice;
  */
 public final class UnknownLocalException extends UnknownException {
     /**
-     * Constructs an {@code UnknownLocalException} with a message.
+     * Constructs an UnknownLocalException with a message.
      *
      * @param message the detail message for this exception
      */
