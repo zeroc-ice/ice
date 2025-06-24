@@ -343,60 +343,60 @@ namespace
         return result;
     }
 
-    bool parseCommentLine(string_view l, string_view tag, string& doc)
+    bool parseCommentLine(string_view line, string_view tag, string& doc)
     {
         const string ws = " \t";
         const auto tagLength = tag.size();
 
         // If the line doesn't start with the provided tag, we immediately return false.
         // Note that any leading whitespace has already been stripped off here.
-        if (l.find(tag) != 0)
+        if (line.find(tag) != 0)
         {
             return false;
         }
 
         // The tag must be immediately followed by whitespace, or be the entire line (for multiline tags).
-        if (l.find_first_of(ws, tagLength) != tagLength && l.length() != tagLength)
+        if (line.find_first_of(ws, tagLength) != tagLength && line.length() != tagLength)
         {
             return false;
         }
 
         // Find the first non-whitespace character after the tag. This marks the start of the `doc` string.
-        const auto docSplitPos = l.find_first_not_of(ws, tagLength);
+        const auto docSplitPos = line.find_first_not_of(ws, tagLength);
         if (docSplitPos != string::npos)
         {
-            doc = l.substr(docSplitPos);
+            doc = line.substr(docSplitPos);
         }
         return true;
     }
 
-    bool parseNamedCommentLine(string_view l, string_view tag, string& name, string& doc)
+    bool parseNamedCommentLine(string_view line, string_view tag, string& name, string& doc)
     {
         const string ws = " \t";
 
         // First we check for the tag and parse the doc-comment normally.
-        if (parseCommentLine(l, tag, doc))
+        if (parseCommentLine(line, tag, doc))
         {
             // Then we perform additional parsing to extract the name...
 
-            auto nameStart = l.find_first_not_of(ws, tag.size());
+            auto nameStart = line.find_first_not_of(ws, tag.size());
             if (nameStart == string::npos)
             {
                 return false; // Malformed line, ignore it.
             }
 
-            auto nameEnd = l.find_first_of(ws, nameStart);
+            auto nameEnd = line.find_first_of(ws, nameStart);
             if (nameEnd == string::npos)
             {
                 return false; // Malformed line, ignore it.
             }
-            name = l.substr(nameStart, nameEnd - nameStart);
+            name = line.substr(nameStart, nameEnd - nameStart);
 
             // Store whatever remains of the doc comment in the `doc` string.
-            auto docSplitPos = l.find_first_not_of(ws, nameEnd);
+            auto docSplitPos = line.find_first_not_of(ws, nameEnd);
             if (docSplitPos != string::npos)
             {
-                doc = l.substr(docSplitPos);
+                doc = line.substr(docSplitPos);
             }
 
             return true;
