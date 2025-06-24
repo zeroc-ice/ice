@@ -39,7 +39,7 @@ classdef Properties < IceInternal.WrapperObject
             %       command-line options include an --Ice.Config option, the corresponding configuration file is parsed.
             %       If the same property is set in a configuration file and in the argument vector, the argument vector
             %       takes precedence.
-            %       empty cell array (default) | cell array of character | string array
+            %       empty string array (default) | string array | cell array of character vectors
             %     defaults - A property set used to initialize the default state of the new property set. Settings in
             %       configuration files and the argument vector override these defaults.
             %       Ice.Properties empty array (default) | Ice.Properties scalar
@@ -51,7 +51,7 @@ classdef Properties < IceInternal.WrapperObject
             %     remArgs - Contains the remaining command-line arguments that were not used to set properties.
             %       string array
             arguments
-                args (1, :) = {}
+                args (1, :) string = string.empty
                 defaults Ice.Properties {mustBeScalarOrEmpty} = Ice.Properties.empty
                 impl = libpointer('voidPtr') % internal
             end
@@ -250,7 +250,7 @@ classdef Properties < IceInternal.WrapperObject
             %     key - The property key.
             %       character vector
             %     def - The default value to use if the property is not set.
-            %       cell array of character | string array
+            %       string array | cell array of character vectors
             %
             %   Output Arguments
             %     r - The property value interpreted as a list of strings, or the default value.
@@ -259,7 +259,7 @@ classdef Properties < IceInternal.WrapperObject
             arguments
                 obj (1, 1) Ice.Properties
                 key (1, :) char
-                def (1, :)
+                def (1, :) string
             end
             r = obj.iceCallWithResult('getPropertyAsListWithDefault', key, def);
         end
@@ -334,7 +334,7 @@ classdef Properties < IceInternal.WrapperObject
             %     prefix - The property prefix, or an empty string to convert all options starting with "--".
             %       character vector
             %     options - The command-line options.
-            %       cell array of character | string array
+            %       string array | cell array of character vectors
             %
             %   Output Arguments
             %     r - The command-line options that do not start with the specified prefix, in their original order.
@@ -343,7 +343,7 @@ classdef Properties < IceInternal.WrapperObject
             arguments
                 obj (1, 1) Ice.Properties
                 prefix (1, :) char
-                options (1, :)
+                options (1, :) string
             end
             r = obj.iceCallWithResult('parseCommandLineOptions', prefix, options);
         end
@@ -355,7 +355,7 @@ classdef Properties < IceInternal.WrapperObject
             %
             %   Input Arguments
             %     options - The command-line options.
-            %       cell array of character | string array
+            %       string array | cell array of character vectors
             %
             %   Output Arguments
             %     r - The command-line options that do not start with one of the listed prefixes, in their original order.
@@ -363,7 +363,7 @@ classdef Properties < IceInternal.WrapperObject
 
             arguments
                 obj (1, 1) Ice.Properties
-                options (1, :)
+                options (1, :) string
             end
             r = obj.iceCallWithResult('parseIceCommandLineOptions', options);
         end

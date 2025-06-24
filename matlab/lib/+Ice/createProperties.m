@@ -4,7 +4,7 @@ function [properties, remArgs] = createProperties(args, defaults)
     %
     %   Input Arguments
     %     args - An optional argument vector.
-    %       cell array of char | string array
+    %       empty string array (default) | string array | cell array of character vectors
     %     defaults - Optional default properties.
     %       Ice.Properties scalar | Ice.Properties empty array
     %
@@ -16,7 +16,7 @@ function [properties, remArgs] = createProperties(args, defaults)
     %
     %   See also Ice.Properties/Properties.
     arguments
-        args (1, :) = {}
+        args (1, :) string = string.empty
         defaults Ice.Properties {mustBeScalarOrEmpty} = Ice.Properties.empty
     end
     [properties, remArgs] = Ice.Properties(args, defaults);

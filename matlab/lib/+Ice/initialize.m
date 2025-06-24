@@ -13,7 +13,7 @@ function [communicator, remArgs] = initialize(varargin)
     %   Input Arguments
     %     args - An optional argument vector. Any Ice-related options in this vector are used to initialize the
     %       communicator.
-    %       cell array of char | string array
+    %       string array | cell array of character vectors
     %     initData - Optional additional initialization data.
     %       Ice.InitializationData scalar | Ice.InitializationData empty array
     %     configFile - Optional configuration file name.

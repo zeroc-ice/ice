@@ -38,7 +38,7 @@ classdef Communicator < IceInternal.WrapperObject
             %   Input Arguments
             %     args - Argument vector. Any Ice-related options in this vector are used to set the communicator
             %       properties.
-            %       empty cell array (default) | cell array of character | string array
+            %       empty string array (default) | string array | cell array of character vectors
             %
             %   Input Name-Value Arguments
             %     Properties - Properties object used to initialize the communicator properties. If args is non-empty,
@@ -53,7 +53,7 @@ classdef Communicator < IceInternal.WrapperObject
             %     remArgs - Remaining command-line arguments that were not used to set properties.
             %       string array
             arguments
-                args (1, :) = {}
+                args (1, :) string = string.empty
                 options.?Ice.InitializationData
                 options.Properties (1, 1) Ice.Properties = Ice.Properties()
                 options.SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance
