@@ -1076,8 +1076,8 @@ namespace
             false);
 
         writeDeprecated(out, doc, field);
-        writeSeeAlso(out, *doc, field->container());
-        writeRemarks(out, *doc);
+        writeSeeAlso(out, doc, field->container());
+        writeRemarks(out, doc);
     }
 
     void writeArguments(
