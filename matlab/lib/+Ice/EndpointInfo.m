@@ -68,7 +68,7 @@ classdef EndpointInfo < handle
 
     properties(SetAccess=immutable)
         %UNDERLYING The EndpointInfo of the underlying endpoint, if any.
-        %   Ice.EndpointInfo scalar | Ice.EndpointInfo empty array
+        %   Ice.EndpointInfo scalar | empty array of Ice.EndpointInfo
         underlying Ice.EndpointInfo {mustBeScalarOrEmpty}
 
         %TIMEOUT The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.

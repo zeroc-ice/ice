@@ -15,7 +15,7 @@ function [communicator, remArgs] = initialize(varargin)
     %       communicator.
     %       string array | cell array of character vectors
     %     initData - Optional additional initialization data.
-    %       Ice.InitializationData scalar | Ice.InitializationData empty array
+    %       Ice.InitializationData scalar | empty array of Ice.InitializationData
     %     configFile - Optional configuration file name.
     %       character vector | string scalar
     %

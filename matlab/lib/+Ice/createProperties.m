@@ -6,7 +6,7 @@ function [properties, remArgs] = createProperties(args, defaults)
     %     args - An optional argument vector.
     %       empty string array (default) | string array | cell array of character vectors
     %     defaults - Optional default properties.
-    %       Ice.Properties scalar | Ice.Properties empty array
+    %       Ice.Properties scalar | empty array of Ice.Properties
     %
     %   Output Arguments
     %     properties - The new properties object.

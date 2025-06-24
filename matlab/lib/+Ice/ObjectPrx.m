@@ -744,7 +744,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             %   Output Arguments
             %      r - The router for the proxy.
-            %        Ice.RouterPrx scalar | Ice.RouterPrx empty array
+            %        Ice.RouterPrx scalar | empty array of Ice.RouterPrx
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -763,7 +763,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             %   Input Arguments
             %      rtr - The router for the new proxy.
-            %        Ice.RouterPrx scalar | Ice.RouterPrx empty array
+            %        Ice.RouterPrx scalar | empty array of Ice.RouterPrx
             %
             %   Output Arguments
             %      r - The proxy with the specified router.
@@ -786,7 +786,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             %   Output Arguments
             %      r - The locator for the proxy.
-            %        Ice.LocatorPrx scalar | Ice.LocatorPrx empty array
+            %        Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -805,7 +805,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             %   Input Arguments
             %      loc - The locator for the new proxy.
-            %        Ice.LocatorPrx scalar | Ice.LocatorPrx empty array
+            %        Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
             %
             %   Output Arguments
             %      r - The proxy with the specified locator.
@@ -1155,7 +1155,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   Output Arguments
             %     r - The cached Connection for this proxy, or an empty array if the proxy does not have a cached
             %       connection.
-            %       Ice.Connection scalar | Ice.Connection empty array
+            %       Ice.Connection scalar | empty array of Ice.Connection
 
             arguments
                 obj (1, 1) Ice.ObjectPrx

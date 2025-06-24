@@ -9,7 +9,7 @@ classdef ConnectionInfo < handle
 
     properties(SetAccess=immutable)
         %UNDERLYING The information of the underlying transport or an empty array if there's no underlying transport.
-        %   Ice.ConnectionInfo scalar | Ice.ConnectionInfo empty array
+        %   Ice.ConnectionInfo scalar | empty array of Ice.ConnectionInfo
         underlying Ice.ConnectionInfo {mustBeScalarOrEmpty}
 
         %CONNECTIONID The connection id.

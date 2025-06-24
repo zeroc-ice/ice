@@ -42,7 +42,7 @@ classdef Properties < IceInternal.WrapperObject
             %       empty string array (default) | string array | cell array of character vectors
             %     defaults - A property set used to initialize the default state of the new property set. Settings in
             %       configuration files and the argument vector override these defaults.
-            %       Ice.Properties empty array (default) | Ice.Properties scalar
+            %       empty array of Ice.Properties (default) | Ice.Properties scalar
             %
             %   Output Arguments
             %     obj - A new property set initialized with the property settings that were removed from the argument

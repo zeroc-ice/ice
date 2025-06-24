@@ -3,9 +3,9 @@ function r = proxyIdentityAndFacetCompare(lhs, rhs)
     %
     %   Input Arguments
     %     lhs - A proxy.
-    %       Ice.ObjectPrx scalar | Ice.ObjectPrx empty array
+    %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
     %     rhs - Another proxy.
-    %       Ice.ObjectPrx scalar | Ice.ObjectPrx empty array
+    %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
     %
     %   Output Arguments
     %     r - -1 if the identity and facet in lhs compares less than the identity and facet in rhs; 0 if the

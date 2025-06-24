@@ -139,7 +139,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Output Arguments
             %     r - The proxy, or an empty array if str is an empty string.
-            %       Ice.ObjectPrx scalar | Ice.ObjectPrx empty array
+            %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -159,7 +159,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Input Arguments
             %     proxy - The proxy to convert into a stringified proxy.
-            %       Ice.ObjectPrx scalar | Ice.ObjectPrx empty array
+            %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
             %
             %   Output Arguments
             %     r - The stringified proxy, or an empty string if proxy is an empty array.
@@ -193,7 +193,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Output Arguments
             %     r - The proxy.
-            %       Ice.ObjectPrx scalar | Ice.ObjectPrx empty array
+            %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -213,7 +213,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Input Arguments
             %     proxy - The proxy.
-            %       Ice.ObjectPrx scalar | Ice.ObjectPrx empty array
+            %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
             %     prop - The base property name.
             %       character vector
             %
@@ -256,7 +256,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Output Arguments
             %     r - The implicit context associated with this communicator.
-            %       Ice.ImplicitContext scalar | Ice.ImplicitContext empty array
+            %       Ice.ImplicitContext scalar | empty array of Ice.ImplicitContext
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -310,7 +310,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Output Arguments
             %     r - This communicator's default router.
-            %       Ice.RouterPrx scalar | Ice.RouterPrx empty array
+            %       Ice.RouterPrx scalar | empty array of Ice.RouterPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -330,7 +330,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Input Arguments
             %     proxy - The default router to use for this communicator.
-            %       Ice.RouterPrx scalar | Ice.RouterPrx empty array
+            %       Ice.RouterPrx scalar | empty array of Ice.RouterPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -349,7 +349,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Output Arguments
             %     r - This communicator's default locator.
-            %       Ice.LocatorPrx scalar | Ice.LocatorPrx empty array
+            %       Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -369,7 +369,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Input Arguments
             %     proxy - The default locator to use for this communicator.
-            %       Ice.LocatorPrx scalar | Ice.LocatorPrx empty array
+            %       Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
