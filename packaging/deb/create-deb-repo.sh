@@ -46,9 +46,9 @@ done
 
 # Validate distribution
 case "$DISTRIBUTION" in
-    debian12|ubuntu-24.04) ;;
+    debian12|ubuntu24.04) ;;
     *)
-        echo "Error: DISTRIBUTION must be 'debian12' or 'ubuntu-24.04'" >&2
+        echo "Error: DISTRIBUTION must be 'debian12' or 'ubuntu24.04'" >&2
         exit 1
         ;;
 esac
@@ -73,7 +73,7 @@ fi
 
 declare -A CODENAMES=(
     ["debian12"]="bookworm"
-    ["ubuntu-24.04"]="noble"
+    ["ubuntu24.04"]="noble"
 )
 
 CODENAME="${CODENAMES[$DISTRIBUTION]}"
