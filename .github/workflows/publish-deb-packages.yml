@@ -62,8 +62,8 @@ jobs:
             ghcr.io/zeroc-ice/deb-repo-builder
           )
           docker run "${docker_args[@]}" /workspace/ice/packaging/deb/create-deb-repo.sh \
-            --staging /workspace/staging/
-            --repository "/workspace/${CHANNEL}"
+            --staging /workspace/staging/ \
+            --repository "/workspace/${CHANNEL}" \
             --distribution "${DISTRIBUTION}" \
             --channel "${CHANNEL}"
 
