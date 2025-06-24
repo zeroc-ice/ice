@@ -35,11 +35,6 @@ namespace Slice
         static std::string removeEscaping(std::string ident);
 
     protected:
-        void writeDocLines(
-            IceInternal::Output&,
-            const StringList&,
-            bool commentFirst = true,
-            const std::string& space = " ");
         void writeDocSummary(IceInternal::Output&, const ContainedPtr&);
         void writeOpDocSummary(IceInternal::Output&, const OperationPtr&, bool);
 
