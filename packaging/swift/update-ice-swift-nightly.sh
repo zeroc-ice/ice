@@ -10,6 +10,11 @@ if [ -z "${ICE_NIGHTLY_PUBLISH_TOKEN:-}" ]; then
     exit 1
 fi
 
+if [ -z "${STAGING_DIR:-}" ]; then
+    echo "Error: STAGING_DIR environment variable is not set"
+    exit 1
+fi
+
 # Get Git repository root directory
 root_dir=$(git rev-parse --show-toplevel)
 cd "$root_dir/packaging/swift"
@@ -25,12 +30,13 @@ cp -rfv ../../../swift .
 cp -v ../../../Package.swift .
 
 # Update the Packages.swift file with the URL and Checksum for the xcframeworks
-for zip_file in "${root_dir}/staging/*.zip"; do
+for zip_file in "${STAGING_DIR}"/*.zip; do
+    echo "Processing zip file: ${zip_file}"
     zip_name=$(basename "${zip_file}")
+    name="${zip_name%%-*}"
     zip_url="https://download.zeroc.com/ice/nightly/${zip_name}"
 
-    curl -fsSL -o "${zip_name}" "$zip_url"
-    checksum=$(shasum -a 256 "${zip_name}" | cut -d ' ' -f 1)
+    checksum=$(shasum -a 256 "${zip_file}" | cut -d ' ' -f 1)
     indent=$(printf "%12s" "") # indentation for the checksum line
 
     # Replace path: "..." with url/checksum lines
