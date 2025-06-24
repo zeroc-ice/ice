@@ -25,7 +25,7 @@ while [[ $# -gt 0 ]]; do
             STAGING="$2"
             shift 2
             ;;
-        --repo)
+        --repository)
             REPODIR="$2"
             shift 2
             ;;

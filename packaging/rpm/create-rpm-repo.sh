@@ -68,7 +68,9 @@ NOARCH_RPMS=()
 if [ "${CHANNEL}" = "nightly" ]; then
   echo "Pruning RPMs older than 3 days..."
   for arch in x86_64 aarch64 SRPMS; do
-    find "${REPODIR}/${arch}" -type f -name "*.rpm" -mtime +3 -exec rm -v {} \;
+    if [[ -d "${REPODIR}/${arch}" ]]; then
+      find "${REPODIR}/${arch}" -type f -name "*.rpm" -mtime +3 -exec rm -v {} \;
+    fi
   done
 fi
 
