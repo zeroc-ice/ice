@@ -38,11 +38,11 @@ jobs:
           case "$CHANNEL" in
             "3.8")
               REPOSITORY_PREFIX="registry.npmjs.org"
-              echo "//${REPOSITORY_PREFIX}/:_authToken=${RELEASE_NPM_AUTH_TOKEN}" > ~/.npmrc
+              echo "//${REPOSITORY_PREFIX}/:_authToken=\${RELEASE_NPM_AUTH_TOKEN}" > ~/.npmrc
               ;;
             "nightly")
               REPOSITORY_PREFIX="download.zeroc.com/nexus/repository/npm-nightly"
-              echo "//${REPOSITORY_PREFIX}/:_auth=${NEXUS_NIGHTLY_NPM_AUTH_TOKEN}" > ~/.npmrc
+              echo "//${REPOSITORY_PREFIX}/:_auth=\${NEXUS_NIGHTLY_NPM_AUTH_TOKEN}" > ~/.npmrc
               ;;
             *)
               echo "Unsupported channel: $CHANNEL"
