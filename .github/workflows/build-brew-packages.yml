@@ -48,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: homebrew-bottle
-          path: ./*.bottle.tar.gz
+          path: ./*.tar.gz

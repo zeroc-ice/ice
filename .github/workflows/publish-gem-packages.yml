@@ -34,7 +34,7 @@ jobs:
 
       - name: Publish Nightly GEM Packages
         run: |
-          curl -u "nightly:${{ secrets.NEXUS_NIGHTLY_PASSWORD }}" \
+          curl -u "nightly:${NEXUS_NIGHTLY_PASSWORD}" \
             --upload-file staging/gem-packages/zeroc-ice-*.gem \
             --output /dev/null \
             --silent \
@@ -43,8 +43,12 @@ jobs:
             --show-error \
             https://download.zeroc.com/nexus/repository/rubygems-nightly/ || { echo "Gem upload failed"; exit 1; }
         if: ${{ inputs.channel == 'nightly' }}
+        env:
+          NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
       - name: Publish Release GEM Packages
         run: |
-          GEM_HOST_API_KEY=${{ secrets.RUBYGEMS_API_KEY }} gem push staging/gem-packages/zeroc-ice-*.gem
+          GEM_HOST_API_KEY=${RUBYGEMS_API_KEY} gem push staging/gem-packages/zeroc-ice-*.gem
         if: ${{ inputs.channel != 'nightly' }}
+        env:
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}

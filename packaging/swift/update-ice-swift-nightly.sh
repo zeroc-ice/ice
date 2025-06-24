@@ -2,7 +2,7 @@
 set -eux -o pipefail
 
 usage() {
-    echo "Usage: $0
+    echo "Usage: $0"
 }
 
 if [ -z "${ICE_NIGHTLY_PUBLISH_TOKEN:-}" ]; then

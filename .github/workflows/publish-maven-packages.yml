@@ -42,13 +42,13 @@ jobs:
           case "$CHANNEL" in
             "3.8")
               SOURCE_URL="https://central.sonatype.com"
-              MAVEN_USERNAME="${{ secrets.MAVEN_CENTRAL_USERNAME }}"
-              MAVEN_PASSWORD="${{ secrets.MAVEN_CENTRAL_API_KEY }}"
+              MAVEN_USERNAME="${MAVEN_CENTRAL_USERNAME}"
+              MAVEN_PASSWORD="${MAVEN_CENTRAL_API_KEY}"
               ;;
             "nightly")
               SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-nightly/"
               MAVEN_USERNAME="nightly"
-              MAVEN_PASSWORD="${{ secrets.NUGET_NIGHTLY_PASSWORD }}"
+              MAVEN_PASSWORD="${NEXUS_NIGHTLY_PASSWORD}"
               ;;
             *)
               echo "Unsupported channel: $CHANNEL"
@@ -66,3 +66,7 @@ jobs:
         working-directory: java
         env:
           CHANNEL: ${{ inputs.channel }}
+          NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_API_KEY: ${{ secrets.MAVEN_CENTRAL_API_KEY }}
+
