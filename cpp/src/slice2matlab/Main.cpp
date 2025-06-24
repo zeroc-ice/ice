@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "Gen.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/Options.h"
@@ -8,6 +7,7 @@
 #include "../Slice/MetadataValidation.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
+#include "Gen.h"
 #include "Ice/CtrlCHandler.h"
 #include "Ice/StringUtil.h"
 
