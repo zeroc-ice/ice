@@ -1,4 +1,4 @@
-name: "Publish NuGet Packages"
+name: "Publish PIP Packages"
 
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ on:
 jobs:
   build:
     name: "Publish Python PIP Packages"
-    runs-on: 'ubuntu-24.04'
+    runs-on: "ubuntu-24.04"
     steps:
       - name: Download PIP artifacts
         env:
@@ -35,18 +35,16 @@ jobs:
         run: |
           set -euo pipefail
 
-          CHANNEL="${{ inputs.channel }}"
-
           case "$CHANNEL" in
             "3.8")
               REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-nightly/"
               TWINE_USERNAME="__token__"
-              TWINE_PASSWORD="${{ secrets.PYPI_RELEASE_AUTH_TOKEN }}"
+              TWINE_PASSWORD="${RELEASE_PYPI_AUTH_TOKEN}"
               ;;
             "nightly")
               REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-nightly/"
               TWINE_USERNAME="nightly"
-              TWINE_PASSWORD="${{ secrets.PYPI_NIGHTLY_PASSWORD }}"
+              TWINE_PASSWORD="${NEXUS_NIGHTLY_PASSWORD}"
               ;;
             *)
               echo "Unsupported channel: $CHANNEL"
@@ -63,3 +61,7 @@ jobs:
           source venv/bin/activate
           pip install twine
           twine upload --verbose --repository-url ${REPOSITORY_URL} dist/*
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+          RELEASE_PYPI_AUTH_TOKEN: ${{ secrets.RELEASE_PYPI_AUTH_TOKEN }}

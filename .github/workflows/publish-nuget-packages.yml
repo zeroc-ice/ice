@@ -35,17 +35,14 @@ jobs:
       - name: Publish NuGet Packages
         run: |
           set -euo pipefail
-
-          CHANNEL="${{ inputs.channel }}"
-
           case "$CHANNEL" in
             "3.8")
               SOURCE_URL="https://api.nuget.org/v3/index.json"
-              NUGET_API_KEY="${{ secrets.NUGET_RELEASE_API_KEY }}"
+              NUGET_API_KEY="${RELEASE_NUGET_API_KEY}"
               ;;
             "nightly")
               SOURCE_URL="https://download.zeroc.com/nexus/repository/nuget-nightly/"
-              NUGET_API_KEY="${{ secrets.NUGET_NIGHTLY_API_KEY }}"
+              NUGET_API_KEY="${NEXUS_NIGHTLY_NUGET_API_KEY}"
               ;;
             *)
               echo "Unsupported channel: $CHANNEL"
@@ -59,3 +56,7 @@ jobs:
             echo "Publishing package: $package"
             dotnet nuget push "$package" --source "$SOURCE_URL" --api-key "$NUGET_API_KEY"
           done
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          NEXUS_NIGHTLY_NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
+          RELEASE_NUGET_API_KEY: ${{ secrets.RELEASE_NUGET_API_KEY }}

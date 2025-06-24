@@ -88,6 +88,7 @@ jobs:
           echo "Uploading updated repository to S3..."
           aws s3 sync "${DISTRIBUTION}" "s3://zeroc-downloads/ice/${CHANNEL}/${DISTRIBUTION}" --delete
         env:
+          CHANNEL: ${{ inputs.channel }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
