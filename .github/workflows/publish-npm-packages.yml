@@ -37,12 +37,12 @@ jobs:
 
           case "$CHANNEL" in
             "3.8")
-              REGISTRY_URL="https://registry.npmjs.org/"
-              NPM_AUTH_TOKEN="${RELEASE_NPM_AUTH_TOKEN}"
+              REPOSITORY_PREFIX="registry.npmjs.org"
+              echo "//${REPOSITORY_PREFIX}/:_authToken=${RELEASE_NPM_AUTH_TOKEN}" > ~/.npmrc
               ;;
             "nightly")
-              REGISTRY_URL="https://download.zeroc.com/nexus/repository/npm-nightly/"
-              NPM_AUTH_TOKEN="${NEXUS_NIGHTLY_NPM_AUTH_TOKEN}"
+              REPOSITORY_PREFIX="download.zeroc.com/nexus/repository/npm-nightly"
+              echo "//${REPOSITORY_PREFIX}/:_auth=${NEXUS_NIGHTLY_NPM_AUTH_TOKEN}" > ~/.npmrc
               ;;
             *)
               echo "Unsupported channel: $CHANNEL"
@@ -50,15 +50,8 @@ jobs:
               ;;
           esac
 
-          # Compute the prefix for .npmrc by removing http: or https: from the registry URL
-          export REPOSITORY_PREFIX=$(echo "${REGISTRY_URL}" | sed -E 's|^https?:||')
-
-          # Write authentication token reference to .npmrc (keeps it as an env variable)
-          echo "${REPOSITORY_PREFIX}:_authToken=\${NPM_AUTH_TOKEN}" > ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
-
-          # Publish package
-          npm publish staging/js-npm-packages/*.tgz --registry "${REGISTRY_URL}"
+          npm publish staging/js-npm-packages/*.tgz --registry "https://${REPOSITORY_PREFIX}"
         env:
           CHANNEL: ${{ inputs.channel }}
           NEXUS_NIGHTLY_NPM_AUTH_TOKEN: ${{ secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN }}
