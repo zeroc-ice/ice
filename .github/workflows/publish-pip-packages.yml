@@ -20,7 +20,7 @@ on:
 jobs:
   build:
     name: "Publish Python PIP Packages"
-    runs-on: 'ubuntu-24.04'
+    runs-on: "ubuntu-24.04"
     steps:
       - name: Download PIP artifacts
         env:
@@ -65,4 +65,3 @@ jobs:
           CHANNEL: ${{ inputs.channel }}
           NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
           RELEASE_PYPI_AUTH_TOKEN: ${{ secrets.RELEASE_PYPI_AUTH_TOKEN }}
-
