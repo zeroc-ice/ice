@@ -108,11 +108,14 @@ jobs:
         working-directory: ice/java
         if: ${{ inputs.ice_version != '' }}
 
+      - name: Build Slice Tools for Java Packages
+        run: ../../gradlew build
+        working-directory: ice/java/tools/slice-tools
+
       - name: Build Ice for Java Packages
-        run: |
-          cd tools/slice-tools && ../../gradlew build
-          ./gradlew dist
+        run: ./gradlew dist
         working-directory: ice/java
+
       - name: Sign Ice for Java Files
         run: |
           set -euo pipefail
