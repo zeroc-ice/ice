@@ -13,7 +13,7 @@ public final class UnknownLocalException extends UnknownException {
     /**
      * Constructs an UnknownLocalException with a message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     public UnknownLocalException(String message) {
         super(ReplyStatus.UnknownLocalException, message);

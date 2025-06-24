@@ -12,7 +12,7 @@ public final class UnknownUserException extends UnknownException {
     /**
      * Constructs an UnknownUserException with a message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     public UnknownUserException(String message) {
         super(ReplyStatus.UnknownUserException, message);

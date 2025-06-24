@@ -19,7 +19,7 @@ public class UpdateFailedException extends java.lang.Exception {
     /**
      * Constructs an UpdateFailedException with a custom message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     UpdateFailedException(String message) {
         _message = message;

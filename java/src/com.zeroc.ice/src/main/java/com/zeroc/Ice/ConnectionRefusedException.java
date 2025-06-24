@@ -17,7 +17,7 @@ public final class ConnectionRefusedException extends ConnectFailedException {
     /**
      * Constructs a ConnectionRefusedException with a cause.
      *
-     * @param cause the cause of the exception
+     * @param cause the cause
      */
     public ConnectionRefusedException(Throwable cause) {
         super(cause);

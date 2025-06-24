@@ -14,7 +14,7 @@ public class ConnectFailedException extends SocketException {
     /**
      * Constructs a ConnectFailedException with a cause.
      *
-     * @param cause the cause of the exception
+     * @param cause the cause
      */
     public ConnectFailedException(Throwable cause) {
         super(cause);

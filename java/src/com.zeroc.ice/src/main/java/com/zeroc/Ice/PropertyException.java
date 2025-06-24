@@ -12,7 +12,7 @@ public final class PropertyException extends LocalException {
     /**
      * Constructs a PropertyException with a message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     public PropertyException(String message) {
         super(message);

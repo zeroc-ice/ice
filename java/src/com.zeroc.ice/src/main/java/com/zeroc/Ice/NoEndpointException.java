@@ -7,7 +7,7 @@ public final class NoEndpointException extends LocalException {
     /**
      * Constructs a NoEndpointException with a message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     public NoEndpointException(String message) {
         super(message);

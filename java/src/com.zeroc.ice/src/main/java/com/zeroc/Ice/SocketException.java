@@ -14,7 +14,7 @@ public class SocketException extends SyscallException {
     /**
      * Constructs a SocketException with the specified cause.
      *
-     * @param cause the cause of this exception
+     * @param cause the cause
      */
     public SocketException(Throwable cause) {
         super(cause);

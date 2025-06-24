@@ -8,18 +8,18 @@ package com.zeroc.Ice;
  */
 final class WebSocketException extends RuntimeException {
     /**
-     * Constructs a WebSocketException with the specified reason.
+     * Constructs a WebSocketException with the specified message.
      *
-     * @param reason the reason for this exception
+     * @param message the detail message
      */
-    public WebSocketException(String reason) {
-        super(reason);
+    public WebSocketException(String message) {
+        super(message);
     }
 
     /**
      * Constructs a WebSocketException with a cause.
      *
-     * @param cause the cause of this exception
+     * @param cause the cause
      */
     public WebSocketException(Throwable cause) {
         super(cause);

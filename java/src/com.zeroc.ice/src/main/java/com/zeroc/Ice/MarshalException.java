@@ -7,7 +7,7 @@ public final class MarshalException extends ProtocolException {
     /**
      * Constructs a MarshalException with a message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     public MarshalException(String message) {
         super(message);
@@ -16,8 +16,8 @@ public final class MarshalException extends ProtocolException {
     /**
      * Constructs a MarshalException with a message and a cause.
      *
-     * @param message the detail message for this exception
-     * @param cause   the cause of this exception
+     * @param message the detail message
+     * @param cause the cause
      */
     public MarshalException(String message, Throwable cause) {
         super(message, cause);

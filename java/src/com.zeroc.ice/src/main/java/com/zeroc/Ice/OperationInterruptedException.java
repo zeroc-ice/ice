@@ -7,7 +7,7 @@ public final class OperationInterruptedException extends LocalException {
     /**
      * Constructs an OperationInterruptedException with a cause.
      *
-     * @param cause the cause of this exception
+     * @param cause the cause
      */
     public OperationInterruptedException(Throwable cause) {
         super(null, cause);

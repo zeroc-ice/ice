@@ -7,7 +7,7 @@ public final class FileException extends SyscallException {
     /**
      * Constructs a FileException with a message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     public FileException(String message) {
         super(message);
@@ -16,8 +16,8 @@ public final class FileException extends SyscallException {
     /**
      * Constructs a FileException with a message and a cause.
      *
-     * @param message the detail message for this exception
-     * @param cause   the cause of this exception
+     * @param message the detail message
+     * @param cause   the cause
      */
     public FileException(String message, Throwable cause) {
         super(message, cause);

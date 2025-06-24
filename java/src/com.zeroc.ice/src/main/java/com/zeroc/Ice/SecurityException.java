@@ -7,7 +7,7 @@ public final class SecurityException extends LocalException {
     /**
      * Constructs a SecurityException with a message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     public SecurityException(String message) {
         super(message);
@@ -16,8 +16,8 @@ public final class SecurityException extends LocalException {
     /**
      * Constructs a SecurityException with a message and a cause.
      *
-     * @param message the detail message for this exception
-     * @param cause   the cause of this exception
+     * @param message the detail message
+     * @param cause   the cause
      */
     public SecurityException(String message, Throwable cause) {
         super(message, cause);

@@ -14,7 +14,7 @@ public final class ConnectionLostException extends SocketException {
     /**
      * Constructs a ConnectionLostException with a cause.
      *
-     * @param cause the cause of the exception
+     * @param cause the cause
      */
     public ConnectionLostException(Throwable cause) {
         super(cause);

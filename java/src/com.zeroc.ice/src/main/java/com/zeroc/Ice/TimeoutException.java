@@ -14,7 +14,7 @@ public class TimeoutException extends LocalException {
     /**
      * Constructs a TimeoutException with a message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     public TimeoutException(String message) {
         super(message);

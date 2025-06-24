@@ -7,7 +7,7 @@ public final class ParseException extends LocalException {
     /**
      * Constructs a ParseException with a message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     public ParseException(String message) {
         super(message);
@@ -16,8 +16,8 @@ public final class ParseException extends LocalException {
     /**
      * Constructs a ParseException with a message and a cause.
      *
-     * @param message the detail message for this exception
-     * @param cause   the cause of this exception
+     * @param message the detail message
+     * @param cause   the cause
      */
     public ParseException(String message, Throwable cause) {
         super(message, cause);

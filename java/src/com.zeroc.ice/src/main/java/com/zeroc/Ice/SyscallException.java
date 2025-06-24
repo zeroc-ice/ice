@@ -7,7 +7,7 @@ public class SyscallException extends LocalException {
     /**
      * Constructs a SyscallException with a {@code null} detail message and the specified cause.
      *
-     * @param cause the cause of this exception
+     * @param cause the cause
      */
     public SyscallException(Throwable cause) {
         super(null, cause);
@@ -16,7 +16,7 @@ public class SyscallException extends LocalException {
     /**
      * Constructs a SyscallException with the specified detail message.
      *
-     * @param message the detail message for this exception
+     * @param message the detail message
      */
     protected SyscallException(String message) {
         super(message);
@@ -25,8 +25,8 @@ public class SyscallException extends LocalException {
     /**
      * Constructs a SyscallException with the specified detail message and cause.
      *
-     * @param message the detail message for this exception
-     * @param cause   the cause of this exception
+     * @param message the detail message
+     * @param cause   the cause
      */
     protected SyscallException(String message, Throwable cause) {
         super(message, cause);
