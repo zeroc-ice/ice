@@ -388,9 +388,13 @@ namespace
         }
     }
 
-    void writeSeeAlso(IceInternal::Output& out, const DocComment& doc, const ContainerPtr& container)
+    void writeSeeAlso(IceInternal::Output& out, const optional<DocComment>& doc, const ContainerPtr& container)
     {
-        const StringList& seeAlso = doc.seeAlso();
+        if (!doc)
+        {
+            return;
+        }
+        const StringList& seeAlso = doc->seeAlso();
         if (seeAlso.empty())
         {
             return;
@@ -474,16 +478,20 @@ namespace
         }
     }
 
-    void writeRemarks(IceInternal::Output& out, const DocComment& doc)
+    void writeRemarks(IceInternal::Output& out, const optional<DocComment>& doc)
     {
-        const StringList& remarks = doc.remarks();
+        if (!doc)
+        {
+            return;
+        }
+        const StringList& remarks = doc->remarks();
         if (remarks.empty())
         {
             return;
         }
 
         out << nl << "%";
-        out << nl << "%% Remarks";
+        out << nl << "%   Remarks";
         writeDocLines(out, remarks, 4);
     }
 
@@ -578,11 +586,8 @@ namespace
         }
 
         writeDeprecated(out, doc, p);
-        if (doc)
-        {
-            writeSeeAlso(out, *doc, p->container());
-            writeRemarks(out, *doc);
-        }
+        writeSeeAlso(out, doc, p->container());
+        writeRemarks(out, doc);
     }
 
     void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async)
@@ -699,11 +704,8 @@ namespace
             }
         }
 
-        if (doc)
-        {
-            writeSeeAlso(out, *doc, p->container());
-            writeRemarks(out, *doc);
-        }
+        writeSeeAlso(out, doc, p->container());
+        writeRemarks(out, doc);
 
         out << nl;
     }
@@ -779,11 +781,8 @@ namespace
         out << nl << "%     uncheckedCast - Creates a " << name << " from another proxy without any validation.";
 
         writeDeprecated(out, doc, p);
-        if (doc)
-        {
-            writeSeeAlso(out, *doc, p->container());
-            writeRemarks(out, *doc);
-        }
+        writeSeeAlso(out, *doc, p->container());
+        writeRemarks(out, *doc);
     }
 
     void declareProperty(IceInternal::Output& out, const DataMemberPtr& field)
@@ -1077,11 +1076,8 @@ namespace
             false);
 
         writeDeprecated(out, doc, field);
-        if (doc)
-        {
-            writeSeeAlso(out, *doc, field->container());
-            writeRemarks(out, *doc);
-        }
+        writeSeeAlso(out, *doc, field->container());
+        writeRemarks(out, *doc);
     }
 
     void writeArguments(
