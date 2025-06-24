@@ -63,15 +63,15 @@ namespace
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst = true, string_view space = " ")
     {
-        StringList l = lines;
-        if (!commentFirst)
+        for (const auto& line : lines)
         {
-            out << l.front();
-            l.pop_front();
-        }
+            if (!commentFirst)
+            {
+                out << line;
+                commentFirst = true;
+                continue;
+            }
 
-        for (const auto& line : l)
-        {
             out << nl << "///";
             if (!line.empty())
             {
@@ -94,23 +94,6 @@ namespace
         out << nl << "/// ## Deprecated";
         const StringList& docDeprecated = comment.deprecated();
         writeDocLines(out, docDeprecated);
-        return true;
-    }
-
-    bool writeRemarksDocComment(Output& out, const DocComment& comment, bool needsNewline)
-    {
-        const StringList& remarks = comment.remarks();
-        if (remarks.empty())
-        {
-            return false;
-        }
-
-        if (needsNewline)
-        {
-            out << nl << "///";
-        }
-        out << nl << "/// ## Remarks";
-        writeDocLines(out, remarks);
         return true;
     }
 }
@@ -170,7 +153,16 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 
     // TODO we should add a section for '@see' tags.
 
-    writeRemarksDocComment(out, *doc, hasStarted);
+    const StringList& remarks = doc->remarks();
+    if (!remarks.empty())
+    {
+        if (hasStarted)
+        {
+            out << nl << "///";
+        }
+        out << nl << "/// ## Remarks";
+        writeDocLines(out, remarks);
+    }
 }
 
 void
@@ -308,7 +300,13 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         }
     }
 
-    writeRemarksDocComment(out, *doc, true);
+    const StringList& remarks = doc->remarks();
+    if (!remarks.empty())
+    {
+        out << nl << "///";
+        out << nl << "/// ## Remarks";
+        writeDocLines(out, remarks);
+    }
 }
 
 void
