@@ -128,8 +128,8 @@ jobs:
         with:
           name: java-packages
           path: |
-            java/lib/*.jar
-            java/lib/*.pom
-            java/lib/*.asc
-            java/tools/slice-tools/build/libs/*.jar
-            java/tools/slice-tools/build/libs/*.asc
+            ice/java/lib/*.jar
+            ice/java/lib/*.pom
+            ice/java/lib/*.asc
+            ice/java/tools/slice-tools/build/libs/*.jar
+            ice/java/tools/slice-tools/build/libs/*.asc
