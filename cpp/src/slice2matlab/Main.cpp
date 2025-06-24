@@ -781,8 +781,8 @@ namespace
         out << nl << "%     uncheckedCast - Creates a " << name << " from another proxy without any validation.";
 
         writeDeprecated(out, doc, p);
-        writeSeeAlso(out, *doc, p->container());
-        writeRemarks(out, *doc);
+        writeSeeAlso(out, doc, p->container());
+        writeRemarks(out, doc);
     }
 
     void declareProperty(IceInternal::Output& out, const DataMemberPtr& field)
