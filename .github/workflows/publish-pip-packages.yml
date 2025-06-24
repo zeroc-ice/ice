@@ -38,13 +38,13 @@ jobs:
           case "$CHANNEL" in
             "3.8")
               REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-nightly/"
-              TWINE_USERNAME="__token__"
-              TWINE_PASSWORD="${RELEASE_PYPI_AUTH_TOKEN}"
+              export TWINE_USERNAME="__token__"
+              export TWINE_PASSWORD="${RELEASE_PYPI_AUTH_TOKEN}"
               ;;
             "nightly")
               REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-nightly/"
-              TWINE_USERNAME="nightly"
-              TWINE_PASSWORD="${NEXUS_NIGHTLY_PASSWORD}"
+              export TWINE_USERNAME="nightly"
+              export TWINE_PASSWORD="${NEXUS_NIGHTLY_PASSWORD}"
               ;;
             *)
               echo "Unsupported channel: $CHANNEL"
