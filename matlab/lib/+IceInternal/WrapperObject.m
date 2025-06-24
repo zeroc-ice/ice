@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef (Abstract) WrapperObject < handle
+    % Copyright (c) ZeroC, Inc.
+
     methods
         function obj = WrapperObject(impl, type)
             if nargin > 0 % don't do anything for the default constructor

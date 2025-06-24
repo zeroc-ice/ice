@@ -1,35 +1,9 @@
 classdef ImplicitContext < IceInternal.WrapperObject
-    % ImplicitContext   Summary of ImplicitContext
-    %
-    % An interface to associate implicit contexts with communicators.
-    %
-    % When you make a remote invocation without an explicit context parameter,
-    % Ice uses the per-proxy context (if any) combined with the ImplicitContext
-    % associated with the communicator.
-    %
-    % Ice provides several implementations of ImplicitContext. The implementation
-    % used depends on the value of the Ice.ImplicitContext property.
-    %
-    % * None (default)
-    %   No implicit context at all.
-    % * PerThread
-    %   The implementation maintains a context per thread.
-    % * Shared
-    %   The implementation maintains a single context shared by all threads.
-    %
-    % ImplicitContext also provides a number of operations to create, update or
-    % retrieve an entry in the underlying context without first retrieving a
-    % copy of the entire context.
-    %
-    % ImplicitContext Methods:
-    %   getContext - Get a copy of the underlying context.
-    %   setContext - Set the underlying context.
-    %   containsKey - Check if this key has an associated value in the
-    %     underlying context.
-    %   get - Get the value associated with the given key in the underlying
-    %     context.
-    %   put - Create or update a key/value entry in the underlying context.
-    %   remove - Remove the entry for the given key in the underlying context.
+    %IMPLICITCONTEXT Represents the request context associated with a communicator.
+    %   When you make a remote invocation without an explicit request context parameter, Ice uses the per-proxy request
+    %   context (if any) combined with the ImplicitContext associated with your communicator. The property
+    %   "Ice.ImplicitContext" controls if your communicator has an associated implicit context, and when it does,
+    %   whether this implicit context is per-thread or shared by all threads.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -41,20 +15,24 @@ classdef ImplicitContext < IceInternal.WrapperObject
     end
     methods
         function r = getContext(obj)
-            % getContext - Get a copy of the underlying context.
+            %GETCONTEXT Gets a copy of the underlying context.
             %
-            % Returns (dictionary): A copy of the underlying context.
+            %   Output Arguments
+            %     r - A copy of the underlying context.
+            %       dictionary(string, string) scalar
 
             arguments
                 obj (1, 1) Ice.ImplicitContext
             end
             r = obj.iceCallWithResult('getContext');
         end
+
         function setContext(obj, newContext)
-            % setContext - Set the underlying context.
+            %SETCONTEXT Sets the underlying context.
             %
-            % Parameters:
-            %   newContext (dictionary) - The new context.
+            %   Input Arguments
+            %     newContext - The new context.
+            %       dictionary(string, string)
 
             arguments
                 obj (1, 1) Ice.ImplicitContext
@@ -62,15 +40,17 @@ classdef ImplicitContext < IceInternal.WrapperObject
             end
             obj.iceCall('setContext', newContext);
         end
+
         function r = containsKey(obj, key)
-            % containsKey - Check if this key has an associated value in the
-            %   underlying context.
+            %CONTAINSKEY Checks if this key has an associated value in the underlying context.
             %
-            % Parameters:
-            %   key (char) - The key.
+            %   Input Arguments
+            %     key - The key.
+            %       character vector
             %
-            % Returns (logical) - True if the key has an associated value,
-            %   false otherwise.
+            %   Output Arguments
+            %     r - True if the key has an associated value, false otherwise.
+            %       logical scalar
 
             arguments
                 obj (1, 1) Ice.ImplicitContext
@@ -78,16 +58,20 @@ classdef ImplicitContext < IceInternal.WrapperObject
             end
             r = obj.iceCallWithResult('containsKey', key);
         end
+
         function r = get(obj, key)
-            % get - Get the value associated with the given key in the
-            %   underlying context. Returns an empty string if no value is
-            %   associated with the key. containsKey allows you to distinguish
-            %   between an empty string value and no value at all.
+            %GET Gets the value associated with the given key in the underlying context. Returns an empty string if no
+            %   value is associated with the key.
             %
-            % Parameters:
-            %   key (char) - The key.
+            %   See also containsKey.
             %
-            % Returns (char) - The value associated with the key.
+            %   Input Arguments
+            %     key - The key.
+            %       character vector
+            %
+            %   Output Arguments
+            %     r - The value associated with the key.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.ImplicitContext
@@ -95,16 +79,19 @@ classdef ImplicitContext < IceInternal.WrapperObject
             end
             r = obj.iceCallWithResult('get', key);
         end
+
         function r = put(obj, key, value)
-            % put - Create or update a key/value entry in the underlying
-            %   context.
+            %PUT Creates or updates a key/value entry in the underlying context.
             %
-            % Parameters:
-            %   key (char) - The key.
-            %   value (char) - The value.
+            %   Input Arguments
+            %     key - The key.
+            %       character vector
+            %     value - The value.
+            %       character vector
             %
-            % Returns (char) - The previous value associated with the key,
-            %   if any.
+            %   Output Arguments
+            %     r - The previous value associated with the key, if any.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.ImplicitContext
@@ -113,14 +100,18 @@ classdef ImplicitContext < IceInternal.WrapperObject
             end
             r = obj.iceCallWithResult('put', key, value);
         end
+
         function r = remove(obj, key)
-            % remove - Remove the entry for the given key in the underlying
-            %   context.
+            %REMOVE Removes the entry for the given key in the underlying context. Returns an empty array if there is
+            %   no entry for the key.
             %
-            % Parameters:
-            %   key (char) - The key.
+            %   Input Arguments
+            %     key - The key.
+            %       character vector
             %
-            % Returns (char) - The value associated with the key, if any.
+            %   Output Arguments
+            %     r - The value associated with the key, if any.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.ImplicitContext

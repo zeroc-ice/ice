@@ -1,9 +1,9 @@
-% Copyright (c) ZeroC, Inc.
-
-%
-% Singleton used to indicate an unset optional value.
-%
 classdef UnsetI < handle
+    % Copyright (c) ZeroC, Inc.
+
+    %
+    % Singleton used to indicate an unset optional value.
+    %
     methods(Access=private)
         function obj = UnsetI()
         end

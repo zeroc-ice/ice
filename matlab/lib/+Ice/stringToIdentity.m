@@ -1,10 +1,13 @@
 function r = stringToIdentity(s)
-    % stringToIdentity  Converts a string to an object identity.
+    %STRINGTOIDENTITY Converts a string to an object identity.
     %
-    % Parameters:
-    %   s (char) - The string to convert.
+    %   Input Arguments
+    %     s - The string to convert.
+    %       character vector | string scalar
     %
-    % Returns (Ice.Identity) - The converted object identity.
+    %   Output Arguments
+    %     r - The converted object identity.
+    %       Ice.Identity scalar
 
     % Copyright (c) ZeroC, Inc.
 

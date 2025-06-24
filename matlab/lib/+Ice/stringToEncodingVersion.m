@@ -1,10 +1,13 @@
 function r = stringToEncodingVersion(s)
-    % stringToEncodingVersion  Converts a string to an encoding version.
+    %STRINGTOENCODINGVERSION Converts a string to an encoding version.
     %
-    % Parameters:
-    %   s (char) - The string to convert.
+    %   Input Arguments
+    %     s - The string to convert.
+    %       character vector | string scalar
     %
-    % Returns (Ice.EncodingVersion) - The converted encoding version.
+    %   Output Arguments
+    %     r - The converted encoding version
+    %       Ice.EncodingVersion scalar.
 
     % Copyright (c) ZeroC, Inc.
 

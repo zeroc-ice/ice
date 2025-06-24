@@ -1,8 +1,5 @@
-% InitializationException   Summary of InitializationException
-%
-% This exception is raised when a failure occurs during initialization.
-
-% Copyright (c) ZeroC, Inc.
-
 classdef (Sealed) InitializationException < Ice.LocalException
+    %INITIALIZATIONEXCEPTION The exception that is thrown when communicator initialization fails.
+
+    % Copyright (c) ZeroC, Inc.
 end

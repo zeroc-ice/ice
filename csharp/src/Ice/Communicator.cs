@@ -440,7 +440,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
 }
 
 /// <summary>
-/// The output mode for xxxToString method such as identityToString and proxyToString.
+/// The output mode for xxxToString methods such as identityToString and proxyToString.
 /// The actual encoding format for
 /// the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
 /// string.

@@ -1,56 +1,59 @@
 classdef Communicator < IceInternal.WrapperObject
-    % Communicator   Summary of Communicator
+    %COMMUNICATOR The central object in Ice.
+    %   Communicator is the central object in Ice. Its responsibilities include:
+    %   - creating and managing outgoing connections
+    %   - managing properties (configuration), retries, logging, and more.
     %
-    % The central object in Ice. One or more communicators can be
-    % instantiated for an Ice application. Communicator instantiation
-    % is language-specific, and not specified in Slice code.
-    %
-    % Communicator Methods:
-    %   destroy - Destroy the communicator.
-    %   destroyAsync - Destroy the communicator.
-    %   stringToProxy - Convert a stringified proxy into a proxy.
-    %   proxyToString - Convert a proxy into a string.
-    %   propertyToProxy - Convert a set of proxy properties into a proxy.
-    %   proxyToProperty - Convert a proxy to a set of proxy properties.
-    %   identityToString - Convert an identity into a string.
-    %   getImplicitContext - Get the implicit context associated with this
-    %     communicator.
-    %   getProperties - Get the properties for this communicator.
-    %   getLogger - Get the logger for this communicator.
-    %   getDefaultRouter - Get the default router for this communicator.
-    %   setDefaultRouter - Set a default router for this communicator.
-    %   getDefaultLocator - Get the default locator for this communicator.
-    %   setDefaultLocator - Set a default locator for this communicator.
-    %   getEncoding - Get the encoding version for this communicator.
-    %   getFormat - Get the class format for this communicator.
-    %   flushBatchRequests - Flush any pending batch requests for this
-    %     communicator.
-    %   flushBatchRequestsAsync - Flush any pending batch requests for this
-    %     communicator.
+    %   Communicator Methods:
+    %     Communicator - Constructs a new communicator.
+    %     destroy - Destroys the communicator and cleans up memory, shutting down this communicator's client functionality.
+    %     destroyAsync - An asynchronous destroy.
+    %     flushBatchRequests - Flushes any pending batch requests for this communicator.
+    %     flushBatchRequestsAsync - An asynchronous flushBatchRequests.
+    %     getDefaultLocator - Gets the default locator for this communicator.
+    %     getDefaultRouter - Gets the default router for this communicator.
+    %     getImplicitContext - Gets the implicit context associated with this communicator.
+    %     getLogger - Gets the logger for this communicator.
+    %     getProperties - Gets the Ice properties for this communicator.
+    %     identityToString - Convert an identity into a string.
+    %     propertyToProxy - Converts a set of proxy properties into a proxy.
+    %     proxyToProperty - Converts a proxy to a set of proxy properties.
+    %     proxyToString - Converts a proxy into a string.
+    %     setDefaultLocator - Sets a default locator for this communicator.
+    %     setDefaultRouter - Sets a default router for this communicator.
+    %     stringToProxy - Converts a stringified proxy into a proxy.
 
     % Copyright (c) ZeroC, Inc.
 
     methods
         function [obj, remArgs] = Communicator(args, options)
-            % Communicator  Constructs a new communicator.
+            %COMMUNICATOR Constructs a new communicator.
             %
-            % Examples:
-            %   communicator = Ice.Communicator();
-            %   [communicator, remArgs] = Ice.Communicator(args);
-            %   communicator = Ice.Communicator(Properties = props, SliceLoader = sliceLoader);
-            %   [communicator, remArgs] = Ice.Communicator(args, SliceLoader = sliceLoader);
+            %   Examples
+            %     communicator = Ice.Communicator();
+            %     [communicator, remArgs] = Ice.Communicator(args);
+            %     communicator = Ice.Communicator(Properties = props, SliceLoader = sliceLoader);
+            %     [communicator, remArgs] = Ice.Communicator(args, SliceLoader = sliceLoader);
             %
-            % Parameters:
-            %   args (cell array of char or string array) - An optional argument vector. Any Ice-related options in this
-            %     vector are used to initialize the communicator properties.
-            %   options - Name=Value options provided by the Ice.InitializationData class.
+            %   Input Arguments
+            %     args - Argument vector. Any Ice-related options in this vector are used to set the communicator
+            %       properties.
+            %       empty string array (default) | string array | cell array of character vectors
             %
-            % Returns:
-            %   communicator (Ice.Communicator) - The new communicator.
-            %   remArgs (string array) - Contains the remaining command-line arguments that were not used to set
-            %     properties.
+            %   Input Name-Value Arguments
+            %     Properties - Properties object used to initialize the communicator properties. If args is non-empty,
+            %       any reserved properties specified in args override these in properties.
+            %       Ice.Properties scalar
+            %     SliceLoader - Slice loader used to load Slice classes and exceptions.
+            %       Ice.SliceLoader scalar
+            %
+            %   Output Arguments
+            %     communicator - The new communicator.
+            %       Ice.Communicator scalar
+            %     remArgs - Remaining command-line arguments that were not used to set properties.
+            %       string array
             arguments
-                args (1, :) = {}
+                args (1, :) string = string.empty
                 options.?Ice.InitializationData
                 options.Properties (1, 1) Ice.Properties = Ice.Properties()
                 options.SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance
@@ -98,23 +101,24 @@ classdef Communicator < IceInternal.WrapperObject
                 obj.format = Ice.FormatType.CompactFormat;
             end
         end
+
         function destroy(obj)
-            % destroy   Destroy the communicator. Calling destroy cleans up
-            % memory, and shuts down this communicator's client functionality.
-            % Subsequent calls to destroy are ignored.
+            %DESTROY Destroys the communicator and cleans up memory, shutting down this communicator's client
+            %   functionality. Subsequent calls to destroy are ignored.
 
             arguments
                 obj (1, 1) Ice.Communicator
             end
             obj.iceCall('destroy');
         end
+
         function f = destroyAsync(obj)
-            % destroyAsync   Asynchronously destroy the communicator. Calling
-            % destroy cleans up memory, and shuts down this communicator's
-            % client functionality. Subsequent calls to destroy are ignored.
+            %DESTROYASYNC Asynchronously destroys the communicator. Calling destroyAsync cleans up memory, and shuts
+            %   down this communicator's client functionality. Subsequent calls to destroyAsync are ignored.
             %
-            % Returns (Ice.Future) - A future that will be completed when the
-            %   invocation completes.
+            %   Output Arguments
+            %     f - A future that will be completed when the destruction completes.
+            %       Ice.Future scalar
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -124,25 +128,18 @@ classdef Communicator < IceInternal.WrapperObject
             assert(~isNull(future));
             f = Ice.Future(future, 'destroy', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
+
         function r = stringToProxy(obj, str)
-            % stringToProxy   Convert a stringified proxy into a proxy.
-            % For example:
+            %STRINGTOPROXY Converts a stringified proxy into a proxy.
+            %   Deprecated: Use the constructor of your proxy class instead.
             %
-            % MyCategory/MyObject:tcp -h some_host -p 10000
+            %   Input Arguments
+            %     str - The stringified proxy to convert into a proxy.
+            %       character vector
             %
-            % is a proxy that refers to the Ice object having an identity with
-            % a name "MyObject" and a category "MyCategory", with the server
-            % running on host "some_host", port 10000. If the stringified proxy
-            % does not parse correctly, the operation throws ParseException.
-            %
-            % The Ice manual provides a detailed description of the syntax
-            % supported by stringified proxies.
-            %
-            % Parameters:
-            %   str (char) - The stringified proxy to convert into a proxy.
-            %
-            % Returns (Ice.ObjectPrx) - The proxy, or an empty array if str is
-            %   an empty string.
+            %   Output Arguments
+            %     r - The proxy, or an empty array if str is an empty string.
+            %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -156,15 +153,17 @@ classdef Communicator < IceInternal.WrapperObject
                 r = Ice.ObjectPrx(obj, '', impl);
             end
         end
+
         function r = proxyToString(~, proxy)
-            % proxyToString   Convert a proxy into a string.
+            %PROXYTOSTRING Converts a proxy into a string.
             %
-            % Parameters:
-            %   proxy (Ice.ObjectPrx) - The proxy to convert into a stringified
-            %     proxy.
+            %   Input Arguments
+            %     proxy - The proxy to convert into a stringified proxy.
+            %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
             %
-            % Returns (char) - The stringified proxy, or an empty string if
-            %   proxy is an empty array.
+            %   Output Arguments
+            %     r - The stringified proxy, or an empty string if proxy is an empty array.
+            %       character vector
 
             arguments
                 ~
@@ -176,24 +175,25 @@ classdef Communicator < IceInternal.WrapperObject
                 r = proxy.ice_toString();
             end
         end
+
         function r = propertyToProxy(obj, prop)
-            % propertyToProxy   Convert a set of proxy properties into a proxy.
-            % The "base" name supplied in the property argument refers to a
-            % property containing a stringified proxy, such as
+            %PROPERTYTOPROXY Converts a set of proxy properties into a proxy.
+            %   The "base name" supplied in the prop argument refers to a property containing a stringified proxy, such
+            %   as:
             %
-            % MyProxy=id:tcp -h localhost -p 10000
+            %   MyProxy=id:tcp -h localhost -p 10000
             %
-            % Additional properties configure local settings for the proxy, such as
+            %   Additional properties configure local settings for the proxy, such as:
             %
-            % MyProxy.PreferSecure=1
+            %   MyProxy.PreferSecure=1
             %
-            % The property reference in the Ice manual describes each of the
-            % supported proxy properties.
+            %   Input Arguments
+            %     prop - The base property name.
+            %       character vector
             %
-            % Parameters:
-            %   prop (char) - The base property name.
-            %
-            % Returns (Ice.ObjectPrx) - The proxy.
+            %   Output Arguments
+            %     r - The proxy.
+            %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -207,14 +207,19 @@ classdef Communicator < IceInternal.WrapperObject
                 r = Ice.ObjectPrx(obj, '', impl);
             end
         end
+
         function r = proxyToProperty(obj, proxy, prop)
-            % proxyToProperty   Convert a proxy to a set of proxy properties.
+            %PROXYTOPROPERTY Converts a proxy to a set of proxy properties.
             %
-            % Parameters:
-            %   proxy (Ice.ObjectPrx) - The proxy.
-            %   property (char) - The base property name.
+            %   Input Arguments
+            %     proxy - The proxy.
+            %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
+            %     prop - The base property name.
+            %       character vector
             %
-            % Returns (dictionary) - The property set.
+            %   Output Arguments
+            %     r - The property set.
+            %       dictionary(string, string) scalar
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -227,13 +232,17 @@ classdef Communicator < IceInternal.WrapperObject
                 r = obj.iceCallWithResult('proxyToProperty', proxy.iceGetImpl(), prop);
             end
         end
+
         function r = identityToString(obj, id)
-            % identityToString   Convert an identity into a string.
+            %IDENTITYTOSTRING Convert an identity into a string.
             %
-            % Parameters:
-            %   id (Ice.Identity) - The identity to convert into a string.
+            %   Input Arguments
+            %     id - The identity to convert into a string.
+            %       Ice.Identity scalar
             %
-            % Returns (char) - The stringified identity.
+            %   Output Arguments
+            %     r - The stringified identity.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -241,13 +250,13 @@ classdef Communicator < IceInternal.WrapperObject
             end
             r = obj.iceCallWithResult('identityToString', id);
         end
+
         function r = getImplicitContext(obj)
-            % getImplicitContext   Get the implicit context associated with
-            %   this communicator.
+            %GETIMPLICITCONTEXT Gets the implicit context associated with this communicator.
             %
-            % Returns (Ice.ImplicitContext) - The implicit context associated
-            %   with this communicator; returns an empty array when the property
-            %   Ice.ImplicitContext is not set or is set to None.
+            %   Output Arguments
+            %     r - The implicit context associated with this communicator.
+            %       Ice.ImplicitContext scalar | empty array of Ice.ImplicitContext
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -259,10 +268,13 @@ classdef Communicator < IceInternal.WrapperObject
             end
             r = obj.implicitContext;
         end
+
         function r = getProperties(obj)
-            % getProperties   Get the properties for this communicator.
+            %GETPROPERTIES Gets the Ice properties for this communicator.
             %
-            % Returns (Ice.Properties) - This communicator's properties.
+            %   Output Arguments
+            %     r - This communicator's properties.
+            %       Ice.Properties scalar
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -274,10 +286,13 @@ classdef Communicator < IceInternal.WrapperObject
             end
             r = obj.Properties;
         end
+
         function r = getLogger(obj)
-            % getLogger   Get the logger for this communicator.
+            %GETLOGGER Gets the logger for this communicator.
             %
-            % Returns (Ice.Logger) - This communicator's logger.
+            %   Output Arguments
+            %     r - This communicator's logger.
+            %       Ice.Logger scalar
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -289,10 +304,13 @@ classdef Communicator < IceInternal.WrapperObject
             end
             r = obj.logger;
         end
+
         function r = getDefaultRouter(obj)
-            % getDefaultRouter   Get the default router for this communicator.
+            %GETDEFAULTROUTER Gets the default router for this communicator.
             %
-            % Returns (Ice.RouterPrx) - This communicator's default router.
+            %   Output Arguments
+            %     r - This communicator's default router.
+            %       Ice.RouterPrx scalar | empty array of Ice.RouterPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -305,18 +323,14 @@ classdef Communicator < IceInternal.WrapperObject
                 r = Ice.RouterPrx.empty;
             end
         end
+
         function setDefaultRouter(obj, proxy)
-            % setDefaultRouter   Set a default router for this communicator.
-            % All newly created proxies will use this default router.
-            % To disable the default router, an empty array can be used.
-            % Note that this operation has no effect on existing proxies.
+            %SETDEFAULTROUTER Sets a default router for this communicator.
+            %   All newly created proxies will use this default router.
             %
-            % You can also set a router for an individual proxy by calling
-            % the operation ice_router on the proxy.
-            %
-            % Parameters:
-            %   proxy (Ice.RouterPrx) - The default router to use for this
-            %     communicator.
+            %   Input Arguments
+            %     proxy - The default router to use for this communicator.
+            %       Ice.RouterPrx scalar | empty array of Ice.RouterPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -329,10 +343,13 @@ classdef Communicator < IceInternal.WrapperObject
             end
             obj.iceCall('setDefaultRouter', impl);
         end
+
         function r = getDefaultLocator(obj)
-            % getDefaultLocator   Get the default locator for this communicator.
+            %GETDEFAULTLOCATOR Gets the default locator for this communicator.
             %
-            % Returns (Ice.LocatorPrx) - This communicator's default locator.
+            %   Output Arguments
+            %     r - This communicator's default locator.
+            %       Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -345,18 +362,14 @@ classdef Communicator < IceInternal.WrapperObject
                 r = Ice.LocatorPrx.empty;
             end
         end
+
         function setDefaultLocator(obj, proxy)
-            % setDefaultLocator   Set a default locator for this communicator.
-            % All newly created proxies will use this default locator.
-            % To disable the default locator, an empty array can be used.
-            % Note that this operation has no effect on existing proxies.
+            %SETDEFAULTLOCATOR Sets a default locator for this communicator.
+            %   All newly created proxies will use this default locator.
             %
-            % You can also set a locator for an individual proxy by calling
-            % the operation ice_locator on the proxy.
-            %
-            % Parameters:
-            %   proxy (Ice.LocatorPrx) - The default locator to use for this
-            %     communicator.
+            %   Input Arguments
+            %     proxy - The default locator to use for this communicator.
+            %       Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -369,16 +382,16 @@ classdef Communicator < IceInternal.WrapperObject
             end
             obj.iceCall('setDefaultLocator', impl);
         end
+
         function flushBatchRequests(obj, mode)
-            % flushBatchRequests   Flush any pending batch requests for this
-            %   communicator. This means all batch requests invoked on fixed
-            %   proxies for all connections associated with the communicator.
-            %   Any errors that occur while flushing a connection are ignored.
+            %FLUSHBATCHREQUESTS Flushes any pending batch requests for this communicator. This means all batch requests
+            %   invoked on fixed proxies for all connections associated with the communicator. Any errors that occur
+            %   while flushing are ignored.
             %
-            % Parameters:
-            %   mode (Ice.CompressBatch) - Specifies whether or not the queued
-            %     batch requests should be compressed before being sent over
-            %     the wire.
+            %   Input Arguments
+            %     mode - Specifies whether or not the queued batch requests should be compressed before being sent over
+            %       the wire.
+            %       Ice.CompressBatch scalar
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -386,19 +399,20 @@ classdef Communicator < IceInternal.WrapperObject
             end
             obj.iceCall('flushBatchRequests', mode);
         end
+
         function r = flushBatchRequestsAsync(obj, mode)
-            % flushBatchRequestsAsync   Flush any pending batch requests for this
-            %   communicator. This means all batch requests invoked on fixed
-            %   proxies for all connections associated with the communicator.
-            %   Any errors that occur while flushing a connection are ignored.
+            %FLUSHBATCHREQUESTSASYNC Flushes any pending batch requests for this communicator. This means all batch
+            %   requests invoked on fixed proxies for all connections associated with the communicator. Any errors that
+            %   occur while flushing are ignored.
             %
-            % Parameters:
-            %   mode (Ice.CompressBatch) - Specifies whether or not the queued
-            %     batch requests should be compressed before being sent over
-            %     the wire.
+            %   Input Arguments
+            %     mode - Specifies whether or not the queued batch requests should be compressed before being sent over
+            %       the wire.
+            %       Ice.CompressBatch scalar
             %
-            % Returns (Ice.Future) - A future that will be completed when the
-            %   invocation completes.
+            %   Output Arguments
+            %     r - A future that will be completed when the invocation completes.
+            %       Ice.Future scalar
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -409,7 +423,8 @@ classdef Communicator < IceInternal.WrapperObject
             assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
-
+    end
+    methods (Hidden)
         function r = getEncoding(obj)
             arguments
                 obj (1, 1) Ice.Communicator

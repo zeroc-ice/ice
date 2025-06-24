@@ -1,14 +1,16 @@
 function r = proxyIdentityAndFacetCompare(lhs, rhs)
-    % proxyIdentityAndFacetCompare  Compares the object identities and facets
-    %   of two proxies.
+    %PROXYIDENTITYANDFACETCOMPARE Compares the object identities and facets of two proxies.
     %
-    % Parameters:
-    %   lhs (Ice.ObjectPrx) - A proxy.
-    %   rhs (Ice.ObjectPrx) - A proxy.
+    %   Input Arguments
+    %     lhs - A proxy.
+    %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
+    %     rhs - Another proxy.
+    %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
     %
-    % Returns (int32) - -1 if the identity and facet in lhs compares less than
-    %   the identity and facet in rhs; 0 if the identities and facets compare
-    %   equal; 1, otherwise.
+    %   Output Arguments
+    %     r - -1 if the identity and facet in lhs compares less than the identity and facet in rhs; 0 if the
+    %       identities and facets compare equal; 1, otherwise.
+    %       int32 scalar
 
     % Copyright (c) ZeroC, Inc.
 

@@ -78,7 +78,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
     methods
         function obj = ObjectPrx(communicator, proxyString, impl, encoding)
-            %OBJECTPRX Constructs an Ice.ObjectPrx from a communicator and a proxy string.
+            %OBJECTPRX Constructs an ObjectPrx from a communicator and a proxy string.
             %
             %   Input Arguments
             %     communicator - The associated communicator.
@@ -87,7 +87,8 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %       character vector
             %
             %   Output Arguments
-            %     obj - The new Ice.ObjectPrx.
+            %     obj - The new ObjectPrx.
+            %       Ice.ObjectPrx scalar
 
             if nargin == 0 % default constructor, typically called with multiple inheritance
                 superArgs = {};
@@ -133,6 +134,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
 
         function r = eq(obj, other)
             %EQ Compares this proxy with another ObjectPrx for equality.
+            %
             %   See also eq.
             if isempty(other) || ~isa(other, 'Ice.ObjectPrx')
                 r = false;
@@ -742,7 +744,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             %   Output Arguments
             %      r - The router for the proxy.
-            %        Ice.RouterPrx scalar | Ice.RouterPrx empty array
+            %        Ice.RouterPrx scalar | empty array of Ice.RouterPrx
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -761,7 +763,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             %   Input Arguments
             %      rtr - The router for the new proxy.
-            %        Ice.RouterPrx scalar | Ice.RouterPrx empty array
+            %        Ice.RouterPrx scalar | empty array of Ice.RouterPrx
             %
             %   Output Arguments
             %      r - The proxy with the specified router.
@@ -784,7 +786,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             %   Output Arguments
             %      r - The locator for the proxy.
-            %        Ice.LocatorPrx scalar | Ice.LocatorPrx empty array
+            %        Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
 
             arguments
                 obj (1, 1) Ice.ObjectPrx
@@ -803,7 +805,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %
             %   Input Arguments
             %      loc - The locator for the new proxy.
-            %        Ice.LocatorPrx scalar | Ice.LocatorPrx empty array
+            %        Ice.LocatorPrx scalar | empty array of Ice.LocatorPrx
             %
             %   Output Arguments
             %      r - The proxy with the specified locator.
@@ -1153,7 +1155,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %   Output Arguments
             %     r - The cached Connection for this proxy, or an empty array if the proxy does not have a cached
             %       connection.
-            %       Ice.Connection scalar | Ice.Connection empty array
+            %       Ice.Connection scalar | empty array of Ice.Connection
 
             arguments
                 obj (1, 1) Ice.ObjectPrx

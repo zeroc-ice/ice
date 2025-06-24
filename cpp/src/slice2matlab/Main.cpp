@@ -975,7 +975,7 @@ namespace
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindValue:
-                    out << typeStr << " scalar | " << typeStr << " empty array";
+                    out << typeStr << " scalar | empty array of " << typeStr;
                     break;
                 default:
                     out << typeStr << " scalar";
@@ -1029,7 +1029,7 @@ namespace
         }
         else // proxies and classes
         {
-            out << typeStr << " scalar | " << typeStr << " empty array";
+            out << typeStr << " scalar | empty array of " << typeStr;
         }
 
         if (optional)

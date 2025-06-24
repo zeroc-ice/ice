@@ -1,26 +1,25 @@
-% AlreadyRegisteredException   Summary of AlreadyRegisteredException
-%
-% An attempt was made to register something more than once with the Ice run time. This exception is raised if an
-% attempt is made to register a servant, servant locator, facet, plug-in, object adapter, object, or
-% user exception factory more than once for the same ID.
-%
-% AlreadyRegisteredException Properties:
-%   kindOfObject - The kind of object that could not be removed: "servant", "facet", "object", "default servant", "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
-%   id - The ID (or name) of the object that is registered already.
-
-% Copyright (c) ZeroC, Inc.
-
 classdef (Sealed) AlreadyRegisteredException < Ice.LocalException
+    %ALREADYREGISTEREDEXCEPTION The exception that is thrown when you attempt to register an object more than once with
+    %   the Ice runtime.
+    %
+    %   AlreadyRegisteredException Properties:
+    %     kindOfObject - The kind of object that could not be removed.
+    %     id - The ID (or name) of the object that is registered already.
+
+    % Copyright (c) ZeroC, Inc.
+
     properties
-        % kindOfObject - The kind of object that could not be removed: "servant", "facet", "object", "default servant",
-        % "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
+        %KINDOFOBJECT The kind of object that could not be removed.
+        %   character vector
         kindOfObject (1, :) char = ''
-        % id - The ID (or name) of the object that is registered already.
+
+        %ID The ID (or name) of the object that is registered already.
+        %   character vector
         id (1, :) char = ''
     end
-    methods
-        % Convenience constructor without an errID or what message.
+    methods(Hidden)
         function obj = AlreadyRegisteredException(kindOfObject, id)
+            % Convenience constructor without an errID or what message.
             if nargin == 0 % default constructor
                 superArgs = {};
             else

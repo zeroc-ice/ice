@@ -1,10 +1,13 @@
 function r = stringToProtocolVersion(s)
-    % stringToProtocolVersion  Converts a string to a protocol version.
+    %STRINGTOPROTOCOLVERSION Converts a string to a protocol version.
     %
-    % Parameters:
-    %   s (char) - The string to convert.
+    %   Input Arguments
+    %     s - The string to convert.
+    %       character vector | string scalar
     %
-    % Returns (Ice.ProtocolVersion) - The converted protocol version.
+    %   Output Arguments
+    %     r - The converted protocol version.
+    %       Ice.ProtocolVersion scalar
 
     % Copyright (c) ZeroC, Inc.
 
