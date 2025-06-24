@@ -1,4 +1,4 @@
-name: "Publish NuGet Packages"
+name: "Publish Java Packages"
 
 on:
   workflow_dispatch:
@@ -35,7 +35,7 @@ jobs:
           mkdir -p staging
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir staging
 
-      - name: Publish Nightly GEM Packages
+      - name: Publish Java Packages
         run: |
           set -euo pipefail
 
@@ -57,9 +57,9 @@ jobs:
           esac
 
           mkdir -p lib
-          cp -pf ../staging/java-packages/java/lib/*.jar lib
-          cp -pf ../staging/java-packages/java/lib/*.pom lib
-          cp -pf ../staging/java-packages/java/tools/slice-tools/build/libs/*.jar tools/slice-tools/build/libs/
+          cp -pf ../../staging/java-packages/java/lib/*.jar lib
+          cp -pf ../../staging/java-packages/java/lib/*.pom lib
+          cp -pf ../../staging/java-packages/java/tools/slice-tools/build/libs/*.jar tools/slice-tools/build/libs/
 
           ice_version=$(basename "$(ls ib/ice-*-sources.jar)" | sed -E 's/^ice-(.+)-sources\.jar$/\1/')
           ./gradlew publish -PiceVersion="${ice_version}"

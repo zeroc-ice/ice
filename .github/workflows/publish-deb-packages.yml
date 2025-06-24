@@ -1,4 +1,4 @@
-name: "Publish RPM Packages"
+name: "Publish DEB Packages"
 
 on:
   workflow_dispatch:

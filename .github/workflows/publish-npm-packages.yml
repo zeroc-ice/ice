@@ -1,4 +1,4 @@
-name: "Publish NuGet Packages"
+name: "Publish NPM Packages"
 
 on:
   workflow_dispatch:
