@@ -39,6 +39,7 @@ jobs:
             framework_name=$(basename $dir)
             framework_zip=${framework_name/.xcframework/-${{inputs.ice_version}}.xcframework.zip}
             zip -r $framework_zip $dir
+          done
         working-directory: cpp/lib/XCFrameworks
 
       - name: Upload Artifacts
