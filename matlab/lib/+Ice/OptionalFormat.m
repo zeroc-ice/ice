@@ -1,7 +1,7 @@
 classdef OptionalFormat < uint8
     %OPTIONALFORMAT The optional format type.
     %   An optional value is encoded with a specific optional format. This optional format describes how the data is
-    %   encoded and how it can be skipped by the unmarshaling code if the optional is not known to the receiver.
+    %   marshaled and how it can be skipped by the unmarshaling code if the optional is not known to the receiver.
     %
     %   OptionalFormat Properties:
     %     F1 - Fixed-length format (1 byte).
@@ -38,7 +38,7 @@ classdef OptionalFormat < uint8
         %FSIZE Fixed-length format with size.
         FSize = uint8(6)
 
-        %CLASS Class format.
+        %CLASS Class format, no longer supported as of Ice 3.8.
         Class = uint8(7)
     end
 end

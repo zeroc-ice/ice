@@ -9,7 +9,7 @@ classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
 
     methods
         function obj = ClassSliceLoader(metaclass)
-            %CLASSSLICELOADER - Constructs a ClassSliceLoader from one or more meta classes.
+            %CLASSSLICELOADER Constructs a ClassSliceLoader from one or more meta classes.
             %
             %   Input Arguments (Repeating)
             %     metaclass - The meta class of a generated class or exception.

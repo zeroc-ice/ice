@@ -31,17 +31,17 @@ classdef (Abstract) Value < matlab.mixin.Copyable
         end
 
         function ice_preMarshal(~)
-            %ICE_PREMARSHAL - Ice invokes this method prior to marshaling the fields of this object. This allows a
+            %ICE_PREMARSHAL Ice invokes this method prior to marshaling the fields of this object. This allows a
             %   subclass to override this method in order to validate its fields.
         end
 
         function ice_postUnmarshal(~)
-            %ICE_POSTUNMARSHAL - Ice invokes this method after unmarshaling the fields of this object. This allows a
+            %ICE_POSTUNMARSHAL Ice invokes this method after unmarshaling the fields of this object. This allows a
             %   subclass to override this method in order to perform additional initialization.
         end
 
         function r = ice_getSlicedData(obj)
-            %ICE_GETSLICEDDATA - Returns the sliced-off data of this object.
+            %ICE_GETSLICEDDATA Returns the sliced-off data of this object.
             r = obj.iceSlicedData_;
         end
     end

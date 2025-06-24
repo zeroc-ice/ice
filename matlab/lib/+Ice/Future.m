@@ -61,7 +61,7 @@ classdef Future < IceInternal.WrapperObject
         end
     end
     methods (Hidden)
-         function delete(obj)
+        function delete(obj)
             if ~isempty(obj.impl_)
                 obj.iceCall('unref');
             end

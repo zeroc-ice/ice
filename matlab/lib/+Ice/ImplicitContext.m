@@ -102,7 +102,8 @@ classdef ImplicitContext < IceInternal.WrapperObject
         end
 
         function r = remove(obj, key)
-            %REMOVE Removes the entry for the given key in the underlying context.
+            %REMOVE Removes the entry for the given key in the underlying context. Returns an empty array if there is
+            %   no entry for the key.
             %
             %   Input Arguments
             %     key - The key.
