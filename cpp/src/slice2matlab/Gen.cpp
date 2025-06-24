@@ -1076,6 +1076,20 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "end";
     }
 
+    return true;
+}
+
+void
+CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
+{
+    IceInternal::Output& out = *_out;
+    const string name = p->mappedName();
+    const string scoped = p->scoped();
+    const string self = "obj";
+    const ClassDefPtr base = p->base();
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList allMembers = p->allDataMembers();
+
     out << nl << "methods";
     out.inc();
 
@@ -1281,12 +1295,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "end";
     out << nl;
 
-    return true;
-}
-
-void
-CodeVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
     closeClass();
 }
 
@@ -1791,6 +1799,20 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "end";
     }
 
+    return true;
+}
+
+void
+CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
+{
+    const string name = p->mappedName();
+    const string abs = p->mappedScoped(".");
+
+    IceInternal::Output& out = *_out;
+
+    const ExceptionPtr base = p->base();
+    const DataMemberList members = p->dataMembers();
+
     DataMemberList convertMembers;
     for (const auto& member : members)
     {
@@ -1932,12 +1954,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "end";
     out << nl;
 
-    return true;
-}
-
-void
-CodeVisitor::visitExceptionEnd(const ExceptionPtr&)
-{
     closeClass();
 }
 
@@ -1951,7 +1967,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     IceInternal::Output& out = *_out;
 
     const DataMemberList members = p->dataMembers();
-    const DataMemberList classMembers = p->classDataMembers();
 
     out << "classdef (Sealed) " << name;
 
@@ -1961,27 +1976,40 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     out << nl << "properties";
     out.inc();
-    vector<string> memberNames;
-    DataMemberList convertMembers;
     for (const auto& q : members)
     {
-        const string m = q->mappedName();
-        memberNames.push_back(m);
-
         if (!isFirstElement(q))
         {
             out << nl; // blank line between properties
         }
 
         declareProperty(out, q);
+    }
+    out.dec();
+    out << nl << "end";
+    return true;
+}
+
+void
+CodeVisitor::visitStructEnd(const StructPtr& p)
+{
+    IceInternal::Output& out = *_out;
+    const string name = p->mappedName();
+    const string abs = p->mappedScoped(".");
+    vector<string> memberNames;
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList classMembers = p->classDataMembers();
+    DataMemberList convertMembers;
+
+    for (const auto& q : members)
+    {
+        memberNames.push_back(q->mappedName());
 
         if (needsConversion(q->type()))
         {
             convertMembers.push_back(q);
         }
     }
-    out.dec();
-    out << nl << "end";
 
     out << nl << "methods";
     out.inc();
@@ -2098,12 +2126,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "end";
     out << nl;
 
-    return true;
-}
-
-void
-CodeVisitor::visitStructEnd(const StructPtr&)
-{
     closeClass();
 }
 
