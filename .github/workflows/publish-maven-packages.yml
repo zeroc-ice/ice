@@ -59,13 +59,15 @@ jobs:
           esac
 
           mkdir -p lib
-          cp -pf "${STAGING_DIR}/java-packages/lib/*.jar" lib
-          cp -pf "${STAGING_DIR}/java-packages/lib/*.pom" lib
-          cp -pf "${STAGING_DIR}/java-packages/lib/*.asc" lib
-          cp -pf "${STAGING_DIR}/java-packages/tools/slice-tools/build/libs/*.jar" tools/slice-tools/build/libs/
-          cp -pf "${STAGING_DIR}/java-packages/tools/slice-tools/build/libs/*.asc" tools/slice-tools/build/libs/
+          cp -pf "${STAGING_DIR}"/java-packages/lib/*.jar lib
+          cp -pf "${STAGING_DIR}"/java-packages/lib/*.pom lib
+          cp -pf "${STAGING_DIR}"/java-packages/lib/*.asc lib
 
-          ice_version=$(basename "$(ls ib/ice-*-sources.jar)" | sed -E 's/^ice-(.+)-sources\.jar$/\1/')
+          mkdir -p tools/slice-tools/build/libs/
+          cp -pf "${STAGING_DIR}"/java-packages/tools/slice-tools/build/libs/*.jar" tools/slice-tools/build/libs/
+          cp -pf "${STAGING_DIR}"/java-packages/tools/slice-tools/build/libs/*.asc" tools/slice-tools/build/libs/
+
+          ice_version=$(basename "$(ls lib/ice-*-sources.jar)" | sed -E 's/^ice-(.+)-sources\.jar$/\1/')
           ./gradlew publish -PiceVersion="${ice_version}"
         working-directory: java
         env:
