@@ -478,6 +478,23 @@ namespace
         }
     }
 
+    void writeRemarks(IceInternal::Output& out, const optional<DocComment>& doc)
+    {
+        if (!doc)
+        {
+            return;
+        }
+        const StringList& remarks = doc->remarks();
+        if (remarks.empty())
+        {
+            return;
+        }
+
+        out << nl << "%";
+        out << nl << "%   Remarks";
+        writeDocLines(out, remarks, 4);
+    }
+
     void writeConstructorDoc(IceInternal::Output& out, const string& name, const DataMemberList& fields)
     {
         out << nl << "%";
@@ -568,8 +585,9 @@ namespace
             writePropertiesSummary(out, name, ex->dataMembers());
         }
 
-        writeSeeAlso(out, doc, p->container());
         writeDeprecated(out, doc, p);
+        writeSeeAlso(out, doc, p->container());
+        writeRemarks(out, doc);
     }
 
     void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async)
@@ -687,6 +705,8 @@ namespace
         }
 
         writeSeeAlso(out, doc, p->container());
+        writeRemarks(out, doc);
+
         out << nl;
     }
 
@@ -760,8 +780,9 @@ namespace
             << p->scoped() << ".";
         out << nl << "%     uncheckedCast - Creates a " << name << " from another proxy without any validation.";
 
-        writeSeeAlso(out, doc, p->container());
         writeDeprecated(out, doc, p);
+        writeSeeAlso(out, doc, p->container());
+        writeRemarks(out, doc);
     }
 
     void declareProperty(IceInternal::Output& out, const DataMemberPtr& field)
@@ -1054,8 +1075,9 @@ namespace
             doc ? doc->overview() : StringList{},
             false);
 
-        writeSeeAlso(out, doc, field->container());
         writeDeprecated(out, doc, field);
+        writeSeeAlso(out, doc, field->container());
+        writeRemarks(out, doc);
     }
 
     void writeArguments(
