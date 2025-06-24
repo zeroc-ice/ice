@@ -43,72 +43,6 @@ namespace
         out << sp;
     }
 
-    void openClass(const string& abs, const string& dir, IceInternal::Output& out)
-    {
-        // Split the absolute name into individual components.
-        vector<string> v;
-        string::size_type start = 0;
-        string::size_type pos;
-        while ((pos = abs.find('.', start)) != string::npos)
-        {
-            assert(pos > start);
-            v.push_back(abs.substr(start, pos - start));
-            start = pos + 1;
-        }
-        if (start != abs.size())
-        {
-            v.push_back(abs.substr(start));
-        }
-        assert(v.size() > 1);
-
-        string path;
-        if (!dir.empty())
-        {
-            path = dir + "/";
-        }
-
-        //
-        // Create a package directory corresponding to each component.
-        //
-        for (vector<string>::size_type i = 0; i < v.size() - 1; i++)
-        {
-            path += "+" + v[i];
-            if (!IceInternal::directoryExists(path))
-            {
-                int err = IceInternal::mkdir(path, 0777);
-                // If slice2matlab is run concurrently, it's possible that another instance of slice2matlab has already
-                // created the directory.
-                if (err == 0 || (errno == EEXIST && IceInternal::directoryExists(path)))
-                {
-                    // Directory successfully created or already exists.
-                }
-                else
-                {
-                    ostringstream os;
-                    os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);
-                    throw FileException(os.str());
-                }
-                FileTracker::instance()->addDirectory(path);
-            }
-            path += "/";
-        }
-
-        //
-        // There are two options:
-        //
-        // 1) Create a subdirectory named "@ClassName" containing a file "ClassName.m".
-        // 2) Create a file named "ClassName.m".
-        //
-        // The class directory is useful if you want to add additional supporting files for the class. We only
-        // generate a single file for a class so we use option 2.
-        //
-        const string cls = v[v.size() - 1];
-        path += cls + ".m";
-
-        out.open(path);
-        FileTracker::instance()->addFile(path);
-    }
-
     string typeToString(const TypePtr& type)
     {
         static const char* builtinTable[] = {
@@ -1108,8 +1042,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList members = p->dataMembers();
     const DataMemberList allMembers = p->allDataMembers();
 
-    IceInternal::Output out;
-    openClass(p->mappedScoped("."), _dir, out);
+    openClass(p->mappedScoped("."), _dir);
+    IceInternal::Output& out = *_out;
 
     out << "classdef " << name;
     if (base)
@@ -1347,8 +1281,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "end";
     out << nl;
 
-    out.close();
-    return false;
+    return true;
+}
+
+void
+CodeVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
+    closeClass();
 }
 
 bool
@@ -1362,8 +1301,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string prxName = p->mappedName() + "Prx";
     const string prxAbs = p->mappedScoped(".") + "Prx";
 
-    IceInternal::Output out;
-    openClass(prxAbs, _dir, out);
+    openClass(prxAbs, _dir);
+    IceInternal::Output& out = *_out;
 
     out << "classdef " << prxName << " < ";
     if (!bases.empty())
@@ -1386,290 +1325,293 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     writeProxyDocSummary(out, p);
     writeGeneratedFrom(out, p->file());
 
-    //
-    // Operations.
-    //
-    bool hasExceptions = false;
-    const OperationList ops = p->operations();
-    if (!ops.empty())
+    if (!p->operations().empty())
     {
         out << nl << "methods";
         out.inc();
+    }
+    return true;
+}
 
-        for (const auto& op : ops)
+void
+CodeVisitor::visitOperation(const OperationPtr& op)
+{
+    IceInternal::Output& out = *_out;
+    const string prxAbs = op->interface()->mappedScoped(".") + "Prx";
+
+    const ParameterList inParams = op->inParameters();
+    const ParameterList sortedInParams = op->sortedInParameters();
+    const ParameterList outParams = op->outParameters();
+    const string returnValueName = getEscapedParamName(outParams, "returnValue");
+    const bool returnsMultipleValues = op->returnsMultipleValues();
+    const bool returnsAnyValues = op->returnsAnyValues();
+
+    ParameterList returnAndOutParameters = op->outParameters();
+    ParameterPtr returnParam = op->returnParameter(returnValueName);
+    if (returnParam)
+    {
+        returnAndOutParameters.push_front(returnParam);
+    }
+
+    const bool twowayOnly = op->returnsData();
+    const ExceptionList exceptions = op->throws();
+    const string self = getEscapedParamName(inParams, "obj");
+    const string contextParam = getEscapedParamName(inParams, "context");
+
+    if (!isFirstElement(op))
+    {
+        out << sp;
+    }
+
+    //
+    // Synchronous method.
+    //
+    out << nl << "function ";
+    if (returnsMultipleValues)
+    {
+        out.spar("[");
+        for (const auto& param : returnAndOutParameters)
         {
-            const ParameterList inParams = op->inParameters();
-            const ParameterList sortedInParams = op->sortedInParameters();
-            const ParameterList outParams = op->outParameters();
-            const string returnValueName = getEscapedParamName(outParams, "returnValue");
-            const bool returnsMultipleValues = op->returnsMultipleValues();
-            const bool returnsAnyValues = op->returnsAnyValues();
-
-            ParameterList returnAndOutParameters = op->outParameters();
-            ParameterPtr returnParam = op->returnParameter(returnValueName);
-            if (returnParam)
-            {
-                returnAndOutParameters.push_front(returnParam);
-            }
-
-            const bool twowayOnly = op->returnsData();
-            const ExceptionList exceptions = op->throws();
-
-            if (!exceptions.empty())
-            {
-                hasExceptions = true;
-            }
-
-            const string self = getEscapedParamName(inParams, "obj");
-            const string contextParam = getEscapedParamName(inParams, "context");
-
-            if (!isFirstElement(op))
-            {
-                out << sp;
-            }
-
-            //
-            // Synchronous method.
-            //
-            out << nl << "function ";
-            if (returnsMultipleValues)
-            {
-                out.spar("[");
-                for (const auto& param : returnAndOutParameters)
-                {
-                    out << param->mappedName();
-                }
-                out.epar("]");
-                out << " = ";
-            }
-            else if (returnsAnyValues)
-            {
-                out << (*returnAndOutParameters.begin())->mappedName() << " = ";
-            }
-            out << op->mappedName() << spar;
-
-            out << self;
-            for (const auto& param : inParams)
-            {
-                out << param->mappedName();
-            }
-            out << contextParam;
-            out << epar;
-            out.inc();
-
-            writeOpDocSummary(out, op, false);
-            writeArguments(out, self, prxAbs, inParams, contextParam);
-
-            if (!inParams.empty())
-            {
-                if (op->format())
-                {
-                    out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(*op->format()) << ");";
-                }
-                else
-                {
-                    out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
-                }
-                for (const auto& param : sortedInParams)
-                {
-                    marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
-                }
-                if (op->sendsClasses())
-                {
-                    out << nl << "os_.writePendingValues();";
-                }
-                out << nl << self << ".iceEndWriteParams(os_);";
-            }
-
-            out << nl;
-            if (returnsAnyValues)
-            {
-                out << "is_ = ";
-            }
-            out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->mode()) << ", "
-                << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
-                << (returnsAnyValues ? "true" : "false");
-            if (exceptions.empty())
-            {
-                out << ", {}";
-            }
-            else
-            {
-                out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
-            }
-            out << ", " << contextParam << ");";
-
-            if (twowayOnly && returnsAnyValues)
-            {
-                out << nl << "is_.startEncapsulation();";
-                //
-                // To unmarshal results:
-                //
-                // * unmarshal all required out parameters
-                // * unmarshal the required return value (if any)
-                // * unmarshal all optional out parameters (this includes an optional return value)
-                //
-                ParameterList classParams;
-                ParameterList convertParams;
-                for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
-                {
-                    const TypePtr paramType = param->type();
-                    const string paramName = param->mappedName();
-                    string paramString;
-
-                    if (paramType->isClassType())
-                    {
-                        out << nl << paramName << "_h_ = IceInternal.ValueHolder();";
-                        paramString = "@(v) " + paramName + "_h_.set(v)";
-                        classParams.push_back(param);
-                    }
-                    else
-                    {
-                        paramString = paramName;
-                    }
-                    unmarshal(out, "is_", paramString, paramType, param->optional(), param->tag());
-
-                    if (needsConversion(paramType))
-                    {
-                        convertParams.push_back(param);
-                    }
-                }
-                if (op->returnsClasses())
-                {
-                    out << nl << "is_.readPendingValues();";
-                }
-                out << nl << "is_.endEncapsulation();";
-
-                // After calling readPendingValues(), all callback functions have been invoked.
-                // Now we need to collect the values.
-                for (const auto& param : classParams)
-                {
-                    const string paramName = param->mappedName();
-                    out << nl << paramName << " = " << paramName << "_h_.value;";
-                }
-                for (const auto& param : convertParams)
-                {
-                    const string paramName = param->mappedName();
-                    convertValueType(out, paramName, paramName, param->type(), param->optional());
-                }
-            }
-
-            out.dec();
-            out << nl << "end";
-
-            //
-            // Asynchronous method.
-            //
-            out << sp;
-            out << nl << "function future = " << op->mappedName() << "Async" << spar;
-            out << self;
-            for (const auto& param : inParams)
-            {
-                out << param->mappedName();
-            }
-            out << contextParam;
-            out << epar;
-            out.inc();
-
-            writeOpDocSummary(out, op, true);
-            writeArguments(out, self, prxAbs, inParams, contextParam);
-
-            if (!inParams.empty())
-            {
-                if (op->format())
-                {
-                    out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(*op->format()) << ");";
-                }
-                else
-                {
-                    out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
-                }
-                for (const auto& param : sortedInParams)
-                {
-                    marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
-                }
-                if (op->sendsClasses())
-                {
-                    out << nl << "os_.writePendingValues();";
-                }
-                out << nl << self << ".iceEndWriteParams(os_);";
-            }
-
-            if (twowayOnly && returnsAnyValues)
-            {
-                out << nl << "function varargout = unmarshal(is_)";
-                out.inc();
-                out << nl << "is_.startEncapsulation();";
-                //
-                // To unmarshal results:
-                //
-                // * unmarshal all required out parameters
-                // * unmarshal the required return value (if any)
-                // * unmarshal all optional out parameters (this includes an optional return value)
-                //
-                for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
-                {
-                    const TypePtr paramType = param->type();
-                    const string paramName = param->mappedName();
-                    string paramString;
-                    if (paramType->isClassType())
-                    {
-                        out << nl << paramName << " = IceInternal.ValueHolder();";
-                        paramString = "@(v) " + paramName + ".set(v)";
-                    }
-                    else
-                    {
-                        paramString = paramName;
-                    }
-                    unmarshal(out, "is_", paramString, paramType, param->optional(), param->tag());
-                }
-                if (op->returnsClasses())
-                {
-                    out << nl << "is_.readPendingValues();";
-                }
-                out << nl << "is_.endEncapsulation();";
-                int i = 1;
-                for (const auto& param : returnAndOutParameters)
-                {
-                    const string paramName = param->mappedName();
-                    if (param->type()->isClassType())
-                    {
-                        out << nl << "varargout{" << i << "} = " << paramName << ".value;";
-                    }
-                    else if (needsConversion(param->type()))
-                    {
-                        ostringstream dest;
-                        dest << "varargout{" << i << "}";
-                        convertValueType(out, dest.str(), paramName, param->type(), param->optional());
-                    }
-                    else
-                    {
-                        out << nl << "varargout{" << i << "} = " << paramName << ';';
-                    }
-                    i++;
-                }
-                out.dec();
-                out << nl << "end";
-            }
-
-            out << nl << "future = " << self << ".iceInvokeAsync('" << op->name() << "', "
-                << getOperationMode(op->mode()) << ", " << (twowayOnly ? "true" : "false") << ", "
-                << (inParams.empty() ? "[]" : "os_") << ", " << returnAndOutParameters.size() << ", "
-                << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
-            if (exceptions.empty())
-            {
-                out << ", {}";
-            }
-            else
-            {
-                out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
-            }
-            out << ", " << contextParam << ");";
-
-            out.dec();
-            out << nl << "end";
+            out << param->mappedName();
         }
+        out.epar("]");
+        out << " = ";
+    }
+    else if (returnsAnyValues)
+    {
+        out << (*returnAndOutParameters.begin())->mappedName() << " = ";
+    }
+    out << op->mappedName() << spar;
 
+    out << self;
+    for (const auto& param : inParams)
+    {
+        out << param->mappedName();
+    }
+    out << contextParam;
+    out << epar;
+    out.inc();
+
+    writeOpDocSummary(out, op, false);
+    writeArguments(out, self, prxAbs, inParams, contextParam);
+
+    if (!inParams.empty())
+    {
+        if (op->format())
+        {
+            out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(*op->format()) << ");";
+        }
+        else
+        {
+            out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
+        }
+        for (const auto& param : sortedInParams)
+        {
+            marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
+        }
+        if (op->sendsClasses())
+        {
+            out << nl << "os_.writePendingValues();";
+        }
+        out << nl << self << ".iceEndWriteParams(os_);";
+    }
+
+    out << nl;
+    if (returnsAnyValues)
+    {
+        out << "is_ = ";
+    }
+    out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->mode()) << ", "
+        << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
+        << (returnsAnyValues ? "true" : "false");
+    if (exceptions.empty())
+    {
+        out << ", {}";
+    }
+    else
+    {
+        out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
+    }
+    out << ", " << contextParam << ");";
+
+    if (twowayOnly && returnsAnyValues)
+    {
+        out << nl << "is_.startEncapsulation();";
+        //
+        // To unmarshal results:
+        //
+        // * unmarshal all required out parameters
+        // * unmarshal the required return value (if any)
+        // * unmarshal all optional out parameters (this includes an optional return value)
+        //
+        ParameterList classParams;
+        ParameterList convertParams;
+        for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
+        {
+            const TypePtr paramType = param->type();
+            const string paramName = param->mappedName();
+            string paramString;
+
+            if (paramType->isClassType())
+            {
+                out << nl << paramName << "_h_ = IceInternal.ValueHolder();";
+                paramString = "@(v) " + paramName + "_h_.set(v)";
+                classParams.push_back(param);
+            }
+            else
+            {
+                paramString = paramName;
+            }
+            unmarshal(out, "is_", paramString, paramType, param->optional(), param->tag());
+
+            if (needsConversion(paramType))
+            {
+                convertParams.push_back(param);
+            }
+        }
+        if (op->returnsClasses())
+        {
+            out << nl << "is_.readPendingValues();";
+        }
+        out << nl << "is_.endEncapsulation();";
+
+        // After calling readPendingValues(), all callback functions have been invoked.
+        // Now we need to collect the values.
+        for (const auto& param : classParams)
+        {
+            const string paramName = param->mappedName();
+            out << nl << paramName << " = " << paramName << "_h_.value;";
+        }
+        for (const auto& param : convertParams)
+        {
+            const string paramName = param->mappedName();
+            convertValueType(out, paramName, paramName, param->type(), param->optional());
+        }
+    }
+
+    out.dec();
+    out << nl << "end";
+
+    //
+    // Asynchronous method.
+    //
+    out << sp;
+    out << nl << "function future = " << op->mappedName() << "Async" << spar;
+    out << self;
+    for (const auto& param : inParams)
+    {
+        out << param->mappedName();
+    }
+    out << contextParam;
+    out << epar;
+    out.inc();
+
+    writeOpDocSummary(out, op, true);
+    writeArguments(out, self, prxAbs, inParams, contextParam);
+
+    if (!inParams.empty())
+    {
+        if (op->format())
+        {
+            out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(*op->format()) << ");";
+        }
+        else
+        {
+            out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
+        }
+        for (const auto& param : sortedInParams)
+        {
+            marshal(out, "os_", param->mappedName(), param->type(), param->optional(), param->tag());
+        }
+        if (op->sendsClasses())
+        {
+            out << nl << "os_.writePendingValues();";
+        }
+        out << nl << self << ".iceEndWriteParams(os_);";
+    }
+
+    if (twowayOnly && returnsAnyValues)
+    {
+        out << nl << "function varargout = unmarshal(is_)";
+        out.inc();
+        out << nl << "is_.startEncapsulation();";
+        //
+        // To unmarshal results:
+        //
+        // * unmarshal all required out parameters
+        // * unmarshal the required return value (if any)
+        // * unmarshal all optional out parameters (this includes an optional return value)
+        //
+        for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
+        {
+            const TypePtr paramType = param->type();
+            const string paramName = param->mappedName();
+            string paramString;
+            if (paramType->isClassType())
+            {
+                out << nl << paramName << " = IceInternal.ValueHolder();";
+                paramString = "@(v) " + paramName + ".set(v)";
+            }
+            else
+            {
+                paramString = paramName;
+            }
+            unmarshal(out, "is_", paramString, paramType, param->optional(), param->tag());
+        }
+        if (op->returnsClasses())
+        {
+            out << nl << "is_.readPendingValues();";
+        }
+        out << nl << "is_.endEncapsulation();";
+        int i = 1;
+        for (const auto& param : returnAndOutParameters)
+        {
+            const string paramName = param->mappedName();
+            if (param->type()->isClassType())
+            {
+                out << nl << "varargout{" << i << "} = " << paramName << ".value;";
+            }
+            else if (needsConversion(param->type()))
+            {
+                ostringstream dest;
+                dest << "varargout{" << i << "}";
+                convertValueType(out, dest.str(), paramName, param->type(), param->optional());
+            }
+            else
+            {
+                out << nl << "varargout{" << i << "} = " << paramName << ';';
+            }
+            i++;
+        }
+        out.dec();
+        out << nl << "end";
+    }
+
+    out << nl << "future = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
+        << ", " << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
+        << returnAndOutParameters.size() << ", " << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
+    if (exceptions.empty())
+    {
+        out << ", {}";
+    }
+    else
+    {
+        out << ", " << prxAbs << "." << op->mappedName() << "_ex_";
+    }
+    out << ", " << contextParam << ");";
+
+    out.dec();
+    out << nl << "end";
+}
+
+void
+CodeVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+{
+    IceInternal::Output& out = *_out;
+    const string prxAbs = p->mappedScoped(".") + "Prx";
+
+    if (!p->operations().empty())
+    {
         out.dec();
         out << nl << "end";
         out << sp;
@@ -1752,6 +1694,17 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // The constructor is inherited, even with multiple inheritance.
 
+    bool hasExceptions = false;
+    const OperationList ops = p->operations();
+    for (const auto& op : ops)
+    {
+        if (!op->throws().empty())
+        {
+            hasExceptions = true;
+            break;
+        }
+    }
+
     if (hasExceptions)
     {
         //
@@ -1792,9 +1745,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "end";
     out << nl;
 
-    out.close();
-
-    return false;
+    closeClass();
 }
 
 bool
@@ -1803,8 +1754,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = p->mappedName();
     const string abs = p->mappedScoped(".");
 
-    IceInternal::Output out;
-    openClass(abs, _dir, out);
+    openClass(abs, _dir);
+    IceInternal::Output& out = *_out;
 
     const ExceptionPtr base = p->base();
     const DataMemberList members = p->dataMembers();
@@ -1981,9 +1932,13 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "end";
     out << nl;
 
-    out.close();
+    return true;
+}
 
-    return false;
+void
+CodeVisitor::visitExceptionEnd(const ExceptionPtr&)
+{
+    closeClass();
 }
 
 bool
@@ -1992,8 +1947,8 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     const string name = p->mappedName();
     const string abs = p->mappedScoped(".");
 
-    IceInternal::Output out;
-    openClass(abs, _dir, out);
+    openClass(abs, _dir);
+    IceInternal::Output& out = *_out;
 
     const DataMemberList members = p->dataMembers();
     const DataMemberList classMembers = p->classDataMembers();
@@ -2143,9 +2098,13 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "end";
     out << nl;
 
-    out.close();
+    return true;
+}
 
-    return false;
+void
+CodeVisitor::visitStructEnd(const StructPtr&)
+{
+    closeClass();
 }
 
 void
@@ -2188,8 +2147,8 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     const bool proxy = isProxy(content);
     const bool convert = needsConversion(content);
 
-    IceInternal::Output out;
-    openClass(abs, _dir, out);
+    openClass(abs, _dir);
+    IceInternal::Output& out = *_out;
 
     writeGeneratedFrom(out, p->file());
 
@@ -2432,7 +2391,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out << nl << "end";
     out << nl;
 
-    out.close();
+    closeClass();
 }
 
 void
@@ -2448,8 +2407,8 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     const string abs = p->mappedScoped(".");
     const string self = "obj";
 
-    IceInternal::Output out;
-    openClass(abs, _dir, out);
+    openClass(abs, _dir);
+    IceInternal::Output& out = *_out;
 
     writeGeneratedFrom(out, p->file());
 
@@ -2641,7 +2600,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "end";
     out << nl;
 
-    out.close();
+    closeClass();
 }
 
 void
@@ -2650,8 +2609,8 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     const string abs = p->mappedScoped(".");
     const EnumeratorList enumerators = p->enumerators();
 
-    IceInternal::Output out;
-    openClass(abs, _dir, out);
+    openClass(abs, _dir);
+    IceInternal::Output& out = *_out;
 
     out << "classdef " << p->mappedName();
     if (p->maxValue() <= 255)
@@ -2757,14 +2716,14 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     out.dec();
     out << nl << "end";
     out << nl;
-    out.close();
+    closeClass();
 }
 
 void
 CodeVisitor::visitConst(const ConstPtr& p)
 {
-    IceInternal::Output out;
-    openClass(p->mappedScoped("."), _dir, out);
+    openClass(p->mappedScoped("."), _dir);
+    IceInternal::Output& out = *_out;
 
     out << "classdef " << p->mappedName();
     out.inc();
@@ -2780,8 +2739,85 @@ CodeVisitor::visitConst(const ConstPtr& p)
     out.dec();
     out << nl << "end";
     out << nl;
-    out.close();
-    out.close();
+    closeClass();
+}
+
+void
+CodeVisitor::openClass(const string& abs, const string& dir)
+{
+    // Split the absolute name into individual components.
+    vector<string> v;
+    string::size_type start = 0;
+    string::size_type pos;
+    while ((pos = abs.find('.', start)) != string::npos)
+    {
+        assert(pos > start);
+        v.push_back(abs.substr(start, pos - start));
+        start = pos + 1;
+    }
+    if (start != abs.size())
+    {
+        v.push_back(abs.substr(start));
+    }
+    assert(v.size() > 1);
+
+    string path;
+    if (!dir.empty())
+    {
+        path = dir + "/";
+    }
+
+    //
+    // Create a package directory corresponding to each component.
+    //
+    for (vector<string>::size_type i = 0; i < v.size() - 1; i++)
+    {
+        path += "+" + v[i];
+        if (!IceInternal::directoryExists(path))
+        {
+            int err = IceInternal::mkdir(path, 0777);
+            // If slice2matlab is run concurrently, it's possible that another instance of slice2matlab has already
+            // created the directory.
+            if (err == 0 || (errno == EEXIST && IceInternal::directoryExists(path)))
+            {
+                // Directory successfully created or already exists.
+            }
+            else
+            {
+                ostringstream os;
+                os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);
+                throw FileException(os.str());
+            }
+            FileTracker::instance()->addDirectory(path);
+        }
+        path += "/";
+    }
+
+    //
+    // There are two options:
+    //
+    // 1) Create a subdirectory named "@ClassName" containing a file "ClassName.m".
+    // 2) Create a file named "ClassName.m".
+    //
+    // The class directory is useful if you want to add additional supporting files for the class. We only
+    // generate a single file for a class so we use option 2.
+    //
+    const string cls = v[v.size() - 1];
+    path += cls + ".m";
+
+    _out = make_unique<IceInternal::Output>();
+    _out->open(path);
+    FileTracker::instance()->addFile(path);
+}
+
+void
+CodeVisitor::closeClass()
+{
+    if (_out)
+    {
+        _out->close();
+        _out.reset();
+    }
 }
 
 string

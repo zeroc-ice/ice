@@ -14,18 +14,30 @@ namespace Slice
     class CodeVisitor final : public ParserVisitor
     {
     public:
-        CodeVisitor(std::string);
+        CodeVisitor(std::string dir);
 
         bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitClassDefEnd(const ClassDefPtr&) final;
+
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        void visitOperation(const OperationPtr&) final;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+
         bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitExceptionEnd(const ExceptionPtr&) final;
+
         bool visitStructStart(const StructPtr&) final;
+        void visitStructEnd(const StructPtr&) final;
+
         void visitSequence(const SequencePtr&) final;
         void visitDictionary(const DictionaryPtr&) final;
         void visitEnum(const EnumPtr&) final;
         void visitConst(const ConstPtr&) final;
 
     private:
+        void openClass(const std::string& abs, const std::string& dir);
+        void closeClass();
+
         //
         // Convert an operation mode into a string.
         //
@@ -43,6 +55,8 @@ namespace Slice
         void writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers);
 
         const std::string _dir;
+
+        std::unique_ptr<IceInternal::Output> _out;
     };
 }
 
