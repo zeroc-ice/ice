@@ -19,6 +19,23 @@ case "$CHANNEL" in
     ;;
 esac
 
+# Generate Maven settings.xml
+mkdir -p ~/.m2
+cat > ~/.m2/settings.xml <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>${REPO_ID}</id>
+      <username>${MAVEN_USERNAME}</username>
+      <password>${MAVEN_PASSWORD}</password>
+    </server>
+  </servers>
+</settings>
+EOF
+
 mkdir -p lib
 cp -pf "${STAGING_DIR}"/java-packages/lib/*.jar lib
 cp -pf "${STAGING_DIR}"/java-packages/lib/*.pom lib

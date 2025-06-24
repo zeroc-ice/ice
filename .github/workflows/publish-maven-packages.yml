@@ -44,3 +44,7 @@ jobs:
           NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_API_KEY: ${{ secrets.MAVEN_CENTRAL_API_KEY }}
+
+      - name: Clean Credentials
+        run: rm -f ~/.m2/settings.xml
+        if: always()
