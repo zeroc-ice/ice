@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef ValueHolder < handle
+    % Copyright (c) ZeroC, Inc.
+
     properties
         value
     end

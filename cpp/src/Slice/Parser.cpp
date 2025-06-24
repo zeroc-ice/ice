@@ -343,47 +343,62 @@ namespace
         return result;
     }
 
-    bool parseNamedCommentLine(string_view l, string_view tag, string& name, string& doc)
+    bool parseCommentLine(string_view line, string_view tag, string& doc)
     {
-        if (l.find(tag) == 0)
-        {
-            const string ws = " \t";
+        const string ws = " \t";
+        const auto tagLength = tag.size();
 
-            auto nameStart = l.find_first_not_of(ws, tag.size());
+        // If the line doesn't start with the provided tag, we immediately return false.
+        // Note that any leading whitespace has already been stripped off here.
+        if (line.find(tag) != 0)
+        {
+            return false;
+        }
+
+        // The tag must be immediately followed by whitespace, or be the entire line (for multiline tags).
+        if (line.find_first_of(ws, tagLength) != tagLength && line.length() != tagLength)
+        {
+            return false;
+        }
+
+        // Find the first non-whitespace character after the tag. This marks the start of the `doc` string.
+        const auto docSplitPos = line.find_first_not_of(ws, tagLength);
+        if (docSplitPos != string::npos)
+        {
+            doc = line.substr(docSplitPos);
+        }
+        return true;
+    }
+
+    bool parseNamedCommentLine(string_view line, string_view tag, string& name, string& doc)
+    {
+        const string ws = " \t";
+
+        // First we check for the tag and parse the doc-comment normally.
+        if (parseCommentLine(line, tag, doc))
+        {
+            // Then we perform additional parsing to extract the name...
+
+            auto nameStart = line.find_first_not_of(ws, tag.size());
             if (nameStart == string::npos)
             {
                 return false; // Malformed line, ignore it.
             }
 
-            auto nameEnd = l.find_first_of(ws, nameStart);
+            auto nameEnd = line.find_first_of(ws, nameStart);
             if (nameEnd == string::npos)
             {
                 return false; // Malformed line, ignore it.
             }
-            name = l.substr(nameStart, nameEnd - nameStart);
+            name = line.substr(nameStart, nameEnd - nameStart);
 
             // Store whatever remains of the doc comment in the `doc` string.
-            auto docSplitPos = l.find_first_not_of(ws, nameEnd);
+            auto docSplitPos = line.find_first_not_of(ws, nameEnd);
             if (docSplitPos != string::npos)
             {
-                doc = l.substr(docSplitPos);
+                doc = line.substr(docSplitPos);
             }
 
-            return true;
-        }
-        return false;
-    }
-
-    bool parseCommentLine(string_view l, string_view tag, string& doc)
-    {
-        if (l.find(tag) == 0)
-        {
-            // Find the first whitespace that appears after the tag. Everything after it is part of the `doc` string.
-            auto docSplitPos = l.find_first_not_of(" \t", tag.size());
-            if (docSplitPos != string::npos)
-            {
-                doc = l.substr(docSplitPos);
-            }
             return true;
         }
         return false;
@@ -665,7 +680,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 // We've encountered an unknown doc tag.
                 if (line[0] == '@')
                 {
-                    auto unknownTag = line.substr(0, line.find_first_of(" \t:"));
+                    auto unknownTag = line.substr(0, line.find_first_of(" \t"));
                     const string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     currentSection = nullptr;

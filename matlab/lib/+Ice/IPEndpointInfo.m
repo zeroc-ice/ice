@@ -1,26 +1,27 @@
 classdef IPEndpointInfo < Ice.EndpointInfo
-    % IPEndpointInfo   Summary of IPEndpointInfo
+    %IPENDPOINTINFO Provides access to the address details of a IP endpoint.
     %
-    % Provides access to the address details of a IP endpoint.
-    %
-    % IPEndpointInfo Properties:
-    %   host - The host or address configured with the endpoint.
-    %   port - The port number.
-    %   sourceAddress - The source IP address.
+    %   IPEndpointInfo Properties:
+    %     host - The host or address configured with the endpoint.
+    %     port - The port number.
+    %     sourceAddress - The source IP address.
 
     % Copyright (c) ZeroC, Inc.
 
     properties(SetAccess=immutable)
-        % host - The host or address configured with the endpoint.
+        %HOST The host or address configured with the endpoint.
+        %   character vector
         host (1, :) char
 
-        % port - The port number.
+        %PORT The port number.
+        %   int32 scalar
         port (1, 1) int32
 
-        % sourceAddress - The source IP address.
+        %SOURCEADDRESS The source IP address.
+        %   character vector
         sourceAddress (1, :) char
     end
-    methods(Access=protected)
+    methods(Hidden, Access=protected)
         function obj = IPEndpointInfo(timeout, compress, host, port, sourceAddress)
             assert(nargin == 5, 'Invalid number of arguments');
             obj@Ice.EndpointInfo(Ice.EndpointInfo.empty, timeout, compress);

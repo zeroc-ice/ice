@@ -1,44 +1,41 @@
 classdef Future < IceInternal.WrapperObject
-    % Future   Summary of Future
+    %FUTURE Represents the future result of an asynchronous invocation.
     %
-    % Represents an asynchronous invocation.
+    %   Future Properties:
+    %     ID - A unique identifier for this object.
+    %     NumOutputArguments - The number of output arguments that will be returned by fetchOutputs upon successful completion.
+    %     Operation - The name of the operation that was invoked.
+    %     Read - True if fetchOutputs has already been called.
+    %     State - The current state of the future.
     %
-    % Future Methods:
-    %   wait - Block until the invocation reaches a certain state, or a
-    %     timeout expires.
-    %   fetchOutputs - Block until the invocation completes and then return
-    %     the results or raise an exception.
-    %   cancel - If the invocation is still pending, calling this method
-    %     instructs the local Ice run time to ignore its results.
-    %
-    % Future Properties:
-    %   ID - A unique identifier for this object.
-    %   NumOutputArguments - The number of output arguments that will be
-    %     returned by fetchOutputs upon successful completion.
-    %   Operation - The name of the operation that was invoked.
-    %   Read - True if fetchOutputs has already been called.
-    %   State - The current state of the future.
+    %   Future Methods:
+    %     cancel - If the invocation is still pending, calling this method instructs the local Ice runtime to ignore its results.
+    %     fetchOutputs - Blocks until the invocation completes and then returns the results or throws an exception.
+    %     wait - Blocks until the invocation reaches a certain state, or a timeout expires.
 
     % Copyright (c) ZeroC, Inc.
 
     properties(SetAccess=private)
-        % ID - A unique identifier for this object.
-        ID int32 = 0
+        %ID A unique identifier for this object.
+        %   int32 scalar
+        ID (1, 1) int32 = 0
 
-        % NumOutputArguments - The number of output arguments that will be
-        %   returned by fetchOutputs upon successful completion.
-        NumOutputArguments int32
+        %NUMOUTPUTARGUMENTS The number of output arguments that will be returned by fetchOutputs upon successful
+        %   completion.
+        %   int32 scalar
+        NumOutputArguments (1, 1) int32
 
-        % Operation - The name of the operation that was invoked.
-        Operation char
+        %OPERATION The name of the operation that was invoked.
+        %   character vector
+        Operation (1, :) char
 
-        % Read - True if fetchOutputs has already been called.
-        Read logical = false
+        %READ True if fetchOutputs has already been called.
+        %   logical scalar
+        Read (1, 1) logical = false
 
-        % State - The current state of the future. Its initial value is
-        %   'running' and its final value is 'finished'. A remote invocation
-        %   transitions from 'running' to 'sent' to 'finished'.
-        State char = 'running'
+        %STATE The current state of the future. Its initial value is 'running' and its final value is 'finished'.
+        %   'running' | 'sent' | 'finished'
+        State (1, :) char = 'running'
     end
     methods (Hidden, Access = {?Ice.Communicator, ?Ice.Connection, ?Ice.ObjectPrx})
         function obj = Future(impl, op, numOutArgs, type, fetchFunc)
@@ -63,31 +60,31 @@ classdef Future < IceInternal.WrapperObject
             nextId = nextId + 1;
         end
     end
-    methods
+    methods (Hidden)
         function delete(obj)
             if ~isempty(obj.impl_)
                 obj.iceCall('unref');
             end
             obj.impl_ = [];
         end
+    end
+    methods
         function ok = wait(obj, state, timeout)
-            % wait - Block until the invocation reaches a certain state, or a
-            %   timeout expires.
+            %WAIT Blocks until the invocation reaches a certain state, or a timeout expires.
             %
-            % Parameters:
-            %   state (char) - If provided, wait blocks until the future reaches
-            %     the given state. Must be one of 'running', 'sent', 'finished'.
-            %     If not provided, wait blocks until the state is 'finished'.
-            %     Note that the future enters the 'finished' state when
-            %     completed successfully or exceptionally.
-            %   timeout (double) - If provided, wait blocks up to the given
-            %     number of seconds while waiting for the future to reach the
-            %     desired state. If the timeout is negative or not provided,
-            %     wait blocks indefinitely.
+            %   Input Arguments
+            %     state - If provided, wait blocks until the future reaches the given state. If not provided, wait
+            %     blocks until the state is 'finished'. Note that the future enters the 'finished' state when completed
+            %     successfully or exceptionally.
+            %     'running' | 'sent' | 'finished' | empty array (default)
+            %   timeout - If provided, wait blocks up to the given number of seconds while waiting for the future to
+            %     reach the desired state. If the timeout is negative or not provided, wait blocks indefinitely.
+            %     double | empty array (default)
             %
-            % Returns (logical) - True if the future reached the desired state,
-            %   false if the future has not reached the desired state or an
-            %   exception occurred.
+            %    Output Arguments
+            %      ok - True if the future reached the desired state, false if the future has not reached the desired
+            %        state or an exception occurred.
+            %        logical scalar
 
             if ~isempty(obj.impl_)
                 if nargin == 1
@@ -101,10 +98,13 @@ classdef Future < IceInternal.WrapperObject
                 ok = true;
             end
         end
+
         function varargout = fetchOutputs(obj)
-            % fetchOutputs   Block until the invocation completes and then
-            %   return the results or raise an exception. Can only be called
-            %   once.
+            %FETCHOUTPUTS Blocks until the invocation completes and then returns the results or throws an exception.
+            %   Can only be called once.
+            %
+            %   Output Arguments
+            %     varargout - The output arguments of the invocation.
 
             if obj.Read
                 error('Ice:InvalidStateException', 'Outputs already read');
@@ -124,9 +124,10 @@ classdef Future < IceInternal.WrapperObject
             end
             obj.Read = true;
         end
+
         function cancel(obj)
-            % cancel   If the invocation is still pending, calling this method
-            %   instructs the local Ice run time to ignore its results.
+            %CANCEL If the invocation is still pending, calling this method instructs the local Ice runtime to ignore
+            %   its results.
 
             if ~isempty(obj.impl_)
                 obj.iceCall('cancel');

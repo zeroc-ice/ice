@@ -1,26 +1,25 @@
 classdef EndpointInfo < handle
-    % EndpointInfo   Summary of EndpointInfo
+    %ENDPOINTINFO Base class for the endpoint info classes.
     %
-    % Base class providing access to the endpoint details.
+    %   EndpointInfo Properties:
+    %     underlying - The EndpointInfo of the underlying endpoint, if any.
+    %     timeout - The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
+    %     compress - Specifies whether or not compression should be used if available when using this endpoint.
     %
-    % EndpointInfo Methods:
-    %   type - Returns the type of the endpoint.
-    %   datagram - Returns true if this endpoint is a datagram endpoint.
-    %   secure - Returns true if this endpoint is a secure endpoint.
-    %
-    % EndpointInfo Properties:
-    %   underlying (Ice.EndpointInfo) - The information of the underlying endpoint or an empty array if there's no
-    %   underlying endpoint.
-    %   timeout (int32) - The timeout for the endpoint in milliseconds.
-    %   compress (logical) - Specifies whether or not compression should be used if available when using this endpoint.
+    %   EndpointInfo Methods:
+    %     type - Returns the type of the endpoint.
+    %     datagram - Returns true if this endpoint is a datagram endpoint.
+    %     secure - Returns true if this endpoint is a secure endpoint.
 
     % Copyright (c) ZeroC, Inc.
 
     methods
         function r = type(obj)
-            % type   Returns the type of the endpoint.
+            %TYPE Returns the type of the endpoint.
             %
-            % Returns (int16) - The endpoint type.
+            %   Output Arguments
+            %     r - The endpoint type.
+            %       int16 scalar
 
             arguments
                 obj (1, 1) Ice.EndpointInfo
@@ -31,10 +30,13 @@ classdef EndpointInfo < handle
                 r = -1;
             end
         end
+
         function r = datagram(obj)
-            % datagram   Returns true if this endpoint is a datagram endpoint.
+            %DATAGRAM Returns true if this endpoint is a datagram endpoint.
             %
-            % Returns (logical) - True for a datagram endpoint.
+            %   Output Arguments
+            %     r - True for a datagram endpoint.
+            %       logical scalar
 
             arguments
                 obj (1, 1) Ice.EndpointInfo
@@ -45,10 +47,13 @@ classdef EndpointInfo < handle
                 r = false;
             end
         end
+
         function r = secure(obj)
-            % secure   Returns true if this endpoint is a secure endpoint.
+            %SECURE Returns true if this endpoint is a secure endpoint.
             %
-            % Returns (logical) - True for a secure endpoint.
+            %   Output Arguments
+            %     r - True for a secure endpoint.
+            %       logical scalar
 
             arguments
                 obj (1, 1) Ice.EndpointInfo
@@ -60,17 +65,21 @@ classdef EndpointInfo < handle
             end
         end
     end
+
     properties(SetAccess=immutable)
-        % underlying   The information of the underlying endpoint or an empty array if there's no underlying endpoint.
+        %UNDERLYING The EndpointInfo of the underlying endpoint, if any.
+        %   Ice.EndpointInfo scalar | empty array of Ice.EndpointInfo
         underlying Ice.EndpointInfo {mustBeScalarOrEmpty}
 
-        % timeout   The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
+        %TIMEOUT The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
+        %   int32 scalar
         timeout (1, 1) int32
 
-        % compress   Specifies whether or not compression should be used if available when using this endpoint.
+        %COMPRESS Specifies whether or not compression should be used if available when using this endpoint.
+        %   logical scalar
         compress (1, 1) logical
     end
-    methods(Access=protected)
+    methods(Hidden, Access=protected)
         function obj = EndpointInfo(underlying, timeout, compress)
             if nargin == 1
                 assert(~isempty(underlying), 'underlying cannot be empty');

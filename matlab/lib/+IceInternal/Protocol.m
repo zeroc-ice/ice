@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef Protocol
+    % Copyright (c) ZeroC, Inc.
+
     properties(Constant)
         FLAG_HAS_TYPE_ID_STRING    = bitshift(uint8(1), 0)
         FLAG_HAS_TYPE_ID_INDEX     = bitshift(uint8(1), 1)

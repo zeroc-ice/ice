@@ -1,25 +1,19 @@
 classdef Connection < IceInternal.WrapperObject
-    % Connection   Summary of Connection
+    %CONNECTION Represents a connection that uses the Ice protocol.
     %
-    % The user-level interface to a connection.
-    %
-    % Connection Methods:
-    %   close - Manually close the connection using the specified closure mode.
-    %   closeAsync - Manually close the connection using the specified closure
-    %     mode.
-    %   createProxy - Create a special proxy that always uses this connection.
-    %   getEndpoint - Get the endpoint from which the connection was created.
-    %   flushBatchRequests - Flush any pending batch requests for this
-    %     connection.
-    %   flushBatchRequestsAsync - Flush any pending batch requests for this
-    %     connection.
-    %   type - Return the connection type.
-    %   toString - Return a description of the connection as human readable
-    %     text, suitable for logging or error messages.
-    %   getInfo - Returns the connection information.
-    %   setBufferSize - Set the connection buffer receive/send size.
-    %   throwException - Throw an exception indicating the reason for
-    %     connection closure.
+    %   Connection Methods:
+    %     abort - Aborts this connection.
+    %     close - Closes the connection gracefully after waiting for all outstanding invocations to complete.
+    %     createProxy - Creates a proxy that uses this connection.
+    %     eq - Compares this connection with another Connection for equality.
+    %     flushBatchRequests - Flushes any pending batch requests for this connection.
+    %     flushBatchRequestsAsync - An asynchronous flushBatchRequests.
+    %     getEndpoint - Gets the endpoint from which this connection was created.
+    %     getInfo - Gets the connection information for this connection.
+    %     setBufferSize - Sets the buffer sizes for this connection.
+    %     throwException - Manually throws an exception to indicate that the connection is lost.
+    %     toString - Gets a description of this connection.
+    %     type - Gets the type of this connection.
 
     % Copyright (c) ZeroC, Inc.
 
@@ -32,9 +26,9 @@ classdef Connection < IceInternal.WrapperObject
     end
     methods
         function r = eq(obj, other)
-            %
-            % Override == operator.
-            %
+            %EQ Compares this connection with another Connection for equality.
+            %   See also eq.
+
             if isempty(other) || ~isa(other, 'Ice.Connection')
                 r = false;
             else
@@ -44,19 +38,22 @@ classdef Connection < IceInternal.WrapperObject
                 r = obj.iceCallWithResult('equals', other.impl_);
             end
         end
+
         function abort(obj)
-            % abort   Aborts this connection.
-            %
+            %ABORT Aborts this connection.
 
             arguments
                 obj (1, 1) Ice.Connection
             end
             obj.iceCall('abort');
         end
+
         function f = close(obj)
-            % close   Closes the connection gracefully after waiting for all outstanding invocations to complete.
+            %CLOSE Closes the connection gracefully after waiting for all outstanding invocations to complete.
             %
-            % Returns (Ice.Future) - A future that completes when the connnection is closed.
+            %   Output Arguments
+            %     f - A future that completes when the connection is closed.
+            %       Ice.Future scalar
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -66,20 +63,17 @@ classdef Connection < IceInternal.WrapperObject
             assert(~isNull(future));
             f = Ice.Future(future, 'close', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
+
         function r = createProxy(obj, id)
-            % createProxy   Create a special proxy that always uses this
-            %   connection. This can be used for callbacks from a server to a
-            %   client if the server cannot directly establish a connection to
-            %   the client, for example because of firewalls. In this case,
-            %   the server would create a proxy using an already established
-            %   connection from the client.
+            %CREATEPROXY Creates a special proxy that always uses this connection.
             %
-            % Parameters:
-            %   id (Ice.Identity) - The identity for which a proxy is to be
-            %     created.
+            %   Input Arguments
+            %     id - The identity for which a proxy is to be created.
+            %       Ice.Identity scalar
             %
-            % Returns (Ice.ObjectPrx) - A proxy that matches the given identity
-            %   and uses this connection.
+            %   Output Arguments
+            %     r - A proxy that matches the given identity and uses this connection.
+            %       Ice.ObjectPrx scalar
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -89,12 +83,13 @@ classdef Connection < IceInternal.WrapperObject
             obj.iceCall('createProxy', id, proxy);
             r = Ice.ObjectPrx(obj.communicator, '', proxy, obj.communicator.getEncoding());
         end
+
         function r = getEndpoint(obj)
-            % getEndpoint   Get the endpoint from which the connection was
-            %   created.
+            %GETENDPOINT Gets the endpoint from which the connection was created.
             %
-            % Returns (Ice.Endpoint) - The endpoint from which the connection
-            %   was created.
+            %   Output Arguments
+            %     r - The endpoint from which the connection was created.
+            %       Ice.Endpoint scalar
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -103,15 +98,15 @@ classdef Connection < IceInternal.WrapperObject
             obj.iceCall('getEndpoint', endpoint);
             r = Ice.Endpoint(endpoint);
         end
+
         function flushBatchRequests(obj, compress)
-            % flushBatchRequests   Flush any pending batch requests for this
-            %   connection. This means all batch requests invoked on fixed
-            %   proxies associated with the connection.
+            %FLUSHBATCHREQUESTS Flushes any pending batch requests for this connection. This means all batch requests
+            %   invoked on fixed proxies associated with the connection.
             %
-            % Parameters:
-            %   compress (Ice.CompressBatch) - Specifies whether or not the
-            %     queued batch requests should be compressed before being sent
-            %     over the wire.
+            %   Input Arguments
+            %     compress - Specifies whether or not the queued batch requests should be compressed before being sent
+            %       over the wire.
+            %       Ice.CompressBatch scalar
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -119,18 +114,19 @@ classdef Connection < IceInternal.WrapperObject
             end
             obj.iceCall('flushBatchRequests', compress);
         end
+
         function r = flushBatchRequestsAsync(obj, compress)
-            % flushBatchRequestsAsync   Flush any pending batch requests for
-            %   this connection. This means all batch requests invoked on fixed
-            %   proxies associated with the connection.
+            %FLUSHBATCHREQUESTSASYNC Flushes any pending batch requests for this connection. This means all batch
+            %   requests invoked on fixed proxies associated with the connection.
             %
-            % Parameters:
-            %   compress (Ice.CompressBatch) - Specifies whether or not the
-            %     queued batch requests should be compressed before being sent
-            %     over the wire.
+            %   Input Arguments
+            %     compress - Specifies whether or not the queued batch requests should be compressed before being sent
+            %       over the wire.
+            %       Ice.CompressBatch scalar
             %
-            % Returns (Ice.Future) - A future that will be completed when the
-            %   invocation completes.
+            %   Output Arguments
+            %     r - A future that will be completed when the invocation completes.
+            %       Ice.Future scalar
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -141,33 +137,40 @@ classdef Connection < IceInternal.WrapperObject
             assert(~isNull(future));
             r = Ice.Future(future, 'flushBatchRequests', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
+
         function r = type(obj)
-            % type   Return the connection type. This corresponds to the
-            %   endpoint type, i.e., "tcp", "udp", etc.
+            %TYPE Returns the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
             %
-            % Returns (char) - The type of the connection.
+            %   Output Arguments
+            %     r - The type of the connection.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Connection
             end
             r = obj.iceCallWithResult('type');
         end
+
         function r = toString(obj)
-            % toString   Return a description of the connection as human
-            %   readable text, suitable for logging or error messages.
+            %TOSTRING Returns a description of the connection as human readable text, suitable for logging or error
+            %   messages.
             %
-            % Returns (char) - The description of the connection as human
-            %   readable text.
+            %   Output Arguments
+            %     r - The description of the connection as human readable text.
+            %       character vector
 
             arguments
                 obj (1, 1) Ice.Connection
             end
             r = obj.iceCallWithResult('toString');
         end
+
         function r = getInfo(obj)
-            % getInfo   Returns the connection information.
+            %GETINFO Returns the connection information.
             %
-            % Returns (Ice.ConnectionInfo) - The connection information.
+            %   Output Arguments
+            %     r - The connection information.
+            %       Ice.ConnectionInfo scalar
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -175,12 +178,15 @@ classdef Connection < IceInternal.WrapperObject
             info = obj.iceCallWithResult('getInfo');
             r = obj.createConnectionInfo(info);
         end
+
         function setBufferSize(obj, rcvSize, sndSize)
-            % setBufferSize   Set the connection buffer receive/send size.
+            %SETBUFFERSIZE Sets the connection buffer receive/send size.
             %
-            % Parameters:
-            %   rcvSize (int32) - The connection receive buffer size.
-            %   sndSize (int32) - The connection send buffer size.
+            %   Input Arguments
+            %     rcvSize - The connection receive buffer size.
+            %       int32 scalar
+            %     sndSize - The connection send buffer size.
+            %       int32 scalar
 
             arguments
                 obj (1, 1) Ice.Connection
@@ -189,13 +195,12 @@ classdef Connection < IceInternal.WrapperObject
             end
             obj.iceCall('setBufferSize', rcvSize, sndSize);
         end
+
         function throwException(obj)
-            % throwException   Throw an exception indicating the reason for
-            %   connection closure. For example, CloseConnectionException is
-            %   raised if the connection was closed gracefully, whereas
-            %   ConnectionAbortedException/ConnectionClosedException is raised
-            %   if the connection was manually closed by the application. This
-            %   operation does nothing if the connection is not yet closed.
+            %THROWEXCEPTION Throws an exception indicating the reason for connection closure.
+            %   For example, CloseConnectionException is thrown if the connection was closed gracefully, whereas
+            %   ConnectionAbortedException/ConnectionClosedException are thrown if the connection was manually closed by
+            %   the application. This method does nothing if the connection is not yet closed.
 
             arguments
                 obj (1, 1) Ice.Connection

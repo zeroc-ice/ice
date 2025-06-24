@@ -1,9 +1,10 @@
 function r = stringVersion()
-    % stringVersion  Returns the Ice version in the form A.B.C, where A
-    %   indicates the major version, B indicates the minor version, and
-    %   C indicates the patch level.
+    %STRINGVERSION Returns the Ice version in the form A.B.C, where A indicates the major version, B indicates the
+    %   minor version, and C indicates the patch level.
     %
-    % Returns (char) - The Ice version.
+    %   Output Arguments
+    %     r - The Ice version.
+    %       character vector
 
     % Copyright (c) ZeroC, Inc.
 

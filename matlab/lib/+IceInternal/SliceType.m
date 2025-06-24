@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef SliceType
+    % Copyright (c) ZeroC, Inc.
+
     % Don't use an enumeration as comparing enumerators with integral values is significantly slower.
     properties(Constant)
         NoSlice = uint8(0)

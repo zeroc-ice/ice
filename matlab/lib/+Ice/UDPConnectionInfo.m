@@ -1,17 +1,15 @@
 classdef (Sealed) UDPConnectionInfo < Ice.IPConnectionInfo
-    % UDPConnectionInfo   Summary of UDPConnectionInfo
+    %UDPCONNECTIONINFO Provides access to the connection details of a UDP connection.
     %
-    % Provides access to the connection details of a UDP connection.
-    %
-    % UDPConnectionInfo Properties:
-    %   mcastAddress - The multicast address.
-    %   mcastPort - The multicast port.
-    %   rcvSize - The connection buffer receive size.
-    %   sndSize - The connection buffer send size.
+    %   UDPConnectionInfo Properties:
+    %     mcastAddress - The multicast address.
+    %     mcastPort - The multicast port.
+    %     rcvSize - The connection buffer receive size.
+    %     sndSize - The connection buffer send size.
 
     % Copyright (c) ZeroC, Inc.
 
-    methods
+    methods(Hidden)
         function obj = UDPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort, ...
                                          mcastAddress, mcastPort, rcvSize, sndSize)
             assert(nargin == 9, 'Invalid number of arguments');
@@ -23,16 +21,20 @@ classdef (Sealed) UDPConnectionInfo < Ice.IPConnectionInfo
         end
     end
     properties(SetAccess=immutable)
-        % mcastAddress - The multicast address.
+        %MCASTADDRESS The multicast address.
+        %   character vector
         mcastAddress (1, :) char
 
-        % mcastPort - The multicast port.
+        %MCASTPORT The multicast port.
+        %   int32 scalar
         mcastPort (1, 1) int32
 
-        % rcvSize - The connection buffer receive size.
+        %RCVSIZE The connection buffer receive size.
+        %   int32 scalar
         rcvSize (1, 1) int32
 
-        % sndSize - The connection buffer send size.
+        %SNDSIZE The connection buffer send size.
+        %   int32 scalar
         sndSize (1, 1) int32
     end
 end

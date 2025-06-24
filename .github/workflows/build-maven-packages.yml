@@ -108,11 +108,12 @@ jobs:
         working-directory: ice/java
         if: ${{ inputs.ice_version != '' }}
 
-      - name: Build Java Packages
-        run: ./gradlew dist
+      - name: Build Ice for Java Packages
+        run: |
+          cd tools/slice-tools && ../../gradlew build
+          ./gradlew dist
         working-directory: ice/java
-
-      - name: Sign JAR Files
+      - name: Sign Ice for Java Files
         run: |
           set -euo pipefail
           echo "$GPG_KEY" | gpg --batch --import
@@ -133,3 +134,4 @@ jobs:
             ice/java/lib/*.asc
             ice/java/tools/slice-tools/build/libs/*.jar
             ice/java/tools/slice-tools/build/libs/*.asc
+            ice/java/tools/slice-tools/build/libs/*.pom

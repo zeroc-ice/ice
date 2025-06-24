@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef CellArrayHandle < handle
+    % Copyright (c) ZeroC, Inc.
+
     properties
         array
     end

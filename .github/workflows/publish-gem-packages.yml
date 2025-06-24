@@ -41,7 +41,7 @@ jobs:
             --retry 3 \
             --fail \
             --show-error \
-            https://download.zeroc.com/nexus/repository/rubygems-nightly/ || { echo "Gem upload failed"; exit 1; }
+            https://download.zeroc.com/nexus/repository/rubygems-nightly/gems/ || { echo "Gem upload failed"; exit 1; }
         if: ${{ inputs.channel == 'nightly' }}
         env:
           NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}

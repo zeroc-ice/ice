@@ -1,15 +1,11 @@
-% UnknownUserException   Summary of UnknownUserException
-%
-% An operation raised an incorrect user exception. This exception is raised if an operation raises a user exception
-% that is not declared in the exception's throws clause. Such undeclared exceptions are not transmitted
-% from the server to the client by the Ice protocol, but instead the client just gets an UnknownUserException.
-% This is necessary in order to not violate the contract established by an operation's signature: Only local
-% exceptions and user exceptions declared in the throws clause can be raised.
-
-% Copyright (c) ZeroC, Inc.
-
 classdef (Sealed) UnknownUserException < Ice.UnknownException
-    methods
+    %UNKNOWNUSEREXCEPTION
+    %   The exception that is thrown when a client receives a UserException that was not declared in the operation's
+    %   exception specification.
+
+    % Copyright (c) ZeroC, Inc.
+
+    methods(Hidden)
         function obj = UnknownUserException(typeID, what)
             errID = 'Ice:UnknownUserException';
             if nargin == 0

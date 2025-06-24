@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef EncapsDecoder10 < IceInternal.EncapsDecoder
+    % Copyright (c) ZeroC, Inc.
+
     methods
         function obj = EncapsDecoder10(is, encaps, classGraphDepthMax)
             obj@IceInternal.EncapsDecoder(is, encaps, classGraphDepthMax);

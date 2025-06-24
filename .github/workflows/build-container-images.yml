@@ -111,12 +111,13 @@ jobs:
     strategy:
       matrix:
         image:
-          - rpm-repo-builder
-          - ice-rpm-builder-el9
-          - ice-rpm-builder-el10
-          - ice-rpm-builder-amzn2023
+          - deb-repo-builder
           - ice-deb-builder-debian12
           - ice-deb-builder-ubuntu24.04
+          - ice-rpm-builder-amzn2023
+          - ice-rpm-builder-el10
+          - ice-rpm-builder-el9
+          - rpm-repo-builder
 
     steps:
       - name: Set up Docker Buildx

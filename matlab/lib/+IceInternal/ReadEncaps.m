@@ -1,6 +1,6 @@
-% Copyright (c) ZeroC, Inc.
-
 classdef ReadEncaps < handle
+    % Copyright (c) ZeroC, Inc.
+
     properties
         endPos int32
         encoding

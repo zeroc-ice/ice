@@ -44,7 +44,7 @@ The plugin can be published to **Maven Local** for testing.
 To publish the plugin to your local Maven repository (`~/.m2/repository`), run:
 
 ```shell
-./gradlew publishToMavenLocal
+../../gradlew publishToMavenLocal
 ```
 
 This allows other projects on your machine to use the locally published version.

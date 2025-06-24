@@ -1,18 +1,19 @@
-% ConnectionClosedException   Summary of ConnectionClosedException
-%
-% This exception indicates that the connection was closed gracefully.
-%
-% ConnectionClosedException Properties:
-%   closedByApplication - True if the connection was closed by the application, false if it was closed by the Ice runtime.
-
-% Copyright (c) ZeroC, Inc.
-
 classdef ConnectionClosedException < Ice.LocalException
+    %CONNECTIONCLOSEDEXCEPTION The exception that is thrown when an operation fails because the connection has been
+    %   closed gracefully.
+    %
+    %   ConnectionClosedException Properties:
+    %     closedByApplication - True if the connection was closed by the application, false if it was closed by the Ice runtime.
+
+    % Copyright (c) ZeroC, Inc.
+
     properties
-        % ConnectionClosedException - True if the connection was closed by the application, false if it was closed by the Ice runtime.
+        %CLOSEDBYAPPLICATION True if the connection was closed by the application, false if it was closed by the Ice
+        %   runtime.
+        %   logical scalar
         closedByApplication (1, 1) logical = false
     end
-    methods
+    methods(Hidden)
         function obj = ConnectionClosedException(closedByApplication, errID, what)
             if nargin == 0 % default constructor
                 superArgs = {};

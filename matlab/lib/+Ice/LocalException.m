@@ -1,11 +1,9 @@
 classdef LocalException < Ice.Exception
-    % LocalException   Summary of LocalException
-    %
-    % Base class for all Ice exceptions not defined in Slice.
+    %LOCALEXCEPTION Base class for all Ice exceptions not defined in Slice.
 
     % Copyright (c) ZeroC, Inc.
 
-    methods
+    methods(Hidden)
         function obj = LocalException(errID, what)
             if nargin == 0 % default constructor
                 superArgs = {};

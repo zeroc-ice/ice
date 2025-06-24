@@ -1,16 +1,24 @@
 classdef (Sealed) CompositeSliceLoader < Ice.SliceLoader
-    % CompositeSliceLoader   Implements SliceLoader by combining multiple Slice loaders.
+    %COMPOSITESLICELOADER Implements Ice.SliceLoader by combining multiple Slice loaders.
     %
-    % CompositeSliceLoader methods:
-    %   CompositeSliceLoader - Constructs a CompositeSliceLoader.
-    %   add - Adds a new Slice loader to the composite loader.
-    %   newInstance - Creates a class or exception instance from a Slice type ID.
+    %   CompositeSliceLoader Methods:
+    %     CompositeSliceLoader - Constructs a new CompositeSliceLoader.
+    %     add - Adds a new Slice loader to the composite loader.
+    %     newInstance - Creates a class or exception instance from a Slice type ID.
+
+    % Copyright (c) ZeroC, Inc.
+
     methods
         function obj = CompositeSliceLoader(sliceLoader)
-            % Constructs a CompositeSliceLoader.
+            %COMPOSITESLICELOADER Constructs a new CompositeSliceLoader.
             %
-            % Parameters:
-            %   sliceLoader - One or more Ice.SliceLoader objects.
+            %   Input Arguments (Repeating)
+            %     sliceLoader - A Slice loader to add to the composite loader.
+            %       Ice.SliceLoader scalar
+            %
+            %   Output Arguments
+            %     obj - The new CompositeSliceLoader.
+            %       Ice.CompositeSliceLoader scalar
 
             arguments (Repeating)
                 sliceLoader (1, 1) Ice.SliceLoader
@@ -19,10 +27,11 @@ classdef (Sealed) CompositeSliceLoader < Ice.SliceLoader
         end
 
         function add(obj, loader)
-            % Add a new Slice loader to the composite loader.
+            %ADD Adds a new Slice loader to the composite loader.
             %
-            % Parameters:
-            %   loader (Ice.SliceLoader) - The Slice loader to add.
+            %   Input Arguments
+            %     loader - The Slice loader to add.
+            %       Ice.SliceLoader scalar
 
             arguments
                 obj (1, 1) Ice.CompositeSliceLoader
