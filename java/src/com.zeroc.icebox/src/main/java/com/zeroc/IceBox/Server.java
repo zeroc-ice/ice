@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public final class Server {
+final class Server {
     static class ShutdownHook extends Thread {
         private Communicator _communicator;
         private final java.lang.Object _doneMutex = new java.lang.Object();

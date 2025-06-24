@@ -16,13 +16,14 @@ public final class UnknownSlicedValue extends Value {
     /**
      * Determine the Slice type ID associated with this object.
      *
-     * @return The type ID.
+     * @return the type ID
      */
     @Override
     public String ice_id() {
         return _unknownTypeId;
     }
 
+    /** The Slice type ID of the unknown object. */
     private final String _unknownTypeId;
 
     private static final long serialVersionUID = -3199177633147630863L;

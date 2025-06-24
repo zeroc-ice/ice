@@ -765,9 +765,13 @@ public final class Util {
         return str.toString();
     }
 
+    /** The protocol version 1.0. */
     public static final ProtocolVersion Protocol_1_0 = new ProtocolVersion((byte) 1, (byte) 0);
 
+    /** The encoding version 1.0. */
     public static final EncodingVersion Encoding_1_0 = new EncodingVersion((byte) 1, (byte) 0);
+
+    /** The encoding version 1.1. */
     public static final EncodingVersion Encoding_1_1 = new EncodingVersion((byte) 1, (byte) 1);
 
     private static final java.lang.Object _processLoggerMutex = new java.lang.Object();

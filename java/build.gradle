@@ -93,6 +93,8 @@ task alljavadoc(type: Javadoc) {
         '**/com/zeroc/Ice/CommunicatorObserverI.java',
         '**/com/zeroc/Ice/InvocationObserverI.java',
         '**/com/zeroc/Ice/ConnectionI.java',
+        '**/IceMX/*.java',
+        '**/IceGrid/*.java'
     )
 }
 alljavadoc.dependsOn = exportedProjects.collect { project(it).assemble.dependsOn }

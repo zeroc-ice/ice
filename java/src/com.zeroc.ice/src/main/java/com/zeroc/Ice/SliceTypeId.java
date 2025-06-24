@@ -16,6 +16,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface SliceTypeId {
-    /** The Slice type ID of this class or interface. */
+    /** The Slice type ID of this class or interface.
+     *
+     * @return the Slice type ID of this class or interface
+    */
     String value();
 }

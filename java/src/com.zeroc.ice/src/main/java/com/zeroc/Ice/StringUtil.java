@@ -11,16 +11,23 @@ import java.util.List;
  */
 public final class StringUtil {
     /**
-     * Returns the index of the first character in str to appear in match, starting from 0. Returns
-     * -1 if none is found.
+     * Returns the index of the first character in str to appear in match, starting from 0.
+     *
+     * @param str the string to search in
+     * @param match the characters to search for
+     * @return the index of the first matching character, or -1 if none is found
      */
     public static int findFirstOf(String str, String match) {
         return findFirstOf(str, match, 0);
     }
 
     /**
-     * Return the index of the first character in str to appear in match, starting from start.
-     * Returns -1 if none is found.
+     * Returns the index of the first character in str to appear in match, starting from start.
+     *
+     * @param str the string to search in
+     * @param match the characters to search for
+     * @param start the starting index
+     * @return the index of the first matching character, or -1 if none is found
      */
     public static int findFirstOf(String str, String match, int start) {
         final int len = str.length();
@@ -35,8 +42,12 @@ public final class StringUtil {
     }
 
     /**
-     * Return the index of the first character in str which does not appear in match, starting from
-     * start. Returns -1 if none is found.
+     * Returns the index of the first character in str which does not appear in match, starting from start.
+     *
+     * @param str the string to search in
+     * @param match the characters to exclude
+     * @param start the starting index
+     * @return the index of the first non-matching character, or -1 if none is found
      */
     public static int findFirstNotOf(String str, String match, int start) {
         final int len = str.length();
@@ -162,8 +173,12 @@ public final class StringUtil {
     }
 
     /**
-     * Add escape sequences (like "\n" to the input string). The second parameter adds characters to
-     * escape, and can be empty.
+     * Adds escape sequences (like "\n") to the input string.
+     *
+     * @param s the string to escape
+     * @param special additional characters to escape, or null
+     * @param toStringMode the string mode for escaping
+     * @return the escaped string
      */
     public static String escapeString(
             String s, String special, ToStringMode toStringMode) {
@@ -444,9 +459,14 @@ public final class StringUtil {
     }
 
     /**
-     * Remove escape sequences added by escapeString.
+     * Removes escape sequences added by escapeString.
      *
-     * @throws IllegalArgumentException for an invalid input string.
+     * @param s the string to unescape
+     * @param start the starting index
+     * @param end the ending index
+     * @param special additional escaped characters to handle, or null
+     * @return the unescaped string
+     * @throws IllegalArgumentException for an invalid input string
      */
     public static String unescapeString(String s, int start, int end, String special) {
         assert (start >= 0 && start <= end && end <= s.length());
@@ -477,7 +497,13 @@ public final class StringUtil {
         }
     }
 
-    /** Split string helper; returns null for unmatched quotes */
+    /**
+     * Splits a string using the specified delimiters, handling quoted sections.
+     *
+     * @param str the string to split
+     * @param delim the delimiter characters
+     * @return an array of split strings, or null for unmatched quotes
+     */
     public static String[] splitString(String str, String delim) {
         List<String> l = new ArrayList<>();
         char[] arr = new char[str.length()];
@@ -529,9 +555,11 @@ public final class StringUtil {
     }
 
     /**
-     * If a single or double quotation mark is found at the start position, then the position of the
-     * matching closing quote is returned. If no quotation mark is found at the start position, then
-     * 0 is returned. If no matching closing quote is found, then -1 is returned.
+     * Checks for a quotation mark at the start position and finds the matching closing quote.
+     *
+     * @param s the string to check
+     * @param start the starting position
+     * @return the position of the matching closing quote, 0 if no quote at start, or -1 if unmatched
      */
     public static int checkQuote(String s, int start) {
         char quoteChar = s.charAt(start);
@@ -550,6 +578,14 @@ public final class StringUtil {
         return 0; // Not quoted
     }
 
+    /**
+     * Matches a string against a pattern that may contain wildcards.
+     *
+     * @param s the string to match
+     * @param pat the pattern with optional wildcards (*)
+     * @param emptyMatch whether to allow empty matches for wildcards
+     * @return true if the string matches the pattern
+     */
     public static boolean match(String s, String pat, boolean emptyMatch) {
         assert (!s.isEmpty());
         assert (!pat.isEmpty());

@@ -921,6 +921,12 @@ public final class ObjectAdapter {
         }
     }
 
+    /**
+     * Checks whether the specified reference refers to a local object.
+     *
+     * @param ref the reference to check
+     * @return true if the reference refers to a local object, false otherwise
+     */
     public boolean isLocal(Reference ref) {
         //
         // NOTE: it's important that isLocal() doesn't perform any blocking operations as
@@ -952,6 +958,12 @@ public final class ObjectAdapter {
         }
     }
 
+    /**
+     * Flushes any pending batch requests for this object adapter.
+     *
+     * @param compressBatch indicates whether to compress the batch requests
+     * @param outAsync the callback for the asynchronous flush operation
+     */
     public void flushAsyncBatchRequests(
             CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         List<IncomingConnectionFactory> f;
@@ -963,6 +975,9 @@ public final class ObjectAdapter {
         }
     }
 
+    /**
+     * Updates the connection observers for all incoming connection factories.
+     */
     public void updateConnectionObservers() {
         List<IncomingConnectionFactory> f;
         synchronized (this) {
@@ -973,6 +988,9 @@ public final class ObjectAdapter {
         }
     }
 
+    /**
+     * Updates the thread observers for the thread pool.
+     */
     public void updateThreadObservers() {
         ThreadPool threadPool = null;
         synchronized (this) {
@@ -983,6 +1001,9 @@ public final class ObjectAdapter {
         }
     }
 
+    /**
+     * Increments the count of direct method calls using this object adapter.
+     */
     public synchronized void incDirectCount() {
         checkForDestruction();
 
@@ -990,6 +1011,9 @@ public final class ObjectAdapter {
         ++_directCount;
     }
 
+    /**
+     * Decrements the count of direct method calls using this object adapter.
+     */
     public synchronized void decDirectCount() {
         // Not check for deactivation here!
 
@@ -1001,6 +1025,11 @@ public final class ObjectAdapter {
         }
     }
 
+    /**
+     * Gets the thread pool used by this object adapter.
+     *
+     * @return the thread pool used by this object adapter
+     */
     public ThreadPool getThreadPool() {
         // No mutex lock necessary, _threadPool and _instance are
         // immutable after creation until they are removed in
@@ -1017,11 +1046,21 @@ public final class ObjectAdapter {
         }
     }
 
+    /**
+     * Sets this object adapter on the specified connection.
+     *
+     * @param connection the connection to set the adapter on
+     */
     public synchronized void setAdapterOnConnection(ConnectionI connection) {
         checkForDestruction();
         connection.setAdapterFromAdapter(this);
     }
 
+    /**
+     * Gets the maximum message size for this object adapter.
+     *
+     * @return the maximum message size in bytes
+     */
     public int messageSizeMax() {
         // No mutex lock, immutable.
         return _messageSizeMax;
@@ -1230,6 +1269,11 @@ public final class ObjectAdapter {
         }
     }
 
+    /**
+     * Gets the SSL engine factory used by this object adapter.
+     *
+     * @return the SSL engine factory
+     */
     public SSLEngineFactory getSSLEngineFactory() {
         return _sslEngineFactory;
     }

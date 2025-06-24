@@ -21,11 +21,19 @@ import java.util.regex.Pattern;
  * @hidden Public because it's used by IceMX.
  */
 public class MetricsMap<T extends Metrics> {
+    /**
+     * Represents a metrics entry within a metrics map.
+     */
     public class Entry {
         Entry(T obj) {
             _object = obj;
         }
 
+        /**
+         * Records a failure for this metrics entry with the specified exception name.
+         *
+         * @param exceptionName the name of the exception that caused the failure
+         */
         public void failed(String exceptionName) {
             synchronized (MetricsMap.this) {
                 ++_object.failures;
@@ -37,6 +45,15 @@ public class MetricsMap<T extends Metrics> {
             }
         }
 
+        /**
+         * Gets a matching entry from a sub-map with the specified parameters.
+         *
+         * @param <S> the type of metrics
+         * @param mapName the name of the sub-map
+         * @param helper the metrics helper
+         * @param cl the metrics class
+         * @return the matching entry or null if no sub-map is found
+         */
         @SuppressWarnings("unchecked")
         public <S extends Metrics> MetricsMap<S>.Entry getMatching(
                 String mapName, MetricsHelper<S> helper, Class<S> cl) {
@@ -57,6 +74,11 @@ public class MetricsMap<T extends Metrics> {
             return m.getMatching(helper);
         }
 
+        /**
+         * Detaches this entry and updates its total lifetime.
+         *
+         * @param lifetime the lifetime to add to the total lifetime
+         */
         public void detach(long lifetime) {
             synchronized (MetricsMap.this) {
                 _object.totalLifetime += lifetime;
@@ -66,12 +88,22 @@ public class MetricsMap<T extends Metrics> {
             }
         }
 
+        /**
+         * Executes a metrics update function on this entry's metrics object.
+         *
+         * @param func the update function to execute
+         */
         public void execute(Observer.MetricsUpdate<T> func) {
             synchronized (MetricsMap.this) {
                 func.update(_object);
             }
         }
 
+        /**
+         * Gets the metrics map that contains this entry.
+         *
+         * @return the parent metrics map
+         */
         public MetricsMap<?> getMap() {
             return MetricsMap.this;
         }
@@ -119,10 +151,21 @@ public class MetricsMap<T extends Metrics> {
             _field = field;
         }
 
+        /**
+         * Gets a matching entry using the specified metrics helper.
+         *
+         * @param helper the metrics helper
+         * @return the matching entry
+         */
         public MetricsMap<S>.Entry getMatching(MetricsHelper<S> helper) {
             return _map.getMatching(helper, null);
         }
 
+        /**
+         * Adds this sub-map to the specified metrics object.
+         *
+         * @param metrics the metrics object to add the sub-map to
+         */
         public void addSubMapToMetrics(Metrics metrics) {
             try {
                 _field.set(metrics, _map.getMetrics());
@@ -276,6 +319,14 @@ public class MetricsMap<T extends Metrics> {
         return null;
     }
 
+    /**
+     * Creates a sub-map with the specified name and metrics class.
+     *
+     * @param <S> the type of metrics
+     * @param subMapName the name of the sub-map to create
+     * @param cl the metrics class
+     * @return the created sub-map or null if no factory is available
+     */
     @SuppressWarnings("unchecked")
     public <S extends Metrics> SubMap<S> createSubMap(String subMapName, Class<S> cl) {
         if (_subMaps == null) {
@@ -288,6 +339,13 @@ public class MetricsMap<T extends Metrics> {
         return null;
     }
 
+    /**
+     * Gets a matching entry for the specified metrics helper and previous entry.
+     *
+     * @param helper the metrics helper
+     * @param previous the previous entry or null
+     * @return the matching entry or null if no match is found
+     */
     public Entry getMatching(MetricsHelper<T> helper, Entry previous) {
         //
         // Check the accept and reject filters.

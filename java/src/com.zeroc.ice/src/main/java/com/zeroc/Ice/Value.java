@@ -54,6 +54,11 @@ public abstract class Value implements Cloneable, Serializable {
         return _slicedData;
     }
 
+    /**
+     * Gets the Slice type ID of this type.
+     *
+     * @return the Slice type ID of this type, which is always <code>::Ice::Object</code>.
+     */
     public static String ice_staticId() {
         return "::Ice::Object";
     }
@@ -90,6 +95,7 @@ public abstract class Value implements Cloneable, Serializable {
      */
     protected void _iceReadImpl(InputStream istr) {}
 
+    /** The sliced data associated with this object. */
     private SlicedData _slicedData;
 
     private static final long serialVersionUID = 0L;

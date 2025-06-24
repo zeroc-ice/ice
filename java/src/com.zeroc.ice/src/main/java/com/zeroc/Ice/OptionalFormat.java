@@ -10,13 +10,22 @@ package com.zeroc.Ice;
  * known to the receiver.
  */
 public enum OptionalFormat {
+    /** Fixed 1-byte encoding. */
     F1(0),
+    /** Fixed 2-byte encoding. */
     F2(1),
+    /** Fixed 4-byte encoding. */
     F4(2),
+    /** Fixed 8-byte encoding. */
     F8(3),
+    /** "Size encoding" using 1 to 5 bytes, e.g., enum, class identifier. */
     Size(4),
+    /** "Size encoding" using 1 to 5 bytes followed by data, e.g., string, fixed size struct, or containers whose
+     * size can be computed prior to marshaling. */
     VSize(5),
+    /** Fixed size using 4 bytes followed by data, e.g., variable-size struct, container. */
     FSize(6),
+    /** Class instance. No longer supported. */
     Class(7);
 
     private OptionalFormat(int value) {

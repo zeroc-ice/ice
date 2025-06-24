@@ -60,6 +60,11 @@ public class ProxyIdentityKey {
         return false;
     }
 
+    /**
+     * Returns the proxy associated with this key.
+     *
+     * @return The proxy.
+     */
     public ObjectPrx getProxy() {
         return _proxy;
     }

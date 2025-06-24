@@ -411,12 +411,22 @@ Slice::JavaVisitor::writeResultType(
             << ' ' << outParam->mappedName() << ';';
     }
 
-    out << sp << nl << "public void write(com.zeroc.Ice.OutputStream ostr)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals the result for the " << op->mappedName() << " operation.";
+    out << nl << " * @param ostr the output stream to write this result to";
+    out << nl << " */";
+    out << nl << "public void write(com.zeroc.Ice.OutputStream ostr)";
     out << sb;
     writeResultTypeMarshalUnmarshalCode(out, op, package, "", "this.", false);
     out << eb;
 
-    out << sp << nl << "public void read(com.zeroc.Ice.InputStream istr)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Unmarshals the result of the " << op->mappedName() << " operation.";
+    out << nl << " * @param istr the input stream to read this result from";
+    out << nl << " */";
+    out << nl << "public void read(com.zeroc.Ice.InputStream istr)";
     out << sb;
     writeResultTypeMarshalUnmarshalCode(out, op, package, "", "this.", true);
     out << eb;
@@ -3418,13 +3428,26 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "public final class " << name << "Helper";
     out << sb;
 
+    out << nl << "/**";
+    out << nl << " * Marshals a dictionary of {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param v the dictionary to marshal";
+    out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, " << formalType << " v)";
     out << sb;
     iter = 0;
     writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, false);
     out << eb;
 
-    out << sp << nl << "public static " << formalType << " read(com.zeroc.Ice.InputStream istr)";
+    out << sp;
+    out << nl << "/**";
+    out << nl << " * Unmarshals a dictionary of {@code " << name << "} from an input stream.";
+    out << nl << " *";
+    out << nl << " * @param istr the input stream";
+    out << nl << " * @return the dictionary";
+    out << nl << " */";
+    out << nl << "public static " << formalType << " read(com.zeroc.Ice.InputStream istr)";
     out << sb;
     out << nl << formalType << " v;";
     iter = 0;
@@ -3434,6 +3457,13 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     string optTypeS = "java.util.Optional<" + formalType + ">";
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals an optional dictionary of {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @param v the dictionary to marshal";
+    out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
     out << sb;
     out << nl << "if(v != null && v.isPresent())";
@@ -3443,6 +3473,13 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Marshals an optional dictionary of {@code " << name << "} into an output stream.";
+    out << nl << " *";
+    out << nl << " * @param ostr the output stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @param v the dictionary to marshal";
+    out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << formalType << " v)";
     out << sb;
     out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
@@ -3466,6 +3503,13 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
+    out << nl << "/**";
+    out << nl << " * Unmarshals an optional dictionary of {@code " << name << "} from an input stream.";
+    out << nl << " *";
+    out << nl << " * @param istr the input stream";
+    out << nl << " * @param tag the tag";
+    out << nl << " * @return the dictionary";
+    out << nl << " */";
     out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
     out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
