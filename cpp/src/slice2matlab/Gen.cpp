@@ -3,20 +3,14 @@
 #include "Gen.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
-#include "../Ice/Options.h"
 #include "../Slice/FileTracker.h"
-#include "../Slice/MetadataValidation.h"
-#include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
-#include "Ice/CtrlCHandler.h"
 #include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
 #include <climits>
 #include <cstring>
-#include <iterator>
-#include <mutex>
 
 #include <sys/stat.h>
 #include <sys/types.h>

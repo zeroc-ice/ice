@@ -35,7 +35,7 @@ namespace Slice
         std::string getFormatType(FormatType);
 
         void marshal(IceInternal::Output&, const std::string&, const  std::string&, const TypePtr&, bool,  std::int32_t);
-        void unmarshal(IceInternal::Output&, const  std::string&, const std::string&, const TypePtr&, bool, std::int32_t);
+        void unmarshal(IceInternal::Output&, const std::string&, const std::string&, const TypePtr&, bool, std::int32_t);
 
         void unmarshalStruct(IceInternal::Output&, const StructPtr&, const std::string&);
         void convertStruct(IceInternal::Output&, const StructPtr&, const std::string&);

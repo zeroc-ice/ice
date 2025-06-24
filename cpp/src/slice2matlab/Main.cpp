@@ -13,9 +13,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include <climits>
 #include <cstring>
-#include <iterator>
 #include <mutex>
 
 #include <sys/stat.h>
