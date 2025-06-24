@@ -38,41 +38,9 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir "${STAGING_DIR}"
 
       - name: Publish Java Packages
-        run: |
-          set -euo pipefail
-
-          case "$CHANNEL" in
-            "3.8")
-              SOURCE_URL="https://central.sonatype.com"
-              MAVEN_USERNAME="${MAVEN_CENTRAL_USERNAME}"
-              MAVEN_PASSWORD="${MAVEN_CENTRAL_API_KEY}"
-              ;;
-            "nightly")
-              SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-nightly/"
-              MAVEN_USERNAME="nightly"
-              MAVEN_PASSWORD="${NEXUS_NIGHTLY_PASSWORD}"
-              ;;
-            *)
-              echo "Unsupported channel: $CHANNEL"
-              exit 1
-              ;;
-          esac
-
-          mkdir -p lib
-          cp -pf "${STAGING_DIR}"/java-packages/lib/*.jar lib
-          cp -pf "${STAGING_DIR}"/java-packages/lib/*.pom lib
-          cp -pf "${STAGING_DIR}"/java-packages/lib/*.asc lib
-
-          mkdir -p tools/slice-tools/build/libs/
-          cp -pf "${STAGING_DIR}"/java-packages/tools/slice-tools/build/libs/*.jar tools/slice-tools/build/libs/
-          cp -pf "${STAGING_DIR}"/java-packages/tools/slice-tools/build/libs/*.asc tools/slice-tools/build/libs/
-
-          ice_version=$(basename "$(ls lib/ice-*-sources.jar)" | sed -E 's/^ice-(.+)-sources\.jar$/\1/')
-          ./gradlew publish -PiceVersion="${ice_version}"
-        working-directory: java
+        run: packaging/maven/publish-maven-release.sh
         env:
           CHANNEL: ${{ inputs.channel }}
           NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_API_KEY: ${{ secrets.MAVEN_CENTRAL_API_KEY }}
-
