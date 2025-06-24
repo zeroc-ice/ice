@@ -2,20 +2,8 @@
 set -eux -o pipefail
 
 usage() {
-    echo "Usage: $0 <ice_version> <repository_url>"
+    echo "Usage: $0"
 }
-
-ice_version=${1:-}
-if [ -z "$ice_version" ]; then
-    usage
-    exit 1
-fi
-
-repository_url=${2:-}
-if [ -z "$repository_url" ]; then
-    usage
-    exit 1
-fi
 
 if [ -z "${ICE_NIGHTLY_PUBLISH_TOKEN:-}" ]; then
     echo "Error: ICE_NIGHTLY_PUBLISH_TOKEN environment variable is not set"
@@ -36,10 +24,10 @@ cp -rfv ../../../slice .
 cp -rfv ../../../swift .
 cp -v ../../../Package.swift .
 
-# Download each XCFramework, compute its SHA256, and update Package.swift
-for name in Ice IceDiscovery IceLocatorDiscovery; do
-    zip_name=$name-$ice_version.xcframework.zip
-    zip_url=$repository_url/$zip_name
+# Update the Packages.swift file with the URL and Checksum for the xcframeworks
+for zip_file in "${root_dir}/staging/*.zip"; do
+    zip_name=$(basename "${zip_file}")
+    zip_url="https://download.zeroc.com/ice/nightly/${zip_name}"
 
     curl -fsSL -o "${zip_name}" "$zip_url"
     checksum=$(shasum -a 256 "${zip_name}" | cut -d ' ' -f 1)

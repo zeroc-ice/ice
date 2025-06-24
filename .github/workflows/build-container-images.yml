@@ -36,22 +36,22 @@ jobs:
             dockerfile: packaging/rpm/docker/amzn2023/Dockerfile
           - platform: amd64
             image: deb-repo-builder
-            dockerfile: packaging/dpkg/docker/deb-repo-builder/Dockerfile
+            dockerfile: packaging/deb/docker/deb-repo-builder/Dockerfile
           - platform: arm64
             image: deb-repo-builder
-            dockerfile: packaging/dpkg/docker/deb-repo-builder/Dockerfile
+            dockerfile: packaging/deb/docker/deb-repo-builder/Dockerfile
           - platform: amd64
             image: ice-deb-builder-debian12
-            dockerfile: packaging/dpkg/docker/debian12/Dockerfile
+            dockerfile: packaging/deb/docker/debian12/Dockerfile
           - platform: arm64
             image: ice-deb-builder-debian12
-            dockerfile: packaging/dpkg/docker/debian12/Dockerfile
+            dockerfile: packaging/deb/docker/debian12/Dockerfile
           - platform: amd64
             image: ice-deb-builder-ubuntu24.04
-            dockerfile: packaging/dpkg/docker/ubuntu24.04/Dockerfile
+            dockerfile: packaging/deb/docker/ubuntu24.04/Dockerfile
           - platform: arm64
             image: ice-deb-builder-ubuntu24.04
-            dockerfile: packaging/dpkg/docker/ubuntu24.04/Dockerfile
+            dockerfile: packaging/deb/docker/ubuntu24.04/Dockerfile
 
     env:
       # On Red Hat-based images, we need to provide credentials to access the Red Hat repositories.
@@ -115,6 +115,8 @@ jobs:
           - ice-rpm-builder-el9
           - ice-rpm-builder-el10
           - ice-rpm-builder-amzn2023
+          - ice-deb-builder-debian12
+          - ice-deb-builder-ubuntu24.04
 
     steps:
       - name: Set up Docker Buildx

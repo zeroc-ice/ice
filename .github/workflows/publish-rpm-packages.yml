@@ -1,0 +1,95 @@
+name: "Publish RPM Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: "Publish RPM Packages for ${{ matrix.distribution }}"
+    runs-on: 'ubuntu-24.04'
+    strategy:
+      matrix:
+        include:
+          - distribution: el9
+          - distribution: el10
+          - distribution: amzn2023
+    env:
+      DISTRIBUTION: ${{ matrix.distribution }}
+      CHANNEL: ${{ inputs.channel }}
+      MCPP_VERSION: v2.7.2.19
+    steps:
+      - name: Download RPM artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+
+          # Download RPM artifacts from the specified run.
+          echo "Downloading Ice RPMs from current run..."
+          gh run download "$RUN_ID" \
+            --repo zeroc-ice/ice \
+            --pattern "rpm-packages-${DISTRIBUTION}-*" \
+            --dir staging
+
+          # If building for RHEL 9 or 10, also download MCPP RPMs.
+          if [[ "$DISTRIBUTION" == "rhel9" || "$DISTRIBUTION" == "rhel10" ]]; then
+            echo "Also downloading MCPP RPMs for $DISTRIBUTION..."
+            mkdir -p staging/mcpp
+
+            gh release download "$MCPP_VERSION" \
+              --repo zeroc-ice/mcpp \
+              --pattern "rpm-packages-${DISTRIBUTION}-*" \
+              --dir staging/mcpp
+
+            # gh doesn't automatically extract release downloads
+            pushd staging/mcpp > /dev/null
+            unzip -q "rpm-packages-${DISTRIBUTION}-*.zip"
+            popd > /dev/null
+          fi
+
+      - name: Create RPM repository
+        run: |
+          set -euo pipefail
+
+          echo "Syncing current repository from S3..."
+          mkdir -p "${DISTRIBUTION}"
+          aws s3 sync "s3://zeroc-downloads/ice/${CHANNEL}/${DISTRIBUTION}" "${DISTRIBUTION}"
+
+          echo "Creating/updating repository with new RPMs..."
+          docker_args=(
+            --rm
+            -v "$GITHUB_WORKSPACE:/workspace"
+            -e GPG_KEY="${GPG_KEY}"
+            -e GPG_KEY_ID="${GPG_KEY_ID}"
+            ghcr.io/zeroc-ice/rpm-repo-builder
+          )
+          docker run "${docker_args[@]}" /usr/local/bin/create-rpm-repo \
+            --staging /workspace/staging/ \
+            --repo "${DISTRIBUTION}" \
+            --channel "${CHANNEL}" \
+
+          echo "Uploading updated repository to S3..."
+          aws s3 sync "${DISTRIBUTION}" "s3://zeroc-downloads/ice/${CHANNEL}/${DISTRIBUTION}" --delete
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
+          GPG_KEY_ID: ${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}

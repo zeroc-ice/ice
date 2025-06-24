@@ -1,0 +1,54 @@
+name: "Publish GEM Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: "Publish GEM Packages"
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name: Download GEM artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "gem-packages" --dir staging
+
+      - name: Publish Nightly GEM Packages
+        run: |
+          curl -u "nightly:${NEXUS_NIGHTLY_PASSWORD}" \
+            --upload-file staging/gem-packages/zeroc-ice-*.gem \
+            --output /dev/null \
+            --silent \
+            --retry 3 \
+            --fail \
+            --show-error \
+            https://download.zeroc.com/nexus/repository/rubygems-nightly/ || { echo "Gem upload failed"; exit 1; }
+        if: ${{ inputs.channel == 'nightly' }}
+        env:
+          NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+
+      - name: Publish Release GEM Packages
+        run: |
+          GEM_HOST_API_KEY=${RUBYGEMS_API_KEY} gem push staging/gem-packages/zeroc-ice-*.gem
+        if: ${{ inputs.channel != 'nightly' }}
+        env:
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}

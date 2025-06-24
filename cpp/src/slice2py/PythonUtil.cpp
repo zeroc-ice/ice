@@ -357,6 +357,9 @@ namespace Slice::Python
         /// Write constructor parameters with default values.
         void writeConstructorParams(const DataMemberList& members);
 
+        /// Writes the provided @p remarks in its own subheading in the current comment (if @p remarks is non-empty).
+        void writeRemarksDocComment(const StringList& remarks, bool needsNewline);
+
         void writeDocstring(const optional<DocComment>&, const string& = "");
         void writeDocstring(const optional<DocComment>&, const DataMemberList&);
         void writeDocstring(const optional<DocComment>&, const EnumeratorList&);
@@ -1961,20 +1964,44 @@ Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
 }
 
 void
+Slice::Python::CodeVisitor::writeRemarksDocComment(const StringList& remarks, bool needsNewline)
+{
+    if (!remarks.empty())
+    {
+        if (needsNewline)
+        {
+            _out << nl;
+        }
+        _out << nl << "Notes";
+        _out << nl << "-----";
+        for (const auto& line : remarks)
+        {
+            _out << nl << "    " << line;
+        }
+    }
+}
+
+void
 Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const string& prefix)
 {
     if (comment)
     {
         const StringList& overview = comment->overview();
-        if (!overview.empty())
+        const StringList& remarks = comment->remarks();
+        if (overview.empty() && remarks.empty())
         {
-            _out << nl << prefix << tripleQuotes;
-            for (const auto& line : overview)
-            {
-                _out << nl << line;
-            }
-            _out << nl << tripleQuotes;
+            return;
         }
+
+        _out << nl << prefix << tripleQuotes;
+        for (const auto& line : overview)
+        {
+            _out << nl << line;
+        }
+
+        writeRemarksDocComment(remarks, !overview.empty());
+
+        _out << nl << tripleQuotes;
     }
 }
 
@@ -2001,7 +2028,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     }
 
     const StringList& overview = comment->overview();
-    if (overview.empty() && docs.empty())
+    const StringList& remarks = comment->remarks();
+    if (overview.empty() && remarks.empty() && docs.empty())
     {
         return;
     }
@@ -2036,6 +2064,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         }
     }
 
+    writeRemarksDocComment(remarks, !overview.empty() || !docs.empty());
+
     _out << nl << tripleQuotes;
 }
 
@@ -2062,7 +2092,8 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     }
 
     const StringList& overview = comment->overview();
-    if (overview.empty() && docs.empty())
+    const StringList& remarks = comment->remarks();
+    if (overview.empty() && remarks.empty() && docs.empty())
     {
         return;
     }
@@ -2084,21 +2115,20 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         _out << nl << "Enumerators:";
         for (const auto& enumerator : enumerators)
         {
-            _out << nl << enumerator->mappedName() << " -- ";
+            _out << nl << nl << "- " << enumerator->mappedName();
             auto p = docs.find(enumerator->name());
             if (p != docs.end())
             {
-                for (auto q = p->second.begin(); q != p->second.end(); ++q)
+                _out << ":"; // Only emit a trailing ':' if there's documentation to emit for it.
+                for (const auto& line : p->second)
                 {
-                    if (q != p->second.begin())
-                    {
-                        _out << nl;
-                    }
-                    _out << *q;
+                    _out << nl << "    " << line;
                 }
             }
         }
     }
+
+    writeRemarksDocComment(remarks, !overview.empty() || !docs.empty());
 
     _out << nl << tripleQuotes;
 }
@@ -2118,11 +2148,12 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     ParameterList outParams = op->outParameters();
 
     const StringList& overview = comment->overview();
+    const StringList& remarks = comment->remarks();
     const StringList& returnsDoc = comment->returns();
     const auto& parametersDoc = comment->parameters();
     const auto& exceptionsDoc = comment->exceptions();
 
-    if (overview.empty())
+    if (overview.empty() && remarks.empty())
     {
         if ((mode == DocSync || mode == DocDispatch) && parametersDoc.empty() && exceptionsDoc.empty() &&
             returnsDoc.empty())
@@ -2319,6 +2350,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
             }
         }
     }
+
+    writeRemarksDocComment(remarks, true);
+
     _out << nl << tripleQuotes;
 }
 

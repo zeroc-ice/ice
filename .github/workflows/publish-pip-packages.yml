@@ -1,0 +1,67 @@
+name: "Publish PIP Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: "The channel to publish to (e.g., 3.8, nightly)"
+        required: true
+      run_id:
+        description: "The run ID to use for downloading artifacts"
+        required: true
+  workflow_call:
+    inputs:
+      channel:
+        required: true
+        type: string
+      run_id:
+        required: true
+        type: string
+jobs:
+  build:
+    name: "Publish Python PIP Packages"
+    runs-on: "ubuntu-24.04"
+    steps:
+      - name: Download PIP artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir -p staging
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "pip-packages-*" --dir staging
+
+      - name: Publish PIP Package
+        run: |
+          set -euo pipefail
+
+          case "$CHANNEL" in
+            "3.8")
+              REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-nightly/"
+              TWINE_USERNAME="__token__"
+              TWINE_PASSWORD="${RELEASE_PYPI_AUTH_TOKEN}"
+              ;;
+            "nightly")
+              REPOSITORY_URL="https://download.zeroc.com/nexus/repository/pypi-nightly/"
+              TWINE_USERNAME="nightly"
+              TWINE_PASSWORD="${NEXUS_NIGHTLY_PASSWORD}"
+              ;;
+            *)
+              echo "Unsupported channel: $CHANNEL"
+              exit 1
+              ;;
+          esac
+
+          mkdir -p dist
+          find staging -name 'zeroc_ice-*' -type f | while read -r file; do
+            cp -vf $file dist
+          done
+
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install twine
+          twine upload --verbose --repository-url ${REPOSITORY_URL} dist/*
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+          RELEASE_PYPI_AUTH_TOKEN: ${{ secrets.RELEASE_PYPI_AUTH_TOKEN }}

@@ -25,7 +25,8 @@ RUN --mount=type=secret,id=rh_credentials \
     redhat-rpm-config \
     glibc-static \
     libstdc++-static && \
-    dnf builddep -y /usr/src/ice.spec && \
+    # Use --nobest to avoid issues with  systemd-devel-252-51.el9_6.1 dependencies not being available.
+    dnf builddep -y /usr/src/ice.spec --nobest && \
     dnf clean all && \
     subscription-manager unregister && \
     rm -rf /etc/pki/entitlement /etc/rhsm/ca

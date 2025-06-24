@@ -1,9 +1,48 @@
 #!/bin/bash
 set -euo pipefail
 
-# Ensure GPG_KEY and GPG_KEY_ID are set
+# Default values
+CHANNEL=""
+STAGING=""
+REPODIR=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --channel)
+            CHANNEL="$2"
+            shift 2
+            ;;
+        --staging)
+            STAGING="$2"
+            shift 2
+            ;;
+        --repo)
+            REPODIR="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            exit 1
+            ;;
+    esac
+done
+
+# Validate required inputs
+: "${CHANNEL:?Missing --channel}"
+: "${STAGING:?Missing --staging}"
+: "${REPODIR:?Missing --repo}"
 : "${GPG_KEY:?GPG_KEY environment variable is not set}"
 : "${GPG_KEY_ID:?GPG_KEY_ID environment variable is not set}"
+
+# Validate channel
+case "$CHANNEL" in
+    3.8|nightly) ;;
+    *)
+        echo "Error: CHANNEL must be '3.8' or 'nightly'" >&2
+        exit 1
+        ;;
+esac
 
 # Import the GPG key
 echo "$GPG_KEY" | gpg --batch --import
@@ -23,11 +62,15 @@ cat > ~/.rpmmacros <<EOF
 %__gpg /usr/bin/gpg
 EOF
 
-STAGING="${1:?Usage: $0 <staging-dir> <repo-dir>}"
-REPODIR="${2:?Usage: $0 <staging-dir> <repo-dir>}"
-
 ARCHES=(x86_64 aarch64)
 NOARCH_RPMS=()
+
+if [ "${CHANNEL}" = "nightly" ]; then
+  echo "Pruning RPMs older than 3 days..."
+  for arch in x86_64 aarch64 SRPMS; do
+    find "${REPODIR}/${arch}" -type f -name "*.rpm" -mtime +3 -exec rm -v {} \;
+  done
+fi
 
 echo "Syncing RPMs from '$STAGING' to '$REPODIR'..."
 
