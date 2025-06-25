@@ -97,7 +97,6 @@ EndpointInfoPtr
 IceInternal::TcpEndpointI::getInfo() const noexcept
 {
     return make_shared<TCPEndpointInfo>(
-        _timeout,
         _compress,
         _host,
         _port,

@@ -50,8 +50,6 @@ TestI::getEndpointInfoAsContext(const Current& c)
 
     Context ctx;
     EndpointInfoPtr info = c.con->getEndpoint()->getInfo();
-    os << info->timeout;
-    ctx["timeout"] = os.str();
     ctx["compress"] = info->compress ? "true" : "false";
     ctx["datagram"] = info->datagram() ? "true" : "false";
     ctx["secure"] = info->datagram() ? "true" : "false";

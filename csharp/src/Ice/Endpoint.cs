@@ -27,11 +27,6 @@ public class EndpointInfo
     public readonly EndpointInfo? underlying;
 
     /// <summary>
-    /// Gets the timeout of the endpoint in milliseconds. -1 means no timeout.
-    /// </summary>
-    public readonly int timeout;
-
-    /// <summary>
     /// Gets a value indicating whether or not compression should be used if available when using this endpoint.
     /// </summary>
     public readonly bool compress;
@@ -54,13 +49,11 @@ public class EndpointInfo
     protected EndpointInfo(EndpointInfo underlying)
     {
         this.underlying = underlying;
-        timeout = underlying.timeout;
         compress = underlying.compress;
     }
 
-    protected EndpointInfo(int timeout, bool compress)
+    protected EndpointInfo(bool compress)
     {
-        this.timeout = timeout;
         this.compress = compress;
     }
 }
@@ -85,8 +78,8 @@ public class IPEndpointInfo : EndpointInfo
     /// </summary>
     public readonly string sourceAddress;
 
-    protected IPEndpointInfo(int timeout, bool compress, string host, int port, string sourceAddress)
-        : base(timeout, compress)
+    protected IPEndpointInfo(bool compress, string host, int port, string sourceAddress)
+        : base(compress)
     {
         this.host = host;
         this.port = port;
@@ -104,14 +97,13 @@ public sealed class TCPEndpointInfo : IPEndpointInfo
     public override bool secure() => _secure;
 
     internal TCPEndpointInfo(
-        int timeout,
         bool compress,
         string host,
         int port,
         string sourceAddress,
         short type,
         bool secure)
-        : base(timeout, compress, host, port, sourceAddress)
+        : base(compress, host, port, sourceAddress)
     {
         _type = type;
         _secure = secure;
@@ -138,7 +130,7 @@ public sealed class UDPEndpointInfo : IPEndpointInfo
         string sourceAddress,
         string mcastInterface,
         int mcastTtl)
-        : base(timeout: -1, compress, host, port, sourceAddress)
+        : base(compress, host, port, sourceAddress)
     {
         this.mcastInterface = mcastInterface;
         this.mcastTtl = mcastTtl;
@@ -179,7 +171,7 @@ public sealed class OpaqueEndpointInfo : EndpointInfo
     public override short type() => _type;
 
     internal OpaqueEndpointInfo(short type, EncodingVersion rawEncoding, byte[] rawBytes)
-        : base(compress: false, timeout: -1)
+        : base(compress: false)
     {
         _type = type;
         this.rawEncoding = rawEncoding;

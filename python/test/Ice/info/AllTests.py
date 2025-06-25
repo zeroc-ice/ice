@@ -43,7 +43,6 @@ def allTests(helper, communicator):
     test(tcpEndpoint.host == "tcphost")
     test(tcpEndpoint.port == 10000)
     test(tcpEndpoint.sourceAddress == "10.10.10.10")
-    test(tcpEndpoint.timeout == 1200)
     test(tcpEndpoint.compress)
     test(not tcpEndpoint.datagram())
     test(
@@ -78,7 +77,6 @@ def allTests(helper, communicator):
     test(udpEndpoint.sourceAddress == "10.10.10.10")
     test(udpEndpoint.mcastInterface == "eth0")
     test(udpEndpoint.mcastTtl == 5)
-    test(udpEndpoint.timeout == -1)
     test(not udpEndpoint.compress)
     test(not udpEndpoint.secure())
     test(udpEndpoint.datagram())
@@ -116,7 +114,6 @@ def allTests(helper, communicator):
     )
     test(tcpEndpoint.host == host)
     test(tcpEndpoint.port > 0)
-    test(tcpEndpoint.timeout == 15000)
 
     udpEndpoint = endpoints[1].getInfo()
     test(udpEndpoint.host == host)

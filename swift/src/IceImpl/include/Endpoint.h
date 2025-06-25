@@ -12,8 +12,7 @@ ICEIMPL_API @interface ICEEndpoint : ICELocalObject
 // TODO: revise function signatures to be proper ObjC.
 
 ICEIMPL_API @protocol ICEEndpointInfoFactory
-+ (id)createTCPEndpointInfo:(int32_t)timeout
-                   compress:(BOOL)compress
++ (id)createTCPEndpointInfo:(BOOL)compress
                        host:(NSString*)host
                        port:(int32_t)port
               sourceAddress:(NSString*)sourceAddress
@@ -31,8 +30,7 @@ ICEIMPL_API @protocol ICEEndpointInfoFactory
 
 + (id)createSSLEndpointInfo:(id)underlying;
 
-+ (id)createIAPEndpointInfo:(int32_t)timeout
-                   compress:(BOOL)compress
++ (id)createIAPEndpointInfo:(BOOL)compress
                manufacturer:(NSString*)manufacturer
                 modelNumber:(NSString*)modelNumber
                        name:(NSString*)name

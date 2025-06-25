@@ -15,7 +15,6 @@ namespace
         InfoType,
         Secure,
         Underlying,
-        Timeout,
         Compress,
         Host,
         Port,
@@ -33,7 +32,6 @@ namespace
         "infoType",
         "secure",
         "underlying",
-        "timeout",
         "compress",
         "host",
         "port",
@@ -53,7 +51,6 @@ namespace
         auto r = mxCreateStructArray(2, dims, Field::NumFields, infoFields);
         mxSetFieldByNumber(r, 0, Field::Type, createInt(info->type()));
         mxSetFieldByNumber(r, 0, Field::Secure, createBool(info->secure()));
-        mxSetFieldByNumber(r, 0, Field::Timeout, createInt(info->timeout));
         mxSetFieldByNumber(r, 0, Field::Compress, createBool(info->compress));
 
         // Don't use info->type() to determine the type of the EndpointInfo object. When an endpoint is the

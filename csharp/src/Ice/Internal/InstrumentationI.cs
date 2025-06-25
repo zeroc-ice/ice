@@ -98,7 +98,6 @@ internal static class AttrsUtil
         r.add("endpointType", cl.GetMethod("getEndpointInfo"), cli.GetMethod("type"));
         r.add("endpointIsDatagram", cl.GetMethod("getEndpointInfo"), cli.GetMethod("datagram"));
         r.add("endpointIsSecure", cl.GetMethod("getEndpointInfo"), cli.GetMethod("secure"));
-        r.add("endpointTimeout", cl.GetMethod("getEndpointInfo"), cli.GetField("timeout"));
         r.add("endpointCompress", cl.GetMethod("getEndpointInfo"), cli.GetField("compress"));
 
         cli = typeof(Ice.IPEndpointInfo);
