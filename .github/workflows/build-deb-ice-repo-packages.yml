@@ -46,8 +46,8 @@ jobs:
             -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
             ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }} \
             /workspace/ice/packaging/deb/build-repo-package.sh \
-            --distribution="${{ matrix.distribution }}" \
-            --channel="${{ matrix.channel }}"
+            --distribution "${{ matrix.distribution }}" \
+            --channel "${{ matrix.channel }}"
 
       - name: Sync DEB packages to S3
         run: |
