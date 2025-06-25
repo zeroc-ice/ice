@@ -48,10 +48,10 @@ jobs:
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
-            -e PLATFORM="${{ matrix.distribution }}" \
-            -e CHANNEL="${{ matrix.channel }}" \
             ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }} \
-            /workspace/ice/packaging/rpm/build-repo-package.sh
+            /workspace/ice/packaging/rpm/build-repo-package.sh \
+            --distribution "${{ matrix.distribution }}" \
+            --channel "${{ matrix.channel }}" \
 
       - name: Sign RPM packages and create repository
         run: |

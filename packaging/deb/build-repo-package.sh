@@ -61,7 +61,7 @@ fi
 
 # Configuration
 REPO_BASE_URL="https://download.zeroc.com/ice/${CHANNEL}"
-OUT_DIR="build"
+OUT_DIR="/workspace/build"
 VERSION="1.0"
 KEYRING_NAME="zeroc-archive-keyring.gpg"
 PACKAGE_NAME="ice-repo-${CHANNEL}"

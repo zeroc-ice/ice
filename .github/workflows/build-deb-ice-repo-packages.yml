@@ -42,12 +42,12 @@ jobs:
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
-            -e PLATFORM="${{ matrix.distribution }}" \
-            -e CHANNEL="${{ matrix.channel }}" \
-            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}"
-            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}"
+            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}" \
+            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
             ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }} \
-            /workspace/ice/packaging/deb/build-repo-package.sh
+            /workspace/ice/packaging/deb/build-repo-package.sh \
+            --distribution="${{ matrix.distribution }}" \
+            --channel="${{ matrix.channel }}"
 
       - name: Sync DEB packages to S3
         run: |
