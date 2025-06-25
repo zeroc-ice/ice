@@ -22,7 +22,8 @@ public final class SliceInfo {
     /** Whether or not this is the last slice. */
     public final boolean isLastSlice;
 
-    /** The SliceInfo constructor.
+    /**
+     * The SliceInfo constructor.
      *
      *  @param typeId the Slice type ID
      *  @param compactId the Slice compact type ID
