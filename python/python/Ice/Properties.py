@@ -46,6 +46,11 @@ class Properties:
         -------
         str
             The property value, or the default value if the property is not set.
+
+        Raises
+        ------
+        PropertyException
+            When the property is not a known Ice property.
         """
         return self._impl.getIceProperty(key)
 
@@ -84,6 +89,11 @@ class Properties:
         -------
         int
             The property value interpreted as an integer, or 0 if the property is not set.
+
+        Raises
+        ------
+        PropertyException
+            When the property value is not a valid integer.
         """
         return self._impl.getPropertyAsInt(key)
 
@@ -102,6 +112,11 @@ class Properties:
         -------
         int
             The property value interpreted as an integer, or the default value if the property is not set.
+
+        Raises
+        ------
+        PropertyException
+            When the property is not a known Ice property or the property value is not a valid integer.
         """
         return self._impl.getIcePropertyAsInt(key)
 
@@ -122,6 +137,11 @@ class Properties:
         -------
         int
             The property value interpreted as an integer, or the default value if the property does not exist.
+
+        Raises
+        ------
+        PropertyException
+            When the property value is not a valid integer.
         """
         return self._impl.getPropertyAsIntWithDefault(key, value)
 
@@ -164,6 +184,11 @@ class Properties:
         -------
         list of str
             The property value interpreted as a list of strings, or the default value if the property is not set.
+
+        Raises
+        ------
+        PropertyException
+            When the property is not a known Ice property.
         """
         return self._impl.getIcePropertyAsList(key)
 
