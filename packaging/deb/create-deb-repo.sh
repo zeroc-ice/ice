@@ -109,27 +109,39 @@ echo "✓ Repository config created at $CONF_DIR"
 if [[ "$CHANNEL" == "nightly" ]]; then
     DAYS_TO_KEEP=3
     today_sec=$(date +%s)
+    declare -A seen_versions=()
 
-    reprepro -b "$DIST_DIR" list "$CODENAME" | while read -r line; do
-        arch=$(echo $line | awk -F'[|: ]+' '{print $3}')
-        pkg=$(echo $line | awk -F'[|: ]+' '{print $4}')
-        version=$(echo $line | awk -F'[|: ]+' '{print $5}')
+    echo "🔍 Scanning for nightly versions older than $DAYS_TO_KEEP days..."
+
+    while read -r line; do
+        version=$(echo "$line" | awk -F'[|: ]+' '{print $5}')
         if [[ "$version" =~ nightly([0-9]{8}) ]]; then
             date_part="${BASH_REMATCH[1]}"
-            pkg_date_sec=$(date -d "$date_part" +%s || true)
+            pkg_date_sec=$(date -d "$date_part" +%s 2>/dev/null || echo 0)
 
-            if [[ -z "$pkg_date_sec" || -z "$today_sec" ]]; then
-                echo "⚠️ Skipping $pkg (invalid date format: $date_part)"
+            if (( pkg_date_sec <= 0 )); then
+                echo "⚠️ Skipping version $version (invalid date: $date_part)"
                 continue
             fi
 
             age_days=$(( (today_sec - pkg_date_sec) / 86400 ))
             if (( age_days > DAYS_TO_KEEP )); then
-                echo "🗑️ Removing $pkg version $version (arch: $arch, age: ${age_days} days)"
-                reprepro -b "$DIST_DIR" remove "$CODENAME" "$pkg"
+                if [[ -z "${seen_versions[$version]+_}" ]]; then
+                    seen_versions["$version"]=1
+                fi
             fi
         fi
-    done
+    done < <(reprepro -b "$DIST_DIR" list "$CODENAME")
+
+    if (( ${#seen_versions[@]} > 0 )); then
+        echo "🧹 Removing ${#seen_versions[@]} outdated nightly version(s):"
+        for version in "${!seen_versions[@]}"; do
+            echo "   - $version"
+            reprepro -b "$DIST_DIR" removefilter "$CODENAME" "Version (== $version)"
+        done
+    else
+        echo "✅ No old nightly versions to prune."
+    fi
 fi
 
 # Collect binary packages

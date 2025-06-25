@@ -58,8 +58,8 @@ jobs:
             # e.g. 3.8.0-nightly.20250625.1
             echo "semver_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
 
-            # e.g. 3.8.0~0.nightly20250625.1
-            echo "deb_version=${VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+            # e.g. 3.8.0~0.nightly20250625.1-1
+            echo "deb_version=${VERSION}~0.nightly${DATE}.${BUILD}-1" >> $GITHUB_OUTPUT
 
             # e.g. 3.8.0.pre.20250625.1
             echo "gem_version=${VERSION}.pre.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
