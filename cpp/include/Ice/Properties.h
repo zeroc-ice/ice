@@ -54,7 +54,7 @@ namespace Ice
         /// Gets an Ice property by key.
         /// @param key The property key.
         /// @return The property value, or the default value for this property if the property is not set.
-        /// @throws std::invalid_argument Thrown when the property is not a known Ice property.
+        /// @throws PropertyException Thrown when the property is not a known Ice property.
         /// @see #setProperty
         std::string getIceProperty(std::string_view key);
 

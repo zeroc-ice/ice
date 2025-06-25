@@ -140,6 +140,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value or the default value.</returns>
+    /// <exception name="PropertyException">Thrown if the property is not a known Ice property.</exception>
     public string getIceProperty(string key) => getPropertyWithDefault(key, getDefaultProperty(key));
 
     /// <summary>
@@ -242,6 +243,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as list of strings, or the default value.</returns>
+    /// <exception cref="PropertyException">Thrown if the property is not a known Ice property.</exception>
     public string[] getIcePropertyAsList(string key)
     {
         string[] defaultList = UtilInternal.StringUtil.splitString(getDefaultProperty(key), ", \t\r\n");
@@ -638,8 +640,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The Ice property key.</param>
     /// <returns>The default property value, or an empty string the default is unspecified.</returns>
-    /// <exception cref="ArgumentException">Thrown if the given key doesn't represent the name of an Ice property.
-    /// </exception>
+    /// <exception cref="PropertyException">Thrown if the property is not a known Ice property.</exception>
     private static string getDefaultProperty(string key)
     {
         // Find the property, don't log any warnings.

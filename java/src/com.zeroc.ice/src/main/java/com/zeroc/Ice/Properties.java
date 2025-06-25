@@ -177,6 +177,7 @@ public final class Properties {
      *
      * @param key The property key.
      * @return The property value or the default value.
+     * @throws PropertyException If the property is not a known Ice property.
      * @see #setProperty
      */
     public synchronized String getIceProperty(String key) {
@@ -212,7 +213,7 @@ public final class Properties {
      *
      * @param key The property key.
      * @return The property value interpreted as an integer.
-     * @throws PropertyException Raised if the property value is not a valid integer.
+     * @throws PropertyException If the property value is not a valid integer.
      * @see #setProperty
      */
     public int getPropertyAsInt(String key) {
@@ -224,7 +225,7 @@ public final class Properties {
      *
      * @param key The property key.
      * @return The property value interpreted as an integer, or the default value.
-     * @throws PropertyException Raised if the property is not a known Ice property or the value is
+     * @throws PropertyException If the property is not a known Ice property or the value is
      *     not a valid integer.
      * @see #setProperty
      */
@@ -232,6 +233,7 @@ public final class Properties {
         String defaultValueString = getDefaultProperty(key);
         int defaultValue = 0;
         if (defaultValueString != "") {
+            // These defaults are assigned by us and are guaranteed to be integers.
             defaultValue = Integer.parseInt(defaultValueString);
         }
 
@@ -245,7 +247,7 @@ public final class Properties {
      * @param key The property key.
      * @param value The default value to use if the property does not exist.
      * @return The property value interpreted as an integer, or the default value.
-     * @throws PropertyException Raised if the property value is not a valid integer.
+     * @throws PropertyException If the property value is not a valid integer.
      * @see #setProperty
      */
     public synchronized int getPropertyAsIntWithDefault(String key, int value) {
@@ -290,6 +292,7 @@ public final class Properties {
      *
      * @param key The property key.
      * @return The property value interpreted as list of strings, or the default value.
+     * @throws PropertyException If the property is not a known Ice property.
      * @see #setProperty
      */
     public synchronized String[] getIcePropertyAsList(String key) {
@@ -813,8 +816,9 @@ public final class Properties {
         }
     }
 
-    /*
+    /**
      * Find a property by key in a property array.
+     *
      * @param key The property key.
      * @param propertyArray The property array to search.
      * @return The property if found, null otherwise.
@@ -857,8 +861,9 @@ public final class Properties {
         return null;
     }
 
-    /*
+    /**
      * Validate properties with a given prefix.
+     *
      * @param prefix The property prefix.
      * @param properties The properties to validate.
      * @param propertyArray The property array to validate against.
@@ -894,8 +899,9 @@ public final class Properties {
         }
     }
 
-    /*
+    /**
      * Find an Ice property array by key.
+     *
      * @param key The property key.
      * @return The property array if found, null otherwise.
      */
@@ -915,8 +921,9 @@ public final class Properties {
             .orElse(null);
     }
 
-    /*
+    /**
      * Gets the default value for a given Ice property.
+     *
      * @param key The property key.
      * @return The default value.
      * @throws PropertyException if the property is unknown.
