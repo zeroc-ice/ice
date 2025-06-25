@@ -46,10 +46,6 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             cl.getDeclaredMethod("getEndpointInfo"),
             cli.getDeclaredMethod("secure"));
         r.add(
-            "endpointTimeout",
-            cl.getDeclaredMethod("getEndpointInfo"),
-            cli.getDeclaredField("timeout"));
-        r.add(
             "endpointCompress",
             cl.getDeclaredMethod("getEndpointInfo"),
             cli.getDeclaredField("compress"));

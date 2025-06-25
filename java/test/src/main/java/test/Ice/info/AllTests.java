@@ -73,7 +73,6 @@ public class AllTests {
             TCPEndpointInfo tcpEndpoint = (TCPEndpointInfo) getTCPEndpointInfo(info);
             test("tcphost".equals(tcpEndpoint.host));
             test(tcpEndpoint.port == 10000);
-            test(tcpEndpoint.timeout == 1200);
             test("10.10.10.10".equals(tcpEndpoint.sourceAddress));
             test(tcpEndpoint.compress);
             test(!tcpEndpoint.datagram());
@@ -98,7 +97,6 @@ public class AllTests {
             test("eth0".equals(udpEndpoint.mcastInterface));
             test(udpEndpoint.mcastTtl == 5);
             test("10.10.10.10".equals(udpEndpoint.sourceAddress));
-            test(udpEndpoint.timeout == -1);
             test(!udpEndpoint.compress);
             test(!udpEndpoint.secure());
             test(udpEndpoint.datagram());
@@ -138,7 +136,6 @@ public class AllTests {
                     || tcpEndpoint.type() == WSSEndpointType.value);
             test(tcpEndpoint.host.equals(host));
             test(tcpEndpoint.port > 0);
-            test(tcpEndpoint.timeout == 15000);
 
             UDPEndpointInfo udpEndpoint = (UDPEndpointInfo) endpoints[1].getInfo();
             test(udpEndpoint.host.equals(host));

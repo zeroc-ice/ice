@@ -270,7 +270,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
 
     @Override
     public com.zeroc.Ice.EndpointInfo getInfo() {
-        return new EndpointInfo(_timeout, _compress, _addr, _uuid, type(), secure());
+        return new EndpointInfo(_compress, _addr, _uuid, type(), secure());
     }
 
     @Override

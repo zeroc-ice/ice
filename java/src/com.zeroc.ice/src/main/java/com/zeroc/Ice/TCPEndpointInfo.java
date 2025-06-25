@@ -23,14 +23,13 @@ public final class TCPEndpointInfo extends IPEndpointInfo {
 
     // internal constructor
     TCPEndpointInfo(
-            int timeout,
             boolean compress,
             String host,
             int port,
             String sourceAddress,
             short type,
             boolean secure) {
-        super(timeout, compress, host, port, sourceAddress);
+        super(compress, host, port, sourceAddress);
         this._type = type;
         this._secure = secure;
     }

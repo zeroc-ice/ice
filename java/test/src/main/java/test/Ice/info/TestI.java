@@ -46,7 +46,6 @@ public class TestI implements TestIntf {
     public Map<String, String> getEndpointInfoAsContext(Current c) {
         Map<String, String> ctx = new HashMap<>();
         EndpointInfo info = c.con.getEndpoint().getInfo();
-        ctx.put("timeout", Integer.toString(info.timeout));
         ctx.put("compress", info.compress ? "true" : "false");
         ctx.put("datagram", info.datagram() ? "true" : "false");
         ctx.put("secure", info.datagram() ? "true" : "false");
