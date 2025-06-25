@@ -50,6 +50,13 @@ case "$CHANNEL" in
         ;;
 esac
 
+declare -A CODENAMES=(
+    ["debian12"]="bookworm"
+    ["ubuntu24.04"]="noble"
+)
+
+CODENAME="${CODENAMES[$DISTRIBUTION]}"
+
 # Import the GPG key
 echo "$GPG_KEY" | gpg --batch --import
 
@@ -94,7 +101,7 @@ EOF
 
 # Create sources.list.d entry
 cat > "${PKG_DIR}/${SOURCE_LIST_PATH}" <<EOF
-deb [signed-by=/${KEYRING_PATH}] ${REPO_BASE_URL}/${DISTRIBUTION} ${CHANNEL} main
+deb [signed-by=/${KEYRING_PATH}] ${REPO_BASE_URL}/${DISTRIBUTION} ${CODENAME} main
 EOF
 
 # Copy keyring
