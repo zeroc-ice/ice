@@ -20,7 +20,7 @@ on:
         type: string
 
 jobs:
-  build-msi-packages:
+  publish-msi-packages:
     name: "Publish MSI Packages"
     runs-on: "ubuntu-24.04"
     steps:
@@ -43,7 +43,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           CHANNEL: ${{ inputs.channel }}
 
-  build-matlab-packages:
+  publish-matlab-packages:
     runs-on: "ubuntu-24.04"
     steps:
       - name: Download MATLAB artifacts
@@ -67,7 +67,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           CHANNEL: ${{ inputs.channel }}
 
-  build-xcframework-packages:
+  publish-xcframework-packages:
     name: "Publish XCFramework Packages"
     runs-on: "ubuntu-24.04"
     steps:
@@ -114,6 +114,7 @@ jobs:
         working-directory: packaging/swift
         env:
           ICE_NIGHTLY_PUBLISH_TOKEN: ${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}
+          STAGING_DIR: ${{ github.workspace }}/staging/xcframework-packages
         if: ${{ inputs.channel == 'nightly' }}
 
   publish-brew-packages:

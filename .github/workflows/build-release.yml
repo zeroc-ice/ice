@@ -161,6 +161,6 @@ jobs:
       - build-xcframework-packages
     uses: ./.github/workflows/publish-release.yml
     with:
-      channel: ${ inputs.channel }
+      channel: ${{ inputs.channel }}
       run_id: ${{ github.run_id }}
     secrets: inherit

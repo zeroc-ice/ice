@@ -72,6 +72,7 @@ if [ "$CHANNEL" = "nightly" ]; then
   mkdir -p tools/slice-tools/build/libs/
   cp -pf "${STAGING_DIR}"/java-packages/tools/slice-tools/build/libs/*.jar tools/slice-tools/build/libs/
   cp -pf "${STAGING_DIR}"/java-packages/tools/slice-tools/build/libs/*.asc tools/slice-tools/build/libs/
+  cp -pf "${STAGING_DIR}"/java-packages/tools/slice-tools/build/libs/*.pom tools/slice-tools/build/libs/
 
   base_name="slice-tools-${ice_version}"
   artifact_dir="tools/slice-tools/build/libs"
