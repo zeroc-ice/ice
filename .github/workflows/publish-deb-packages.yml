@@ -68,7 +68,7 @@ jobs:
             --channel "${CHANNEL}"
 
           echo "Uploading updated repository to S3..."
-          aws s3 sync "${CHANNEL}" "s3://zeroc-downloads/ice/${CHANNEL}/${DISTRIBUTION}" --delete
+          aws s3 sync "${CHANNEL}/${DISTRIBUTION}" "s3://zeroc-downloads/ice/${CHANNEL}/${DISTRIBUTION}" --delete
         env:
           CHANNEL: ${{ inputs.channel }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
