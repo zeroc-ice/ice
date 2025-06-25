@@ -912,7 +912,8 @@ SwiftGenerator::writeMembers(IceInternal::Output& out, const DataMemberList& mem
 
         // If the member type is equal to the member name, create a local type alias to avoid ambiguity.
         string alias;
-        if (memberName == memberType && (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type)))
+        if (memberName == memberType && (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
+                                         dynamic_pointer_cast<Dictionary>(type)))
         {
             ModulePtr topLevelModule = (dynamic_pointer_cast<Contained>(type))->getTopLevelModule();
             alias = removeEscaping(topLevelModule->mappedName()) + "_" + removeEscaping(memberType);
