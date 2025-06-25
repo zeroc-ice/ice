@@ -32,9 +32,10 @@ cp -v ../../../Package.swift .
 # Update the Packages.swift file with the URL and Checksum for the xcframeworks
 for zip_file in "${STAGING_DIR}"/*.zip; do
     echo "Processing zip file: ${zip_file}"
-    zip_name=$(basename "${zip_file}")
+    zip_name=$(basename -s ".xcframework.zip" "${zip_file}")
     name="${zip_name%%-*}"
-    zip_url="https://download.zeroc.com/ice/nightly/${zip_name}"
+    version="${zip_name#*-}"
+    zip_url="https://download.zeroc.com/ice/nightly/${zip_name}.xcframework.zip"
 
     checksum=$(shasum -a 256 "${zip_file}" | cut -d ' ' -f 1)
     indent=$(printf "%12s" "") # indentation for the checksum line
@@ -46,6 +47,6 @@ done
 git add Package.swift cpp swift README.md
 git config user.name "ZeroC"
 git config user.email "git@zeroc.com"
-git commit -m "ice: $ice_version Nightly build"
-git tag -a "$ice_version" -m "ice: $ice_version"
+git commit -m "ice: $version Nightly build"
+git tag -a "$version" -m "ice: $version"
 git push origin main --tags

@@ -56,25 +56,6 @@ jobs:
           # - RPM: 3.8.0~0.nightly<YYYYMMDD>.<BUILD>
           echo "rpm_version=${VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
 
-  build-brew-packages:
-    name: Build Brew Packages
-    uses: ./.github/workflows/build-brew-packages.yml
-    needs: set-version
-    with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
-      channel: ${{ inputs.channel }}
-    # Stable brew release must be built manually.
-    if: ${{ inputs.channel == 'nightly' }}
-    secrets: inherit
-
-  build-cpp-windows-packages:
-    name: Build C++ NuGet Package
-    uses: ./.github/workflows/build-cpp-windows-packages.yml
-    needs: set-version
-    with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
-    secrets: inherit
-
   build-deb-packages:
     name: Build DEB Packages
     uses: ./.github/workflows/build-deb-packages.yml
@@ -97,6 +78,15 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.gem_version }}
+
+  build-macos-packages:
+    name: Build macOS Packages
+    uses: ./.github/workflows/build-macos-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      channel: ${{ inputs.channel }}
+    secrets: inherit
 
   build-matlab-packages:
     name: Build MATLAB Packages
@@ -138,9 +128,9 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.rpm_version }}
     secrets: inherit
 
-  build-xcframework-packages:
-    name: Build XCFramework Packages
-    uses: ./.github/workflows/build-xcframework-packages.yml
+  build-windows-packages:
+    name: Build C++ NuGet Package
+    uses: ./.github/workflows/build-windows-packages.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
@@ -148,17 +138,16 @@ jobs:
 
   publish-release:
     needs:
-      - build-brew-packages
-      - build-cpp-windows-packages
       - build-deb-packages
       - build-dotnet-packages
       - build-gem-packages
+      - build-macos-packages
       - build-matlab-packages
       - build-maven-packages
       - build-npm-packages
       - build-pip-packages
       - build-rpm-packages
-      - build-xcframework-packages
+      - build-windows-packages
     uses: ./.github/workflows/publish-release.yml
     with:
       channel: ${{ inputs.channel }}

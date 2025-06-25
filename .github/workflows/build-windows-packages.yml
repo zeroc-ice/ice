@@ -1,4 +1,4 @@
-name: "Build C++ Windows Packages"
+name: "Build Windows Packages"
 
 on:
   workflow_call:
