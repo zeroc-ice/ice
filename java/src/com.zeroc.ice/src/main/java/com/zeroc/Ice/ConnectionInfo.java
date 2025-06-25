@@ -32,7 +32,7 @@ public class ConnectionInfo {
     /**
      * Constructs a ConnectionInfo with the specified connection parameters.
      *
-     * @param incoming   whether this connection is incoming
+     * @param incoming whether this connection is incoming
      * @param adapterName the name of the adapter associated with this connection
      * @param connectionId the ID of this connection
      */
