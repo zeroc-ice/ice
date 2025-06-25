@@ -99,7 +99,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    /// Checks whether or not <see cref="shutdown" /> has been called on this communicator.
+    /// Checks whether or not <see cref="shutdown" /> was called on this communicator.
     /// </summary>
     /// <returns>True if shutdown was called on this communicator; false otherwise.</returns>
     public bool isShutdown()
