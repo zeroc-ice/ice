@@ -8,14 +8,14 @@ package com.zeroc.Ice;
  */
 public final class FacetNotExistException extends RequestFailedException {
     /**
-     * Constructs a {@code FacetNotExistException}.
+     * Constructs a FacetNotExistException.
      */
     public FacetNotExistException() {
         super(ReplyStatus.FacetNotExist);
     }
 
     /**
-     * Constructs a {@code FacetNotExistException} with the specified identity, facet, and operation.
+     * Constructs a FacetNotExistException with the specified identity, facet, and operation.
      *
      * @param id        the identity of the Ice Object to which the request was sent
      * @param facet     the facet to which the request was sent

@@ -28,15 +28,24 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
 
     /**
      * If not completed, cancels the request. This is a local operation, it won't cancel the request
-     * on the server side. Calling <code>cancel</code> prevents a queued request from being sent or
+     * on the server side. Calling cancel prevents a queued request from being sent or
      * ignores a reply if the request has already been sent.
      *
-     * @return True if this task is now cancelled.
+     * @return true if this task is now cancelled
      */
     public boolean cancel() {
         return cancel(false);
     }
 
+    /**
+     * If not completed, cancels the request. This is a local operation, it won't cancel the request
+     * on the server side. Calling cancel prevents a queued request from being sent or
+     * ignores a reply if the request has already been sent.
+     *
+     * @param mayInterruptIfRunning true if the thread executing this task should be interrupted;
+     *                             otherwise, in-progress tasks are allowed to complete
+     * @return true if this task is now cancelled
+     */
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
         //
@@ -52,28 +61,27 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
     /**
      * Returns the communicator that sent the invocation.
      *
-     * @return The communicator.
+     * @return the communicator
      */
     public Communicator getCommunicator() {
         return _communicator;
     }
 
     /**
-     * Returns the connection that was used to start the invocation, or nil if this future was not
-     * obtained via an asynchronous connection invocation (such as <code>flushBatchRequestsAsync
-     * </code>).
+     * Returns the connection that was used to start the invocation, or null if this future was not
+     * obtained via an asynchronous connection invocation (such as flushBatchRequestsAsync).
      *
-     * @return The connection.
+     * @return the connection
      */
     public Connection getConnection() {
         return null;
     }
 
     /**
-     * Returns the proxy that was used to start the asynchronous invocation, or nil if this object
+     * Returns the proxy that was used to start the asynchronous invocation, or null if this object
      * was not obtained via an asynchronous proxy invocation.
      *
-     * @return The proxy.
+     * @return the proxy
      */
     public ObjectPrx getProxy() {
         return null;
@@ -82,13 +90,15 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
     /**
      * Returns the name of the operation.
      *
-     * @return The operation name.
+     * @return the operation name
      */
     public final String getOperation() {
         return _operation;
     }
 
-    /** Blocks the caller until the result of the invocation is available. */
+    /**
+     * Blocks the caller until the result of the invocation is available.
+     */
     public final void waitForCompleted() {
         try {
             join();
@@ -108,7 +118,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
      * was initially queued or not). Otherwise, if the request is still queued, this method returns
      * false.
      *
-     * @return True if the request has been sent, or false if the request is queued.
+     * @return true if the request has been sent, or false if the request is queued
      */
     public final boolean isSent() {
         synchronized (this) {
@@ -116,7 +126,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         }
     }
 
-    /** Blocks the caller until the request has been written to the client-side transport. */
+    /**
+     * Blocks the caller until the request has been written to the client-side transport.
+     */
     public final synchronized void waitForSent() {
         while ((_state & StateSent) == 0 && _exception == null) {
             try {
@@ -133,7 +145,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
      * whether the request is still in the queue or has since been written to the client-side
      * transport).
      *
-     * @return True if the request was sent without being queued, or false otherwise.
+     * @return true if the request was sent without being queued, or false otherwise
      */
     public final boolean sentSynchronously() {
         return _sentSynchronously; // No lock needed, immutable
@@ -144,8 +156,8 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
      * transport and executes the given action. The boolean value indicates whether the message was
      * sent synchronously.
      *
-     * @param action Executed when the future is completed successfully or exceptionally.
-     * @return A future that completes when the message has been handed off to the transport.
+     * @param action executed when the future is completed successfully or exceptionally
+     * @return a future that completes when the message has been handed off to the transport
      */
     public final synchronized CompletableFuture<Boolean> whenSent(
             BiConsumer<Boolean, ? super Throwable> action) {
@@ -173,8 +185,8 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
      * transport and executes the given action using the default executor. The boolean value
      * indicates whether the message was sent synchronously.
      *
-     * @param action Executed when the future is completed successfully or exceptionally.
-     * @return A future that completes when the message has been handed off to the transport.
+     * @param action executed when the future is completed successfully or exceptionally
+     * @return a future that completes when the message has been handed off to the transport
      */
     public final synchronized CompletableFuture<Boolean> whenSentAsync(
             BiConsumer<Boolean, ? super Throwable> action) {
@@ -186,9 +198,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
      * transport and executes the given action using the executor. The boolean value indicates
      * whether the message was sent synchronously.
      *
-     * @param action Executed when the future is completed successfully or exceptionally.
-     * @param executor The executor to use for asynchronous execution.
-     * @return A future that completes when the message has been handed off to the transport.
+     * @param action executed when the future is completed successfully or exceptionally
+     * @param executor the executor to use for asynchronous execution
+     * @return a future that completes when the message has been handed off to the transport
      */
     public final synchronized CompletableFuture<Boolean> whenSentAsync(
             BiConsumer<Boolean, ? super Throwable> action, Executor executor) {
@@ -216,6 +228,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         return r;
     }
 
+    /**
+     * Invokes the sent callback to notify that the request has been sent.
+     */
     public final void invokeSent() {
         try {
             synchronized (this) {
@@ -245,8 +260,15 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         }
     }
 
+    /**
+     * Marks the invocation as completed. This is an abstract method that must be
+     * implemented by subclasses.
+     */
     abstract void markCompleted();
 
+    /**
+     * Invokes the completion callback to notify that the invocation has completed.
+     */
     public final void invokeCompleted() {
         try {
             if (_exception != null) {
@@ -273,6 +295,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         }
     }
 
+    /**
+     * Invokes the completion callback asynchronously.
+     */
     public final void invokeCompletedAsync() {
         //
         // CommunicatorDestroyedException is the only exception that can propagate directly from
@@ -289,6 +314,11 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
                 });
     }
 
+    /**
+     * Sets a cancellation handler for this invocation.
+     *
+     * @param handler the cancellation handler
+     */
     public synchronized void cancelable(final CancellationHandler handler) {
         if (_cancellationException != null) {
             try {
@@ -300,6 +330,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         _cancellationHandler = handler;
     }
 
+    /**
+     * Caches message buffers for reuse. This method can be overridden by subclasses.
+     */
     void cacheMessageBuffers() {}
 
     boolean sent(boolean done) {
@@ -395,6 +428,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
         }
     }
 
+    /**
+     * Invokes the sent callback asynchronously.
+     */
     public final void invokeSentAsync() {
         //
         // This is called when it's not safe to call the sent callback synchronously from this

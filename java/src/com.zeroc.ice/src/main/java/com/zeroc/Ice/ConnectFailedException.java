@@ -5,16 +5,16 @@ package com.zeroc.Ice;
 /** This exception indicates connection failures. */
 public class ConnectFailedException extends SocketException {
     /**
-     * Constructs a {@code ConnectFailedException}.
+     * Constructs a ConnectFailedException.
      */
     public ConnectFailedException() {
         super();
     }
 
     /**
-     * Constructs a {@code ConnectFailedException} with a cause.
+     * Constructs a ConnectFailedException with a cause.
      *
-     * @param cause the cause of the exception
+     * @param cause the cause
      */
     public ConnectFailedException(Throwable cause) {
         super(cause);

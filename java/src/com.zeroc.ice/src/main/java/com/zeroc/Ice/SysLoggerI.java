@@ -7,7 +7,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-public final class SysLoggerI implements Logger {
+final class SysLoggerI implements Logger {
     public SysLoggerI(String prefix, String facilityString, String host, int port) {
         this(prefix, parseFacility(facilityString), parseHost(host), port);
     }

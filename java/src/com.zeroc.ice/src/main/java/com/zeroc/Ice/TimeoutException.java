@@ -4,14 +4,23 @@ package com.zeroc.Ice;
 
 /** This exception indicates a timeout condition. */
 public class TimeoutException extends LocalException {
+    /**
+     * Constructs a TimeoutException.
+     */
     public TimeoutException() {
         super("Operation timed out.");
     }
 
+    /**
+     * Constructs a TimeoutException with a message.
+     *
+     * @param message the detail message
+     */
     public TimeoutException(String message) {
         super(message);
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::TimeoutException";
     }

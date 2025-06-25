@@ -10,11 +10,31 @@ import java.util.concurrent.ExecutionException;
  * @hidden Public because it's used by the generated code.
  */
 public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
+    /**
+     * Functional interface for unmarshaling response data from an input stream.
+     *
+     * @param <V> the type of the value to unmarshal
+     */
     @FunctionalInterface
     public static interface Unmarshaler<V> {
+        /**
+         * Unmarshals a value from the input stream.
+         *
+         * @param istr the input stream to read from
+         * @return the unmarshaled value
+         */
         V unmarshal(InputStream istr);
     }
 
+    /**
+     * Constructs an OutgoingAsync for the specified proxy and operation.
+     *
+     * @param prx the proxy to invoke the operation on
+     * @param operation the name of the operation to invoke
+     * @param mode the operation mode
+     * @param synchronous whether the operation is synchronous
+     * @param userExceptions the valid user exceptions for this operation
+     */
     public OutgoingAsync(
             ObjectPrx prx,
             String operation,
@@ -43,6 +63,15 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
         }
     }
 
+    /**
+     * Invokes the operation.
+     *
+     * @param twowayOnly if true, the operation can only be invoked on a twoway proxy
+     * @param ctx the operation context
+     * @param format the format type for marshaling parameters
+     * @param marshal the marshaler for writing parameters, or null if no parameters
+     * @param unmarshal the unmarshaler for reading the response, or null if no response expected
+     */
     public void invoke(
             boolean twowayOnly,
             Map<String, String> ctx,
@@ -94,6 +123,13 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
         }
     }
 
+    /**
+     * Waits for the response and returns the result, allowing user exceptions to be thrown.
+     *
+     * @return the result of the operation
+     * @throws UserException if the operation failed with a user exception
+     * @throws LocalException if the operation failed with a local exception
+     */
     public T waitForResponseOrUserEx() throws UserException {
         try {
             return get();

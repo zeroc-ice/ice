@@ -87,12 +87,13 @@ task alljavadoc(type: Javadoc) {
     options.addBooleanOption('html5', true)
     options.header = 'Ice for Java'
     options.docTitle = "Ice ${iceVersion} API Reference"
+    failOnError = true
 
     exclude(
         '**/android/bluetooth/*.java',
         '**/com/zeroc/Ice/CommunicatorObserverI.java',
         '**/com/zeroc/Ice/InvocationObserverI.java',
-        '**/com/zeroc/Ice/ConnectionI.java',
+        '**/com/zeroc/Ice/ConnectionI.java'
     )
 }
 alljavadoc.dependsOn = exportedProjects.collect { project(it).assemble.dependsOn }

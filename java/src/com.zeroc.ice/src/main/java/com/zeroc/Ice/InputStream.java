@@ -1247,6 +1247,14 @@ public final class InputStream {
         }
     }
 
+    /**
+     * Extracts a proxy from the stream. The stream must have been initialized with a communicator.
+     *
+     * @param <T> the proxy type
+     * @param cast the uncheckedCast function to call on the unmarshaled proxy to obtain the correct
+     *     proxy type
+     * @return The extracted proxy.
+     */
     public <T extends ObjectPrx> T readProxy(Function<ObjectPrx, T> cast) {
         return cast.apply(readProxy());
     }

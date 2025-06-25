@@ -9,12 +9,19 @@ package com.zeroc.Ice;
  * can't find an object or object adapter when resolving an indirect proxy or when an object adapter is activated.
  */
 public final class NotRegisteredException extends LocalException {
+    /**
+     * Constructs a NotRegisteredException with the object kind and ID.
+     *
+     * @param kindOfObject the kind of object that was not found
+     * @param id           the ID of the object that was not found
+     */
     public NotRegisteredException(String kindOfObject, String id) {
         super("No " + kindOfObject + " is registered with ID '" + id + "'.");
         this.kindOfObject = kindOfObject;
         this.id = id;
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::NotRegisteredException";
     }

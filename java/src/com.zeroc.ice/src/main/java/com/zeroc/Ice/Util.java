@@ -571,6 +571,10 @@ public final class Util {
      * absolute). If that fails, fall back to the file system. Returns null if the file does not
      * exist and raises IOException if an error occurs.
      *
+     * @param cl the class loader to use
+     * @param path the path to the resource
+     * @return an InputStream, or null if the resource could not be found
+     * @throws IOException if an I/O error occurs while trying to open the resource
      * @hidden Public because it's used by SSL.
      */
     public static InputStream openResource(ClassLoader cl, String path)
@@ -611,6 +615,11 @@ public final class Util {
     }
 
     /**
+     * Finds a class by name using the specified class loader.
+     *
+     * @param className the name of the class to find
+     * @param cl the class loader to use, or null to use the system class loader
+     * @return the class object for the specified class, or null if the class could not be found
      * @hidden Public because it's used by IceBox and IceGridGUI.
      */
     public static Class<?> findClass(String className, ClassLoader cl) throws LinkageError {
@@ -695,9 +704,11 @@ public final class Util {
         return Thread.NORM_PRIORITY;
     }
 
+    // TODO can we just move this to TestHelper?
     /**
      * Returns true if we're running on Android.
      *
+     * @return true if running on Android, false otherwise
      * @hidden Public because it's used by the tests.
      */
     public static boolean isAndroid() {
@@ -754,9 +765,13 @@ public final class Util {
         return str.toString();
     }
 
+    /** The protocol version 1.0. */
     public static final ProtocolVersion Protocol_1_0 = new ProtocolVersion((byte) 1, (byte) 0);
 
+    /** The encoding version 1.0. */
     public static final EncodingVersion Encoding_1_0 = new EncodingVersion((byte) 1, (byte) 0);
+
+    /** The encoding version 1.1. */
     public static final EncodingVersion Encoding_1_1 = new EncodingVersion((byte) 1, (byte) 1);
 
     private static final java.lang.Object _processLoggerMutex = new java.lang.Object();

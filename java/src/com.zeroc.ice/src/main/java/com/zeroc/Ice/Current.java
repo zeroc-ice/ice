@@ -42,7 +42,7 @@ public final class Current implements Cloneable {
     public EncodingVersion encoding;
 
     /**
-     * Constructs a {@code Current} object.
+     * Constructs a Current object.
      *
      * @param adapter The adapter.
      * @param con The connection. Can be null.

@@ -4,7 +4,7 @@ package test.Ice.plugin.plugins;
 
 public class PluginInitializeFailException extends RuntimeException {
     /**
-     * Constructs a {@code PluginInitializeFailException}.
+     * Constructs a PluginInitializeFailException.
      */
     public PluginInitializeFailException() {
         super("PluginInitializeFailException");
