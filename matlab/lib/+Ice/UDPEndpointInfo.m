@@ -14,7 +14,7 @@ classdef (Sealed) UDPEndpointInfo < Ice.IPEndpointInfo
     methods(Hidden)
         function obj = UDPEndpointInfo(compress, host, port, sourceAddress, mcastInterface, mcastTtl)
             assert(nargin == 6, 'Invalid number of arguments');
-            obj@Ice.IPEndpointInfo(-1, compress, host, port, sourceAddress);
+            obj@Ice.IPEndpointInfo(compress, host, port, sourceAddress);
             obj.mcastInterface = mcastInterface;
             obj.mcastTtl = mcastTtl;
         end

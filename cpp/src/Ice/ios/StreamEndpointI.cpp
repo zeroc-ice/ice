@@ -170,7 +170,6 @@ EndpointInfoPtr
 IceObjC::StreamEndpointI::getInfo() const noexcept
 {
     return make_shared<Ice::TCPEndpointInfo>(
-        _timeout,
         _compress,
         _host,
         _port,
