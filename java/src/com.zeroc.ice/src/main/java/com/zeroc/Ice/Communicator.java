@@ -5,7 +5,6 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
-import java.security.Identity;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
