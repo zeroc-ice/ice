@@ -5,7 +5,7 @@ package com.zeroc.Ice;
 /** This exception is raised if an attempt is made to use a destroyed {@link ObjectAdapter}. */
 public final class ObjectAdapterDestroyedException extends LocalException {
     /**
-     * Constructs an {@code ObjectAdapterDestroyedException} with the adapter name.
+     * Constructs an ObjectAdapterDestroyedException with the adapter name.
      *
      * @param name the name of the destroyed adapter
      */
