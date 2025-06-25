@@ -10,6 +10,11 @@ on:
       channel:
         required: true
         type: string
+      publish:
+        required: false
+        type: boolean
+        default: false
+
   workflow_dispatch:
     inputs:
       build_number:
@@ -20,6 +25,11 @@ on:
         description: "Release channel (e.g., 3.8, nightly)"
         required: true
         default: "nightly"
+      publish:
+        description: "Whether to publish the packages"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   set-version:
@@ -31,6 +41,7 @@ jobs:
       maven_version: ${{ steps.set-vars.outputs.maven_version }}
       pypi_version: ${{ steps.set-vars.outputs.pypi_version }}
       rpm_version: ${{ steps.set-vars.outputs.rpm_version }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,31 +49,46 @@ jobs:
       - name: Set version variables
         id: set-vars
         run: |
-          DATE=$(date +%Y%m%d)
-          BUILD=${{ inputs.build_number }}
-          VERSION=3.8.0
+          if [[ "${{ inputs.channel }}" == "nightly" ]]; then
+            DATE=$(date +%Y%m%d)
+            BUILD=${{ inputs.build_number }}
+            VERSION=3.8.0
+            # Set version variables for nightly packages according to platform conventions:
 
-          # Set version variables for nightly packages according to the platform conventions:
-          # - Semver : 3.8.0-nightly.<YYYYMMDD>.<BUILD>
-          echo "semver_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
-          # - DEB: 3.8.0-0.nightly<YYYYMMDD>.<BUILD>
-          echo "deb_version=${VERSION}-0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
-          # - GEM: 3.8.0.pre.<YYYYMMDD>.<BUILD>
-          echo "gem_version=${VERSION}.pre.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
-          # - MAVEN: 3.8.0-nightly-<YYYYMMDD>.<BUILD>-SNAPSHOT
-          echo "maven_version=${VERSION}-nightly-${DATE}.${BUILD}-SNAPSHOT" >> $GITHUB_OUTPUT
-          # - PyPI: 3.8.0.dev<YYYYMMDD><BUILD>
-          echo "pypi_version=${VERSION}.dev${DATE}${BUILD}" >> $GITHUB_OUTPUT
-          # - RPM: 3.8.0~0.nightly<YYYYMMDD>.<BUILD>
-          echo "rpm_version=${VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+            # e.g. 3.8.0-nightly.20250625.1
+            echo "semver_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+
+            # e.g. 3.8.0-0.nightly20250625.1
+            echo "deb_version=${VERSION}-0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+
+            # e.g. 3.8.0.pre.20250625.1
+            echo "gem_version=${VERSION}.pre.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+
+            # e.g. 3.8.0-nightly-20250625.1-SNAPSHOT
+            echo "maven_version=${VERSION}-nightly-${DATE}.${BUILD}-SNAPSHOT" >> $GITHUB_OUTPUT
+
+            # e.g. 3.8.0.dev202506251
+            echo "pypi_version=${VERSION}.dev${DATE}${BUILD}" >> $GITHUB_OUTPUT
+
+            # e.g. 3.8.0~0.nightly20250625.1
+            echo "rpm_version=${VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+          else
+            # Define version variables as empty for stable channels to use the version from the repository
+            echo "semver_version=" >> $GITHUB_OUTPUT
+            echo "deb_version=" >> $GITHUB_OUTPUT
+            echo "gem_version=" >> $GITHUB_OUTPUT
+            echo "maven_version=" >> $GITHUB_OUTPUT
+            echo "pypi_version=" >> $GITHUB_OUTPUT
+            echo "rpm_version=" >> $GITHUB_OUTPUT
+          fi
 
   build-deb-packages:
     name: Build DEB Packages
     uses: ./.github/workflows/build-deb-packages.yml
     needs: set-version
-    secrets: inherit
     with:
       ice_version: ${{ needs.set-version.outputs.deb_version }}
+    secrets: inherit
 
   build-dotnet-packages:
     name: Build .NET Packages
@@ -137,6 +163,8 @@ jobs:
     secrets: inherit
 
   publish-release:
+    name: Publish Release
+    if: ${{ inputs.publish == true }}
     needs:
       - build-deb-packages
       - build-dotnet-packages

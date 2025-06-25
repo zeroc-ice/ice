@@ -85,10 +85,11 @@ jobs:
               ;;
           esac
 
+          mkdir -p "$DISTRIBUTION"
           aws s3 sync s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION $DISTRIBUTION
 
           rpm="ice-repo-${CHANNEL}-1.0.0-1.${DISTRIBUTION}.noarch.rpm"
-          cp -n "build/RPMS/noarch/$rpm" "${DISTRIBUTION}/$rpm"
+          cp -pn "build/RPMS/noarch/$rpm" "${DISTRIBUTION}/$rpm"
 
           aws s3 sync "$DISTRIBUTION" s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION --delete
         env:

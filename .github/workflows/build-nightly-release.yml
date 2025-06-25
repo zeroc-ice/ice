@@ -11,3 +11,4 @@ jobs:
     secrets: inherit
     with:
       channel: nightly
+      publish: true

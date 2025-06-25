@@ -21,7 +21,8 @@ on:
 jobs:
   build:
     name: "Publish GEM Packages"
-    runs-on: 'ubuntu-24.04'
+    runs-on: ubuntu-24.04
+
     steps:
       - name: Download GEM artifacts
         env:
@@ -33,6 +34,7 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "gem-packages" --dir staging
 
       - name: Publish Nightly GEM Packages
+        if: ${{ inputs.channel == 'nightly' }}
         run: |
           curl -u "nightly:${NEXUS_NIGHTLY_PASSWORD}" \
             --upload-file staging/gem-packages/zeroc-ice-*.gem \
@@ -41,14 +43,14 @@ jobs:
             --retry 3 \
             --fail \
             --show-error \
-            https://download.zeroc.com/nexus/repository/rubygems-nightly/gems/ || { echo "Gem upload failed"; exit 1; }
-        if: ${{ inputs.channel == 'nightly' }}
+            https://download.zeroc.com/nexus/repository/rubygems-nightly/gems/ \
+            || { echo "Gem upload failed"; exit 1; }
         env:
           NEXUS_NIGHTLY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
       - name: Publish Release GEM Packages
-        run: |
-          GEM_HOST_API_KEY=${RUBYGEMS_API_KEY} gem push staging/gem-packages/zeroc-ice-*.gem
         if: ${{ inputs.channel != 'nightly' }}
+        run: |
+          GEM_HOST_API_KEY="${RUBYGEMS_API_KEY}" gem push staging/gem-packages/zeroc-ice-*.gem
         env:
           RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}

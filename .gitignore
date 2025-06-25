@@ -74,6 +74,7 @@ bld/
 [Ll]og/
 
 !.github/workflows/release
+!packaging/release
 
 # Visual Studio
 *.opendb

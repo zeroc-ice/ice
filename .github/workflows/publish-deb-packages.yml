@@ -21,7 +21,7 @@ on:
 jobs:
   build:
     name: "Publish DEB Packages for ${{ matrix.distribution }}"
-    runs-on: 'ubuntu-24.04'
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
@@ -30,11 +30,12 @@ jobs:
     env:
       DISTRIBUTION: ${{ matrix.distribution }}
       CHANNEL: ${{ inputs.channel }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-            path: ice
+          path: ice
 
       - name: Download DEB artifacts
         env:
@@ -54,14 +55,12 @@ jobs:
           aws s3 sync "s3://zeroc-downloads/ice/${CHANNEL}/${DISTRIBUTION}" "${CHANNEL}/${DISTRIBUTION}"
 
           echo "Creating/updating repository with new DEB packages..."
-          docker_args=(
-            --rm
-            -v "$GITHUB_WORKSPACE:/workspace"
-            -e GPG_KEY="${GPG_KEY}"
-            -e GPG_KEY_ID="${GPG_KEY_ID}"
-            ghcr.io/zeroc-ice/deb-repo-builder
-          )
-          docker run "${docker_args[@]}" /workspace/ice/packaging/deb/create-deb-repo.sh \
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e GPG_KEY="${GPG_KEY}" \
+            -e GPG_KEY_ID="${GPG_KEY_ID}" \
+            ghcr.io/zeroc-ice/deb-repo-builder \
+            /workspace/ice/packaging/deb/create-deb-repo.sh \
             --staging /workspace/staging/ \
             --repository "/workspace/${CHANNEL}" \
             --distribution "${DISTRIBUTION}" \
@@ -70,7 +69,6 @@ jobs:
           echo "Uploading updated repository to S3..."
           aws s3 sync "${CHANNEL}/${DISTRIBUTION}" "s3://zeroc-downloads/ice/${CHANNEL}/${DISTRIBUTION}" --delete
         env:
-          CHANNEL: ${{ inputs.channel }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}

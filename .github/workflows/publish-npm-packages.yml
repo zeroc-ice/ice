@@ -17,10 +17,12 @@ on:
       run_id:
         required: true
         type: string
+
 jobs:
   build:
     name: "Publish NPM Packages"
-    runs-on: 'ubuntu-24.04'
+    runs-on: ubuntu-24.04
+
     steps:
       - name: Download NPM artifacts
         env:
@@ -37,10 +39,12 @@ jobs:
           case "$CHANNEL" in
             "3.8")
               REPOSITORY_PREFIX="//registry.npmjs.org/"
+              # Reference the env var in .npmrc using \$ so NPM reads it at publish time
               echo "${REPOSITORY_PREFIX}:_authToken=\${RELEASE_NPM_AUTH_TOKEN}" > ~/.npmrc
               ;;
             "nightly")
               REPOSITORY_PREFIX="//download.zeroc.com/nexus/repository/npm-nightly/"
+              # Reference the env var in .npmrc using \$ so NPM reads it at publish time
               echo "${REPOSITORY_PREFIX}:_auth=\${NEXUS_NIGHTLY_NPM_AUTH_TOKEN}" > ~/.npmrc
               ;;
             *)

@@ -21,7 +21,8 @@ on:
 jobs:
   build:
     name: "Publish NuGet Packages"
-    runs-on: 'ubuntu-24.04'
+    runs-on: ubuntu-24.04
+
     steps:
       - name: Download NuGet artifacts
         env:
@@ -35,6 +36,7 @@ jobs:
       - name: Publish NuGet Packages
         run: |
           set -euo pipefail
+
           case "$CHANNEL" in
             "3.8")
               SOURCE_URL="https://api.nuget.org/v3/index.json"
@@ -50,8 +52,10 @@ jobs:
               ;;
           esac
 
+          # Collect all .nupkg and .snupkg files
           mapfile -t packages < <(find staging -type f \( -name "*.nupkg" -o -name "*.snupkg" \))
 
+          # Push each package to the appropriate NuGet repository
           for package in "${packages[@]}"; do
             echo "Publishing package: $package"
             dotnet nuget push "$package" --source "$SOURCE_URL" --api-key "$NUGET_API_KEY"

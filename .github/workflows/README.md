@@ -5,8 +5,8 @@ The release workflows support building and publishing Ice packages for the `3.8`
 The `3.8` channel publishes packages to the stable release repositories, while the `nightly` channel publishes to the
 unstable nightly repositories.
 
-The nightly repositories are updated daily from the `zeroc-ice/ice` `main` branch. These releases are intended for testing
-the latest development and must not be used in production.
+The nightly repositories are updated daily from the `zeroc-ice/ice` `main` branch. These releases are intended for
+testing the latest development and must not be used in production.
 
 To build a stable release for `3.8`, run the `build-release` workflow and pass `3.8` as the channel.
 To build a dev release for `nightly`, run the `build-release` workflow and pass `nightly` as the channel.

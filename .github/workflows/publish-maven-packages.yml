@@ -21,9 +21,10 @@ on:
 jobs:
   build:
     name: "Publish Maven Packages"
-    runs-on: 'ubuntu-24.04'
+    runs-on: ubuntu-24.04
     env:
-      STAGING_DIR: ${{ github.workspace}}/staging
+      STAGING_DIR: ${{ github.workspace }}/staging
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -46,5 +47,5 @@ jobs:
           MAVEN_CENTRAL_API_KEY: ${{ secrets.MAVEN_CENTRAL_API_KEY }}
 
       - name: Clean Credentials
-        run: rm -f ~/.m2/settings.xml
         if: always()
+        run: rm -f ~/.m2/settings.xml
