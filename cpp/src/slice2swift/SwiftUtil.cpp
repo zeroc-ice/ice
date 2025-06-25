@@ -900,15 +900,9 @@ SwiftGenerator::writeMemberwiseInitializer(
 }
 
 void
-SwiftGenerator::writeMembers(
-    IceInternal::Output& out,
-    const DataMemberList& members,
-    const ContainedPtr& p,
-    int typeCtx)
+SwiftGenerator::writeMembers(IceInternal::Output& out, const DataMemberList& members, const ContainedPtr& p)
 {
     string swiftModule = getSwiftModule(p->getTopLevelModule());
-    bool protocol = (typeCtx & TypeContextProtocol) != 0;
-    string access = protocol ? "" : "public ";
     for (const auto& member : members)
     {
         TypePtr type = member->type();
@@ -918,9 +912,7 @@ SwiftGenerator::writeMembers(
 
         // If the member type is equal to the member name, create a local type alias to avoid ambiguity.
         string alias;
-        if (!protocol && memberName == memberType &&
-            (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
-             dynamic_pointer_cast<Dictionary>(type)))
+        if (memberName == memberType && (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type)))
         {
             ModulePtr topLevelModule = (dynamic_pointer_cast<Contained>(type))->getTopLevelModule();
             alias = removeEscaping(topLevelModule->mappedName()) + "_" + removeEscaping(memberType);
@@ -928,28 +920,20 @@ SwiftGenerator::writeMembers(
         }
 
         writeDocSummary(out, member);
-        out << nl << access << "var " << memberName << ": " << memberType;
-        if (protocol)
+        out << nl << "public var " << memberName << ": " << memberType << " = ";
+        if (alias.empty())
         {
-            out << " { get set }";
+            writeConstantValue(
+                out,
+                type,
+                member->defaultValueType(),
+                member->defaultValue().value_or(""),
+                swiftModule,
+                member->optional());
         }
         else
         {
-            out << " = ";
-            if (alias.empty())
-            {
-                writeConstantValue(
-                    out,
-                    type,
-                    member->defaultValueType(),
-                    member->defaultValue().value_or(""),
-                    swiftModule,
-                    member->optional());
-            }
-            else
-            {
-                out << alias << "()";
-            }
+            out << alias << "()";
         }
     }
 }

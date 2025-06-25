@@ -10,9 +10,6 @@ using StringPairList = std::list<std::pair<std::string, std::string>>;
 
 namespace Slice
 {
-    const int TypeContextInParam = 1;
-    const int TypeContextProtocol = 2;
-
     std::string getSwiftModule(const ModulePtr&, std::string&);
     std::string getSwiftModule(const ModulePtr&);
 
@@ -76,7 +73,7 @@ namespace Slice
             const DataMemberList&,
             const ContainedPtr&,
             bool rootClass);
-        void writeMembers(IceInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
+        void writeMembers(IceInternal::Output&, const DataMemberList&, const ContainedPtr&);
 
         void writeMarshalUnmarshalCode(
             ::IceInternal::Output&,
