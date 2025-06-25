@@ -579,11 +579,11 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                     // ... and matches one of the exceptions in the operation's specification.
                     const ExceptionList exceptionSpec = operationTarget->throws();
                     const auto exceptionCheck = [&exceptionTarget](const ExceptionPtr& ex)
-                    { return ex->isBaseOf(exceptionTarget) || ex->scoped() == exceptionTarget->scoped(); };
+                    { return ex->scoped() == exceptionTarget->scoped(); };
                     if (std::none_of(exceptionSpec.begin(), exceptionSpec.end(), exceptionCheck))
                     {
-                        const string msg = "'" + actualTag + " " + name + "': this exception is not listed in nor " +
-                                           "derived from any exception in this operation's specification";
+                        const string msg = "'" + actualTag + " " + name + "': this exception is not listed in the " +
+                                           "exception specification of '" + operationTarget->name() + "'";
                         p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     }
 

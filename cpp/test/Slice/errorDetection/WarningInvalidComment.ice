@@ -47,7 +47,7 @@ module Test
         /// @param namess should give a no-matching-parameter warning.
         /// @return Something because it's non-void.
         /// @return Should give a duplicate-tag warning.
-        /// @throws DerivedFromDummy should be fine, since this is a sub-exception of `CommentDummy`.
+        /// @throws DerivedFromDummy should give a warning despite being a sub-exception of `CommentDummy`.
         /// @throws CommentDummy should be fine, this matches the exception specification.
         /// @throws SomeOtherException should give a not-thrown-by-this-operation warning.
         /// @throws CommentDummy should give a duplicate-tag warning.

@@ -7,11 +7,12 @@ WarningInvalidComment.ice:17: warning: ignoring trailing '.' character in '@see'
 WarningInvalidComment.ice:43: warning: '@param NoParam' does not correspond to any parameter in operation 'voidOp'
 WarningInvalidComment.ice:43: warning: '@return' is only valid on operations with non-void return types
 WarningInvalidComment.ice:43: warning: '@throws FakeException': no exception with this name could be found from the current scope
-WarningInvalidComment.ice:43: warning: '@throws CommentDummy': this exception is not listed in nor derived from any exception in this operation's specification
+WarningInvalidComment.ice:43: warning: '@throws CommentDummy': this exception is not listed in the exception specification of 'voidOp'
 WarningInvalidComment.ice:54: warning: ignoring duplicate doc-comment tag: '@param value'
 WarningInvalidComment.ice:54: warning: '@param namess' does not correspond to any parameter in operation 'stringOp'
 WarningInvalidComment.ice:54: warning: ignoring duplicate doc-comment tag: '@return'
-WarningInvalidComment.ice:54: warning: '@throws SomeOtherException': this exception is not listed in nor derived from any exception in this operation's specification
+WarningInvalidComment.ice:54: warning: '@throws DerivedFromDummy': this exception is not listed in the exception specification of 'stringOp'
+WarningInvalidComment.ice:54: warning: '@throws SomeOtherException': this exception is not listed in the exception specification of 'stringOp'
 WarningInvalidComment.ice:54: warning: ignoring duplicate doc-comment tag: '@throws CommentDummy'
 WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@something' in comment
 WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@params' in comment
@@ -23,9 +24,10 @@ WarningInvalidComment.ice:33: warning: ignoring duplicate doc-comment tag: '@dep
 WarningInvalidComment.ice:43: warning: '@param NoParam' does not correspond to any parameter in operation 'voidOp'
 WarningInvalidComment.ice:43: warning: '@return' is only valid on operations with non-void return types
 WarningInvalidComment.ice:43: warning: '@throws FakeException': no exception with this name could be found from the current scope
-WarningInvalidComment.ice:43: warning: '@throws CommentDummy': this exception is not listed in nor derived from any exception in this operation's specification
+WarningInvalidComment.ice:43: warning: '@throws CommentDummy': this exception is not listed in the exception specification of 'voidOp'
 WarningInvalidComment.ice:54: warning: ignoring duplicate doc-comment tag: '@param value'
 WarningInvalidComment.ice:54: warning: '@param namess' does not correspond to any parameter in operation 'stringOp'
 WarningInvalidComment.ice:54: warning: ignoring duplicate doc-comment tag: '@return'
-WarningInvalidComment.ice:54: warning: '@throws SomeOtherException': this exception is not listed in nor derived from any exception in this operation's specification
+WarningInvalidComment.ice:54: warning: '@throws DerivedFromDummy': this exception is not listed in the exception specification of 'stringOp'
+WarningInvalidComment.ice:54: warning: '@throws SomeOtherException': this exception is not listed in the exception specification of 'stringOp'
 WarningInvalidComment.ice:54: warning: ignoring duplicate doc-comment tag: '@throws CommentDummy'
