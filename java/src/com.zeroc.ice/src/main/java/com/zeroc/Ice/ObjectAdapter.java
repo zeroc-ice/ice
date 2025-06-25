@@ -20,9 +20,11 @@ import java.util.stream.Stream;
  * An object adapter is the main server-side Ice API. It has two main purposes:
  * - accept incoming connections from clients and dispatch requests received over these connections (see
  *   {@link #activate}); and
- * - maintain a dispatch pipeline and servants that handle the requests (see {@link #add}, {@link #addDefaultServant}, and {@link #use}).
+ * - maintain a dispatch pipeline and servants that handle the requests (see {@link #add},
+ *   {@link #addDefaultServant},
+ *   and {@link #use}).
  *
- * An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
+ * <p>An object adapter can dispatch "bidirectional requests"--requests it receives over an outgoing connection
  * instead of a more common incoming connection. It can also dispatch collocated requests (with no connection at
  * all).
  *
@@ -86,7 +88,7 @@ public final class ObjectAdapter {
      * Starts receiving and dispatching requests received over incoming connections.
      *
      * @remark When this object adapter is an indirect object adapter configured with a locator proxy, this
-     * method also registers the object adapter's published endpoints with this locator.
+     *     method also registers the object adapter's published endpoints with this locator.
      * @see #deactivate
      * @see #getLocator
      * @see #getPublishedEndpoints
@@ -169,7 +171,7 @@ public final class ObjectAdapter {
      * adapter can be reactivated with {@link #activate}.
      *
      * @remark This method is provided for backward compatibility with older versions of Ice. Don't use it in
-     * new applications.
+     *     new applications.
      * @see #activate
      * @see #deactivate
      * @see #waitForHold
@@ -187,7 +189,7 @@ public final class ObjectAdapter {
      * over incoming connection has completed.
      *
      * @remark This method is provided for backward compatibility with older versions of Ice. Don't use it in
-     * new applications.
+     *     new applications.
      * @see #hold
      * @see #waitForDeactivate
      * @see Communicator#waitForShutdown
@@ -261,7 +263,8 @@ public final class ObjectAdapter {
     }
 
     /**
-     * Waits until {@link #deactivate} is called on this object adapter and all connections accepted by this object adapter
+     * Waits until {@link #deactivate} is called on this object adapter and all connections accepted by this
+     * object adapter
      * are closed. A connection is closed only after all outstanding dispatches on this connection have completed.
      *
      * @see #deactivate
@@ -402,8 +405,8 @@ public final class ObjectAdapter {
      * Adds a middleware to the dispatch pipeline of this object adapter.
      *
      * @param middleware The middleware factory that creates the new middleware when this object adapter
-     * creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
-     * in the dispatch pipeline) and returns a new Object (the middleware you want to install in the pipeline).
+     *     creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
+     *     in the dispatch pipeline) and returns a new Object (the middleware you want to install in the pipeline).
      * @return This object adapter.
      * @remark All middleware must be installed before the first dispatch.
      * @remark The middleware are executed in the order they are installed.
@@ -449,7 +452,7 @@ public final class ObjectAdapter {
      * @param facet The facet of the Ice object that is implemented by the servant.
      * @return A proxy for the identity and facet created by this object adapter.
      * @throws AlreadyRegisteredException Thrown when a servant with the same identity and facet is already
-     * registered.
+     *     registered.
      * @see Identity
      * @see #add
      * @see #addFacetWithUUID
@@ -528,7 +531,7 @@ public final class ObjectAdapter {
      *
      * @param servant The default servant to add.
      * @param category The category for which the default servant is registered. The empty category means it
-     * handles all categories.
+     *     handles all categories.
      * @throws AlreadyRegisteredException Thrown when a default servant with the same category is already registered.
      * @see #removeDefaultServant
      * @see #findDefaultServant
@@ -611,9 +614,9 @@ public final class ObjectAdapter {
      *
      * @param identity The identity of an Ice object.
      * @return The servant that implements the Ice object with the given identity, or null if no such servant
-     * has been found.
+     *     has been found.
      * @remark This method only tries to find the servant in the ASM and among the default servants. It does not
-     * attempt to locate a servant using servant locators.
+     *     attempt to locate a servant using servant locators.
      * @see Identity
      * @see #findFacet
      * @see #findByProxy
@@ -630,7 +633,7 @@ public final class ObjectAdapter {
      * @return The servant that implements the Ice object with the given identity and facet, or null
      *     if no such servant has been found.
      * @remark This method only tries to find the servant in the ASM and among the default servants. It does not
-     * attempt to locate a servant using servant locators.
+     *     attempt to locate a servant using servant locators.
      * @see Identity
      * @see #find
      * @see #findByProxy
@@ -662,7 +665,7 @@ public final class ObjectAdapter {
      *
      * @param proxy The proxy that provides the identity and facet to search.
      * @return The servant that matches the identity and facet carried by the proxy, or null if no such servant
-     * has been found.
+     *     has been found.
      * @see #find
      * @see #findFacet
      */
@@ -679,7 +682,7 @@ public final class ObjectAdapter {
      * @param locator The servant locator to add.
      * @param category The category. The empty category means the locator handles all categories.
      * @throws AlreadyRegisteredException Thrown when a servant locator with the same category is already
-     * registered.
+     *     registered.
      * @see #addDefaultServant
      * @see Identity
      * @see #removeServantLocator
@@ -790,7 +793,7 @@ public final class ObjectAdapter {
      *
      * @param identity An Ice identity.
      * @return An indirect proxy with the given identity. If this object adapter is not configured with an adapter
-     * ID or a replica group ID, the new proxy is a well-known proxy (i.e., an identity-only proxy).
+     *     ID or a replica group ID, the new proxy is a well-known proxy (i.e., an identity-only proxy).
      * @see Identity
      */
     public synchronized ObjectPrx createIndirectProxy(Identity identity) {

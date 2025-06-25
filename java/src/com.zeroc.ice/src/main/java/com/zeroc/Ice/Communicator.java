@@ -169,7 +169,7 @@ public final class Communicator implements AutoCloseable {
      * Creates a new object adapter. The endpoints for the object adapter are taken from the property
      * {@code name.Endpoints}.
      *
-     * It is legal to create an object adapter with the empty string as its name. Such an object adapter is
+     * <p>It is legal to create an object adapter with the empty string as its name. Such an object adapter is
      * accessible via bidirectional connections or by collocated invocations.
      *
      * @param name The object adapter name.
@@ -186,7 +186,7 @@ public final class Communicator implements AutoCloseable {
      * Creates a new object adapter. The endpoints for the object adapter are taken from the property
      * {@code name.Endpoints}.
      *
-     * It is legal to create an object adapter with the empty string as its name. Such an object adapter is
+     * <p>It is legal to create an object adapter with the empty string as its name. Such an object adapter is
      * accessible via bidirectional connections or by collocated invocations.
      *
      * <p>It is an error to pass a non-null sslEngineFactory when the name is empty, this raises
@@ -476,10 +476,10 @@ public final class Communicator implements AutoCloseable {
 
     /**
      * Gets a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and
-     * activates the {@code Ice.Admin} object adapter to host this Admin object if {@code Ice.Admin.Endpoints} is set. The
-     * identity of the Admin object created by getAdmin is {@code {value of Ice.Admin.InstanceName}/admin}, or
-     * {@code {UUID}/admin} when {@code Ice.Admin.InstanceName} is not set. If {@code Ice.Admin.DelayCreation} is {@code 0} or not set,
-     * getAdmin is called by the communicator initialization, after initialization of all plugins.
+     * activates the {@code Ice.Admin} object adapter to host this Admin object if {@code Ice.Admin.Endpoints} is set.
+     * The identity of the Admin object created by getAdmin is {@code {value of Ice.Admin.InstanceName}/admin}, or
+     * {@code {UUID}/admin} when {@code Ice.Admin.InstanceName} is not set. If {@code Ice.Admin.DelayCreation} is
+     * {@code 0} or not set, getAdmin is called by the communicator initialization, after initialization of all plugins.
      *
      * @return A proxy to the main ("") facet of the Admin object, or null if no Admin
      *     object is configured.
