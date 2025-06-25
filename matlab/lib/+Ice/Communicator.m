@@ -6,7 +6,7 @@ classdef Communicator < IceInternal.WrapperObject
     %
     %   Communicator Methods:
     %     Communicator - Constructs a new communicator.
-    %     destroy - Destroys the communicator and cleans up memory, shutting down this communicator's client functionality.
+    %     destroy - Destroys the communicator.
     %     destroyAsync - An asynchronous destroy.
     %     flushBatchRequests - Flushes any pending batch requests for this communicator.
     %     flushBatchRequestsAsync - An asynchronous flushBatchRequests.
@@ -103,8 +103,8 @@ classdef Communicator < IceInternal.WrapperObject
         end
 
         function destroy(obj)
-            %DESTROY Destroys the communicator and cleans up memory, shutting down this communicator's client
-            %   functionality. Subsequent calls to destroy are ignored.
+            %DESTROY Destroys this communicator.
+            %   This method closes all outgoing connections.
 
             arguments
                 obj (1, 1) Ice.Communicator
@@ -113,8 +113,8 @@ classdef Communicator < IceInternal.WrapperObject
         end
 
         function f = destroyAsync(obj)
-            %DESTROYASYNC Asynchronously destroys the communicator. Calling destroyAsync cleans up memory, and shuts
-            %   down this communicator's client functionality. Subsequent calls to destroyAsync are ignored.
+            %DESTROYASYNC Asynchronously destroys the communicator.
+            %   This method closes all outgoing connections.
             %
             %   Output Arguments
             %     f - A future that will be completed when the destruction completes.
