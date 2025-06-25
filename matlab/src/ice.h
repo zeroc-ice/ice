@@ -32,7 +32,6 @@ extern "C"
 
     ICE_MATLAB_API mxArray* Ice_Communicator_unref(void*);
     ICE_MATLAB_API mxArray* Ice_Communicator_destroy(void*);
-    ICE_MATLAB_API mxArray* Ice_Communicator_destroyAsync(void*, void**);
     ICE_MATLAB_API mxArray* Ice_Communicator_stringToProxy(void*, const char*, void**);
     ICE_MATLAB_API mxArray* Ice_Communicator_proxyToString(void*, void*);
     ICE_MATLAB_API mxArray* Ice_Communicator_propertyToProxy(void*, const char*, void**);
