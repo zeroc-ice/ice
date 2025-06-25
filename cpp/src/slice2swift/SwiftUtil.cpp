@@ -386,7 +386,7 @@ Slice::Swift::writeServantDocSummary(IceInternal::Output& out, const InterfaceDe
 }
 
 void
-Slice::Swift::validateMetadata(const UnitPtr& u)
+Slice::Swift::validateSwiftMetadata(const UnitPtr& u)
 {
     map<string, MetadataInfo> knownMetadata;
 

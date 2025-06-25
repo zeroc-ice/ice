@@ -96,8 +96,8 @@ Gen::~Gen()
 void
 Gen::generate(const UnitPtr& p)
 {
-    Slice::Swift::validateMetadata(p);
-    Slice::Swift::validateSwiftModuleMappings(p);
+    validateSwiftMetadata(p);
+    validateSwiftModuleMappings(p);
 
     ImportVisitor importVisitor(_out);
     p->visit(&importVisitor);

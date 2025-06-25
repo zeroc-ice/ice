@@ -13,7 +13,7 @@ namespace Slice::Swift
     std::string getSwiftModule(const ModulePtr&, std::string&);
     std::string getSwiftModule(const ModulePtr&);
 
-    void validateMetadata(const UnitPtr&);
+    void validateSwiftMetadata(const UnitPtr&);
 
     // Swift only allows 1 package per file, so this function checks that if there are multiple top-level-modules
     // within a single Slice file, that they all map to the same Swift package.
