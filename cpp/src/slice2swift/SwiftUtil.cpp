@@ -15,28 +15,6 @@ using namespace IceInternal;
 
 namespace
 {
-    string opFormatTypeToString(const OperationPtr& op)
-    {
-        optional<FormatType> opFormat = op->format();
-        if (opFormat)
-        {
-            switch (*opFormat)
-            {
-                case CompactFormat:
-                    return ".compactFormat";
-                case SlicedFormat:
-                    return ".slicedFormat";
-                default:
-                    assert(false);
-                    return "???";
-            }
-        }
-        else
-        {
-            return "nil";
-        }
-    }
-
     // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
     // TODO: this is temporary and will be replaced when we add 'swift:identifier' support.
     string swiftLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
@@ -99,7 +77,7 @@ namespace
 }
 
 string
-Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
+Slice::Swift::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
 {
     string swiftModule;
     if (auto argument = module->getMetadataArgs("swift:module"))
@@ -125,14 +103,14 @@ Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
 }
 
 string
-Slice::getSwiftModule(const ModulePtr& module)
+Slice::Swift::getSwiftModule(const ModulePtr& module)
 {
     string prefix;
     return getSwiftModule(module, prefix);
 }
 
 void
-SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
+Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 {
     optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
     if (!doc)
@@ -166,7 +144,7 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 }
 
 void
-SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool dispatch)
+Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool dispatch)
 {
     optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
     if (!doc)
@@ -310,7 +288,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 }
 
 void
-SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
+Slice::Swift::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
     optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
     if (!doc)
@@ -366,7 +344,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
 }
 
 void
-SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
+Slice::Swift::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
     optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
     if (!doc)
@@ -408,7 +386,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
 }
 
 void
-SwiftGenerator::validateMetadata(const UnitPtr& u)
+Slice::Swift::validateMetadata(const UnitPtr& u)
 {
     map<string, MetadataInfo> knownMetadata;
 
@@ -470,7 +448,7 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
 }
 
 void
-SwiftGenerator::validateSwiftModuleMappings(const UnitPtr& unit)
+Slice::Swift::validateSwiftModuleMappings(const UnitPtr& unit)
 {
     // Each Slice unit has to map all top-level modules to a single Swift module.
     string mappedModuleName = "";
@@ -502,7 +480,7 @@ SwiftGenerator::validateSwiftModuleMappings(const UnitPtr& unit)
 }
 
 string
-SwiftGenerator::getRelativeTypeString(const ContainedPtr& contained, const string& currentModule)
+Slice::Swift::getRelativeTypeString(const ContainedPtr& contained, const string& currentModule)
 {
     // Get the fully scoped identifier for this element, and split it up by '::' separators.
     vector<string> ids = splitScopedName(contained->mappedScoped("::", true));
@@ -555,7 +533,7 @@ SwiftGenerator::getRelativeTypeString(const ContainedPtr& contained, const strin
 }
 
 string
-SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
+Slice::Swift::getValue(const string& swiftModule, const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -617,7 +595,7 @@ SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
 }
 
 void
-SwiftGenerator::writeConstantValue(
+Slice::Swift::writeConstantValue(
     IceInternal::Output& out,
     const TypePtr& type,
     const SyntaxTreeBasePtr& valueType,
@@ -666,7 +644,7 @@ SwiftGenerator::writeConstantValue(
 }
 
 string
-SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& usedBy, bool optional)
+Slice::Swift::typeToString(const TypePtr& type, const ContainedPtr& usedBy, bool optional)
 {
     static const char* builtinTable[] = {
         "Swift.UInt8",
@@ -730,7 +708,7 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& usedBy, bo
 }
 
 string
-SwiftGenerator::removeEscaping(string ident)
+Slice::Swift::removeEscaping(string ident)
 {
     if (!ident.empty() && ident.front() == '`')
     {
@@ -744,14 +722,14 @@ SwiftGenerator::removeEscaping(string ident)
 }
 
 string
-SwiftGenerator::getUnqualified(const string& type, const string& localModule)
+Slice::Swift::getUnqualified(const string& type, const string& localModule)
 {
     const string prefix = localModule + ".";
     return type.find(prefix) == 0 ? type.substr(prefix.size()) : type;
 }
 
 string
-SwiftGenerator::modeToString(Operation::Mode opMode)
+Slice::Swift::modeToString(Operation::Mode opMode)
 {
     string mode;
     switch (opMode)
@@ -776,13 +754,13 @@ SwiftGenerator::modeToString(Operation::Mode opMode)
 }
 
 string
-SwiftGenerator::getOptionalFormat(const TypePtr& type)
+Slice::Swift::getOptionalFormat(const TypePtr& type)
 {
     return "." + type->getOptionalFormat();
 }
 
 bool
-SwiftGenerator::isNullableType(const TypePtr& type)
+Slice::Swift::isNullableType(const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -806,7 +784,7 @@ SwiftGenerator::isNullableType(const TypePtr& type)
 }
 
 void
-SwiftGenerator::writeDefaultInitializer(IceInternal::Output& out, bool required, bool rootClass)
+Slice::Swift::writeDefaultInitializer(IceInternal::Output& out, bool required, bool rootClass)
 {
     out << sp;
     out << nl << "public ";
@@ -829,7 +807,7 @@ SwiftGenerator::writeDefaultInitializer(IceInternal::Output& out, bool required,
 }
 
 void
-SwiftGenerator::writeMemberwiseInitializer(
+Slice::Swift::writeMemberwiseInitializer(
     IceInternal::Output& out,
     const DataMemberList& members,
     const ContainedPtr& p)
@@ -838,7 +816,7 @@ SwiftGenerator::writeMemberwiseInitializer(
 }
 
 void
-SwiftGenerator::writeMemberwiseInitializer(
+Slice::Swift::writeMemberwiseInitializer(
     IceInternal::Output& out,
     const DataMemberList& members,
     const DataMemberList& baseMembers,
@@ -900,7 +878,7 @@ SwiftGenerator::writeMemberwiseInitializer(
 }
 
 void
-SwiftGenerator::writeMembers(IceInternal::Output& out, const DataMemberList& members, const ContainedPtr& p)
+Slice::Swift::writeMembers(IceInternal::Output& out, const DataMemberList& members, const ContainedPtr& p)
 {
     string swiftModule = getSwiftModule(p->getTopLevelModule());
     for (const auto& member : members)
@@ -940,7 +918,7 @@ SwiftGenerator::writeMembers(IceInternal::Output& out, const DataMemberList& mem
 }
 
 bool
-SwiftGenerator::usesMarshalHelper(const TypePtr& type)
+Slice::Swift::usesMarshalHelper(const TypePtr& type)
 {
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if (seq)
@@ -956,7 +934,7 @@ SwiftGenerator::usesMarshalHelper(const TypePtr& type)
 }
 
 void
-SwiftGenerator::writeMarshalUnmarshalCode(
+Slice::Swift::writeMarshalUnmarshalCode(
     Output& out,
     const TypePtr& type,
     const ContainedPtr& p,
@@ -1186,7 +1164,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
 }
 
 string
-SwiftGenerator::paramLabel(const string& param, const ParameterList& params)
+Slice::Swift::paramLabel(const string& param, const ParameterList& params)
 {
     for (const auto& q : params)
     {
@@ -1199,7 +1177,7 @@ SwiftGenerator::paramLabel(const string& param, const ParameterList& params)
 }
 
 string
-SwiftGenerator::operationReturnType(const OperationPtr& op)
+Slice::Swift::operationReturnType(const OperationPtr& op)
 {
     ostringstream os;
     bool returnIsTuple = op->returnsMultipleValues();
@@ -1243,7 +1221,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
 }
 
 std::string
-SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
+Slice::Swift::operationReturnDeclaration(const OperationPtr& op)
 {
     ostringstream os;
     ParameterList outParams = op->outParameters();
@@ -1279,7 +1257,7 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
 }
 
 void
-SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeMarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
 {
     // Marshal parameters in this order '(required..., optional...)'.
 
@@ -1299,7 +1277,7 @@ SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const Operation
 }
 
 void
-SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeMarshalAsyncOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
     // Marshal parameters in this order '(required..., optional...)'.
 
@@ -1321,7 +1299,7 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
 }
 
 void
-SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
     // We need a separate nested function for the nonisolated(unsafe) variable when unmarshaling classes.
 
@@ -1386,7 +1364,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
 }
 
 void
-SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeUnmarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
 {
     // Unmarshal parameters in this order '(required..., optional...)'.
 
@@ -1415,7 +1393,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
 }
 
 void
-SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op)
+Slice::Swift::writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op)
 {
     const string swiftModule = getSwiftModule(op->getTopLevelModule());
 
@@ -1445,7 +1423,7 @@ SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const Op
 }
 
 void
-SwiftGenerator::writeSwiftAttributes(::IceInternal::Output& out, const MetadataList& metadata)
+Slice::Swift::writeSwiftAttributes(::IceInternal::Output& out, const MetadataList& metadata)
 {
     for (const auto& meta : metadata)
     {
@@ -1454,147 +1432,4 @@ SwiftGenerator::writeSwiftAttributes(::IceInternal::Output& out, const MetadataL
             out << nl << meta->arguments();
         }
     }
-}
-
-void
-SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationPtr& op)
-{
-    const ParameterList inParams = op->inParameters();
-    const bool returnsAnyValues = op->returnsAnyValues();
-    const string swiftModule = getSwiftModule(op->getTopLevelModule());
-
-    out << sp;
-    writeOpDocSummary(out, op, false);
-    out << nl << "func " << op->mappedName();
-    out << spar;
-    for (const auto& param : inParams)
-    {
-        const bool isOptional = param->optional();
-        const string typeString = typeToString(param->type(), op, isOptional);
-        const string paramName = "iceP_" + removeEscaping(param->mappedName());
-        const string paramLabel = (inParams.size() == 1 ? "_" : param->mappedName());
-        out << (paramLabel + " " + paramName + ": " + typeString + (isOptional ? " = nil" : ""));
-    }
-    out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
-    out << epar;
-    out << " async throws -> ";
-    if (returnsAnyValues)
-    {
-        out << operationReturnType(op);
-    }
-    else
-    {
-        out << "Swift.Void";
-    }
-
-    out << sb;
-
-    //
-    // Invoke
-    //
-    out << sp;
-    out << nl << "return try await _impl._invoke(";
-
-    out.useCurrentPosAsIndent();
-    out << "operation: \"" << op->name() << "\",";
-    out << nl << "mode: " << modeToString(op->mode()) << ",";
-
-    if (op->format())
-    {
-        out << nl << "format: " << opFormatTypeToString(op);
-        out << ",";
-    }
-
-    if (!inParams.empty())
-    {
-        out << nl << "write: ";
-        writeMarshalInParams(out, op);
-        out << ",";
-    }
-
-    if (returnsAnyValues)
-    {
-        out << nl << "read: read,";
-    }
-
-    if (!op->throws().empty())
-    {
-        out << nl << "userException:";
-        writeUnmarshalUserException(out, op);
-        out << ",";
-    }
-
-    out << nl << "context: context)";
-
-    out.restoreIndent();
-
-    if (returnsAnyValues)
-    {
-        writeUnmarshalOutParams(out, op);
-    }
-    out << eb;
-}
-
-void
-SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const OperationPtr& op)
-{
-    const string opName = op->mappedName();
-    const ParameterList inParams = op->inParameters();
-    const bool returnsAnyValues = op->returnsAnyValues();
-
-    out << sp;
-    out << nl << "public func _iceD_" << removeEscaping(opName)
-        << "(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
-
-    out << sb;
-
-    if (op->mode() == Operation::Mode::Normal)
-    {
-        out << nl << "try request.current.checkNonIdempotent()";
-    }
-
-    if (inParams.empty())
-    {
-        out << nl << "_ = try request.inputStream.skipEmptyEncapsulation()";
-    }
-    else
-    {
-        out << nl << "let istr = request.inputStream";
-        out << nl << "_ = try istr.startEncapsulation()";
-        writeUnmarshalInParams(out, op);
-    }
-
-    out << nl;
-    if (returnsAnyValues)
-    {
-        out << "let result = ";
-    }
-
-    out << "try await self." << opName;
-    out << spar;
-    for (const auto& param : inParams)
-    {
-        // The swift compiler reports an error if you escape an argument label when calling a function.
-        // So we always need to remove escaping here.
-        const string paramName = removeEscaping(param->mappedName());
-        out << (paramName + ": iceP_" + paramName);
-    }
-    out << "current: request.current";
-    out << epar;
-
-    if (!returnsAnyValues)
-    {
-        out << nl << "return request.current.makeEmptyOutgoingResponse()";
-    }
-    else
-    {
-        out << nl << "return request.current.makeOutgoingResponse(result, formatType: " << opFormatTypeToString(op)
-            << ")";
-        out << sb;
-        out << " ostr, value in ";
-        writeMarshalAsyncOutParams(out, op);
-        out << eb;
-    }
-
-    out << eb;
 }
