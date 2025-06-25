@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadFactory;
 
-/** Utility methods for the Ice run time. */
+/** Utility methods for the Ice runtime. */
 public final class Util {
     /**
      * Creates a new empty property set.
@@ -41,11 +41,11 @@ public final class Util {
     }
 
     /**
-     * Creates a property set initialized from an argument vector and return the remaining
+     * Creates a property set initialized from an argument vector and returns the remaining
      * arguments.
      *
      * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
+     *     the command-line options include a {@code --Ice.Config} option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
      * @param remainingArgs If non null, the given list will contain on return the command-line
@@ -63,12 +63,11 @@ public final class Util {
      * Creates a property set initialized from an argument vector.
      *
      * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
+     *     the command-line options include a {@code --Ice.Config} option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
      * @param defaults Default values for the property set. Settings in configuration files and
-     *     <code>
-     *     args</code> override these defaults.
+     *     {@code args} override these defaults.
      * @return A new property set initialized with the property settings that were removed from the
      *     argument vector.
      * @deprecated Use {@link Properties#Properties(String[], Properties)} instead.
@@ -79,16 +78,15 @@ public final class Util {
     }
 
     /**
-     * Creates a property set initialized from an argument vector and return the remaining
+     * Creates a property set initialized from an argument vector and returns the remaining
      * arguments.
      *
      * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
+     *     the command-line options include a {@code --Ice.Config} option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
      * @param defaults Default values for the property set. Settings in configuration files and
-     *     <code>
-     *     args</code> override these defaults.
+     *     {@code args} override these defaults.
      * @param remainingArgs If non null, the given list will contain on return the command-line
      *     arguments that were not used to set properties.
      * @return A new property set initialized with the property settings that were removed from the
@@ -102,16 +100,16 @@ public final class Util {
     }
 
     /**
-     * Creates a communicator using a default configuration.
+     * Creates a new communicator.
      *
-     * @return A new communicator instance.
+     * @return The new communicator.
      */
     public static Communicator initialize() {
         return initialize(new InitializationData());
     }
 
     /**
-     * Creates a communicator.
+     * Creates a new communicator.
      *
      * @param args A command-line argument vector. Any Ice-related options in this vector are used
      *     to initialize the communicator.
@@ -122,7 +120,7 @@ public final class Util {
     }
 
     /**
-     * Creates a communicator.
+     * Creates a new communicator.
      *
      * @param args A command-line argument vector. Any Ice-related options in this vector are used
      *     to initialize the communicator.
@@ -135,7 +133,7 @@ public final class Util {
     }
 
     /**
-     * Creates a communicator.
+     * Creates a new communicator.
      *
      * @param initData Additional initialization data.
      * @return The new communicator.
@@ -145,7 +143,7 @@ public final class Util {
     }
 
     /**
-     * Creates a communicator.
+     * Creates a new communicator.
      *
      * @param args A command-line argument vector. Any Ice-related options in this vector are used
      *     to initialize the communicator.
@@ -157,7 +155,7 @@ public final class Util {
     }
 
     /**
-     * Creates a communicator.
+     * Creates a new communicator.
      *
      * @param args A command-line argument vector. Any Ice-related options in this vector are used
      *     to initialize the communicator.
@@ -169,12 +167,12 @@ public final class Util {
     }
 
     /**
-     * Creates a communicator.
+     * Creates a new communicator.
      *
      * @param args A command-line argument vector. Any Ice-related options in this vector are used
      *     to initialize the communicator.
-     * @param initData Additional initialization data. Property settings in <code>args</code>
-     *     override property settings in <code>initData</code>.
+     * @param initData Additional initialization data. Property settings in {@code args}
+     *     override property settings in {@code initData}.
      * @param remainingArgs If non null, the given list will contain on return the command-line
      *     arguments that were not used to set properties.
      * @return The new communicator.
@@ -200,7 +198,7 @@ public final class Util {
     }
 
     /**
-     * Creates a communicator.
+     * Creates a new communicator.
      *
      * @param args A command-line argument vector. Any Ice-related options in this vector are used
      *     to initialize the communicator.
@@ -222,7 +220,7 @@ public final class Util {
     }
 
     /**
-     * Converts a string to an object identity.
+     * Converts a stringified identity into an Identity.
      *
      * @param s The string to convert.
      * @return The converted object identity.
@@ -285,11 +283,10 @@ public final class Util {
     }
 
     /**
-     * Converts an object identity to a string.
+     * Converts an Identity into a string using the specified mode.
      *
      * @param ident The object identity to convert.
-     * @param toStringMode Specifies if and how non-printable ASCII characters are escaped in the
-     *     result.
+     * @param toStringMode Specifies how to handle non-ASCII characters and non-printable ASCII characters.
      * @return The string representation of the object identity.
      */
     public static String identityToString(Identity ident, ToStringMode toStringMode) {
@@ -317,8 +314,8 @@ public final class Util {
      *
      * @param lhs A proxy.
      * @param rhs A proxy.
-     * @return -1 if the identity in <code>lhs</code> compares less than the identity in <code>rhs
-     *     </code>; 0 if the identities compare equal; 1, otherwise.
+     * @return -1 if the identity in {@code lhs} compares less than the identity in {@code rhs};
+     *     0 if the identities compare equal; 1, otherwise.
      * @see ProxyIdentityKey
      * @see ProxyIdentityFacetKey
      * @see #proxyIdentityAndFacetCompare
@@ -346,8 +343,8 @@ public final class Util {
      *
      * @param lhs A proxy.
      * @param rhs A proxy.
-     * @return -1 if the identity and facet in <code>lhs</code> compare less than the identity and
-     *     facet in <code>rhs</code>; 0 if the identities and facets compare equal; 1, otherwise.
+     * @return -1 if the identity and facet in {@code lhs} compare less than the identity and
+     *     facet in {@code rhs}; 0 if the identities and facets compare equal; 1, otherwise.
      * @see ProxyIdentityFacetKey
      * @see ProxyIdentityKey
      * @see #proxyIdentityCompare
@@ -384,9 +381,10 @@ public final class Util {
     }
 
     /**
-     * Returns the process-wide logger.
+     * Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
+     * configured at the time the communicator is created.
      *
-     * @return The process-wide logger.
+     * @return The current per-process logger instance.
      */
     public static Logger getProcessLogger() {
         synchronized (_processLoggerMutex) {
@@ -402,9 +400,10 @@ public final class Util {
     }
 
     /**
-     * Changes the process-wide logger.
+     * Sets the per-process logger. This logger is used by all communicators that do not have their own specific logger
+     * configured at the time the communicator is created.
      *
-     * @param logger The new process-wide logger.
+     * @param logger The new per-process logger instance.
      */
     public static void setProcessLogger(Logger logger) {
         synchronized (_processLoggerMutex) {
@@ -413,8 +412,8 @@ public final class Util {
     }
 
     /**
-     * Returns the Ice version in the form <code>A.B.C</code>, where <code>A</code> indicates the
-     * major version, <code>B</code> indicates the minor version, and <code>C</code> indicates the
+     * Returns the Ice version in the form {@code A.B.C}, where {@code A} indicates the
+     * major version, {@code B} indicates the minor version, and {@code C} indicates the
      * patch level.
      *
      * @return The Ice version.
@@ -424,8 +423,8 @@ public final class Util {
     }
 
     /**
-     * Returns the Ice version as an integer in the form <code>A.BB.CC</code>, where <code>A</code>
-     * indicates the major version, <code>BB</code> indicates the minor version, and <code>CC</code>
+     * Returns the Ice version as an integer in the form {@code A.BB.CC}, where {@code A}
+     * indicates the major version, {@code BB} indicates the minor version, and {@code CC}
      * indicates the patch level. For example, for Ice 3.3.1, the returned value is 30301.
      *
      * @return The Ice version.
@@ -511,7 +510,7 @@ public final class Util {
     /**
      * Translates a Slice type id to a Java class name.
      *
-     * @param id The Slice type id, such as <code>::Module::Type</code>.
+     * @param id The Slice type id, such as {@code ::Module::Type}.
      * @return The equivalent Java class name, or null if the type id is malformed.
      */
     public static String typeIdToClass(String id) {

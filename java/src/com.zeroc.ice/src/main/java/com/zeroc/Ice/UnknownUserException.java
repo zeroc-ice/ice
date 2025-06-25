@@ -3,10 +3,8 @@
 package com.zeroc.Ice;
 
 /**
- * The dispatch returned a {@link UserException} that was not declared in the operation's exception
- * specification (the <code>throws</code> clause). This is necessary in order to not violate the
- * contract established by an operation's signature: Only local exceptions and user exceptions
- * declared in the <code>throws</code> clause can be raised.
+ * The exception that is thrown when a client receives a UserException that was not declared in the operation's
+ * exception specification.
  */
 public final class UnknownUserException extends UnknownException {
     /**

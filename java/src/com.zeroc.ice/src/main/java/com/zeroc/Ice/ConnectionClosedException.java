@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates that a connection was closed gracefully. */
+/** The exception that is thrown when an operation fails because the connection has been closed gracefully. */
 public final class ConnectionClosedException extends LocalException {
     /**
      * Constructs a ConnectionClosedException.

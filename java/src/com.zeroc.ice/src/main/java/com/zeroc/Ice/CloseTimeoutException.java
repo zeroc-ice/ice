@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates a connection closure timeout condition. */
+/** The exception that is thrown when a graceful connection closure times out. */
 public final class CloseTimeoutException extends TimeoutException {
     /**
      * Constructs a CloseTimeoutException.

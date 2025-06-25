@@ -17,13 +17,10 @@ public interface Connection {
     void close();
 
     /**
-     * Create a special proxy that always uses this connection. This can be used for callbacks from
-     * a server to a client if the server cannot directly establish a connection to the client, for
-     * example because of firewalls. In this case, the server would create a proxy using an already
-     * established connection from the client.
+     * Creates a special proxy (a "fixed proxy") that always uses this connection.
      *
-     * @param id The identity for which a proxy is to be created.
-     * @return A proxy that matches the given identity and uses this connection.
+     * @param id The identity of the target object.
+     * @return A fixed proxy with the provided identity.
      * @see #setAdapter
      */
     ObjectPrx createProxy(Identity id);
@@ -53,15 +50,15 @@ public interface Connection {
     ObjectAdapter getAdapter();
 
     /**
-     * Get the endpoint from which the connection was created.
+     * Gets the endpoint from which the connection was created.
      *
      * @return The endpoint from which the connection was created.
      */
     Endpoint getEndpoint();
 
     /**
-     * Flush any pending batch requests for this connection. This means all batch requests invoked
-     * on fixed proxies associated with the connection.
+     * Flushes any pending batch requests for this connection. This corresponds to all batch requests invoked on
+     * fixed proxies associated with the connection.
      *
      * @param compress Specifies whether or not the queued batch requests should be compressed
      *     before being sent over the wire.
@@ -69,61 +66,59 @@ public interface Connection {
     void flushBatchRequests(CompressBatch compress);
 
     /**
-     * Flush any pending batch requests for this connection. This means all batch requests invoked
-     * on fixed proxies associated with the connection.
+     * Flushes any pending batch requests for this connection. This corresponds to all batch requests invoked on
+     * fixed proxies associated with the connection.
      *
      * @param compress Specifies whether or not the queued batch requests should be compressed
      *     before being sent over the wire.
-     * @return A future that will be completed when the invocation completes.
+     * @return A future that becomes available when the flush completes.
      */
     CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compress);
 
     /**
-     * Set a close callback on the connection. The callback is called by the connection when it's
-     * closed. The callback is called from the Ice thread pool associated with the connection. If
-     * the callback needs more information about the closure, it can call {@link
-     * Connection#throwException}.
+     * Sets a close callback on the connection. The callback is called by the connection when it's closed. The
+     * callback is called from the Ice thread pool associated with the connection.
      *
      * @param callback The close callback object.
      */
     void setCloseCallback(CloseCallback callback);
 
     /**
-     * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
+     * Gets the connection type. This corresponds to the endpoint type, such as "tcp", "udp", etc.
      *
      * @return The type of the connection.
      */
     String type();
 
     /**
-     * Return a description of the connection as human readable text, suitable for logging or error
+     * Gets a description of the connection as human readable text, suitable for logging or error
      * messages.
      *
      * @return The description of the connection as human readable text.
+     * @remark This method remains usable after the connection is closed or aborted.
      */
     String _toString();
 
     /**
-     * Returns the connection information.
+     * Gets the connection information.
      *
      * @return The connection information.
      */
     ConnectionInfo getInfo();
 
     /**
-     * Set the connection buffer receive/send size.
+     * Sets the size of the receive and send buffers.
      *
-     * @param rcvSize The connection receive buffer size.
-     * @param sndSize The connection send buffer size.
+     * @param rcvSize The size of the receive buffer.
+     * @param sndSize The size of the send buffer.
      */
     void setBufferSize(int rcvSize, int sndSize);
 
     /**
-     * Throw an exception indicating the reason for connection closure. For example, {@link
-     * CloseConnectionException} is raised if the connection was closed gracefully, whereas {@link
-     * ConnectionAbortedException}/{@link ConnectionClosedException} is raised if the connection was
-     * manually closed by the application. This operation does nothing if the connection is not yet
-     * closed.
+     * Throws an exception that provides the reason for the closure of this connection. For example, this method
+     * throws CloseConnectionException when the connection was closed gracefully by the peer; it throws
+     * ConnectionAbortedException when the connection is aborted. This method does nothing if the
+     * connection is not yet closed.
      */
     void throwException();
 }

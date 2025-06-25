@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception is raised for errors during marshaling or unmarshaling. */
+/** The exception that is thrown when an error occurs during marshaling or unmarshaling. */
 public final class MarshalException extends ProtocolException {
     /**
      * Constructs a MarshalException with a message.
