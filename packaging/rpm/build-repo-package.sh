@@ -1,8 +1,51 @@
 #!/bin/bash
 set -eux  # Exit on error, print commands
 
-: "${CHANNEL:?Must set CHANNEL}"
-: "${PLATFORM:?Must set PLATFORM}"
+# Required environment: GPG_KEY, GPG_KEY_ID
+
+# Default values
+DISTRIBUTION=""
+CHANNEL=""
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --distribution)
+            DISTRIBUTION="$2"
+            shift 2
+            ;;
+        --channel)
+            CHANNEL="$2"
+            shift 2
+            ;;
+        *)
+            echo "Unknown argument: $1"
+            exit 1
+            ;;
+    esac
+done
+
+# Validate required inputs
+: "${DISTRIBUTION:?Missing --distribution}"
+: "${CHANNEL:?Missing --channel}"
+
+# Validate distribution
+case "$DISTRIBUTION" in
+    el9|el10|amzn2023) ;;
+    *)
+        echo "Error: DISTRIBUTION must be 'el9', 'el10', or 'amzn2023'" >&2
+        exit 1
+        ;;
+esac
+
+# Validate channel
+case "$CHANNEL" in
+    3.8|nightly) ;;
+    *)
+        echo "Error: CHANNEL must be '3.8' or 'nightly'" >&2
+        exit 1
+        ;;
+esac
 
 # Define build root directory
 RPM_BUILD_ROOT="/workspace/build"
@@ -24,7 +67,7 @@ RPM_MACROS+=(--define "vendor ZeroC, Inc.")
 REPO_TARGET="$RPM_BUILD_ROOT/SOURCES/zeroc-ice-$CHANNEL.repo"
 cp "/workspace/ice/packaging/rpm/zeroc-ice.repo.in" "$REPO_TARGET"
 sed -i "s/@CHANNEL@/$CHANNEL/g" "$REPO_TARGET"
-sed -i "s/@PLATFORM@/$PLATFORM/g" "$REPO_TARGET"
+sed -i "s/@DISTRIBUTION@/$DISTRIBUTION/g" "$REPO_TARGET"
 
 # Build source RPM
 rpmbuild -bs "$SPEC_DEST" "${RPM_MACROS[@]}"

@@ -1,31 +1,25 @@
-name: "Build Ice Repo RPM Packages"
+name: "Build Ice Repo DEB Packages"
 
 on:
   workflow_dispatch
 
 jobs:
   build:
-    name: "Build Ice Repo RPM packages for ${{ matrix.distribution }}"
+    name: "Build Ice Repo DEB packages for ${{ matrix.distribution }}"
     runs-on: ubuntu-24.04
     strategy:
       matrix:
         include:
-          - distribution: el9
+          - distribution: debian12
             channel: 3.8
 
-          - distribution: el10
+          - distribution: ubuntu24.04
             channel: 3.8
 
-          - distribution: amzn2023
-            channel: 3.8
-
-          - distribution: el9
+          - distribution: debian12
             channel: nightly
 
-          - distribution: el10
-            channel: nightly
-
-          - distribution: amzn2023
+          - distribution: ubuntu24.04
             channel: nightly
 
     steps:
@@ -44,28 +38,18 @@ jobs:
           username: zeroc-ice
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build RPM packages
+      - name: Build DEB packages
         run: |
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
-            ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }} \
-            /workspace/ice/packaging/rpm/build-repo-package.sh \
-            --distribution "${{ matrix.distribution }}" \
-            --channel "${{ matrix.channel }}" \
+            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}" \
+            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
+            ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }} \
+            /workspace/ice/packaging/deb/build-repo-package.sh \
+            --distribution="${{ matrix.distribution }}" \
+            --channel="${{ matrix.channel }}"
 
-      - name: Sign RPM packages and create repository
-        run: |
-          docker_args=(
-            --rm
-            -v "$GITHUB_WORKSPACE:/workspace"
-            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}"
-            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}"
-            ghcr.io/zeroc-ice/rpm-repo-builder
-          )
-
-          docker run "${docker_args[@]}" /usr/local/bin/rpm-sign /workspace/build/
-
-      - name: Sync RPM packages to S3
+      - name: Sync DEB packages to S3
         run: |
           # Validate CHANNEL
           case "$CHANNEL" in
@@ -78,7 +62,7 @@ jobs:
 
           # Validate DISTRIBUTION
           case "$DISTRIBUTION" in
-            el9|el10|amzn2023) ;;
+            debian12|ubuntu24.04) ;;
             *)
               echo "Invalid DISTRIBUTION: $DISTRIBUTION"
               exit 1
@@ -88,10 +72,9 @@ jobs:
           mkdir -p "$DISTRIBUTION"
           aws s3 sync s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION $DISTRIBUTION
 
-          rpm="ice-repo-${CHANNEL}-1.0.0-1.${DISTRIBUTION}.noarch.rpm"
-          cp -pn "build/RPMS/noarch/$rpm" "${DISTRIBUTION}/$rpm"
+          cp -pn "build/*.deb" "${DISTRIBUTION}/"
 
-          aws s3 sync "$DISTRIBUTION" s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION --delete
+          aws s3 sync "$DISTRIBUTION" s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION
         env:
           CHANNEL: ${{ matrix.channel }}
           DISTRIBUTION: ${{ matrix.distribution }}
@@ -101,7 +84,6 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rpm-packages-${{ matrix.channel }}-${{ matrix.distribution }}
+          name: deb-packages-${{ matrix.channel }}-${{ matrix.distribution }}
           path: |
-            build/RPMS/*
-            build/SRPMS/*
+            build/*.deb
