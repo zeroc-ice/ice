@@ -27,6 +27,4 @@ function client(args)
             rethrow(ex);
         end
     end
-
-    clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

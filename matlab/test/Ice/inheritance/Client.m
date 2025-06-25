@@ -11,6 +11,4 @@ function client(args)
     cleanup = onCleanup(@() communicator.destroy());
     initial = AllTests.allTests(helper);
     initial.shutdown();
-
-    clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

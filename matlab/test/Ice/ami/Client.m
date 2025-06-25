@@ -18,6 +18,4 @@ function client(args)
     communicator = helper.initialize(Properties = properties);
     cleanup = onCleanup(@() communicator.destroy());
     AllTests.allTests(helper);
-
-    clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

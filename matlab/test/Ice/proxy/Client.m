@@ -12,6 +12,4 @@ function client(args)
 
     myClass = AllTests.allTests(helper);
     myClass.shutdown();
-
-    clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

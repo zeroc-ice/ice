@@ -79,6 +79,4 @@ function client(args)
         assert(isa(ex, 'Ice.PropertyException'));
     end
     fprintf('ok\n');
-
-    clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

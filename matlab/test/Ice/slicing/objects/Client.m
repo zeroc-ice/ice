@@ -16,6 +16,4 @@ function client(args)
     cleanup = onCleanup(@() communicator.destroy());
     test = AllTests.allTests(helper, customSliceLoader);
     test.shutdown();
-
-    clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end
