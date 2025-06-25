@@ -807,10 +807,7 @@ Slice::Swift::writeDefaultInitializer(IceInternal::Output& out, bool required, b
 }
 
 void
-Slice::Swift::writeMemberwiseInitializer(
-    IceInternal::Output& out,
-    const DataMemberList& members,
-    const ContainedPtr& p)
+Slice::Swift::writeMemberwiseInitializer(IceInternal::Output& out, const DataMemberList& members, const ContainedPtr& p)
 {
     writeMemberwiseInitializer(out, members, DataMemberList(), members, p, true);
 }

@@ -38,7 +38,7 @@ namespace Slice::Swift
     std::string modeToString(Operation::Mode);
     std::string getOptionalFormat(const TypePtr&);
 
-    static bool isNullableType(const TypePtr&);
+    bool isNullableType(const TypePtr&);
 
     /// Returns a string representing the Swift type `contained` maps to.
     ///
