@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    name: "Build Ice Repo DEB packages for ${{ matrix.distribution }}"
+    name: "Build Ice Repo DEB packages for ${{ matrix.distribution }} ${{ matrix.channel }}"
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -72,7 +72,7 @@ jobs:
           mkdir -p "$DISTRIBUTION"
           aws s3 sync s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION $DISTRIBUTION
 
-          cp -pn "build/*.deb" "${DISTRIBUTION}/"
+          cp -pn build/*.deb "${DISTRIBUTION}/"
 
           aws s3 sync "$DISTRIBUTION" s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION
         env:
