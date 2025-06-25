@@ -813,6 +813,7 @@ public final class Properties {
 
     /**
      * Find a property by key in a property array.
+     *
      * @param key The property key.
      * @param propertyArray The property array to search.
      * @return The property if found, null otherwise.
@@ -857,6 +858,7 @@ public final class Properties {
 
     /**
      * Validate properties with a given prefix.
+     *
      * @param prefix The property prefix.
      * @param properties The properties to validate.
      * @param propertyArray The property array to validate against.
@@ -894,6 +896,7 @@ public final class Properties {
 
     /**
      * Find an Ice property array by key.
+     *
      * @param key The property key.
      * @return The property array if found, null otherwise.
      */
@@ -915,6 +918,7 @@ public final class Properties {
 
     /**
      * Gets the default value for a given Ice property.
+     *
      * @param key The property key.
      * @return The default value.
      * @throws PropertyException if the property is unknown.
