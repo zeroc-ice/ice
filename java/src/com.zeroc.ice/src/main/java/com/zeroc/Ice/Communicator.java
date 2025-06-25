@@ -5,6 +5,7 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
+import java.security.Identity;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +26,7 @@ public final class Communicator implements AutoCloseable {
     private final Instance _instance;
 
     /**
-     * Destroy the communicator. This Java-only method overrides close in java.lang.AutoCloseable
-     * and does not throw any exception.
-     *
-     * @see #destroy
+     * An alias for {@link #destroy}.
      */
     public void close() {
         _instance.destroy(
@@ -36,9 +34,9 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Destroy the communicator. This operation calls {@link #shutdown} implicitly. Calling {@link
-     * #destroy} cleans up memory, and shuts down this communicator's client functionality and
-     * destroys all object adapters. Subsequent calls to {@link #destroy} are ignored.
+     * Destroys this communicator. This method calls {@link #shutdown} implicitly. Calling {@link #destroy} destroys all
+     * object adapters, and closes all outgoing connections. destroy waits for all outstanding dispatches to
+     * complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
      *
      * @see #shutdown
      * @see ObjectAdapter#destroy
@@ -48,9 +46,8 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Shuts down this communicator: call {@link ObjectAdapter#deactivate} on all object adapters
-     * created by this communicator. Shutting down a communicator has no effect on outgoing
-     * connections.
+     * Shuts down this communicator: call {@link ObjectAdapter#deactivate} on all object adapters created by this
+     * communicator. Shutting down a communicator has no effect on outgoing connections.
      *
      * @see #destroy
      * @see #waitForShutdown
@@ -65,13 +62,9 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Wait until the application has called {@link #shutdown} (or {@link #destroy}). On the server
-     * side, this operation blocks the calling thread until all currently-executing operations have
-     * completed. On the client side, the operation simply blocks until another thread has called
-     * {@link #shutdown} or {@link #destroy}. A typical use of this operation is to call it from the
-     * main thread, which then waits until some other thread calls {@link #shutdown}. After
-     * shut-down is complete, the main thread returns and can do some cleanup work before it finally
-     * calls {@link #destroy} to shut down the client functionality, and then exits the application.
+     * Waits for shutdown to complete. This method calls {@link ObjectAdapter#waitForDeactivate} on all object adapters
+     * created by this communicator. In a client application that does not accept incoming connections, this
+     * method returns as soon as another thread calls {@link #shutdown} or {@link #destroy} on this communicator.
      *
      * @see #shutdown
      * @see #destroy
@@ -86,9 +79,9 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Check whether communicator has been shut down.
+     * Checks whether or not {@link #shutdown} was called on this communicator.
      *
-     * @return True if the communicator has been shut down; false otherwise.
+     * @return True if {@link #shutdown} was called on this communicator; false otherwise.
      * @see #shutdown
      */
     public boolean isShutdown() {

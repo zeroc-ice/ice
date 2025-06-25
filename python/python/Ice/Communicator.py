@@ -65,17 +65,17 @@ class Communicator:
 
     def destroy(self):
         """
-        Destroy the communicator. This operation calls shutdown implicitly. Calling destroy cleans up
-        memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
-        calls to destroy are ignored.
+        Destroys this communicator. This method calls shutdown implicitly. Calling destroy destroys all
+        object adapters, and closes all outgoing connections. destroy waits for all outstanding dispatches to
+        complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
         """
         self._impl.destroy()
 
     def destroyAsync(self):
         """
-        Asynchronously destroy the communicator. This operation calls shutdown implicitly. Calling destroy cleans up
-        memory, and shuts down this communicator's client functionality and destroys all object adapters. Subsequent
-        calls to destroy are ignored.
+        Destroys this communicator asynchronously. This method calls shutdown implicitly. Calling destroy destroys all
+        object adapters, and closes all outgoing connections. destroy waits for all outstanding dispatches to
+        complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
         """
         future = Future()
         def completed():
@@ -90,23 +90,16 @@ class Communicator:
 
     def shutdown(self):
         """
-        Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
-        Attempts to use a deactivated object adapter raise ObjectAdapterDeactivatedException. Subsequent calls to
-        shutdown are ignored.
-        After shutdown returns, no new requests are processed. However, requests that have been started before shutdown
-        was called might still be active. You can use waitForShutdown to wait for the completion of all
-        requests.
+        Shuts down this communicator. This method calls deactivate on all object adapters created by this
+        communicator. Shutting down a communicator has no effect on outgoing connections.
         """
         self._impl.shutdown()
 
     def waitForShutdown(self):
         """
-        Wait until the application has called shutdown (or destroy). On the server side, this
-        operation blocks the calling thread until all currently-executing operations have completed. On the client
-        side, the operation simply blocks until another thread has called shutdown or destroy.
-        A typical use of this operation is to call it from the main thread, which then waits until some other thread
-        calls shutdown. After shut-down is complete, the main thread returns and can do some cleanup work
-        before it finally calls destroy to shut down the client functionality, and then exits the application.
+        Waits for shutdown to complete. This method calls waitForDeactivate on all object adapters
+        created by this communicator. In a client application that does not accept incoming connections, this
+        method returns as soon as another thread calls shutdown or destroy on this communicator.
         """
         # If invoked by the main thread, waitForShutdown only blocks for the specified timeout in order to give us a
         # chance to handle signals.
@@ -128,12 +121,12 @@ class Communicator:
 
     def isShutdown(self):
         """
-        Check whether the communicator has been shut down.
+        Checks whether or not shutdown was called on this communicator.
 
         Returns
         -------
         bool
-            True if the communicator has been shut down; False otherwise.
+            True if shutdown was called on this communicator; False otherwise.
         """
         return self._impl.isShutdown()
 

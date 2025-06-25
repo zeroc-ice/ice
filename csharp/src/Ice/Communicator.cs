@@ -58,9 +58,9 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    /// Destroys the communicator. This operation calls shutdown implicitly. Calling destroy cleans up memory, and shuts
-    /// down this communicator's client functionality and destroys all object adapters. Subsequent calls to destroy are
-    /// ignored.
+    /// Destroys the communicator. This method calls <see cref="shutdown" /> implicitly. Calling destroy destroys all
+    /// object adapters, and closes all outgoing connections. This method waits for all outstanding dispatches to
+    /// complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
     /// </summary>
     public void destroy() => instance.destroy();
 
@@ -81,12 +81,10 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    /// Waits until the application has called <see cref="shutdown" /> (or <see cref="destroy" />).
-    /// On the server side, this method blocks the calling thread until all currently-executing dispatches have
-    /// completed. On the client side, the method simply blocks until another thread has called shutdown or destroy.
-    /// A typical use of this method is to call it from the main thread, which then waits until some other thread
-    /// calls shutdown. After shut-down is complete, the main thread returns and can do some cleanup work
-    /// before it finally calls destroy to shut down the client functionality, and then exits the application.
+    /// Waits for the shutdown of this communicator to complete.
+    /// This method calls <see cref="ObjectAdapter.waitForDeactivate" /> on all object adapters created by this
+    /// communicator. In a client application that does not accept incoming connections, this method returns as soon as
+    /// another thread calls <see cref="shutdown" /> or <see cref="destroy" /> on this communicator.
     /// </summary>
     public void waitForShutdown()
     {
@@ -101,9 +99,9 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
-    /// Checks whether communicator has been shut down.
+    /// Checks whether or not <see cref="shutdown" /> has been called on this communicator.
     /// </summary>
-    /// <returns>True if the communicator has been shut down; false otherwise.</returns>
+    /// <returns>True if shutdown was called on this communicator; false otherwise.</returns>
     public bool isShutdown()
     {
         try

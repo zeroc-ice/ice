@@ -11,8 +11,10 @@ declare module "@zeroc/ice" {
          */
         interface Communicator {
             /**
-             * Destroy the communicator. This operation calls {@link Communicator#shutdown} implicitly. Calling {@link Communicator#destroy} cleans up
-             * memory, and shuts down this communicator's client functionality and destroys all object adapters.
+             * Destroys this communicator. This method calls {@link Communicator#shutdown} implicitly. Calling
+             * {@link Communicator#destroy} destroys all object adapters, and closes all outgoing connections. `destroy`
+             * waits for all outstanding dispatches to complete before returning. This includes "bidirectional
+             * dispatches" that execute on outgoing connections.
              *
              * @returns A promise that is resolved when the communicator has been destroyed.
              *
@@ -46,7 +48,7 @@ declare module "@zeroc/ice" {
             /**
              * Checks whether {@link Communicator#shutdown} has been called.
              *
-             * @returns `true` if the communicator has been shut down; `false` otherwise.
+             * @returns `true` if `shutdown` was called on this communicator; `false` otherwise.
              *
              * @see {@link shutdown}
              */
