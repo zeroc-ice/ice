@@ -52,10 +52,7 @@ public class EndpointInfo
         compress = underlying.compress;
     }
 
-    protected EndpointInfo(bool compress)
-    {
-        this.compress = compress;
-    }
+    protected EndpointInfo(bool compress) => this.compress = compress;
 }
 
 /// <summary>
