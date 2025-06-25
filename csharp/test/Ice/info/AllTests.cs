@@ -49,7 +49,6 @@ public class AllTests : global::Test.AllTests
             test(tcpEndpoint.host == "tcphost");
             test(tcpEndpoint.port == 10000);
             test(tcpEndpoint.sourceAddress == "10.10.10.10");
-            test(tcpEndpoint.timeout == 1200);
             test(tcpEndpoint.compress);
             test(!tcpEndpoint.datagram());
 
@@ -68,7 +67,6 @@ public class AllTests : global::Test.AllTests
             test(udpEndpoint.mcastInterface == "eth0");
             test(udpEndpoint.mcastTtl == 5);
             test(udpEndpoint.sourceAddress == "10.10.10.10");
-            test(udpEndpoint.timeout == -1);
             test(!udpEndpoint.compress);
             test(!udpEndpoint.secure());
             test(udpEndpoint.datagram());
@@ -102,7 +100,6 @@ public class AllTests : global::Test.AllTests
 
             test(tcpEndpoint.host.Equals(host));
             test(tcpEndpoint.port > 0);
-            test(tcpEndpoint.timeout == 15000);
 
             var udpEndpoint = (Ice.UDPEndpointInfo)endpoints[1].getInfo();
             test(udpEndpoint.host.Equals(host));

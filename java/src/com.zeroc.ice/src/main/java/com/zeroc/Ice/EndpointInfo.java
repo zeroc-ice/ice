@@ -7,9 +7,6 @@ public class EndpointInfo {
     /** The information of the underlying endpoint or null if there's no underlying endpoint. */
     public final EndpointInfo underlying;
 
-    /** The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout. */
-    public final int timeout;
-
     /**
      * Specifies whether or not compression should be used if available when using this endpoint.
      */
@@ -48,19 +45,16 @@ public class EndpointInfo {
     protected EndpointInfo(EndpointInfo underlying) {
         assert underlying != null;
         this.underlying = underlying;
-        this.timeout = underlying.timeout;
         this.compress = underlying.compress;
     }
 
     /**
-     * Constructs an EndpointInfo with the specified timeout and compression flag.
+     * Constructs an EndpointInfo with the specified compression flag.
      *
-     * @param timeout The timeout in milliseconds. 0 means non-blocking, -1 means no timeout.
      * @param compress True if compression should be used if available.
      */
-    protected EndpointInfo(int timeout, boolean compress) {
+    protected EndpointInfo(boolean compress) {
         this.underlying = null;
-        this.timeout = timeout;
         this.compress = compress;
     }
 }

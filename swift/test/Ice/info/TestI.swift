@@ -32,7 +32,6 @@ final class TestI: TestIntf {
     func getEndpointInfoAsContext(current: Ice.Current) -> Ice.Context {
         var ctx = Ice.Context()
         let info = current.con!.getEndpoint().getInfo()!
-        ctx["timeout"] = "\(info.timeout)"
         ctx["compress"] = info.compress ? "true" : "false"
         ctx["datagram"] = info.datagram() ? "true" : "false"
         ctx["secure"] = info.datagram() ? "true" : "false"

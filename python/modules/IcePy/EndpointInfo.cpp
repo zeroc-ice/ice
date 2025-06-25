@@ -66,12 +66,6 @@ endpointInfoGetUnderlying(EndpointInfoObject* self, PyObject* /*args*/)
 }
 
 extern "C" PyObject*
-endpointInfoGetTimeout(EndpointInfoObject* self, PyObject* /*args*/)
-{
-    return PyLong_FromLong((*self->endpointInfo)->timeout);
-}
-
-extern "C" PyObject*
 endpointInfoGetCompress(EndpointInfoObject* self, PyObject* /*args*/)
 {
     return (*self->endpointInfo)->compress ? Py_True : Py_False;
@@ -155,11 +149,6 @@ static PyGetSetDef EndpointInfoGetters[] = {
      reinterpret_cast<getter>(endpointInfoGetUnderlying),
      nullptr,
      PyDoc_STR("underling endpoint information"),
-     nullptr},
-    {"timeout",
-     reinterpret_cast<getter>(endpointInfoGetTimeout),
-     nullptr,
-     PyDoc_STR("timeout in milliseconds"),
      nullptr},
     {"compress", reinterpret_cast<getter>(endpointInfoGetCompress), nullptr, PyDoc_STR("compression status"), nullptr},
     {} /* sentinel */

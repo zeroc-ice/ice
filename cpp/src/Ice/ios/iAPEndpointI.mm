@@ -126,8 +126,14 @@ IceObjC::iAPEndpointI::streamWriteImpl(OutputStream* s) const
 EndpointInfoPtr
 IceObjC::iAPEndpointI::getInfo() const noexcept
 {
-    return make_shared<
-        Ice::IAPEndpointInfo>(_timeout, _compress, _manufacturer, _modelNumber, _name, protocol(), type(), secure());
+    return make_shared<Ice::IAPEndpointInfo>(
+        _compress,
+        _manufacturer,
+        _modelNumber,
+        _name,
+        protocol(),
+        type(),
+        secure());
 }
 
 int16_t

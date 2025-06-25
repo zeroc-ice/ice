@@ -21,8 +21,7 @@ public typealias EndpointSeq = [Endpoint]
 open class EndpointInfo {
     /// The information of the underlying endpoint or null if there's no underlying endpoint.
     public let underlying: EndpointInfo?
-    /// The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
-    public let timeout: Int32
+
     /// Specifies whether or not compression should be used if available when using this endpoint.
     public let compress: Bool
 
@@ -49,13 +48,11 @@ open class EndpointInfo {
 
     public init(underlying: EndpointInfo) {
         self.underlying = underlying
-        self.timeout = underlying.timeout
         self.compress = underlying.compress
     }
 
-    public init(timeout: Int32, compress: Bool) {
+    public init(compress: Bool) {
         self.underlying = nil
-        self.timeout = timeout
         self.compress = compress
     }
 }
@@ -69,11 +66,11 @@ open class IPEndpointInfo: EndpointInfo {
     /// The source IP address.
     public let sourceAddress: String
 
-    public init(timeout: Int32, compress: Bool, host: String, port: Int32, sourceAddress: String) {
+    public init(compress: Bool, host: String, port: Int32, sourceAddress: String) {
         self.host = host
         self.port = port
         self.sourceAddress = sourceAddress
-        super.init(timeout: timeout, compress: compress)
+        super.init(compress: compress)
     }
 }
 
@@ -90,14 +87,10 @@ public final class TCPEndpointInfo: IPEndpointInfo {
         _secure
     }
 
-    internal init(
-        timeout: Int32, compress: Bool, host: String, port: Int32, sourceAddress: String, type: Int16,
-        secure: Bool
-    ) {
+    internal init(compress: Bool, host: String, port: Int32, sourceAddress: String, type: Int16, secure: Bool) {
         self._type = type
         self._secure = secure
-        super.init(
-            timeout: timeout, compress: compress, host: host, port: port, sourceAddress: sourceAddress)
+        super.init(compress: compress, host: host, port: port, sourceAddress: sourceAddress)
     }
 }
 
@@ -126,8 +119,7 @@ public final class UDPEndpointInfo: IPEndpointInfo {
     ) {
         self.mcastInterface = mcastInterface
         self.mcastTtl = mcastTtl
-        super.init(
-            timeout: -1, compress: compress, host: host, port: port, sourceAddress: sourceAddress)
+        super.init(compress: compress, host: host, port: port, sourceAddress: sourceAddress)
     }
 }
 
@@ -165,8 +157,7 @@ public final class IAPEndpointInfo: EndpointInfo {
     }
 
     internal init(
-        timeout: Int32, compress: Bool, manufacturer: String, modelNumber: String, name: String,
-        protocol: String,
+        compress: Bool, manufacturer: String, modelNumber: String, name: String, protocol: String,
         type: Int16, secure: Bool
     ) {
         self.manufacturer = manufacturer
@@ -175,7 +166,7 @@ public final class IAPEndpointInfo: EndpointInfo {
         self.`protocol` = `protocol`
         self._type = type
         self._secure = secure
-        super.init(timeout: timeout, compress: compress)
+        super.init(compress: compress)
     }
 }
 
@@ -196,6 +187,6 @@ public final class OpaqueEndpointInfo: EndpointInfo {
         self.rawEncoding = rawEncoding
         self.rawBytes = rawBytes
         self._type = type
-        super.init(timeout: -1, compress: false)
+        super.init(compress: false)
     }
 }

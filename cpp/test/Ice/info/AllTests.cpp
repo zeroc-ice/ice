@@ -70,7 +70,6 @@ allTests(Test::TestHelper* helper)
         test(ipEndpoint);
         test(ipEndpoint->host == "tcphost");
         test(ipEndpoint->port == 10000);
-        test(ipEndpoint->timeout == 1200);
         test(ipEndpoint->sourceAddress == "10.10.10.10");
         test(ipEndpoint->compress);
         test(!ipEndpoint->datagram());
@@ -93,7 +92,6 @@ allTests(Test::TestHelper* helper)
         test(udpEndpoint->sourceAddress == "10.10.10.10");
         test(udpEndpoint->mcastInterface == "eth0");
         test(udpEndpoint->mcastTtl == 5);
-        test(udpEndpoint->timeout == -1);
         test(!udpEndpoint->compress);
         test(!udpEndpoint->secure());
         test(udpEndpoint->datagram());
@@ -133,7 +131,6 @@ allTests(Test::TestHelper* helper)
                 ipEndpoint->type() == Ice::WSEndpointType || ipEndpoint->type() == Ice::WSSEndpointType);
             test(ipEndpoint->host == "127.0.0.1");
             test(ipEndpoint->port > 0);
-            test(ipEndpoint->timeout == 15000);
 
             Ice::UDPEndpointInfoPtr udpEndpoint = dynamic_pointer_cast<Ice::UDPEndpointInfo>(endpoints[1]->getInfo());
             test(udpEndpoint);

@@ -3,7 +3,6 @@ classdef EndpointInfo < handle
     %
     %   EndpointInfo Properties:
     %     underlying - The EndpointInfo of the underlying endpoint, if any.
-    %     timeout - The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
     %     compress - Specifies whether or not compression should be used if available when using this endpoint.
     %
     %   EndpointInfo Methods:
@@ -71,26 +70,20 @@ classdef EndpointInfo < handle
         %   Ice.EndpointInfo scalar | empty array of Ice.EndpointInfo
         underlying Ice.EndpointInfo {mustBeScalarOrEmpty}
 
-        %TIMEOUT The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
-        %   int32 scalar
-        timeout (1, 1) int32
-
         %COMPRESS Specifies whether or not compression should be used if available when using this endpoint.
         %   logical scalar
         compress (1, 1) logical
     end
     methods(Hidden, Access=protected)
-        function obj = EndpointInfo(underlying, timeout, compress)
+        function obj = EndpointInfo(underlying, compress)
             if nargin == 1
                 assert(~isempty(underlying), 'underlying cannot be empty');
-                timeout = underlying.timeout;
                 compress = underlying.compress;
             else
                 assert(isempty(underlying), 'underlying must be empty');
-                assert(nargin == 3, 'Invalid number of arguments');
+                assert(nargin == 2, 'Invalid number of arguments');
             end
             obj.underlying = underlying;
-            obj.timeout = timeout;
             obj.compress = compress;
         end
     end

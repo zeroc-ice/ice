@@ -22,9 +22,9 @@ classdef IPEndpointInfo < Ice.EndpointInfo
         sourceAddress (1, :) char
     end
     methods(Hidden, Access=protected)
-        function obj = IPEndpointInfo(timeout, compress, host, port, sourceAddress)
-            assert(nargin == 5, 'Invalid number of arguments');
-            obj@Ice.EndpointInfo(Ice.EndpointInfo.empty, timeout, compress);
+        function obj = IPEndpointInfo(compress, host, port, sourceAddress)
+            assert(nargin == 4, 'Invalid number of arguments');
+            obj@Ice.EndpointInfo(Ice.EndpointInfo.empty, compress);
             obj.host = host;
             obj.port = port;
             obj.sourceAddress = sourceAddress;

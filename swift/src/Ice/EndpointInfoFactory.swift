@@ -4,8 +4,7 @@ import IceImpl
 
 final class EndpointInfoFactory: ICEEndpointInfoFactory {
     static func createTCPEndpointInfo(
-        _ timeout: Int32,
-        compress: Bool,
+        _ compress: Bool,
         host: String,
         port: Int32,
         sourceAddress: String,
@@ -13,7 +12,6 @@ final class EndpointInfoFactory: ICEEndpointInfoFactory {
         secure: Bool
     ) -> Any {
         TCPEndpointInfo(
-            timeout: timeout,
             compress: compress,
             host: host,
             port: port,
@@ -53,8 +51,7 @@ final class EndpointInfoFactory: ICEEndpointInfoFactory {
     }
 
     static func createIAPEndpointInfo(
-        _ timeout: Int32,
-        compress: Bool,
+        _ compress: Bool,
         manufacturer: String,
         modelNumber: String,
         name: String,
@@ -63,7 +60,6 @@ final class EndpointInfoFactory: ICEEndpointInfoFactory {
         secure: Bool
     ) -> Any {
         IAPEndpointInfo(
-            timeout: timeout,
             compress: compress,
             manufacturer: manufacturer,
             modelNumber: modelNumber,

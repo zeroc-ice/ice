@@ -28,7 +28,6 @@ class MyDerivedClassI(Test.TestIntf):
     def getEndpointInfoAsContext(self, current):
         ctx = {}
         info = getIPEndpointInfo(current.con.getEndpoint().getInfo())
-        ctx["timeout"] = str(info.timeout)
         if info.compress:
             ctx["compress"] = "true"
         else:

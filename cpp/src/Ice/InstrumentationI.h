@@ -108,7 +108,6 @@ namespace IceInternal
         attrs.add("endpointType", &Helper::getEndpointInfo, &Ice::EndpointInfo::type);
         attrs.add("endpointIsDatagram", &Helper::getEndpointInfo, &Ice::EndpointInfo::datagram);
         attrs.add("endpointIsSecure", &Helper::getEndpointInfo, &Ice::EndpointInfo::secure);
-        attrs.add("endpointTimeout", &Helper::getEndpointInfo, &Ice::EndpointInfo::timeout);
         attrs.add("endpointCompress", &Helper::getEndpointInfo, &Ice::EndpointInfo::compress);
 
         attrs.add("endpointHost", &Helper::getEndpointInfo, &Ice::IPEndpointInfo::host);

@@ -42,8 +42,7 @@
     auto tcpInfo = std::dynamic_pointer_cast<Ice::TCPEndpointInfo>(infoPtr);
     if (tcpInfo)
     {
-        return [factory createTCPEndpointInfo:tcpInfo->timeout
-                                     compress:tcpInfo->compress
+        return [factory createTCPEndpointInfo:tcpInfo->compress
                                          host:toNSString(tcpInfo->host)
                                          port:tcpInfo->port
                                 sourceAddress:toNSString(tcpInfo->sourceAddress)
@@ -76,8 +75,7 @@
     auto iapInfo = std::dynamic_pointer_cast<Ice::IAPEndpointInfo>(infoPtr);
     if (iapInfo)
     {
-        return [factory createIAPEndpointInfo:iapInfo->timeout
-                                     compress:iapInfo->compress
+        return [factory createIAPEndpointInfo:iapInfo->compress
                                  manufacturer:toNSString(iapInfo->manufacturer)
                                   modelNumber:toNSString(iapInfo->modelNumber)
                                          name:toNSString(iapInfo->name)

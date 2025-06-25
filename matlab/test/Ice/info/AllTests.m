@@ -19,7 +19,6 @@ classdef AllTests
             tcpEndpoint = getTCPEndpointInfo(info);
             assert(strcmp(tcpEndpoint.host, 'tcphost'));
             assert(tcpEndpoint.port == 10000);
-            assert(tcpEndpoint.timeout == 1200);
             assert(strcmp(tcpEndpoint.sourceAddress, '10.10.10.10'));
             assert(tcpEndpoint.compress);
             assert(~tcpEndpoint.datagram());
@@ -41,7 +40,6 @@ classdef AllTests
             assert(strcmp(udpEndpoint.mcastInterface, 'eth0'));
             assert(udpEndpoint.mcastTtl == 5);
             assert(strcmp(udpEndpoint.sourceAddress, '10.10.10.10'));
-            assert(udpEndpoint.timeout == -1);
             assert(~udpEndpoint.compress);
             assert(~udpEndpoint.secure());
             assert(udpEndpoint.datagram());

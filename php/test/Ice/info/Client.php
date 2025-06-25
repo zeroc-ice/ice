@@ -42,7 +42,6 @@ function allTests($helper)
         test($tcpEndpoint instanceof Ice\TCPEndpointInfo);
         test($tcpEndpoint->host == "tcphost");
         test($tcpEndpoint->port == 10000);
-        test($tcpEndpoint->timeout == 1200);
         test($tcpEndpoint->sourceAddress == "10.10.10.10");
         test($tcpEndpoint->compress);
         test(!$tcpEndpoint->datagram());
@@ -62,7 +61,6 @@ function allTests($helper)
         test($udpEndpoint->sourceAddress == "10.10.10.10");
         test($udpEndpoint->mcastInterface == "eth0");
         test($udpEndpoint->mcastTtl == 5);
-        test($udpEndpoint->timeout == -1);
         test(!$udpEndpoint->compress);
         test(!$udpEndpoint->secure());
         test($udpEndpoint->datagram());

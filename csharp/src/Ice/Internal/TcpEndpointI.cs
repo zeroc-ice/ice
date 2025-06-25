@@ -49,7 +49,6 @@ internal sealed class TcpEndpointI : IPEndpointI
 
     public override EndpointInfo getInfo() =>
         new TCPEndpointInfo(
-            _timeout,
             _compress,
             host_,
             port_,

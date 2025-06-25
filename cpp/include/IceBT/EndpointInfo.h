@@ -35,8 +35,8 @@ namespace IceBT
         const std::string uuid;
 
         /// @private
-        EndpointInfo(int timeout, bool compress, std::string addr, std::string uuid, std::int16_t type, bool secure)
-            : Ice::EndpointInfo{timeout, compress},
+        EndpointInfo(bool compress, std::string addr, std::string uuid, std::int16_t type, bool secure)
+            : Ice::EndpointInfo{compress},
               addr{std::move(addr)},
               uuid{std::move(uuid)},
               _type{type},

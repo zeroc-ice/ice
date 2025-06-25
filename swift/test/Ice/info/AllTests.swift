@@ -47,7 +47,6 @@ func allTests(_ helper: TestHelper) async throws {
         try test(tcpEndpoint.host == "tcphost")
         try test(tcpEndpoint.port == 10000)
         try test(tcpEndpoint.sourceAddress == "10.10.10.10")
-        try test(tcpEndpoint.timeout == 1200)
         try test(tcpEndpoint.compress)
         try test(!tcpEndpoint.datagram())
 
@@ -69,7 +68,6 @@ func allTests(_ helper: TestHelper) async throws {
         try test(udpEndpoint.mcastInterface == "eth0")
         try test(udpEndpoint.mcastTtl == 5)
         try test(udpEndpoint.sourceAddress == "10.10.10.10")
-        try test(udpEndpoint.timeout == -1)
         try test(!udpEndpoint.compress)
         try test(!udpEndpoint.secure())
         try test(udpEndpoint.datagram())
@@ -103,7 +101,6 @@ func allTests(_ helper: TestHelper) async throws {
 
         try test(tcpEndpoint.host == host)
         try test(tcpEndpoint.port > 0)
-        try test(tcpEndpoint.timeout == 15000)
 
         let udpEndpoint = (endpoints[1].getInfo() as? Ice.UDPEndpointInfo)!
         try test(udpEndpoint.host == host)
