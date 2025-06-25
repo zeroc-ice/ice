@@ -8,7 +8,7 @@ package com.zeroc.Ice;
  */
 public final class ObjectAdapterIdInUseException extends LocalException {
     /**
-     * Constructs an {@code ObjectAdapterIdInUseException} with the adapter ID.
+     * Constructs an ObjectAdapterIdInUseException with the adapter ID.
      *
      * @param id the adapter ID that is already in use
      */
