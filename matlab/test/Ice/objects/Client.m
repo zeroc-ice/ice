@@ -26,6 +26,4 @@ function client(args)
     % Local tests
     %
     LocalTests.localTests(helper);
-
-    clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end
