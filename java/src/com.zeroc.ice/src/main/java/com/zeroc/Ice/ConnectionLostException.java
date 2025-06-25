@@ -5,16 +5,16 @@ package com.zeroc.Ice;
 /** This exception indicates a lost connection. */
 public final class ConnectionLostException extends SocketException {
     /**
-     * Constructs a {@code ConnectionLostException}.
+     * Constructs a ConnectionLostException.
      */
     public ConnectionLostException() {
         super();
     }
 
     /**
-     * Constructs a {@code ConnectionLostException} with a cause.
+     * Constructs a ConnectionLostException with a cause.
      *
-     * @param cause the cause of the exception
+     * @param cause the cause
      */
     public ConnectionLostException(Throwable cause) {
         super(cause);

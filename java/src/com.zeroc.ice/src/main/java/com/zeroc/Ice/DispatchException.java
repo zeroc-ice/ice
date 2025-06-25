@@ -7,15 +7,33 @@ package com.zeroc.Ice;
  * transmitted "over the wire".
  */
 public class DispatchException extends LocalException {
+    /**
+     * Constructs a DispatchException with the specified reply status, message, and cause.
+     *
+     * @param replyStatus the reply status as an int
+     * @param message     the detail message
+     * @param cause       the cause of this exception
+     */
     public DispatchException(int replyStatus, String message, Throwable cause) {
         super(createMessage(message, replyStatus), cause);
         this.replyStatus = replyStatus;
     }
 
+    /**
+     * Constructs a DispatchException with the specified reply status and message.
+     *
+     * @param replyStatus the reply status as an int
+     * @param message     the detail message
+     */
     public DispatchException(int replyStatus, String message) {
         this(replyStatus, message, null);
     }
 
+    /**
+     * Constructs a DispatchException with the specified reply status.
+     *
+     * @param replyStatus the reply status as an int
+     */
     public DispatchException(int replyStatus) {
         this(replyStatus, null, null);
     }

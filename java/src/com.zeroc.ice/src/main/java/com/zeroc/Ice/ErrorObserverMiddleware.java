@@ -15,7 +15,7 @@ public final class ErrorObserverMiddleware implements Object {
     private final Consumer<Error> _errorObserver;
 
     /**
-     * Constructs a new ErrorObserverMiddleware.
+     * Constructs a ErrorObserverMiddleware.
      *
      * @param next The next dispatcher in the chain.
      * @param errorObserver The error observer. If error observer throws an exception while

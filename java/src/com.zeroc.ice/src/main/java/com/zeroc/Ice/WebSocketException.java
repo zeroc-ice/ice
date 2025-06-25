@@ -3,20 +3,23 @@
 package com.zeroc.Ice;
 
 // TODO: should this derive from 'LocalException'?
+/**
+ * Exception thrown to indicate a WebSocket protocol error or failure.
+ */
 final class WebSocketException extends RuntimeException {
     /**
-     * Constructs a {@code WebSocketException} with the specified reason.
+     * Constructs a WebSocketException with the specified message.
      *
-     * @param reason the reason for this exception
+     * @param message the detail message
      */
-    public WebSocketException(String reason) {
-        super(reason);
+    public WebSocketException(String message) {
+        super(message);
     }
 
     /**
-     * Constructs a {@code WebSocketException} with a cause.
+     * Constructs a WebSocketException with a cause.
      *
-     * @param cause the cause of this exception
+     * @param cause the cause
      */
     public WebSocketException(Throwable cause) {
         super(cause);

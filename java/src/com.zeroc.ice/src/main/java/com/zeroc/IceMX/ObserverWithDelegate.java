@@ -2,6 +2,12 @@
 
 package com.zeroc.IceMX;
 
+/**
+ * Observer implementation that supports delegation to another observer.
+ *
+ * @param <T> the metrics type
+ * @param <O> the delegate observer type
+ */
 public class ObserverWithDelegate<
     T extends Metrics, O extends com.zeroc.Ice.Instrumentation.Observer>
     extends Observer<T> {
@@ -29,14 +35,37 @@ public class ObserverWithDelegate<
         }
     }
 
+    /**
+     * Gets the delegate observer.
+     *
+     * @return the delegate observer, or null if none is set
+     */
     public O getDelegate() {
         return _delegate;
     }
 
+    /**
+     * Sets the delegate observer.
+     *
+     * @param del the delegate observer to set
+     */
     public void setDelegate(O del) {
         _delegate = del;
     }
 
+    /**
+     * Gets a sub-observer with a delegate for the specified metrics type.
+     *
+     * @param <S> the sub-metrics type
+     * @param <ObserverImpl> the observer implementation type that supports delegation
+     * @param <Obs> the delegate observer type
+     * @param mapName the name of the metrics map
+     * @param helper the metrics helper for the sub-metrics type
+     * @param mcl the metrics class
+     * @param ocl the observer class
+     * @param delegate the delegate observer
+     * @return the sub-observer with delegate set, or the delegate if no matching entries are found
+     */
     @SuppressWarnings("unchecked")
     public <
         S extends Metrics,
@@ -56,5 +85,6 @@ public class ObserverWithDelegate<
         return delegate;
     }
 
+    /** The delegate observer. */
     protected O _delegate;
 }

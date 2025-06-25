@@ -8,16 +8,16 @@ package com.zeroc.Ice;
  */
 public final class ConnectionRefusedException extends ConnectFailedException {
     /**
-     * Constructs a {@code ConnectionRefusedException}.
+     * Constructs a ConnectionRefusedException.
      */
     public ConnectionRefusedException() {
         super();
     }
 
     /**
-     * Constructs a {@code ConnectionRefusedException} with a cause.
+     * Constructs a ConnectionRefusedException with a cause.
      *
-     * @param cause the cause of the exception
+     * @param cause the cause
      */
     public ConnectionRefusedException(Throwable cause) {
         super(cause);

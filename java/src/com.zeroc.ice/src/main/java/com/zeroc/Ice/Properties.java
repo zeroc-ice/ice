@@ -615,6 +615,11 @@ public final class Properties {
         return clonedProperties;
     }
 
+    /**
+     * Gets the properties that were never read.
+     *
+     * @return a list of unused properties
+     */
     public synchronized List<String> getUnusedProperties() {
         List<String> unused = new ArrayList<>();
         for (Map.Entry<String, PropertyValue> p : _properties.entrySet()) {

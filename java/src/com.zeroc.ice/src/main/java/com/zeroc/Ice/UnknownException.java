@@ -7,14 +7,30 @@ package com.zeroc.Ice;
  * any exception which does not derive from {@link LocalException} or {@link UserException}.
  */
 public class UnknownException extends DispatchException {
+    /**
+     * Constructs an UnknownException with a message and a cause.
+     *
+     * @param message the detail message
+     * @param cause   the cause
+     */
     public UnknownException(String message, Throwable cause) {
         super(ReplyStatus.UnknownException.value(), message, cause);
     }
 
+    /**
+     * Constructs an UnknownException with a message.
+     *
+     * @param message the detail message
+     */
     public UnknownException(String message) {
         this(message, null);
     }
 
+    /**
+     * Constructs an UnknownException with a cause.
+     *
+     * @param cause the cause
+     */
     public UnknownException(Throwable cause) {
         this(null, cause);
     }

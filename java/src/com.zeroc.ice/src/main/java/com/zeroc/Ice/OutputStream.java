@@ -90,6 +90,12 @@ public final class OutputStream {
             communicator.getInstance().cacheMessageBuffers() > 1);
     }
 
+    /**
+     * Constructs an OutputStream using the provided buffer and encoding.
+     *
+     * @param buf the buffer to use
+     * @param encoding the encoding version to use
+     */
     OutputStream(Buffer buf, EncodingVersion encoding) {
         _buf = buf;
         _encoding = encoding != null ? encoding : Protocol.currentEncoding;
@@ -1295,6 +1301,7 @@ public final class OutputStream {
     /**
      * Writes an optional proxy to the stream.
      *
+     * @param <Prx> The proxy type.
      * @param tag The optional tag.
      * @param v The optional proxy to write to the stream.
      */
