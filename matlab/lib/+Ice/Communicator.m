@@ -7,7 +7,6 @@ classdef Communicator < IceInternal.WrapperObject
     %   Communicator Methods:
     %     Communicator - Constructs a new communicator.
     %     destroy - Destroys the communicator.
-    %     destroyAsync - An asynchronous destroy.
     %     flushBatchRequests - Flushes any pending batch requests for this communicator.
     %     flushBatchRequestsAsync - An asynchronous flushBatchRequests.
     %     getDefaultLocator - Gets the default locator for this communicator.
@@ -110,23 +109,6 @@ classdef Communicator < IceInternal.WrapperObject
                 obj (1, 1) Ice.Communicator
             end
             obj.iceCall('destroy');
-        end
-
-        function f = destroyAsync(obj)
-            %DESTROYASYNC Asynchronously destroys the communicator.
-            %   This method closes all outgoing connections.
-            %
-            %   Output Arguments
-            %     f - A future that will be completed when the destruction completes.
-            %       Ice.Future scalar
-
-            arguments
-                obj (1, 1) Ice.Communicator
-            end
-            future = libpointer('voidPtr');
-            obj.iceCall('destroyAsync', future);
-            assert(~isNull(future));
-            f = Ice.Future(future, 'destroy', 0, 'Ice_SimpleFuture', @(fut) fut.iceCall('check'));
         end
 
         function r = stringToProxy(obj, str)
