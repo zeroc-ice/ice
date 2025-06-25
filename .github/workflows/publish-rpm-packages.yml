@@ -82,7 +82,7 @@ jobs:
           )
           docker run "${docker_args[@]}" /usr/local/bin/create-rpm-repo \
             --staging /workspace/staging/ \
-            --repo "${DISTRIBUTION}" \
+            --repo "/workspace/${DISTRIBUTION}" \
             --channel "${CHANNEL}" \
 
           echo "Uploading updated repository to S3..."
