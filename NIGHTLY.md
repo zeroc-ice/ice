@@ -3,15 +3,13 @@
 This document provides instruction for installing Ice nightly builds. Ice nightly builds are produced daily from
 GitHub main branch and target the next Ice non patch release.
 
-## Index
-
-- [Linux]
-  - [RPM-based Linux (RHEL 9/10, Amazon Linux 2023)]()
-  - [DEB-based Linux (Debian 12, Ubuntu 24.04)]()
-- [macOS]
+- Linux
+  - [RPM-based Linux (RHEL 9/10, Amazon Linux 2023)](rpm-based-linux-rhel-910-amazon-linux-2023)
+  - [DEB-based Linux (Debian 12, Ubuntu 24.04)](deb-based-linux-debian-12-ubuntu-2404)
+- macOS
   - [Swift](#swift)
   - [Homebrew](#homebrew)
-- [Windows]
+- Windows
   - [C++ NuGet](#c-nuget)
   - [MSI Installer](#msi-installer)
 - [.NET 8.0](#net-80)
@@ -20,8 +18,6 @@ GitHub main branch and target the next Ice non patch release.
 - [MATLAB](#matlab)
 - [Python](#python)
 - [Ruby](#ruby)
-
----
 
 ## Linux
 
@@ -110,9 +106,7 @@ Then add the `ZeroC.Ice.Cpp` package to your Visual Studio C++ projects.
 
 The ZeroC Ice nightly Windows installer (MSI) is available at:
 
-```shell
-https://download.zeroc.com/nexus/repository/nuget-nightly/Ice-nightly.msi
-```
+- [Ice-nightly.msi](https://download.zeroc.com/nexus/repository/nuget-nightly/Ice-nightly.msi)
 
 ## .NET 8.0
 
