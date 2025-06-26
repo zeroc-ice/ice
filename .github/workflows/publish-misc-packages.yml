@@ -39,9 +39,9 @@ jobs:
           set -euo pipefail
           if [ '${CHANNEL}' == 'nightly' ]; then
             # Rename the MSI file to Ice-nightly.msi if it's the nightly channel
-            aws s3 cp staging/windows-msi/nightly/*.msi "s3://zeroc-downloads/ice/${CHANNEL}/Ice-nightly.msi"
+            aws s3 cp staging/windows-msi/*.msi "s3://zeroc-downloads/ice/${CHANNEL}/Ice-nightly.msi"
           else
-            aws s3 cp staging/windows-msi/nightly/*.msi "s3://zeroc-downloads/ice/${CHANNEL}/"
+            aws s3 cp staging/windows-msi/*.msi "s3://zeroc-downloads/ice/${CHANNEL}/"
           fi
 
         env:
