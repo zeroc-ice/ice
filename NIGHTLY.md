@@ -12,7 +12,7 @@ GitHub main branch and target the next Ice non patch release.
 - Windows
   - [C++ NuGet](#c-nuget)
   - [MSI Installer](#msi-installer)
-- [.NET 8.0](#net-80)
+- [C#]()
 - [JavaScript](#javascript)
 - [Java](#java)
 - [MATLAB](#matlab)
@@ -68,16 +68,6 @@ For a full list of available packages, see the [DEB packages README](packaging/d
 
 ## macOS
 
-### Swift
-
-The Ice for Swift nightly package is available via Swift Package Manager (SPM) from the zeroc-ice/ice-swift-nightly GitHub repository.
-
-To use it in your project, add the following URL as a dependency in your Package.swift:
-
-```shell
-https://github.com/zeroc-ice/ice-swift-nightly
-```
-
 ### Homebrew
 
 The Ice nightly Homebrew tap is provided by the zeroc-ice/homebrew-nightly repository.
@@ -86,6 +76,16 @@ You can install the nightly Ice package by running:
 
 ```shell
 brew install zeroc-ice/nightly/ice
+```
+
+### Swift
+
+The Ice for Swift nightly package is available via Swift Package Manager (SPM) from the zeroc-ice/ice-swift-nightly GitHub repository.
+
+To use it in your project, add the following URL as a dependency in your Package.swift:
+
+```shell
+https://github.com/zeroc-ice/ice-swift-nightly
 ```
 
 ## Windows
@@ -108,7 +108,7 @@ The ZeroC Ice nightly Windows installer (MSI) is available at:
 
 - [Ice-nightly.msi](https://download.zeroc.com/nexus/repository/nuget-nightly/Ice-nightly.msi)
 
-## .NET 8.0
+## C\#
 
 The ZeroC Ice nightly .NET NuGet packages are available from the ZeroC NuGet nightly feed.
 
@@ -116,48 +116,6 @@ To use them, add the following feed to your NuGet sources:
 
 ```shell
 https://download.zeroc.com/nexus/repository/nuget-nightly/
-```
-
-## MATLAB
-
-The ZeroC Ice MATLAB nightly toolboxes for Windows and Ubuntu 24.04 are available for direct download from the ZeroC NuGet nightly repository.
-
-You can download and install the appropriate .mltbx file for your platform:
-
-- Windows: [ice-nightly-R2024a-win.mltbx](https://download.zeroc.com/nexus/repository/nuget-nightly/ice-nightly-R2024a-win.mltbx)
-- Ubuntu 24.04: [ice-nightly-R2024a-linux.mltbx](https://download.zeroc.com/nexus/repository/nuget-nightly/ice-nightly-R2024a-linux.mltbx)
-
-To install, simply double-click the `.mltbx` file in MATLAB.
-
-## Ruby
-
-The ZeroC Ice nightly Ruby GEM package is available from the ZeroC RubyGems nightly repository.
-
-You can install the latest Ruby gem by running the following command:
-
-```shell
-gem install zeroc-ice --source https://download.zeroc.com/nexus/repository/rubygems-nightly --user \
-    --pre --version '>= 3.8.0.pre'
-```
-
-## Python
-
-The ZeroC Ice nightly Python package is available from the ZeroC PyPI nightly repository.
-
-To install the latest zeroc-ice nightly package, add the following lines to your requirements.txt:
-
-```shell
-# Use ZeroC Nightly repository as the main index for pip
---index-url https://download.zeroc.com/nexus/repository/pypi-nightly/simple/
-
-# Allow installing packages from the official PyPI index if not found in the ZeroC repository
---extra-index-url https://pypi.org/simple/
-
-# Enable installation of pre-release versions (required for nightly builds)
---pre
-
-# Specify the zeroc-ice package (latest nightly version)
-zeroc-ice
 ```
 
 ## JavaScript
@@ -187,6 +145,17 @@ To use them, add the following Maven repository to your build configuration:
 https://download.zeroc.com/nexus/repository/maven-nightly/
 ```
 
+## MATLAB
+
+The ZeroC Ice MATLAB nightly toolboxes for Windows and Ubuntu 24.04 are available for direct download from the ZeroC NuGet nightly repository.
+
+You can download and install the appropriate .mltbx file for your platform:
+
+- Windows: [ice-nightly-R2024a-win.mltbx](https://download.zeroc.com/nexus/repository/nuget-nightly/ice-nightly-R2024a-win.mltbx)
+- Ubuntu 24.04: [ice-nightly-R2024a-linux.mltbx](https://download.zeroc.com/nexus/repository/nuget-nightly/ice-nightly-R2024a-linux.mltbx)
+
+To install, simply double-click the `.mltbx` file in MATLAB.
+
 ### Gradle
 
 Here’s an example configuration using Kotlin DSL:
@@ -208,4 +177,35 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+```
+
+## Python
+
+The ZeroC Ice nightly Python package is available from the ZeroC PyPI nightly repository.
+
+To install the latest zeroc-ice nightly package, add the following lines to your requirements.txt:
+
+```shell
+# Use ZeroC Nightly repository as the main index for pip
+--index-url https://download.zeroc.com/nexus/repository/pypi-nightly/simple/
+
+# Allow installing packages from the official PyPI index if not found in the ZeroC repository
+--extra-index-url https://pypi.org/simple/
+
+# Enable installation of pre-release versions (required for nightly builds)
+--pre
+
+# Specify the zeroc-ice package (latest nightly version)
+zeroc-ice
+```
+
+## Ruby
+
+The ZeroC Ice nightly Ruby GEM package is available from the ZeroC RubyGems nightly repository.
+
+You can install the latest Ruby gem by running the following command:
+
+```shell
+gem install zeroc-ice --source https://download.zeroc.com/nexus/repository/rubygems-nightly --user \
+    --pre --version '>= 3.8.0.pre'
 ```
