@@ -98,7 +98,6 @@ cat > ~/.rpmmacros <<EOF
 %vendor ZeroC, Inc.
 EOF
 
-
 # Generate the target .repo file from template
 REPO_TARGET="$RPM_BUILD_ROOT/SOURCES/zeroc-ice-$CHANNEL.repo"
 cp "/workspace/ice/packaging/rpm/zeroc-ice.repo.in" "$REPO_TARGET"
