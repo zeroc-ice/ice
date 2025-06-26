@@ -408,6 +408,7 @@ public final class ObjectAdapter {
      * Adds a middleware to the dispatch pipeline of this object adapter.
      *
      * <p>All middleware must be installed before the first dispatch.
+     *
      * <p>The middleware are executed in the order they are installed.
      *
      * @param middleware The middleware factory that creates the new middleware when this object adapter
