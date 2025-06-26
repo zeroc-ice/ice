@@ -68,7 +68,6 @@
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\msbuild\gencode\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
-    <Link />
     <Link>
       <AdditionalLibraryDirectories>..\..\msbuild\consumer\$(Platform)\$(Configuration);..\..\msbuild\gencode\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>

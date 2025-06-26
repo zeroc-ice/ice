@@ -7,7 +7,8 @@ local_node_srcs         = Activator.cpp \
                           ServerAdapterI.cpp \
                           ServerI.cpp \
                           XMLParser.cpp \
-                          ../Glacier2/CryptPermissionsVerifier.cpp
+                          ../Glacier2/CryptPermissionsVerifier.cpp \
+                          ../IceDB/IceDB.cpp
 
 local_registry_srcs     = Internal.ice \
                           AdminRouter.cpp \
@@ -48,7 +49,8 @@ local_registry_srcs     = Internal.ice \
                           Util.cpp \
                           WellKnownObjectsManager.cpp \
                           XMLParser.cpp \
-                          ../Glacier2/CryptPermissionsVerifier.cpp
+                          ../Glacier2/CryptPermissionsVerifier.cpp \
+                          ../IceDB/IceDB.cpp
 
 local_admin_srcs        = Internal.ice \
                           Client.cpp \
@@ -72,13 +74,13 @@ $(project)_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 
 icegridnode_sources             := $(addprefix $(currentdir)/,$(local_node_srcs) $(local_registry_srcs) IceGridNode.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/Lookup.ice
-icegridnode_dependencies        := IceBox IceStormService IceStorm IceDB
-icegridnode_libs                := expat
+icegridnode_dependencies        := IceBox IceStormService IceStorm
+icegridnode_libs                := expat lmdb
 
 icegridregistry_sources         := $(addprefix $(currentdir)/,$(local_registry_srcs) IceGridRegistry.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/Lookup.ice
-icegridregistry_dependencies    := IceBox IceStormService IceStorm IceDB $(local_dependencies)
-icegridregistry_libs            := expat
+icegridregistry_dependencies    := IceBox IceStormService IceStorm $(local_dependencies)
+icegridregistry_libs            := expat lmdb
 
 icegridadmin_sources            := $(addprefix $(currentdir)/,$(local_admin_srcs))
 icegridadmin_dependencies       := IceBox IceLocatorDiscovery

@@ -11,19 +11,6 @@
 
 #include <lmdb.h>
 
-#ifndef ICE_DB_API
-#    if defined(ICE_DB_API_EXPORTS)
-#        define ICE_DB_API ICE_DECLSPEC_EXPORT
-#    else
-#        define ICE_DB_API ICE_DECLSPEC_IMPORT
-#    endif
-#endif
-
-#if defined(_MSC_VER) && !defined(ICE_DB_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
-// Automatically link IceDBxx[D].lib
-#    pragma comment(lib, ICE_LIBNAME("IceDB"))
-#endif
-
 namespace IceDB
 {
     const size_t maxKeySize = 511;
@@ -32,7 +19,7 @@ namespace IceDB
     // LMDBException wraps an error condition (and error code)
     // returned by LMDB
     //
-    class ICE_DB_API LMDBException final : public Ice::LocalException
+    class LMDBException final : public Ice::LocalException
     {
     public:
         LMDBException(const char* file, int line, int error);
@@ -44,7 +31,7 @@ namespace IceDB
     // KeyTooLongException is thrown if we attempt to marshal a
     // key with a marshaled representation longer than maxKeySize.
     //
-    class ICE_DB_API KeyTooLongException final : public Ice::LocalException
+    class KeyTooLongException final : public Ice::LocalException
     {
     public:
         KeyTooLongException(const char* file, int line, size_t size);
@@ -56,7 +43,7 @@ namespace IceDB
     // The creation of an Env fails with BadEnvException when this
     // Env's max key size is smaller than maxKeySize.
     //
-    class ICE_DB_API BadEnvException final : public Ice::LocalException
+    class BadEnvException final : public Ice::LocalException
     {
     public:
         BadEnvException(const char*, int, size_t);
@@ -86,7 +73,7 @@ namespace IceDB
     //
     template<typename T, typename C, typename H> struct Codec;
 
-    class ICE_DB_API Env
+    class Env
     {
     public:
         explicit Env(const std::string&, MDB_dbi = 0, size_t = 0, unsigned int = 0);
@@ -103,7 +90,7 @@ namespace IceDB
         MDB_env* _menv;
     };
 
-    class ICE_DB_API Txn
+    class Txn
     {
     public:
         Txn(const Txn&) = delete;
@@ -124,21 +111,21 @@ namespace IceDB
         const bool _readOnly;
     };
 
-    class ICE_DB_API ReadOnlyTxn : public Txn
+    class ReadOnlyTxn : public Txn
     {
     public:
         explicit ReadOnlyTxn(const Env&);
         ~ReadOnlyTxn();
     };
 
-    class ICE_DB_API ReadWriteTxn : public Txn
+    class ReadWriteTxn : public Txn
     {
     public:
         explicit ReadWriteTxn(const Env&);
         ~ReadWriteTxn();
     };
 
-    class ICE_DB_API DbiBase
+    class DbiBase
     {
     public:
         void clear(const ReadWriteTxn&);
@@ -256,7 +243,7 @@ namespace IceDB
         C _marshalingContext;
     };
 
-    class ICE_DB_API CursorBase
+    class CursorBase
     {
     public:
         void close();
@@ -392,7 +379,7 @@ namespace IceDB
     // Otherwise, returns input parameter * 1 MB.
     //
 
-    ICE_DB_API size_t getMapSize(int);
+    size_t getMapSize(int);
 }
 
 #endif

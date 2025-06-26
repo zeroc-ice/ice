@@ -1,4 +1,4 @@
-libIceDB incorporates liblmdb when the system does not provide a liblmdb shared
+IceGrid and IceStorm incorporate liblmdb when the system does not provide a liblmdb shared
 library.
 
 License Agreement for lmdb:

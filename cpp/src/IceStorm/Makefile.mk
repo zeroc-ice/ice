@@ -10,7 +10,8 @@ $(project)_dependencies         := IceStorm Ice Glacier2
 $(project)_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir)) $(api_exports_cppflags)
 
 IceStormService_targetdir       := $(libdir)
-IceStormService_dependencies    := IceGrid IceBox IceDB
+IceStormService_dependencies    := IceGrid IceBox
+IceStormService_libs            := lmdb
 IceStormService_devinstall      := no
 IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
                                                              InstrumentationI.cpp \
@@ -24,6 +25,7 @@ IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
                                                              TransientTopicI.cpp \
                                                              TransientTopicManagerI.cpp \
                                                              Util.cpp \
+                                                             ../IceDB/IceDB.cpp \
                                                              Election.ice \
                                                              IceStormInternal.ice \
                                                              LinkRecord.ice \
@@ -42,7 +44,11 @@ icestormadmin_sources           := $(addprefix $(currentdir)/,Admin.cpp \
                                                              IceStormInternal.ice)
 
 icestormdb_targetdir            := $(bindir)
-icestormdb_dependencies         := IceDB
-icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp SubscriberRecord.ice DBTypes.ice LLURecord.ice)
+icestormdb_libs                 := lmdb
+icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp \
+                                                              ../IceDB/IceDB.cpp \
+                                                              SubscriberRecord.ice \
+                                                              DBTypes.ice \
+                                                              LLURecord.ice)
 
 projects += $(project)

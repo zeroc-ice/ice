@@ -56,7 +56,7 @@ static_excludes         = test/Ice/library test/Ice/plugin
 # If building on a Linux multilib platform, we restrict what we build for the 32-bits architecture.
 #
 ifeq ($(multilib-platform),yes)
-x86_components          = $(coreandstub_components) DataStorm IceDB IceStormService icebox
+x86_components          = $(coreandstub_components) DataStorm IceStormService icebox
 x86_projects            = test/%
 endif
 

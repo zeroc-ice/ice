@@ -110,6 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Glacier2\CryptPermissionsVerifier.cpp" />
+    <ClCompile Include="..\..\..\IceDB\IceDB.cpp" />
     <ClCompile Include="..\..\Activator.cpp" />
     <ClCompile Include="..\..\AdapterCache.cpp" />
     <ClCompile Include="..\..\AdminCallbackRouter.cpp" />

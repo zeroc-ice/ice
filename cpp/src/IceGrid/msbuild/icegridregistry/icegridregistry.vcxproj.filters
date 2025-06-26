@@ -204,6 +204,9 @@
     <ClCompile Include="..\..\..\Glacier2\CryptPermissionsVerifier.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IceDB\IceDB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Win32\Debug\Lookup.h">

@@ -1,2 +1,1 @@
 libzeroc-ice3.8: package-name-doesnt-match-sonames *
-libzeroc-ice3.8: dev-pkg-without-shlib-symlink usr/lib/*/libIceDB.so.* usr/lib/*/libIceDB.so
