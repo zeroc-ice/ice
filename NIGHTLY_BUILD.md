@@ -41,7 +41,7 @@ sudo dnf install https://download.zeroc.com/ice/nightly/amzn2023/ice-repo-nightl
 Then install the desired packages. For example:
 
 ```shell
-dnf install libice-c++-devel
+sudo dnf install libice-c++-devel
 ```
 
 For a full list of available packages, see the [RPM packages README](packaging/rpm/README).
@@ -61,8 +61,8 @@ rm ice-repo-nightly.deb
 Then update your package index and install the desired packages. For example:
 
 ```shell
-apt-get update
-apt-get install libzeroc-ice-dev
+sudo apt-get update
+sudo apt-get install libzeroc-ice-dev
 ```
 
 For a full list of available packages, see the [DEB packages README](packaging/deb/debian/README).
@@ -80,7 +80,7 @@ sudo dnf install https://download.zeroc.com/ice/nightly/el10/ice-repo-nightly-1.
 Then install the desired packages. For example:
 
 ```shell
-dnf install libice-c++-devel
+sudo dnf install libice-c++-devel
 ```
 
 For a full list of available packages, see the [RPM packages README](packaging/rpm/README).
@@ -98,7 +98,7 @@ sudo dnf install https://download.zeroc.com/ice/nightly/el9/ice-repo-nightly-1.0
 Then install the desired packages. For example:
 
 ```shell
-dnf install libice-c++-devel
+sudo dnf install libice-c++-devel
 ```
 
 For a full list of available packages, see the [RPM packages README](packaging/rpm/README).
@@ -118,8 +118,8 @@ rm ice-repo-nightly.deb
 Then update your package index and install the desired packages. For example:
 
 ```shell
-apt-get update
-apt-get install libzeroc-ice-dev
+sudo apt-get update
+sudo apt-get install libzeroc-ice-dev
 ```
 
 ## macOS
