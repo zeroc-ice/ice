@@ -17,7 +17,7 @@ icebridge               IceBridge service
 icegrid                 IceGrid service
 icegridgui              IceGrid GUI application
 libice-c++-devel        C++ headers and symlinks to Ice C++ runtime libraries
-libice3.8-c++           Ice C++ runtime libraries
+libice3.8-c++           Ice for C++ runtime libraries (includes plug-ins, DataStorm and client libraries for Ice services)
 libicestorm3.8          IceStorm service
 php-ice                 Ice for PHP [1]
 php8.4-ice              Ice for PHP [2]
