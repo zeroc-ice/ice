@@ -1,57 +1,30 @@
-======================================================================
-The Internet Communications Engine
-======================================================================
+ZeroC Ice DEB Distribution
+==========================
 
-Ice is a comprehensive RPC framework that helps you build distributed
-applications with minimal effort using familiar object-oriented idioms.
-Ice handles all interactions with low-level network programming
-interfaces so that you can focus your efforts on your application logic.
-When using Ice, there is no need to worry about details such as opening
-network connections, serializing and deserializing data for network
-transmission, or retrying failed connection attempts (just to name a
-few things).
+The ZeroC Ice DEB distribution includes the following packages.
 
-Feature highlights:
+Currently, the distribution supports Ubuntu 24.04 and Debian 12, for both amd64 and arm64 architectures.
 
-- Efficient, high-performance binary protocol
-- Supports a wide range of programming languages and platforms
-- Easy to use and type-safe API, with your own interfaces and types
-  defined in a programming language neutral IDL, Slice
-- Supports secure, encrypted communications by taking advantage of
-  your platform's native SSL/TLS stack
-- Familiar object-oriented programming model, with the ability to
-  transmit proxies (references to remote objects) to remote applications
-- Supports synchronous and asynchronous calls, for both client-side
-  invocations and server-side dispatches
-- Automatic discovery of remote objects through UDP multicast
-- Comes with a number of optional services:
-   - IceGrid, the nerve-center of any large-scale application, with
-     support for server deployment, replication, monitoring,
-     load-balancing and more
-   - IceStorm, a lightweight topic-based pub-sub service
-   - Freeze, an embedded, transactional database for Ice datatypes
-   - Glacier2, a sysadmin-friendly solution for routing Ice
-     communications through firewalls
-   - IcePatch2, an efficient software distribution and patching service
+DEB Package              Description
+-----------------------  ---------------------------------------------------------------
+zeroc-dsnode             DataStorm server
+zeroc-glacier2           Glacier2 service
+zeroc-ice-compilers      Slice compilers, such as slice2cpp, slice2java, and slice2py
+zeroc-ice-slice          Slice definition files
+zeroc-ice-utils          Utilities for administering an Ice installation
+zeroc-icebox             IceBox server for C++
+zeroc-icebridge          IceBridge service
+zeroc-icegrid            IceGrid service
+libzeroc-ice-dev         C++ headers and symlinks to Ice C++ runtime libraries
+libzeroc-ice3.8-c++      Ice for C++ runtime libraries (includes plug-ins, DataStorm and client libraries for Ice services)
+libzeroc-icestorm3.8     IceStorm service
+php-zeroc-ice            Ice for PHP
+python3-zeroc-ice        Ice for Python [1]
 
-Getting Started with Ice on Linux
----------------------------------
+[1] Not available on Debian 12, which does not include Python 3.12+ — a requirement for Ice for Python.
 
-Please visit the 'Using the Linux Binary Distributions' section in the
-Ice 3.7.10 release notes:
+For more information, visit:
 
-https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes
-
-Documentation
--------------
-
-The full documentation for Ice is available online:
-
-https://doc.zeroc.com/ice/3.7/
-
-Source Code
-------------
-
-The source code for Ice 3.7.10 is on GitHub:
-
-https://github.com/zeroc-ice/ice/releases/tag/v3.7.10
+- ZeroC website: https://zeroc.com
+- Ice GitHub repository: https://github.com/zeroc-ice/ice
+- Ice Sample Programs: https://github.com/zeroc-ice/ice-demos
