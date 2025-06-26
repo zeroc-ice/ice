@@ -1803,8 +1803,10 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         string context = getEscapedParamName(op->parameters(), "context");
 
         _out << sp;
-        _out << nl << "public " << retS << " " << opName << spar << params
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar;
+        _out << nl << "public " << retS << " " << opName;
+        _out.spar("(", true);
+        _out << params << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
+             << epar;
         _out << sb;
         _out << nl << "try";
         _out << sb;
@@ -1886,8 +1888,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         {
             _out << "<" << returnTypeS << ">";
         }
-        _out << " " << opName << "Async" << spar << paramsAMI
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
+        _out << " " << opName << "Async";
+        _out.spar("(", true);
+        _out << paramsAMI << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
              << ("global::System.IProgress<bool>? " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar;
 
@@ -1905,8 +1908,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         {
             _out << "<" << returnTypeS << ">";
         }
-        _out << " _iceI_" << removeEscapePrefix(opName) << "Async" << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string>? context"
+        _out << " _iceI_" << removeEscapePrefix(opName) << "Async";
+        _out.spar("(", true);
+        _out << getInParams(op, ns, true) << "global::System.Collections.Generic.Dictionary<string, string>? context"
              << "global::System.IProgress<bool>? progress"
              << "global::System.Threading.CancellationToken cancel"
              << "bool synchronous" << epar;
@@ -1941,8 +1945,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         // Write the common invoke method
         //
         _out << sp << nl;
-        _out << "private void _iceI_" << removeEscapePrefix(opName) << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string>? context"
+        _out << "private void _iceI_" << removeEscapePrefix(opName);
+        _out.spar("(", true);
+        _out << getInParams(op, ns, true) << "global::System.Collections.Generic.Dictionary<string, string>? context"
              << "bool synchronous"
              << "Ice.Internal.OutgoingAsyncCompletionCallback completed" << epar;
         _out << sb;
@@ -2070,11 +2075,14 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
     writeDocLine(_out, R"(param name="context")", "The request context.", "param");
     writeDocLine(_out, "returns", checkedCastReturns.str());
-    _out << nl << "public static " << name
-         << "Prx? checkedCast(Ice.ObjectPrx? proxy, global::System.Collections.Generic.Dictionary<string, string>? context = "
-            "null) =>";
+    _out << nl << "public static " << name << "Prx? checkedCast";
+    _out.spar("(", true);
+    _out << "Ice.ObjectPrx? proxy"
+         << "global::System.Collections.Generic.Dictionary<string, string>? context = null";
+    _out << epar << " =>";
     _out.inc();
-    _out << nl << "proxy is not null && proxy.ice_isA(ice_staticId(), context) ? new " << name << "PrxHelper(proxy) : null;";
+    _out << nl << "proxy is not null && proxy.ice_isA(ice_staticId(), context) ? new " << name
+         << "PrxHelper(proxy) : null;";
     _out.dec();
 
     ostringstream checkedCastWithFacetSummary;
@@ -2093,9 +2101,11 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="facet")", "The facet.", "param");
     writeDocLine(_out, R"(param name="context")", "The request context.", "param");
     writeDocLine(_out, "returns", checkedCastWithFacetReturns.str());
-    _out << nl << "public static " << name
-         << "Prx? checkedCast(Ice.ObjectPrx? proxy, string facet, global::System.Collections.Generic.Dictionary<string, "
-            "string>? context = null) =>";
+    _out << nl << "public static " << name << "Prx? checkedCast";
+    _out.spar("(", true);
+    _out << "Ice.ObjectPrx? proxy"
+         << "string facet"
+         << "global::System.Collections.Generic.Dictionary<string, string>? context = null" << epar << " =>";
     _out.inc();
     _out << nl << "checkedCast(proxy?.ice_facet(facet), context);";
     _out.dec();
@@ -2104,13 +2114,18 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, "summary", checkedCastSummary.str());
     writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
     writeDocLine(_out, R"(param name="context")", "The request context.", "param");
+    writeDocLine(_out, R"(param name="progress")", "The sent progress reporter.", "param");
+    writeDocLine(_out, R"(param name="cancel")", "The cancellation token.", "param");
     writeDocLine(_out, "returns", checkedCastReturns.str());
-    _out << nl << "public static async global::System.Threading.Tasks.Task<" << name
-         << "Prx?> checkedCastAsync(Ice.ObjectPrx proxy, global::System.Collections.Generic.Dictionary<string, string>? "
-            "context = null, global::System.IProgress<bool>? progress = null, global::System.Threading.CancellationToken cancel = default) =>";
+    _out << nl << "public static async global::System.Threading.Tasks.Task<" << name << "Prx?> checkedCastAsync";
+    _out.spar("(", true);
+    _out << "Ice.ObjectPrx proxy"
+         << "global::System.Collections.Generic.Dictionary<string, string>? context = null"
+         << "global::System.IProgress<bool>? progress = null"
+         << "global::System.Threading.CancellationToken cancel = default" << epar << " =>";
     _out.inc();
-    _out << nl << "await proxy.ice_isAAsync(ice_staticId(), context, progress, cancel).ConfigureAwait(false) ? new " << name
-         << "PrxHelper(proxy) : null;";
+    _out << nl << "await proxy.ice_isAAsync(ice_staticId(), context, progress, cancel).ConfigureAwait(false) ? new "
+         << name << "PrxHelper(proxy) : null;";
     _out.dec();
 
     _out << sp;
@@ -2118,10 +2133,16 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
     writeDocLine(_out, R"(param name="facet")", "The facet.", "param");
     writeDocLine(_out, R"(param name="context")", "The request context.", "param");
+    writeDocLine(_out, R"(param name="progress")", "The sent progress reporter.", "param");
+    writeDocLine(_out, R"(param name="cancel")", "The cancellation token.", "param");
     writeDocLine(_out, "returns", checkedCastWithFacetReturns.str());
-    _out << nl << "public static global::System.Threading.Tasks.Task<" << name
-         << "Prx?> checkedCastAsync(Ice.ObjectPrx proxy, string facet, global::System.Collections.Generic.Dictionary<string, "
-            "string>? context = null, global::System.IProgress<bool>? progress = null, global::System.Threading.CancellationToken cancel = default) =>";
+    _out << nl << "public static global::System.Threading.Tasks.Task<" << name << "Prx?> checkedCastAsync";
+    _out.spar("(", true);
+    _out << "Ice.ObjectPrx proxy"
+         << "string facet"
+         << "global::System.Collections.Generic.Dictionary<string, string>? context = null"
+         << "global::System.IProgress<bool>? progress = null"
+         << "global::System.Threading.CancellationToken cancel = default" << epar << " =>";
     _out.inc();
     _out << nl << "checkedCastAsync(proxy.ice_facet(facet), context, progress, cancel);";
     _out.dec();
@@ -2217,9 +2238,10 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         _out << sp;
         writeOpDocComment(p, {"<param name=\"" + context + "\">The request context.</param>"}, false);
         emitObsoleteAttribute(p, _out);
-        _out << nl << retS << " " << name << spar << getParams(p, ns)
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar
-             << ';';
+        _out << nl << retS << " " << name;
+        _out.spar("(", true);
+        _out << getParams(p, ns);
+        _out << "global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null" << epar << ';';
     }
 
     {
@@ -2239,8 +2261,9 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
             true);
         emitObsoleteAttribute(p, _out);
         _out << nl << taskResultType(p, ns);
-        _out << " " << name << "Async" << spar << inParams
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
+        _out << " " << name << "Async";
+        _out.spar("(", true);
+        _out << inParams << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
              << ("global::System.IProgress<bool>? " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
     }
@@ -2456,10 +2479,13 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     for (const auto& op : p->allOperations())
     {
+        const bool amd = p->hasMetadata("amd") || op->hasMetadata("amd");
         string retS;
         vector<string> params, args;
         string opName = getDispatchParams(op, retS, params, args, ns);
-        _out << sp << nl << "public abstract " << retS << " " << opName << spar << params << epar << ';';
+        _out << sp << nl << "public abstract " << retS << " " << opName;
+        _out.spar("(", amd);
+        _out << params << epar << ';';
     }
 
     _out << sp;
@@ -2488,7 +2514,9 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     writeOpDocComment(op, {"<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>"}, amd);
 
     emitObsoleteAttribute(op, _out);
-    _out << nl << retS << " " << opName << spar << params << epar << ";";
+    _out << nl << retS << " " << opName;
+    _out.spar("(", amd); // use newlines for AMD because it's much longer.
+    _out << params << epar << ";";
 
     _out << sp;
     emitNonBrowsableAttribute();

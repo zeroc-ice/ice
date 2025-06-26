@@ -250,7 +250,15 @@ IceInternal::Output::print(const string& s)
     {
         if (++_par > 1) // No comma for the first parameter.
         {
-            _out << ", ";
+            if (_parOnNewLine)
+            {
+                _out << ','; // no trailing whitespace
+                newline();
+            }
+            else
+            {
+                _out << ", ";
+            }
         }
     }
     OutputBase::print(s);
@@ -301,17 +309,28 @@ IceInternal::Output::eb()
 }
 
 void
-IceInternal::Output::spar(string_view s)
+IceInternal::Output::spar(string_view s, bool parOnNewLine)
 {
     _emptyBlock = false;
     _out << s;
     _par = 0;
+    _parOnNewLine = parOnNewLine;
+    if (_parOnNewLine)
+    {
+        inc();
+        newline();
+    }
 }
 
 void
 IceInternal::Output::epar(string_view s)
 {
     _par = -1;
+    if (_parOnNewLine)
+    {
+        dec();
+        _parOnNewLine = false;
+    }
     _out << s;
 }
 
