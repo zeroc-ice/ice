@@ -3,8 +3,8 @@
 package com.zeroc.Ice;
 
 /**
- * The exception that is thrown when a client receives a UserException that was not declared in the operation's
- * exception specification.
+ * The exception that is thrown when a client receives a {@link UserException} that was not declared in the 
+ * operation's exception specification.
  */
 public final class UnknownUserException extends UnknownException {
     /**
