@@ -17,5 +17,6 @@ RUN dnf install -y \
     glibc-static \
     libstdc++-static \
     rpm-sign && \
+    dnf install --allowerasing gnupg2 && \
     rpmspec -q --buildrequires /usr/src/ice.spec | xargs -r dnf install -y && \
     dnf clean all
