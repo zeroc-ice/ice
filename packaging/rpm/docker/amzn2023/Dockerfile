@@ -15,6 +15,7 @@ RUN dnf install -y \
     libstdc++-devel \
     redhat-rpm-config \
     glibc-static \
-    libstdc++-static && \
+    libstdc++-static \
+    rpm-sign && \
     rpmspec -q --buildrequires /usr/src/ice.spec | xargs -r dnf install -y && \
     dnf clean all

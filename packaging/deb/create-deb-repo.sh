@@ -1,10 +1,26 @@
 #!/usr/bin/env bash
+
+# This script creates an APT repository for ZeroC Ice DEB packages.
+#
+# --distribution specifies the target distribution (e.g., debian12 or ubuntu24.04).
+# --channel specifies the Ice version channel (e.g., 3.8 or nightly).
+# --staging specifies the directory containing the built DEB packages.
+# --repository specifies the directory where the APT repository will be created. This can also be
+# an existing repository directory if you are updating it.
+#
+# The GPG key used to sign the repository must be provided via the GPG_KEY environment variable,
+# and the key ID via GPG_KEY_ID.
+#
+# When building the "nightly" channel, the script prunes packages older than a specified threshold.
+# This threshold is controlled by the DAYS_TO_KEEP variable (default: 3 days).
+#
+# The publish-deb-packages GitHub Actions workflow in this repository uses this script together
+# with the ghcr.io/zeroc-ice/deb-repo-builder Docker image to create and update the repository.
+
 set -euo pipefail
 
-# Usage: ./create-deb-repo.sh --distribution <distribution> --channel <channel> --staging <staging-dir> --repo <repo-dir>
-# Required environment: GPG_KEY, GPG_KEY_ID
-
 # Default values
+DAYS_TO_KEEP=3
 DISTRIBUTION=""
 CHANNEL=""
 STAGING=""
@@ -107,7 +123,6 @@ echo "✓ Repository config created at $CONF_DIR"
 
 # Cleanup old nightly packages
 if [[ "$CHANNEL" == "nightly" ]]; then
-    DAYS_TO_KEEP=3
     today_sec=$(date +%s)
     declare -A seen_versions=()
 

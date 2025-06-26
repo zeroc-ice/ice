@@ -1,8 +1,20 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+# This script builds a DEB package that installs the ZeroC Ice APT repository configuration.
+#
+# --distribution specifies the target distribution (e.g., debian12 or ubuntu24.04).
+# --channel specifies the Ice version channel (e.g., 3.8 or nightly).
+#
+# The resulting package installs the ice-repo-<channel>.list file into /etc/apt/sources.list.d/
+# and the public GPG key into /usr/share/keyrings/zeroc-archive-keyring.gpg.
+#
+# The GPG key to include in the keyring must be provided via the GPG_KEY environment variable
+# (in ASCII-armored format), and the corresponding key ID via GPG_KEY_ID.
+#
+# The build-deb-ice-repo-packages GitHub Actions workflow in this repository uses this script together
+# with the ghcr.io/zeroc-ice/ice-deb-builder-<distribution> Docker image to build the package.
 
-# Required environment: GPG_KEY, GPG_KEY_ID
+set -euo pipefail
 
 # Default values
 DISTRIBUTION=""

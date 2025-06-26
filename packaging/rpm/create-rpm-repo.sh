@@ -1,7 +1,24 @@
 #!/bin/bash
+
+# This script creates a DNF/YUM repository for ZeroC Ice RPM packages.
+#
+# --channel specifies the Ice version channel (e.g., 3.8 or nightly).
+# --staging specifies the directory containing the built RPM packages.
+# --repository specifies the directory where the DNF repository will be created or updated.
+#
+# The GPG key used to sign the repository must be provided via the GPG_KEY environment variable,
+# and the key ID via GPG_KEY_ID.
+#
+# When building the "nightly" channel, the script prunes packages older than a specified threshold.
+# This threshold is controlled by the DAYS_TO_KEEP variable (default: 3 days).
+#
+# The publish-rpm-packages GitHub Actions workflow in this repository uses this script together
+# with the ghcr.io/zeroc-ice/rpm-repo-builder Docker image to create and update the repository.
+
 set -euo pipefail
 
 # Default values
+DAYS_TO_KEEP=3
 CHANNEL=""
 STAGING=""
 REPODIR=""
@@ -17,7 +34,7 @@ while [[ $# -gt 0 ]]; do
             STAGING="$2"
             shift 2
             ;;
-        --repo)
+        --repository)
             REPODIR="$2"
             shift 2
             ;;
@@ -31,7 +48,7 @@ done
 # Validate required inputs
 : "${CHANNEL:?Missing --channel}"
 : "${STAGING:?Missing --staging}"
-: "${REPODIR:?Missing --repo}"
+: "${REPODIR:?Missing --repository}"
 : "${GPG_KEY:?GPG_KEY environment variable is not set}"
 : "${GPG_KEY_ID:?GPG_KEY_ID environment variable is not set}"
 
@@ -66,10 +83,10 @@ ARCHES=(x86_64 aarch64)
 NOARCH_RPMS=()
 
 if [ "${CHANNEL}" = "nightly" ]; then
-  echo "Pruning RPMs older than 3 days..."
+  echo "Pruning RPMs older than ${DAYS_TO_KEEP} days..."
   for arch in x86_64 aarch64 SRPMS; do
     if [[ -d "${REPODIR}/${arch}" ]]; then
-      find "${REPODIR}/${arch}" -type f -name "*.rpm" -mtime +3 -exec rm -v {} \;
+      find "${REPODIR}/${arch}" -type f -name "*.rpm" -mtime +${DAYS_TO_KEEP} -exec rm -v {} \;
     fi
   done
 fi
