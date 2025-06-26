@@ -19,7 +19,7 @@ jobs:
           - os: macos-15
             target: macos-arm64
             artifact-path: cpp/bin/slice2java
-          - os: windows-latest
+          - os: windows-2022
             target: windows-x64
             artifact-path: cpp/bin/x64/Release/slice2java.*
           - os: ubuntu-24.04

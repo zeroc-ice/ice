@@ -70,7 +70,7 @@ classdef Endpoint < IceInternal.WrapperObject
                 % info.infoType points to the XxxEndpointInfo type we need to create
                 switch info.infoType
                     case Ice.TCPEndpointType.value
-                        r = Ice.TCPEndpointInfo(info.timeout, info.compress, info.host, info.port, ...
+                        r = Ice.TCPEndpointInfo(info.compress, info.host, info.port, ...
                                                 info.sourceAddress, info.type, info.secure);
 
                     case Ice.SSLEndpointType.value

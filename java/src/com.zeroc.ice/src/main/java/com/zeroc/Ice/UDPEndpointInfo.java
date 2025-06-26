@@ -32,7 +32,7 @@ public final class UDPEndpointInfo extends IPEndpointInfo {
             String sourceAddress,
             String mcastInterface,
             int mcastTtl) {
-        super(-1, compress, host, port, sourceAddress);
+        super(compress, host, port, sourceAddress);
         this.mcastInterface = mcastInterface;
         this.mcastTtl = mcastTtl;
     }

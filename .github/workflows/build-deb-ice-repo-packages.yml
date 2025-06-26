@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    name: "Build Ice Repo DEB packages for ${{ matrix.distribution }}"
+    name: "Build Ice Repo DEB packages for ${{ matrix.distribution }} ${{ matrix.channel }}"
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -46,8 +46,8 @@ jobs:
             -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
             ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }} \
             /workspace/ice/packaging/deb/build-repo-package.sh \
-            --distribution="${{ matrix.distribution }}" \
-            --channel="${{ matrix.channel }}"
+            --distribution "${{ matrix.distribution }}" \
+            --channel "${{ matrix.channel }}"
 
       - name: Sync DEB packages to S3
         run: |
@@ -69,12 +69,7 @@ jobs:
               ;;
           esac
 
-          mkdir -p "$DISTRIBUTION"
-          aws s3 sync s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION $DISTRIBUTION
-
-          cp -pn "build/*.deb" "${DISTRIBUTION}/"
-
-          aws s3 sync "$DISTRIBUTION" s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION
+          aws s3 cp build/*.deb s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION/
         env:
           CHANNEL: ${{ matrix.channel }}
           DISTRIBUTION: ${{ matrix.distribution }}

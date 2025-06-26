@@ -11,8 +11,10 @@ declare module "@zeroc/ice" {
          */
         interface Communicator {
             /**
-             * Destroy the communicator. This operation calls {@link Communicator#shutdown} implicitly. Calling {@link Communicator#destroy} cleans up
-             * memory, and shuts down this communicator's client functionality and destroys all object adapters.
+             * Destroys this communicator. This method calls {@link shutdown} implicitly. Calling {@link destroy}
+             * destroys all object adapters, and closes all outgoing connections. {@code destroy} waits for all
+             * outstanding dispatches to complete before resolving the returned promise. This includes "bidirectional
+             * dispatches" that execute on outgoing connections.
              *
              * @returns A promise that is resolved when the communicator has been destroyed.
              *
@@ -22,7 +24,7 @@ declare module "@zeroc/ice" {
             destroy(): Promise<void>;
 
             /**
-             * Asynchronously disposes this communicator. It's an alias for {@link Communicator#destroy}.
+             * Asynchronously disposes this communicator. It's an alias for {@link destroy}.
              */
             [Symbol.asyncDispose](): Promise<void>;
 
@@ -34,9 +36,9 @@ declare module "@zeroc/ice" {
             shutdown(): void;
 
             /**
-             * Waits until the application has called {@link Communicator#shutdown} or {@link Communicator#destroy}.
+             * Waits until the application has called {@link shutdown} or {@link destroy}.
              *
-             * @returns A promise that is resolved when {@link Communicator#shutdown} is called.
+             * @returns A promise that is resolved when {@link shutdown} is called.
              *
              * @see {@link shutdown}
              * @see {@link destroy}
@@ -44,9 +46,9 @@ declare module "@zeroc/ice" {
             waitForShutdown(): Promise<void>;
 
             /**
-             * Checks whether {@link Communicator#shutdown} has been called.
+             * Checks whether {@link #shutdown} has been called.
              *
-             * @returns `true` if the communicator has been shut down; `false` otherwise.
+             * @returns {@code true} if {@link #shutdown} was called on this communicator; {@code false} otherwise.
              *
              * @see {@link shutdown}
              */

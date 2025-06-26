@@ -186,7 +186,6 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
     }
 
     rb_ivar_set(info, rb_intern("@underlying"), createEndpointInfo(p->underlying));
-    rb_ivar_set(info, rb_intern("@timeout"), INT2FIX(p->timeout));
     rb_ivar_set(info, rb_intern("@compress"), p->compress ? Qtrue : Qfalse);
     return info;
 }
@@ -273,7 +272,6 @@ IceRuby::initEndpoint(VALUE iceModule)
     // Instance members.
     //
     rb_define_attr(_endpointInfoClass, "underlying", 1, 0);
-    rb_define_attr(_endpointInfoClass, "timeout", 1, 0);
     rb_define_attr(_endpointInfoClass, "compress", 1, 0);
 
     //

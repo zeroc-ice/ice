@@ -425,7 +425,7 @@ IceBT::EndpointI::options() const
 Ice::EndpointInfoPtr
 IceBT::EndpointI::getInfo() const noexcept
 {
-    return make_shared<EndpointInfo>(_timeout, _compress, _addr, _uuid, type(), secure());
+    return make_shared<EndpointInfo>(_compress, _addr, _uuid, type(), secure());
 }
 
 void

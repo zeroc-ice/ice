@@ -41,7 +41,6 @@ final class TcpEndpointI extends IPEndpointI {
     @Override
     public EndpointInfo getInfo() {
         return new TCPEndpointInfo(
-            _timeout,
             _compress,
             _host,
             _port,

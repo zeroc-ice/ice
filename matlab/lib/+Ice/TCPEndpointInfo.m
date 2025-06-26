@@ -8,9 +8,9 @@ classdef (Sealed) TCPEndpointInfo < Ice.IPEndpointInfo
     % Copyright (c) ZeroC, Inc.
 
     methods(Hidden)
-        function obj = TCPEndpointInfo(timeout, compress, host, port, sourceAddress, type, secure)
-            assert(nargin == 7, 'Invalid number of arguments');
-            obj@Ice.IPEndpointInfo(timeout, compress, host, port, sourceAddress);
+        function obj = TCPEndpointInfo(compress, host, port, sourceAddress, type, secure)
+            assert(nargin == 6, 'Invalid number of arguments');
+            obj@Ice.IPEndpointInfo(compress, host, port, sourceAddress);
             obj.type_ = type;
             obj.secure_ = secure;
         end

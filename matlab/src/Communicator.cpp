@@ -25,30 +25,6 @@ extern "C"
         return createEmptyArray();
     }
 
-    mxArray* Ice_Communicator_destroyAsync(void* self, void** future)
-    {
-        *future = 0;
-        auto c = deref<Ice::Communicator>(self);
-        auto f = make_shared<SimpleFuture>();
-
-        thread t(
-            [c, f]
-            {
-                try
-                {
-                    c->destroy();
-                    f->done();
-                }
-                catch (const std::exception&)
-                {
-                    f->exception(current_exception());
-                }
-            });
-        t.detach();
-        *future = new shared_ptr<SimpleFuture>(move(f));
-        return createEmptyArray();
-    }
-
     mxArray* Ice_Communicator_stringToProxy(void* self, const char* s, void** proxy)
     {
         try

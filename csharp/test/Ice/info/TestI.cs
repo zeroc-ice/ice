@@ -34,7 +34,6 @@ public class TestI : Test.TestIntfDisp_
     {
         var ctx = new Dictionary<string, string>();
         Ice.EndpointInfo info = c.con.getEndpoint().getInfo();
-        ctx["timeout"] = info.timeout.ToString();
         ctx["compress"] = info.compress ? "true" : "false";
         ctx["datagram"] = info.datagram() ? "true" : "false";
         ctx["secure"] = info.datagram() ? "true" : "false";

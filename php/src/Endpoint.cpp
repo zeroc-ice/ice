@@ -233,7 +233,6 @@ IcePHP::endpointInit(void)
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _endpointInfoHandlers.free_obj = handleEndpointInfoFreeStorage;
     _endpointInfoHandlers.offset = XtOffsetOf(Wrapper<Ice::EndpointInfoPtr>, zobj);
-    zend_declare_property_long(endpointInfoClassEntry, "timeout", sizeof("timeout") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_bool(endpointInfoClassEntry, "compress", sizeof("compress") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_null(endpointInfoClassEntry, "underlying", sizeof("underlying") - 1, ZEND_ACC_PUBLIC);
 
@@ -415,7 +414,6 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
     }
     add_property_zval(zv, "underlying", &underlying);
     zval_ptr_dtor(&underlying); // add_property_zval increased the refcount of underlying
-    add_property_long(zv, "timeout", static_cast<long>(p->timeout));
     add_property_bool(zv, "compress", static_cast<long>(p->compress));
 
     Wrapper<Ice::EndpointInfoPtr>* obj = Wrapper<Ice::EndpointInfoPtr>::extract(zv);

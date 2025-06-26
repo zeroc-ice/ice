@@ -82,11 +82,17 @@ jobs:
           )
           docker run "${docker_args[@]}" /usr/local/bin/create-rpm-repo \
             --staging /workspace/staging/ \
-            --repo "/workspace/${DISTRIBUTION}" \
+            --repository "/workspace/${DISTRIBUTION}" \
             --channel "${CHANNEL}" \
 
           echo "Uploading updated repository to S3..."
-          aws s3 sync "${DISTRIBUTION}" "s3://zeroc-downloads/ice/${CHANNEL}/${DISTRIBUTION}" --delete
+          # We add the repo package to --exclude to avoid deleting it, this package is built by
+          # the build-rpm-ice-repo-packages workflow
+          aws s3 sync \
+            "${DISTRIBUTION}" \
+            "s3://zeroc-downloads/ice/${CHANNEL}/${DISTRIBUTION}" \
+            --delete \
+            --exclude "ice-repo-${CHANNEL}-*.noarch.rpm"
         env:
           CHANNEL: ${{ inputs.channel }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

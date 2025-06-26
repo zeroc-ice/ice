@@ -96,14 +96,7 @@ IceInternal::TcpEndpointI::streamWriteImpl(OutputStream* s) const
 EndpointInfoPtr
 IceInternal::TcpEndpointI::getInfo() const noexcept
 {
-    return make_shared<TCPEndpointInfo>(
-        _timeout,
-        _compress,
-        _host,
-        _port,
-        inetAddrToString(_sourceAddr),
-        type(),
-        secure());
+    return make_shared<TCPEndpointInfo>(_compress, _host, _port, inetAddrToString(_sourceAddr), type(), secure());
 }
 
 int32_t

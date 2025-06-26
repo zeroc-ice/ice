@@ -77,9 +77,6 @@ namespace Ice
         /// The information of the underlying endpoint or nullptr if there's no underlying endpoint.
         const EndpointInfoPtr underlying;
 
-        /// The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
-        const int timeout;
-
         /// Specifies whether or not compression should be used if available when using this endpoint.
         const bool compress;
 
@@ -87,13 +84,12 @@ namespace Ice
         /// @private
         explicit EndpointInfo(EndpointInfoPtr underlyingInfo)
             : underlying(std::move(underlyingInfo)),
-              timeout(underlying->timeout),
               compress(underlying->compress)
         {
         }
 
         /// @private
-        EndpointInfo(int timeout, bool compress) : timeout(timeout), compress(compress) {}
+        explicit EndpointInfo(bool compress) : compress(compress) {}
     };
 
     /// Provides access to the address details of an IP endpoint.
@@ -118,8 +114,8 @@ namespace Ice
 
     protected:
         /// @private
-        IPEndpointInfo(int timeout, bool compress, std::string host, int port, std::string sourceAddress)
-            : EndpointInfo{timeout, compress},
+        IPEndpointInfo(bool compress, std::string host, int port, std::string sourceAddress)
+            : EndpointInfo{compress},
               host{std::move(host)},
               port{port},
               sourceAddress{std::move(sourceAddress)}
@@ -142,14 +138,13 @@ namespace Ice
 
         /// @private
         TCPEndpointInfo(
-            int timeout,
             bool compress,
             std::string host,
             int port,
             std::string sourceAddress,
             std::int16_t type,
             bool secure)
-            : IPEndpointInfo{timeout, compress, std::move(host), port, std::move(sourceAddress)},
+            : IPEndpointInfo{compress, std::move(host), port, std::move(sourceAddress)},
               _type{type},
               _secure{secure}
         {
@@ -187,7 +182,7 @@ namespace Ice
             std::string sourceAddress,
             std::string mcastInterface,
             int mcastTtl)
-            : IPEndpointInfo{-1, compress, std::move(host), port, std::move(sourceAddress)},
+            : IPEndpointInfo{compress, std::move(host), port, std::move(sourceAddress)},
               mcastInterface{std::move(mcastInterface)},
               mcastTtl{mcastTtl}
         {
@@ -240,7 +235,6 @@ namespace Ice
 
         /// @private
         IAPEndpointInfo(
-            int timeout,
             bool compress,
             std::string manufacturer,
             std::string modelNumber,
@@ -248,7 +242,7 @@ namespace Ice
             std::string protocol,
             std::int16_t type,
             bool secure)
-            : EndpointInfo{timeout, compress},
+            : EndpointInfo{compress},
               manufacturer{std::move(manufacturer)},
               modelNumber{std::move(modelNumber)},
               name{std::move(name)},
@@ -283,7 +277,7 @@ namespace Ice
 
         /// @private
         OpaqueEndpointInfo(std::int16_t type, Ice::EncodingVersion rawEncoding, std::vector<std::byte> rawBytes)
-            : EndpointInfo{-1, false},
+            : EndpointInfo{false},
               rawEncoding{rawEncoding},
               rawBytes{std::move(rawBytes)},
               _type{type}

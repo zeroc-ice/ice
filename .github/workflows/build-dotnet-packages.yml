@@ -19,7 +19,7 @@ jobs:
           - os: macos-15
             target: macos-arm64
             artifact-path: cpp/bin/slice2cs
-          - os: windows-latest
+          - os: windows-2022
             target: windows-x64
             artifact-path: cpp/bin/x64/Release/slice2cs.*
           - os: ubuntu-24.04
@@ -54,7 +54,7 @@ jobs:
           path: ${{ matrix.artifact-path }}
 
   pack-dotnet:
-    runs-on: windows-latest
+    runs-on: windows-2022
     needs: build-slice-compilers
 
     steps:
@@ -132,5 +132,5 @@ jobs:
           path: |
             csharp/src/**/bin/Release/*.nupkg
             csharp/src/**/bin/Release/*.snupkg
-            tools/ZeroC.Ice.Slice.Tools.CSharp/bin/Release/*.nupkg
-            tools/ZeroC.Ice.Slice.Tools.CSharp/bin/Release/*.snupkg
+            csharp/tools/ZeroC.Ice.Slice.Tools.CSharp/bin/Release/*.nupkg
+            csharp/tools/ZeroC.Ice.Slice.Tools.CSharp/bin/Release/*.snupkg

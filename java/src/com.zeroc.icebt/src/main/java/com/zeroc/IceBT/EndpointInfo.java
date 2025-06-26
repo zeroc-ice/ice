@@ -23,9 +23,8 @@ public final class EndpointInfo extends com.zeroc.Ice.EndpointInfo {
         return _secure;
     }
 
-    EndpointInfo(
-            int timeout, boolean compress, String addr, String uuid, short type, boolean secure) {
-        super(timeout, compress);
+    EndpointInfo(boolean compress, String addr, String uuid, short type, boolean secure) {
+        super(compress);
         this.addr = addr;
         this.uuid = uuid;
         this._type = type;

@@ -708,14 +708,6 @@ public class AllTests : Test.AllTests
                 clientProps,
                 update,
                 "Connection",
-                "endpointTimeout",
-                "-1",
-                output);
-            await testAttributeAsync(
-                clientMetrics,
-                clientProps,
-                update,
-                "Connection",
                 "endpointCompress",
                 "False",
                 output);
@@ -820,15 +812,6 @@ public class AllTests : Test.AllTests
                 "ConnectionEstablishment",
                 "endpointIsSecure",
                 isSecure,
-                c,
-                output);
-            await testAttributeAsync(
-                clientMetrics,
-                clientProps,
-                update,
-                "ConnectionEstablishment",
-                "endpointTimeout",
-                "60000",
                 c,
                 output);
             await testAttributeAsync(
@@ -958,15 +941,6 @@ public class AllTests : Test.AllTests
                 "EndpointLookup",
                 "endpointIsSecure",
                 isSecure,
-                c,
-                output);
-            await testAttributeAsync(
-                clientMetrics,
-                clientProps,
-                update,
-                "EndpointLookup",
-                "endpointTimeout",
-                "500",
                 c,
                 output);
             await testAttributeAsync(
@@ -1105,15 +1079,6 @@ public class AllTests : Test.AllTests
                 "Dispatch",
                 "endpointIsSecure",
                 isSecure,
-                op,
-                output);
-            await testAttributeAsync(
-                serverMetrics,
-                serverProps,
-                update,
-                "Dispatch",
-                "endpointTimeout",
-                "60000",
                 op,
                 output);
             await testAttributeAsync(

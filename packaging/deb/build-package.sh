@@ -1,5 +1,17 @@
 #!/bin/bash
-set -eux  # Exit on error, print commands
+
+# This script builds the ZeroC Ice DEB packages from the source code in the zeroc-ice/ice repository.
+#
+# If ICE_VERSION is set, the script updates the changelog to use that version.
+# This is typically used for nightly builds.
+#
+# If ICE_VERSION is not set, the version from the existing changelog is used.
+# This is typically used for release builds.
+#
+# The build-deb-packages GitHub Actions workflow in this repository uses this script together
+# with the ghcr.io/zeroc-ice/ice-deb-builder-<distribution> Docker image to build the packages.
+
+set -euo pipefail
 
 # Create build directory and copy Debian packaging files
 mkdir -p /workspace/build

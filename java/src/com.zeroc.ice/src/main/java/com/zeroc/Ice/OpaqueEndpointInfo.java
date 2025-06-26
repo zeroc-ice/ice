@@ -23,7 +23,7 @@ public final class OpaqueEndpointInfo extends EndpointInfo {
 
     // internal constructor
     OpaqueEndpointInfo(short type, EncodingVersion rawEncoding, byte[] rawBytes) {
-        super(-1, false);
+        super(false);
         this._type = type;
         this.rawEncoding = rawEncoding;
         this.rawBytes = rawBytes;

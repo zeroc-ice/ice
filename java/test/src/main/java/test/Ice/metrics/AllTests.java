@@ -586,7 +586,6 @@ public class AllTests {
                 clientMetrics, clientProps, "Connection", "endpointIsDatagram", "false", out);
             testAttribute(
                 clientMetrics, clientProps, "Connection", "endpointIsSecure", isSecure, out);
-            testAttribute(clientMetrics, clientProps, "Connection", "endpointTimeout", "-1", out);
             testAttribute(
                 clientMetrics, clientProps, "Connection", "endpointCompress", "false", out);
             testAttribute(clientMetrics, clientProps, "Connection", "endpointHost", host, out);
@@ -719,14 +718,6 @@ public class AllTests {
                 clientMetrics,
                 clientProps,
                 "ConnectionEstablishment",
-                "endpointTimeout",
-                "60000",
-                c,
-                out);
-            testAttribute(
-                clientMetrics,
-                clientProps,
-                "ConnectionEstablishment",
                 "endpointCompress",
                 "false",
                 c,
@@ -828,8 +819,6 @@ public class AllTests {
                 c,
                 out);
             testAttribute(
-                clientMetrics, clientProps, "EndpointLookup", "endpointTimeout", "500", c, out);
-            testAttribute(
                 clientMetrics,
                 clientProps,
                 "EndpointLookup",
@@ -927,8 +916,6 @@ public class AllTests {
                 serverMetrics, serverProps, "Dispatch", "endpointIsDatagram", "false", op, out);
             testAttribute(
                 serverMetrics, serverProps, "Dispatch", "endpointIsSecure", isSecure, op, out);
-            testAttribute(
-                serverMetrics, serverProps, "Dispatch", "endpointTimeout", "60000", op, out);
             testAttribute(
                 serverMetrics, serverProps, "Dispatch", "endpointCompress", "false", op, out);
             testAttribute(serverMetrics, serverProps, "Dispatch", "endpointHost", host, op, out);

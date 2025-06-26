@@ -77,6 +77,24 @@ jobs:
       run_id: ${{ inputs.run_id }}
     secrets: inherit
 
+  invalidate-cloudfront-cache:
+    runs-on: ubuntu-24.04
+    needs:
+      - publish-deb-packages
+      - publish-gem-packages
+      - publish-maven-packages
+      - publish-misc-packages
+      - publish-npm-packages
+      - publish-nuget-packages
+      - publish-pip-packages
+      - publish-rpm-packages
+    steps:
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id E163NR6GH4QVNV \
+            --paths "/ice/${{ inputs.channel }}/*
+
   upload-release-assets:
     # For stable channels if running on a tag, we upload the release assets to the tag.
     if: ${{ inputs.channel != 'nightly' && startsWith(github.ref, 'refs/tags/') }}

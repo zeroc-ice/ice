@@ -621,7 +621,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointType", type);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointIsDatagram", "false");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointIsSecure", isSecure);
-        testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointTimeout", "-1");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointCompress", "false");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointHost", host);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointPort", port);
@@ -703,14 +702,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             clientProps,
             update.get(),
             "ConnectionEstablishment",
-            "endpointTimeout",
-            "60000",
-            c);
-        testAttribute(
-            clientMetrics,
-            clientProps,
-            update.get(),
-            "ConnectionEstablishment",
             "endpointCompress",
             "false",
             c);
@@ -778,7 +769,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointType", type, c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsDatagram", "false", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointIsSecure", isSecure, c);
-        testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointTimeout", "500", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointCompress", "false", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointHost", "localhost", c);
         testAttribute(clientMetrics, clientProps, update.get(), "EndpointLookup", "endpointPort", port, c);
@@ -883,7 +873,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointType", type, op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointIsDatagram", "false", op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointIsSecure", isSecure, op);
-        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointTimeout", "60000", op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointCompress", "false", op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointHost", host, op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointPort", port, op);
