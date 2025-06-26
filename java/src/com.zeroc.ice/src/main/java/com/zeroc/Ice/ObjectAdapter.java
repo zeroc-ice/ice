@@ -89,6 +89,7 @@ public final class ObjectAdapter {
      *
      * <p>When this object adapter is an indirect object adapter configured with a locator proxy, this
      * method also registers the object adapter's published endpoints with this locator.
+     *
      * @see #deactivate
      * @see #getLocator
      * @see #getPublishedEndpoints
@@ -172,6 +173,7 @@ public final class ObjectAdapter {
      *
      * <p>This method is provided for backward compatibility with older versions of Ice. Don't use it in
      * new applications.
+     *
      * @see #activate
      * @see #deactivate
      * @see #waitForHold
@@ -190,6 +192,7 @@ public final class ObjectAdapter {
      *
      * <p>This method is provided for backward compatibility with older versions of Ice. Don't use it in
      * new applications.
+     *
      * @see #hold
      * @see #waitForDeactivate
      * @see Communicator#waitForShutdown
@@ -406,6 +409,7 @@ public final class ObjectAdapter {
      *
      * <p>All middleware must be installed before the first dispatch.
      * <p>The middleware are executed in the order they are installed.
+     *
      * @param middleware The middleware factory that creates the new middleware when this object adapter
      *     creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
      *     in the dispatch pipeline) and returns a new Object (the middleware you want to install in the pipeline).
