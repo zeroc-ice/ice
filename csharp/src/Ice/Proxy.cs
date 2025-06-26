@@ -1794,80 +1794,79 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     }
 
     /// <summary>
-    /// Casts a proxy to <see cref="ObjectPrx" />. This call contacts
-    /// the server and throws an Ice run-time exception if the target
-    /// object does not exist or the server cannot be reached.
+    /// Downcasts a proxy after confirming the target object's type via a remote invocation.
     /// </summary>
-    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
-    /// <param name="context">The Context map for the invocation.</param>
-    /// <returns>proxy.</returns>
+    /// <param name="proxy">The source proxy.</param>
+    /// <param name="context">The request context.</param>
+    /// <returns>A proxy with the requested type, or null if the source proxy is null or if the target object does not
+    /// support the requested type.</returns>
     public static ObjectPrx? checkedCast(ObjectPrx? proxy, Dictionary<string, string>? context = null) =>
         proxy is not null && proxy.ice_isA("::Ice::Object", context) ? proxy : null;
 
     /// <summary>
-    /// Creates a new proxy that is identical to the passed proxy, except
-    /// for its facet. This call contacts
-    /// the server and throws an Ice run-time exception if the target
-    /// object does not exist, the specified facet does not exist, or the server cannot be reached.
+    /// Downcasts a proxy after confirming the target object's type via a remote invocation.
     /// </summary>
-    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
-    /// <param name="facet">The facet for the new proxy.</param>
-    /// <param name="context">The Context map for the invocation.</param>
-    /// <returns>The new proxy with the specified facet.</returns>
+    /// <param name="proxy">The source proxy (can be null).</param>
+    /// <param name="facet">A facet name.</param>
+    /// <param name="context">The request context.</param>
+    /// <returns>A proxy with the requested type and facet, or null if the source proxy is null or if the target facet
+    /// does not support the requested type.</returns>
     public static ObjectPrx? checkedCast(ObjectPrx? proxy, string facet, Dictionary<string, string>? context = null) =>
         checkedCast(proxy?.ice_facet(facet), context);
 
     /// <summary>
-    /// Casts a proxy to <see cref="ObjectPrx" />. This call contacts
-    /// the server and throws an Ice run-time exception if the target
-    /// object does not exist or the server cannot be reached.
+    /// Downcasts a proxy after confirming the target object's type via a remote invocation.
     /// </summary>
-    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
-    /// <param name="context">The Context map for the invocation.</param>
-    /// <returns>proxy.</returns>
+    /// <param name="proxy">The source proxy.</param>
+    /// <param name="context">The request context.</param>
+    /// <param name="progress">Sent progress provider.</param>
+    /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+    /// <returns>A proxy with the requested type, or null if the source proxy is null or if the target object does not
+    /// support the requested type.</returns>
     public static async Task<ObjectPrx?> checkedCastAsync(
         ObjectPrx proxy,
-        Dictionary<string, string>? context = null) =>
-       await proxy.ice_isAAsync("::Ice::Object", context).ConfigureAwait(false) ? proxy : null;
+        Dictionary<string, string>? context = null,
+        IProgress<bool>? progress = null,
+        CancellationToken cancel = default) =>
+       await proxy.ice_isAAsync("::Ice::Object", context, progress, cancel).ConfigureAwait(false) ? proxy : null;
 
     /// <summary>
-    /// Creates a new proxy that is identical to the passed proxy, except
-    /// for its facet. This call contacts
-    /// the server and throws an Ice run-time exception if the target
-    /// object does not exist, the specified facet does not exist, or the server cannot be reached.
+    /// Downcasts a proxy after confirming the target object's type via a remote invocation.
     /// </summary>
-    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
-    /// <param name="facet">The facet for the new proxy.</param>
-    /// <param name="context">The Context map for the invocation.</param>
-    /// <returns>The new proxy with the specified facet.</returns>
+    /// <param name="proxy">The source proxy.</param>
+    /// <param name="facet">A facet name.</param>
+    /// <param name="context">The request context.</param>
+    /// <param name="progress">Sent progress provider.</param>
+    /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
+    /// <returns>A proxy with the requested type and facet, or null if the source proxy is null or if the target facet
+    /// does not support the requested type.</returns>
     public static Task<ObjectPrx?> checkedCastAsync(
         ObjectPrx proxy,
         string facet,
-        Dictionary<string, string>? context = null) =>
-        checkedCastAsync(proxy.ice_facet(facet), context);
+        Dictionary<string, string>? context = null,
+        IProgress<bool>? progress = null,
+        CancellationToken cancel = default) =>
+        checkedCastAsync(proxy.ice_facet(facet), context, progress, cancel);
 
     /// <summary>
-    /// Casts a proxy to <see cref="ObjectPrx" />. This call does
-    /// not contact the server and always succeeds.
+    /// Downcasts a proxy without confirming the target object's type via a remote invocation.
     /// </summary>
-    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
-    /// <returns>b.</returns>
-    [return: NotNullIfNotNull("proxy")]
+    /// <param name="proxy">The source proxy.</param>
+    /// <returns>A proxy with the requested type.</returns>
+    [return: NotNullIfNotNull(nameof(proxy))]
     public static ObjectPrx? uncheckedCast(ObjectPrx? proxy) => proxy;
 
     /// <summary>
-    /// Creates a new proxy that is identical to the passed proxy, except
-    /// for its facet. This call does not contact the server and always succeeds.
+    /// Downcasts a proxy without confirming the target object's type via a remote invocation.
     /// </summary>
-    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
-    /// <param name="facet">The facet for the new proxy.</param>
-    /// <returns>The new proxy with the specified facet.</returns>
-    [return: NotNullIfNotNull("proxy")]
+    /// <param name="proxy">The source proxy.</param>
+    /// <param name="facet">A facet name.</param>
+    /// <returns>A proxy with the requested type and facet.</returns>
+    [return: NotNullIfNotNull(nameof(proxy))]
     public static ObjectPrx? uncheckedCast(ObjectPrx? proxy, string facet) => proxy?.ice_facet(facet);
 
     /// <summary>
-    /// Gets the Slice type id of the interface or class associated
-    /// with this proxy class.
+    /// Gets the Slice type id of the interface or class associated with this proxy class.
     /// </summary>
     /// <returns>The type id, "::Ice::Object".</returns>
     public static string ice_staticId() => ObjectImpl.ice_staticId();

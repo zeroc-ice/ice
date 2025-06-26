@@ -2067,14 +2067,14 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     _out << sp;
     writeDocLine(_out, "summary", checkedCastSummary.str());
-    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
-    writeDocLine(_out, R"(param name="ctx")", "The request context.", "param");
+    writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="context")", "The request context.", "param");
     writeDocLine(_out, "returns", checkedCastReturns.str());
     _out << nl << "public static " << name
-         << "Prx? checkedCast(Ice.ObjectPrx? b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
+         << "Prx? checkedCast(Ice.ObjectPrx? proxy, global::System.Collections.Generic.Dictionary<string, string>? context = "
             "null) =>";
     _out.inc();
-    _out << nl << "b is not null && b.ice_isA(ice_staticId(), ctx) ? new " << name << "PrxHelper(b) : null;";
+    _out << nl << "proxy is not null && proxy.ice_isA(ice_staticId(), context) ? new " << name << "PrxHelper(proxy) : null;";
     _out.dec();
 
     ostringstream checkedCastWithFacetSummary;
@@ -2089,41 +2089,41 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     _out << sp;
     writeDocLine(_out, "summary", checkedCastWithFacetSummary.str());
-    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
-    writeDocLine(_out, R"(param name="f")", "The facet.", "param");
-    writeDocLine(_out, R"(param name="ctx")", "The request context.", "param");
+    writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="facet")", "The facet.", "param");
+    writeDocLine(_out, R"(param name="context")", "The request context.", "param");
     writeDocLine(_out, "returns", checkedCastWithFacetReturns.str());
     _out << nl << "public static " << name
-         << "Prx? checkedCast(Ice.ObjectPrx? b, string f, global::System.Collections.Generic.Dictionary<string, "
-            "string>? ctx = null) =>";
+         << "Prx? checkedCast(Ice.ObjectPrx? proxy, string facet, global::System.Collections.Generic.Dictionary<string, "
+            "string>? context = null) =>";
     _out.inc();
-    _out << nl << "checkedCast(b?.ice_facet(f), ctx);";
+    _out << nl << "checkedCast(proxy?.ice_facet(facet), context);";
     _out.dec();
 
     _out << sp;
     writeDocLine(_out, "summary", checkedCastSummary.str());
-    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
-    writeDocLine(_out, R"(param name="ctx")", "The request context.", "param");
+    writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="context")", "The request context.", "param");
     writeDocLine(_out, "returns", checkedCastReturns.str());
     _out << nl << "public static async global::System.Threading.Tasks.Task<" << name
-         << "Prx?> checkedCastAsync(Ice.ObjectPrx b, global::System.Collections.Generic.Dictionary<string, string>? "
-            "ctx = null) =>";
+         << "Prx?> checkedCastAsync(Ice.ObjectPrx proxy, global::System.Collections.Generic.Dictionary<string, string>? "
+            "context = null, global::System.IProgress<bool>? progress = null, global::System.Threading.CancellationToken cancel = default) =>";
     _out.inc();
-    _out << nl << "await b.ice_isAAsync(ice_staticId(), ctx).ConfigureAwait(false) ? new " << name
-         << "PrxHelper(b) : null;";
+    _out << nl << "await proxy.ice_isAAsync(ice_staticId(), context, progress, cancel).ConfigureAwait(false) ? new " << name
+         << "PrxHelper(proxy) : null;";
     _out.dec();
 
     _out << sp;
     writeDocLine(_out, "summary", checkedCastWithFacetSummary.str());
-    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
-    writeDocLine(_out, R"(param name="f")", "The facet.", "param");
-    writeDocLine(_out, R"(param name="ctx")", "The request context.", "param");
+    writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="facet")", "The facet.", "param");
+    writeDocLine(_out, R"(param name="context")", "The request context.", "param");
     writeDocLine(_out, "returns", checkedCastWithFacetReturns.str());
     _out << nl << "public static global::System.Threading.Tasks.Task<" << name
-         << "Prx?> checkedCastAsync(Ice.ObjectPrx b, string f, global::System.Collections.Generic.Dictionary<string, "
-            "string>? ctx = null) =>";
+         << "Prx?> checkedCastAsync(Ice.ObjectPrx proxy, string facet, global::System.Collections.Generic.Dictionary<string, "
+            "string>? context = null, global::System.IProgress<bool>? progress = null, global::System.Threading.CancellationToken cancel = default) =>";
     _out.inc();
-    _out << nl << "checkedCastAsync(b.ice_facet(f), ctx);";
+    _out << nl << "checkedCastAsync(proxy.ice_facet(facet), context, progress, cancel);";
     _out.dec();
 
     ostringstream uncheckedCastSummary;
@@ -2132,12 +2132,12 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     _out << sp;
     writeDocLine(_out, "summary", uncheckedCastSummary.str());
-    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
     writeDocLine(_out, "returns", "A proxy with the requested type, or null if the source proxy is null.");
-    _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
-    _out << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b) =>";
+    _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(proxy))]";
+    _out << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? proxy) =>";
     _out.inc();
-    _out << nl << "b is not null ? new " << name << "PrxHelper(b) : null;";
+    _out << nl << "proxy is not null ? new " << name << "PrxHelper(proxy) : null;";
     _out.dec();
 
     ostringstream uncheckedCastWithFacetSummary;
@@ -2146,13 +2146,13 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     _out << sp;
     writeDocLine(_out, "summary", uncheckedCastWithFacetSummary.str());
-    writeDocLine(_out, R"(param name="b")", "The source proxy.", "param");
-    writeDocLine(_out, R"(param name="f")", "The facet.", "param");
+    writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
+    writeDocLine(_out, R"(param name="facet")", "The facet.", "param");
     writeDocLine(_out, "returns", "A proxy with the requested type, or null if the source proxy is null.");
-    _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
-    _out << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b, string f) =>";
+    _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(proxy))]";
+    _out << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? proxy, string facet) =>";
     _out.inc();
-    _out << nl << "uncheckedCast(b?.ice_facet(f));";
+    _out << nl << "uncheckedCast(proxy?.ice_facet(facet));";
     _out.dec();
 
     ostringstream staticId;
