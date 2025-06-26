@@ -59,8 +59,8 @@ jobs:
             -v "$GITHUB_WORKSPACE:/workspace" \
             -e ICE_VERSION="${{ inputs.ice_version }}" \
             -e GIT_TAG="${{ github.ref_name }}" \
-            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}"
-            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}"
+            -e GPG_KEY="${{ secrets.ICE_3_8_CI_SIGNER_KEY }}" \
+            -e GPG_KEY_ID="${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}" \
             ghcr.io/zeroc-ice/ice-rpm-builder-${{ matrix.distribution }} \
             /workspace/ice/packaging/rpm/build-package.sh
 
