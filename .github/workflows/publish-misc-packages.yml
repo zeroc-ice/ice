@@ -37,11 +37,13 @@ jobs:
       - name: Publish MSI Packages
         run: |
           set -euo pipefail
-          mkdir -p "${CHANNEL}"
-          # Copy all .msi files from staging/windows-msi to the channel directory
-          # Preserve file attributes; do not overwrite existing files.
-          cp -npv staging/windows-msi/*.msi "${CHANNEL}/"
-          aws s3 sync "${CHANNEL}/" "s3://zeroc-downloads/ice/${CHANNEL}/" --exclude "*" --include "*.msi"
+          if [ '${CHANNEL}' == 'nightly' ]; then
+            # Rename the MSI file to Ice-nightly.msi if it's the nightly channel
+            aws s3 cp staging/windows-msi/nightly/*.msi "s3://zeroc-downloads/ice/${CHANNEL}/Ice-nightly.msi"
+          else
+            aws s3 cp staging/windows-msi/nightly/*.msi "s3://zeroc-downloads/ice/${CHANNEL}/"
+          fi
+
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -63,11 +65,14 @@ jobs:
       - name: Publish MATLAB Packages
         run: |
           set -euo pipefail
-          mkdir -p "${CHANNEL}"
-          # Copy all .mltbx files from staging/matlab-packages-* to the channel directory
-          # Preserve file attributes; do not overwrite existing files.
-          cp -npv staging/matlab-packages-*/*.mltbx "${CHANNEL}/"
-          aws s3 sync "${CHANNEL}/" "s3://zeroc-downloads/ice/${CHANNEL}/" --exclude "*" --include "*.mltbx"
+          if [ '${CHANNEL}' == 'nightly' ]; then
+            # Rename the Toolbox files to ice-nightly-R2024a-<os>.mltbx if it's the nightly channel
+            aws s3 cp staging/matlab-packages-windows-*/ice-*-R2024a-win.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/ice-nightly-R2024a-win.mltbx"
+            aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-R2024a-linux.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/ice-nightly-R2024a-linux.mltbx"
+          else
+            aws s3 cp staging/matlab-packages-windows-*/ice-*-win.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/"
+            aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-linux.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/"
+          fi
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

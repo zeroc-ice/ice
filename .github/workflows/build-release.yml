@@ -33,7 +33,7 @@ on:
 
 jobs:
   set-version:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       semver_version: ${{ steps.set-vars.outputs.semver_version }}
       deb_version: ${{ steps.set-vars.outputs.deb_version }}
