@@ -75,13 +75,7 @@ jobs:
               ;;
           esac
 
-          mkdir -p "$DISTRIBUTION"
-          aws s3 sync s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION $DISTRIBUTION
-
-          rpm="ice-repo-${CHANNEL}-1.0.0-1.${DISTRIBUTION}.noarch.rpm"
-          cp -pn "build/RPMS/noarch/$rpm" "${DISTRIBUTION}/$rpm"
-
-          aws s3 sync "$DISTRIBUTION" s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION --delete
+          aws s3 cp build/RPMS/noarch/*.rpm s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION
         env:
           CHANNEL: ${{ matrix.channel }}
           DISTRIBUTION: ${{ matrix.distribution }}

@@ -69,12 +69,7 @@ jobs:
               ;;
           esac
 
-          mkdir -p "$DISTRIBUTION"
-          aws s3 sync s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION $DISTRIBUTION
-
-          cp -pn build/*.deb "${DISTRIBUTION}/"
-
-          aws s3 sync "$DISTRIBUTION" s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION
+          aws s3 cp build/*.deb s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION
         env:
           CHANNEL: ${{ matrix.channel }}
           DISTRIBUTION: ${{ matrix.distribution }}
