@@ -2,9 +2,7 @@
 
 package com.zeroc.Ice;
 
-/**
- * The exception that is thrown when the server host actively refuses a connection.
- */
+/** The exception that is thrown when the server host actively refuses a connection. */
 public final class ConnectionRefusedException extends ConnectFailedException {
     /**
      * Constructs a ConnectionRefusedException.

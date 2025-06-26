@@ -287,7 +287,7 @@ public final class Util {
      *
      * @param ident The object identity to convert.
      * @param toStringMode Specifies how to handle non-ASCII characters and non-printable ASCII characters.
-     * @return The string representation of the object identity.
+     * @return the stringified identifier
      */
     public static String identityToString(Identity ident, ToStringMode toStringMode) {
         if (ident.category == null || ident.category.isEmpty()) {
@@ -423,9 +423,9 @@ public final class Util {
     }
 
     /**
-     * Returns the Ice version as an integer in the form {@code A.BB.CC}, where {@code A}
+     * Returns the Ice version as an integer in the form {@code AABBCC}, where {@code AA}
      * indicates the major version, {@code BB} indicates the minor version, and {@code CC}
-     * indicates the patch level. For example, for Ice 3.3.1, the returned value is 30301.
+     * indicates the patch level. For example, for Ice 3.8.1, the returned value is 30801.
      *
      * @return The Ice version.
      */

@@ -87,8 +87,8 @@ public final class ObjectAdapter {
     /**
      * Starts receiving and dispatching requests received over incoming connections.
      *
-     * @remark When this object adapter is an indirect object adapter configured with a locator proxy, this
-     *     method also registers the object adapter's published endpoints with this locator.
+     * <p>When this object adapter is an indirect object adapter configured with a locator proxy, this
+     * method also registers the object adapter's published endpoints with this locator.
      * @see #deactivate
      * @see #getLocator
      * @see #getPublishedEndpoints
@@ -170,8 +170,8 @@ public final class ObjectAdapter {
      * Stops reading requests from incoming connections. Outstanding dispatches are not affected. The object
      * adapter can be reactivated with {@link #activate}.
      *
-     * @remark This method is provided for backward compatibility with older versions of Ice. Don't use it in
-     *     new applications.
+     * <p>This method is provided for backward compatibility with older versions of Ice. Don't use it in
+     * new applications.
      * @see #activate
      * @see #deactivate
      * @see #waitForHold
@@ -188,8 +188,8 @@ public final class ObjectAdapter {
      * Waits until the object adapter is in the holding state (see {@link #hold}) and the dispatch of requests received
      * over incoming connection has completed.
      *
-     * @remark This method is provided for backward compatibility with older versions of Ice. Don't use it in
-     *     new applications.
+     * <p>This method is provided for backward compatibility with older versions of Ice. Don't use it in
+     * new applications.
      * @see #hold
      * @see #waitForDeactivate
      * @see Communicator#waitForShutdown
@@ -404,12 +404,12 @@ public final class ObjectAdapter {
     /**
      * Adds a middleware to the dispatch pipeline of this object adapter.
      *
+     * <p>All middleware must be installed before the first dispatch.
+     * <p>The middleware are executed in the order they are installed.
      * @param middleware The middleware factory that creates the new middleware when this object adapter
      *     creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
      *     in the dispatch pipeline) and returns a new Object (the middleware you want to install in the pipeline).
      * @return This object adapter.
-     * @remark All middleware must be installed before the first dispatch.
-     * @remark The middleware are executed in the order they are installed.
      * @throws IllegalStateException Thrown if the object adapter's dispatch pipeline has already
      *     been created. This creation typically occurs the first time the object adapter dispatches
      *     an incoming request.
@@ -428,11 +428,12 @@ public final class ObjectAdapter {
      * Adds a servant to this object adapter's Active Servant Map (ASM). The ASM is a map {identity, facet} ->
      * servant.
      *
+     * <p>This method is equivalent to calling {@link #addFacet} with an empty facet.
+     *
      * @param servant The servant to add.
      * @param identity The identity of the Ice object that is implemented by the servant.
      * @return A proxy for the identity created by this object adapter.
      * @throws AlreadyRegisteredException Thrown when a servant with the same identity is already registered.
-     * @remark This method is equivalent to calling {@link #addFacet} with an empty facet.
      * @see Identity
      * @see #addFacet
      * @see #addWithUUID
@@ -612,11 +613,12 @@ public final class ObjectAdapter {
     /**
      * Looks up a servant.
      *
+     * <p>This method only tries to find the servant in the ASM and among the default servants. It does not
+     * attempt to locate a servant using servant locators.
+     *
      * @param identity The identity of an Ice object.
      * @return The servant that implements the Ice object with the given identity, or null if no such servant
      *     has been found.
-     * @remark This method only tries to find the servant in the ASM and among the default servants. It does not
-     *     attempt to locate a servant using servant locators.
      * @see Identity
      * @see #findFacet
      * @see #findByProxy
@@ -628,12 +630,13 @@ public final class ObjectAdapter {
     /**
      * Looks up a servant with an identity and facet.
      *
+     * <p>This method only tries to find the servant in the ASM and among the default servants. It does not
+     * attempt to locate a servant using servant locators.
+     *
      * @param identity The identity of an Ice object.
      * @param facet The facet of an Ice object. An empty facet means the default facet.
      * @return The servant that implements the Ice object with the given identity and facet, or null
      *     if no such servant has been found.
-     * @remark This method only tries to find the servant in the ASM and among the default servants. It does not
-     *     attempt to locate a servant using servant locators.
      * @see Identity
      * @see #find
      * @see #findByProxy
@@ -836,8 +839,9 @@ public final class ObjectAdapter {
     /**
      * Gets the set of endpoints configured on this object adapter.
      *
+     * <p>This method remains usable after the object adapter has been deactivated.
+     *
      * @return The set of endpoints.
-     * @remark This method remains usable after the object adapter has been deactivated.
      * @see Endpoint
      */
     public synchronized Endpoint[] getEndpoints() {
@@ -851,8 +855,9 @@ public final class ObjectAdapter {
     /**
      * Gets the set of endpoints that proxies created by this object adapter will contain.
      *
+     * <p>This method remains usable after the object adapter has been deactivated.
+     *
      * @return The set of published endpoints.
-     * @remark This method remains usable after the object adapter has been deactivated.
      * @see Endpoint
      */
     public synchronized Endpoint[] getPublishedEndpoints() {

@@ -217,7 +217,7 @@ public interface ObjectPrx {
     Identity ice_getIdentity();
 
     /**
-     * Creates a proxy that is identical to this proxy, except for the identity.
+     * Creates a new proxy that is identical to this proxy, except for the identity.
      *
      * @param newIdentity The identity for the new proxy.
      * @return A proxy with the new identity.
@@ -228,12 +228,12 @@ public interface ObjectPrx {
      * Gets the per-proxy context for this proxy.
      *
      * @return The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the
-     *     return value is null.
+     *     return value is {@code null}.
      */
     Map<String, String> ice_getContext();
 
     /**
-     * Creates a proxy that is identical to this proxy, except for the per-proxy context.
+     * Creates a new proxy that is identical to this proxy, except for the per-proxy context.
      *
      * @param newContext The context for the new proxy.
      * @return A proxy with the new per-proxy context.
@@ -249,7 +249,7 @@ public interface ObjectPrx {
     String ice_getFacet();
 
     /**
-     * Creates a proxy that is identical to this proxy, except for the facet.
+     * Creates a new proxy that is identical to this proxy, except for the facet.
      *
      * @param newFacet The facet for the new proxy.
      * @return A proxy with the new facet.
@@ -265,7 +265,7 @@ public interface ObjectPrx {
     String ice_getAdapterId();
 
     /**
-     * Creates a proxy that is identical to this proxy, except for the adapter ID.
+     * Creates a new proxy that is identical to this proxy, except for the adapter ID.
      *
      * @param newAdapterId The adapter ID for the new proxy.
      * @return A proxy with the new adapter ID.
@@ -281,7 +281,7 @@ public interface ObjectPrx {
     Endpoint[] ice_getEndpoints();
 
     /**
-     * Creates a proxy that is identical to this proxy, except for the endpoints.
+     * Creates a new proxy that is identical to this proxy, except for the endpoints.
      *
      * @param newEndpoints The endpoints for the new proxy.
      * @return A proxy with the new endpoints.
@@ -311,7 +311,7 @@ public interface ObjectPrx {
     String ice_getConnectionId();
 
     /**
-     * Creates a proxy that is identical to this proxy, except it's a fixed proxy bound to the given
+     * Creates a new proxy that is identical to this proxy, except it's a fixed proxy bound to the given
      * connection.
      *
      * @param connection The fixed proxy connection.
@@ -327,7 +327,7 @@ public interface ObjectPrx {
     boolean ice_isFixed();
 
     /**
-     * Creates a proxy that is identical to this proxy, except for the locator cache timeout.
+     * Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
      *
      * @param newTimeout The new locator cache timeout (in seconds).
      * @return A proxy with the new timeout.
@@ -450,7 +450,7 @@ public interface ObjectPrx {
      * Gets the router for this proxy.
      *
      * @return The router for the proxy. If no router is configured for the proxy, the return value
-     *     is null.
+     *     is {@code null}.
      */
     RouterPrx ice_getRouter();
 
@@ -465,7 +465,7 @@ public interface ObjectPrx {
     /**
      * Gets the locator for this proxy.
      *
-     * @return The locator for this proxy. If no locator is configured, the return value is null.
+     * @return The locator for this proxy. If no locator is configured, the return value is {@code null}.
      */
     LocatorPrx ice_getLocator();
 
@@ -495,7 +495,7 @@ public interface ObjectPrx {
     ObjectPrx ice_collocationOptimized(boolean b);
 
     /**
-     * Creates a proxy that is identical to this proxy, but uses twoway invocations.
+     * Creates a new proxy that is identical to this proxy, but uses twoway invocations.
      *
      * @return A proxy that uses twoway invocations.
      */
@@ -510,7 +510,7 @@ public interface ObjectPrx {
     boolean ice_isTwoway();
 
     /**
-     * Creates a proxy that is identical to this proxy, but uses oneway invocations.
+     * Creates a new proxy that is identical to this proxy, but uses oneway invocations.
      *
      * @return A proxy that uses oneway invocations.
      */
@@ -525,7 +525,7 @@ public interface ObjectPrx {
     boolean ice_isOneway();
 
     /**
-     * Creates a proxy that is identical to this proxy, but uses batch oneway invocations.
+     * Creates a new proxy that is identical to this proxy, but uses batch oneway invocations.
      *
      * @return A proxy that uses batch oneway invocations.
      */
@@ -540,7 +540,7 @@ public interface ObjectPrx {
     boolean ice_isBatchOneway();
 
     /**
-     * Creates a proxy that is identical to this proxy, but uses datagram invocations.
+     * Creates a new proxy that is identical to this proxy, but uses datagram invocations.
      *
      * @return A proxy that uses datagram invocations.
      */
@@ -555,7 +555,7 @@ public interface ObjectPrx {
     boolean ice_isDatagram();
 
     /**
-     * Creates a proxy that is identical to this proxy, but uses batch datagram invocations.
+     * Creates a new proxy that is identical to this proxy, but uses batch datagram invocations.
      *
      * @return A proxy that uses batch datagram invocations.
      */
@@ -625,7 +625,7 @@ public interface ObjectPrx {
      * Gets the cached {@link Connection} for this proxy. If the proxy does not yet have an
      * established connection, it does not attempt to create a connection.
      *
-     * @return The cached {@link Connection} for this proxy (null if the proxy does not
+     * @return The cached {@link Connection} for this proxy ({@code null} if the proxy does not
      *     have an established connection).
      * @see Connection
      */
@@ -775,7 +775,7 @@ public interface ObjectPrx {
      * Reads a proxy from the stream.
      *
      * @param istr The source stream.
-     * @return A new proxy or null for a null proxy.
+     * @return A new proxy or {@code null} for a null proxy.
      */
     static ObjectPrx read(InputStream istr) {
         return istr.readProxy();

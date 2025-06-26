@@ -92,10 +92,9 @@ public interface Connection {
 
     /**
      * Gets a description of the connection as human readable text, suitable for logging or error
-     * messages.
+     * messages. This method remains usable after the connection is closed or aborted.
      *
      * @return The description of the connection as human readable text.
-     * @remark This method remains usable after the connection is closed or aborted.
      */
     String _toString();
 

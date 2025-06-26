@@ -418,9 +418,9 @@ public sealed class Util
     public static string stringVersion() => "3.8.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
 
     /// <summary>
-    /// Returns the Ice version as an integer in the form A.BB.CC, where A
+    /// Returns the Ice version as an integer in the form AABBCC, where AA
     /// indicates the major version, BB indicates the minor version, and CC
-    /// indicates the patch level. For example, for Ice 3.3.1, the returned value is 30301.
+    /// indicates the patch level. For example, for Ice 3.8.1, the returned value is 30801.
     /// </summary>
     /// <returns>The Ice version.</returns>
     public static int intVersion() => 30850; // AABBCC, with AA=major, BB=minor, CC=patch
