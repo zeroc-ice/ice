@@ -19,9 +19,9 @@ icegridgui              IceGrid GUI application
 libice-c++-devel        C++ headers and symlinks to Ice C++ runtime libraries
 libice3.8-c++           Ice C++ runtime libraries
 libicestorm3.8          IceStorm service
-php-ice                 PHP extension and runtime files [1]
-php8.4-ice              PHP extension and runtime files [2]
-python3-ice             Python 3 extension and runtime files
+php-ice                 Ice for PHP [1]
+php8.4-ice              Ice for PHP [2]
+python3-ice             Ice for Python
 
 [1] Available on RHEL 9 and RHEL 10.
 [2] Available on Amazon Linux 2023 only.

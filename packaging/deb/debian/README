@@ -18,8 +18,8 @@ zeroc-icegrid            IceGrid service
 libzeroc-ice-dev         C++ headers and symlinks to Ice C++ runtime libraries
 libzeroc-ice3.8-c++      Ice C++ runtime libraries
 libzeroc-icestorm3.8     IceStorm service
-php-zeroc-ice            PHP extension and runtime files
-python3-zeroc-ice        Python 3 extension and runtime files [1]
+php-zeroc-ice            Ice for PHP
+python3-zeroc-ice        Ice for Python [1]
 
 [1] Not available on Debian 12, which does not include Python 3.12+ — a requirement for Ice for Python.
 
