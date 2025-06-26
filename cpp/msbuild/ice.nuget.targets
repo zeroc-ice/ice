@@ -9,8 +9,7 @@
         <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll" />
 
         <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
-                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icedb*.lib;
-                                  $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
+                         Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\iceutil*.lib;
                                   $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\slice*.lib"/>
     </ItemGroup>
