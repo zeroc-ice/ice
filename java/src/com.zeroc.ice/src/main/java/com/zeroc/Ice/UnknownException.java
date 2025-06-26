@@ -3,8 +3,8 @@
 package com.zeroc.Ice;
 
 /**
- * The exception that is thrown when a dispatch failed with an exception that is not a LocalException or a
- * UserException.
+ * The exception that is thrown when a dispatch failed with an exception that is not a {@link LocalException} or a
+ * {@link UserException}.
  */
 public class UnknownException extends DispatchException {
     /**
