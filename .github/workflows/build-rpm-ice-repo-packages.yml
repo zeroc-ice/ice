@@ -75,7 +75,7 @@ jobs:
               ;;
           esac
 
-          aws s3 cp build/RPMS/noarch/*.rpm s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION
+          aws s3 cp build/RPMS/noarch/*.rpm s3://zeroc-downloads/ice/$CHANNEL/$DISTRIBUTION/
         env:
           CHANNEL: ${{ matrix.channel }}
           DISTRIBUTION: ${{ matrix.distribution }}
