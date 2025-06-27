@@ -28,7 +28,7 @@ namespace Slice
         std::vector<std::string> _includePaths;
         std::string _fileBase;
 
-        class ImportVisitor final : public SwiftGenerator, public ParserVisitor
+        class ImportVisitor final : public ParserVisitor
         {
         public:
             ImportVisitor(IceInternal::Output&);
@@ -51,7 +51,7 @@ namespace Slice
             std::vector<std::string> _imports;
         };
 
-        class TypesVisitor final : public SwiftGenerator, public ParserVisitor
+        class TypesVisitor final : public ParserVisitor
         {
         public:
             TypesVisitor(IceInternal::Output&);
@@ -74,7 +74,7 @@ namespace Slice
         };
 
         // Generates the servant protocols.
-        class ServantVisitor final : public SwiftGenerator, public ParserVisitor
+        class ServantVisitor final : public ParserVisitor
         {
         public:
             ServantVisitor(IceInternal::Output&);
@@ -88,7 +88,7 @@ namespace Slice
         };
 
         // Generate extensions for the servant protocols.
-        class ServantExtVisitor final : public SwiftGenerator, public ParserVisitor
+        class ServantExtVisitor final : public ParserVisitor
         {
         public:
             ServantExtVisitor(IceInternal::Output&);

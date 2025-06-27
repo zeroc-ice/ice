@@ -15,6 +15,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace Slice::Swift;
 using namespace IceInternal;
 
 namespace
@@ -24,6 +25,28 @@ namespace
         DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
         assert(dc);
         return dc->getMetadataArgs("swift:class-resolver-prefix").value_or("");
+    }
+
+    string opFormatTypeToString(const OperationPtr& op)
+    {
+        optional<FormatType> opFormat = op->format();
+        if (opFormat)
+        {
+            switch (*opFormat)
+            {
+                case CompactFormat:
+                    return ".compactFormat";
+                case SlicedFormat:
+                    return ".slicedFormat";
+                default:
+                    assert(false);
+                    return "???";
+            }
+        }
+        else
+        {
+            return "nil";
+        }
     }
 }
 
@@ -73,8 +96,8 @@ Gen::~Gen()
 void
 Gen::generate(const UnitPtr& p)
 {
-    SwiftGenerator::validateMetadata(p);
-    SwiftGenerator::validateSwiftModuleMappings(p);
+    validateSwiftMetadata(p);
+    validateSwiftModuleMappings(p);
 
     ImportVisitor importVisitor(_out);
     p->visit(&importVisitor);
@@ -1267,7 +1290,80 @@ Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Gen::TypesVisitor::visitOperation(const OperationPtr& op)
 {
-    writeProxyOperation(out, op);
+    const ParameterList inParams = op->inParameters();
+    const bool returnsAnyValues = op->returnsAnyValues();
+    const string swiftModule = getSwiftModule(op->getTopLevelModule());
+
+    out << sp;
+    writeOpDocSummary(out, op, false);
+    out << nl << "func " << op->mappedName();
+    out << spar;
+    for (const auto& param : inParams)
+    {
+        const bool isOptional = param->optional();
+        const string typeString = typeToString(param->type(), op, isOptional);
+        const string paramName = "iceP_" + removeEscaping(param->mappedName());
+        const string paramLabel = (inParams.size() == 1 ? "_" : param->mappedName());
+        out << (paramLabel + " " + paramName + ": " + typeString + (isOptional ? " = nil" : ""));
+    }
+    out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
+    out << epar;
+    out << " async throws -> ";
+    if (returnsAnyValues)
+    {
+        out << operationReturnType(op);
+    }
+    else
+    {
+        out << "Swift.Void";
+    }
+
+    out << sb;
+
+    //
+    // Invoke
+    //
+    out << sp;
+    out << nl << "return try await _impl._invoke(";
+
+    out.useCurrentPosAsIndent();
+    out << "operation: \"" << op->name() << "\",";
+    out << nl << "mode: " << modeToString(op->mode()) << ",";
+
+    if (op->format())
+    {
+        out << nl << "format: " << opFormatTypeToString(op);
+        out << ",";
+    }
+
+    if (!inParams.empty())
+    {
+        out << nl << "write: ";
+        writeMarshalInParams(out, op);
+        out << ",";
+    }
+
+    if (returnsAnyValues)
+    {
+        out << nl << "read: read,";
+    }
+
+    if (!op->throws().empty())
+    {
+        out << nl << "userException:";
+        writeUnmarshalUserException(out, op);
+        out << ",";
+    }
+
+    out << nl << "context: context)";
+
+    out.restoreIndent();
+
+    if (returnsAnyValues)
+    {
+        writeUnmarshalOutParams(out, op);
+    }
+    out << eb;
 }
 
 Gen::ServantVisitor::ServantVisitor(::IceInternal::Output& o) : out(o) {}
@@ -1434,5 +1530,63 @@ Gen::ServantExtVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Gen::ServantExtVisitor::visitOperation(const OperationPtr& op)
 {
-    writeDispatchOperation(out, op);
+    const string opName = op->mappedName();
+    const ParameterList inParams = op->inParameters();
+    const bool returnsAnyValues = op->returnsAnyValues();
+
+    out << sp;
+    out << nl << "public func _iceD_" << removeEscaping(opName)
+        << "(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
+
+    out << sb;
+
+    if (op->mode() == Operation::Mode::Normal)
+    {
+        out << nl << "try request.current.checkNonIdempotent()";
+    }
+
+    if (inParams.empty())
+    {
+        out << nl << "_ = try request.inputStream.skipEmptyEncapsulation()";
+    }
+    else
+    {
+        out << nl << "let istr = request.inputStream";
+        out << nl << "_ = try istr.startEncapsulation()";
+        writeUnmarshalInParams(out, op);
+    }
+
+    out << nl;
+    if (returnsAnyValues)
+    {
+        out << "let result = ";
+    }
+
+    out << "try await self." << opName;
+    out << spar;
+    for (const auto& param : inParams)
+    {
+        // The swift compiler reports an error if you escape an argument label when calling a function.
+        // So we always need to remove escaping here.
+        const string paramName = removeEscaping(param->mappedName());
+        out << (paramName + ": iceP_" + paramName);
+    }
+    out << "current: request.current";
+    out << epar;
+
+    if (!returnsAnyValues)
+    {
+        out << nl << "return request.current.makeEmptyOutgoingResponse()";
+    }
+    else
+    {
+        out << nl << "return request.current.makeOutgoingResponse(result, formatType: " << opFormatTypeToString(op)
+            << ")";
+        out << sb;
+        out << " ostr, value in ";
+        writeMarshalAsyncOutParams(out, op);
+        out << eb;
+    }
+
+    out << eb;
 }
