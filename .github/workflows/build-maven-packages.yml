@@ -122,9 +122,8 @@ jobs:
         run: |
           set -euo pipefail
           echo "$GPG_KEY" | gpg --batch --import
-          find lib local-repo -type f \( -name '*.jar' -o -name '*.pom' \) \
+          find ice/java/lib local-repo -type f \( -name '*.jar' -o -name '*.pom' \) \
             -exec gpg -u "$GPG_KEY_ID" --armor --detach-sign --batch --yes --output '{}.asc' '{}' \;
-        working-directory: ice/java
         env:
           GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
           GPG_KEY_ID: ${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}

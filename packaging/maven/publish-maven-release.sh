@@ -70,8 +70,10 @@ done
 if [ "$CHANNEL" = "nightly" ]; then
   echo "Publishing Slice Tools plugin"
 
-  plugin_jar="${STAGING_DIR}/com/zeroc/ice/slice-tools/${ice_version}/slice-tools-${ice_version}.jar"
-  plugin_pom="${STAGING_DIR}/com/zeroc/ice/slice-tools/${ice_version}/slice-tools-${ice_version}.pom"
+  plugin_dir="${STAGING_DIR}/slice-tools-packages/com/zeroc/ice/slice-tools"
+
+  plugin_jar="${plugin_dir}/${ice_version}/slice-tools-${ice_version}.jar"
+  plugin_pom="${plugin_dir}/${ice_version}/slice-tools-${ice_version}.pom"
 
   mvn deploy:deploy-file \
     -Dfile="${plugin_jar}" \
@@ -82,7 +84,7 @@ if [ "$CHANNEL" = "nightly" ]; then
     -Durl="${SOURCE_URL}" \
     -DrepositoryId="${REPO_ID}" || { echo "Failed to publish plugin"; exit 1; }
 
-  plugin_marker_pom="${STAGING_DIR}/com/zeroc/ice/slice-tools/com.zeroc.ice.slice-tools.gradle.plugin/${ice_version}/com.zeroc.ice.slice-tools.gradle.plugin-${ice_version}.pom"
+  plugin_marker_pom="${plugin_dir}/com.zeroc.ice.slice-tools.gradle.plugin/${ice_version}/com.zeroc.ice.slice-tools.gradle.plugin-${ice_version}.pom"
   plugin_marker_asc="${plugin_marker_pom}.asc"
 
   echo "Publishing plugin marker POM"
