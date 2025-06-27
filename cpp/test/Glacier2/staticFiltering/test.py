@@ -106,7 +106,18 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
 
     def teardownServerSide(self, current, success):
         for c in ["client.cfg", "router.cfg", "server.cfg"]:
-            os.remove(os.path.join(self.getTestSuite().getPath(), c))
+            path = os.path.join(self.getTestSuite().getPath(), c)
+            print(f"Removing file: {path}")
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    print(f"Contents of {c}:\n{f.read()}")
+            except Exception as e:
+                print(f"Failed to read {path}: {e}")
+            try:
+                os.remove(path)
+            except Exception as e:
+                print(f"Failed to remove {path}: {e}")
+
 
 
 class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
