@@ -79,7 +79,6 @@ if [ "$CHANNEL" = "nightly" ]; then
   cp "${plugin_staging_dir}/${ice_version}/"*.pom "plugin/slice-tools-${ice_version}.pom"
   cp "${plugin_staging_dir}/${ice_version}/"*.pom.asc "plugin/slice-tools-${ice_version}.pom.asc"
 
-
   plugin_jar="plugin/slice-tools-${ice_version}.jar"
   plugin_pom="plugin/slice-tools-${ice_version}.pom"
 
