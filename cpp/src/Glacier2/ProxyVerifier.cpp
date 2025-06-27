@@ -844,6 +844,7 @@ Glacier2::ProxyVerifier::~ProxyVerifier()
 bool
 Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 {
+    cerr << "Glacier2::ProxyVerifier::verify: " << proxy << endl;
     //
     // No rules have been defined so we accept all.
     //
@@ -860,6 +861,15 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
         // If there are no reject rules, we assume "reject all".
         //
         result = match(_acceptRules, proxy);
+        if (result)
+        {
+            cerr << "Glacier2::ProxyVerifier::verify: " << proxy << "no reject rules, and accept rules accept it"
+                 << endl;
+        }
+        else
+        {
+            cerr << "Glacier2::ProxyVerifier::verify: " << proxy << " rejected by reject rules" << endl;
+        }
     }
     else if (_acceptRules.size() == 0)
     {
@@ -867,12 +877,34 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
         // If no accept rules are defined we assume accept all.
         //
         result = !match(_rejectRules, proxy);
+        if (result)
+        {
+            cerr << "Glacier2::ProxyVerifier::verify: no accept rules, accepting proxy " << proxy
+                 << "and no reject rule rejects it" << endl;
+        }
+        else
+        {
+            cerr << "Glacier2::ProxyVerifier::verify: " << proxy << " rejected by reject rules" << endl;
+        }
     }
     else
     {
         if (match(_acceptRules, proxy))
         {
             result = !match(_rejectRules, proxy);
+            if (result)
+            {
+                cerr << "Glacier2::ProxyVerifier::verify: " << proxy
+                     << " accepted by accept rules and not rejected by reject rules" << endl;
+            }
+            else
+            {
+                cerr << "Glacier2::ProxyVerifier::verify: " << proxy << " rejected by reject rules" << endl;
+            }
+        }
+        else
+        {
+            cerr << "Glacier2::ProxyVerifier::verify: " << proxy << " not allowed by accept rules" << endl;
         }
     }
 
