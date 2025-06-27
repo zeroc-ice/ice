@@ -59,11 +59,21 @@ jobs:
 
       - name: Build DEB Packages
         run: |
+          set -euo pipefail
+
+          # Enable ddeb generation for stable releases
+          if [[ $"{CHANNEL}" == "nightly" ]]; then
+            export DH_BUILD_DDEBS=0
+          else
+            export DH_BUILD_DDEBS=1
+          fi
+
           docker run --rm \
             -v "$GITHUB_WORKSPACE:/workspace" \
             -e DEBEMAIL="ci@zeroc.com" \
             -e DEBFULLNAME="CI" \
             -e ICE_VERSION=${{ inputs.ice_version }} \
+            -e DH_BUILD_DDEBS="${DH_BUILD_DDEBS}" \
             -e DEB_BUILD_OPTIONS="$DEB_BUILD_OPTIONS" \
             -e DEB_BUILD_PROFILES="${{ matrix.deb_build_profiles }}" \
             ghcr.io/zeroc-ice/ice-deb-builder-${{ matrix.distribution }} \
