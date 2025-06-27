@@ -68,26 +68,34 @@ for component in "${components[@]}"; do
 done
 
 if [ "$CHANNEL" = "nightly" ]; then
-  # The release version must be published manually using the `publishPlugins` Gradle task
-  mkdir -p tools/slice-tools/build/libs/
-  cp -pf "${STAGING_DIR}"/java-packages/tools/slice-tools/build/libs/*.jar tools/slice-tools/build/libs/
-  cp -pf "${STAGING_DIR}"/java-packages/tools/slice-tools/build/libs/*.asc tools/slice-tools/build/libs/
-  cp -pf "${STAGING_DIR}"/java-packages/tools/slice-tools/build/libs/*.pom tools/slice-tools/build/libs/
+  echo "Publishing Slice Tools plugin"
 
-  base_name="slice-tools-${ice_version}"
-  artifact_dir="tools/slice-tools/build/libs"
-
-  jar="${artifact_dir}/${base_name}.jar"
-  pom_file="${artifact_dir}/${base_name}.pom"
-
-  echo "Publishing $base_name"
+  plugin_jar="${STAGING_DIR}/com/zeroc/ice/slice-tools/${ice_version}/slice-tools-${ice_version}.jar"
+  plugin_pom="${STAGING_DIR}/com/zeroc/ice/slice-tools/${ice_version}/slice-tools-${ice_version}.pom"
 
   mvn deploy:deploy-file \
-    -Dfile="${jar}" \
-    -DpomFile="${pom_file}" \
-    -Dfiles="${pom_file}.asc,${jar}.asc" \
-    -Dtypes=pom.asc,jar.asc \
-    -Dclassifiers=,jar \
+    -Dfile="${plugin_jar}" \
+    -DpomFile="${plugin_pom}" \
+    -Dfiles="${plugin_jar}.asc,${plugin_pom}.asc" \
+    -Dtypes=jar.asc,pom.asc \
+    -Dclassifiers=, \
     -Durl="${SOURCE_URL}" \
-    -DrepositoryId="${REPO_ID}" || { echo "Failed to publish $base_name"; exit 1; }
+    -DrepositoryId="${REPO_ID}" || { echo "Failed to publish plugin"; exit 1; }
+
+  plugin_marker_pom="${STAGING_DIR}/com/zeroc/ice/slice-tools/com.zeroc.ice.slice-tools.gradle.plugin/${ice_version}/com.zeroc.ice.slice-tools.gradle.plugin-${ice_version}.pom"
+  plugin_marker_asc="${plugin_marker_pom}.asc"
+
+  echo "Publishing plugin marker POM"
+
+  mvn deploy:deploy-file \
+    -Dfile="${plugin_marker_pom}" \
+    -Dpackaging=pom \
+    -DgroupId="com.zeroc.ice.slice-tools" \
+    -DartifactId="com.zeroc.ice.slice-tools.gradle.plugin" \
+    -Dversion="${ice_version}" \
+    -Dfiles="${plugin_marker_asc}" \
+    -Dtypes=pom.asc \
+    -Dclassifiers= \
+    -Durl="${SOURCE_URL}" \
+    -DrepositoryId="${REPO_ID}" || { echo "Failed to publish plugin marker"; exit 1; }
 fi

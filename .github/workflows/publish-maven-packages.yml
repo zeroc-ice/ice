@@ -37,6 +37,7 @@ jobs:
           set -euo pipefail
           mkdir -p "${STAGING_DIR}"
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir "${STAGING_DIR}"
+          gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "slice-tools-packages" --dir "${STAGING_DIR}"
 
       - name: Publish Java Packages
         run: packaging/maven/publish-maven-release.sh

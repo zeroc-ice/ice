@@ -59,58 +59,17 @@ publishing {
 
         if (!mavenRepoUrl.isNullOrBlank()) {
             maven {
+                name = "sliceTools"
                 url = uri(mavenRepoUrl)
-                credentials {
-                    username = findProperty("mavenUsername") as String? ?: System.getenv("MAVEN_USERNAME").orEmpty()
-                    password = findProperty("mavenPassword") as String? ?: System.getenv("MAVEN_PASSWORD").orEmpty()
+                if (mavenRepoUrl.startsWith("http")) {
+                    credentials {
+                        username = findProperty("mavenUsername") as String? ?: System.getenv("MAVEN_USERNAME").orEmpty()
+                        password = findProperty("mavenPassword") as String? ?: System.getenv("MAVEN_PASSWORD").orEmpty()
+                    }
                 }
             }
         }
     }
-
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "com.zeroc.ice"
-            artifactId = "slice-tools"
-            version = project.version.toString()
-
-            from(components["java"])
-
-            pom {
-                name.set("Slice Tools")
-                description.set("A Gradle plugin for building Slice files in Java and Android gradle projects.")
-                url.set("https://zeroc.com")
-                licenses {
-                    license {
-                        name.set("GNU General Public License, version 2")
-                        url.set("https://www.gnu.org/licenses/gpl-2.0.html")
-                    }
-                }
-                developers {
-                    developer {
-                        name.set("ZeroC Developers")
-                        email.set("info@zeroc.com")
-                        organization.set("ZeroC, Inc.")
-                        organizationUrl.set("https://zeroc.com")
-                    }
-                }
-                scm {
-                    connection.set("scm:git:git://github.com:zeroc-ice/ice.git")
-                    url.set("https://github.com:zeroc-ice/ice")
-                }
-            }
-        }
-    }
-}
-
-val pomFileName = "slice-tools-${project.version}.pom"
-
-tasks.withType<GenerateMavenPom>().configureEach {
-    destination = layout.buildDirectory.file("libs/$pomFileName").get().asFile
-}
-
-tasks.named("assemble") {
-    dependsOn(tasks.named("generatePomFileForMavenPublication"))
 }
 
 // Configure the functional test source set

@@ -109,7 +109,9 @@ jobs:
         if: ${{ inputs.ice_version != '' }}
 
       - name: Build Slice Tools for Java Packages
-        run: ../../gradlew build
+        run: |
+          ../../gradlew publishAllPublicationsToSliceToolsRepository \
+            -PmavenRepository=file://${{ github.workspace }}/local-repo
         working-directory: ice/java/tools/slice-tools
 
       - name: Build Ice for Java Packages
@@ -120,7 +122,7 @@ jobs:
         run: |
           set -euo pipefail
           echo "$GPG_KEY" | gpg --batch --import
-          find lib tools/slice-tools/build/libs -type f \( -name '*.jar' -o -name '*.pom' \) \
+          find lib local-repo -type f \( -name '*.jar' -o -name '*.pom' \) \
             -exec gpg -u "$GPG_KEY_ID" --armor --detach-sign --batch --yes --output '{}.asc' '{}' \;
         working-directory: ice/java
         env:
@@ -135,6 +137,12 @@ jobs:
             ice/java/lib/*.jar
             ice/java/lib/*.pom
             ice/java/lib/*.asc
-            ice/java/tools/slice-tools/build/libs/*.jar
-            ice/java/tools/slice-tools/build/libs/*.asc
-            ice/java/tools/slice-tools/build/libs/*.pom
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: slice-tools-packages
+          path: |
+            local-repo/**/*.jar
+            local-repo/**/*.asc
+            local-repo/**/*.pom
