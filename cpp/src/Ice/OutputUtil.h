@@ -89,13 +89,14 @@ namespace IceInternal
         void sb(); // Start a block.
         void eb(); // End a block.
 
-        void spar(std::string_view s = "("); // Start a parameter list.
-        void epar(std::string_view s = ")"); // End a parameter list.
+        void spar(std::string_view s = "(", bool parOnNewLine = false); // Start a parameter list.
+        void epar(std::string_view s = ")");                            // End a parameter list.
 
     private:
         std::string _blockStart;
         std::string _blockEnd;
         int _par;                     // If >= 0, we are writing a parameter list.
+        bool _parOnNewLine{false};    // When true, each parameter is written on a new line.
         const bool _breakBeforeBlock; // If true break before starting a new block.
         const bool _shortEmptyBlock;  // If true, an empty block is written <sb><eb>.
         bool _emptyBlock;
