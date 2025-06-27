@@ -3,8 +3,8 @@
 package com.zeroc.Ice;
 
 /**
- * This exception is used internally to propagate an invocation cancellation. This exception is created by a call to
- * cancel() on the future returned by an asynchronous invocation.
+ * The exception that is thrown when an asynchronous invocation fails because it was canceled explicitly by the
+ * user.
  */
 final class InvocationCanceledException extends LocalException {
     /**

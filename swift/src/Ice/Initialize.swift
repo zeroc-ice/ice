@@ -257,10 +257,10 @@ public func createProperties(_ args: inout [String], defaults: Properties? = nil
     }
 }
 
-/// Returns the Ice version as an integer in the form A.BB.CC, where A
+/// Returns the Ice version as an integer in the form AABBCC, where AA
 /// indicates the major version, BB indicates the minor version, and CC
-/// indicates the patch level. For example, for Ice 3.3.1, the returned
-/// value is 30301.
+/// indicates the patch level. For example, for Ice 3.8.1, the returned
+/// value is 30801.
 public let intVersion: Int = 30850
 
 /// The Ice version in the form A.B.C, where A indicates the major version,

@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates that an invocation failed because it timed out. */
+/** The exception that is thrown when an invocation times out. */
 public final class InvocationTimeoutException extends TimeoutException {
     /**
      * Constructs an InvocationTimeoutException.

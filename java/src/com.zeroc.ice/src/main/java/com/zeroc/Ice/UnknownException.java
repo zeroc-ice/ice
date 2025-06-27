@@ -3,8 +3,8 @@
 package com.zeroc.Ice;
 
 /**
- * This exception is raised if an operation call on a server raises an unknown exception, that is,
- * any exception which does not derive from {@link LocalException} or {@link UserException}.
+ * The exception that is thrown when a dispatch failed with an exception that is not a {@link LocalException} or a
+ * {@link UserException}.
  */
 public class UnknownException extends DispatchException {
     /**

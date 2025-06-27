@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates that a connection was closed forcefully. */
+/** The exception that is thrown when an operation fails because the connection has been aborted. */
 public final class ConnectionAbortedException extends LocalException {
     /**
      * Constructs a ConnectionAbortedException.

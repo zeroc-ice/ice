@@ -3,8 +3,8 @@
 package com.zeroc.Ice;
 
 /**
- * This exception is raised if no facet with the given name exists, that is, if the dispatch could
- * not find a servant for the identity + facet carried by the request.
+ * The exception that is thrown when a dispatch cannot find a servant for the identity + facet carried by the
+ * request.
  */
 public final class FacetNotExistException extends RequestFailedException {
     /**

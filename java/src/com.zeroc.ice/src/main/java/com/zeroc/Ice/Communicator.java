@@ -13,8 +13,14 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * The central object in Ice. One or more communicators can be instantiated for an Ice application.
- * Communicator instantiation is language-specific, and not specified in Slice code.
+ * The central object in Ice. Its responsibilities include:
+ * - creating and managing outgoing connections
+ * - executing callbacks in its client thread pool
+ * - creating and destroying object adapters
+ * - loading plug-ins
+ * - managing properties (configuration), retries, logging, instrumentation, and more.
+ * You create a communicator with {@code Ice.initialize}, and it's usually the first object you create when programming
+ * with Ice. You can create multiple communicators in a single program, but this is not common.
  *
  * @see Logger
  * @see ObjectAdapter
@@ -36,9 +42,10 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Destroy the communicator. This operation calls {@link #shutdown} implicitly. Calling {@link
-     * #destroy} cleans up memory, and shuts down this communicator's client functionality and
-     * destroys all object adapters. Subsequent calls to {@link #destroy} are ignored.
+     * Destroys this communicator. This method calls {@link #shutdown} implicitly. Calling {@link
+     * #destroy} destroys all object adapters, and closes all outgoing connections. {@code destroy} waits for all
+     * outstanding dispatches to complete before returning. This includes "bidirectional dispatches" that execute on
+     * outgoing connections.
      *
      * @see #shutdown
      * @see ObjectAdapter#destroy
@@ -48,7 +55,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Shuts down this communicator: call {@link ObjectAdapter#deactivate} on all object adapters
+     * Shuts down this communicator. This method calls {@link ObjectAdapter#deactivate} on all object adapters
      * created by this communicator. Shutting down a communicator has no effect on outgoing
      * connections.
      *
@@ -65,13 +72,9 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Wait until the application has called {@link #shutdown} (or {@link #destroy}). On the server
-     * side, this operation blocks the calling thread until all currently-executing operations have
-     * completed. On the client side, the operation simply blocks until another thread has called
-     * {@link #shutdown} or {@link #destroy}. A typical use of this operation is to call it from the
-     * main thread, which then waits until some other thread calls {@link #shutdown}. After
-     * shut-down is complete, the main thread returns and can do some cleanup work before it finally
-     * calls {@link #destroy} to shut down the client functionality, and then exits the application.
+     * Waits for shutdown to complete. This method calls {@link ObjectAdapter#waitForDeactivate} on all object adapters
+     * created by this communicator. In a client application that does not accept incoming connections, this
+     * method returns as soon as another thread calls {@link #shutdown} or {@link #destroy} on this communicator.
      *
      * @see #shutdown
      * @see #destroy
@@ -86,9 +89,9 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Check whether communicator has been shut down.
+     * Checks whether or not {@link #shutdown} was called on this communicator.
      *
-     * @return True if the communicator has been shut down; false otherwise.
+     * @return {@code true} if {@link #shutdown} was called on this communicator, {@code false} otherwise.
      * @see #shutdown
      */
     public boolean isShutdown() {
@@ -100,15 +103,11 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Convert a stringified proxy into a proxy. For example, <code>
-     * MyCategory/MyObject:tcp -h some_host -p 10000</code> creates a proxy that refers to the Ice
-     * object having an identity with a name "MyObject" and a category "MyCategory", with the server
-     * running on host "some_host", port 10000. If the stringified proxy does not parse correctly,
-     * the operation throws ParseException. Refer to the Ice manual for a detailed description of
-     * the syntax supported by stringified proxies.
+     * Converts a stringified proxy into a proxy.
      *
      * @param str The stringified proxy to convert into a proxy.
-     * @return The proxy, or nil if <code>str</code> is an empty string.
+     * @return The proxy, or null if {@code str} is an empty string.
+     * @throws ParseException Thrown when {@code str} is not a valid proxy string.
      * @see #proxyToString
      */
     public ObjectPrx stringToProxy(String str) {
@@ -117,10 +116,10 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Convert a proxy into a string.
+     * Converts a proxy into a string.
      *
      * @param proxy The proxy to convert into a stringified proxy.
-     * @return The stringified proxy, or an empty string if <code>obj</code> is nil.
+     * @return The stringified proxy, or an empty string if {@code proxy} is null.
      * @see #stringToProxy
      */
     public String proxyToString(ObjectPrx proxy) {
@@ -128,15 +127,14 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Convert a set of proxy properties into a proxy. The "base" name supplied in the <code>
-     * property
-     * </code> argument refers to a property containing a stringified proxy, such as <code>
-     * MyProxy=id:tcp -h localhost -p 10000</code>. Additional properties configure local settings
-     * for the proxy, such as <code>MyProxy.PreferSecure=1</code>. The "Properties" appendix in the
+     * Converts a set of proxy properties into a proxy. The "base" name supplied in the {@code
+     * prefix} argument refers to a property containing a stringified proxy, such as {@code
+     * MyProxy=id:tcp -h localhost -p 10000}. Additional properties configure local settings
+     * for the proxy, such as {@code MyProxy.PreferSecure=1}. The "Properties" appendix in the
      * Ice manual describes each of the supported proxy properties.
      *
      * @param prefix The base property name.
-     * @return The proxy.
+     * @return The proxy, or null if the property is not set.
      */
     public ObjectPrx propertyToProxy(String prefix) {
         String proxy = _instance.initializationData().properties.getProperty(prefix);
@@ -145,7 +143,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Convert a proxy to a set of proxy properties.
+     * Converts a proxy into a set of proxy properties.
      *
      * @param proxy The proxy.
      * @param prefix The base property name.
@@ -158,7 +156,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Convert an identity into a string.
+     * Converts an identity into a string.
      *
      * @param ident The identity to convert into a string.
      * @return The "stringified" identity.
@@ -168,12 +166,11 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Create a new object adapter. The endpoints for the object adapter are taken from the property
-     * <code><em>name</em>.Endpoints</code>. It is legal to create an object adapter with the empty
-     * string as its name. Such an object adapter is accessible via bidirectional connections or by
-     * collocated invocations that originate from the same communicator as is used by the adapter.
-     * Attempts to create a named object adapter for which no configuration can be found raise
-     * InitializationException.
+     * Creates a new object adapter. The endpoints for the object adapter are taken from the property
+     * {@code name.Endpoints}.
+     *
+     * <p>It is legal to create an object adapter with the empty string as its name. Such an object adapter is
+     * accessible via bidirectional connections or by collocated invocations.
      *
      * @param name The object adapter name.
      * @return The new object adapter.
@@ -186,12 +183,11 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Create a new object adapter. The endpoints for the object adapter are taken from the property
-     * <code><em>name</em>.Endpoints</code>. It is legal to create an object adapter with the empty
-     * string as its name. Such an object adapter is accessible via bidirectional connections or by
-     * collocated invocations that originate from the same communicator as is used by the adapter.
-     * Attempts to create a named object adapter for which no configuration can be found raise
-     * InitializationException.
+     * Creates a new object adapter. The endpoints for the object adapter are taken from the property
+     * {@code name.Endpoints}.
+     *
+     * <p>It is legal to create an object adapter with the empty string as its name. Such an object adapter is
+     * accessible via bidirectional connections or by collocated invocations.
      *
      * <p>It is an error to pass a non-null sslEngineFactory when the name is empty, this raises
      * IllegalArgumentException.
@@ -217,13 +213,13 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Create a new object adapter with endpoints. This operation sets the property <code>
-     * <em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided
-     * as a convenience function. Calling this operation with an empty name will result in a UUID
+     * Creates a new object adapter with endpoints. This method sets the property
+     * {@code name.Endpoints}, and then calls {@link #createObjectAdapter}. It is provided
+     * as a convenience method. Calling this method with an empty name will result in a UUID
      * being generated for the name.
      *
      * @param name The object adapter name.
-     * @param endpoints The endpoints for the object adapter.
+     * @param endpoints The endpoints of the object adapter.
      * @return The new object adapter.
      * @see #createObjectAdapter
      * @see ObjectAdapter
@@ -234,13 +230,13 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Create a new object adapter with endpoints. This operation sets the property <code>
-     * <em>name</em>.Endpoints</code>, and then calls {@link #createObjectAdapter}. It is provided
-     * as a convenience function. Calling this operation with an empty name will result in a UUID
+     * Creates a new object adapter with endpoints. This method sets the property
+     * {@code name.Endpoints}, and then calls {@link #createObjectAdapter}. It is provided
+     * as a convenience method. Calling this method with an empty name will result in a UUID
      * being generated for the name.
      *
      * @param name The object adapter name.
-     * @param endpoints The endpoints for the object adapter.
+     * @param endpoints The endpoints of the object adapter.
      * @param sslEngineFactory The SSL engine factory used by the server-side ssl transport of the
      *     new object adapter. When set to a non-null value all Ice.SSL configuration properties are
      *     ignored, and any SSL configuration must be done through the SSLEngineFactory. Pass null
@@ -263,8 +259,8 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Create a new object adapter with a router. This operation creates a routed object adapter.
-     * Calling this operation with an empty name will result in a UUID being generated for the name.
+     * Creates a new object adapter with a router. This method creates a routed object adapter.
+     * Calling this method with an empty name will result in a UUID being generated for the name.
      *
      * @param name The object adapter name.
      * @param router The router.
@@ -314,17 +310,17 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Get the implicit context associated with this communicator.
+     * Gets the implicit context associated with this communicator.
      *
      * @return The implicit context associated with this communicator; returns null when the
-     *     property Ice.ImplicitContext is not set or is set to None.
+     *     property {@code Ice.ImplicitContext} is not set or is set to {@code None}.
      */
     public ImplicitContext getImplicitContext() {
         return _instance.getImplicitContext();
     }
 
     /**
-     * Get the properties for this communicator.
+     * Gets the properties of this communicator.
      *
      * @return This communicator's properties.
      * @see Properties
@@ -334,7 +330,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Get the logger for this communicator.
+     * Gets the logger of this communicator.
      *
      * @return This communicator's logger.
      * @see Logger
@@ -358,18 +354,18 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Get the observer resolver object for this communicator.
+     * Gets the observer object of this communicator.
      *
-     * @return This communicator's observer resolver object.
+     * @return This communicator's observer object.
      */
     public CommunicatorObserver getObserver() {
         return _instance.initializationData().observer;
     }
 
     /**
-     * Get the default router for this communicator.
+     * Gets the default router of this communicator.
      *
-     * @return The default router for this communicator.
+     * @return The default router of this communicator.
      * @see #setDefaultRouter
      * @see Router
      */
@@ -378,12 +374,10 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Set a default router for this communicator. All newly created proxies will use this default
-     * router. To disable the default router, null can be used. Note that this operation has no
-     * effect on existing proxies. You can also set a router for an individual proxy by calling the
-     * operation <code>ice_router</code> on the proxy.
+     * Sets the default router of this communicator. All newly created proxies will use this default router.
+     * This method has no effect on existing proxies.
      *
-     * @param router The default router to use for this communicator.
+     * @param router The new default router. Use null to remove the default router.
      * @see #getDefaultRouter
      * @see #createObjectAdapterWithRouter
      * @see Router
@@ -393,9 +387,9 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Get the default locator for this communicator.
+     * Gets the default locator of this communicator.
      *
-     * @return The default locator for this communicator.
+     * @return The default locator of this communicator.
      * @see #setDefaultLocator
      * @see Locator
      */
@@ -404,14 +398,10 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Set a default Ice locator for this communicator. All newly created proxy and object adapters
-     * will use this default locator. To disable the default locator, null can be used. Note that
-     * this operation has no effect on existing proxies or object adapters. You can also set a
-     * locator for an individual proxy by calling the operation <code>ice_locator</code> on the
-     * proxy, or for an object adapter by calling {@link ObjectAdapter#setLocator} on the object
-     * adapter.
+     * Sets the default locator of this communicator. All newly created proxies will use this default locator.
+     * This method has no effect on existing proxies or object adapters.
      *
-     * @param locator The default locator to use for this communicator.
+     * @param locator The new default locator. Use null to remove the default locator.
      * @see #getDefaultLocator
      * @see Locator
      * @see ObjectAdapter#setLocator
@@ -421,7 +411,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Get the plug-in manager for this communicator.
+     * Gets the plug-in manager of this communicator.
      *
      * @return This communicator's plug-in manager.
      * @see PluginManager
@@ -431,8 +421,8 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Flush any pending batch requests for this communicator. This means all batch requests invoked
-     * on fixed proxies for all connections associated with the communicator. Any errors that occur
+     * Flushes any pending batch requests of this communicator. This means all batch requests invoked
+     * on fixed proxies for all connections associated with the communicator. Errors that occur
      * while flushing a connection are ignored.
      *
      * @param compressBatch Specifies whether or not the queued batch requests should be compressed
@@ -443,8 +433,8 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Flush any pending batch requests for this communicator. This means all batch requests invoked
-     * on fixed proxies for all connections associated with the communicator. Any errors that occur
+     * Flushes any pending batch requests of this communicator. This means all batch requests invoked
+     * on fixed proxies for all connections associated with the communicator. Errors that occur
      * while flushing a connection are ignored.
      *
      * @param compressBatch Specifies whether or not the queued batch requests should be compressed
@@ -467,16 +457,17 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Add the Admin object with all its facets to the provided object adapter. If <code>
-     * Ice.Admin.ServerId</code> is set and the provided object adapter has a {@link Locator},
+     * Adds the Admin object with all its facets to the provided object adapter. If
+     * {@code Ice.Admin.ServerId} is set and the provided object adapter has a {@link Locator},
      * createAdmin registers the Admin's Process facet with the {@link Locator}'s {@link
-     * LocatorRegistry}. createAdmin must only be called once; subsequent calls raise
-     * InitializationException.
+     * LocatorRegistry}.
      *
      * @param adminAdapter The object adapter used to host the Admin object; if null and
-     *     Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.
+     *     {@code Ice.Admin.Endpoints} is set, this method uses the {@code Ice.Admin} object adapter, after creating and
+     *     activating this adapter.
      * @param adminId The identity of the Admin object.
-     * @return A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
+     * @return A proxy to the main ("") facet of the Admin object.
+     * @throws InitializationException Thrown when createAdmin is called more than once.
      * @see #getAdmin
      */
     public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminId) {
@@ -484,14 +475,13 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and
-     * creates and activates the Ice.Admin object adapter to host this Admin object if
-     * Ice.Admin.Endpoints is set. The identity of the Admin object created by getAdmin is {value of
-     * Ice.Admin.InstanceName}/admin, or {UUID}/admin when <code>Ice.Admin.InstanceName</code> is
-     * not set. If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
-     * initialization, after initialization of all plugins.
+     * Gets a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and
+     * activates the {@code Ice.Admin} object adapter to host this Admin object if {@code Ice.Admin.Endpoints} is set.
+     * The identity of the Admin object created by getAdmin is {@code {value of Ice.Admin.InstanceName}/admin}, or
+     * {@code {UUID}/admin} when {@code Ice.Admin.InstanceName} is not set. If {@code Ice.Admin.DelayCreation} is
+     * {@code 0} or not set, getAdmin is called by the communicator initialization, after initialization of all plugins.
      *
-     * @return A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin
+     * @return A proxy to the main ("") facet of the Admin object, or null if no Admin
      *     object is configured.
      * @see #createAdmin
      */
@@ -500,22 +490,22 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Add a new facet to the Admin object. Adding a servant with a facet that is already registered
-     * throws AlreadyRegisteredException.
+     * Adds a new facet to the Admin object.
      *
      * @param servant The servant that implements the new Admin facet.
      * @param facet The name of the new Admin facet.
+     * @throws AlreadyRegisteredException Thrown when a facet with the same name is already registered.
      */
     public void addAdminFacet(Object servant, String facet) {
         _instance.addAdminFacet(servant, facet);
     }
 
     /**
-     * Remove the following facet to the Admin object. Removing a facet that was not previously
-     * registered throws NotRegisteredException.
+     * Removes a facet from the Admin object.
      *
      * @param facet The name of the Admin facet.
      * @return The servant associated with this Admin facet.
+     * @throws NotRegisteredException Thrown when no facet with the given name is registered.
      */
     public Object removeAdminFacet(String facet) {
         return _instance.removeAdminFacet(facet);

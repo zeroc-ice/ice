@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception indicates a failure in a security subsystem. */
+/** The exception that is thrown when a failure occurs in the security subsystem. This includes IceSSL errors. */
 public final class SecurityException extends LocalException {
     /**
      * Constructs a SecurityException with a message.

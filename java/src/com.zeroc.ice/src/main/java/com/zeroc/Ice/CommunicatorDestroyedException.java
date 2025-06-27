@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * This exception is raised if the {@link Communicator} has been destroyed.
+ * The exception that is thrown when an operation fails because the communicator has been destroyed.
  *
  * @see Communicator#destroy
  */

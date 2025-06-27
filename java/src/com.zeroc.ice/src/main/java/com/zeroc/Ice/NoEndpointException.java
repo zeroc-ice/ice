@@ -2,7 +2,7 @@
 
 package com.zeroc.Ice;
 
-/** This exception is raised if no suitable endpoint is available. */
+/** The exception that is thrown when the Ice runtime cannot find a suitable endpoint to connect to. */
 public final class NoEndpointException extends LocalException {
     /**
      * Constructs a NoEndpointException with a message.

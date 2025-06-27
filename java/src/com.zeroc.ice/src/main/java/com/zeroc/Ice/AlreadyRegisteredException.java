@@ -3,9 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * An attempt was made to register something more than once with the Ice run time. This exception is
- * raised if an attempt is made to register a servant, servant locator, facet,
- * plug-in, or object adapter more than once for the same ID.
+ * The exception that is thrown when you attempt to register an object more than once with the Ice runtime.
  */
 public final class AlreadyRegisteredException extends LocalException {
     /**

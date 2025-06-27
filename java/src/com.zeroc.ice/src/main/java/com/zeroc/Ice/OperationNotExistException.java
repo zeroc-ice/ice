@@ -3,9 +3,9 @@
 package com.zeroc.Ice;
 
 /**
- * This exception is raised if an operation for a given object does not exist on the server. This is
- * typically due to a mismatch in the Slice definitions, such as the client using Slice definitions
- * newer than the server's.
+ * The exception that is thrown when a dispatch cannot find the operation carried by the request on the target
+ * servant. This is typically due to a mismatch in the Slice definitions, such as the client using Slice
+ * definitions newer than the server's.
  */
 public final class OperationNotExistException extends RequestFailedException {
     /**
