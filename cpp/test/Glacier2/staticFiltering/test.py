@@ -56,9 +56,11 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
             for expect, proxy in self.attacks:
                 if expect:
                     clientConfig.write("Accept.Proxy." + str(accepts) + "=")
+                    print("Accept.Proxy." + str(accepts) + "=" + proxy)
                     accepts += 1
                 else:
                     clientConfig.write("Reject.Proxy." + str(rejects) + "=")
+                    print("Reject.Proxy." + str(accepts) + "=" + proxy)
                     rejects += 1
                 clientConfig.write(proxy + "\n")
 
