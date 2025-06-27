@@ -2241,8 +2241,8 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         _out << nl << retS << " " << name;
         _out.spar("(", true);
         _out << getParams(p, ns);
-        _out << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
-            << epar << ';';
+        _out << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar
+             << ';';
     }
 
     {
