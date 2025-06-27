@@ -1821,8 +1821,8 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-    /// <returns>A proxy with the requested type, or null if the source proxy is null or if the target object does not
-    /// support the requested type.</returns>
+    /// <returns>A proxy with the requested type, or null if the target object does not support the requested type.
+    /// </returns>
     public static async Task<ObjectPrx?> checkedCastAsync(
         ObjectPrx proxy,
         Dictionary<string, string>? context = null,
@@ -1838,8 +1838,8 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// <param name="context">The request context.</param>
     /// <param name="progress">Sent progress provider.</param>
     /// <param name="cancel">A cancellation token that receives the cancellation requests.</param>
-    /// <returns>A proxy with the requested type and facet, or null if the source proxy is null or if the target facet
-    /// does not support the requested type.</returns>
+    /// <returns>A proxy with the requested type and facet, or null if the target facet does not support the requested
+    /// type.</returns>
     public static Task<ObjectPrx?> checkedCastAsync(
         ObjectPrx proxy,
         string facet,
