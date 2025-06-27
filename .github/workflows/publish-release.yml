@@ -93,7 +93,7 @@ jobs:
         run: |
           aws cloudfront create-invalidation \
             --distribution-id E163NR6GH4QVNV \
-            --paths "/ice/${{ inputs.channel }}/*
+            --paths "/ice/${{ inputs.channel }}/*"
 
   upload-release-assets:
     # For stable channels if running on a tag, we upload the release assets to the tag.
