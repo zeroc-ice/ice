@@ -3624,8 +3624,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             "@param communicator The communicator of the new proxy.\n"
             "@param proxyString The string representation of the proxy.\n"
             "@return The new proxy.");
-    out << nl << "public static " << prxName
-        << " createProxy(com.zeroc.Ice.Communicator communicator, String proxyString)";
+    out << nl << "static " << prxName << " createProxy(com.zeroc.Ice.Communicator communicator, String proxyString)";
     out << sb;
     out << nl << "return new " << prxIName << "(com.zeroc.Ice.ObjectPrx.createProxy(communicator, proxyString));";
     out << eb;
