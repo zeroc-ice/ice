@@ -145,17 +145,6 @@ To use them, add the following Maven repository to your build configuration:
 https://download.zeroc.com/nexus/repository/maven-nightly/
 ```
 
-## MATLAB
-
-The ZeroC Ice MATLAB nightly toolboxes for Windows and Ubuntu 24.04 are available for direct download from the ZeroC NuGet nightly repository.
-
-You can download and install the appropriate .mltbx file for your platform:
-
-- Windows: [ice-nightly-R2024a-win.mltbx](https://download.zeroc.com/nexus/repository/nuget-nightly/ice-nightly-R2024a-win.mltbx)
-- Ubuntu 24.04: [ice-nightly-R2024a-linux.mltbx](https://download.zeroc.com/nexus/repository/nuget-nightly/ice-nightly-R2024a-linux.mltbx)
-
-To install, simply double-click the `.mltbx` file in MATLAB.
-
 ### Gradle
 
 Here’s an example configuration using Kotlin DSL:
@@ -178,6 +167,17 @@ dependencyResolutionManagement {
     }
 }
 ```
+
+## MATLAB
+
+The ZeroC Ice MATLAB nightly toolboxes for Windows and Ubuntu 24.04 are available for direct download from the ZeroC NuGet nightly repository.
+
+You can download and install the appropriate .mltbx file for your platform:
+
+- Windows: [ice-nightly-R2024a-win.mltbx](https://download.zeroc.com/nexus/repository/nuget-nightly/ice-nightly-R2024a-win.mltbx)
+- Ubuntu 24.04: [ice-nightly-R2024a-linux.mltbx](https://download.zeroc.com/nexus/repository/nuget-nightly/ice-nightly-R2024a-linux.mltbx)
+
+To install, simply double-click the `.mltbx` file in MATLAB.
 
 ## Python
 
