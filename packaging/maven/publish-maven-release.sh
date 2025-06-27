@@ -37,9 +37,9 @@ cat > ~/.m2/settings.xml <<EOF
 EOF
 
 mkdir -p lib
-cp -pf "${STAGING_DIR}"/java-packages/lib/*.jar lib
-cp -pf "${STAGING_DIR}"/java-packages/lib/*.pom lib
-cp -pf "${STAGING_DIR}"/java-packages/lib/*.asc lib
+cp -pf "${STAGING_DIR}"/java-packages/*.jar lib
+cp -pf "${STAGING_DIR}"/java-packages/*.pom lib
+cp -pf "${STAGING_DIR}"/java-packages/*.asc lib
 
 ice_version=$(basename "$(ls lib/ice-*-sources.jar)" | sed -E 's/^ice-(.+)-sources\.jar$/\1/')
 components=(ice glacier2 icebt icebox icediscovery icelocatordiscovery icegrid icestorm)
