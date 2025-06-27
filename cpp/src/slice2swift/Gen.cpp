@@ -1308,14 +1308,10 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
     out << epar;
-    out << " async throws -> ";
+    out << " async throws";
     if (returnsAnyValues)
     {
-        out << operationReturnType(op);
-    }
-    else
-    {
-        out << "Swift.Void";
+        out << " -> " << operationReturnType(op);
     }
 
     out << sb;
