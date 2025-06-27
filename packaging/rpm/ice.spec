@@ -19,8 +19,6 @@
 
 %define shadow shadow-utils
 %define javapackagestools javapackages-tools
-# Unfortunately bzip2-devel does not provide pkgconfig(bzip2) as of EL7
-%define bzip2devel bzip2-devel
 %define phpname php
 %define phpcommon php-common
 %define phpdir %{_datadir}/php
@@ -42,9 +40,6 @@
    %define runpath embedded_runpath_prefix=%{_prefix}
 %endif
 
-%define makebuildopts CONFIGS="shared" OPTIMIZE=yes V=1 %{runpath} %{?_smp_mflags}
-%define makeinstallopts CONFIGS="shared" OPTIMIZE=yes V=1 %{runpath} DESTDIR=%{buildroot} prefix=%{_prefix} install_bindir=%{_bindir} install_libdir=%{_libdir} install_slicedir=%{_datadir}/ice/slice install_includedir=%{_includedir} install_mandir=%{_mandir} install_configdir=%{_datadir}/ice install_javadir=%{_javadir} install_phplibdir=%{phplibdir} install_phpdir=%{phpdir}
-
 Name: %{?nameprefix}ice
 Version: 3.8.0~alpha0
 Release: 1%{?dist}
@@ -58,12 +53,11 @@ Vendor: ZeroC, Inc.
 URL: https://zeroc.com/
 Source0:  https://github.com/zeroc-ice/ice/archive/%{archive_tag}.tar.gz#/%{name}-%{version}.tar.gz
 
-# It's necessary to specify glibc-devel and libstdc++-devel here because gcc/gcc-c++ no longer install
-# the 32-bits versions by default on Rhel8 (see https://bugzilla.redhat.com/show_bug.cgi?id=1779597)
-BuildRequires: glibc-devel, libstdc++-devel
-BuildRequires: pkgconfig(expat), pkgconfig(libedit), pkgconfig(openssl), %{bzip2devel}
-# Use lmdb-devel and mcpp-devel packages instead of pkgconfig as a workaround for https://github.com/zeroc-ice/dist-utils/issues/257
-BuildRequires: lmdb-devel
+BuildRequires: pkgconfig(expat)
+BuildRequires: pkgconfig(libedit)
+BuildRequires: pkgconfig(openssl)
+BuildRequires: pkgconfig(bzip2)
+BuildRequires: pkgconfig(lmdb)
 BuildRequires: pkgconfig(libsystemd)
 
 # Amazon Linux 2023 does not provide pkgconfig(mcpp)
@@ -74,14 +68,11 @@ BuildRequires: pkgconfig(mcpp)
 %endif
 
 BuildRequires: java-%{javaversion}, java-%{javaversion}-jmods
-
-%ifarch %{_host_cpu}
 BuildRequires: %{phpname}-devel
 BuildRequires: python3.12-devel, python3-rpm-macros
-%endif
 
 %description
-Not used
+This is a meta package for Ice. It does not install any files directly.
 
 #
 # Enable debug package except if it's already enabled
@@ -90,15 +81,11 @@ Not used
 %debug_package
 %endif
 
-# We build noarch packages only on _host_cpu
-%ifarch %{_host_cpu}
-
 #
 # ice-slice package
 #
 %package -n %{?nameprefix}ice-slice
 Summary: Slice files for Ice.
-Group: System Environment/Libraries
 BuildArch: noarch
 %description -n %{?nameprefix}ice-slice
 This package contains Slice files used by the Ice framework.
@@ -113,7 +100,6 @@ your application logic.
 #
 %package -n %{?nameprefix}icegridgui
 Summary: IceGrid GUI admin client.
-Group: Applications/System
 BuildArch: noarch
 Requires: java
 %description -n %{?nameprefix}icegridgui
@@ -128,12 +114,9 @@ with minimal effort. Ice takes care of all interactions with low-level
 network programming interfaces and allows you to focus your efforts on
 your application logic.
 
-%endif
-
 # Transitional dummy package for clean upgrade from Ice 3.7
 %package -n %{?nameprefix}ice-all-runtime
 Summary: Transitional package for Ice run-time components.
-Group: System Environment/Libraries
 Obsoletes: %{?nameprefix}ice-all-runtime < %{version}-%{release}
 Provides: %{?nameprefix}ice-all-runtime = %{version}-%{release}
 
@@ -144,7 +127,6 @@ It does not install any content and can be safely removed.
 # Transitional dummy package for clean upgrade from Ice 3.7
 %package -n %{?nameprefix}ice-all-devel
 Summary: Transitional package for Ice development components.
-Group: Development/Tools
 Obsoletes: %{?nameprefix}ice-all-devel < %{version}-%{release}
 Provides: %{?nameprefix}ice-all-devel = %{version}-%{release}
 
@@ -157,7 +139,6 @@ It does not install any content and can be safely removed.
 #
 %package -n lib%{?nameprefix}ice3.8-c++
 Summary: Ice for C++ run-time libraries.
-Group: System Environment/Libraries
 %description -n lib%{?nameprefix}ice3.8-c++
 This package contains the C++ run-time libraries for the Ice framework.
 
@@ -171,7 +152,6 @@ your application logic.
 #
 %package -n %{?nameprefix}icebox
 Summary: IceBox server, a framework for Ice application services.
-Group: System Environment/Daemons
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 %description -n %{?nameprefix}icebox
@@ -188,7 +168,6 @@ your application logic.
 #
 %package -n lib%{?nameprefix}icestorm3.8
 Summary: IceStorm publish-subscribe event distribution service.
-Group: System Environment/Libraries
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 %description -n lib%{?nameprefix}icestorm3.8
 This package contains the IceStorm publish-subscribe event distribution
@@ -209,15 +188,8 @@ your application logic.
 #
 %package -n lib%{?nameprefix}ice-c++-devel
 Summary: Libraries and headers for developing Ice applications in C++.
-Group: Development/Tools
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
-%ifarch %{_host_cpu}
 Requires: %{?nameprefix}ice-compilers%{?_isa} = %{version}-%{release}
-%else
-    %ifarch %{ix86}
-Requires: %{?nameprefix}ice-compilers(x86-64) = %{version}-%{release}
-    %endif
-%endif
 Requires: glibc-devel%{?_isa}
 Requires: openssl-devel%{?_isa}
 %description -n lib%{?nameprefix}ice-c++-devel
@@ -229,14 +201,11 @@ with minimal effort. Ice takes care of all interactions with low-level
 network programming interfaces and allows you to focus your efforts on
 your application logic.
 
-%ifarch %{_host_cpu}
-
 #
 # ice-compilers package
 #
 %package -n %{?nameprefix}ice-compilers
 Summary: Slice compilers for developing Ice applications
-Group: Development/Tools
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 %description -n %{?nameprefix}ice-compilers
 This package contains Slice compilers for developing Ice applications.
@@ -251,7 +220,6 @@ your application logic.
 #
 %package -n %{?nameprefix}ice-utils
 Summary: Ice utilities and admin tools.
-Group: Applications/System
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 %description -n %{?nameprefix}ice-utils
 This package contains Ice utilities and admin tools.
@@ -266,7 +234,6 @@ your application logic.
 #
 %package -n %{?nameprefix}icegrid
 Summary: Locate, deploy, and manage Ice servers.
-Group: System Environment/Daemons
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 # Requirements for the users
@@ -286,7 +253,6 @@ your application logic.
 #
 %package -n %{?nameprefix}dsnode
 Summary: DataStorm node server.
-Group: System Environment/Daemons
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 %description -n %{?nameprefix}dsnode
 This package contains the DataStorm node server. The DataStorm node server allows
@@ -303,7 +269,6 @@ your application logic.
 #
 %package -n %{?nameprefix}glacier2
 Summary: Glacier2 router.
-Group: System Environment/Daemons
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 Requires(pre): %{shadow}
 %{?systemd_requires: %systemd_requires}
@@ -324,7 +289,6 @@ your application logic.
 #
 %package -n %{?nameprefix}icebridge
 Summary: Ice bridge.
-Group: System Environment/Daemons
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 %description -n %{?nameprefix}icebridge
 This package contains the Ice bridge. The Ice bridge allows you to bridge
@@ -342,7 +306,6 @@ your application logic.
 #
 %package -n %{phpname}-%{?nameprefix}ice
 Summary: PHP extension for Ice.
-Group: System Environment/Libraries
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 Requires: %{phpcommon}%{?_isa}
 
@@ -359,7 +322,6 @@ your application logic.
 #
 %package -n python3-%{?nameprefix}ice
 Summary: Python extension for Ice.
-Group: System Environment/Libraries
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 Requires: python3
 %description -n python3-%{?nameprefix}ice
@@ -369,8 +331,6 @@ Ice is a comprehensive RPC framework that helps you network your software
 with minimal effort. Ice takes care of all interactions with low-level
 network programming interfaces and allows you to focus your efforts on
 your application logic.
-
-%endif
 
 %prep
 %setup -q -n %{name}-%{archive_tag}
@@ -382,29 +342,38 @@ your application logic.
 export CXXFLAGS="%{optflags}"
 export LDFLAGS="%{?__global_ldflags}"
 
-%ifarch %{_host_cpu}
-    make %{makebuildopts} PYTHON=python%{python3_pkgversion} LANGUAGES="cpp java php python" srcs
-%else
-    %ifarch %{ix86}
-        make %{makebuildopts} PLATFORMS=x86 LANGUAGES="cpp" srcs
-    %endif
-%endif
+make CONFIGS="shared" \
+  OPTIMIZE=yes \
+  V=1 \
+  %{runpath} \
+  %{?_smp_mflags} \
+  PYTHON=python%{python3_pkgversion} \
+  LANGUAGES="cpp java php python" srcs
 
 %install
 
-%ifarch %{_host_cpu}
-    make           %{?_smp_mflags} %{makeinstallopts} install-slice
-    make -C cpp    %{?_smp_mflags} %{makeinstallopts} install
-    make -C php    %{?_smp_mflags} %{makeinstallopts} install
-    make -C python %{?_smp_mflags} %{makeinstallopts} PYTHON=python%{python3_pkgversion} install_pythondir=%{python3_sitearch} install
-    make -C java   %{?_smp_mflags} %{makeinstallopts} install-icegridgui
-%else
-    %ifarch %{ix86}
-        make -C cpp    %{?_smp_mflags} %{makeinstallopts} PLATFORMS=x86 install
-    %endif
-%endif
+make %{?_smp_mflags} \
+  CONFIGS="shared" \
+  OPTIMIZE=yes V=1 \
+  %{runpath} \
+  DESTDIR=%{buildroot} \
+  PYTHON=python%{python3_pkgversion} install_pythondir=%{python3_sitearch} \
+  prefix=%{_prefix} \
+  install_bindir=%{_bindir} \
+  install_libdir=%{_libdir} \
+  install_slicedir=%{_datadir}/ice/slice \
+  install_includedir=%{_includedir} \
+  install_mandir=%{_mandir} \
+  install_configdir=%{_datadir}/ice \
+  install_phplibdir=%{phplibdir} \
+  install_phpdir=%{phpdir} \
+  LANGUAGES="cpp php python" install
 
-%ifarch %{_host_cpu}
+make -C java DESTDIR=%{buildroot} install_javadir=%{_javadir} prefix=%{_prefix} install-icegridgui
+
+# Remove unused installed files
+rm -f %{buildroot}%{_datadir}/ice/LICENSE
+rm -f %{buildroot}%{_datadir}/ice/ICE_LICENSE
 
 #
 # php ice.ini
@@ -428,19 +397,6 @@ done
 mkdir -p %{buildroot}%{_bindir}
 cp -p packaging/rpm/icegridgui %{buildroot}%{_bindir}/icegridgui
 
-%else
-
-# These directories and files aren't needed in the x86 build.
-rm -f %{buildroot}%{_bindir}/slice2*
-rm -f %{buildroot}%{_bindir}/ice2slice*
-rm -rf %{buildroot}%{_includedir}
-rm -rf %{buildroot}%{_mandir}
-rm -rf %{buildroot}%{_datadir}/ice
-
-%endif
-
-%ifarch %{_host_cpu}
-
 #
 # noarch file packages
 #
@@ -459,12 +415,6 @@ rm -rf %{buildroot}%{_datadir}/ice
 %doc packaging/rpm/README
 %attr(755,root,root) %{_bindir}/icegridgui
 %{_javadir}/icegridgui.jar
-
-%endif
-
-#
-# arch-specific packages
-#
 
 #
 # Generate "ice-all-runtime" meta package as arch-specific
@@ -512,14 +462,8 @@ exit 0
 %license LICENSE
 %license ICE_LICENSE
 %doc packaging/rpm/README
-%ifarch %{_host_cpu}
 %{_bindir}/icebox
 %{_mandir}/man1/icebox.1*
-%else
-    %ifarch %{ix86}
-%{_bindir}/icebox32
-    %endif
-%endif
 %post -n %{?nameprefix}icebox -p /sbin/ldconfig
 %postun -n %{?nameprefix}icebox
 /sbin/ldconfig
@@ -540,7 +484,6 @@ exit 0
 %{_libdir}/libIceGrid.so
 %{_libdir}/libIceLocatorDiscovery.so
 %{_libdir}/libIceStorm.so
-%ifarch %{_host_cpu}
 %{_includedir}/DataStorm
 %{_includedir}/Glacier2
 %{_includedir}/Ice
@@ -549,7 +492,6 @@ exit 0
 %{_includedir}/IceBox
 %{_includedir}/IceGrid
 %{_includedir}/IceStorm
-%endif
 
 #
 # libicestorm-Mm package
@@ -563,8 +505,6 @@ exit 0
 %postun -n lib%{?nameprefix}icestorm3.8
 /sbin/ldconfig
 exit 0
-
-%ifarch %{_host_cpu}
 
 #
 # ice-compilers package
@@ -663,7 +603,7 @@ exit 0
 %postun -n %{?nameprefix}icegrid
 %if "%{_prefix}" == "/usr"
   %systemd_postun_with_restart icegridnode.service
-  %systemd_postun_with_restart icegriregistry.service
+  %systemd_postun_with_restart icegridregistry.service
 %endif
 /sbin/ldconfig
 exit 0
@@ -754,8 +694,6 @@ exit 0
 %license ICE_LICENSE
 %doc packaging/rpm/README
 %{python3_sitearch}/*
-
-%endif
 
 %changelog
 * Wed Feb 5 2025 José Gutiérrez de la Concha <jose@zeroc.com> 3.8a0
