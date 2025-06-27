@@ -12,6 +12,8 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
         description, self.tcArgs, self.attacks, self.xtraConfig = testcase
 
         clientProps = {"Ice.Config": "{testdir}/client.cfg", "Ice.Warn.Connections": 0}
+        clientProps["Ice.Trace.Network"] = "3"
+        clientProps["Ice.Trace.Protocol"] = "1"
         serverProps = {"Ice.Config": "{testdir}/server.cfg", "Ice.Warn.Connections": 0}
         routerProps = {
             "Ice.Config": "{testdir}/router.cfg",
@@ -20,7 +22,12 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
 
         # Override the server/router default host property, we don't want to use the loopback
         serverProps["Ice.Default.Host"] = ""
+        serverProps["Ice.Trace.Network"] = "3"
+        serverProps["Ice.Trace.Protocol"] = "1"
+
         routerProps["Ice.Default.Host"] = ""
+        routerProps["Ice.Trace.Network"] = "3"
+        routerProps["Ice.Trace.Protocol"] = "1"
 
         ClientServerTestCase.__init__(
             self,
