@@ -84,6 +84,7 @@ AttackClient::run(int argc, char** argv)
     auto goodProxies = communicator->getProperties()->getPropertiesForPrefix("Accept.Proxy.");
     for (const auto& p : goodProxies)
     {
+        cerr << "good proxy: " << p.second << endl;
         try
         {
             auto session = router->createSession("userid", "abc123");
