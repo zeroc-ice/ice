@@ -209,7 +209,7 @@ classdef Connection < IceInternal.WrapperObject
         end
     end
 
-    methods(Access=private)
+    methods (Access = private)
         function r = createConnectionInfo(obj, info)
             underlying = Ice.ConnectionInfo.empty;
             if ~isempty(info.underlying)
@@ -239,7 +239,7 @@ classdef Connection < IceInternal.WrapperObject
         end
     end
 
-    properties(Access=private)
+    properties (Access = private)
         communicator % The communicator wrapper
     end
 end

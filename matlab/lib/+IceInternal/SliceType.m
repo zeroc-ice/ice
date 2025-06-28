@@ -1,8 +1,8 @@
-classdef SliceType
+classdef (Hidden) SliceType
     % Copyright (c) ZeroC, Inc.
 
     % Don't use an enumeration as comparing enumerators with integral values is significantly slower.
-    properties(Constant)
+    properties (Constant)
         NoSlice = uint8(0)
         ValueSlice = uint8(1)
         ExceptionSlice = uint8(2)

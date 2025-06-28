@@ -9,7 +9,7 @@ classdef (Sealed) UDPConnectionInfo < Ice.IPConnectionInfo
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = UDPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort, ...
                                          mcastAddress, mcastPort, rcvSize, sndSize)
             assert(nargin == 9, 'Invalid number of arguments');
@@ -20,7 +20,7 @@ classdef (Sealed) UDPConnectionInfo < Ice.IPConnectionInfo
             obj.sndSize = sndSize;
         end
     end
-    properties(SetAccess=immutable)
+    properties (SetAccess = immutable)
         %MCASTADDRESS The multicast address.
         %   character vector
         mcastAddress (1, :) char

@@ -1,4 +1,4 @@
-classdef WriteEncaps < handle
+classdef (Hidden) WriteEncaps < handle
     % Copyright (c) ZeroC, Inc.
 
     properties

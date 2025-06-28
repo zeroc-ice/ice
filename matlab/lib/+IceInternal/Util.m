@@ -1,7 +1,7 @@
-classdef Util
+classdef (Hidden) Util
     % Copyright (c) ZeroC, Inc.
 
-    methods(Static)
+    methods (Static)
         %
         % Internal method - invoke a C function with the given name.
         % The value for fn MUST be given in single quotes!

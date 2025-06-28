@@ -7,7 +7,7 @@ classdef (Sealed) TCPConnectionInfo < Ice.IPConnectionInfo
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = TCPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort, ...
                                          rcvSize, sndSize)
             assert(nargin == 7, 'Invalid number of arguments');
@@ -16,7 +16,7 @@ classdef (Sealed) TCPConnectionInfo < Ice.IPConnectionInfo
             obj.sndSize = sndSize;
         end
     end
-    properties(SetAccess=immutable)
+    properties (SetAccess = immutable)
         %RCVSIZE The connection buffer receive size.
         %   int32 scalar
         rcvSize (1, 1) int32

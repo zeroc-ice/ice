@@ -803,7 +803,7 @@ classdef InputStream < handle
             r = sz;
         end
     end
-    methods(Access=private)
+    methods (Access = private)
         function initEncaps(obj)
             if ~isobject(obj.encapsStack) % Lazy initialization
                 obj.encapsStack = obj.encapsCache;
@@ -828,7 +828,7 @@ classdef InputStream < handle
             end
         end
     end
-    methods (Static, Access = private)
+    methods (Static,  Access = private)
 
         function throwUOE(expectedType, v)
             if isa(v, 'Ice.UnknownSlicedValue')
@@ -842,7 +842,7 @@ classdef InputStream < handle
         end
 
     end
-    properties(Access=private)
+    properties (Access = private)
         communicator
         encoding
         encoding_1_0 logical
@@ -856,7 +856,7 @@ classdef InputStream < handle
         minSeqSize int32 = 0
         classGraphDepthMax = 0
     end
-    properties(Constant,Access=private)
+    properties (Constant, Access = private)
         endOfBufferMessage = 'attempting to unmarshal past the end of the InputStream buffer'
     end
 end

@@ -1,4 +1,4 @@
-classdef IndirectPatchEntry < handle
+classdef (Hidden) IndirectPatchEntry < handle
     % Copyright (c) ZeroC, Inc.
 
     properties

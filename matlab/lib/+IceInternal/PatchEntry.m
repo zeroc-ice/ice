@@ -1,4 +1,4 @@
-classdef PatchEntry < handle
+classdef (Hidden) PatchEntry < handle
     % Copyright (c) ZeroC, Inc.
 
     properties

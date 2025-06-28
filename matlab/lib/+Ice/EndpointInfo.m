@@ -1,4 +1,4 @@
-classdef EndpointInfo < handle
+classdef EndpointInfo
     %ENDPOINTINFO Base class for the endpoint info classes.
     %
     %   EndpointInfo Properties:
@@ -65,7 +65,7 @@ classdef EndpointInfo < handle
         end
     end
 
-    properties(SetAccess=immutable)
+    properties (SetAccess = immutable)
         %UNDERLYING The EndpointInfo of the underlying endpoint, if any.
         %   Ice.EndpointInfo scalar | empty array of Ice.EndpointInfo
         underlying Ice.EndpointInfo {mustBeScalarOrEmpty}
@@ -74,7 +74,7 @@ classdef EndpointInfo < handle
         %   logical scalar
         compress (1, 1) logical
     end
-    methods(Hidden, Access=protected)
+    methods (Hidden, Access = protected)
         function obj = EndpointInfo(underlying, compress)
             if nargin == 1
                 assert(~isempty(underlying), 'underlying cannot be empty');
