@@ -94,6 +94,9 @@ jobs:
           aws cloudfront create-invalidation \
             --distribution-id E163NR6GH4QVNV \
             --paths "/ice/${{ inputs.channel }}/*"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   upload-release-assets:
     # For stable channels if running on a tag, we upload the release assets to the tag.
