@@ -1,4 +1,4 @@
-classdef EncapsEncoder10 < IceInternal.EncapsEncoder
+classdef (Hidden) EncapsEncoder10 < IceInternal.EncapsEncoder
     % Copyright (c) ZeroC, Inc.
 
     methods
@@ -99,7 +99,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
             obj.os.writeSize(0); % Zero marker indicates end of sequence of sequences of instances.
         end
     end
-    methods(Access=protected)
+    methods (Access = protected)
         function r = registerValue(obj, v)
             %assert(~isempty(v));
 
@@ -129,7 +129,7 @@ classdef EncapsEncoder10 < IceInternal.EncapsEncoder
             obj.toBeMarshaledMap(r) = v;
         end
     end
-    properties(Access=private)
+    properties (Access = private)
         sliceType
         writeSlice
         valueIdIndex

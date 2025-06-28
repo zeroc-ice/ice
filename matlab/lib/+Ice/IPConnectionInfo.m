@@ -9,7 +9,7 @@ classdef IPConnectionInfo < Ice.ConnectionInfo
 
     % Copyright (c) ZeroC, Inc.
 
-    properties(SetAccess=immutable)
+    properties (SetAccess = immutable)
         %LOCALADDRESS The local address.
         %  character vector
         localAddress (1, :) char
@@ -26,7 +26,7 @@ classdef IPConnectionInfo < Ice.ConnectionInfo
         %  int32 scalar
         remotePort (1, 1) int32
     end
-    methods(Hidden, Access=protected)
+    methods (Hidden, Access = protected)
         function obj = IPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort)
             assert(nargin == 5, 'Invalid number of arguments');
             obj@Ice.ConnectionInfo(Ice.ConnectionInfo.empty, connectionId);

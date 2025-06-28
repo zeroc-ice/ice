@@ -6,14 +6,14 @@ classdef (Sealed) ConnectionInfo < Ice.ConnectionInfo
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = ConnectionInfo(underlying, peerCertificate)
             assert(nargin == 2, 'Invalid number of arguments');
             obj@Ice.ConnectionInfo(underlying);
             obj.peerCertificate = peerCertificate;
         end
     end
-    properties(SetAccess=immutable)
+    properties (SetAccess = immutable)
         %PEERCERTIFICATE The peer certificate.
         %   character vector
         peerCertificate (1, :) char

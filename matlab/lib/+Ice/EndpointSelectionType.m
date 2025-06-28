@@ -15,7 +15,7 @@ classdef EndpointSelectionType < uint8
         %ORDERED Ordered forces the Ice run time to use the endpoints in the order they appeared in the proxy.
         Ordered (1)
     end
-    methods(Static)
+    methods (Static)
         function r = ice_getValue(v)
             switch v
                 case 0

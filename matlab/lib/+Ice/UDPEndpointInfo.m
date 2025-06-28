@@ -11,7 +11,7 @@ classdef (Sealed) UDPEndpointInfo < Ice.IPEndpointInfo
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = UDPEndpointInfo(compress, host, port, sourceAddress, mcastInterface, mcastTtl)
             assert(nargin == 6, 'Invalid number of arguments');
             obj@Ice.IPEndpointInfo(compress, host, port, sourceAddress);
@@ -28,7 +28,7 @@ classdef (Sealed) UDPEndpointInfo < Ice.IPEndpointInfo
             r = true;
         end
     end
-    properties(SetAccess=immutable)
+    properties (SetAccess = immutable)
         %MCASTINTERFACE The multicast interface.
         %   character vector
         mcastInterface (1, :) char

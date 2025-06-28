@@ -1,4 +1,4 @@
-classdef SliceInfo < handle
+classdef (Sealed) SliceInfo < handle
     %SLICEINFO Encapsulates the details of a class slice with an unknown type.
     %
     %   SliceInfo Properties:
@@ -11,7 +11,7 @@ classdef SliceInfo < handle
 
     % Copyright (c) ZeroC, Inc.
 
-    properties(SetAccess=immutable)
+    properties (SetAccess = immutable)
         %TYPEID The Slice type ID for this slice.
         %   character vector
         typeId (1, :) char
@@ -37,7 +37,7 @@ classdef SliceInfo < handle
         %   cell array of Ice.Value
         instances (1, :) cell = {}
     end
-    methods(Hidden)
+    methods (Hidden)
         function obj = SliceInfo(typeId, compactId, bytes, hasOptionalMembers, isLastSlice)
             obj.typeId = typeId;
             obj.compactId = compactId;

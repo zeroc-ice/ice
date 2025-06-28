@@ -1,4 +1,4 @@
-classdef EncapsDecoder10 < IceInternal.EncapsDecoder
+classdef (Hidden) EncapsDecoder10 < IceInternal.EncapsDecoder
     % Copyright (c) ZeroC, Inc.
 
     methods
@@ -163,7 +163,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
         end
 
     end
-    methods(Access=private)
+    methods (Access = private)
         function readInstance(obj)
             index = obj.is.readInt();
             if index <= 0
@@ -232,7 +232,7 @@ classdef EncapsDecoder10 < IceInternal.EncapsDecoder
             obj.unmarshal(index, v);
         end
     end
-    properties(Access=private)
+    properties (Access = private)
         sliceType
         skipFirstSlice
         sliceSize

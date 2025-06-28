@@ -12,7 +12,7 @@ classdef DispatchException < Ice.LocalException
         %   uint8 scalar
         replyStatus (1, 1) uint8 = Ice.ReplyStatus.UnknownException
     end
-    methods(Hidden)
+    methods (Hidden)
         function obj = DispatchException(replyStatus, errID, what)
             if nargin == 0 % default constructor
                 superArgs = {};

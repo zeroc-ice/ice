@@ -16,7 +16,7 @@ classdef OptionalFormat < uint8
     % Copyright (c) ZeroC, Inc.
 
     % Don't use an enumeration as comparing enumerators with integral values is significantly slower.
-    properties(Constant)
+    properties (Constant)
         %F1 Fixed-length format (1 byte).
         F1 = uint8(0)
 

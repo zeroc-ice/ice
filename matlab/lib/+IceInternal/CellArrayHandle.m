@@ -1,4 +1,4 @@
-classdef CellArrayHandle < handle
+classdef (Hidden) CellArrayHandle < handle
     % Copyright (c) ZeroC, Inc.
 
     properties

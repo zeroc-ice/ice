@@ -17,7 +17,7 @@ classdef (Sealed) AlreadyRegisteredException < Ice.LocalException
         %   character vector
         id (1, :) char = ''
     end
-    methods(Hidden)
+    methods (Hidden)
         function obj = AlreadyRegisteredException(kindOfObject, id)
             % Convenience constructor without an errID or what message.
             if nargin == 0 % default constructor

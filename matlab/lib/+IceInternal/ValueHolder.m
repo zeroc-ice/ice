@@ -1,4 +1,4 @@
-classdef ValueHolder < handle
+classdef (Hidden) ValueHolder < handle
     % Copyright (c) ZeroC, Inc.
 
     properties

@@ -7,7 +7,7 @@ classdef (Sealed) TCPEndpointInfo < Ice.IPEndpointInfo
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = TCPEndpointInfo(compress, host, port, sourceAddress, type, secure)
             assert(nargin == 6, 'Invalid number of arguments');
             obj@Ice.IPEndpointInfo(compress, host, port, sourceAddress);
@@ -24,7 +24,7 @@ classdef (Sealed) TCPEndpointInfo < Ice.IPEndpointInfo
             r = obj.secure_;
         end
     end
-    properties(GetAccess=private, SetAccess=immutable)
+    properties (GetAccess = private, SetAccess = immutable)
         type_ (1, 1) int16
         secure_ (1, 1) logical
     end

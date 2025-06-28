@@ -471,7 +471,7 @@ classdef OutputStream < handle
             r = obj.buf.buf(1:obj.buf.size);
         end
     end
-    methods(Access=private)
+    methods (Access = private)
         function initEncaps(obj)
             if isempty(obj.encapsStack) % Lazy initialization
                 obj.encapsStack = obj.encapsCache;
@@ -514,7 +514,7 @@ classdef OutputStream < handle
             end
         end
     end
-    properties(Access=private)
+    properties (Access = private)
         encoding
         encoding_1_0 logical
         format

@@ -1,4 +1,4 @@
-classdef (Abstract) EncapsDecoder < handle
+classdef (Hidden, Abstract) EncapsDecoder < handle
     % Copyright (c) ZeroC, Inc.
 
     methods
@@ -42,7 +42,7 @@ classdef (Abstract) EncapsDecoder < handle
             end
         end
     end
-    methods(Abstract)
+    methods (Abstract)
         readValue(obj, cb)
         throwException(obj)
         startInstance(obj, sliceType)
@@ -51,7 +51,7 @@ classdef (Abstract) EncapsDecoder < handle
         endSlice(obj)
         skipSlice(obj)
     end
-    methods(Access=protected)
+    methods (Access = protected)
         function r = getTypeId(obj, typeIdIndex)
             if typeIdIndex <= length(obj.typeIdMap)
                 r = obj.typeIdMap{typeIdIndex};
@@ -171,7 +171,7 @@ classdef (Abstract) EncapsDecoder < handle
             end
         end
     end
-    properties(Access=protected)
+    properties (Access = protected)
         is
         encaps
         classGraphDepth
@@ -179,7 +179,7 @@ classdef (Abstract) EncapsDecoder < handle
         patchMap
         patchMapLength
     end
-    properties(Access=private)
+    properties (Access = private)
         unmarshaledMap
         typeIdMap cell = {} % a cell array in this class
         valueList

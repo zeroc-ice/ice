@@ -21,7 +21,7 @@ classdef RequestFailedException < Ice.DispatchException
         %   character vector
         operation (1, :) char = ''
     end
-    methods(Hidden)
+    methods (Hidden)
         function obj = RequestFailedException(replyStatus, id, facet, operation, errID, what)
             if nargin == 0
                 superArgs = {};

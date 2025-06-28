@@ -50,7 +50,7 @@ classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
             r = constructor();
         end
     end
-    methods(Static, Access = private)
+    methods (Static,  Access = private)
         function r = resolveConstant(mc, name)
             % Resolves a constant value in a meta class.
             %
@@ -80,10 +80,10 @@ classdef (Sealed) ClassSliceLoader < Ice.SliceLoader
         end
     end
 
-    properties(Access = private)
+    properties (Access = private)
         typeIdToConstructorMap
     end
-    properties(Constant, Access = private)
+    properties (Constant, Access = private)
         CreateEmptyArray = @() []
     end
 end

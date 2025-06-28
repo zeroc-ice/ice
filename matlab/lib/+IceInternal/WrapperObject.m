@@ -1,4 +1,4 @@
-classdef (Abstract) WrapperObject < handle
+classdef (Hidden, Abstract) WrapperObject < handle
     % Copyright (c) ZeroC, Inc.
 
     methods
@@ -16,7 +16,7 @@ classdef (Abstract) WrapperObject < handle
             end
         end
     end
-    methods(Hidden)
+    methods (Hidden)
         function delete(obj)
             if ~isempty(obj.impl_)
                 obj.iceCall('unref');
@@ -45,7 +45,7 @@ classdef (Abstract) WrapperObject < handle
             r = obj.impl_;
         end
     end
-    properties(Hidden,SetAccess=protected)
+    properties (Hidden, SetAccess = protected)
         impl_
         type_
     end

@@ -1,4 +1,4 @@
-classdef PatchList < handle
+classdef (Hidden) PatchList < handle
     % Copyright (c) ZeroC, Inc.
 
     properties

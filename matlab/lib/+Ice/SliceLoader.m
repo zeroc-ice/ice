@@ -4,7 +4,7 @@ classdef (Abstract) SliceLoader < handle
     %   SliceLoader Methods:
     %     newInstance - Creates a class or exception instance from a Slice type ID.
 
-    methods(Abstract)
+    methods (Abstract)
         %NEWINSTANCE Creates a class or exception instance from a Slice type ID.
         %
         %   Input Arguments

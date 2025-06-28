@@ -15,7 +15,7 @@ classdef Future < IceInternal.WrapperObject
 
     % Copyright (c) ZeroC, Inc.
 
-    properties(SetAccess=private)
+    properties (SetAccess = private)
         %ID A unique identifier for this object.
         %   int32 scalar
         ID (1, 1) int32 = 0
@@ -142,7 +142,7 @@ classdef Future < IceInternal.WrapperObject
             end
         end
     end
-    properties(Access=private)
+    properties (Access = private)
         fetchFunc
     end
 end

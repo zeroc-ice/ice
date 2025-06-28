@@ -1,4 +1,4 @@
-classdef (Sealed) NotFoundSliceLoaderDecorator < Ice.SliceLoader
+classdef (Hidden, Sealed) NotFoundSliceLoaderDecorator < Ice.SliceLoader
     %NOTFOUNDSLICELOADERDECORATOR Decorates a SliceLoader to cache not found (empty array) results.
     %
     %   NotFoundSliceLoaderDecorator Methods:
@@ -49,7 +49,7 @@ classdef (Sealed) NotFoundSliceLoaderDecorator < Ice.SliceLoader
             end
         end
     end
-    properties(Access = private)
+    properties (Access = private)
         decoratee
         cacheSize
         logger

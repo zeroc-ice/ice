@@ -6,7 +6,7 @@ classdef UnknownSlicedValue < Ice.Value
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = UnknownSlicedValue(unknownTypeId)
             obj.unknownTypeId = unknownTypeId;
         end
@@ -16,7 +16,7 @@ classdef UnknownSlicedValue < Ice.Value
             id = obj.unknownTypeId;
         end
     end
-    properties(Access=private)
+    properties (Access = private)
         unknownTypeId
     end
 end

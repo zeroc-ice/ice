@@ -54,7 +54,7 @@ classdef (Sealed) CompositeSliceLoader < Ice.SliceLoader
             r = []; % No loader could create an instance.
         end
     end
-    properties(Access = private)
+    properties (Access = private)
         sliceLoaders (1, :) cell
     end
 end

@@ -1,4 +1,4 @@
-classdef EncapsEncoder11_InstanceData < handle
+classdef (Hidden) EncapsEncoder11_InstanceData < handle
     % Copyright (c) ZeroC, Inc.
 
     methods

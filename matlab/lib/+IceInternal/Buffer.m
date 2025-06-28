@@ -1,4 +1,4 @@
-classdef Buffer < matlab.mixin.Copyable
+classdef (Hidden) Buffer < matlab.mixin.Copyable
     % Copyright (c) ZeroC, Inc.
 
     methods
