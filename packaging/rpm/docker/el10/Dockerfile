@@ -12,7 +12,7 @@ COPY packaging/rpm/ice.spec /usr/src/ice.spec
 RUN --mount=type=secret,id=rh_credentials \
     source /run/secrets/rh_credentials && \
     subscription-manager register --username "$RH_USERNAME" --password "$RH_PASSWORD" && \
-    dnf install -y https://zeroc.com/download/ice/3.8/el10/ice-repo-3.8-1.el10.noarch.rpm && \
+    dnf install -y https://zeroc.com/download/ice/3.8/el10/ice-repo-3.8-1.0.0-1.el10.noarch.rpm && \
     dnf config-manager --set-enabled codeready-builder-for-rhel-10-$(arch)-rpms && \
     dnf install -y \
     rpmdevtools \
