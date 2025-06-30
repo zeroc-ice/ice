@@ -7,6 +7,7 @@
   %define archive_tag main
 %endif
 
+# Java is required to build IceGridGUI. The RPM packages doesn't include the Ice for Java JAR files.
 %define javaversion 17-openjdk
 
 %if "%{dist}" == ".amzn2023"
@@ -152,7 +153,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icebox
 Summary: IceBox server, a framework for Ice application services.
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 %description -n %{?nameprefix}icebox
 This package contains the IceBox server, an easy-to-use framework for
@@ -168,7 +169,7 @@ your application logic.
 #
 %package -n lib%{?nameprefix}icestorm3.8
 Summary: IceStorm publish-subscribe event distribution service.
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
 %description -n lib%{?nameprefix}icestorm3.8
 This package contains the IceStorm publish-subscribe event distribution
 service.
@@ -188,10 +189,10 @@ your application logic.
 #
 %package -n lib%{?nameprefix}ice-c++-devel
 Summary: Libraries and headers for developing Ice applications in C++.
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
-Requires: %{?nameprefix}ice-compilers%{?_isa} = %{version}-%{release}
-Requires: glibc-devel%{?_isa}
-Requires: openssl-devel%{?_isa}
+Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: %{?nameprefix}ice-compilers = %{version}-%{release}
+Requires: glibc-devel
+Requires: openssl-devel
 %description -n lib%{?nameprefix}ice-c++-devel
 This package contains the libraries and headers needed for developing
 Ice applications in C++.
@@ -220,7 +221,7 @@ your application logic.
 #
 %package -n %{?nameprefix}ice-utils
 Summary: Ice utilities and admin tools.
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
 %description -n %{?nameprefix}ice-utils
 This package contains Ice utilities and admin tools.
 
@@ -234,7 +235,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icegrid
 Summary: Locate, deploy, and manage Ice servers.
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 # Requirements for the users
 Requires(pre): %{shadow}
@@ -253,7 +254,7 @@ your application logic.
 #
 %package -n %{?nameprefix}dsnode
 Summary: DataStorm node server.
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
 %description -n %{?nameprefix}dsnode
 This package contains the DataStorm node server. The DataStorm node server allows
 other DataStorm nodes to exchange topic discovery information without relying on
@@ -269,7 +270,7 @@ your application logic.
 #
 %package -n %{?nameprefix}glacier2
 Summary: Glacier2 router.
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
 Requires(pre): %{shadow}
 %{?systemd_requires: %systemd_requires}
 %description -n %{?nameprefix}glacier2
@@ -289,7 +290,7 @@ your application logic.
 #
 %package -n %{?nameprefix}icebridge
 Summary: Ice bridge.
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
 %description -n %{?nameprefix}icebridge
 This package contains the Ice bridge. The Ice bridge allows you to bridge
 connections securely between one or multiple clients and a server. It
@@ -306,8 +307,8 @@ your application logic.
 #
 %package -n %{phpname}-%{?nameprefix}ice
 Summary: PHP extension for Ice.
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
-Requires: %{phpcommon}%{?_isa}
+Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: %{phpcommon}
 
 %description -n %{phpname}-%{?nameprefix}ice
 This package contains a PHP extension for communicating with Ice.
@@ -322,7 +323,7 @@ your application logic.
 #
 %package -n python3-%{?nameprefix}ice
 Summary: Python extension for Ice.
-Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
+Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
 Requires: python3
 %description -n python3-%{?nameprefix}ice
 This package contains a Python extension for communicating with Ice.
