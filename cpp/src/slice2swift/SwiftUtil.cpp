@@ -15,28 +15,29 @@ using namespace IceInternal;
 
 namespace
 {
-    // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
-    // TODO: this is temporary and will be replaced when we add 'swift:identifier' support.
-    string swiftLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string swiftLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
     {
-        string result = "`";
+        string result = "``";
 
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        if (auto contained = dynamic_pointer_cast<Contained>(target))
         {
-            if (hashPos != 0)
-            {
-                result += rawLink.substr(0, hashPos);
-                result += "/";
-            }
-            result += rawLink.substr(hashPos + 1);
+            string currentModule = Slice::Swift::getSwiftModule(source->getTopLevelModule());
+            result += Slice::Swift::getRelativeTypeString(contained, currentModule);
         }
-        else
+        else if (auto builtin = dynamic_pointer_cast<Builtin>(target))
         {
-            result += rawLink;
+            result += Slice::Swift::typeToString(builtin, source, false);
+        }
+        else // We couldn't resolve the link target and make a best-effort attempt to map the raw link.
+        {
+            // For Swift all we can do is replace the doxygen separator (#) with a DocC separator ('/').
+            std::replace(result.begin(), result.end(), '#', '/');
         }
 
-        return result + "`";
+        // DocC uses forward slashes to separate symbols instead of periods.
+        std::replace(result.begin(), result.end(), '.', '/');
+
+        return result + "``";
     }
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst = true, string_view space = " ")
@@ -655,7 +656,7 @@ Slice::Swift::typeToString(const TypePtr& type, const ContainedPtr& usedBy, bool
         "Swift.Float",
         "Swift.Double",
         "Swift.String",
-        "Ice.Value",     // Object, no longer used (see below)
+        "Ice.Value",     // Object, which is instead mapped to `Value` here.
         "Ice.ObjectPrx", // ObjectPrx
         "Ice.Value"      // Value
     };
@@ -665,38 +666,19 @@ Slice::Swift::typeToString(const TypePtr& type, const ContainedPtr& usedBy, bool
         return "";
     }
 
-    string t = "";
+    string t;
 
     // The current module where the type is being used
     string currentModule = getSwiftModule(usedBy->getTopLevelModule());
 
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if (builtin)
+    if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
-        if (builtin->kind() == Builtin::KindObject)
-        {
-            t = getUnqualified(builtinTable[Builtin::KindValue], currentModule);
-        }
-        else
-        {
-            t = getUnqualified(builtinTable[builtin->kind()], currentModule);
-        }
+        t = getUnqualified(builtinTable[builtin->kind()], currentModule);
     }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
-    ContainedPtr cont = dynamic_pointer_cast<Contained>(type);
-
-    if (cl)
+    else
     {
-        t += getRelativeTypeString(cl, currentModule);
-    }
-    else if (prx)
-    {
-        t = getRelativeTypeString(prx, currentModule);
-    }
-    else if (cont)
-    {
+        ContainedPtr cont = dynamic_pointer_cast<Contained>(type);
+        assert(cont); // Types must be either a builtin type, or a `Contained`.
         t = getRelativeTypeString(cont, currentModule);
     }
 
