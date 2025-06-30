@@ -6,30 +6,26 @@
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
-namespace Slice
+namespace Slice::JavaScript
 {
-    std::string relativePath(const std::string&, const std::string&);
-    std::string getJavaScriptModule(const DefinitionContextPtr&);
+    [[nodiscard]] std::string relativePath(const std::string& path1, const std::string& path2);
+    [[nodiscard]] std::string getJavaScriptModule(const DefinitionContextPtr& dc);
 
-    class JsGenerator
-    {
-    public:
-        JsGenerator() = default;
-        JsGenerator(const JsGenerator&) = delete;
-        virtual ~JsGenerator() = default;
+    [[nodiscard]] std::string typeToJsString(const TypePtr& type, bool definition = false);
 
-        JsGenerator& operator=(const JsGenerator&) = delete;
+    [[nodiscard]] std::string getHelper(const TypePtr& type);
 
-        static std::string typeToJsString(const TypePtr&, bool definition = false);
-
-        static std::string getHelper(const TypePtr&);
-        //
-        // Generate code to marshal or unmarshal a type
-        //
-        void writeMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, bool);
-        void
-        writeOptionalMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, std::int32_t, bool);
-    };
+    //
+    // Generate code to marshal or unmarshal a type
+    //
+    void
+    writeMarshalUnmarshalCode(IceInternal::Output& out, const TypePtr& type, const std::string& param, bool marshal);
+    void writeOptionalMarshalUnmarshalCode(
+        IceInternal::Output& out,
+        const TypePtr& type,
+        const std::string& param,
+        std::int32_t tag,
+        bool marshal);
 }
 
 #endif

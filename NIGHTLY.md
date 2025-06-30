@@ -137,12 +137,12 @@ npm install @zeroc/ice
 
 ## Java
 
-The ZeroC Ice Java nightly packages are available from the ZeroC Maven nightly repository.
+The ZeroC Ice Java nightly packages are available from the maven central snapshots repository.
 
 To use them, add the following Maven repository to your build configuration:
 
 ```shell
-https://download.zeroc.com/nexus/repository/maven-nightly/
+https://central.sonatype.com/repository/maven-snapshots/
 ```
 
 ### Gradle
@@ -154,15 +154,15 @@ Here’s an example configuration using Kotlin DSL:
 pluginManagement {
     repositories {
         mavenLocal()
-        maven("https://download.zeroc.com/nexus/repository/maven-nightly/")
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
         gradlePluginPortal() // Keep this to allow fetching other plugins
     }
 }
 
 dependencyResolutionManagement {
     repositories {
-        // This demo uses the latest Ice nightly build published in ZeroC's maven-nightly repository.
-        maven("https://download.zeroc.com/nexus/repository/maven-nightly/")
+        // This demo uses the latest Ice nightly build published to the maven central snapshots repository.
+        maven("https://central.sonatype.com/repository/maven-snapshots/")
         mavenCentral()
     }
 }
