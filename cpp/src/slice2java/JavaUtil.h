@@ -41,8 +41,6 @@ namespace Slice
     {
     public:
         JavaOutput();
-        JavaOutput(std::ostream&);
-        JavaOutput(const char*);
 
         //
         // Open a file to hold the source for a Java class. The first
@@ -102,20 +100,20 @@ namespace Slice
         //
         // Return the method call necessary to obtain the static type ID for an object type.
         //
-        [[nodiscard]] static std::string getStaticId(const TypePtr&, const std::string&);
+        [[nodiscard]] static std::string getStaticId(const TypePtr& type, const std::string& package);
 
         //
         // Returns the optional type corresponding to the given Slice type.
         //
-        [[nodiscard]] static std::string getOptionalFormat(const TypePtr&);
+        [[nodiscard]] static std::string getOptionalFormat(const TypePtr& type);
 
         [[nodiscard]] static std::string typeToString(
-            const TypePtr&,
-            TypeMode,
-            const std::string& = std::string(),
-            const MetadataList& = MetadataList(),
-            bool = true,
-            bool = false);
+            const TypePtr& type,
+            TypeMode mode,
+            const std::string& package = std::string(),
+            const MetadataList& metadata = MetadataList(),
+            bool formal = true,
+            bool optional = false);
 
         //
         // Get the Java object name for a type. For primitive types, this returns the
@@ -123,11 +121,11 @@ namespace Slice
         // to typeToString.
         //
         [[nodiscard]] static std::string typeToObjectString(
-            const TypePtr&,
-            TypeMode,
-            const std::string& = std::string(),
-            const MetadataList& = MetadataList(),
-            bool = true);
+            const TypePtr& type,
+            TypeMode mode,
+            const std::string& package = std::string(),
+            const MetadataList& metadata = MetadataList(),
+            bool formal = true);
 
         //
         // Generate code to marshal or unmarshal a type.
@@ -141,81 +139,86 @@ namespace Slice
             OptionalMember
         };
 
-        std::string getWriteFunction(const std::string&, const TypePtr&);
-        std::string getReadFunction(const std::string&, const TypePtr&);
-
-        void writeMarshalUnmarshalCode(
-            ::IceInternal::Output&,
-            const std::string&,
-            const TypePtr&,
-            OptionalMode,
-            bool,
-            std::int32_t,
-            const std::string&,
-            bool,
-            int&,
-            const std::string& = "",
-            const MetadataList& = MetadataList(),
-            const std::string& = "");
+        static void writeMarshalUnmarshalCode(
+            ::IceInternal::Output& out,
+            const std::string& package,
+            const TypePtr& type,
+            OptionalMode mode,
+            bool optionalMapping,
+            std::int32_t tag,
+            const std::string& param,
+            bool marshal,
+            int& iter,
+            const std::string& customStream = "",
+            const MetadataList& metadata = MetadataList(),
+            const std::string& patchParams = "");
 
         //
         // Generate code to marshal or unmarshal a dictionary type.
         //
-        void writeDictionaryMarshalUnmarshalCode(
-            ::IceInternal::Output&,
-            const std::string&,
-            const DictionaryPtr&,
-            const std::string&,
-            bool,
-            int&,
-            bool,
-            const std::string& = "",
-            const MetadataList& = MetadataList());
+        static void writeDictionaryMarshalUnmarshalCode(
+            ::IceInternal::Output& out,
+            const std::string& package,
+            const DictionaryPtr& dict,
+            const std::string& param,
+            bool marshal,
+            int& iter,
+            bool useHelper,
+            const std::string& customStream = "",
+            const MetadataList& metadata = MetadataList());
 
         //
         // Generate code to marshal or unmarshal a sequence type.
         //
-        void writeSequenceMarshalUnmarshalCode(
-            ::IceInternal::Output&,
-            const std::string&,
-            const SequencePtr&,
-            const std::string&,
-            bool,
-            int&,
-            bool,
-            const std::string& = "",
-            const MetadataList& = MetadataList());
+        static void writeSequenceMarshalUnmarshalCode(
+            ::IceInternal::Output& out,
+            const std::string& package,
+            const SequencePtr& seq,
+            const std::string& param,
+            bool marshal,
+            int& iter,
+            bool useHelper,
+            const std::string& customStream = "",
+            const MetadataList& metadata = MetadataList());
 
         //
         // Returns` true` if the metadata has an entry with the given directive, and `false` otherwise.
         //
-        static bool hasMetadata(const std::string&, const MetadataList&);
+        [[nodiscard]] static bool hasMetadata(const std::string& directive, const MetadataList& metadata);
 
         //
         // Get custom type metadata. If metadata is found, the abstract and
         // concrete types are extracted and the function returns true. If an
         // abstract type is not specified, it is set to an empty string.
         //
-        static bool getTypeMetadata(const MetadataList&, std::string&, std::string&);
+        [[nodiscard]] static bool
+        getTypeMetadata(const MetadataList& metadata, std::string& instanceType, std::string& formalType);
 
         //
         // Determine whether a custom type is defined. The function checks the
         // metadata of the type's original definition, as well as any optional
         // metadata that typically represents a data member or parameter.
         //
-        static bool hasTypeMetadata(const SequencePtr&, const MetadataList& = MetadataList());
+        [[nodiscard]] static bool
+        hasTypeMetadata(const SequencePtr& seq, const MetadataList& localMetadata = MetadataList());
 
         //
         // Obtain the concrete and abstract types for a dictionary or sequence type.
         // The functions return true if a custom type was defined and false to indicate
         // the default mapping was used.
         //
-        static bool
-        getDictionaryTypes(const DictionaryPtr&, const std::string&, const MetadataList&, std::string&, std::string&);
-        static bool
-        getSequenceTypes(const SequencePtr&, const std::string&, const MetadataList&, std::string&, std::string&);
-
-        JavaOutput* createOutput();
+        static bool getDictionaryTypes(
+            const DictionaryPtr& dict,
+            const std::string& package,
+            const MetadataList& metadata,
+            std::string& instanceType,
+            std::string& formalType);
+        static bool getSequenceTypes(
+            const SequencePtr& seq,
+            const std::string& package,
+            const MetadataList& metadata,
+            std::string& instanceType,
+            std::string& formalType);
 
     private:
         std::string _dir;
