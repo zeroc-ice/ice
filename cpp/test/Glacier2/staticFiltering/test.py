@@ -18,12 +18,13 @@ def print_network_debug_info():
     print(f"FQDN: {fqdn}")
 
     try:
-        host_ip = socket.gethostbyname(hostname)
-        fqdn_ip = socket.gethostbyname(fqdn)
-        print(f"Resolved IP (hostname): {host_ip}")
-        print(f"Resolved IP (FQDN): {fqdn_ip}")
+        addrinfos = socket.getaddrinfo(fqdn, None, proto=socket.IPPROTO_TCP)
+        addresses = sorted({info[4][0] for info in addrinfos})
+        print("Resolved IPs:")
+        for ip in addresses:
+            print(f"  {ip}")
     except socket.gaierror as e:
-        print(f"DNS resolution error: {e}")
+        print(f"DNS resolution failed: {e}")
 
 class Glacier2StaticFilteringTestCase(ClientServerTestCase):
     def __init__(self, testcase, hostname):
