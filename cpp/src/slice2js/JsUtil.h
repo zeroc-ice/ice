@@ -6,30 +6,20 @@
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
-namespace Slice
+namespace Slice::JavaScript
 {
     std::string relativePath(const std::string&, const std::string&);
     std::string getJavaScriptModule(const DefinitionContextPtr&);
 
-    class JsGenerator
-    {
-    public:
-        JsGenerator() = default;
-        JsGenerator(const JsGenerator&) = delete;
-        virtual ~JsGenerator() = default;
+    std::string typeToJsString(const TypePtr&, bool definition = false);
 
-        JsGenerator& operator=(const JsGenerator&) = delete;
+    std::string getHelper(const TypePtr&);
 
-        static std::string typeToJsString(const TypePtr&, bool definition = false);
+    // Generate code to marshal or unmarshal a type
+    void writeMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, bool);
 
-        static std::string getHelper(const TypePtr&);
-        //
-        // Generate code to marshal or unmarshal a type
-        //
-        void writeMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, bool);
-        void
-        writeOptionalMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, std::int32_t, bool);
-    };
+    void
+    writeOptionalMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, std::int32_t, bool);
 }
 
 #endif

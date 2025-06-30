@@ -7,7 +7,7 @@
 
 namespace Slice
 {
-    class JsVisitor : public JsGenerator, public ParserVisitor
+    class JsVisitor : public ParserVisitor
     {
     public:
         JsVisitor(::IceInternal::Output& output);
@@ -32,14 +32,14 @@ namespace Slice
         ::IceInternal::Output& _out;
     };
 
-    class Gen final : public JsGenerator
+    class Gen final
     {
     public:
         Gen(const std::string&, const std::vector<std::string>&, const std::string&, bool);
 
         Gen(const std::string&, const std::vector<std::string>&, const std::string&, bool, std::ostream&);
 
-        ~Gen() override;
+        ~Gen();
 
         void generate(const UnitPtr&);
 

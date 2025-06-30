@@ -21,7 +21,7 @@ using namespace Slice;
 using namespace IceInternal;
 
 string
-Slice::relativePath(const string& p1, const string& p2)
+Slice::JavaScript::relativePath(const string& p1, const string& p2)
 {
     vector<string> tokens1;
     vector<string> tokens2;
@@ -79,7 +79,7 @@ Slice::relativePath(const string& p1, const string& p2)
 }
 
 string
-Slice::getJavaScriptModule(const DefinitionContextPtr& dc)
+Slice::JavaScript::getJavaScriptModule(const DefinitionContextPtr& dc)
 {
     // Check if the file contains the 'js:module' file metadata.
     assert(dc);
@@ -87,7 +87,7 @@ Slice::getJavaScriptModule(const DefinitionContextPtr& dc)
 }
 
 string
-Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
+Slice::JavaScript::typeToJsString(const TypePtr& type, bool definition)
 {
     if (!type)
     {
@@ -169,7 +169,7 @@ Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
 }
 
 void
-Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal)
+Slice::JavaScript::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal)
 {
     string stream = marshal ? "ostr" : "istr";
 
@@ -365,7 +365,7 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, 
 }
 
 void
-Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(
+Slice::JavaScript::writeOptionalMarshalUnmarshalCode(
     Output& out,
     const TypePtr& type,
     const string& param,
@@ -400,7 +400,7 @@ Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(
 }
 
 std::string
-Slice::JsGenerator::getHelper(const TypePtr& type)
+Slice::JavaScript::getHelper(const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
