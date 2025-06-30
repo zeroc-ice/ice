@@ -2425,7 +2425,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     auto baseInterfaces = p->bases();
     if (baseInterfaces.empty())
     {
-       _out << "Ice.Object";
+        _out << "Ice.Object";
     }
     else
     {
