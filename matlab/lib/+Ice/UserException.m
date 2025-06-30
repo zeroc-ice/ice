@@ -26,7 +26,7 @@ classdef (Abstract) UserException < Ice.Exception
             %
         end
     end
-    methods (Abstract,Access = protected)
+    methods (Abstract, Access = protected)
         obj = iceReadImpl(obj, is)
     end
 end
