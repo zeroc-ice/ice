@@ -4,14 +4,10 @@ case "$CHANNEL" in
   "3.8")
     REPO_ID=ossrh
     SOURCE_URL="https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-    MAVEN_USERNAME="${MAVEN_CENTRAL_USERNAME}"
-    MAVEN_PASSWORD="${MAVEN_CENTRAL_API_KEY}"
     ;;
   "nightly")
-    REPO_ID=zeroc-nightly
-    SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-nightly/"
-    MAVEN_USERNAME="nightly"
-    MAVEN_PASSWORD="${NEXUS_NIGHTLY_PASSWORD}"
+    REPO_ID=maven-snapshots
+    SOURCE_URL="https://central.sonatype.com/repository/maven-snapshots/"
     ;;
   *)
     echo "Unsupported channel: $CHANNEL"
@@ -29,8 +25,8 @@ cat > ~/.m2/settings.xml <<EOF
   <servers>
     <server>
       <id>${REPO_ID}</id>
-      <username>${MAVEN_USERNAME}</username>
-      <password>${MAVEN_PASSWORD}</password>
+      <username>${MAVEN_CENTRAL_USERNAME}</username>
+      <password>${MAVEN_CENTRAL_API_KEY}</password>
     </server>
   </servers>
 </settings>
