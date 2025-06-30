@@ -5,7 +5,7 @@ classdef (Sealed) TwowayOnlyException < Ice.LocalException
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = TwowayOnlyException(operation)
             if nargin == 0
                 superArgs = {};

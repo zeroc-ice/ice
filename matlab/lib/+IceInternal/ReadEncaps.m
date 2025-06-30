@@ -1,4 +1,4 @@
-classdef ReadEncaps < handle
+classdef (Hidden) ReadEncaps < handle
     % Copyright (c) ZeroC, Inc.
 
     properties

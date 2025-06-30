@@ -1,4 +1,4 @@
-classdef EncapsDecoder11 < IceInternal.EncapsDecoder
+classdef (Hidden) EncapsDecoder11 < IceInternal.EncapsDecoder
     % Copyright (c) ZeroC, Inc.
 
     methods
@@ -272,7 +272,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             end
         end
     end
-    methods(Access=private)
+    methods (Access = private)
         function r = readInstance(obj, index, cb)
             import IceInternal.Protocol;
             %assert(index > 0);
@@ -402,10 +402,10 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             r = Ice.SlicedData(current.slices); % Makes a shallow copy
         end
     end
-    properties(Access=public)
+    properties (Access = public)
         current
     end
-    properties(Access=private)
+    properties (Access = private)
         valueIdIndex
     end
 end

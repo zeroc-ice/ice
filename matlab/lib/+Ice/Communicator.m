@@ -428,7 +428,7 @@ classdef Communicator < IceInternal.WrapperObject
             r = obj.SliceLoader;
         end
     end
-    properties(Access=private)
+    properties (Access = private)
         SliceLoader
         encoding
         format

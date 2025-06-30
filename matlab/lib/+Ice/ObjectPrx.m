@@ -1196,14 +1196,14 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
     end
 
-    methods(Hidden=true)
+    methods (Hidden)
         function iceWrite(obj, os, encoding)
            bytes = obj.iceCallWithResult('write', obj.communicator.impl_, encoding);
            os.writeBlob(bytes);
         end
     end
 
-    methods(Access=protected)
+    methods (Access = protected)
         function os = iceStartWriteParams(obj, format)
             os = Ice.OutputStream(obj.encoding, obj.communicator.getFormat());
             os.startEncapsulation(format);
@@ -1344,7 +1344,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
     end
 
-    methods(Static)
+    methods (Static)
         function r = ice_staticId()
             r = '::Ice::Object';
         end
@@ -1396,7 +1396,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
     end
 
-    methods(Static,Access=protected)
+    methods (Static, Access = protected)
         function r = iceCheckedCast(p, id, cls, varargin)
             if ~isempty(p)
                 context = dictionary; % unconfigured dictionary
@@ -1448,7 +1448,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
     end
 
-    methods(Access=private)
+    methods (Access = private)
         function r = factory_(obj, op, keepType, varargin)
             %
             % Call a C++ proxy factory function. The function returns nil if the call results in no change to the
@@ -1487,7 +1487,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
     end
 
-    properties(Access=private)
+    properties (Access = private)
         communicator % The communicator wrapper
         encoding
         isTwoway

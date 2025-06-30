@@ -3,7 +3,7 @@ classdef (Sealed) MarshalException < Ice.ProtocolException
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = MarshalException(what)
             % Convenience constructor without an errID.
             if nargin == 0 % default constructor

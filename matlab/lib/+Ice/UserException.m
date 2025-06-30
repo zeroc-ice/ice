@@ -6,7 +6,7 @@ classdef (Abstract) UserException < Ice.Exception
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Abstract)
+    methods (Abstract)
         %ICE_ID Returns the Slice type ID associated with this instance.
         %
         %   Output Arguments
@@ -14,7 +14,7 @@ classdef (Abstract) UserException < Ice.Exception
         %       character vector
         id = ice_id(obj)
     end
-    methods(Hidden)
+    methods (Hidden)
         function obj = iceRead(obj, is)
             is.startException();
             obj = obj.iceReadImpl(is);
@@ -26,7 +26,7 @@ classdef (Abstract) UserException < Ice.Exception
             %
         end
     end
-    methods(Abstract,Access=protected)
+    methods (Abstract, Access = protected)
         obj = iceReadImpl(obj, is)
     end
 end

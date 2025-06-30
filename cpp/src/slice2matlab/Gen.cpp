@@ -1092,7 +1092,7 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if (!convertMembers.empty())
     {
-        out << nl << "methods(Hidden=true)";
+        out << nl << "methods (Hidden)";
         out.inc();
 
         out << nl << "function r = iceDelayPostUnmarshal(~)";
@@ -1118,7 +1118,7 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
         out << nl << "end";
     }
 
-    out << nl << "methods(Access=protected)";
+    out << nl << "methods (Access = protected)";
     out.inc();
 
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
@@ -1188,7 +1188,7 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    out << nl << "methods(Static)";
+    out << nl << "methods (Static)";
     out.inc();
     out << nl << "function id = ice_staticId()";
     out.inc();
@@ -1197,7 +1197,7 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << nl << "end";
     out.dec();
     out << nl << "end";
-    out << nl << "properties(Constant, Access=private)";
+    out << nl << "properties (Constant, Access = private)";
     out.inc();
     out << nl << "TypeId char = '" << scoped << "'";
     if (p->compactId() != -1)
@@ -1541,7 +1541,7 @@ CodeVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out << sp;
     }
 
-    out << nl << "methods(Static)";
+    out << nl << "methods (Static)";
     out.inc();
     out << nl << "function id = ice_staticId()";
     out.inc();
@@ -1636,7 +1636,7 @@ CodeVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         // a cell array containing the class names of the exceptions.
         //
         out << sp;
-        out << nl << "properties(Constant,Access=private)";
+        out << nl << "properties (Constant, Access = private)";
         out.inc();
         for (const auto& op : ops)
         {
@@ -1792,7 +1792,7 @@ CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
     const DataMemberList classMembers = p->classDataMembers();
     if (!classMembers.empty() || !convertMembers.empty())
     {
-        out << nl << "methods(Hidden=true)";
+        out << nl << "methods (Hidden)";
         out.inc();
         out << nl << "function obj = icePostUnmarshal(obj)";
         out.inc();
@@ -1816,7 +1816,7 @@ CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
         out << nl << "end";
     }
 
-    out << nl << "methods(Access=protected)";
+    out << nl << "methods (Access = protected)";
     out.inc();
 
     out << nl << "function obj = iceReadImpl(obj, is)";
@@ -1855,7 +1855,7 @@ CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
     out.dec();
     out << nl << "end";
 
-    out << nl << "properties(Constant, Access=private)";
+    out << nl << "properties (Constant, Access = private)";
     out.inc();
     out << nl << "TypeId char = '" << p->scoped() << "'";
     out.dec();
@@ -1953,7 +1953,7 @@ CodeVisitor::visitStructEnd(const StructPtr& p)
     out.dec();
     out << nl << "end";
 
-    out << nl << "methods(Static)";
+    out << nl << "methods (Static)";
     out.inc();
     out << nl << "function r = ice_read(is)";
     out.inc();
@@ -2162,11 +2162,12 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     openClass(abs, _dir);
     IceInternal::Output& out = *_out;
 
-    writeGeneratedFrom(out, p->file());
-
-    out << nl << "classdef " << p->mappedName();
+    out << nl << "classdef (Hidden) " << p->mappedName();
     out.inc();
-    out << nl << "methods(Static)";
+    out << nl << "%" << toUpper(p->mappedName()) << " Marshaling and unmarshaling support code for sequence<"
+        << getTypeScopedName(content) << ">.";
+    writeGeneratedFrom(out, p->file());
+    out << nl << "methods (Static)";
     out.inc();
 
     out << nl << "function write(os, seq)";
@@ -2422,11 +2423,12 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     openClass(abs, _dir);
     IceInternal::Output& out = *_out;
 
-    writeGeneratedFrom(out, p->file());
-
-    out << nl << "classdef " << name;
+    out << nl << "classdef (Hidden) " << name;
     out.inc();
-    out << nl << "methods(Access=private)";
+    out << nl << "%" << toUpper(p->mappedName()) << " Marshaling and unmarshaling support code for dictionary<"
+        << getTypeScopedName(key) << ", " << getTypeScopedName(value) << ">.";
+    writeGeneratedFrom(out, p->file());
+    out << nl << "methods (Access = private)";
     out.inc();
     //
     // Declare a private constructor so that programs can't instantiate this type. They need to use new().
@@ -2437,7 +2439,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "end";
     out.dec();
     out << nl << "end";
-    out << nl << "methods(Static)";
+    out << nl << "methods (Static)";
     out.inc();
 
     out << nl << "function write(os, d)";
@@ -2653,7 +2655,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     out.dec();
     out << nl << "end";
 
-    out << nl << "methods(Static)";
+    out << nl << "methods (Static)";
     out.inc();
 
     out << nl << "function ice_write(os, v)";
@@ -2742,7 +2744,7 @@ CodeVisitor::visitConst(const ConstPtr& p)
     writeDocSummary(out, p);
     writeGeneratedFrom(out, p->file());
 
-    out << nl << "properties(Constant)";
+    out << nl << "properties (Constant)";
     out.inc();
     out << nl << "value " << typeToString(p->type()) << " = " << constantValue(p->type(), p->valueType(), p->value());
     out.dec();

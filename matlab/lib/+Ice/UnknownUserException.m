@@ -5,7 +5,7 @@ classdef (Sealed) UnknownUserException < Ice.UnknownException
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = UnknownUserException(typeID, what)
             errID = 'Ice:UnknownUserException';
             if nargin == 0
