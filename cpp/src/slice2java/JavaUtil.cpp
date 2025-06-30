@@ -284,7 +284,7 @@ Slice::JavaGenerator::open(const string& qualifiedEntity, const string& sliceFil
 {
     assert(_out == nullptr);
 
-    JavaOutput* out = new JavaOutput;
+    auto* out = new JavaOutput;
     try
     {
         out->openClass(qualifiedEntity, _dir, sliceFile);
