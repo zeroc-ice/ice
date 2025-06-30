@@ -16,6 +16,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace Slice::JavaScript;
 using namespace Ice;
 using namespace IceInternal;
 
@@ -30,7 +31,7 @@ namespace
         {
             if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
             {
-                result << JsGenerator::typeToJsString(builtinTarget, true);
+                result << typeToJsString(builtinTarget, true);
             }
             else
             {
