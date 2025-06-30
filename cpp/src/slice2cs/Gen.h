@@ -7,7 +7,7 @@
 
 namespace Slice
 {
-    class CsVisitor : public CsGenerator, public ParserVisitor
+    class CsVisitor : public ParserVisitor
     {
     public:
         CsVisitor(IceInternal::Output&);
