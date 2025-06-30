@@ -21,13 +21,13 @@ using namespace Slice;
 using namespace IceInternal;
 
 string
-Slice::JavaScript::relativePath(const string& p1, const string& p2)
+Slice::JavaScript::relativePath(const string& path1, const string& path2)
 {
     vector<string> tokens1;
     vector<string> tokens2;
 
-    splitString(p1, "/\\", tokens1);
-    splitString(p2, "/\\", tokens2);
+    splitString(path1, "/\\", tokens1);
+    splitString(path2, "/\\", tokens2);
 
     string f1 = tokens1.back();
     string f2 = tokens2.back();
@@ -49,7 +49,7 @@ Slice::JavaScript::relativePath(const string& p1, const string& p2)
     //
     if (i1 == tokens1.begin() && i2 == tokens2.begin())
     {
-        return p1;
+        return path1;
     }
 
     string newPath;

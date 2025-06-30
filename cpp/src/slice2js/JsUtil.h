@@ -8,18 +8,16 @@
 
 namespace Slice::JavaScript
 {
-    std::string relativePath(const std::string&, const std::string&);
-    std::string getJavaScriptModule(const DefinitionContextPtr&);
+    [[nodiscard]] std::string relativePath(const std::string& path1, const std::string& path2);
+    [[nodiscard]] std::string getJavaScriptModule(const DefinitionContextPtr& dc);
 
-    std::string typeToJsString(const TypePtr&, bool definition = false);
+    [[nodiscard]] std::string typeToJsString(const TypePtr& type, bool definition = false);
 
-    std::string getHelper(const TypePtr&);
+    [[nodiscard]] std::string getHelper(const TypePtr& type);
 
     // Generate code to marshal or unmarshal a type
-    void writeMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, bool);
-
-    void
-    writeOptionalMarshalUnmarshalCode(IceInternal::Output&, const TypePtr&, const std::string&, std::int32_t, bool);
+    [[nodiscard]] void writeMarshalUnmarshalCode(IceInternal::Output& out, const TypePtr& type , const std::string& param, bool marshal);
+    [[nodiscard]] void writeOptionalMarshalUnmarshalCode(IceInternal::Output& out, const TypePtr& type, const std::string& param, std::int32_t tag, bool marshal);
 }
 
 #endif
