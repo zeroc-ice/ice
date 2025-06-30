@@ -156,10 +156,6 @@ Slice::mapsToJavaBuiltinType(const TypePtr& p)
 
 Slice::JavaOutput::JavaOutput() = default;
 
-Slice::JavaOutput::JavaOutput(ostream& os) : Output(os) {}
-
-Slice::JavaOutput::JavaOutput(const char* s) : Output(s) {}
-
 void
 Slice::JavaOutput::openClass(const string& cls, const string& prefix, const string& sliceFile)
 {
@@ -288,7 +284,7 @@ Slice::JavaGenerator::open(const string& qualifiedEntity, const string& sliceFil
 {
     assert(_out == nullptr);
 
-    JavaOutput* out = createOutput();
+    auto* out = new JavaOutput;
     try
     {
         out->openClass(qualifiedEntity, _dir, sliceFile);
@@ -1633,12 +1629,6 @@ Slice::JavaGenerator::getSequenceTypes(
     // The default mapping is a native array.
     instanceType = formalType = typeToString(seq->type(), TypeModeIn, package, metadata, true, false) + "[]";
     return false;
-}
-
-JavaOutput*
-Slice::JavaGenerator::createOutput()
-{
-    return new JavaOutput;
 }
 
 void
