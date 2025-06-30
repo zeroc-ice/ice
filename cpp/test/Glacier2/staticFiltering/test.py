@@ -1,6 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import os
+import platform
 from Glacier2Util import Glacier2Router, Glacier2TestSuite
 
 from Util import Client, ClientServerTestCase, Server
@@ -305,6 +306,12 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                 [],
             ),
         ]
+
+        if "GITHUB_ACTIONS" in os.environ and platform.system() == "Windows":
+            # On GitHub Actions Windows runners, the FQDN does not always resolve to an IP address
+            # assigned to a local interface. This breaks tests that use the FQDN in a proxy endpoint.
+            # See: https://github.com/zeroc-ice/ice/issues/4169
+            limitedTests = True
 
         if not limitedTests:
             testcases.extend(
