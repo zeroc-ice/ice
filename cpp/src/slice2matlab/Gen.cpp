@@ -2165,7 +2165,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out << nl << "classdef (Hidden) " << p->mappedName();
     out.inc();
     out << nl << "%" << toUpper(p->mappedName()) << " Marshaling and unmarshaling support code for sequence<"
-        << getTypeName(content) << ">.";
+        << getTypeScopedName(content) << ">.";
     writeGeneratedFrom(out, p->file());
     out << nl << "methods (Static)";
     out.inc();
@@ -2426,7 +2426,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "classdef (Hidden) " << name;
     out.inc();
     out << nl << "%" << toUpper(p->mappedName()) << " Marshaling and unmarshaling support code for dictionary<"
-        << getTypeName(key) << ", " << getTypeName(value) << ">.";
+        << getTypeScopedName(key) << ", " << getTypeScopedName(value) << ">.";
     writeGeneratedFrom(out, p->file());
     out << nl << "methods (Access = private)";
     out.inc();

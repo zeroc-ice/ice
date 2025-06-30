@@ -81,6 +81,6 @@ namespace Slice
     /// Gets the name of a Slice type, e.g. "int", "string", "::M::MyClass", etc.
     /// @param type The type.
     /// @return The fully qualified name of the type.
-    std::string getTypeName(const TypePtr& type);
+    std::string getTypeScopedName(const TypePtr& type);
 }
 #endif
