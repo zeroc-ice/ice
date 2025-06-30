@@ -1,10 +1,57 @@
 # Copyright (c) ZeroC, Inc.
 
 import os
+import socket
+import platform
+import subprocess
+import psutil
 from Glacier2Util import Glacier2Router, Glacier2TestSuite
 
 from Util import Client, ClientServerTestCase, Server
 
+
+
+def print_network_debug_info():
+    print("=== Host Information ===")
+    hostname = socket.gethostname()
+    fqdn = socket.getfqdn()
+    print(f"Hostname: {hostname}")
+    print(f"FQDN: {fqdn}")
+
+    try:
+        host_ip = socket.gethostbyname(hostname)
+        fqdn_ip = socket.gethostbyname(fqdn)
+        print(f"Resolved IP (hostname): {host_ip}")
+        print(f"Resolved IP (FQDN): {fqdn_ip}")
+    except socket.gaierror as e:
+        print(f"DNS resolution error: {e}")
+
+    print("\n=== Network Interfaces ===")
+    for iface, addrs in psutil.net_if_addrs().items():
+        print(f"\nInterface: {iface}")
+        for addr in addrs:
+            if addr.family == socket.AF_INET:
+                print(f"  IPv4 Address: {addr.address}")
+            elif addr.family == socket.AF_INET6:
+                print(f"  IPv6 Address: {addr.address}")
+            elif addr.family == psutil.AF_LINK:
+                print(f"  MAC Address: {addr.address}")
+
+    print("\n=== Default Route ===")
+    if platform.system() == "Windows":
+        subprocess.run(["route", "print"], shell=True)
+    else:
+        subprocess.run(["ip", "route"], check=False)
+
+    print("\n=== Test Connections ===")
+    for target in [hostname, fqdn, "127.0.0.1", "::1"]:
+        try:
+            print(f"Testing connection to {target}: ", end="")
+            sock = socket.create_connection((target, 80), timeout=2)
+            sock.close()
+            print("OK")
+        except Exception as e:
+            print(f"Failed ({e})")
 
 class Glacier2StaticFilteringTestCase(ClientServerTestCase):
     def __init__(self, testcase, hostname):
@@ -132,6 +179,8 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
         Glacier2TestSuite.setup(self, current)
 
         import socket
+
+        print_network_debug_info()
 
         hostname = socket.gethostname().lower()
         fqdn = socket.getfqdn().lower()
