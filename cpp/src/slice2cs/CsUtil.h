@@ -47,14 +47,14 @@ namespace Slice::Csharp
     //
     // Generate code to marshal or unmarshal a type
     //
-    [[nodiscard]] void writeMarshalUnmarshalCode(
+    void writeMarshalUnmarshalCode(
         ::IceInternal::Output& out,
         const TypePtr& type,
         const std::string& package,
         const std::string& param,
         bool marshal,
         const std::string& customStream = "");
-    [[nodiscard]] void writeOptionalMarshalUnmarshalCode(
+    void writeOptionalMarshalUnmarshalCode(
         ::IceInternal::Output& out,
         const TypePtr& type,
         const std::string& scope,
@@ -62,7 +62,7 @@ namespace Slice::Csharp
         std::int32_t tag,
         bool marshal,
         const std::string& customStream = "");
-    [[nodiscard]] void writeSequenceMarshalUnmarshalCode(
+    void writeSequenceMarshalUnmarshalCode(
         ::IceInternal::Output& out,
         const SequencePtr& seq,
         const std::string& scope,
@@ -70,7 +70,7 @@ namespace Slice::Csharp
         bool marshal,
         bool useHelper,
         const std::string& customStream = "");
-    [[nodiscard]] void writeOptionalSequenceMarshalUnmarshalCode(
+    void writeOptionalSequenceMarshalUnmarshalCode(
         ::IceInternal::Output& out,
         const SequencePtr& seq,
         const std::string& scope,
