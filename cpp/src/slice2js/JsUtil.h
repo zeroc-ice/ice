@@ -18,9 +18,9 @@ namespace Slice::JavaScript
     //
     // Generate code to marshal or unmarshal a type
     //
-    [[nodiscard]] void
+    void
     writeMarshalUnmarshalCode(IceInternal::Output& out, const TypePtr& type, const std::string& param, bool marshal);
-    [[nodiscard]] void writeOptionalMarshalUnmarshalCode(
+    void writeOptionalMarshalUnmarshalCode(
         IceInternal::Output& out,
         const TypePtr& type,
         const std::string& param,
