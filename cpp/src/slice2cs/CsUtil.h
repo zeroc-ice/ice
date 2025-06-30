@@ -24,7 +24,8 @@ namespace Slice::Csharp
     /// Returns the namespace prefix of a Contained entity.
     [[nodiscard]] std::string getNamespacePrefix(const ContainedPtr& p);
 
-    [[nodiscard]] std::string resultStructName(const std::string& className, const std::string& opName, bool marshaledResult = false);
+    [[nodiscard]] std::string
+    resultStructName(const std::string& className, const std::string& opName, bool marshaledResult = false);
     [[nodiscard]] std::string resultType(const OperationPtr& op, const std::string& package, bool dispatch = false);
     [[nodiscard]] std::string taskResultType(const OperationPtr& op, const std::string& scope, bool dispatch = false);
     [[nodiscard]] std::string getOptionalFormat(const TypePtr& type);
