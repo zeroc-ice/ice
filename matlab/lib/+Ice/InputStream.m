@@ -828,7 +828,7 @@ classdef InputStream < handle
             end
         end
     end
-    methods (Static,  Access = private)
+    methods (Static, Access = private)
 
         function throwUOE(expectedType, v)
             if isa(v, 'Ice.UnknownSlicedValue')
