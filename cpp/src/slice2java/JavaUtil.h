@@ -22,7 +22,8 @@ namespace Slice
 
         /// Returns a vector of this operation's parameters with each of them formatted as 'paramType paramName'.
         /// If 'internal' is true, the names will be prefixed with "iceP_".
-        std::vector<std::string> getParamsProxy(const OperationPtr& op, const std::string& package, bool optionalMapping, bool internal = false);
+        std::vector<std::string>
+        getParamsProxy(const OperationPtr& op, const std::string& package, bool optionalMapping, bool internal = false);
 
         /// Returns a vector of this operation's parameter's names in order.
         /// If 'internal' is true, the names will be prefixed with "iceP_".
@@ -60,8 +61,7 @@ namespace Slice
         ///
         /// This name is qualified relative to the provided 'package',
         /// so if 'contained' lives within this package, the returned name will have no qualification.
-        [[nodiscard]] std::string
-        getUnqualified(const ContainedPtr& cont, const std::string& package = std::string());
+        [[nodiscard]] std::string getUnqualified(const ContainedPtr& cont, const std::string& package = std::string());
 
         //
         // Return the method call necessary to obtain the static type ID for an object type.
@@ -111,8 +111,7 @@ namespace Slice
         // metadata of the type's original definition, as well as any optional
         // metadata that typically represents a data member or parameter.
         //
-        [[nodiscard]] bool
-        hasTypeMetadata(const SequencePtr& seq, const MetadataList& localMetadata = MetadataList());
+        [[nodiscard]] bool hasTypeMetadata(const SequencePtr& seq, const MetadataList& localMetadata = MetadataList());
 
         //
         // Obtain the concrete and abstract types for a dictionary or sequence type.

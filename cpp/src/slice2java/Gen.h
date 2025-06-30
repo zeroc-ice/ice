@@ -106,19 +106,26 @@ namespace Slice
 
         static void writeMarshalProxyParams(IceInternal::Output&, const std::string&, const OperationPtr&, bool);
         static void writeUnmarshalProxyResults(IceInternal::Output&, const std::string&, const OperationPtr&);
-        static void writeMarshalServantResults(IceInternal::Output&, const std::string&, const OperationPtr&, const std::string&);
+        static void
+        writeMarshalServantResults(IceInternal::Output&, const std::string&, const OperationPtr&, const std::string&);
 
         //
         // Generate a throws clause containing only checked exceptions.
         // op is provided only when we want to check for the java:UserException metadata
         //
-        static void writeThrowsClause(IceInternal::Output&, const std::string&, const ExceptionList&, const OperationPtr& op = nullptr);
+        static void writeThrowsClause(
+            IceInternal::Output&,
+            const std::string&,
+            const ExceptionList&,
+            const OperationPtr& op = nullptr);
 
         //
         // Marshal/unmarshal a data member.
         //
-        static void writeMarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
-        static void writeUnmarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
+        static void
+        writeMarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
+        static void
+        writeUnmarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
 
         //
         // Write a constant or default value initializer.

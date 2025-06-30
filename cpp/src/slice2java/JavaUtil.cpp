@@ -238,7 +238,6 @@ Slice::Java::mapsToJavaBuiltinType(const TypePtr& p)
     return false;
 }
 
-
 string
 Slice::Java::getPackagePrefix(const ContainedPtr& contained)
 {
