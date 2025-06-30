@@ -34,7 +34,7 @@ namespace Slice::Csharp
     [[nodiscard]] bool isValueType(const TypePtr& type);
 
     /// Is this Slice struct mapped to a C# class?
-    [[nodiscard]] bool isMappedToClass(const StructPtr& p) { return !isValueType(p); }
+    [[nodiscard]] inline bool isMappedToClass(const StructPtr& p) { return !isValueType(p); }
 
     /// Is the mapped C# type for this field a non-nullable C# reference type?
     [[nodiscard]] bool isMappedToNonNullableReference(const DataMemberPtr& p);
