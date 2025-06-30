@@ -70,6 +70,34 @@ jobs:
         shell: bash
         if: (runner.os == 'macOS') && (matrix.config == 'ios')
 
+      - name: Show Network Debug Info
+        run: |
+          Write-Host "=== Network Interfaces ==="
+          Get-NetIPConfiguration | ForEach-Object {
+              $interfaceAlias = $_.InterfaceAlias
+              Write-Host "`nInterface: $interfaceAlias"
+
+              if ($_.IPv4Address) {
+                  foreach ($ip in $_.IPv4Address) {
+                      Write-Host "  IPv4 Address: $($ip.IPAddress)"
+                  }
+              }
+
+              if ($_.IPv6Address) {
+                  foreach ($ip in $_.IPv6Address) {
+                      Write-Host "  IPv6 Address: $($ip.IPAddress)"
+                  }
+              }
+
+              if ($_.MacAddress) {
+                  Write-Host "  MAC Address: $($_.MacAddress)"
+              }
+          }
+          
+          Write-Host "`n=== Default Route Table ==="
+          route print
+        if: runner.os == 'Windows'
+
       - name: Setup Cache
         uses: ./.github/actions/setup-cache
         with:
