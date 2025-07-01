@@ -2354,19 +2354,12 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     if (!bases.empty())
     {
         _out << " implements ";
-        bool first = true;
+        _out.spar("");
         for (const auto& base : bases)
         {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                _out << ", ";
-            }
             _out << importPrefix(base->mappedScoped(".")) << base->mappedScoped(".") << "Prx";
         }
+        _out.epar("");
     }
 
     _out << sb;
@@ -2479,20 +2472,12 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     if (!bases.empty())
     {
         _out << " implements ";
-
-        bool first = true;
+        _out.spar("");
         for (const auto& base : bases)
         {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                _out << ", ";
-            }
             _out << importPrefix(base->mappedScoped(".")) << base->mappedScoped(".");
         }
+        _out.epar("");
     }
     _out << sb;
     for (const auto& op : p->allOperations())

@@ -57,7 +57,7 @@ let testDirectories: [String: TestConfig] = [
             .copy("config/configPath"),
         ]
     ),
-    "Ice/proxy": TestConfig(),
+    "Ice/proxy": TestConfig(collocated: true),
     "Ice/retry": TestConfig(collocated: true),
     "Ice/scope": TestConfig(),
     "Ice/servantLocator": TestConfig(

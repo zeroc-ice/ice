@@ -259,8 +259,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\proxy
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\proxy\msbuild\server\server.csproj", "{B0FE5921-3637-4B77-9171-10F9AA9C6E65}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "serveramd", "..\test\Ice\proxy\msbuild\serveramd\serveramd.csproj", "{08E112F7-4070-4E57-89CA-DB0CE2A210D9}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "retry", "retry", "{DF1BD9DC-D72B-4766-8160-6530F0366F9B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\retry\msbuild\client\client.csproj", "{AF96E3A0-64A9-49DA-BB26-3A3B32B73DB1}"
@@ -400,6 +398,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "structure", "structure", "{F89683E8-48F2-4374-A606-2ABC73B10492}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Slice\structure\msbuild\client\client.csproj", "{E38F04A6-A338-4B5C-A04D-D80DCADD0BA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "collocated", "..\test\Ice\proxy\msbuild\collocated\collocated.csproj", "{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1983,18 +1983,18 @@ Global
 		{E38F04A6-A338-4B5C-A04D-D80DCADD0BA6}.Release|x64.Build.0 = Release|Any CPU
 		{E38F04A6-A338-4B5C-A04D-D80DCADD0BA6}.Release|x86.ActiveCfg = Release|Any CPU
 		{E38F04A6-A338-4B5C-A04D-D80DCADD0BA6}.Release|x86.Build.0 = Release|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Debug|x64.Build.0 = Debug|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Debug|x86.Build.0 = Debug|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Release|x64.ActiveCfg = Release|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Release|x64.Build.0 = Release|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Release|x86.ActiveCfg = Release|Any CPU
-		{EA4F82F9-A851-4275-B4E6-7D16390C1857}.Release|x86.Build.0 = Release|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Debug|x64.Build.0 = Debug|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Debug|x86.Build.0 = Debug|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Release|x64.ActiveCfg = Release|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Release|x64.Build.0 = Release|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Release|x86.ActiveCfg = Release|Any CPU
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -2196,6 +2196,7 @@ Global
 		{80F2E553-D076-400F-9B63-B041F6A06CB0} = {638C9ADB-C42B-4313-B888-A80E4166F785}
 		{F89683E8-48F2-4374-A606-2ABC73B10492} = {C706F35C-0412-4534-86F6-D8F7D13C7803}
 		{E38F04A6-A338-4B5C-A04D-D80DCADD0BA6} = {F89683E8-48F2-4374-A606-2ABC73B10492}
+		{BFAD7249-FFBB-DECB-7B63-84C9FF2F9F89} = {3F341E4C-1BE1-4FCF-A459-C8FDAE8257C3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8BB4EF8D-31A9-4DBC-AD9F-164CF6C083B6}
