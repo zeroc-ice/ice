@@ -2420,29 +2420,21 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     writeDocComment(p, "server-side interface", notes.str());
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
-    _out << nl << "public partial interface " << p->mappedName();
+    _out << nl << "public partial interface " << p->mappedName() << " : ";
 
-    list<string> baseNames;
-    for (const auto& q : p->bases())
+    auto baseInterfaces = p->bases();
+    if (baseInterfaces.empty())
     {
-        baseNames.push_back(getUnqualified(q, ns));
+        _out << "Ice.Object";
     }
-
-    if (baseNames.empty())
+    else
     {
-        baseNames.emplace_back("Ice.Object");
-    }
-
-    _out << " : ";
-    bool emitSep = false;
-    for (const auto& baseName : baseNames)
-    {
-        if (emitSep)
+        _out.spar("");
+        for (const auto& q : baseInterfaces)
         {
-            _out << ", ";
+            _out << getUnqualified(q, ns);
         }
-        emitSep = true;
-        _out << baseName;
+        _out.epar("");
     }
 
     _out << sb;
@@ -2466,8 +2458,8 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     remarks << "Your servant class derives from this abstract class to implement Slice interface <c>" << p->name()
             << "</c>.";
 
-    writeHelperDocComment(p, summary.str(), "dispatch helper class", remarks.str());
-    _out << nl << "public abstract partial class " << name << "Disp_ : Ice.ObjectImpl, " << name;
+    writeHelperDocComment(p, summary.str(), "skeleton class", remarks.str());
+    _out << nl << "public abstract partial class " << name << "Disp_ : " << name;
 
     _out << sb;
 
@@ -2476,7 +2468,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     writeDocLine(_out, "summary", "Gets the type ID of the associated Slice interface.");
     writeDocLine(_out, "returns", staticId.str());
-    _out << nl << R"(public static new string ice_staticId() => ")" << p->scoped() << R"(";)";
+    _out << nl << R"(public static string ice_staticId() => ")" << p->scoped() << R"(";)";
 
     for (const auto& op : p->allOperations())
     {
@@ -2490,7 +2482,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     }
 
     _out << sp;
-    _out << nl << "public override string ice_id(Ice.Current current) => ice_staticId();";
+    _out << nl << "public string ice_id(Ice.Current current) => ice_staticId();";
 
     writeDispatch(p);
     _out << eb;
@@ -2674,7 +2666,7 @@ Slice::Gen::ServantVisitor::writeDispatch(const InterfaceDefPtr& p)
     {
         _out << sp;
         _out << nl
-             << "public override global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> "
+             << "public global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> "
                 "dispatchAsync(Ice.IncomingRequest request) =>";
         _out.inc();
         _out << nl << "request.current.operation switch";

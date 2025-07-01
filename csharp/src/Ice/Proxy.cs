@@ -1869,7 +1869,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// Gets the Slice type id of the interface or class associated with this proxy class.
     /// </summary>
     /// <returns>The type id, "::Ice::Object".</returns>
-    public static string ice_staticId() => ObjectImpl.ice_staticId();
+    public static string ice_staticId() => Object.ice_staticId();
 
     protected override ObjectPrxHelperBase iceNewInstance(Reference reference) => new ObjectPrxHelper(reference);
 
