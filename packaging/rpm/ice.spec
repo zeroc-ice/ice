@@ -383,6 +383,13 @@ make -C java DESTDIR=%{buildroot} install_javadir=%{_javadir} prefix=%{_prefix} 
 rm -f %{buildroot}%{_datadir}/ice/LICENSE
 rm -f %{buildroot}%{_datadir}/ice/ICE_LICENSE
 
+rm -f %{buildroot}%{_bindir}/slice2cs
+rm -f %{buildroot}%{_bindir}/slice2java
+rm -f %{buildroot}%{_bindir}/slice2js
+rm -f %{buildroot}%{_bindir}/slice2matlab
+rm -f %{buildroot}%{_bindir}/slice2rb
+rm -f %{buildroot}%{_bindir}/slice2swift
+
 #
 # php ice.ini
 #
