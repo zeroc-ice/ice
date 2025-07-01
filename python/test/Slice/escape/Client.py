@@ -11,7 +11,7 @@ import escaped_and
 
 
 class delI(escaped_and._del):
-    def _elifAsync(self, _else, current):
+    def _elif(self, _else, current):
         pass
 
 
@@ -21,7 +21,7 @@ class execI(escaped_and._exec):
 
 
 class ifI(escaped_and._if):
-    def _elifAsync(self, _else, current):
+    def _elif(self, _else, current):
         pass
 
     def _finally(self, current):

@@ -540,7 +540,7 @@ Slice::Python::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 void
 Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
 {
-    // Emit a placeholder for each operation.
+    // Emits an abstract method for each operation.
     for (const auto& operation : p->operations())
     {
         const string sliceName = operation->name();
@@ -571,7 +571,9 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
             _out.dec();
         }
 
-        _out << sp << nl << "def " << mappedName << "(self";
+        _out << sp;
+        _out << nl << "@abstractmethod";
+        _out << nl << "def " << mappedName << "(self";
 
         for (const auto& param : operation->parameters())
         {
@@ -588,7 +590,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
 
         writeDocstring(operation, DocDispatch);
 
-        _out << nl << "raise NotImplementedError(\"servant method '" << mappedName << "' not implemented\")";
+        _out << nl << "pass";
         _out.dec();
     }
 }
@@ -925,35 +927,20 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Define the servant class
     _out << sp << nl << classAbs << " = None";
-    _out << nl << "class " << className << '(';
+    _out << nl << "class " << className;
+    _out << spar;
+    if (bases.empty())
     {
-        vector<string> baseClasses;
+        _out << "Ice.Object";
+    }
+    else
+    {
         for (const auto& base : bases)
         {
-            InterfaceDefPtr d = base;
-            baseClasses.push_back(getTypeReference(base));
-        }
-
-        if (baseClasses.empty())
-        {
-            _out << "Ice.Object";
-        }
-        else
-        {
-            auto q = baseClasses.begin();
-            while (q != baseClasses.end())
-            {
-                _out << *q;
-
-                if (++q != baseClasses.end())
-                {
-                    _out << ", ";
-                }
-            }
+            _out << getTypeReference(base);
         }
     }
-    _out << "):";
-
+    _out << "ABC" << epar << ':';
     _out.inc();
 
     //
@@ -2422,6 +2409,12 @@ void
 Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& includePaths, Output& out)
 {
     validateMetadata(unit);
+
+    if (unit->contains<InterfaceDef>())
+    {
+        // For skeleton classes
+        out << nl << "from abc import ABC, abstractmethod";
+    }
 
     out << nl << "import Ice";
     out << nl << "import IcePy";
