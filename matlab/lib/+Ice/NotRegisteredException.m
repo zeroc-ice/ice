@@ -17,7 +17,7 @@ classdef NotRegisteredException < Ice.LocalException
         %   character vector
         id (1, :) char = ''
     end
-    methods(Hidden)
+    methods (Hidden)
         % Convenience constructor without an errID or what message.
         function obj = NotRegisteredException(kindOfObject, id)
             if nargin == 0 % default constructor

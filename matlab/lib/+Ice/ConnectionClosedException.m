@@ -13,7 +13,7 @@ classdef ConnectionClosedException < Ice.LocalException
         %   logical scalar
         closedByApplication (1, 1) logical = false
     end
-    methods(Hidden)
+    methods (Hidden)
         function obj = ConnectionClosedException(closedByApplication, errID, what)
             if nargin == 0 % default constructor
                 superArgs = {};

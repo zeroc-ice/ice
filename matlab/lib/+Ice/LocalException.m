@@ -3,7 +3,7 @@ classdef LocalException < Ice.Exception
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = LocalException(errID, what)
             if nargin == 0 % default constructor
                 superArgs = {};

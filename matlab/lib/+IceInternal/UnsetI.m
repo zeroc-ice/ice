@@ -1,10 +1,10 @@
-classdef UnsetI < handle
+classdef (Hidden) UnsetI < handle
     % Copyright (c) ZeroC, Inc.
 
     %
     % Singleton used to indicate an unset optional value.
     %
-    methods(Access=private)
+    methods (Access = private)
         function obj = UnsetI()
         end
     end
@@ -16,7 +16,7 @@ classdef UnsetI < handle
             r = ~isequal(obj, other);
         end
     end
-    properties(Constant)
+    properties (Constant)
         Instance = IceInternal.UnsetI()
     end
 end

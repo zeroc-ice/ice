@@ -8,7 +8,7 @@ classdef IPEndpointInfo < Ice.EndpointInfo
 
     % Copyright (c) ZeroC, Inc.
 
-    properties(SetAccess=immutable)
+    properties (SetAccess = immutable)
         %HOST The host or address configured with the endpoint.
         %   character vector
         host (1, :) char
@@ -21,7 +21,7 @@ classdef IPEndpointInfo < Ice.EndpointInfo
         %   character vector
         sourceAddress (1, :) char
     end
-    methods(Hidden, Access=protected)
+    methods (Hidden, Access = protected)
         function obj = IPEndpointInfo(compress, host, port, sourceAddress)
             assert(nargin == 4, 'Invalid number of arguments');
             obj@Ice.EndpointInfo(Ice.EndpointInfo.empty, compress);

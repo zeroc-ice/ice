@@ -77,5 +77,10 @@ namespace Slice
     /// @param param The parameter name to check.
     /// @return The parameter name, possibly modified to avoid collisions.
     std::string getEscapedParamName(const ParameterList& params, std::string_view param);
+
+    /// Gets the name of a Slice type, e.g. "int", "string", "::M::MyClass", etc.
+    /// @param type The type.
+    /// @return The fully qualified name of the type.
+    std::string getTypeScopedName(const TypePtr& type);
 }
 #endif

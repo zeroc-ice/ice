@@ -1,4 +1,4 @@
-classdef EncapsEncoder11 < IceInternal.EncapsEncoder
+classdef (Hidden) EncapsEncoder11 < IceInternal.EncapsEncoder
     % Copyright (c) ZeroC, Inc.
 
     methods
@@ -168,7 +168,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             end
         end
     end
-    methods(Access=private)
+    methods (Access = private)
         function writeSlicedData(obj, slicedData)
             import IceInternal.Protocol;
             %assert(~isempty(slicedData));
@@ -233,7 +233,7 @@ classdef EncapsEncoder11 < IceInternal.EncapsEncoder
             v.iceWrite(obj.os);
         end
     end
-    properties(Access=private)
+    properties (Access = private)
         current
         valueIdIndex
         marshaledMap dictionary = configureDictionary('int32', 'int32');

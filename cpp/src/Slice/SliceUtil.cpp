@@ -577,3 +577,19 @@ Slice::getEscapedParamName(const ParameterList& params, std::string_view param)
     }
     return string{param};
 }
+
+string
+Slice::getTypeScopedName(const TypePtr& type)
+{
+    if (auto builtin = std::dynamic_pointer_cast<Builtin>(type))
+    {
+        return builtin->kindAsString();
+    }
+    else
+    {
+        // a type is either built-in or contained
+        auto contained = std::dynamic_pointer_cast<Contained>(type);
+        assert(contained);
+        return contained->scoped();
+    }
+}

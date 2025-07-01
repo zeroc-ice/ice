@@ -57,7 +57,7 @@ classdef Endpoint < IceInternal.WrapperObject
             r = obj.createEndpointInfo(info);
         end
     end
-    methods(Access=private)
+    methods (Access = private)
         function r = createEndpointInfo(obj, info)
             underlying = Ice.EndpointInfo.empty;
             if ~isempty(info.underlying)

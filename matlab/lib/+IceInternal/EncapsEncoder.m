@@ -1,4 +1,4 @@
-classdef (Abstract) EncapsEncoder < handle
+classdef (Hidden, Abstract) EncapsEncoder < handle
     % Copyright (c) ZeroC, Inc.
 
     methods
@@ -18,14 +18,14 @@ classdef (Abstract) EncapsEncoder < handle
             %
         end
     end
-    methods(Abstract)
+    methods (Abstract)
         writeValue(obj, v)
         startInstance(obj, sliceType, slicedData)
         endInstance(obj)
         startSlice(obj, typeId, compactId, last)
         endSlice(obj)
     end
-    methods(Access=protected)
+    methods (Access = protected)
         function r = registerTypeId(obj, typeId)
             if isKey(obj.typeIdMap, typeId)
                 r = obj.typeIdMap(typeId);
@@ -36,11 +36,11 @@ classdef (Abstract) EncapsEncoder < handle
             end
         end
     end
-    properties(Access=protected)
+    properties (Access = protected)
         os
         encaps
     end
-    properties(Access=private)
+    properties (Access = private)
         typeIdMap dictionary = configureDictionary('char', 'int32')
         typeIdIndex
     end

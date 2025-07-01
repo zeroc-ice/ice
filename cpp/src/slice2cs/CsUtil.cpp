@@ -22,33 +22,28 @@ using namespace Slice;
 using namespace IceInternal;
 
 string
-Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
+Slice::Csharp::getNamespacePrefix(const ContainedPtr& p)
 {
-    // Traverse to the top-level module.
-    ContainedPtr p = cont;
-    while (!p->isTopLevel())
+    if (auto topLevel = p->getTopLevelModule())
     {
-        p = dynamic_pointer_cast<Contained>(p->container());
-        assert(p);
+        return topLevel->getMetadataArgs("cs:namespace").value_or("");
     }
-    assert(dynamic_pointer_cast<Module>(p));
-
-    return p->getMetadataArgs("cs:namespace").value_or("");
+    return "";
 }
 
 string
-Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
+Slice::Csharp::getNamespace(const ContainedPtr& p)
 {
-    assert(!dynamic_pointer_cast<Module>(cont));
+    assert(!dynamic_pointer_cast<Module>(p));
 
-    string scope = cont->mappedScope(".");
+    string scope = p->mappedScope(".");
     scope.pop_back(); // Remove the trailing '.' on the scope.
-    string prefix = getNamespacePrefix(cont);
+    string prefix = getNamespacePrefix(p);
     return (prefix.empty() ? scope : prefix + "." + scope);
 }
 
 string
-Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
+Slice::Csharp::getUnqualified(const ContainedPtr& p, const string& package)
 {
     // If contained is an operation, a field, or an enumerator, we use the enclosing type.
     if (dynamic_pointer_cast<Operation>(p) || dynamic_pointer_cast<DataMember>(p) ||
@@ -71,19 +66,19 @@ Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
 }
 
 string
-Slice::CsGenerator::removeEscapePrefix(const string& identifier)
+Slice::Csharp::removeEscapePrefix(const string& identifier)
 {
     return identifier.find('@') == 0 ? identifier.substr(1) : identifier;
 }
 
 string
-Slice::CsGenerator::getOptionalFormat(const TypePtr& type)
+Slice::Csharp::getOptionalFormat(const TypePtr& type)
 {
     return "Ice.OptionalFormat." + type->getOptionalFormat();
 }
 
 string
-Slice::CsGenerator::getStaticId(const TypePtr& type)
+Slice::Csharp::getStaticId(const TypePtr& type)
 {
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
@@ -101,7 +96,7 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
 }
 
 string
-Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, bool optional)
+Slice::Csharp::typeToString(const TypePtr& type, const string& package, bool optional)
 {
     if (!type)
     {
@@ -191,7 +186,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
 }
 
 string
-Slice::CsGenerator::resultStructName(const string& className, const string& opName, bool marshaledResult)
+Slice::Csharp::resultStructName(const string& className, const string& opName, bool marshaledResult)
 {
     ostringstream s;
     string fixedOpName = removeEscapePrefix(opName);
@@ -201,7 +196,7 @@ Slice::CsGenerator::resultStructName(const string& className, const string& opNa
 }
 
 string
-Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bool dispatch)
+Slice::Csharp::resultType(const OperationPtr& op, const string& package, bool dispatch)
 {
     InterfaceDefPtr interface = op->interface();
     if (dispatch && op->hasMarshaledResult())
@@ -231,7 +226,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
 }
 
 string
-Slice::CsGenerator::taskResultType(const OperationPtr& op, const string& scope, bool dispatch)
+Slice::Csharp::taskResultType(const OperationPtr& op, const string& scope, bool dispatch)
 {
     string t = resultType(op, scope, dispatch);
     if (t.empty())
@@ -245,7 +240,7 @@ Slice::CsGenerator::taskResultType(const OperationPtr& op, const string& scope, 
 }
 
 bool
-Slice::CsGenerator::isValueType(const TypePtr& type)
+Slice::Csharp::isValueType(const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -292,7 +287,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
 }
 
 bool
-Slice::CsGenerator::isMappedToNonNullableReference(const DataMemberPtr& p)
+Slice::Csharp::isMappedToNonNullableReference(const DataMemberPtr& p)
 {
     if (p->optional())
     {
@@ -317,7 +312,7 @@ Slice::CsGenerator::isMappedToNonNullableReference(const DataMemberPtr& p)
 }
 
 bool
-Slice::CsGenerator::isMappedToRequiredField(const DataMemberPtr& p)
+Slice::Csharp::isMappedToRequiredField(const DataMemberPtr& p)
 {
     if (p->optional())
     {
@@ -338,7 +333,7 @@ Slice::CsGenerator::isMappedToRequiredField(const DataMemberPtr& p)
 }
 
 void
-Slice::CsGenerator::writeMarshalUnmarshalCode(
+Slice::Csharp::writeMarshalUnmarshalCode(
     Output& out,
     const TypePtr& type,
     const string& package,
@@ -562,7 +557,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
 }
 
 void
-Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
+Slice::Csharp::writeOptionalMarshalUnmarshalCode(
     Output& out,
     const TypePtr& type,
     const string& scope,
@@ -868,7 +863,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
 }
 
 void
-Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
+Slice::Csharp::writeSequenceMarshalUnmarshalCode(
     Output& out,
     const SequencePtr& seq,
     const string& scope,
@@ -1500,7 +1495,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
 }
 
 void
-Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
+Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
     Output& out,
     const SequencePtr& seq,
     const string& scope,
@@ -1700,7 +1695,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
 }
 
 string
-Slice::CsGenerator::toArrayAlloc(const string& decl, const string& sz)
+Slice::Csharp::toArrayAlloc(const string& decl, const string& size)
 {
     string::size_type pos = decl.size();
     while (pos > 1 && decl.substr(pos - 2, 2) == "[]")
@@ -1709,6 +1704,6 @@ Slice::CsGenerator::toArrayAlloc(const string& decl, const string& sz)
     }
 
     ostringstream o;
-    o << decl.substr(0, pos) << '[' << sz << ']' << decl.substr(pos + 2);
+    o << decl.substr(0, pos) << '[' << size << ']' << decl.substr(pos + 2);
     return o.str();
 }

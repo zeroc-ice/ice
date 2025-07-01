@@ -1,7 +1,7 @@
-classdef Protocol
+classdef (Hidden) Protocol
     % Copyright (c) ZeroC, Inc.
 
-    properties(Constant)
+    properties (Constant)
         FLAG_HAS_TYPE_ID_STRING    = bitshift(uint8(1), 0)
         FLAG_HAS_TYPE_ID_INDEX     = bitshift(uint8(1), 1)
         FLAG_HAS_TYPE_ID_COMPACT   = bitor(bitshift(uint8(1), 0), bitshift(uint8(1), 1))

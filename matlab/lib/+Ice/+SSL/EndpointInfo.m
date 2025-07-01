@@ -3,7 +3,7 @@ classdef (Sealed) EndpointInfo < Ice.EndpointInfo
 
     % Copyright (c) ZeroC, Inc.
 
-    methods(Hidden)
+    methods (Hidden)
         function obj = EndpointInfo(underlying)
             assert(nargin == 1, 'Invalid number of arguments');
             obj@Ice.EndpointInfo(underlying);

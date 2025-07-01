@@ -19,7 +19,15 @@ public interface Object
     /// <param name="request">The incoming request.</param>
     /// <returns>A value task that holds the outgoing response.</returns>
     /// <remarks>Ice marshals any exception thrown by this method into the response.</remarks>
-    ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request);
+    public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
+        request.current.operation switch
+        {
+            "ice_id" => iceD_ice_idAsync(this, request),
+            "ice_ids" => iceD_ice_idsAsync(this, request),
+            "ice_isA" => iceD_ice_isAAsync(this, request),
+            "ice_ping" => iceD_ice_pingAsync(this, request),
+            _ => throw new OperationNotExistException()
+        };
 
     /// <summary>
     /// Tests whether this object supports a specific Slice interface.
@@ -73,7 +81,13 @@ public interface Object
     /// </summary>
     /// <param name="current">The Current object for the dispatch.</param>
     /// <returns>The Slice type ID of the most-derived interface.</returns>
-    public string ice_id(Current current) => throw new NotImplementedException();
+    public string ice_id(Current current) => ice_staticId();
+
+    /// <summary>
+    /// Gets the Slice type ID of the interface supported by this object.
+    /// </summary>
+    /// <returns>The return value is always ::Ice::Object.</returns>
+    public static string ice_staticId() => "::Ice::Object";
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     protected static ValueTask<OutgoingResponse> iceD_ice_isAAsync(Object obj, IncomingRequest request)
@@ -115,36 +129,11 @@ public interface Object
 }
 
 /// <summary>
-/// Base class for all Slice classes.
-/// </summary>
-public abstract class ObjectImpl : Object
-{
-    /// <summary>
-    /// Gets the Slice type ID of the interface supported by this object.
-    /// </summary>
-    /// <returns>The return value is always ::Ice::Object.</returns>
-    public static string ice_staticId() => "::Ice::Object";
-
-    /// <inheritdoc />
-    public virtual string ice_id(Current current) => ice_staticId();
-
-    public virtual ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request) =>
-        request.current.operation switch
-        {
-            "ice_id" => Object.iceD_ice_idAsync(this, request),
-            "ice_ids" => Object.iceD_ice_idsAsync(this, request),
-            "ice_isA" => Object.iceD_ice_isAAsync(this, request),
-            "ice_ping" => Object.iceD_ice_pingAsync(this, request),
-            _ => throw new OperationNotExistException()
-        };
-}
-
-/// <summary>
 /// Base class for dynamic dispatch servants. A server application
 /// derives a concrete servant class from Blobject that
 /// implements the Blobject.ice_invoke method.
 /// </summary>
-public abstract class Blobject : ObjectImpl
+public abstract class Blobject : Object
 {
     /// <summary>
     /// Dispatch an incoming request.
@@ -160,7 +149,7 @@ public abstract class Blobject : ObjectImpl
     /// Ice run-time exception, it must throw it directly.</returns>
     public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 
-    public override ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
+    public ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
     {
         byte[] inEncaps = request.inputStream.readEncapsulation(out _);
         bool ok = ice_invoke(inEncaps, out byte[] outEncaps, request.current);
@@ -168,11 +157,11 @@ public abstract class Blobject : ObjectImpl
     }
 }
 
-public abstract class BlobjectAsync : ObjectImpl
+public abstract class BlobjectAsync : Object
 {
     public abstract Task<Object_Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current);
 
-    public override async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
+    public async ValueTask<OutgoingResponse> dispatchAsync(IncomingRequest request)
     {
         byte[] inEncaps = request.inputStream.readEncapsulation(out _);
         Object_Ice_invokeResult result = await ice_invokeAsync(inEncaps, request.current).ConfigureAwait(false);

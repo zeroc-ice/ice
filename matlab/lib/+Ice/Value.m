@@ -45,7 +45,7 @@ classdef (Abstract) Value < matlab.mixin.Copyable
             r = obj.iceSlicedData_;
         end
     end
-    methods(Abstract)
+    methods (Abstract)
         %ICE_ID Returns the Slice type ID associated with this instance.
         %
         %   Output Arguments
@@ -53,12 +53,12 @@ classdef (Abstract) Value < matlab.mixin.Copyable
         %       character vector
         id = ice_id(obj)
     end
-    methods(Static)
+    methods (Static)
         function id = ice_staticId()
             id = '::Ice::Object';
         end
     end
-    methods(Hidden)
+    methods (Hidden)
         function iceWrite(obj, os)
             os.startValue(obj.iceSlicedData_);
             obj.iceWriteImpl(os);
@@ -83,13 +83,13 @@ classdef (Abstract) Value < matlab.mixin.Copyable
             %
         end
     end
-    methods(Access=protected)
+    methods (Access = protected)
         function iceWriteImpl(~, ~)
         end
         function iceReadImpl(~, ~)
         end
     end
-    properties(Hidden, NonCopyable)
+    properties (Hidden, NonCopyable)
         iceInternal_ int32
         iceSlicedData_ Ice.SlicedData
     end
