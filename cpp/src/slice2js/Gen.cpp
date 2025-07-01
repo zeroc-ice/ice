@@ -2357,7 +2357,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out.spar("");
         for (const auto& base : bases)
         {
-            _out << importPrefix(base->mappedScoped(".")) << base->mappedScoped(".") << "Prx";
+            _out << (importPrefix(base->mappedScoped(".")) + base->mappedScoped(".") + "Prx");
         }
         _out.epar("");
     }
@@ -2475,7 +2475,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out.spar("");
         for (const auto& base : bases)
         {
-            _out << importPrefix(base->mappedScoped(".")) << base->mappedScoped(".");
+            _out << (importPrefix(base->mappedScoped(".")) + base->mappedScoped("."));
         }
         _out.epar("");
     }
