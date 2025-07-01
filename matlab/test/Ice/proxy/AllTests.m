@@ -844,22 +844,22 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            fprintf('testing proxy hierarchy... ')
-            cPrx = Test.CPrx(communicator, ['c:', helper.getTestEndpoint()];)
+            fprintf('testing proxy hierarchy... ');
+            cPrx = Test.CPrx(communicator, ['c:', helper.getTestEndpoint()]);
 
-            aPrx = cPrx.opA(cPrx)
-            cPrx = Test.CPrx.checkedCast(aPrx)
-            test(~isempty(cPrx))
+            aPrx = cPrx.opA(cPrx);
+            assert(aPrx == cPrx);
 
-            bPrx = cPrx.opB(cPrx)
-            cPrx = Test.CPrx.checkedCast(bPrx)
-            test(~isempty(cPrx))
+            bPrx = cPrx.opB(cPrx);
+            assert(bPrx == cPrx);
 
-            cPrx = cPrx.opC(cPrx)
+            cPrx = cPrx.opC(cPrx);
 
-            s = Test.S(cPrx, cPrx)
-            s = cPrx.opS(s)
-            fprintf('ok\n')
+            s = Test.S(cPrx, cPrx);
+            s = cPrx.opS(s);
+            assert(s.a == cPrx);
+            assert(s.b == cPrx);
+            fprintf('ok\n');
 
             r = cl;
         end

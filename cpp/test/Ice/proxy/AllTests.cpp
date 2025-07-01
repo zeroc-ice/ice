@@ -1159,8 +1159,9 @@ allTests(TestHelper* helper)
         communicator->getProperties()->getIceProperty("Ice.Default.Host") == "127.0.0.1")
     {
         // Two legal TCP endpoints expressed as opaque endpoints
-        p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 "
-                                         "-t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+        p1 = communicator->stringToProxy(
+            "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 "
+            "-t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
         pstr = communicator->proxyToString(p1);
         test(pstr == "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
@@ -1231,10 +1232,10 @@ allTests(TestHelper* helper)
         optional<CPrx> cPrx = Test::CPrx(communicator, "c:" + helper->getTestEndpoint());
 
         optional<Test::APrx> aPrx = cPrx->opA(cPrx);
-        test(Ice::checkedCast<Test::CPrx>(aPrx) != std::nullopt);
+        test(aPrx == cPrx);
 
         optional<Test::BPrx> bPrx = cPrx->opB(cPrx);
-        test(Ice::checkedCast<Test::CPrx>(bPrx) != std::nullopt);
+        test(bPrx == cPrx);
 
         cPrx = cPrx->opC(cPrx);
 
@@ -1243,6 +1244,9 @@ allTests(TestHelper* helper)
             .b = cPrx,
         };
         s = cPrx->opS(s);
+
+        test(s.a == cPrx);
+        test(s.b == cPrx);
     }
     cout << "ok" << endl;
 

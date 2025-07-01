@@ -1085,10 +1085,10 @@ export class Client extends TestHelper {
         let cPrx = new Test.CPrx(communicator, `c:${this.getTestEndpoint()}`);
 
         let aPrx = await cPrx.opA(cPrx);
-        test((await Test.CPrx.checkedCast(aPrx)) !== null);
+        test(aPrx!.equals(cPrx));
 
         let bPrx = await cPrx.opB(cPrx);
-        test((await Test.CPrx.checkedCast(bPrx)) !== null);
+        test(bPrx!.equals(cPrx));
 
         cPrx = await cPrx.opC(cPrx);
 
@@ -1097,6 +1097,8 @@ export class Client extends TestHelper {
         s.b = cPrx;
 
         s = await cPrx.opS(s);
+        test(s.a!.equals(cPrx));
+        test(s.b!.equals(cPrx));
         out.writeLine("ok");
 
         derived = new Test.MyDerivedClassPrx(communicator, `test:${this.getTestEndpoint()}`);

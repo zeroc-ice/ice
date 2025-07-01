@@ -1109,15 +1109,17 @@ public class AllTests {
         var cPrx = CPrx.createProxy(communicator, "c:" + helper.getTestEndpoint());
 
         APrx aPrx = cPrx.opA(cPrx);
-        test(CPrx.checkedCast(aPrx) != null);
+        test(aPrx.equals(cPrx));
 
         BPrx bPrx = cPrx.opB(cPrx);
-        test(CPrx.checkedCast(bPrx) != null);
+        test(bPrx.equals(cPrx));
 
         cPrx = cPrx.opC(cPrx);
 
         var s = new S(cPrx, cPrx);
         s = cPrx.opS(s);
+        test(s.a.equals(cPrx));
+        test(s.b.equals(cPrx));
         out.println("ok");
 
         out.print("testing communicator shutdown/destroy... ");

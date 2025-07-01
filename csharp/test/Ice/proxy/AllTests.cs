@@ -1028,15 +1028,17 @@ public class AllTests : global::Test.AllTests
         var cPrx = Test.CPrxHelper.createProxy(communicator, "c:" + helper.getTestEndpoint());
 
         Test.APrx aPrx = cPrx.opA(cPrx);
-        test(Test.CPrxHelper.checkedCast(aPrx) is not null);
+        test(aPrx.Equals(cPrx));
 
         Test.BPrx bPrx = cPrx.opB(cPrx);
-        test(Test.CPrxHelper.checkedCast(bPrx) is not null);
+        test(bPrx.Equals(cPrx));
 
         cPrx = cPrx.opC(cPrx);
 
         var s = new Test.S(cPrx, cPrx);
         s = cPrx.opS(s);
+        test(s.a.Equals(cPrx));
+        test(s.b.Equals(cPrx));
         output.WriteLine("ok");
 
         output.Write("testing communicator shutdown/destroy... ");
