@@ -306,10 +306,8 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
             getDictionaryTypes(dict, "", MetadataList(), origInstanceType, origFormalType);
             if (formalType == origFormalType && (marshal || instanceType == origInstanceType))
             {
-                //
                 // If we can use the helper, it's easy.
-                //
-                string helper = getUnqualified(dict, package) + "Helper";
+                const string helper = getUnqualified(dict, package) + "Helper";
                 if (marshal)
                 {
                     out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
@@ -322,58 +320,37 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                 }
             }
 
-            TypePtr keyType = dict->keyType();
-            TypePtr valueType = dict->valueType();
+            const TypePtr keyType = dict->keyType();
+            const TypePtr valueType = dict->valueType();
             if (marshal)
             {
                 if (optionalParam)
                 {
-                    out << nl;
+                    out << nl << "if(";
                     if (optionalMapping)
                     {
-                        out << "if(" << param << " != null && " << param << ".isPresent() && " << stream
-                            << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                        out << param << " != null && " << param << ".isPresent() && ";
                     }
-                    else
-                    {
-                        out << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
-                    }
-                    out << sb;
+                    out << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))" << sb;
                 }
 
-                if (keyType->isVariableLength() || valueType->isVariableLength())
+                const string d = param + (optionalParam && optionalMapping ? ".get()" : "");
+                const bool usesVariableLengthTypes = keyType->isVariableLength() || valueType->isVariableLength();
+
+                if (usesVariableLengthTypes)
                 {
-                    string d = optionalParam && optionalMapping ? param + ".get()" : param;
                     out << nl << "int pos = " << stream << ".startSize();";
-                    writeDictionaryMarshalUnmarshalCode(
-                        out,
-                        package,
-                        dict,
-                        d,
-                        marshal,
-                        iter,
-                        true,
-                        customStream,
-                        metadata);
-                    out << nl << stream << ".endSize(pos);";
                 }
                 else
                 {
                     const size_t sz = keyType->minWireSize() + valueType->minWireSize();
-                    string d = optionalParam && optionalMapping ? param + ".get()" : param;
                     out << nl << "final int optSize = " << d << " == null ? 0 : " << d << ".size();";
-                    out << nl << stream << ".writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz
-                        << " + 1);";
-                    writeDictionaryMarshalUnmarshalCode(
-                        out,
-                        package,
-                        dict,
-                        d,
-                        marshal,
-                        iter,
-                        true,
-                        customStream,
-                        metadata);
+                    out << nl << stream << ".writeSize((optSize * " << sz << ") + (optSize > 254 ? 5 : 1))";
+                }
+                writeDictionaryMarshalUnmarshalCode(out, package, dict, d, marshal, iter, true, customStream, metadata);
+                if (usesVariableLengthTypes)
+                {
+                    out << nl << stream << ".endSize(pos);";
                 }
 
                 if (optionalParam)
@@ -383,7 +360,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
             }
             else
             {
-                string d = optionalParam ? "optDict" : param;
+                const string d = optionalParam ? "optDict" : param;
                 if (optionalParam)
                 {
                     out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
@@ -576,7 +553,6 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
     }
 
     assert(dynamic_pointer_cast<Contained>(type));
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (marshal)
     {
         out << nl << typeS << ".ice_write(" << stream << ", ";
@@ -592,9 +568,9 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
         {
             out << nl << param << " = " << typeS << ".ice_read(" << stream << ", " << tag << ");";
         }
-        else if (mode == OptionalMember && st)
+        else if (mode == OptionalMember && dynamic_pointer_cast<Struct>(type))
         {
-            out << nl << stream << (st->isVariableLength() ? ".skip(4);" : ".skipSize();");
+            out << nl << stream << (type->isVariableLength() ? ".skip(4);" : ".skipSize();");
             out << nl << param << " = " << typeS << ".ice_read(" << stream << ");";
         }
         else
@@ -622,28 +598,19 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
         stream = marshal ? "ostr" : "istr";
     }
 
+    // We have to determine whether it's possible to use the type's generated helper class for this marshal/unmarshal
+    // task. Since the user may have specified a custom type in metadata, it's possible that the helper class is not
+    // compatible and therefore we'll need to generate the code in-line instead.
     //
-    // We have to determine whether it's possible to use the
-    // type's generated helper class for this marshal/unmarshal
-    // task. Since the user may have specified a custom type in
-    // metadata, it's possible that the helper class is not
-    // compatible and therefore we'll need to generate the code
-    // in-line instead.
-    //
-    // Specifically, there may be "local" metadata (i.e., from
-    // a data member or parameter definition) that overrides the
-    // original type. We'll compare the mapped types with and
-    // without local metadata to determine whether we can use
+    // Specifically, there may be "local" metadata (i.e., from a data member or parameter definition) that overrides the
+    // original type. We'll compare the mapped types with and without local metadata to determine whether we can use
     // the helper.
-    //
     string instanceType, formalType, origInstanceType, origFormalType;
     getDictionaryTypes(dict, "", metadata, instanceType, formalType);
     getDictionaryTypes(dict, "", MetadataList(), origInstanceType, origFormalType);
     if (useHelper && formalType == origFormalType && (marshal || instanceType == origInstanceType))
     {
-        //
         // If we can use the helper, it's easy.
-        //
         string helper = getUnqualified(dict, package) + "Helper";
         if (marshal)
         {
@@ -658,13 +625,7 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
 
     TypePtr key = dict->keyType();
     TypePtr value = dict->valueType();
-
-    string keyS = typeToString(key, TypeModeIn, package);
-    string valueS = typeToString(value, TypeModeIn, package);
-
-    ostringstream o;
-    o << iter;
-    string iterS = o.str();
+    string iterS = std::to_string(iter);
     iter++;
 
     if (marshal)
@@ -681,27 +642,16 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
         out << nl;
         out << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> e : " << param << ".entrySet())";
         out << sb;
-        for (int i = 0; i < 2; i++)
-        {
-            string arg;
-            TypePtr type;
-            if (i == 0)
-            {
-                arg = "e.getKey()";
-                type = key;
-            }
-            else
-            {
-                arg = "e.getValue()";
-                type = value;
-            }
-            writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, arg, true, iter, customStream);
-        }
+        writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "e.getKey()", true, iter, customStream);
+        writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "e.getValue()", true, iter, customStream);
         out << eb;
         out << eb;
     }
     else
     {
+        string keyS = typeToString(key, TypeModeIn, package);
+        string valueS = typeToString(value, TypeModeIn, package);
+
         out << nl << param << " = new " << instanceType << "();";
         out << nl << "int sz" << iterS << " = " << stream << ".readSize();";
         out << nl << "for(int i" << iterS << " = 0; i" << iterS << " < sz" << iterS << "; i" << iterS << "++)";
@@ -731,7 +681,7 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
         }
         else
         {
-            out << nl << keyS << " key;";
+            out << nl << "final " << keyS << " key;";
             writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "key", false, iter, customStream);
 
             out << nl << valueS << " value;";
