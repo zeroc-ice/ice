@@ -1126,7 +1126,7 @@ Slice::JavaVisitor::writeResultType(
     Output& out,
     const OperationPtr& op,
     const string& package,
-    const optional<DocComment>& dc)
+    const optional<DocComment>& comment)
 {
     string opName = op->mappedName();
     opName[0] = static_cast<char>(toupper(static_cast<unsigned char>(opName[0])));
@@ -1167,7 +1167,7 @@ Slice::JavaVisitor::writeResultType(
 
         out << sp;
 
-        if (dc)
+        if (comment)
         {
             //
             // Emit a doc comment for the constructor if necessary.
@@ -1183,13 +1183,13 @@ Slice::JavaVisitor::writeResultType(
                 out << '.';
             }
 
-            const StringList& returns = dc->returns();
+            const StringList& returns = comment->returns();
             if (ret && !returns.empty())
             {
                 out << nl << " * @param " << retval << ' ';
                 writeDocCommentLines(out, returns);
             }
-            const map<string, StringList>& paramDocs = dc->parameters();
+            const map<string, StringList>& paramDocs = comment->parameters();
             for (const auto& outParam : outParams)
             {
                 auto q = paramDocs.find(outParam->name());
@@ -1264,9 +1264,9 @@ Slice::JavaVisitor::writeResultType(
     out << sp;
     if (ret)
     {
-        if (dc)
+        if (comment)
         {
-            const StringList& returns = dc->returns();
+            const StringList& returns = comment->returns();
             if (!returns.empty())
             {
                 out << nl << "/**";
@@ -1282,9 +1282,9 @@ Slice::JavaVisitor::writeResultType(
 
     for (const auto& outParam : outParams)
     {
-        if (dc)
+        if (comment)
         {
-            const map<string, StringList>& paramDocs = dc->parameters();
+            const map<string, StringList>& paramDocs = comment->parameters();
             auto q = paramDocs.find(outParam->name());
             if (q != paramDocs.end() && !q->second.empty())
             {
@@ -1327,7 +1327,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     Output& out,
     const OperationPtr& op,
     const string& package,
-    const optional<DocComment>& dc)
+    const optional<DocComment>& comment)
 {
     string opName = op->mappedName();
     const TypePtr ret = op->returnType();
@@ -1348,18 +1348,18 @@ Slice::JavaVisitor::writeMarshaledResultType(
     //
     // Emit a doc comment for the constructor if necessary.
     //
-    if (dc)
+    if (comment)
     {
         out << nl << "/**";
         out << nl << " * This constructor marshals the results of operation " << op->mappedName() << " immediately.";
 
-        const StringList& returns = dc->returns();
+        const StringList& returns = comment->returns();
         if (ret && !returns.empty())
         {
             out << nl << " * @param " << retval << ' ';
             writeDocCommentLines(out, returns);
         }
-        const map<string, StringList>& paramDocs = dc->parameters();
+        const map<string, StringList>& paramDocs = comment->parameters();
         for (const auto& outParam : outParams)
         {
             auto q = paramDocs.find(outParam->name());
@@ -1417,19 +1417,19 @@ Slice::JavaVisitor::writeMarshaledResultType(
         //
         // Emit a doc comment for the constructor if necessary.
         //
-        if (dc)
+        if (comment)
         {
             out << nl << "/**";
             out << nl << " * This constructor marshals the results of operation " << op->mappedName()
                 << " immediately (overload without Optional parameters).";
 
-            const StringList& returns = dc->returns();
+            const StringList& returns = comment->returns();
             if (ret && !returns.empty())
             {
                 out << nl << " * @param " << retval << ' ';
                 writeDocCommentLines(out, returns);
             }
-            const map<string, StringList>& paramDocs = dc->parameters();
+            const map<string, StringList>& paramDocs = comment->parameters();
             for (const auto& outParam : outParams)
             {
                 auto q = paramDocs.find(outParam->name());
