@@ -17,7 +17,7 @@ public class Collocated extends TestHelper {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new MyDerivedClassI(), Util.stringToIdentity("test"));
-            adapter.add(new CI(), Util.stringToIdentity("test"));
+            adapter.add(new CI(), Util.stringToIdentity("c"));
             // adapter.activate(); // Don't activate OA to ensure collocation is used.
             AllTests.allTests(this);
         }
