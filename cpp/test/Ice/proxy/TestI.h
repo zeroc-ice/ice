@@ -19,4 +19,16 @@ private:
     mutable Ice::Context _ctx;
 };
 
+class CI final : public Test::C
+{
+public:
+    std::optional<Test::APrx> opA(std::optional<Test::APrx> a, const Ice::Current&) final { return a; }
+
+    std::optional<Test::BPrx> opB(std::optional<Test::BPrx> b, const Ice::Current&) final { return b; }
+
+    std::optional<Test::CPrx> opC(std::optional<Test::CPrx> c, const Ice::Current&) final { return c; }
+
+    Test::S opS(Test::S s, const Ice::Current&) final { return s; }
+};
+
 #endif

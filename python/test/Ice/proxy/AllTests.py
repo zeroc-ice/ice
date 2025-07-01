@@ -1018,6 +1018,21 @@ def allTests(helper, communicator, collocated):
 
     print("ok")
 
+    sys.stdout.write("testing proxy hierarchy... ")
+    cPrx = Test.CPrx(communicator, f"c:{helper.getTestEndpoint()}")
+
+    aPrx = cPrx.opA(cPrx)
+    test(Test.CPrx.checkedCast(aPrx) is not None)
+
+    bPrx = cPrx.opB(cPrx)
+    test(Test.CPrx.checkedCast(bPrx) is not None)
+
+    cPrx = cPrx.opC(cPrx)
+
+    s = Test.S(cPrx, cPrx)
+    s = cPrx.opS(s)
+    print("ok")
+
     sys.stdout.write("testing communicator shutdown/destroy... ")
     sys.stdout.flush()
     c = Ice.initialize()

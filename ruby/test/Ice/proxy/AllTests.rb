@@ -812,6 +812,21 @@ def allTests(helper, communicator)
     end
     puts "ok"
 
+    print "testing proxy hierarchy... "
+    cPrx = Test::CPrx.new(communicator, "c:#{helper.getTestEndpoint()}")
+
+    aPrx = cPrx.opA(cPrx)
+    test(Test::CPrx.checkedCast(aPrx) != nil)
+
+    bPrx = cPrx.opB(cPrx)
+    test(Test::CPrx.checkedCast(bPrx) != nil)
+
+    cPrx = cPrx.opC(cPrx)
+
+    s = Test::S.new(cPrx, cPrx)
+    s = cPrx.opS(s)
+    puts "ok"
+
     print "testing communicator shutdown/destroy... "
     STDOUT.flush
     c = Ice::initialize();

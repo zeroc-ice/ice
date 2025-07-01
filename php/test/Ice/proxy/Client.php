@@ -476,6 +476,7 @@ function allTests($helper)
     $cl10->ice_ping();
     $cl10->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
     $cl->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
+    echo "ok\n";
 
     echo "testing opaque endpoints... ";
     flush();
@@ -604,6 +605,21 @@ function allTests($helper)
         $pstr = $communicator->proxyToString($p2);
         test($pstr == "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
     }
+    echo "ok\n";
+
+    echo "testing proxy hierarchy... ";
+    $cPrx = Test\CPrxHelper::createProxy($communicator, "c:" . $helper->getTestEndpoint());
+
+    $aPrx = $cPrx->opA($cPrx);
+    test(Test\CPrxHelper::checkedCast($aPrx) != null);
+
+    $bPrx = $cPrx->opB($cPrx);
+    test(Test\CPrxHelper::checkedCast($bPrx) != null);
+
+    $cPrx = $cPrx->opC($cPrx);
+
+    $s = new Test\S($cPrx, $cPrx);
+    $s = $cPrx->opS($s);
     echo "ok\n";
 
     echo "testing communicator shutdown/destroy... ";

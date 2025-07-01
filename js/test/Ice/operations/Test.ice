@@ -273,6 +273,21 @@ module Test
         MyStruct1 opMyStruct1(MyStruct1 opMyStruct1);
     }
 
+    interface A
+    {
+        void opA();
+    }
+
+    interface B
+    {
+        void opB();
+    }
+
+    interface C extends A, B
+    {
+        void opC();
+    }
+
     interface Echo
     {
         void setConnection();

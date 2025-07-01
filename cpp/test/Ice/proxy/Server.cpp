@@ -21,6 +21,7 @@ Server::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
+    adapter->add(std::make_shared<CI>(), Ice::stringToIdentity("c"));
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

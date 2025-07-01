@@ -19,6 +19,7 @@ public class Server : TestHelper
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         var adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+        adapter.add(new CI(), Ice.Util.stringToIdentity("c"));
         adapter.activate();
         serverReady();
         communicator.waitForShutdown();

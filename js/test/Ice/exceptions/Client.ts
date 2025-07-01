@@ -283,7 +283,7 @@ export class Client extends TestHelper {
 
         out.write("catching operation not exist exception... ");
         try {
-            const thrower2 = new Test.WrongOperationPrx(thrower);
+            const thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower);
             await thrower2.noSuchOperation();
             test(false);
         } catch (ex) {

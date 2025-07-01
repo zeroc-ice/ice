@@ -2347,9 +2347,28 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Define servant and proxy types.
     //
     const string prxName = p->mappedName() + "Prx";
+    InterfaceList bases = p->bases();
     _out << sp;
     writeDocCommentFor(p);
     _out << nl << "export class " << prxName << " extends " << _iceImportPrefix << "Ice.ObjectPrx";
+    if (!bases.empty())
+    {
+        _out << " implements ";
+        bool first = true;
+        for (const auto& base : bases)
+        {
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                _out << ", ";
+            }
+            _out << importPrefix(base->mappedScoped(".")) << base->mappedScoped(".") << "Prx";
+        }
+    }
+
     _out << sb;
 
     _out << sp;
@@ -2361,15 +2380,6 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << " * @throws ParseException - Thrown if the proxyString is not a valid proxy string.";
     _out << nl << " */";
     _out << nl << "constructor(communicator: " << _iceImportPrefix << "Ice.Communicator, proxyString: string);";
-
-    _out << sp;
-    _out << nl << "/**";
-    _out << nl << " * Constructs a new " << prxName << " proxy from an ObjectPrx. The new proxy is a clone of the";
-    _out << nl << " * provided proxy.";
-    _out << nl << " * @param prx - The proxy to clone.";
-    _out << nl << " * @returns The new " << prxName << " proxy.";
-    _out << nl << " */";
-    _out << nl << "constructor(prx: " << _iceImportPrefix << "Ice.ObjectPrx);";
 
     for (const auto& op : p->allOperations())
     {
@@ -2466,6 +2476,24 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp;
     writeDocCommentFor(p, true, false);
     _out << nl << "export abstract class " << p->mappedName() << " extends " << _iceImportPrefix << "Ice.Object";
+    if (!bases.empty())
+    {
+        _out << " implements ";
+
+        bool first = true;
+        for (const auto& base : bases)
+        {
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                _out << ", ";
+            }
+            _out << importPrefix(base->mappedScoped(".")) << base->mappedScoped(".");
+        }
+    }
     _out << sb;
     for (const auto& op : p->allOperations())
     {

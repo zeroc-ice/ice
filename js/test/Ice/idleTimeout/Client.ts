@@ -38,7 +38,7 @@ async function testConnectionNotAbortedByIdleCheck(properties: Ice.Properties, h
     const communicator = Ice.initialize(initData);
     try {
         const adapter = await communicator.createObjectAdapter("");
-        const callback = new Test.TestIntfPrx(adapter.add(new TestI(), Ice.stringToIdentity("test")));
+        const callback = Test.TestIntfPrx.uncheckedCast(adapter.add(new TestI(), Ice.stringToIdentity("test")));
 
         const p = new Test.TestIntfBidirPrx(communicator, proxyString);
 

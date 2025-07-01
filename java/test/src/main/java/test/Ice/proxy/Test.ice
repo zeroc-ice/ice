@@ -22,4 +22,26 @@ module Test
     interface MyOtherDerivedClass extends MyClass {}
 
     interface DiamondClass extends MyDerivedClass, MyOtherDerivedClass {}
+
+    interface A
+    {
+        A* opA(A* a);
+    }
+
+    interface B
+    {
+        B* opB(B* b);
+    }
+
+    struct S
+    {
+        A* a;
+        B* b;
+    }
+
+    interface C extends A, B
+    {
+        C* opC(C* c);
+        S opS(S s);
+    }
 }

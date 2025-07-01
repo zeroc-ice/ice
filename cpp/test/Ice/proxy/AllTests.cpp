@@ -1226,6 +1226,26 @@ allTests(TestHelper* helper)
     cout << "ok" << endl;
 #endif
 
+    cout << "testing proxy hierarchy... " << flush;
+    {
+        optional<CPrx> cPrx = Test::CPrx(communicator, "c:" + helper->getTestEndpoint());
+
+        optional<Test::APrx> aPrx = cPrx->opA(cPrx);
+        test(Ice::checkedCast<Test::CPrx>(aPrx) != std::nullopt);
+
+        optional<Test::BPrx> bPrx = cPrx->opB(cPrx);
+        test(Ice::checkedCast<Test::CPrx>(bPrx) != std::nullopt);
+
+        cPrx = cPrx->opC(cPrx);
+
+        Test::S s{
+            .a = cPrx,
+            .b = cPrx,
+        };
+        s = cPrx->opS(s);
+    }
+    cout << "ok" << endl;
+
     cout << "testing communicator shutdown/destroy... " << flush;
     {
         Ice::CommunicatorPtr c = Ice::initialize();
