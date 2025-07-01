@@ -19,18 +19,57 @@ namespace
     {
         string result = "``";
 
-        if (auto contained = dynamic_pointer_cast<Contained>(target))
-        {
-            string currentModule = Slice::Swift::getSwiftModule(source->getTopLevelModule());
-            result += Slice::Swift::getRelativeTypeString(contained, currentModule);
-        }
-        else if (auto builtin = dynamic_pointer_cast<Builtin>(target))
+        if (auto builtin = dynamic_pointer_cast<Builtin>(target))
         {
             result += Slice::Swift::typeToString(builtin, source, false);
+        }
+        else if (auto contained = dynamic_pointer_cast<Contained>(target))
+        {
+            string nameSuffix;
+
+            // If the link is to a data member or an enumerator, we store its name in `nameSuffix`, then navigate up to
+            // its parent. Due to the flat nature of Swift, we always need to work up to something defined in a module.
+            if (dynamic_pointer_cast<DataMember>(contained) || dynamic_pointer_cast<Enumerator>(contained))
+            {
+                nameSuffix = "/" + contained->mappedName();
+
+                // Move up a level to the container type.
+                contained = dynamic_pointer_cast<Contained>(contained->container());
+                assert(contained);
+            }
+
+            // If the link is to an operation, DocC requires you to list the operation's labels in the link signature.
+            if (auto operation = dynamic_pointer_cast<Operation>(contained))
+            {
+                nameSuffix = "/" + operation->mappedName() + "(";
+                const ParameterList inParams = operation->inParameters();
+                for (const auto& param : inParams)
+                {
+                    const string paramLabel = (inParams.size() == 1 ? "_" : param->mappedName());
+                    nameSuffix += paramLabel + ":";
+                }
+                nameSuffix += "context:)";
+
+                // Move up a level to the container type.
+                contained = dynamic_pointer_cast<Contained>(contained->container());
+                assert(contained);
+            }
+
+            // If the link was to an interface definition, we need to switch to the corresponding declaration.
+            // The code-gen considers `Def` the servant type, and `Decl` the proxy type. We want to link to the proxy.
+            if (auto interfaceDef = dynamic_pointer_cast<InterfaceDef>(contained))
+            {
+                contained = interfaceDef->declaration();
+            }
+
+            // Link to the mapped Swift type, and scope it relative to the module that contained the doc link.
+            string currentModule = Slice::Swift::getSwiftModule(source->getTopLevelModule());
+            result += Slice::Swift::getRelativeTypeString(contained, currentModule) + nameSuffix;
         }
         else // We couldn't resolve the link target and make a best-effort attempt to map the raw link.
         {
             // For Swift all we can do is replace the doxygen separator (#) with a DocC separator ('/').
+            result += rawLink;
             std::replace(result.begin(), result.end(), '#', '/');
         }
 
