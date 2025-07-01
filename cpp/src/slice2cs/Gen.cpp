@@ -22,6 +22,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace Slice::Csharp;
 using namespace Ice;
 using namespace IceInternal;
 
@@ -113,7 +114,7 @@ namespace
         {
             if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
             {
-                string typeS = CsGenerator::typeToString(builtinTarget, "");
+                string typeS = typeToString(builtinTarget, "");
                 if (builtinTarget->kind() == Builtin::KindObjectProxy || builtinTarget->kind() == Builtin::KindValue)
                 {
                     // Remove trailing '?':
@@ -135,17 +136,17 @@ namespace
                 if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
                 {
                     // link to the method on the proxy interface
-                    result << CsGenerator::getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
+                    result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
                            << operationTarget->mappedName();
                 }
                 else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
                 {
                     // link to the proxy interface
-                    result << CsGenerator::getUnqualified(interfaceTarget, sourceScope) << "Prx";
+                    result << getUnqualified(interfaceTarget, sourceScope) << "Prx";
                 }
                 else
                 {
-                    result << CsGenerator::getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope);
+                    result << getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope);
                 }
                 result << "\"";
             }
