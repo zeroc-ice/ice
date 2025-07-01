@@ -135,6 +135,13 @@ Provides: %{?nameprefix}ice-all-devel = %{version}-%{release}
 This transitional package exists to support upgrades from Ice 3.7.
 It does not install any content and can be safely removed.
 
+# Transitional dummy package for clean upgrade from Ice 3.7
+Summary: Transitional package to install all Slice compilers
+Name: %{?nameprefix}ice-compilers
+Requires: libice-c++-devel, python3-%{?nameprefix}ice, %{phpname}-%{?nameprefix}ice
+Obsoletes: %{?nameprefix}ice-compilers < %{version}-%{release}
+Provides: %{?nameprefix}ice-compilers = %{version}-%{release}
+
 #
 # libiceMm-c++ package
 #
@@ -190,7 +197,6 @@ your application logic.
 %package -n lib%{?nameprefix}ice-c++-devel
 Summary: Libraries and headers for developing Ice applications in C++.
 Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
-Requires: %{?nameprefix}ice-compilers = %{version}-%{release}
 Requires: glibc-devel
 Requires: openssl-devel
 %description -n lib%{?nameprefix}ice-c++-devel
@@ -203,13 +209,14 @@ network programming interfaces and allows you to focus your efforts on
 your application logic.
 
 #
-# ice-compilers package
+# ice2slice package
 #
-%package -n %{?nameprefix}ice-compilers
-Summary: Slice compilers for developing Ice applications
+%package -n %{?nameprefix}ice2slice
+Summary: The ice2slice compiler
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
-%description -n %{?nameprefix}ice-compilers
-This package contains Slice compilers for developing Ice applications.
+%description -n %{?nameprefix}ice2slice
+This package contains the ice2slice compiler to transforms Slice definitions in .ice files into
+Slice definitions in .slice files.
 
 Ice is a comprehensive RPC framework that helps you network your software
 with minimal effort. Ice takes care of all interactions with low-level
@@ -476,6 +483,7 @@ exit 0
 %files -n lib%{?nameprefix}ice-c++-devel
 %license LICENSE
 %license ICE_LICENSE
+%license packaging/rpm/MCPP_LICENSE
 %doc packaging/rpm/README
 %{_libdir}/libDataStorm.so
 %{_libdir}/libGlacier2.so
@@ -493,6 +501,8 @@ exit 0
 %{_includedir}/IceBox
 %{_includedir}/IceGrid
 %{_includedir}/IceStorm
+%{_bindir}/slice2cpp
+%{_mandir}/man1/slice2cpp.1*
 
 #
 # libicestorm-Mm package
@@ -508,31 +518,13 @@ exit 0
 exit 0
 
 #
-# ice-compilers package
+# ice2slice package
 #
-%files -n %{?nameprefix}ice-compilers
+%files -n %{?nameprefix}ice2slice
 %license LICENSE
 %license ICE_LICENSE
 %license packaging/rpm/MCPP_LICENSE
 %doc packaging/rpm/README
-%{_bindir}/slice2cpp
-%{_mandir}/man1/slice2cpp.1*
-%{_bindir}/slice2cs
-%{_mandir}/man1/slice2cs.1*
-%{_bindir}/slice2java
-%{_mandir}/man1/slice2java.1*
-%{_bindir}/slice2js
-%{_mandir}/man1/slice2js.1*
-%{_bindir}/slice2matlab
-%{_mandir}/man1/slice2matlab.1*
-%{_bindir}/slice2php
-%{_mandir}/man1/slice2php.1*
-%{_bindir}/slice2py
-%{_mandir}/man1/slice2py.1*
-%{_bindir}/slice2rb
-%{_mandir}/man1/slice2rb.1*
-%{_bindir}/slice2swift
-%{_mandir}/man1/slice2swift.1*
 %{_bindir}/ice2slice
 %{_mandir}/man1/ice2slice.1*
 
@@ -682,10 +674,13 @@ exit 0
 %files -n %{phpname}-%{?nameprefix}ice
 %license LICENSE
 %license ICE_LICENSE
+%license packaging/rpm/MCPP_LICENSE
 %doc packaging/rpm/README
 %{phpdir}
 %{phplibdir}/ice.so
 %config(noreplace) %{_sysconfdir}/php.d/ice.ini
+%{_bindir}/slice2php
+%{_mandir}/man1/slice2php.1*
 
 #
 # python3-ice package
@@ -693,8 +688,11 @@ exit 0
 %files -n python3-%{?nameprefix}ice
 %license LICENSE
 %license ICE_LICENSE
+%license packaging/rpm/MCPP_LICENSE
 %doc packaging/rpm/README
 %{python3_sitearch}/*
+%{_bindir}/slice2py
+%{_mandir}/man1/slice2py.1*
 
 %changelog
 * Wed Feb 5 2025 José Gutiérrez de la Concha <jose@zeroc.com> 3.8a0
