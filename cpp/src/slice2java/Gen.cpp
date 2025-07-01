@@ -13,10 +13,13 @@
 
 using namespace std;
 using namespace Slice;
+using namespace Slice::Java;
 using namespace IceInternal;
 
 namespace
 {
+    static const char* builtinNameTable[] = {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String"};
+
     string sliceModeToIceMode(Operation::Mode opMode)
     {
         string mode = "com.zeroc.Ice.OperationMode.";
@@ -95,16 +98,16 @@ namespace
         {
             if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
             {
-                result << JavaGenerator::typeToObjectString(builtinTarget, TypeModeIn);
+                result << typeToObjectString(builtinTarget, TypeModeIn);
             }
             else
             {
-                string sourceScope = JavaGenerator::getPackage(source);
+                string sourceScope = getPackage(source);
 
                 if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
                 {
                     // link to the method on the proxy interface
-                    result << JavaGenerator::getUnqualified(operationTarget->interface(), sourceScope) << "Prx#"
+                    result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx#"
                            << operationTarget->mappedName();
                 }
                 else if (auto fieldTarget = dynamic_pointer_cast<DataMember>(target))
@@ -113,16 +116,16 @@ namespace
                     auto parent = dynamic_pointer_cast<Contained>(fieldTarget->container());
                     assert(parent);
 
-                    result << JavaGenerator::getUnqualified(parent, sourceScope) << "#" << fieldTarget->mappedName();
+                    result << getUnqualified(parent, sourceScope) << "#" << fieldTarget->mappedName();
                 }
                 else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
                 {
                     // link to the proxy interface
-                    result << JavaGenerator::getUnqualified(interfaceTarget, sourceScope) << "Prx";
+                    result << getUnqualified(interfaceTarget, sourceScope) << "Prx";
                 }
                 else
                 {
-                    result << JavaGenerator::getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope);
+                    result << getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope);
                 }
             }
         }
@@ -140,59 +143,944 @@ Slice::JavaVisitor::JavaVisitor(const string& dir) : JavaGenerator(dir) {}
 
 Slice::JavaVisitor::~JavaVisitor() = default;
 
-string
-Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package, bool object, bool dispatch)
+void
+Slice::JavaVisitor::writeMarshalUnmarshalCode(
+    Output& out,
+    const string& package,
+    const TypePtr& type,
+    OptionalMode mode,
+    bool optionalMapping,
+    int32_t tag,
+    const string& param,
+    bool marshal,
+    int& iter,
+    const string& customStream,
+    const MetadataList& metadata,
+    const string& patchParams)
 {
-    if (dispatch && op->hasMarshaledResult())
+    string stream = customStream;
+    if (stream.empty())
     {
-        const InterfaceDefPtr interface = op->interface();
-        assert(interface);
-        string abs = getUnqualified(interface, package);
-        string name = op->mappedName();
-        name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
-        return abs + "." + name + "MarshaledResult";
+        stream = marshal ? "ostr" : "istr";
     }
-    else if (op->returnsMultipleValues())
+
+    const bool optionalParam = mode == OptionalInParam || mode == OptionalOutParam || mode == OptionalReturnParam;
+    string typeS = typeToString(type, TypeModeIn, package, metadata);
+
+    assert(!marshal || mode != OptionalMember); // Only support OptionalMember for un-marshaling
+
+    const BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+    if (builtin)
     {
-        const ContainedPtr c = dynamic_pointer_cast<Contained>(op->container());
-        assert(c);
-        const string abs = getUnqualified(c, package);
-        string name = op->mappedName();
-        name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
-        return abs + "." + name + "Result";
-    }
-    else
-    {
-        TypePtr type = op->returnType();
-        bool optional = op->returnIsOptional();
-        if (!type)
+        switch (builtin->kind())
         {
-            const ParameterList outParams = op->outParameters();
-            if (!outParams.empty())
+            case Builtin::KindByte:
+            case Builtin::KindBool:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
+            case Builtin::KindString:
             {
-                assert(outParams.size() == 1);
-                type = outParams.front()->type();
-                optional = outParams.front()->optional();
+                string s = builtinNameTable[builtin->kind()];
+                if (marshal)
+                {
+                    if (optionalParam)
+                    {
+                        out << nl << stream << ".write" << s << "(" << tag << ", " << param << ");";
+                    }
+                    else
+                    {
+                        out << nl << stream << ".write" << s << "(" << param << ");";
+                    }
+                }
+                else
+                {
+                    if (optionalParam)
+                    {
+                        out << nl << param << " = " << stream << ".read" << s << "(" << tag << ");";
+                    }
+                    else
+                    {
+                        out << nl << param << " = " << stream << ".read" << s << "();";
+                    }
+                }
+                return;
+            }
+            case Builtin::KindObject:
+            case Builtin::KindValue:
+            {
+                // Handled by isClassType below.
+                break;
+            }
+            case Builtin::KindObjectProxy:
+            {
+                if (marshal)
+                {
+                    if (optionalParam)
+                    {
+                        out << nl << stream << ".writeProxy(" << tag << ", " << param << ");";
+                    }
+                    else
+                    {
+                        out << nl << stream << ".writeProxy(" << param << ");";
+                    }
+                }
+                else
+                {
+                    if (optionalParam)
+                    {
+                        out << nl << param << " = " << stream << ".readProxy(" << tag << ");";
+                    }
+                    else if (mode == OptionalMember)
+                    {
+                        out << nl << stream << ".skip(4);";
+                        out << nl << param << " = " << stream << ".readProxy();";
+                    }
+                    else
+                    {
+                        out << nl << param << " = " << stream << ".readProxy();";
+                    }
+                }
+                return;
             }
         }
-        if (type)
+    }
+
+    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
+    if (prx)
+    {
+        if (marshal)
         {
-            if (optional)
+            if (optionalParam)
             {
-                return typeToString(type, TypeModeReturn, package, op->getMetadata(), true, true);
-            }
-            else if (object)
-            {
-                return typeToObjectString(type, TypeModeReturn, package, op->getMetadata(), true);
+                out << nl << stream << ".writeProxy(" << tag << ", " << param << ");";
             }
             else
             {
-                return typeToString(type, TypeModeReturn, package, op->getMetadata(), true, false);
+                out << nl << stream << ".writeProxy(" << param << ");";
             }
         }
         else
         {
-            return object ? "Void" : "void";
+            if (optionalParam)
+            {
+                out << nl << param << " = " << stream << ".readProxy(" << tag << ", " << typeS << "::uncheckedCast);";
+            }
+            else if (mode == OptionalMember)
+            {
+                out << nl << stream << ".skip(4);";
+                out << nl << param << " = " << typeS << ".uncheckedCast(" << stream << ".readProxy());";
+            }
+            else
+            {
+                out << nl << param << " = " << typeS << ".uncheckedCast(" << stream << ".readProxy());";
+            }
+        }
+        return;
+    }
+
+    if (type->isClassType())
+    {
+        assert(!optionalParam); // Optional classes are disallowed by the parser.
+        if (marshal)
+        {
+            out << nl << stream << ".writeValue(" << param << ");";
+        }
+        else
+        {
+            assert(!patchParams.empty());
+            out << nl << stream << ".readValue(" << patchParams << ");";
+        }
+        return;
+    }
+
+    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
+    if (dict)
+    {
+        if (optionalParam || mode == OptionalMember)
+        {
+            string instanceType, formalType, origInstanceType, origFormalType;
+            getDictionaryTypes(dict, "", metadata, instanceType, formalType);
+            getDictionaryTypes(dict, "", MetadataList(), origInstanceType, origFormalType);
+            if (formalType == origFormalType && (marshal || instanceType == origInstanceType))
+            {
+                //
+                // If we can use the helper, it's easy.
+                //
+                string helper = getUnqualified(dict, package) + "Helper";
+                if (marshal)
+                {
+                    out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
+                    return;
+                }
+                else if (mode != OptionalMember)
+                {
+                    out << nl << param << " = " << helper << ".read" << spar << stream << tag << epar << ";";
+                    return;
+                }
+            }
+
+            TypePtr keyType = dict->keyType();
+            TypePtr valueType = dict->valueType();
+            if (marshal)
+            {
+                if (optionalParam)
+                {
+                    out << nl;
+                    if (optionalMapping)
+                    {
+                        out << "if(" << param << " != null && " << param << ".isPresent() && " << stream
+                            << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    }
+                    else
+                    {
+                        out << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    }
+                    out << sb;
+                }
+
+                if (keyType->isVariableLength() || valueType->isVariableLength())
+                {
+                    string d = optionalParam && optionalMapping ? param + ".get()" : param;
+                    out << nl << "int pos = " << stream << ".startSize();";
+                    writeDictionaryMarshalUnmarshalCode(
+                        out,
+                        package,
+                        dict,
+                        d,
+                        marshal,
+                        iter,
+                        true,
+                        customStream,
+                        metadata);
+                    out << nl << stream << ".endSize(pos);";
+                }
+                else
+                {
+                    const size_t sz = keyType->minWireSize() + valueType->minWireSize();
+                    string d = optionalParam && optionalMapping ? param + ".get()" : param;
+                    out << nl << "final int optSize = " << d << " == null ? 0 : " << d << ".size();";
+                    out << nl << stream << ".writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz
+                        << " + 1);";
+                    writeDictionaryMarshalUnmarshalCode(
+                        out,
+                        package,
+                        dict,
+                        d,
+                        marshal,
+                        iter,
+                        true,
+                        customStream,
+                        metadata);
+                }
+
+                if (optionalParam)
+                {
+                    out << eb;
+                }
+            }
+            else
+            {
+                string d = optionalParam ? "optDict" : param;
+                if (optionalParam)
+                {
+                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << sb;
+                    out << nl << typeS << ' ' << d << ';';
+                }
+                if (keyType->isVariableLength() || valueType->isVariableLength())
+                {
+                    out << nl << stream << ".skip(4);";
+                }
+                else
+                {
+                    out << nl << stream << ".skipSize();";
+                }
+                writeDictionaryMarshalUnmarshalCode(out, package, dict, d, marshal, iter, true, customStream, metadata);
+                if (optionalParam)
+                {
+                    out << nl << param << " = java.util.Optional.of(" << d << ");";
+                    out << eb;
+                    out << nl << "else";
+                    out << sb;
+                    out << nl << param << " = java.util.Optional.empty();";
+                    out << eb;
+                }
+            }
+        }
+        else
+        {
+            writeDictionaryMarshalUnmarshalCode(out, package, dict, param, marshal, iter, true, customStream, metadata);
+        }
+        return;
+    }
+
+    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
+    if (seq)
+    {
+        if (optionalParam || mode == OptionalMember)
+        {
+            TypePtr elemType = seq->type();
+            BuiltinPtr eltBltin = dynamic_pointer_cast<Builtin>(elemType);
+            if (!hasTypeMetadata(seq, metadata) && mapsToJavaBuiltinType(eltBltin))
+            {
+                string bs = builtinNameTable[eltBltin->kind()];
+                if (marshal)
+                {
+                    out << nl << stream << ".write" << bs << "Seq(" << tag << ", " << param << ");";
+                    return;
+                }
+                else if (mode != OptionalMember)
+                {
+                    out << nl << param << " = " << stream << ".read" << bs << "Seq(" << tag << ");";
+                    return;
+                }
+            }
+            else if (seq->hasMetadata("java:serializable"))
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeSerializable" << spar << tag << param << epar << ";";
+                    return;
+                }
+                else if (mode != OptionalMember)
+                {
+                    out << nl << param << " = " << stream << ".readSerializable" << spar << tag << typeS + ".class"
+                        << epar << ";";
+                    return;
+                }
+            }
+            // Check if either 1) No type metadata was applied to this sequence at all or 2) 'java:type' was applied to
+            // where the sequence is used (which overrides any metadata on the definition) or 3) 'java:type' was applied
+            // to the sequence definition, and there is no metadata overriding it where the sequence is used.
+            else if (
+                !hasTypeMetadata(seq, metadata) || hasMetadata("java:type", metadata) ||
+                (seq->hasMetadata("java:type") && !hasMetadata("java:buffer", metadata)))
+            {
+                string instanceType, formalType, origInstanceType, origFormalType;
+                getSequenceTypes(seq, "", metadata, instanceType, formalType);
+                getSequenceTypes(seq, "", MetadataList(), origInstanceType, origFormalType);
+                if (formalType == origFormalType && (marshal || instanceType == origInstanceType))
+                {
+                    string helper = getUnqualified(seq, package) + "Helper";
+                    if (marshal)
+                    {
+                        out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
+                        return;
+                    }
+                    else if (mode != OptionalMember)
+                    {
+                        out << nl << param << " = " << helper << ".read" << spar << stream << tag << epar << ";";
+                        return;
+                    }
+                }
+            }
+
+            if (marshal)
+            {
+                if (optionalParam)
+                {
+                    out << nl;
+                    if (optionalMapping)
+                    {
+                        out << "if(" << param << " != null && " << param << ".isPresent() && " << stream
+                            << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    }
+                    else
+                    {
+                        out << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    }
+                    out << sb;
+                }
+
+                if (elemType->isVariableLength())
+                {
+                    string s = optionalParam && optionalMapping ? param + ".get()" : param;
+                    out << nl << "int pos = " << stream << ".startSize();";
+                    writeSequenceMarshalUnmarshalCode(out, package, seq, s, true, iter, true, customStream, metadata);
+                    out << nl << stream << ".endSize(pos);";
+                }
+                else
+                {
+                    const size_t sz = elemType->minWireSize();
+                    string s = optionalParam && optionalMapping ? param + ".get()" : param;
+                    if (sz > 1)
+                    {
+                        out << nl << "final int optSize = " << s << " == null ? 0 : ";
+
+                        // Check the local metadata before checking metadata on the sequence definition.
+                        if (hasMetadata("java:type", metadata))
+                        {
+                            out << s << ".size();";
+                        }
+                        else if (hasMetadata("java:buffer", metadata) || seq->hasMetadata("java:buffer"))
+                        {
+                            out << s << ".remaining() / " << sz << ";";
+                        }
+                        else if (seq->hasMetadata("java:type"))
+                        {
+                            out << s << ".size();";
+                        }
+                        else
+                        {
+                            out << s << ".length;";
+                        }
+                        out << nl << stream << ".writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * "
+                            << sz << " + 1);";
+                    }
+                    writeSequenceMarshalUnmarshalCode(out, package, seq, s, true, iter, true, customStream, metadata);
+                }
+
+                if (optionalParam)
+                {
+                    out << eb;
+                }
+            }
+            else
+            {
+                const size_t sz = elemType->minWireSize();
+                string s = optionalParam ? "optSeq" : param;
+                if (optionalParam)
+                {
+                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << sb;
+                    out << nl << typeS << ' ' << s << ';';
+                }
+                if (elemType->isVariableLength())
+                {
+                    out << nl << stream << ".skip(4);";
+                }
+                else if (sz > 1)
+                {
+                    out << nl << stream << ".skipSize();";
+                }
+                writeSequenceMarshalUnmarshalCode(out, package, seq, s, false, iter, true, customStream, metadata);
+                if (optionalParam)
+                {
+                    out << nl << param << " = java.util.Optional.of(" << s << ");";
+                    out << eb;
+                    out << nl << "else";
+                    out << sb;
+                    out << nl << param << " = java.util.Optional.empty();";
+                    out << eb;
+                }
+            }
+        }
+        else
+        {
+            writeSequenceMarshalUnmarshalCode(out, package, seq, param, marshal, iter, true, customStream, metadata);
+        }
+        return;
+    }
+
+    assert(dynamic_pointer_cast<Contained>(type));
+    StructPtr st = dynamic_pointer_cast<Struct>(type);
+    if (marshal)
+    {
+        out << nl << typeS << ".ice_write(" << stream << ", ";
+        if (optionalParam)
+        {
+            out << tag << ", ";
+        }
+        out << param << ");";
+    }
+    else
+    {
+        if (optionalParam)
+        {
+            out << nl << param << " = " << typeS << ".ice_read(" << stream << ", " << tag << ");";
+        }
+        else if (mode == OptionalMember && st)
+        {
+            out << nl << stream << (st->isVariableLength() ? ".skip(4);" : ".skipSize();");
+            out << nl << param << " = " << typeS << ".ice_read(" << stream << ");";
+        }
+        else
+        {
+            out << nl << param << " = " << typeS << ".ice_read(" << stream << ");";
+        }
+    }
+}
+
+void
+Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
+    Output& out,
+    const string& package,
+    const DictionaryPtr& dict,
+    const string& param,
+    bool marshal,
+    int& iter,
+    bool useHelper,
+    const string& customStream,
+    const MetadataList& metadata)
+{
+    string stream = customStream;
+    if (stream.empty())
+    {
+        stream = marshal ? "ostr" : "istr";
+    }
+
+    //
+    // We have to determine whether it's possible to use the
+    // type's generated helper class for this marshal/unmarshal
+    // task. Since the user may have specified a custom type in
+    // metadata, it's possible that the helper class is not
+    // compatible and therefore we'll need to generate the code
+    // in-line instead.
+    //
+    // Specifically, there may be "local" metadata (i.e., from
+    // a data member or parameter definition) that overrides the
+    // original type. We'll compare the mapped types with and
+    // without local metadata to determine whether we can use
+    // the helper.
+    //
+    string instanceType, formalType, origInstanceType, origFormalType;
+    getDictionaryTypes(dict, "", metadata, instanceType, formalType);
+    getDictionaryTypes(dict, "", MetadataList(), origInstanceType, origFormalType);
+    if (useHelper && formalType == origFormalType && (marshal || instanceType == origInstanceType))
+    {
+        //
+        // If we can use the helper, it's easy.
+        //
+        string helper = getUnqualified(dict, package) + "Helper";
+        if (marshal)
+        {
+            out << nl << helper << ".write" << spar << stream << param << epar << ";";
+        }
+        else
+        {
+            out << nl << param << " = " << helper << ".read" << spar << stream << epar << ";";
+        }
+        return;
+    }
+
+    TypePtr key = dict->keyType();
+    TypePtr value = dict->valueType();
+
+    string keyS = typeToString(key, TypeModeIn, package);
+    string valueS = typeToString(value, TypeModeIn, package);
+
+    ostringstream o;
+    o << iter;
+    string iterS = o.str();
+    iter++;
+
+    if (marshal)
+    {
+        out << nl << "if(" << param << " == null)";
+        out << sb;
+        out << nl << "ostr.writeSize(0);";
+        out << eb;
+        out << nl << "else";
+        out << sb;
+        out << nl << "ostr.writeSize(" << param << ".size());";
+        string keyObjectS = typeToObjectString(key, TypeModeIn, package);
+        string valueObjectS = typeToObjectString(value, TypeModeIn, package);
+        out << nl;
+        out << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> e : " << param << ".entrySet())";
+        out << sb;
+        for (int i = 0; i < 2; i++)
+        {
+            string arg;
+            TypePtr type;
+            if (i == 0)
+            {
+                arg = "e.getKey()";
+                type = key;
+            }
+            else
+            {
+                arg = "e.getValue()";
+                type = value;
+            }
+            writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, arg, true, iter, customStream);
+        }
+        out << eb;
+        out << eb;
+    }
+    else
+    {
+        out << nl << param << " = new " << instanceType << "();";
+        out << nl << "int sz" << iterS << " = " << stream << ".readSize();";
+        out << nl << "for(int i" << iterS << " = 0; i" << iterS << " < sz" << iterS << "; i" << iterS << "++)";
+        out << sb;
+
+        if (value->isClassType())
+        {
+            out << nl << "final " << keyS << " key;";
+            writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "key", false, iter, customStream);
+
+            valueS = typeToObjectString(value, TypeModeIn, package);
+            ostringstream patchParams;
+            patchParams << "value -> " << param << ".put(key, value), " << valueS << ".class";
+            writeMarshalUnmarshalCode(
+                out,
+                package,
+                value,
+                OptionalNone,
+                false,
+                0,
+                "value",
+                false,
+                iter,
+                customStream,
+                MetadataList(),
+                patchParams.str());
+        }
+        else
+        {
+            out << nl << keyS << " key;";
+            writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "key", false, iter, customStream);
+
+            out << nl << valueS << " value;";
+            writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "value", false, iter, customStream);
+
+            out << nl << "" << param << ".put(key, value);";
+        }
+        out << eb;
+    }
+}
+
+void
+Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
+    Output& out,
+    const string& package,
+    const SequencePtr& seq,
+    const string& param,
+    bool marshal,
+    int& iter,
+    bool useHelper,
+    const string& customStream,
+    const MetadataList& metadata)
+{
+    string stream = customStream;
+    if (stream.empty())
+    {
+        stream = marshal ? "ostr" : "istr";
+    }
+
+    string typeS = typeToString(seq, TypeModeIn, package);
+
+    // Check for the serializable metadata to get rid of this case first.
+    if (seq->hasMetadata("java:serializable"))
+    {
+        if (marshal)
+        {
+            out << nl << stream << ".writeSerializable(" << param << ");";
+        }
+        else
+        {
+            out << nl << param << " = " << stream << ".readSerializable(" << typeS << ".class);";
+        }
+        return;
+    }
+
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
+    static const string bytebuffer = "java:buffer";
+    if ((seq->hasMetadata(bytebuffer) || hasMetadata(bytebuffer, metadata)) && !hasMetadata("java:type", metadata))
+    {
+        if (marshal)
+        {
+            out << nl << stream << ".write" << builtinNameTable[builtin->kind()] << "Buffer(" << param << ");";
+        }
+        else
+        {
+            out << nl << param << " = " << stream << ".read" << builtinNameTable[builtin->kind()] << "Buffer();";
+        }
+        return;
+    }
+
+    if (!hasTypeMetadata(seq, metadata) && mapsToJavaBuiltinType(builtin))
+    {
+        if (marshal)
+        {
+            out << nl << stream << ".write" << builtinNameTable[builtin->kind()] << "Seq(" << param << ");";
+        }
+        else
+        {
+            out << nl << param << " = " << stream << ".read" << builtinNameTable[builtin->kind()] << "Seq();";
+        }
+        return;
+    }
+
+    //
+    // We have to determine whether it's possible to use the
+    // type's generated helper class for this marshal/unmarshal
+    // task. Since the user may have specified a custom type in
+    // metadata, it's possible that the helper class is not
+    // compatible and therefore we'll need to generate the code
+    // in-line instead.
+    //
+    // Specifically, there may be "local" metadata (i.e., from
+    // a data member or parameter definition) that overrides the
+    // original type. We'll compare the mapped types with and
+    // without local metadata to determine whether we can use
+    // the helper.
+    //
+    string instanceType, formalType, origInstanceType, origFormalType;
+    bool customType = getSequenceTypes(seq, "", metadata, instanceType, formalType);
+    getSequenceTypes(seq, "", MetadataList(), origInstanceType, origFormalType);
+    if (useHelper && formalType == origFormalType && (marshal || instanceType == origInstanceType))
+    {
+        //
+        // If we can use the helper, it's easy.
+        //
+        string helper = getUnqualified(seq, package) + "Helper";
+        if (marshal)
+        {
+            out << nl << helper << ".write" << spar << stream << param << epar << ";";
+        }
+        else
+        {
+            out << nl << param << " = " << helper << ".read" << spar << stream << epar << ";";
+        }
+        return;
+    }
+
+    //
+    // Determine sequence depth.
+    //
+    int depth = 0;
+    TypePtr origContent = seq->type();
+    SequencePtr s = dynamic_pointer_cast<Sequence>(origContent);
+    while (s)
+    {
+        //
+        // Stop if the inner sequence type has a custom, or serializable type.
+        //
+        if (hasTypeMetadata(s))
+        {
+            break;
+        }
+        depth++;
+        origContent = s->type();
+        s = dynamic_pointer_cast<Sequence>(origContent);
+    }
+    string origContentS = typeToString(origContent, TypeModeIn, package);
+
+    TypePtr type = seq->type();
+
+    if (customType)
+    {
+        //
+        // Marshal/unmarshal a custom sequence type.
+        //
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+        typeS = getUnqualified(seq, package);
+        ostringstream o;
+        o << origContentS;
+        int d = depth;
+        while (d--)
+        {
+            o << "[]";
+        }
+        string cont = o.str();
+        if (marshal)
+        {
+            out << nl << "if(" << param << " == null)";
+            out << sb;
+            out << nl << stream << ".writeSize(0);";
+            out << eb;
+            out << nl << "else";
+            out << sb;
+            out << nl << stream << ".writeSize(" << param << ".size());";
+            string ctypeS = typeToString(type, TypeModeIn, package);
+            out << nl << "for(" << ctypeS << " elem : " << param << ')';
+            out << sb;
+            writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", true, iter, customStream);
+            out << eb;
+            out << eb; // else
+        }
+        else
+        {
+            out << nl << param << " = new " << instanceType << "();";
+            out << nl << "final int len" << iter << " = " << stream << ".readAndCheckSeqSize(" << type->minWireSize()
+                << ");";
+            out << nl << "for(int i" << iter << " = 0; i" << iter << " < len" << iter << "; i" << iter << "++)";
+            out << sb;
+            if (type->isClassType())
+            {
+                //
+                // Add a null value to the list as a placeholder for the element.
+                //
+                out << nl << param << ".add(null);";
+                ostringstream patchParams;
+                out << nl << "final int fi" << iter << " = i" << iter << ";";
+                patchParams << "value -> " << param << ".set(fi" << iter << ", value), " << origContentS << ".class";
+
+                writeMarshalUnmarshalCode(
+                    out,
+                    package,
+                    type,
+                    OptionalNone,
+                    false,
+                    0,
+                    "elem",
+                    false,
+                    iter,
+                    customStream,
+                    MetadataList(),
+                    patchParams.str());
+            }
+            else
+            {
+                out << nl << cont << " elem;";
+                writeMarshalUnmarshalCode(
+                    out,
+                    package,
+                    type,
+                    OptionalNone,
+                    false,
+                    0,
+                    "elem",
+                    false,
+                    iter,
+                    customStream);
+                out << nl << param << ".add(elem);";
+            }
+            out << eb;
+            iter++;
+        }
+    }
+    else
+    {
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+        if (mapsToJavaBuiltinType(b))
+        {
+            string_view kindName = builtinNameTable[b->kind()];
+            if (marshal)
+            {
+                out << nl << stream << ".write" << kindName << "Seq(" << param << ");";
+            }
+            else
+            {
+                out << nl << param << " = " << stream << ".read" << kindName << "Seq();";
+            }
+        }
+        else
+        {
+            if (marshal)
+            {
+                out << nl << "if(" << param << " == null)";
+                out << sb;
+                out << nl << stream << ".writeSize(0);";
+                out << eb;
+                out << nl << "else";
+                out << sb;
+                out << nl << stream << ".writeSize(" << param << ".length);";
+                out << nl << "for(int i" << iter << " = 0; i" << iter << " < " << param << ".length; i" << iter
+                    << "++)";
+                out << sb;
+                ostringstream o;
+                o << param << "[i" << iter << "]";
+                iter++;
+                writeMarshalUnmarshalCode(
+                    out,
+                    package,
+                    type,
+                    OptionalNone,
+                    false,
+                    0,
+                    o.str(),
+                    true,
+                    iter,
+                    customStream);
+                out << eb;
+                out << eb;
+            }
+            else
+            {
+                bool isObject = false;
+                ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(origContent);
+                if ((b && b->usesClasses()) || cl)
+                {
+                    isObject = true;
+                }
+                out << nl << "final int len" << iter << " = " << stream << ".readAndCheckSeqSize("
+                    << type->minWireSize() << ");";
+                //
+                // We cannot allocate an array of a generic type, such as
+                //
+                // arr = new Map<String, String>[sz];
+                //
+                // Attempting to compile this code results in a "generic array creation" error
+                // message. This problem can occur when the sequence's element type is a
+                // dictionary, or when the element type is a nested sequence that uses a custom
+                // mapping.
+                //
+                // The solution is to rewrite the code as follows:
+                //
+                // arr = (Map<String, String>[])new Map[sz];
+                //
+                // Unfortunately, this produces an unchecked warning during compilation.
+                //
+                // A simple test is to look for a "<" character in the content type, which
+                // indicates the use of a generic type.
+                //
+                string::size_type pos = origContentS.find('<');
+                if (pos != string::npos)
+                {
+                    string nonGenericType = origContentS.substr(0, pos);
+                    out << nl << param << " = (" << origContentS << "[]";
+                    int d = depth;
+                    while (d--)
+                    {
+                        out << "[]";
+                    }
+                    out << ")new " << nonGenericType << "[len" << iter << "]";
+                }
+                else
+                {
+                    out << nl << param << " = new " << origContentS << "[len" << iter << "]";
+                }
+                int d = depth;
+                while (d--)
+                {
+                    out << "[]";
+                }
+                out << ';';
+                out << nl << "for(int i" << iter << " = 0; i" << iter << " < len" << iter << "; i" << iter << "++)";
+                out << sb;
+                ostringstream o;
+                o << param << "[i" << iter << "]";
+                if (isObject)
+                {
+                    ostringstream patchParams;
+                    out << nl << "final int fi" << iter << " = i" << iter << ";";
+                    patchParams << "value -> " << param << "[fi" << iter << "] = value, " << origContentS << ".class";
+                    writeMarshalUnmarshalCode(
+                        out,
+                        package,
+                        type,
+                        OptionalNone,
+                        false,
+                        0,
+                        o.str(),
+                        false,
+                        iter,
+                        customStream,
+                        MetadataList(),
+                        patchParams.str());
+                }
+                else
+                {
+                    writeMarshalUnmarshalCode(
+                        out,
+                        package,
+                        type,
+                        OptionalNone,
+                        false,
+                        0,
+                        o.str(),
+                        false,
+                        iter,
+                        customStream);
+                }
+                out << eb;
+                iter++;
+            }
         }
     }
 }
@@ -647,35 +1535,6 @@ Slice::JavaVisitor::getPatcher(const TypePtr& type, const string& package, const
     return ostr.str();
 }
 
-vector<string>
-Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package, bool optionalMapping, bool internal)
-{
-    vector<string> params;
-    for (const auto& param : op->inParameters())
-    {
-        const string typeString = typeToString(
-            param->type(),
-            TypeModeIn,
-            package,
-            param->getMetadata(),
-            true,
-            optionalMapping && param->optional());
-        params.push_back(typeString + ' ' + (internal ? "iceP_" : "") + param->mappedName());
-    }
-    return params;
-}
-
-vector<string>
-Slice::JavaVisitor::getInArgs(const OperationPtr& op, bool internal)
-{
-    vector<string> args;
-    for (const auto& q : op->inParameters())
-    {
-        args.push_back((internal ? "iceP_" : "") + q->mappedName());
-    }
-    return args;
-}
-
 void
 Slice::JavaVisitor::writeSyncIceInvokeMethods(
     Output& out,
@@ -705,7 +1564,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
         out << nl << "@Deprecated";
     }
     out << nl << "default " << resultType << ' ' << name << spar << params << epar;
-    writeThrowsClause(package, throws);
+    writeThrowsClause(out, package, throws);
     out << sb;
     out << nl;
     if (returnsParams)
@@ -723,7 +1582,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
         out << nl << "@Deprecated";
     }
     out << nl << "default " << resultType << ' ' << name << spar << params << contextParam << epar;
-    writeThrowsClause(package, throws);
+    writeThrowsClause(out, package, throws);
     out << sb;
     if (throws.empty())
     {
@@ -1035,10 +1894,12 @@ Slice::JavaVisitor::writeMarshalServantResults(
 }
 
 void
-Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList& throws, const OperationPtr& op)
+Slice::JavaVisitor::writeThrowsClause(
+    Output& out,
+    const string& package,
+    const ExceptionList& throws,
+    const OperationPtr& op)
 {
-    Output& out = output();
-
     if (op && (op->hasMetadata("java:UserException")))
     {
         out.inc();
@@ -1784,7 +2645,7 @@ Slice::Gen::~Gen() = default;
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    JavaGenerator::validateMetadata(p);
+    Java::validateMetadata(p);
 
     TypesVisitor typesVisitor(_dir);
     p->visit(&typesVisitor);
@@ -3919,14 +4780,14 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         {
             out << nl << "java.util.concurrent.CompletionStage<" << getResultType(op, package, true, true) << "> "
                 << opName << "Async" << spar << params << currentParam << epar;
-            writeThrowsClause(package, throws, op);
+            writeThrowsClause(out, package, throws, op);
             out << ';';
         }
         else
         {
             out << nl << getResultType(op, package, false, true) << ' ' << opName << spar << params << currentParam
                 << epar;
-            writeThrowsClause(package, throws, op);
+            writeThrowsClause(out, package, throws, op);
             out << ';';
         }
     }

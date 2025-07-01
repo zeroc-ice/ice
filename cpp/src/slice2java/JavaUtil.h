@@ -8,34 +8,131 @@
 
 namespace Slice
 {
-    // Get the Java name for a type.
-    // If an optional scope is provided, the scope will be removed from the result if possible.
-    enum TypeMode
+    namespace Java
     {
-        TypeModeIn,
-        TypeModeOut,
-        TypeModeMember,
-        TypeModeReturn
-    };
+        enum TypeMode
+        {
+            TypeModeIn,
+            TypeModeOut,
+            TypeModeMember,
+            TypeModeReturn
+        };
 
-    //
-    // These functions should only be called for classes, exceptions, and structs.
-    // Enums automatically implement Serializable (Java just serializes the enumerator's identifier),
-    // and proxies get their implementation from `_ObjectPrxI`.
-    //
-    std::string getSerialVersionUID(const ContainedPtr&);
-    std::int64_t computeDefaultSerialVersionUID(const ContainedPtr&);
+        std::string getResultType(const OperationPtr&, const std::string&, bool, bool);
 
-    //
-    // Returns true if we can generate a method from the given data member list. A Java method
-    // can have a maximum of 255 parameters (including the implicit 'this') where each parameter
-    // is counted as 1 unit, except for long and double which are counted as 2 units.
-    // See https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-4.3.3
-    //
-    bool isValidMethodParameterList(const DataMemberList&, int additionalUnits = 0);
+        /// Returns a vector of this operation's parameters with each of them formatted as 'paramType paramName'.
+        /// If 'internal' is true, the names will be prefixed with "iceP_".
+        std::vector<std::string>
+        getParamsProxy(const OperationPtr& op, const std::string& package, bool optionalMapping, bool internal = false);
 
-    /// Returns true if and only if 'p' maps to one of the builtin Java types (ie. a primitive type or a string).
-    bool mapsToJavaBuiltinType(const TypePtr& p);
+        /// Returns a vector of this operation's parameter's names in order.
+        /// If 'internal' is true, the names will be prefixed with "iceP_".
+        std::vector<std::string> getInArgs(const OperationPtr& op, bool internal = false);
+
+        //
+        // These functions should only be called for classes, exceptions, and structs.
+        // Enums automatically implement Serializable (Java just serializes the enumerator's identifier),
+        // and proxies get their implementation from `_ObjectPrxI`.
+        //
+        std::string getSerialVersionUID(const ContainedPtr&);
+        std::int64_t computeDefaultSerialVersionUID(const ContainedPtr&);
+
+        //
+        // Returns true if we can generate a method from the given data member list. A Java method
+        // can have a maximum of 255 parameters (including the implicit 'this') where each parameter
+        // is counted as 1 unit, except for long and double which are counted as 2 units.
+        // See https://docs.oracle.com/javase/specs/jvms/se20/html/jvms-4.html#jvms-4.3.3
+        //
+        bool isValidMethodParameterList(const DataMemberList&, int additionalUnits = 0);
+
+        /// Returns true if and only if 'p' maps to one of the builtin Java types (ie. a primitive type or a string).
+        bool mapsToJavaBuiltinType(const TypePtr& p);
+
+        /// Returns a package prefix specified by the 'java:package' metadata if present, or the empty string if not.
+        [[nodiscard]] std::string getPackagePrefix(const ContainedPtr& contained);
+
+        /// Returns the Java package that 'contained' will be mapped into.
+        [[nodiscard]] std::string getPackage(const ContainedPtr& contained);
+
+        // Returns the Java type without a package if the package matches the current package
+        [[nodiscard]] std::string getUnqualified(const std::string& type, const std::string& package);
+
+        /// Returns the qualified Java name that 'contained' will be mapped to (ie. package + '.' + name).
+        ///
+        /// This name is qualified relative to the provided 'package',
+        /// so if 'contained' lives within this package, the returned name will have no qualification.
+        [[nodiscard]] std::string getUnqualified(const ContainedPtr& cont, const std::string& package = std::string());
+
+        //
+        // Return the method call necessary to obtain the static type ID for an object type.
+        //
+        [[nodiscard]] std::string getStaticId(const TypePtr& type, const std::string& package);
+
+        //
+        // Returns the optional type corresponding to the given Slice type.
+        //
+        [[nodiscard]] std::string getOptionalFormat(const TypePtr& type);
+
+        [[nodiscard]] std::string typeToString(
+            const TypePtr& type,
+            TypeMode mode,
+            const std::string& package = std::string(),
+            const MetadataList& metadata = MetadataList(),
+            bool formal = true,
+            bool optional = false);
+
+        //
+        // Get the Java object name for a type. For primitive types, this returns the
+        // Java class type (e.g., Integer). For all other types, this function delegates
+        // to typeToString.
+        //
+        [[nodiscard]] std::string typeToObjectString(
+            const TypePtr& type,
+            TypeMode mode,
+            const std::string& package = std::string(),
+            const MetadataList& metadata = MetadataList(),
+            bool formal = true);
+
+        //
+        // Returns` true` if the metadata has an entry with the given directive, and `false` otherwise.
+        //
+        [[nodiscard]] bool hasMetadata(const std::string& directive, const MetadataList& metadata);
+
+        //
+        // Get custom type metadata. If metadata is found, the abstract and
+        // concrete types are extracted and the function returns true. If an
+        // abstract type is not specified, it is set to an empty string.
+        //
+        [[nodiscard]] bool
+        getTypeMetadata(const MetadataList& metadata, std::string& instanceType, std::string& formalType);
+
+        //
+        // Determine whether a custom type is defined. The function checks the
+        // metadata of the type's original definition, as well as any optional
+        // metadata that typically represents a data member or parameter.
+        //
+        [[nodiscard]] bool hasTypeMetadata(const SequencePtr& seq, const MetadataList& localMetadata = MetadataList());
+
+        //
+        // Obtain the concrete and abstract types for a dictionary or sequence type.
+        // The functions return true if a custom type was defined and false to indicate
+        // the default mapping was used.
+        //
+        bool getDictionaryTypes(
+            const DictionaryPtr& dict,
+            const std::string& package,
+            const MetadataList& metadata,
+            std::string& instanceType,
+            std::string& formalType);
+        bool getSequenceTypes(
+            const SequencePtr& seq,
+            const std::string& package,
+            const MetadataList& metadata,
+            std::string& instanceType,
+            std::string& formalType);
+
+        void validateMetadata(const UnitPtr&);
+    }
 
     class JavaOutput final : public ::IceInternal::Output
     {
@@ -67,8 +164,6 @@ namespace Slice
 
         JavaGenerator& operator=(const JavaGenerator&) = delete;
 
-        static void validateMetadata(const UnitPtr&);
-
         void close();
 
         JavaGenerator(std::string);
@@ -80,145 +175,6 @@ namespace Slice
         void open(const std::string& qualifiedEntity, const std::string& sliceFile);
 
         [[nodiscard]] IceInternal::Output& output() const;
-
-        /// Returns a package prefix specified by the 'java:package' metadata if present, or the empty string if not.
-        [[nodiscard]] static std::string getPackagePrefix(const ContainedPtr& contained);
-
-        /// Returns the Java package that 'contained' will be mapped into.
-        [[nodiscard]] static std::string getPackage(const ContainedPtr& contained);
-
-        // Returns the Java type without a package if the package matches the current package
-        [[nodiscard]] static std::string getUnqualified(const std::string& type, const std::string& package);
-
-        /// Returns the qualified Java name that 'contained' will be mapped to (ie. package + '.' + name).
-        ///
-        /// This name is qualified relative to the provided 'package',
-        /// so if 'contained' lives within this package, the returned name will have no qualification.
-        [[nodiscard]] static std::string
-        getUnqualified(const ContainedPtr& cont, const std::string& package = std::string());
-
-        //
-        // Return the method call necessary to obtain the static type ID for an object type.
-        //
-        [[nodiscard]] static std::string getStaticId(const TypePtr& type, const std::string& package);
-
-        //
-        // Returns the optional type corresponding to the given Slice type.
-        //
-        [[nodiscard]] static std::string getOptionalFormat(const TypePtr& type);
-
-        [[nodiscard]] static std::string typeToString(
-            const TypePtr& type,
-            TypeMode mode,
-            const std::string& package = std::string(),
-            const MetadataList& metadata = MetadataList(),
-            bool formal = true,
-            bool optional = false);
-
-        //
-        // Get the Java object name for a type. For primitive types, this returns the
-        // Java class type (e.g., Integer). For all other types, this function delegates
-        // to typeToString.
-        //
-        [[nodiscard]] static std::string typeToObjectString(
-            const TypePtr& type,
-            TypeMode mode,
-            const std::string& package = std::string(),
-            const MetadataList& metadata = MetadataList(),
-            bool formal = true);
-
-        //
-        // Generate code to marshal or unmarshal a type.
-        //
-        enum OptionalMode
-        {
-            OptionalNone,
-            OptionalInParam,
-            OptionalOutParam,
-            OptionalReturnParam,
-            OptionalMember
-        };
-
-        static void writeMarshalUnmarshalCode(
-            ::IceInternal::Output& out,
-            const std::string& package,
-            const TypePtr& type,
-            OptionalMode mode,
-            bool optionalMapping,
-            std::int32_t tag,
-            const std::string& param,
-            bool marshal,
-            int& iter,
-            const std::string& customStream = "",
-            const MetadataList& metadata = MetadataList(),
-            const std::string& patchParams = "");
-
-        //
-        // Generate code to marshal or unmarshal a dictionary type.
-        //
-        static void writeDictionaryMarshalUnmarshalCode(
-            ::IceInternal::Output& out,
-            const std::string& package,
-            const DictionaryPtr& dict,
-            const std::string& param,
-            bool marshal,
-            int& iter,
-            bool useHelper,
-            const std::string& customStream = "",
-            const MetadataList& metadata = MetadataList());
-
-        //
-        // Generate code to marshal or unmarshal a sequence type.
-        //
-        static void writeSequenceMarshalUnmarshalCode(
-            ::IceInternal::Output& out,
-            const std::string& package,
-            const SequencePtr& seq,
-            const std::string& param,
-            bool marshal,
-            int& iter,
-            bool useHelper,
-            const std::string& customStream = "",
-            const MetadataList& metadata = MetadataList());
-
-        //
-        // Returns` true` if the metadata has an entry with the given directive, and `false` otherwise.
-        //
-        [[nodiscard]] static bool hasMetadata(const std::string& directive, const MetadataList& metadata);
-
-        //
-        // Get custom type metadata. If metadata is found, the abstract and
-        // concrete types are extracted and the function returns true. If an
-        // abstract type is not specified, it is set to an empty string.
-        //
-        [[nodiscard]] static bool
-        getTypeMetadata(const MetadataList& metadata, std::string& instanceType, std::string& formalType);
-
-        //
-        // Determine whether a custom type is defined. The function checks the
-        // metadata of the type's original definition, as well as any optional
-        // metadata that typically represents a data member or parameter.
-        //
-        [[nodiscard]] static bool
-        hasTypeMetadata(const SequencePtr& seq, const MetadataList& localMetadata = MetadataList());
-
-        //
-        // Obtain the concrete and abstract types for a dictionary or sequence type.
-        // The functions return true if a custom type was defined and false to indicate
-        // the default mapping was used.
-        //
-        static bool getDictionaryTypes(
-            const DictionaryPtr& dict,
-            const std::string& package,
-            const MetadataList& metadata,
-            std::string& instanceType,
-            std::string& formalType);
-        static bool getSequenceTypes(
-            const SequencePtr& seq,
-            const std::string& package,
-            const MetadataList& metadata,
-            std::string& instanceType,
-            std::string& formalType);
 
     private:
         std::string _dir;
