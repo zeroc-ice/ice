@@ -1190,7 +1190,7 @@ allTests(TestHelper* helper)
     auto currentLocale = std::locale();
     try
     {
-       std::locale::global(std::locale("en_US.UTF-8"));
+        std::locale::global(std::locale("en_US.UTF-8"));
     }
     catch (const std::runtime_error&)
     {
