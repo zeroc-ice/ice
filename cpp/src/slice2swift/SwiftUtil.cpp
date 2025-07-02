@@ -65,12 +65,12 @@ namespace
             }
 
             const string sourceModule = Slice::Swift::getSwiftModule(source->getTopLevelModule());
-            const string targetModule = Slice::Swift::getSwiftModule(target->getTopLevelModule());
+            const string targetModule = Slice::Swift::getSwiftModule(contained->getTopLevelModule());
 
             // Get the mapped-and-qualified name of the thing we're linking to, but replace any '.' with '/'.
             // DocC uses forward slashes to separate symbols instead of periods.
-            const string mappedLink = Slice::Swift::getRelativeTypeString(contained, sourceModule) + nameSuffix;
-            std::replace(result.begin(), result.end(), '.', '/');
+            string mappedLink = Slice::Swift::getRelativeTypeString(contained, sourceModule) + nameSuffix;
+            std::replace(mappedLink.begin(), mappedLink.end(), '.', '/');
 
             // DocC only supports linking to symbols that are in the same module.
             // So if the source and target elements are in the same module, we can generate a DocC link
