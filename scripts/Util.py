@@ -2549,7 +2549,7 @@ class RemoteProcessController(ProcessController):
                 with self.cond:
                     if ident not in self.processControllerProxies:
                         self.processControllerProxies[proxy.ice_getIdentity()] = proxy
-                    self.cond.notifyAll()
+                    self.cond.notify_all()
             except Exception:
                 pass
 
@@ -2599,7 +2599,7 @@ class RemoteProcessController(ProcessController):
 
                 proxy.ice_getConnection().setCallback(CallbackI(self))
 
-            self.cond.notifyAll()
+            self.cond.notify_all()
 
     def supportsDiscovery(self):
         return True
@@ -2673,7 +2673,7 @@ class AndroidProcessController(RemoteProcessController):
         elif current.config.avd or not current.config.device:
             endpoint = "tcp -h 127.0.0.1 -p 15001"
         RemoteProcessController.__init__(self, current, endpoint)
-        self.device = current.config.device
+        self.device = current.config.device if current.config.device != "" else None
         self.avd = current.config.avd
         self.emulator = None  # Keep a reference to the android emulator process
 
@@ -2761,8 +2761,6 @@ class AndroidProcessController(RemoteProcessController):
                 run("avdmanager -v delete avd -n IceTests")  # Delete the created device
             except Exception:
                 pass
-            # The SDK is downloaded by test VMs instead of here.
-            # run("sdkmanager \"{0}\"".format(sdk), stdout=True, stdin="yes", stdinRepeat=True) # yes to accept licenses
             run(
                 'avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk)
             )
