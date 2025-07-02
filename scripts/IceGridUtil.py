@@ -145,6 +145,11 @@ class IceGridNode(ProcessFromBinDir, Server):
     def getPropertiesOverride(self, current):
         # Add properties for servers based on the test case mapping.
         props = Server().getEffectiveProps(current, {})
+        # Remove Server thread pool properties set by the base Server class.
+        # These properties are not used by icegridnode and cause warnings during tests.
+        del props["Ice.ThreadPool.Server.Size"]
+        del props["Ice.ThreadPool.Server.SizeMax"]
+        del props["Ice.ThreadPool.Server.SizeWarn"]
         return " ".join(["{0}={1}".format(k, val(v)) for k, v in props.items()])
 
     def shutdown(self, current):
