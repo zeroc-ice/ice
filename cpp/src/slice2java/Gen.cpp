@@ -326,7 +326,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
             {
                 if (optionalParam)
                 {
-                    out << nl << "if(";
+                    out << nl << "if (";
                     if (optionalMapping)
                     {
                         out << param << " != null && " << param << ".isPresent() && ";
@@ -363,7 +363,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                 const string d = optionalParam ? "optDict" : param;
                 if (optionalParam)
                 {
-                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << typeS << ' ' << d << ';';
                 }
@@ -462,12 +462,12 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                     out << nl;
                     if (optionalMapping)
                     {
-                        out << "if(" << param << " != null && " << param << ".isPresent() && " << stream
+                        out << "if (" << param << " != null && " << param << ".isPresent() && " << stream
                             << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     }
                     else
                     {
-                        out << "if(" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                        out << "if (" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     }
                     out << sb;
                 }
@@ -521,7 +521,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                 string s = optionalParam ? "optSeq" : param;
                 if (optionalParam)
                 {
-                    out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                    out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << typeS << ' ' << s << ';';
                 }
@@ -630,7 +630,7 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
 
     if (marshal)
     {
-        out << nl << "if(" << param << " == null)";
+        out << nl << "if (" << param << " == null)";
         out << sb;
         out << nl << "ostr.writeSize(0);";
         out << eb;
@@ -839,7 +839,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
         string cont = o.str();
         if (marshal)
         {
-            out << nl << "if(" << param << " == null)";
+            out << nl << "if (" << param << " == null)";
             out << sb;
             out << nl << stream << ".writeSize(0);";
             out << eb;
@@ -923,7 +923,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
         {
             if (marshal)
             {
-                out << nl << "if(" << param << " == null)";
+                out << nl << "if (" << param << " == null)";
                 out << sb;
                 out << nl << stream << ".writeSize(0);";
                 out << eb;
@@ -1898,7 +1898,7 @@ Slice::JavaVisitor::writeMarshalDataMember(
     if (member->optional())
     {
         assert(!forStruct);
-        out << nl << "if(_" << memberName << ")";
+        out << nl << "if (_" << memberName << ")";
         out << sb;
         writeMarshalUnmarshalCode(
             out,
@@ -1951,7 +1951,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(
     if (member->optional())
     {
         assert(!forStruct);
-        out << nl << "if(_" << memberName << " = istr_.readOptional(" << member->tag() << ", "
+        out << nl << "if (_" << memberName << " = istr_.readOptional(" << member->tag() << ", "
             << getOptionalFormat(member->type()) << "))";
         out << sb;
         writeMarshalUnmarshalCode(
@@ -3289,16 +3289,16 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "@Override";
     out << nl << "public boolean equals(java.lang.Object rhs)";
     out << sb;
-    out << nl << "if(this == rhs)";
+    out << nl << "if (this == rhs)";
     out << sb;
     out << nl << "return true;";
     out << eb;
     out << nl << typeS << " r = null;";
-    out << nl << "if(rhs instanceof " << typeS << ")";
+    out << nl << "if (rhs instanceof " << typeS << ")";
     out << sb;
     out << nl << "r = (" << typeS << ")rhs;";
     out << eb;
-    out << sp << nl << "if(r != null)";
+    out << sp << nl << "if (r != null)";
     out << sb;
     for (const auto& member : members)
     {
@@ -3316,7 +3316,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 case Builtin::KindFloat:
                 case Builtin::KindDouble:
                 {
-                    out << nl << "if(this." << memberName << " != r." << memberName << ')';
+                    out << nl << "if (this." << memberName << " != r." << memberName << ')';
                     out << sb;
                     out << nl << "return false;";
                     out << eb;
@@ -3328,9 +3328,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 case Builtin::KindObjectProxy:
                 case Builtin::KindValue:
                 {
-                    out << nl << "if(this." << memberName << " != r." << memberName << ')';
+                    out << nl << "if (this." << memberName << " != r." << memberName << ')';
                     out << sb;
-                    out << nl << "if(this." << memberName << " == null || r." << memberName << " == null || !this."
+                    out << nl << "if (this." << memberName << " == null || r." << memberName << " == null || !this."
                         << memberName << ".equals(r." << memberName << "))";
                     out << sb;
                     out << nl << "return false;";
@@ -3355,9 +3355,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             {
                 if (hasTypeMetadata(seq, member->getMetadata()))
                 {
-                    out << nl << "if(this." << memberName << " != r." << memberName << ')';
+                    out << nl << "if (this." << memberName << " != r." << memberName << ')';
                     out << sb;
-                    out << nl << "if(this." << memberName << " == null || r." << memberName << " == null || !this."
+                    out << nl << "if (this." << memberName << " == null || r." << memberName << " == null || !this."
                         << memberName << ".equals(r." << memberName << "))";
                     out << sb;
                     out << nl << "return false;";
@@ -3369,7 +3369,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                     //
                     // Arrays.equals() handles null values.
                     //
-                    out << nl << "if(!java.util.Arrays.equals(this." << memberName << ", r." << memberName << "))";
+                    out << nl << "if (!java.util.Arrays.equals(this." << memberName << ", r." << memberName << "))";
                     out << sb;
                     out << nl << "return false;";
                     out << eb;
@@ -3377,9 +3377,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             }
             else
             {
-                out << nl << "if(this." << memberName << " != r." << memberName << ')';
+                out << nl << "if (this." << memberName << " != r." << memberName << ')';
                 out << sb;
-                out << nl << "if(this." << memberName << " == null || r." << memberName << " == null || !this."
+                out << nl << "if (this." << memberName << " == null || r." << memberName << " == null || !this."
                     << memberName << ".equals(r." << memberName << "))";
                 out << sb;
                 out << nl << "return false;";
@@ -3463,7 +3463,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << " */";
     out << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
     out << sb;
-    out << nl << "if(v == null)";
+    out << nl << "if (v == null)";
     out << sb;
     out << nl << "_nullMarshalValue.ice_writeMembers(ostr);";
     out << eb;
@@ -3498,7 +3498,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << " */";
     out << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << optName << " v)";
     out << sb;
-    out << nl << "if(v != null && v.isPresent())";
+    out << nl << "if (v != null && v.isPresent())";
     out << sb;
     out << nl << "ice_write(ostr, tag, v.get());";
     out << eb;
@@ -3514,7 +3514,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << " */";
     out << nl << "static public void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << name << " v)";
     out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     if (p->isVariableLength())
     {
@@ -3540,7 +3540,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << " */";
     out << nl << "static public " << optName << " ice_read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (istr.readOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     if (p->isVariableLength())
     {
@@ -3628,7 +3628,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << sb;
         if (isOptional)
         {
-            out << nl << "if(!_" << name << ')';
+            out << nl << "if (!_" << name << ')';
             out << sb;
             out << nl << "throw new java.util.NoSuchElementException(\"" << name << " is not set\");";
             out << eb;
@@ -3691,7 +3691,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             }
             out << nl << "public void optional" << capName << '(' << optType << " v)";
             out << sb;
-            out << nl << "if(v == null || !v.isPresent())";
+            out << nl << "if (v == null || !v.isPresent())";
             out << sb;
             out << nl << "_" << name << " = false;";
             out << eb;
@@ -3725,7 +3725,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             }
             out << nl << "public " << optType << " optional" << capName << "()";
             out << sb;
-            out << nl << "if(_" << name << ')';
+            out << nl << "if (_" << name << ')';
             out << sb;
             if (classType)
             {
@@ -3784,7 +3784,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << sb;
             if (isOptional)
             {
-                out << nl << "if(!_" << name << ')';
+                out << nl << "if (!_" << name << ')';
                 out << sb;
                 out << nl << "throw new java.util.NoSuchElementException(\"" << name << " is not set\");";
                 out << eb;
@@ -3816,7 +3816,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 out << sb;
                 if (isOptional)
                 {
-                    out << nl << "if(!_" << name << ')';
+                    out << nl << "if (!_" << name << ')';
                     out << sb;
                     out << nl << "throw new java.util.NoSuchElementException(\"" << name << " is not set\");";
                     out << eb;
@@ -3836,7 +3836,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 out << sb;
                 if (isOptional)
                 {
-                    out << nl << "if(!_" << name << ')';
+                    out << nl << "if (!_" << name << ')';
                     out << sb;
                     out << nl << "throw new java.util.NoSuchElementException(\"" << name << " is not set\");";
                     out << eb;
@@ -3909,7 +3909,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << " */";
     out << nl << "public static " << name << " valueOf(int v)";
     out << sb;
-    out << nl << "switch(v)";
+    out << nl << "switch (v)";
     out << sb;
     out.dec();
     for (const auto& enumerator : enumerators)
@@ -3949,7 +3949,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << " */";
     out << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, " << name << " v)";
     out << sb;
-    out << nl << "if(v == null)";
+    out << nl << "if (v == null)";
     out << sb;
     string firstEnum = enumerators.front()->mappedName();
     out << nl << "ostr.writeEnum(" << absolute << '.' << firstEnum << ".value(), " << p->maxValue() << ");";
@@ -3984,7 +3984,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << " */";
     out << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << optName << " v)";
     out << sb;
-    out << nl << "if(v != null && v.isPresent())";
+    out << nl << "if (v != null && v.isPresent())";
     out << sb;
     out << nl << "ice_write(ostr, tag, v.get());";
     out << eb;
@@ -4000,7 +4000,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << " */";
     out << nl << "public static void ice_write(com.zeroc.Ice.OutputStream ostr, int tag, " << name << " v)";
     out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     out << nl << "ice_write(ostr, v);";
     out << eb;
@@ -4016,7 +4016,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << " */";
     out << nl << "public static " << optName << " ice_read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (istr.readOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     out << nl << "return java.util.Optional.of(ice_read(istr));";
     out << eb;
@@ -4029,7 +4029,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp << nl << "private static " << name << " validate(int v)";
     out << sb;
     out << nl << "final " << name << " e = valueOf(v);";
-    out << nl << "if(e == null)";
+    out << nl << "if (e == null)";
     out << sb;
     out << nl << R"(throw new com.zeroc.Ice.MarshalException("enumerator value " + v + " is out of range");)";
     out << eb;
@@ -4157,7 +4157,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
     out << sb;
-    out << nl << "if(v != null && v.isPresent())";
+    out << nl << "if (v != null && v.isPresent())";
     out << sb;
     out << nl << "write(ostr, tag, v.get());";
     out << eb;
@@ -4173,7 +4173,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << typeS << " v)";
     out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     if (p->type()->isVariableLength())
     {
@@ -4207,7 +4207,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << " */";
     out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (istr.readOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     if (p->type()->isVariableLength())
     {
@@ -4287,7 +4287,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
     out << sb;
-    out << nl << "if(v != null && v.isPresent())";
+    out << nl << "if (v != null && v.isPresent())";
     out << sb;
     out << nl << "write(ostr, tag, v.get());";
     out << eb;
@@ -4303,7 +4303,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << " */";
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << formalType << " v)";
     out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     TypePtr keyType = p->keyType();
     TypePtr valueType = p->valueType();
@@ -4333,7 +4333,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << " */";
     out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+    out << nl << "if (istr.readOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     if (keyType->isVariableLength() || valueType->isVariableLength())
     {
