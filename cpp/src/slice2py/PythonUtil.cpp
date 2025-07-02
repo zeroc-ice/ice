@@ -1290,7 +1290,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         else if (auto st = dynamic_pointer_cast<Struct>(field->type()))
         {
             // See writeAssign.
-            _out << " = " << getTypeReference(st) << "()";
+            _out << " = " << "field(default_factory=" << getTypeReference(st) << ')';
         }
         else
         {
@@ -2248,7 +2248,7 @@ Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& inc
     }
     if (unit->contains<Struct>())
     {
-        out << nl << "from dataclasses import dataclass";
+        out << nl << "from dataclasses import dataclass, field";
     }
 
     out << nl << "import Ice";
