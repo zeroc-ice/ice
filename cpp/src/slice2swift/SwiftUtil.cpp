@@ -18,12 +18,7 @@ namespace
 {
     string swiftLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
     {
-        if (auto builtin = dynamic_pointer_cast<Builtin>(target))
-        {
-            // We have no way to link to the builtin types, so we just emit the mapped type in a monospaced format.
-            return "`" + Slice::Swift::typeToString(builtin, source, false) + "`";
-        }
-        else if (auto contained = dynamic_pointer_cast<Contained>(target))
+        if (auto contained = dynamic_pointer_cast<Contained>(target))
         {
             string nameSuffix;
 
@@ -77,6 +72,11 @@ namespace
             // (using double back-ticks). Otherwise, we emit the mapped name in monospace (using single back-ticks).
             const string ticks = (sourceModule == targetModule ? "``" : "`");
             return ticks + mappedLink + ticks;
+        }
+        else if (auto builtin = dynamic_pointer_cast<Builtin>(target))
+        {
+            // We have no way to link to the builtin types, so we just emit the mapped type in a monospaced format.
+            return "`" + Slice::Swift::typeToString(builtin, source, false) + "`";
         }
         else // We couldn't resolve the link target and make a best-effort attempt to map the raw link.
         {
