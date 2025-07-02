@@ -69,11 +69,6 @@ namespace
             return builtinTable[builtin->kind()];
         }
 
-        if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
-        {
-            return cl->mappedScoped(".");
-        }
-
         if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
         {
             return proxy->mappedScoped(".") + "Prx";
@@ -84,12 +79,9 @@ namespace
             return "dictionary";
         }
 
-        if (auto contained = dynamic_pointer_cast<Contained>(type))
-        {
-            return contained->mappedScoped(".");
-        }
-
-        return "???";
+        auto contained = dynamic_pointer_cast<Contained>(type);
+        assert(contained); // every 'Type' is either 'Builtin', or 'Contained'
+        return contained->mappedScoped(".");
     }
 
     // Type represents a dictionary value type or the type of a sequence element.
@@ -281,25 +273,26 @@ namespace
         }
     }
 
-    /// Returns a MATLAB formatted link to the provided Slice identifier.
-    /// TODO: this is temporary and will be replaced when we add 'matlab:identifier' support.
-    string matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    /// Returns a MATLAB doc-link if the provided target is an operation (MATLAB only allows linking to functions).
+    /// If @p target is not an operation, we emit the mapped name in monospace formatting instead of a link.
+    string matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
     {
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        if (auto opTarget = dynamic_pointer_cast<Operation>(target))
         {
-            string result;
-            if (hashPos != 0)
-            {
-                result += rawLink.substr(0, hashPos);
-                result += ".";
-            }
-            result += rawLink.substr(hashPos + 1);
-            return result;
+            const string opName = opTarget->mappedName();
+            return "<matlab:doc('" + opName + "') " + opName + ">" ;
+        }
+        else if (auto typeTarget = dynamic_pointer_cast<Type>(target))
+        {
+            return "|" + typeToString(typeTarget) + "|";
+        }
+        else if (auto contained = dynamic_pointer_cast<Contained>(target))
+        {
+            return "|" + contained->mappedScoped(".") + "|";
         }
         else
         {
-            return rawLink;
+            return "|" + rawLink + "|";
         }
     }
 
