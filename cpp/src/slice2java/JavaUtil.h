@@ -18,11 +18,13 @@ namespace Slice
             TypeModeReturn
         };
 
-        [[nodiscard]] std::string getResultType(const OperationPtr& op, const std::string& package, bool object, bool dispatch);
+        [[nodiscard]] std::string
+        getResultType(const OperationPtr& op, const std::string& package, bool object, bool dispatch);
 
         /// Returns a vector of this operation's parameters with each of them formatted as 'paramType paramName'.
         /// If 'internal' is true, the names will be prefixed with "iceP_".
-        [[nodiscard]] std::vector<std::string> getParamsProxy(const OperationPtr& op, const std::string& package, bool optionalMapping, bool internal = false);
+        [[nodiscard]] std::vector<std::string>
+        getParamsProxy(const OperationPtr& op, const std::string& package, bool optionalMapping, bool internal = false);
 
         /// Returns a vector of this operation's parameter's names in order.
         /// If 'internal' is true, the names will be prefixed with "iceP_".
@@ -89,7 +91,8 @@ namespace Slice
         /// Gets any custom type metadata.
         /// If metadata is found, the abstract and concrete types are extracted and the function returns true.
         /// If an abstract type is not specified, it is set to an empty string.
-        [[nodiscard]] bool getTypeMetadata(const MetadataList& metadata, std::string& instanceType, std::string& formalType);
+        [[nodiscard]] bool
+        getTypeMetadata(const MetadataList& metadata, std::string& instanceType, std::string& formalType);
 
         /// Determine whether a custom type is defined. The function checks the metadata of the type's original
         /// definition, as well as any optional metadata that typically represents a data member or parameter.

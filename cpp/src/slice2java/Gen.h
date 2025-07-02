@@ -82,7 +82,11 @@ namespace Slice
             const std::string& package,
             const std::optional<DocComment>& comment);
 
-        static void allocatePatcher(IceInternal::Output& out, const TypePtr& type, const std::string& package, const std::string& name);
+        static void allocatePatcher(
+            IceInternal::Output& out,
+            const TypePtr& type,
+            const std::string& package,
+            const std::string& name);
         static std::string getPatcher(const TypePtr& type, const std::string& package, const std::string& dest);
 
         static void writeSyncIceInvokeMethods(
@@ -100,9 +104,18 @@ namespace Slice
             const std::optional<DocComment>& dc,
             bool optionalMapping);
 
-        static void writeMarshalProxyParams(IceInternal::Output& out, const std::string& package, const OperationPtr& op, bool optionalMapping);
-        static void writeUnmarshalProxyResults(IceInternal::Output& out , const std::string& package, const OperationPtr& op);
-        static void writeMarshalServantResults(IceInternal::Output& out, const std::string& package, const OperationPtr& op, const std::string& param);
+        static void writeMarshalProxyParams(
+            IceInternal::Output& out,
+            const std::string& package,
+            const OperationPtr& op,
+            bool optionalMapping);
+        static void
+        writeUnmarshalProxyResults(IceInternal::Output& out, const std::string& package, const OperationPtr& op);
+        static void writeMarshalServantResults(
+            IceInternal::Output& out,
+            const std::string& package,
+            const OperationPtr& op,
+            const std::string& param);
 
         /// Generate a throws clause containing only checked exceptions.
         /// @remark \p op is provided only when we want to check for the 'java:UserException' metadata.

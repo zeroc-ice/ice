@@ -643,7 +643,17 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
         out << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> e : " << param << ".entrySet())";
         out << sb;
         writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "e.getKey()", true, iter, customStream);
-        writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "e.getValue()", true, iter, customStream);
+        writeMarshalUnmarshalCode(
+            out,
+            package,
+            value,
+            OptionalNone,
+            false,
+            0,
+            "e.getValue()",
+            true,
+            iter,
+            customStream);
         out << eb;
         out << eb;
     }
@@ -681,7 +691,7 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
         }
         else
         {
-            out << nl << "final " << keyS << " key;";
+            out << nl << keyS << " key;";
             writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "key", false, iter, customStream);
 
             out << nl << valueS << " value;";
