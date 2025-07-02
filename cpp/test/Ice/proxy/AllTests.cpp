@@ -1186,14 +1186,21 @@ allTests(TestHelper* helper)
 
     cout << "ok" << endl;
 
-    // TODO: with iOS, we get:
-    // collate_byname<char>::collate_byname failed to construct for en_US.UTF-8
-#if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
-    cout << "testing proxy to string is not affected by locale settings... " << flush;
+    bool skipLocaleTest = false;
     auto currentLocale = std::locale();
-    std::locale::global(std::locale("en_US.UTF-8"));
-
+    try
     {
+       std::locale::global(std::locale("en_US.UTF-8"));
+    }
+    catch (const std::runtime_error&)
+    {
+        skipLocaleTest = true; // Locale not supported, skip the test
+        cout << "cannot change locale skipping locale tests" << endl;
+    }
+
+    if (!skipLocaleTest)
+    {
+        cout << "testing proxy to string is not affected by locale settings... " << flush;
         optional<ObjectPrx> p = communicator->stringToProxy("test -e 1.0:tcp -h localhost -p 10000 -t 20000");
         pstr = communicator->proxyToString(p);
         test(pstr == "test -e 1.0:tcp -h localhost -p 10000 -t 20000");
@@ -1207,24 +1214,21 @@ allTests(TestHelper* helper)
         p = communicator->stringToProxy("test -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
         pstr = communicator->proxyToString(p);
         test(pstr == "test -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
-    }
-    std::locale::global(currentLocale);
-    cout << "ok" << endl;
+        cout << "ok" << endl;
 
-    cout << "testing proxy to property is not affected by locale settings... " << flush;
-    std::locale::global(std::locale("en_US.UTF-8"));
-    {
-        optional<ObjectPrx> p = communicator->stringToProxy("test:tcp -h localhost -p 10000 -t 20000");
-        p = p->ice_invocationTimeout(10000);
-        p = p->ice_locatorCacheTimeout(20000);
-        PropertyDict properties = communicator->proxyToProperty(p, "Test");
-        test(properties["Test"] == "test:tcp -h localhost -p 10000 -t 20000");
-        test(properties["Test.InvocationTimeout"] == "10000");
-        test(properties["Test.LocatorCacheTimeout"] == "20000");
+        cout << "testing proxy to property is not affected by locale settings... " << flush;
+        {
+            p = communicator->stringToProxy("test:tcp -h localhost -p 10000 -t 20000");
+            p = p->ice_invocationTimeout(10000);
+            p = p->ice_locatorCacheTimeout(20000);
+            PropertyDict properties = communicator->proxyToProperty(p, "Test");
+            test(properties["Test"] == "test:tcp -h localhost -p 10000 -t 20000");
+            test(properties["Test.InvocationTimeout"] == "10000");
+            test(properties["Test.LocatorCacheTimeout"] == "20000");
+        }
+        std::locale::global(currentLocale);
+        cout << "ok" << endl;
     }
-    std::locale::global(currentLocale);
-    cout << "ok" << endl;
-#endif
 
     cout << "testing proxy hierarchy... " << flush;
     {
