@@ -1,83 +1,46 @@
 # Copyright (c) ZeroC, Inc.
 
-from typing import final
+from dataclasses import dataclass
+from IcePy import Connection
+from .ObjectAdapter import ObjectAdapter
 
-@final
+import Ice.Identity_ice
+import Ice.OperationMode_ice
+import Ice.Version_ice
+
+@dataclass(frozen=True)
 class Current:
     """
     Provides information about an incoming request being dispatched.
+
+    Attributes
+    ----------
+    adapter : Ice.ObjectAdapter
+        The object adapter that received the request.
+    con : IcePy.Connection | None
+        The connection that received the request. It's None when the invocation and dispatch are collocated.
+    id : Ice.Identity
+        The identity of the target Ice object.
+    facet : str
+        The facet of the target Ice object.
+    operation : str
+        The name of the operation.
+    mode : Ice.OperationMode
+        The operation mode (idempotent or not).
+    ctx : dict[str, str]
+        The request context.
+    requestId : int
+        The request ID. 0 means the request is a one-way request.
+    encoding : Ice.EncodingVersion
+        The encoding of the request payload.
     """
 
-    def __init__(self, adapter, con, id, facet, operation, mode, ctx, requestId, encoding):
-        self._adapter = adapter
-        self._con = con
-        self._id = id
-        self._facet = facet
-        self._operation = operation
-        self._mode = mode
-        self._ctx = ctx
-        self._requestId = requestId
-        self._encoding = encoding
-
-    @property
-    def adapter(self):
-        """
-        Ice.ObjectAdapter: The object adapter that received the request.
-        """
-        return self._adapter
-
-    @property
-    def con(self):
-        """
-        Optional[Ice.Connection]: The connection that received the request. It's None when the invocation and dispatch are collocated.
-        """
-        return self._con
-
-    @property
-    def id(self):
-        """
-        Ice.Identity: The identity of the target Ice object.
-        """
-        return self._id
-
-    @property
-    def facet(self):
-        """
-        str: The facet of the target Ice object.
-        """
-        return self._facet
-
-    @property
-    def operation(self):
-        """
-        str: The name of the operation.
-        """
-        return self._operation
-
-    @property
-    def mode(self):
-        """
-        OperationMode: The operation mode (idempotent or not).
-        """
-        return self._mode
-
-    @property
-    def ctx(self):
-        """
-        dict: The request context.
-        """
-        return self._ctx
-
-    @property
-    def requestId(self):
-        """
-        int: The request ID. 0 means the request is a one-way request.
-        """
-        return self._requestId
-
-    @property
-    def encoding(self):
-        """
-        EncodingVersion: The encoding of the request payload.
-        """
-        return self._encoding
+    adapter: ObjectAdapter
+    con: Connection | None
+    id: Ice.Identity
+    facet: str
+    operation: str
+    mode: Ice.OperationMode
+    ctx: dict[str, str]
+    requestId: int
+    encoding: Ice.EncodingVersion

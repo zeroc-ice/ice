@@ -1,14 +1,21 @@
 # Copyright (c) ZeroC, Inc.
 
+from dataclasses import dataclass
+
+from .EventLoopAdapter import EventLoopAdapter
+from .Logger import Logger
+from .Properties import Properties
+
+@dataclass
 class InitializationData:
     """
     The attributes of this class are used to initialize a new communicator instance.
 
     Attributes
     ----------
-    properties : Ice.Properties
+    properties : Ice.Properties | None
         You can use the Ice.createProperties function to create a new property set.
-    logger : Ice.Logger
+    logger : Ice.Logger | None
         The logger to use for the communicator.
     threadStart : callable
         A callable that is invoked for each new Ice thread that is started.
@@ -23,7 +30,7 @@ class InitializationData:
         three arguments: a BatchRequest object, an integer representing the number of requests
         in the queue, and an integer representing the number of bytes consumed by the requests
         in the queue. The interceptor must eventually invoke the enqueue method on the BatchRequest object.
-    eventLoopAdapter : Ice.EventLoopAdapter
+    eventLoopAdapter : Ice.EventLoopAdapter | None
         An event loop adapter used to run coroutines and wrap futures. If provided. This adapter is responsible for
         executing coroutines returned by Ice asynchronous dispatch methods and for wrapping Ice futures (from Ice
         Async APIs) into futures that can be awaited in the application's event loop.
@@ -33,12 +40,11 @@ class InitializationData:
         ID. The implementation returns None when it cannot find the corresponding class.
     """
 
-    def __init__(self):
-        self.properties = None
-        self.logger = None
-        self.threadStart = None
-        self.threadStop = None
-        self.executor = None
-        self.batchRequestInterceptor = None
-        self.eventLoopAdapter = None
-        self.sliceLoader = None
+    properties: Properties | None = None
+    logger: Logger | None = None
+    threadStart: callable = None
+    threadStop: callable = None
+    executor: callable = None
+    batchRequestInterceptor: callable = None
+    eventLoopAdapter: EventLoopAdapter | None = None
+    sliceLoader: callable = None
