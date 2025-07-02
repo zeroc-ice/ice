@@ -11,6 +11,7 @@
 #include <cassert>
 #include <climits>
 #include <cstring>
+#include <regex>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -273,27 +274,52 @@ namespace
         }
     }
 
-    /// Returns a MATLAB doc-link if the provided target is an operation (MATLAB only allows linking to functions).
-    /// If @p target is not an operation, we emit the mapped name in monospace formatting instead of a link.
+    /// Returns a MATLAB formatted link to the provided Slice identifier.
     string matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
     {
-        if (auto opTarget = dynamic_pointer_cast<Operation>(target))
+        string displayText;
+        string linkText;
+
+        if (auto contained = dynamic_pointer_cast<Contained>(target))
         {
-            const string opName = opTarget->mappedName();
-            return "<matlab:doc('" + opName + "') " + opName + ">" ;
+            if (dynamic_pointer_cast<DataMember>(contained) || dynamic_pointer_cast<Enumerator>(contained))
+            {
+                auto container = dynamic_pointer_cast<Contained>(contained->container());
+                assert(container);
+                displayText = container->mappedName() + "/" + contained->mappedName();
+                linkText = container->mappedScoped(".") + "/" + contained->mappedName();
+            }
+            else if (auto opTarget = dynamic_pointer_cast<Operation>(target))
+            {
+                auto interfaceDef = opTarget->interface();
+                displayText = opTarget->mappedName();
+                linkText = interfaceDef->mappedScoped(".") + "Prx" + "/" + displayText;
+            }
+            else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+            {
+                displayText = contained->mappedName() + "Prx";
+                linkText = contained->mappedScoped(".") + "Prx";
+            }
+            else
+            {
+                displayText = contained->mappedName();
+                linkText = contained->mappedScoped(".");
+            }
         }
-        else if (auto typeTarget = dynamic_pointer_cast<Type>(target))
+        else if (auto builtin = dynamic_pointer_cast<Builtin>(target))
         {
-            return "|" + typeToString(typeTarget) + "|";
+            displayText = linkText = typeToString(builtin);
         }
-        else if (auto contained = dynamic_pointer_cast<Contained>(target))
+        else // we couldn't resolve the link target and make a best-effort attempt to map the link.
         {
-            return "|" + contained->mappedScoped(".") + "|";
+            // All we can do is replace any doxygen separators with the MATLAB separator ('.').
+            // Note that '.' can always be used in place of '/', it's just convention to use '/' in certain cases.
+            std::regex separatorRegex{"::|#"};
+            displayText = linkText = std::regex_replace(rawLink, separatorRegex, ".");
         }
-        else
-        {
-            return "|" + rawLink + "|";
-        }
+
+        // MATLAB allows you to run arbitrary commands inside an 'href' with the 'matlab:' prefix.
+        return "<a href=\"matlab:help " + linkText + " -displayBanner\">" + displayText + "</a>";
     }
 
     void writeDocLines(IceInternal::Output& out, const StringList& lines, size_t indentation = 0)
