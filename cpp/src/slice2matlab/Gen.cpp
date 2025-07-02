@@ -274,16 +274,17 @@ namespace
         }
     }
 
-    /// Returns a MATLAB formatted link to the provided Slice identifier.
+    /// Returns a MATLAB formatted link (an 'href') for the provided Slice identifier.
     string matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
     {
-        string displayText;
-        string linkText;
+        string displayText; // The hyperlink text that will be visible to the user.
+        string linkText;    // The fully-scoped name of a MATLAB element, which the link resolves to when clicked.
 
         if (auto contained = dynamic_pointer_cast<Contained>(target))
         {
             if (dynamic_pointer_cast<DataMember>(contained) || dynamic_pointer_cast<Enumerator>(contained))
             {
+                // Data member & enumerator links should be of the form "<ScopedType>/<propertyName>".
                 auto container = dynamic_pointer_cast<Contained>(contained->container());
                 assert(container);
                 displayText = container->mappedName() + "/" + contained->mappedName();
@@ -291,6 +292,7 @@ namespace
             }
             else if (auto opTarget = dynamic_pointer_cast<Operation>(target))
             {
+                // Operation links should be of the form "<ScopedProxy>/<functionName>".
                 auto interfaceDef = opTarget->interface();
                 displayText = opTarget->mappedName();
                 linkText = interfaceDef->mappedScoped(".") + "Prx" + "/" + displayText;
@@ -318,7 +320,7 @@ namespace
             displayText = linkText = std::regex_replace(rawLink, separatorRegex, ".");
         }
 
-        // MATLAB allows you to run arbitrary commands inside an 'href' with the 'matlab:' prefix.
+        // MATLAB allows you to run arbitrary commands inside an 'href', using the 'matlab:' command prefix.
         return "<a href=\"matlab:help " + linkText + " -displayBanner\">" + displayText + "</a>";
     }
 
