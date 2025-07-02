@@ -316,7 +316,7 @@ namespace
         {
             // All we can do is replace any doxygen separators with the MATLAB separator ('.').
             // Note that '.' can always be used in place of '/', it's just convention to use '/' in certain cases.
-            std::regex separatorRegex{"::|#"};
+            static const std::regex separatorRegex{"::|#"};
             displayText = linkText = std::regex_replace(rawLink, separatorRegex, ".");
         }
 
