@@ -345,7 +345,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                 {
                     const size_t sz = keyType->minWireSize() + valueType->minWireSize();
                     out << nl << "final int optSize = " << d << " == null ? 0 : " << d << ".size();";
-                    out << nl << stream << ".writeSize((optSize * " << sz << ") + (optSize > 254 ? 5 : 1))";
+                    out << nl << stream << ".writeSize((optSize * " << sz << ") + (optSize > 254 ? 5 : 1));";
                 }
                 writeDictionaryMarshalUnmarshalCode(out, package, dict, d, marshal, iter, true, customStream, metadata);
                 if (usesVariableLengthTypes)
