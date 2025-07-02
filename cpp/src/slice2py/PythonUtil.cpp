@@ -1261,12 +1261,11 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     writeModuleHasDefinitionCheck(_out, p, name);
     _out.inc();
     _out << nl << abs << " = None";
-    _out << nl << "@dataclass(order=True";
+    _out << nl << "@dataclass";
     if (Dictionary::isLegalKeyType(p))
     {
-        _out << ", unsafe_hash=True";
+        _out << "(order=True, unsafe_hash=True)";
     }
-    _out << ')';
 
     _out << nl << "class " << name << ":";
     _out.inc();
