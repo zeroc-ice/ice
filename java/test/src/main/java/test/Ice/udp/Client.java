@@ -30,7 +30,7 @@ public class Client extends TestHelper {
             for (int i = 0; i < num; i++) {
                 var prx =
                     TestIntfPrx.createProxy(
-                        communicator(), "control:" + getTestEndpoint(i, "tcp"));
+                        communicator, "control:" + getTestEndpoint(i, "tcp"));
                 prx.shutdown();
             }
         }
