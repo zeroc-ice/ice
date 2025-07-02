@@ -81,7 +81,7 @@ namespace
         else // We couldn't resolve the link target and make a best-effort attempt to map the raw link.
         {
             // For Swift all we can do is replace any doxygen separators with the DocC separator ('/').
-            std::regex separatorRegex{"::|#"};
+            static const std::regex separatorRegex{"::|#"};
             return "``" + std::regex_replace(rawLink, separatorRegex, "/") + "``";
         }
     }
