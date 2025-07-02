@@ -173,7 +173,7 @@ def allTests(helper, communicator)
         test(false)
     rescue Ice::ParseException
     end
-    # This is an unknown endpoint warning, not a parse rescueion.
+    # This is an unknown endpoint warning, not a parse exception.
     #
     #begin
     #   b1 = communicator.stringToProxy("test -f the:facet:tcp")
@@ -816,15 +816,17 @@ def allTests(helper, communicator)
     cPrx = Test::CPrx.new(communicator, "c:#{helper.getTestEndpoint()}")
 
     aPrx = cPrx.opA(cPrx)
-    test(Test::CPrx.checkedCast(aPrx) != nil)
+    test(aPrx == cPrx)
 
     bPrx = cPrx.opB(cPrx)
-    test(Test::CPrx.checkedCast(bPrx) != nil)
+    test(bPrx == cPrx)
 
     cPrx = cPrx.opC(cPrx)
 
     s = Test::S.new(cPrx, cPrx)
     s = cPrx.opS(s)
+    test(s.a == cPrx)
+    test(s.b == cPrx)
     puts "ok"
 
     print "testing communicator shutdown/destroy... "
