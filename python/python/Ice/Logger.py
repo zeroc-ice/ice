@@ -10,7 +10,7 @@ class Logger(ABC):
     """
 
     @abstractmethod
-    def _print(self, message):
+    def print(self, message):
         """
         Print a message.
 
@@ -22,6 +22,11 @@ class Logger(ABC):
             The message to log.
         """
         pass
+
+    # An alias for print, provided for backwards compatibility.
+    # New code should call print() directly.
+    def _print(self, message):
+        self.print(message)
 
     @abstractmethod
     def trace(self, category, message):

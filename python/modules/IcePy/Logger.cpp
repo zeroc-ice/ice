@@ -24,8 +24,7 @@ IcePy::LoggerWrapper::print(const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    // Method must be named "_print".
-    PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "_print", "s", message.c_str())};
+    PyObjectHandle tmp{PyObject_CallMethod(_logger.get(), "print", "s", message.c_str())};
     if (!tmp.get())
     {
         throwPythonException();
@@ -306,7 +305,7 @@ loggerCloneWithPrefix(LoggerObject* self, PyObject* args)
 }
 
 static PyMethodDef LoggerMethods[] = {
-    {"_print", reinterpret_cast<PyCFunction>(loggerPrint), METH_VARARGS, PyDoc_STR("_print(message) -> None")},
+    {"print", reinterpret_cast<PyCFunction>(loggerPrint), METH_VARARGS, PyDoc_STR("print(message) -> None")},
     {"trace", reinterpret_cast<PyCFunction>(loggerTrace), METH_VARARGS, PyDoc_STR("trace(category, message) -> None")},
     {"warning", reinterpret_cast<PyCFunction>(loggerWarning), METH_VARARGS, PyDoc_STR("warning(message) -> None")},
     {"error", reinterpret_cast<PyCFunction>(loggerError), METH_VARARGS, PyDoc_STR("error(message) -> None")},
