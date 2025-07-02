@@ -1261,212 +1261,43 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     writeModuleHasDefinitionCheck(_out, p, name);
     _out.inc();
     _out << nl << abs << " = None";
-    _out << nl << "class " << name << "(object):";
+    _out << nl << "@dataclass(order=True";
+    if (Dictionary::isLegalKeyType(p))
+    {
+        _out << ", unsafe_hash=True";
+    }
+    _out << ')';
+
+    _out << nl << "class " << name << ":";
     _out.inc();
 
     writeDocstring(DocComment::parseFrom(p, pyLinkFormatter), members);
 
-    _out << nl << "def __init__(self";
-    writeConstructorParams(p->dataMembers());
-    _out << "):";
-    _out.inc();
-    for (const auto& member : members)
+    for (const auto& field : members)
     {
-        writeAssign(member);
-    }
-    _out.dec();
+        _out << nl << field->mappedName() << ": ";
+        writeType(field->type());
 
-    //
-    // Only generate __hash__ and the comparison operators if this structure type is a legal dictionary key type.
-    //
-    if (Dictionary::isLegalKeyType(p))
-    {
-        _out << sp << nl << "def __hash__(self):";
-        _out.inc();
-        _out << nl << "_h = 0";
-        int iter = 0;
-        for (const auto& member : members)
+        if (field->defaultValue())
         {
-            string s = "self." + member->mappedName();
-            writeHash(s, member->type(), iter);
+            _out << " = ";
+            writeConstantValue(field->type(), field->defaultValueType(), *field->defaultValue());
         }
-        _out << nl << "return _h % 0x7fffffff";
-        _out.dec();
-
-        //
-        // Rich operators.  __lt__, __le__, __eq__, __ne__, __gt__, __ge__
-        //
-
-        _out << sp << nl << "def __compare(self, other):";
-        _out.inc();
-        _out << nl << "if other is None:";
-        _out.inc();
-        _out << nl << "return 1";
-        _out.dec();
-        _out << nl << "elif not isinstance(other, " << abs << "):";
-        _out.inc();
-        _out << nl << "return NotImplemented";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        for (const auto& member : members)
+        else if (field->optional())
         {
-            const string memberName = member->mappedName();
-
-            //
-            // The None value is not orderable in Python 3.
-            //
-            _out << nl << "if self." << memberName << " is None or other." << memberName << " is None:";
-            _out.inc();
-            _out << nl << "if self." << memberName << " != other." << memberName << ':';
-            _out.inc();
-            _out << nl << "return (-1 if self." << memberName << " is None else 1)";
-            _out.dec();
-            _out.dec();
-            _out << nl << "else:";
-            _out.inc();
-            _out << nl << "if self." << memberName << " < other." << memberName << ':';
-            _out.inc();
-            _out << nl << "return -1";
-            _out.dec();
-            _out << nl << "elif self." << memberName << " > other." << memberName << ':';
-            _out.inc();
-            _out << nl << "return 1";
-            _out.dec();
-            _out.dec();
+            _out << " = None";
         }
-        _out << nl << "return 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __lt__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r < 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __le__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r <= 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __gt__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r > 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __ge__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r >= 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __eq__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r == 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __ne__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r != 0";
-        _out.dec();
-        _out.dec();
-    }
-    else
-    {
-        //
-        // Only generate the rich equality operators __eq__ and __ne__.
-        //
-
-        _out << sp << nl << "def __eq__(self, other):";
-        _out.inc();
-        _out << nl << "if other is None:";
-        _out.inc();
-        _out << nl << "return False";
-        _out.dec();
-        _out << nl << "elif not isinstance(other, " << abs << "):";
-        _out.inc();
-        _out << nl << "return NotImplemented";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        for (const auto& member : members)
+        else if (auto st = dynamic_pointer_cast<Struct>(field->type()))
         {
-            const string memberName = member->mappedName();
-
-            //
-            // The None value is not orderable in Python 3.
-            //
-            _out << nl << "if self." << memberName << " != other." << memberName << ':';
-            _out.inc();
-            _out << nl << "return False";
-            _out.dec();
+            // See writeAssign.
+            _out << " = " << getTypeReference(st) << "()";
         }
-        _out << nl << "return True";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __ne__(self, other):";
-        _out.inc();
-        _out << nl << "return not self.__eq__(other)";
-        _out.dec();
+        else
+        {
+            _out << " = ";
+            writeInitializer(field);
+        }
     }
-
-    // Generate the __repr__ method for this struct class.
-    _out << sp << nl << "def __repr__(self):";
-    _out.inc();
-    _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(members) << ")\"";
-    _out.dec();
-
-    _out << sp << nl << "def __str__(self):";
-    _out.inc();
-    _out << nl << "return repr(self)";
-    _out.dec();
 
     _out.dec();
 
@@ -2414,6 +2245,10 @@ Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& inc
     {
         // For skeleton classes
         out << nl << "from abc import ABC, abstractmethod";
+    }
+    if (unit->contains<Struct>())
+    {
+        out << nl << "from dataclasses import dataclass";
     }
 
     out << nl << "import Ice";
