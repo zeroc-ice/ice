@@ -17,16 +17,6 @@ declare module "@zeroc/ice" {
             constructor(communicator: Communicator, proxyString: string);
 
             /**
-             * Constructs a new ObjectPrx proxy from another ObjectPrx.
-             *
-             * The new proxy is a clone of the provided proxy.
-             *
-             * @param prx - The proxy to clone.
-             * @returns The newly constructed proxy.
-             */
-            constructor(prx: ObjectPrx);
-
-            /**
              * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
              *
              * @returns The Slice type ID of the most-derived interface supported by the target object.

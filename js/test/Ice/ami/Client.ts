@@ -36,7 +36,7 @@ export class Client extends TestHelper {
         {
             test((await p.opBatchCount()) === 0);
             let connection = await p.ice_getConnection();
-            const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b1 = Test.TestIntfPrx.uncheckedCast(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
             await b1.opBatch();
             await connection.flushBatchRequests();
@@ -46,7 +46,7 @@ export class Client extends TestHelper {
         {
             test((await p.opBatchCount()) == 0);
             let connection = await p.ice_getConnection();
-            const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b1 = Test.TestIntfPrx.uncheckedCast(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
             await connection.close();
             try {
@@ -65,7 +65,7 @@ export class Client extends TestHelper {
             // Async task - 1 connection.
             test((await p.opBatchCount()) === 0);
             const connection = await p.ice_getConnection();
-            const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b1 = Test.TestIntfPrx.uncheckedCast(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
             await b1.opBatch();
 
@@ -77,7 +77,7 @@ export class Client extends TestHelper {
             // Async task exception - 1 connection.
             test((await p.opBatchCount()) === 0);
             const connection = await p.ice_getConnection();
-            const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b1 = Test.TestIntfPrx.uncheckedCast(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
             await connection.close();
 
@@ -89,10 +89,10 @@ export class Client extends TestHelper {
             // Async task - 2 connections.
             test((await p.opBatchCount()) === 0);
             const connection1 = await p.ice_getConnection();
-            const b1 = new Test.TestIntfPrx(connection1.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b1 = Test.TestIntfPrx.uncheckedCast(connection1.createProxy(p.ice_getIdentity()).ice_batchOneway());
 
             const connection2 = await p.ice_connectionId("2").ice_getConnection();
-            const b2 = new Test.TestIntfPrx(connection2.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b2 = Test.TestIntfPrx.uncheckedCast(connection2.createProxy(p.ice_getIdentity()).ice_batchOneway());
 
             await b2.ice_getConnection(); // Ensure connection is established.
             await b1.opBatch();
@@ -111,10 +111,10 @@ export class Client extends TestHelper {
             // Exceptions should not be reported.
             test((await p.opBatchCount()) === 0);
             const connection1 = await p.ice_getConnection();
-            const b1 = new Test.TestIntfPrx(connection1.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b1 = Test.TestIntfPrx.uncheckedCast(connection1.createProxy(p.ice_getIdentity()).ice_batchOneway());
 
             const connection2 = await p.ice_connectionId("2").ice_getConnection();
-            const b2 = new Test.TestIntfPrx(connection2.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b2 = Test.TestIntfPrx.uncheckedCast(connection2.createProxy(p.ice_getIdentity()).ice_batchOneway());
 
             await b2.ice_getConnection(); // Ensure connection is established.
             await b1.opBatch();
@@ -133,10 +133,10 @@ export class Client extends TestHelper {
             //
             test((await p.opBatchCount()) == 0);
             const connection1 = await p.ice_getConnection();
-            const b1 = new Test.TestIntfPrx(connection1.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b1 = Test.TestIntfPrx.uncheckedCast(connection1.createProxy(p.ice_getIdentity()).ice_batchOneway());
 
             const connection2 = await p.ice_connectionId("2").ice_getConnection();
-            const b2 = new Test.TestIntfPrx(connection2.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b2 = Test.TestIntfPrx.uncheckedCast(connection2.createProxy(p.ice_getIdentity()).ice_batchOneway());
 
             await b2.ice_getConnection(); // Ensure connection is established.
             await b1.opBatch();
@@ -307,7 +307,7 @@ export class Client extends TestHelper {
         out.write("testing bi-dir... ");
         const adapter = await communicator.createObjectAdapter("");
         const replyI = new PingReplyI();
-        const reply = new Test.PingReplyPrx(adapter.addWithUUID(replyI));
+        const reply = Test.PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI));
 
         const context = new Map<string, string>([["ONE", ""]]);
         await p.pingBiDir(reply, context);

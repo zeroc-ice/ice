@@ -844,6 +844,23 @@ classdef AllTests
 
             fprintf('ok\n');
 
+            fprintf('testing proxy hierarchy... ');
+            cPrx = Test.CPrx(communicator, ['c:', helper.getTestEndpoint()]);
+
+            aPrx = cPrx.opA(cPrx);
+            assert(aPrx == cPrx);
+
+            bPrx = cPrx.opB(cPrx);
+            assert(bPrx == cPrx);
+
+            cPrx = cPrx.opC(cPrx);
+
+            s = Test.S(cPrx, cPrx);
+            s = cPrx.opS(s);
+            assert(s.a == cPrx);
+            assert(s.b == cPrx);
+            fprintf('ok\n');
+
             r = cl;
         end
     end

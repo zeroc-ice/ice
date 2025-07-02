@@ -16,9 +16,9 @@ export class Client extends TestHelper {
         const out = this.getWriter();
         const manager = new Test.ServerManagerPrx(communicator, `ServerManager:${this.getTestEndpoint()}`);
 
-        const locator = new Test.TestLocatorPrx(communicator.getDefaultLocator());
+        const locator = Test.TestLocatorPrx.uncheckedCast(communicator.getDefaultLocator());
 
-        const registry = new Test.TestLocatorRegistryPrx((await locator.getRegistry())!);
+        const registry = Test.TestLocatorRegistryPrx.uncheckedCast((await locator.getRegistry())!);
 
         out.write("testing stringToProxy... ");
         let base = communicator.stringToProxy("test @ TestAdapter");

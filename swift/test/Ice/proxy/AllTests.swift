@@ -882,6 +882,24 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
 
     writer.writeLine("ok")
 
+    writer.write("testing proxy hierarchy... ")
+    var cPrx: CPrx? = try makeProxy(
+        communicator: communicator,
+        proxyString: "c:\(helper.getTestEndpoint(num: 0))",
+        type: CPrx.self)
+
+    let aPrx = try await cPrx!.opA(cPrx)
+    try test(try await checkedCast(prx: aPrx!, type: CPrx.self) != nil)
+
+    let bPrx = try await cPrx!.opB(cPrx)
+    try test(try await checkedCast(prx: bPrx!, type: CPrx.self) != nil)
+
+    cPrx = try await cPrx!.opC(cPrx)
+
+    var s = S(a: cPrx, b: cPrx)
+    s = try await cPrx!.opS(s)
+    writer.writeLine("ok")
+
     writer.write("testing communicator shutdown/destroy... ")
     do {
         let com = try Ice.initialize()

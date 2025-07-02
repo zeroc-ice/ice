@@ -1024,6 +1024,23 @@ public class AllTests : global::Test.AllTests
 
         output.WriteLine("ok");
 
+        output.Write("testing proxy hierarchy... ");
+        var cPrx = Test.CPrxHelper.createProxy(communicator, "c:" + helper.getTestEndpoint());
+
+        Test.APrx aPrx = cPrx.opA(cPrx);
+        test(aPrx.Equals(cPrx));
+
+        Test.BPrx bPrx = cPrx.opB(cPrx);
+        test(bPrx.Equals(cPrx));
+
+        cPrx = cPrx.opC(cPrx);
+
+        var s = new Test.S(cPrx, cPrx);
+        s = cPrx.opS(s);
+        test(s.a.Equals(cPrx));
+        test(s.b.Equals(cPrx));
+        output.WriteLine("ok");
+
         output.Write("testing communicator shutdown/destroy... ");
         output.Flush();
         {

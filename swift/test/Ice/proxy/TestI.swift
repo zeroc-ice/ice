@@ -37,3 +37,21 @@ actor MyDerivedClassI: MyDerivedClass, Ice.Object {
         _ctx = current.ctx
     }
 }
+
+final class CI: C {
+    func opA(a: APrx?, current _: Ice.Current) -> APrx? {
+        return a
+    }
+
+    func opB(b: BPrx?, current _: Ice.Current) -> BPrx? {
+        return b
+    }
+
+    func opC(c: CPrx?, current _: Ice.Current) -> CPrx? {
+        return c
+    }
+
+    func opS(s: S, current _: Ice.Current) -> S {
+        return s
+    }
+}

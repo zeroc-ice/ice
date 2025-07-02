@@ -23,9 +23,13 @@ import com.zeroc.Ice.ToStringMode;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.Util;
 
+import test.Ice.proxy.Test.APrx;
+import test.Ice.proxy.Test.BPrx;
+import test.Ice.proxy.Test.CPrx;
 import test.Ice.proxy.Test.DiamondClassPrx;
 import test.Ice.proxy.Test.MyClassPrx;
 import test.Ice.proxy.Test.MyDerivedClassPrx;
+import test.Ice.proxy.Test.S;
 import test.TestHelper;
 
 import java.io.PrintWriter;
@@ -1099,6 +1103,23 @@ public class AllTests {
                     "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e"
                         + " 1.0 -v abch"));
         }
+        out.println("ok");
+
+        out.print("testing proxy hierarchy... ");
+        var cPrx = CPrx.createProxy(communicator, "c:" + helper.getTestEndpoint());
+
+        APrx aPrx = cPrx.opA(cPrx);
+        test(aPrx.equals(cPrx));
+
+        BPrx bPrx = cPrx.opB(cPrx);
+        test(bPrx.equals(cPrx));
+
+        cPrx = cPrx.opC(cPrx);
+
+        var s = new S(cPrx, cPrx);
+        s = cPrx.opS(s);
+        test(s.a.equals(cPrx));
+        test(s.b.equals(cPrx));
         out.println("ok");
 
         out.print("testing communicator shutdown/destroy... ");

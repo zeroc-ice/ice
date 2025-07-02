@@ -1080,6 +1080,27 @@ export class Client extends TestHelper {
         }
         out.writeLine("ok");
 
+        out.write("testing proxy hierarchy... ");
+
+        let cPrx = new Test.CPrx(communicator, `c:${this.getTestEndpoint()}`);
+
+        let aPrx = await cPrx.opA(cPrx);
+        test(aPrx!.equals(cPrx));
+
+        let bPrx = await cPrx.opB(cPrx);
+        test(bPrx!.equals(cPrx));
+
+        cPrx = await cPrx.opC(cPrx);
+
+        let s = new Test.S();
+        s.a = cPrx;
+        s.b = cPrx;
+
+        s = await cPrx.opS(s);
+        test(s.a!.equals(cPrx));
+        test(s.b!.equals(cPrx));
+        out.writeLine("ok");
+
         derived = new Test.MyDerivedClassPrx(communicator, `test:${this.getTestEndpoint()}`);
         await derived.shutdown();
     }

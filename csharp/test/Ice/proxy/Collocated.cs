@@ -17,6 +17,7 @@ public class Collocated : TestHelper
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         var adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+        adapter.add(new CI(), Ice.Util.stringToIdentity("c"));
         // Don't activate OA to ensure collocation is used.
         await AllTests.allTests(this);
     }

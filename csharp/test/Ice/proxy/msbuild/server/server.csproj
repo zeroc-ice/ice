@@ -12,6 +12,7 @@
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../MyDerivedClassI.cs" />
+    <Compile Include="../../CI.cs" />
     <Compile Include="../../Server.cs" />
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>

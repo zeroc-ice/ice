@@ -20,6 +20,9 @@ class Collocated: TestHelperI, @unchecked Sendable {
         try adapter.add(
             servant: MyDerivedClassI(),
             id: Ice.Identity(name: "test"))
+        try adapter.add(
+            servant: CI(),
+            id: Ice.Identity(name: "c"))
         // try adapter.activate() // Don't activate OA to ensure collocation is used.
         _ = try await allTests(self)
     }

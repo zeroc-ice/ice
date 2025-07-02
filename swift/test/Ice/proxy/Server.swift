@@ -22,6 +22,10 @@ class Server: TestHelperI, @unchecked Sendable {
         try adapter.add(
             servant: MyDerivedClassI(),
             id: Ice.Identity(name: "test"))
+
+        try adapter.add(
+            servant: CI(),
+            id: Ice.Identity(name: "c"))
         try adapter.activate()
         serverReady()
         communicator.waitForShutdown()

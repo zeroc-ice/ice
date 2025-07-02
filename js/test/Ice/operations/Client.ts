@@ -16,7 +16,7 @@ export class Client extends TestHelper {
         const communicator = this.communicator();
         out.write("testing twoway operations... ");
         const cl = new Test.MyClassPrx(communicator, `test:${this.getTestEndpoint()}`);
-        const derived = new Test.MyDerivedClassPrx(cl);
+        const derived = Test.MyDerivedClassPrx.uncheckedCast(cl);
 
         await twoways(communicator, cl!, bidir, this);
         await twoways(communicator, derived!, bidir, this);
