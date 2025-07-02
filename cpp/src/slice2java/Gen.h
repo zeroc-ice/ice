@@ -39,9 +39,7 @@ namespace Slice
             const MetadataList& metadata = MetadataList(),
             const std::string& patchParams = "");
 
-        //
-        // Generate code to marshal or unmarshal a dictionary type.
-        //
+        /// Generate code to marshal or unmarshal a dictionary type.
         static void writeDictionaryMarshalUnmarshalCode(
             IceInternal::Output& out,
             const std::string& package,
@@ -53,9 +51,7 @@ namespace Slice
             const std::string& customStream = "",
             const MetadataList& metadata = MetadataList());
 
-        //
-        // Generate code to marshal or unmarshal a sequence type.
-        //
+        /// Generate code to marshal or unmarshal a sequence type.
         static void writeSequenceMarshalUnmarshalCode(
             IceInternal::Output& out,
             const std::string& package,
@@ -76,18 +72,22 @@ namespace Slice
             bool isMarshalling);
 
         static void writeResultType(
-            IceInternal::Output&,
-            const OperationPtr&,
-            const std::string&,
-            const std::optional<DocComment>&);
+            IceInternal::Output& out,
+            const OperationPtr& op,
+            const std::string& package,
+            const std::optional<DocComment>& comment);
         static void writeMarshaledResultType(
-            IceInternal::Output&,
-            const OperationPtr&,
-            const std::string&,
-            const std::optional<DocComment>&);
+            IceInternal::Output& out,
+            const OperationPtr& op,
+            const std::string& package,
+            const std::optional<DocComment>& comment);
 
-        static void allocatePatcher(IceInternal::Output&, const TypePtr&, const std::string&, const std::string&);
-        static std::string getPatcher(const TypePtr&, const std::string&, const std::string&);
+        static void allocatePatcher(
+            IceInternal::Output& out,
+            const TypePtr& type,
+            const std::string& package,
+            const std::string& name);
+        static std::string getPatcher(const TypePtr& type, const std::string& package, const std::string& dest);
 
         static void writeSyncIceInvokeMethods(
             IceInternal::Output& out,
@@ -104,19 +104,25 @@ namespace Slice
             const std::optional<DocComment>& dc,
             bool optionalMapping);
 
-        static void writeMarshalProxyParams(IceInternal::Output&, const std::string&, const OperationPtr&, bool);
-        static void writeUnmarshalProxyResults(IceInternal::Output&, const std::string&, const OperationPtr&);
+        static void writeMarshalProxyParams(
+            IceInternal::Output& out,
+            const std::string& package,
+            const OperationPtr& op,
+            bool optionalMapping);
         static void
-        writeMarshalServantResults(IceInternal::Output&, const std::string&, const OperationPtr&, const std::string&);
+        writeUnmarshalProxyResults(IceInternal::Output& out, const std::string& package, const OperationPtr& op);
+        static void writeMarshalServantResults(
+            IceInternal::Output& out,
+            const std::string& package,
+            const OperationPtr& op,
+            const std::string& param);
 
-        //
-        // Generate a throws clause containing only checked exceptions.
-        // op is provided only when we want to check for the java:UserException metadata
-        //
+        /// Generate a throws clause containing only checked exceptions.
+        /// @remark \p op is provided only when we want to check for the 'java:UserException' metadata.
         static void writeThrowsClause(
-            IceInternal::Output&,
-            const std::string&,
-            const ExceptionList&,
+            IceInternal::Output& out,
+            const std::string& package,
+            const ExceptionList& throws,
             const OperationPtr& op = nullptr);
 
         //
@@ -127,9 +133,7 @@ namespace Slice
         static void
         writeUnmarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
 
-        //
-        // Write a constant or default value initializer.
-        //
+        /// Write a constant or default value initializer.
         static void writeConstantValue(
             IceInternal::Output&,
             const TypePtr&,
@@ -137,9 +141,7 @@ namespace Slice
             const std::string&,
             const std::string&);
 
-        //
-        // Generate assignment statements for those data members that have default values.
-        //
+        /// Generate assignment statements for those data members that have default values.
         static void writeDataMemberInitializers(IceInternal::Output&, const DataMemberList&, const std::string&);
 
         //
