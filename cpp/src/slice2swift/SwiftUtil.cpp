@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <regex>
 
 using namespace std;
 using namespace Slice;
@@ -17,11 +18,10 @@ namespace
 {
     string swiftLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
     {
-        string result = "``";
-
         if (auto builtin = dynamic_pointer_cast<Builtin>(target))
         {
-            result += Slice::Swift::typeToString(builtin, source, false);
+            // We have no way to link to the builtin types, so we just emit the mapped type in a monospaced format.
+            return "`" + Slice::Swift::typeToString(builtin, source, false) + "`";
         }
         else if (auto contained = dynamic_pointer_cast<Contained>(target))
         {
@@ -39,7 +39,8 @@ namespace
             }
 
             // If the link is to an operation, DocC requires you to list the operation's labels in the link signature.
-            if (auto operation = dynamic_pointer_cast<Operation>(contained))
+            // We also have to work up to the interface type afterwards, due to the flat nature of Swift.
+            else if (auto operation = dynamic_pointer_cast<Operation>(contained))
             {
                 nameSuffix = "/" + operation->mappedName() + "(";
                 const ParameterList inParams = operation->inParameters();
@@ -50,33 +51,39 @@ namespace
                 }
                 nameSuffix += "context:)";
 
-                // Move up a level to the container type.
+                // Move up a level to the interface type.
+                // Afterwards, we are guaranteed to hit the 'interfaceDef' branch underneath this block.
                 contained = dynamic_pointer_cast<Contained>(contained->container());
                 assert(contained);
             }
 
-            // If the link was to an interface definition, we need to switch to the corresponding declaration.
+            // If the link involves an interface definition, we need to switch it to the corresponding declaration.
             // The code-gen considers `Def` the servant type, and `Decl` the proxy type. We want to link to the proxy.
             if (auto interfaceDef = dynamic_pointer_cast<InterfaceDef>(contained))
             {
                 contained = interfaceDef->declaration();
             }
 
-            // Link to the mapped Swift type, and scope it relative to the module that contained the doc link.
-            string currentModule = Slice::Swift::getSwiftModule(source->getTopLevelModule());
-            result += Slice::Swift::getRelativeTypeString(contained, currentModule) + nameSuffix;
+            const string sourceModule = Slice::Swift::getSwiftModule(source->getTopLevelModule());
+            const string targetModule = Slice::Swift::getSwiftModule(target->getTopLevelModule());
+
+            // Get the mapped-and-qualified name of the thing we're linking to, but replace any '.' with '/'.
+            // DocC uses forward slashes to separate symbols instead of periods.
+            const string mappedLink = Slice::Swift::getRelativeTypeString(contained, sourceModule) + nameSuffix;
+            std::replace(result.begin(), result.end(), '.', '/');
+
+            // DocC only supports linking to symbols that are in the same module.
+            // So if the source and target elements are in the same module, we can generate a DocC link
+            // (using double back-ticks). Otherwise, we emit the mapped name in monospace (using single back-ticks).
+            const string ticks = (sourceModule == targetModule ? "``" : "`");
+            return ticks + mappedLink + ticks;
         }
         else // We couldn't resolve the link target and make a best-effort attempt to map the raw link.
         {
-            // For Swift all we can do is replace the doxygen separator (#) with a DocC separator ('/').
-            result += rawLink;
-            std::replace(result.begin(), result.end(), '#', '/');
+            // For Swift all we can do is replace any doxygen separators with the DocC separator ('/').
+            std::regex separatorRegex{"::|#"};
+            return "``" + std::regex_replace(rawLink, separatorRegex, "/") + "``";
         }
-
-        // DocC uses forward slashes to separate symbols instead of periods.
-        std::replace(result.begin(), result.end(), '.', '/');
-
-        return result + "``";
     }
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst = true, string_view space = " ")
