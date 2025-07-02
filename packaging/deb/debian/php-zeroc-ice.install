@@ -1,2 +1,4 @@
 usr/lib/php/
 usr/share/php
+usr/bin/slice2php
+usr/share/man/man1/slice2php.1

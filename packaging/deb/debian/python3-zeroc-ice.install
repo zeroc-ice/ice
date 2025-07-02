@@ -1,2 +1,4 @@
 #!/usr/bin/dh-exec
 usr/lib/${PYTHON3DIR}/dist-packages/*
+usr/bin/slice2py
+usr/share/man/man1/slice2py.1

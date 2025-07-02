@@ -212,11 +212,14 @@ your application logic.
 # ice2slice package
 #
 %package -n %{?nameprefix}ice2slice
-Summary: The ice2slice compiler
+Summary: The Ice-to-Slice compiler (ice2slice)
 Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 %description -n %{?nameprefix}ice2slice
-This package contains the ice2slice compiler to transforms Slice definitions in .ice files into
-Slice definitions in .slice files.
+ This package contains the Ice-to-Slice compiler (ice2slice). The Ice-to-Slice
+ compiler converts Slice definitions in .ice files into Slice definitions in .slice
+ files. .ice is the Slice syntax and format understood by the Slice compilers provided
+ by Ice; .slice is the Slice syntax and format understood by slicec, the Slice compiler
+ provided by IceRPC.
 
 Ice is a comprehensive RPC framework that helps you network your software
 with minimal effort. Ice takes care of all interactions with low-level
@@ -382,13 +385,6 @@ make -C java DESTDIR=%{buildroot} install_javadir=%{_javadir} prefix=%{_prefix} 
 # Remove unused installed files
 rm -f %{buildroot}%{_datadir}/ice/LICENSE
 rm -f %{buildroot}%{_datadir}/ice/ICE_LICENSE
-
-rm -f %{buildroot}%{_bindir}/slice2cs
-rm -f %{buildroot}%{_bindir}/slice2java
-rm -f %{buildroot}%{_bindir}/slice2js
-rm -f %{buildroot}%{_bindir}/slice2matlab
-rm -f %{buildroot}%{_bindir}/slice2rb
-rm -f %{buildroot}%{_bindir}/slice2swift
 
 #
 # php ice.ini
