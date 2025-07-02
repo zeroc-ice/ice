@@ -1,14 +1,13 @@
 # Copyright (c) ZeroC, Inc.
 
-class ServantLocator:
+from abc import ABC, abstractmethod
+
+class ServantLocator(ABC):
     """
     A servant locator is called by an object adapter to locate a servant that is not found in its active servant map.
     """
 
-    def __init__(self):
-        if type(self) is ServantLocator:
-            raise RuntimeError("Ice.ServantLocator is an abstract class")
-
+    @abstractmethod
     def locate(self, current):
         """
         Called before a request is dispatched if a servant cannot be found in the object adapter's active servant map.
@@ -43,8 +42,9 @@ class ServantLocator:
         UserException
             The implementation can raise a `UserException` and the runtime will marshal it as the result of the invocation.
         """
-        raise NotImplementedError("method 'locate' not implemented")
+        pass
 
+    @abstractmethod
     def finished(self, current, servant, cookie):
         """
         Called by the object adapter after a request has been made.
@@ -71,8 +71,9 @@ class ServantLocator:
         UserException
             The implementation can raise a `UserException` and the runtime will marshal it as the result of the invocation.
         """
-        raise NotImplementedError("method 'finished' not implemented")
+        pass
 
+    @abstractmethod
     def deactivate(self, category):
         """
         Called when the object adapter in which this servant locator is installed is destroyed.
@@ -82,4 +83,4 @@ class ServantLocator:
         category : str
             Indicates for which category the servant locator is being deactivated.
         """
-        raise NotImplementedError("method 'deactivate' not implemented")
+        pass
