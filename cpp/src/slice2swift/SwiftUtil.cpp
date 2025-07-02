@@ -52,7 +52,7 @@ namespace
                 assert(contained);
             }
 
-            // If the link involves an interface definition, we need to switch it to the corresponding declaration.
+            // If the link involves an interface definition, we need to switch to its declaration.
             // The code-gen considers `Def` the servant type, and `Decl` the proxy type. We want to link to the proxy.
             if (auto interfaceDef = dynamic_pointer_cast<InterfaceDef>(contained))
             {
@@ -67,9 +67,9 @@ namespace
             string mappedLink = Slice::Swift::getRelativeTypeString(contained, sourceModule) + nameSuffix;
             std::replace(mappedLink.begin(), mappedLink.end(), '.', '/');
 
-            // DocC only supports linking to symbols that are in the same module.
-            // So if the source and target elements are in the same module, we can generate a DocC link
-            // (using double back-ticks). Otherwise, we emit the mapped name in monospace (using single back-ticks).
+            // DocC does not support cross-module linking.
+            // So we can only generate a DocC link (using double back-ticks) if the source and target are in the same
+            // module. Otherwise we emit the mapped name in monospace formatting (using single back-ticks).
             const string ticks = (sourceModule == targetModule ? "``" : "`");
             return ticks + mappedLink + ticks;
         }
