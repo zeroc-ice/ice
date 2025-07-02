@@ -6,8 +6,8 @@ class LoggerI(Logger):
     def __init__(self, impl):
         self._impl = impl
 
-    def _print(self, message):
-        return self._impl._print(message)
+    def print(self, message):
+        return self._impl.print(message)
 
     def trace(self, category, message):
         return self._impl.trace(category, message)
