@@ -19,6 +19,15 @@ projects :=
 slice_translators := $(wildcard $(lang_srcdir)/src/slice2*) $(lang_srcdir)/src/ice2slice
 $(foreach t, $(slice_translators), $(eval $(call create-translator-project,$(call project,$t))))
 
+# Do not install Slice compilers that are not distributed via the OS packaging system.
+# The compilers listed below are not included in the DEB, RPM, or Homebrew packages.
+slice2cs_install_configs           := none
+slice2java_install_configs         := none
+slice2js_install_configs           := none
+slice2matlab_install_configs       := none
+slice2rb_install_configs           := none
+slice2swift_install_configs        := none
+
 include $(foreach p,$(load_first),src/$p/Makefile.mk)
 include $(filter-out $(foreach p,$(load_first),%/src/$p/Makefile.mk),$(shell find $(lang_srcdir)/src -name Makefile.mk))
 $(call make-projects,$(projects),make-cpp-src-project,,)

@@ -35,7 +35,6 @@ Architecture: any
 Multi-Arch: same
 Section: libdevel
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
-         zeroc-ice-compilers (= ${binary:Version}),
          zeroc-ice-slice (= ${source:Version}),
          libssl-dev,
          ${misc:Depends}
@@ -137,15 +136,19 @@ Description: Glacier2 router
  network programming interfaces and allows you to focus your efforts on
  your application logic.
 
-Package: zeroc-ice-compilers
+Package: zeroc-ice-ice2slice
 Architecture: any
 Multi-Arch: foreign
 Section: devel
 Depends: zeroc-ice-slice (= ${source:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
-Description: Slice compilers for developing Ice applications
- This package contains Slice compilers for developing Ice applications.
+Description: The Ice-to-Slice compiler (ice2slice)
+ This package contains the Ice-to-Slice compiler (ice2slice). The Ice-to-Slice
+ compiler converts Slice definitions in .ice files into Slice definitions in .slice
+ files. .ice is the Slice syntax and format understood by the Slice compilers provided
+ by Ice; .slice is the Slice syntax and format understood by slicec, the Slice compiler
+ provided by IceRPC.
  .
  Ice is a comprehensive RPC framework that helps you network your software
  with minimal effort. Ice takes care of all interactions with low-level
@@ -247,6 +250,18 @@ Description: Bridge service
  with minimal effort. Ice takes care of all interactions with low-level
  network programming interfaces and allows you to focus your efforts on
  your application logic.
+
+Package: zeroc-ice-compilers
+Architecture: all
+Section: oldlibs
+Priority: optional
+Depends: libzeroc-ice-dev (= ${binary:Version}),
+        python3-zeroc-ice (= ${binary:Version}) <!no-python312>,
+        php-zeroc-ice (= ${binary:Version}),
+        ${misc:Depends}
+Description: transitional dummy package for Ice 3.7 all-dev metapackage
+ This empty package ensures a smooth upgrade from Ice 3.7 by replacing
+ the obsolete zeroc-ice-compilers. It can be safely removed.
 
 Package: zeroc-ice-all-dev
 Architecture: all
