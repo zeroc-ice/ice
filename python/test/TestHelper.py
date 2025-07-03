@@ -9,7 +9,7 @@ import importlib
 
 class TestHelper:
     def __init__(self):
-        self._communicator = None
+        self._communicator: Ice.Communicator | None = None
 
     def getTestEndpoint(
         self, properties: Ice.Properties | None = None, num=0, protocol=""
