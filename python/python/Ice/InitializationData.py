@@ -1,10 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
+from IcePy import Connection
+from .BatchRequestInterceptor import BatchRequestInterceptor
 from .EventLoopAdapter import EventLoopAdapter
 from .Logger import Logger
 from .Properties import Properties
+from .UserException import UserException
+from .Value import Value
 
 @dataclass
 class InitializationData:
@@ -17,15 +22,15 @@ class InitializationData:
         You can use the Ice.createProperties function to create a new property set.
     logger : Ice.Logger | None
         The logger to use for the communicator.
-    threadStart : callable
+    threadStart : Callable[[], None] | None
         A callable that is invoked for each new Ice thread that is started.
-    threadStop : callable
+    threadStop : Callable[[], None] | None
         A callable that is invoked when an Ice thread is stopped.
-    executor : callable
+    executor : Callable[[Callable[[], None], Connection], None] | None
         A callable that is invoked when Ice needs to execute an activity. The callable
         receives two arguments: a callable and an Ice.Connection object. The executor must
         eventually invoke the callable with no arguments.
-    batchRequestInterceptor : callable
+    batchRequestInterceptor : BatchRequestInterceptor | None
         A callable that will be invoked when a batch request is queued. The callable receives
         three arguments: a BatchRequest object, an integer representing the number of requests
         in the queue, and an integer representing the number of bytes consumed by the requests
@@ -34,7 +39,7 @@ class InitializationData:
         An event loop adapter used to run coroutines and wrap futures. If provided. This adapter is responsible for
         executing coroutines returned by Ice asynchronous dispatch methods and for wrapping Ice futures (from Ice
         Async APIs) into futures that can be awaited in the application's event loop.
-    sliceLoader : callable
+    sliceLoader : Callable[[str], Value | UserException | None] | None
         A callable that creates class and exception instances from Slice type IDs. The callable receives a type ID
         or compact type ID as a string argument and returns a new instance of the class or exception identified by this
         ID. The implementation returns None when it cannot find the corresponding class.
@@ -42,9 +47,9 @@ class InitializationData:
 
     properties: Properties | None = None
     logger: Logger | None = None
-    threadStart: callable = None
-    threadStop: callable = None
-    executor: callable = None
-    batchRequestInterceptor: callable = None
+    threadStart: Callable[[], None] | None = None
+    threadStop: Callable[[], None] | None = None
+    executor: Callable[[Callable[[], None], Connection], None] | None = None
+    batchRequestInterceptor: BatchRequestInterceptor | None = None
     eventLoopAdapter: EventLoopAdapter | None = None
-    sliceLoader: callable = None
+    sliceLoader: Callable[[str], Value | UserException | None] = None
