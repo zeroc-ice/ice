@@ -61,8 +61,10 @@ class TestHelper:
         self,
         initData: Ice.InitializationData | None = None,
         properties: Ice.Properties | None = None,
-        args: list[str] = [],
+        args: list[str] | None = None,
     ) -> Ice.Communicator:
+        if args is None:
+            args = []
         if initData is None:
             initData = Ice.InitializationData()
             if properties:
