@@ -79,7 +79,7 @@ class TestHelper:
             self._communicator.shutdown()
 
     @classmethod
-    def loadSlice(self, args):
+    def loadSlice(cls, args):
         sliceDir = Ice.getSliceDir()
         if not sliceDir:
             print(sys.argv[0] + ": Slice directory not found.")
@@ -87,7 +87,7 @@ class TestHelper:
         Ice.loadSlice("'-I{0}' {1}".format(sliceDir, args))
 
     @classmethod
-    def run(self) -> int:
+    def run(cls) -> int:
         try:
             moduleName = os.path.splitext(sys.argv[1])[0]
             module = importlib.import_module(moduleName)
