@@ -36,4 +36,4 @@ slice2py = "slice2py:main"
 [tool.pyright]
 include = ["test"]
 typeCheckingMode = "standard"
-extraPaths = ["python", "../scripts"]
+extraPaths = ["python"]
