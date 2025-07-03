@@ -52,4 +52,4 @@ class InitializationData:
     executor: Callable[[Callable[[], None], Connection], None] | None = None
     batchRequestInterceptor: BatchRequestInterceptor | None = None
     eventLoopAdapter: EventLoopAdapter | None = None
-    sliceLoader: Callable[[str], Value | UserException | None] = None
+    sliceLoader: Callable[[str], Value | UserException | None] | None = None
