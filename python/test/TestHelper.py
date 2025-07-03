@@ -43,7 +43,7 @@ class TestHelper:
 
         return properties.getIceProperty("Ice.Default.Protocol")
 
-    def getTestPort(self, properties: Ice.Properties | None = None, num=0):
+    def getTestPort(self, properties: Ice.Properties | None = None, num=0) -> int:
         assert self._communicator is not None, "Communicator must be initialized"
         if properties is None:
             properties = self._communicator.getProperties()
