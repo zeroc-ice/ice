@@ -11,6 +11,7 @@
 #include <cassert>
 #include <climits>
 #include <cstring>
+#include <regex>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -69,11 +70,6 @@ namespace
             return builtinTable[builtin->kind()];
         }
 
-        if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
-        {
-            return cl->mappedScoped(".");
-        }
-
         if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
         {
             return proxy->mappedScoped(".") + "Prx";
@@ -84,12 +80,9 @@ namespace
             return "dictionary";
         }
 
-        if (auto contained = dynamic_pointer_cast<Contained>(type))
-        {
-            return contained->mappedScoped(".");
-        }
-
-        return "???";
+        auto contained = dynamic_pointer_cast<Contained>(type);
+        assert(contained); // every 'Type' is either 'Builtin', or 'Contained'
+        return contained->mappedScoped(".");
     }
 
     // Type represents a dictionary value type or the type of a sequence element.
@@ -281,26 +274,54 @@ namespace
         }
     }
 
-    /// Returns a MATLAB formatted link to the provided Slice identifier.
-    /// TODO: this is temporary and will be replaced when we add 'matlab:identifier' support.
-    string matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    /// Returns a MATLAB formatted link (an 'href') for the provided Slice identifier.
+    string matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
     {
-        auto hashPos = rawLink.find('#');
-        if (hashPos != string::npos)
+        string displayText; // The hyperlink text that will be visible to the user.
+        string linkText;    // The fully-scoped name of a MATLAB element, which the link resolves to when clicked.
+
+        if (auto contained = dynamic_pointer_cast<Contained>(target))
         {
-            string result;
-            if (hashPos != 0)
+            if (dynamic_pointer_cast<DataMember>(contained) || dynamic_pointer_cast<Enumerator>(contained))
             {
-                result += rawLink.substr(0, hashPos);
-                result += ".";
+                // Data member & enumerator links should be of the form "<ScopedType>/<propertyName>".
+                auto container = dynamic_pointer_cast<Contained>(contained->container());
+                assert(container);
+                displayText = container->mappedName() + "/" + contained->mappedName();
+                linkText = container->mappedScoped(".") + "/" + contained->mappedName();
             }
-            result += rawLink.substr(hashPos + 1);
-            return result;
+            else if (auto opTarget = dynamic_pointer_cast<Operation>(target))
+            {
+                // Operation links should be of the form "<ScopedProxy>/<functionName>".
+                auto interfaceDef = opTarget->interface();
+                displayText = opTarget->mappedName();
+                linkText = interfaceDef->mappedScoped(".") + "Prx" + "/" + displayText;
+            }
+            else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+            {
+                displayText = contained->mappedName() + "Prx";
+                linkText = contained->mappedScoped(".") + "Prx";
+            }
+            else
+            {
+                displayText = contained->mappedName();
+                linkText = contained->mappedScoped(".");
+            }
         }
-        else
+        else if (auto builtin = dynamic_pointer_cast<Builtin>(target))
         {
-            return rawLink;
+            displayText = linkText = typeToString(builtin);
         }
+        else // we couldn't resolve the link target and make a best-effort attempt to map the link.
+        {
+            // All we can do is replace any doxygen separators with the MATLAB separator ('.').
+            // Note that '.' can always be used in place of '/', it's just convention to use '/' in certain cases.
+            static const std::regex separatorRegex{"::|#"};
+            displayText = linkText = std::regex_replace(rawLink, separatorRegex, ".");
+        }
+
+        // MATLAB allows you to run arbitrary commands inside an 'href', using the 'matlab:' command prefix.
+        return "<a href=\"matlab:help " + linkText + " -displayBanner\">" + displayText + "</a>";
     }
 
     void writeDocLines(IceInternal::Output& out, const StringList& lines, size_t indentation = 0)
