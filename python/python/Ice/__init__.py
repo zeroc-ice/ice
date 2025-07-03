@@ -218,4 +218,5 @@ __all__ = [
     "proxyIdentityEqual",
     "setProcessLogger",
     "stringToIdentity",
-    "wrap_future"]
+    "wrap_future",
+]
