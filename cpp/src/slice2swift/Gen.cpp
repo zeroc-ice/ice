@@ -1080,10 +1080,10 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
     const TypePtr type = p->type();
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
 
+    out << sp;
     writeDocSummary(out, p);
     out << nl << "public let " << p->mappedName() << ": " << typeToString(type, p) << " = ";
     writeConstantValue(out, type, p->valueType(), p->value(), swiftModule);
-    out << nl;
 }
 
 bool

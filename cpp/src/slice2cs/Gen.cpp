@@ -105,6 +105,7 @@ namespace
     }
 
     /// Returns a C# formatted link to the provided Slice identifier.
+    // TODO this fails for sequences and dictionaries.
     string csLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
     {
         ostringstream result;
