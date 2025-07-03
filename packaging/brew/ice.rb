@@ -23,9 +23,7 @@ class Ice < Formula
       system "make", "install", *args
 
       (libexec/"bin").mkpath
-      %w[slice2py slice2rb slice2js].each do |r|
-        mv bin/r, libexec/"bin"
-      end
+      mv bin/"slice2py", libexec/"bin"
     end
 
     test do
