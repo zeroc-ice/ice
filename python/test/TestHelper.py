@@ -14,9 +14,9 @@ class TestHelper:
     def getTestEndpoint(
         self, properties: Ice.Properties | None = None, num=0, protocol=""
     ) -> str:
-        assert self._communicator is not None, "Communicator must be initialized"
-
         if properties is None:
+            # Note that self._communicator is sometimes None when this method is called with properties != None.
+            assert self._communicator is not None, "Communicator must be initialized"
             properties = self._communicator.getProperties()
 
         if protocol == "":
