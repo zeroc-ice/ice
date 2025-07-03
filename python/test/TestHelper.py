@@ -13,7 +13,7 @@ class TestHelper:
 
     def getTestEndpoint(
         self, properties: Ice.Properties | None = None, num=0, protocol=""
-    ):
+    ) -> str:
         assert self._communicator is not None, "Communicator must be initialized"
 
         if properties is None:
@@ -28,7 +28,7 @@ class TestHelper:
 
         return "{0} -p {1}".format(protocol, port)
 
-    def getTestHost(self, properties=None):
+    def getTestHost(self, properties=None) -> str:
         assert self._communicator is not None, "Communicator must be initialized"
 
         if properties is None:
@@ -36,7 +36,7 @@ class TestHelper:
 
         return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1")
 
-    def getTestProtocol(self, properties=None):
+    def getTestProtocol(self, properties=None) -> str:
         assert self._communicator is not None, "Communicator must be initialized"
         if properties is None:
             properties = self._communicator.getProperties()
@@ -55,7 +55,7 @@ class TestHelper:
         args = properties.parseCommandLineOptions("Test", args)
         return properties
 
-    def initialize(self, initData=None, properties=None, args=[]):
+    def initialize(self, initData=None, properties=None, args=[]) -> Ice.Communicator:
         if initData is None:
             initData = Ice.InitializationData()
             if properties:
@@ -70,7 +70,8 @@ class TestHelper:
 
         return communicator
 
-    def communicator(self):
+    def communicator(self) -> Ice.Communicator:
+        assert self._communicator is not None, "Communicator must be initialized"
         return self._communicator
 
     def shutdown(self):
@@ -86,7 +87,7 @@ class TestHelper:
         Ice.loadSlice("'-I{0}' {1}".format(sliceDir, args))
 
     @classmethod
-    def run(self):
+    def run(self) -> int:
         try:
             moduleName = os.path.splitext(sys.argv[1])[0]
             module = importlib.import_module(moduleName)
