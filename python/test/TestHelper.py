@@ -50,7 +50,9 @@ class TestHelper:
 
         return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num
 
-    def createTestProperties(self, args: list[str] = []) -> Ice.Properties:
+    def createTestProperties(self, args: list[str] | None = None) -> Ice.Properties:
+        if args is None:
+            args = []
         properties = Ice.createProperties(args)
         args = properties.parseCommandLineOptions("Test", args)
         return properties
