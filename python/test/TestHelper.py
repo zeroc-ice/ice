@@ -28,7 +28,7 @@ class TestHelper:
 
         return "{0} -p {1}".format(protocol, port)
 
-    def getTestHost(self, properties=None) -> str:
+    def getTestHost(self, properties: Ice.Properties | None = None) -> str:
         assert self._communicator is not None, "Communicator must be initialized"
 
         if properties is None:
@@ -36,26 +36,31 @@ class TestHelper:
 
         return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1")
 
-    def getTestProtocol(self, properties=None) -> str:
+    def getTestProtocol(self, properties: Ice.Properties | None = None) -> str:
         assert self._communicator is not None, "Communicator must be initialized"
         if properties is None:
             properties = self._communicator.getProperties()
 
         return properties.getIceProperty("Ice.Default.Protocol")
 
-    def getTestPort(self, properties=None, num=0):
+    def getTestPort(self, properties: Ice.Properties | None = None, num=0):
         assert self._communicator is not None, "Communicator must be initialized"
         if properties is None:
             properties = self._communicator.getProperties()
 
         return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num
 
-    def createTestProperties(self, args=[]) -> Ice.Properties:
+    def createTestProperties(self, args: list[str] = []) -> Ice.Properties:
         properties = Ice.createProperties(args)
         args = properties.parseCommandLineOptions("Test", args)
         return properties
 
-    def initialize(self, initData=None, properties=None, args=[]) -> Ice.Communicator:
+    def initialize(
+        self,
+        initData: Ice.InitializationData | None = None,
+        properties: Ice.Properties | None = None,
+        args: list[str] = [],
+    ) -> Ice.Communicator:
         if initData is None:
             initData = Ice.InitializationData()
             if properties:
