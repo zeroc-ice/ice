@@ -169,7 +169,10 @@ IcePy::BatchRequestInterceptorWrapper::BatchRequestInterceptorWrapper(PyObject* 
 {
     if (!PyCallable_Check(interceptor))
     {
-        throw Ice::InitializationException{__FILE__, __LINE__, "the batch request interceptor must be a callable object"};
+        throw Ice::InitializationException{
+            __FILE__,
+            __LINE__,
+            "the batch request interceptor must be a callable object"};
     }
 }
 
