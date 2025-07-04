@@ -10,6 +10,7 @@ from .Properties import Properties
 from .UserException import UserException
 from .Value import Value
 
+
 @dataclass
 class InitializationData:
     """

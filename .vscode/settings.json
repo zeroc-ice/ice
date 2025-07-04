@@ -1,6 +1,7 @@
 {
     "python.analysis.extraPaths": [
-        "./scripts"
+        "${workspaceFolder}/python/python",
+        "${workspaceFolder}/scripts"
     ],
     "pylint.args": [
         "--rcfile=tox.ini"
@@ -16,5 +17,5 @@
     "[swift]": {
         "editor.formatOnSave": false
     },
-    "gradle.nestedProjects": true,
+    "python.analysis.typeCheckingMode": "standard",
 }
