@@ -45,9 +45,9 @@ namespace
             "float",
             "float",
             "str",
-            "Ice.Value",
+            "Ice.Object", // Not used anymore
             "Ice.ObjectPrx | None",
-            "Ice.Value"};
+            "Ice.Value | None"};
 
         if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
@@ -80,15 +80,15 @@ namespace
         {
             return "list[" + typeToTypeHintString(seq->type(), false) + "]";
         }
-        else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
+        else
         {
+            auto dict = dynamic_pointer_cast<Dictionary>(type);
+            assert(dict);
             ostringstream os;
             os << "dict[" << typeToTypeHintString(dict->keyType(), false) << ", "
                << typeToTypeHintString(dict->valueType(), false) << "]";
             return os.str();
         }
-
-        return "???";
     }
 
     string operationReturnTypeHint(const OperationPtr& operation, bool forDispatch, bool async)
@@ -175,9 +175,9 @@ namespace
             "float",
             "float",
             "str",
-            "Ice.Value",
+            "Ice.Object", // Not used anymore
             "(Ice.ObjectPrx or None)",
-            "Ice.Value"};
+            "Ice.Value or None"};
 
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
         if (builtin)
@@ -191,21 +191,15 @@ namespace
                 return string{builtinTable[builtin->kind()]};
             }
         }
-
-        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-        if (cl)
+        else if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
         {
             return cl->mappedScoped(".");
         }
-
-        StructPtr st = dynamic_pointer_cast<Struct>(type);
-        if (st)
+        else if (auto st = dynamic_pointer_cast<Struct>(type))
         {
             return st->mappedScoped(".");
         }
-
-        InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-        if (proxy)
+        else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
         {
             ostringstream os;
             os << "(";
@@ -213,29 +207,23 @@ namespace
             os << " or None)";
             return os.str();
         }
-
-        EnumPtr en = dynamic_pointer_cast<Enum>(type);
-        if (en)
+        else if (auto en = dynamic_pointer_cast<Enum>(type))
         {
             return en->mappedScoped(".");
         }
-
-        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-        if (seq)
+        else if (auto seq = dynamic_pointer_cast<Sequence>(type))
         {
             return "list[" + typeToDocstring(seq->type(), false) + "]";
         }
-
-        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-        if (dict)
+        else
         {
+            auto dict = dynamic_pointer_cast<Dictionary>(type);
+            assert(dict);
             ostringstream os;
             os << "dict[" << typeToDocstring(dict->keyType(), false) << ", "
                << typeToDocstring(dict->valueType(), false) << "]";
             return os.str();
         }
-
-        return "???";
     }
 
     enum DocstringMode
