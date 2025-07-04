@@ -167,12 +167,12 @@ IcePy::initBatchRequest(PyObject* module)
 IcePy::BatchRequestInterceptorWrapper::BatchRequestInterceptorWrapper(PyObject* interceptor)
     : _interceptor(Py_NewRef(interceptor))
 {
-    if (!PyCallable_Check(interceptor) && !PyObject_HasAttrString(interceptor, "enqueue"))
+    if (!PyCallable_Check(interceptor))
     {
-        throw Ice::InitializationException(
+        throw Ice::InitializationException{
             __FILE__,
             __LINE__,
-            "batch request interceptor must either be a callable or an object with an 'enqueue' method");
+            "the batch request interceptor must be a callable object"};
     }
 }
 
@@ -191,15 +191,7 @@ IcePy::BatchRequestInterceptorWrapper::enqueue(const Ice::BatchRequest& request,
     obj->size = nullptr;
     obj->operation = nullptr;
     obj->proxy = nullptr;
-    PyObjectHandle tmp;
-    if (PyCallable_Check(_interceptor.get()))
-    {
-        tmp = PyObject_CallFunction(_interceptor.get(), "Oii", obj, queueCount, queueSize);
-    }
-    else
-    {
-        tmp = PyObject_CallMethod(_interceptor.get(), "enqueue", "Oii", obj, queueCount, queueSize);
-    }
+    PyObjectHandle tmp{PyObject_CallFunction(_interceptor.get(), "Oii", obj, queueCount, queueSize)};
     Py_DECREF(reinterpret_cast<PyObject*>(obj));
     if (!tmp.get())
     {
