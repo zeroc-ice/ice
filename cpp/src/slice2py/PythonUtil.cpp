@@ -995,7 +995,8 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << ", " << inParamsDecl;
         }
         const string contextParamName = getEscapedParamName(operation->parameters(), "context");
-        _out << ", " << contextParamName << ": dict[str, str] | None = None)" << operationReturnTypeHint(operation, false, false) << ":";
+        _out << ", " << contextParamName << ": dict[str, str] | None = None)"
+             << operationReturnTypeHint(operation, false, false) << ":";
         _out.inc();
         writeDocstring(operation, DocSync);
         _out << nl << "return " << classAbs << "._op_" << opName << ".invoke(self, ((" << inParams;
@@ -1013,7 +1014,8 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << ", " << inParams;
         }
-        _out << ", " << contextParamName << ": dict[str, str] = None)" << operationReturnTypeHint(operation, false, true) << ":";
+        _out << ", " << contextParamName << ": dict[str, str] = None)"
+             << operationReturnTypeHint(operation, false, true) << ":";
         _out.inc();
         writeDocstring(operation, DocAsync);
         _out << nl << "return " << classAbs << "._op_" << opName << ".invokeAsync(self, ((" << inParams;
