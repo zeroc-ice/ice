@@ -3,8 +3,6 @@
 # Copyright (c) ZeroC, Inc.
 
 from TestHelper import TestHelper
-
-TestHelper.loadSlice("Key.ice Clash.ice")
 import sys
 import Ice
 import escaped_and

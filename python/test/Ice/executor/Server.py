@@ -4,8 +4,6 @@
 
 import Ice
 from TestHelper import TestHelper
-
-TestHelper.loadSlice("Test.ice")
 import TestI
 import Executor
 

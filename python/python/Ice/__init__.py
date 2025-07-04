@@ -43,7 +43,8 @@ from .Object import Object
 from .ObjectPrx import ObjectPrx, checkedCast, checkedCastAsync, uncheckedCast
 from .Blobject import Blobject
 from .FormatType import *
-from .Util import *
+from .SlicedData import SlicedData
+from .SliceInfo import SliceInfo
 from .UnknownSlicedValue import *
 from .ToStringMode import *
 from .Exception import *
@@ -79,6 +80,8 @@ import Ice.RemoteLogger_ice
 import Ice.Router_ice
 import Ice.Version_ice
 import Ice.Metrics_ice
+
+from .Util import *
 
 #
 # Add EndpointInfo alias in Ice module.
