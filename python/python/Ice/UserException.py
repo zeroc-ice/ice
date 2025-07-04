@@ -8,7 +8,7 @@ class UserException(IceException):
     def __init__(self):
         super().__init__()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
 __all__ = ["UserException"]

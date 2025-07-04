@@ -5,7 +5,6 @@
 import Ice
 import asyncio
 from TestHelper import TestHelper
-TestHelper.loadSlice("Test.ice")
 import TestI
 
 

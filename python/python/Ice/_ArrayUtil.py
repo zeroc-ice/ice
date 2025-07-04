@@ -35,7 +35,7 @@ try:
     import numpy
 
     BuiltinNumpyTypes = [
-        numpy.bool_,
+        numpy.bool,
         numpy.int8,
         numpy.int16,
         numpy.int32,

@@ -5,8 +5,6 @@
 import Ice
 import Executor
 from TestHelper import TestHelper
-
-TestHelper.loadSlice("Test.ice")
 import AllTests
 
 

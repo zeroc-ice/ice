@@ -1,9 +1,18 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
-import Test
 import array
+try:
+    import numpy
 
+    hasNumPy = True
+except ImportError:
+    hasNumPy = False
+    pass
+import Test
+
+if hasNumPy:
+    import Test.NumPy
 
 def test(b):
     if not b:
@@ -344,9 +353,7 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    try:
-        import numpy
-
+    if hasNumPy:
         ref = "test.numpy:{0}".format(helper.getTestEndpoint())
         base = communicator.stringToProxy(ref)
         test(base)
@@ -613,8 +620,5 @@ def allTests(helper, communicator):
             pass
 
         print("ok")
-    except ImportError:
-        print("numpy not installed skiping python:numpy.ndarray testing")
-        pass
 
     return custom

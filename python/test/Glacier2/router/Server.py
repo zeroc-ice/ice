@@ -3,8 +3,6 @@
 # Copyright (c) ZeroC, Inc.
 
 from TestHelper import TestHelper
-
-TestHelper.loadSlice("Callback.ice")
 import Ice
 import Test
 

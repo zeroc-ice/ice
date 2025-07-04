@@ -35,3 +35,11 @@ all:: srcs
 #
 all generate-srcs clean distclean install::
 	+$(Q)$(MAKE) -C python $@
+
+#
+# Translate the Slice files from test directories
+#
+$(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2py))
+tests := $(call tests-without-project-makefile,py)
+include $(shell find test -name Makefile.mk)
+$(foreach t,$(tests),$(eval $(call make-python-test-project,$(t))))

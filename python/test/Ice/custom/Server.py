@@ -4,9 +4,6 @@
 
 from TestHelper import TestHelper
 
-TestHelper.loadSlice("Test.ice")
-
-
 try:
     import numpy
 
@@ -15,16 +12,9 @@ except ImportError:
     hasNumPy = False
     pass
 
-#
-# Use separate try/except to ensure loadSlice correctly report ImportError
-# in ausence of numpy.
-#
-try:
-    TestHelper.loadSlice("TestNumPy.ice")
-except ImportError:
-    pass
-
 import Test
+if hasNumPy:
+    import Test.NumPy
 import Ice
 import array
 

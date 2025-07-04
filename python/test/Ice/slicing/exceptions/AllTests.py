@@ -2,11 +2,8 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import Ice
 import threading
 import sys
-
-Ice.loadSlice("-I. --all Test.ice")
 import Test
 
 

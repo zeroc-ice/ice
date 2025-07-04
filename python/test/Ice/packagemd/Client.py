@@ -3,8 +3,6 @@
 # Copyright (c) ZeroC, Inc.
 
 from TestHelper import TestHelper
-
-TestHelper.loadSlice("--all -I. Test.ice")
 import AllTests
 
 

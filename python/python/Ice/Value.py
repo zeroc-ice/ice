@@ -1,9 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
 import IcePy
+from .SlicedData import SlicedData
 
 class Value(object):
-    def ice_id(self):
+
+    def ice_id(self) -> str:
         """
         Obtain the type ID corresponding to the most-derived Slice interface supported by the target object.
 
@@ -15,7 +17,7 @@ class Value(object):
         return "::Ice::Object"
 
     @staticmethod
-    def ice_staticId():
+    def ice_staticId() -> str:
         """
         Obtain the type ID of this Slice class or interface.
 
@@ -35,7 +37,7 @@ class Value(object):
     # def ice_postUnmarshal(self):
     #    pass
 
-    def ice_getSlicedData(self):
+    def ice_getSlicedData(self) -> SlicedData | None:
         """
         Return the sliced data if the value has a preserved-slice base class and has been sliced during
         un-marshaling of the value. Return None otherwise.
@@ -47,7 +49,7 @@ class Value(object):
         """
         return getattr(self, "_ice_slicedData", None)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)
 
 IcePy._t_Value = IcePy.defineValue("::Ice::Object", Value, -1, (), False, None, ())

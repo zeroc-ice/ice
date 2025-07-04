@@ -46,6 +46,15 @@
         <PythonGenerated Include="$(MSBuildThisFileDirectory)\..\python\**\*_ice.py"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ClientSliceCompile Include="$(MSBuildThisFileDirectory)..\test\**\*.ice" Exclude="**\Server*.ice">
+            <OutputDir>$(MSBuildThisFileDirectory)..\test\%(RecursiveDir)\generated\client</OutputDir>
+        </ClientSliceCompile>
+        <ServerSliceCompile Include="$(MSBuildThisFileDirectory)..\test\**\*.ice" Exclude="**\Client*.ice">
+            <OutputDir>$(MSBuildThisFileDirectory)..\test\%(RecursiveDir)\generated\server</OutputDir>
+        </ServerSliceCompile>
+    </ItemGroup>
+
     <Target Name="BuildCppDist" DependsOnTargets="NuGetRestore">
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln"
                  Properties="Platform=Any CPU;Configuration=$(Configuration)"
@@ -66,6 +75,11 @@
     </Target>
 
     <Target Name="Build" DependsOnTargets="BuildDist">
+        <MakeDir Directories="@(ClientSliceCompile->'%(OutputDir)')"/>
+        <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\cpp\bin\$(Platform)\$(Configuration)\slice2py.exe&quot; --output-dir %(ClientSliceCompile.OutputDir) -I&quot;$(IceHome)\slice&quot; @(ClientSliceCompile->'%(Identity)', ' ')" />
+
+        <MakeDir Directories="@(ServerSliceCompile->'%(OutputDir)')"/>
+        <Exec Command="&quot;$(MSBuildThisFileDirectory)..\..\cpp\bin\$(Platform)\$(Configuration)\slice2py.exe&quot; --output-dir %(ServerSliceCompile.OutputDir) -I&quot;$(IceHome)\slice&quot; @(ServerSliceCompile->'%(Identity)', ' ')" />
     </Target>
 
     <Target Name="Clean">
