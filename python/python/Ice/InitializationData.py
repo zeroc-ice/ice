@@ -3,8 +3,7 @@
 from collections.abc import Callable
 from dataclasses import dataclass
 
-from IcePy import Connection
-from .BatchRequestInterceptor import BatchRequestInterceptor
+from IcePy import BatchRequest, Connection
 from .EventLoopAdapter import EventLoopAdapter
 from .Logger import Logger
 from .Properties import Properties
@@ -31,7 +30,7 @@ class InitializationData:
         A callable that is invoked when Ice needs to execute an activity. The callable
         receives two arguments: a callable and an Ice.Connection object. The executor must
         eventually invoke the callable with no arguments.
-    batchRequestInterceptor : BatchRequestInterceptor | None
+    batchRequestInterceptor : Callable[[BatchRequest, int, int], None] | None
         A callable that will be invoked when a batch request is queued. The callable receives
         three arguments: a BatchRequest object, an integer representing the number of requests
         in the queue, and an integer representing the number of bytes consumed by the requests
@@ -51,6 +50,6 @@ class InitializationData:
     threadStart: Callable[[], None] | None = None
     threadStop: Callable[[], None] | None = None
     executor: Callable[[Callable[[], None], Connection], None] | None = None
-    batchRequestInterceptor: BatchRequestInterceptor | None = None
+    batchRequestInterceptor: Callable[[BatchRequest, int, int], None] | None = None
     eventLoopAdapter: EventLoopAdapter | None = None
     sliceLoader: Callable[[str], Value | UserException | None] | None = None

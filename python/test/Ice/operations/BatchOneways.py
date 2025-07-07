@@ -10,7 +10,7 @@ def test(b):
         raise RuntimeError("test assertion failed")
 
 
-class BatchRequestInterceptorI(Ice.BatchRequestInterceptor):
+class BatchRequestInterceptor:
     def __init__(self):
         self._enabled = False
         self._count = 0
@@ -103,7 +103,7 @@ def batchOneways(p):
     if batch.ice_getConnection():
         initData = Ice.InitializationData()
         initData.properties = p.ice_getCommunicator().getProperties().clone()
-        interceptor = BatchRequestInterceptorI()
+        interceptor = BatchRequestInterceptor()
         initData.batchRequestInterceptor = interceptor.enqueue
 
         ic = Ice.initialize(initData=initData)

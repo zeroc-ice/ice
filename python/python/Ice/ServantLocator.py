@@ -1,6 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 from abc import ABC, abstractmethod
+from .Current import Current
 
 class ServantLocator(ABC):
     """
@@ -8,7 +9,7 @@ class ServantLocator(ABC):
     """
 
     @abstractmethod
-    def locate(self, current):
+    def locate(self, current: Current):
         """
         Called before a request is dispatched if a servant cannot be found in the object adapter's active servant map.
 
@@ -45,7 +46,7 @@ class ServantLocator(ABC):
         pass
 
     @abstractmethod
-    def finished(self, current, servant, cookie):
+    def finished(self, current: Current, servant, cookie):
         """
         Called by the object adapter after a request has been made.
 

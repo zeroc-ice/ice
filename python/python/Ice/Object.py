@@ -1,5 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
+from .Current import Current
 import IcePy
 import Ice.OperationMode_ice
 import Ice.BuiltinSequences_ice
@@ -9,7 +10,7 @@ class Object:
     The base class for servants.
     """
 
-    def ice_isA(self, id, current):
+    def ice_isA(self, id, current: Current):
         """
         Determine whether the target object supports the interface denoted by the given Slice type ID.
 
@@ -27,7 +28,7 @@ class Object:
         """
         return id in self.ice_ids(current)
 
-    def ice_ping(self, current):
+    def ice_ping(self, current: Current):
         """
         A reachability test for the target object.
 
@@ -38,7 +39,7 @@ class Object:
         """
         pass
 
-    def ice_ids(self, current):
+    def ice_ids(self, current: Current):
         """
         Obtain the type IDs corresponding to the Slice interfaces that are supported by the target object.
 
@@ -54,7 +55,7 @@ class Object:
         """
         return [self.ice_id(current)]
 
-    def ice_id(self, current):
+    def ice_id(self, current: Current):
         """
         Obtain the type ID corresponding to the most-derived Slice interface supported by the target object.
 
