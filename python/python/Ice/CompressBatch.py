@@ -2,6 +2,7 @@
 
 from .EnumBase import EnumBase
 
+
 class CompressBatch(EnumBase):
     """
     The batch compression option when flushing queued batch requests.
@@ -38,6 +39,7 @@ class CompressBatch(EnumBase):
         return self._enumerators[value] if value in self._enumerators else None
 
     valueOf = classmethod(valueOf)
+
 
 CompressBatch.Yes = CompressBatch("Yes", 0)
 CompressBatch.No = CompressBatch("No", 1)
