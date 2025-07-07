@@ -7,6 +7,18 @@ from ._LoggerI import LoggerI
 from .Logger import Logger
 from typing import final
 from .Future import Future
+from typing import Self, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .EventLoopAdapter import EventLoopAdapter
+    from .ObjectPrx import ObjectPrx
+    from collections.abc import Awaitable
+    from Identity_ice import Identity
+    from .Object import Object
+    from Router_ice import RouterPrx
+    from Locator_ice import LocatorPrx
+    import IcePy  # pyright: ignore
+
 
 @final
 class Communicator:
@@ -30,25 +42,27 @@ class Communicator:
             asyncio.run(main())
     """
 
-    def __init__(self, impl, eventLoopAdapter=None):
+    def __init__(
+        self, impl: IcePy.Communicator, eventLoopAdapter: EventLoopAdapter | None = None
+    ) -> None:
         self._impl = impl
         impl._setWrapper(self)
         self._eventLoopAdapter = eventLoopAdapter
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type, value, traceback) -> None:  # type: ignore
         self._impl.destroy()
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Self:
         return self
 
-    async def __aexit__(self, type, value, traceback):
+    async def __aexit__(self, type, value, traceback) -> None:  # type: ignore
         await self.destroyAsync()
 
     @property
-    def eventLoopAdapter(self):
+    def eventLoopAdapter(self) -> EventLoopAdapter | None:
         """
         The event loop adapter associated with this communicator, or None if the communicator does not have one.
 
@@ -60,10 +74,10 @@ class Communicator:
 
         return self._eventLoopAdapter
 
-    def _getImpl(self):
+    def _getImpl(self) -> IcePy.Communicator:
         return self._impl
 
-    def destroy(self):
+    def destroy(self) -> None:
         """
         Destroys this communicator. This method calls shutdown implicitly. Calling destroy destroys all
         object adapters, and closes all outgoing connections. destroy waits for all outstanding dispatches to
@@ -71,14 +85,15 @@ class Communicator:
         """
         self._impl.destroy()
 
-    def destroyAsync(self):
+    def destroyAsync(self) -> Awaitable[None]:
         """
         Destroys this communicator asynchronously. This method calls shutdown implicitly. Calling destroy destroys all
         object adapters, and closes all outgoing connections. destroy waits for all outstanding dispatches to
         complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
         """
         future = Future()
-        def completed():
+
+        def completed() -> None:
             future.set_result(None)
 
         wrappedFuture = future
@@ -88,14 +103,14 @@ class Communicator:
         self._impl.destroyAsync(completed)
         return wrappedFuture
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """
         Shuts down this communicator. This method calls deactivate on all object adapters created by this
         communicator. Shutting down a communicator has no effect on outgoing connections.
         """
         self._impl.shutdown()
 
-    def waitForShutdown(self):
+    def waitForShutdown(self) -> None:
         """
         Waits for shutdown to complete. This method calls waitForDeactivate on all object adapters
         created by this communicator. In a client application that does not accept incoming connections, this
@@ -106,7 +121,7 @@ class Communicator:
         while not self._impl.waitForShutdown(500):
             pass
 
-    def shutdownCompleted(self):
+    def shutdownCompleted(self) -> Future:
         """
         Return a Future that is marked as done when the communicator's shutdown completes.
 
@@ -119,7 +134,7 @@ class Communicator:
         """
         return self._impl.shutdownCompleted()
 
-    def isShutdown(self):
+    def isShutdown(self) -> bool:
         """
         Checks whether or not shutdown was called on this communicator.
 
@@ -130,7 +145,7 @@ class Communicator:
         """
         return self._impl.isShutdown()
 
-    def stringToProxy(self, str):
+    def stringToProxy(self, str: str) -> ObjectPrx | None:
         """
         Convert a proxy string representation into a proxy.
 
@@ -156,7 +171,7 @@ class Communicator:
         """
         return self._impl.stringToProxy(str)
 
-    def proxyToString(self, proxy):
+    def proxyToString(self, proxy: ObjectPrx | None) -> str:
         """
         Convert a proxy into a string.
 
@@ -172,7 +187,7 @@ class Communicator:
         """
         return self._impl.proxyToString(proxy)
 
-    def propertyToProxy(self, property):
+    def propertyToProxy(self, property: str) -> ObjectPrx:
         """
         Convert a set of proxy properties into a proxy.
 
@@ -193,7 +208,7 @@ class Communicator:
         """
         return self._impl.propertyToProxy(property)
 
-    def proxyToProperty(self, proxy, property):
+    def proxyToProperty(self, proxy: ObjectPrx, property: str) -> dict:
         """
         Convert a proxy to a set of properties.
 
@@ -211,7 +226,7 @@ class Communicator:
         """
         return self._impl.proxyToProperty(proxy, property)
 
-    def identityToString(self, identity):
+    def identityToString(self, identity: Identity) -> str:
         """
         Convert an identity into a string.
 
@@ -227,7 +242,7 @@ class Communicator:
         """
         return self._impl.identityToString(identity)
 
-    def createObjectAdapter(self, name):
+    def createObjectAdapter(self, name: str) -> ObjectAdapter:
         """
         Create a new object adapter.
 
@@ -249,7 +264,9 @@ class Communicator:
         adapter = self._impl.createObjectAdapter(name)
         return ObjectAdapter(adapter)
 
-    def createObjectAdapterWithEndpoints(self, name, endpoints):
+    def createObjectAdapterWithEndpoints(
+        self, name: str, endpoints: str
+    ) -> ObjectAdapter:
         """
         Create a new object adapter with endpoints.
 
@@ -271,7 +288,9 @@ class Communicator:
         adapter = self._impl.createObjectAdapterWithEndpoints(name, endpoints)
         return ObjectAdapter(adapter)
 
-    def createObjectAdapterWithRouter(self, name, router):
+    def createObjectAdapterWithRouter(
+        self, name: str, router: RouterPrx
+    ) -> ObjectAdapter:
         """
         Create a new object adapter with a router.
 
@@ -292,7 +311,7 @@ class Communicator:
         adapter = self._impl.createObjectAdapterWithRouter(name, router)
         return ObjectAdapter(adapter)
 
-    def getDefaultObjectAdapter(self):
+    def getDefaultObjectAdapter(self) -> ObjectAdapter | None:
         """
         Get the object adapter that is associated by default with new outgoing connections created by this
         communicator. This method returns None unless you set a default object adapter using createDefaultObjectAdapter.
@@ -304,7 +323,7 @@ class Communicator:
         """
         return self._impl.getDefaultObjectAdapter()
 
-    def setDefaultObjectAdapter(self, adapter):
+    def setDefaultObjectAdapter(self, adapter: ObjectAdapter | None):
         """
         Set the object adapter that is associated by default with new outgoing connections created by this communicator.
 
@@ -330,7 +349,7 @@ class Communicator:
         else:
             return ImplicitContext(context)
 
-    def getProperties(self):
+    def getProperties(self) -> Properties:
         """
         Get the properties for this communicator.
 
@@ -368,7 +387,7 @@ class Communicator:
         """
         return self._impl.getDefaultRouter()
 
-    def setDefaultRouter(self, router):
+    def setDefaultRouter(self, router: RouterPrx | None):
         """
         Set a default router for this communicator.
 
@@ -385,7 +404,7 @@ class Communicator:
         """
         self._impl.setDefaultRouter(router)
 
-    def getDefaultLocator(self):
+    def getDefaultLocator(self) -> LocatorPrx | None:
         """
         Get the default locator for this communicator.
 
@@ -396,7 +415,7 @@ class Communicator:
         """
         return self._impl.getDefaultLocator()
 
-    def setDefaultLocator(self, locator):
+    def setDefaultLocator(self, locator: LocatorPrx | None):
         """
         Set a default Ice locator for this communicator.
 
@@ -413,7 +432,7 @@ class Communicator:
         """
         self._impl.setDefaultLocator(locator)
 
-    def flushBatchRequests(self, compress):
+    def flushBatchRequests(self, compress: bool):
         """
         Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
         for all connections associated with the communicator. Any errors that occur while flushing a connection are
@@ -426,10 +445,9 @@ class Communicator:
         """
         self._impl.flushBatchRequests(compress)
 
-    def flushBatchRequestsAsync(self, compress):
+    def flushBatchRequestsAsync(self, compress: bool) -> Awaitable[None]:
         """
-        TODO fix async description
-        Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
+        Flush any pending batch requests for this communicator asynchronously. This means all batch requests invoked on fixed proxies
         for all connections associated with the communicator. Any errors that occur while flushing a connection are
         ignored.
 
@@ -440,7 +458,9 @@ class Communicator:
         """
         return self._impl.flushBatchRequestsAsync(compress)
 
-    def createAdmin(self, adminAdapter, adminId):
+    def createAdmin(
+        self, adminAdapter: ObjectAdapter | None, adminId: Identity
+    ) -> ObjectPrx:
         """
         Add the Admin object with all its facets to the provided object adapter.
 
@@ -468,7 +488,7 @@ class Communicator:
         """
         return self._impl.createAdmin(adminAdapter, adminId)
 
-    def getAdmin(self):
+    def getAdmin(self) -> ObjectPrx | None:
         """
         Get a proxy to the main facet of the Admin object.
 
@@ -485,7 +505,7 @@ class Communicator:
         """
         return self._impl.getAdmin()
 
-    def addAdminFacet(self, servant, facet):
+    def addAdminFacet(self, servant: Object | None, facet: str) -> None:
         """
         Adds a new facet to the Admin object.
 
@@ -505,7 +525,7 @@ class Communicator:
         """
         self._impl.addAdminFacet(servant, facet)
 
-    def removeAdminFacet(self, facet):
+    def removeAdminFacet(self, facet: str) -> Object:
         """
         Remove the specified facet from the Admin object.
 
@@ -528,7 +548,7 @@ class Communicator:
         """
         return self._impl.removeAdminFacet(facet)
 
-    def findAdminFacet(self, facet):
+    def findAdminFacet(self, facet: str) -> Object | None:
         """
         Return a facet of the Admin object.
 
@@ -544,7 +564,7 @@ class Communicator:
         """
         return self._impl.findAdminFacet(facet)
 
-    def findAllAdminFacets(self):
+    def findAllAdminFacets(self) -> dict[str, Object]:
         """
         Return a dictionary of all facets of the Admin object.
 

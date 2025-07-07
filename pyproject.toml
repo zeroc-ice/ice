@@ -34,6 +34,13 @@ py-modules = ["slice2py"]
 slice2py = "slice2py:main"
 
 [tool.pyright]
-include = ["test"]
+include = ["python/test"]
+extraPaths = ["python/python"]
+
 typeCheckingMode = "standard"
-extraPaths = ["python"]
+reportMissingTypeAnnotation = "error"
+reportMissingParameterType = "error"
+reportMissingReturnType = "error"
+reportUntypedFunctionDecorator = "error"
+reportUntypedClassDecorator = "error"
+reportUntypedBaseClass = "error"

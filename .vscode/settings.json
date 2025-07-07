@@ -1,11 +1,4 @@
 {
-    "python.analysis.extraPaths": [
-        "${workspaceFolder}/python/python",
-        "${workspaceFolder}/scripts"
-    ],
-    "pylint.args": [
-        "--rcfile=tox.ini"
-    ],
     "C_Cpp.autoAddFileAssociations": false,
     "files.associations": {
         "Make.*": "makefile"
@@ -16,6 +9,5 @@
     },
     "[swift]": {
         "editor.formatOnSave": false
-    },
-    "python.analysis.typeCheckingMode": "standard",
+    }
 }
