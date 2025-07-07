@@ -8,7 +8,7 @@ import importlib
 
 
 class TestHelper:
-    def __init__(self):
+    def __init__(self) -> None:
         self._communicator: Ice.Communicator | None = None
 
     def getTestEndpoint(
@@ -83,12 +83,12 @@ class TestHelper:
         assert self._communicator is not None, "Communicator must be initialized"
         return self._communicator
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         if self._communicator:
             self._communicator.shutdown()
 
     @classmethod
-    def loadSlice(cls, args):
+    def loadSlice(cls, args) -> None:
         sliceDir = Ice.getSliceDir()
         if not sliceDir:
             print(sys.argv[0] + ": Slice directory not found.")
