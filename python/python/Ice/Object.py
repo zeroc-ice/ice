@@ -9,6 +9,7 @@ import Ice.OperationMode_ice
 import Ice.BuiltinSequences_ice
 
 import Ice
+
 class Object:
     """
     The base class for servants.

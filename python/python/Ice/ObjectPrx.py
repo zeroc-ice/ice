@@ -7,6 +7,7 @@ from collections.abc import Awaitable
 from typing import Self
 
 import IcePy
+import Ice
 from .Object import Object
 
 def uncheckedCast(type, proxy, facet=None):
@@ -34,7 +35,7 @@ def uncheckedCast(type, proxy, facet=None):
         proxy = proxy.ice_facet(facet)
     return IcePy.ObjectPrx.newProxy(type, proxy)
 
-def checkedCast(type, proxy, facet=None, context: dict[str, str] = None):
+def checkedCast(type, proxy, facet=None, context: dict[str, str] | None = None):
     """
     Downcasts a proxy after confirming the target object's type via a remote invocation.
 
@@ -62,7 +63,7 @@ def checkedCast(type, proxy, facet=None, context: dict[str, str] = None):
         proxy = proxy.ice_facet(facet)
     return IcePy.ObjectPrx.newProxy(type, proxy) if proxy.ice_isA(type.ice_staticId(), context=context) else None
 
-async def checkedCastAsync(type, proxy, facet=None, context: dict[str, str] = None):
+async def checkedCastAsync(type, proxy, facet=None, context: dict[str, str] | None = None):
     """
     Downcasts a proxy after confirming the target object's type via a remote invocation.
 
@@ -97,7 +98,7 @@ class ObjectPrx(IcePy.ObjectPrx):
     """
 
     @staticmethod
-    def uncheckedCast(proxy: Ice.ObjectPrx, facet=None):
+    def uncheckedCast(proxy: ObjectPrx, facet=None):
         """
         Downcasts a proxy without confirming the target object's type via a remote invocation.
 
@@ -117,7 +118,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         return uncheckedCast(ObjectPrx, proxy, facet)
 
     @staticmethod
-    def checkedCast(proxy: Ice.ObjectPrx, facet: str = None, context: dict[str, str] = None):
+    def checkedCast(proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None):
         """
         Downcasts a proxy after confirming the target object's type via a remote invocation.
 
@@ -140,7 +141,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         return checkedCast(ObjectPrx, proxy, facet, context)
 
     @staticmethod
-    def checkedCastAsync(proxy: Ice.ObjectPrx, facet: str = None, context: dict[str, str] = None):
+    def checkedCastAsync(proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None):
         """
         Downcasts a proxy after confirming the target object's type via a remote invocation.
 
@@ -185,7 +186,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getCommunicator()
 
-    def ice_isA(self, id: Ice.Identity, context: dict[str, str] = None) -> bool:
+    def ice_isA(self, id, context: dict[str, str] | None = None) -> bool:
         """
         Test whether this object supports a specific Slice interface.
 
@@ -203,7 +204,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_isA.invoke(self, ((id,), context))
 
-    def ice_isAAsync(self, id: Ice.Identity, context: dict[str, str] = None) -> Awaitable[bool]:
+    def ice_isAAsync(self, id, context: dict[str, str] | None = None) -> Awaitable[bool]:
         """
         Test whether this object supports a specific Slice interface.
 
@@ -221,7 +222,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_isA.invokeAsync(self, ((id,), context))
 
-    def ice_ping(self, context: dict[str, str] = None):
+    def ice_ping(self, context: dict[str, str] | None = None):
         """
         Test whether the target object of this proxy can be reached.
 
@@ -236,7 +237,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         Object._op_ice_ping.invoke(self, ((), context))
 
-    def ice_pingAsync(self, context: dict[str, str] = None):
+    def ice_pingAsync(self, context: dict[str, str] | None = None):
         """
         Test whether the target object of this proxy can be reached.
 
@@ -251,7 +252,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_ping.invokeAsync(self, ((), context))
 
-    def ice_ids(self, context: dict[str, str] = None) -> list[str]:
+    def ice_ids(self, context: dict[str, str] | None = None) -> list[str]:
         """
         Return the Slice type IDs of the interfaces supported by the target object of this proxy.
 
@@ -267,7 +268,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_ids.invoke(self, ((), context))
 
-    def ice_idsAsync(self, context: dict[str, str] = None) -> Awaitable[list[str]]:
+    def ice_idsAsync(self, context: dict[str, str] | None = None) -> Awaitable[list[str]]:
         """
         Return the Slice type IDs of the interfaces supported by the target object of this proxy.
 
@@ -283,7 +284,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_ids.invokeAsync(self, ((), context))
 
-    def ice_id(self, context: dict[str, str] = None) -> str:
+    def ice_id(self, context: dict[str, str] | None = None) -> str:
         """
         Return the Slice type ID of the most-derived interface supported by the target object of this proxy.
 
@@ -299,7 +300,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_id.invoke(self, ((), context))
 
-    def ice_idAsync(self, context: dict[str, str] = None) -> Awaitable[str]:
+    def ice_idAsync(self, context: dict[str, str] | None = None) -> Awaitable[str]:
         """
         Return the Slice type ID of the most-derived interface supported by the target object of this proxy.
 
@@ -886,14 +887,14 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getConnectionId()
 
-    def ice_fixed(self, connection: Ice.Connection) -> Self:
+    def ice_fixed(self, connection: IcePy.Connection) -> Self:
         """
         Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
         to the given connection.
 
         Parameters
         ----------
-        connection : Ice.Connection
+        connection : IcePy.Connection
             The fixed proxy connection.
 
         Returns
@@ -914,7 +915,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isFixed()
 
-    def ice_getConnection(self) -> Ice.Connection:
+    def ice_getConnection(self) -> IcePy.Connection:
         """
         Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         it first attempts to create a connection.
@@ -926,7 +927,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getConnection()
 
-    def ice_getCachedConnection(self) -> Ice.Connection | None:
+    def ice_getCachedConnection(self) -> IcePy.Connection | None:
         """
         Returns the cached Connection for this proxy. If the proxy does not yet have an established
         connection, it does not attempt to create a connection.

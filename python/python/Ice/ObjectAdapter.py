@@ -4,7 +4,13 @@
 from __future__ import annotations
 
 from typing import final
+import IcePy
+import Ice
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .Communicator import Communicator
 @final
 class ObjectAdapter:
     """
@@ -28,7 +34,7 @@ class ObjectAdapter:
         """
         return self._impl.getName()
 
-    def getCommunicator(self) -> Ice.Communicator:
+    def getCommunicator(self) -> Communicator:
         """
         Get the communicator this object adapter belongs to.
 
@@ -523,7 +529,7 @@ class ObjectAdapter:
         """
         return self._impl.createIndirectProxy(id)
 
-    def setLocator(self, locator: Ice.LocatorPrx) -> None:
+    def setLocator(self, locator) -> None:
         """
         Set an Ice locator for this object adapter.
 
@@ -538,7 +544,7 @@ class ObjectAdapter:
         """
         self._impl.setLocator(locator)
 
-    def getLocator(self) -> Ice.LocatorPrx | None: 
+    def getLocator(self):
         """
         Get the Ice locator used by this object adapter.
 
@@ -548,36 +554,36 @@ class ObjectAdapter:
             The locator used by this object adapter, or None if no locator is used by this object adapter.
         """
         return self._impl.getLocator()
-    
-    def getEndpoints(self) -> tuple[Ice.Endpoint, ...]:
+
+    def getEndpoints(self) -> tuple[IcePy.Endpoint, ...]:
         """
         Get the set of endpoints configured with this object adapter.
 
         Returns
         -------
-        tuple[Ice.Endpoint, ...]
+        tuple[IcePy.Endpoint, ...]
             The set of endpoints.
         """
         return self._impl.getEndpoints()
 
-    def getPublishedEndpoints(self) -> tuple[Ice.Endpoint, ...]:
+    def getPublishedEndpoints(self) -> tuple[IcePy.Endpoint, ...]:
         """
         Get the set of endpoints that proxies created by this object adapter will contain.
 
         Returns
         -------
-        tuple[Ice.Endpoint, ...]
+        tuple[IcePy.Endpoint, ...]
             The set of published endpoints.
         """
         return self._impl.getPublishedEndpoints()
 
-    def setPublishedEndpoints(self, newEndpoints: tuple[Ice.Endpoint, ...]) -> None:
+    def setPublishedEndpoints(self, newEndpoints: tuple[IcePy.Endpoint, ...]) -> None:
         """
         Set the endpoints that proxies created by this object adapter will contain.
 
         Parameters
         ----------
-        newEndpoints : tuple[Ice.Endpoint, ...]
+        newEndpoints : tuple[IcePy.Endpoint, ...]
             The new set of endpoints that the object adapter will embed in proxies.
         """
         self._impl.setPublishedEndpoints(newEndpoints)
