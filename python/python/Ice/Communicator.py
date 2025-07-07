@@ -1,5 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
+
 from .ObjectAdapter import ObjectAdapter
 from .ImplicitContext import ImplicitContext
 from .Properties import Properties
@@ -9,6 +11,7 @@ from .Future import Future
 from typing import final, Self, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    import IcePy
     from .EventLoopAdapter import EventLoopAdapter
     from .ObjectPrx import ObjectPrx
     from collections.abc import Awaitable
@@ -16,7 +19,6 @@ if TYPE_CHECKING:
     from .Object import Object
     from Router_ice import RouterPrx
     from Locator_ice import LocatorPrx
-    import IcePy
 
 
 @final
