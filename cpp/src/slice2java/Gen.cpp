@@ -1903,7 +1903,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
     const bool isOptional = member->optional();
     const bool forStruct = (bool)dynamic_pointer_cast<Struct>(member->container());
     const string stream = forStruct ? "istr" : "istr_";
-    assert(!isOptional || !forStruct); // optional members aren't allowed in structs.
+    assert(!isOptional || !forStruct);           // optional members aren't allowed in structs.
     assert(!isOptional || !type->isClassType()); // optional class types aren't allowed.
 
     // If this is an optional data member, we first have to handle the optional tag.
@@ -1938,7 +1938,19 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
     const string memberName = (forStruct ? "this." : "") + member->mappedName();
     const MetadataList& metadata = member->getMetadata();
     const string patchParams = getPatcher(member->type(), package, member->mappedName());
-    writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, memberName, false, iter, stream, metadata, patchParams);
+    writeMarshalUnmarshalCode(
+        out,
+        package,
+        type,
+        OptionalNone,
+        false,
+        0,
+        memberName,
+        false,
+        iter,
+        stream,
+        metadata,
+        patchParams);
 
     // If this is an optional data member, generate a closing brace to balance out the 'if(... readOptional)'.
     if (isOptional)
