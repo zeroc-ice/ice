@@ -32,16 +32,3 @@ py-modules = ["slice2py"]
 
 [project.scripts]
 slice2py = "slice2py:main"
-
-[tool.pyright]
-include = ["python"]
-# Location of the IcePy module
-extraPaths = ["python/python"]
-
-typeCheckingMode = "standard"
-reportMissingTypeAnnotation = "error"
-reportMissingParameterType = "error"
-reportMissingReturnType = "error"
-reportUntypedFunctionDecorator = "error"
-reportUntypedClassDecorator = "error"
-reportUntypedBaseClass = "error"
