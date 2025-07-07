@@ -1,15 +1,19 @@
 # Copyright (c) ZeroC, Inc.
 
+# Avoid evaluating annotations at function definition time.
+from __future__ import annotations
+from collections.abc import Awaitable
 import IcePy
 import Ice.OperationMode_ice
 import Ice.BuiltinSequences_ice
 
+import Ice
 class Object:
     """
     The base class for servants.
     """
 
-    def ice_isA(self, id, current):
+    def ice_isA(self, id: Ice.Identity, current: Ice.Current) -> bool:
         """
         Determine whether the target object supports the interface denoted by the given Slice type ID.
 
@@ -27,7 +31,7 @@ class Object:
         """
         return id in self.ice_ids(current)
 
-    def ice_ping(self, current):
+    def ice_ping(self, current: Ice.Current) -> None | Awaitable[None]:
         """
         A reachability test for the target object.
 
@@ -38,7 +42,7 @@ class Object:
         """
         pass
 
-    def ice_ids(self, current):
+    def ice_ids(self, current: Ice.Current) -> list[str] | Awaitable[list[str]]:
         """
         Obtain the type IDs corresponding to the Slice interfaces that are supported by the target object.
 
@@ -54,7 +58,7 @@ class Object:
         """
         return [self.ice_id(current)]
 
-    def ice_id(self, current):
+    def ice_id(self, current: Ice.Current) -> str | Awaitable[str]:
         """
         Obtain the type ID corresponding to the most-derived Slice interface supported by the target object.
 
@@ -71,7 +75,7 @@ class Object:
         return "::Ice::Object"
 
     @staticmethod
-    def ice_staticId():
+    def ice_staticId() -> str:
         """
         Obtain the type ID of this Slice class or interface.
 

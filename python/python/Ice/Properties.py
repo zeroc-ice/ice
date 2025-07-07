@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from typing import final
+from typing import final, Self
 
 @final
 class Properties:
@@ -13,7 +13,7 @@ class Properties:
     def __init__(self, impl):
         self._impl = impl
 
-    def getProperty(self, key):
+    def getProperty(self, key: str) -> str:
         """
         Get a property by key.
 
@@ -31,7 +31,7 @@ class Properties:
         """
         return self._impl.getProperty(key)
 
-    def getIceProperty(self, key):
+    def getIceProperty(self, key: str) -> str:
         """
         Get an Ice property by key.
 
@@ -54,7 +54,7 @@ class Properties:
         """
         return self._impl.getIceProperty(key)
 
-    def getPropertyWithDefault(self, key, value):
+    def getPropertyWithDefault(self, key: str, value: str) -> str:
         """
         Get a property by key.
 
@@ -74,7 +74,7 @@ class Properties:
         """
         return self._impl.getPropertyWithDefault(key, value)
 
-    def getPropertyAsInt(self, key):
+    def getPropertyAsInt(self, key: str) -> int:
         """
         Get a property as an integer.
 
@@ -97,7 +97,7 @@ class Properties:
         """
         return self._impl.getPropertyAsInt(key)
 
-    def getIcePropertyAsInt(self, key):
+    def getIcePropertyAsInt(self, key: str) -> int:
         """
         Get an Ice property as an integer.
 
@@ -120,7 +120,7 @@ class Properties:
         """
         return self._impl.getIcePropertyAsInt(key)
 
-    def getPropertyAsIntWithDefault(self, key, value):
+    def getPropertyAsIntWithDefault(self, key: str, value: int) -> int:
         """
         Get a property as an integer.
 
@@ -145,7 +145,7 @@ class Properties:
         """
         return self._impl.getPropertyAsIntWithDefault(key, value)
 
-    def getPropertyAsList(self, key):
+    def getPropertyAsList(self, key: str) -> list[str]:
         """
         Get a property as a list of strings.
 
@@ -166,7 +166,7 @@ class Properties:
         """
         return self._impl.getPropertyAsList(key)
 
-    def getIcePropertyAsList(self, key):
+    def getIcePropertyAsList(self, key: str) -> list[str]:
         """
         Get an Ice property as a list of strings.
 
@@ -192,7 +192,7 @@ class Properties:
         """
         return self._impl.getIcePropertyAsList(key)
 
-    def getPropertyAsListWithDefault(self, key, value):
+    def getPropertyAsListWithDefault(self, key: str, value: list[str]) -> list[str]:
         """
         Get a property as a list of strings.
 
@@ -215,7 +215,7 @@ class Properties:
         """
         return self._impl.getPropertyAsListWithDefault(key, value)
 
-    def getPropertiesForPrefix(self, prefix):
+    def getPropertiesForPrefix(self, prefix: str) -> dict[str, str]:
         """
         Get all properties whose keys begin with the given prefix.
 
@@ -233,7 +233,7 @@ class Properties:
         """
         return self._impl.getPropertiesForPrefix(prefix)
 
-    def setProperty(self, key, value):
+    def setProperty(self, key: str, value: str) -> None:
         """
         Set a property.
 
@@ -248,7 +248,7 @@ class Properties:
         """
         self._impl.setProperty(key, value)
 
-    def getCommandLineOptions(self):
+    def getCommandLineOptions(self) -> list[str]:
         """
         Get a sequence of command-line options that is equivalent to this property set.
 
@@ -261,7 +261,7 @@ class Properties:
         """
         return self._impl.getCommandLineOptions()
 
-    def parseCommandLineOptions(self, prefix, options):
+    def parseCommandLineOptions(self, prefix: str, options: list[str]) -> list[str]:
         """
         Convert a sequence of command-line options into properties.
 
@@ -282,7 +282,7 @@ class Properties:
         """
         return self._impl.parseCommandLineOptions(prefix, options)
 
-    def parseIceCommandLineOptions(self, options):
+    def parseIceCommandLineOptions(self, options: list[str]) -> list[str]:
         """
         Convert a sequence of command-line options into properties.
 
@@ -301,7 +301,7 @@ class Properties:
         """
         return self._impl.parseIceCommandLineOptions(options)
 
-    def load(self, file):
+    def load(self, file: str) -> None:
         """
         Load properties from a file.
 
@@ -312,7 +312,7 @@ class Properties:
         """
         self._impl.load(file)
 
-    def clone(self):
+    def clone(self) -> Self:
         """
         Create a copy of this property set.
 
@@ -327,5 +327,5 @@ class Properties:
         dict = self._impl.getPropertiesForPrefix("")
         return iter(dict)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self._impl)

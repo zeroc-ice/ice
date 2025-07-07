@@ -1,3 +1,10 @@
+# Copyright (c) ZeroC, Inc.
+
+# Avoid evaluating annotations at function definition time.
+from __future__ import annotations
+
+from collections.abc import Awaitable
+from typing import Self
 
 import IcePy
 from .Object import Object
@@ -27,7 +34,7 @@ def uncheckedCast(type, proxy, facet=None):
         proxy = proxy.ice_facet(facet)
     return IcePy.ObjectPrx.newProxy(type, proxy)
 
-def checkedCast(type, proxy, facet=None, context=None):
+def checkedCast(type, proxy, facet=None, context: dict[str, str] = None):
     """
     Downcasts a proxy after confirming the target object's type via a remote invocation.
 
@@ -55,7 +62,7 @@ def checkedCast(type, proxy, facet=None, context=None):
         proxy = proxy.ice_facet(facet)
     return IcePy.ObjectPrx.newProxy(type, proxy) if proxy.ice_isA(type.ice_staticId(), context=context) else None
 
-async def checkedCastAsync(type, proxy, facet=None, context=None):
+async def checkedCastAsync(type, proxy, facet=None, context: dict[str, str] = None):
     """
     Downcasts a proxy after confirming the target object's type via a remote invocation.
 
@@ -90,7 +97,7 @@ class ObjectPrx(IcePy.ObjectPrx):
     """
 
     @staticmethod
-    def uncheckedCast(proxy, facet=None):
+    def uncheckedCast(proxy: Ice.ObjectPrx, facet=None):
         """
         Downcasts a proxy without confirming the target object's type via a remote invocation.
 
@@ -110,7 +117,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         return uncheckedCast(ObjectPrx, proxy, facet)
 
     @staticmethod
-    def checkedCast(proxy, facet=None, context=None):
+    def checkedCast(proxy: Ice.ObjectPrx, facet: str = None, context: dict[str, str] = None):
         """
         Downcasts a proxy after confirming the target object's type via a remote invocation.
 
@@ -133,7 +140,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         return checkedCast(ObjectPrx, proxy, facet, context)
 
     @staticmethod
-    def checkedCastAsync(proxy, facet=None, context=None):
+    def checkedCastAsync(proxy: Ice.ObjectPrx, facet: str = None, context: dict[str, str] = None):
         """
         Downcasts a proxy after confirming the target object's type via a remote invocation.
 
@@ -156,7 +163,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         return checkedCastAsync(ObjectPrx, proxy, facet, context)
 
     @staticmethod
-    def ice_staticId():
+    def ice_staticId() -> str:
         """
         Gets the Slice type ID of the interface associated with this proxy.
 
@@ -167,7 +174,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return "::Ice::Object"
 
-    def ice_getCommunicator(self):
+    def ice_getCommunicator(self) -> Ice.Communicator:
         """
         Return the communicator that created this proxy.
 
@@ -178,7 +185,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getCommunicator()
 
-    def ice_isA(self, id, context=None):
+    def ice_isA(self, id: Ice.Identity, context: dict[str, str] = None) -> bool:
         """
         Test whether this object supports a specific Slice interface.
 
@@ -196,7 +203,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_isA.invoke(self, ((id,), context))
 
-    def ice_isAAsync(self, id, context=None):
+    def ice_isAAsync(self, id: Ice.Identity, context: dict[str, str] = None) -> Awaitable[bool]:
         """
         Test whether this object supports a specific Slice interface.
 
@@ -214,7 +221,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_isA.invokeAsync(self, ((id,), context))
 
-    def ice_ping(self, context=None):
+    def ice_ping(self, context: dict[str, str] = None):
         """
         Test whether the target object of this proxy can be reached.
 
@@ -229,7 +236,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         Object._op_ice_ping.invoke(self, ((), context))
 
-    def ice_pingAsync(self, context=None):
+    def ice_pingAsync(self, context: dict[str, str] = None):
         """
         Test whether the target object of this proxy can be reached.
 
@@ -244,7 +251,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_ping.invokeAsync(self, ((), context))
 
-    def ice_ids(self, context=None):
+    def ice_ids(self, context: dict[str, str] = None) -> list[str]:
         """
         Return the Slice type IDs of the interfaces supported by the target object of this proxy.
 
@@ -260,7 +267,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_ids.invoke(self, ((), context))
 
-    def ice_idsAsync(self, context=None):
+    def ice_idsAsync(self, context: dict[str, str] = None) -> Awaitable[list[str]]:
         """
         Return the Slice type IDs of the interfaces supported by the target object of this proxy.
 
@@ -276,7 +283,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_ids.invokeAsync(self, ((), context))
 
-    def ice_id(self, context=None):
+    def ice_id(self, context: dict[str, str] = None) -> str:
         """
         Return the Slice type ID of the most-derived interface supported by the target object of this proxy.
 
@@ -292,7 +299,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_id.invoke(self, ((), context))
 
-    def ice_idAsync(self, context=None):
+    def ice_idAsync(self, context: dict[str, str] = None) -> Awaitable[str]:
         """
         Return the Slice type ID of the most-derived interface supported by the target object of this proxy.
 
@@ -308,7 +315,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_id.invokeAsync(self, ((), context))
 
-    def ice_getIdentity(self):
+    def ice_getIdentity(self) -> Ice.Identity:
         """
         Return the identity embedded in this proxy.
 
@@ -319,7 +326,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getIdentity()
 
-    def ice_identity(self, newIdentity):
+    def ice_identity(self, newIdentity: Ice.Identity) -> Self:
         """
         Create a new proxy that is identical to this proxy, except for the per-proxy context.
 
@@ -335,18 +342,18 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_identity(newIdentity)
 
-    def ice_getContext(self):
+    def ice_getContext(self) -> dict[str, str] | None:
         """
         Returns the per-proxy context for this proxy.
 
         Returns
         -------
-        dict or None
+        dict[str, str] | None
             The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the return value is None.
         """
         return super().ice_getContext()
 
-    def ice_context(self, new_context):
+    def ice_context(self, new_context: dict[str, str]) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the per-proxy context.
 
@@ -362,7 +369,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_context(new_context)
 
-    def ice_getFacet(self):
+    def ice_getFacet(self) -> str:
         """
         Returns the facet for this proxy.
 
@@ -373,7 +380,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getFacet()
 
-    def ice_facet(self, new_facet):
+    def ice_facet(self, new_facet: str) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the facet.
 
@@ -389,7 +396,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_facet(new_facet)
 
-    def ice_getAdapterId(self):
+    def ice_getAdapterId(self) -> str:
         """
         Returns the adapter ID for this proxy.
 
@@ -400,7 +407,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getAdapterId()
 
-    def ice_adapterId(self, newAdapterId):
+    def ice_adapterId(self, newAdapterId: str) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the adapter ID.
 
@@ -416,7 +423,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_adapterId(newAdapterId)
 
-    def ice_getEndpoints(self):
+    def ice_getEndpoints(self) -> list[Ice.Endpoint]:
         """
         Returns the endpoints used by this proxy.
 
@@ -427,7 +434,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getEndpoints()
 
-    def ice_endpoints(self, newEndpoints):
+    def ice_endpoints(self, newEndpoints: list[Ice.Endpoint]) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the endpoints.
 
@@ -443,7 +450,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_endpoints(newEndpoints)
 
-    def ice_getLocatorCacheTimeout(self):
+    def ice_getLocatorCacheTimeout(self) -> int:
         """
         Returns the locator cache timeout of this proxy.
 
@@ -454,7 +461,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getLocatorCacheTimeout()
 
-    def ice_locatorCacheTimeout(self, timeout):
+    def ice_locatorCacheTimeout(self, timeout: int) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
 
@@ -470,7 +477,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_locatorCacheTimeout(timeout)
 
-    def ice_invocationTimeout(self, timeout):
+    def ice_invocationTimeout(self, timeout: int) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the invocation timeout.
 
@@ -486,7 +493,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_invocationTimeout(timeout)
 
-    def ice_getInvocationTimeout(self):
+    def ice_getInvocationTimeout(self) -> int:
         """
         Returns the invocation timeout of this proxy.
 
@@ -497,7 +504,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getInvocationTimeout()
 
-    def ice_isConnectionCached(self):
+    def ice_isConnectionCached(self) -> bool:
         """
         Returns whether this proxy caches connections.
 
@@ -508,7 +515,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isConnectionCached()
 
-    def ice_connectionCached(self, newCache):
+    def ice_connectionCached(self, newCache: bool) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for connection caching.
 
@@ -524,7 +531,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_connectionCached(newCache)
 
-    def ice_getEndpointSelection(self):
+    def ice_getEndpointSelection(self) -> Ice.EndpointSelectionType:
         """
         Returns how this proxy selects endpoints (randomly or ordered).
 
@@ -535,7 +542,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getEndpointSelection()
 
-    def ice_endpointSelection(self, newType):
+    def ice_endpointSelection(self, newType: Ice.EndpointSelectionType) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the endpoint selection policy.
 
@@ -551,7 +558,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_endpointSelection(newType)
 
-    def ice_isSecure(self):
+    def ice_isSecure(self) -> bool:
         """
         Returns whether this proxy communicates only via secure endpoints.
 
@@ -562,7 +569,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isSecure()
 
-    def ice_secure(self, secure):
+    def ice_secure(self, secure: bool) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
 
@@ -579,7 +586,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_secure(secure)
 
-    def ice_encodingVersion(self, version):
+    def ice_encodingVersion(self, version: Ice.EncodingVersion) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the encoding used to marshal parameters.
 
@@ -595,7 +602,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_encodingVersion(version)
 
-    def ice_getEncodingVersion(self):
+    def ice_getEncodingVersion(self) -> Ice.EncodingVersion:
         """
         Returns the encoding version used to marshal requests parameters.
 
@@ -606,7 +613,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getEncodingVersion()
 
-    def ice_isPreferSecure(self):
+    def ice_isPreferSecure(self) -> bool:
         """
         Returns whether this proxy prefers secure endpoints.
 
@@ -617,7 +624,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isPreferSecure()
 
-    def ice_preferSecure(self, preferSecure):
+    def ice_preferSecure(self, preferSecure: bool) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
 
@@ -634,7 +641,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_preferSecure(preferSecure)
 
-    def ice_getRouter(self):
+    def ice_getRouter(self) -> Ice.RouterPrx | None:
         """
         Returns the router for this proxy.
 
@@ -645,7 +652,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getRouter()
 
-    def ice_router(self, router):
+    def ice_router(self, router: Ice.RouterPrx | None) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the router.
 
@@ -661,7 +668,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_router(router)
 
-    def ice_getLocator(self):
+    def ice_getLocator(self) -> Ice.LocatorPrx | None:
         """
         Returns the locator for this proxy.
 
@@ -672,7 +679,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getLocator()
 
-    def ice_locator(self, locator):
+    def ice_locator(self, locator: Ice.LocatorPrx | None) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the locator.
 
@@ -688,7 +695,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_locator(locator)
 
-    def ice_isCollocationOptimized(self):
+    def ice_isCollocationOptimized(self) -> bool:
         """
         Returns whether this proxy uses collocation optimization.
 
@@ -699,7 +706,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isCollocationOptimized()
 
-    def ice_collocationOptimized(self, collocated):
+    def ice_collocationOptimized(self, collocated: bool) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for collocation optimization.
 
@@ -715,7 +722,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_collocationOptimized(collocated)
 
-    def ice_twoway(self):
+    def ice_twoway(self) -> Self:
         """
         Creates a new proxy that is identical to this proxy, but uses twoway invocations.
 
@@ -726,7 +733,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_twoway()
 
-    def ice_isTwoway(self):
+    def ice_isTwoway(self) -> bool:
         """
         Returns whether this proxy uses twoway invocations.
 
@@ -737,7 +744,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isTwoway()
 
-    def ice_oneway(self):
+    def ice_oneway(self) -> Self:
         """
         Creates a new proxy that is identical to this proxy, but uses oneway invocations.
 
@@ -748,7 +755,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_oneway()
 
-    def ice_isOneway(self):
+    def ice_isOneway(self) -> bool:
         """
         Returns whether this proxy uses oneway invocations.
 
@@ -759,7 +766,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isOneway()
 
-    def ice_batchOneway(self):
+    def ice_batchOneway(self) -> Self:
         """
         Creates a new proxy that is identical to this proxy, but uses batch oneway invocations.
 
@@ -770,7 +777,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_batchOneway()
 
-    def ice_isBatchOneway(self):
+    def ice_isBatchOneway(self) -> bool:
         """
         Returns whether this proxy uses batch oneway invocations.
 
@@ -781,7 +788,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isBatchOneway()
 
-    def ice_datagram(self):
+    def ice_datagram(self) -> Self:
         """
         Creates a new proxy that is identical to this proxy, but uses datagram invocations.
 
@@ -792,7 +799,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_datagram()
 
-    def ice_isDatagram(self):
+    def ice_isDatagram(self) -> bool:
         """
         Returns whether this proxy uses datagram invocations.
 
@@ -803,7 +810,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isDatagram()
 
-    def ice_batchDatagram(self):
+    def ice_batchDatagram(self) -> Self:
         """
         Creates a new proxy that is identical to this proxy, but uses batch datagram invocations.
 
@@ -814,7 +821,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_batchDatagram()
 
-    def ice_isBatchDatagram(self):
+    def ice_isBatchDatagram(self) -> bool:
         """
         Returns whether this proxy uses batch datagram invocations.
 
@@ -825,7 +832,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isBatchDatagram()
 
-    def ice_compress(self, compress):
+    def ice_compress(self, compress: bool) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for compression.
 
@@ -841,7 +848,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_compress(compress)
 
-    def ice_getCompress(self):
+    def ice_getCompress(self) -> bool | None:
         """
         Obtains the compression override setting of this proxy.
 
@@ -852,7 +859,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getCompress()
 
-    def ice_connectionId(self, connectionId):
+    def ice_connectionId(self, connectionId: str) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for its connection ID.
 
@@ -868,7 +875,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_connectionId(connectionId)
 
-    def ice_getConnectionId(self):
+    def ice_getConnectionId(self) -> str:
         """
         Returns the connection id of this proxy.
 
@@ -879,7 +886,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getConnectionId()
 
-    def ice_fixed(self, connection):
+    def ice_fixed(self, connection: Ice.Connection) -> Self:
         """
         Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
         to the given connection.
@@ -896,7 +903,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_fixed(connection)
 
-    def ice_isFixed(self):
+    def ice_isFixed(self) -> bool:
         """
         Returns whether this proxy is a fixed proxy.
 
@@ -907,7 +914,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isFixed()
 
-    def ice_getConnection(self):
+    def ice_getConnection(self) -> Ice.Connection:
         """
         Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         it first attempts to create a connection.
@@ -919,30 +926,30 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getConnection()
 
-    def ice_getCachedConnection(self):
+    def ice_getCachedConnection(self) -> Ice.Connection | None:
         """
         Returns the cached Connection for this proxy. If the proxy does not yet have an established
         connection, it does not attempt to create a connection.
 
         Returns
         -------
-        Connection or None
+        Connection | None
             The cached Connection for this proxy (None if the proxy does not have an established connection).
         """
         return super().ice_getCachedConnection()
 
-    def ice_flushBatchRequests(self):
+    def ice_flushBatchRequests(self) -> None:
         """
         Flushes any pending batched requests for this proxy. The call blocks until the flush is complete.
         """
         return super().ice_flushBatchRequests()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"{self.__class__.__module__}.{self.__class__.__qualname__}("
             f"communicator={self.ice_getCommunicator()!r}, "
             f"proxyString={self.ice_toString()!r})"
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self)

@@ -59,7 +59,6 @@ from .ServantLocator import *
 from .InitializationData import *
 from .Properties import Properties
 from .Logger import *
-from .BatchRequestInterceptor import *
 from .LocalExceptions import *
 from .Proxy import *
 from .Current import Current
@@ -123,7 +122,6 @@ __all__ = [
     "AdapterAlreadyActiveException",
     "AdapterNotFoundException",
     "AlreadyRegisteredException",
-    "BatchRequestInterceptor",
     "Blobject",
     "CloseConnectionException",
     "CloseTimeoutException",
@@ -221,4 +219,5 @@ __all__ = [
     "proxyIdentityEqual",
     "setProcessLogger",
     "stringToIdentity",
-    "wrap_future"]
+    "wrap_future",
+]

@@ -1,5 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
+# Avoid evaluating annotations at function definition time.
+from __future__ import annotations
+
 from typing import final
 
 @final
@@ -14,7 +17,7 @@ class ObjectAdapter:
     def __init__(self, impl):
         self._impl = impl
 
-    def getName(self):
+    def getName(self) -> str:
         """
         Get the name of this object adapter.
 
@@ -25,7 +28,7 @@ class ObjectAdapter:
         """
         return self._impl.getName()
 
-    def getCommunicator(self):
+    def getCommunicator(self) -> Ice.Communicator:
         """
         Get the communicator this object adapter belongs to.
 
@@ -37,7 +40,7 @@ class ObjectAdapter:
         communicator = self._impl.getCommunicator()
         return communicator._getWrapper()
 
-    def activate(self):
+    def activate(self) -> None:
         """
         Activate all endpoints that belong to this object adapter.
 
@@ -45,7 +48,7 @@ class ObjectAdapter:
         """
         self._impl.activate()
 
-    def hold(self):
+    def hold(self) -> None:
         """
         Temporarily hold receiving and dispatching requests.
 
@@ -55,7 +58,7 @@ class ObjectAdapter:
         """
         self._impl.hold()
 
-    def waitForHold(self):
+    def waitForHold(self) -> None:
         """
         Wait until the object adapter holds requests.
 
@@ -71,7 +74,7 @@ class ObjectAdapter:
         while not self._impl.waitForHold(1000):
             pass
 
-    def deactivate(self):
+    def deactivate(self) -> None:
         """
         Deactivates this object adapter: stop accepting new connections from clients and close gracefully all incoming
         connections created by this object adapter once all outstanding dispatches have completed.
@@ -83,7 +86,7 @@ class ObjectAdapter:
         """
         self._impl.deactivate()
 
-    def waitForDeactivate(self):
+    def waitForDeactivate(self) -> None:
         """
         Wait until `deactivate` is called on this object adapter and all connections accepted by this object adapter are
         closed.
@@ -100,7 +103,7 @@ class ObjectAdapter:
         while not self._impl.waitForDeactivate(1000):
             pass
 
-    def isDeactivated(self):
+    def isDeactivated(self) -> bool:
         """
         Checks if this object adapter has been deactivated.
 
@@ -111,7 +114,7 @@ class ObjectAdapter:
         """
         self._impl.isDeactivated()
 
-    def destroy(self):
+    def destroy(self) -> None:
         """
         Destroys this object adapter and cleans up all resources held by this object adapter.
 
@@ -119,7 +122,7 @@ class ObjectAdapter:
         """
         self._impl.destroy()
 
-    def add(self, servant, id):
+    def add(self, servant: Ice.Object, id: Ice.Identity) -> Ice.ObjectPrx:
         """
         Add a servant to this object adapter's Active Servant Map.
 
@@ -140,7 +143,7 @@ class ObjectAdapter:
         """
         return self._impl.add(servant, id)
 
-    def addFacet(self, servant, id, facet):
+    def addFacet(self, servant: Ice.Object, id: Ice.Identity, facet: str = "") -> Ice.ObjectPrx:
         """
         Add a servant with a facet to this object adapter's Active Servant Map.
 
@@ -162,7 +165,7 @@ class ObjectAdapter:
         """
         return self._impl.addFacet(servant, id, facet)
 
-    def addWithUUID(self, servant):
+    def addWithUUID(self, servant: Ice.Object) -> Ice.ObjectPrx:
         """
         Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its identity.
 
@@ -180,7 +183,7 @@ class ObjectAdapter:
         """
         return self._impl.addWithUUID(servant)
 
-    def addFacetWithUUID(self, servant, facet):
+    def addFacetWithUUID(self, servant: Ice.Object, facet: str) -> Ice.ObjectPrx:
         """
         Add a servant with a facet to this object adapter's Active Servant Map, using an automatically generated UUID as its identity.
 
@@ -200,7 +203,7 @@ class ObjectAdapter:
         """
         return self._impl.addFacetWIthUUID(servant, facet)
 
-    def addDefaultServant(self, servant, category):
+    def addDefaultServant(self, servant: Ice.Object, category: str) -> None:
         """
         Add a default servant to handle requests for a specific category.
 
@@ -226,7 +229,7 @@ class ObjectAdapter:
         """
         self._impl.addDefaultServant(servant, category)
 
-    def remove(self, id):
+    def remove(self, id: Ice.Identity) -> Ice.Object:
         """
         Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
 
@@ -245,7 +248,7 @@ class ObjectAdapter:
         """
         return self._impl.remove(id)
 
-    def removeFacet(self, id, facet):
+    def removeFacet(self, id: Ice.Identity, facet: str) -> Ice.Object:
         """
         Remove a servant with a facet from the object adapter's Active Servant Map.
 
@@ -265,7 +268,7 @@ class ObjectAdapter:
         """
         return self._impl.removeFacet(id, facet)
 
-    def removeAllFacets(self, id):
+    def removeAllFacets(self, id: Ice.Identity) -> dict[str, Ice.Object]:
         """
         Remove all facets with the given identity from the Active Servant Map.
 
@@ -284,7 +287,7 @@ class ObjectAdapter:
         """
         return self._impl.removeAllFacets(id)
 
-    def removeDefaultServant(self, category):
+    def removeDefaultServant(self, category: str) -> Ice.Object:
         """
         Remove the default servant for a specific category.
 
@@ -302,7 +305,7 @@ class ObjectAdapter:
         """
         return self._impl.removeDefaultServant(category)
 
-    def find(self, id):
+    def find(self, id: Ice.Identity) -> Ice.Object | None:
         """
         Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it implements.
 
@@ -316,12 +319,12 @@ class ObjectAdapter:
 
         Returns
         -------
-        Ice.Object or None
+        Ice.Object | None
             The servant that implements the Ice object with the given identity, or None if no such servant has been found.
         """
         return self._impl.find(id)
 
-    def findFacet(self, id, facet):
+    def findFacet(self, id: Ice.Identity, facet: str) -> Ice.Object | None:
         """
         Look up a servant in this object adapter's Active Servant Map by the identity and facet of the Ice object it implements.
 
@@ -336,12 +339,12 @@ class ObjectAdapter:
 
         Returns
         -------
-        Ice.Object or None
+        Ice.Object | None
             The servant that implements the Ice object with the given identity and facet, or None if no such servant has been found.
         """
         return self._impl.findFacet(id, facet)
 
-    def findAllFacets(self, id):
+    def findAllFacets(self, id: Ice.Identity) -> dict[str, Ice.Object]:
         """
         Find all facets with the given identity in the Active Servant Map.
 
@@ -358,7 +361,7 @@ class ObjectAdapter:
         """
         return self._impl.findAllFacets(id)
 
-    def findByProxy(self, proxy):
+    def findByProxy(self, proxy: Ice.ObjectPrx) -> Ice.Object | None:
         """
         Look up a servant in this object adapter's Active Servant Map, given a proxy.
 
@@ -372,12 +375,12 @@ class ObjectAdapter:
 
         Returns
         -------
-        Ice.Object or None
+        Ice.Object | None
             The servant that matches the proxy, or None if no such servant has been found.
         """
         return self._impl.findByProxy(proxy)
 
-    def addServantLocator(self, locator, category):
+    def addServantLocator(self, locator: Ice.ServantLocator, category: str) -> None:
         """
         Add a Servant Locator to this object adapter.
 
@@ -407,7 +410,7 @@ class ObjectAdapter:
         """
         self._impl.addServantLocator(locator, category)
 
-    def removeServantLocator(self, category):
+    def removeServantLocator(self, category: str) -> Ice.ServantLocator:
         """
         Remove a Servant Locator from this object adapter.
 
@@ -429,7 +432,7 @@ class ObjectAdapter:
         """
         return self._impl.removeServantLocator(category)
 
-    def findServantLocator(self, category):
+    def findServantLocator(self, category: str) -> Ice.ServantLocator | None:
         """
         Find a Servant Locator installed with this object adapter.
 
@@ -441,12 +444,12 @@ class ObjectAdapter:
 
         Returns
         -------
-        Ice.ServantLocator or None
+        Ice.ServantLocator | None
             The Servant Locator, or None if no Servant Locator was found for the given category.
         """
         return self._impl.findServantLocator(category)
 
-    def findDefaultServant(self, category):
+    def findDefaultServant(self, category: str) -> Ice.Object | None:
         """
         Find the default servant for a specific category.
 
@@ -462,7 +465,7 @@ class ObjectAdapter:
         """
         return self._impl.findDefaultServant(category)
 
-    def createProxy(self, id):
+    def createProxy(self, id: Ice.Identity) -> Ice.ObjectPrx:
         """
         Create a proxy for the object with the given identity.
 
@@ -483,7 +486,7 @@ class ObjectAdapter:
         """
         return self._impl.createProxy(id)
 
-    def createDirectProxy(self, id):
+    def createDirectProxy(self, id: Ice.Identity) -> Ice.ObjectPrx:
         """
         Create a direct proxy for the object with the given identity.
 
@@ -501,7 +504,7 @@ class ObjectAdapter:
         """
         return self._impl.createDirectProxy(id)
 
-    def createIndirectProxy(self, id):
+    def createIndirectProxy(self, id: Ice.Identity) -> Ice.ObjectPrx:
         """
         Create an indirect proxy for the object with the given identity.
 
@@ -520,7 +523,7 @@ class ObjectAdapter:
         """
         return self._impl.createIndirectProxy(id)
 
-    def setLocator(self, locator):
+    def setLocator(self, locator: Ice.LocatorPrx) -> None:
         """
         Set an Ice locator for this object adapter.
 
@@ -535,46 +538,46 @@ class ObjectAdapter:
         """
         self._impl.setLocator(locator)
 
-    def getLocator(self):
+    def getLocator(self) -> Ice.LocatorPrx | None: 
         """
         Get the Ice locator used by this object adapter.
 
         Returns
         -------
-        Ice.LocatorPrx or None
+        Ice.LocatorPrx | None
             The locator used by this object adapter, or None if no locator is used by this object adapter.
         """
         return self._impl.getLocator()
-
-    def getEndpoints(self):
+    
+    def getEndpoints(self) -> tuple[Ice.Endpoint, ...]:
         """
         Get the set of endpoints configured with this object adapter.
 
         Returns
         -------
-        tuple of Ice.Endpoint
+        tuple[Ice.Endpoint, ...]
             The set of endpoints.
         """
         return self._impl.getEndpoints()
 
-    def getPublishedEndpoints(self):
+    def getPublishedEndpoints(self) -> tuple[Ice.Endpoint, ...]:
         """
         Get the set of endpoints that proxies created by this object adapter will contain.
 
         Returns
         -------
-        tuple of Ice.Endpoint
+        tuple[Ice.Endpoint, ...]
             The set of published endpoints.
         """
         return self._impl.getPublishedEndpoints()
 
-    def setPublishedEndpoints(self, newEndpoints):
+    def setPublishedEndpoints(self, newEndpoints: tuple[Ice.Endpoint, ...]) -> None:
         """
         Set the endpoints that proxies created by this object adapter will contain.
 
         Parameters
         ----------
-        newEndpoints : tuple of Ice.Endpoint
+        newEndpoints : tuple[Ice.Endpoint, ...]
             The new set of endpoints that the object adapter will embed in proxies.
         """
         self._impl.setPublishedEndpoints(newEndpoints)
