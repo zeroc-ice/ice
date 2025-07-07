@@ -874,8 +874,8 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << ", " << inParams;
         }
-        _out << ", " << contextParamName << ": dict[str, str] = None)"
-             << operationReturnTypeHint(operation, OpAsync) << ":";
+        _out << ", " << contextParamName << ": dict[str, str] = None)" << operationReturnTypeHint(operation, OpAsync)
+             << ":";
         _out.inc();
         writeDocstring(operation, OpAsync);
         _out << nl << "return " << classAbs << "._op_" << opName << ".invokeAsync(self, ((" << inParams;
