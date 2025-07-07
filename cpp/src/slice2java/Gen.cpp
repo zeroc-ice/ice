@@ -1927,7 +1927,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
                     out << nl << stream << ".skipSize();";
                 }
             }
-            if (!dynamic_pointer_cast<Builtin>(type))
+            else if (!dynamic_pointer_cast<Builtin>(type))
             {
                 out << nl << stream << ".skipSize();";
             }
