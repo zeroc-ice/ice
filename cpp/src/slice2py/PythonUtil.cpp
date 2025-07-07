@@ -559,7 +559,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
 
         _out << sp;
         _out << nl << "@abstractmethod";
-        _out << nl << "def " << mappedName << "(self";
+        _out << nl << "def " << mappedName << spar << "self";
 
         for (const auto& param : operation->parameters())
         {
