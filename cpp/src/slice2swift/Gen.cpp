@@ -1079,10 +1079,11 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     const TypePtr type = p->type();
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
+    const string mappedName = getRelativeTypeString(p, swiftModule);
 
     out << sp;
     writeDocSummary(out, p);
-    out << nl << "public let " << p->mappedName() << ": " << typeToString(type, p) << " = ";
+    out << nl << "public let " << mappedName << ": " << typeToString(type, p) << " = ";
     writeConstantValue(out, type, p->valueType(), p->value(), swiftModule);
 }
 
