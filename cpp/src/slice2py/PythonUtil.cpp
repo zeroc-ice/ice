@@ -565,13 +565,13 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
         {
             if (!param->isOutParam())
             {
-                _out << ", " << param->mappedName() << ": " << typeToTypeHintString(param->type(), param->optional());
+                _out << (param->mappedName() + ": " + typeToTypeHintString(param->type(), param->optional()));
             }
         }
 
         const string currentParamName = getEscapedParamName(operation->parameters(), "current");
-        _out << ", " << currentParamName << ": Ice.Current";
-        _out << ")" << operationReturnTypeHint(operation, OpDispatch) << ":";
+        _out << (currentParamName + ": Ice.Current");
+        _out << epar << operationReturnTypeHint(operation, OpDispatch) << ":";
         _out.inc();
 
         writeDocstring(operation, OpDispatch);
