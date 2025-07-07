@@ -166,8 +166,20 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
 
     string typeS = typeToString(type, TypeModeIn, package, metadata);
 
-    const BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if (builtin)
+    if (type->isClassType())
+    {
+        assert(mode != OptionalParam); // Optional classes are disallowed by the parser.
+        if (marshal)
+        {
+            out << nl << stream << ".writeValue(" << param << ");";
+        }
+        else
+        {
+            assert(!patchParams.empty());
+            out << nl << stream << ".readValue(" << patchParams << ");";
+        }
+    }
+    else if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
         switch (builtin->kind())
         {
@@ -208,8 +220,8 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                // Handled by isClassType below.
-                break;
+                assert(false); // already handled by 'isClassType' check above.
+                return;
             }
             case Builtin::KindObjectProxy:
             {
@@ -239,9 +251,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
             }
         }
     }
-
-    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
-    if (prx)
+    else if (auto prx = dynamic_pointer_cast<InterfaceDecl>(type))
     {
         if (marshal)
         {
@@ -267,27 +277,9 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
         }
         return;
     }
-
-    if (type->isClassType())
+    else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
     {
-        // TODO this should probably be `mode == OptionalNone` right?
-        assert(mode != OptionalParam); // Optional classes are disallowed by the parser.
-        if (marshal)
-        {
-            out << nl << stream << ".writeValue(" << param << ");";
-        }
-        else
-        {
-            assert(!patchParams.empty());
-            out << nl << stream << ".readValue(" << patchParams << ");";
-        }
-        return;
-    }
-
-    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if (dict)
-    {
-        if (mode != OptionalNone)
+        if (mode == OptionalParam)
         {
             string instanceType, formalType, origInstanceType, origFormalType;
             getDictionaryTypes(dict, "", metadata, instanceType, formalType);
@@ -311,17 +303,14 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
             const TypePtr valueType = dict->valueType();
             if (marshal)
             {
-                if (mode == OptionalParam)
+                out << nl << "if (";
+                if (optionalMapping)
                 {
-                    out << nl << "if (";
-                    if (optionalMapping)
-                    {
-                        out << param << " != null && " << param << ".isPresent() && ";
-                    }
-                    out << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))" << sb;
+                    out << param << " != null && " << param << ".isPresent() && ";
                 }
+                out << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))" << sb;
 
-                const string d = param + (mode == OptionalParam && optionalMapping ? ".get()" : "");
+                const string d = param + (optionalMapping ? ".get()" : "");
                 const bool usesVariableLengthTypes = keyType->isVariableLength() || valueType->isVariableLength();
 
                 if (usesVariableLengthTypes)
@@ -340,20 +329,15 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                     out << nl << stream << ".endSize(pos);";
                 }
 
-                if (mode == OptionalParam)
-                {
-                    out << eb;
-                }
+                out << eb;
             }
             else
             {
-                const string d = mode == OptionalParam ? "optDict" : param;
-                if (mode == OptionalParam)
-                {
-                    out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
-                    out << sb;
-                    out << nl << typeS << ' ' << d << ';';
-                }
+                const string d = "optDict";
+                out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                out << sb;
+                out << nl << typeS << ' ' << d << ';';
+
                 if (keyType->isVariableLength() || valueType->isVariableLength())
                 {
                     out << nl << stream << ".skip(4);";
@@ -363,28 +347,23 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                     out << nl << stream << ".skipSize();";
                 }
                 writeDictionaryMarshalUnmarshalCode(out, package, dict, d, marshal, iter, true, customStream, metadata);
-                if (mode == OptionalParam)
-                {
-                    out << nl << param << " = java.util.Optional.of(" << d << ");";
-                    out << eb;
-                    out << nl << "else";
-                    out << sb;
-                    out << nl << param << " = java.util.Optional.empty();";
-                    out << eb;
-                }
+
+                out << nl << param << " = java.util.Optional.of(" << d << ");";
+                out << eb;
+                out << nl << "else";
+                out << sb;
+                out << nl << param << " = java.util.Optional.empty();";
+                out << eb;
             }
         }
         else
         {
             writeDictionaryMarshalUnmarshalCode(out, package, dict, param, marshal, iter, true, customStream, metadata);
         }
-        return;
     }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if (seq)
+    else if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
-        if (mode != OptionalNone)
+        if (mode = OptionalParam)
         {
             TypePtr elemType = seq->type();
             BuiltinPtr eltBltin = dynamic_pointer_cast<Builtin>(elemType);
@@ -441,24 +420,21 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
 
             if (marshal)
             {
-                if (mode == OptionalParam)
+                out << nl;
+                if (optionalMapping)
                 {
-                    out << nl;
-                    if (optionalMapping)
-                    {
-                        out << "if (" << param << " != null && " << param << ".isPresent() && " << stream
-                            << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
-                    }
-                    else
-                    {
-                        out << "if (" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
-                    }
-                    out << sb;
+                    out << "if (" << param << " != null && " << param << ".isPresent() && " << stream
+                        << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
                 }
+                else
+                {
+                    out << "if (" << stream << ".writeOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                }
+                out << sb;
 
                 if (elemType->isVariableLength())
                 {
-                    string s = mode == OptionalParam && optionalMapping ? param + ".get()" : param;
+                    string s = optionalMapping ? param + ".get()" : param;
                     out << nl << "int pos = " << stream << ".startSize();";
                     writeSequenceMarshalUnmarshalCode(out, package, seq, s, true, iter, true, customStream, metadata);
                     out << nl << stream << ".endSize(pos);";
@@ -466,7 +442,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                 else
                 {
                     const size_t sz = elemType->minWireSize();
-                    string s = mode == OptionalParam && optionalMapping ? param + ".get()" : param;
+                    string s = optionalMapping ? param + ".get()" : param;
                     if (sz > 1)
                     {
                         out << nl << "final int optSize = " << s << " == null ? 0 : ";
@@ -494,67 +470,60 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                     writeSequenceMarshalUnmarshalCode(out, package, seq, s, true, iter, true, customStream, metadata);
                 }
 
-                if (mode == OptionalParam)
-                {
-                    out << eb;
-                }
+                out << eb;
             }
             else
             {
-                const size_t sz = elemType->minWireSize();
-                string s = mode == OptionalParam ? "optSeq" : param;
-                if (mode == OptionalParam)
-                {
-                    out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
-                    out << sb;
-                    out << nl << typeS << ' ' << s << ';';
-                }
+                const string s = "optSeq";
+                out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << "))";
+                out << sb;
+                out << nl << typeS << ' ' << s << ';';
+
                 if (elemType->isVariableLength())
                 {
                     out << nl << stream << ".skip(4);";
                 }
-                else if (sz > 1)
+                else if (elemType->minWireSize() > 1)
                 {
                     out << nl << stream << ".skipSize();";
                 }
                 writeSequenceMarshalUnmarshalCode(out, package, seq, s, false, iter, true, customStream, metadata);
-                if (mode == OptionalParam)
-                {
-                    out << nl << param << " = java.util.Optional.of(" << s << ");";
-                    out << eb;
-                    out << nl << "else";
-                    out << sb;
-                    out << nl << param << " = java.util.Optional.empty();";
-                    out << eb;
-                }
+
+                out << nl << param << " = java.util.Optional.of(" << s << ");";
+                out << eb;
+                out << nl << "else";
+                out << sb;
+                out << nl << param << " = java.util.Optional.empty();";
+                out << eb;
             }
         }
         else
         {
             writeSequenceMarshalUnmarshalCode(out, package, seq, param, marshal, iter, true, customStream, metadata);
         }
-        return;
-    }
-
-    assert(dynamic_pointer_cast<Contained>(type));
-    if (marshal)
-    {
-        out << nl << typeS << ".ice_write(" << stream << ", ";
-        if (mode == OptionalParam)
-        {
-            out << tag << ", ";
-        }
-        out << param << ");";
     }
     else
     {
-        if (mode == OptionalParam)
+        assert(dynamic_pointer_cast<Contained>(type));
+        if (marshal)
         {
-            out << nl << param << " = " << typeS << ".ice_read(" << stream << ", " << tag << ");";
+            out << nl << typeS << ".ice_write(" << stream << ", ";
+            if (mode == OptionalParam)
+            {
+                out << tag << ", ";
+            }
+            out << param << ");";
         }
         else
         {
-            out << nl << param << " = " << typeS << ".ice_read(" << stream << ");";
+            if (mode == OptionalParam)
+            {
+                out << nl << param << " = " << typeS << ".ice_read(" << stream << ", " << tag << ");";
+            }
+            else
+            {
+                out << nl << param << " = " << typeS << ".ice_read(" << stream << ");";
+            }
         }
     }
 }
@@ -1846,53 +1815,38 @@ Slice::JavaVisitor::writeThrowsClause(
 }
 
 void
-Slice::JavaVisitor::writeMarshalDataMember(
-    Output& out,
-    const string& package,
-    const DataMemberPtr& member,
-    int& iter,
-    bool forStruct)
+Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter)
 {
-    string memberName = member->mappedName();
-    if (member->optional())
+    const bool isOptional = member->optional();
+    const bool forStruct = (bool)dynamic_pointer_cast<Struct>(member->container());
+    const string memberName = (forStruct ? "this." : "") + member->mappedName();
+
+    // If this is an optional data member, we first have to handle the optional tag.
+    if (isOptional)
     {
         assert(!forStruct);
         out << nl << "if (_" << memberName << ")";
         out << sb;
-        writeMarshalUnmarshalCode(
-            out,
-            package,
-            member->type(),
-            OptionalParam,
-            false,
-            member->tag(),
-            memberName,
-            true,
-            iter,
-            "ostr_",
-            member->getMetadata());
-        out << eb;
     }
-    else
-    {
-        string stream = forStruct ? "" : "ostr_";
-        if (forStruct)
-        {
-            memberName = "this." + memberName;
-        }
 
-        writeMarshalUnmarshalCode(
-            out,
-            package,
-            member->type(),
-            OptionalNone,
-            false,
-            0,
-            memberName,
-            true,
-            iter,
-            stream,
-            member->getMetadata());
+    // Write the marshalling code like normal.
+    writeMarshalUnmarshalCode(
+        out,
+        package,
+        member->type(),
+        isOptional ? OptionalParam : OptionalNone,
+        false,
+        member->tag(),
+        memberName,
+        true,
+        iter,
+        forStruct ? "" : "ostr_",
+        member->getMetadata());
+
+    // If this is an optional data member, generate a closing brace to balance out the TODO.
+    if (isOptional)
+    {
+        out << eb;
     }
 }
 
@@ -3401,7 +3355,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     iter = 0;
     for (const auto& member : members)
     {
-        writeMarshalDataMember(out, package, member, iter, true);
+        writeMarshalDataMember(out, package, member, iter);
     }
     out << eb;
 

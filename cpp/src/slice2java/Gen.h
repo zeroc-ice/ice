@@ -125,8 +125,11 @@ namespace Slice
         //
         // Marshal/unmarshal a data member.
         //
-        static void
-        writeMarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
+        static void writeMarshalDataMember(
+            IceInternal::Output& out,
+            const std::string& package,
+            const DataMemberPtr& member,
+            int& iter);
         static void writeUnmarshalDataMember(
             IceInternal::Output& out,
             const std::string& package,
