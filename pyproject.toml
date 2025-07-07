@@ -34,7 +34,8 @@ py-modules = ["slice2py"]
 slice2py = "slice2py:main"
 
 [tool.pyright]
-include = ["python/test"]
+include = ["python"]
+# Location of the IcePy module
 extraPaths = ["python/python"]
 
 typeCheckingMode = "standard"
