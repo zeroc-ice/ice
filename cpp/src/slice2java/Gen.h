@@ -14,9 +14,7 @@ namespace Slice
     enum OptionalMode
     {
         OptionalNone,
-        OptionalInParam,
-        OptionalOutParam,
-        OptionalReturnParam,
+        OptionalParam, // Also used for return values.
         OptionalMember
     };
 
