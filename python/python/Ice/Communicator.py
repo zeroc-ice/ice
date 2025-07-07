@@ -5,9 +5,8 @@ from .ImplicitContext import ImplicitContext
 from .Properties import Properties
 from ._LoggerI import LoggerI
 from .Logger import Logger
-from typing import final
 from .Future import Future
-from typing import Self, TYPE_CHECKING
+from typing import final, Self, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .EventLoopAdapter import EventLoopAdapter
@@ -17,7 +16,7 @@ if TYPE_CHECKING:
     from .Object import Object
     from Router_ice import RouterPrx
     from Locator_ice import LocatorPrx
-    import IcePy  # pyright: ignore
+    import IcePy
 
 
 @final
