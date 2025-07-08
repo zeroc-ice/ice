@@ -1,5 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
+
 class SlicedData:
     """
     Holds class slices that cannot be unmarshaled because their types are not known locally.

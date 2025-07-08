@@ -5,9 +5,7 @@ from Util import ClientAMDServerTestCase, ClientServerTestCase, Mapping, TestSui
 
 testcases = [
     ClientServerTestCase("client/server with compact format"),
-    ClientServerTestCase(
-        "client/server with sliced format", props={"Ice.Default.SlicedFormat": True}
-    ),
+    ClientServerTestCase("client/server with sliced format", props={"Ice.Default.SlicedFormat": True}),
 ]
 
 # If the mapping has AMD servers, also run with the AMD servers

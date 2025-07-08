@@ -18,9 +18,7 @@ class Server(TestHelper):
         properties.setProperty("Ice.Warn.Dispatch", "0")
 
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty(
-                "TestAdapter.Endpoints", self.getTestEndpoint()
-            )
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestI.MyDerivedClassI(), Ice.stringToIdentity("test"))
             adapter.activate()

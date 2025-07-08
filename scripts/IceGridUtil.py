@@ -45,9 +45,7 @@ class IceGridServer(IceGridProcess, Server):
         Server.__init__(self, *args, **kargs)
         IceGridProcess.__init__(self, replica)
 
-    getParentProps = (
-        Server.getProps
-    )  # Used by IceGridProcess to get the server properties
+    getParentProps = Server.getProps  # Used by IceGridProcess to get the server properties
 
 
 class IceGridClient(IceGridProcess, Client):
@@ -55,15 +53,11 @@ class IceGridClient(IceGridProcess, Client):
         Client.__init__(self, *args, **kargs)
         IceGridProcess.__init__(self, replica)
 
-    getParentProps = (
-        Client.getProps
-    )  # Used by IceGridProcess to get the client properties
+    getParentProps = Client.getProps  # Used by IceGridProcess to get the client properties
 
 
 class IceGridAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceGridClient):
-    def __init__(
-        self, replica=None, username="admin1", password="test1", *args, **kargs
-    ):
+    def __init__(self, replica=None, username="admin1", password="test1", *args, **kargs):
         IceGridClient.__init__(
             self,
             replica=replica,
@@ -103,9 +97,7 @@ class IceGridNode(ProcessFromBinDir, Server):
 
     def setup(self, current):
         # Create the database directory
-        self.dbdir = os.path.join(
-            current.testsuite.getPath(), "node-{0}".format(self.name)
-        )
+        self.dbdir = os.path.join(current.testsuite.getPath(), "node-{0}".format(self.name))
         if os.path.exists(self.dbdir):
             shutil.rmtree(self.dbdir)
         os.mkdir(self.dbdir)
@@ -134,7 +126,7 @@ class IceGridNode(ProcessFromBinDir, Server):
             "IceGrid.Node.Name": self.name,
             "IceGrid.Node.Data": "{testdir}/node-{process.name}",
             "IceGrid.Node.PropertiesOverride": self.getPropertiesOverride(current),
-            "Ice.Default.Locator": current.testcase.getLocator(current)
+            "Ice.Default.Locator": current.testcase.getLocator(current),
         }
         return props
 
@@ -176,9 +168,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
 
     def setup(self, current):
         # Create the database directory
-        self.dbdir = os.path.join(
-            current.testsuite.getPath(), "registry-{0}".format(self.name)
-        )
+        self.dbdir = os.path.join(current.testsuite.getPath(), "registry-{0}".format(self.name))
         if os.path.exists(self.dbdir):
             shutil.rmtree(self.dbdir)
         os.mkdir(self.dbdir)
@@ -218,9 +208,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
             + '"',
         }
         if not isinstance(platform, Linux):
-            props["IceGrid.Registry.Discovery.Interface"] = (
-                "::1" if current.config.ipv6 else "127.0.0.1"
-            )
+            props["IceGrid.Registry.Discovery.Interface"] = "::1" if current.config.ipv6 else "127.0.0.1"
         return props
 
     def getEndpoints(self, current):
@@ -230,9 +218,7 @@ class IceGridRegistry(ProcessFromBinDir, Server):
         return "TestIceGrid/Locator:{0}".format(self.getEndpoints(current))
 
     def shutdown(self, current):
-        current.testcase.runadmin(
-            current, "registry shutdown {0}".format(self.name), replica=self.name
-        )
+        current.testcase.runadmin(current, "registry shutdown {0}".format(self.name), replica=self.name)
 
 
 class IceGridRegistryMaster(IceGridRegistry):
@@ -271,18 +257,12 @@ class IceGridTestCase(TestCase):
     ):
         TestCase.__init__(self, name, *args, **kargs)
         if icegridnode:
-            self.icegridnode = (
-                icegridnode if isinstance(icegridnode, list) else [icegridnode]
-            )
+            self.icegridnode = icegridnode if isinstance(icegridnode, list) else [icegridnode]
         else:
             self.icegridnode = [IceGridNode()]
 
         if icegridregistry:
-            self.icegridregistry = (
-                icegridregistry
-                if isinstance(icegridregistry, list)
-                else [icegridregistry]
-            )
+            self.icegridregistry = icegridregistry if isinstance(icegridregistry, list) else [icegridregistry]
         else:
             self.icegridregistry = [IceGridRegistryMaster(), IceGridRegistrySlave(1)]
 
@@ -313,16 +293,12 @@ class IceGridTestCase(TestCase):
             javaHome = os.environ.get("JAVA_HOME", None)
             variables = {
                 "test.dir": self.getPath(current),
-                "java.exe": os.path.join(javaHome, "bin", "java")
-                if javaHome
-                else "java",
+                "java.exe": os.path.join(javaHome, "bin", "java") if javaHome else "java",
                 "icebox.exe": IceBox().getCommandLine(current),
                 "icegridnode.exe": IceGridNode().getCommandLine(current),
                 "glacier2router.exe": Glacier2Router().getCommandLine(current),
                 "icegridregistry.exe": IceGridRegistryMaster().getCommandLine(current),
-                "properties-override": self.icegridnode[0].getPropertiesOverride(
-                    current
-                ),
+                "properties-override": self.icegridnode[0].getPropertiesOverride(current),
             }
 
             if platform.getDotNetExe():
@@ -333,9 +309,7 @@ class IceGridTestCase(TestCase):
                 variables[k] = current.getBuildDir(v)
 
             variables.update(self.variables)
-            varStr = " ".join(
-                ["{0}={1}".format(k, val(v)) for k, v in variables.items()]
-            )
+            varStr = " ".join(["{0}={1}".format(k, val(v)) for k, v in variables.items()])
             targets = " ".join(self.targets)
             application = self.application
             if isinstance(self.mapping, CSharpMapping) and current.config.dotnet:
@@ -353,13 +327,7 @@ class IceGridTestCase(TestCase):
             p.shutdown(current)
 
     def getLocator(self, current):
-        endpoints = ":".join(
-            [
-                s.getEndpoints(current)
-                for s in self.servers
-                if isinstance(s, IceGridRegistry)
-            ]
-        )
+        endpoints = ":".join([s.getEndpoints(current) for s in self.servers if isinstance(s, IceGridRegistry)])
         return "TestIceGrid/Locator:{0}".format(endpoints)
 
     def getMasterLocator(self, current):
@@ -368,9 +336,7 @@ class IceGridTestCase(TestCase):
                 return "TestIceGrid/Locator:{0}".format(s.getEndpoints(current))
 
     def runadmin(self, current, cmd, replica="Master", exitstatus=0, quiet=False):
-        admin = IceGridAdmin(
-            args=["-r", replica, "-e", cmd], replica=replica, quiet=quiet
-        )
+        admin = IceGridAdmin(args=["-r", replica, "-e", cmd], replica=replica, quiet=quiet)
         admin.run(current, exitstatus=exitstatus)
         return admin.getOutput(current)
 

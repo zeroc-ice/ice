@@ -35,9 +35,7 @@ class IceStormRep1TestCase(IceStormTestCase):
                 if output.find(e) >= 0:
                     break
             else:
-                raise RuntimeError(
-                    "unexpected output `{0}' (expected `{1}')".format(output, expect)
-                )
+                raise RuntimeError("unexpected output `{0}' (expected `{1}')".format(output, expect))
 
         def adminForReplica(replica, cmd, expect):
             checkExpect(
@@ -106,9 +104,7 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "destroy single")
 
         for replica in range(0, 3):
-            adminForReplica(
-                replica, "destroy single", "error: couldn't find topic 'single'"
-            )
+            adminForReplica(replica, "destroy single", "error: couldn't find topic 'single'")
         current.writeln("ok")
 
         current.write("testing topic creation without replica... ")
@@ -155,9 +151,7 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "destroy single")
 
         for replica in range(1, 3):
-            adminForReplica(
-                replica, "destroy single", "error: couldn't find topic 'single'"
-            )
+            adminForReplica(replica, "destroy single", "error: couldn't find topic 'single'")
 
         adminForReplica(0, "destroy single", ["ConnectionRefused", "ConnectFailed"])
 
@@ -175,9 +169,7 @@ class IceStormRep1TestCase(IceStormTestCase):
         self.runadmin(current, "destroy single")
 
         for replica in range(0, 2):
-            adminForReplica(
-                replica, "destroy single", "error: couldn't find topic 'single'"
-            )
+            adminForReplica(replica, "destroy single", "error: couldn't find topic 'single'")
 
         adminForReplica(2, "destroy single", ["ConnectionRefused", "ConnectFailed"])
 
@@ -307,6 +299,4 @@ class IceStormRep1TestCase(IceStormTestCase):
         current.writeln("ok")
 
 
-TestSuite(
-    __file__, [IceStormRep1TestCase("replicated", icestorm=icestorm)], multihost=False
-)
+TestSuite(__file__, [IceStormRep1TestCase("replicated", icestorm=icestorm)], multihost=False)

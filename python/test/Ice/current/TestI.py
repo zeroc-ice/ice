@@ -2,8 +2,8 @@
 
 import Test
 
-class MyClassI(Test.TestIntf):
 
+class MyClassI(Test.TestIntf):
     def getAdapterName(self, current):
         return current.adapter.getName()
 

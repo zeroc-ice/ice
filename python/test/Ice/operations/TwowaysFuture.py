@@ -97,12 +97,7 @@ class Callback(CallbackBase):
             test(c2.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
             test(r.ice_getIdentity() == Ice.stringToIdentity("test"))
             # We can't do the callbacks below in serialize mode
-            if (
-                self._communicator.getProperties().getPropertyAsInt(
-                    "Ice.Client.ThreadPool.Serialize"
-                )
-                == 0
-            ):
+            if self._communicator.getProperties().getPropertyAsInt("Ice.Client.ThreadPool.Serialize") == 0:
                 r.opVoid()
                 c1.opVoid()
                 try:
@@ -123,12 +118,7 @@ class Callback(CallbackBase):
             test(so.e == Test.MyEnum.enum3)
             test(so.s.s == "a new string")
             # We can't do the callbacks below in serialize mode.
-            if (
-                self._communicator.getProperties().getPropertyAsInt(
-                    "Ice.ThreadPool.Client.Serialize"
-                )
-                == 0
-            ):
+            if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0:
                 so.p.opVoid()
             self.called()
         except Exception:

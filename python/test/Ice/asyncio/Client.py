@@ -9,9 +9,7 @@ import AllTests
 
 
 class Client(TestHelper):
-
     def run(self, args):
-
         async def runAsync():
             initData = Ice.InitializationData()
             initData.properties = self.createTestProperties(args)

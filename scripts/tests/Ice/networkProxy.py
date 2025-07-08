@@ -17,9 +17,7 @@ class NetworkProxyTestCase(ClientServerTestCase):
             client=Client(
                 props=lambda p, c: {
                     "Ice.{0}ProxyHost".format(proxyName): "localhost",
-                    "Ice.{0}ProxyPort".format(proxyName): "{0}".format(
-                        c.driver.getTestPort(c.testsuite.portNum)
-                    ),
+                    "Ice.{0}ProxyPort".format(proxyName): "{0}".format(c.driver.getTestPort(c.testsuite.portNum)),
                 }
             ),
         )
@@ -34,9 +32,7 @@ class NetworkProxyTestCase(ClientServerTestCase):
 
     def setupClientSide(self, current):
         current.write("starting {0} proxy... ".format(self.proxyName))
-        self.proxy = self.proxyType(
-            current.driver.getTestPort(current.testsuite.portNum)
-        )
+        self.proxy = self.proxyType(current.driver.getTestPort(current.testsuite.portNum))
         current.writeln("ok")
 
     def teardownClientSide(self, current, success):

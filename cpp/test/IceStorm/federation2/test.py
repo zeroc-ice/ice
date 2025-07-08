@@ -11,16 +11,10 @@ from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
 from Util import ClientServerTestCase, TestSuite
 
 
-pub1Sub2Oneway = ClientServerTestCase(
-    client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2")
-)
-pub1Sub2Batch = ClientServerTestCase(
-    client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2", args=["-b"])
-)
+pub1Sub2Oneway = ClientServerTestCase(client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2"))
+pub1Sub2Batch = ClientServerTestCase(client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2", args=["-b"]))
 
-pub1Sub1Oneway = ClientServerTestCase(
-    client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm1")
-)
+pub1Sub1Oneway = ClientServerTestCase(client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm1"))
 
 
 class IceStormFederation2TestCase(IceStormTestCase):
@@ -52,9 +46,7 @@ class IceStormFederation2TestCase(IceStormTestCase):
         # Stop and restart the service and repeat the test. This ensures that
         # the database is correct.
         #
-        current.write(
-            "restarting services to ensure that the database content is preserved... "
-        )
+        current.write("restarting services to ensure that the database content is preserved... ")
         self.restartIceStorm(current)
         current.writeln("ok")
 
@@ -77,16 +69,8 @@ class IceStormFederation2TestCase(IceStormTestCase):
         #
         self.stopIceStorm(current)
 
-        icestorm1 = [
-            icestorm
-            for icestorm in self.icestorm
-            if icestorm.getInstanceName() == "TestIceStorm1"
-        ]
-        icestorm2 = [
-            icestorm
-            for icestorm in self.icestorm
-            if icestorm.getInstanceName() == "TestIceStorm2"
-        ]
+        icestorm1 = [icestorm for icestorm in self.icestorm if icestorm.getInstanceName() == "TestIceStorm1"]
+        icestorm2 = [icestorm for icestorm in self.icestorm if icestorm.getInstanceName() == "TestIceStorm2"]
 
         #
         # Restart the first server and publish some events. Attach a
@@ -129,9 +113,7 @@ class IceStormFederation2TestCase(IceStormTestCase):
             current.writeln("ok")
 
             try:
-                icestorm1[0].expect(
-                    current, "topic.fed1.*subscriber offline", timeout=1
-                )
+                icestorm1[0].expect(current, "topic.fed1.*subscriber offline", timeout=1)
                 assert False
             except Expect.TIMEOUT:
                 pass
@@ -189,9 +171,7 @@ class IceStormFederation2TestCase(IceStormTestCase):
         # Destroy the remaining topic.
         #
         current.write("destroying topics... ")
-        self.runadmin(
-            current, "destroy TestIceStorm1/fed1links TestIceStorm1", quiet=True
-        )
+        self.runadmin(current, "destroy TestIceStorm1/fed1links TestIceStorm1", quiet=True)
         current.writeln("ok")
 
         self.stopIceStorm(current)
@@ -216,27 +196,13 @@ TestSuite(
         ),
         IceStormFederation2TestCase(
             "replicated with non-replicated publisher",
-            icestorm=[
-                IceStorm("TestIceStorm1", i, 3, quiet=True, props=nonRepProps)
-                for i in range(0, 3)
-            ]
-            + [
-                IceStorm(
-                    "TestIceStorm2", i, 3, quiet=True, portnum=20, props=nonRepProps
-                )
-                for i in range(0, 3)
-            ],
+            icestorm=[IceStorm("TestIceStorm1", i, 3, quiet=True, props=nonRepProps) for i in range(0, 3)]
+            + [IceStorm("TestIceStorm2", i, 3, quiet=True, portnum=20, props=nonRepProps) for i in range(0, 3)],
         ),
         IceStormFederation2TestCase(
             "replicated with replicated publisher",
-            icestorm=[
-                IceStorm("TestIceStorm1", i, 3, quiet=True, props=props)
-                for i in range(0, 3)
-            ]
-            + [
-                IceStorm("TestIceStorm2", i, 3, quiet=True, portnum=20, props=props)
-                for i in range(0, 3)
-            ],
+            icestorm=[IceStorm("TestIceStorm1", i, 3, quiet=True, props=props) for i in range(0, 3)]
+            + [IceStorm("TestIceStorm2", i, 3, quiet=True, portnum=20, props=props) for i in range(0, 3)],
         ),
     ],
     multihost=False,

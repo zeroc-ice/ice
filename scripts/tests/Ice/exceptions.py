@@ -11,12 +11,8 @@ from Util import (
 
 testcases = [
     ClientServerTestCase("client/server with compact format"),
-    ClientServerTestCase(
-        "client/server with sliced format", props={"Ice.Default.SlicedFormat": True}
-    ),
-    ClientServerTestCase(
-        "client/server with 1.0 encoding", props={"Ice.Default.EncodingVersion": "1.0"}
-    ),
+    ClientServerTestCase("client/server with sliced format", props={"Ice.Default.SlicedFormat": True}),
+    ClientServerTestCase("client/server with 1.0 encoding", props={"Ice.Default.EncodingVersion": "1.0"}),
 ]
 
 # If the mapping has AMD servers, also run with the AMD servers

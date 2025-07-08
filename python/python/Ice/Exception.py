@@ -2,6 +2,7 @@
 
 from builtins import Exception as BuiltinsException
 
+
 class Exception(BuiltinsException):
     """
     The base class for all Ice exceptions.

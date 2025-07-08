@@ -43,9 +43,7 @@ class IceStorm(ProcessFromBinDir, Server):
         self.createDb = createDb
         self.cleanDb = cleanDb
         self.desc = (
-            self.instanceName
-            if self.nreplicas == 0
-            else "{0} replica #{1}".format(self.instanceName, self.replica)
+            self.instanceName if self.nreplicas == 0 else "{0} replica #{1}".format(self.instanceName, self.replica)
         )
 
     def getExe(self, current):
@@ -76,9 +74,7 @@ class IceStorm(ProcessFromBinDir, Server):
         # Default properties
         props.update(
             {
-                "IceBox.Service.IceStorm": "IceStormService,"
-                + Component.component.getSoVersion()
-                + ":createIceStorm",
+                "IceBox.Service.IceStorm": "IceStormService," + Component.component.getSoVersion() + ":createIceStorm",
                 "IceBox.PrintServicesReady": "IceStorm",
                 "IceBox.InheritProperties": 1,
                 "IceStorm.InstanceName": self.instanceName,
@@ -133,15 +129,9 @@ class IceStorm(ProcessFromBinDir, Server):
         if self.nreplicas > 0:
             props["IceStorm.Node.Endpoints"] = node(self.replica)
             for i in range(0, self.nreplicas):
-                props["IceStorm.Nodes.{0}".format(i)] = "{2}/node{0}:{1}".format(
-                    i, node(i), self.instanceName
-                )
-            props["IceStorm.ReplicatedTopicManagerEndpoints"] = ":".join(
-                [manager(i) for i in range(0, self.nreplicas)]
-            )
-            props["IceStorm.ReplicatedPublishEndpoints"] = ":".join(
-                [publish(i) for i in range(0, self.nreplicas)]
-            )
+                props["IceStorm.Nodes.{0}".format(i)] = "{2}/node{0}:{1}".format(i, node(i), self.instanceName)
+            props["IceStorm.ReplicatedTopicManagerEndpoints"] = ":".join([manager(i) for i in range(0, self.nreplicas)])
+            props["IceStorm.ReplicatedPublishEndpoints"] = ":".join([publish(i) for i in range(0, self.nreplicas)])
 
         return props
 
@@ -169,10 +159,7 @@ class IceStorm(ProcessFromBinDir, Server):
     def shutdown(self, current):
         # Shutdown this replica by connecting to the IceBox service manager with iceboxadmin
         endpoint = current.getTestEndpoint(self.portnum + self.replica * 4 + 3)
-        props = {
-            "IceBoxAdmin.ServiceManager.Proxy": "IceBox/admin -f IceBox.ServiceManager:"
-            + endpoint
-        }
+        props = {"IceBoxAdmin.ServiceManager.Proxy": "IceBox/admin -f IceBox.ServiceManager:" + endpoint}
         IceBoxAdmin().run(current, props=props, args=["shutdown"])
 
 
@@ -196,24 +183,14 @@ class IceStormProcess:
         while testcase and not isinstance(testcase, IceStormTestCase):
             testcase = testcase.parent
         if self.instance:
-            props["IceStormAdmin.TopicManager.Default"] = self.instance.getTopicManager(
-                current
-            )
+            props["IceStormAdmin.TopicManager.Default"] = self.instance.getTopicManager(current)
         else:
-            instanceNames = (
-                [self.instanceName]
-                if self.instanceName
-                else testcase.getInstanceNames()
-            )
+            instanceNames = [self.instanceName] if self.instanceName else testcase.getInstanceNames()
             if len(instanceNames) == 1:
-                props["IceStormAdmin.TopicManager.Default"] = testcase.getTopicManager(
-                    current, instanceNames[0]
-                )
+                props["IceStormAdmin.TopicManager.Default"] = testcase.getTopicManager(current, instanceNames[0])
             else:
                 for name in instanceNames:
-                    props["IceStormAdmin.TopicManager.{0}".format(name)] = (
-                        testcase.getTopicManager(current, name)
-                    )
+                    props["IceStormAdmin.TopicManager.{0}".format(name)] = testcase.getTopicManager(current, name)
         return props
 
 
@@ -229,16 +206,12 @@ class IceStormAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceStormProcess, Cl
         IceStormProcess.__init__(self, instanceName, instance)
 
     def getExe(self, current):
-        if current.config.buildPlatform == "ppc" and not Component.component.useBinDist(
-            self.mapping, current
-        ):
+        if current.config.buildPlatform == "ppc" and not Component.component.useBinDist(self.mapping, current):
             return self.exe + "_32"
         else:
             return self.exe
 
-    getParentProps = (
-        Client.getProps
-    )  # Used by IceStormProcess to get the client properties
+    getParentProps = Client.getProps  # Used by IceStormProcess to get the client properties
 
 
 class Subscriber(IceStormProcess, Server):
@@ -248,9 +221,7 @@ class Subscriber(IceStormProcess, Server):
         Server.__init__(self, *args, **kargs)
         IceStormProcess.__init__(self, instanceName, instance)
 
-    getParentProps = (
-        Server.getProps
-    )  # Used by IceStormProcess to get the server properties
+    getParentProps = Server.getProps  # Used by IceStormProcess to get the server properties
 
 
 class Publisher(IceStormProcess, Client):
@@ -260,9 +231,7 @@ class Publisher(IceStormProcess, Client):
         Client.__init__(self, *args, **kargs)
         IceStormProcess.__init__(self, instanceName, instance)
 
-    getParentProps = (
-        Client.getProps
-    )  # Used by IceStormProcess to get the client properties
+    getParentProps = Client.getProps  # Used by IceStormProcess to get the client properties
 
 
 class IceStormTestCase(TestCase):
@@ -299,9 +268,7 @@ class IceStormTestCase(TestCase):
         for icestorm in self.icestorm:
             icestorm.shutdown(current)
 
-    def runadmin(
-        self, current, cmd, instanceName=None, instance=None, exitstatus=0, quiet=False
-    ):
+    def runadmin(self, current, cmd, instanceName=None, instance=None, exitstatus=0, quiet=False):
         admin = IceStormAdmin(instanceName, instance, args=["-e", cmd], quiet=quiet)
         admin.run(current, exitstatus=exitstatus)
         return admin.getOutput(current)

@@ -13,17 +13,11 @@ def props(process, current):
         "IceDiscovery.Timeout": 50,
         "IceDiscovery.RetryCount": 20,
         "IceDiscovery.DomainId": domainId,
-        "IceDiscovery.Interface": ""
-        if isinstance(platform, Linux)
-        else "::1"
-        if current.config.ipv6
-        else "127.0.0.1",
+        "IceDiscovery.Interface": "" if isinstance(platform, Linux) else "::1" if current.config.ipv6 else "127.0.0.1",
         "IceDiscovery.Port": current.driver.getTestPort(10),
         "Ice.Plugin.IceDiscovery": current.getPluginEntryPoint("IceDiscovery", process),
         # This is used for the trace file
-        "Ice.ProgramName": "server{}".format(process.args[0])
-        if isinstance(process, Server)
-        else "client",
+        "Ice.ProgramName": "server{}".format(process.args[0]) if isinstance(process, Server) else "client",
     }
 
 

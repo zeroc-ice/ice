@@ -10,11 +10,7 @@ from Util import TestSuite, Windows, platform
 if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(
         __file__,
-        [
-            IceGridTestCase(
-                icegridregistry=IceGridRegistryMaster(), client=IceGridServer()
-            )
-        ],
+        [IceGridTestCase(icegridregistry=IceGridRegistryMaster(), client=IceGridServer())],
         runOnMainThread=True,
         multihost=False,
     )

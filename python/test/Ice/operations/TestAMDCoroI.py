@@ -89,9 +89,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     def opMyClass(self, p1, current):
         p2 = p1
-        p3 = Test.MyClassPrx.uncheckedCast(
-            current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))
-        )
+        p3 = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")))
         return Ice.Future.completed(
             (
                 Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id)),
@@ -432,27 +430,19 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return self.opStringLiterals(current)
 
     def opMStruct1(self, current):
-        return Ice.Future.completed(
-            Test.MyClass.OpMStruct1MarshaledResult(Test.Structure(), current)
-        )
+        return Ice.Future.completed(Test.MyClass.OpMStruct1MarshaledResult(Test.Structure(), current))
 
     def opMStruct2(self, p1, current):
-        return Ice.Future.completed(
-            Test.MyClass.OpMStruct2MarshaledResult((p1, p1), current)
-        )
+        return Ice.Future.completed(Test.MyClass.OpMStruct2MarshaledResult((p1, p1), current))
 
     def opMSeq1(self, current):
         return Ice.Future.completed(Test.MyClass.OpMSeq1MarshaledResult([], current))
 
     def opMSeq2(self, p1, current):
-        return Ice.Future.completed(
-            Test.MyClass.OpMSeq2MarshaledResult((p1, p1), current)
-        )
+        return Ice.Future.completed(Test.MyClass.OpMSeq2MarshaledResult((p1, p1), current))
 
     def opMDict1(self, current):
         return Ice.Future.completed(Test.MyClass.OpMDict1MarshaledResult({}, current))
 
     def opMDict2(self, p1, current):
-        return Ice.Future.completed(
-            Test.MyClass.OpMDict2MarshaledResult((p1, p1), current)
-        )
+        return Ice.Future.completed(Test.MyClass.OpMDict2MarshaledResult((p1, p1), current))

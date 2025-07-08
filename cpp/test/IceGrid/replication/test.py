@@ -20,11 +20,7 @@ traceProps = {
 if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(
         __file__,
-        [
-            IceGridTestCase(
-                client=IceGridClient(props=clientProps, traceProps=traceProps)
-            )
-        ],
+        [IceGridTestCase(client=IceGridClient(props=clientProps, traceProps=traceProps))],
         runOnMainThread=True,
         multihost=False,
     )

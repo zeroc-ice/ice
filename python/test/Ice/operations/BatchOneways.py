@@ -18,10 +18,7 @@ class BatchRequestInterceptor:
         self._lastRequestSize = 0
 
     def enqueue(self, request, count, size):
-        test(
-            request.getOperation() == "opByteSOneway"
-            or request.getOperation() == "ice_ping"
-        )
+        test(request.getOperation() == "opByteSOneway" or request.getOperation() == "ice_ping")
         test(request.getProxy().ice_isBatchOneway())
 
         if count > 0:

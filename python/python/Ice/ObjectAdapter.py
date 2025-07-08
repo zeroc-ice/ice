@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .Communicator import Communicator
+
+
 @final
 class ObjectAdapter:
     """

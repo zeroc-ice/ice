@@ -35,17 +35,16 @@ class Communicator:
 
         async def main():
             async with Ice.initialize(
-                sys.argv,
-                eventLoop=asyncio.get_running_loop()) as communicator:
+                sys.argv, eventLoop=asyncio.get_running_loop()
+            ) as communicator:
                 ...
+
 
         if __name__ == "__main__":
             asyncio.run(main())
     """
 
-    def __init__(
-        self, impl: IcePy.Communicator, eventLoopAdapter: EventLoopAdapter | None = None
-    ) -> None:
+    def __init__(self, impl: IcePy.Communicator, eventLoopAdapter: EventLoopAdapter | None = None) -> None:
         self._impl = impl
         impl._setWrapper(self)
         self._eventLoopAdapter = eventLoopAdapter
@@ -265,9 +264,7 @@ class Communicator:
         adapter = self._impl.createObjectAdapter(name)
         return ObjectAdapter(adapter)
 
-    def createObjectAdapterWithEndpoints(
-        self, name: str, endpoints: str
-    ) -> ObjectAdapter:
+    def createObjectAdapterWithEndpoints(self, name: str, endpoints: str) -> ObjectAdapter:
         """
         Create a new object adapter with endpoints.
 
@@ -289,9 +286,7 @@ class Communicator:
         adapter = self._impl.createObjectAdapterWithEndpoints(name, endpoints)
         return ObjectAdapter(adapter)
 
-    def createObjectAdapterWithRouter(
-        self, name: str, router: RouterPrx
-    ) -> ObjectAdapter:
+    def createObjectAdapterWithRouter(self, name: str, router: RouterPrx) -> ObjectAdapter:
         """
         Create a new object adapter with a router.
 
@@ -459,9 +454,7 @@ class Communicator:
         """
         return self._impl.flushBatchRequestsAsync(compress)
 
-    def createAdmin(
-        self, adminAdapter: ObjectAdapter | None, adminId: Identity
-    ) -> ObjectPrx:
+    def createAdmin(self, adminAdapter: ObjectAdapter | None, adminId: Identity) -> ObjectPrx:
         """
         Add the Admin object with all its facets to the provided object adapter.
 

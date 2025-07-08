@@ -25,9 +25,7 @@ class Client(TestHelper):
 
         sys.stdout.write("testing using Ice.Config with multiple config files... ")
         sys.stdout.flush()
-        properties = Ice.createProperties(
-            ["--Ice.Config=config/config.1, config/config.2, config/config.3"]
-        )
+        properties = Ice.createProperties(["--Ice.Config=config/config.1, config/config.2, config/config.3"])
         test(properties.getProperty("Config1") == "Config1")
         test(properties.getProperty("Config2") == "Config2")
         test(properties.getProperty("Config3") == "Config3")
@@ -72,9 +70,7 @@ class Client(TestHelper):
         toStringMode = properties.getIceProperty("Ice.ToStringMode")
         test(toStringMode == "Unicode")
 
-        closeTimeout = properties.getIcePropertyAsInt(
-            "Ice.Connection.Client.CloseTimeout"
-        )
+        closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout")
         test(closeTimeout == 10)
 
         retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals")
@@ -107,9 +103,7 @@ class Client(TestHelper):
             test("error while accessing file './config/xxx_client.config'" in str(ex))
         print("ok")
 
-        sys.stdout.write(
-            "testing that getting an unknown ice property throws an exception..."
-        )
+        sys.stdout.write("testing that getting an unknown ice property throws an exception...")
         sys.stdout.flush()
         try:
             properties = Ice.createProperties()
@@ -119,9 +113,7 @@ class Client(TestHelper):
             pass
         print("ok")
 
-        sys.stdout.write(
-            "testing that trying to read a non-numeric value as an int throws... "
-        )
+        sys.stdout.write("testing that trying to read a non-numeric value as an int throws... ")
         sys.stdout.flush()
 
         properties = Ice.createProperties()

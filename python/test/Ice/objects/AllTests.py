@@ -4,9 +4,11 @@ import Ice
 import Test
 import sys
 
+
 def test(b):
     if not b:
         raise RuntimeError("test assertion failed")
+
 
 def allTests(helper, communicator):
     initial = Test.InitialPrx(communicator, f"initial:{helper.getTestEndpoint()}")
@@ -59,9 +61,7 @@ def allTests(helper, communicator):
 
     sys.stdout.write("getting D1... ")
     sys.stdout.flush()
-    d1 = initial.getD1(
-        Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4"))
-    )
+    d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")))
     test(d1.a1.name == "a1")
     test(d1.a2.name == "a2")
     test(d1.a3.name == "a3")

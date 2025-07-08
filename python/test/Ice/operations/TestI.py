@@ -46,9 +46,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return (
             Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id)),
             p1,
-            Test.MyClassPrx.uncheckedCast(
-                current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))
-            ),
+            Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity"))),
         )
 
     def opStruct(self, p1, p2, current):

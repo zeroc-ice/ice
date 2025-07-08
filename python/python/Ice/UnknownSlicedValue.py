@@ -3,6 +3,7 @@
 from .Value import Value
 import IcePy
 
+
 class UnknownSlicedValue(Value):
     """
     Unknown sliced value holds an instance of an unknown Slice class type.
@@ -15,6 +16,7 @@ class UnknownSlicedValue(Value):
 
     def ice_id(self):
         return self.unknownTypeId
+
 
 IcePy._t_UnknownSlicedValue = IcePy.defineValue(
     "::Ice::UnknownSlicedValue", UnknownSlicedValue, -1, (), False, None, ()

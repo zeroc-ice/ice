@@ -27,12 +27,8 @@ class ObjectClientServerTestCase(ClientServerTestCase):
 
 testcases = [
     ObjectClientServerTestCase("client/server with compact format"),
-    ObjectClientServerTestCase(
-        "client/server with sliced format", props={"Ice.Default.SlicedFormat": True}
-    ),
-    ObjectClientServerTestCase(
-        "client/server with 1.0 encoding", props={"Ice.Default.EncodingVersion": "1.0"}
-    ),
+    ObjectClientServerTestCase("client/server with sliced format", props={"Ice.Default.SlicedFormat": True}),
+    ObjectClientServerTestCase("client/server with 1.0 encoding", props={"Ice.Default.EncodingVersion": "1.0"}),
 ]
 
 if Mapping.getByPath(__name__).hasSource("Ice/objects", "collocated"):

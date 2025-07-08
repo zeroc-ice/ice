@@ -1,5 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
+
 class EnumBase:
     def __init__(self, _n, _v):
         self._name = _n

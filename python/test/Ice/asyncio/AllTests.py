@@ -9,7 +9,7 @@ import Test
 
 def test(b):
     if not b:
-        raise RuntimeError('test assertion failed')
+        raise RuntimeError("test assertion failed")
 
 
 async def allTestsAsync(helper, communicator):

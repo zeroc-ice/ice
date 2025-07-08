@@ -11,18 +11,14 @@ class TestHelper:
     def __init__(self) -> None:
         self._communicator: Ice.Communicator | None = None
 
-    def getTestEndpoint(
-        self, properties: Ice.Properties | None = None, num: int = 0, protocol: str = ""
-    ) -> str:
+    def getTestEndpoint(self, properties: Ice.Properties | None = None, num: int = 0, protocol: str = "") -> str:
         if properties is None:
             # Note that self._communicator is sometimes None when this method is called with properties != None.
             assert self._communicator is not None, "Communicator must be initialized"
             properties = self._communicator.getProperties()
 
         if protocol == "":
-            protocol = properties.getPropertyWithDefault(
-                "Ice.Default.Protocol", "default"
-            )
+            protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default")
 
         port = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num
 
@@ -43,9 +39,7 @@ class TestHelper:
 
         return properties.getIceProperty("Ice.Default.Protocol")
 
-    def getTestPort(
-        self, properties: Ice.Properties | None = None, num: int = 0
-    ) -> int:
+    def getTestPort(self, properties: Ice.Properties | None = None, num: int = 0) -> int:
         assert self._communicator is not None, "Communicator must be initialized"
         if properties is None:
             properties = self._communicator.getProperties()

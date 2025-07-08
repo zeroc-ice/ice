@@ -40,9 +40,7 @@ class Server(TestHelper):
             raise RuntimeError("no port specified\n")
 
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty(
-                "TestAdapter.Endpoints", self.getTestEndpoint(num=port)
-            )
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint(num=port))
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestI(), Ice.stringToIdentity("test"))
             adapter.activate()

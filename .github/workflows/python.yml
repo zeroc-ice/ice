@@ -10,7 +10,7 @@ on:
 
 jobs:
   ruff:
-    name: Ruff check
+    name: Ruff
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
@@ -19,5 +19,8 @@ jobs:
       - name: Install Ruff
         run: pip install ruff
 
-      - name: Run Ruff
+      - name: Ruff check
         run: ruff check . --ignore E402
+
+      - name: Ruff format
+        run: ruff format . --check --diff

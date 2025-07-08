@@ -18,20 +18,24 @@ import Ice
 
 __name__ = "Ice"
 
+
 @overload
 def initialize() -> Communicator: ...
+
 
 @overload
 def initialize(args: list[str]) -> Communicator: ...
 
+
 @overload
 def initialize(args: list[str], initData: InitializationData) -> Communicator: ...
 
+
 @overload
 def initialize(
-    args: list[str],
-    configFile: str | None = None,
-    eventLoop: EventLoopAdapter | None = None) -> Communicator: ...
+    args: list[str], configFile: str | None = None, eventLoop: EventLoopAdapter | None = None
+) -> Communicator: ...
+
 
 def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     """
@@ -66,9 +70,7 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     .. code-block:: python
 
         with Ice.initialize(sys.argv, eventLoop=asyncio.get_running_loop()) as communicator:
-            greeter = VisitorCenter.GreeterPrx(
-                communicator,
-                "greeter:tcp -h localhost -p 4061")
+            greeter = VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061")
             await greeter.greetAsync()
     """
 
@@ -86,7 +88,6 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
 
     eventLoopAdapter = initData.eventLoopAdapter if initData else None
     if eventLoop:
-
         if not isinstance(eventLoop, asyncio.AbstractEventLoop):
             raise InitializationException("The event loop must be an instance of asyncio.AbstractEventLoop")
         eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
@@ -94,7 +95,8 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     communicator = IcePy.Communicator(args, initData, configFile)
     return Communicator(communicator, eventLoopAdapter)
 
-def identityToString(identity: Ice.Identity, toStringMode: ToStringMode=None) -> str:
+
+def identityToString(identity: Ice.Identity, toStringMode: ToStringMode = None) -> str:
     """
     Convert an object identity to a string.
 
@@ -135,7 +137,7 @@ def stringToIdentity(str: str) -> Ice.Identity:
     return IcePy.stringToIdentity(str)
 
 
-def createProperties(args: list[str]=None, defaults: Properties=None) -> Properties:
+def createProperties(args: list[str] = None, defaults: Properties = None) -> Properties:
     """
     Creates a new property set.
 
@@ -169,11 +171,11 @@ def createProperties(args: list[str]=None, defaults: Properties=None) -> Propert
         properties = Ice.createProperties(sys.argv)
 
         # Create a property set using default values.
-        defaults = { "Ice.Trace.Protocol": "1" }
+        defaults = {"Ice.Trace.Protocol": "1"}
         properties = Ice.createProperties(defaults)
 
         # Combine command-line parsing with default values.
-        defaults = { "Ice.Trace.Protocol": "1" }
+        defaults = {"Ice.Trace.Protocol": "1"}
         properties = Ice.createProperties(sys.argv, defaults)
     """
     properties = IcePy.createProperties(args, defaults)
@@ -207,7 +209,6 @@ def getSliceDir() -> str | None:
     if os.path.exists(dir):
         return os.path.normpath(dir)
 
-
     # In a source distribution, the "slice" directory is an extra level higher.
     dir = os.path.join(pyHome, "..", "..", "slice")
     if os.path.exists(dir):
@@ -227,7 +228,9 @@ def getSliceDir() -> str | None:
 
     return None
 
+
 _repr_running = threading.local()
+
 
 def safe_repr(obj):
     if not hasattr(_repr_running, "set"):
@@ -243,7 +246,9 @@ def safe_repr(obj):
     finally:
         _repr_running.set.remove(obj_id)
 
+
 def format_fields(**fields):
     return ", ".join(f"{k}={safe_repr(v)}" for k, v in fields.items())
 
-__all__ = [ "initialize", "identityToString", "stringToIdentity", "createProperties", "getSliceDir" ]
+
+__all__ = ["initialize", "identityToString", "stringToIdentity", "createProperties", "getSliceDir"]

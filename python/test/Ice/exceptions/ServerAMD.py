@@ -162,16 +162,10 @@ class ServerAMD(TestHelper):
         properties.setProperty("Ice.Warn.Connections", "0")
         properties.setProperty("Ice.MessageSizeMax", "10")
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty(
-                "TestAdapter.Endpoints", self.getTestEndpoint()
-            )
-            communicator.getProperties().setProperty(
-                "TestAdapter2.Endpoints", self.getTestEndpoint(num=1)
-            )
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty("TestAdapter2.Endpoints", self.getTestEndpoint(num=1))
             communicator.getProperties().setProperty("TestAdapter2.MessageSizeMax", "0")
-            communicator.getProperties().setProperty(
-                "TestAdapter3.Endpoints", self.getTestEndpoint(num=2)
-            )
+            communicator.getProperties().setProperty("TestAdapter3.Endpoints", self.getTestEndpoint(num=2))
             communicator.getProperties().setProperty("TestAdapter3.MessageSizeMax", "1")
 
             adapter = communicator.createObjectAdapter("TestAdapter")

@@ -30,27 +30,11 @@ class Glacier2HashPasswordTestCase(ClientTestCase):
             test(passlib.hash.pbkdf2_sha256.verify("abc123", hashPasswords("abc123")))
             test(not passlib.hash.pbkdf2_sha256.verify("abc123", hashPasswords("abc")))
 
-            test(
-                passlib.hash.pbkdf2_sha1.verify(
-                    "abc123", hashPasswords("abc123", "-d sha1")
-                )
-            )
-            test(
-                not passlib.hash.pbkdf2_sha1.verify(
-                    "abc123", hashPasswords("abc", "-d sha1")
-                )
-            )
+            test(passlib.hash.pbkdf2_sha1.verify("abc123", hashPasswords("abc123", "-d sha1")))
+            test(not passlib.hash.pbkdf2_sha1.verify("abc123", hashPasswords("abc", "-d sha1")))
 
-            test(
-                passlib.hash.pbkdf2_sha512.verify(
-                    "abc123", hashPasswords("abc123", "-d sha512")
-                )
-            )
-            test(
-                not passlib.hash.pbkdf2_sha512.verify(
-                    "abc123", hashPasswords("abc", "-d sha512")
-                )
-            )
+            test(passlib.hash.pbkdf2_sha512.verify("abc123", hashPasswords("abc123", "-d sha512")))
+            test(not passlib.hash.pbkdf2_sha512.verify("abc123", hashPasswords("abc", "-d sha512")))
 
             #
             # Now use custom rounds
@@ -78,16 +62,8 @@ class Glacier2HashPasswordTestCase(ClientTestCase):
             test(passlib.hash.sha512_crypt.verify("abc123", hashPasswords("abc123")))
             test(not passlib.hash.sha512_crypt.verify("abc123", hashPasswords("abc")))
 
-            test(
-                passlib.hash.sha256_crypt.verify(
-                    "abc123", hashPasswords("abc123", "-d sha256")
-                )
-            )
-            test(
-                not passlib.hash.sha256_crypt.verify(
-                    "abc123", hashPasswords("abc", "-d sha256")
-                )
-            )
+            test(passlib.hash.sha256_crypt.verify("abc123", hashPasswords("abc123", "-d sha256")))
+            test(not passlib.hash.sha256_crypt.verify("abc123", hashPasswords("abc", "-d sha256")))
 
             #
             # Now use custom rounds

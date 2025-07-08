@@ -13,6 +13,7 @@ except ImportError:
     pass
 
 import Test
+
 if hasNumPy:
     import Test.NumPy
 import Ice
@@ -184,14 +185,10 @@ if hasNumPy:
             return numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int64)
 
         def opFloatMatrix(self, current):
-            return numpy.array(
-                [[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float32
-            )
+            return numpy.array([[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float32)
 
         def opDoubleMatrix(self, current):
-            return numpy.array(
-                [[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float64
-            )
+            return numpy.array([[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float64)
 
         def opBogusNumpyArrayType(self, current):
             return [True, False, True, False]
@@ -206,9 +203,7 @@ if hasNumPy:
 class Server(TestHelper):
     def run(self, args):
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty(
-                "TestAdapter.Endpoints", self.getTestEndpoint()
-            )
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(CustomI(), Ice.stringToIdentity("test"))
             if hasNumPy:

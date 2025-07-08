@@ -7,6 +7,7 @@ from .Future import Future
 from .LocalExceptions import TimeoutException
 from .LocalExceptions import InvocationCanceledException
 
+
 class InvocationFuture(Future):
     """
     A Future object representing the result of an AMI (Asynchronous Method Invocation) request.
@@ -157,11 +158,10 @@ class InvocationFuture(Future):
     def _warn(self, msg):
         communicator = self.communicator()
         if communicator:
-            if (communicator.getProperties().getIcePropertyAsInt("Ice.Warn.AMICallback") > 0):
-                communicator.getLogger().warning(
-                    "Ice.Future: " + msg + ":\n" + traceback.format_exc()
-                )
+            if communicator.getProperties().getIcePropertyAsInt("Ice.Warn.AMICallback") > 0:
+                communicator.getLogger().warning("Ice.Future: " + msg + ":\n" + traceback.format_exc())
         else:
             logging.getLogger("Ice.Future").exception(msg)
+
 
 __all__ = ["InvocationFuture"]

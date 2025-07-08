@@ -12,9 +12,7 @@ class SliceUnicodePathsTestCase(ClientTestCase):
         if isinstance(platform, Linux):
             encoding = locale.getdefaultlocale()[1]
             if encoding != "UTF-8":
-                current.writeln(
-                    "Please set LC_ALL to xx_xx.UTF-8, for example FR_FR.UTF-8"
-                )
+                current.writeln("Please set LC_ALL to xx_xx.UTF-8, for example FR_FR.UTF-8")
                 current.writeln("Skipping test")
                 return
 
@@ -57,9 +55,7 @@ class SliceUnicodePathsTestCase(ClientTestCase):
 
                 for f in generated:
                     if not os.path.isfile(os.path.join(srcPath, f)):
-                        raise RuntimeError(
-                            "failed! (can't find {0})".format(os.path.join(srcPath, f))
-                        )
+                        raise RuntimeError("failed! (can't find {0})".format(os.path.join(srcPath, f)))
                     os.remove(os.path.join(srcPath, f))
 
             current.writeln("ok")

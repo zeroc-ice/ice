@@ -380,6 +380,7 @@ class PNodeI(Test.PNode):
     def __del__(self):
         PNodeI.counter = PNodeI.counter - 1
 
+
 class PreservedI(Test.Preserved):
     counter = 0
 
@@ -389,6 +390,7 @@ class PreservedI(Test.Preserved):
     def __del__(self):
         PreservedI.counter = PreservedI.counter - 1
 
+
 def customSliceLoader(typeId):
     if typeId == Test.Preserved.ice_staticId():
         return PreservedI()
@@ -396,6 +398,7 @@ def customSliceLoader(typeId):
         return PNodeI()
     else:
         return None
+
 
 def allTests(helper, communicator):
     t = Test.TestIntfPrx(communicator, f"Test:{helper.getTestEndpoint()}")
@@ -454,9 +457,7 @@ def allTests(helper, communicator):
     sys.stdout.write("base with known derived as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBSKnownDerivedAsSBaseAsync().add_done_callback(
-        cb.response_SBSKnownDerivedAsSBase
-    )
+    t.SBSKnownDerivedAsSBaseAsync().add_done_callback(cb.response_SBSKnownDerivedAsSBase)
     cb.check()
     print("ok")
 
@@ -472,9 +473,7 @@ def allTests(helper, communicator):
     sys.stdout.write("base with known derived as known derived (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBSKnownDerivedAsSBSKnownDerivedAsync().add_done_callback(
-        cb.response_SBSKnownDerivedAsSBSKnownDerived
-    )
+    t.SBSKnownDerivedAsSBSKnownDerivedAsync().add_done_callback(cb.response_SBSKnownDerivedAsSBSKnownDerived)
     cb.check()
     print("ok")
 
@@ -518,18 +517,14 @@ def allTests(helper, communicator):
     sys.stdout.write("base with unknown derived as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBSUnknownDerivedAsSBaseAsync().add_done_callback(
-        cb.response_SBSUnknownDerivedAsSBase
-    )
+    t.SBSUnknownDerivedAsSBaseAsync().add_done_callback(cb.response_SBSUnknownDerivedAsSBase)
     cb.check()
     if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
         #
         # This test succeeds for the 1.0 encoding.
         #
         cb = Callback()
-        t.SBSUnknownDerivedAsSBaseCompactAsync().add_done_callback(
-            cb.response_SBSUnknownDerivedAsSBase
-        )
+        t.SBSUnknownDerivedAsSBaseCompactAsync().add_done_callback(cb.response_SBSUnknownDerivedAsSBase)
         cb.check()
     else:
         #
@@ -537,9 +532,7 @@ def allTests(helper, communicator):
         # be sliced to a known type.
         #
         cb = Callback()
-        t.SBSUnknownDerivedAsSBaseCompactAsync().add_done_callback(
-            cb.exception_SBSUnknownDerivedAsSBaseCompact
-        )
+        t.SBSUnknownDerivedAsSBaseCompactAsync().add_done_callback(cb.exception_SBSUnknownDerivedAsSBaseCompact)
         cb.check()
     print("ok")
 
@@ -1023,9 +1016,7 @@ def allTests(helper, communicator):
     cb.check()
     print("ok")
 
-    sys.stdout.write(
-        "param ptr slicing, instance marshaled in unknown derived as base... "
-    )
+    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as base... ")
     sys.stdout.flush()
     try:
         b1 = Test.B()
@@ -1064,9 +1055,7 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
-    sys.stdout.write(
-        "param ptr slicing, instance marshaled in unknown derived as base (AMI)... "
-    )
+    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as base (AMI)... ")
     sys.stdout.flush()
     try:
         b1 = Test.B()
@@ -1105,9 +1094,7 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
-    sys.stdout.write(
-        "param ptr slicing, instance marshaled in unknown derived as derived... "
-    )
+    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as derived... ")
     sys.stdout.flush()
     try:
         d11 = Test.D1()
@@ -1144,9 +1131,7 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
-    sys.stdout.write(
-        "param ptr slicing, instance marshaled in unknown derived as derived (AMI)... "
-    )
+    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as derived (AMI)... ")
     sys.stdout.flush()
     try:
         d11 = Test.D1()
@@ -1541,9 +1526,7 @@ def allTests(helper, communicator):
     sys.stdout.write("unknown derived exception thrown as base exception (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.throwUnknownDerivedAsBaseAsync().add_done_callback(
-        cb.exception_throwUnknownDerivedAsBase
-    )
+    t.throwUnknownDerivedAsBaseAsync().add_done_callback(cb.exception_throwUnknownDerivedAsBase)
     cb.check()
     print("ok")
 
@@ -1645,9 +1628,7 @@ def allTests(helper, communicator):
         for i in range(0, 300):
             p2 = Test.PCDerived2()
             p2.pi = i
-            p2.pbs = [
-                None
-            ]  # Nil reference. This slice should not have an indirection table.
+            p2.pbs = [None]  # Nil reference. This slice should not have an indirection table.
             p2.pcd2 = i
             pcd.pbs.append(p2)
         pcd.pcd2 = pcd.pi
@@ -1763,9 +1744,7 @@ def allTests(helper, communicator):
     for i in range(0, 300):
         p2 = Test.PCDerived2()
         p2.pi = i
-        p2.pbs = [
-            None
-        ]  # Nil reference. This slice should not have an indirection table.
+        p2.pbs = [None]  # Nil reference. This slice should not have an indirection table.
         p2.pcd2 = i
         pcd.pbs.append(p2)
     pcd.pcd2 = pcd.pi

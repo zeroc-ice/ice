@@ -43,11 +43,7 @@ class IceBox(ProcessFromBinDir, Server):
         if self.configFile:
             mapping = self.getMapping(current)
             if isinstance(mapping, CSharpMapping) and current.config.dotnet:
-                args.append(
-                    "--Ice.Config={0}.{1}".format(
-                        self.configFile, mapping.getTargetFramework(current)
-                    )
-                )
+                args.append("--Ice.Config={0}.{1}".format(self.configFile, mapping.getTargetFramework(current)))
             else:
                 args.append("--Ice.Config={0}".format(self.configFile))
         return args

@@ -17,6 +17,7 @@ from Util import (
 
 certsPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "certs", "configuration"))
 
+
 class ConfigurationTestCase(ClientServerTestCase):
     def setupServerSide(self, current):
         # Nothing to do if we're not running this test with the C++ mapping
@@ -76,11 +77,10 @@ class ConfigurationTestCase(ClientServerTestCase):
                 out = run(f"openssl x509 -subject_hash -noout -in {os.path.join(certsPath, cert)}")
                 os.remove(f"{certsPath}/{out}.0")
 
+
 TestSuite(
     __name__,
-    [ConfigurationTestCase(
-        client=Client(args=[f'"{certsPath}"']),
-        server=Server(args=[f'"{certsPath}"']))],
+    [ConfigurationTestCase(client=Client(args=[f'"{certsPath}"']), server=Server(args=[f'"{certsPath}"']))],
     multihost=False,
     options={"protocol": ["tcp"]},
 )

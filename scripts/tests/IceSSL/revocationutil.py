@@ -15,12 +15,12 @@ import urllib.parse
 
 
 def load_certificate(path):
-    with open(path, 'rb') as f:
+    with open(path, "rb") as f:
         return load_pem_x509_certificate(f.read())
 
 
 def load_private_key(path, password):
-    with open(path, 'rb') as f:
+    with open(path, "rb") as f:
         return serialization.load_pem_private_key(f.read(), password)
 
 
@@ -31,22 +31,24 @@ def load_db(basepath):
     as the certificates and revocations key.
     """
     db = {}
-    for ca_dir, certs in [("ca4", ["server_cert.pem", "server_revoked_cert.pem", "i1/i1_cert.pem"]),
-                          ("ca4/i1", ["server_cert.pem"])]:
+    for ca_dir, certs in [
+        ("ca4", ["server_cert.pem", "server_revoked_cert.pem", "i1/i1_cert.pem"]),
+        ("ca4/i1", ["server_cert.pem"]),
+    ]:
         ca_dir = os.path.join(basepath, ca_dir)
         issuer_cert = load_certificate(f"{ca_dir}/{os.path.basename(ca_dir)}_cert.pem")
         issuer_key = load_private_key(f"{ca_dir}/{os.path.basename(ca_dir)}_key.pem".format(ca_dir), None)
 
         issuer_sha1 = issuer_cert.extensions.get_extension_for_class(SubjectKeyIdentifier).value.digest
         db[issuer_sha1] = {}
-        db[issuer_sha1]['issuer_cert'] = issuer_cert
-        db[issuer_sha1]['issuer_key'] = issuer_key
+        db[issuer_sha1]["issuer_cert"] = issuer_cert
+        db[issuer_sha1]["issuer_key"] = issuer_key
 
         certificates = {}
         for filename in certs:
             cert = load_certificate(os.path.join(ca_dir, filename))
             certificates[cert.serial_number] = cert
-        db[issuer_sha1]['certificates'] = certificates
+        db[issuer_sha1]["certificates"] = certificates
 
         # index.txt in the CA directory contains the openssl-ca database
         # see https://pki-tutorial.readthedocs.io/en/latest/cadb.html
@@ -55,19 +57,19 @@ def load_db(basepath):
             revocations = {}
             lines = index.readlines()
             for line in lines:
-                tokens = line.split('\t')
+                tokens = line.split("\t")
                 if len(tokens) != 6:
                     print("invalid line\n" + line)
                     sys.exit(1)
 
-                if tokens[0] != 'R':
+                if tokens[0] != "R":
                     continue
                 certinfo = {
                     "revocation_time": datetime.strptime(tokens[2], "%y%m%d%H%M%S%z"),
                     "serial_number": int(tokens[3], 16),
                 }
                 revocations[certinfo["serial_number"]] = certinfo
-            db[issuer_sha1]['revocations'] = revocations
+            db[issuer_sha1]["revocations"] = revocations
     return db
 
 
@@ -81,7 +83,7 @@ class OCSPHandler(http.server.BaseHTTPRequestHandler):
         super().__init__(*args, **kwargs)
 
     def do_POST(self):
-        length = int(self.headers['Content-Length'])
+        length = int(self.headers["Content-Length"])
         data = self.rfile.read(length)
         self.validate(data)
 
@@ -99,13 +101,13 @@ class OCSPHandler(http.server.BaseHTTPRequestHandler):
             serial = request.serial_number
             issuer = self._db.get(request.issuer_key_hash)
             if issuer:
-                issuer_cert = issuer.get('issuer_cert')
-                issuer_key = issuer.get('issuer_key')
-                subject_cert = issuer.get('certificates').get(serial)
+                issuer_cert = issuer.get("issuer_cert")
+                issuer_key = issuer.get("issuer_key")
+                subject_cert = issuer.get("certificates").get(serial)
                 if subject_cert is None:
                     response = ocsp.OCSPResponseBuilder.build_unsuccessful(ocsp.OCSPResponseStatus.UNAUTHORIZED)
                 else:
-                    cert_info = issuer.get('revocations').get(serial)
+                    cert_info = issuer.get("revocations").get(serial)
                     revoked = cert_info is not None
 
                     builder = ocsp.OCSPResponseBuilder().add_response(
@@ -115,8 +117,9 @@ class OCSPHandler(http.server.BaseHTTPRequestHandler):
                         cert_status=ocsp.OCSPCertStatus.REVOKED if revoked else ocsp.OCSPCertStatus.GOOD,
                         this_update=this_update,
                         next_update=next_update,
-                        revocation_time=cert_info['revocation_time'] if revoked else None,
-                        revocation_reason=ReasonFlags.unspecified if revoked else None)
+                        revocation_time=cert_info["revocation_time"] if revoked else None,
+                        revocation_reason=ReasonFlags.unspecified if revoked else None,
+                    )
 
                     builder = builder.responder_id(ocsp.OCSPResponderEncoding.HASH, issuer_cert)
                     response = builder.sign(issuer_key, hashes.SHA256())
@@ -138,7 +141,11 @@ def createOCSPServer(host, port, basepath):
     return ThreadedServer(host, port, handler)
 
 
-def createCRLServer(host, port, basepath,):
+def createCRLServer(
+    host,
+    port,
+    basepath,
+):
     handler = partial(http.server.SimpleHTTPRequestHandler, directory=basepath)
     return ThreadedServer(host, port, handler)
 

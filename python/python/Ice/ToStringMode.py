@@ -3,6 +3,7 @@
 from .EnumBase import EnumBase
 from typing import Self
 
+
 class ToStringMode(EnumBase):
     """
     The output mode for xxxToString methods such as identityToString and proxyToString. The actual encoding format for
@@ -46,6 +47,7 @@ class ToStringMode(EnumBase):
         return self._enumerators[value] if value in self._enumerators else None
 
     valueOf = classmethod(valueOf)
+
 
 ToStringMode.Unicode = ToStringMode("Unicode", 0)
 ToStringMode.ASCII = ToStringMode("ASCII", 1)

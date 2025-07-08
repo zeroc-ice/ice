@@ -29,9 +29,7 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                 args = ["-I.", file, "--output-dir", "tmp"]
 
                 # Don't print out slice2cpp output and expect failures
-                slice2cpp.run(
-                    current, args=args, exitstatus=0 if file.find("Warning") >= 0 else 1
-                )
+                slice2cpp.run(current, args=args, exitstatus=0 if file.find("Warning") >= 0 else 1)
                 output = slice2cpp.getOutput(current)
 
                 regex1 = re.compile(r"\.ice$", re.IGNORECASE)
@@ -41,23 +39,15 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                     if len(lines1) != len(lines2):
                         current.writeln("lines1 = {0}".format(lines1))
                         current.writeln("lines2 = {0}".format(lines2))
-                        raise RuntimeError(
-                            "failed (lines1 = {0}, lines2 = {1})!".format(
-                                len(lines1), len(lines2)
-                            )
-                        )
+                        raise RuntimeError("failed (lines1 = {0}, lines2 = {1})!".format(len(lines1), len(lines2)))
 
                     regex2 = re.compile("^.*(?=" + os.path.basename(file) + ")")
                     i = 0
                     while i < len(lines1):
-                        line1 = regex2.sub("", lines1[i]).strip() # Actual output from slice2cpp
-                        line2 = lines2[i].strip()                 # Expected output from .err file
+                        line1 = regex2.sub("", lines1[i]).strip()  # Actual output from slice2cpp
+                        line2 = lines2[i].strip()  # Expected output from .err file
                         if line1 != line2:
-                            raise RuntimeError(
-                                'failed! (line1 = "{0}", line2 = "{1}"'.format(
-                                    line1, line2
-                                )
-                            )
+                            raise RuntimeError('failed! (line1 = "{0}", line2 = "{1}"'.format(line1, line2))
                         i = i + 1
                     else:
                         current.writeln("ok")

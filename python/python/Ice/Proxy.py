@@ -10,6 +10,7 @@ __name__ = "Ice"
 # Proxy comparison functions.
 #
 
+
 def proxyIdentityEqual(lhs, rhs):
     """Determines whether the identities of two proxies are equal."""
     return proxyIdentityCompare(lhs, rhs) == 0
@@ -17,9 +18,7 @@ def proxyIdentityEqual(lhs, rhs):
 
 def proxyIdentityCompare(lhs, rhs):
     """Compares the identities of two proxies."""
-    if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (
-        rhs and not isinstance(rhs, IcePy.ObjectPrx)
-    ):
+    if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
         raise ValueError("argument is not a proxy")
     if not lhs and not rhs:
         return 0
@@ -40,9 +39,7 @@ def proxyIdentityAndFacetEqual(lhs, rhs):
 
 def proxyIdentityAndFacetCompare(lhs, rhs):
     """Compares the identities and facets of two proxies."""
-    if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (
-        rhs and not isinstance(rhs, IcePy.ObjectPrx)
-    ):
+    if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
         raise ValueError("argument is not a proxy")
     if not lhs and not rhs:
         return 0

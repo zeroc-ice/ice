@@ -11,10 +11,7 @@ import AllTests
 class Collocated(TestHelper):
     def run(self, args):
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty(
-                "TestAdapter.Endpoints",
-                self.getTestEndpoint()
-            )
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestI.MyClassI(), Ice.stringToIdentity("test"))
             adapter.addFacet(TestI.MyClassI(), Ice.stringToIdentity("test"), "foo")

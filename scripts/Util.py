@@ -108,9 +108,7 @@ class Component(object):
 
     def getTestDir(self, mapping):
         if isinstance(mapping, JavaMapping):
-            return os.path.join(
-                mapping.getPath(), "test", "src", "main", "java", "test"
-            )
+            return os.path.join(mapping.getPath(), "test", "src", "main", "java", "test")
         return os.path.join(mapping.getPath(), "test")
 
     def getScriptDir(self):
@@ -122,9 +120,7 @@ class Component(object):
     def getNugetPackage(self, mapping):
         return "zeroc.{0}.{1}".format(
             self.__class__.__name__.lower(),
-            "net"
-            if isinstance(mapping, CSharpMapping)
-            else platform.getPlatformToolset(),
+            "net" if isinstance(mapping, CSharpMapping) else platform.getPlatformToolset(),
         )
 
     def getNugetPackageVersion(self, mapping):
@@ -133,24 +129,18 @@ class Component(object):
             if file.endswith(".nuspec"):
                 expr = "<version>(.*)</version>"
             elif file.endswith("packages.config"):
-                expr = 'id="{0}" version="(.*)" target'.format(
-                    self.getNugetPackage(mapping)
-                )
+                expr = 'id="{0}" version="(.*)" target'.format(self.getNugetPackage(mapping))
             if expr:
                 with open(file, "r") as config:
                     m = re.search(expr, config.read())
                     if m:
                         self.nugetVersion[mapping] = m.group(1)
         if mapping not in self.nugetVersion:
-            raise RuntimeError(
-                "couldn't figure out the nuget version from `{0}'".format(file)
-            )
+            raise RuntimeError("couldn't figure out the nuget version from `{0}'".format(file))
         return self.nugetVersion[mapping]
 
     def getNugetPackageVersionFile(self, mapping):
-        raise RuntimeError(
-            "must be overridden if component provides C++ or C# nuget packages"
-        )
+        raise RuntimeError("must be overridden if component provides C++ or C# nuget packages")
 
     def getFilters(self, mapping, config):
         return ([], [])
@@ -256,13 +246,9 @@ class Platform(object):
     def hasSwift(self, version):
         if self._hasSwift is None:
             try:
-                m = re.search(
-                    r"Apple Swift version ([0-9]+\.[0-9]+)", run("swift --version")
-                )
+                m = re.search(r"Apple Swift version ([0-9]+\.[0-9]+)", run("swift --version"))
                 if m and m.group(1):
-                    self._hasSwift = (
-                        tuple([int(n) for n in m.group(1).split(".")]) >= version
-                    )
+                    self._hasSwift = tuple([int(n) for n in m.group(1).split(".")]) >= version
                 else:
                     self.hasSwift = False
             except Exception:
@@ -271,9 +257,7 @@ class Platform(object):
 
     def parseBuildVariables(self, component, variables):
         # Run make to get the values of the given variables
-        if os.path.exists(
-            os.path.join(component.getSourceDir(), "Makefile")
-        ):  # Top level makefile
+        if os.path.exists(os.path.join(component.getSourceDir(), "Makefile")):  # Top level makefile
             cwd = component.getSourceDir()
         elif Mapping.getByName("cpp"):
             cwd = Mapping.getByName("cpp").getPath()
@@ -368,11 +352,7 @@ class Linux(Platform):
         )
         if self.linuxId in ["ubuntu", "debian"]:
             for p in [self.buildPlatform] + self.foreignPlatforms:
-                self.multiArch[p] = run(
-                    "dpkg-architecture -f -a{0} -qDEB_HOST_MULTIARCH 2> /dev/null".format(
-                        p
-                    )
-                )
+                self.multiArch[p] = run("dpkg-architecture -f -a{0} -qDEB_HOST_MULTIARCH 2> /dev/null".format(p))
 
     def hasOpenSSL(self):
         return True
@@ -400,16 +380,11 @@ class Linux(Platform):
         buildPlatform = current.driver.configs[mapping].buildPlatform
 
         # PHP module is always installed in the lib directory for the default build platform
-        if (
-            isinstance(mapping, PhpMapping)
-            and buildPlatform == self.getDefaultBuildPlatform()
-        ):
+        if isinstance(mapping, PhpMapping) and buildPlatform == self.getDefaultBuildPlatform():
             return os.path.join(installDir, "lib")
 
         if self.linuxId in ["centos", "rhel", "fedora"]:
-            return os.path.join(
-                installDir, "lib64" if buildPlatform == "x64" else "lib"
-            )
+            return os.path.join(installDir, "lib64" if buildPlatform == "x64" else "lib")
         elif self.linuxId in ["ubuntu", "debian"]:
             return os.path.join(installDir, "lib", self.multiArch[buildPlatform])
         return os.path.join(installDir, "lib")
@@ -455,11 +430,7 @@ class Windows(Platform):
     def _getBinDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         platform = current.driver.configs[mapping].buildPlatform
-        config = (
-            "Debug"
-            if current.driver.configs[mapping].buildConfig.find("Debug") >= 0
-            else "Release"
-        )
+        config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
 
         if isinstance(mapping, CSharpMapping):
             return os.path.join(installDir, "bin", mapping.getTargetFramework(current))
@@ -481,11 +452,7 @@ class Windows(Platform):
             return os.path.join(installDir, "lib/net8.0")
         else:
             platform = current.driver.configs[mapping].buildPlatform
-            config = (
-                "Debug"
-                if current.driver.configs[mapping].buildConfig.find("Debug") >= 0
-                else "Release"
-            )
+            config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
             if isinstance(mapping, PhpMapping):
                 return os.path.join(
                     installDir,
@@ -502,9 +469,7 @@ class Windows(Platform):
     def getBuildSubDir(self, mapping, name, current):
         buildPlatform = current.driver.configs[mapping].buildPlatform
         buildConfig = current.driver.configs[mapping].buildConfig
-        if os.path.exists(
-            os.path.join(current.testcase.getPath(current), "msbuild", name)
-        ):
+        if os.path.exists(os.path.join(current.testcase.getPath(current), "msbuild", name)):
             return os.path.join("msbuild", name, buildPlatform, buildConfig)
         else:
             return os.path.join("msbuild", buildPlatform, buildConfig)
@@ -616,12 +581,8 @@ class Mapping(object):
             print("--ipv6                Use IPv6 addresses.")
             print("--serialize           Run with connection serialization.")
             print("--mx                  Run with metrics enabled.")
-            print(
-                "--cprops=<properties> Specifies a list of additional client properties."
-            )
-            print(
-                "--sprops=<properties> Specifies a list of additional server properties."
-            )
+            print("--cprops=<properties> Specifies a list of additional client properties.")
+            print("--sprops=<properties> Specifies a list of additional server properties.")
             print("--config=<config>     Build configuration for native executables.")
             print("--platform=<platform> Build platform for native executables.")
 
@@ -664,9 +625,7 @@ class Mapping(object):
             self.phpVersion = "7.1"
             self.python = sys.executable
 
-            parseOptions(
-                self, options, {"config": "buildConfig", "platform": "buildPlatform"}
-            )
+            parseOptions(self, options, {"config": "buildConfig", "platform": "buildPlatform"})
 
         def __str__(self):
             s = []
@@ -704,9 +663,7 @@ class Mapping(object):
 
                 # Replace the values with a cycle iterator on the values
                 for k, v in supportedOptions.items():
-                    supportedOptions[k] = itertools.cycle(
-                        random.sample(v, len(v)) if rand else v
-                    )
+                    supportedOptions[k] = itertools.cycle(random.sample(v, len(v)) if rand else v)
 
                 # Now, for the length of the longest array of values, we return
                 # an array with the supported option combinations
@@ -736,17 +693,11 @@ class Mapping(object):
 
             return [
                 c
-                for c in gen(
-                    current.driver.filterOptions(
-                        current.driver.getComponent().getOptions(testcase, current)
-                    )
-                )
+                for c in gen(current.driver.filterOptions(current.driver.getComponent().getOptions(testcase, current)))
             ]
 
         def canRun(self, testId, current):
-            if not current.driver.getComponent().canRun(
-                testId, current.testcase.getMapping(), current
-            ):
+            if not current.driver.getComponent().canRun(testId, current.testcase.getMapping(), current):
                 return False
 
             options = {}
@@ -813,12 +764,8 @@ class Mapping(object):
                     if self.ipv6:
                         props["Ice.PreferIPv6Address"] = True
                 if self.mx:
-                    props["Ice.Admin.Endpoints"] = (
-                        'tcp -h "::1"' if self.ipv6 else "tcp -h 127.0.0.1"
-                    )
-                    props["Ice.Admin.InstanceName"] = (
-                        "Server" if isinstance(process, Server) else "Client"
-                    )
+                    props["Ice.Admin.Endpoints"] = 'tcp -h "::1"' if self.ipv6 else "tcp -h 127.0.0.1"
+                    props["Ice.Admin.InstanceName"] = "Server" if isinstance(process, Server) else "Client"
                     props["IceMX.Metrics.Debug.GroupBy"] = "id"
                     props["IceMX.Metrics.Parent.GroupBy"] = "parent"
                     props["IceMX.Metrics.All.GroupBy"] = "none"
@@ -842,11 +789,7 @@ class Mapping(object):
     @classmethod
     def getByName(self, name):
         if name not in self.mappings:
-            raise RuntimeError(
-                "unknown mapping: `{0}', known mappings: `{1}'".format(
-                    name, list(self.mappings)
-                )
-            )
+            raise RuntimeError("unknown mapping: `{0}', known mappings: `{1}'".format(name, list(self.mappings)))
         return self.mappings.get(name)
 
     @classmethod
@@ -887,18 +830,8 @@ class Mapping(object):
 
     @classmethod
     def getAll(self, driver=None, includeDisabled=False):
-        return [
-            m
-            for m in self.mappings.values()
-            if not driver or driver.matchLanguage(str(m))
-        ] + (
-            [
-                m
-                for m in self.disabled.values()
-                if not driver or driver.matchLanguage(str(m))
-            ]
-            if includeDisabled
-            else []
+        return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))] + (
+            [m for m in self.disabled.values() if not driver or driver.matchLanguage(str(m))] if includeDisabled else []
         )
 
     def __init__(self, path=None):
@@ -910,9 +843,7 @@ class Mapping(object):
         self.name = name
         self.component = component
         if not self.path:
-            self.path = os.path.normpath(
-                os.path.join(self.component.getSourceDir(), path or name)
-            )
+            self.path = os.path.normpath(os.path.join(self.component.getSourceDir(), path or name))
         return self
 
     def __str__(self):
@@ -948,16 +879,11 @@ class Mapping(object):
         try:
             origsyspath = sys.path
             prefix = os.path.commonprefix([toplevel, self.component.getScriptDir()])
-            moduleprefix = (
-                self.component.getScriptDir()[len(prefix) + 1 :].replace(os.sep, ".")
-                + "."
-            )
+            moduleprefix = self.component.getScriptDir()[len(prefix) + 1 :].replace(os.sep, ".") + "."
             sys.path = [prefix] + sys.path
             for test in tests or [""]:
                 testDir = self.component.getTestDir(self)
-                for root, dirs, files in os.walk(
-                    os.path.join(testDir, test.replace("/", os.sep))
-                ):
+                for root, dirs, files in os.walk(os.path.join(testDir, test.replace("/", os.sep))):
                     testId = root[len(testDir) + 1 :]
                     if os.sep != "/":
                         testId = testId.replace(os.sep, "/")
@@ -983,9 +909,7 @@ class Mapping(object):
                     # If there's no test.py file in the test directory, we check if there's a common
                     # script for the test in scripts/tests. If there's one we use it.
                     #
-                    if os.path.isfile(
-                        os.path.join(self.component.getScriptDir(), testId + ".py")
-                    ):
+                    if os.path.isfile(os.path.join(self.component.getScriptDir(), testId + ".py")):
                         runpy.run_module(
                             moduleprefix + testId.replace("/", "."),
                             init_globals=globals(),
@@ -1007,24 +931,16 @@ class Mapping(object):
     def getTestSuites(self, ids=[]):
         if not ids:
             return self.testsuites.values()
-        return [
-            self.testsuites[testSuiteId]
-            for testSuiteId in ids
-            if testSuiteId in self.testsuites
-        ]
+        return [self.testsuites[testSuiteId] for testSuiteId in ids if testSuiteId in self.testsuites]
 
     def addTestSuite(self, testsuite):
         assert len(testsuite.path) > len(self.component.getTestDir(self)) + 1
-        testSuiteId = testsuite.path[
-            len(self.component.getTestDir(self)) + 1 :
-        ].replace("\\", "/")
+        testSuiteId = testsuite.path[len(self.component.getTestDir(self)) + 1 :].replace("\\", "/")
         self.testsuites[testSuiteId] = testsuite
         return testSuiteId
 
     def findTestSuite(self, testsuite):
-        return self.testsuites.get(
-            testsuite if isinstance(testsuite, str) else testsuite.id
-        )
+        return self.testsuites.get(testsuite if isinstance(testsuite, str) else testsuite.id)
 
     def computeTestCases(self, testId, files):
         # Instantiate a new test suite if the directory contains well-known source files.
@@ -1032,11 +948,7 @@ class Mapping(object):
             try:
                 # If given mapping is same as local mapping, just check the files set, otherwise check
                 # with the mapping
-                return (
-                    (self.getDefaultSource(f) in files)
-                    if m == self
-                    else m.hasSource(testId, f)
-                )
+                return (self.getDefaultSource(f) in files) if m == self else m.hasSource(testId, f)
             except KeyError:
                 # Expected if the mapping doesn't support the process type
                 return False
@@ -1050,11 +962,7 @@ class Mapping(object):
         testcases = []
         if checkClient("client") and checkServer("server"):
             testcases.append(ClientServerTestCase())
-        if (
-            checkClient("client")
-            and checkServer("serveramd")
-            and self.getServerMapping(testId) == self
-        ):
+        if checkClient("client") and checkServer("serveramd") and self.getServerMapping(testId) == self:
             testcases.append(ClientAMDServerTestCase())
         if checkClient("client") and len(testcases) == 0:
             testcases.append(ClientTestCase())
@@ -1088,9 +996,7 @@ class Mapping(object):
         return self._getDefaultSource(processType)
 
     def getDefaultProcesses(self, processType, testsuite):
-        default = self.component.getDefaultProcesses(
-            self, processType, testsuite.getId()
-        )
+        default = self.component.getDefaultProcesses(self, processType, testsuite.getId())
         if default:
             return default
         return self._getDefaultProcesses(processType)
@@ -1112,13 +1018,7 @@ class Mapping(object):
         name, ext = os.path.splitext(self.getDefaultSource(processType))
         if name in globals():
             return [globals()[name]()]
-        return (
-            [Server()]
-            if processType.startswith("server")
-            else [Client()]
-            if processType
-            else []
-        )
+        return [Server()] if processType.startswith("server") else [Client()] if processType else []
 
     def _getDefaultExe(self, processType):
         return os.path.splitext(self.getDefaultSource(processType))[0]
@@ -1142,9 +1042,7 @@ class Mapping(object):
             cmd = os.path.join(self.component.getBinDir(process, self, current), exe)
         elif current.testcase:
             # If it's a process from a testcase, the binary is in the test build directory.
-            cmd = os.path.join(
-                current.testcase.getPath(current), current.getBuildDir(exe), exe
-            )
+            cmd = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe), exe)
         else:
             cmd = exe
 
@@ -1157,9 +1055,7 @@ class Mapping(object):
         props = {}
         if isinstance(process, IceProcess):
             if current.config.protocol in ["bt", "bts"]:
-                props["Ice.Plugin.IceBT"] = self.getPluginEntryPoint(
-                    "IceBT", process, current
-                )
+                props["Ice.Plugin.IceBT"] = self.getPluginEntryPoint("IceBT", process, current)
             if current.config.protocol in ["ssl", "wss", "bts", "iaps"]:
                 props.update(self.getSSLProps(process, current))
         return props
@@ -1264,9 +1160,7 @@ class Process(Runnable):
                 previous = ""
                 for line in [line + "\n" for line in lines]:
                     for f in self.outfilters:
-                        if isinstance(f, types.LambdaType) or isinstance(
-                            f, types.FunctionType
-                        ):
+                        if isinstance(f, types.LambdaType) or isinstance(f, types.FunctionType):
                             line = f(line)
                         elif f.search(line):
                             break
@@ -1329,11 +1223,7 @@ class Process(Runnable):
                 except Expect.TIMEOUT:
                     assert watchDog
                     if watchDog.timedOut(timeout):
-                        print(
-                            "process {0} is hanging - {1}".format(
-                                process, time.strftime("%x %X")
-                            )
-                        )
+                        print("process {0} is hanging - {1}".format(process, time.strftime("%x %X")))
 
                         # If we're running in CI, dump the stack trace and exit
                         if os.getenv("CI"):
@@ -1367,21 +1257,14 @@ class Process(Runnable):
         allProps.update(self.getMapping(current).getProps(self, current))
         allProps.update(current.testcase.getProps(self, current))
         allProps.update(self.getProps(current))
-        allProps.update(
-            self.props(self, current) if callable(self.props) else self.props
-        )
+        allProps.update(self.props(self, current) if callable(self.props) else self.props)
         allProps.update(props)
         return allProps
 
     def getEffectiveEnv(self, current):
         def merge(envs, newEnvs):
-            if (
-                platform.getLdPathEnvName() in newEnvs
-                and platform.getLdPathEnvName() in envs
-            ):
-                newEnvs[platform.getLdPathEnvName()] += (
-                    os.pathsep + envs[platform.getLdPathEnvName()]
-                )
+            if platform.getLdPathEnvName() in newEnvs and platform.getLdPathEnvName() in envs:
+                newEnvs[platform.getLdPathEnvName()] += os.pathsep + envs[platform.getLdPathEnvName()]
             envs.update(newEnvs)
 
         allEnvs = {}
@@ -1395,11 +1278,7 @@ class Process(Runnable):
     def getEffectiveTraceProps(self, current):
         traceProps = {}
         traceProps.update(current.testcase.getTraceProps(self, current))
-        traceProps.update(
-            self.traceProps(self, current)
-            if callable(self.traceProps)
-            else self.traceProps
-        )
+        traceProps.update(self.traceProps(self, current) if callable(self.traceProps) else self.traceProps)
         return traceProps
 
     def start(self, current, args=[], props={}, watchDog=None):
@@ -1408,9 +1287,7 @@ class Process(Runnable):
         allEnvs = self.getEffectiveEnv(current)
 
         processController = current.driver.getProcessController(current, self)
-        current.processes[self] = processController.start(
-            self, current, allArgs, allProps, allEnvs, watchDog
-        )
+        current.processes[self] = processController.start(self, current, allArgs, allProps, allEnvs, watchDog)
         try:
             self.waitForStart(current)
         except Exception:
@@ -1435,11 +1312,7 @@ class Process(Runnable):
                             current.driver.setInterrupt(True)
                             raise
                         except Expect.TIMEOUT:
-                            print(
-                                "process {0} is hanging on shutdown - {1}".format(
-                                    process, time.strftime("%x %X")
-                                )
-                            )
+                            print("process {0} is hanging on shutdown - {1}".format(process, time.strftime("%x %X")))
 
                             if os.getenv("CI"):
                                 process.stackDump()
@@ -1456,9 +1329,7 @@ class Process(Runnable):
             finally:
                 if not process.isTerminated():
                     process.terminate()
-                if (
-                    not self.quiet
-                ):  # Write the output to the test case (but not on stdout)
+                if not self.quiet:  # Write the output to the test case (but not on stdout)
                     current.write(self.getOutput(current), stdout=False)
 
     def teardown(self, current, success):
@@ -1466,27 +1337,19 @@ class Process(Runnable):
             current.processes[self].teardown(current, success)
 
     def expect(self, current, pattern, timeout=60):
-        assert self in current.processes and isinstance(
-            current.processes[self], Expect.Expect
-        )
+        assert self in current.processes and isinstance(current.processes[self], Expect.Expect)
         return current.processes[self].expect(pattern, timeout)
 
     def expectall(self, current, pattern, timeout=60):
-        assert self in current.processes and isinstance(
-            current.processes[self], Expect.Expect
-        )
+        assert self in current.processes and isinstance(current.processes[self], Expect.Expect)
         return current.processes[self].expectall(pattern, timeout)
 
     def sendline(self, current, data):
-        assert self in current.processes and isinstance(
-            current.processes[self], Expect.Expect
-        )
+        assert self in current.processes and isinstance(current.processes[self], Expect.Expect)
         return current.processes[self].sendline(data)
 
     def getMatch(self, current):
-        assert self in current.processes and isinstance(
-            current.processes[self], Expect.Expect
-        )
+        assert self in current.processes and isinstance(current.processes[self], Expect.Expect)
         return current.processes[self].match
 
     def isStarted(self, current):
@@ -1517,11 +1380,7 @@ class Process(Runnable):
         return self.exe or self.getMapping(current).getDefaultExe(self.getProcessType(current))
 
     def getCommandLine(self, current, args=""):
-        return (
-            self.getMapping(current)
-            .getCommandLine(current, self, self.getExe(current), args)
-            .strip()
-        )
+        return self.getMapping(current).getCommandLine(current, self, self.getExe(current), args).strip()
 
 
 #
@@ -1643,18 +1502,14 @@ class ProcessIsReleaseOnly:
 
 class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
     def __init__(self, translator, quiet=False):
-        SimpleClient.__init__(
-            self, exe=translator, quiet=quiet, mapping=Mapping.getByName("cpp")
-        )
+        SimpleClient.__init__(self, exe=translator, quiet=quiet, mapping=Mapping.getByName("cpp"))
 
     def getCommandLine(self, current, args=""):
         #
         # Look for slice2py installed by pip if not found in the bin directory
         #
         if self.exe == "slice2py":
-            translator = self.getMapping(current).getCommandLine(
-                current, self, self.getExe(current), ""
-            )
+            translator = self.getMapping(current).getCommandLine(current, self, self.getExe(current), "")
             if not os.path.exists(translator):
                 translator = sys.executable + " -m slice2py"
             return (translator + " " + args).strip()
@@ -1672,15 +1527,11 @@ class Collocated(Client):
 
 class EchoServer(Server):
     def __init__(self):
-        Server.__init__(
-            self, mapping=Mapping.getByName("cpp"), quiet=True, waitForShutdown=False
-        )
+        Server.__init__(self, mapping=Mapping.getByName("cpp"), quiet=True, waitForShutdown=False)
 
     def getProps(self, current):
         props = Server.getProps(self, current)
-        props["Ice.MessageSizeMax"] = (
-            8192  # Don't limit the amount of data to transmit between client/server
-        )
+        props["Ice.MessageSizeMax"] = 8192  # Don't limit the amount of data to transmit between client/server
         # Set the program name to avoid conflicts with the log files. Without this both the JavaScript
         # and the echo server would try to use the same log file.
         props["Ice.ProgramName"] = "EchoServer"
@@ -1765,9 +1616,9 @@ class TestCase(Runnable):
         testId = self.testsuite.getId()
         if not self.clients:
             if self.getClientType():
-                self.clients = self.mapping.getClientMapping(
-                    testId
-                ).getDefaultProcesses(self.getClientType(), testsuite)
+                self.clients = self.mapping.getClientMapping(testId).getDefaultProcesses(
+                    self.getClientType(), testsuite
+                )
             else:
                 self.clients = []
 
@@ -1777,9 +1628,9 @@ class TestCase(Runnable):
         #
         if not self.servers:
             if self.getServerType():
-                self.servers = self.mapping.getServerMapping(
-                    testId
-                ).getDefaultProcesses(self.getServerType(), testsuite)
+                self.servers = self.mapping.getServerMapping(testId).getDefaultProcesses(
+                    self.getServerType(), testsuite
+                )
             else:
                 self.servers = []
 
@@ -1870,17 +1721,11 @@ class TestCase(Runnable):
         return None
 
     def getServerTestCase(self, cross=None):
-        testsuite = (
-            (cross or self.mapping)
-            .getServerMapping(self.testsuite.getId())
-            .findTestSuite(self.testsuite)
-        )
+        testsuite = (cross or self.mapping).getServerMapping(self.testsuite.getId()).findTestSuite(self.testsuite)
         return testsuite.findTestCase(self) if testsuite else None
 
     def getClientTestCase(self):
-        testsuite = self.mapping.getClientMapping(self.testsuite.getId()).findTestSuite(
-            self.testsuite
-        )
+        testsuite = self.mapping.getClientMapping(self.testsuite.getId()).findTestSuite(self.testsuite)
         return testsuite.findTestCase(self) if testsuite else None
 
     def _startServerSide(self, current):
@@ -1960,9 +1805,7 @@ class TestCase(Runnable):
         except Exception as ex:
             self.teardown(current, False)
             if not self.parent:
-                current.result.failed(
-                    current, traceback.format_exc() if current.driver.debug else str(ex)
-                )
+                current.result.failed(current, traceback.format_exc() if current.driver.debug else str(ex))
             raise
         finally:
             current.pop()
@@ -2008,11 +1851,7 @@ class ClientAMDServerTestCase(ClientServerTestCase):
 
 class Result:
     def getKey(self, current):
-        return (
-            (current.testcase, current.config)
-            if isinstance(current, Driver.Current)
-            else current
-        )
+        return (current.testcase, current.config) if isinstance(current, Driver.Current) else current
 
     def getDesc(self, current):
         return current.desc if isinstance(current, Driver.Current) else ""
@@ -2056,9 +1895,7 @@ class Result:
             if output.find(s) >= 0:
                 if isinstance(platform, Windows):
                     self.writeln(run("netstat -on"))
-                    self.writeln(
-                        run('powershell.exe "Get-Process | Select id,name,path"')
-                    )
+                    self.writeln(run('powershell.exe "Get-Process | Select id,name,path"'))
                 else:
                     self.writeln(run("lsof -n -P -i; ps ax"))
 
@@ -2201,9 +2038,7 @@ class TestSuite(object):
         mapping=None,
     ):
         global currentMapping
-        self.path = (
-            os.path.dirname(path) if os.path.basename(path) == "test.py" else path
-        )
+        self.path = os.path.dirname(path) if os.path.basename(path) == "test.py" else path
         self.mapping = currentMapping or Mapping.getByPath(self.path)
         self.id = self.mapping.addTestSuite(self)
         self.options = options or {}
@@ -2216,19 +2051,13 @@ class TestSuite(object):
             self.runOnMainThread = True
 
         if testcases is None:
-            files = [
-                f
-                for f in os.listdir(self.path)
-                if os.path.isfile(os.path.join(self.path, f))
-            ]
+            files = [f for f in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, f))]
             testcases = self.mapping.computeTestCases(self.id, files)
         self.testcases = OrderedDict()
         for testcase in testcases if testcases else []:
             testcase.init(self.mapping, self)
             if testcase.name in self.testcases:
-                raise RuntimeError(
-                    "duplicate testcase {0} in testsuite {1}".format(testcase, self)
-                )
+                raise RuntimeError("duplicate testcase {0} in testsuite {1}".format(testcase, self))
             self.testcases[testcase.name] = testcase
 
     def __str__(self):
@@ -2263,16 +2092,12 @@ class TestSuite(object):
 
     def addTestCase(self, testcase):
         if testcase.name in self.testcases:
-            raise RuntimeError(
-                "duplicate testcase {0} in testsuite {1}".format(testcase, self)
-            )
+            raise RuntimeError("duplicate testcase {0} in testsuite {1}".format(testcase, self))
         testcase.init(self.mapping, self)
         self.testcases[testcase.name] = testcase
 
     def findTestCase(self, testcase):
-        return self.testcases.get(
-            testcase if isinstance(testcase, str) else testcase.name
-        )
+        return self.testcases.get(testcase if isinstance(testcase, str) else testcase.name)
 
     def getTestCases(self):
         return self.testcases.values()
@@ -2360,9 +2185,7 @@ class LocalProcessController(ProcessController):
                 if "Ice.ProgramName" in props:
                     programName = props["Ice.ProgramName"]
                 else:
-                    programName = process.exe or current.testcase.getProcessType(
-                        process
-                    )
+                    programName = process.exe or current.testcase.getProcessType(process)
                 traceFile = os.path.join(
                     current.testsuite.getPath(),
                     "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M")),
@@ -2370,9 +2193,7 @@ class LocalProcessController(ProcessController):
                 traceProps["Ice.LogFile"] = traceFile
             props.update(traceProps)
 
-        args = ["--{0}={1}".format(k, val(v)) for k, v in props.items()] + [
-            val(a) for a in args
-        ]
+        args = ["--{0}={1}".format(k, val(v)) for k, v in props.items()] + [val(a) for a in args]
         for k, v in envs.items():
             envs[k] = val(v, quoteValue=False)
 
@@ -2441,10 +2262,7 @@ class RemoteProcessController(ProcessController):
                 raise
 
             if exitstatus != result:
-                raise RuntimeError(
-                    "unexpected exit status: expected: %d, got %d\n"
-                    % (exitstatus, result)
-                )
+                raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (exitstatus, result))
 
         def getOutput(self):
             return self.output
@@ -2480,9 +2298,7 @@ class RemoteProcessController(ProcessController):
             def setProcessController(self, proxy, current):
                 import Test
 
-                proxy = Test.Common.ProcessControllerPrx.uncheckedCast(
-                    current.con.createProxy(proxy.ice_getIdentity())
-                )
+                proxy = Test.Common.ProcessControllerPrx.uncheckedCast(current.con.createProxy(proxy.ice_getIdentity()))
                 self.remoteProcessController.setProcessController(proxy)
 
         import Ice
@@ -2499,9 +2315,7 @@ class RemoteProcessController(ProcessController):
         return "remote controller"
 
     def getHost(self, current):
-        return self.getController(current).getHost(
-            current.config.protocol, current.config.ipv6
-        )
+        return self.getController(current).getHost(current.config.protocol, current.config.ipv6)
 
     def getController(self, current):
         import Ice
@@ -2526,17 +2340,13 @@ class RemoteProcessController(ProcessController):
 
         if current.driver.controllerApp:
             if ident in self.controllerApps:
-                self.restartControllerApp(
-                    current, ident
-                )  # Controller must have crashed, restart it
+                self.restartControllerApp(current, ident)  # Controller must have crashed, restart it
             else:
                 self.controllerApps.append(ident)
                 self.startControllerApp(current, ident)
 
         # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
-        proxy = Test.Common.ProcessControllerPrx.uncheckedCast(
-            comm.stringToProxy(comm.identityToString(ident))
-        )
+        proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
 
         #
         # First try to discover the process controller with IceDiscovery, if this doesn't
@@ -2581,9 +2391,7 @@ class RemoteProcessController(ProcessController):
             self.processControllerProxies[proxy.ice_getIdentity()] = proxy
             conn = proxy.ice_getConnection()
             if hasattr(conn, "setCloseCallback"):
-                proxy.ice_getConnection().setCloseCallback(
-                    lambda conn: self.clearProcessController(proxy, conn)
-                )
+                proxy.ice_getConnection().setCloseCallback(lambda conn: self.clearProcessController(proxy, conn))
             else:
                 import Ice
 
@@ -2609,12 +2417,7 @@ class RemoteProcessController(ProcessController):
             if proxy.ice_getIdentity() in self.processControllerProxies:
                 if not conn:
                     conn = proxy.ice_getCachedConnection()
-                if (
-                    conn
-                    == self.processControllerProxies[
-                        proxy.ice_getIdentity()
-                    ].ice_getCachedConnection()
-                ):
+                if conn == self.processControllerProxies[proxy.ice_getIdentity()].ice_getCachedConnection():
                     del self.processControllerProxies[proxy.ice_getIdentity()]
 
     def startControllerApp(self, current, ident):
@@ -2634,27 +2437,17 @@ class RemoteProcessController(ProcessController):
         # TODO: support envs?
 
         exe = process.getExe(current)
-        args = [
-            "--{0}={1}".format(k, val(v, quoteValue=False)) for k, v in props.items()
-        ] + [val(a) for a in args]
+        args = ["--{0}={1}".format(k, val(v, quoteValue=False)) for k, v in props.items()] + [val(a) for a in args]
         if current.driver.debug:
-            current.writeln(
-                "(executing `{0}/{1}' on `{2}' args = {3})".format(
-                    current.testsuite, exe, self, args
-                )
-            )
+            current.writeln("(executing `{0}/{1}' on `{2}' args = {3})".format(current.testsuite, exe, self, args))
         prx = processController.start(str(current.testsuite), exe, args)
 
         # Create bi-dir proxy in case we're talking to a bi-bir process controller.
         if self.adapter:
-            prx = processController.ice_getConnection().createProxy(
-                prx.ice_getIdentity()
-            )
+            prx = processController.ice_getConnection().createProxy(prx.ice_getIdentity())
         import Test
 
-        return RemoteProcessController.RemoteProcess(
-            exe, Test.Common.ProcessPrx.uncheckedCast(prx)
-        )
+        return RemoteProcessController.RemoteProcess(exe, Test.Common.ProcessPrx.uncheckedCast(prx))
 
     def destroy(self, driver):
         if driver.controllerApp:
@@ -2709,9 +2502,7 @@ class AndroidProcessController(RemoteProcessController):
                 port = p
 
         if port == -1:
-            raise RuntimeError(
-                "cannot find free port in range 5554-5584, to run android emulator"
-            )
+            raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
         self.device = "emulator-{}".format(port)
         cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
@@ -2720,9 +2511,7 @@ class AndroidProcessController(RemoteProcessController):
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
-            raise RuntimeError(
-                "failed to start the Android emulator `{}' on port {}".format(avd, port)
-            )
+            raise RuntimeError("failed to start the Android emulator `{}' on port {}".format(avd, port))
 
         self.avd = avd
 
@@ -2741,9 +2530,7 @@ class AndroidProcessController(RemoteProcessController):
             # If the emulator doesn't complete boot in 300 seconds give up
             #
             if (time.time() - t) > 300:
-                raise RuntimeError(
-                    "couldn't start the Android emulator `{}'".format(avd)
-                )
+                raise RuntimeError("couldn't start the Android emulator `{}'".format(avd))
             time.sleep(2)
 
     def startControllerApp(self, current, ident):
@@ -2761,9 +2548,7 @@ class AndroidProcessController(RemoteProcessController):
                 run("avdmanager -v delete avd -n IceTests")  # Delete the created device
             except Exception:
                 pass
-            run(
-                'avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk)
-            )
+            run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
             self.startEmulator("IceTests")
         elif current.config.device != "usb":
             run("adb connect {}".format(current.config.device))
@@ -2773,11 +2558,7 @@ class AndroidProcessController(RemoteProcessController):
             run("{} shell pm uninstall com.zeroc.testcontroller".format(self.adb()))
         except Exception:
             pass
-        run(
-            "{} install -t -r {}".format(
-                self.adb(), current.testcase.getMapping().getApk(current)
-            )
-        )
+        run("{} install -t -r {}".format(self.adb(), current.testcase.getMapping().getApk(current)))
         run(
             '{} shell am start -n "{}" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER'.format(
                 self.adb(), current.testcase.getMapping().getActivityName()
@@ -2798,9 +2579,7 @@ class AndroidProcessController(RemoteProcessController):
 
             if self.avd == "IceTests":
                 try:
-                    run(
-                        "avdmanager -v delete avd -n IceTests"
-                    )  # Delete the created device
+                    run("avdmanager -v delete avd -n IceTests")  # Delete the created device
                 except Exception:
                     pass
 
@@ -2842,14 +2621,10 @@ class iOSSimulatorProcessController(RemoteProcessController):
             pass
 
         if not self.runtimeID:
-            self.runtimeID = (
-                "com.apple.CoreSimulator.SimRuntime.iOS-17-5"  # Default value
-            )
+            self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-17-5"  # Default value
 
     def __str__(self):
-        return "iOS Simulator ({})".format(
-            self.runtimeID.replace("com.apple.CoreSimulator.SimRuntime.", "").strip()
-        )
+        return "iOS Simulator ({})".format(self.runtimeID.replace("com.apple.CoreSimulator.SimRuntime.", "").strip())
 
     def getControllerIdentity(self, current):
         return current.testcase.getMapping().getIOSControllerIdentity(current)
@@ -2862,27 +2637,19 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.flush()
         try:
             run('xcrun simctl boot "{0}"'.format(self.device))
-            run(
-                'xcrun simctl bootstatus "{0}"'.format(self.device)
-            )  # Wait for the boot to complete
+            run('xcrun simctl bootstatus "{0}"'.format(self.device))  # Wait for the boot to complete
         except Exception as ex:
             if str(ex).find("Booted") >= 0:
                 pass
-            elif str(ex).find("Invalid device") >= 0 or str(ex).find(
-                "Assertion failure in SimDevicePair"
-            ):
+            elif str(ex).find("Invalid device") >= 0 or str(ex).find("Assertion failure in SimDevicePair"):
                 #
                 # Create the simulator device if it doesn't exist
                 #
                 self.simulatorID = run(
-                    'xcrun simctl create "{0}" {1} {2}'.format(
-                        self.device, self.deviceID, self.runtimeID
-                    )
+                    'xcrun simctl create "{0}" {1} {2}'.format(self.device, self.deviceID, self.runtimeID)
                 )
                 run('xcrun simctl boot "{0}"'.format(self.device))
-                run(
-                    'xcrun simctl bootstatus "{0}"'.format(self.device)
-                )  # Wait for the boot to complete
+                run('xcrun simctl bootstatus "{0}"'.format(self.device))  # Wait for the boot to complete
                 #
                 # This not longer works on iOS 15 simulator, fails with:
                 #   "Could not write domain com.apple.springboard; exiting"
@@ -2903,9 +2670,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.flush()
 
         if not os.path.exists(appFullPath):
-            raise RuntimeError(
-                "couldn't find iOS simulator controller application, did you build it?"
-            )
+            raise RuntimeError("couldn't find iOS simulator controller application, did you build it?")
         run('xcrun simctl install "{0}" "{1}"'.format(self.device, appFullPath))
         run('xcrun simctl launch "{0}" {1}'.format(self.device, ident.name))
         print("ok")
@@ -2975,9 +2740,7 @@ class iOSDeviceProcessController(RemoteProcessController):
 class BrowserProcessController(RemoteProcessController):
     def __init__(self, current):
         self.host = current.driver.host or "127.0.0.1"
-        RemoteProcessController.__init__(
-            self, current, "ws -h {0} -p 15002:wss -h {0} -p 15003".format(self.host)
-        )
+        RemoteProcessController.__init__(self, current, "ws -h {0} -p 15002:wss -h {0} -p 15003".format(self.host))
         self.httpServer = None
         self.httpsServer = None
         self.url = None
@@ -3103,9 +2866,7 @@ class BrowserProcessController(RemoteProcessController):
                 try:
                     import Test
 
-                    Test.Common.BrowserProcessControllerPrx.uncheckedCast(prx).redirect(
-                        url
-                    )
+                    Test.Common.BrowserProcessControllerPrx.uncheckedCast(prx).redirect(url)
                 except Exception:
                     pass
                 finally:
@@ -3121,17 +2882,11 @@ class BrowserProcessController(RemoteProcessController):
                 # Print out the client & server console element values
                 for element in ["clientConsole", "serverConsole"]:
                     try:
-                        console = self.driver.find_element_by_id(element).get_attribute(
-                            "value"
-                        )
+                        console = self.driver.find_element_by_id(element).get_attribute("value")
                         if len(console) > 0:
                             print("controller {0} value:\n{1}".format(element, console))
                     except Exception as exc:
-                        print(
-                            "couldn't get controller {0} value:\n{1}".format(
-                                element, exc
-                            )
-                        )
+                        print("couldn't get controller {0} value:\n{1}".format(element, exc))
                         pass
                 # Print out the browser log
                 try:
@@ -3194,9 +2949,7 @@ class Driver:
                 testcase.parent = self.testcase
             self.testcases.append((self.testcase, self.config, self.host))
             self.testcase = testcase
-            self.config = self.driver.configs[
-                self.testcase.getMapping()
-            ].cloneAndOverrideWith(self)
+            self.config = self.driver.configs[self.testcase.getMapping()].cloneAndOverrideWith(self)
             self.host = host
 
         def pop(self):
@@ -3210,11 +2963,7 @@ class Driver:
 
         def createFile(self, path, lines, encoding=None):
             path = os.path.join(self.testsuite.getPath(), path)
-            with (
-                open(path, "w", encoding=encoding)
-                if encoding
-                else open(path, "w") as file
-            ):
+            with open(path, "w", encoding=encoding) if encoding else open(path, "w") as file:
                 for line in lines:
                     file.write("%s\n" % line)
             self.files.append(path)
@@ -3285,27 +3034,15 @@ class Driver:
         print("")
         print("Driver options:")
         print("-d | --debug          Verbose information.")
-        print(
-            "--driver=<driver>     Use the given driver (local, client, server or remote)."
-        )
+        print("--driver=<driver>     Use the given driver (local, client, server or remote).")
         print("--filter=<regex>      Run all the tests that match the given regex.")
-        print(
-            "--rfilter=<regex>     Run all the tests that do not match the given regex."
-        )
-        print(
-            "--languages=l1,l2,... List of comma-separated language mappings to test."
-        )
-        print(
-            "--rlanguages=l1,l2,.. List of comma-separated language mappings to not test."
-        )
+        print("--rfilter=<regex>     Run all the tests that do not match the given regex.")
+        print("--languages=l1,l2,... List of comma-separated language mappings to test.")
+        print("--rlanguages=l1,l2,.. List of comma-separated language mappings to not test.")
         print("--host=<addr>         The IPv4 address to use for Ice.Default.Host.")
         print("--host-ipv6=<addr>    The IPv6 address to use for Ice.Default.Host.")
-        print(
-            "--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host."
-        )
-        print(
-            "--interface=<IP>      The multicast interface to use to discover controllers."
-        )
+        print("--host-bt=<addr>      The Bluetooth address to use for Ice.Default.Host.")
+        print("--interface=<IP>      The multicast interface to use to discover controllers.")
         print("--controller-app      Start the process controller application.")
         print("--valgrind            Start executables with valgrind.")
 
@@ -3340,17 +3077,9 @@ class Driver:
         )
 
         if self.languages:
-            self.languages = [
-                i
-                for sublist in [lang.split(",") for lang in self.languages]
-                for i in sublist
-            ]
+            self.languages = [i for sublist in [lang.split(",") for lang in self.languages] for i in sublist]
         if self.rlanguages:
-            self.rlanguages = [
-                i
-                for sublist in [lang.split(",") for lang in self.rlanguages]
-                for i in sublist
-            ]
+            self.rlanguages = [i for sublist in [lang.split(",") for lang in self.rlanguages] for i in sublist]
 
         (self.filters, self.rfilters) = (
             [re.compile(a) for a in self.filters],
@@ -3403,9 +3132,7 @@ class Driver:
         props = {}
         if isinstance(process, IceProcess):
             if not self.host:
-                props["Ice.Default.Host"] = (
-                    "::1" if current.config.ipv6 else "127.0.0.1"
-                )
+                props["Ice.Default.Host"] = "::1" if current.config.ipv6 else "127.0.0.1"
             else:
                 props["Ice.Default.Host"] = self.host
         return props
@@ -3436,20 +3163,14 @@ class Driver:
             try:
                 pythonMapping = Mapping.getByName("python")
                 if pythonMapping:
-                    for p in pythonMapping.getPythonDirs(
-                        pythonMapping.getPath(), self.configs[pythonMapping]
-                    ):
+                    for p in pythonMapping.getPythonDirs(pythonMapping.getPath(), self.configs[pythonMapping]):
                         sys.path.append(p)
             except RuntimeError:
-                print(
-                    "couldn't find IcePy, running these tests require it to be installed or built"
-                )
+                print("couldn't find IcePy, running these tests require it to be installed or built")
 
         import Ice
 
-        Ice.loadSlice(
-            os.path.join(self.component.getSourceDir(), "scripts", "Controller.ice")
-        )
+        Ice.loadSlice(os.path.join(self.component.getSourceDir(), "scripts", "Controller.ice"))
 
         initData = Ice.InitializationData()
         initData.properties = Ice.createProperties()
@@ -3465,9 +3186,7 @@ class Driver:
         initData.properties.setProperty("IceSSL.KeychainPassword", "password")
         initData.properties.setProperty("IceSSL.VerifyPeer", "0")
 
-        initData.properties.setProperty(
-            "Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery"
-        )
+        initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:createIceDiscovery")
         initData.properties.setProperty("IceDiscovery.DomainId", "TestController")
         initData.properties.setProperty("IceDiscovery.Interface", self.interface)
         initData.properties.setProperty("Ice.Default.Host", self.interface)
@@ -3483,11 +3202,7 @@ class Driver:
             processController = iOSSimulatorProcessController
         elif current.config.buildPlatform == "iphoneos":
             processController = iOSDeviceProcessController
-        elif (
-            process
-            and current.config.browser
-            and isinstance(process.getMapping(current), JavaScriptMixin)
-        ):
+        elif process and current.config.browser and isinstance(process.getMapping(current), JavaScriptMixin):
             processController = BrowserProcessController
         elif process and current.config.android:
             processController = AndroidProcessController
@@ -3529,18 +3244,10 @@ class CppMapping(Mapping):
         def usage(self):
             print("")
             print("C++ Mapping options:")
-            print(
-                "--cpp-path=<path>         Path of alternate source tree for the C++ mapping."
-            )
-            print(
-                "--cpp-config=<config>     C++ build configuration for native executables (overrides --config)."
-            )
-            print(
-                "--cpp-platform=<platform> C++ build platform for native executables (overrides --platform)."
-            )
-            print(
-                "--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine."
-            )
+            print("--cpp-path=<path>         Path of alternate source tree for the C++ mapping.")
+            print("--cpp-config=<config>     C++ build configuration for native executables (overrides --config).")
+            print("--cpp-platform=<platform> C++ build platform for native executables (overrides --platform).")
+            print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
@@ -3607,9 +3314,7 @@ class CppMapping(Mapping):
         if isinstance(platform, Windows):
             testcommon = os.path.join(self.path, "test", "Common")
             if os.path.exists(testcommon):
-                libPaths.append(
-                    os.path.join(testcommon, self.getBuildDir("testcommon", current))
-                )
+                libPaths.append(os.path.join(testcommon, self.getBuildDir("testcommon", current)))
 
         #
         # On most platforms, we also need to add the library directory to the library path environment variable.
@@ -3621,12 +3326,7 @@ class CppMapping(Mapping):
         # Add the test suite library directories to the platform library path environment variable.
         #
         if current.testcase:
-            for d in set(
-                [
-                    current.getBuildDir(d)
-                    for d in current.testcase.getTestSuite().getLibDirs()
-                ]
-            ):
+            for d in set([current.getBuildDir(d) for d in current.testcase.getTestSuite().getLibDirs()]):
                 libPaths.append(d)
 
         env = {}
@@ -3650,26 +3350,20 @@ class CppMapping(Mapping):
         return Mapping._getDefaultExe(self, processType).lower()
 
     def getIOSControllerIdentity(self, current):
-        category = (
-            "iPhoneSimulator"
-            if current.config.buildPlatform == "iphonesimulator"
-            else "iPhoneOS"
-        )
+        category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
         return "{0}/com.zeroc.Cpp-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        cmd = (
-            "xcodebuild -project '{0}/cpp/test/ios/controller/C++ Test Controller.xcodeproj' \
+        cmd = "xcodebuild -project '{0}/cpp/test/ios/controller/C++ Test Controller.xcodeproj' \
                           -scheme 'C++ Test Controller' \
                           -configuration {1} \
                           -sdk {2} \
                           -arch arm64 \
                           -showBuildSettings \
                           ".format(
-                toplevel,
-                current.config.buildConfig.capitalize(),
-                current.config.buildPlatform,
-            )
+            toplevel,
+            current.config.buildConfig.capitalize(),
+            current.config.buildPlatform,
         )
         targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
         testDriver = os.path.join(targetBuildDir, "C++ Test Controller.app")
@@ -3687,9 +3381,7 @@ class JavaMapping(Mapping):
             print("")
             print("Java Mapping options:")
             print("--android                 Run the Android tests.")
-            print(
-                "--device=<device-id>      ID of the Android emulator or device used to run the tests."
-            )
+            print("--device=<device-id>      ID of the Android emulator or device used to run the tests.")
             print("--avd=<name>              Start specific Android Virtual Device.")
             print("--jacoco=<path>             Path to the JaCoCo agent.")
 
@@ -3705,9 +3397,7 @@ class JavaMapping(Mapping):
 
         testdir = self.component.getTestDir(self)
         assert current.testcase.getPath(current).startswith(testdir)
-        package = "test." + current.testcase.getPath(current)[
-            len(testdir) + 1 :
-        ].replace(os.sep, ".")
+        package = "test." + current.testcase.getPath(current)[len(testdir) + 1 :].replace(os.sep, ".")
         javaArgs = self.getJavaArgs(process, current)
 
         if current.config.jacoco:
@@ -3719,9 +3409,7 @@ class JavaMapping(Mapping):
                 java, " ".join(javaArgs), package, exe, args
             )
         else:
-            return "{0} -ea -Dtest.class={1}.{2} test.TestDriver {3}".format(
-                java, package, exe, args
-            )
+            return "{0} -ea -Dtest.class={1}.{2} test.TestDriver {3}".format(java, package, exe, args)
 
     def getJavaArgs(self, process, current):
         # TODO: WORKAROUND for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=911925
@@ -3797,21 +3485,15 @@ class CSharpMapping(Mapping):
         def usage(self):
             print("")
             print("C# mapping options:")
-            print(
-                "--csharp-config=<config>   C# build configuration for .NET executables (overrides --config)."
-            )
-            print(
-                "--coverage-session=<id>      Run tests the dotnet-coverage using the given session ID."
-            )
+            print("--csharp-config=<config>   C# build configuration for .NET executables (overrides --config).")
+            print("--coverage-session=<id>      Run tests the dotnet-coverage using the given session ID.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
             if self.buildConfig == platform.getDefaultBuildConfig():
                 # Check the OPTIMIZE environment variable to figure out if it's debug/release build
-                self.buildConfig = (
-                    "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug"
-                )
+                self.buildConfig = "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug"
 
             self.dotnetCoverageSession = ""
 
@@ -3835,9 +3517,7 @@ class CSharpMapping(Mapping):
         props.update(
             {
                 "IceSSL.Password": "password",
-                "IceSSL.DefaultDir": os.path.join(
-                    self.component.getSourceDir(), "certs/common/ca"
-                ),
+                "IceSSL.DefaultDir": os.path.join(self.component.getSourceDir(), "certs/common/ca"),
                 "IceSSL.CAs": "ca_cert.pem",
                 "IceSSL.VerifyPeer": "0" if current.config.protocol == "wss" else "2",
                 "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
@@ -3866,8 +3546,7 @@ class CSharpMapping(Mapping):
         return {
             "IceSSL": "",
             "IceDiscovery": plugindir + "IceDiscovery.dll:IceDiscovery.PluginFactory",
-            "IceLocatorDiscovery": plugindir
-            + "IceLocatorDiscovery.dll:IceLocatorDiscovery.PluginFactory",
+            "IceLocatorDiscovery": plugindir + "IceLocatorDiscovery.dll:IceLocatorDiscovery.PluginFactory",
         }[plugin]
 
     def getEnv(self, process, current):
@@ -3904,9 +3583,7 @@ class CSharpMapping(Mapping):
         if process.isFromBinDir():
             path = os.path.join(self.component.getSourceDir(), "csharp", process.binDir)
         else:
-            path = os.path.join(
-                current.testcase.getPath(current), current.getBuildDir(exe)
-            )
+            path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
         cmd = "dotnet {}.dll {}".format(os.path.join(path, exe), args)
 
@@ -3945,9 +3622,7 @@ class CppBasedMapping(Mapping):
                     self.mappingName, self.mappingDesc
                 )
             )
-            print(
-                "--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine."
-            )
+            print("--openssl                 Run SSL tests with OpenSSL instead of the default platform SSL engine.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
@@ -3971,9 +3646,7 @@ class CppBasedMapping(Mapping):
         if self.component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
             # the C++ library directory to the library path
-            env[platform.getLdPathEnvName()] = self.component.getLibDir(
-                process, Mapping.getByName("cpp"), current
-            )
+            env[platform.getLdPathEnvName()] = self.component.getLibDir(process, Mapping.getByName("cpp"), current)
         return env
 
 
@@ -3990,9 +3663,7 @@ class PythonMapping(CppBasedMapping):
         def usage(self):
             print("")
             print("Python mapping options:")
-            print(
-                "--python=<interpreter>   Choose the interperter used to run python tests"
-            )
+            print("--python=<interpreter>   Choose the interperter used to run python tests")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
@@ -4026,9 +3697,7 @@ class PythonMapping(CppBasedMapping):
         if self.component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
             # the Ice python directory to PYTHONPATH
-            dirs += self.getPythonDirs(
-                self.component.getInstallDir(self, current), current.config
-            )
+            dirs += self.getPythonDirs(self.component.getInstallDir(self, current), current.config)
         dirs += [current.testcase.getPath(current)]
         if isinstance(process, Server):
             dirs += [os.path.join(current.testcase.getPath(current), "generated", "server")]
@@ -4040,9 +3709,7 @@ class PythonMapping(CppBasedMapping):
     def getPythonDirs(self, iceDir, config):
         dirs = []
         if isinstance(platform, Windows):
-            dirs.append(
-                os.path.join(iceDir, "python", config.buildPlatform, config.buildConfig)
-            )
+            dirs.append(os.path.join(iceDir, "python", config.buildPlatform, config.buildConfig))
         dirs.append(os.path.join(iceDir, "python"))
         return dirs
 
@@ -4061,9 +3728,7 @@ class CppBasedClientMapping(CppBasedMapping):
         self.getServerMapping().loadTestSuites(self.testsuites.keys(), config)
 
     def getServerMapping(self, testId=None):
-        return Mapping.getByName(
-            "cpp"
-        )  # By default, run clients against C++ mapping executables
+        return Mapping.getByName("cpp")  # By default, run clients against C++ mapping executables
 
 
 class RubyMapping(CppBasedClientMapping):
@@ -4072,9 +3737,7 @@ class RubyMapping(CppBasedClientMapping):
         mappingDesc = "Ruby"
 
     def getCommandLine(self, current, process, exe, args):
-        return "ruby  {0} {1} {2}".format(
-            os.path.join(self.path, "test", "TestHelper.rb"), exe, args
-        )
+        return "ruby  {0} {1} {2}".format(os.path.join(self.path, "test", "TestHelper.rb"), exe, args)
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
@@ -4107,16 +3770,11 @@ class PhpMapping(CppBasedClientMapping):
         # If Ice is not installed in the system directory, specify its location with PHP
         # configuration arguments.
         #
-        if (
-            platform.getInstallDir()
-            and self.component.getInstallDir(self, current) != platform.getInstallDir()
-        ):
+        if platform.getInstallDir() and self.component.getInstallDir(self, current) != platform.getInstallDir():
             phpArgs += ["-n"]  # Do not load any php.ini files
             phpArgs += [
                 "-d",
-                "extension_dir='{0}'".format(
-                    self.component.getLibDir(process, self, current)
-                ),
+                "extension_dir='{0}'".format(self.component.getLibDir(process, self, current)),
             ]
             phpArgs += [
                 "-d",
@@ -4124,9 +3782,7 @@ class PhpMapping(CppBasedClientMapping):
             ]
             phpArgs += [
                 "-d",
-                "include_path='{0}'".format(
-                    self.component.getPhpIncludePath(self, current)
-                ),
+                "include_path='{0}'".format(self.component.getPhpIncludePath(self, current)),
             ]
 
         if hasattr(process, "getPhpArgs"):
@@ -4159,17 +3815,13 @@ class MatlabMapping(CppBasedClientMapping):
             matlabHome = os.getenv("MATLAB_HOME")
             # -wait and -minimize are not available on Linux, -log causes duplicate output to stdout on Linux
             matlabCmd = "{0} -nodesktop -nosplash {1} -r".format(
-                "matlab"
-                if matlabHome is None
-                else os.path.join(matlabHome, "bin", "matlab"),
+                "matlab" if matlabHome is None else os.path.join(matlabHome, "bin", "matlab"),
                 " -wait -log -minimize" if isinstance(platform, Windows) else "",
             )
 
         return "{0} \"cd('{1}');runTest {2} {3} {4}\"".format(
             matlabCmd,
-            os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")
-            ),
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "matlab", "test", "lib")),
             self.getTestCwd(process, current),
             current.driver.getComponent().getLibDir(process, self, current),
             args,
@@ -4193,17 +3845,13 @@ class MatlabMapping(CppBasedClientMapping):
 class JavaScriptMixin:
     def loadTestSuites(self, tests, config, filters, rfilters):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
-        self.getServerMapping().loadTestSuites(
-            list(self.testsuites.keys()) + ["Ice/echo"], config
-        )
+        self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"], config)
 
     def getServerMapping(self, testId=None):
         if testId and self.hasSource(testId, "server"):
             return self
         else:
-            return Mapping.getByName(
-                "cpp"
-            )  # Run clients against C++ mapping servers if no JS server provided
+            return Mapping.getByName("cpp")  # Run clients against C++ mapping servers if no JS server provided
 
     def _getDefaultProcesses(self, processType):
         if processType.startswith("server"):
@@ -4214,7 +3862,6 @@ class JavaScriptMixin:
         return os.path.join(self.getPath(), "test", "Common")
 
     def getCommandLine(self, current, process, exe, args):
-
         coverage = ""
 
         src_path = os.path.join(self.getPath(), "src")
@@ -4228,7 +3875,7 @@ class JavaScriptMixin:
                 f'--src="{src_path}"',
                 f'--exclude="{tests_path}"',
                 f'--report-dir="{report_dir}"',
-                "--exclude-after-remap=false"
+                "--exclude-after-remap=false",
             ]
             coverage = " ".join(coverage_parts)
 
@@ -4254,7 +3901,7 @@ class JavaScriptMixin:
     def getOptions(self, current):
         options = {
             # TODO BUGFIX: https://github.com/zeroc-ice/ice/issues/4056
-            #"protocol": ["ws", "wss"] if current.config.browser else ["tcp", "ws", "wss"],
+            # "protocol": ["ws", "wss"] if current.config.browser else ["tcp", "ws", "wss"],
             "protocol": ["ws", "wss"] if current.config.browser else ["tcp"],
             "compress": [False],
             "ipv6": [False],
@@ -4291,9 +3938,7 @@ class JavaScriptMapping(JavaScriptMixin, Mapping):
         if not current.config.browser and current.config.protocol == "wss":
             # When running with WSS in Node.js, we need to set the NODE_EXTRA_CA_CERTS environment variable
             # so Node.js trusts our custom Certificate Authority (CA) used to sign the server certificate.
-            return {
-                "NODE_EXTRA_CA_CERTS": os.path.join(self.path, "..", "certs", "common", "ca", "ca_cert.pem")
-            }
+            return {"NODE_EXTRA_CA_CERTS": os.path.join(self.path, "..", "certs", "common", "ca", "ca_cert.pem")}
         else:
             return {}
 
@@ -4329,20 +3974,14 @@ class SwiftMapping(Mapping):
             CppBasedClientMapping.Config.__init__(self, options)
             if self.buildConfig == platform.getDefaultBuildConfig():
                 # Check the OPTIMIZE environment variable to figure out if it's debug/release build
-                self.buildConfig = (
-                    "release" if os.environ.get("OPTIMIZE", "yes") != "no" else "debug"
-                )
+                self.buildConfig = "release" if os.environ.get("OPTIMIZE", "yes") != "no" else "debug"
 
     def getCommandLine(self, current, process, exe, args):
         testdir = self.component.getTestDir(self)
         assert current.testcase.getPath(current).startswith(testdir)
-        package = current.testcase.getPath(current)[len(testdir) + 1 :].replace(
-            os.sep, "_"
-        )
+        package = current.testcase.getPath(current)[len(testdir) + 1 :].replace(os.sep, "_")
 
-        testDriver = "swift run -c {0} --skip-build TestDriver".format(
-            current.config.buildConfig
-        )
+        testDriver = "swift run -c {0} --skip-build TestDriver".format(current.config.buildConfig)
 
         return "{0} {1} {2} {3}".format(testDriver, package, exe, args)
 
@@ -4355,11 +3994,7 @@ class SwiftMapping(Mapping):
         }[processType]
 
     def getIOSControllerIdentity(self, current):
-        category = (
-            "iPhoneSimulator"
-            if current.config.buildPlatform == "iphonesimulator"
-            else "iPhoneOS"
-        )
+        category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
         return "{0}/com.zeroc.Swift-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
@@ -4382,8 +4017,8 @@ class SwiftMapping(Mapping):
         props = Mapping.getByName("cpp").getSSLProps(process, current)
         props["IceSSL.DefaultDir"] = (
             "certs/common/ca"
-            if current.config.buildPlatform == "iphoneos" else
-            os.path.join(self.component.getSourceDir(), "certs/common/ca")
+            if current.config.buildPlatform == "iphoneos"
+            else os.path.join(self.component.getSourceDir(), "certs/common/ca")
         )
         return props
 
@@ -4391,9 +4026,7 @@ class SwiftMapping(Mapping):
         return Mapping.getByName("cpp").getPluginEntryPoint(plugin, process, current)
 
     def getXcodeProject(self, current):
-        return "{0}/{1}".format(
-            current.testcase.getMapping().getPath(), "test/ios/TestDriverApp.xcodeproj"
-        )
+        return "{0}/{1}".format(current.testcase.getMapping().getPath(), "test/ios/TestDriverApp.xcodeproj")
 
 
 #
@@ -4431,11 +4064,7 @@ Driver.add("local", LocalDriver.LocalDriver)
 def runTestsWithPath(path):
     mappings = Mapping.getAllByPath(path)
     if not mappings:
-        print(
-            "couldn't find mapping for `{0}' (is this mapping supported on this platform?)".format(
-                path
-            )
-        )
+        print("couldn't find mapping for `{0}' (is this mapping supported on this platform?)".format(path))
         sys.exit(0)
     runTests(mappings)
 
@@ -4466,10 +4095,7 @@ def runTests(mappings=None, drivers=None):
     try:
         options = [Driver.getSupportedArgs(), Mapping.Config.getSupportedArgs()]
         options += [driver.getSupportedArgs() for driver in drivers]
-        options += [
-            mapping.Config.getSupportedArgs()
-            for mapping in Mapping.getAll(includeDisabled=True)
-        ]
+        options += [mapping.Config.getSupportedArgs() for mapping in Mapping.getAll(includeDisabled=True)]
         shortOptions = "h"
         longOptions = ["help"]
         for so, lo in options:

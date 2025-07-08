@@ -12,6 +12,7 @@ __name__ = "Ice"
 # reply message. Other local exceptions can't be marshaled. Application code can raise these exceptions.
 #
 
+
 class DispatchException(LocalException):
     """
     The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
@@ -100,6 +101,7 @@ class ObjectNotExistException(RequestFailedException):
 
     def __init__(self, id=None, facet="", operation="", msg=""):
         RequestFailedException.__init__(self, Ice.ReplyStatus.ObjectNotExist.value, id, facet, operation, msg)
+
 
 @final
 class FacetNotExistException(RequestFailedException):

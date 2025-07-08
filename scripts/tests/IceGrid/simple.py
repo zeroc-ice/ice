@@ -46,15 +46,9 @@ if isinstance(platform, Windows) or os.getuid() != 0:
                 "without deployment",
                 application=None,
                 icegridregistry=[
-                    IceGridRegistryMaster(
-                        props=registryProps, traceProps=registryTraceProps
-                    ),
-                    IceGridRegistrySlave(
-                        1, props=registryProps, traceProps=registryTraceProps
-                    ),
-                    IceGridRegistrySlave(
-                        2, props=registryProps, traceProps=registryTraceProps
-                    ),
+                    IceGridRegistryMaster(props=registryProps, traceProps=registryTraceProps),
+                    IceGridRegistrySlave(1, props=registryProps, traceProps=registryTraceProps),
+                    IceGridRegistrySlave(2, props=registryProps, traceProps=registryTraceProps),
                 ],
                 client=ClientServerTestCase(
                     client=IceGridClient(
@@ -64,9 +58,7 @@ if isinstance(platform, Windows) or os.getuid() != 0:
                     server=IceGridServer(props=serverProps, traceProps=serverTraceProps),
                 ),
             ),
-            IceGridTestCase(
-                "with deployment", client=IceGridClient(args=["--with-deploy"])
-            ),
+            IceGridTestCase("with deployment", client=IceGridClient(args=["--with-deploy"])),
         ],
         multihost=False,
     )

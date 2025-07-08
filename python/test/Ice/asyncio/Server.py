@@ -9,11 +9,8 @@ import TestI
 
 
 class Server(TestHelper):
-
     def run(self, args):
-
         async def runAsync():
-
             initData = Ice.InitializationData()
             initData.properties = self.createTestProperties(args)
             initData.properties.setProperty("Ice.Warn.Dispatch", "0")

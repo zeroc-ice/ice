@@ -66,24 +66,16 @@ class Server(TestHelper):
         properties.setProperty("Ice.TCP.RcvSize", "50000")
 
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty(
-                "TestAdapter.Endpoints", self.getTestEndpoint()
-            )
-            communicator.getProperties().setProperty(
-                "ControllerAdapter.Endpoints", self.getTestEndpoint(num=1)
-            )
-            communicator.getProperties().setProperty(
-                "ControllerAdapter.ThreadPool.Size", "1"
-            )
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.getTestEndpoint(num=1))
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
 
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TimeoutI(), Ice.stringToIdentity("timeout"))
             adapter.activate()
 
             controllerAdapter = communicator.createObjectAdapter("ControllerAdapter")
-            controllerAdapter.add(
-                ControllerI(adapter), Ice.stringToIdentity("controller")
-            )
+            controllerAdapter.add(ControllerI(adapter), Ice.stringToIdentity("controller"))
             controllerAdapter.activate()
 
             communicator.waitForShutdown()

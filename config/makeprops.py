@@ -96,16 +96,10 @@ class PropertyHandler(ContentHandler):
 
     # The list of property arrays to get generated
     def generatedPropertyArrays(self):
-        return [
-            name
-            for name, propertyArray in self.propertyArrayDict.items()
-            if not propertyArray.isClass
-        ]
+        return [name for name, propertyArray in self.propertyArrayDict.items() if not propertyArray.isClass]
 
     def reservedPropertyPrefixes(self):
-        return [
-            name for name, array in self.propertyArrayDict.items() if not array.isClass
-        ]
+        return [name for name, array in self.propertyArrayDict.items() if not array.isClass]
 
     def parseProperty(self, attrs):
         name = attrs.get("name")
@@ -148,8 +142,7 @@ class PropertyHandler(ContentHandler):
         if languageAttr is None:
             print(
                 sys.stderr,
-                "missing languages attribute in property element %s"
-                % attrs.get("name"),
+                "missing languages attribute in property element %s" % attrs.get("name"),
             )
             return False
 
@@ -159,8 +152,7 @@ class PropertyHandler(ContentHandler):
             if lang not in [lang.value for lang in Language]:
                 print(
                     sys.stderr,
-                    "invalid language '%s' in property element %s"
-                    % (lang, attrs.get("name")),
+                    "invalid language '%s' in property element %s" % (lang, attrs.get("name")),
                 )
                 return False
 
@@ -181,7 +173,7 @@ class PropertyHandler(ContentHandler):
             case "properties":
                 pass
             case "class":
-                name = f"{attrs.get("name")}"
+                name = f"{attrs.get('name')}"
                 prefixOnly = attrs.get("prefix-only", "false").lower() == "true"
 
                 self.validateKnownAttributes(["name", "prefix-only"], attrs)
@@ -206,9 +198,7 @@ class PropertyHandler(ContentHandler):
                 )
 
             case "property":
-                self.validateKnownAttributes(
-                    ["name", "class", "default", "deprecated", "languages"], attrs
-                )
+                self.validateKnownAttributes(["name", "class", "default", "deprecated", "languages"], attrs)
 
                 if self.validateLanguages(attrs) is False:
                     return
@@ -339,17 +329,13 @@ const PropertyArray PropertyNames::{name}Props
 """)
 
     @override
-    def createProperty(
-        self, propertyName, usesRegex, defaultValue, deprecated, propertyArray
-    ):
+    def createProperty(self, propertyName, usesRegex, defaultValue, deprecated, propertyArray):
         propertyLine = 'Property{{"{pattern}", {defaultValue}, {usesRegex}, {deprecated}, {propertyArray}}}'.format(
             pattern=self.fix(propertyName) if usesRegex else propertyName,
             defaultValue=f'"{defaultValue}"',
             usesRegex="true" if usesRegex else "false",
             deprecated="true" if deprecated else "false",
-            propertyArray=f"&PropertyNames::{propertyArray}Props"
-            if propertyArray
-            else "nullptr",
+            propertyArray=f"&PropertyNames::{propertyArray}Props" if propertyArray else "nullptr",
         )
 
         return propertyLine
@@ -411,9 +397,7 @@ final class PropertyNames
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
         isOptIn = "true" if propertyArray.isOptIn else "false"
         properties = (
-            "\n            " + ",\n            ".join(propertyArray.properties)
-            if propertyArray.properties
-            else ""
+            "\n            " + ",\n            ".join(propertyArray.properties) if propertyArray.properties else ""
         )
 
         self.srcFile.write(
@@ -441,9 +425,7 @@ final class PropertyNames
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
-            propertyArray=f"PropertyNames.{propertyArray}Props"
-            if propertyArray
-            else "null",
+            propertyArray=f"PropertyNames.{propertyArray}Props" if propertyArray else "null",
         )
 
         return line
@@ -510,7 +492,7 @@ internal sealed class PropertyNames
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
         isOptIn = "true" if propertyArray.isOptIn else "false"
         properties = (
-            f"\n            {",\n            ".join(propertyArray.properties)}\n        "
+            f"\n            {',\n            '.join(propertyArray.properties)}\n        "
             if propertyArray.properties
             else ""
         )
@@ -576,7 +558,7 @@ export const PropertyNames = {{}};
     def closeFiles(self):
         self.srcFile.write(f"""\
 PropertyNames.validProps = [
-{",\n".join([f'    PropertyNames.{name}Props' for name in self.generatedPropertyArrays()])},
+{",\n".join([f"    PropertyNames.{name}Props" for name in self.generatedPropertyArrays()])},
 ];
 """)
         self.srcFile.close()
@@ -589,11 +571,7 @@ PropertyNames.validProps = [
         name = propertyArray.name
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
         isOptIn = "true" if propertyArray.isOptIn else "false"
-        properties = (
-            "\n    " + ",\n    ".join(propertyArray.properties)
-            if propertyArray.properties
-            else ""
-        )
+        properties = "\n    " + ",\n    ".join(propertyArray.properties) if propertyArray.properties else ""
         # We assign the properties to the property array after creating it so that we can reference the array
         # in the properties themselves
         self.srcFile.write(f"""\
@@ -613,15 +591,11 @@ PropertyNames.{name}Props.properties = [{properties}
         propertyArray,
     ):
         line = "new Property({pattern}, {usesRegex}, {defaultValue}, {deprecated}, {propertyArray})".format(
-            pattern=f"/^{self.fix(propertyName)}/"
-            if usesRegex
-            else f'"{propertyName}"',
+            pattern=f"/^{self.fix(propertyName)}/" if usesRegex else f'"{propertyName}"',
             usesRegex="true" if usesRegex else "false",
             defaultValue=f'"{defaultValue}"',
             deprecated="true" if deprecated else "false",
-            propertyArray=f"PropertyNames.{propertyArray}Props"
-            if propertyArray
-            else "null",
+            propertyArray=f"PropertyNames.{propertyArray}Props" if propertyArray else "null",
         )
         return line
 

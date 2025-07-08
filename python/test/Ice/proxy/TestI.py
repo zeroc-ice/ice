@@ -20,6 +20,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         self.ctx = current.ctx
         return Test.MyDerivedClass.ice_isA(self, s, current)
 
+
 class CI(Test.C):
     def __init__(self):
         self.ctx = None

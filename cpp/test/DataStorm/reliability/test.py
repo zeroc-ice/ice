@@ -4,10 +4,10 @@ from DataStormUtil import Reader, Writer, Node, NodeTestCase
 from Util import ClientServerTestCase, TestSuite
 
 traceProps = {
-    "DataStorm.Trace.Topic" : 1,
-    "DataStorm.Trace.Session" : 3,
-    "DataStorm.Trace.Data" : 2,
-    "Ice.Trace.Protocol" : 1,
+    "DataStorm.Trace.Topic": 1,
+    "DataStorm.Trace.Session": 3,
+    "DataStorm.Trace.Data": 2,
+    "Ice.Trace.Protocol": 1,
 }
 
 # Disable client and server idle timeout below to avoid a test to recover after the connection is closed by the idle timeout.
@@ -71,15 +71,43 @@ props = [
     ("reader as client and writer as server with node", clientProps, serverAnyProps, serverProps, None, True),
     ("reader as server and writer as client with node", serverAnyProps, clientProps, serverProps, None, True),
     ("reader/writer as client with 2 nodes", clientProps, client2Props, serverProps, server2Props, False),
-    ("reader as client and writer as server with 2 nodes", clientProps, serverAnyProps, serverProps, server2Props, False),
-    ("reader as server and writer as client with 2 nodes", serverAnyProps, clientProps, serverProps, server2Props, False),
+    (
+        "reader as client and writer as server with 2 nodes",
+        clientProps,
+        serverAnyProps,
+        serverProps,
+        server2Props,
+        False,
+    ),
+    (
+        "reader as server and writer as client with 2 nodes",
+        serverAnyProps,
+        clientProps,
+        serverProps,
+        server2Props,
+        False,
+    ),
     ("reader/writer as client with 2 nodes", clientProps, client2Props, serverProps, server2Props, True),
-    ("reader as client and writer as server with 2 nodes", clientProps, serverAnyProps, serverProps, server2Props, True),
-    ("reader as server and writer as client with 2 nodes", serverAnyProps, clientProps, serverProps, server2Props, True),
+    (
+        "reader as client and writer as server with 2 nodes",
+        clientProps,
+        serverAnyProps,
+        serverProps,
+        server2Props,
+        True,
+    ),
+    (
+        "reader as server and writer as client with 2 nodes",
+        serverAnyProps,
+        clientProps,
+        serverProps,
+        server2Props,
+        True,
+    ),
 ]
 
 testcases = []
-for (name, clientProps, serverProps, nodeProps, node2Props, reversedStart) in props:
+for name, clientProps, serverProps, nodeProps, node2Props, reversedStart in props:
     if reversedStart:
         name += " (reversed start order)"
 
@@ -112,7 +140,9 @@ for (name, clientProps, serverProps, nodeProps, node2Props, reversedStart) in pr
         nodes = [Node(desc="node1", props=nodeProps), Node(desc="node2", props=node2Props)]
         testcases.append(NodeTestCase(name=name, client=client, server=server, nodes=nodes, traceProps=traceProps))
     elif nodeProps:
-        testcases.append(NodeTestCase(name=name, client=client, server=server, nodeProps=nodeProps, traceProps=traceProps))
+        testcases.append(
+            NodeTestCase(name=name, client=client, server=server, nodeProps=nodeProps, traceProps=traceProps)
+        )
     else:
         testcases.append(ClientServerTestCase(name=name, client=client, server=server, traceProps=traceProps))
 

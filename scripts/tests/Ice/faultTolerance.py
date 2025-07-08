@@ -26,10 +26,7 @@ TestSuite(
     [
         ClientServerTestCase(
             client=Client(args=[i for i in servers]),
-            servers=[
-                Server(args=[i], waitForShutdown=False, props=props, quiet=True)
-                for i in servers
-            ],
+            servers=[Server(args=[i], waitForShutdown=False, props=props, quiet=True) for i in servers],
             traceProps=traceProps,
         )
     ],

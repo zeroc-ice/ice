@@ -5,9 +5,7 @@ from Util import ClientAMDServerTestCase, ClientServerTestCase, Mapping, TestSui
 
 testcases = [
     ClientServerTestCase(),
-    ClientServerTestCase(
-        "client/server with 1.0 encoding", props={"Ice.Default.EncodingVersion": "1.0"}
-    ),
+    ClientServerTestCase("client/server with 1.0 encoding", props={"Ice.Default.EncodingVersion": "1.0"}),
 ]
 
 # If the mapping has AMD servers, also run with the AMD servers

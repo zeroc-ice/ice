@@ -23,9 +23,7 @@ from Util import (
 class ControllerDriver(Driver):
     class Current(Driver.Current):
         def __init__(self, driver, testsuite, testcase, cross, protocol, host, args):
-            Driver.Current.__init__(
-                self, driver, testsuite, Result(testsuite, driver.debug)
-            )
+            Driver.Current.__init__(self, driver, testsuite, Result(testsuite, driver.debug))
             self.testcase = testcase
             self.serverTestCase = self.testcase.getServerTestCase(cross)
             self.clientTestCase = self.testcase.getClientTestCase()
@@ -66,41 +64,22 @@ class ControllerDriver(Driver):
             #
             serverCert = os.path.join(toplevel, "certs", "server_cert.pem")
             if self.clean:
-                if (
-                    os.system("security verify-cert -c " + serverCert + " >& /dev/null")
-                    == 0
-                ):
-                    sys.stdout.write(
-                        "removing trust settings for the HTTP server certificate... "
-                    )
+                if os.system("security verify-cert -c " + serverCert + " >& /dev/null") == 0:
+                    sys.stdout.write("removing trust settings for the HTTP server certificate... ")
                     sys.stdout.flush()
                     if os.system("security remove-trusted-cert " + serverCert) != 0:
-                        print(
-                            "\nerror: couldn't remove trust settings for the HTTP server certificate"
-                        )
+                        print("\nerror: couldn't remove trust settings for the HTTP server certificate")
                     else:
                         print("ok")
                 else:
                     print("trust settings already removed")
                 return
             else:
-                if (
-                    os.system("security verify-cert -c " + serverCert + " >& /dev/null")
-                    != 0
-                ):
-                    sys.stdout.write(
-                        "adding trust settings for the HTTP server certificate... "
-                    )
+                if os.system("security verify-cert -c " + serverCert + " >& /dev/null") != 0:
+                    sys.stdout.write("adding trust settings for the HTTP server certificate... ")
                     sys.stdout.flush()
-                    if (
-                        os.system(
-                            "security add-trusted-cert -r trustAsRoot " + serverCert
-                        )
-                        != 0
-                    ):
-                        print(
-                            "error: couldn't add trust settings for the HTTP server certificate"
-                        )
+                    if os.system("security add-trusted-cert -r trustAsRoot " + serverCert) != 0:
+                        print("error: couldn't add trust settings for the HTTP server certificate")
                     print("ok")
                     print("run " + sys.argv[0] + " --clean to remove the trust setting")
 
@@ -130,14 +109,10 @@ class ControllerDriver(Driver):
             def stopServerSide(self, success, c):
                 if self.serverSideRunning:
                     try:
-                        self.current.serverTestCase._stopServerSide(
-                            self.current, success
-                        )
+                        self.current.serverTestCase._stopServerSide(self.current, success)
                         return self.current.result.getOutput()
                     except Exception as ex:
-                        raise Test.Common.TestCaseFailedException(
-                            self.current.result.getOutput() + "\n" + str(ex)
-                        )
+                        raise Test.Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
 
             def runClientSide(self, host, config, c):
                 self.updateCurrent(config)
@@ -145,9 +120,7 @@ class ControllerDriver(Driver):
                     self.current.clientTestCase._runClientSide(self.current, host)
                     return self.current.result.getOutput()
                 except Exception as ex:
-                    raise Test.Common.TestCaseFailedException(
-                        self.current.result.getOutput() + "\n" + str(ex)
-                    )
+                    raise Test.Common.TestCaseFailedException(self.current.result.getOutput() + "\n" + str(ex))
 
             def destroy(self, c):
                 if self.serverSideRunning:
@@ -197,60 +170,38 @@ class ControllerDriver(Driver):
             def getTestSuites(self, mapping, c):
                 mapping = Mapping.getByName(mapping)
                 config = self.driver.configs[mapping]
-                return [
-                    str(t)
-                    for t in mapping.getTestSuites()
-                    if not mapping.filterTestSuite(t.getId(), config)
-                ]
+                return [str(t) for t in mapping.getTestSuites() if not mapping.filterTestSuite(t.getId(), config)]
 
             def getOptionOverrides(self, c):
-                return Test.Common.OptionOverrides(
-                    ipv6=([False] if not self.driver.hostIPv6 else [False, True])
-                )
+                return Test.Common.OptionOverrides(ipv6=([False] if not self.driver.hostIPv6 else [False, True]))
 
         self.initCommunicator()
-        self.communicator.getProperties().setProperty(
-            "ControllerAdapter.Endpoints", self.endpoints
-        )
-        self.communicator.getProperties().setProperty(
-            "ControllerAdapter.AdapterId", str(uuid.uuid4())
-        )
+        self.communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.endpoints)
+        self.communicator.getProperties().setProperty("ControllerAdapter.AdapterId", str(uuid.uuid4()))
         adapter = self.communicator.createObjectAdapter("ControllerAdapter")
         adapter.add(ControllerI(self), Ice.stringToIdentity(self.id))
         adapter.activate()
         self.communicator.waitForShutdown()
 
-    def getCurrent(
-        self, mapping, testsuite, testcase, cross, protocol=None, host=None, args=[]
-    ):
+    def getCurrent(self, mapping, testsuite, testcase, cross, protocol=None, host=None, args=[]):
         import Test
 
         mapping = Mapping.getByName(mapping)
         if not mapping:
-            raise Test.Common.TestCaseNotExistException(
-                "unknown mapping {0}".format(mapping)
-            )
+            raise Test.Common.TestCaseNotExistException("unknown mapping {0}".format(mapping))
 
         if cross:
             cross = Mapping.getByName(cross)
             if not cross:
-                raise Test.Common.TestCaseNotExistException(
-                    "unknown mapping {0} for cross testing".format(cross)
-                )
+                raise Test.Common.TestCaseNotExistException("unknown mapping {0} for cross testing".format(cross))
 
         ts = mapping.findTestSuite(testsuite)
         if not ts:
-            raise Test.Common.TestCaseNotExistException(
-                "unknown testsuite {0}".format(testsuite)
-            )
+            raise Test.Common.TestCaseNotExistException("unknown testsuite {0}".format(testsuite))
 
-        tc = ts.findTestCase(
-            "server" if ts.getId() == "Ice/echo" else (testcase or "client/server")
-        )
+        tc = ts.findTestCase("server" if ts.getId() == "Ice/echo" else (testcase or "client/server"))
         if not tc or not tc.getServerTestCase():
-            raise Test.Common.TestCaseNotExistException(
-                "unknown testcase {0}".format(testcase)
-            )
+            raise Test.Common.TestCaseNotExistException("unknown testcase {0}".format(testcase))
 
         return ControllerDriver.Current(self, ts, tc, cross, protocol, host, args)
 

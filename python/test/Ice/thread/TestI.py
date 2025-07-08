@@ -75,9 +75,7 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         #
         communicator = Ice.initialize(initData=init)
 
-        proxy = current.adapter.addWithUUID(
-            RemoteCommunicatorI(communicator, threadHook)
-        )
+        proxy = current.adapter.addWithUUID(RemoteCommunicatorI(communicator, threadHook))
         return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)
 
     def shutdown(self, current):

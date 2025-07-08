@@ -10,6 +10,7 @@ import IcePy
 import Ice
 from .Object import Object
 
+
 def uncheckedCast(type, proxy, facet=None):
     """
     Downcasts a proxy without confirming the target object's type via a remote invocation.
@@ -34,6 +35,7 @@ def uncheckedCast(type, proxy, facet=None):
     if facet is not None:
         proxy = proxy.ice_facet(facet)
     return IcePy.ObjectPrx.newProxy(type, proxy)
+
 
 def checkedCast(type, proxy, facet=None, context: dict[str, str] | None = None):
     """
@@ -63,6 +65,7 @@ def checkedCast(type, proxy, facet=None, context: dict[str, str] | None = None):
         proxy = proxy.ice_facet(facet)
     return IcePy.ObjectPrx.newProxy(type, proxy) if proxy.ice_isA(type.ice_staticId(), context=context) else None
 
+
 async def checkedCastAsync(type, proxy, facet=None, context: dict[str, str] | None = None):
     """
     Downcasts a proxy after confirming the target object's type via a remote invocation.
@@ -91,6 +94,7 @@ async def checkedCastAsync(type, proxy, facet=None, context: dict[str, str] | No
         proxy = proxy.ice_facet(facet)
     b = await proxy.ice_isAAsync(type.ice_staticId(), context=context)
     return IcePy.ObjectPrx.newProxy(type, proxy) if b else None
+
 
 class ObjectPrx(IcePy.ObjectPrx):
     """
@@ -233,7 +237,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Examples
         --------
-        >>> obj.ice_ping(context={'key': 'value'})
+        >>> obj.ice_ping(context={"key": "value"})
         """
         Object._op_ice_ping.invoke(self, ((), context))
 
@@ -248,7 +252,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Examples
         --------
-        >>> obj.ice_ping(context={'key': 'value'})
+        >>> obj.ice_ping(context={"key": "value"})
         """
         return Object._op_ice_ping.invokeAsync(self, ((), context))
 
