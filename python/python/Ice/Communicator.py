@@ -227,7 +227,7 @@ class Communicator:
         """
         return self._impl.identityToString(identity)
 
-    def createObjectAdapter(self, name):
+    def createObjectAdapter(self, name) -> ObjectAdapter:
         """
         Create a new object adapter.
 

@@ -3,8 +3,6 @@
 # Copyright (c) ZeroC, Inc.
 
 from TestHelper import TestHelper
-
-TestHelper.loadSlice("Test.ice Forward.ice ClientPrivate.ice")
 import AllTests
 import Ice
 import TestI

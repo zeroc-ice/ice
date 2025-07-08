@@ -1,8 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
 from TestHelper import TestHelper
-
-TestHelper.loadSlice("Test.ice")
 import TestI
 
 

@@ -14,7 +14,7 @@ def getProcessLogger():
     else:
         return LoggerI(logger)
 
-def setProcessLogger(logger):
+def setProcessLogger(logger: Logger):
     """Sets the default logger object."""
     IcePy.setProcessLogger(logger)
 

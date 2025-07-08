@@ -110,3 +110,55 @@ $2/$3/$(or $4,%)_ice.py: $1/$3/$(or $4,%).ice $2/$3/.depend/$(or $4,%).ice.d $(s
 	$(Q)$(slice2py_path) -I$1 --output-dir $2 $5 $$<
 
 endef
+
+#
+# $(call make-python-test-project,$1=testdir)
+#
+define make-python-test-project
+
+$1/.depend/client/%.ice.d: | $1/.depend/client ;
+
+$1/.depend/server/%.ice.d: | $1/.depend/server ;
+
+$1/.depend/client $1/.depend/server:
+	$(Q)$(MKDIR) -p $$@
+
+.PRECIOUS: $1/.depend/client/%.ice.d $1/.depend/server/%.ice.d
+
+ifeq ($(filter %clean,$(MAKECMDGOALS)),)
+    # Include the dependencies
+    -include $(addprefix $1/.depend/client/, \
+        $(call source-to-dependency,$(filter-out $1/Server%.ice,$(wildcard $1/*.ice))))
+    -include $(addprefix $1/.depend/server/, \
+        $(call source-to-dependency,$(filter-out $1/Client%.ice,$(wildcard $1/*.ice))))
+endif
+
+$1/generated/client/%_ice.py: $1/%.ice $1/.depend/client/%.ice.d $(slice2py_path)
+	$(E) "Compiling $$<"
+	$(Q) mkdir -p $1/generated/client
+	$(Q)'$(slice2py_path)' $(slice2py_flags) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) --depend $$< | \
+		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $1/.depend/client/$$(*F).ice.d
+	$(Q)$(slice2py_path) $(slice2py_flags) -I$(slicedir) -I$1 --output-dir $1/generated/client $$($1_sliceflags) $$<
+
+$1/generated/server/%_ice.py: $1/%.ice $1/.depend/server/%.ice.d $(slice2py_path)
+	$(E) "Compiling $$<"
+	$(Q) mkdir -p $1/generated/server
+	$(Q)'$(slice2py_path)' $(slice2py_flags) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) --depend $$< | \
+		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $1/.depend/server/$$(*F).ice.d
+	$(Q)$(slice2py_path) $(slice2py_flags) -I$(slicedir) -I$1 --output-dir $1/generated/server $$($1_sliceflags) $$<
+
+distclean clean::
+	$(E) "Cleaning $1"
+	$(Q)$(RM) -r $1/.depend
+	$(Q)$(RM) $(patsubst $1/%.ice,$1/generated/client/%_ice.py, \
+		$(filter-out $1/Server%.ice,$(wildcard $1/*.ice)))
+	$(Q)$(RM) $(patsubst $1/%.ice,$1/generated/server/%_ice.py, \
+		$(filter-out $1/Client%.ice,$(wildcard $1/*.ice)))
+
+tests generate-srcs srcs all:: \
+	$(patsubst $1/%.ice,$1/generated/client/%_ice.py, \
+		$(filter-out $1/Server%.ice,$(wildcard $1/*.ice))) \
+	$(patsubst $1/%.ice,$1/generated/server/%_ice.py, \
+		$(filter-out $1/Client%.ice,$(wildcard $1/*.ice)))
+
+endef
