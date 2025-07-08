@@ -1782,7 +1782,7 @@ void
 Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter)
 {
     const bool isOptional = member->optional();
-    const bool forStruct = (bool)dynamic_pointer_cast<Struct>(member->container());
+    const bool forStruct = dynamic_pointer_cast<Struct>(member->container()) != nullptr;
     const string memberName = (forStruct ? "this." : "") + member->mappedName();
 
     // If this is an optional data member, we first have to handle the optional tag.
