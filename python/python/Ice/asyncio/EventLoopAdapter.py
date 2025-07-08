@@ -2,7 +2,7 @@
 
 import Ice
 import asyncio
-from typing import Awaitable, Coroutine
+from collections.abc import Awaitable, Coroutine
 from ..Future import FutureLike
 from asyncio import AbstractEventLoop
 
