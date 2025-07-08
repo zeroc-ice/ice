@@ -87,6 +87,7 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
 
         def properties_updated(changes):
             servant.updated(changes)
+
         admin = communicator.findAdminFacet("Properties")
         if admin is not None:
             admin.addUpdateCallback(properties_updated)

@@ -2,6 +2,7 @@
 
 import sys
 import array
+
 try:
     import numpy
 
@@ -13,6 +14,7 @@ import Test
 
 if hasNumPy:
     import Test.NumPy
+
 
 def test(b):
     if not b:
@@ -488,12 +490,8 @@ def allTests(helper, communicator):
         d.shortSeq = numpy.array([0, 2, 4, 8, 16, 32, 64, 128, 256], numpy.int16)
         d.intSeq = numpy.array([0, 2, 4, 8, 16, 32, 64, 128, 256], numpy.int32)
         d.longSeq = numpy.array([0, 2, 4, 8, 16, 32, 64, 128, 256], numpy.int64)
-        d.floatSeq = numpy.array(
-            [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256], numpy.float32
-        )
-        d.doubleSeq = numpy.array(
-            [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256], numpy.float64
-        )
+        d.floatSeq = numpy.array([0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256], numpy.float32)
+        d.doubleSeq = numpy.array([0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256], numpy.float64)
 
         d1 = custom.opD(d)
         test(isinstance(d1.boolSeq, numpy.ndarray))
@@ -566,40 +564,22 @@ def allTests(helper, communicator):
         )
 
         v1 = custom.opByteMatrix()
-        test(
-            numpy.array_equal(
-                v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int8)
-            )
-        )
+        test(numpy.array_equal(v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int8)))
 
         v1 = custom.opShortMatrix()
-        test(
-            numpy.array_equal(
-                v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int16)
-            )
-        )
+        test(numpy.array_equal(v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int16)))
 
         v1 = custom.opIntMatrix()
-        test(
-            numpy.array_equal(
-                v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int32)
-            )
-        )
+        test(numpy.array_equal(v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int32)))
 
         v1 = custom.opLongMatrix()
-        test(
-            numpy.array_equal(
-                v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int64)
-            )
-        )
+        test(numpy.array_equal(v1, numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int64)))
 
         v1 = custom.opFloatMatrix()
         test(
             numpy.array_equal(
                 v1,
-                numpy.array(
-                    [[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float32
-                ),
+                numpy.array([[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float32),
             )
         )
 
@@ -607,9 +587,7 @@ def allTests(helper, communicator):
         test(
             numpy.array_equal(
                 v1,
-                numpy.array(
-                    [[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float64
-                ),
+                numpy.array([[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float64),
             )
         )
 

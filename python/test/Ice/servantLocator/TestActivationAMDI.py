@@ -8,9 +8,7 @@ class TestActivationAMDI(Test.TestActivation):
     def activateServantLocator(self, activate, current):
         if activate:
             current.adapter.addServantLocator(TestAMDI.ServantLocatorI(""), "")
-            current.adapter.addServantLocator(
-                TestAMDI.ServantLocatorI("category"), "category"
-            )
+            current.adapter.addServantLocator(TestAMDI.ServantLocatorI("category"), "category")
         else:
             locator = current.adapter.removeServantLocator("")
             locator.deactivate("")

@@ -65,9 +65,7 @@ class SliceHeadersTestCase(ClientTestCase):
         #
         os.system("mkdir -p project1/git/services.settings.slices")
         os.system("mkdir -p project1/src/services/settings")
-        os.system(
-            "cd project1/src/services/settings &&  ln -s ../../../git/services.settings.slices slices"
-        )
+        os.system("cd project1/src/services/settings &&  ln -s ../../../git/services.settings.slices slices")
 
         f = open("project1/git/services.settings.slices/A.ice", "w")
         f.write("// dumy file")
@@ -76,13 +74,9 @@ class SliceHeadersTestCase(ClientTestCase):
         f.write("#include <services/settings/slices/A.ice>")
         f.close()
 
-        os.system(
-            "cd project1 && %s -Isrc src/services/settings/slices/B.ice" % slice2cpp
-        )
+        os.system("cd project1 && %s -Isrc src/services/settings/slices/B.ice" % slice2cpp)
         f = open("project1/B.h")
-        if not re.search(
-            re.escape("#include <services/settings/slices/A.h>"), f.read()
-        ):
+        if not re.search(re.escape("#include <services/settings/slices/A.h>"), f.read()):
             raise RuntimeError("failed!")
 
         self.clean()
@@ -117,9 +111,7 @@ class SliceHeadersTestCase(ClientTestCase):
         f = open("project1/A.ice", "w")
         f.write("#include <Ice/Identity.ice>")
         f.close()
-        os.system(
-            "cd project1 && %s -I%s/tmp/Ice-x.y/slice A.ice" % (slice2cpp, basedir)
-        )
+        os.system("cd project1 && %s -I%s/tmp/Ice-x.y/slice A.ice" % (slice2cpp, basedir))
         f = open("project1/A.h")
         if not re.search(re.escape("#include <Ice/Identity.h>"), f.read()):
             raise RuntimeError("failed!")
@@ -139,9 +131,7 @@ class SliceHeadersTestCase(ClientTestCase):
         f = open("project1/A.ice", "w")
         f.write("#include <Ice/Identity.ice>")
         f.close()
-        os.system(
-            "cd project1 && %s -I%s/tmp/Ice/slice A.ice" % (slice2cpp, basedir)
-        )
+        os.system("cd project1 && %s -I%s/tmp/Ice/slice A.ice" % (slice2cpp, basedir))
         f = open("project1/A.h")
         if not re.search(re.escape("#include <Ice/Identity.h>"), f.read()):
             raise RuntimeError("failed!")

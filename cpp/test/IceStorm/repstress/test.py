@@ -102,8 +102,7 @@ class IceStormRepStressTestCase(IceStormTestCase):
         current.writeln("ok")
 
         current.writeln(
-            "publisher published %s events, subscriber received %s events"
-            % (publisherCount, subscriberCount)
+            "publisher published %s events, subscriber received %s events" % (publisherCount, subscriberCount)
         )
 
 

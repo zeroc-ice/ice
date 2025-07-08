@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 
+
 class Logger(ABC):
     """
     The Ice message logger.

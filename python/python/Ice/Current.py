@@ -8,6 +8,7 @@ import Ice.Identity_ice
 import Ice.OperationMode_ice
 import Ice.Version_ice
 
+
 @dataclass(frozen=True)
 class Current:
     """

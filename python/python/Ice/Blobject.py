@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from .Current import Current
 from .Object import Object
 
+
 class Blobject(Object, ABC):
     """
     Special-purpose servant base class that allows a subclass to handle synchronous Ice invocations as "blobs" of

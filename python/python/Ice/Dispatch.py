@@ -3,10 +3,10 @@
 import inspect
 import sys
 
+
 def is_future(obj):
-    return callable(
-        getattr(obj, "add_done_callback", None)
-    )
+    return callable(getattr(obj, "add_done_callback", None))
+
 
 def dispatch(cb, method, args):
     """
@@ -40,7 +40,7 @@ def dispatch(cb, method, args):
     # If the result is a coroutine and the communicator has a custom coroutine executor, execute the coroutine using
     # the configured coroutine executor.
     if inspect.iscoroutine(result):
-        assert (len(args) > 0), "args must have at least one argument, current"
+        assert len(args) > 0, "args must have at least one argument, current"
         current = args[-1]
         eventLoopAdapter = current.adapter.getCommunicator().eventLoopAdapter
         if eventLoopAdapter:
@@ -50,6 +50,7 @@ def dispatch(cb, method, args):
 
     # If the result is a future, attach a done callback to handle dispatch completion.
     if is_future(result):
+
         def handle_future_result(future):
             try:
                 cb.response(future.result())
@@ -66,6 +67,7 @@ def dispatch(cb, method, args):
     # Otherwise, return the result directly.
     else:
         cb.response(result)
+
 
 def run_coroutine(cb, coroutine, value=None, exception=None):
     """
@@ -89,6 +91,7 @@ def run_coroutine(cb, coroutine, value=None, exception=None):
             result = coroutine.send(value)
 
         if is_future(result):
+
             def handle_future_result(future):
                 try:
                     run_coroutine(cb, coroutine, value=future.result())

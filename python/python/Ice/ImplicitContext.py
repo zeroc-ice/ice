@@ -2,6 +2,7 @@
 
 from typing import final
 
+
 @final
 class ImplicitContext:
     """

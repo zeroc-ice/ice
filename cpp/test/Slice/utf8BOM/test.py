@@ -20,9 +20,9 @@ class SliceUtf8BomTestCase(ClientTestCase):
         try:
             # Make sure the leading BOM marker wasn't accidentally deleted by over-zealous reformatting.
             current.write("Checking for UTF8-BOM marker... ")
-            with open(test_file_name, 'rb') as test_file:
+            with open(test_file_name, "rb") as test_file:
                 BOM = test_file.read(3)
-                if BOM != b'\xEF\xBB\xBF':
+                if BOM != b"\xef\xbb\xbf":
                     raise RuntimeError("BOM marker is missing from 'Slice/utf8BOM/Test.ice'!")
             current.writeln("ok")
 
@@ -36,11 +36,15 @@ class SliceUtf8BomTestCase(ClientTestCase):
             # There is a known issue with MCPP on certain Linux platforms which causes the Slice compiler to erroneously
             # report valid UTF-8 BOMS. See https://github.com/zeroc-ice/ice/issues/3940
             if len(lines) == 2 and isinstance(platform, Linux):
-                if lines[0].endswith("Test.ice:2: encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files"):
+                if lines[0].endswith(
+                    "Test.ice:2: encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files"
+                ):
                     lines.pop(0)
 
             # Other than the above-mentioned MCPP issue, we only expect 1 error for the BOM in the middle of the file.
-            if len(lines) != 1 or not lines[0].endswith("Test.ice:9: encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files"):
+            if len(lines) != 1 or not lines[0].endswith(
+                "Test.ice:9: encountered unexpected UTF-8 BOM in input; BOMs can only appear at the beginning of files"
+            ):
                 raise RuntimeError("Unexpected output from BOM test: {0}".format(lines))
 
             current.writeln("ok")

@@ -75,9 +75,7 @@ class Client(TestHelper):
 
             sys.stdout.write("Testing operation name... ")
             sys.stdout.flush()
-            p = escaped_and._execPrx.uncheckedCast(
-                adapter.createProxy(Ice.stringToIdentity("test"))
-            )
+            p = escaped_and._execPrx.uncheckedCast(adapter.createProxy(Ice.stringToIdentity("test")))
             p._finally()
             print("ok")
 

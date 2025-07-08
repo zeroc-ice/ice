@@ -9,6 +9,7 @@ def test(b):
     if not b:
         raise RuntimeError("test assertion failed")
 
+
 def connect(prx):
     # Establish connection with the given proxy (which might have a timeout
     # set and might sporadically fail on connection establishment if it's

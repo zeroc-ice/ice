@@ -44,13 +44,11 @@ class CallbackReceiverI(Test.CallbackReceiver):
 
 class Client(TestHelper):
     def run(self, args):
-
         shutdown = "--shutdown" in args
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "1")
         properties.setProperty("Ice.Warn.Connections", "0")
         with self.initialize(properties=properties) as communicator:
-
             sys.stdout.write("testing stringToProxy for router... ")
             sys.stdout.flush()
             routerBase = communicator.stringToProxy(f"Glacier2/router:{self.getTestEndpoint(num=50)}")
@@ -164,7 +162,9 @@ class Client(TestHelper):
             fakeCallbackReceiverIdent = Ice.Identity()
             fakeCallbackReceiverIdent.name = "callbackReceiver"
             fakeCallbackReceiverIdent.category = "dummy"
-            fakeTwowayR = Test.CallbackReceiverPrx.uncheckedCast(adapter.add(callbackReceiver, fakeCallbackReceiverIdent))
+            fakeTwowayR = Test.CallbackReceiverPrx.uncheckedCast(
+                adapter.add(callbackReceiver, fakeCallbackReceiverIdent)
+            )
             print("ok")
 
             sys.stdout.write("testing oneway callback... ")
@@ -207,7 +207,9 @@ class Client(TestHelper):
 
             sys.stdout.write("testing whether other allowed category is accepted... ")
             context = {"_fwd": "t"}
-            otherCategoryTwoway = Test.CallbackPrx.uncheckedCast(twoway.ice_identity(Ice.stringToIdentity("c2/callback")))
+            otherCategoryTwoway = Test.CallbackPrx.uncheckedCast(
+                twoway.ice_identity(Ice.stringToIdentity("c2/callback"))
+            )
             otherCategoryTwoway.initiateCallback(twowayR, context)
             callbackReceiverImpl.callbackOK()
             print("ok")
@@ -215,7 +217,9 @@ class Client(TestHelper):
             sys.stdout.write("testing whether disallowed category gets rejected... ")
             sys.stdout.flush()
             context = {"_fwd": "t"}
-            otherCategoryTwoway = Test.CallbackPrx.uncheckedCast(twoway.ice_identity(Ice.stringToIdentity("c3/callback")))
+            otherCategoryTwoway = Test.CallbackPrx.uncheckedCast(
+                twoway.ice_identity(Ice.stringToIdentity("c3/callback"))
+            )
             try:
                 otherCategoryTwoway.initiateCallback(twowayR, context)
                 test(False)
@@ -226,7 +230,9 @@ class Client(TestHelper):
             sys.stdout.write("testing whether user-id as category is accepted... ")
             sys.stdout.flush()
             context = {"_fwd": "t"}
-            otherCategoryTwoway = Test.CallbackPrx.uncheckedCast(twoway.ice_identity(Ice.stringToIdentity("_userid/callback")))
+            otherCategoryTwoway = Test.CallbackPrx.uncheckedCast(
+                twoway.ice_identity(Ice.stringToIdentity("_userid/callback"))
+            )
             otherCategoryTwoway.initiateCallback(twowayR, context)
             callbackReceiverImpl.callbackOK()
             print("ok")

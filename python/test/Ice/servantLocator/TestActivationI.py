@@ -8,9 +8,7 @@ class TestActivationI(Test.TestActivation):
     def activateServantLocator(self, activate, current):
         if activate:
             current.adapter.addServantLocator(TestI.ServantLocatorI(""), "")
-            current.adapter.addServantLocator(
-                TestI.ServantLocatorI("category"), "category"
-            )
+            current.adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
         else:
             locator = current.adapter.removeServantLocator("")
             locator.deactivate("")

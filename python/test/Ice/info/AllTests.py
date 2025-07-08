@@ -52,22 +52,10 @@ def allTests(helper, communicator):
         or (tcpEndpoint.type() == Ice.WSSEndpointType and tcpEndpoint.secure())
     )  # WS
     test(
-        (
-            tcpEndpoint.type() == Ice.TCPEndpointType
-            and isinstance(endpoint, Ice.TCPEndpointInfo)
-        )
-        or (
-            tcpEndpoint.type() == Ice.SSLEndpointType
-            and isinstance(endpoint, Ice.SSLEndpointInfo)
-        )
-        or (
-            tcpEndpoint.type() == Ice.WSEndpointType
-            and isinstance(endpoint, Ice.WSEndpointInfo)
-        )
-        or (
-            tcpEndpoint.type() == Ice.WSSEndpointType
-            and isinstance(endpoint, Ice.WSEndpointInfo)
-        )
+        (tcpEndpoint.type() == Ice.TCPEndpointType and isinstance(endpoint, Ice.TCPEndpointInfo))
+        or (tcpEndpoint.type() == Ice.SSLEndpointType and isinstance(endpoint, Ice.SSLEndpointInfo))
+        or (tcpEndpoint.type() == Ice.WSEndpointType and isinstance(endpoint, Ice.WSEndpointInfo))
+        or (tcpEndpoint.type() == Ice.WSSEndpointType and isinstance(endpoint, Ice.WSEndpointInfo))
     )
 
     udpEndpoint = endps[1].getInfo()
@@ -91,11 +79,7 @@ def allTests(helper, communicator):
     sys.stdout.write("test object adapter endpoint information... ")
     sys.stdout.flush()
 
-    host = (
-        "::1"
-        if communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
-        else "127.0.0.1"
-    )
+    host = "::1" if communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0 else "127.0.0.1"
     communicator.getProperties().setProperty(
         "TestAdapter.Endpoints", 'tcp -h "' + host + '" -t 15000:udp -h "' + host + '"'
     )
@@ -128,12 +112,8 @@ def allTests(helper, communicator):
 
     adapter.destroy()
 
-    communicator.getProperties().setProperty(
-        "TestAdapter.Endpoints", "default -h * -p 15000"
-    )
-    communicator.getProperties().setProperty(
-        "TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 15000"
-    )
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 15000")
+    communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 15000")
     adapter = communicator.createObjectAdapter("TestAdapter")
 
     endpoints = adapter.getEndpoints()
@@ -155,9 +135,7 @@ def allTests(helper, communicator):
     print("ok")
 
     base = communicator.stringToProxy(
-        "test:{0}:{1}".format(
-            helper.getTestEndpoint(), helper.getTestEndpoint(protocol="udp")
-        )
+        "test:{0}:{1}".format(helper.getTestEndpoint(), helper.getTestEndpoint(protocol="udp"))
     )
     testIntf = Test.TestIntfPrx.checkedCast(base)
 
@@ -209,10 +187,7 @@ def allTests(helper, communicator):
     test(ctx["remotePort"] == str(tcpinfo.localPort))
     test(ctx["localPort"] == str(tcpinfo.remotePort))
 
-    if (
-        base.ice_getConnection().type() == "ws"
-        or base.ice_getConnection().type() == "wss"
-    ):
+    if base.ice_getConnection().type() == "ws" or base.ice_getConnection().type() == "wss":
         test(isinstance(info, Ice.WSConnectionInfo))
 
         test(info.headers["Upgrade"] == "websocket")

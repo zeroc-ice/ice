@@ -77,9 +77,7 @@ class ServerManagerI(Test.ServerManager):
         self._nextPort = 1
         self._helper = helper
         self._initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter")
-        self._initData.properties.setProperty(
-            "TestAdapter.ReplicaGroupId", "ReplicatedAdapter"
-        )
+        self._initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter")
         self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
 
     def startServer(self, current):
@@ -113,19 +111,13 @@ class ServerManagerI(Test.ServerManager):
                 adapter = serverCommunicator.createObjectAdapter("TestAdapter")
                 adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2")
 
-                locator = serverCommunicator.stringToProxy(
-                    "locator:{0}".format(self._helper.getTestEndpoint())
-                )
+                locator = serverCommunicator.stringToProxy("locator:{0}".format(self._helper.getTestEndpoint()))
                 adapter.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
                 adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
 
                 object = TestI(adapter, adapter2, self._registry)
-                self._registry._addObject(
-                    adapter.add(object, Ice.stringToIdentity("test"))
-                )
-                self._registry._addObject(
-                    adapter.add(object, Ice.stringToIdentity("test2"))
-                )
+                self._registry._addObject(adapter.add(object, Ice.stringToIdentity("test")))
+                self._registry._addObject(adapter.add(object, Ice.stringToIdentity("test2")))
                 adapter.add(object, Ice.stringToIdentity("test3"))
 
                 adapter.activate()
@@ -158,22 +150,16 @@ class TestI(Test.TestIntf):
         self._adapter1 = adapter
         self._adapter2 = adapter2
         self._registry = registry
-        self._registry._addObject(
-            self._adapter1.add(HelloI(), Ice.stringToIdentity("hello"))
-        )
+        self._registry._addObject(self._adapter1.add(HelloI(), Ice.stringToIdentity("hello")))
 
     def shutdown(self, current):
         self._adapter1.getCommunicator().shutdown()
 
     def getHello(self, current):
-        return Test.HelloPrx.uncheckedCast(
-            self._adapter1.createIndirectProxy(Ice.stringToIdentity("hello"))
-        )
+        return Test.HelloPrx.uncheckedCast(self._adapter1.createIndirectProxy(Ice.stringToIdentity("hello")))
 
     def getReplicatedHello(self, current):
-        return Test.HelloPrx.uncheckedCast(
-            self._adapter1.createProxy(Ice.stringToIdentity("hello"))
-        )
+        return Test.HelloPrx.uncheckedCast(self._adapter1.createProxy(Ice.stringToIdentity("hello")))
 
     def migrateHello(self, current):
         id = Ice.stringToIdentity("hello")
@@ -195,9 +181,7 @@ class Server(TestHelper):
             # communicator and object adapter).
             #
             communicator.getProperties().setProperty("Ice.ThreadPool.Server.Size", "2")
-            communicator.getProperties().setProperty(
-                "ServerManager.Endpoints", self.getTestEndpoint()
-            )
+            communicator.getProperties().setProperty("ServerManager.Endpoints", self.getTestEndpoint())
 
             adapter = communicator.createObjectAdapter("ServerManager")
 
@@ -207,17 +191,13 @@ class Server(TestHelper):
             # 'servers' created with the server manager interface.
             #
             registry = ServerLocatorRegistry()
-            registry._addObject(
-                adapter.createProxy(Ice.stringToIdentity("ServerManager"))
-            )
+            registry._addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
             adapter.add(
                 ServerManagerI(registry, initData, self),
                 Ice.stringToIdentity("ServerManager"),
             )
 
-            registryPrx = Ice.LocatorRegistryPrx.uncheckedCast(
-                adapter.add(registry, Ice.stringToIdentity("registry"))
-            )
+            registryPrx = Ice.LocatorRegistryPrx.uncheckedCast(adapter.add(registry, Ice.stringToIdentity("registry")))
 
             locator = ServerLocator(registry, registryPrx)
             adapter.add(locator, Ice.stringToIdentity("locator"))

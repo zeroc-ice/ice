@@ -14,11 +14,7 @@ def pubSub(si, pi, s={}, p={}):
 
 class IceStormStressTestCase(IceStormTestCase):
     def runClientSide(self, current):
-        icestorm1 = [
-            icestorm
-            for icestorm in self.icestorm
-            if icestorm.getInstanceName() == "TestIceStorm1"
-        ]
+        icestorm1 = [icestorm for icestorm in self.icestorm if icestorm.getInstanceName() == "TestIceStorm1"]
         # TODO: This variable is unused. Are we missing a test case?
         # icestorm2 = [
         #     icestorm
@@ -29,12 +25,8 @@ class IceStormStressTestCase(IceStormTestCase):
         def doTest(subOpts, pubOpts):
             # Create the subscribers
             subscribers = []
-            for instanceName, opts in (
-                subOpts if isinstance(subOpts, list) else [subOpts]
-            ):
-                subscribers.append(
-                    Subscriber(instanceName or "TestIceStorm1", args=opts.split(" "))
-                )
+            for instanceName, opts in subOpts if isinstance(subOpts, list) else [subOpts]:
+                subscribers.append(Subscriber(instanceName or "TestIceStorm1", args=opts.split(" ")))
 
             # Create the publisher
             publisher = Publisher("TestIceStorm1", args=pubOpts.split(" "))
@@ -140,9 +132,7 @@ class IceStormStressTestCase(IceStormTestCase):
         current.writeln("ok")
 
         self.runadmin(current, "link TestIceStorm1/fed1 TestIceStorm2/fed1")
-        current.write(
-            "Sending 20000 unordered events with erratic subscriber across a link... "
-        )
+        current.write("Sending 20000 unordered events with erratic subscriber across a link... ")
         doTest(
             [
                 ("TestIceStorm1", "--events 20000"),
@@ -185,9 +175,7 @@ class IceStormStressTestCase(IceStormTestCase):
             s.stop(current, True)
         current.writeln("ok")
 
-        current.write(
-            "Sending 5000 ordered events with max queue size remove subscriber... "
-        )
+        current.write("Sending 5000 ordered events with max queue size remove subscriber... ")
         opts = " --IceStorm.Send.QueueSizeMax=2000 --IceStorm.Send.QueueSizeMaxPolicy=RemoveSubscriber"
         for s in icestorm1:
             s.start(current, args=opts.split(" "))
@@ -217,10 +205,7 @@ TestSuite(
         IceStormStressTestCase(
             "replicated with replicated publisher",
             icestorm=[IceStorm("TestIceStorm1", i, 3, quiet=True) for i in range(0, 3)]
-            + [
-                IceStorm("TestIceStorm2", i, 3, portnum=20, quiet=True)
-                for i in range(0, 3)
-            ],
+            + [IceStorm("TestIceStorm2", i, 3, portnum=20, quiet=True) for i in range(0, 3)],
         ),
     ],
     multihost=False,

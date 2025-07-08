@@ -103,38 +103,17 @@ def allTests(helper, communicator):
     sys.stdout.write("testing enum operations... ")
     sys.stdout.flush()
 
-    test(
-        proxy.opByte(Test.ByteEnum.benum1)
-        == (Test.ByteEnum.benum1, Test.ByteEnum.benum1)
-    )
-    test(
-        proxy.opByte(Test.ByteEnum.benum11)
-        == (Test.ByteEnum.benum11, Test.ByteEnum.benum11)
-    )
+    test(proxy.opByte(Test.ByteEnum.benum1) == (Test.ByteEnum.benum1, Test.ByteEnum.benum1))
+    test(proxy.opByte(Test.ByteEnum.benum11) == (Test.ByteEnum.benum11, Test.ByteEnum.benum11))
 
-    test(
-        proxy.opShort(Test.ShortEnum.senum1)
-        == (Test.ShortEnum.senum1, Test.ShortEnum.senum1)
-    )
-    test(
-        proxy.opShort(Test.ShortEnum.senum11)
-        == (Test.ShortEnum.senum11, Test.ShortEnum.senum11)
-    )
+    test(proxy.opShort(Test.ShortEnum.senum1) == (Test.ShortEnum.senum1, Test.ShortEnum.senum1))
+    test(proxy.opShort(Test.ShortEnum.senum11) == (Test.ShortEnum.senum11, Test.ShortEnum.senum11))
 
     test(proxy.opInt(Test.IntEnum.ienum1) == (Test.IntEnum.ienum1, Test.IntEnum.ienum1))
-    test(
-        proxy.opInt(Test.IntEnum.ienum11)
-        == (Test.IntEnum.ienum11, Test.IntEnum.ienum11)
-    )
-    test(
-        proxy.opInt(Test.IntEnum.ienum12)
-        == (Test.IntEnum.ienum12, Test.IntEnum.ienum12)
-    )
+    test(proxy.opInt(Test.IntEnum.ienum11) == (Test.IntEnum.ienum11, Test.IntEnum.ienum11))
+    test(proxy.opInt(Test.IntEnum.ienum12) == (Test.IntEnum.ienum12, Test.IntEnum.ienum12))
 
-    test(
-        proxy.opSimple(Test.SimpleEnum.green)
-        == (Test.SimpleEnum.green, Test.SimpleEnum.green)
-    )
+    test(proxy.opSimple(Test.SimpleEnum.green) == (Test.SimpleEnum.green, Test.SimpleEnum.green))
 
     print("ok")
 

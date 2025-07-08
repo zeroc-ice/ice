@@ -9,9 +9,7 @@ import passlib.hosts
 import getpass
 
 usePBKDF2 = any(sys.platform == p for p in ["win32", "darwin", "cygwin"])
-useCryptExt = any(
-    sys.platform.startswith(p) for p in ["linux", "freebsd", "gnukfreebsd"]
-)
+useCryptExt = any(sys.platform.startswith(p) for p in ["linux", "freebsd", "gnukfreebsd"])
 
 
 def usage():
@@ -22,18 +20,14 @@ def usage():
     if usePBKDF2:
         print("")
         print("  -d MESSAGE_DIGEST_ALGORITHM, --digest=MESSAGE_DIGEST_ALGORITHM")
-        print(
-            "      The message digest algorithm to use with PBKDF2, valid values are (sha1, sha256, sha512)."
-        )
+        print("      The message digest algorithm to use with PBKDF2, valid values are (sha1, sha256, sha512).")
         print("")
         print("  -s SALT_SIZE, --salt=SALT_SIZE")
         print("      Optional number of bytes to use when generating new salts.")
         print("")
     elif useCryptExt:
         print("  -d MESSAGE_DIGEST_ALGORITHM, --digest=MESSAGE_DIGEST_ALGORITHM")
-        print(
-            "      The message digest algorithm to use with crypt function, valid values are (sha256, sha512)."
-        )
+        print("      The message digest algorithm to use with crypt function, valid values are (sha256, sha512).")
         print("")
     if usePBKDF2 or useCryptExt:
         print("  -r ROUNDS, --rounds=ROUNDS")

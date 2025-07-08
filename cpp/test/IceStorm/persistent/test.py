@@ -44,9 +44,7 @@ class IceStormPersistentTestCase(TestCase):
                 quiet=True,
                 args=[
                     "-e",
-                    "current {0};subscribers {1}".format(
-                        self.icestorm.getInstanceName(), topic
-                    ),
+                    "current {0};subscribers {1}".format(self.icestorm.getInstanceName(), topic),
                 ],
             )
             admin.run(current, exitstatus=0)
@@ -65,9 +63,7 @@ class PersistentClient(IceStormProcess, Client):
         Client.__init__(self, *args, **kargs)
         IceStormProcess.__init__(self, instanceName, instance)
 
-    getParentProps = (
-        Client.getProps
-    )  # Used by IceStormProcess to get the client properties
+    getParentProps = Client.getProps  # Used by IceStormProcess to get the client properties
 
 
 TestSuite(
@@ -76,16 +72,12 @@ TestSuite(
         IceStormPersistentTestCase(
             "persistent create",
             icestorm1,
-            client=ClientTestCase(
-                client=PersistentClient(instance=icestorm1, args=["create"])
-            ),
+            client=ClientTestCase(client=PersistentClient(instance=icestorm1, args=["create"])),
         ),
         IceStormPersistentTestCase(
             "persistent check",
             icestorm2,
-            client=ClientTestCase(
-                client=PersistentClient(instance=icestorm2, args=["check"])
-            ),
+            client=ClientTestCase(client=PersistentClient(instance=icestorm2, args=["check"])),
         ),
     ],
     multihost=False,

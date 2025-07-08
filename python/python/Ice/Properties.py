@@ -2,6 +2,7 @@
 
 from typing import final, Self
 
+
 @final
 class Properties:
     """

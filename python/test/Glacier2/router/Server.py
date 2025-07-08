@@ -21,9 +21,7 @@ class CallbackI(Test.Callback):
 class Server(TestHelper):
     def run(self, args):
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty(
-                "CallbackAdapter.Endpoints", self.getTestEndpoint(num=0)
-            )
+            communicator.getProperties().setProperty("CallbackAdapter.Endpoints", self.getTestEndpoint(num=0))
             adapter = communicator.createObjectAdapter("CallbackAdapter")
 
             # The test allows "c1" as category.

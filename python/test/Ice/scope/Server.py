@@ -112,9 +112,7 @@ class MyInterface4(Inner.Test.Inner2.MyInterface):
 class Server(TestHelper):
     def run(self, args):
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty(
-                "TestAdapter.Endpoints", self.getTestEndpoint()
-            )
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(MyInterface1(), Ice.stringToIdentity("i1"))
             adapter.add(MyInterface2(), Ice.stringToIdentity("i2"))

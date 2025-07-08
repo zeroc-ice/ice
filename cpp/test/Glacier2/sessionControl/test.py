@@ -10,16 +10,12 @@ from Util import ClientServerTestCase, Server
 
 def routerProps(process, current):
     return {
-        "Glacier2.SessionManager": "SessionManager:{0}".format(
-            current.getTestEndpoint(0)
-        ),
+        "Glacier2.SessionManager": "SessionManager:{0}".format(current.getTestEndpoint(0)),
         "Glacier2.PermissionsVerifier": "Glacier2/NullPermissionsVerifier",
     }
 
 
 Glacier2TestSuite(
     __name__,
-    testcases=[
-        ClientServerTestCase(servers=[Glacier2Router(props=routerProps), Server()])
-    ],
+    testcases=[ClientServerTestCase(servers=[Glacier2Router(props=routerProps), Server()])],
 )

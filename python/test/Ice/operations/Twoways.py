@@ -56,29 +56,17 @@ def twoways(helper, p):
     test(Test.s7 == literals[7])
     test(Test.s7 == literals[18])
 
-    test(
-        Test.s8 == "\xf0\x90\x80\x80"
-        if version_info[0] < 3
-        else b"\xf0\x90\x80\x80".decode("utf-8")
-    )
+    test(Test.s8 == "\xf0\x90\x80\x80" if version_info[0] < 3 else b"\xf0\x90\x80\x80".decode("utf-8"))
     test(Test.s8 == Test.sw8)
     test(Test.s8 == literals[8])
     test(Test.s8 == literals[19])
 
-    test(
-        Test.s9 == "\xf0\x9f\x8d\x8c"
-        if version_info[0] < 3
-        else b"\xf0\x9f\x8d\x8c".decode("utf-8")
-    )
+    test(Test.s9 == "\xf0\x9f\x8d\x8c" if version_info[0] < 3 else b"\xf0\x9f\x8d\x8c".decode("utf-8"))
     test(Test.s9 == Test.sw9)
     test(Test.s9 == literals[9])
     test(Test.s9 == literals[20])
 
-    test(
-        Test.s10 == "\xe0\xb6\xa7"
-        if version_info[0] < 3
-        else b"\xe0\xb6\xa7".decode("utf-8")
-    )
+    test(Test.s10 == "\xe0\xb6\xa7" if version_info[0] < 3 else b"\xe0\xb6\xa7".decode("utf-8"))
     test(Test.s10 == Test.sw10)
     test(Test.s10 == literals[10])
     test(Test.s10 == literals[21])

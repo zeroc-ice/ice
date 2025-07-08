@@ -99,9 +99,7 @@ def terminateProcess(p, hasInterruptSupport=True):
         #
         if hasInterruptSupport:
             try:
-                ctypes.windll.kernel32.GenerateConsoleCtrlEvent(
-                    1, p.pid
-                )  # 1 is CTRL_BREAK_EVENT
+                ctypes.windll.kernel32.GenerateConsoleCtrlEvent(1, p.pid)  # 1 is CTRL_BREAK_EVENT
             except NameError:
                 taskkill("/F /T /PID {0}".format(p.pid))
                 pass
@@ -170,9 +168,7 @@ class reader(threading.Thread):
                     content = self._tbuf.getvalue()
                     suppress = False
                     for p in self._tracesuppress:
-                        if isinstance(p, types.LambdaType) or isinstance(
-                            p, types.FunctionType
-                        ):
+                        if isinstance(p, types.LambdaType) or isinstance(p, types.FunctionType):
                             content = p(content)
                         elif p.search(content):
                             suppress = True
@@ -228,9 +224,7 @@ class reader(threading.Thread):
                         pdesc.write(",")
                     pdesc.write(escape(pat))
                 pdesc.write("]")
-            self.logfile.write(
-                '%s: expect: "%s" timeout: %s\n' % (self.desc, pdesc.getvalue(), tdesc)
-            )
+            self.logfile.write('%s: expect: "%s" timeout: %s\n' % (self.desc, pdesc.getvalue(), tdesc))
             self.logfile.flush()
 
         maxend = None
@@ -312,8 +306,7 @@ class reader(threading.Thread):
                     # If no match and we have finished processing output raise a TIMEOUT
                     if self._finish:
                         raise TIMEOUT(
-                            'timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n'
-                            % (escape(s), escape(buf, False))
+                            'timeout exceeded in match\npattern: "%s"\nbuffer: "%s"\n' % (escape(s), escape(buf, False))
                         )
 
                     if timeout is None:
@@ -422,9 +415,7 @@ class Expect(object):
         self.matchindex = 0  # the index of the matched pattern
         self.match = None  # The last match
         self.mapping = mapping  # The mapping of the test.
-        self.exitstatus = (
-            None  # The exitstatus, either -signal or, if positive, the exit code.
-        )
+        self.exitstatus = None  # The exitstatus, either -signal or, if positive, the exit code.
         self.killed = None  # If killed, the signal that was sent.
         self.desc = desc
         self.logfile = logfile
@@ -487,9 +478,7 @@ class Expect(object):
             self.startReader()
 
     def __str__(self):
-        return "{0} pid={1}".format(
-            self.desc, "<none>" if self.p is None else self.p.pid
-        )
+        return "{0} pid={1}".format(self.desc, "<none>" if self.p is None else self.p.pid)
 
     def startReader(self, watchDog=None):
         if watchDog is not None:
@@ -701,24 +690,14 @@ class Expect(object):
 
     def testExitStatus(self, exitstatus):
         def test(result, expected):
-            if (
-                not win32 and result == -2
-            ):  # Interrupted by Ctrl-C, simulate KeyboardInterrupt
+            if not win32 and result == -2:  # Interrupted by Ctrl-C, simulate KeyboardInterrupt
                 raise KeyboardInterrupt()
             if isinstance(expected, list):
                 if result not in expected:
-                    raise RuntimeError(
-                        "unexpected exit status: expected either: {0}, got {1}".format(
-                            expected, result
-                        )
-                    )
+                    raise RuntimeError("unexpected exit status: expected either: {0}, got {1}".format(expected, result))
             else:
                 if expected != result:
-                    raise RuntimeError(
-                        "unexpected exit status: expected: {0}, got {1}\n".format(
-                            expected, result
-                        )
-                    )
+                    raise RuntimeError("unexpected exit status: expected: {0}, got {1}\n".format(expected, result))
 
         if self.killed is not None:
             #
@@ -776,9 +755,7 @@ class Expect(object):
             assert os.path.isabs(cmd)
 
             exe = os.path.split(cmd)[1]
-            coreDumpFile = os.path.join(
-                self.cwd, f"{exe}-{time.strftime('%m%d%y-%H%M')}-coredump.log"
-            )
+            coreDumpFile = os.path.join(self.cwd, f"{exe}-{time.strftime('%m%d%y-%H%M')}-coredump.log")
             print(f"(dumping stack for {cmd} to {coreDumpFile})")
             with open(coreDumpFile, "w") as f:
                 subprocess.run(dumpCmd, stdout=f, stderr=f)

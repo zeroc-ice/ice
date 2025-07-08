@@ -3,6 +3,7 @@
 import Ice
 import asyncio
 
+
 class EventLoopAdapter(Ice.EventLoopAdapter):
     """
     An asyncio implementation of the Ice.EventLoopAdapter interface.

@@ -39,6 +39,7 @@ class DI(Test.D):
     def ice_postUnmarshal(self):
         self.postUnmarshalInvoked = True
 
+
 def customSliceLoader(typeId):
     match typeId:
         case "::Test::B":
@@ -49,6 +50,7 @@ def customSliceLoader(typeId):
             return DI()
         case _:
             return None
+
 
 class InitialI(Test.Initial):
     def __init__(self, adapter):
@@ -116,9 +118,7 @@ class InitialI(Test.Initial):
         return Test.Initial.GetMBMarshaledResult(self._b1, current)
 
     def getAMDMB(self, current):
-        return Ice.Future.completed(
-            Test.Initial.GetAMDMBMarshaledResult(self._b1, current)
-        )
+        return Ice.Future.completed(Test.Initial.GetAMDMBMarshaledResult(self._b1, current))
 
     def getAll(self, current):
         self._b1.preMarshalInvoked = False
@@ -175,9 +175,7 @@ class InitialI(Test.Initial):
     def opF2(self, f21, current):
         return (
             f21,
-            Test.F2Prx.uncheckedCast(
-                current.adapter.getCommunicator().stringToProxy("F22")
-            ),
+            Test.F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")),
         )
 
     def opF3(self, f31, current):
@@ -185,9 +183,7 @@ class InitialI(Test.Initial):
             f31,
             Test.F3(
                 Test.F1("F12"),
-                Test.F2Prx.uncheckedCast(
-                    current.adapter.getCommunicator().stringToProxy("F22")
-                ),
+                Test.F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")),
             ),
         )
 

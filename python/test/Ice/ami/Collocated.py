@@ -18,15 +18,9 @@ class Collocated(TestHelper):
         properties.setProperty("Ice.Warn.Connections", "0")
 
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty(
-                "TestAdapter.Endpoints", self.getTestEndpoint()
-            )
-            communicator.getProperties().setProperty(
-                "ControllerAdapter.Endpoints", self.getTestEndpoint(num=1)
-            )
-            communicator.getProperties().setProperty(
-                "ControllerAdapter.ThreadPool.Size", "1"
-            )
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.getTestEndpoint(num=1))
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
 
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter2 = communicator.createObjectAdapter("ControllerAdapter")

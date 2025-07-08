@@ -19,5 +19,8 @@ jobs:
       - name: Install Ruff
         run: pip install ruff
 
-      - name: Run Ruff
+      - name: Ruff check
         run: ruff check . --ignore E402
+
+      - name: Ruff format
+        run: ruff format . --check --diff

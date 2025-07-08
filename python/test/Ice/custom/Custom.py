@@ -36,7 +36,6 @@ def myDoubleSeq(buffer, type):
 
 
 if hasNumPy:
-
     from ArrayUtil import createNumPyArray
 
     def myNumPyBoolSeq(buffer, type):

@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 from .Current import Current
 
+
 class ServantLocator(ABC):
     """
     A servant locator is called by an object adapter to locate a servant that is not found in its active servant map.

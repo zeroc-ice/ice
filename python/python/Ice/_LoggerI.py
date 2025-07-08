@@ -2,6 +2,7 @@
 
 from .Logger import Logger
 
+
 class LoggerI(Logger):
     def __init__(self, impl):
         self._impl = impl

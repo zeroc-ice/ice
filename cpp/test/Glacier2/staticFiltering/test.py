@@ -49,9 +49,7 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
         # use command line arguments to pass the test cases in, but a
         # configuration file is easier.
         #
-        with open(
-            os.path.join(self.getTestSuite().getPath(), "client.cfg"), "w"
-        ) as clientConfig:
+        with open(os.path.join(self.getTestSuite().getPath(), "client.cfg"), "w") as clientConfig:
             accepts = 0
             rejects = 0
             for expect, proxy in self.attacks:
@@ -63,18 +61,12 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
                     rejects += 1
                 clientConfig.write(proxy + "\n")
 
-        with open(
-            os.path.join(self.getTestSuite().getPath(), "server.cfg"), "w"
-        ) as serverConfig:
+        with open(os.path.join(self.getTestSuite().getPath(), "server.cfg"), "w") as serverConfig:
             if current.config.protocol != "ssl":
                 serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010\n")
 
-        with open(
-            os.path.join(self.getTestSuite().getPath(), "router.cfg"), "w"
-        ) as routerConfig:
-            routerConfig.write(
-                "Ice.Default.Locator=locator:tcp -h %s -p 12010\n" % self.hostname
-            )
+        with open(os.path.join(self.getTestSuite().getPath(), "router.cfg"), "w") as routerConfig:
+            routerConfig.write("Ice.Default.Locator=locator:tcp -h %s -p 12010\n" % self.hostname)
             routerConfig.write("Glacier2.Client.Trace.Reject=0\n")
             routerConfig.write("#\n")
 
@@ -93,15 +85,11 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
             if not len(maxEndpoints) == 0:
                 routerConfig.write("Glacier2.Filter.ProxySizeMax=%s\n" % maxEndpoints)
             if not len(categoryFilter) == 0:
-                routerConfig.write(
-                    "Glacier2.Filter.Category.Accept=%s\n" % categoryFilter
-                )
+                routerConfig.write("Glacier2.Filter.Category.Accept=%s\n" % categoryFilter)
             if not len(idFilter) == 0:
                 routerConfig.write("Glacier2.Filter.Identity.Accept=%s\n" % idFilter)
             if not len(adapterFilter) == 0:
-                routerConfig.write(
-                    "Glacier2.Filter.AdapterId.Accept=%s\n" % adapterFilter
-                )
+                routerConfig.write("Glacier2.Filter.AdapterId.Accept=%s\n" % adapterFilter)
 
     def teardownServerSide(self, current, success):
         for c in ["client.cfg", "router.cfg", "server.cfg"]:
@@ -123,11 +111,7 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
         # Try and figure out what tests are reasonable with this host's
         # configuration.
         #
-        if (
-            fqdn.endswith("localdomain")
-            or fqdn.endswith("local")
-            or fqdn.endswith("domain")
-        ):
+        if fqdn.endswith("localdomain") or fqdn.endswith("local") or fqdn.endswith("domain"):
             #
             # No real configured domain name, this means that anything that
             # requires a domain name isn't likely going to work. Furthermore, it
@@ -414,8 +398,7 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                         [
                             (
                                 False,
-                                "hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010"
-                                % fqdn,
+                                "hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010" % fqdn,
                             ),
                             (True, "bar:tcp -h 127.0.0.1 -p 12010"),
                         ],
@@ -437,20 +420,12 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
             )
 
         if len(testcases) == 0:
-            current.writeln(
-                "WARNING: You are running this test with SSL disabled and the network "
-            )
-            current.writeln(
-                "         configuration for this host does not permit the other tests "
-            )
+            current.writeln("WARNING: You are running this test with SSL disabled and the network ")
+            current.writeln("         configuration for this host does not permit the other tests ")
             current.writeln("         to run correctly.")
         elif len(testcases) < 6:
-            current.writeln(
-                "WARNING: The network configuration for this host does not permit all "
-            )
-            current.writeln(
-                "         tests to run correctly, some tests have been disabled."
-            )
+            current.writeln("WARNING: The network configuration for this host does not permit all ")
+            current.writeln("         tests to run correctly, some tests have been disabled.")
 
         self.testcases = {}
         for testcase in testcases:

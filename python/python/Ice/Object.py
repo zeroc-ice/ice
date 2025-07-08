@@ -10,6 +10,7 @@ import Ice.BuiltinSequences_ice
 
 import Ice
 
+
 class Object:
     """
     The base class for servants.
@@ -87,6 +88,7 @@ class Object:
             The type ID.
         """
         return "::Ice::Object"
+
 
 Object._op_ice_isA = IcePy.Operation(
     "ice_isA",

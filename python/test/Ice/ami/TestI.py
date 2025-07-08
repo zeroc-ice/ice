@@ -75,9 +75,7 @@ class TestIntfI(Test.TestIntf):
         with self._cond:
             if self._shutdown:
                 return
-            elif (
-                self._pending
-            ):  # Pending might not be set yet if startDispatch is dispatch out-of-order
+            elif self._pending:  # Pending might not be set yet if startDispatch is dispatch out-of-order
                 self._pending.set_result(None)
                 self._pending = None
 

@@ -25,10 +25,6 @@ def clientProps(process, current):
 if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(
         __file__,
-        [
-            IceGridNoRestartUpdateTestCase(
-                application=None, client=IceGridClient(props=clientProps)
-            )
-        ],
+        [IceGridNoRestartUpdateTestCase(application=None, client=IceGridClient(props=clientProps))],
         multihost=False,
     )

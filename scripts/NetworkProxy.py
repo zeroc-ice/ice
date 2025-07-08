@@ -52,9 +52,7 @@ class BaseConnection(threading.Thread):
 
             try:
                 while not self.closed:
-                    readables, writeables, exceptions = select.select(
-                        [self.socket, self.remoteSocket], [], []
-                    )
+                    readables, writeables, exceptions = select.select([self.socket, self.remoteSocket], [], [])
                     for r in readables:
                         w = self.remoteSocket if r == self.socket else self.socket
                         data = r.recv(4096)
@@ -101,9 +99,7 @@ class BaseProxy(threading.Thread):
                 self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 if hasattr(socket, "SO_REUSEPORT"):
                     try:
-                        self.socket.setsockopt(
-                            socket.SOL_SOCKET, socket.SO_REUSEPORT, 1
-                        )
+                        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
                     except Exception:
                         # Ignore, this can throw on some platforms if not supported (e.g: ARMHF/Qemu)
                         pass

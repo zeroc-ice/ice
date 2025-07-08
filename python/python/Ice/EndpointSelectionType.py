@@ -2,6 +2,7 @@
 
 from .EnumBase import EnumBase
 
+
 class EndpointSelectionType(EnumBase):
     """
     Determines the order in which the Ice runtime uses the endpoints in a proxy when establishing a connection.
@@ -34,6 +35,7 @@ class EndpointSelectionType(EnumBase):
         return self._enumerators[value] if value in self._enumerators else None
 
     valueOf = classmethod(valueOf)
+
 
 EndpointSelectionType.Random = EndpointSelectionType("Random", 0)
 EndpointSelectionType.Ordered = EndpointSelectionType("Ordered", 1)

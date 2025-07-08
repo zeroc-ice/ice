@@ -12,18 +12,10 @@ def routerProps(process, current):
             current.getTestEndpoint(0, "tcp"), current.getTestEndpoint(1, "ssl")
         ),
         "Ice.Admin.Endpoints": current.getTestEndpoint(2, "tcp"),
-        "Glacier2.SessionManager": "sessionmanager:{0}".format(
-            current.getTestEndpoint(3, "tcp")
-        ),
-        "Glacier2.PermissionsVerifier": "verifier:{0}".format(
-            current.getTestEndpoint(3, "tcp")
-        ),
-        "Glacier2.SSLSessionManager": "sslsessionmanager:{0}".format(
-            current.getTestEndpoint(3, "tcp")
-        ),
-        "Glacier2.SSLPermissionsVerifier": "sslverifier:{0}".format(
-            current.getTestEndpoint(3, "tcp")
-        ),
+        "Glacier2.SessionManager": "sessionmanager:{0}".format(current.getTestEndpoint(3, "tcp")),
+        "Glacier2.PermissionsVerifier": "verifier:{0}".format(current.getTestEndpoint(3, "tcp")),
+        "Glacier2.SSLSessionManager": "sslsessionmanager:{0}".format(current.getTestEndpoint(3, "tcp")),
+        "Glacier2.SSLPermissionsVerifier": "sslverifier:{0}".format(current.getTestEndpoint(3, "tcp")),
     }
 
 

@@ -14,8 +14,6 @@ class Server(TestHelper):
                 "TestAdapter.Endpoints", "{0} -t 10000".format(self.getTestEndpoint())
             )
             adapter = communicator.createObjectAdapter("TestAdapter")
-            adapter.add(
-                TestI.RemoteCommunicatorFactoryI(), Ice.stringToIdentity("factory")
-            )
+            adapter.add(TestI.RemoteCommunicatorFactoryI(), Ice.stringToIdentity("factory"))
             adapter.activate()
             communicator.waitForShutdown()

@@ -27,18 +27,14 @@ class Client(TestHelper):
             pass
 
         try:
-            Test.HelloPrx.checkedCast(
-                Ice.ObjectPrx(communicator, f"unknown:{self.getTestEndpoint()} -t 10000")
-            )
+            Test.HelloPrx.checkedCast(Ice.ObjectPrx(communicator, f"unknown:{self.getTestEndpoint()} -t 10000"))
             test(False)
         except Ice.ObjectNotExistException:
             pass
 
         # First try an object at a non-existent endpoint.
         try:
-            Test.HelloPrx.checkedCast(
-                Ice.ObjectPrx(communicator, "missing:default -p 12000 -t 10000")
-            )
+            Test.HelloPrx.checkedCast(Ice.ObjectPrx(communicator, "missing:default -p 12000 -t 10000"))
             test(False)
         except Ice.UnknownLocalException as e:
             test(str(e).find("ConnectionRefusedException"))

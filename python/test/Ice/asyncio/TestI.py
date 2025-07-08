@@ -7,8 +7,8 @@ import Test
 # The implementation of the coroutines below assume the use of an Ice executor which
 # dispatch the calls on an asyncio event loop
 
-class TestIntfI(Test.TestIntf):
 
+class TestIntfI(Test.TestIntf):
     async def op(self, current):
         await asyncio.sleep(0)
         # ensure that returning the result from the coroutine without await works

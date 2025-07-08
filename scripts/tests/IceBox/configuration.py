@@ -8,12 +8,8 @@ TestSuite(
     __name__,
     [
         # readyCount=2 for Ice.Admin and the "bundleName" from IceBox.PrintServicesReady
-        ClientServerTestCase(
-           "client/server #1", server=IceBox("{testdir}/config.icebox", readyCount=2)
-        ),
-        ClientServerTestCase(
-            "client/server #2", server=IceBox("{testdir}/config.icebox2", readyCount=2)
-        ),
+        ClientServerTestCase("client/server #1", server=IceBox("{testdir}/config.icebox", readyCount=2)),
+        ClientServerTestCase("client/server #2", server=IceBox("{testdir}/config.icebox2", readyCount=2)),
     ],
     libDirs=["testservice"],
     runOnMainThread=True,

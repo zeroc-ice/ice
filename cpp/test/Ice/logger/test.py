@@ -42,9 +42,7 @@ class IceLoggerTestCase(ClientTestCase):
         test(client3, current, b"aplicaci\xc3\xb3n", "UTF8", self.getMapping())
         print("ok")
 
-        sys.stdout.write(
-            "testing logger UTF8 output with ISO-8859-15 narrow string converter... "
-        )
+        sys.stdout.write("testing logger UTF8 output with ISO-8859-15 narrow string converter... ")
         #
         # In Windows expected output is UTF8, because the console output code page is set to UTF-8
         # in Linux and OS X, the expected output is ISO-8859-15 because that is the narrow string
@@ -83,11 +81,7 @@ class IceLoggerTestCase(ClientTestCase):
 
         for f in glob.glob("client5-0-*.log"):
             if not os.stat(f).st_size == 512:
-                print(
-                    "failed! file {0} size: {1} unexpected".format(
-                        f, os.stat(f).st_size
-                    )
-                )
+                print("failed! file {0} size: {1} unexpected".format(f, os.stat(f).st_size))
                 sys.exit(1)
 
         if (
@@ -106,11 +100,7 @@ class IceLoggerTestCase(ClientTestCase):
 
         for f in glob.glob("client5-2-*.log"):
             if not os.stat(f).st_size == 128:
-                print(
-                    "failed! file {0} size: {1} unexpected".format(
-                        f, os.stat(f).st_size
-                    )
-                )
+                print("failed! file {0} size: {1} unexpected".format(f, os.stat(f).st_size))
                 raise RuntimeError("failed!")
 
         if (
@@ -122,11 +112,7 @@ class IceLoggerTestCase(ClientTestCase):
 
         for f in glob.glob("client5-3-*.log"):
             if not os.stat(f).st_size == 128:
-                print(
-                    "failed! file {0} size: {1} unexpected".format(
-                        f, os.stat(f).st_size
-                    )
-                )
+                print("failed! file {0} size: {1} unexpected".format(f, os.stat(f).st_size))
                 raise RuntimeError("failed!")
 
         #
@@ -142,12 +128,7 @@ class IceLoggerTestCase(ClientTestCase):
                 raise RuntimeError("failed!")
 
             with open("log/client5-4.log", "r") as f:
-                if (
-                    f.read().count(
-                        "error: FileLogger: cannot rename 'log/client5-4.log'"
-                    )
-                    != 1
-                ):
+                if f.read().count("error: FileLogger: cannot rename 'log/client5-4.log'") != 1:
                     raise RuntimeError("failed!")
 
         print("ok")

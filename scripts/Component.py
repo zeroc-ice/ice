@@ -39,10 +39,7 @@ class Ice(Util.Component):
     def getInstallDir(self, mapping, current):
         # On Windows, the Ice MSI installation can only be used for C++
         envHomeName = (
-            None
-            if isinstance(Util.platform, Util.Windows)
-            and not isinstance(mapping, Util.CppMapping)
-            else "ICE_HOME"
+            None if isinstance(Util.platform, Util.Windows) and not isinstance(mapping, Util.CppMapping) else "ICE_HOME"
         )
         return Util.Component._getInstallDir(self, mapping, current, envHomeName)
 
@@ -58,9 +55,7 @@ class Ice(Util.Component):
 
     def getNugetPackageVersionFile(self, mapping):
         if isinstance(mapping, Util.CSharpMapping):
-            return os.path.join(
-                Util.toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec"
-            )
+            return os.path.join(Util.toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec")
         else:
             return os.path.join(
                 Util.toplevel,
@@ -83,7 +78,7 @@ class Ice(Util.Component):
                     "Ice/plugin",
                     "Ice/stringConverter",
                     "Ice/threadPoolPriority",
-                    "Ice/services"
+                    "Ice/services",
                 ],
             )
         elif "static" in config.buildConfig:
@@ -127,10 +122,7 @@ class Ice(Util.Component):
     def canRun(self, testId, mapping, current):
         parent = re.match(r"^([\w]*).*", testId).group(1)
         if isinstance(Util.platform, Util.Linux):
-            if (
-                Util.platform.getLinuxId() in ["centos", "rhel", "fedora"]
-                and current.config.buildPlatform == "x86"
-            ):
+            if Util.platform.getLinuxId() in ["centos", "rhel", "fedora"] and current.config.buildPlatform == "x86":
                 #
                 # Don't test Glacier2/IceStorm/IceGrid services with multilib platforms. We only
                 # build services for the native platform.
@@ -177,9 +169,7 @@ class Ice(Util.Component):
             return self.serviceOptions
 
         # We only run the client/server tests defined for cross testing with all transports
-        if isinstance(testcase, Util.ClientServerTestCase) and self.isCross(
-            testcase.getTestSuite().getId()
-        ):
+        if isinstance(testcase, Util.ClientServerTestCase) and self.isCross(testcase.getTestSuite().getId()):
             return self.transportOptions
         elif parent in ["Ice", "IceBox"]:
             return self.coreOptions
@@ -215,12 +205,8 @@ class Ice(Util.Component):
         ]
 
     def getSoVersion(self):
-        with open(
-            os.path.join(Util.toplevel, "cpp", "include", "Ice", "Config.h"), "r"
-        ) as config:
-            intVersion = int(
-                re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1)
-            )
+        with open(os.path.join(Util.toplevel, "cpp", "include", "Ice", "Config.h"), "r") as config:
+            intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
             majorVersion = int(intVersion / 10000)
             minorVersion = int(intVersion / 100) - 100 * majorVersion
             patchVersion = intVersion % 100
@@ -237,9 +223,7 @@ component = Ice()
 #
 # Supported mappings
 #
-for m in filter(
-    lambda x: os.path.isdir(os.path.join(Util.toplevel, x)), os.listdir(Util.toplevel)
-):
+for m in filter(lambda x: os.path.isdir(os.path.join(Util.toplevel, x)), os.listdir(Util.toplevel)):
     if m == "cpp" or re.match("cpp-.*", m):
         Util.Mapping.add(m, Util.CppMapping(), component)
     elif m == "java" or re.match("java-.*", m):
@@ -261,9 +245,7 @@ for m in filter(
             enable=not isinstance(Util.platform, Util.Windows),
         )
     elif m == "js" or re.match("js-.*", m):
-        Util.Mapping.add(
-            m, Util.JavaScriptMapping(), component, enable=Util.platform.hasNodeJS()
-        )
+        Util.Mapping.add(m, Util.JavaScriptMapping(), component, enable=Util.platform.hasNodeJS())
     elif m == "swift" or re.match("swift-.*", m):
         # Swift mapping requires Swift 5.0 or greater
         Util.Mapping.add(
@@ -284,9 +266,7 @@ for m in filter(
 # Check if Matlab is installed and eventually add the Matlab mapping
 #
 try:
-    Util.run(
-        "where matlab" if isinstance(Util.platform, Util.Windows) else "which matlab"
-    )
+    Util.run("where matlab" if isinstance(Util.platform, Util.Windows) else "which matlab")
     Util.Mapping.add("matlab", Util.MatlabMapping(), component)
 except Exception:
     pass

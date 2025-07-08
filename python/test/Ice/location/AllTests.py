@@ -35,9 +35,7 @@ def allTests(helper, communicator):
 
     sys.stdout.write("testing ice_locator and ice_getLocator...  ")
     sys.stdout.flush()
-    test(
-        Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator())
-    )
+    test(Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator()))
     anotherLocator = Ice.LocatorPrx(communicator, "anotherLocator")
     base = base.ice_locator(anotherLocator)
     test(Ice.proxyIdentityEqual(base.ice_getLocator(), anotherLocator))
@@ -48,16 +46,14 @@ def allTests(helper, communicator):
     test(Ice.proxyIdentityEqual(base.ice_getLocator(), anotherLocator))
     communicator.setDefaultLocator(locator)
     base = Ice.ObjectPrx(communicator, "test @ TestAdapter")
-    test(
-        Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator())
-    )
+    test(Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator()))
 
     #
     # We also test ice_router/ice_getRouter (perhaps we should add a
     # test/Ice/router test?)
     #
     test(not base.ice_getRouter())
-    anotherRouter = Ice.RouterPrx(communicator,"anotherRouter")
+    anotherRouter = Ice.RouterPrx(communicator, "anotherRouter")
     base = base.ice_router(anotherRouter)
     test(Ice.proxyIdentityEqual(base.ice_getRouter(), anotherRouter))
     router = Ice.RouterPrx(communicator, "dummyrouter")

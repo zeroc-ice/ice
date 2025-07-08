@@ -104,9 +104,7 @@ def allTests(helper, communicator):
     test(mo1.vs == Test.VarStruct("hello"))
 
     test(mo1.shs[0] == 1)
-    test(
-        mo1.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember
-    )
+    test(mo1.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo1.fss[0] == Test.FixedStruct(78))
     test(mo1.vss[0] == Test.VarStruct("hello"))
     test(mo1.mips[0] == Test.MyInterfacePrx(communicator, "test"))
@@ -186,9 +184,7 @@ def allTests(helper, communicator):
     test(mo5.fs == mo1.fs)
     test(mo5.vs == mo1.vs)
     test(mo5.shs == mo1.shs)
-    test(
-        mo5.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember
-    )
+    test(mo5.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo5.fss[0] == Test.FixedStruct(78))
     test(mo5.vss[0] == Test.VarStruct("hello"))
     test(mo5.mips[0] == Test.MyInterfacePrx(communicator, "test"))
@@ -284,9 +280,7 @@ def allTests(helper, communicator):
     test(mo9.vs == mo1.vs)
 
     test(mo9.shs is None)
-    test(
-        mo9.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember
-    )
+    test(mo9.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo9.fss is None)
     test(mo9.vss[0] == Test.VarStruct("hello"))
     test(mo9.mips[0] == Test.MyInterfacePrx(communicator, "test"))
@@ -314,9 +308,7 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    sys.stdout.write(
-        "testing marshaling of large containers with fixed size elements... "
-    )
+    sys.stdout.write("testing marshaling of large containers with fixed size elements... ")
     sys.stdout.flush()
 
     mc = Test.MultiOptional()
