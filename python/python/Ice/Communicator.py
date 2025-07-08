@@ -34,10 +34,9 @@ class Communicator:
     .. code-block:: python
 
         async def main():
-            async with Ice.initialize(
-                sys.argv,
-                eventLoop=asyncio.get_running_loop()) as communicator:
+            async with Ice.initialize(sys.argv, eventLoop=asyncio.get_running_loop()) as communicator:
                 ...
+
 
         if __name__ == "__main__":
             asyncio.run(main())

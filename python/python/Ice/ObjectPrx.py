@@ -237,7 +237,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Examples
         --------
-        >>> obj.ice_ping(context={'key': 'value'})
+        >>> obj.ice_ping(context={"key": "value"})
         """
         Object._op_ice_ping.invoke(self, ((), context))
 
@@ -252,7 +252,7 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Examples
         --------
-        >>> obj.ice_ping(context={'key': 'value'})
+        >>> obj.ice_ping(context={"key": "value"})
         """
         return Object._op_ice_ping.invokeAsync(self, ((), context))
 

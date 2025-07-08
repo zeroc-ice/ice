@@ -70,9 +70,7 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     .. code-block:: python
 
         with Ice.initialize(sys.argv, eventLoop=asyncio.get_running_loop()) as communicator:
-            greeter = VisitorCenter.GreeterPrx(
-                communicator,
-                "greeter:tcp -h localhost -p 4061")
+            greeter = VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061")
             await greeter.greetAsync()
     """
 
@@ -173,11 +171,11 @@ def createProperties(args: list[str] = None, defaults: Properties = None) -> Pro
         properties = Ice.createProperties(sys.argv)
 
         # Create a property set using default values.
-        defaults = { "Ice.Trace.Protocol": "1" }
+        defaults = {"Ice.Trace.Protocol": "1"}
         properties = Ice.createProperties(defaults)
 
         # Combine command-line parsing with default values.
-        defaults = { "Ice.Trace.Protocol": "1" }
+        defaults = {"Ice.Trace.Protocol": "1"}
         properties = Ice.createProperties(sys.argv, defaults)
     """
     properties = IcePy.createProperties(args, defaults)
