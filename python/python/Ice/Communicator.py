@@ -122,7 +122,7 @@ class Communicator:
         while not self._impl.waitForShutdown(500):
             pass
 
-    def shutdownCompleted(self) -> Future:
+    def shutdownCompleted(self) -> Awaitable[None]:
         """
         Return a Future that is marked as done when the communicator's shutdown completes.
 
@@ -162,7 +162,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.ObjectPrx
+        Ice.ObjectPrx or None
             The proxy, or None if the string is empty.
 
         Raises
@@ -178,7 +178,7 @@ class Communicator:
 
         Parameters
         ----------
-        proxy : Ice.ObjectPrx
+        proxy : Ice.ObjectPrx or None
             The proxy to convert into a string representation.
 
         Returns
@@ -209,7 +209,7 @@ class Communicator:
         """
         return self._impl.propertyToProxy(property)
 
-    def proxyToProperty(self, proxy: ObjectPrx, property: str) -> dict:
+    def proxyToProperty(self, proxy: ObjectPrx, property: str) -> dict[str, str]:
         """
         Convert a proxy to a set of properties.
 
@@ -222,7 +222,7 @@ class Communicator:
 
         Returns
         -------
-        dict
+        dict[str, str]
             The property set.
         """
         return self._impl.proxyToProperty(proxy, property)
