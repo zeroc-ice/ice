@@ -4635,7 +4635,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     for (const auto& op : ops)
     {
-        vector<string> params = getParamsProxy(op, package, true, false);
+        vector<string> params = getParamsProxy(op, package, true);
         const string currentParam = "com.zeroc.Ice.Current " + getEscapedParamName(op->parameters(), "current");
         const string opName = op->mappedName();
         const bool amd = p->hasMetadata("amd") || op->hasMetadata("amd");
