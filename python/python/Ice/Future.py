@@ -9,7 +9,7 @@ import concurrent.futures
 from .LocalExceptions import TimeoutException
 from .LocalExceptions import InvocationCanceledException
 from collections.abc import Awaitable, Generator, Callable
-from typing import Self, TypeAlias, TypeVar, Generic, Any
+from typing import Never, Self, TypeAlias, TypeVar, Generic, Any, overload
 
 # Type variable for the result type of the Future
 _T = TypeVar("_T")
@@ -219,6 +219,18 @@ def wrap_future(
         return future
 
     assert isinstance(future, FutureBase), "Ice.Future is expected, got {!r}".format(future)
+
+    @overload
+    def forwardCompletion(sourceFuture: FutureBase, targetFuture: asyncio.Future): ...
+
+    @overload
+    def forwardCompletion(sourceFuture: asyncio.Future, targetFuture: FutureBase): ...
+
+    @overload
+    def forwardCompletion(sourceFuture: FutureBase, targetFuture: FutureBase) -> Never: ...
+
+    @overload
+    def forwardCompletion(sourceFuture: asyncio.Future, targetFuture: asyncio.Future) -> Never: ...
 
     def forwardCompletion(sourceFuture: FutureBase | asyncio.Future, targetFuture: FutureBase | asyncio.Future):
         if not targetFuture.done():
