@@ -131,7 +131,7 @@ class FutureBase(Generic[_T], Awaitable[_T], ABC):
 
         Parameters
         ----------
-        ex : Exception
+        ex : BaseException
             The exception to store in the future.
         """
         pass
