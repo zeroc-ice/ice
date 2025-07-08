@@ -279,7 +279,19 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
     }
     else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
     {
-        writeDictionaryMarshalUnmarshalCode(out, package, dict, param, marshal, iter, true, customStream, metadata, isOptional, optionalMapping, tag);
+        writeDictionaryMarshalUnmarshalCode(
+            out,
+            package,
+            dict,
+            param,
+            marshal,
+            iter,
+            true,
+            customStream,
+            metadata,
+            isOptional,
+            optionalMapping,
+            tag);
     }
     else if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
@@ -818,17 +830,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
             else
             {
                 out << nl << cont << " elem;";
-                writeMarshalUnmarshalCode(
-                    out,
-                    package,
-                    type,
-                    false,
-                    false,
-                    0,
-                    "elem",
-                    false,
-                    iter,
-                    customStream);
+                writeMarshalUnmarshalCode(out, package, type, false, false, 0, "elem", false, iter, customStream);
                 out << nl << param << ".add(elem);";
             }
             out << eb;
@@ -867,17 +869,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                 ostringstream o;
                 o << param << "[i" << iter << "]";
                 iter++;
-                writeMarshalUnmarshalCode(
-                    out,
-                    package,
-                    type,
-                    false,
-                    false,
-                    0,
-                    o.str(),
-                    true,
-                    iter,
-                    customStream);
+                writeMarshalUnmarshalCode(out, package, type, false, false, 0, o.str(), true, iter, customStream);
                 out << eb;
                 out << eb;
             }
@@ -957,17 +949,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                 }
                 else
                 {
-                    writeMarshalUnmarshalCode(
-                        out,
-                        package,
-                        type,
-                        false,
-                        false,
-                        0,
-                        o.str(),
-                        false,
-                        iter,
-                        customStream);
+                    writeMarshalUnmarshalCode(out, package, type, false, false, 0, o.str(), false, iter, customStream);
                 }
                 out << eb;
                 iter++;
