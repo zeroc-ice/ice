@@ -9,7 +9,7 @@ import concurrent.futures
 from .LocalExceptions import TimeoutException
 from .LocalExceptions import InvocationCanceledException
 from collections.abc import Awaitable, Generator, Callable
-from typing import Never, Self, TypeAlias, TypeVar, Generic, Any, overload
+from typing import Self, TypeAlias, TypeVar, Generic, Any, overload
 
 # Type variable for the result type of the Future
 _T = TypeVar("_T")
