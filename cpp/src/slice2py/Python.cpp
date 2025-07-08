@@ -92,10 +92,18 @@ namespace
                 path += "/";
             }
             path += element;
+
             IceInternal::structstat st;
             if (IceInternal::stat(path, &st) < 0)
             {
-                if (IceInternal::mkdir(path, 0777) != 0)
+                int err = IceInternal::mkdir(path, 0777);
+                // If slice2py is run concurrently, it's possible that another instance of slice2py has already created
+                // the directory.
+                if (err == 0 || (errno == EEXIST && IceInternal::directoryExists(path)))
+                {
+                    // Directory successfully created or already exists.
+                }
+                else
                 {
                     ostringstream os;
                     os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);

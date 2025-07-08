@@ -17,9 +17,16 @@ using namespace IceInternal;
 
 namespace
 {
+    enum OperationMode
+    {
+        OpSync,
+        OpAsync,
+        OpDispatch
+    };
+
     const char* const tripleQuotes = R"(""")";
 
-    string typeToDocstring(const TypePtr& type, bool optional)
+    string typeToTypeHintString(const TypePtr& type, bool optional)
     {
         assert(type);
 
@@ -28,15 +35,11 @@ namespace
             if (isProxyType(type))
             {
                 // We map optional proxies like regular proxies, as XxxPrx or None.
-                return typeToDocstring(type, false);
+                return typeToTypeHintString(type, false);
             }
             else
             {
-                ostringstream os;
-                os << "(";
-                os << typeToDocstring(type, false);
-                os << " or None)";
-                return os.str();
+                return typeToTypeHintString(type, false) + " | None";
             }
         }
 
@@ -49,12 +52,11 @@ namespace
             "float",
             "float",
             "str",
-            "Ice.Value",
-            "(Ice.ObjectPrx or None)",
-            "Ice.Value"};
+            "Ice.Object", // Not used anymore
+            "Ice.ObjectPrx | None",
+            "Ice.Value | None"};
 
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-        if (builtin)
+        if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
             if (builtin->kind() == Builtin::KindObject)
             {
@@ -65,110 +67,94 @@ namespace
                 return string{builtinTable[builtin->kind()]};
             }
         }
-
-        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-        if (cl)
+        else if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
         {
             return cl->mappedScoped(".");
         }
-
-        StructPtr st = dynamic_pointer_cast<Struct>(type);
-        if (st)
+        else if (auto st = dynamic_pointer_cast<Struct>(type))
         {
             return st->mappedScoped(".");
         }
-
-        InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-        if (proxy)
+        else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
         {
-            ostringstream os;
-            os << "(";
-            os << proxy->mappedScoped(".") + "Prx";
-            os << " or None)";
-            return os.str();
+            return proxy->mappedScoped(".") + "Prx | None";
         }
-
-        EnumPtr en = dynamic_pointer_cast<Enum>(type);
-        if (en)
+        else if (auto en = dynamic_pointer_cast<Enum>(type))
         {
             return en->mappedScoped(".");
         }
-
-        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-        if (seq)
+        else if (auto seq = dynamic_pointer_cast<Sequence>(type))
         {
-            return "list[" + typeToDocstring(seq->type(), false) + "]";
-        }
-
-        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-        if (dict)
-        {
-            ostringstream os;
-            os << "dict[" << typeToDocstring(dict->keyType(), false) << ", "
-               << typeToDocstring(dict->valueType(), false) << "]";
-            return os.str();
-        }
-
-        return "???";
-    }
-
-    enum DocstringMode
-    {
-        DocSync,
-        DocAsync,
-        DocDispatch
-    };
-
-    string docReturnType(const OperationPtr& op, DocstringMode mode)
-    {
-        ostringstream os;
-
-        if (!op->returnsAnyValues())
-        {
-            if (mode == DocDispatch)
-            {
-                os << "None or awaitable";
-            }
-            else if (mode == DocAsync)
-            {
-                os << "awaitable";
-            }
-        }
-        else if (mode == DocDispatch)
-        {
-            os << docReturnType(op, DocSync) << " or " << docReturnType(op, DocAsync);
-        }
-        else if (mode == DocAsync)
-        {
-            os << "awaitable of " << docReturnType(op, DocSync);
+            return "list[" + typeToTypeHintString(seq->type(), false) + "]";
         }
         else
         {
-            if (op->returnsMultipleValues())
+            auto dict = dynamic_pointer_cast<Dictionary>(type);
+            assert(dict);
+            ostringstream os;
+            os << "dict[" << typeToTypeHintString(dict->keyType(), false) << ", "
+               << typeToTypeHintString(dict->valueType(), false) << "]";
+            return os.str();
+        }
+    }
+
+    string returnTypeHint(const OperationPtr& operation, OperationMode mode)
+    {
+        assert(operation);
+        string returnTypeHint;
+        ParameterList outParameters = operation->outParameters();
+        if (operation->returnsMultipleValues())
+        {
+            ostringstream os;
+            os << "tuple[";
+            if (operation->returnType())
             {
-                os << "tuple of (";
-                if (op->returnType())
+                os << typeToTypeHintString(operation->returnType(), operation->returnIsOptional());
+                os << ", ";
+            }
+
+            for (const auto& param : outParameters)
+            {
+                os << typeToTypeHintString(param->type(), param->optional());
+                if (param != outParameters.back())
                 {
-                    os << typeToDocstring(op->returnType(), op->returnIsOptional());
                     os << ", ";
                 }
-                for (const auto& param : op->outParameters())
-                {
-                    os << typeToDocstring(param->type(), param->optional());
-                    if (param != op->outParameters().back())
-                    {
-                        os << ", ";
-                    }
-                }
-                os << ")";
             }
-            else if (op->returnType())
-            {
-                os << typeToDocstring(op->returnType(), op->returnIsOptional());
-            }
+            os << "]";
+            returnTypeHint = os.str();
+        }
+        else if (operation->returnType())
+        {
+            returnTypeHint = typeToTypeHintString(operation->returnType(), operation->returnIsOptional());
+        }
+        else if (!outParameters.empty())
+        {
+            const auto& param = outParameters.front();
+            returnTypeHint = typeToTypeHintString(param->type(), param->optional());
+        }
+        else
+        {
+            returnTypeHint = "None";
         }
 
-        return os.str();
+        if (mode == OpAsync)
+        {
+            return "Awaitable[" + returnTypeHint + "]";
+        }
+        else if (mode == OpDispatch)
+        {
+            return returnTypeHint + " | Awaitable[" + returnTypeHint + "]";
+        }
+        else
+        {
+            return returnTypeHint;
+        }
+    }
+
+    string operationReturnTypeHint(const OperationPtr& operation, OperationMode mode)
+    {
+        return " -> " + returnTypeHint(operation, mode);
     }
 
     /// Returns a DocString formatted link to the provided Slice identifier.
@@ -193,7 +179,7 @@ namespace
                 }
                 else
                 {
-                    result << "``" << typeToDocstring(builtinTarget, false) << "``";
+                    result << "``" << typeToTypeHintString(builtinTarget, false) << "``";
                 }
             }
             else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
@@ -364,7 +350,7 @@ namespace Slice::Python
         void writeDocstring(const optional<DocComment>&, const DataMemberList&);
         void writeDocstring(const optional<DocComment>&, const EnumeratorList&);
 
-        void writeDocstring(const OperationPtr&, DocstringMode);
+        void writeDocstring(const OperationPtr&, OperationMode);
 
         Output& _out;
         set<string>& _moduleHistory;
@@ -552,7 +538,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
             capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
             _out << sp;
             _out << nl << "@staticmethod";
-            _out << nl << "def " << capName << "MarshaledResult(result, current):";
+            _out << nl << "def " << capName << "MarshaledResult(result, current: Ice.Current):";
             _out.inc();
             _out << nl << tripleQuotes;
             _out << nl << "Immediately marshals the result of an invocation of " << sliceName;
@@ -579,15 +565,16 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
         {
             if (!param->isOutParam())
             {
-                _out << param->mappedName();
+                _out << (param->mappedName() + ": " + typeToTypeHintString(param->type(), param->optional()));
             }
         }
 
         const string currentParamName = getEscapedParamName(operation->parameters(), "current");
-        _out << (currentParamName + ": Ice.Current") << epar << ':';
+        _out << (currentParamName + ": Ice.Current");
+        _out << epar << operationReturnTypeHint(operation, OpDispatch) << ":";
         _out.inc();
 
-        writeDocstring(operation, DocDispatch);
+        writeDocstring(operation, OpDispatch);
 
         _out << nl << "pass";
         _out.dec();
@@ -671,7 +658,15 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     // The default __str__ method inherited from Ice.Value calls __repr__().
     _out << sp << nl << "def __repr__(self):";
     _out.inc();
-    _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(p->allDataMembers()) << ")\"";
+    const auto& allDataMembers = p->allDataMembers();
+    if (allDataMembers.empty())
+    {
+        _out << nl << "return \"" << getAbsolute(p) << "()\"";
+    }
+    else
+    {
+        _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(allDataMembers) << ")\"";
+    }
     _out.dec();
 
     _out.dec();
@@ -839,9 +834,10 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 }
                 string param = q->mappedName();
                 inParams.append(param);
+                param += ": " + typeToTypeHintString(q->type(), q->optional());
                 if (afterLastRequiredParameter)
                 {
-                    param += "=None";
+                    param += " = None";
                 }
                 inParamsDecl.append(param);
 
@@ -859,9 +855,10 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << ", " << inParamsDecl;
         }
         const string contextParamName = getEscapedParamName(operation->parameters(), "context");
-        _out << ", " << contextParamName << "=None):";
+        _out << ", " << contextParamName << ": dict[str, str] | None = None)"
+             << operationReturnTypeHint(operation, OpSync) << ":";
         _out.inc();
-        writeDocstring(operation, DocSync);
+        writeDocstring(operation, OpSync);
         _out << nl << "return " << classAbs << "._op_" << opName << ".invoke(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
@@ -870,18 +867,17 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << "), " << contextParamName << "))";
         _out.dec();
 
-        //
         // Async operations.
-        //
         _out << sp;
         _out << nl << "def " << mappedOpName << "Async(self";
         if (!inParams.empty())
         {
             _out << ", " << inParams;
         }
-        _out << ", " << contextParamName << "=None):";
+        _out << ", " << contextParamName << ": dict[str, str] = None)" << operationReturnTypeHint(operation, OpAsync)
+             << ":";
         _out.inc();
-        writeDocstring(operation, DocAsync);
+        writeDocstring(operation, OpAsync);
         _out << nl << "return " << classAbs << "._op_" << opName << ".invokeAsync(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
@@ -891,29 +887,41 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out.dec();
     }
 
+    const string prxTypeHint = typeToTypeHintString(p->declaration(), false);
+
     _out << sp << nl << "@staticmethod";
-    _out << nl << "def checkedCast(proxy, facet=None, context=None):";
+    _out << nl << "def checkedCast(";
+    _out.inc();
+    _out << nl << "proxy: Ice.ObjectPrx | None,";
+    _out << nl << "facet: str | None = None,";
+    _out << nl << "context: dict[str, str] | None = None";
+    _out.dec();
+    _out << nl << ") -> " << prxTypeHint << ":";
     _out.inc();
     _out << nl << "return Ice.checkedCast(" << prxAbs << ", proxy, facet, context)";
     _out.dec();
 
     _out << sp << nl << "@staticmethod";
-    _out << nl << "def checkedCastAsync(proxy, facet=None, context=None):";
+    _out << nl << "def checkedCastAsync(";
+    _out.inc();
+    _out << nl << "proxy: Ice.ObjectPrx | None,";
+    _out << nl << "facet: str | None = None,";
+    _out << nl << "context: dict[str, str] | None = None";
+    _out.dec();
+    _out << nl << ") -> Awaitable[" << prxTypeHint << "]:";
     _out.inc();
     _out << nl << "return Ice.checkedCastAsync(" << prxAbs << ", proxy, facet, context)";
     _out.dec();
 
     _out << sp << nl << "@staticmethod";
-    _out << nl << "def uncheckedCast(proxy, facet=None):";
+    _out << nl << "def uncheckedCast(proxy: Ice.ObjectPrx | None, facet: str|None=None) -> " << prxTypeHint << ":";
     _out.inc();
     _out << nl << "return Ice.uncheckedCast(" << prxAbs << ", proxy, facet)";
     _out.dec();
 
-    //
     // ice_staticId
-    //
     _out << sp << nl << "@staticmethod";
-    _out << nl << "def ice_staticId():";
+    _out << nl << "def ice_staticId() -> str:";
     _out.inc();
     _out << nl << "return \"" << scoped << "\"";
     _out.dec();
@@ -942,11 +950,9 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << "ABC" << epar << ':';
     _out.inc();
 
-    //
     // ice_ids
-    //
     StringList ids = p->ids();
-    _out << sp << nl << "def ice_ids(self, current):";
+    _out << sp << nl << "def ice_ids(self, current: Ice.Current) -> list[str] | Awaitable[list[str]]:";
     _out.inc();
     _out << nl << "return (";
     for (auto q = ids.begin(); q != ids.end(); ++q)
@@ -960,19 +966,15 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << ')';
     _out.dec();
 
-    //
     // ice_id
-    //
-    _out << sp << nl << "def ice_id(self, current):";
+    _out << sp << nl << "def ice_id(self, current: Ice.Current) -> str | Awaitable[str]:";
     _out.inc();
     _out << nl << "return \"" << scoped << "\"";
     _out.dec();
 
-    //
     // ice_staticId
-    //
     _out << sp << nl << "@staticmethod";
-    _out << nl << "def ice_staticId():";
+    _out << nl << "def ice_staticId() -> str:";
     _out.inc();
     _out << nl << "return \"" << scoped << "\"";
     _out.dec();
@@ -1146,9 +1148,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     writeDocstring(DocComment::parseFrom(p, pyLinkFormatter), members);
 
-    //
     // __init__
-    //
     _out << nl << "def __init__(self";
     writeConstructorParams(p->allDataMembers());
     _out << "):";
@@ -1177,9 +1177,17 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     // Generate the __repr__ method for this Exception class.
     // The default __str__ method inherited from Ice.UserException calls __repr__().
-    _out << sp << nl << "def __repr__(self):";
+    _out << sp << nl << "def __repr__(self) -> str:";
     _out.inc();
-    _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(p->allDataMembers()) << ")\"";
+    const auto& allDataMembers = p->allDataMembers();
+    if (allDataMembers.empty())
+    {
+        _out << nl << "return \"" << getAbsolute(p) << "()\"";
+    }
+    else
+    {
+        _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(p->allDataMembers()) << ")\"";
+    }
     _out.dec();
 
     //
@@ -1459,7 +1467,14 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     // Generate the __repr__ method for this struct class.
     _out << sp << nl << "def __repr__(self):";
     _out.inc();
-    _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(members) << ")\"";
+    if (members.empty())
+    {
+        _out << nl << "return \"" << getAbsolute(p) << "()\"";
+    }
+    else
+    {
+        _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(members) << ")\"";
+    }
     _out.dec();
 
     _out << sp << nl << "def __str__(self):";
@@ -2038,7 +2053,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         _out << nl << "----------";
         for (const auto& member : members)
         {
-            _out << nl << member->mappedName() << " : " << typeToDocstring(member->type(), member->optional());
+            _out << nl << member->mappedName() << " : " << typeToTypeHintString(member->type(), member->optional());
             auto p = docs.find(member->name());
             if (p != docs.end())
             {
@@ -2120,7 +2135,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode mode)
+Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, OperationMode mode)
 {
     optional<DocComment> comment = DocComment::parseFrom(op, pyLinkFormatter);
     if (!comment)
@@ -2141,16 +2156,16 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
     if (overview.empty() && remarks.empty())
     {
-        if ((mode == DocSync || mode == DocDispatch) && parametersDoc.empty() && exceptionsDoc.empty() &&
+        if ((mode == OpSync || mode == OpDispatch) && parametersDoc.empty() && exceptionsDoc.empty() &&
             returnsDoc.empty())
         {
             return;
         }
-        else if (mode == DocAsync && inParams.empty())
+        else if (mode == OpAsync && inParams.empty())
         {
             return;
         }
-        else if (mode == DocDispatch && inParams.empty() && exceptionsDoc.empty())
+        else if (mode == OpDispatch && inParams.empty() && exceptionsDoc.empty())
         {
             return;
         }
@@ -2171,9 +2186,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     bool needArgs = false;
     switch (mode)
     {
-        case DocSync:
-        case DocAsync:
-        case DocDispatch:
+        case OpSync:
+        case OpAsync:
+        case OpDispatch:
             needArgs = true;
             break;
     }
@@ -2189,7 +2204,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         _out << nl << "----------";
         for (const auto& param : inParams)
         {
-            _out << nl << param->mappedName() << " : " << typeToDocstring(param->type(), param->optional());
+            _out << nl << param->mappedName() << " : " << typeToTypeHintString(param->type(), param->optional());
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
@@ -2200,14 +2215,14 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
             }
         }
 
-        if (mode == DocSync || mode == DocAsync)
+        if (mode == OpSync || mode == OpAsync)
         {
             const string contextParamName = getEscapedParamName(op->parameters(), "context");
             _out << nl << contextParamName << " : dict[str, str]";
             _out << nl << "    The request context for the invocation.";
         }
 
-        if (mode == DocDispatch)
+        if (mode == OpDispatch)
         {
             const string currentParamName = getEscapedParamName(op->parameters(), "current");
             _out << nl << currentParamName << " : Ice.Current";
@@ -2219,7 +2234,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     // Emit return value(s).
     //
     bool hasReturnValue = false;
-    if (!op->returnsAnyValues() && (mode == DocAsync || mode == DocDispatch))
+    if (!op->returnsAnyValues() && (mode == OpAsync || mode == OpDispatch))
     {
         hasReturnValue = true;
         if (!overview.empty() || needArgs)
@@ -2228,12 +2243,12 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
         _out << nl << "Returns";
         _out << nl << "-------";
-        _out << nl << docReturnType(op, mode);
-        if (mode == DocAsync)
+        _out << nl << returnTypeHint(op, mode);
+        if (mode == OpAsync)
         {
             _out << nl << "    An awaitable that is completed when the invocation completes.";
         }
-        else if (mode == DocDispatch)
+        else if (mode == OpDispatch)
         {
             _out << nl << "    None or an awaitable that completes when the dispatch completes.";
         }
@@ -2247,7 +2262,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
         _out << nl << "Returns";
         _out << nl << "-------";
-        _out << nl << docReturnType(op, mode);
+        _out << nl << returnTypeHint(op, mode);
 
         if (op->returnsMultipleValues())
         {
@@ -2255,7 +2270,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
             _out << nl << "    A tuple containing:";
             if (returnType)
             {
-                _out << nl << "        - " << typeToDocstring(returnType, op->returnIsOptional());
+                _out << nl << "        - " << typeToTypeHintString(returnType, op->returnIsOptional());
                 bool firstLine = true;
                 for (const string& line : returnsDoc)
                 {
@@ -2273,7 +2288,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
             for (const auto& param : outParams)
             {
-                _out << nl << "        - " << typeToDocstring(param->type(), param->optional());
+                _out << nl << "        - " << typeToTypeHintString(param->type(), param->optional());
                 const auto r = parametersDoc.find(param->name());
                 if (r != parametersDoc.end())
                 {
@@ -2304,7 +2319,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         {
             assert(outParams.size() == 1);
             const auto& param = outParams.front();
-            _out << nl << typeToDocstring(param->type(), param->optional());
+            _out << nl << typeToTypeHintString(param->type(), param->optional());
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
@@ -2319,7 +2334,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     //
     // Emit exceptions.
     //
-    if ((mode == DocSync || mode == DocDispatch) && !exceptionsDoc.empty())
+    if ((mode == OpSync || mode == OpDispatch) && !exceptionsDoc.empty())
     {
         if (!overview.empty() || needArgs || hasReturnValue)
         {
@@ -2409,8 +2424,13 @@ Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& inc
 {
     validateMetadata(unit);
 
+    out << nl << "# Avoid evaluating annotations at function definition time.";
+    out << nl << "from __future__ import annotations";
+
     if (unit->contains<InterfaceDef>())
     {
+        // For async method annotations
+        out << nl << "from collections.abc import Awaitable";
         // For skeleton classes
         out << nl << "from abc import ABC, abstractmethod";
     }

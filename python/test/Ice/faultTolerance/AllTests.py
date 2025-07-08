@@ -3,8 +3,6 @@
 import Ice
 import sys
 import threading
-
-Ice.loadSlice("Test.ice")
 import Test
 
 

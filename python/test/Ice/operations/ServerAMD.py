@@ -2,7 +2,7 @@
 
 # Copyright (c) ZeroC, Inc.
 
-#
+# TODO: This is no longer relevant. All supported Python versions provide async/await keywords.
 # We want to test coroutines but older versions of Python cannot
 # load a source file that uses the async/await keywords, so we
 # have two versions of MyDerivedClassI.
@@ -10,8 +10,6 @@
 from TestAMDCoroI import MyDerivedClassI
 
 from TestHelper import TestHelper
-
-TestHelper.loadSlice("Test.ice")
 import Ice
 
 

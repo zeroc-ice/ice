@@ -10,10 +10,28 @@ from .InitializationData import InitializationData
 from .Properties import Properties
 from .Communicator import Communicator
 from .LocalExceptions import InitializationException
+from .EventLoopAdapter import EventLoopAdapter
 from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
+from typing import overload
+from .ToStringMode import ToStringMode
+import Ice
 
 __name__ = "Ice"
 
+@overload
+def initialize() -> Communicator: ...
+
+@overload
+def initialize(args: list[str]) -> Communicator: ...
+
+@overload
+def initialize(args: list[str], initData: InitializationData) -> Communicator: ...
+
+@overload
+def initialize(
+    args: list[str],
+    configFile: str | None = None,
+    eventLoop: EventLoopAdapter | None = None) -> Communicator: ...
 
 def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     """
@@ -76,7 +94,7 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     communicator = IcePy.Communicator(args, initData, configFile)
     return Communicator(communicator, eventLoopAdapter)
 
-def identityToString(identity, toStringMode=None):
+def identityToString(identity: Ice.Identity, toStringMode: ToStringMode=None) -> str:
     """
     Convert an object identity to a string.
 
@@ -95,7 +113,7 @@ def identityToString(identity, toStringMode=None):
     return IcePy.identityToString(identity, toStringMode)
 
 
-def stringToIdentity(str):
+def stringToIdentity(str: str) -> Ice.Identity:
     """
     Convert a string to an object identity.
 
@@ -117,7 +135,7 @@ def stringToIdentity(str):
     return IcePy.stringToIdentity(str)
 
 
-def createProperties(args=None, defaults=None):
+def createProperties(args: list[str]=None, defaults: Properties=None) -> Properties:
     """
     Creates a new property set.
 
@@ -162,7 +180,7 @@ def createProperties(args=None, defaults=None):
     return Properties(properties)
 
 
-def getSliceDir():
+def getSliceDir() -> str | None:
     """
     Returns the path to the directory where the Ice Slice files are installed.
 

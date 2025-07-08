@@ -6,8 +6,6 @@ import Ice
 import gc
 import sys
 import threading
-
-Ice.loadSlice("-I. --all ClientPrivate.ice")
 import Test
 
 
@@ -496,7 +494,8 @@ def allTests(helper, communicator):
             test(sb.sb == "SBSUnknownDerived.sb")
         except Ice.OperationNotExistException:
             pass
-        except Exception:
+        except Exception as ex:
+            print(f"Unexpected exception: {ex}")
             test(False)
     else:
         try:
@@ -511,7 +510,8 @@ def allTests(helper, communicator):
         except Ice.MarshalException:
             # Expected.
             pass
-        except Exception:
+        except Exception as ex:
+            print(f"Unexpected exception: {ex}")
             test(False)
     print("ok")
 

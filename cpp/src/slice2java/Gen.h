@@ -14,8 +14,7 @@ namespace Slice
     enum OptionalMode
     {
         OptionalNone,
-        OptionalParam, // Also used for return values.
-        OptionalMember
+        OptionalParam // Also used for return values.
     };
 
     class JavaVisitor : public JavaGenerator, public ParserVisitor
@@ -128,8 +127,11 @@ namespace Slice
         //
         static void
         writeMarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
-        static void
-        writeUnmarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
+        static void writeUnmarshalDataMember(
+            IceInternal::Output& out,
+            const std::string& package,
+            const DataMemberPtr& member,
+            int& iter);
 
         /// Write a constant or default value initializer.
         static void writeConstantValue(

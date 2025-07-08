@@ -1,6 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 from .EnumBase import EnumBase
+from typing import Self
 
 class ToStringMode(EnumBase):
     """
@@ -28,7 +29,7 @@ class ToStringMode(EnumBase):
     def __init__(self, _n, _v):
         EnumBase.__init__(self, _n, _v)
 
-    def valueOf(self, value):
+    def valueOf(self, value: int) -> Self | None:
         """
         Get the enumerator corresponding to the given value.
 
