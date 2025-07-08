@@ -91,43 +91,42 @@ namespace
     /// Returns a javadoc formatted link to the provided Slice identifier.
     string javaLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
     {
+        string sourceScope = getPackage(source);
+
         ostringstream result;
         result << "{@link ";
 
-        if (target)
+        if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
         {
-            if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
+            // Link to the method on the proxy interface.
+            result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx#"
+                    << operationTarget->mappedName();
+        }
+        else if (auto fieldTarget = dynamic_pointer_cast<DataMember>(target))
+        {
+            // Link to the field on its parent type.
+            auto parent = dynamic_pointer_cast<Contained>(fieldTarget->container());
+            result << getUnqualified(parent, sourceScope) << "#" << fieldTarget->mappedName();
+        }
+        else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+        {
+            // Link to the proxy interface.
+            result << getUnqualified(interfaceTarget, sourceScope) << "Prx";
+        }
+        else if (auto contained = dynamic_pointer_cast<Contained>(target))
+        {
+            if (dynamic_pointer_cast<Sequence>(contained) || dynamic_pointer_cast<Dictionary>(contained))
             {
-                result << typeToObjectString(builtinTarget, TypeModeIn);
+                // slice2java doesn't generate type-defs for sequences or dictionaries, so there's nothing to link to.
+                // So instead of generating a link, we just output the sequence/dictionary name in code formatting.
+                return "{@code " + getUnqualified(contained, sourceScope) + "}";
             }
-            else
-            {
-                string sourceScope = getPackage(source);
 
-                if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
-                {
-                    // link to the method on the proxy interface
-                    result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx#"
-                           << operationTarget->mappedName();
-                }
-                else if (auto fieldTarget = dynamic_pointer_cast<DataMember>(target))
-                {
-                    // link to the field
-                    auto parent = dynamic_pointer_cast<Contained>(fieldTarget->container());
-                    assert(parent);
-
-                    result << getUnqualified(parent, sourceScope) << "#" << fieldTarget->mappedName();
-                }
-                else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
-                {
-                    // link to the proxy interface
-                    result << getUnqualified(interfaceTarget, sourceScope) << "Prx";
-                }
-                else
-                {
-                    result << getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope);
-                }
-            }
+            result << getUnqualified(contained, sourceScope);
+        }
+        else if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
+        {
+            result << typeToObjectString(builtinTarget, TypeModeIn);
         }
         else
         {
