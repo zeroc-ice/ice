@@ -363,7 +363,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
     }
     else if (auto seq = dynamic_pointer_cast<Sequence>(type))
     {
-        if (mode = OptionalParam)
+        if (mode == OptionalParam)
         {
             TypePtr elemType = seq->type();
             BuiltinPtr eltBltin = dynamic_pointer_cast<Builtin>(elemType);
