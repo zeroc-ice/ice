@@ -226,12 +226,6 @@ def wrap_future(
     @overload
     def forwardCompletion(sourceFuture: asyncio.Future, targetFuture: FutureBase): ...
 
-    @overload
-    def forwardCompletion(sourceFuture: FutureBase, targetFuture: FutureBase) -> Never: ...
-
-    @overload
-    def forwardCompletion(sourceFuture: asyncio.Future, targetFuture: asyncio.Future) -> Never: ...
-
     def forwardCompletion(sourceFuture: FutureBase | asyncio.Future, targetFuture: FutureBase | asyncio.Future):
         if not targetFuture.done():
             if sourceFuture.cancelled():
