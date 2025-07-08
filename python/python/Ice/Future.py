@@ -467,7 +467,7 @@ class Future(FutureBase[_T]):
 
         Parameters
         ----------
-        ex : BaseException or None
+        ex : BaseException
             The exception to store in the future.
         """
         callbacks = []
