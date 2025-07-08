@@ -8,15 +8,6 @@
 
 namespace Slice
 {
-    //
-    // Generate code to marshal or unmarshal a type.
-    //
-    enum OptionalMode
-    {
-        OptionalNone,
-        OptionalParam // Also used for return values.
-    };
-
     class JavaVisitor : public JavaGenerator, public ParserVisitor
     {
     public:
@@ -26,7 +17,7 @@ namespace Slice
             IceInternal::Output& out,
             const std::string& package,
             const TypePtr& type,
-            OptionalMode mode,
+            bool isOptional,
             bool optionalMapping,
             std::int32_t tag,
             const std::string& param,
