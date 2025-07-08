@@ -177,10 +177,6 @@ class FutureBase(Generic[_T], Awaitable[_T], ABC):
         ----------
         fn : callable
             The function to execute upon completion. Takes the future as its argument.
-        *args : Any
-            Additional positional arguments (for compatibility with different Future implementations).
-        **kwargs : Any
-            Additional keyword arguments (for compatibility with different Future implementations).
         """
         pass
 
@@ -340,10 +336,6 @@ class Future(FutureBase[_T]):
         ----------
         fn : callable
             The function to execute upon completion. Takes the future as its argument.
-        *args : Any
-            Additional positional arguments (ignored in Ice Future implementation).
-        **kwargs : Any
-            Additional keyword arguments (ignored in Ice Future implementation).
         """
         with self._condition:
             if self._state == Future.StateRunning:
