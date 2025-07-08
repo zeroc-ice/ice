@@ -8,3 +8,4 @@ indent-width = 4
 # This is currently disabled by default, but it is planned for this
 # to be opt-out in the future.
 docstring-code-format = true
+docstring-code-line-length = 88
