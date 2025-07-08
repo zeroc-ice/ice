@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Coroutine
-from .Future import Future, FutureLike, Any
+from .Future import Future, FutureLike
 
 
 class EventLoopAdapter(ABC):
@@ -41,7 +41,7 @@ class EventLoopAdapter(ABC):
 
         Returns
         -------
-        FutureLike
-            A Future-like object that can be awaited in the application event loop.
+        Awaitable
+            An awaitable object that can be awaited in the application event loop.
         """
         pass
