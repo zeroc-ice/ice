@@ -10,7 +10,7 @@ on:
 
 jobs:
   ruff:
-    name: Ruff check
+    name: Ruff
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
