@@ -91,7 +91,7 @@ class Communicator:
         object adapters, and closes all outgoing connections. destroy waits for all outstanding dispatches to
         complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
         """
-        future = Future[None]()
+        future = Future()
 
         def completed() -> None:
             future.set_result(None)
