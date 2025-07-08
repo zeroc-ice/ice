@@ -96,7 +96,11 @@ namespace
         ostringstream result;
         result << "{@link ";
 
-        if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+        if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
+        {
+            result << typeToObjectString(builtinTarget, TypeModeIn);
+        }
+        else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
         {
             // Link to the method on the proxy interface.
             result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx#"
@@ -123,10 +127,6 @@ namespace
             }
 
             result << getUnqualified(contained, sourceScope);
-        }
-        else if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
-        {
-            result << typeToObjectString(builtinTarget, TypeModeIn);
         }
         else
         {
