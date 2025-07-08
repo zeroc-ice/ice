@@ -4,7 +4,6 @@ import Ice
 import asyncio
 from collections.abc import Awaitable, Coroutine
 from ..Future import FutureLike
-from asyncio import AbstractEventLoop
 
 
 class EventLoopAdapter(Ice.EventLoopAdapter):
@@ -15,7 +14,7 @@ class EventLoopAdapter(Ice.EventLoopAdapter):
     the communicator.
     """
 
-    def __init__(self, eventLoop: AbstractEventLoop):
+    def __init__(self, eventLoop: asyncio.AbstractEventLoop):
         self._eventLoop = eventLoop
 
     def runCoroutine(self, coroutine: Coroutine) -> FutureLike:
