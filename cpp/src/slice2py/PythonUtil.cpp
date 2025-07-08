@@ -130,7 +130,7 @@ namespace
         }
         else if (!outParameters.empty())
         {
-            auto param = outParameters.front();
+            const auto& param = outParameters.front();
             returnTypeHint = typeToTypeHintString(param->type(), param->optional());
         }
         else
