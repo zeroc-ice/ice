@@ -12,7 +12,7 @@ class TestHelper:
         self._communicator: Ice.Communicator | None = None
 
     def getTestEndpoint(
-        self, properties: Ice.Properties | None = None, num=0, protocol=""
+        self, properties: Ice.Properties | None = None, num: int = 0, protocol: str = ""
     ) -> str:
         if properties is None:
             # Note that self._communicator is sometimes None when this method is called with properties != None.
@@ -43,7 +43,9 @@ class TestHelper:
 
         return properties.getIceProperty("Ice.Default.Protocol")
 
-    def getTestPort(self, properties: Ice.Properties | None = None, num=0) -> int:
+    def getTestPort(
+        self, properties: Ice.Properties | None = None, num: int = 0
+    ) -> int:
         assert self._communicator is not None, "Communicator must be initialized"
         if properties is None:
             properties = self._communicator.getProperties()
@@ -88,7 +90,7 @@ class TestHelper:
             self._communicator.shutdown()
 
     @classmethod
-    def loadSlice(cls, args) -> None:
+    def loadSlice(cls, args: list[str]) -> None:
         sliceDir = Ice.getSliceDir()
         if not sliceDir:
             print(sys.argv[0] + ": Slice directory not found.")
