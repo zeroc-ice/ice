@@ -166,8 +166,6 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
 
     string typeS = typeToString(type, TypeModeIn, package, metadata);
 
-    assert(!marshal || mode != OptionalMember); // Only support OptionalMember for un-marshaling
-
     const BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
     {
@@ -232,11 +230,6 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                     {
                         out << nl << param << " = " << stream << ".readProxy(" << tag << ");";
                     }
-                    else if (mode == OptionalMember)
-                    {
-                        out << nl << stream << ".skip(4);";
-                        out << nl << param << " = " << stream << ".readProxy();";
-                    }
                     else
                     {
                         out << nl << param << " = " << stream << ".readProxy();";
@@ -266,11 +259,6 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
             if (mode == OptionalParam)
             {
                 out << nl << param << " = " << stream << ".readProxy(" << tag << ", " << typeS << "::uncheckedCast);";
-            }
-            else if (mode == OptionalMember)
-            {
-                out << nl << stream << ".skip(4);";
-                out << nl << param << " = " << typeS << ".uncheckedCast(" << stream << ".readProxy());";
             }
             else
             {
@@ -311,13 +299,12 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                 if (marshal)
                 {
                     out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
-                    return;
                 }
-                else if (mode != OptionalMember)
+                else
                 {
                     out << nl << param << " = " << helper << ".read" << spar << stream << tag << epar << ";";
-                    return;
                 }
+                return;
             }
 
             const TypePtr keyType = dict->keyType();
@@ -407,27 +394,25 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                 if (marshal)
                 {
                     out << nl << stream << ".write" << bs << "Seq(" << tag << ", " << param << ");";
-                    return;
                 }
-                else if (mode != OptionalMember)
+                else
                 {
                     out << nl << param << " = " << stream << ".read" << bs << "Seq(" << tag << ");";
-                    return;
                 }
+                return;
             }
             else if (seq->hasMetadata("java:serializable"))
             {
                 if (marshal)
                 {
                     out << nl << stream << ".writeSerializable" << spar << tag << param << epar << ";";
-                    return;
                 }
-                else if (mode != OptionalMember)
+                else
                 {
                     out << nl << param << " = " << stream << ".readSerializable" << spar << tag << typeS + ".class"
                         << epar << ";";
-                    return;
                 }
+                return;
             }
             // Check if either 1) No type metadata was applied to this sequence at all or 2) 'java:type' was applied to
             // where the sequence is used (which overrides any metadata on the definition) or 3) 'java:type' was applied
@@ -445,14 +430,13 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                     if (marshal)
                     {
                         out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
-                        return;
                     }
-                    else if (mode != OptionalMember)
+                    else
                     {
                         out << nl << param << " = " << helper << ".read" << spar << stream << tag << epar << ";";
-                        return;
                     }
                 }
+                return;
             }
 
             if (marshal)
@@ -567,11 +551,6 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
         if (mode == OptionalParam)
         {
             out << nl << param << " = " << typeS << ".ice_read(" << stream << ", " << tag << ");";
-        }
-        else if (mode == OptionalMember && dynamic_pointer_cast<Struct>(type))
-        {
-            out << nl << stream << (type->isVariableLength() ? ".skip(4);" : ".skipSize();");
-            out << nl << param << " = " << typeS << ".ice_read(" << stream << ");";
         }
         else
         {
@@ -1918,58 +1897,65 @@ Slice::JavaVisitor::writeMarshalDataMember(
 }
 
 void
-Slice::JavaVisitor::writeUnmarshalDataMember(
-    Output& out,
-    const string& package,
-    const DataMemberPtr& member,
-    int& iter,
-    bool forStruct)
+Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter)
 {
-    const string patchParams = getPatcher(member->type(), package, member->mappedName());
-    string memberName = member->mappedName();
+    const TypePtr& type = member->type();
+    const bool isOptional = member->optional();
+    const bool forStruct = (bool)dynamic_pointer_cast<Struct>(member->container());
+    const string stream = forStruct ? "istr" : "istr_";
+    assert(!isOptional || !forStruct);           // optional members aren't allowed in structs.
+    assert(!isOptional || !type->isClassType()); // optional class types aren't allowed.
 
-    if (member->optional())
+    // If this is an optional data member, we first have to handle the optional tag.
+    if (isOptional)
     {
-        assert(!forStruct);
-        out << nl << "if (_" << memberName << " = istr_.readOptional(" << member->tag() << ", "
+        out << nl << "if (_" << member->mappedName() << " = istr_.readOptional(" << member->tag() << ", "
             << getOptionalFormat(member->type()) << "))";
         out << sb;
-        writeMarshalUnmarshalCode(
-            out,
-            package,
-            member->type(),
-            OptionalMember,
-            false,
-            0,
-            memberName,
-            false,
-            iter,
-            "istr_",
-            member->getMetadata(),
-            patchParams);
-        out << eb;
-    }
-    else
-    {
-        string stream = forStruct ? "" : "istr_";
-        if (forStruct)
-        {
-            memberName = "this." + memberName;
-        }
 
-        writeMarshalUnmarshalCode(
-            out,
-            package,
-            member->type(),
-            OptionalNone,
-            false,
-            0,
-            memberName,
-            false,
-            iter,
-            stream,
-            member->getMetadata(),
-            patchParams);
+        const string optionalFormat = type->getOptionalFormat();
+        if (optionalFormat == "FSize")
+        {
+            out << nl << stream << ".skip(4);";
+        }
+        else if (optionalFormat == "VSize")
+        {
+            if (auto seq = dynamic_pointer_cast<Sequence>(type))
+            {
+                if (seq->type()->minWireSize() > 1)
+                {
+                    out << nl << stream << ".skipSize();";
+                }
+            }
+            else if (!dynamic_pointer_cast<Builtin>(type))
+            {
+                out << nl << stream << ".skipSize();";
+            }
+        }
+    }
+
+    // Write the unmarshalling code like normal.
+    const string memberName = (forStruct ? "this." : "") + member->mappedName();
+    const MetadataList& metadata = member->getMetadata();
+    const string patchParams = getPatcher(member->type(), package, member->mappedName());
+    writeMarshalUnmarshalCode(
+        out,
+        package,
+        type,
+        OptionalNone,
+        false,
+        0,
+        memberName,
+        false,
+        iter,
+        stream,
+        metadata,
+        patchParams);
+
+    // If this is an optional data member, generate a closing brace to balance out the 'if(... readOptional)'.
+    if (isOptional)
+    {
+        out << eb;
     }
 }
 
@@ -3430,7 +3416,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     iter = 0;
     for (const auto& member : members)
     {
-        writeUnmarshalDataMember(out, package, member, iter, true);
+        writeUnmarshalDataMember(out, package, member, iter);
     }
     out << eb;
 
