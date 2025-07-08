@@ -521,9 +521,6 @@ class Future(FutureBase[_T]):
     StateDone = "done"
 
 
-# Type variable for the result type of the Future
-_T = TypeVar("_T")
-
 # FutureLike is a type alias for an asyncio.Future, concurrent.futures.Future, or any awaitable object.
 FutureLike: TypeAlias = asyncio.Future[_T] | concurrent.futures.Future[_T] | FutureBase[_T]
 
