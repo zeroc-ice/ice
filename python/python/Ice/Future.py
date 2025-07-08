@@ -8,8 +8,8 @@ import logging
 import concurrent.futures
 from .LocalExceptions import TimeoutException
 from .LocalExceptions import InvocationCanceledException
-
-from typing import Generator, Self, TypeAlias, TypeVar, Generic, Callable, Any, Awaitable
+from collections.abc import Awaitable, Generator, Callable
+from typing import Self, TypeAlias, TypeVar, Generic, Any
 
 # Type variable for the result type of the Future
 _T = TypeVar("_T")
