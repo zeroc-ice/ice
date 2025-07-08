@@ -37,7 +37,10 @@ namespace Slice
             int& iter,
             bool useHelper,
             const std::string& customStream = "",
-            const MetadataList& metadata = MetadataList());
+            const MetadataList& metadata = MetadataList(),
+            bool isOptional = false,
+            bool optionalMapping = false,
+            std::int32_t tag = 0);
 
         /// Generate code to marshal or unmarshal a sequence type.
         static void writeSequenceMarshalUnmarshalCode(
