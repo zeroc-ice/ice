@@ -105,52 +105,55 @@ namespace
     }
 
     /// Returns a C# formatted link to the provided Slice identifier.
-    // TODO this fails for sequences and dictionaries.
     string csLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
     {
         ostringstream result;
         result << "<see ";
 
-        if (target)
+        if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
         {
-            if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
+            string typeS = typeToString(builtinTarget, "");
+            if (builtinTarget->kind() == Builtin::KindObjectProxy || builtinTarget->kind() == Builtin::KindValue)
             {
-                string typeS = typeToString(builtinTarget, "");
-                if (builtinTarget->kind() == Builtin::KindObjectProxy || builtinTarget->kind() == Builtin::KindValue)
-                {
-                    // Remove trailing '?':
-                    typeS.pop_back();
-                    result << "cref=\"" << typeS << "\"";
-                }
-                else
-                {
-                    // All other builtin types correspond to C# language keywords.
-                    result << "langword=\"" << typeS << "\"";
-                }
+                // Remove trailing '?':
+                typeS.pop_back();
+                result << "cref=\"" << typeS << "\"";
             }
             else
             {
-                string sourceScope = source->mappedScope(".");
-                sourceScope.pop_back(); // Remove the trailing '.' scope separator.
-
-                result << "cref=\"";
-                if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
-                {
-                    // link to the method on the proxy interface
-                    result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
-                           << operationTarget->mappedName();
-                }
-                else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
-                {
-                    // link to the proxy interface
-                    result << getUnqualified(interfaceTarget, sourceScope) << "Prx";
-                }
-                else
-                {
-                    result << getUnqualified(dynamic_pointer_cast<Contained>(target), sourceScope);
-                }
-                result << "\"";
+                // All other builtin types correspond to C# language keywords.
+                result << "langword=\"" << typeS << "\"";
             }
+        }
+        else if (auto contained = dynamic_pointer_cast<Contained>(target))
+        {
+            string sourceScope = source->mappedScope(".");
+            sourceScope.pop_back(); // Remove the trailing '.' scope separator.
+
+            if (dynamic_pointer_cast<Sequence>(contained) || dynamic_pointer_cast<Dictionary>(contained))
+            {
+                // slice2cs doesn't generate C# types for sequences or dictionaries, so there's nothing to link to.
+                // Instead, we just output the sequence or dictionary name in code formatting.
+                return "<c>" + getUnqualified(contained, sourceScope) + "</c>";
+            }
+
+            result << "cref=\"";
+            if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+            {
+                // link to the method on the proxy interface
+                result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
+                       << operationTarget->mappedName();
+            }
+            else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+            {
+                // link to the proxy interface
+                result << getUnqualified(interfaceTarget, sourceScope) << "Prx";
+            }
+            else
+            {
+                result << getUnqualified(contained, sourceScope);
+            }
+            result << "\"";
         }
         else
         {
