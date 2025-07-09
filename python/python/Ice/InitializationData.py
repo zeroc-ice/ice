@@ -4,6 +4,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from IcePy import BatchRequest, Connection
+
 from .EventLoopAdapter import EventLoopAdapter
 from .Logger import Logger
 from .Properties import Properties

@@ -1,15 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
+import re
+
 from Util import (
     Client,
     ClientServerTestCase,
     Mapping,
+    Process,
     ProcessFromBinDir,
     Server,
-    Process,
 )
-
-import re
 
 # Regex pattern to match placeholders like {port1}, {port2}, ..., {portXX}
 port_pattern = re.compile(r"{port(\d+)}")

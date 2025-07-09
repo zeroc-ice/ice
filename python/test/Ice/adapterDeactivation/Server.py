@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
 import TestI
+from TestHelper import TestHelper
 
 
 class Server(TestHelper):

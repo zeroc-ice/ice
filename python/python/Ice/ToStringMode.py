@@ -1,7 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
-from .EnumBase import EnumBase
 from typing import Self
+
+from .EnumBase import EnumBase
 
 
 class ToStringMode(EnumBase):

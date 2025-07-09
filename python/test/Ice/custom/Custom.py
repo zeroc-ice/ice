@@ -1,8 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
-from ArrayUtil import createArray
-
 from importlib.util import find_spec
+
+from ArrayUtil import createArray
 
 hasNumPy = find_spec("numpy") is not None
 

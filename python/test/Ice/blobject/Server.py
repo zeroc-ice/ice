@@ -2,10 +2,12 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
-import Ice
-import Test
 import time
+
+import Test
+from TestHelper import TestHelper
+
+import Ice
 
 
 class TestI(Test.Hello):

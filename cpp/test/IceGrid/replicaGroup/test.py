@@ -1,9 +1,9 @@
 # Copyright (c) ZeroC, Inc.
 
 import os
+
 from IceGridUtil import IceGridClient, IceGridRegistryMaster, IceGridTestCase
 from Util import TestSuite, Windows, platform
-
 
 registryProps = {
     "Ice.Plugin.RegistryPlugin": "RegistryPlugin:createRegistryPlugin",

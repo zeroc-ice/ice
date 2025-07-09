@@ -5,16 +5,13 @@
 #
 
 import os
-import sys
 import shutil
 import signal
-
+import sys
 from enum import StrEnum, auto
 from typing import override
-
 from xml.sax import make_parser
-from xml.sax.handler import feature_namespaces
-from xml.sax.handler import ContentHandler
+from xml.sax.handler import ContentHandler, feature_namespaces
 
 
 class Language(StrEnum):

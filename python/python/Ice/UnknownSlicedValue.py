@@ -1,7 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
-from .Value import Value
 import IcePy
+
+from .Value import Value
 
 
 class UnknownSlicedValue(Value):

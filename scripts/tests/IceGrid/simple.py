@@ -3,14 +3,13 @@
 import os
 
 from IceGridUtil import (
+    IceGridClient,
     IceGridRegistryMaster,
     IceGridRegistrySlave,
-    IceGridTestCase,
-    IceGridClient,
     IceGridServer,
+    IceGridTestCase,
 )
 from Util import ClientServerTestCase, Linux, TestSuite, Windows, platform
-
 
 serverProps = {
     "TestAdapter.Endpoints": "default",

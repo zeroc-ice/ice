@@ -2,10 +2,11 @@
 
 # Copyright (c) ZeroC, Inc.
 
+import TestI
 from TestHelper import TestHelper
+
 import AllTests
 import Ice
-import TestI
 
 
 class Client(TestHelper):

@@ -2,8 +2,10 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
-import Ice
+
 from TestHelper import TestHelper
+
+import Ice
 
 
 def test(b):

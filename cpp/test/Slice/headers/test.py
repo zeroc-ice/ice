@@ -6,11 +6,11 @@ import shutil
 
 from Util import (
     ClientTestCase,
-    component,
-    platform,
     SliceTranslator,
     TestSuite,
     Windows,
+    component,
+    platform,
 )
 
 

@@ -1,10 +1,10 @@
 # Copyright (c) ZeroC, Inc.
 
+import locale
 import os
 import shutil
-import locale
 
-from Util import ClientTestCase, platform, TestSuite, SliceTranslator, Linux
+from Util import ClientTestCase, Linux, SliceTranslator, TestSuite, platform
 
 
 class SliceUnicodePathsTestCase(ClientTestCase):

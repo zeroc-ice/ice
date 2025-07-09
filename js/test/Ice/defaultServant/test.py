@@ -1,7 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from Util import ClientServerTestCase, Client, EchoServer, TestSuite
-
+from Util import Client, ClientServerTestCase, EchoServer, TestSuite
 
 TestSuite(
     __file__,

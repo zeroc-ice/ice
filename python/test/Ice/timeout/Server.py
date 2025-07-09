@@ -2,11 +2,13 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
 import threading
 import time
-import Ice
+
 import Test
+from TestHelper import TestHelper
+
+import Ice
 
 
 class ActivateAdapterThread(threading.Thread):

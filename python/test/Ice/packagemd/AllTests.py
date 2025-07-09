@@ -1,10 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
+import sys
+
+import modpkg
 import Test
 import Test1
 import testpkg
-import modpkg
-import sys
 
 
 def test(b):

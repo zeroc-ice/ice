@@ -2,13 +2,15 @@
 
 # Avoid evaluating annotations at function definition time.
 from __future__ import annotations
+
 from collections.abc import Awaitable
-from .Current import Current
-import IcePy
-import Ice.OperationMode_ice
-import Ice.BuiltinSequences_ice
 
 import Ice
+import Ice.BuiltinSequences_ice
+import Ice.OperationMode_ice
+import IcePy
+
+from .Current import Current
 
 
 class Object:

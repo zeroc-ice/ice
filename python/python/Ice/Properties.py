@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from typing import final, Self
+from typing import Self, final
 
 
 @final

@@ -2,10 +2,12 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
 import sys
-import Ice
+
 import escaped_and
+from TestHelper import TestHelper
+
+import Ice
 
 
 class delI(escaped_and._del):

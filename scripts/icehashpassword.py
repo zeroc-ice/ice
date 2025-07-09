@@ -2,11 +2,12 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import sys
 import getopt
+import getpass
+import sys
+
 import passlib.hash
 import passlib.hosts
-import getpass
 
 usePBKDF2 = any(sys.platform == p for p in ["win32", "darwin", "cygwin"])
 useCryptExt = any(sys.platform.startswith(p) for p in ["linux", "freebsd", "gnukfreebsd"])

@@ -10,7 +10,6 @@
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
 from Util import ClientServerTestCase, TestSuite
 
-
 props = {"Ice.UDP.SndSize": 512 * 1024, "Ice.Warn.Dispatch": 0}
 persistent = IceStorm(props=props)
 transient = IceStorm(props=props, transient=True)

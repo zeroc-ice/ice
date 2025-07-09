@@ -1,6 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import IcePy
+
 from .SlicedData import SlicedData
 
 

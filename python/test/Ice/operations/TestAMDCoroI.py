@@ -2,11 +2,13 @@
 
 # Copyright (c) ZeroC, Inc.
 
+import concurrent.futures
 import threading
 import time
-import concurrent.futures
-import Ice
+
 import Test
+
+import Ice
 
 
 def test(b):

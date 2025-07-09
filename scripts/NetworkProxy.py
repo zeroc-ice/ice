@@ -1,9 +1,9 @@
 # Copyright (c) ZeroC, Inc.
 
+import select
+import socket
 import sys
 import threading
-import socket
-import select
 
 
 class InvalidRequest(Exception):

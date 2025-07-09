@@ -9,9 +9,9 @@
 #
 
 import sys
+
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
 from Util import ClientServerTestCase, TestSuite
-
 
 props = {
     "IceStorm.Election.MasterTimeout": 2,

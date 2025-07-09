@@ -4,8 +4,7 @@ import logging
 import traceback
 
 from .Future import Future
-from .LocalExceptions import TimeoutException
-from .LocalExceptions import InvocationCanceledException
+from .LocalExceptions import InvocationCanceledException, TimeoutException
 
 
 class InvocationFuture(Future):

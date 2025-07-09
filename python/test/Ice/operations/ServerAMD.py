@@ -8,8 +8,8 @@
 # have two versions of MyDerivedClassI.
 #
 from TestAMDCoroI import MyDerivedClassI
-
 from TestHelper import TestHelper
+
 import Ice
 
 

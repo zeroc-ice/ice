@@ -5,16 +5,18 @@ import asyncio
 import os
 import sys
 import threading
-import IcePy
-from .InitializationData import InitializationData
-from .Properties import Properties
-from .Communicator import Communicator
-from .LocalExceptions import InitializationException
-from .EventLoopAdapter import EventLoopAdapter
-from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
 from typing import overload
-from .ToStringMode import ToStringMode
+
 import Ice
+import IcePy
+
+from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
+from .Communicator import Communicator
+from .EventLoopAdapter import EventLoopAdapter
+from .InitializationData import InitializationData
+from .LocalExceptions import InitializationException
+from .Properties import Properties
+from .ToStringMode import ToStringMode
 
 __name__ = "Ice"
 

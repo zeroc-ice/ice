@@ -1,8 +1,9 @@
 # Copyright (c) ZeroC, Inc.
 
-import Test
-import Executor
 import time
+
+import Executor
+import Test
 
 
 def test(b):

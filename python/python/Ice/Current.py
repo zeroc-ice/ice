@@ -1,12 +1,13 @@
 # Copyright (c) ZeroC, Inc.
 
 from dataclasses import dataclass
-from IcePy import Connection
-from .ObjectAdapter import ObjectAdapter
 
 import Ice.Identity_ice
 import Ice.OperationMode_ice
 import Ice.Version_ice
+from IcePy import Connection
+
+from .ObjectAdapter import ObjectAdapter
 
 
 @dataclass(frozen=True)

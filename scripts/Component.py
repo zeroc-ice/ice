@@ -3,9 +3,10 @@
 import os
 import re
 
+import IceGridUtil
+
 # Import as modules to allow for circular imports
 import Util
-import IceGridUtil
 
 
 class Ice(Util.Component):

@@ -1,10 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
-import math
-import Test
 import array
+import math
 from sys import version_info
+
+import Test
+
+import Ice
 
 
 def test(b):

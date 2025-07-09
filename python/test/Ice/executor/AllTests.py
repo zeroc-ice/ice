@@ -1,11 +1,13 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
-import Test
-import Executor
+import random
 import sys
 import threading
-import random
+
+import Executor
+import Test
+
+import Ice
 
 
 def test(b):

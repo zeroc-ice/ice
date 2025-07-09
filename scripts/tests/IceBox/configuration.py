@@ -3,7 +3,6 @@
 from IceBoxUtil import IceBox
 from Util import ClientServerTestCase, TestSuite
 
-
 TestSuite(
     __name__,
     [

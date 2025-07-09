@@ -1,10 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
-import sys
-import os
-import traceback
 import importlib
+import os
+import sys
+import traceback
+
+import Ice
 
 
 class TestHelper:

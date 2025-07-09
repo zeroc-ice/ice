@@ -1,10 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
-import Test
-import threading
-import sys
 import array
+import sys
+import threading
+
+import Test
+
+import Ice
 
 
 def test(b):

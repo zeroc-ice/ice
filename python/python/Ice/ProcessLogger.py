@@ -1,8 +1,9 @@
 # Copyright (c) ZeroC, Inc.
 
 import IcePy
-from .Logger import Logger
+
 from ._LoggerI import LoggerI
+from .Logger import Logger
 
 __name__ = "Ice"
 

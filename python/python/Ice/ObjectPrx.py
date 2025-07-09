@@ -6,8 +6,9 @@ from __future__ import annotations
 from collections.abc import Awaitable
 from typing import Self
 
-import IcePy
 import Ice
+import IcePy
+
 from .Object import Object
 
 

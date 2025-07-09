@@ -1,9 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
-import Test
-import time
 import threading
+import time
+
+import Test
+
+import Ice
 
 
 class ThreadHook:

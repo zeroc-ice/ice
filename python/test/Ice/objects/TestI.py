@@ -1,7 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
 import Test
+
+import Ice
 
 
 class BI(Test.B):

@@ -3,7 +3,6 @@
 from IceStormUtil import IceStorm, IceStormAdmin, IceStormProcess
 from Util import Client, ClientTestCase, TestCase, TestSuite
 
-
 icestorm1 = IceStorm(createDb=True, cleanDb=False)
 icestorm2 = IceStorm(createDb=False, cleanDb=True)
 

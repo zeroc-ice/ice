@@ -1,5 +1,6 @@
-import toml
 import sys
+
+import toml
 
 if len(sys.argv) != 3:
     print("Usage: update_version.py <new_version> <project.toml>")

@@ -1,14 +1,16 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
+import sys
+
+import BatchOneways
+import BatchOnewaysFuture
+import Oneways
+import OnewaysFuture
 import Test
 import Twoways
 import TwowaysFuture
-import Oneways
-import OnewaysFuture
-import BatchOneways
-import sys
-import BatchOnewaysFuture
+
+import Ice
 
 
 def test(b):

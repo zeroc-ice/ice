@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-import sys
 import os
+import sys
 
 from Util import (
     ClientServerTestCase,

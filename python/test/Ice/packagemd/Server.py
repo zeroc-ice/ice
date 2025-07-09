@@ -2,11 +2,12 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
+import modpkg
 import Test
 import Test1
 import testpkg
-import modpkg
+from TestHelper import TestHelper
+
 import Ice
 
 

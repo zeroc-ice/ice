@@ -1,9 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
+import os
+
 from Util import (
-    CSharpMapping,
     Client,
     CppMapping,
+    CSharpMapping,
     JavaMapping,
     Linux,
     Mapping,
@@ -12,7 +14,6 @@ from Util import (
     Server,
     platform,
 )
-import os
 
 
 class IceBox(ProcessFromBinDir, Server):

@@ -1,10 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
-import sys
 import asyncio
+import sys
+
+import Test
+
 import Ice
 import Ice.asyncio
-import Test
 
 
 def test(b):

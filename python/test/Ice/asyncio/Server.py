@@ -2,10 +2,12 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import Ice
 import asyncio
-from TestHelper import TestHelper
+
 import TestI
+from TestHelper import TestHelper
+
+import Ice
 
 
 class Server(TestHelper):

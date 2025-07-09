@@ -2,9 +2,10 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
 import sys
+
 import Test
+from TestHelper import TestHelper
 
 
 def test(b):

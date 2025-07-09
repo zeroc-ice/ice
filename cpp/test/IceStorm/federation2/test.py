@@ -6,10 +6,10 @@
 #
 import re
 import time
+
 import Expect
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
 from Util import ClientServerTestCase, TestSuite
-
 
 pub1Sub2Oneway = ClientServerTestCase(client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2"))
 pub1Sub2Batch = ClientServerTestCase(client=Publisher("TestIceStorm1"), server=Subscriber("TestIceStorm2", args=["-b"]))
