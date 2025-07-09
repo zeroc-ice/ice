@@ -121,8 +121,8 @@ namespace
         {
             if (dynamic_pointer_cast<Sequence>(contained) || dynamic_pointer_cast<Dictionary>(contained))
             {
-                // slice2java doesn't generate type-defs for sequences or dictionaries, so there's nothing to link to.
-                // So instead of generating a link, we just output the sequence/dictionary name in code formatting.
+                // slice2java doesn't generate Java types for sequences or dictionaries, so there's nothing to link to.
+                // Instead, we just output the sequence or dictionary name in code formatting.
                 return "{@code " + getUnqualified(contained, sourceScope) + "}";
             }
 
