@@ -5,11 +5,11 @@
 import sys
 import threading
 
-import Glacier2
 import Test
-
-import Ice
 from TestHelper import TestHelper
+
+import Glacier2
+import Ice
 
 
 def test(b):

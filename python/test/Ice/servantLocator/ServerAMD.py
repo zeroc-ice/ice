@@ -4,9 +4,9 @@
 
 import TestActivationAMDI
 import TestAMDI
+from TestHelper import TestHelper
 
 import Ice
-from TestHelper import TestHelper
 
 
 class ServerAMD(TestHelper):

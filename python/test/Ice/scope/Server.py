@@ -4,9 +4,9 @@
 
 import Inner
 import Test
+from TestHelper import TestHelper
 
 import Ice
-from TestHelper import TestHelper
 
 
 class MyInterface1(Test.MyInterface):
