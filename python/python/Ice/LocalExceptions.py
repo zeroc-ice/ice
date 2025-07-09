@@ -1,9 +1,10 @@
 # Copyright (c) ZeroC, Inc.
 
-from .LocalException import LocalException
+from typing import final
+
 import Ice.ReplyStatus_ice
 
-from typing import final
+from .LocalException import LocalException
 
 __name__ = "Ice"
 

@@ -1,8 +1,10 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
 import asyncio
 from collections.abc import Awaitable, Coroutine
+
+import Ice
+
 from ..Future import FutureLike
 
 

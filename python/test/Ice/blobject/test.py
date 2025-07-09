@@ -5,5 +5,4 @@
 
 from Util import TestSuite
 
-
 TestSuite(__name__, options={"protocol": ["tcp"]})

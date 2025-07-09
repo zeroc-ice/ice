@@ -2,11 +2,13 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import Ice
 import gc
 import sys
 import threading
+
 import Test
+
+import Ice
 
 
 def test(b):

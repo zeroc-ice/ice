@@ -1,9 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
-import Test
 import sys
 import uuid
+
+import Test
+
+import Ice
 
 
 class HelloI(Test.Hello):

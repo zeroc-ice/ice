@@ -1,6 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
-# ruff: noqa: F401, F821, E402, F403, F405
+# ruff: noqa: F401  # Unused imports
+# ruff: noqa: F821  # Undefined names
+# ruff: noqa: E402  # Module level import not at top of file
+# ruff: noqa: F403  # 'from module import *' used
+# ruff: noqa: F405  # Name may be undefined from wildcard import
+# ruff: noqa: I001  # Import block is unsorted or unformatted
 
 """
 Ice module

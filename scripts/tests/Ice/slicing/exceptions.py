@@ -2,7 +2,6 @@
 
 from Util import ClientAMDServerTestCase, ClientServerTestCase, Mapping, TestSuite
 
-
 testcases = [
     ClientServerTestCase(),
     ClientServerTestCase("client/server with 1.0 encoding", props={"Ice.Default.EncodingVersion": "1.0"}),

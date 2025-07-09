@@ -3,7 +3,7 @@
 import os
 import shutil
 
-from Util import ClientTestCase, SliceTranslator, TestSuite, platform, Linux
+from Util import ClientTestCase, Linux, SliceTranslator, TestSuite, platform
 
 
 class SliceUtf8BomTestCase(ClientTestCase):

@@ -1,13 +1,13 @@
 # Copyright (c) ZeroC, Inc.
 
-import sys
 import os
-import time
-import threading
 import queue
+import sys
+import threading
+import time
 import traceback
 
-from Util import Driver, IceProcess, Mapping, Result, parseOptions, Expect
+from Util import Driver, Expect, IceProcess, Mapping, Result, parseOptions
 
 #
 # The Executor class runs testsuites on multiple worker threads.

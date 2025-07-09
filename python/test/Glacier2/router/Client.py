@@ -4,12 +4,12 @@
 
 import sys
 import threading
-import Ice
-import Glacier2
-
-from TestHelper import TestHelper
 
 import Test
+from TestHelper import TestHelper
+
+import Glacier2
+import Ice
 
 
 def test(b):

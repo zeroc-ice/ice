@@ -11,8 +11,8 @@ from Util import (
     Server,
     TestSuite,
     Windows,
-    run,
     platform,
+    run,
 )
 
 certsPath = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "certs", "configuration"))

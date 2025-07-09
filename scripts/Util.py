@@ -1,27 +1,26 @@
 # Copyright (c) ZeroC, Inc.
 
-import os
-import sys
-import runpy
+import copy
 import getopt
-import traceback
-import types
+import itertools
+import os
+import random
+import re
+import runpy
+import shutil
+import subprocess
+import sys
 import threading
 import time
-import re
-import itertools
-import random
-import subprocess
-import shutil
-import copy
+import traceback
+import types
 import uuid
 import xml.sax.saxutils
-from platform import machine as platform_machine
-from pathlib import Path
-
-from io import StringIO
-
 from collections import OrderedDict
+from io import StringIO
+from pathlib import Path
+from platform import machine as platform_machine
+
 import Expect
 
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -2318,8 +2317,9 @@ class RemoteProcessController(ProcessController):
         return self.getController(current).getHost(current.config.protocol, current.config.ipv6)
 
     def getController(self, current):
-        import Ice
         import Test
+
+        import Ice
 
         ident = self.getControllerIdentity(current)
         if isinstance(ident, str):

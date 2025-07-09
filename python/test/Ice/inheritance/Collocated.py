@@ -2,10 +2,11 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
-import Ice
 import TestI
+from TestHelper import TestHelper
+
 import AllTests
+import Ice
 
 
 class Collocated(TestHelper):

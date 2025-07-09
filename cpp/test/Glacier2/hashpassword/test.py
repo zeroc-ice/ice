@@ -2,7 +2,8 @@
 
 import os
 import sys
-from Util import ClientTestCase, TestSuite, toplevel, run
+
+from Util import ClientTestCase, TestSuite, run, toplevel
 
 
 class Glacier2HashPasswordTestCase(ClientTestCase):

@@ -2,10 +2,11 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
-import Ice
-import TestAMDI
 import TestActivationAMDI
+import TestAMDI
+from TestHelper import TestHelper
+
+import Ice
 
 
 class ServerAMD(TestHelper):

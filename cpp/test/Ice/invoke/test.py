@@ -2,7 +2,6 @@
 
 from Util import ClientServerTestCase, Server, TestSuite
 
-
 TestSuite(
     __file__,
     [

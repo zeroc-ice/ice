@@ -8,9 +8,9 @@
 # truncated). See also bug #6070.
 #
 import time
+
 from IceStormUtil import IceStorm, IceStormTestCase, Publisher, Subscriber
 from Util import Client, TestSuite
-
 
 props = {
     "IceStorm.Election.MasterTimeout": 2,

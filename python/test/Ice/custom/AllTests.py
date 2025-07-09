@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-import sys
 import array
+import sys
 
 try:
     import numpy

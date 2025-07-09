@@ -16,8 +16,9 @@ import Test
 
 if hasNumPy:
     import Test.NumPy
-import Ice
 import array
+
+import Ice
 
 
 def test(b):

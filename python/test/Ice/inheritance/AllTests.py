@@ -1,7 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
-import Test
 import sys
+
+import Test
 
 
 def test(b):

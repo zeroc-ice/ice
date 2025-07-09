@@ -2,10 +2,11 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
-import Ice
-import TestI
 import TestActivationI
+import TestI
+from TestHelper import TestHelper
+
+import Ice
 
 
 class Server(TestHelper):

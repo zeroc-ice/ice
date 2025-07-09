@@ -2,8 +2,8 @@
 
 import os
 import platform
-from Glacier2Util import Glacier2Router, Glacier2TestSuite
 
+from Glacier2Util import Glacier2Router, Glacier2TestSuite
 from Util import Client, ClientServerTestCase, Server
 
 

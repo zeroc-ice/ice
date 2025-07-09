@@ -1,9 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
-import Test
 import math
 import threading
+
+import Test
+
+import Ice
 
 
 def test(b):

@@ -1,6 +1,25 @@
 line-length = 120
 indent-width = 4
 
+# This references the Python project configuration
+extend = "python/pyproject.toml"
+
+[lint]
+# Enable sorting
+select = ["I"]
+
+[lint.isort]
+known-first-party = [
+    "Glacier2",
+    "IcePy",
+    "Ice",
+    "IceBox",
+    "IceGrid",
+    "IceMX",
+    "IceStorm",
+    "AllTests",
+]
+
 [format]
 # Enable auto-formatting of code examples in docstrings. Markdown,
 # reStructuredText code/literal blocks and doctests are all supported.

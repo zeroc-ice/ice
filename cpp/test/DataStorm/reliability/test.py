@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from DataStormUtil import Reader, Writer, Node, NodeTestCase
+from DataStormUtil import Node, NodeTestCase, Reader, Writer
 from Util import ClientServerTestCase, TestSuite
 
 traceProps = {

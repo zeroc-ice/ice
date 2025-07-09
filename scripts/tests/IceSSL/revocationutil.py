@@ -1,17 +1,18 @@
 # Copyright (c) ZeroC, Inc.
 
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.serialization import Encoding
-from cryptography.x509 import ocsp, load_pem_x509_certificate, ReasonFlags, SubjectKeyIdentifier
-from datetime import datetime, timedelta, timezone
-from functools import partial
 import base64
 import http.server
 import os
 import sys
-import traceback
 import threading
+import traceback
 import urllib.parse
+from datetime import datetime, timedelta, timezone
+from functools import partial
+
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.serialization import Encoding
+from cryptography.x509 import ReasonFlags, SubjectKeyIdentifier, load_pem_x509_certificate, ocsp
 
 
 def load_certificate(path):

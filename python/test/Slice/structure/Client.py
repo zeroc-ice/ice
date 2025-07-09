@@ -2,10 +2,11 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
-import sys
 import copy
+import sys
+
 import Test
+from TestHelper import TestHelper
 
 
 def test(b):

@@ -1,6 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 from abc import ABC, abstractmethod
+
 from .Current import Current
 from .Object import Object
 

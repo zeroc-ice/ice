@@ -2,8 +2,9 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import threading
 import sys
+import threading
+
 import Test
 
 

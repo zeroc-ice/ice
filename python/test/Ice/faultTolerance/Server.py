@@ -3,9 +3,11 @@
 # Copyright (c) ZeroC, Inc.
 
 import os
-import Ice
-from TestHelper import TestHelper
+
 import Test
+from TestHelper import TestHelper
+
+import Ice
 
 
 class TestI(Test.TestIntf):

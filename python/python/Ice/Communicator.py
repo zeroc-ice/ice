@@ -2,23 +2,27 @@
 
 from __future__ import annotations
 
-from .ObjectAdapter import ObjectAdapter
-from .ImplicitContext import ImplicitContext
-from .Properties import Properties
+from typing import TYPE_CHECKING, Self, final
+
 from ._LoggerI import LoggerI
-from .Logger import Logger
 from .Future import Future
-from typing import final, Self, TYPE_CHECKING
+from .ImplicitContext import ImplicitContext
+from .Logger import Logger
+from .ObjectAdapter import ObjectAdapter
+from .Properties import Properties
 
 if TYPE_CHECKING:
-    import IcePy
-    from .EventLoopAdapter import EventLoopAdapter
-    from .ObjectPrx import ObjectPrx
     from collections.abc import Awaitable
+
     from Identity_ice import Identity
-    from .Object import Object
-    from Router_ice import RouterPrx
     from Locator_ice import LocatorPrx
+    from Router_ice import RouterPrx
+
+    import IcePy
+
+    from .EventLoopAdapter import EventLoopAdapter
+    from .Object import Object
+    from .ObjectPrx import ObjectPrx
 
 
 @final

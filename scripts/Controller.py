@@ -13,9 +13,9 @@ from Util import (
     Mapping,
     Result,
     parseOptions,
-    toplevel,
     platform,
     runTests,
+    toplevel,
     traceback,
 )
 

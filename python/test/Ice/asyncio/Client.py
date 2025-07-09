@@ -3,9 +3,11 @@
 # Copyright (c) ZeroC, Inc.
 
 import asyncio
-import Ice
+
 from TestHelper import TestHelper
+
 import AllTests
+import Ice
 
 
 class Client(TestHelper):

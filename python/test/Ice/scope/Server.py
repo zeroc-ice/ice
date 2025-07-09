@@ -2,9 +2,10 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
-import Test
 import Inner
+import Test
+from TestHelper import TestHelper
+
 import Ice
 
 

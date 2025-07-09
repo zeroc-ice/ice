@@ -1,12 +1,14 @@
 # Copyright (c) ZeroC, Inc.
 
+import random
+import sys
+import threading
+import time
+
+import Test
+
 import Ice
 import IcePy
-import Test
-import sys
-import time
-import threading
-import random
 
 
 def test(b):

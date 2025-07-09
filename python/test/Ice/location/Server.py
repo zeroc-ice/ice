@@ -2,9 +2,10 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import Ice
-from TestHelper import TestHelper
 import Test
+from TestHelper import TestHelper
+
+import Ice
 
 
 class ServerLocatorRegistry(Test.TestLocatorRegistry):

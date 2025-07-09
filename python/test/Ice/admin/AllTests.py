@@ -1,9 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
-import Ice
-import Test
 import sys
+
+import Test
 import TestI
+
+import Ice
 
 
 def test(b):

@@ -3,11 +3,10 @@
 # Avoid evaluating annotations at function definition time.
 from __future__ import annotations
 
-from typing import final
-import IcePy
-import Ice
+from typing import TYPE_CHECKING, final
 
-from typing import TYPE_CHECKING
+import Ice
+import IcePy
 
 if TYPE_CHECKING:
     from .Communicator import Communicator

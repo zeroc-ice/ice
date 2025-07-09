@@ -1,8 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 # Enable some tracing to allow investigating test failures
-from Util import ClientServerTestCase, ClientAMDServerTestCase, CollocatedTestCase, Mapping, TestSuite
-
+from Util import ClientAMDServerTestCase, ClientServerTestCase, CollocatedTestCase, Mapping, TestSuite
 
 traceProps = {"Ice.Trace.Retry": 1, "Ice.Trace.Protocol": 1}
 

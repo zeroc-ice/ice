@@ -1,13 +1,14 @@
 # Copyright (c) ZeroC, Inc.
 
-from setuptools import setup, Extension
-from setuptools.command.build_ext import build_ext as _build_ext
-from setuptools.command.sdist import sdist as _sdist
-import urllib.request
 import os
+import pathlib
 import shutil
 import sys
-import pathlib
+import urllib.request
+
+from setuptools import Extension, setup
+from setuptools.command.build_ext import build_ext as _build_ext
+from setuptools.command.sdist import sdist as _sdist
 
 # Define versions and URLs for dependencies
 mcpp_version = "2.7.2.18"

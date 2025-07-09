@@ -2,10 +2,11 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import Ice
 import Executor
 from TestHelper import TestHelper
+
 import AllTests
+import Ice
 
 
 class Client(TestHelper):

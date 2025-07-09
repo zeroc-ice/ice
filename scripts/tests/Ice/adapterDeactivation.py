@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-from Util import CSharpMapping, Darwin, TestSuite, platform, Mapping
+from Util import CSharpMapping, Darwin, Mapping, TestSuite, platform
 
 options = {}
 # Disable IPv6 for .NET on macOS until https://github.com/dotnet/runtime/pull/108334 is merged in .NET 8

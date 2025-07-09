@@ -4,8 +4,10 @@
 
 import threading
 import time
-import Ice
+
 import Test
+
+import Ice
 
 
 def test(b):

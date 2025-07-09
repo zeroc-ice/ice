@@ -3,6 +3,7 @@
 # Copyright (c) ZeroC, Inc.
 
 from TestHelper import TestHelper
+
 import AllTests
 import Ice
 

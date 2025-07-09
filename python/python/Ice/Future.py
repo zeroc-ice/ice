@@ -1,15 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
-from abc import ABC, abstractmethod
+import asyncio
+import concurrent.futures
+import logging
 import threading
 import time
-import asyncio
-import logging
-import concurrent.futures
-from .LocalExceptions import TimeoutException
-from .LocalExceptions import InvocationCanceledException
-from collections.abc import Awaitable, Generator, Callable
-from typing import Self, TypeAlias, TypeVar, Generic, Any, overload
+from abc import ABC, abstractmethod
+from collections.abc import Awaitable, Callable, Generator
+from typing import Any, Generic, Self, TypeAlias, TypeVar, overload
+
+from .LocalExceptions import InvocationCanceledException, TimeoutException
 
 # Type variable for the result type of the Future
 _T = TypeVar("_T")
