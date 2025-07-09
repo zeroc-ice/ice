@@ -8,15 +8,6 @@
 
 namespace Slice
 {
-    //
-    // Generate code to marshal or unmarshal a type.
-    //
-    enum OptionalMode
-    {
-        OptionalNone,
-        OptionalParam // Also used for return values.
-    };
-
     class JavaVisitor : public JavaGenerator, public ParserVisitor
     {
     public:
@@ -26,7 +17,7 @@ namespace Slice
             IceInternal::Output& out,
             const std::string& package,
             const TypePtr& type,
-            OptionalMode mode,
+            bool isOptional,
             bool optionalMapping,
             std::int32_t tag,
             const std::string& param,
@@ -46,7 +37,10 @@ namespace Slice
             int& iter,
             bool useHelper,
             const std::string& customStream = "",
-            const MetadataList& metadata = MetadataList());
+            const MetadataList& metadata = MetadataList(),
+            bool isOptional = false,
+            bool optionalMapping = false,
+            std::int32_t tag = 0);
 
         /// Generate code to marshal or unmarshal a sequence type.
         static void writeSequenceMarshalUnmarshalCode(
@@ -125,8 +119,11 @@ namespace Slice
         //
         // Marshal/unmarshal a data member.
         //
-        static void
-        writeMarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
+        static void writeMarshalDataMember(
+            IceInternal::Output& out,
+            const std::string& package,
+            const DataMemberPtr& member,
+            int& iter);
         static void writeUnmarshalDataMember(
             IceInternal::Output& out,
             const std::string& package,
