@@ -629,8 +629,7 @@ Slice::Java::javaLinkFormatter(const string& rawLink, const ContainedPtr& source
     else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
     {
         // Link to the method on the proxy interface.
-        result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx#"
-                << operationTarget->mappedName();
+        result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx#" << operationTarget->mappedName();
     }
     else if (auto fieldTarget = dynamic_pointer_cast<DataMember>(target))
     {

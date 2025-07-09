@@ -13,7 +13,8 @@ namespace Slice::Swift
     std::string getSwiftModule(const ModulePtr&, std::string&);
     std::string getSwiftModule(const ModulePtr&);
 
-    std::string swiftLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
+    std::string
+    swiftLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
     void validateSwiftMetadata(const UnitPtr&);
 

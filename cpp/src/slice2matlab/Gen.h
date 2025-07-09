@@ -62,7 +62,8 @@ namespace Slice
     };
 
     /// Returns a MATLAB formatted link (an 'href') for the provided Slice identifier.
-    std::string matlabLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
+    std::string
+    matlabLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 }
 
 #endif

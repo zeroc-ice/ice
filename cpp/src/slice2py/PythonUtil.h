@@ -39,7 +39,8 @@ namespace Slice::Python
     int compile(const std::vector<std::string>&);
 
     /// Returns a DocString formatted link to the provided Slice identifier.
-    std::string pyLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
+    std::string
+    pyLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
     void validatePythonMetadata(const UnitPtr&);
 }

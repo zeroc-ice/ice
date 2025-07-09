@@ -71,7 +71,8 @@ namespace Slice
     bool inWstringModule(const SequencePtr&);
 
     /// Returns a doxygen formatted link to the provided Slice identifier.
-    std::string cppLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
+    std::string
+    cppLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
     void validateCppMetadata(const UnitPtr&);
 }

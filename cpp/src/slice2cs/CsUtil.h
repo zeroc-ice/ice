@@ -80,7 +80,8 @@ namespace Slice::Csharp
         const std::string& customStream = "");
 
     /// Returns a C# formatted link to the provided Slice identifier.
-    std::string csLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
+    std::string
+    csLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 }
 
 #endif
