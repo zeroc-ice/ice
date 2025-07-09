@@ -5203,7 +5203,10 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(string languageName, optional<DocLinkFormatter> linkFormatter, bool all) : _languageName(std::move(languageName)), _linkFormatter(std::move(linkFormatter)), _all(all)
+Slice::Unit::Unit(string languageName, optional<DocLinkFormatter> linkFormatter, bool all)
+    : _languageName(std::move(languageName)),
+      _linkFormatter(std::move(linkFormatter)),
+      _all(all)
 {
     if (!languageName.empty())
     {
