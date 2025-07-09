@@ -219,25 +219,6 @@ namespace
         }
     }
 
-    string slice2LinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
-    {
-        // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
-        // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
-        string formattedLink = rawLink;
-        auto separatorPos = formattedLink.find('#');
-        if (separatorPos == 0)
-        {
-            // We want to avoid converting the relative link '#member' into the global link '::member'.
-            // Instead we simply convert it to 'member' with no prefix.
-            formattedLink = formattedLink.substr(1);
-        }
-        else if (separatorPos != string::npos)
-        {
-            formattedLink.replace(separatorPos, 1, "::");
-        }
-        return "{@link " + formattedLink + "}";
-    }
-
     void writeDocComment(const ContainedPtr& contained, Output& out)
     {
         optional<DocComment> comment = DocComment::parseFrom(contained, slice2LinkFormatter);
@@ -788,4 +769,24 @@ Gen::TypesVisitor::getOutput(const ContainedPtr& contained)
         auto inserted = _outputs.emplace(scope, std::move(out));
         return *(inserted.first->second);
     }
+}
+
+string
+Slice::slice2LinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+{
+    // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
+    // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
+    string formattedLink = rawLink;
+    auto separatorPos = formattedLink.find('#');
+    if (separatorPos == 0)
+    {
+        // We want to avoid converting the relative link '#member' into the global link '::member'.
+        // Instead we simply convert it to 'member' with no prefix.
+        formattedLink = formattedLink.substr(1);
+    }
+    else if (separatorPos != string::npos)
+    {
+        formattedLink.replace(separatorPos, 1, "::");
+    }
+    return "{@link " + formattedLink + "}";
 }

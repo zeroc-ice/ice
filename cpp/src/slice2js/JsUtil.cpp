@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "JsUtil.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
 #include "Ice/StringUtil.h"
 
@@ -479,4 +480,103 @@ Slice::JavaScript::getHelper(const TypePtr& type)
 
     assert(false);
     return "???";
+}
+
+string
+Slice::JavaScript::jsLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
+{
+    ostringstream result;
+    result << "{@link ";
+    if (target)
+    {
+        if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
+        {
+            result << typeToJsString(builtinTarget, true);
+        }
+        else
+        {
+            if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+            {
+                string targetScoped = operationTarget->interface()->mappedScoped(".");
+
+                // link to the method on the proxy interface
+                result << targetScoped << "Prx." << operationTarget->mappedName();
+            }
+            else
+            {
+                string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".");
+                if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+                {
+                    // link to the proxy interface
+                    result << targetScoped << "Prx";
+                }
+                else
+                {
+                    result << targetScoped;
+                }
+            }
+        }
+    }
+    else
+    {
+        auto hashPos = rawLink.find('#');
+        if (hashPos != string::npos)
+        {
+            // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
+            if (hashPos != 0)
+            {
+                result << rawLink.substr(0, hashPos) << "#";
+            }
+            result << rawLink.substr(hashPos + 1);
+        }
+        else
+        {
+            result << rawLink;
+        }
+    }
+    result << "}";
+    return result.str();
+}
+
+void
+Slice::JavaScript::validateJsMetadata(const UnitPtr& u)
+{
+    map<string, MetadataInfo> knownMetadata;
+
+    // "js:module"
+    MetadataInfo moduleInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("js:module", std::move(moduleInfo));
+
+    // "js:defined-in"
+    MetadataInfo definedInInfo = {
+        .validOn = {typeid(InterfaceDecl), typeid(ClassDecl)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("js:defined-in", std::move(definedInInfo));
+
+    // "js:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(Module),
+             typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("js:identifier", std::move(identifierInfo));
+
+    // Pass this information off to the parser's metadata validation logic.
+    Slice::validateMetadata(u, "js", std::move(knownMetadata));
 }

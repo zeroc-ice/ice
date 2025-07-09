@@ -60,7 +60,7 @@ namespace
                       "--list-generated         Emit list of generated files in XML format.\n";
     }
 
-    void validateMetadata(const UnitPtr& unit)
+    void validateMatlabMetadata(const UnitPtr& unit)
     {
         map<string, MetadataInfo> knownMetadata;
 
@@ -287,7 +287,7 @@ namespace
 
                         try
                         {
-                            validateMetadata(u);
+                            validateMatlabMetadata(u);
 
                             CodeVisitor codeVisitor(output);
                             u->visit(&codeVisitor);
