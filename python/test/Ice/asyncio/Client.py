@@ -4,10 +4,9 @@
 
 import asyncio
 
-from TestHelper import TestHelper
-
 import AllTests
 import Ice
+from TestHelper import TestHelper
 
 
 class Client(TestHelper):

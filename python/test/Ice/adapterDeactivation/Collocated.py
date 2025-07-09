@@ -3,9 +3,9 @@
 # Copyright (c) ZeroC, Inc.
 
 import TestI
-from TestHelper import TestHelper
 
 import AllTests
+from TestHelper import TestHelper
 
 
 class Collocated(TestHelper):

@@ -6,9 +6,9 @@ import modpkg
 import Test
 import Test1
 import testpkg
-from TestHelper import TestHelper
 
 import Ice
+from TestHelper import TestHelper
 
 
 class InitialI(Test.Initial):

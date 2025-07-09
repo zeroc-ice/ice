@@ -5,9 +5,9 @@
 import sys
 
 import escaped_and
-from TestHelper import TestHelper
 
 import Ice
+from TestHelper import TestHelper
 
 
 class delI(escaped_and._del):

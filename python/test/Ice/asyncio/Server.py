@@ -5,9 +5,9 @@
 import asyncio
 
 import TestI
-from TestHelper import TestHelper
 
 import Ice
+from TestHelper import TestHelper
 
 
 class Server(TestHelper):

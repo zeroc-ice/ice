@@ -6,7 +6,7 @@ indent-width = 4
 select = ["I"]
 
 [lint.isort]
-known-first-party = ["Ice", "IcePy"]
+known-first-party = ["Ice", "IcePy", "TestHelper", "AllTests"]
 
 [format]
 # Enable auto-formatting of code examples in docstrings. Markdown,

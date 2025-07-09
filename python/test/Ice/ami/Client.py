@@ -2,9 +2,8 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
-
 import AllTests
+from TestHelper import TestHelper
 
 
 class Client(TestHelper):

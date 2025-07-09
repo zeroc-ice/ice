@@ -5,9 +5,9 @@
 import os
 
 import Test
-from TestHelper import TestHelper
 
 import Ice
+from TestHelper import TestHelper
 
 
 class TestI(Test.TestIntf):
