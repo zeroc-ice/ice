@@ -116,7 +116,11 @@ namespace Slice
             std::string& instanceType,
             std::string& formalType);
 
-        void validateMetadata(const UnitPtr&);
+        /// Returns a javadoc formatted link to the provided Slice identifier.
+        std::string
+        javaLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
+
+        void validateJavaMetadata(const UnitPtr&);
     }
 
     class JavaOutput final : public ::IceInternal::Output

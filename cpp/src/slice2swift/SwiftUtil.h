@@ -13,6 +13,9 @@ namespace Slice::Swift
     std::string getSwiftModule(const ModulePtr&, std::string&);
     std::string getSwiftModule(const ModulePtr&);
 
+    std::string
+    swiftLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
+
     void validateSwiftMetadata(const UnitPtr&);
 
     // Swift only allows 1 package per file, so this function checks that if there are multiple top-level-modules

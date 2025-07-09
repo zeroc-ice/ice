@@ -15,34 +15,6 @@ using namespace IceInternal;
 
 namespace
 {
-    void validateMetadata(const UnitPtr& unit)
-    {
-        map<string, MetadataInfo> knownMetadata;
-
-        // "ruby:identifier"
-        MetadataInfo identifierInfo = {
-            .validOn =
-                {typeid(Module),
-                 typeid(InterfaceDecl),
-                 typeid(Operation),
-                 typeid(ClassDecl),
-                 typeid(Slice::Exception),
-                 typeid(Struct),
-                 typeid(Sequence),
-                 typeid(Dictionary),
-                 typeid(Enum),
-                 typeid(Enumerator),
-                 typeid(Const),
-                 typeid(Parameter),
-                 typeid(DataMember)},
-            .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        };
-        knownMetadata.emplace("ruby:identifier", std::move(identifierInfo));
-
-        // Pass this information off to the parser's metadata validation logic.
-        Slice::validateMetadata(unit, "ruby", std::move(knownMetadata));
-    }
-
     string getEscapedRubyParamName(const OperationPtr& p, const string& name)
     {
         for (const auto& param : p->parameters())
@@ -1098,7 +1070,7 @@ Slice::Ruby::generate(const UnitPtr& unit, bool all, const vector<string>& inclu
 {
     out << nl << "require 'Ice'";
 
-    ::validateMetadata(unit);
+    validateRubyMetadata(unit);
 
     if (!all)
     {
@@ -1196,4 +1168,33 @@ Slice::Ruby::printHeader(IceInternal::Output& out)
     out << "# Copyright (c) ZeroC, Inc.";
     out << sp;
     out << nl << "# slice2rb version " << ICE_STRING_VERSION;
+}
+
+void
+Slice::Ruby::validateRubyMetadata(const UnitPtr& unit)
+{
+    map<string, MetadataInfo> knownMetadata;
+
+    // "ruby:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(Module),
+             typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("ruby:identifier", std::move(identifierInfo));
+
+    // Pass this information off to the parser's metadata validation logic.
+    Slice::validateMetadata(unit, "ruby", std::move(knownMetadata));
 }

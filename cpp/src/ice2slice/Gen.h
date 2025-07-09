@@ -75,6 +75,9 @@ namespace Slice
             std::map<std::string, std::unique_ptr<IceInternal::Output>> _outputs;
         };
     };
+
+    std::string
+    slice2LinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 }
 
 #endif

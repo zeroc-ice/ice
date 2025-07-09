@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "CPlusPlusUtil.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
 #include <algorithm>
 #include <cassert>
@@ -842,4 +843,253 @@ Slice::inWstringModule(const SequencePtr& seq)
         cont = mod->container();
     }
     return false;
+}
+
+string
+Slice::cppLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
+{
+    if (target)
+    {
+        if (dynamic_pointer_cast<DataMember>(target) || dynamic_pointer_cast<Enumerator>(target))
+        {
+            ContainedPtr memberTarget = dynamic_pointer_cast<Contained>(target);
+
+            // Links to fields/enumerators must always be qualified in the form 'container#member'.
+            ContainedPtr parent = dynamic_pointer_cast<Contained>(memberTarget->container());
+            assert(parent);
+
+            string parentName = getUnqualified(parent->mappedScoped("::", true), source->mappedScope("::", true));
+            return parentName + "#" + memberTarget->mappedName();
+        }
+        if (auto enumTarget = dynamic_pointer_cast<Enum>(target))
+        {
+            // If a link to an enum isn't qualified (ie. the source and target are in the same module),
+            // we have to place a '#' character in front, so Doxygen looks in the current scope.
+            string link = getUnqualified(enumTarget->mappedScoped("::", true), source->mappedScope("::", true));
+            if (link.find("::") == string::npos)
+            {
+                link.insert(0, "#");
+            }
+            return link;
+        }
+        if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+        {
+            // Links to Slice interfaces should always point to the generated proxy type, not the servant type.
+            return getUnqualified(interfaceTarget->mappedScoped("::", true) + "Prx", source->mappedScope("::", true));
+        }
+        if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+        {
+            // Doxygen supports multiple syntaxes for operations, but none of them allow for a bare operation name.
+            // We opt for the syntax where operation names are qualified by what type they're defined on.
+            // See: https://www.doxygen.nl/manual/autolink.html#linkfunc.
+
+            InterfaceDefPtr parent = operationTarget->interface();
+            return getUnqualified(parent->mappedScoped("::", true) + "Prx", source->mappedScope("::", true)) +
+                   "::" + operationTarget->mappedName();
+        }
+        if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
+        {
+            return typeToString(builtinTarget, false);
+        }
+
+        ContainedPtr containedTarget = dynamic_pointer_cast<Contained>(target);
+        assert(containedTarget);
+        return getUnqualified(containedTarget->mappedScoped("::", true), source->mappedScope("::", true));
+    }
+    else
+    {
+        return rawLink; // rely on doxygen autolink.
+    }
+}
+
+void
+Slice::validateCppMetadata(const UnitPtr& u)
+{
+    map<string, MetadataInfo> knownMetadata;
+
+    // "cpp:array"
+    MetadataInfo arrayInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+        .acceptedContext = MetadataApplicationContext::ParameterTypeReferences,
+    };
+    knownMetadata.emplace("cpp:array", std::move(arrayInfo));
+
+    // "cpp:const"
+    MetadataInfo constInfo = {
+        .validOn = {typeid(Operation)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
+    knownMetadata.emplace("cpp:const", std::move(constInfo));
+
+    // "cpp:custom-print"
+    MetadataInfo customPrintInfo = {
+        .validOn = {typeid(Struct), typeid(ClassDecl), typeid(Slice::Exception), typeid(Enum)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
+    knownMetadata.emplace("cpp:custom-print", std::move(customPrintInfo));
+
+    // "cpp:ice_print"
+    MetadataInfo icePrintInfo = {
+        .validOn = {typeid(Slice::Exception)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
+        {
+            p->unit()->warning(
+                metadata->file(),
+                metadata->line(),
+                Deprecated,
+                "'cpp:ice_print' is deprecated; use 'cpp:custom-print' instead");
+            return nullopt;
+        }};
+    knownMetadata.emplace("cpp:ice_print", std::move(icePrintInfo));
+
+    // "cpp:dll-export"
+    MetadataInfo dllExportInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("cpp:dll-export", std::move(dllExportInfo));
+
+    // "cpp:doxygen"
+    // The metadata validation system does not support metadata names with colons. So here, for
+    // cpp:doxygen:include:Ice/Ice.h, include is either the first of two args, or part of the one arg. We consider it's
+    // a single arg that starts with 'include:'.
+    MetadataInfo doxygenInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string>
+        {
+            // Make sure the argument starts with 'include:'.
+            if (meta->arguments().find("include:") != 0)
+            {
+                ostringstream msg;
+                msg << "ignoring unknown metadata: '" << meta << '\'';
+                return msg.str();
+            }
+            return nullopt;
+        },
+    };
+    knownMetadata.emplace("cpp:doxygen", std::move(doxygenInfo));
+
+    // "cpp:header-ext"
+    MetadataInfo headerExtInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("cpp:header-ext", std::move(headerExtInfo));
+
+    // "cpp:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(Module),
+             typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("cpp:identifier", std::move(identifierInfo));
+
+    // "cpp:include"
+    MetadataInfo includeInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .mustBeUnique = false,
+    };
+    knownMetadata.emplace("cpp:include", std::move(includeInfo));
+
+    // "cpp:no-default-include"
+    MetadataInfo noDefaultIncludeInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
+    knownMetadata.emplace("cpp:no-default-include", std::move(noDefaultIncludeInfo));
+
+    // "cpp:no-stream"
+    MetadataInfo noStreamInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
+    knownMetadata.emplace("cpp:no-stream", std::move(noStreamInfo));
+
+    // "cpp:source-ext"
+    MetadataInfo sourceExtInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("cpp:source-ext", std::move(sourceExtInfo));
+
+    // "cpp:source-include"
+    MetadataInfo sourceIncludeInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .mustBeUnique = false,
+    };
+    knownMetadata.emplace("cpp:source-include", std::move(sourceIncludeInfo));
+
+    // "cpp:view-type"
+    MetadataInfo viewTypeInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .acceptedContext = MetadataApplicationContext::ParameterTypeReferences,
+    };
+    knownMetadata.emplace("cpp:view-type", std::move(viewTypeInfo));
+
+    // "cpp:type"
+    // Validating 'cpp:type' is painful with this system because it is used to support 2 completely separate use-cases.
+    // One for switching between wide and narrow strings, and another for customizing the mapping of sequences/dicts.
+    // Thankfully, there is no overlap in what these can be applied to, but having separate cases like this still means
+    // the validation framework isn't useful here. So, we turn off almost everything, and use a custom function instead.
+    MetadataInfo typeInfo = {
+        .validOn = {}, // Setting it to an empty list skips this validation step. We do it all in `extraValidation`.
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+        .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
+        {
+            // 'cpp:type' can be placed on containers, but only if it is the 'string' flavor of the metadata.
+            if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<InterfaceDecl>(p) ||
+                dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<Struct>(p) ||
+                dynamic_pointer_cast<Slice::Exception>(p))
+            {
+                const string& argument = meta->arguments();
+                if (argument != "string" && argument != "wstring")
+                {
+                    return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context";
+                }
+                return nullopt;
+            }
+
+            // Otherwise, the metadata must of been applied to a type reference.
+            if (auto builtin = dynamic_pointer_cast<Builtin>(p); builtin && builtin->kind() == Builtin::KindString)
+            {
+                const string& argument = meta->arguments();
+                if (argument != "string" && argument != "wstring")
+                {
+                    return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context";
+                }
+                return nullopt;
+            }
+            else if (dynamic_pointer_cast<Sequence>(p) || dynamic_pointer_cast<Dictionary>(p))
+            {
+                return nullopt;
+            }
+            else
+            {
+                return Slice::misappliedMetadataMessage(meta, p);
+            }
+        },
+    };
+    knownMetadata.emplace("cpp:type", typeInfo);
+
+    // Pass this information off to the parser's metadata validation logic.
+    Slice::validateMetadata(u, "cpp", std::move(knownMetadata));
 }

@@ -43,7 +43,7 @@ using namespace IceInternal;
 
 namespace
 {
-    void validateMetadata(const UnitPtr& unit)
+    void validatePhpMetadata(const UnitPtr& unit)
     {
         map<string, MetadataInfo> knownMetadata;
 
@@ -1105,7 +1105,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
         }
     }
 
-    validateMetadata(un);
+    validatePhpMetadata(un);
 
     CodeVisitor codeVisitor(out);
     un->visit(&codeVisitor);

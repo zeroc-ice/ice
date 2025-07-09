@@ -26,6 +26,12 @@ namespace Slice::JavaScript
         const std::string& param,
         std::int32_t tag,
         bool marshal);
+
+    /// Returns a JsDoc formatted link to the provided Slice identifier.
+    std::string
+    jsLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
+
+    void validateJsMetadata(const UnitPtr&);
 }
 
 #endif

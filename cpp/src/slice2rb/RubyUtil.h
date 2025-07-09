@@ -49,6 +49,8 @@ namespace Slice::Ruby
     /// Entry point into 'slice2rb'.
     /// @param argv The arguments provided to 'slice2rb'.
     int compile(const std::vector<std::string>& argv);
+
+    void validateRubyMetadata(const UnitPtr& unit);
 }
 
 #endif

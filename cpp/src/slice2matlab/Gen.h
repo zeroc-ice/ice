@@ -60,6 +60,10 @@ namespace Slice
         // The current class file being written.
         std::unique_ptr<IceInternal::Output> _out;
     };
+
+    /// Returns a MATLAB formatted link (an 'href') for the provided Slice identifier.
+    std::string
+    matlabLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 }
 
 #endif

@@ -157,73 +157,6 @@ namespace
         return " -> " + returnTypeHint(operation, mode);
     }
 
-    /// Returns a DocString formatted link to the provided Slice identifier.
-    string pyLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
-    {
-        ostringstream result;
-        if (target)
-        {
-            if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
-            {
-                if (builtinTarget->kind() == Builtin::KindObject)
-                {
-                    result << ":class:`Ice.Object`";
-                }
-                else if (builtinTarget->kind() == Builtin::KindValue)
-                {
-                    result << ":class:`Ice.Value`";
-                }
-                else if (builtinTarget->kind() == Builtin::KindObjectProxy)
-                {
-                    result << ":class:`Ice.ObjectPrx`";
-                }
-                else
-                {
-                    result << "``" << typeToTypeHintString(builtinTarget, false) << "``";
-                }
-            }
-            else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
-            {
-                string targetScoped = operationTarget->interface()->mappedScoped(".");
-
-                // link to the method on the proxy interface
-                result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "`";
-            }
-            else
-            {
-                string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".");
-                result << ":class:`" << targetScoped;
-                if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
-                {
-                    // link to the proxy interface
-                    result << "Prx";
-                }
-                result << "`";
-            }
-        }
-        else
-        {
-            result << "``";
-
-            auto hashPos = rawLink.find('#');
-            if (hashPos != string::npos)
-            {
-                if (hashPos != 0)
-                {
-                    result << rawLink.substr(0, hashPos) << ".";
-                }
-                result << rawLink.substr(hashPos + 1);
-            }
-            else
-            {
-                result << rawLink;
-            }
-
-            result << "``";
-        }
-        return result.str();
-    }
-
     string formatFields(const DataMemberList& members)
     {
         if (members.empty())
@@ -2422,7 +2355,7 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
 void
 Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& includePaths, Output& out)
 {
-    validateMetadata(unit);
+    validatePythonMetadata(unit);
 
     out << nl << "# Avoid evaluating annotations at function definition time.";
     out << nl << "from __future__ import annotations";
@@ -2519,8 +2452,75 @@ Slice::Python::printHeader(IceInternal::Output& out)
     out << nl << "# slice2py version " << ICE_STRING_VERSION;
 }
 
+string
+Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
+{
+    ostringstream result;
+    if (target)
+    {
+        if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
+        {
+            if (builtinTarget->kind() == Builtin::KindObject)
+            {
+                result << ":class:`Ice.Object`";
+            }
+            else if (builtinTarget->kind() == Builtin::KindValue)
+            {
+                result << ":class:`Ice.Value`";
+            }
+            else if (builtinTarget->kind() == Builtin::KindObjectProxy)
+            {
+                result << ":class:`Ice.ObjectPrx`";
+            }
+            else
+            {
+                result << "``" << typeToTypeHintString(builtinTarget, false) << "``";
+            }
+        }
+        else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+        {
+            string targetScoped = operationTarget->interface()->mappedScoped(".");
+
+            // link to the method on the proxy interface
+            result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "`";
+        }
+        else
+        {
+            string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".");
+            result << ":class:`" << targetScoped;
+            if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
+            {
+                // link to the proxy interface
+                result << "Prx";
+            }
+            result << "`";
+        }
+    }
+    else
+    {
+        result << "``";
+
+        auto hashPos = rawLink.find('#');
+        if (hashPos != string::npos)
+        {
+            if (hashPos != 0)
+            {
+                result << rawLink.substr(0, hashPos) << ".";
+            }
+            result << rawLink.substr(hashPos + 1);
+        }
+        else
+        {
+            result << rawLink;
+        }
+
+        result << "``";
+    }
+    return result.str();
+}
+
 void
-Slice::Python::validateMetadata(const UnitPtr& unit)
+Slice::Python::validatePythonMetadata(const UnitPtr& unit)
 {
     auto pythonArrayTypeValidationFunc = [](const MetadataPtr& m, const SyntaxTreeBasePtr& p) -> optional<string>
     {

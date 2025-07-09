@@ -201,8 +201,6 @@ namespace Slice
             IceInternal::Output& H;
             bool _firstElement{true};
         };
-
-        static void validateMetadata(const UnitPtr&);
     };
 }
 
