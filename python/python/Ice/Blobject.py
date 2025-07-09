@@ -16,7 +16,7 @@ class Blobject(Object, ABC):
     """
 
     @abstractmethod
-    def ice_invoke(self, bytes, current: Current):
+    def ice_invoke(self, bytes: bytes, current: Current):
         """
         Dispatches a synchronous Ice invocation.
 

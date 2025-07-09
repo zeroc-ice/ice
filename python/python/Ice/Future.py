@@ -1,24 +1,189 @@
 # Copyright (c) ZeroC, Inc.
 
+from abc import ABC, abstractmethod
 import threading
 import time
 import asyncio
 import logging
+import concurrent.futures
 from .LocalExceptions import TimeoutException
 from .LocalExceptions import InvocationCanceledException
+from collections.abc import Awaitable, Generator, Callable
+from typing import Self, TypeAlias, TypeVar, Generic, Any, overload
+
+# Type variable for the result type of the Future
+_T = TypeVar("_T")
 
 
 #
 # This class defines an __await__ method so that coroutines can call 'await <future>'.
 #
-class FutureBase:
-    def __await__(self):
+class FutureBase(Generic[_T], Awaitable[_T], ABC):
+    def __await__(self) -> Generator[Any, None, _T]:
         if not self.done():
             yield self
         return self.result()
 
+    @abstractmethod
+    def done(self) -> bool:
+        """
+        Check if the future has completed or been cancelled.
 
-def wrap_future(future, *, loop=None):
+        Returns
+        -------
+        bool
+            True if the operation has completed (successfully or with an exception)
+            or has been cancelled, otherwise False.
+        """
+        pass
+
+    @abstractmethod
+    def result(self, timeout: int | float | None = None) -> _T:
+        """
+        Retrieve the result of the future.
+
+        If the operation has not completed, this method waits up to `timeout` seconds for it to finish. If the
+        timeout is reached, a `TimeoutException` is raised.
+
+        If the future was cancelled before completing, an `InvocationCanceledException` is raised.
+
+        If the operation raised an exception, this method raises the same exception.
+
+        Parameters
+        ----------
+        timeout : int or float, optional
+            Maximum time (in seconds) to wait for the result. If `None`, the method waits indefinitely until the
+            operation completes.
+
+        Returns
+        -------
+        object
+            The result of the operation.
+
+        Raises
+        ------
+        TimeoutException
+            If the operation has not completed within the specified timeout.
+        InvocationCanceledException
+            If the operation was cancelled before completing.
+        Exception
+            If the operation raised an exception.
+        """
+        pass
+
+    @abstractmethod
+    def set_result(self, result: _T):
+        """
+        Set the result of the future and mark it as completed.
+
+        This method stores the provided `result` and transitions the future's state to "done". Any registered
+        callbacks are executed after the state update.
+
+        If the future is not in a running state, this method has no effect.
+
+        Parameters
+        ----------
+        result : _T
+            The result value to store in the future.
+        """
+        pass
+
+    @abstractmethod
+    def exception(self, timeout: int | float | None = None) -> BaseException | None:
+        """
+        Retrieve the exception raised by the operation.
+
+        If the operation has not completed, this method waits up to `timeout` seconds for it to finish. If the timeout
+        is reached, a `TimeoutException` is raised.
+
+        If the future was cancelled before completing, an `InvocationCanceledException` is raised.
+
+        If the operation completed successfully without raising an exception, `None` is returned.
+
+        Parameters
+        ----------
+        timeout : int or float, optional
+            Maximum time (in seconds) to wait for the exception. If `None`, the method waits indefinitely until the
+            operation completes.
+
+        Returns
+        -------
+        BaseException or None
+            The exception raised by the operation, or `None` if the operation completed successfully.
+
+        Raises
+        ------
+        TimeoutException
+            If the operation has not completed within the specified timeout.
+        InvocationCanceledException
+            If the operation was cancelled before completing.
+        """
+
+    @abstractmethod
+    def set_exception(self, ex: BaseException):
+        """
+        Set an exception for the future and mark it as completed.
+
+        This method stores the provided exception `ex` and transitions the future's state to "done". Any registered
+        callbacks are executed after the state update.
+
+        If the future is not in a running state, this method has no effect.
+
+        Parameters
+        ----------
+        ex : BaseException
+            The exception to store in the future.
+        """
+        pass
+
+    @abstractmethod
+    def cancel(self) -> bool:
+        """
+        Attempt to cancel the operation.
+
+        If the operation is already running or has completed, it cannot be cancelled, and the method returns False.
+        Otherwise, the operation is cancelled, and the method returns True.
+
+        Returns
+        -------
+        bool
+            True if the operation was cancelled, False otherwise.
+        """
+        pass
+
+    @abstractmethod
+    def cancelled(self) -> bool:
+        """
+        Check if the future has been cancelled.
+
+        Returns
+        -------
+        bool
+            True if the future was cancelled using `cancel()`, otherwise False.
+        """
+        pass
+
+    @abstractmethod
+    def add_done_callback(self, fn: Callable) -> None:
+        """
+        Attach a callback to be executed when the future completes.
+
+        The callback `fn` is called with the future as its only argument once the future completes or is cancelled.
+        Registered callbacks are executed in the order they were added.
+
+        If the future is already complete, `fn` is called immediately from the calling thread.
+
+        Parameters
+        ----------
+        fn : callable
+            The function to execute upon completion. Takes the future as its argument.
+        """
+        pass
+
+
+def wrap_future(
+    future: FutureBase | asyncio.Future, *, loop: asyncio.AbstractEventLoop | None = None
+) -> asyncio.Future:
     """
     Wrap an :class:`Ice.Future` object into an ``asyncio.Future``.
 
@@ -55,12 +220,18 @@ def wrap_future(future, *, loop=None):
 
     assert isinstance(future, FutureBase), "Ice.Future is expected, got {!r}".format(future)
 
-    def forwardCompletion(sourceFuture, targetFuture):
+    @overload
+    def forwardCompletion(sourceFuture: FutureBase, targetFuture: asyncio.Future): ...
+
+    @overload
+    def forwardCompletion(sourceFuture: asyncio.Future, targetFuture: FutureBase): ...
+
+    def forwardCompletion(sourceFuture: FutureBase | asyncio.Future, targetFuture: FutureBase | asyncio.Future):
         if not targetFuture.done():
             if sourceFuture.cancelled():
                 targetFuture.cancel()
-            elif sourceFuture.exception():
-                targetFuture.set_exception(sourceFuture.exception())
+            elif (sourceException := sourceFuture.exception()) is not None:
+                targetFuture.set_exception(sourceException)
             else:
                 targetFuture.set_result(sourceFuture.result())
 
@@ -79,14 +250,14 @@ def wrap_future(future, *, loop=None):
     return asyncioFuture
 
 
-class Future(FutureBase):
+class Future(FutureBase[_T]):
     """
     A Future object representing the result of an asynchronous operation.
     """
 
     def __init__(self):
-        self._result = None
-        self._exception = None
+        self._result: _T | None = None
+        self._exception: BaseException | None = None
         self._condition = threading.Condition()
         self._doneCallbacks = []
         self._state = Future.StateRunning
@@ -158,7 +329,7 @@ class Future(FutureBase):
         with self._condition:
             return self._state in [Future.StateCancelled, Future.StateDone]
 
-    def add_done_callback(self, fn):
+    def add_done_callback(self, fn: Callable) -> None:
         """
         Attach a callback to be executed when the future completes.
 
@@ -170,7 +341,7 @@ class Future(FutureBase):
         Parameters
         ----------
         fn : callable
-            The function to execute upon completion.
+            The function to execute upon completion. Takes the future as its argument.
         """
         with self._condition:
             if self._state == Future.StateRunning:
@@ -178,7 +349,7 @@ class Future(FutureBase):
                 return
         fn(self)
 
-    def result(self, timeout=None):
+    def result(self, timeout: int | float | None = None) -> _T:
         """
         Retrieve the result of the future.
 
@@ -218,9 +389,11 @@ class Future(FutureBase):
             elif self._exception:
                 raise self._exception
             else:
-                return self._result
+                # We can't check if _result is None here, because it is valid to have a result of None.
+                # i.e. Future[None]
+                return self._result  # type: ignore[return-value]
 
-    def exception(self, timeout=None):
+    def exception(self, timeout: int | float | None = None) -> BaseException | None:
         """
         Retrieve the exception raised by the operation.
 
@@ -239,7 +412,7 @@ class Future(FutureBase):
 
         Returns
         -------
-        Exception or None
+        BaseException or None
             The exception raised by the operation, or `None` if the operation completed successfully.
 
         Raises
@@ -257,7 +430,7 @@ class Future(FutureBase):
             else:
                 return self._exception
 
-    def set_result(self, result):
+    def set_result(self, result: _T):
         """
         Set the result of the future and mark it as completed.
 
@@ -283,7 +456,7 @@ class Future(FutureBase):
 
         self._callCallbacks(callbacks)
 
-    def set_exception(self, ex):
+    def set_exception(self, ex: BaseException):
         """
         Set an exception for the future and mark it as completed.
 
@@ -294,7 +467,7 @@ class Future(FutureBase):
 
         Parameters
         ----------
-        ex : Exception
+        ex : BaseException
             The exception to store in the future.
         """
         callbacks = []
@@ -309,12 +482,12 @@ class Future(FutureBase):
         self._callCallbacks(callbacks)
 
     @staticmethod
-    def completed(result):
+    def completed(result: _T) -> "Future[_T]":
         f = Future()
         f.set_result(result)
         return f
 
-    def _wait(self, timeout, testFn=None):
+    def _wait(self, timeout: float | None, testFn: Callable[[], bool]) -> bool:
         # Must be called with _condition acquired
 
         while testFn():
@@ -330,14 +503,14 @@ class Future(FutureBase):
 
         return True
 
-    def _callCallbacks(self, callbacks):
+    def _callCallbacks(self, callbacks: list[Callable[[Self], None]]):
         for callback in callbacks:
             try:
                 callback(self)
             except Exception:
                 self._warn("done callback raised exception")
 
-    def _warn(self, msg):
+    def _warn(self, msg: str):
         # TODO why are we not using the Ice logger?
         logging.getLogger("Ice.Future").exception(msg)
 
@@ -346,4 +519,8 @@ class Future(FutureBase):
     StateDone = "done"
 
 
-__all__ = ["Future", "wrap_future", "FutureBase"]
+# FutureLike is a type alias for an asyncio.Future, concurrent.futures.Future, or any awaitable object.
+FutureLike: TypeAlias = asyncio.Future[_T] | concurrent.futures.Future[_T] | FutureBase[_T]
+
+
+__all__ = ["Future", "wrap_future", "FutureBase", "FutureLike"]
