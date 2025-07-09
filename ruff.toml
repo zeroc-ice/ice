@@ -1,6 +1,9 @@
 line-length = 120
 indent-width = 4
 
+# This references the Python project configuration
+extend = "python/pyproject.toml"
+
 [lint]
 # Enable sorting
 select = ["I"]
@@ -15,6 +18,7 @@ known-first-party = [
     "IceMX",
     "IceStorm",
 ]
+
 
 [format]
 # Enable auto-formatting of code examples in docstrings. Markdown,
