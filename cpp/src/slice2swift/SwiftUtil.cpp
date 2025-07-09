@@ -89,7 +89,7 @@ Slice::Swift::getSwiftModule(const ModulePtr& module)
 void
 Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
+    optional<DocComment> doc = DocComment::parseFrom(p);
     if (!doc)
     {
         return;
@@ -123,7 +123,7 @@ Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 void
 Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool dispatch)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
+    optional<DocComment> doc = DocComment::parseFrom(p);
     if (!doc)
     {
         return;
@@ -267,7 +267,7 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
 void
 Slice::Swift::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
+    optional<DocComment> doc = DocComment::parseFrom(p);
     if (!doc)
     {
         return;
@@ -292,7 +292,7 @@ Slice::Swift::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefP
         out << nl << "/// " << prx << " Methods:";
         for (const auto& op : ops)
         {
-            optional<DocComment> opdoc = DocComment::parseFrom(op, swiftLinkFormatter);
+            optional<DocComment> opdoc = DocComment::parseFrom(op);
             optional<StringList> opDocOverview;
             if (opdoc)
             {
@@ -323,7 +323,7 @@ Slice::Swift::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefP
 void
 Slice::Swift::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
-    optional<DocComment> doc = DocComment::parseFrom(p, swiftLinkFormatter);
+    optional<DocComment> doc = DocComment::parseFrom(p);
     if (!doc)
     {
         return;
@@ -349,7 +349,7 @@ Slice::Swift::writeServantDocSummary(IceInternal::Output& out, const InterfaceDe
         for (const auto& op : ops)
         {
             out << nl << "///  - " << removeEscaping(op->mappedName());
-            optional<DocComment> opdoc = DocComment::parseFrom(op, swiftLinkFormatter);
+            optional<DocComment> opdoc = DocComment::parseFrom(op);
             if (opdoc)
             {
                 const StringList& opdocOverview = opdoc->overview();

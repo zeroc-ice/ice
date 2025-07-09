@@ -407,7 +407,7 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     }
     _out << nl << "__name__ = \"" << abs << "\"";
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter), "_M_" + abs + ".__doc__ = ");
+    writeDocstring(DocComment::parseFrom(p), "_M_" + abs + ".__doc__ = ");
 
     _moduleStack.push_front(abs);
     return true;
@@ -539,7 +539,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.inc();
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter), members);
+    writeDocstring(DocComment::parseFrom(p), members);
 
     //
     // __init__
@@ -1079,7 +1079,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << "):";
     _out.inc();
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter), members);
+    writeDocstring(DocComment::parseFrom(p), members);
 
     // __init__
     _out << nl << "def __init__(self";
@@ -1204,7 +1204,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "class " << name << "(object):";
     _out.inc();
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter), members);
+    writeDocstring(DocComment::parseFrom(p), members);
 
     _out << nl << "def __init__(self";
     writeConstructorParams(p->dataMembers());
@@ -1508,7 +1508,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "class " << name << "(Ice.EnumBase):";
     _out.inc();
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter), enumerators);
+    writeDocstring(DocComment::parseFrom(p), enumerators);
 
     _out << sp << nl << "def __init__(self, _n, _v):";
     _out.inc();
@@ -1951,7 +1951,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     map<string, list<string>> docs;
     for (const auto& member : members)
     {
-        if (auto memberDoc = DocComment::parseFrom(member, pyLinkFormatter))
+        if (auto memberDoc = DocComment::parseFrom(member))
         {
             const StringList& memberOverview = memberDoc->overview();
             if (!memberOverview.empty())
@@ -2015,7 +2015,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     map<string, list<string>> docs;
     for (const auto& enumerator : enumerators)
     {
-        if (auto enumeratorDoc = DocComment::parseFrom(enumerator, pyLinkFormatter))
+        if (auto enumeratorDoc = DocComment::parseFrom(enumerator))
         {
             const StringList& enumeratorOverview = enumeratorDoc->overview();
             if (!enumeratorOverview.empty())
@@ -2070,7 +2070,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
 void
 Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, OperationMode mode)
 {
-    optional<DocComment> comment = DocComment::parseFrom(op, pyLinkFormatter);
+    optional<DocComment> comment = DocComment::parseFrom(op);
     if (!comment)
     {
         return;

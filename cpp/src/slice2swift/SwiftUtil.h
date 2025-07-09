@@ -13,6 +13,7 @@ namespace Slice::Swift
     std::string getSwiftModule(const ModulePtr&, std::string&);
     std::string getSwiftModule(const ModulePtr&);
 
+    /// Returns a DocC formatted link for the given Slice identifier.
     std::string
     swiftLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
