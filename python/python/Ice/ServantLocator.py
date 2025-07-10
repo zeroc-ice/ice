@@ -3,6 +3,7 @@
 from abc import ABC, abstractmethod
 
 from .Current import Current
+from .Object import Object
 
 
 class ServantLocator(ABC):
@@ -11,7 +12,7 @@ class ServantLocator(ABC):
     """
 
     @abstractmethod
-    def locate(self, current: Current):
+    def locate(self, current: Current) -> tuple[Object | None, object]:
         """
         Called before a request is dispatched if a servant cannot be found in the object adapter's active servant map.
 
@@ -48,7 +49,7 @@ class ServantLocator(ABC):
         pass
 
     @abstractmethod
-    def finished(self, current: Current, servant, cookie):
+    def finished(self, current: Current, servant: Object, cookie: object):
         """
         Called by the object adapter after a request has been made.
 
@@ -77,7 +78,7 @@ class ServantLocator(ABC):
         pass
 
     @abstractmethod
-    def deactivate(self, category):
+    def deactivate(self, category: str):
         """
         Called when the object adapter in which this servant locator is installed is destroyed.
 

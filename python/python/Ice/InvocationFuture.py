@@ -2,6 +2,9 @@
 
 import logging
 import traceback
+from collections.abc import Callable
+
+import IcePy
 
 from .Future import Future
 from .LocalExceptions import InvocationCanceledException, TimeoutException
@@ -19,16 +22,15 @@ class InvocationFuture(Future):
     when the request is sent.
     """
 
-    def __init__(self, operation, asyncInvocationContext):
+    def __init__(self, asyncInvocationContext: IcePy.AsyncInvocationContext):
         Future.__init__(self)
         assert asyncInvocationContext
-        self._operation = operation
         self._asyncInvocationContext = asyncInvocationContext
         self._sent = False
         self._sentSynchronously = False
         self._sentCallbacks = []
 
-    def cancel(self):
+    def cancel(self) -> bool:
         """
         Cancels the invocation.
 
@@ -53,7 +55,7 @@ class InvocationFuture(Future):
             self._asyncInvocationContext.cancel()
         return cancelled
 
-    def is_sent(self):
+    def is_sent(self) -> bool:
         """
         Check if the request has been sent.
 
@@ -65,7 +67,7 @@ class InvocationFuture(Future):
         with self._condition:
             return self._sent
 
-    def is_sent_synchronously(self):
+    def is_sent_synchronously(self) -> bool:
         """
         Check if the request was sent synchronously.
 
@@ -77,7 +79,7 @@ class InvocationFuture(Future):
         with self._condition:
             return self._sentSynchronously
 
-    def add_sent_callback(self, fn):
+    def add_sent_callback(self, fn: Callable):
         """
         Attach a callback to be executed when the invocation is sent.
 
@@ -97,7 +99,7 @@ class InvocationFuture(Future):
                 return
         fn(self, self._sentSynchronously)
 
-    def sent(self, timeout=None):
+    def sent(self, timeout: int | float | None = None) -> bool:
         """
         Wait for the operation to be sent.
 
@@ -136,7 +138,7 @@ class InvocationFuture(Future):
             else:
                 return self._sentSynchronously
 
-    def set_sent(self, sentSynchronously):
+    def set_sent(self, sentSynchronously: bool):
         callbacks = []
         with self._condition:
             if self._sent:
@@ -154,7 +156,7 @@ class InvocationFuture(Future):
             except Exception:
                 self._warn("sent callback raised exception")
 
-    def _warn(self, msg):
+    def _warn(self, msg: str):
         communicator = self.communicator()
         if communicator:
             if communicator.getProperties().getIcePropertyAsInt("Ice.Warn.AMICallback") > 0:

@@ -11,7 +11,7 @@ class Logger(ABC):
     """
 
     @abstractmethod
-    def print(self, message):
+    def print(self, message: str):
         """
         Print a message.
 
@@ -26,11 +26,11 @@ class Logger(ABC):
 
     # An alias for print, provided for backwards compatibility.
     # New code should call print() directly.
-    def _print(self, message):
+    def _print(self, message: str):
         self.print(message)
 
     @abstractmethod
-    def trace(self, category, message):
+    def trace(self, category: str, message: str):
         """
         Log a trace message.
 
@@ -44,7 +44,7 @@ class Logger(ABC):
         pass
 
     @abstractmethod
-    def warning(self, message):
+    def warning(self, message: str):
         """
         Log a warning message.
 
@@ -56,7 +56,7 @@ class Logger(ABC):
         pass
 
     @abstractmethod
-    def error(self, message):
+    def error(self, message: str):
         """
         Log an error message.
 
@@ -68,7 +68,7 @@ class Logger(ABC):
         pass
 
     @abstractmethod
-    def getPrefix(self):
+    def getPrefix(self) -> str:
         """
         Get this logger's prefix.
 
@@ -80,7 +80,7 @@ class Logger(ABC):
         pass
 
     @abstractmethod
-    def cloneWithPrefix(self, prefix):
+    def cloneWithPrefix(self, prefix: str) -> "Logger":
         """
         Return a clone of the logger with a new prefix.
 

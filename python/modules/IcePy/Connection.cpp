@@ -419,7 +419,7 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle future{createFuture(op, asyncInvocationContextObj.get())};
+    PyObjectHandle future{createFuture(asyncInvocationContextObj.get())};
     if (!future.get())
     {
         return nullptr;

@@ -132,7 +132,7 @@ namespace IcePy
     class AsyncInvocation : public Invocation
     {
     public:
-        AsyncInvocation(const Ice::ObjectPrx&, PyObject*, string);
+        AsyncInvocation(const Ice::ObjectPrx&, PyObject*);
         ~AsyncInvocation();
 
         PyObject* invoke(PyObject*, PyObject* = nullptr) final;
@@ -146,7 +146,6 @@ namespace IcePy
         virtual void handleResponse(PyObject*, bool, pair<const byte*, const byte*>) = 0;
 
         PyObject* _pyProxy;
-        string _operation;
         bool _twoway;
         bool _sent{false};
         bool _sentSynchronously{false};
@@ -1486,10 +1485,9 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 //
 // AsyncInvocation
 //
-IcePy::AsyncInvocation::AsyncInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy, string operation)
+IcePy::AsyncInvocation::AsyncInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy)
     : Invocation(prx),
       _pyProxy(Py_NewRef(pyProxy)),
-      _operation(std::move(operation)),
       _twoway(prx->ice_isTwoway())
 {
 }
@@ -1552,7 +1550,7 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
         return nullptr;
     }
 
-    PyObjectHandle future{createFuture(_operation, asyncInvocationContextObj.get())}; // Calls into Python code.
+    PyObjectHandle future{createFuture(asyncInvocationContextObj.get())}; // Calls into Python code.
     if (!future.get())
     {
         return nullptr;
@@ -1746,7 +1744,7 @@ IcePy::AsyncInvocation::sent(bool sentSynchronously)
 }
 
 IcePy::AsyncTypedInvocation::AsyncTypedInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy, const OperationPtr& op)
-    : AsyncInvocation(prx, pyProxy, op->sliceName),
+    : AsyncInvocation(prx, pyProxy),
       _op(op)
 {
 }
@@ -1950,7 +1948,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 }
 
 IcePy::AsyncBlobjectInvocation::AsyncBlobjectInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy)
-    : AsyncInvocation(prx, pyProxy, "ice_invoke")
+    : AsyncInvocation(prx, pyProxy)
 {
 }
 
@@ -2748,7 +2746,7 @@ IcePy::createServantWrapper(PyObject* servant)
 }
 
 PyObject*
-IcePy::createFuture(const string& operation, PyObject* asyncInvocationContext)
+IcePy::createFuture(PyObject* asyncInvocationContext)
 {
     auto type = reinterpret_cast<PyTypeObject*>(lookupType("Ice.InvocationFuture"));
     assert(type);
@@ -2762,13 +2760,12 @@ IcePy::createFuture(const string& operation, PyObject* asyncInvocationContext)
     }
 
     // Prepare the arguments for the Ice.InvocationFuture.__init__ method.
-    PyObjectHandle initArgs{PyTuple_New(2)};
+    PyObjectHandle initArgs{PyTuple_New(1)};
     if (!initArgs.get())
     {
         return nullptr;
     }
-    PyTuple_SET_ITEM(initArgs.get(), 0, createString(operation));
-    PyTuple_SET_ITEM(initArgs.get(), 1, Py_NewRef(asyncInvocationContext));
+    PyTuple_SET_ITEM(initArgs.get(), 0, Py_NewRef(asyncInvocationContext));
 
     // Call the Ice.InvocationFuture.__init__ method.
     type->tp_init(future.get(), initArgs.get(), nullptr);

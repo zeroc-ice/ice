@@ -8,7 +8,7 @@ from .Logger import Logger
 __name__ = "Ice"
 
 
-def getProcessLogger():
+def getProcessLogger() -> Logger:
     """Returns the default logger object."""
     logger = IcePy.getProcessLogger()
     if isinstance(logger, Logger):

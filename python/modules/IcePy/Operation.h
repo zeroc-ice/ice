@@ -80,7 +80,7 @@ namespace IcePy
     ServantWrapperPtr createServantWrapper(PyObject*);
 
     PyObject* createAsyncInvocationContext(std::function<void()>, Ice::CommunicatorPtr);
-    PyObject* createFuture(const std::string&, PyObject*);
+    PyObject* createFuture(PyObject*);
 }
 
 #endif

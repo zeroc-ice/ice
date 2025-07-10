@@ -22,9 +22,10 @@ BuiltinTypes = [
 BuiltinArrayTypes = ["b", "b", "h", "i", "q", "f", "d"]
 
 
-def createArray(view, t):
+def createArray(view: memoryview | None, t: int) -> array.array:
     if t not in BuiltinTypes:
         raise ValueError(f"'{t}' is not an array builtin type")
+
     a = array.array(BuiltinArrayTypes[t])
     if view is not None:
         a.frombytes(view)
@@ -44,7 +45,7 @@ try:
         numpy.float64,
     ]
 
-    def createNumPyArray(view, t):
+    def createNumPyArray(view: memoryview, t: int) -> numpy.ndarray:
         if t not in BuiltinTypes:
             raise ValueError(f"'{t}' is not an array builtin type")
         if view is not None:

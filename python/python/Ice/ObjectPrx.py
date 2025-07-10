@@ -191,7 +191,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getCommunicator()
 
-    def ice_isA(self, id, context: dict[str, str] | None = None) -> bool:
+    def ice_isA(self, id: str, context: dict[str, str] | None = None) -> bool:
         """
         Test whether this object supports a specific Slice interface.
 
@@ -209,7 +209,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_isA.invoke(self, ((id,), context))
 
-    def ice_isAAsync(self, id, context: dict[str, str] | None = None) -> Awaitable[bool]:
+    def ice_isAAsync(self, id: str, context: dict[str, str] | None = None) -> Awaitable[bool]:
         """
         Test whether this object supports a specific Slice interface.
 

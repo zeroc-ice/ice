@@ -1,15 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
+from enum import Enum
 
-class FormatType:
+
+class FormatType(Enum):
     """
     This enumeration describes the possible formats for classes and exceptions.
     """
 
-    def __init__(self, val):
-        assert val >= 0 and val < 3
-        self.value = val
-
-
-FormatType.CompactFormat = FormatType(0)
-FormatType.SlicedFormat = FormatType(1)
+    CompactFormat = 0
+    SlicedFormat = 1
