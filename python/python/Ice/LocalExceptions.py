@@ -20,7 +20,7 @@ class DispatchException(LocalException):
     wire".
     """
 
-    def __init__(self, replyStatus: int, msg: str = ""):
+    def __init__(self, replyStatus: int | None, msg: str = ""):
         if replyStatus is None or replyStatus <= Ice.ReplyStatus.UserException.value or replyStatus > 255:
             raise ValueError("the reply status must fit in a byte and be greater than ReplyStatus.UserException.value")
 
