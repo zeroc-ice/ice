@@ -385,6 +385,7 @@ IcePy::PyException::raise()
         {
             PyObjectHandle replyStatusAttr{getAttr(ex.get(), "replyStatus", false)};
             Ice::ReplyStatus replyStatus{static_cast<uint8_t>(PyLong_AsLong(replyStatusAttr.get()))};
+
             throw Ice::DispatchException{__FILE__, __LINE__, replyStatus, std::move(message)};
         }
 

@@ -728,7 +728,7 @@ communicatorFlushBatchRequests(CommunicatorObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle v{getAttr(compressBatch, "_value", false)};
+    PyObjectHandle v{getAttr(compressBatch, "value", false)};
     assert(v.get());
     auto cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -757,7 +757,7 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
         return nullptr;
     }
 
-    PyObjectHandle v{getAttr(compressBatch, "_value", false)};
+    PyObjectHandle v{getAttr(compressBatch, "value", false)};
     assert(v.get());
     auto compress = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 

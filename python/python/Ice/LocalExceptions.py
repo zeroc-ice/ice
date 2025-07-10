@@ -20,16 +20,21 @@ class DispatchException(LocalException):
     wire".
     """
 
-    def __init__(self, replyStatus, msg=""):
+    def __init__(self, replyStatus: int | None, msg: str = ""):
         if replyStatus is None or replyStatus <= Ice.ReplyStatus.UserException.value or replyStatus > 255:
             raise ValueError("the reply status must fit in a byte and be greater than ReplyStatus.UserException.value")
 
         if msg == "":
             msg = "The dispatch failed with reply status "
-            enumerator = Ice.ReplyStatus.valueOf(replyStatus)
-            msg += str(replyStatus) if enumerator is None else enumerator.name
-            msg += "."
+            try:
+                msg += Ice.ReplyStatus(replyStatus).name
+            except ValueError:
+                # If the replyStatus is not a valid enumerator, we just use the int value.
+                # This can happen if the server uses a custom reply status.
+                # We still want to provide a string representation of the reply status.
+                msg += str(replyStatus)
 
+            msg += "."
         LocalException.__init__(self, msg)
         self.__replyStatus = replyStatus
 
