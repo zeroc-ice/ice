@@ -361,7 +361,7 @@ connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle v{getAttr(compressBatch, "_value", true)};
+    PyObjectHandle v{getAttr(compressBatch, "value", true)};
     assert(v.get());
     auto cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
@@ -390,7 +390,7 @@ connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
         return nullptr;
     }
 
-    PyObjectHandle v{getAttr(compressBatch, "_value", true)};
+    PyObjectHandle v{getAttr(compressBatch, "value", true)};
     assert(v.get());
     auto compress = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 

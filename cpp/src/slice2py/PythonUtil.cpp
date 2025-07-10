@@ -10,6 +10,7 @@
 #include <climits>
 #include <iterator>
 #include <sstream>
+#include <string>
 
 using namespace std;
 using namespace Slice;
@@ -1572,66 +1573,32 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     writeModuleHasDefinitionCheck(_out, p, name);
     _out.inc();
     _out << nl << getTypeReference(p) << " = None";
-    _out << nl << "class " << name << "(Ice.EnumBase):";
+    _out << nl << "class " << name << "(Enum):";
     _out.inc();
 
     writeDocstring(DocComment::parseFrom(p, pyLinkFormatter), enumerators);
 
-    _out << sp << nl << "def __init__(self, _n, _v):";
-    _out.inc();
-    _out << nl << "Ice.EnumBase.__init__(self, _n, _v)";
-    _out.dec();
-
-    _out << sp << nl << "def valueOf(self, _n):";
-    _out.inc();
-    _out << nl << "if _n in self._enumerators:";
-    _out.inc();
-    _out << nl << "return self._enumerators[_n]";
-    _out.dec();
-    _out << nl << "return None";
-    _out.dec();
-    _out << nl << "valueOf = classmethod(valueOf)";
-
-    _out << sp << nl << "def __repr__(self):";
-    _out.inc();
-
-    _out << nl << "if self._value in _M_" << _moduleStack.front() << '.' << name << "._enumerators:";
-    _out.inc();
-    _out << nl << "return f\"" << getAbsolute(p) << ".{self._name}\"";
-    _out.dec();
-
-    _out << nl << "else:";
-    _out.inc();
-    _out << nl << "return f\"" << getAbsolute(p) << "({self._name!r}, {self._value!r})\"";
-    _out.dec();
-
-    _out.dec();
-
-    _out.dec();
-
-    _out << sp;
+    _out << nl;
     for (const auto& enumerator : enumerators)
     {
-        _out << nl << name << '.' << enumerator->mappedName() << " = " << name << "(\"" << enumerator->name() << "\", "
-             << enumerator->value() << ')';
+        _out << nl << enumerator->mappedName() << " = " << enumerator->value();
     }
-    _out << nl << name << "._enumerators = { ";
-    for (auto q = enumerators.begin(); q != enumerators.end(); ++q)
-    {
-        if (q != enumerators.begin())
-        {
-            _out << ", ";
-        }
-        _out << (*q)->value() << ':' << name << '.' << (*q)->mappedName();
-    }
-    _out << " }";
+
+    _out.dec();
 
     //
     // Emit the type information.
     //
     _out << sp << nl << getMetaTypeReference(p) << " = IcePy.defineEnum(\"" << scoped << "\", " << name << ", ";
     writeMetadata(p->getMetadata());
-    _out << ", " << name << "._enumerators)";
+    _out << ", ";
+    _out.spar("{");
+    for (const auto& enumerator : enumerators)
+    {
+        _out << (std::to_string(enumerator->value()) + ": " + name + "." + enumerator->mappedName());
+    }
+    _out.epar("}");
+    _out << ")";
 
     registerName(name);
 
@@ -2438,6 +2405,11 @@ Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& inc
     out << nl << "import Ice";
     out << nl << "import IcePy";
     out << nl << "import builtins as _builtins";
+
+    if (unit->contains<Enum>())
+    {
+        out << nl << "from enum import Enum";
+    }
 
     if (!all)
     {

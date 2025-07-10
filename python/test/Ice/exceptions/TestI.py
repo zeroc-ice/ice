@@ -1,5 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
+import sys
 import Test
 
 import Ice
@@ -92,6 +93,11 @@ class ThrowerI(Test.Thrower):
         raise Ice.TimeoutException()
 
     def throwDispatchException(self, replyStatus, current):
+        ex = Ice.DispatchException(replyStatus)
+
+        print("replyStatus of Ice.DispatchException: ", replyStatus, file=sys.stderr)
+        print("typeof replyStatus", type(replyStatus), file=sys.stderr)
+
         raise Ice.DispatchException(replyStatus)
 
     def throwAfterResponse(self, current):

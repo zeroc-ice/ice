@@ -900,6 +900,9 @@ IcePy::EnumInfo::EnumInfo(string ident, PyObject* t, PyObject* e) : id(std::move
             const_cast<int32_t&>(maxValue) = val;
         }
     }
+
+    // Enumerators cannot be empty.
+    assert(!enumerators.empty());
 }
 
 string
@@ -982,7 +985,7 @@ IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
 {
     assert(PyObject_IsInstance(p, pythonType) == 1);
 
-    PyObjectHandle v{PyObject_GetAttrString(p, "_value")};
+    PyObjectHandle v{PyObject_GetAttrString(p, "value")};
     if (!v.get())
     {
         assert(PyErr_Occurred());

@@ -13,7 +13,6 @@ Ice module
 
 import IcePy
 from .ModuleUtil import *
-from .EnumBase import EnumBase
 
 #
 # Add some symbols to the Ice module.

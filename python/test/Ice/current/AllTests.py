@@ -45,7 +45,7 @@ def allTests(helper, communicator, collocated):
 
     sys.stdout.write("testing current.mode... ")
     sys.stdout.flush()
-    test("Ice.OperationMode.Normal" == proxy.getMode())
+    test("OperationMode.Normal" == proxy.getMode())
     print("ok")
 
     sys.stdout.write("testing current.ctx... ")

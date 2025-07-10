@@ -1,11 +1,9 @@
 # Copyright (c) ZeroC, Inc.
 
-from typing import Self
-
-from .EnumBase import EnumBase
+from enum import Enum
 
 
-class ToStringMode(EnumBase):
+class ToStringMode(Enum):
     """
     The output mode for xxxToString methods such as identityToString and proxyToString. The actual encoding format for
     the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
@@ -28,33 +26,6 @@ class ToStringMode(EnumBase):
           to generate strings compatible with Ice 3.6 and earlier.
     """
 
-    def __init__(self, _n, _v):
-        EnumBase.__init__(self, _n, _v)
-
-    def valueOf(self, value: int) -> Self | None:
-        """
-        Get the enumerator corresponding to the given value.
-
-        Parameters
-        ----------
-        value : int
-            The enumerator's value.
-
-        Returns
-        -------
-        ToStringMode or None
-            The enumerator corresponding to the given value, or None if no such enumerator exists.
-        """
-        return self._enumerators[value] if value in self._enumerators else None
-
-    valueOf = classmethod(valueOf)
-
-
-ToStringMode.Unicode = ToStringMode("Unicode", 0)
-ToStringMode.ASCII = ToStringMode("ASCII", 1)
-ToStringMode.Compat = ToStringMode("Compat", 2)
-ToStringMode._enumerators = {
-    0: ToStringMode.Unicode,
-    1: ToStringMode.ASCII,
-    2: ToStringMode.Compat,
-}
+    Unicode = 0
+    ASCII = 1
+    Compat = 2
