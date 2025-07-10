@@ -27,11 +27,7 @@ class DispatchException(LocalException):
         if msg == "":
             msg = "The dispatch failed with reply status "
             try:
-                print("replyStatus", replyStatus)
-                replyStatus = Ice.ReplyStatus(replyStatus)
-
-                print("replyStatus", replyStatus)
-                msg += replyStatus.name
+                msg += Ice.ReplyStatus(replyStatus).name
             except ValueError:
                 # If the replyStatus is not a valid enumerator, we just use the int value.
                 # This can happen if the server uses a custom reply status.
@@ -40,7 +36,6 @@ class DispatchException(LocalException):
 
             msg += "."
         LocalException.__init__(self, msg)
-        print("DispatchException.__init__() called with replyStatus", replyStatus, file=sys.stderr)
         self.__replyStatus = replyStatus
 
     @property
