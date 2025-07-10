@@ -153,16 +153,8 @@ class InvocationFuture(Future):
         for callback in callbacks:
             try:
                 callback(self, sentSynchronously)
-            except Exception:
-                self._warn("sent callback raised exception")
-
-    def _warn(self, msg: str):
-        communicator = self.communicator()
-        if communicator:
-            if communicator.getProperties().getIcePropertyAsInt("Ice.Warn.AMICallback") > 0:
-                communicator.getLogger().warning("Ice.Future: " + msg + ":\n" + traceback.format_exc())
-        else:
-            logging.getLogger("Ice.Future").exception(msg)
+            except Exception as ex:
+                logging.getLogger("Ice.Future").exception("sent callback raised exception: %s", ex)
 
 
 __all__ = ["InvocationFuture"]
