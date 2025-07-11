@@ -15,6 +15,9 @@ class UnknownSlicedValue(Value):
         The type ID of the unknown Slice class type.
     """
 
+    _ice_type = None  # Will be set after class definition
+    unknownTypeId: str
+
     def ice_id(self):
         return self.unknownTypeId
 
@@ -22,4 +25,5 @@ class UnknownSlicedValue(Value):
 IcePy._t_UnknownSlicedValue = IcePy.defineValue(
     "::Ice::UnknownSlicedValue", UnknownSlicedValue, -1, (), False, None, ()
 )
+
 UnknownSlicedValue._ice_type = IcePy._t_UnknownSlicedValue

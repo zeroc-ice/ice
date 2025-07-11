@@ -2,6 +2,7 @@
 
 from typing import final
 
+import Ice.Identity_ice
 import Ice.ReplyStatus_ice
 
 from .LocalException import LocalException
@@ -56,14 +57,16 @@ class RequestFailedException(DispatchException):
     The base exception for the 3 NotExist exceptions.
     """
 
-    def __init__(self, replyStatus, id=None, facet="", operation="", msg=""):
+    def __init__(
+        self, replyStatus: int, id: Ice.Identity | None = None, facet: str = "", operation: str = "", msg: str = ""
+    ):
         DispatchException.__init__(self, replyStatus, msg)
-        self.__id = id
+        self.__id = id if id is not None else Ice.Identity("", "")
         self.__facet = facet
         self.__operation = operation
 
     @property
-    def id(self):
+    def id(self) -> Ice.Identity:
         """
         Gets the identity of the Ice Object to which the request was sent.
 
@@ -105,7 +108,7 @@ class ObjectNotExistException(RequestFailedException):
     The dispatch could not find a servant for the identity carried by the request.
     """
 
-    def __init__(self, id=None, facet="", operation="", msg=""):
+    def __init__(self, id: Ice.Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
         RequestFailedException.__init__(self, Ice.ReplyStatus.ObjectNotExist.value, id, facet, operation, msg)
 
 
@@ -115,7 +118,7 @@ class FacetNotExistException(RequestFailedException):
     The dispatch could not find a servant for the identity + facet carried by the request.
     """
 
-    def __init__(self, id=None, facet="", operation="", msg=""):
+    def __init__(self, id: Ice.Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
         RequestFailedException.__init__(self, Ice.ReplyStatus.FacetNotExist.value, id, facet, operation, msg)
 
 
@@ -126,7 +129,7 @@ class OperationNotExistException(RequestFailedException):
     to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
     """
 
-    def __init__(self, id=None, facet="", operation="", msg=""):
+    def __init__(self, id: Ice.Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
         RequestFailedException.__init__(self, Ice.ReplyStatus.OperationNotExist.value, id, facet, operation, msg)
 
 
@@ -135,7 +138,7 @@ class UnknownException(DispatchException):
     The dispatch failed with an exception that is not a LocalException or a UserException.
     """
 
-    def __init__(self, msg, replyStatus=Ice.ReplyStatus.UnknownException.value):
+    def __init__(self, msg: str, replyStatus: int = Ice.ReplyStatus.UnknownException.value):
         DispatchException.__init__(self, replyStatus, msg)
 
 
@@ -145,7 +148,7 @@ class UnknownLocalException(UnknownException):
     The dispatch failed with LocalException that is not one of the special marshal-able local exceptions.
     """
 
-    def __init__(self, msg):
+    def __init__(self, msg: str):
         UnknownException.__init__(self, msg, Ice.ReplyStatus.UnknownLocalException.value)
 
 
@@ -155,7 +158,7 @@ class UnknownUserException(UnknownException):
     The dispatch returned a UserException that was not declared in the operation's exception specification.
     """
 
-    def __init__(self, msg):
+    def __init__(self, msg: str):
         UnknownException.__init__(self, msg, Ice.ReplyStatus.UnknownUserException.value)
 
 
@@ -295,7 +298,7 @@ class AlreadyRegisteredException(LocalException):
     same ID.
     """
 
-    def __init__(self, kindOfObject, id, msg):
+    def __init__(self, kindOfObject: str, id: Ice.Identity | None, msg: str):
         LocalException.__init__(self, msg)
         self.__kindOfObject = kindOfObject
         self.__id = id
@@ -350,7 +353,7 @@ class ConnectionAbortedException(LocalException):
     This exception indicates that a connection has been closed forcefully.
     """
 
-    def __init__(self, closedByApplication, msg):
+    def __init__(self, closedByApplication: bool, msg: str):
         LocalException.__init__(self, msg)
         self.__closedByApplication = closedByApplication
 
@@ -365,7 +368,7 @@ class ConnectionClosedException(LocalException):
     This exception indicates that a connection has been closed gracefully.
     """
 
-    def __init__(self, closedByApplication, msg):
+    def __init__(self, closedByApplication: bool, msg: str):
         LocalException.__init__(self, msg)
         self.__closedByApplication = closedByApplication
 
@@ -422,7 +425,7 @@ class NotRegisteredException(LocalException):
     when resolving an indirect proxy or when an object adapter is activated.
     """
 
-    def __init__(self, kindOfObject, id, msg):
+    def __init__(self, kindOfObject: str, id: Ice.Identity | None, msg: str):
         LocalException.__init__(self, msg)
         self.__kindOfObject = kindOfObject
         self.__id = id

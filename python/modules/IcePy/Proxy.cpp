@@ -1203,7 +1203,7 @@ proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kw
         return nullptr;
     }
 
-    PyObjectHandle future{createFuture(op, asyncInvocationContextObj.get())};
+    PyObjectHandle future{createFuture(asyncInvocationContextObj.get())};
     if (!future.get())
     {
         return nullptr;
@@ -1267,7 +1267,7 @@ proxyIceFlushBatchRequestsAsync(ProxyObject* self, PyObject* /*args*/, PyObject*
         return nullptr;
     }
 
-    PyObjectHandle future{createFuture(op, asyncInvocationContextObj.get())};
+    PyObjectHandle future{createFuture(asyncInvocationContextObj.get())};
     if (!future.get())
     {
         return nullptr;

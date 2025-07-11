@@ -2,6 +2,8 @@
 
 from typing import final
 
+import IcePy
+
 
 @final
 class ImplicitContext:
@@ -26,10 +28,10 @@ class ImplicitContext:
     context without first retrieving a copy of the entire context.
     """
 
-    def __init__(self, impl):
+    def __init__(self, impl: IcePy.ImplicitContext):
         self._impl = impl
 
-    def getContext(self):
+    def getContext(self) -> dict[str, str]:
         """
         Get a copy of the underlying context.
 
@@ -40,7 +42,7 @@ class ImplicitContext:
         """
         return self._impl.getContext()
 
-    def setContext(self, newContext):
+    def setContext(self, newContext: dict[str, str]):
         """
         Set the underlying context.
 
@@ -51,7 +53,7 @@ class ImplicitContext:
         """
         self._impl.setContext(newContext)
 
-    def containsKey(self, key):
+    def containsKey(self, key: str) -> bool:
         """
         Check if this key has an associated value in the underlying context.
 
@@ -67,7 +69,7 @@ class ImplicitContext:
         """
         return self._impl.containsKey(key)
 
-    def get(self, key):
+    def get(self, key: str) -> str:
         """
         Get the value associated with the given key in the underlying context.
 
@@ -86,7 +88,7 @@ class ImplicitContext:
         """
         return self._impl.get(key)
 
-    def put(self, key, value):
+    def put(self, key: str, value: str) -> str | None:
         """
         Create or update a key/value entry in the underlying context.
 
@@ -104,7 +106,7 @@ class ImplicitContext:
         """
         return self._impl.put(key, value)
 
-    def remove(self, key):
+    def remove(self, key: str) -> str | None:
         """
         Remove the entry for the given key in the underlying context.
 

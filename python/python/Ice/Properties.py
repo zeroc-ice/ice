@@ -2,6 +2,8 @@
 
 from typing import Self, final
 
+import IcePy
+
 
 @final
 class Properties:
@@ -11,7 +13,7 @@ class Properties:
     application-name[.category[.sub-category]].name.
     """
 
-    def __init__(self, impl):
+    def __init__(self, impl: IcePy.Properties):
         self._impl = impl
 
     def getProperty(self, key: str) -> str:
@@ -313,7 +315,7 @@ class Properties:
         """
         self._impl.load(file)
 
-    def clone(self) -> Self:
+    def clone(self) -> "Properties":
         """
         Create a copy of this property set.
 

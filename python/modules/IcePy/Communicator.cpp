@@ -786,7 +786,7 @@ communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, Py
         return nullptr;
     }
 
-    PyObjectHandle future{createFuture(op, asyncInvocationContextObj.get())};
+    PyObjectHandle future{createFuture(asyncInvocationContextObj.get())};
     if (!future.get())
     {
         return nullptr;

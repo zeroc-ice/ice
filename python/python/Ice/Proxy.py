@@ -11,12 +11,12 @@ __name__ = "Ice"
 #
 
 
-def proxyIdentityEqual(lhs, rhs):
+def proxyIdentityEqual(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> bool:
     """Determines whether the identities of two proxies are equal."""
     return proxyIdentityCompare(lhs, rhs) == 0
 
 
-def proxyIdentityCompare(lhs, rhs):
+def proxyIdentityCompare(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> int:
     """Compares the identities of two proxies."""
     if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
         raise ValueError("argument is not a proxy")
@@ -32,12 +32,12 @@ def proxyIdentityCompare(lhs, rhs):
         return (lid > rid) - (lid < rid)
 
 
-def proxyIdentityAndFacetEqual(lhs, rhs):
+def proxyIdentityAndFacetEqual(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> bool:
     """Determines whether the identities and facets of two proxies are equal."""
     return proxyIdentityAndFacetCompare(lhs, rhs) == 0
 
 
-def proxyIdentityAndFacetCompare(lhs, rhs):
+def proxyIdentityAndFacetCompare(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> int:
     """Compares the identities and facets of two proxies."""
     if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
         raise ValueError("argument is not a proxy")

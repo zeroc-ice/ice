@@ -21,7 +21,7 @@ class ObjectAdapter:
     identities, and proxies.
     """
 
-    def __init__(self, impl):
+    def __init__(self, impl: IcePy.ObjectAdapter):
         self._impl = impl
 
     def getName(self) -> str:
@@ -119,7 +119,7 @@ class ObjectAdapter:
         bool
             True if `deactivate` has been called on this object adapter; otherwise, False.
         """
-        self._impl.isDeactivated()
+        return self._impl.isDeactivated()
 
     def destroy(self) -> None:
         """
@@ -530,7 +530,7 @@ class ObjectAdapter:
         """
         return self._impl.createIndirectProxy(id)
 
-    def setLocator(self, locator) -> None:
+    def setLocator(self, locator: Ice.LocatorPrx) -> None:
         """
         Set an Ice locator for this object adapter.
 
@@ -545,7 +545,7 @@ class ObjectAdapter:
         """
         self._impl.setLocator(locator)
 
-    def getLocator(self):
+    def getLocator(self) -> Ice.LocatorPrx | None:
         """
         Get the Ice locator used by this object adapter.
 

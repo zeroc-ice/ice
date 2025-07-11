@@ -98,7 +98,7 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     return Communicator(communicator, eventLoopAdapter)
 
 
-def identityToString(identity: Ice.Identity, toStringMode: ToStringMode = None) -> str:
+def identityToString(identity: Ice.Identity, toStringMode: ToStringMode | None = None) -> str:
     """
     Convert an object identity to a string.
 
@@ -139,7 +139,7 @@ def stringToIdentity(str: str) -> Ice.Identity:
     return IcePy.stringToIdentity(str)
 
 
-def createProperties(args: list[str] = None, defaults: Properties = None) -> Properties:
+def createProperties(args: list[str] | None = None, defaults: Properties | None = None) -> Properties:
     """
     Creates a new property set.
 
@@ -234,7 +234,7 @@ def getSliceDir() -> str | None:
 _repr_running = threading.local()
 
 
-def safe_repr(obj):
+def safe_repr(obj: object) -> str:
     if not hasattr(_repr_running, "set"):
         _repr_running.set = set()
 
@@ -249,7 +249,7 @@ def safe_repr(obj):
         _repr_running.set.remove(obj_id)
 
 
-def format_fields(**fields):
+def format_fields(**fields: object) -> str:
     return ", ".join(f"{k}={safe_repr(v)}" for k, v in fields.items())
 
 

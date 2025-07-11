@@ -8,6 +8,8 @@ class Exception(BuiltinsException):
     The base class for all Ice exceptions.
     """
 
+    _ice_id: str
+
     def ice_id(self):
         """
         Return the type ID of this exception.
