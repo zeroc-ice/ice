@@ -706,11 +706,11 @@ initialization. See `InitializationData.pluginFactories`.
   `containers.Map` are no longer used.
   The dictionary key type is the mapped key type. The dictionary value type is as per the table below:
 
-  | Slice type T mapped to MATLAB MT    | Value type of MATLAB dictionary | Mapping for `sequence<T>`                 |
-  |-------------------------------------|---------------------------------|-------------------------------------------|
-  | bool, numeric, struct, enum         | MT                              | array of MT                               |
-  | string                              | string (1)                      | array of string                           |
-  | sequence, dictionary, class, proxy  | cell holding a MT               | cell array of MT                          |
+  | Slice type T mapped to MATLAB MT   | Value type of MATLAB dictionary | Mapping for `sequence<T>` |
+  | ---------------------------------- | ------------------------------- | ------------------------- |
+  | bool, numeric, struct, enum        | MT                              | array of MT               |
+  | string                             | string (1)                      | array of string           |
+  | sequence, dictionary, class, proxy | cell holding a MT               | cell array of MT          |
 
   (1) A single Slice string maps to a MATLAB char array, not to a MATLAB string.
 
@@ -777,6 +777,8 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Added support for building pip packages directly from the Ice source distribution. In previous releases, the pip
   package was built from a separate tarball that included pre-generated source code.
+
+- Enumerations now inherit from Python's `enum.Enum` type. The `Ice.EnumBase` class has been removed.
 
 ## Ruby Changes
 
