@@ -570,7 +570,7 @@ Slice::Python::compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit("python", false);
+            UnitPtr u = Unit::createUnit("python", Slice::Python::pyLinkFormatter, false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -621,7 +621,7 @@ Slice::Python::compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit("python", all);
+                UnitPtr u = Unit::createUnit("python", Slice::Python::pyLinkFormatter, all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if (!icecpp->close())

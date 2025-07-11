@@ -215,7 +215,7 @@ namespace
                     return EXIT_FAILURE;
                 }
 
-                UnitPtr u = Unit::createUnit("matlab", false);
+                UnitPtr u = Unit::createUnit("matlab", Slice::matlabLinkFormatter, false);
                 int parseStatus = u->parse(*i, cppHandle, debug);
                 u->destroy();
 
@@ -263,7 +263,7 @@ namespace
                 }
                 else
                 {
-                    UnitPtr u = Unit::createUnit("matlab", all);
+                    UnitPtr u = Unit::createUnit("matlab", Slice::matlabLinkFormatter, all);
                     int parseStatus = u->parse(*i, cppHandle, debug);
 
                     if (!icecpp->close())

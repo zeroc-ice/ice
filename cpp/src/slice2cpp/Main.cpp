@@ -204,7 +204,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit("cpp", false);
+            UnitPtr u = Unit::createUnit("cpp", Slice::cppLinkFormatter, false);
             int parseStatus = u->parse(*i, cppHandle, debug);
 
             DefinitionContextPtr dc = u->findDefinitionContext(u->topLevelFile());
@@ -260,7 +260,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit("cpp", false);
+                UnitPtr u = Unit::createUnit("cpp", Slice::cppLinkFormatter, false);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if (!icecpp->close())

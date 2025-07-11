@@ -5,6 +5,7 @@
 
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
+#include "CPlusPlusUtil.h"
 #include "TypeContext.h"
 
 namespace Slice
