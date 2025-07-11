@@ -79,7 +79,7 @@ class InvocationFuture(Future):
         with self._condition:
             return self._sentSynchronously
 
-    def add_sent_callback(self, fn: Callable):
+    def add_sent_callback(self, fn: Callable) -> None:
         """
         Attach a callback to be executed when the invocation is sent.
 

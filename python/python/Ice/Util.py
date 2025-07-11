@@ -249,7 +249,7 @@ def safe_repr(obj: object) -> str:
         _repr_running.set.remove(obj_id)
 
 
-def format_fields(**fields: dict[str, object]) -> str:
+def format_fields(**fields: object) -> str:
     return ", ".join(f"{k}={safe_repr(v)}" for k, v in fields.items())
 
 

@@ -160,7 +160,7 @@ namespace IcePy
     class AsyncTypedInvocation final : public AsyncInvocation, public enable_shared_from_this<AsyncTypedInvocation>
     {
     public:
-        AsyncTypedInvocation(const Ice::ObjectPrx&, PyObject*, const OperationPtr&);
+        AsyncTypedInvocation(const Ice::ObjectPrx&, PyObject*, OperationPtr);
 
     protected:
         function<void()> handleInvoke(PyObject*, PyObject*) final;
@@ -1743,9 +1743,9 @@ IcePy::AsyncInvocation::sent(bool sentSynchronously)
     }
 }
 
-IcePy::AsyncTypedInvocation::AsyncTypedInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy, const OperationPtr& op)
+IcePy::AsyncTypedInvocation::AsyncTypedInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy, OperationPtr op)
     : AsyncInvocation(prx, pyProxy),
-      _op(op)
+      _op(std::move(op))
 {
 }
 

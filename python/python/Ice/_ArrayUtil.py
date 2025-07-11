@@ -45,7 +45,7 @@ try:
         numpy.float64,
     ]
 
-    def createNumPyArray(view: memoryview, t: int) -> numpy.ndarray:
+    def createNumPyArray(view: memoryview | None, t: int) -> numpy.ndarray:
         if t not in BuiltinTypes:
             raise ValueError(f"'{t}' is not an array builtin type")
         if view is not None:
