@@ -7,7 +7,7 @@ import threading
 import time
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable, Generator
-from typing import Any, Generic, Protocol, Self, TypeAlias, TypeVar, overload
+from typing import Any, Protocol, TypeVar, overload
 
 from .LocalExceptions import InvocationCanceledException, TimeoutException
 
