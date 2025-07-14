@@ -1,8 +1,9 @@
 # Copyright (c) ZeroC, Inc.
 
+import inspect
 import sys
 from collections.abc import Callable, Coroutine
-from typing import cast
+from typing import Any, cast
 
 import IcePy
 
@@ -78,7 +79,7 @@ def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: list[Any]):
 
 def run_coroutine(
     cb: IcePy.DispatchCallback,
-    coroutine: Coroutine,
+    coroutine: Coroutine[Any, Any, Any],
     value: object | None = None,
     exception: BaseException | None = None,
 ):

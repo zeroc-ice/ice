@@ -1,13 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
 import asyncio
-import concurrent.futures
 import logging
 import threading
 import time
-from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable, Generator
-from typing import Any, Protocol, TypeVar, overload
+from typing import Any, Protocol, Self, TypeVar, overload
 
 from .LocalExceptions import InvocationCanceledException, TimeoutException
 
