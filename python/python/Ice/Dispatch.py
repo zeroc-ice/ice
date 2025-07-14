@@ -13,7 +13,7 @@ def is_future(obj: object) -> bool:
     return callable(getattr(obj, "add_done_callback", None))
 
 
-def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: list):
+def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: list[Any]):
     """
     Dispatch a request to the given servant method.
 
