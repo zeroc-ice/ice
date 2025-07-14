@@ -4716,7 +4716,7 @@ Slice::DataMember::DataMember(
 UnitPtr
 Slice::Unit::createUnit(string languageName, std::optional<DocLinkFormatter> linkFormatter, bool all)
 {
-    return make_shared<Unit>(std::move(languageName), std::move(linkFormatter), all);
+    return make_shared<Unit>(std::move(languageName), linkFormatter, all);
 }
 
 string
@@ -5205,7 +5205,7 @@ Slice::Unit::getTopLevelModules(const string& file) const
 
 Slice::Unit::Unit(string languageName, optional<DocLinkFormatter> linkFormatter, bool all)
     : _languageName(std::move(languageName)),
-      _linkFormatter(std::move(linkFormatter)),
+      _linkFormatter(linkFormatter),
       _all(all)
 {
     if (!languageName.empty())
