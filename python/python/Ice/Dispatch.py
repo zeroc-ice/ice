@@ -1,6 +1,5 @@
 # Copyright (c) ZeroC, Inc.
 
-import inspect
 import sys
 from collections.abc import Callable, Coroutine
 from typing import cast
