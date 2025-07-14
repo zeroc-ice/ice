@@ -265,13 +265,11 @@ namespace Slice
         /// Parses the raw doc-comment attached to `p` into a structured `DocComment`.
         ///
         /// @param p The slice element whose doc-comment should be parsed.
-        /// @param linkFormatter A function used to format links according to the target language's syntax.
         /// @param escapeXml If true, escapes all XML special characters in the parsed comment. Defaults to false.
         ///
         /// @return A `DocComment` instance containing a parsed representation of `p`'s doc-comment, if a doc-comment
         /// was present. If no doc-comment was present (or it contained only whitespace) this returns `nullopt` instead.
-        [[nodiscard]] static std::optional<DocComment>
-        parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool escapeXml = false);
+        [[nodiscard]] static std::optional<DocComment> parseFrom(const ContainedPtr& p, bool escapeXml = false);
 
         [[nodiscard]] bool isDeprecated() const;
         [[nodiscard]] const StringList& deprecated() const;
@@ -1068,11 +1066,13 @@ namespace Slice
     class Unit final : public Container
     {
     public:
-        static UnitPtr createUnit(std::string languageName, bool all);
+        static UnitPtr createUnit(std::string languageName, std::optional<DocLinkFormatter> linkFormatter, bool all);
 
-        Unit(std::string languageName, bool all);
+        Unit(std::string languageName, std::optional<DocLinkFormatter> linkFormatter, bool all);
 
         [[nodiscard]] std::string languageName() const;
+
+        [[nodiscard]] const std::optional<DocLinkFormatter>& linkFormatter() const;
 
         /// Sets `_currentDocComment` to the provided string, erasing anything currently stored in it.
         /// @param comment The raw comment string. It can span multiple lines and include comment formatting characters
@@ -1144,6 +1144,7 @@ namespace Slice
         void popDefinitionContext();
 
         const std::string _languageName;
+        const std::optional<DocLinkFormatter> _linkFormatter;
         bool _all;
         int _errors{0};
         std::string _currentDocComment;

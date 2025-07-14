@@ -2266,7 +2266,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
 void
 Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p, const string& package, bool async)
 {
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
     if (!dc)
     {
         return;
@@ -2414,7 +2414,7 @@ Slice::JavaVisitor::writeParamDocComments(IceInternal::Output& out, const DataMe
     bool first = true;
     for (const auto& member : members)
     {
-        if (const auto docComment = DocComment::parseFrom(member, javaLinkFormatter))
+        if (const auto docComment = DocComment::parseFrom(member))
         {
             if (first)
             {
@@ -2494,7 +2494,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     // Slice interfaces map to Java interfaces.
     out << sp;
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -2795,7 +2795,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
 
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3049,7 +3049,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     Output& out = output();
     out << sp;
 
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3420,7 +3420,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     out << sp;
 
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3696,7 +3696,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
 
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3712,7 +3712,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             out << ',';
         }
-        optional<DocComment> edc = DocComment::parseFrom(*en, javaLinkFormatter);
+        optional<DocComment> edc = DocComment::parseFrom(*en);
         writeDocComment(out, p->unit(), edc);
         if (edc && edc->isDeprecated())
         {
@@ -4203,7 +4203,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     out << sp;
 
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -4231,7 +4231,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // Generate a Java interface as the user-visible type
     out << sp;
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -4424,7 +4424,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     outi << sp;
     writeHiddenDocComment(outi);
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
     if (dc && dc->isDeprecated())
     {
         outi << nl << "@Deprecated";
@@ -4463,7 +4463,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     const vector<string> params = getParamsProxy(p, package, false);
     const vector<string> paramsOpt = getParamsProxy(p, package, true);
     const bool sendsOptionals = p->sendsOptionals();
-    const optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    const optional<DocComment> dc = DocComment::parseFrom(p);
 
     // Arrange exceptions into most-derived to least-derived order. If we don't
     // do this, a base exception handler can appear before a derived exception
@@ -4520,7 +4520,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     Output& out = output();
 
     out << sp;
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
     writeDocComment(out, p->unit(), dc);
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
@@ -4822,7 +4822,7 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& p)
 
     Output& out = output();
 
-    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p);
 
     // Generate the "Result" type needed by operations that return multiple values.
     if (p->returnsMultipleValues())

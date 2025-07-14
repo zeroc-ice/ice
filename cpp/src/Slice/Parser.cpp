@@ -440,8 +440,13 @@ namespace
 }
 
 optional<DocComment>
-Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool escapeXml)
+Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
 {
+    const optional<DocLinkFormatter>& linkFormatter = p->unit()->linkFormatter();
+    // Some compilers don't generate doc-comments, and so don't provide a link formatter.
+    // But, these compilers should also never be calling `parseFrom` in the first place.
+    assert(linkFormatter.has_value());
+
     // Split the comment's raw text up into lines.
     StringList lines = splitComment(p->docComment(), escapeXml);
     if (lines.empty())
@@ -484,7 +489,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
                 }
 
                 // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
-                string formattedLink = linkFormatter(linkText, p, linkTarget);
+                string formattedLink = (*linkFormatter)(linkText, p, linkTarget);
                 line.insert(pos, formattedLink);
                 pos += formattedLink.length();
             }
@@ -4709,15 +4714,21 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(string languageName, bool all)
+Slice::Unit::createUnit(string languageName, std::optional<DocLinkFormatter> linkFormatter, bool all)
 {
-    return make_shared<Unit>(std::move(languageName), all);
+    return make_shared<Unit>(std::move(languageName), linkFormatter, all);
 }
 
 string
 Slice::Unit::languageName() const
 {
     return _languageName;
+}
+
+const optional<DocLinkFormatter>&
+Slice::Unit::linkFormatter() const
+{
+    return _linkFormatter;
 }
 
 void
@@ -5192,7 +5203,10 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(string languageName, bool all) : _languageName(std::move(languageName)), _all(all)
+Slice::Unit::Unit(string languageName, optional<DocLinkFormatter> linkFormatter, bool all)
+    : _languageName(std::move(languageName)),
+      _linkFormatter(linkFormatter),
+      _all(all)
 {
     if (!languageName.empty())
     {
