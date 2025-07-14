@@ -1,7 +1,6 @@
 {
     "recommendations": [
         "ZeroCInc.slice",
-        "josevseb.google-java-format-for-vs-code",
         "charliermarsh.ruff",
     ]
 }
