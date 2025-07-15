@@ -4787,7 +4787,8 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out << nl << " *";
         out << nl << " * @param request the incoming request";
         out << nl << " * @return the outgoing response";
-        out << nl << " * @throws UserException when the response payload contains a {@code UserException}.";
+        out << nl
+            << " * @throws com.zeroc.Ice.UserException when the response payload contains a {@code UserException}.";
         out << nl << " */";
         out << nl << "@Override";
         out << nl << "default java.util.concurrent.CompletionStage<com.zeroc.Ice.OutgoingResponse> dispatch("
