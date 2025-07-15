@@ -25,23 +25,23 @@ namespace
 {
     /// Determines the mapped package for a given Slice definition.
     /// @param p The Slice definition to get the mapped package for.
-    /// @param separator Use this character as the separator between package segments.
+    /// @param packageSeparator Use this character as the separator between package segments.
     /// @return The mapped package name, with the specified separator.
-    string getMappedPackage(SyntaxTreeBasePtr p, char separator = '.')
+    string getMappedPackage(SyntaxTreeBasePtr p, char packageSeparator = '.')
     {
         if (dynamic_pointer_cast<Builtin>(p))
         {
-            return string{"Ice"} + separator;
+            return string{"Ice"} + packageSeparator;
         }
         else
         {
             auto contained = dynamic_pointer_cast<Contained>(p);
             assert(contained);
-            string package = contained->mappedScope(string{separator});
-            if (separator != '.')
+            string package = contained->mappedScope(string{packageSeparator});
+            if (packageSeparator != '.')
             {
                 // Replace "." with the specified separator.
-                replace(package.begin(), package.end(), '.', separator);
+                replace(package.begin(), package.end(), '.', packageSeparator);
             }
             return package;
         }
@@ -77,7 +77,8 @@ namespace
     /// Returns the fully qualified name of the Python module where the given Slice definition is forward-declared.
     ///
     /// Forward declarations are generated only for classes and interfaces. The corresponding Python module name
-    /// is the same as the definition module returned by `getPythonModuleForDefinition`, with an "F" appended to the end.
+    /// is the same as the definition module returned by `getPythonModuleForDefinition`, with an "F" appended to the
+    /// end.
     ///
     /// For example, the forward declaration of the class `Bar::MyClass` is placed in the module `"Bar.MyClassF"`.
     ///
@@ -121,8 +122,8 @@ namespace
         }
     }
 
-    /// Gets the name used for the meta-type of the given Slice definition. IcePy creates a meta-type for each Slice type.
-    /// The generated code uses these meta-types to call IcePy.
+    /// Gets the name used for the meta-type of the given Slice definition. IcePy creates a meta-type for each Slice
+    /// type. The generated code uses these meta-types to call IcePy.
     /// @param p The Slice definition to get the meta-type name for.
     /// @return The name of the meta-type for the given Slice definition.
     string getMetaType(const SyntaxTreeBasePtr& p)
@@ -326,6 +327,7 @@ namespace
             case Dispatch:
                 return returnTypeHint + " | Awaitable[" + returnTypeHint + "]";
             case SyncInvocation:
+            default:
                 return returnTypeHint;
         }
     }
@@ -923,7 +925,7 @@ Slice::Python::PackageVisitor::importType(const ContainedPtr& definition, const 
     definitions.insert(definition->mappedName() + prefix);
 
     // Add the definition to the list of generated Python modules.
-    string modulePath = packageName; 
+    string modulePath = packageName;
     replace(modulePath.begin(), modulePath.end(), '.', '/');
     _generatedModules.insert(modulePath + moduleName + ".py");
 
@@ -2448,7 +2450,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
         out << nl << "------";
         for (const auto& [exception, exceptionDescription] : exceptionsDoc)
         {
-            out << nl <<exception;
+            out << nl << exception;
             for (const auto& line : exceptionDescription)
             {
                 out << nl << "    " << line;
