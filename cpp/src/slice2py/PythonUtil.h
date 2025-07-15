@@ -46,7 +46,7 @@ namespace Slice::Python
     class PackageVisitor final : public ParserVisitor
     {
     public:
-        bool visitModuleStart(const ModulePtr&);
+        bool visitModuleStart(const ModulePtr&) final;
         bool visitClassDefStart(const ClassDefPtr&) final;
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
         bool visitStructStart(const StructPtr&) final;
