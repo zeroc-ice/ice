@@ -56,7 +56,7 @@ def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: list[Any]):
 
     # If the result is a future, attach a done callback to handle dispatch completion.
     if is_future(result):
-        # Use a more precise type annotation while maintaining runtime behavior
+        # Use a more precise type annotation while maintaining runtime behavior.
         result = cast(FutureLike, result)
 
         def handle_future_result(future: FutureLike):
