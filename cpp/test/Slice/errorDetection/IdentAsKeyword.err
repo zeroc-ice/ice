@@ -41,7 +41,6 @@ IdentAsKeyword.ice:40: sequences can only be defined within a module
 IdentAsKeyword.ice:42: dictionaries can only be defined within a module
 IdentAsKeyword.ice:42: keyword 'throws' cannot be used as dictionary name
 IdentAsKeyword.ice:43: dictionary 'thRows' differs only in capitalization from dictionary 'throws'
-IdentAsKeyword.ice:43: dictionaries can only be defined within a module
 IdentAsKeyword.ice:45: syntax error
 IdentAsKeyword.ice:46: 'MODULE' is not defined
 IdentAsKeyword.ice:46: dictionaries can only be defined within a module
