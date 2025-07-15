@@ -18,8 +18,8 @@ module M1
     }
 
     interface A3 extends A2, B2
-    {       // OK
-        void ia3();
+    {
+        void ia3(); // OK
     }
 }
 
