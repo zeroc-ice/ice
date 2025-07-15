@@ -46,7 +46,6 @@ namespace Slice::Python
     class PackageVisitor final : public ParserVisitor
     {
     public:
-
         bool visitModuleStart(const ModulePtr&);
         bool visitClassDefStart(const ClassDefPtr&) final;
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
@@ -62,8 +61,8 @@ namespace Slice::Python
         const std::set<std::string>& packageIndexFiles() const { return _packageIndexFiles; }
 
     private:
-        void importType(const ContainedPtr& definition, const std::string& prefix = "");
-        void importMetaType(const ContainedPtr& definition);
+        void addRuntimeImport(const ContainedPtr& definition, const std::string& prefix = "");
+        void addRuntimeImportForMetaType(const ContainedPtr& definition);
 
         // A map where:
         // - The outer key is the generated Python package name (e.g., "Foo" for the Slice module ::Foo).

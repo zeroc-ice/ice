@@ -229,9 +229,9 @@ namespace
             "float",
             "float",
             "str",
-            "Ice_Object | None", // Not used anymore
-            "Ice_ObjectPrx | None",
-            "Ice_Value | None"};
+            "Ice.Object | None", // Not used anymore
+            "Ice.ObjectPrx | None",
+            "Ice.Value | None"};
 
         if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
@@ -252,7 +252,7 @@ namespace
             auto contained = dynamic_pointer_cast<Contained>(type);
             assert(contained);
 
-            string prefix = sourceModule == definitionModule ? "" : contained->mappedScope("_");
+            string prefix = sourceModule == definitionModule ? "" : getMappedPackage(contained);
 
             if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
             {
@@ -463,33 +463,51 @@ namespace Slice::Python
     private:
         void visitDataMembers(const ContainedPtr&, const list<DataMemberPtr>&);
 
-        /// Add an import for the given Slice definition if it comes from a different module.
+        /// Adds a runtime import for the given Slice definition if it comes from a different module.
         /// @p definition is the Slice definition to import.
         /// @p source is the Slice definition that requires the import.
-        /// @p importScope indicates whether the import is used at runtime or only for type hints.
-        void importType(
+        void addRuntimeImport(
             const SyntaxTreeBasePtr& definition,
             const ContainedPtr& source,
-            ImportScope importScope,
             TypeContext typeContext = ProxyType);
 
-        /// Adds an import for the given definition from the specified Python module.
+        /// Adds a runtime import for the given definition from the specified Python module.
         ///
         /// @param moduleName The fully qualified name of the Python module to import from.
         /// @param definition A pair consisting of the name and alias to use for the imported symbol.
         ///                   If the alias is empty, the name is used as the alias.
         /// @param source The Slice definition that requires this import.
-        /// @param importScope Indicates whether the import is needed at runtime or only for type hints.
-        void importType(
-            const string& moduleName,
-            pair<string, string> definition,
-            const ContainedPtr& source,
-            ImportScope importScope);
+        void addRuntimeImport(const string& moduleName, pair<string, string> definition, const ContainedPtr& source);
+
+        /// Adds a typing import for the given definition from the specified Python module.
+        ///
+        /// Typing imports are generated inside an `if TYPE_CHECKING:` block, so they are only used for type hints.
+        ///
+        /// @param moduleName The fully qualified name of the Python module to import from.
+        /// @param definition The definition to import, represented as a pair of name and alias.
+        /// @param source The Slice definition that requires this import.
+        void addTypingImport(const string& moduleName, pair<string, string> definition, const ContainedPtr& source);
+
+        /// Adds a typing import for the package containing the given Slice definition.
+        ///
+        /// Typing imports are generated inside an `if TYPE_CHECKING:` block, so they are only used for type hints.
+        ///
+        /// @param definition The definition to import the containing package.
+        /// @param source The Slice definition that requires this import.
+        void addTypingImport(const SyntaxTreeBasePtr& definition, const ContainedPtr& source);
+
+        /// Adds a typing import for the given package.
+        ///
+        /// Typing imports are generated inside an `if TYPE_CHECKING:` block, so they are only used for type hints.
+        ///
+        /// @param packageName The name of the package to import.
+        /// @param source The Slice definition that requires this import.
+        void addTypingImport(const string& packageName, const ContainedPtr& source);
 
         /// Import the meta type for the given Slice definition if it comes from a different module.
         /// @p definition is the Slice definition to import.
         /// @p source is the Slice definition that requires the import.
-        void importMetaType(const SyntaxTreeBasePtr& definition, const ContainedPtr& source);
+        void addRuntimeImportForMetaType(const SyntaxTreeBasePtr& definition, const ContainedPtr& source);
 
         ImportsMap _runtimeImports;
         ImportsMap _typingImports;
@@ -537,20 +555,20 @@ Slice::Python::createPackagePath(const string& moduleName, const string& outputP
 bool
 Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    importType("Ice.Util", {"format_fields", ""}, p, RuntimeImport);
+    addRuntimeImport("Ice.Util", {"format_fields", ""}, p);
     // Import the meta type that is created in the Xxx_iceF module for forward declarations.
-    importMetaType(p->declaration(), p);
+    addRuntimeImportForMetaType(p->declaration(), p);
 
     // Add imports required for the base class type.
     if (ClassDefPtr base = p->base())
     {
-        importType(base, p, RuntimeImport);
-        importMetaType(base, p);
+        addRuntimeImport(base, p);
+        addRuntimeImportForMetaType(base, p);
     }
     else
     {
         // If the class has no base, we import the Ice.Object type.
-        importType("Ice.Value", {"Value", "Ice_Value"}, p, RuntimeImport);
+        addRuntimeImport("Ice.Value", {"Value", "Ice_Value"}, p);
     }
 
     // Add imports required for the data members.
@@ -562,42 +580,42 @@ bool
 Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     // Import the proxy meta type that is created in the XxxF module for forward declarations.
-    importMetaType(p->declaration(), p);
+    addRuntimeImportForMetaType(p->declaration(), p);
 
     // Add imports required for base interfaces types.
     const InterfaceList& bases = p->bases();
     if (bases.empty())
     {
-        importType("Ice.ObjectPrx", {"ObjectPrx", "Ice_ObjectPrx"}, p, RuntimeImport);
-        importType("Ice.Object", {"Object", "Ice_Object"}, p, RuntimeImport);
+        addRuntimeImport("Ice.ObjectPrx", {"ObjectPrx", "Ice_ObjectPrx"}, p);
+        addRuntimeImport("Ice.Object", {"Object", "Ice_Object"}, p);
     }
     else
     {
         for (const auto& base : bases)
         {
-            importType(base, p, RuntimeImport, ProxyType);
-            importType(base, p, RuntimeImport, ServantType);
+            addRuntimeImport(base, p, ProxyType);
+            addRuntimeImport(base, p, ServantType);
         }
     }
 
-    importType("abc", {"ABC", ""}, p, RuntimeImport);
+    addRuntimeImport("abc", {"ABC", ""}, p);
 
-    importType("Ice.ObjectPrx", {"checkedCast", "Ice_checkedCast"}, p, RuntimeImport);
-    importType("Ice.ObjectPrx", {"checkedCastAsync", "Ice_checkedCastAsync"}, p, RuntimeImport);
-    importType("Ice.ObjectPrx", {"uncheckedCast", "Ice_uncheckedCast"}, p, RuntimeImport);
+    addRuntimeImport("Ice.ObjectPrx", {"checkedCast", "Ice_checkedCast"}, p);
+    addRuntimeImport("Ice.ObjectPrx", {"checkedCastAsync", "Ice_checkedCastAsync"}, p);
+    addRuntimeImport("Ice.ObjectPrx", {"uncheckedCast", "Ice_uncheckedCast"}, p);
 
-    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
+    addRuntimeImport("typing", {"TYPE_CHECKING", ""}, p);
 
     // Add imports required for operation parameters and return types.
     const OperationList& operations = p->allOperations();
     if (!operations.empty())
     {
-        importType("abc", {"abstractmethod", ""}, p, RuntimeImport);
+        addRuntimeImport("abc", {"abstractmethod", ""}, p);
         // If the interface has no operations, we still need to import the Ice.ObjectPrx type.
-        importType("collections.abc", {"Awaitable", ""}, p, TypingImport);
-        importType("collections.abc", {"Sequence", ""}, p, TypingImport);
+        addTypingImport("collections.abc", {"Awaitable", ""}, p);
+        addTypingImport("collections.abc", {"Sequence", ""}, p);
 
-        importType("Ice.OperationMode", {"OperationMode", "Ice_OperationMode"}, p, RuntimeImport);
+        addRuntimeImport("Ice.OperationMode", {"OperationMode", "Ice_OperationMode"}, p);
     }
 
     for (const auto& op : operations)
@@ -605,31 +623,30 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         auto ret = op->returnType();
         if (ret)
         {
-            importType(ret, p, TypingImport, ProxyType);
-            importMetaType(ret, p);
+            addTypingImport(ret, p);
+            addRuntimeImportForMetaType(ret, p);
         }
 
         for (const auto& param : op->parameters())
         {
-            importType(param->type(), p, TypingImport, ProxyType);
-            importMetaType(param->type(), p);
+            addTypingImport(param->type(), p);
+            addRuntimeImportForMetaType(param->type(), p);
         }
 
         for (const auto& ex : op->throws())
         {
-            importType(ex, p, TypingImport, ProxyType);
-            importMetaType(ex, p);
+            addTypingImport(ex, p);
+            addRuntimeImportForMetaType(ex, p);
         }
 
         if (op->format())
         {
-            importType("Ice.FormatType", {"FormatType", "Ice_FormatType"}, p, RuntimeImport);
+            addRuntimeImport("Ice.FormatType", {"FormatType", "Ice_FormatType"}, p);
         }
     }
 
     // Types that are used in the Prx interface.
-    importType("Ice.Communicator", {"Communicator", "Ice_Communicator"}, p, TypingImport);
-    importType("Ice.Current", {"Current", "Ice_Current"}, p, TypingImport);
+    addTypingImport("Ice", p);
 
     return false;
 }
@@ -638,10 +655,10 @@ bool
 Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
 {
     // Visit the data members.
-    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
-    importType("Ice.Util", {"format_fields", ""}, p, RuntimeImport);
-    importType("dataclasses", {"dataclass", ""}, p, RuntimeImport);
-    importType("dataclasses", {"field", ""}, p, RuntimeImport);
+    addRuntimeImport("typing", {"TYPE_CHECKING", ""}, p);
+    addRuntimeImport("Ice.Util", {"format_fields", ""}, p);
+    addRuntimeImport("dataclasses", {"dataclass", ""}, p);
+    addRuntimeImport("dataclasses", {"field", ""}, p);
     // Add imports required for the data members.
     visitDataMembers(p, p->dataMembers());
     return false;
@@ -650,18 +667,17 @@ Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Python::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
-    importType("Ice.Util", {"format_fields", ""}, p, RuntimeImport);
+    addRuntimeImport("Ice.Util", {"format_fields", ""}, p);
     // Add imports required for base exception types.
     if (ExceptionPtr base = p->base())
     {
-        importType(base, p, RuntimeImport);
-        importMetaType(base, p);
+        addRuntimeImport(base, p);
+        addRuntimeImportForMetaType(base, p);
     }
     else
     {
         // If the exception has no base, we import the Ice.UserException type.
-        importType("Ice.UserException", {"UserException", "Ice_UserException"}, p, RuntimeImport);
+        addRuntimeImport("Ice.UserException", {"UserException", "Ice_UserException"}, p);
     }
     // Add imports required for the data members.
     visitDataMembers(p, p->allDataMembers());
@@ -675,24 +691,26 @@ Slice::Python::ImportVisitor::visitDataMembers(const ContainedPtr& parent, const
     {
         // Add imports required for data member types.
         auto type = member->type();
-        // For structs and enums we need a RuntimeImport for the initialization of the field in the constructor.
-        // Otherwise a TypingImport is sufficient for type hints.
-        ImportScope importScope =
-            (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type)) ? RuntimeImport : TypingImport;
 
         // For fields with a type that is a Struct, we need to import it as a RuntimeImport, to
         // initialize the field in the constructor. For other contained types, we only need the
         // import for type hints.
-        importType(type, parent, importScope, ProxyType);
-
-        importMetaType(type, parent);
+        if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
+        {
+            addRuntimeImport(type, parent, ProxyType);
+        }
+        else
+        {
+            addTypingImport(type, parent);
+        }
+        addRuntimeImportForMetaType(type, parent);
 
         // If the data member has a default value, and the type of the default value is an Enum or a Const
         // we need to import the corresponding Enum or Const.
         if (member->defaultValue() && (dynamic_pointer_cast<Const>(member->defaultValueType()) ||
                                        dynamic_pointer_cast<Enum>(member->defaultValueType())))
         {
-            importType(member->defaultValueType(), parent, RuntimeImport, ProxyType);
+            addRuntimeImport(member->defaultValueType(), parent, ProxyType);
         }
     }
 }
@@ -701,25 +719,22 @@ void
 Slice::Python::ImportVisitor::visitSequence(const SequencePtr& p)
 {
     // Add import required for the sequence element type.
-    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
-    importMetaType(p->type(), p);
+    addRuntimeImportForMetaType(p->type(), p);
 }
 
 void
 Slice::Python::ImportVisitor::visitDictionary(const DictionaryPtr& p)
 {
     // Add imports required for the dictionary key and value meta types
-    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
-    importMetaType(p->keyType(), p);
-    importMetaType(p->valueType(), p);
+    addRuntimeImportForMetaType(p->keyType(), p);
+    addRuntimeImportForMetaType(p->valueType(), p);
 }
 
 void
 Slice::Python::ImportVisitor::visitEnum(const EnumPtr& p)
 {
     // TODO if a value is initialized with a constant, we need to import the type of the constant.
-    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
-    importType("enum", {"Enum", ""}, p, RuntimeImport);
+    addRuntimeImport("enum", {"Enum", ""}, p);
 }
 
 void
@@ -728,15 +743,14 @@ Slice::Python::ImportVisitor::visitConst(const ConstPtr& p)
     // If the constant value is a Slice enum, we need to import the enum type.
     if (dynamic_pointer_cast<Enum>(p->type()))
     {
-        importType(p->type(), p, RuntimeImport);
+        addRuntimeImport(p->type(), p);
     }
 }
 
 void
-Slice::Python::ImportVisitor::importType(
+Slice::Python::ImportVisitor::addRuntimeImport(
     const SyntaxTreeBasePtr& definition,
     const ContainedPtr& source,
-    ImportScope importScope,
     TypeContext typeContext)
 {
     // The module containing the definition we want to import.
@@ -780,24 +794,16 @@ Slice::Python::ImportVisitor::importType(
         }
     }
 
-    auto& imports = (importScope == RuntimeImport) ? _runtimeImports : _typingImports;
-    auto& sourceModuleImports = imports[sourceModule];
+    auto& sourceModuleImports = _runtimeImports[sourceModule];
     auto& definitionImports = sourceModuleImports[definitionModule];
     definitionImports.insert(names.begin(), names.end());
-
-    // If we are importing a type with the TypingImport scope, we also need to import TYPE_CHECKING from typing.
-    if (importScope == TypingImport)
-    {
-        importType("typing", {"TYPE_CHECKING", ""}, source, RuntimeImport);
-    }
 }
 
 void
-Slice::Python::ImportVisitor::importType(
+Slice::Python::ImportVisitor::addRuntimeImport(
     const string& definitionModule,
     pair<string, string> definition,
-    const ContainedPtr& source,
-    ImportScope importScope)
+    const ContainedPtr& source)
 {
     // The module importing the definition.
     string sourceModule = getPythonModuleForDefinition(source);
@@ -808,14 +814,59 @@ Slice::Python::ImportVisitor::importType(
         return;
     }
 
-    auto& imports = (importScope == RuntimeImport) ? _runtimeImports : _typingImports;
-    auto& sourceModuleImports = imports[sourceModule];
+    auto& sourceModuleImports = _runtimeImports[sourceModule];
     auto& definitionImports = sourceModuleImports[definitionModule];
     definitionImports.insert(definition);
 }
 
 void
-Slice::Python::ImportVisitor::importMetaType(const SyntaxTreeBasePtr& definition, const ContainedPtr& source)
+Slice::Python::ImportVisitor::addTypingImport(
+    const string& moduleName,
+    pair<string, string> definition,
+    const ContainedPtr& source)
+{
+    // The module importing the definition.
+    string sourceModule = getPythonModuleForDefinition(source);
+    auto& sourceModuleImports = _typingImports[sourceModule];
+    auto& definitionImports = sourceModuleImports[moduleName];
+    definitionImports.insert(definition);
+
+    // If we are importing a type with the TypingImport scope, we also need a runtime import for TYPE_CHECKING from
+    // typing.
+    addRuntimeImport("typing", {"TYPE_CHECKING", ""}, source);
+}
+
+void
+Slice::Python::ImportVisitor::addTypingImport(const SyntaxTreeBasePtr& definition, const ContainedPtr& source)
+{
+    string packageName = getMappedPackage(definition);
+    packageName.pop_back(); // Remove the final dot.
+
+    addTypingImport(packageName, source);
+}
+
+void
+Slice::Python::ImportVisitor::addTypingImport(const string& packageName, const ContainedPtr& source)
+{
+    // The module importing the definition.
+    string sourceModule = getPythonModuleForDefinition(source);
+
+    auto& sourceModuleImports = _typingImports[sourceModule];
+    if (sourceModuleImports.find(packageName) == sourceModuleImports.end())
+    {
+        // If the package does not exist, we create an empty map for it.
+        sourceModuleImports[packageName] = {};
+    }
+
+    // If we are importing a type with the TypingImport scope, we also need a runtime import for TYPE_CHECKING from
+    // typing.
+    addRuntimeImport("typing", {"TYPE_CHECKING", ""}, source);
+}
+
+void
+Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
+    const SyntaxTreeBasePtr& definition,
+    const ContainedPtr& source)
 {
     auto builtin = dynamic_pointer_cast<Builtin>(definition);
     if (builtin && builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue &&
@@ -859,17 +910,17 @@ bool
 Slice::Python::PackageVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     // Add the class to the package imports.
-    importType(p);
-    importMetaType(p->declaration());
+    addRuntimeImport(p);
+    addRuntimeImportForMetaType(p->declaration());
     return false;
 }
 
 bool
 Slice::Python::PackageVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    importType(p);
-    importType(p, "Prx");
-    importMetaType(p->declaration());
+    addRuntimeImport(p);
+    addRuntimeImport(p, "Prx");
+    addRuntimeImportForMetaType(p->declaration());
 
     return false;
 }
@@ -877,46 +928,46 @@ Slice::Python::PackageVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 Slice::Python::PackageVisitor::visitStructStart(const StructPtr& p)
 {
-    importType(p);
-    importMetaType(p);
+    addRuntimeImport(p);
+    addRuntimeImportForMetaType(p);
     return false;
 }
 
 bool
 Slice::Python::PackageVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    importType(p);
-    importMetaType(p);
+    addRuntimeImport(p);
+    addRuntimeImportForMetaType(p);
     return false;
 }
 
 void
 Slice::Python::PackageVisitor::visitSequence(const SequencePtr& p)
 {
-    importMetaType(p);
+    addRuntimeImportForMetaType(p);
 }
 
 void
 Slice::Python::PackageVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    importMetaType(p);
+    addRuntimeImportForMetaType(p);
 }
 
 void
 Slice::Python::PackageVisitor::visitEnum(const EnumPtr& p)
 {
-    importType(p);
-    importMetaType(p);
+    addRuntimeImport(p);
+    addRuntimeImportForMetaType(p);
 }
 
 void
 Slice::Python::PackageVisitor::visitConst(const ConstPtr& p)
 {
-    importType(p);
+    addRuntimeImport(p);
 }
 
 void
-Slice::Python::PackageVisitor::importType(const ContainedPtr& definition, const string& prefix)
+Slice::Python::PackageVisitor::addRuntimeImport(const ContainedPtr& definition, const string& prefix)
 {
     string packageName = getMappedPackage(definition);
     string moduleName = definition->mappedName();
@@ -947,7 +998,7 @@ Slice::Python::PackageVisitor::importType(const ContainedPtr& definition, const 
 }
 
 void
-Slice::Python::PackageVisitor::importMetaType(const ContainedPtr& definition)
+Slice::Python::PackageVisitor::addRuntimeImportForMetaType(const ContainedPtr& definition)
 {
     string packageName = getMappedPackage(definition);
     string moduleName = definition->mappedName();
@@ -984,7 +1035,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
             capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
             out << sp;
             out << nl << "@staticmethod";
-            out << nl << "def " << capName << "MarshaledResult(result, current: Ice_Current):";
+            out << nl << "def " << capName << "MarshaledResult(result, current: Ice.Current):";
             out.inc();
             out << nl << tripleQuotes;
             out << nl << "Immediately marshals the result of an invocation of " << sliceName;
@@ -1016,7 +1067,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
         }
 
         const string currentParamName = getEscapedParamName(operation->parameters(), "current");
-        out << (currentParamName + ": Ice_Current");
+        out << (currentParamName + ": Ice.Current");
         out << epar << operationReturnTypeHint(operation, Dispatch) << ":";
         out.inc();
 
@@ -1057,27 +1108,21 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeConstructorParams(p->allDataMembers(), out);
     out << "):";
     out.inc();
-    if (!base && members.empty())
-    {
-        out << nl << "pass";
-    }
-    else
-    {
-        if (base)
-        {
-            out << nl << "super().__init__";
-            out.spar("(");
-            for (const auto& member : base->allDataMembers())
-            {
-                out << member->mappedName();
-            }
-            out.epar(")");
-        }
 
-        for (const auto& member : members)
+    out << nl << "super().__init__";
+    out.spar("(");
+    if (base)
+    {
+        for (const auto& member : base->allDataMembers())
         {
-            writeAssign(member, out);
+            out << member->mappedName();
         }
+    }
+    out.epar(")");
+
+    for (const auto& member : members)
+    {
+        writeAssign(member, out);
     }
     out.dec();
 
@@ -1223,7 +1268,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out.inc();
 
     out << sp;
-    out << nl << "def __init__(self, communicator: Ice_Communicator, proxyString: str):";
+    out << nl << "def __init__(self, communicator: Ice.Communicator, proxyString: str):";
     out.inc();
     out << nl << tripleQuotes;
     out << nl << "Creates a new " << prxName << " proxy";
@@ -1398,7 +1443,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // ice_ids
     StringList ids = p->ids();
     out << sp;
-    out << nl << "def ice_ids(self, current: Ice_Current) -> Sequence[str] | Awaitable[Sequence[str]]:";
+    out << nl << "def ice_ids(self, current: Ice.Current) -> Sequence[str] | Awaitable[Sequence[str]]:";
     out.inc();
     out << nl << "return (";
     for (auto q = ids.begin(); q != ids.end(); ++q)
@@ -1414,7 +1459,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // ice_id
     out << sp;
-    out << nl << "def ice_id(self, current: Ice_Current) -> str | Awaitable[str]:";
+    out << nl << "def ice_id(self, current: Ice.Current) -> str | Awaitable[str]:";
     out.inc();
     out << nl << "return \"" << scoped << "\"";
     out.dec();
@@ -2558,6 +2603,12 @@ Slice::Python::generate(const Slice::UnitPtr& unit, const std::string& outputDir
                     out << nl << "from " << moduleName << " import " << name << " as "
                         << (alias.empty() ? name : alias);
                 }
+            }
+            else
+            {
+                // If there are no definitions, we still need to import the module to ensure that the type hints
+                // are available.
+                out << nl << "import " << moduleName;
             }
         }
         out.dec();

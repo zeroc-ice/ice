@@ -39,3 +39,9 @@ html_theme_options = {
     "light_logo": "logo-light.png",
     "dark_logo": "logo-dark.png",
 }
+
+## Autodoc configuration
+autodoc_typehints = "both"
+autodoc_typehints_description_target = "all"
+add_module_names = True
+python_use_unqualified_type_names = False
