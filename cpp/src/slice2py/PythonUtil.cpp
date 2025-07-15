@@ -1093,7 +1093,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     outF << sp;
     outF << nl << "__all__ = [\"" << metaType << "\"]";
 
-    _codeFragments.emplace_back(p->declaration(), outF.str());
+    _codeFragments.push_back({p->declaration(), outF.str()});
 
     // Emit the class definition.
     BufferedOutput out;
@@ -1214,7 +1214,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     out << nl << "__all__ = [\"" << valueName << "\", \"" << metaType << "\"]";
 
-    _codeFragments.emplace_back(p, out.str());
+    _codeFragments.push_back({p, out.str()});
     return false;
 }
 
@@ -1232,7 +1232,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     outF << nl << metaType << " = IcePy.declareProxy(\"" << scoped << "\")";
     outF << sp;
     outF << nl << "__all__ = [\"" << metaType << "\"]";
-    _codeFragments.emplace_back(p->declaration(), outF.str());
+    _codeFragments.push_back({p->declaration(), outF.str()});
 
     // Emit the proxy class.
     BufferedOutput out;
@@ -1627,7 +1627,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << sp;
     out << nl << "__all__ = [\"" << className << "\", \"" << prxName << "\", \"" << metaType << "\"]";
 
-    _codeFragments.emplace_back(p, out.str());
+    _codeFragments.push_back({p, out.str()});
     return false;
 }
 
@@ -1749,7 +1749,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sp;
     out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
 
-    _codeFragments.emplace_back(p, out.str());
+    _codeFragments.push_back({p, out.str()});
     return false;
 }
 
@@ -1851,7 +1851,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     out << sp;
     out << nl << "__all__ = [\"" << name << "\", \"" << metaTypeName << "\"]";
 
-    _codeFragments.emplace_back(p, out.str());
+    _codeFragments.push_back({p, out.str()});
     return false;
 }
 
@@ -1869,7 +1869,7 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     out << sp;
     out << nl << "__all__ = [\"" << metaType << "\"]";
 
-    _codeFragments.emplace_back(p, out.str());
+    _codeFragments.push_back({p, out.str()});
 }
 
 void
@@ -1884,7 +1884,7 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     out << sp;
     out << nl << "__all__ = [\"" << metaType << "\"]";
 
-    _codeFragments.emplace_back(p, out.str());
+    _codeFragments.push_back({p, out.str()});
 }
 
 void
@@ -1930,7 +1930,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     out << sp;
     out << nl << "__all__ = [\"" << name << "\", \"" << getMetaType(p) << "\"]";
 
-    _codeFragments.emplace_back(p, out.str());
+    _codeFragments.push_back({p, out.str()});
 }
 
 void
@@ -1945,7 +1945,7 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
     out << sp;
     out << nl << "__all__ = [\"" << name << "\"]";
 
-    _codeFragments.emplace_back(p, out.str());
+    _codeFragments.push_back({p, out.str()});
 }
 
 string
