@@ -41,7 +41,6 @@ module Test
 
     dictionary<long, long> throws;
     dictionary<long, long> thRows;
-    dictionary<long, long> LOCALobject; // Ok as of 3.7
 
     dictionary<module, long> d1;
     dictionary<MODULE, long> d2;
