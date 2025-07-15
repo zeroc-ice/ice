@@ -5,7 +5,6 @@
 #include "../Slice/FileTracker.h"
 #include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
-#include "Ice/LocalExceptions.h"
 #include "Ice/StringUtil.h"
 
 #include <algorithm>
