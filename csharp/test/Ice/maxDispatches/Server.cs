@@ -15,7 +15,7 @@ public class Server : global::Test.TestHelper
         var responder = new ResponderI();
         var testIntf = new TestIntfI(responder);
 
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         var adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(testIntf, Ice.Util.stringToIdentity("test"));
         adapter.activate();

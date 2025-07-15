@@ -32,10 +32,6 @@ public abstract class TestHelper {
         void serverReady();
     }
 
-    public String getTestEndpoint() {
-        return getTestEndpoint(_communicator.getProperties(), 0, "");
-    }
-
     public static String getTestEndpoint(Properties properties) {
         return getTestEndpoint(properties, 0, "");
     }

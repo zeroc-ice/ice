@@ -16,7 +16,7 @@ public class Server extends TestHelper {
         properties.setProperty("TestAdapter3s.Connection.InactivityTimeout", "3");
 
         try (var communicator = initialize(properties)) {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             communicator.getProperties().setProperty("TestAdapter3s.Endpoints", getTestEndpoint(1));
 
             var adapter = communicator.createObjectAdapter("TestAdapter");

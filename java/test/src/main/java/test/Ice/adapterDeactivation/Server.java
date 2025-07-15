@@ -10,7 +10,7 @@ import test.TestHelper;
 public class Server extends TestHelper {
     public void run(String[] args) {
         try (Communicator communicator = initialize(args)) {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.addServantLocator(new ServantLocatorI(), "");
             adapter.activate();

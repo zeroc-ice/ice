@@ -23,7 +23,7 @@ Collocated::run(int argc, char** argv)
     { executor->execute(make_shared<ExecutorCall>(call), conn); };
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
     communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
