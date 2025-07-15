@@ -2,9 +2,11 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import Inner
+from Inner.Test.Inner2 import MyInterface as Inner_Test_Inner2_MyInterface
 import Test
 from TestHelper import TestHelper
+from Test.Inner import MyInterface as Test_Inner_MyInterface
+from Test.Inner.Inner2 import MyInterface as Test_Inner_Inner2_MyInterface
 
 import Ice
 
@@ -41,7 +43,7 @@ class MyInterface1(Test.MyInterface):
         current.adapter.getCommunicator().shutdown()
 
 
-class MyInterface2(Test.Inner.Inner2.MyInterface):
+class MyInterface2(Test_Inner_Inner2_MyInterface):
     def opMyStruct(self, s1, current):
         return (s1, s1)
 
@@ -64,7 +66,7 @@ class MyInterface2(Test.Inner.Inner2.MyInterface):
         current.adapter.getCommunicator().shutdown()
 
 
-class MyInterface3(Test.Inner.MyInterface):
+class MyInterface3(Test_Inner_MyInterface):
     def opMyStruct(self, s1, current):
         return (s1, s1)
 
@@ -87,7 +89,7 @@ class MyInterface3(Test.Inner.MyInterface):
         current.adapter.getCommunicator().shutdown()
 
 
-class MyInterface4(Inner.Test.Inner2.MyInterface):
+class MyInterface4(Inner_Test_Inner2_MyInterface):
     def opMyStruct(self, s1, current):
         return (s1, s1)
 

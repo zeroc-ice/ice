@@ -2,12 +2,12 @@
 
 from dataclasses import dataclass
 
-import Ice.Identity_ice
-import Ice.OperationMode_ice
-import Ice.Version_ice
 from IcePy import Connection
 
+from .EncodingVersion import EncodingVersion
+from .Identity import Identity
 from .ObjectAdapter import ObjectAdapter
+from .OperationMode import OperationMode
 
 
 @dataclass(frozen=True)
@@ -39,10 +39,10 @@ class Current:
 
     adapter: ObjectAdapter
     con: Connection | None
-    id: Ice.Identity
+    id: Identity
     facet: str
     operation: str
-    mode: Ice.OperationMode
+    mode: OperationMode
     ctx: dict[str, str]
     requestId: int
-    encoding: Ice.EncodingVersion
+    encoding: EncodingVersion

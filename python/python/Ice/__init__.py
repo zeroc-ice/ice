@@ -12,7 +12,6 @@ Ice module
 """
 
 import IcePy
-from .ModuleUtil import *
 
 #
 # Add some symbols to the Ice module.
@@ -32,8 +31,8 @@ AsyncInvocationContext = IcePy.AsyncInvocationContext
 #
 # Forward declarations.
 #
-IcePy._t_Value = IcePy.declareValue("::Ice::Object")
-IcePy._t_ObjectPrx = IcePy.declareProxy("::Ice::Object")
+from .ObjectPrxF import __Ice_ObjectPrx_t
+from .ValueF import __Ice_Value_t
 
 #
 # Import local definitions that are part of the Ice module public API.
@@ -71,18 +70,86 @@ from .Dispatch import *
 #
 # Import the generated code for the Ice module.
 #
-import Ice.BuiltinSequences_ice
-import Ice.OperationMode_ice
-import Ice.EndpointTypes_ice
-import Ice.Identity_ice
-import Ice.Locator_ice
-import Ice.LocatorRegistry_ice
-import Ice.Process_ice
-import Ice.PropertiesAdmin_ice
-import Ice.RemoteLogger_ice
-import Ice.Router_ice
-import Ice.Version_ice
-import Ice.Metrics_ice
+from .AdapterAlreadyActiveException import AdapterAlreadyActiveException
+from .AdapterAlreadyActiveException import __Ice_AdapterAlreadyActiveException_t
+from .AdapterNotFoundException import AdapterNotFoundException
+from .AdapterNotFoundException import __Ice_AdapterNotFoundException_t
+from .BTEndpointType import BTEndpointType
+from .BTSEndpointType import BTSEndpointType
+from .BoolSeq import __Ice_BoolSeq_t
+from .ByteSeq import __Ice_ByteSeq_t
+from .Context import __Ice_Context_t
+from .DoubleSeq import __Ice_DoubleSeq_t
+from .EncodingVersion import EncodingVersion
+from .EncodingVersion import __Ice_EncodingVersion_t
+from .FloatSeq import __Ice_FloatSeq_t
+from .Identity import Identity
+from .Identity import __Ice_Identity_t
+from .IdentitySeq import __Ice_IdentitySeq_t
+from .IntSeq import __Ice_IntSeq_t
+from .InvalidReplicaGroupIdException import InvalidReplicaGroupIdException
+from .InvalidReplicaGroupIdException import __Ice_InvalidReplicaGroupIdException_t
+from .Locator import Locator
+from .Locator import LocatorPrx
+from .LocatorF import __Ice_LocatorPrx_t
+from .LocatorFinder import LocatorFinder
+from .LocatorFinder import LocatorFinderPrx
+from .LocatorFinderF import __Ice_LocatorFinderPrx_t
+from .LocatorRegistry import LocatorRegistry
+from .LocatorRegistry import LocatorRegistryPrx
+from .LocatorRegistryF import __Ice_LocatorRegistryPrx_t
+from .LogMessage import LogMessage
+from .LogMessage import __Ice_LogMessage_t
+from .LogMessageSeq import __Ice_LogMessageSeq_t
+from .LogMessageType import LogMessageType
+from .LogMessageType import __Ice_LogMessageType_t
+from .LogMessageTypeSeq import __Ice_LogMessageTypeSeq_t
+from .LoggerAdmin import LoggerAdmin
+from .LoggerAdmin import LoggerAdminPrx
+from .LoggerAdminF import __Ice_LoggerAdminPrx_t
+from .LongSeq import __Ice_LongSeq_t
+from .ObjectNotFoundException import ObjectNotFoundException
+from .ObjectNotFoundException import __Ice_ObjectNotFoundException_t
+from .ObjectProxySeq import __Ice_ObjectProxySeq_t
+from .ObjectSeq import __Ice_ObjectSeq_t
+from .OperationMode import OperationMode
+from .OperationMode import __Ice_OperationMode_t
+from .Process import Process
+from .Process import ProcessPrx
+from .ProcessLogger import getProcessLogger, setProcessLogger
+from .ProcessF import __Ice_ProcessPrx_t
+from .PropertiesAdmin import PropertiesAdmin
+from .PropertiesAdmin import PropertiesAdminPrx
+from .PropertiesAdminF import __Ice_PropertiesAdminPrx_t
+from .PropertyDict import __Ice_PropertyDict_t
+from .ProtocolVersion import ProtocolVersion
+from .ProtocolVersion import __Ice_ProtocolVersion_t
+from .RemoteLogger import RemoteLogger
+from .RemoteLogger import RemoteLoggerPrx
+from .RemoteLoggerAlreadyAttachedException import RemoteLoggerAlreadyAttachedException
+from .RemoteLoggerAlreadyAttachedException import __Ice_RemoteLoggerAlreadyAttachedException_t
+from .RemoteLoggerF import __Ice_RemoteLoggerPrx_t
+from .ReplyStatus import ReplyStatus
+from .ReplyStatus import __Ice_ReplyStatus_t
+from .Router import Router
+from .Router import RouterPrx
+from .RouterF import __Ice_RouterPrx_t
+from .RouterFinder import RouterFinder
+from .RouterFinder import RouterFinderPrx
+from .RouterFinderF import __Ice_RouterFinderPrx_t
+from .SSLEndpointType import SSLEndpointType
+from .ServerNotFoundException import ServerNotFoundException
+from .ServerNotFoundException import __Ice_ServerNotFoundException_t
+from .ShortSeq import __Ice_ShortSeq_t
+from .SliceChecksumDict import __Ice_SliceChecksumDict_t
+from .StringSeq import __Ice_StringSeq_t
+from .TCPEndpointType import TCPEndpointType
+from .UDPEndpointType import UDPEndpointType
+from .URIEndpointType import URIEndpointType
+from .WSEndpointType import WSEndpointType
+from .WSSEndpointType import WSSEndpointType
+from .iAPEndpointType import iAPEndpointType
+from .iAPSEndpointType import iAPSEndpointType
 
 from .Util import *
 
@@ -110,9 +177,9 @@ SSLConnectionInfo = IcePy.SSLConnectionInfo
 #
 # Protocol and Encoding constants
 #
-Protocol_1_0 = Ice.ProtocolVersion(1, 0)
-Encoding_1_0 = Ice.EncodingVersion(1, 0)
-Encoding_1_1 = Ice.EncodingVersion(1, 1)
+Protocol_1_0 = ProtocolVersion(1, 0)
+Encoding_1_0 = EncodingVersion(1, 0)
+Encoding_1_1 = EncodingVersion(1, 1)
 
 #
 # Native PropertiesAdmin admin facet.
@@ -126,6 +193,8 @@ __all__ = [
     "AdapterAlreadyActiveException",
     "AdapterNotFoundException",
     "AlreadyRegisteredException",
+    "BTEndpointType",
+    "BTSEndpointType",
     "Blobject",
     "CloseConnectionException",
     "CloseTimeoutException",
@@ -195,28 +264,77 @@ __all__ = [
     "ProtocolException",
     "ProtocolVersion",
     "RemoteLogger",
+    "RemoteLoggerAlreadyAttachedException",
     "RemoteLoggerPrx",
     "ReplyStatus",
     "RequestFailedException",
     "Router",
+    "RouterFinder",
+    "RouterFinderPrx",
     "RouterPrx",
+    "SSLEndpointType",
     "SecurityException",
     "ServantLocator",
     "ServerNotFoundException",
     "SocketException",
     "SyscallException",
+    "TCPEndpointType",
     "TimeoutException",
     "ToStringMode",
     "TwowayOnlyException",
+    "UDPEndpointType",
+    "URIEndpointType",
     "UnknownException",
     "UnknownLocalException",
     "UnknownSlicedValue",
     "UnknownUserException",
     "UserException",
     "Value",
+    "WSEndpointType",
+    "WSSEndpointType",
+    "__Ice_AdapterAlreadyActiveException_t",
+    "__Ice_AdapterNotFoundException_t",
+    "__Ice_BoolSeq_t",
+    "__Ice_ByteSeq_t",
+    "__Ice_Context_t",
+    "__Ice_DoubleSeq_t",
+    "__Ice_EncodingVersion_t",
+    "__Ice_FloatSeq_t",
+    "__Ice_IdentitySeq_t",
+    "__Ice_Identity_t",
+    "__Ice_IntSeq_t",
+    "__Ice_InvalidReplicaGroupIdException_t",
+    "__Ice_LocatorFinderPrx_t",
+    "__Ice_LocatorPrx_t",
+    "__Ice_LocatorRegistryPrx_t",
+    "__Ice_LogMessageSeq_t",
+    "__Ice_LogMessageTypeSeq_t",
+    "__Ice_LogMessageType_t",
+    "__Ice_LogMessage_t",
+    "__Ice_LoggerAdminPrx_t",
+    "__Ice_LongSeq_t",
+    "__Ice_ObjectNotFoundException_t",
+    "__Ice_ObjectProxySeq_t",
+    "__Ice_ObjectSeq_t",
+    "__Ice_OperationMode_t",
+    "__Ice_ProcessPrx_t",
+    "__Ice_PropertiesAdminPrx_t",
+    "__Ice_PropertyDict_t",
+    "__Ice_ProtocolVersion_t",
+    "__Ice_RemoteLoggerAlreadyAttachedException_t",
+    "__Ice_RemoteLoggerPrx_t",
+    "__Ice_ReplyStatus_t",
+    "__Ice_RouterFinderPrx_t",
+    "__Ice_RouterPrx_t",
+    "__Ice_ServerNotFoundException_t",
+    "__Ice_ShortSeq_t",
+    "__Ice_SliceChecksumDict_t",
+    "__Ice_StringSeq_t",
     "createProperties",
     "getProcessLogger",
     "getSliceDir",
+    "iAPEndpointType",
+    "iAPSEndpointType",
     "identityToString",
     "initialize",
     "proxyIdentityCompare",

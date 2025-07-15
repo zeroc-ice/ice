@@ -278,14 +278,9 @@ Slice::Preprocessor::printMakefileDependencies(
     }
 
     string cppHeaderExt;
-    string pyPrefix;
     if (lang == CPlusPlus)
     {
         cppHeaderExt = optValue;
-    }
-    else if (lang == Python)
-    {
-        pyPrefix = optValue;
     }
     else
     {
@@ -595,13 +590,9 @@ Slice::Preprocessor::printMakefileDependencies(
             //
             // Change .o[bj] suffix to .py suffix.
             //
-            if (pyPrefix.size() != 0)
-            {
-                result = pyPrefix + result;
-            }
             if ((pos = result.find(suffix)) != string::npos)
             {
-                result.replace(pos, suffix.size() - 1, "_ice.py");
+                result.replace(pos, suffix.size() - 1, ".py");
             }
             break;
         }

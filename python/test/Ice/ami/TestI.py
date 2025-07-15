@@ -7,6 +7,8 @@ import Test
 
 import Ice
 
+from Test.Outer.Inner import TestIntf as Inner_TestIntf
+
 
 class TestIntfI(Test.TestIntf):
     def __init__(self):
@@ -106,7 +108,7 @@ class TestIntfI(Test.TestIntf):
                 raise Test.TestIntfException()
 
 
-class TestIntfII(Test.Outer.Inner.TestIntf):
+class TestIntfII(Inner_TestIntf):
     def op(self, i, current):
         return (i, i)
 

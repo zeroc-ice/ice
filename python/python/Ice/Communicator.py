@@ -14,15 +14,14 @@ from .Properties import Properties
 if TYPE_CHECKING:
     from collections.abc import Awaitable
 
-    from Identity_ice import Identity
-    from Locator_ice import LocatorPrx
-    from Router_ice import RouterPrx
-
     import IcePy
 
     from .EventLoopAdapter import EventLoopAdapter
+    from .Identity import Identity
+    from .Locator import LocatorPrx
     from .Object import Object
     from .ObjectPrx import ObjectPrx
+    from .Router import RouterPrx
 
 
 @final

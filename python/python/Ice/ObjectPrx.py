@@ -4,12 +4,20 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
-import Ice
 import IcePy
 
 from .Object import Object
+
+if TYPE_CHECKING:
+    from .Communicator import Communicator
+    from .EncodingVersion import EncodingVersion
+    from .EndpointSelectionType import EndpointSelectionType
+    from .Identity import Identity
+    from .Locator import LocatorPrx
+    from .ObjectPrx import ObjectPrx
+    from .Router import RouterPrx
 
 
 def uncheckedCast(type, proxy, facet=None):
@@ -180,7 +188,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return "::Ice::Object"
 
-    def ice_getCommunicator(self) -> Ice.Communicator:
+    def ice_getCommunicator(self) -> Communicator:
         """
         Return the communicator that created this proxy.
 
@@ -321,7 +329,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_id.invokeAsync(self, ((), context))
 
-    def ice_getIdentity(self) -> Ice.Identity:
+    def ice_getIdentity(self) -> Identity:
         """
         Return the identity embedded in this proxy.
 
@@ -332,7 +340,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getIdentity()
 
-    def ice_identity(self, newIdentity: Ice.Identity) -> Self:
+    def ice_identity(self, newIdentity: Identity) -> Self:
         """
         Create a new proxy that is identical to this proxy, except for the per-proxy context.
 
@@ -440,7 +448,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getEndpoints()
 
-    def ice_endpoints(self, newEndpoints: list[Ice.Endpoint]) -> Self:
+    def ice_endpoints(self, newEndpoints: list[IcePy.Endpoint]) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the endpoints.
 
@@ -537,7 +545,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_connectionCached(newCache)
 
-    def ice_getEndpointSelection(self) -> Ice.EndpointSelectionType:
+    def ice_getEndpointSelection(self) -> EndpointSelectionType:
         """
         Returns how this proxy selects endpoints (randomly or ordered).
 
@@ -548,7 +556,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getEndpointSelection()
 
-    def ice_endpointSelection(self, newType: Ice.EndpointSelectionType) -> Self:
+    def ice_endpointSelection(self, newType: EndpointSelectionType) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the endpoint selection policy.
 
@@ -592,7 +600,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_secure(secure)
 
-    def ice_encodingVersion(self, version: Ice.EncodingVersion) -> Self:
+    def ice_encodingVersion(self, version: EncodingVersion) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the encoding used to marshal parameters.
 
@@ -608,7 +616,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_encodingVersion(version)
 
-    def ice_getEncodingVersion(self) -> Ice.EncodingVersion:
+    def ice_getEncodingVersion(self) -> EncodingVersion:
         """
         Returns the encoding version used to marshal requests parameters.
 
@@ -647,7 +655,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_preferSecure(preferSecure)
 
-    def ice_getRouter(self) -> Ice.RouterPrx | None:
+    def ice_getRouter(self) -> RouterPrx | None:
         """
         Returns the router for this proxy.
 
@@ -658,7 +666,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getRouter()
 
-    def ice_router(self, router: Ice.RouterPrx | None) -> Self:
+    def ice_router(self, router: RouterPrx | None) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the router.
 
@@ -674,7 +682,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_router(router)
 
-    def ice_getLocator(self) -> Ice.LocatorPrx | None:
+    def ice_getLocator(self) -> LocatorPrx | None:
         """
         Returns the locator for this proxy.
 
@@ -685,7 +693,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getLocator()
 
-    def ice_locator(self, locator: Ice.LocatorPrx | None) -> Self:
+    def ice_locator(self, locator: LocatorPrx | None) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the locator.
 

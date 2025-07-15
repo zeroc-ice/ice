@@ -9,7 +9,6 @@
 [["cpp:source-include:Ice/Process.h"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:Ice"]]
 
 #include "Locator.ice"
 

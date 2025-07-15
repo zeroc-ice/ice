@@ -3674,19 +3674,17 @@ IcePy_declareProxy(PyObject*, PyObject* args)
         return nullptr;
     }
 
-    string proxyId = id;
-    proxyId += "Prx";
-
+    string proxyId = string{id} + "Prx";
     ProxyInfoPtr info = lookupProxyInfo(proxyId);
-    if (!info)
+    if (info)
+    {
+        return Py_NewRef(info->typeObj);
+    }
+    else
     {
         info = ProxyInfo::create(proxyId);
         addProxyInfo(proxyId, info);
         return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
-    }
-    else
-    {
-        return Py_NewRef(info->typeObj);
     }
 }
 
@@ -3702,21 +3700,19 @@ IcePy_defineProxy(PyObject*, PyObject* args)
 
     assert(PyType_Check(type));
 
-    string proxyId = id;
-    proxyId += "Prx";
-
+    string proxyId = string{id} + "Prx";
     ProxyInfoPtr info = lookupProxyInfo(proxyId);
-    if (!info)
+    if (info)
+    {
+        info->define(type);
+        return Py_NewRef(info->typeObj);
+    }
+    else
     {
         info = ProxyInfo::create(proxyId);
         addProxyInfo(proxyId, info);
         info->define(type);
         return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
-    }
-    else
-    {
-        info->define(type);
-        return Py_NewRef(info->typeObj);
     }
 }
 

@@ -142,7 +142,8 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         IceInternal::Output out(codeStream);
         out.setUseTab(false);
 
-        generate(u, all, includePaths, out);
+        // TODO rework loadSlice
+        // generate(u, all, includePaths, out);
         if (u->getStatus() == EXIT_FAILURE)
         {
             PyErr_Format(PyExc_RuntimeError, "Slice validation failed for `%s'", cmd);

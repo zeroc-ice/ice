@@ -1,13 +1,13 @@
 # Copyright (c) ZeroC, Inc.
 
+from __future__ import annotations
 
 import asyncio
 import os
 import sys
 import threading
-from typing import overload
+from typing import TYPE_CHECKING, overload
 
-import Ice
 import IcePy
 
 from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
@@ -17,6 +17,9 @@ from .InitializationData import InitializationData
 from .LocalExceptions import InitializationException
 from .Properties import Properties
 from .ToStringMode import ToStringMode
+
+if TYPE_CHECKING:
+    from .Identity import Identity
 
 __name__ = "Ice"
 
@@ -98,7 +101,7 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     return Communicator(communicator, eventLoopAdapter)
 
 
-def identityToString(identity: Ice.Identity, toStringMode: ToStringMode | None = None) -> str:
+def identityToString(identity: Identity, toStringMode: ToStringMode = None) -> str:
     """
     Convert an object identity to a string.
 
@@ -117,7 +120,7 @@ def identityToString(identity: Ice.Identity, toStringMode: ToStringMode | None =
     return IcePy.identityToString(identity, toStringMode)
 
 
-def stringToIdentity(str: str) -> Ice.Identity:
+def stringToIdentity(str: str) -> Identity:
     """
     Convert a string to an object identity.
 
@@ -139,7 +142,7 @@ def stringToIdentity(str: str) -> Ice.Identity:
     return IcePy.stringToIdentity(str)
 
 
-def createProperties(args: list[str] | None = None, defaults: Properties | None = None) -> Properties:
+def createProperties(args: list[str] = None, defaults: Properties = None) -> Properties:
     """
     Creates a new property set.
 
@@ -234,7 +237,7 @@ def getSliceDir() -> str | None:
 _repr_running = threading.local()
 
 
-def safe_repr(obj: object) -> str:
+def safe_repr(obj):
     if not hasattr(_repr_running, "set"):
         _repr_running.set = set()
 
@@ -249,7 +252,7 @@ def safe_repr(obj: object) -> str:
         _repr_running.set.remove(obj_id)
 
 
-def format_fields(**fields: object) -> str:
+def format_fields(**fields):
     return ", ".join(f"{k}={safe_repr(v)}" for k, v in fields.items())
 
 

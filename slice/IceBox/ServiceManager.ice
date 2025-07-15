@@ -9,7 +9,6 @@
 [["cpp:include:IceBox/Config.h"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:IceBox"]]
 
 #include "Ice/BuiltinSequences.ice"
 

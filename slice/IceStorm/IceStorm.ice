@@ -9,7 +9,6 @@
 [["cpp:include:IceStorm/Config.h"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:IceStorm"]]
 
 #include "Ice/Identity.ice"
 #include "Metrics.ice"

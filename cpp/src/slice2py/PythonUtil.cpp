@@ -1,16 +1,21 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "PythonUtil.h"
+#include "../Ice/FileUtil.h"
+#include "../Slice/FileTracker.h"
 #include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
+#include "Ice/LocalExceptions.h"
 #include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
 #include <climits>
+#include <iostream>
 #include <iterator>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 using namespace Slice;
@@ -18,16 +23,186 @@ using namespace IceInternal;
 
 namespace
 {
-    enum OperationMode
+    /// Determines the mapped package for a given Slice definition.
+    /// @param p The Slice definition to get the mapped package for.
+    /// @param separator Use this character as the separator between package segments.
+    /// @return The mapped package name, with the specified separator.
+    string getMappedPackage(SyntaxTreeBasePtr p, char separator = '.')
     {
-        OpSync,
-        OpAsync,
-        OpDispatch
+        if (dynamic_pointer_cast<Builtin>(p))
+        {
+            return string{"Ice"} + separator;
+        }
+        else
+        {
+            auto contained = dynamic_pointer_cast<Contained>(p);
+            assert(contained);
+            string package = contained->mappedScope(string{separator});
+            if (separator != '.')
+            {
+                // Replace "." with the specified separator.
+                replace(package.begin(), package.end(), '.', separator);
+            }
+            return package;
+        }
+    }
+
+    /// Returns the fully qualified name of the Python module that corresponds to the given Slice definition.
+    ///
+    /// Each Slice module is mapped to a Python package with the same name, but with "::" replaced by ".".
+    /// Within that package, each Slice definition is mapped to a Python module with the same name as the definition.
+    ///
+    /// For example:
+    /// - A Slice definition named `Baz` in the module `::Bar::Foo` is mapped to the Python module `"Bar.Foo.Baz"`.
+    ///
+    /// @param p The Slice definition to map to a Python module.
+    /// @return The fully qualified Python module name corresponding to the Slice definition.
+    string getPythonModuleForDefinition(const SyntaxTreeBasePtr& p)
+    {
+        if (auto builtin = dynamic_pointer_cast<Builtin>(p))
+        {
+            static const char* builtinTable[] =
+                {"", "", "", "", "", "", "", "", "Ice.Value", "Ice.ObjectPrx", "Ice.Value"};
+
+            return builtinTable[builtin->kind()];
+        }
+        else
+        {
+            auto contained = dynamic_pointer_cast<Contained>(p);
+            assert(contained);
+            return getMappedPackage(contained) + contained->mappedName();
+        }
+    }
+
+    /// Returns the fully qualified name of the Python module where the given Slice definition is forward-declared.
+    ///
+    /// Forward declarations are generated only for classes and interfaces. The corresponding Python module name
+    /// is the same as the definition module returned by `getPythonModuleForDefinition`, with an "F" appended to the end.
+    ///
+    /// For example, the forward declaration of the class `Bar::MyClass` is placed in the module `"Bar.MyClassF"`.
+    ///
+    /// @param p The Slice definition to get the forward declaration module name for. Must be a class or interface.
+    /// @return The fully qualified Python module name for the forward declaration.
+    string getPythonModuleForForwardDeclaration(const SyntaxTreeBasePtr& p)
+    {
+        string declarationModule = getPythonModuleForDefinition(p);
+        if (!declarationModule.empty())
+        {
+            declarationModule += "F";
+        }
+        return declarationModule;
+    }
+
+    /// Returns the alias used for importing the given Slice definition in Python.
+    ///
+    /// The alias follows the pattern `"M1_M2_Xxx"`, where:
+    /// - `M1_M2` is the mapped scope of the definition, using underscores (`_`) as separators instead of `::`.
+    /// - `Xxx` is the mapped name of the definition (typically the class or interface name).
+    ///
+    /// If the definition represents an interface, the suffix `"Prx"` is appended to the alias to refer to the proxy
+    /// type.
+    ///
+    /// @param p The Slice definition to get the Python import alias for.
+    /// @return The alias to use when importing the given definition in generated Python code.
+    string getImportAlias(const SyntaxTreeBasePtr& p)
+    {
+        if (auto builtin = dynamic_pointer_cast<Builtin>(p))
+        {
+            static const char* builtinTable[] =
+                {"", "", "", "", "", "", "", "", "Ice_Value", "Ice_ObjectPrx", "Ice_Value"};
+
+            return builtinTable[builtin->kind()];
+        }
+        else
+        {
+            auto contained = dynamic_pointer_cast<Contained>(p);
+            assert(contained);
+            return getMappedPackage(contained, '_') + contained->mappedName();
+        }
+    }
+
+    /// Gets the name used for the meta-type of the given Slice definition. IcePy creates a meta-type for each Slice type.
+    /// The generated code uses these meta-types to call IcePy.
+    /// @param p The Slice definition to get the meta-type name for.
+    /// @return The name of the meta-type for the given Slice definition.
+    string getMetaType(const SyntaxTreeBasePtr& p)
+    {
+        if (auto builtin = dynamic_pointer_cast<Builtin>(p))
+        {
+            static const char* builtinTable[] = {
+                "IcePy._t_byte",
+                "IcePy._t_bool",
+                "IcePy._t_short",
+                "IcePy._t_int",
+                "IcePy._t_long",
+                "IcePy._t_float",
+                "IcePy._t_double",
+                "IcePy._t_string",
+                "__Ice_Value_t",
+                "__Ice_ObjectPrx_t",
+                "__Ice_Value_t"};
+
+            return builtinTable[builtin->kind()];
+        }
+        else
+        {
+            auto contained = dynamic_pointer_cast<Contained>(p);
+            assert(contained);
+            string s = "__" + getMappedPackage(contained, '_') + contained->mappedName();
+            if (dynamic_pointer_cast<InterfaceDef>(contained) || dynamic_pointer_cast<InterfaceDecl>(contained))
+            {
+                s += "Prx";
+            }
+            s += "_t";
+            return s;
+        }
+    }
+
+    /// Represents a Python code fragment generated for a Slice definition.
+    struct PythonCodeFragment
+    {
+        /// The Slice definition.
+        ContainedPtr contained;
+
+        /// The generated code.
+        string code;
+    };
+
+    // The kind of method being documented or generated.
+    enum MethodKind
+    {
+        SyncInvocation,
+        AsyncInvocation,
+        Dispatch
+    };
+
+    /// Represents the scope of an import statement—either required at runtime or only used for type hints.
+    enum ImportScope
+    {
+        /// The import is required at runtime by the generated Python code.
+        RuntimeImport,
+
+        /// The import is only used for type hints and is not needed at runtime.
+        TypingImport
+    };
+
+    // The context a type will be used in.
+    enum TypeContext
+    {
+        // If the type is an interface, it is used as a servant (base type).
+        ServantType,
+        // If the type is an interface, it is used as a proxy (base type or parameter).
+        ProxyType
     };
 
     const char* const tripleQuotes = R"(""")";
 
-    string typeToTypeHintString(const TypePtr& type, bool optional)
+    /// Returns a string representation of the type hint for the given Slice type.
+    /// @param type The Slice type to convert to a type hint string.
+    /// @param optional If true, the type hint will indicate that the type is optional (i.e., it can be `None`).
+    /// @param source The Slice definition requesting the type hint.
+    /// @return The string representation of the type hint for the given Slice type.
+    string typeToTypeHintString(const TypePtr& type, bool optional, const SyntaxTreeBasePtr& source)
     {
         assert(type);
 
@@ -36,11 +211,11 @@ namespace
             if (isProxyType(type))
             {
                 // We map optional proxies like regular proxies, as XxxPrx or None.
-                return typeToTypeHintString(type, false);
+                return typeToTypeHintString(type, false, source);
             }
             else
             {
-                return typeToTypeHintString(type, false) + " | None";
+                return typeToTypeHintString(type, false, source) + " | None";
             }
         }
 
@@ -53,9 +228,9 @@ namespace
             "float",
             "float",
             "str",
-            "Ice.Object", // Not used anymore
-            "Ice.ObjectPrx | None",
-            "Ice.Value | None"};
+            "Ice_Object | None", // Not used anymore
+            "Ice_ObjectPrx | None",
+            "Ice_Value | None"};
 
         if (auto builtin = dynamic_pointer_cast<Builtin>(type))
         {
@@ -68,40 +243,45 @@ namespace
                 return string{builtinTable[builtin->kind()]};
             }
         }
-        else if (auto cl = dynamic_pointer_cast<ClassDecl>(type))
-        {
-            return cl->mappedScoped(".");
-        }
-        else if (auto st = dynamic_pointer_cast<Struct>(type))
-        {
-            return st->mappedScoped(".");
-        }
-        else if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
-        {
-            return proxy->mappedScoped(".") + "Prx | None";
-        }
-        else if (auto en = dynamic_pointer_cast<Enum>(type))
-        {
-            return en->mappedScoped(".");
-        }
-        else if (auto seq = dynamic_pointer_cast<Sequence>(type))
-        {
-            return "list[" + typeToTypeHintString(seq->type(), false) + "]";
-        }
         else
         {
-            auto dict = dynamic_pointer_cast<Dictionary>(type);
-            assert(dict);
-            ostringstream os;
-            os << "dict[" << typeToTypeHintString(dict->keyType(), false) << ", "
-               << typeToTypeHintString(dict->valueType(), false) << "]";
-            return os.str();
+            string definitionModule = getPythonModuleForDefinition(type);
+            string sourceModule = getPythonModuleForDefinition(source);
+
+            auto contained = dynamic_pointer_cast<Contained>(type);
+            assert(contained);
+
+            string prefix = sourceModule == definitionModule ? "" : contained->mappedScope("_");
+
+            if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
+            {
+                return prefix + proxy->mappedName() + "Prx | None";
+            }
+            else if (auto seq = dynamic_pointer_cast<Sequence>(type))
+            {
+                return "Sequence[" + typeToTypeHintString(seq->type(), false, source) + "]";
+            }
+            else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
+            {
+                ostringstream os;
+                os << "dict[" << typeToTypeHintString(dict->keyType(), false, source) << ", "
+                   << typeToTypeHintString(dict->valueType(), false, source) << "]";
+                return os.str();
+            }
+            else
+            {
+                return prefix + contained->mappedName();
+            }
         }
     }
 
-    string returnTypeHint(const OperationPtr& operation, OperationMode mode)
+    /// Returns a string representation of the return type hint for the given operation.
+    /// @param operation The Slice operation to get the return type hint for.
+    /// @param methodKind The kind of method being documented or generated (sync, async, or dispatch).
+    /// @return The string representation of the return type hint for the given operation.
+    string returnTypeHint(const OperationPtr& operation, MethodKind methodKind)
     {
-        assert(operation);
+        auto source = dynamic_pointer_cast<Contained>(operation->container());
         string returnTypeHint;
         ParameterList outParameters = operation->outParameters();
         if (operation->returnsMultipleValues())
@@ -110,13 +290,13 @@ namespace
             os << "tuple[";
             if (operation->returnType())
             {
-                os << typeToTypeHintString(operation->returnType(), operation->returnIsOptional());
+                os << typeToTypeHintString(operation->returnType(), operation->returnIsOptional(), source);
                 os << ", ";
             }
 
             for (const auto& param : outParameters)
             {
-                os << typeToTypeHintString(param->type(), param->optional());
+                os << typeToTypeHintString(param->type(), param->optional(), source);
                 if (param != outParameters.back())
                 {
                     os << ", ";
@@ -127,37 +307,40 @@ namespace
         }
         else if (operation->returnType())
         {
-            returnTypeHint = typeToTypeHintString(operation->returnType(), operation->returnIsOptional());
+            returnTypeHint = typeToTypeHintString(operation->returnType(), operation->returnIsOptional(), source);
         }
         else if (!outParameters.empty())
         {
             const auto& param = outParameters.front();
-            returnTypeHint = typeToTypeHintString(param->type(), param->optional());
+            returnTypeHint = typeToTypeHintString(param->type(), param->optional(), source);
         }
         else
         {
             returnTypeHint = "None";
         }
 
-        if (mode == OpAsync)
+        switch (methodKind)
         {
-            return "Awaitable[" + returnTypeHint + "]";
-        }
-        else if (mode == OpDispatch)
-        {
-            return returnTypeHint + " | Awaitable[" + returnTypeHint + "]";
-        }
-        else
-        {
-            return returnTypeHint;
+            case AsyncInvocation:
+                return "Awaitable[" + returnTypeHint + "]";
+            case Dispatch:
+                return returnTypeHint + " | Awaitable[" + returnTypeHint + "]";
+            case SyncInvocation:
+                return returnTypeHint;
         }
     }
 
-    string operationReturnTypeHint(const OperationPtr& operation, OperationMode mode)
+    /// Returns a string representation of the operation's return type hint. This is the same as `returnTypeHint`, but
+    /// with the " -> " prefix for use in function signatures.
+    /// @param operation The Slice operation to get the return type hint for.
+    /// @param methodKind The kind of method being documented or generated (sync, async, or dispatch).
+    /// @return The string representation of the operation's return type hint, prefixed with " -> ".
+    string operationReturnTypeHint(const OperationPtr& operation, MethodKind methodKind)
     {
-        return " -> " + returnTypeHint(operation, mode);
+        return " -> " + returnTypeHint(operation, methodKind);
     }
 
+    /// Helper method to emit the generated code that format the fields of a type in __repr__ implementation.
     string formatFields(const DataMemberList& members)
     {
         if (members.empty())
@@ -167,7 +350,7 @@ namespace
 
         ostringstream os;
         bool first = true;
-        os << "{Ice.Util.format_fields(";
+        os << "{format_fields(";
         for (const auto& dataMember : members)
         {
             if (!first)
@@ -184,42 +367,28 @@ namespace
 
 namespace Slice::Python
 {
-    //
-    // ModuleVisitor finds all of the Slice modules whose include level is greater
-    // than 0 and emits a statement of the following form:
-    //
-    // _M_Foo = Ice.openModule("Foo")
-    //
-    // This statement allows the code generated for this translation unit to refer
-    // to types residing in those included modules.
-    //
-    class ModuleVisitor final : public ParserVisitor
+    class BufferedOutputBase
     {
-    public:
-        ModuleVisitor(Output&, set<string>&);
-
-        bool visitModuleStart(const ModulePtr&) final;
-
-        [[nodiscard]] bool shouldVisitIncludedDefinitions() const final { return true; }
-
-    private:
-        Output& _out;
-        set<string>& _history;
+    protected:
+        std::ostringstream _outBuffer;
     };
 
-    //
+    /// A output class that writes to a stream, used by the CodeVisitor to write Python code fragments.
+    class BufferedOutput final : public BufferedOutputBase, public Output
+    {
+    public:
+        BufferedOutput() : Output(_outBuffer) {}
+
+        /// Returns the string representation of the buffered output.
+        /// @return the string containing the buffered output.
+        string str() const { return _outBuffer.str(); }
+    };
+
     // CodeVisitor generates the Python mapping for a translation unit.
-    //
     class CodeVisitor final : public ParserVisitor
     {
     public:
-        CodeVisitor(IceInternal::Output&, set<string>&);
-
-        bool visitModuleStart(const ModulePtr&) final;
-        void visitModuleEnd(const ModulePtr&) final;
-        void visitClassDecl(const ClassDeclPtr&) final;
         bool visitClassDefStart(const ClassDefPtr&) final;
-        void visitInterfaceDecl(const InterfaceDeclPtr&) final;
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
         bool visitExceptionStart(const ExceptionPtr&) final;
         bool visitStructStart(const StructPtr&) final;
@@ -228,237 +397,578 @@ namespace Slice::Python
         void visitEnum(const EnumPtr&) final;
         void visitConst(const ConstPtr&) final;
 
+        const vector<PythonCodeFragment>& codeFragments() const { return _codeFragments; }
+
     private:
-        //
         // Emit Python code for operations
-        //
-        void writeOperations(const InterfaceDefPtr&);
+        void writeOperations(const InterfaceDefPtr&, Output&);
 
-        //
-        // Emit Python code to assign the given symbol in the current module.
-        //
-        void registerName(const string&);
+        // Get the default value for initializing a given type.
+        string getTypeInitializer(const DataMemberPtr&);
 
-        //
-        // Emit the tuple for a Slice type.
-        //
-        void writeType(const TypePtr&);
-
-        //
-        // Write an initializer value for a given type.
-        //
-        void writeInitializer(const DataMemberPtr&);
-
-        //
-        // Add a value to a hash code.
-        //
-        void writeHash(const string&, const TypePtr&, int&);
-
-        //
         // Write Python metadata as a tuple.
-        //
-        void writeMetadata(const MetadataList&);
+        void writeMetadata(const MetadataList&, Output&);
 
-        //
         // Convert an operation mode into a string.
-        //
         string getOperationMode(Slice::Operation::Mode);
 
-        //
         // Write a member assignment statement for a constructor.
-        //
-        void writeAssign(const DataMemberPtr& member);
+        void writeAssign(const DataMemberPtr& member, Output& out);
 
-        //
         // Write a constant value.
-        //
-        void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
+        void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&, Output&);
 
         /// Write constructor parameters with default values.
-        void writeConstructorParams(const DataMemberList& members);
+        void writeConstructorParams(const DataMemberList& members, Output&);
 
         /// Writes the provided @p remarks in its own subheading in the current comment (if @p remarks is non-empty).
-        void writeRemarksDocComment(const StringList& remarks, bool needsNewline);
+        void writeRemarksDocComment(const StringList& remarks, bool needsNewline, Output& out);
 
-        void writeDocstring(const optional<DocComment>&, const string& = "");
-        void writeDocstring(const optional<DocComment>&, const DataMemberList&);
-        void writeDocstring(const optional<DocComment>&, const EnumeratorList&);
+        void writeDocstring(const optional<DocComment>&, const string&, Output&);
+        void writeDocstring(const optional<DocComment>&, const DataMemberList&, Output&);
+        void writeDocstring(const optional<DocComment>&, const EnumPtr&, Output&);
 
-        void writeDocstring(const OperationPtr&, OperationMode);
+        void writeDocstring(const OperationPtr&, MethodKind, Output&);
 
-        Output& _out;
-        set<string>& _moduleHistory;
-        list<string> _moduleStack;
-        set<string> _classHistory;
+        // The list of generated Python code fragments in the current translation unit.
+        // Each fragment corresponds to a Slice definition and contains the generated code for that definition.
+        vector<PythonCodeFragment> _codeFragments;
+    };
+
+    // Maps import statements per generated Python module.
+    // - Key: the generated module name, e.g., "Ice.Locator_ice" (we generate one Python module per each unique Slice
+    // module in a Slice file).
+    // - Value: a map from imported module name to the set of pairs representing the imported name and its alias.
+    using ImportsMap = map<string, map<string, set<pair<string, string>>>>;
+
+    // Collect the import statements required by each generated Python module.
+    class ImportVisitor final : public ParserVisitor
+    {
+    public:
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
+
+        const ImportsMap& getRuntimeImports() const { return _runtimeImports; }
+
+        const ImportsMap& getTypingImports() const { return _typingImports; }
+
+    private:
+        void visitDataMembers(const ContainedPtr&, const list<DataMemberPtr>&);
+
+        /// Add an import for the given Slice definition if it comes from a different module.
+        /// @p definition is the Slice definition to import.
+        /// @p source is the Slice definition that requires the import.
+        /// @p importScope indicates whether the import is used at runtime or only for type hints.
+        void importType(
+            const SyntaxTreeBasePtr& definition,
+            const ContainedPtr& source,
+            ImportScope importScope,
+            TypeContext typeContext = ProxyType);
+
+        /// Adds an import for the given definition from the specified Python module.
+        ///
+        /// @param moduleName The fully qualified name of the Python module to import from.
+        /// @param definition A pair consisting of the name and alias to use for the imported symbol.
+        ///                   If the alias is empty, the name is used as the alias.
+        /// @param source The Slice definition that requires this import.
+        /// @param importScope Indicates whether the import is needed at runtime or only for type hints.
+        void importType(
+            const string& moduleName,
+            pair<string, string> definition,
+            const ContainedPtr& source,
+            ImportScope importScope);
+
+        /// Import the meta type for the given Slice definition if it comes from a different module.
+        /// @p definition is the Slice definition to import.
+        /// @p source is the Slice definition that requires the import.
+        void importMetaType(const SyntaxTreeBasePtr& definition, const ContainedPtr& source);
+
+        ImportsMap _runtimeImports;
+        ImportsMap _typingImports;
     };
 }
 
-static void
-writeModuleHasDefinitionCheck(Output& out, const ContainedPtr& cont, const string& name)
+void
+Slice::Python::writeHeader(IceInternal::Output& out)
 {
-    string scope = cont->mappedScope(".");
-    assert(!scope.empty());
-
-    string package = Slice::Python::getPackageMetadata(cont);
-    if (!package.empty())
-    {
-        scope = package + "." + scope;
-    }
-
-    out << sp << nl << "if \"" << name << "\" not in _M_" << scope << "__dict__:";
+    out << "# Copyright (c) ZeroC, Inc.";
+    out << sp;
+    out << nl << "# slice2py version " << ICE_STRING_VERSION;
 }
 
-//
-// ModuleVisitor implementation.
-//
-Slice::Python::ModuleVisitor::ModuleVisitor(Output& out, set<string>& history) : _out(out), _history(history) {}
+void
+Slice::Python::createPackagePath(const string& moduleName, const string& outputPath)
+{
+    vector<string> packageParts;
+    IceInternal::splitString(string_view{moduleName}, ".", packageParts);
+    assert(!packageParts.empty());
+    packageParts.pop_back(); // Remove the last part, which is the module name.
+    string packagePath = outputPath;
+    for (const auto& part : packageParts)
+    {
+        packagePath += "/" + part;
+        int err = IceInternal::mkdir(packagePath, 0777);
+        if (err == 0)
+        {
+            FileTracker::instance()->addDirectory(packagePath);
+        }
+        else if (errno == EEXIST && IceInternal::directoryExists(packagePath))
+        {
+            // If the Slice compiler is run concurrently, it's possible that another instance of it has already
+            // created the directory.
+        }
+        else
+        {
+            ostringstream os;
+            os << "cannot create directory '" << packagePath << "': " << IceInternal::errorToString(errno);
+            throw FileException(os.str());
+        }
+    }
+}
 
 bool
-Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if (p->includeLevel() > 0)
-    {
-        string abs = getAbsolute(p);
-        if (_history.count(abs) == 0)
-        {
-            // If this is a top-level module, then we check if it has package metadata.
-            // If so, we need to emit statements to open each of the modules in the
-            // package before we can open this module.
-            if (p->isTopLevel())
-            {
-                string pkg = getPackageMetadata(p);
-                if (!pkg.empty())
-                {
-                    vector<string> v;
-                    splitString(pkg, ".", v);
-                    string mod;
-                    for (const auto& q : v)
-                    {
-                        mod = mod.empty() ? q : mod + "." + q;
-                        if (_history.count(mod) == 0)
-                        {
-                            _out << nl << "_M_" << mod << " = Ice.openModule(\"" << mod << "\")";
-                            _history.insert(mod);
-                        }
-                    }
-                }
-            }
+    importType("Ice.Util", {"format_fields", ""}, p, RuntimeImport);
+    // Import the meta type that is created in the Xxx_iceF module for forward declarations.
+    importMetaType(p->declaration(), p);
 
-            _out << sp << nl << "# Included module " << abs;
-            _out << nl << "_M_" << abs << " = Ice.openModule(\"" << abs << "\")";
-            _history.insert(abs);
+    // Add imports required for the base class type.
+    if (ClassDefPtr base = p->base())
+    {
+        importType(base, p, RuntimeImport);
+        importMetaType(base, p);
+    }
+    else
+    {
+        // If the class has no base, we import the Ice.Object type.
+        importType("Ice.Value", {"Value", "Ice_Value"}, p, RuntimeImport);
+    }
+
+    // Add imports required for the data members.
+    visitDataMembers(p, p->allDataMembers());
+    return false;
+}
+
+bool
+Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    // Import the proxy meta type that is created in the XxxF module for forward declarations.
+    importMetaType(p->declaration(), p);
+
+    // Add imports required for base interfaces types.
+    const InterfaceList& bases = p->bases();
+    if (bases.empty())
+    {
+        importType("Ice.ObjectPrx", {"ObjectPrx", "Ice_ObjectPrx"}, p, RuntimeImport);
+        importType("Ice.Object", {"Object", "Ice_Object"}, p, RuntimeImport);
+    }
+    else
+    {
+        for (const auto& base : bases)
+        {
+            importType(base, p, RuntimeImport, ProxyType);
+            importType(base, p, RuntimeImport, ServantType);
         }
     }
 
+    importType("abc", {"ABC", ""}, p, RuntimeImport);
+
+    importType("Ice.ObjectPrx", {"checkedCast", "Ice_checkedCast"}, p, RuntimeImport);
+    importType("Ice.ObjectPrx", {"checkedCastAsync", "Ice_checkedCastAsync"}, p, RuntimeImport);
+    importType("Ice.ObjectPrx", {"uncheckedCast", "Ice_uncheckedCast"}, p, RuntimeImport);
+
+    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
+
+    // Add imports required for operation parameters and return types.
+    const OperationList& operations = p->allOperations();
+    if (!operations.empty())
+    {
+        importType("abc", {"abstractmethod", ""}, p, RuntimeImport);
+        // If the interface has no operations, we still need to import the Ice.ObjectPrx type.
+        importType("collections.abc", {"Awaitable", ""}, p, TypingImport);
+        importType("collections.abc", {"Sequence", ""}, p, TypingImport);
+
+        importType("Ice.OperationMode", {"OperationMode", "Ice_OperationMode"}, p, RuntimeImport);
+    }
+
+    for (const auto& op : operations)
+    {
+        auto ret = op->returnType();
+        if (ret)
+        {
+            importType(ret, p, TypingImport, ProxyType);
+            importMetaType(ret, p);
+        }
+
+        for (const auto& param : op->parameters())
+        {
+            importType(param->type(), p, TypingImport, ProxyType);
+            importMetaType(param->type(), p);
+        }
+
+        for (const auto& ex : op->throws())
+        {
+            importType(ex, p, TypingImport, ProxyType);
+            importMetaType(ex, p);
+        }
+
+        if (op->format())
+        {
+            importType("Ice.FormatType", {"FormatType", "Ice_FormatType"}, p, RuntimeImport);
+        }
+    }
+
+    // Types that are used in the Prx interface.
+    importType("Ice.Communicator", {"Communicator", "Ice_Communicator"}, p, TypingImport);
+    importType("Ice.Current", {"Current", "Ice_Current"}, p, TypingImport);
+
+    return false;
+}
+
+bool
+Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
+{
+    // Visit the data members.
+    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
+    importType("Ice.Util", {"format_fields", ""}, p, RuntimeImport);
+    importType("dataclasses", {"dataclass", ""}, p, RuntimeImport);
+    importType("dataclasses", {"field", ""}, p, RuntimeImport);
+    // Add imports required for the data members.
+    visitDataMembers(p, p->dataMembers());
+    return false;
+}
+
+bool
+Slice::Python::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
+    importType("Ice.Util", {"format_fields", ""}, p, RuntimeImport);
+    // Add imports required for base exception types.
+    if (ExceptionPtr base = p->base())
+    {
+        importType(base, p, RuntimeImport);
+        importMetaType(base, p);
+    }
+    else
+    {
+        // If the exception has no base, we import the Ice.UserException type.
+        importType("Ice.UserException", {"UserException", "Ice_UserException"}, p, RuntimeImport);
+    }
+    // Add imports required for the data members.
+    visitDataMembers(p, p->allDataMembers());
+    return false;
+}
+
+void
+Slice::Python::ImportVisitor::visitDataMembers(const ContainedPtr& parent, const list<DataMemberPtr>& members)
+{
+    for (const auto& member : members)
+    {
+        // Add imports required for data member types.
+        auto type = member->type();
+        // For structs and enums we need a RuntimeImport for the initialization of the field in the constructor.
+        // Otherwise a TypingImport is sufficient for type hints.
+        ImportScope importScope =
+            (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type)) ? RuntimeImport : TypingImport;
+
+        // For fields with a type that is a Struct, we need to import it as a RuntimeImport, to
+        // initialize the field in the constructor. For other contained types, we only need the
+        // import for type hints.
+        importType(type, parent, importScope, ProxyType);
+
+        importMetaType(type, parent);
+
+        // If the data member has a default value, and the type of the default value is an Enum or a Const
+        // we need to import the corresponding Enum or Const.
+        if (member->defaultValue() && (dynamic_pointer_cast<Const>(member->defaultValueType()) ||
+                                       dynamic_pointer_cast<Enum>(member->defaultValueType())))
+        {
+            importType(member->defaultValueType(), parent, RuntimeImport, ProxyType);
+        }
+    }
+}
+
+void
+Slice::Python::ImportVisitor::visitSequence(const SequencePtr& p)
+{
+    // Add import required for the sequence element type.
+    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
+    importMetaType(p->type(), p);
+}
+
+void
+Slice::Python::ImportVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    // Add imports required for the dictionary key and value meta types
+    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
+    importMetaType(p->keyType(), p);
+    importMetaType(p->valueType(), p);
+}
+
+void
+Slice::Python::ImportVisitor::visitEnum(const EnumPtr& p)
+{
+    // TODO if a value is initialized with a constant, we need to import the type of the constant.
+    importType("typing", {"TYPE_CHECKING", ""}, p, RuntimeImport);
+    importType("enum", {"Enum", ""}, p, RuntimeImport);
+}
+
+void
+Slice::Python::ImportVisitor::visitConst(const ConstPtr& p)
+{
+    // If the constant value is a Slice enum, we need to import the enum type.
+    if (dynamic_pointer_cast<Enum>(p->type()))
+    {
+        importType(p->type(), p, RuntimeImport);
+    }
+}
+
+void
+Slice::Python::ImportVisitor::importType(
+    const SyntaxTreeBasePtr& definition,
+    const ContainedPtr& source,
+    ImportScope importScope,
+    TypeContext typeContext)
+{
+    // The module containing the definition we want to import.
+    auto definitionModule = getPythonModuleForDefinition(definition);
+
+    // The module importing the definition.
+    string sourceModule = getPythonModuleForDefinition(source);
+
+    if (definitionModule == sourceModule)
+    {
+        // If the definition and source are in the same module, we don't need to import it.
+        return;
+    }
+
+    vector<pair<string, string>> names;
+    if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
+    {
+        if (builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue &&
+            builtin->kind() != Builtin::KindObject)
+        {
+            // Builtin types other than ObjectPrx and Value don't need imports.
+            return;
+        }
+        names.emplace_back(
+            builtin->kind() == Builtin::KindObjectProxy ? "ObjectPrx" : "Value",
+            getImportAlias(definition));
+    }
+    else
+    {
+        auto contained = dynamic_pointer_cast<Contained>(definition);
+        assert(contained);
+
+        if ((dynamic_pointer_cast<InterfaceDef>(definition) || dynamic_pointer_cast<InterfaceDecl>(definition)) &&
+            typeContext == ProxyType)
+        {
+            names.emplace_back(contained->mappedName() + "Prx", getImportAlias(definition) + "Prx");
+        }
+        else
+        {
+            names.emplace_back(contained->mappedName(), getImportAlias(definition));
+        }
+    }
+
+    auto& imports = (importScope == RuntimeImport) ? _runtimeImports : _typingImports;
+    auto& sourceModuleImports = imports[sourceModule];
+    auto& definitionImports = sourceModuleImports[definitionModule];
+    definitionImports.insert(names.begin(), names.end());
+
+    // If we are importing a type with the TypingImport scope, we also need to import TYPE_CHECKING from typing.
+    if (importScope == TypingImport)
+    {
+        importType("typing", {"TYPE_CHECKING", ""}, source, RuntimeImport);
+    }
+}
+
+void
+Slice::Python::ImportVisitor::importType(
+    const string& definitionModule,
+    pair<string, string> definition,
+    const ContainedPtr& source,
+    ImportScope importScope)
+{
+    // The module importing the definition.
+    string sourceModule = getPythonModuleForDefinition(source);
+
+    if (definitionModule == sourceModule)
+    {
+        // If the definition and source are in the same module, we don't need to import it.
+        return;
+    }
+
+    auto& imports = (importScope == RuntimeImport) ? _runtimeImports : _typingImports;
+    auto& sourceModuleImports = imports[sourceModule];
+    auto& definitionImports = sourceModuleImports[definitionModule];
+    definitionImports.insert(definition);
+}
+
+void
+Slice::Python::ImportVisitor::importMetaType(const SyntaxTreeBasePtr& definition, const ContainedPtr& source)
+{
+    auto builtin = dynamic_pointer_cast<Builtin>(definition);
+    if (builtin && builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue &&
+        builtin->kind() != Builtin::KindObject)
+    {
+        // Builtin types other than ObjectPrx and Value don't need imports.
+        return;
+    }
+
+    // The meta type for a Slice class or interface is always imported from the Xxx_iceF module.
+    bool isForwardDeclared =
+        dynamic_pointer_cast<ClassDecl>(definition) || dynamic_pointer_cast<InterfaceDecl>(definition) || builtin;
+
+    // The module containing the definition we want to import.
+    string definitionModule =
+        isForwardDeclared ? getPythonModuleForForwardDeclaration(definition) : getPythonModuleForDefinition(definition);
+
+    // The module importing the definition.
+    string sourceModule = getPythonModuleForDefinition(source);
+
+    if (definitionModule == sourceModule)
+    {
+        // If the definition and source are in the same module, we don't need to import it.
+        return;
+    }
+
+    auto& sourceModuleImports = _runtimeImports[sourceModule];
+    auto& definitionImports = sourceModuleImports[definitionModule];
+    definitionImports.insert({getMetaType(definition), ""});
+}
+
+bool
+Slice::Python::PackageVisitor::visitModuleStart(const ModulePtr& p)
+{
+    // Add the __init__.py file to the list of generated modules.
+    _packageIndexFiles.insert(getMappedPackage(p) + "/__init__.py");
     return true;
+}
+
+bool
+Slice::Python::PackageVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    // Add the class to the package imports.
+    importType(p);
+    importMetaType(p->declaration());
+    return false;
+}
+
+bool
+Slice::Python::PackageVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    importType(p);
+    importType(p, "Prx");
+    importMetaType(p->declaration());
+
+    return false;
+}
+
+bool
+Slice::Python::PackageVisitor::visitStructStart(const StructPtr& p)
+{
+    importType(p);
+    importMetaType(p);
+    return false;
+}
+
+bool
+Slice::Python::PackageVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    importType(p);
+    importMetaType(p);
+    return false;
+}
+
+void
+Slice::Python::PackageVisitor::visitSequence(const SequencePtr& p)
+{
+    importMetaType(p);
+}
+
+void
+Slice::Python::PackageVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    importMetaType(p);
+}
+
+void
+Slice::Python::PackageVisitor::visitEnum(const EnumPtr& p)
+{
+    importType(p);
+    importMetaType(p);
+}
+
+void
+Slice::Python::PackageVisitor::visitConst(const ConstPtr& p)
+{
+    importType(p);
+}
+
+void
+Slice::Python::PackageVisitor::importType(const ContainedPtr& definition, const string& prefix)
+{
+    string packageName = getMappedPackage(definition);
+    string moduleName = definition->mappedName();
+    auto& packageImports = _imports[packageName];
+    auto& definitions = packageImports[moduleName];
+    definitions.insert(definition->mappedName() + prefix);
+
+    // Add the definition to the list of generated Python modules.
+    string modulePath = packageName; 
+    replace(modulePath.begin(), modulePath.end(), '.', '/');
+    _generatedModules.insert(modulePath + moduleName + ".py");
+
+    // Ensure all parent packages exits, that is necessary to account for modules
+    // that are mapped to a nested package using python:identifier metadata.
+    vector<string> packageParts;
+    IceInternal::splitString(string_view{packageName}, ".", packageParts);
+    packageName = "";
+    for (const auto& part : packageParts)
+    {
+        packageName += part + ".";
+        if (_imports.find(packageName) == _imports.end())
+        {
+            // If the package does not exist, we create an empty map for it.
+            _imports[packageName] = {};
+            _packageIndexFiles.insert(packageName + "/__init__.py");
+        }
+    }
+}
+
+void
+Slice::Python::PackageVisitor::importMetaType(const ContainedPtr& definition)
+{
+    string packageName = getMappedPackage(definition);
+    string moduleName = definition->mappedName();
+
+    // The meta type for Slice classes or interfaces is always imported from the XxxF module containing the forward
+    // declaration.
+    if (dynamic_pointer_cast<ClassDecl>(definition) || dynamic_pointer_cast<InterfaceDecl>(definition))
+    {
+        moduleName += "F";
+    }
+    auto& packageImports = _imports[packageName];
+    auto& definitions = packageImports[moduleName];
+    definitions.insert(getMetaType(definition));
+
+    // Add the definition to the list of generated Python modules.
+    replace(packageName.begin(), packageName.end(), '.', '/');
+    _generatedModules.insert(packageName + moduleName + ".py");
 }
 
 // CodeVisitor implementation.
-Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory)
-    : _out(out),
-      _moduleHistory(moduleHistory)
-{
-}
-
-bool
-Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
-{
-    //
-    // As each module is opened, we emit the statement
-    //
-    // __name__ = "Foo"
-    //
-    // This renames the current module to 'Foo' so that subsequent
-    // type definitions have the proper fully-qualified name.
-    //
-    // We also emit the statement
-    //
-    // _M_Foo = Ice.openModule("Foo")
-    //
-    // This allows us to create types in the module Foo.
-    //
-    string abs = getAbsolute(p);
-    _out << sp << nl << "# Start of module " << abs;
-    if (_moduleHistory.count(abs) == 0) // Don't emit this more than once for each module.
-    {
-        // If this is a top-level module, then we check if it has package metadata.
-        // If so, we need to emit statements to open each of the modules in the
-        // package before we can open this module.
-        if (p->isTopLevel())
-        {
-            string pkg = getPackageMetadata(p);
-            if (!pkg.empty())
-            {
-                vector<string> v;
-                splitString(pkg, ".", v);
-                string mod;
-                for (const auto& q : v)
-                {
-                    mod = mod.empty() ? q : mod + "." + q;
-                    if (_moduleHistory.count(mod) == 0) // Don't emit this more than once for each module.
-                    {
-                        _out << nl << "_M_" << mod << " = Ice.openModule(\"" << mod << "\")";
-                        _moduleHistory.insert(mod);
-                    }
-                }
-            }
-        }
-        _out << nl << "_M_" << abs << " = Ice.openModule(\"" << abs << "\")";
-        _moduleHistory.insert(abs);
-    }
-    _out << nl << "__name__ = \"" << abs << "\"";
-
-    writeDocstring(DocComment::parseFrom(p), "_M_" + abs + ".__doc__ = ");
-
-    _moduleStack.push_front(abs);
-    return true;
-}
 
 void
-Slice::Python::CodeVisitor::visitModuleEnd(const ModulePtr&)
-{
-    assert(!_moduleStack.empty());
-    _out << sp << nl << "# End of module " << _moduleStack.front();
-    _moduleStack.pop_front();
-
-    if (!_moduleStack.empty())
-    {
-        _out << sp << nl << "__name__ = \"" << _moduleStack.front() << "\"";
-    }
-}
-
-void
-Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
-{
-    // Emit forward declarations.
-    string scoped = p->scoped();
-    if (_classHistory.count(scoped) == 0)
-    {
-        writeModuleHasDefinitionCheck(_out, p, p->mappedName());
-        _out.inc();
-        _out << nl << getMetaTypeReference(p) << " = IcePy.declareValue(\"" << scoped << "\")";
-        _out.dec();
-        _classHistory.insert(scoped); // Avoid redundant declarations.
-    }
-}
-
-void
-Slice::Python::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
-{
-    // Emit forward declarations.
-    string scoped = p->scoped();
-    if (_classHistory.count(scoped) == 0)
-    {
-        writeModuleHasDefinitionCheck(_out, p, p->mappedName());
-        _out.inc();
-        _out << nl << getMetaTypeReference(p) << "Prx" << " = IcePy.declareProxy(\"" << scoped << "\")";
-        _out.dec();
-        _classHistory.insert(scoped); // Avoid redundant declarations.
-    }
-}
-
-void
-Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
+Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& out)
 {
     // Emits an abstract method for each operation.
     for (const auto& operation : p->operations())
@@ -470,48 +980,48 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
         {
             string capName = sliceName;
             capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
-            _out << sp;
-            _out << nl << "@staticmethod";
-            _out << nl << "def " << capName << "MarshaledResult(result, current: Ice.Current):";
-            _out.inc();
-            _out << nl << tripleQuotes;
-            _out << nl << "Immediately marshals the result of an invocation of " << sliceName;
-            _out << nl << "and returns an object that the servant implementation must return";
-            _out << nl << "as its result.";
-            _out << nl;
-            _out << nl << "Args:";
-            _out << nl << "  result: The result (or result tuple) of the invocation.";
-            _out << nl << "  current: The Current object passed to the invocation.";
-            _out << nl;
-            _out << nl << "Returns";
-            _out << nl << "  An object containing the marshaled result.";
-            _out << nl << tripleQuotes;
-            _out << nl << "return IcePy.MarshaledResult(result, " << getTypeReference(p) << "._op_" << sliceName
-                 << ", current.adapter.getCommunicator()._getImpl(), current.encoding)";
-            _out.dec();
+            out << sp;
+            out << nl << "@staticmethod";
+            out << nl << "def " << capName << "MarshaledResult(result, current: Ice_Current):";
+            out.inc();
+            out << nl << tripleQuotes;
+            out << nl << "Immediately marshals the result of an invocation of " << sliceName;
+            out << nl << "and returns an object that the servant implementation must return";
+            out << nl << "as its result.";
+            out << nl;
+            out << nl << "Args:";
+            out << nl << "  result: The result (or result tuple) of the invocation.";
+            out << nl << "  current: The Current object passed to the invocation.";
+            out << nl;
+            out << nl << "Returns";
+            out << nl << "  An object containing the marshaled result.";
+            out << nl << tripleQuotes;
+            out << nl << "return IcePy.MarshaledResult(result, " << p->mappedName() << "._op_" << sliceName
+                << ", current.adapter.getCommunicator()._getImpl(), current.encoding)";
+            out.dec();
         }
 
-        _out << sp;
-        _out << nl << "@abstractmethod";
-        _out << nl << "def " << mappedName << spar << "self";
+        out << sp;
+        out << nl << "@abstractmethod";
+        out << nl << "def " << mappedName << spar << "self";
 
         for (const auto& param : operation->parameters())
         {
             if (!param->isOutParam())
             {
-                _out << (param->mappedName() + ": " + typeToTypeHintString(param->type(), param->optional()));
+                out << (param->mappedName() + ": " + typeToTypeHintString(param->type(), param->optional(), p));
             }
         }
 
         const string currentParamName = getEscapedParamName(operation->parameters(), "current");
-        _out << (currentParamName + ": Ice.Current");
-        _out << epar << operationReturnTypeHint(operation, OpDispatch) << ":";
-        _out.inc();
+        out << (currentParamName + ": Ice_Current");
+        out << epar << operationReturnTypeHint(operation, Dispatch) << ":";
+        out.inc();
 
-        writeDocstring(operation, OpDispatch);
+        writeDocstring(operation, Dispatch, out);
 
-        _out << nl << "pass";
-        _out.dec();
+        out << nl << "pass";
+        out.dec();
     }
 }
 
@@ -519,106 +1029,102 @@ bool
 Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string scoped = p->scoped();
-    const string type = getMetaTypeReference(p);
+    const string metaType = getMetaType(p);
     const string valueName = p->mappedName();
     const ClassDefPtr base = p->base();
     const DataMemberList members = p->dataMembers();
 
-    writeModuleHasDefinitionCheck(_out, p, valueName);
-    _out.inc();
-    _out << nl << getTypeReference(p) << " = None";
-    _out << nl << "class " << valueName << '(';
-    if (!base)
-    {
-        _out << "Ice.Value";
-    }
-    else
-    {
-        _out << getTypeReference(base);
-    }
-    _out << "):";
+    // Emit a forward declaration for the class meta-type.
+    BufferedOutput outF;
+    outF << nl << metaType << " = IcePy.declareValue(\"" << p->scoped() << "\")";
 
-    _out.inc();
+    outF << sp;
+    outF << nl << "__all__ = [\"" << metaType << "\"]";
 
-    writeDocstring(DocComment::parseFrom(p), members);
+    _codeFragments.emplace_back(p->declaration(), outF.str());
 
-    //
+    // Emit the class definition.
+    BufferedOutput out;
+    out << nl << "class " << valueName << '(' << (base ? getImportAlias(base) : "Ice_Value") << "):";
+    out.inc();
+
+    writeDocstring(DocComment::parseFrom(p), members, out);
+
     // __init__
-    //
-    _out << nl << "def __init__(self";
-    writeConstructorParams(p->allDataMembers());
-    _out << "):";
-    _out.inc();
+    out << nl << "def __init__(";
+    writeConstructorParams(p->allDataMembers(), out);
+    out << "):";
+    out.inc();
     if (!base && members.empty())
     {
-        _out << nl << "pass";
+        out << nl << "pass";
     }
     else
     {
         if (base)
         {
-            _out << nl << getTypeReference(base) << ".__init__(self";
+            out << nl << "super().__init__";
+            out.spar("(");
             for (const auto& member : base->allDataMembers())
             {
-                _out << ", " << member->mappedName();
+                out << member->mappedName();
             }
-            _out << ')';
+            out.epar(")");
         }
+
         for (const auto& member : members)
         {
-            writeAssign(member);
+            writeAssign(member, out);
         }
     }
-    _out.dec();
+    out.dec();
 
-    //
     // ice_id
-    //
-    _out << sp << nl << "def ice_id(self):";
-    _out.inc();
-    _out << nl << "return \"" << scoped << "\"";
-    _out.dec();
+    out << sp;
+    out << nl << "def ice_id(self):";
+    out.inc();
+    out << nl << "return \"" << scoped << "\"";
+    out.dec();
 
-    //
     // ice_staticId
-    //
-    _out << sp << nl << "@staticmethod";
-    _out << nl << "def ice_staticId():";
-    _out.inc();
-    _out << nl << "return \"" << scoped << "\"";
-    _out.dec();
+    out << sp;
+    out << nl << "@staticmethod";
+    out << nl << "def ice_staticId():";
+    out.inc();
+    out << nl << "return \"" << scoped << "\"";
+    out.dec();
 
     // Generate the __repr__ method for this Value class.
     // The default __str__ method inherited from Ice.Value calls __repr__().
-    _out << sp << nl << "def __repr__(self):";
-    _out.inc();
+    out << sp;
+    out << nl << "def __repr__(self):";
+    out.inc();
     const auto& allDataMembers = p->allDataMembers();
     if (allDataMembers.empty())
     {
-        _out << nl << "return \"" << getAbsolute(p) << "()\"";
+        out << nl << "return \"" << getImportAlias(p) << "()\"";
     }
     else
     {
-        _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(allDataMembers) << ")\"";
+        out << nl << "return f\"" << getImportAlias(p) << "(" << formatFields(allDataMembers) << ")\"";
     }
-    _out.dec();
+    out.dec();
 
-    _out.dec();
+    out.dec();
 
-    _out << sp << nl << type << " = IcePy.defineValue(\"" << scoped << "\", " << valueName << ", " << p->compactId()
-         << ", ";
-    writeMetadata(p->getMetadata());
-    _out << ", False, ";
-    if (!base)
-    {
-        _out << "None";
-    }
-    else
-    {
-        _out << getMetaTypeReference(base);
-    }
-    _out << ", (";
-    //
+    out << sp;
+    out << nl << metaType << " = IcePy.defineValue(";
+    out.inc();
+    out << nl << "\"" << scoped << "\",";
+    out << nl << valueName << ",";
+    out << nl << p->compactId() << ",";
+    out << nl;
+    writeMetadata(p->getMetadata(), out);
+    out << ",";
+    out << nl << "False,";
+    out << nl << (base ? getMetaType(base) : "None") << ",";
+    out << nl << "(";
+
     // Members
     //
     // Data members are represented as a tuple:
@@ -626,41 +1132,43 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //   ("MemberName", MemberMetadata, MemberType, Optional, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
-    //
     if (members.size() > 1)
     {
-        _out.inc();
-        _out << nl;
+        out.inc();
+        out << nl;
     }
 
     for (auto r = members.begin(); r != members.end(); ++r)
     {
         if (r != members.begin())
         {
-            _out << ',' << nl;
+            out << ',' << nl;
         }
-        _out << "(\"" << (*r)->mappedName() << "\", ";
-        writeMetadata((*r)->getMetadata());
-        _out << ", ";
-        writeType((*r)->type());
-        _out << ", " << ((*r)->optional() ? "True" : "False") << ", " << ((*r)->optional() ? (*r)->tag() : 0) << ')';
+        out << "(\"" << (*r)->mappedName() << "\", ";
+        writeMetadata((*r)->getMetadata(), out);
+        out << ", " << getMetaType((*r)->type());
+        out << ", " << ((*r)->optional() ? "True" : "False") << ", " << ((*r)->optional() ? (*r)->tag() : 0) << ')';
     }
+
     if (members.size() == 1)
     {
-        _out << ',';
+        out << ',';
     }
     else if (members.size() > 1)
     {
-        _out.dec();
-        _out << nl;
+        out.dec();
+        out << nl;
     }
-    _out << "))";
-    _out << nl << valueName << "._ice_type = " << type;
+    out << "))";
+    out.dec();
 
-    registerName(valueName);
+    out << sp;
+    out << nl << valueName << "._ice_type = " << metaType;
 
-    _out.dec();
+    out << sp;
+    out << nl << "__all__ = [\"" << valueName << "\", \"" << metaType << "\"]";
 
+    _codeFragments.emplace_back(p, out.str());
     return false;
 }
 
@@ -669,67 +1177,69 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string scoped = p->scoped();
     string className = p->mappedName();
-    string classAbs = getTypeReference(p);
     string prxName = className + "Prx";
-    string prxAbs = classAbs + "Prx";
+    string metaType = getMetaType(p);
     InterfaceList bases = p->bases();
 
-    writeModuleHasDefinitionCheck(_out, p, prxName);
-    _out.inc();
+    // Emit a forward declarations for the proxy meta type.
+    BufferedOutput outF;
+    outF << nl << metaType << " = IcePy.declareProxy(\"" << scoped << "\")";
+    outF << sp;
+    outF << nl << "__all__ = [\"" << metaType << "\"]";
+    _codeFragments.emplace_back(p->declaration(), outF.str());
 
-    // Define the proxy class
-    _out << nl << prxAbs << " = None";
-    _out << nl << "class " << prxName << '(';
+    // Emit the proxy class.
+    BufferedOutput out;
+    out << sp;
+    out << nl << "class " << prxName << '(';
 
+    vector<string> baseClasses;
+    for (const auto& base : bases)
     {
-        vector<string> baseClasses;
-        for (const auto& base : bases)
-        {
-            InterfaceDefPtr d = base;
-            baseClasses.push_back(getTypeReference(base) + "Prx");
-        }
+        InterfaceDefPtr d = base;
+        baseClasses.push_back(getImportAlias(base) + "Prx");
+    }
 
-        if (baseClasses.empty())
+    if (baseClasses.empty())
+    {
+        out << "Ice_ObjectPrx";
+    }
+    else
+    {
+        auto q = baseClasses.begin();
+        while (q != baseClasses.end())
         {
-            _out << "Ice.ObjectPrx";
-        }
-        else
-        {
-            auto q = baseClasses.begin();
-            while (q != baseClasses.end())
+            out << *q;
+
+            if (++q != baseClasses.end())
             {
-                _out << *q;
-
-                if (++q != baseClasses.end())
-                {
-                    _out << ", ";
-                }
+                out << ", ";
             }
         }
     }
-    _out << "):";
-    _out.inc();
+    out << "):";
+    out.inc();
 
-    _out << sp;
-    _out << nl << "def __init__(self, communicator, proxyString):";
-    _out.inc();
-    _out << nl << tripleQuotes;
-    _out << nl << "Creates a new " << prxName << " proxy";
-    _out << nl;
-    _out << nl << "Parameters";
-    _out << nl << "----------";
-    _out << nl << "communicator : Ice.Communicator";
-    _out << nl << "    The communicator of the new proxy.";
-    _out << nl << "proxyString : str";
-    _out << nl << "    The string representation of the proxy.";
-    _out << nl;
-    _out << nl << "Raises";
-    _out << nl << "------";
-    _out << nl << "ParseException";
-    _out << nl << "    Thrown when proxyString is not a valid proxy string.";
-    _out << nl << tripleQuotes;
-    _out << nl << "super().__init__(communicator, proxyString)";
-    _out.dec();
+    out << sp;
+    out << nl << "def __init__(self, communicator: Ice_Communicator, proxyString: str):";
+    out.inc();
+    out << nl << tripleQuotes;
+    out << nl << "Creates a new " << prxName << " proxy";
+    out << nl;
+    out << nl << "Parameters";
+    out << nl << "----------";
+    out << nl << "communicator : Ice.Communicator";
+    out << nl << "    The communicator of the new proxy.";
+    out << nl << "proxyString : str";
+    out << nl << "    The string representation of the proxy.";
+    out << nl;
+    out << nl << "Raises";
+    out << nl << "------";
+    out << nl << "ParseException";
+    out << nl << "    Thrown when proxyString is not a valid proxy string.";
+    out << nl << tripleQuotes;
+    out << nl << "super().__init__(communicator, proxyString)";
+    out.dec();
 
     OperationList operations = p->operations();
     for (const auto& operation : operations)
@@ -748,174 +1258,176 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Find the last required parameter, all optional parameters after the last required parameter will use
         // None as the default.
         ParameterPtr lastRequiredParameter;
-        for (const auto& q : paramList)
+        for (const auto& q : operation->inParameters())
         {
-            if (!q->isOutParam() && !q->optional())
+            if (!q->optional())
             {
                 lastRequiredParameter = q;
             }
         }
 
         bool afterLastRequiredParameter = lastRequiredParameter == nullptr;
-        for (const auto& q : paramList)
+        for (const auto& q : operation->inParameters())
         {
-            if (!q->isOutParam())
+            if (!inParams.empty())
             {
-                if (!inParams.empty())
-                {
-                    inParams.append(", ");
-                    inParamsDecl.append(", ");
-                }
-                string param = q->mappedName();
-                inParams.append(param);
-                param += ": " + typeToTypeHintString(q->type(), q->optional());
-                if (afterLastRequiredParameter)
-                {
-                    param += " = None";
-                }
-                inParamsDecl.append(param);
+                inParams.append(", ");
+                inParamsDecl.append(", ");
+            }
+            string param = q->mappedName();
+            inParams.append(param);
+            param += ": " + typeToTypeHintString(q->type(), q->optional(), p);
+            if (afterLastRequiredParameter)
+            {
+                param += " = None";
+            }
+            inParamsDecl.append(param);
 
-                if (q == lastRequiredParameter)
-                {
-                    afterLastRequiredParameter = true;
-                }
+            if (q == lastRequiredParameter)
+            {
+                afterLastRequiredParameter = true;
             }
         }
 
-        _out << sp;
-        _out << nl << "def " << mappedOpName << "(self";
+        out << sp;
+        out << nl << "def " << mappedOpName << "(self";
         if (!inParamsDecl.empty())
         {
-            _out << ", " << inParamsDecl;
+            out << ", " << inParamsDecl;
         }
         const string contextParamName = getEscapedParamName(operation->parameters(), "context");
-        _out << ", " << contextParamName << ": dict[str, str] | None = None)"
-             << operationReturnTypeHint(operation, OpSync) << ":";
-        _out.inc();
-        writeDocstring(operation, OpSync);
-        _out << nl << "return " << classAbs << "._op_" << opName << ".invoke(self, ((" << inParams;
+        out << ", " << contextParamName << ": dict[str, str] | None = None)"
+            << operationReturnTypeHint(operation, SyncInvocation) << ":";
+        out.inc();
+        writeDocstring(operation, SyncInvocation, out);
+        out << nl << "return " << className << "._op_" << opName << ".invoke(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
-            _out << ", ";
+            out << ", ";
         }
-        _out << "), " << contextParamName << "))";
-        _out.dec();
+        out << "), " << contextParamName << "))";
+        out.dec();
 
         // Async operations.
-        _out << sp;
-        _out << nl << "def " << mappedOpName << "Async(self";
+        out << sp;
+        out << nl << "def " << mappedOpName << "Async(self";
         if (!inParams.empty())
         {
-            _out << ", " << inParams;
+            out << ", " << inParamsDecl;
         }
-        _out << ", " << contextParamName << ": dict[str, str] = None)" << operationReturnTypeHint(operation, OpAsync)
-             << ":";
-        _out.inc();
-        writeDocstring(operation, OpAsync);
-        _out << nl << "return " << classAbs << "._op_" << opName << ".invokeAsync(self, ((" << inParams;
+        out << ", " << contextParamName << ": dict[str, str] | None = None)"
+            << operationReturnTypeHint(operation, AsyncInvocation) << ":";
+        out.inc();
+        writeDocstring(operation, AsyncInvocation, out);
+        out << nl << "return " << className << "._op_" << opName << ".invokeAsync(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
-            _out << ", ";
+            out << ", ";
         }
-        _out << "), " << contextParamName << "))";
-        _out.dec();
+        out << "), " << contextParamName << "))";
+        out.dec();
     }
 
-    const string prxTypeHint = typeToTypeHintString(p->declaration(), false);
+    const string prxTypeHint = typeToTypeHintString(p->declaration(), false, p);
 
-    _out << sp << nl << "@staticmethod";
-    _out << nl << "def checkedCast(";
-    _out.inc();
-    _out << nl << "proxy: Ice.ObjectPrx | None,";
-    _out << nl << "facet: str | None = None,";
-    _out << nl << "context: dict[str, str] | None = None";
-    _out.dec();
-    _out << nl << ") -> " << prxTypeHint << ":";
-    _out.inc();
-    _out << nl << "return Ice.checkedCast(" << prxAbs << ", proxy, facet, context)";
-    _out.dec();
+    out << sp;
+    out << nl << "@staticmethod";
+    out << nl << "def checkedCast(";
+    out.inc();
+    out << nl << "proxy: Ice_ObjectPrx | None,";
+    out << nl << "facet: str | None = None,";
+    out << nl << "context: dict[str, str] | None = None";
+    out.dec();
+    out << nl << ") -> " << prxTypeHint << ":";
+    out.inc();
+    out << nl << "return Ice_checkedCast(" << prxName << ", proxy, facet, context)";
+    out.dec();
 
-    _out << sp << nl << "@staticmethod";
-    _out << nl << "def checkedCastAsync(";
-    _out.inc();
-    _out << nl << "proxy: Ice.ObjectPrx | None,";
-    _out << nl << "facet: str | None = None,";
-    _out << nl << "context: dict[str, str] | None = None";
-    _out.dec();
-    _out << nl << ") -> Awaitable[" << prxTypeHint << "]:";
-    _out.inc();
-    _out << nl << "return Ice.checkedCastAsync(" << prxAbs << ", proxy, facet, context)";
-    _out.dec();
+    out << sp;
+    out << nl << "@staticmethod";
+    out << nl << "def checkedCastAsync(";
+    out.inc();
+    out << nl << "proxy: Ice_ObjectPrx | None,";
+    out << nl << "facet: str | None = None,";
+    out << nl << "context: dict[str, str] | None = None";
+    out.dec();
+    out << nl << ") -> Awaitable[" << prxTypeHint << "]:";
+    out.inc();
+    out << nl << "return Ice_checkedCastAsync(" << prxName << ", proxy, facet, context)";
+    out.dec();
 
-    _out << sp << nl << "@staticmethod";
-    _out << nl << "def uncheckedCast(proxy: Ice.ObjectPrx | None, facet: str|None=None) -> " << prxTypeHint << ":";
-    _out.inc();
-    _out << nl << "return Ice.uncheckedCast(" << prxAbs << ", proxy, facet)";
-    _out.dec();
+    out << sp << nl << "@staticmethod";
+    out << nl << "def uncheckedCast(proxy: Ice_ObjectPrx | None, facet: str | None = None) -> " << prxTypeHint << ":";
+    out.inc();
+    out << nl << "return Ice_uncheckedCast(" << prxName << ", proxy, facet)";
+    out.dec();
 
     // ice_staticId
-    _out << sp << nl << "@staticmethod";
-    _out << nl << "def ice_staticId() -> str:";
-    _out.inc();
-    _out << nl << "return \"" << scoped << "\"";
-    _out.dec();
+    out << sp;
+    out << nl << "@staticmethod";
+    out << nl << "def ice_staticId() -> str:";
+    out.inc();
+    out << nl << "return \"" << scoped << "\"";
+    out.dec();
 
-    _out.dec(); // end prx class
+    out.dec(); // end prx class
 
-    _out << nl << getMetaTypeReference(p) << "Prx" << " = IcePy.defineProxy(\"" << scoped << "\", " << prxName << ")";
+    out << sp;
+    out << nl << "IcePy.defineProxy(\"" << scoped << "\", " << prxName << ")";
 
-    registerName(prxName);
-
-    // Define the servant class
-    _out << sp << nl << classAbs << " = None";
-    _out << nl << "class " << className;
-    _out << spar;
+    // Emit the servant class (to the same code fragment as the proxy class).
+    out << sp;
+    out << nl << "class " << className;
+    out << spar;
     if (bases.empty())
     {
-        _out << "Ice.Object";
+        out << "Ice_Object";
     }
     else
     {
         for (const auto& base : bases)
         {
-            _out << getTypeReference(base);
+            out << getImportAlias(base);
         }
     }
-    _out << "ABC" << epar << ':';
-    _out.inc();
+    out << "ABC" << epar << ':';
+    out.inc();
 
     // ice_ids
     StringList ids = p->ids();
-    _out << sp << nl << "def ice_ids(self, current: Ice.Current) -> list[str] | Awaitable[list[str]]:";
-    _out.inc();
-    _out << nl << "return (";
+    out << sp;
+    out << nl << "def ice_ids(self, current: Ice_Current) -> Sequence[str] | Awaitable[Sequence[str]]:";
+    out.inc();
+    out << nl << "return (";
     for (auto q = ids.begin(); q != ids.end(); ++q)
     {
         if (q != ids.begin())
         {
-            _out << ", ";
+            out << ", ";
         }
-        _out << "\"" << *q << "\"";
+        out << "\"" << *q << "\"";
     }
-    _out << ')';
-    _out.dec();
+    out << ')';
+    out.dec();
 
     // ice_id
-    _out << sp << nl << "def ice_id(self, current: Ice.Current) -> str | Awaitable[str]:";
-    _out.inc();
-    _out << nl << "return \"" << scoped << "\"";
-    _out.dec();
+    out << sp;
+    out << nl << "def ice_id(self, current: Ice_Current) -> str | Awaitable[str]:";
+    out.inc();
+    out << nl << "return \"" << scoped << "\"";
+    out.dec();
 
     // ice_staticId
-    _out << sp << nl << "@staticmethod";
-    _out << nl << "def ice_staticId() -> str:";
-    _out.inc();
-    _out << nl << "return \"" << scoped << "\"";
-    _out.dec();
+    out << sp;
+    out << nl << "@staticmethod";
+    out << nl << "def ice_staticId() -> str:";
+    out.inc();
+    out << nl << "return \"" << scoped << "\"";
+    out.dec();
 
-    writeOperations(p);
+    writeOperations(p, out);
 
-    _out.dec();
+    out.dec();
 
     //
     // Define each operation. The arguments to the IcePy.Operation constructor are:
@@ -924,17 +1436,9 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // where InParams and OutParams are tuples of type descriptions, and Exceptions
     // is a tuple of exception type ids.
-    //
-    if (!operations.empty())
-    {
-        _out << sp;
-    }
 
     for (const auto& operation : operations)
     {
-        ParameterList params = operation->parameters();
-        ParameterList::iterator t;
-        int count;
         string format;
         optional<FormatType> opFormat = operation->format();
         if (opFormat)
@@ -942,10 +1446,10 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             switch (*opFormat)
             {
                 case CompactFormat:
-                    format = "Ice.FormatType.CompactFormat";
+                    format = "Ice_FormatType.CompactFormat";
                     break;
                 case SlicedFormat:
-                    format = "Ice.FormatType.SlicedFormat";
+                    format = "Ice_FormatType.SlicedFormat";
                     break;
                 default:
                     assert(false);
@@ -958,98 +1462,126 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         const string sliceName = operation->name();
 
-        _out << nl << className << "._op_" << sliceName << " = IcePy.Operation(\"" << sliceName << "\", \""
-             << operation->mappedName() << "\", " << getOperationMode(operation->mode()) << ", " << format << ", ";
-        writeMetadata(operation->getMetadata());
-        _out << ", (";
-        for (t = params.begin(), count = 0; t != params.end(); ++t)
+        out << sp;
+        out << nl << className << "._op_" << sliceName << " = IcePy.Operation(";
+        out.inc();
+        out << nl << "\"" << sliceName << "\",";
+        out << nl << "\"" << operation->mappedName() << "\",";
+        out << nl << getOperationMode(operation->mode()) << ",";
+        out << nl << format << ",";
+        out << nl;
+        writeMetadata(operation->getMetadata(), out);
+        out << ",";
+        out << nl << "(";
+        for (const auto& param : operation->inParameters())
         {
-            if (!(*t)->isOutParam())
+            if (param != operation->inParameters().front())
             {
-                if (count > 0)
-                {
-                    _out << ", ";
-                }
-                _out << '(';
-                writeMetadata((*t)->getMetadata());
-                _out << ", ";
-                writeType((*t)->type());
-                _out << ", " << ((*t)->optional() ? "True" : "False") << ", " << ((*t)->optional() ? (*t)->tag() : 0)
-                     << ')';
-                ++count;
+                out << ", ";
             }
-        }
-        if (count == 1)
-        {
-            _out << ',';
-        }
-        _out << "), (";
-        for (t = params.begin(), count = 0; t != params.end(); ++t)
-        {
-            if ((*t)->isOutParam())
+            out << '(';
+            writeMetadata(param->getMetadata(), out);
+            out << ", " << getMetaType(param->type());
+            out << ", ";
+            if (param->optional())
             {
-                if (count > 0)
-                {
-                    _out << ", ";
-                }
-                _out << '(';
-                writeMetadata((*t)->getMetadata());
-                _out << ", ";
-                writeType((*t)->type());
-                _out << ", " << ((*t)->optional() ? "True" : "False") << ", " << ((*t)->optional() ? (*t)->tag() : 0)
-                     << ')';
-                ++count;
+                out << "True, " << param->tag();
             }
+            else
+            {
+                out << "False, 0";
+            }
+            out << ')';
         }
-        if (count == 1)
+
+        // A trailing command to ensure that the outut is interpreted as a Python tuple.
+        if (operation->inParameters().size() == 1)
         {
-            _out << ',';
+            out << ',';
         }
-        _out << "), ";
+        out << "),";
+        out << nl << "(";
+        for (const auto& param : operation->outParameters())
+        {
+            if (param != operation->outParameters().front())
+            {
+                out << ", ";
+            }
+            out << '(';
+            writeMetadata(param->getMetadata(), out);
+            out << ", " << getMetaType(param->type());
+            out << ", ";
+            if (param->optional())
+            {
+                out << "True, " << param->tag();
+            }
+            else
+            {
+                out << "False, 0";
+            }
+            out << ')';
+        }
+
+        // A trailing command to ensure that the outut is interpreted as a Python tuple.
+        if (operation->outParameters().size() == 1)
+        {
+            out << ',';
+        }
+        out << "),";
+
+        out << nl;
         TypePtr returnType = operation->returnType();
         if (returnType)
         {
-            //
             // The return type has the same format as an in/out parameter:
             //
             // Metadata, Type, Optional?, OptionalTag
-            //
-            _out << "((), ";
-            writeType(returnType);
-            _out << ", " << (operation->returnIsOptional() ? "True" : "False") << ", "
-                 << (operation->returnIsOptional() ? operation->returnTag() : 0) << ')';
+            out << "((), " << getMetaType(returnType) << ", ";
+            if (operation->returnIsOptional())
+            {
+                out << "True, " << operation->returnTag();
+            }
+            else
+            {
+                out << "False, 0";
+            }
+            out << ')';
         }
         else
         {
-            _out << "None";
+            out << "None";
         }
-        _out << ", (";
-        ExceptionList exceptions = operation->throws();
-        for (auto u = exceptions.begin(); u != exceptions.end(); ++u)
+        out << ",";
+        out << nl << "(";
+        for (const auto& ex : operation->throws())
         {
-            if (u != exceptions.begin())
+            if (ex != operation->throws().front())
             {
-                _out << ", ";
+                out << ", ";
             }
-            _out << getMetaTypeReference(*u);
+            out << getMetaType(ex);
         }
-        if (exceptions.size() == 1)
+
+        // A trailing command to ensure that the outut is interpreted as a Python tuple.
+        if (operation->throws().size() == 1)
         {
-            _out << ',';
+            out << ',';
         }
-        _out << "))";
+        out << "))";
+        out.dec();
 
         if (operation->isDeprecated())
         {
             // Get the deprecation reason if present, or default to an empty string.
             string reason = operation->getDeprecationReason().value_or("");
-            _out << nl << className << "._op_" << sliceName << ".deprecate(\"" << reason << "\")";
+            out << nl << className << "._op_" << sliceName << ".deprecate(\"" << reason << "\")";
         }
     }
 
-    registerName(className);
-    _out.dec();
+    out << sp;
+    out << nl << "__all__ = [\"" << className << "\", \"" << prxName << "\", \"" << metaType << "\"]";
 
+    _codeFragments.emplace_back(p, out.str());
     return false;
 }
 
@@ -1060,97 +1592,74 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = p->mappedName();
 
     const ExceptionPtr base = p->base();
-    string baseName;
+    BufferedOutput out;
 
     const DataMemberList members = p->dataMembers();
 
-    writeModuleHasDefinitionCheck(_out, p, name);
-    _out.inc();
-    _out << nl << getTypeReference(p) << " = None";
-    _out << nl << "class " << name << '(';
-    if (base)
-    {
-        baseName = getTypeReference(base);
-        _out << baseName;
-    }
-    else
-    {
-        _out << "Ice.UserException";
-    }
-    _out << "):";
-    _out.inc();
+    out << sp;
+    out << nl << "class " << name << '(' << (base ? getImportAlias(base) : "Ice_UserException") << "):";
+    out.inc();
 
-    writeDocstring(DocComment::parseFrom(p), members);
+    writeDocstring(DocComment::parseFrom(p), members, out);
 
     // __init__
-    _out << nl << "def __init__(self";
-    writeConstructorParams(p->allDataMembers());
-    _out << "):";
-    _out.inc();
-    if (!base && members.empty())
+    out << nl << "def __init__(";
+    writeConstructorParams(p->allDataMembers(), out);
+    out << "):";
+    out.inc();
+
+    out << nl << "super().__init__";
+    out.spar("(");
+    if (base)
     {
-        _out << nl << "pass";
-    }
-    else
-    {
-        if (base)
+        for (const auto& member : base->allDataMembers())
         {
-            _out << nl << baseName << ".__init__(self";
-            for (const auto& member : base->allDataMembers())
-            {
-                _out << ", " << member->mappedName();
-            }
-            _out << ')';
-        }
-        for (const auto& member : members)
-        {
-            writeAssign(member);
+            out << member->mappedName();
         }
     }
-    _out.dec();
+    out.epar(")");
+
+    out.dec();
 
     // Generate the __repr__ method for this Exception class.
     // The default __str__ method inherited from Ice.UserException calls __repr__().
-    _out << sp << nl << "def __repr__(self) -> str:";
-    _out.inc();
+    out << sp;
+    out << nl << "def __repr__(self) -> str:";
+    out.inc();
     const auto& allDataMembers = p->allDataMembers();
     if (allDataMembers.empty())
     {
-        _out << nl << "return \"" << getAbsolute(p) << "()\"";
+        out << nl << "return \"" << getImportAlias(p) << "()\"";
     }
     else
     {
-        _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(p->allDataMembers()) << ")\"";
+        out << nl << "return f\"" << getImportAlias(p) << "(" << formatFields(p->allDataMembers()) << ")\"";
     }
-    _out.dec();
+    out.dec();
 
-    //
     // _ice_id
-    //
-    _out << sp << nl << "_ice_id = \"" << scoped << "\"";
+    out << sp;
+    out << nl << "_ice_id = \"" << scoped << "\"";
 
-    _out.dec();
+    out.dec();
 
-    //
     // Emit the type information.
-    //
-    string type = getMetaTypeReference(p);
-    _out << sp << nl << type << " = IcePy.defineException(\"" << scoped << "\", " << name << ", ";
-    writeMetadata(p->getMetadata());
-    _out << ", ";
-    if (!base)
-    {
-        _out << "None";
-    }
-    else
-    {
-        _out << getMetaTypeReference(base);
-    }
-    _out << ", (";
+    string metaType = getMetaType(p);
+    out << sp;
+    out << nl << metaType << " = IcePy.defineException(";
+    out.inc();
+    out << nl << "\"" << scoped << "\",";
+    out << nl << name << ",";
+    out << nl;
+    writeMetadata(p->getMetadata(), out);
+    out << ",";
+    out << nl << (base ? getMetaType(base) : "None") << ",";
+
+    out << nl << "(";
     if (members.size() > 1)
     {
-        _out.inc();
-        _out << nl;
+        out.inc();
+        out << nl;
     }
     //
     // Data members are represented as a tuple:
@@ -1163,31 +1672,33 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         if (dmli != members.begin())
         {
-            _out << ',' << nl;
+            out << ',' << nl;
         }
-        _out << "(\"" << (*dmli)->mappedName() << "\", ";
-        writeMetadata((*dmli)->getMetadata());
-        _out << ", ";
-        writeType((*dmli)->type());
-        _out << ", " << ((*dmli)->optional() ? "True" : "False") << ", " << ((*dmli)->optional() ? (*dmli)->tag() : 0)
-             << ')';
+        out << "(\"" << (*dmli)->mappedName() << "\", ";
+        writeMetadata((*dmli)->getMetadata(), out);
+        out << ", " << getMetaType((*dmli)->type());
+        out << ", " << ((*dmli)->optional() ? "True" : "False") << ", " << ((*dmli)->optional() ? (*dmli)->tag() : 0)
+            << ')';
     }
     if (members.size() == 1)
     {
-        _out << ',';
+        out << ',';
     }
     else if (members.size() > 1)
     {
-        _out.dec();
-        _out << nl;
+        out.dec();
+        out << nl;
     }
-    _out << "))";
-    _out << nl << name << "._ice_type = " << type;
+    out << "))";
+    out.dec();
 
-    registerName(name);
+    out << sp;
+    out << nl << name << "._ice_type = " << metaType;
 
-    _out.dec();
+    out << sp;
+    out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
 
+    _codeFragments.emplace_back(p, out.str());
     return false;
 }
 
@@ -1195,235 +1706,59 @@ bool
 Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 {
     const string scoped = p->scoped();
-    const string abs = getTypeReference(p);
     const string name = p->mappedName();
+    const string metaTypeName = getMetaType(p);
     const DataMemberList members = p->dataMembers();
+    BufferedOutput out;
 
-    writeModuleHasDefinitionCheck(_out, p, name);
-    _out.inc();
-    _out << nl << abs << " = None";
-    _out << nl << "class " << name << "(object):";
-    _out.inc();
-
-    writeDocstring(DocComment::parseFrom(p), members);
-
-    _out << nl << "def __init__(self";
-    writeConstructorParams(p->dataMembers());
-    _out << "):";
-    _out.inc();
-    for (const auto& member : members)
-    {
-        writeAssign(member);
-    }
-    _out.dec();
-
-    //
-    // Only generate __hash__ and the comparison operators if this structure type is a legal dictionary key type.
-    //
+    out << sp;
+    out << nl << "@dataclass";
     if (Dictionary::isLegalKeyType(p))
     {
-        _out << sp << nl << "def __hash__(self):";
-        _out.inc();
-        _out << nl << "_h = 0";
-        int iter = 0;
-        for (const auto& member : members)
-        {
-            string s = "self." + member->mappedName();
-            writeHash(s, member->type(), iter);
-        }
-        _out << nl << "return _h % 0x7fffffff";
-        _out.dec();
-
-        //
-        // Rich operators.  __lt__, __le__, __eq__, __ne__, __gt__, __ge__
-        //
-
-        _out << sp << nl << "def __compare(self, other):";
-        _out.inc();
-        _out << nl << "if other is None:";
-        _out.inc();
-        _out << nl << "return 1";
-        _out.dec();
-        _out << nl << "elif not isinstance(other, " << abs << "):";
-        _out.inc();
-        _out << nl << "return NotImplemented";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        for (const auto& member : members)
-        {
-            const string memberName = member->mappedName();
-
-            //
-            // The None value is not orderable in Python 3.
-            //
-            _out << nl << "if self." << memberName << " is None or other." << memberName << " is None:";
-            _out.inc();
-            _out << nl << "if self." << memberName << " != other." << memberName << ':';
-            _out.inc();
-            _out << nl << "return (-1 if self." << memberName << " is None else 1)";
-            _out.dec();
-            _out.dec();
-            _out << nl << "else:";
-            _out.inc();
-            _out << nl << "if self." << memberName << " < other." << memberName << ':';
-            _out.inc();
-            _out << nl << "return -1";
-            _out.dec();
-            _out << nl << "elif self." << memberName << " > other." << memberName << ':';
-            _out.inc();
-            _out << nl << "return 1";
-            _out.dec();
-            _out.dec();
-        }
-        _out << nl << "return 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __lt__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r < 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __le__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r <= 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __gt__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r > 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __ge__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r >= 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __eq__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r == 0";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __ne__(self, other):";
-        _out.inc();
-        _out << nl << "r = self.__compare(other)";
-        _out << nl << "if r is NotImplemented:";
-        _out.inc();
-        _out << nl << "return r";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        _out << nl << "return r != 0";
-        _out.dec();
-        _out.dec();
+        out << "(order=True, unsafe_hash=True)";
     }
-    else
+
+    out << nl << "class " << name << ":";
+    out.inc();
+
+    writeDocstring(DocComment::parseFrom(p), members, out);
+
+    for (const auto& field : members)
     {
-        //
-        // Only generate the rich equality operators __eq__ and __ne__.
-        //
+        out << nl << field->mappedName() << ": " << typeToTypeHintString(field->type(), field->optional(), p);
 
-        _out << sp << nl << "def __eq__(self, other):";
-        _out.inc();
-        _out << nl << "if other is None:";
-        _out.inc();
-        _out << nl << "return False";
-        _out.dec();
-        _out << nl << "elif not isinstance(other, " << abs << "):";
-        _out.inc();
-        _out << nl << "return NotImplemented";
-        _out.dec();
-        _out << nl << "else:";
-        _out.inc();
-        for (const auto& member : members)
+        if (field->defaultValue())
         {
-            const string memberName = member->mappedName();
-
-            //
-            // The None value is not orderable in Python 3.
-            //
-            _out << nl << "if self." << memberName << " != other." << memberName << ':';
-            _out.inc();
-            _out << nl << "return False";
-            _out.dec();
+            out << " = ";
+            writeConstantValue(field->type(), field->defaultValueType(), *field->defaultValue(), out);
         }
-        _out << nl << "return True";
-        _out.dec();
-        _out.dec();
-
-        _out << sp << nl << "def __ne__(self, other):";
-        _out.inc();
-        _out << nl << "return not self.__eq__(other)";
-        _out.dec();
+        else if (field->optional())
+        {
+            out << " = None";
+        }
+        else if (auto st = dynamic_pointer_cast<Struct>(field->type()))
+        {
+            // See writeAssign.
+            out << " = " << "field(default_factory=" << getImportAlias(st) << ')';
+        }
+        else
+        {
+            out << " = " + getTypeInitializer(field);
+        }
     }
-
-    // Generate the __repr__ method for this struct class.
-    _out << sp << nl << "def __repr__(self):";
-    _out.inc();
-    if (members.empty())
-    {
-        _out << nl << "return \"" << getAbsolute(p) << "()\"";
-    }
-    else
-    {
-        _out << nl << "return f\"" << getAbsolute(p) << "(" << formatFields(members) << ")\"";
-    }
-    _out.dec();
-
-    _out << sp << nl << "def __str__(self):";
-    _out.inc();
-    _out << nl << "return repr(self)";
-    _out.dec();
-
-    _out.dec();
+    out.dec();
 
     //
     // Emit the type information.
     //
-    _out << sp << nl << getMetaTypeReference(p) << " = IcePy.defineStruct(\"" << scoped << "\", " << name << ", ";
-    writeMetadata(p->getMetadata());
-    _out << ", (";
+    out << sp;
+    out << nl << metaTypeName << " = IcePy.defineStruct(";
+    out.inc();
+    out << nl << "\"" << scoped << "\",";
+    out << nl << name << ",";
+    out << nl;
+    writeMetadata(p->getMetadata(), out);
+    out << ",";
     //
     // Data members are represented as a tuple:
     //
@@ -1431,69 +1766,74 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
+    out << nl << "(";
     if (members.size() > 1)
     {
-        _out.inc();
-        _out << nl;
+        out.inc();
+        out << nl;
     }
+
     for (auto r = members.begin(); r != members.end(); ++r)
     {
         if (r != members.begin())
         {
-            _out << ',' << nl;
+            out << ',' << nl;
         }
-        _out << "(\"" << (*r)->mappedName() << "\", ";
-        writeMetadata((*r)->getMetadata());
-        _out << ", ";
-        writeType((*r)->type());
-        _out << ')';
+        out << "(\"" << (*r)->mappedName() << "\", ";
+        writeMetadata((*r)->getMetadata(), out);
+        out << ", " << getMetaType((*r)->type());
+        out << ')';
     }
+
     if (members.size() == 1)
     {
-        _out << ',';
+        out << ',';
     }
     else if (members.size() > 1)
     {
-        _out.dec();
-        _out << nl;
+        out.dec();
+        out << nl;
     }
-    _out << "))";
+    out << "))";
+    out.dec();
 
-    registerName(name);
+    out << sp;
+    out << nl << "__all__ = [\"" << name << "\", \"" << metaTypeName << "\"]";
 
-    _out.dec();
-
+    _codeFragments.emplace_back(p, out.str());
     return false;
 }
 
 void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    // Emit the type information.
-    writeModuleHasDefinitionCheck(_out, p, "_t_" + p->mappedName());
-    _out.inc();
-    _out << nl << getMetaTypeReference(p) << " = IcePy.defineSequence(\"" << p->scoped() << "\", ";
-    writeMetadata(p->getMetadata());
-    _out << ", ";
-    writeType(p->type());
-    _out << ")";
-    _out.dec();
+    string metaType = getMetaType(p);
+
+    BufferedOutput out;
+    out << nl << metaType << " = IcePy.defineSequence(\"" << p->scoped() << "\", ";
+    writeMetadata(p->getMetadata(), out);
+    out << ", " << getMetaType(p->type());
+    out << ")";
+
+    out << sp;
+    out << nl << "__all__ = [\"" << metaType << "\"]";
+
+    _codeFragments.emplace_back(p, out.str());
 }
 
 void
 Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    // Emit the type information.
-    writeModuleHasDefinitionCheck(_out, p, "_t_" + p->mappedName());
-    _out.inc();
-    _out << nl << getMetaTypeReference(p) << " = IcePy.defineDictionary(\"" << p->scoped() << "\", ";
-    writeMetadata(p->getMetadata());
-    _out << ", ";
-    writeType(p->keyType());
-    _out << ", ";
-    writeType(p->valueType());
-    _out << ")";
-    _out.dec();
+    BufferedOutput out;
+    string metaType = getMetaType(p);
+    out << nl << metaType << " = IcePy.defineDictionary(\"" << p->scoped() << "\", ";
+    writeMetadata(p->getMetadata(), out);
+    out << ", " << getMetaType(p->keyType()) << ", " << getMetaType(p->valueType()) << ")";
+
+    out << sp;
+    out << nl << "__all__ = [\"" << metaType << "\"]";
+
+    _codeFragments.emplace_back(p, out.str());
 }
 
 void
@@ -1503,252 +1843,120 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     string name = p->mappedName();
     EnumeratorList enumerators = p->enumerators();
 
-    writeModuleHasDefinitionCheck(_out, p, name);
-    _out.inc();
-    _out << nl << getTypeReference(p) << " = None";
-    _out << nl << "class " << name << "(Enum):";
-    _out.inc();
+    BufferedOutput out;
+    out << nl << "class " << name << "(Enum):";
+    out.inc();
 
-    writeDocstring(DocComment::parseFrom(p), enumerators);
+    writeDocstring(DocComment::parseFrom(p), p, out);
 
-    _out << nl;
+    out << nl;
     for (const auto& enumerator : enumerators)
     {
-        _out << nl << enumerator->mappedName() << " = " << enumerator->value();
+        out << nl << enumerator->mappedName() << " = " << enumerator->value();
     }
 
-    _out.dec();
+    out.dec();
 
-    //
-    // Emit the type information.
-    //
-    _out << sp << nl << getMetaTypeReference(p) << " = IcePy.defineEnum(\"" << scoped << "\", " << name << ", ";
-    writeMetadata(p->getMetadata());
-    _out << ", ";
-    _out.spar("{");
+    // Meta type definition.
+    out << sp;
+    out << nl << getMetaType(p) << " = IcePy.defineEnum(";
+    out.inc();
+    out << nl << "\"" << scoped << "\",";
+    out << nl << name << ",";
+    out << nl;
+    writeMetadata(p->getMetadata(), out);
+    out << ",";
+    out << nl;
+    out.spar("{");
     for (const auto& enumerator : enumerators)
     {
-        _out << (std::to_string(enumerator->value()) + ": " + name + "." + enumerator->mappedName());
+        out << (std::to_string(enumerator->value()) + ": " + name + "." + enumerator->mappedName());
     }
-    _out.epar("}");
-    _out << ")";
+    out.epar("}");
+    out << ")";
+    out.dec();
 
-    registerName(name);
+    out << sp;
+    out << nl << "__all__ = [\"" << name << "\", \"" << getMetaType(p) << "\"]";
 
-    _out.dec();
+    _codeFragments.emplace_back(p, out.str());
 }
 
 void
 Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
 {
-    _out << sp << nl << getTypeReference(p) << " = ";
-    writeConstantValue(p->type(), p->valueType(), p->value());
+    string name = p->mappedName();
+    BufferedOutput out;
+    out << sp;
+    out << nl << name << " = ";
+    writeConstantValue(p->type(), p->valueType(), p->value(), out);
+
+    out << sp;
+    out << nl << "__all__ = [\"" << name << "\"]";
+
+    _codeFragments.emplace_back(p, out.str());
 }
 
-void
-Slice::Python::CodeVisitor::registerName(const string& name)
+string
+Slice::Python::CodeVisitor::getTypeInitializer(const DataMemberPtr& field)
 {
-    assert(!_moduleStack.empty());
-    _out << sp << nl << "_M_" << _moduleStack.front() << '.' << name << " = " << name;
-    _out << nl << "del " << name;
-}
+    static constexpr string_view builtinTable[] = {
+        "0",     // Builtin::KindByte
+        "False", // Builtin::KindBool
+        "0",     // Builtin::KindShort
+        "0",     // Builtin::KindInt
+        "0",     // Builtin::KindLong
+        "0.0",   // Builtin::KindFloat
+        "0.0",   // Builtin::KindDouble
+        R"("")", // Builtin::KindString
+        "None",  // Builtin::KindObject. Not used anymore
+        "None",  // Builtin::KindObjectProxy.
+        "None"}; // Builtin::KindValue.
 
-void
-Slice::Python::CodeVisitor::writeType(const TypePtr& p)
-{
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
-    if (builtin)
+    if (auto builtin = dynamic_pointer_cast<Builtin>(field->type()))
     {
-        switch (builtin->kind())
+        return string{builtinTable[builtin->kind()]};
+    }
+    else if (auto enumeration = dynamic_pointer_cast<Enum>(field->type()))
+    {
+        return getImportAlias(enumeration) + "." + enumeration->enumerators().front()->mappedName();
+    }
+    else
+    {
+        return "None";
+    }
+}
+
+void
+Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata, Output& out)
+{
+    MetadataList pythonMetadata = metadata;
+    auto newEnd = std::remove_if(
+        pythonMetadata.begin(),
+        pythonMetadata.end(),
+        [](const MetadataPtr& meta) { return meta->directive().find("python:") != 0; });
+    pythonMetadata.erase(newEnd, pythonMetadata.end());
+
+    out << '(';
+    for (const auto& meta : pythonMetadata)
+    {
+        out << "\"" << *meta << "\"";
+        if (meta != pythonMetadata.back())
         {
-            case Builtin::KindBool:
-            {
-                _out << "IcePy._t_bool";
-                break;
-            }
-            case Builtin::KindByte:
-            {
-                _out << "IcePy._t_byte";
-                break;
-            }
-            case Builtin::KindShort:
-            {
-                _out << "IcePy._t_short";
-                break;
-            }
-            case Builtin::KindInt:
-            {
-                _out << "IcePy._t_int";
-                break;
-            }
-            case Builtin::KindLong:
-            {
-                _out << "IcePy._t_long";
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                _out << "IcePy._t_float";
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                _out << "IcePy._t_double";
-                break;
-            }
-            case Builtin::KindString:
-            {
-                _out << "IcePy._t_string";
-                break;
-            }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                _out << "IcePy._t_Value";
-                break;
-            }
-            case Builtin::KindObjectProxy:
-            {
-                _out << "IcePy._t_ObjectPrx";
-                break;
-            }
-        }
-        return;
-    }
-
-    InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(p);
-    if (prx)
-    {
-        _out << getMetaTypeReference(prx) + "Prx";
-        return;
-    }
-
-    ContainedPtr cont = dynamic_pointer_cast<Contained>(p);
-    assert(cont);
-    _out << getMetaTypeReference(cont);
-}
-
-void
-Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
-{
-    TypePtr p = m->type();
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
-    if (builtin)
-    {
-        switch (builtin->kind())
-        {
-            case Builtin::KindBool:
-            {
-                _out << "False";
-                break;
-            }
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                _out << "0";
-                break;
-            }
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            {
-                _out << "0.0";
-                break;
-            }
-            case Builtin::KindString:
-            {
-                _out << "\"\"";
-                break;
-            }
-            case Builtin::KindValue:
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            {
-                _out << "None";
-                break;
-            }
-        }
-        return;
-    }
-
-    EnumPtr en = dynamic_pointer_cast<Enum>(p);
-    if (en)
-    {
-        _out << getTypeReference(en->enumerators().front());
-        return;
-    }
-
-    _out << "None";
-}
-
-void
-Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int& iter)
-{
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(p);
-    if (seq)
-    {
-        _out << nl << "if " << name << ':';
-        _out.inc();
-        _out << nl << "for _i" << iter << " in " << name << ':';
-        _out.inc();
-        ostringstream elem;
-        elem << "_i" << iter;
-        iter++;
-        writeHash(elem.str(), seq->type(), iter);
-        _out.dec();
-        _out.dec();
-        return;
-    }
-
-    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(p);
-    if (dict)
-    {
-        _out << nl << "if " << name << ':';
-        _out.inc();
-        _out << nl << "for _i" << iter << " in " << name << ':';
-        _out.inc();
-        ostringstream key;
-        key << "_i" << iter;
-        ostringstream value;
-        value << name << '[' << key.str() << ']';
-        iter++;
-        writeHash(key.str(), dict->keyType(), iter);
-        writeHash(value.str(), dict->valueType(), iter);
-        _out.dec();
-        _out.dec();
-        return;
-    }
-
-    _out << nl << "_h = 5 * _h + _builtins.hash(" << name << ")";
-}
-
-void
-Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata)
-{
-    int i = 0;
-    _out << '(';
-    for (const auto& meta : metadata)
-    {
-        if (meta->directive().find("python:") == 0)
-        {
-            if (i > 0)
-            {
-                _out << ", ";
-            }
-            _out << "\"" << *meta << "\"";
-            ++i;
+            out << ", ";
         }
     }
-    if (i == 1)
+
+    if (pythonMetadata.size() == 1)
     {
-        _out << ',';
+        out << ',';
     }
-    _out << ')';
+
+    out << ')';
 }
 
 void
-Slice::Python::CodeVisitor::writeAssign(const DataMemberPtr& member)
+Slice::Python::CodeVisitor::writeAssign(const DataMemberPtr& member, Output& out)
 {
     const string memberName = member->mappedName();
 
@@ -1756,12 +1964,12 @@ Slice::Python::CodeVisitor::writeAssign(const DataMemberPtr& member)
     StructPtr st = dynamic_pointer_cast<Struct>(member->type());
     if (st && !member->optional())
     {
-        _out << nl << "self." << memberName << " = " << memberName << " if " << memberName << " is not None else "
-             << getTypeReference(st) << "()";
+        out << nl << "self." << memberName << " = " << memberName << " if " << memberName << " is not None else "
+            << getImportAlias(st) << "()";
     }
     else
     {
-        _out << nl << "self." << memberName << " = " << memberName;
+        out << nl << "self." << memberName << " = " << memberName;
     }
 }
 
@@ -1769,81 +1977,77 @@ void
 Slice::Python::CodeVisitor::writeConstantValue(
     const TypePtr& type,
     const SyntaxTreeBasePtr& valueType,
-    const string& value)
+    const string& value,
+    Output& out)
 {
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        _out << getTypeReference(constant);
+        out << getImportAlias(constant);
+    }
+    else if (auto builtin = dynamic_pointer_cast<Slice::Builtin>(type))
+    {
+        switch (builtin->kind())
+        {
+            case Slice::Builtin::KindBool:
+            {
+                out << (value == "true" ? "True" : "False");
+                break;
+            }
+            case Slice::Builtin::KindByte:
+            case Slice::Builtin::KindShort:
+            case Slice::Builtin::KindInt:
+            case Slice::Builtin::KindFloat:
+            case Slice::Builtin::KindDouble:
+            case Slice::Builtin::KindLong:
+            {
+                out << value;
+                break;
+            }
+            case Slice::Builtin::KindString:
+            {
+                const string controlChars = "\a\b\f\n\r\t\v";
+                const unsigned char cutOff = 0;
+
+                out << "\"" << toStringLiteral(value, controlChars, "", UCN, cutOff) << "\"";
+                break;
+            }
+            case Slice::Builtin::KindValue:
+            case Slice::Builtin::KindObject:
+            case Slice::Builtin::KindObjectProxy:
+                assert(false);
+        }
+    }
+    else if (auto enumeration = dynamic_pointer_cast<Slice::Enum>(type))
+    {
+        EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
+        assert(enumerator);
+        out << getImportAlias(enumeration) << "." << enumerator->mappedName();
     }
     else
     {
-        Slice::BuiltinPtr b = dynamic_pointer_cast<Slice::Builtin>(type);
-        Slice::EnumPtr en = dynamic_pointer_cast<Slice::Enum>(type);
-        if (b)
-        {
-            switch (b->kind())
-            {
-                case Slice::Builtin::KindBool:
-                {
-                    _out << (value == "true" ? "True" : "False");
-                    break;
-                }
-                case Slice::Builtin::KindByte:
-                case Slice::Builtin::KindShort:
-                case Slice::Builtin::KindInt:
-                case Slice::Builtin::KindFloat:
-                case Slice::Builtin::KindDouble:
-                case Slice::Builtin::KindLong:
-                {
-                    _out << value;
-                    break;
-                }
-                case Slice::Builtin::KindString:
-                {
-                    const string controlChars = "\a\b\f\n\r\t\v";
-                    const unsigned char cutOff = 0;
-
-                    _out << "\"" << toStringLiteral(value, controlChars, "", UCN, cutOff) << "\"";
-                    break;
-                }
-                case Slice::Builtin::KindValue:
-                case Slice::Builtin::KindObject:
-                case Slice::Builtin::KindObjectProxy:
-                    assert(false);
-            }
-        }
-        else if (en)
-        {
-            EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
-            assert(lte);
-            _out << getTypeReference(lte);
-        }
-        else
-        {
-            assert(false); // Unknown const type.
-        }
+        assert(false); // Unknown const type.
     }
 }
 
 void
-Slice::Python::CodeVisitor::writeConstructorParams(const DataMemberList& members)
+Slice::Python::CodeVisitor::writeConstructorParams(const DataMemberList& members, Output& out)
 {
+    out << "self";
     for (const auto& member : members)
     {
-        // Function signatures always start with a 'self' parameter, so we always need a comma separator.
-        _out << ", " << member->mappedName() << "=";
+        out << ", " << member->mappedName() << "=";
         if (member->defaultValue())
         {
-            writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
+            writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue(), out);
         }
         else if (member->optional())
         {
-            _out << "None";
+            out << "None";
         }
         else
         {
-            writeInitializer(member);
+            out << getTypeInitializer(member);
         }
     }
 }
@@ -1851,63 +2055,58 @@ Slice::Python::CodeVisitor::writeConstructorParams(const DataMemberList& members
 string
 Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
 {
-    string result;
-    switch (mode)
-    {
-        case Operation::Normal:
-            result = "Ice.OperationMode.Normal";
-            break;
-        case Operation::Idempotent:
-            result = "Ice.OperationMode.Idempotent";
-            break;
-    }
-    return result;
+    return mode == Slice::Operation::Mode::Normal ? "Ice_OperationMode.Normal" : "Ice_OperationMode.Idempotent";
 }
 
 void
-Slice::Python::CodeVisitor::writeRemarksDocComment(const StringList& remarks, bool needsNewline)
+Slice::Python::CodeVisitor::writeRemarksDocComment(const StringList& remarks, bool needsNewline, Output& out)
 {
     if (!remarks.empty())
     {
         if (needsNewline)
         {
-            _out << nl;
+            out << nl;
         }
-        _out << nl << "Notes";
-        _out << nl << "-----";
+        out << nl << "Notes";
+        out << nl << "-----";
         for (const auto& line : remarks)
         {
-            _out << nl << "    " << line;
+            out << nl << "    " << line;
         }
     }
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const string& prefix)
+Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const string& prefix, Output& out)
 {
-    if (comment)
+    if (!comment)
     {
-        const StringList& overview = comment->overview();
-        const StringList& remarks = comment->remarks();
-        if (overview.empty() && remarks.empty())
-        {
-            return;
-        }
-
-        _out << nl << prefix << tripleQuotes;
-        for (const auto& line : overview)
-        {
-            _out << nl << line;
-        }
-
-        writeRemarksDocComment(remarks, !overview.empty());
-
-        _out << nl << tripleQuotes;
+        return;
     }
+
+    const StringList& overview = comment->overview();
+    const StringList& remarks = comment->remarks();
+    if (overview.empty() && remarks.empty())
+    {
+        return;
+    }
+
+    out << nl << prefix << tripleQuotes;
+    for (const auto& line : overview)
+    {
+        out << nl << line;
+    }
+
+    writeRemarksDocComment(remarks, !overview.empty(), out);
+
+    out << nl << tripleQuotes;
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const DataMemberList& members)
+Slice::Python::CodeVisitor::writeDocstring(
+    const optional<DocComment>& comment,
+    const DataMemberList& members,
+    Output& out)
 {
     if (!comment)
     {
@@ -1935,11 +2134,11 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         return;
     }
 
-    _out << nl << tripleQuotes;
+    out << nl << tripleQuotes;
 
     for (const auto& line : overview)
     {
-        _out << nl << line;
+        out << nl << line;
     }
 
     // Only emit members if there's a docstring for at least one member.
@@ -1947,31 +2146,36 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     {
         if (!overview.empty())
         {
-            _out << nl;
+            out << nl;
         }
-        _out << nl << "Attributes";
-        _out << nl << "----------";
+        out << nl << "Attributes";
+        out << nl << "----------";
         for (const auto& member : members)
         {
-            _out << nl << member->mappedName() << " : " << typeToTypeHintString(member->type(), member->optional());
+            ;
+            out << nl << member->mappedName() << " : "
+                << typeToTypeHintString(
+                       member->type(),
+                       member->optional(),
+                       dynamic_pointer_cast<Contained>(member->container()));
             auto p = docs.find(member->name());
             if (p != docs.end())
             {
                 for (const auto& line : p->second)
                 {
-                    _out << nl << "    " << line;
+                    out << nl << "    " << line;
                 }
             }
         }
     }
 
-    writeRemarksDocComment(remarks, !overview.empty() || !docs.empty());
+    writeRemarksDocComment(remarks, !overview.empty() || !docs.empty(), out);
 
-    _out << nl << tripleQuotes;
+    out << nl << tripleQuotes;
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const EnumeratorList& enumerators)
+Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const EnumPtr& enumeration, Output& out)
 {
     if (!comment)
     {
@@ -1979,6 +2183,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     }
 
     // Collect docstrings (if any) for the enumerators.
+    const EnumeratorList& enumerators = enumeration->enumerators();
     map<string, list<string>> docs;
     for (const auto& enumerator : enumerators)
     {
@@ -1999,11 +2204,11 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
         return;
     }
 
-    _out << nl << tripleQuotes;
+    out << nl << tripleQuotes;
 
     for (const auto& line : overview)
     {
-        _out << nl << line;
+        out << nl << line;
     }
 
     // Only emit enumerators if there's a docstring for at least one enumerator.
@@ -2011,37 +2216,39 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     {
         if (!overview.empty())
         {
-            _out << nl;
+            out << nl;
         }
-        _out << nl << "Enumerators:";
+        out << nl << "Enumerators:";
         for (const auto& enumerator : enumerators)
         {
-            _out << nl << nl << "- " << enumerator->mappedName();
+            out << nl << nl << "- " << enumerator->mappedName();
             auto p = docs.find(enumerator->name());
             if (p != docs.end())
             {
-                _out << ":"; // Only emit a trailing ':' if there's documentation to emit for it.
+                out << ":"; // Only emit a trailing ':' if there's documentation to emit for it.
                 for (const auto& line : p->second)
                 {
-                    _out << nl << "    " << line;
+                    out << nl << "    " << line;
                 }
             }
         }
     }
 
-    writeRemarksDocComment(remarks, !overview.empty() || !docs.empty());
+    writeRemarksDocComment(remarks, !overview.empty() || !docs.empty(), out);
 
-    _out << nl << tripleQuotes;
+    out << nl << tripleQuotes;
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, OperationMode mode)
+Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind methodKind, Output& out)
 {
     optional<DocComment> comment = DocComment::parseFrom(op);
     if (!comment)
     {
         return;
     }
+
+    auto p = dynamic_pointer_cast<Contained>(op->container());
 
     TypePtr returnType = op->returnType();
     ParameterList params = op->parameters();
@@ -2056,39 +2263,35 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, OperationMode
 
     if (overview.empty() && remarks.empty())
     {
-        if ((mode == OpSync || mode == OpDispatch) && parametersDoc.empty() && exceptionsDoc.empty() &&
-            returnsDoc.empty())
+        if ((methodKind == SyncInvocation || methodKind == Dispatch) && parametersDoc.empty() &&
+            exceptionsDoc.empty() && returnsDoc.empty())
         {
             return;
         }
-        else if (mode == OpAsync && inParams.empty())
+        else if (methodKind == AsyncInvocation && inParams.empty())
         {
             return;
         }
-        else if (mode == OpDispatch && inParams.empty() && exceptionsDoc.empty())
+        else if (methodKind == Dispatch && inParams.empty() && exceptionsDoc.empty())
         {
             return;
         }
     }
 
-    //
     // Emit the general description.
-    //
-    _out << nl << tripleQuotes;
+    out << nl << tripleQuotes;
     for (const string& line : overview)
     {
-        _out << nl << line;
+        out << nl << line;
     }
 
-    //
     // Emit arguments.
-    //
     bool needArgs = false;
-    switch (mode)
+    switch (methodKind)
     {
-        case OpSync:
-        case OpAsync:
-        case OpDispatch:
+        case SyncInvocation:
+        case AsyncInvocation:
+        case Dispatch:
             needArgs = true;
             break;
     }
@@ -2097,60 +2300,58 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, OperationMode
     {
         if (!overview.empty())
         {
-            _out << nl;
+            out << nl;
         }
 
-        _out << nl << "Parameters";
-        _out << nl << "----------";
+        out << nl << "Parameters";
+        out << nl << "----------";
         for (const auto& param : inParams)
         {
-            _out << nl << param->mappedName() << " : " << typeToTypeHintString(param->type(), param->optional());
+            out << nl << param->mappedName() << " : " << typeToTypeHintString(param->type(), param->optional(), p);
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
                 for (const auto& line : r->second)
                 {
-                    _out << nl << "    " << line;
+                    out << nl << "    " << line;
                 }
             }
         }
 
-        if (mode == OpSync || mode == OpAsync)
+        if (methodKind == SyncInvocation || methodKind == AsyncInvocation)
         {
             const string contextParamName = getEscapedParamName(op->parameters(), "context");
-            _out << nl << contextParamName << " : dict[str, str]";
-            _out << nl << "    The request context for the invocation.";
+            out << nl << contextParamName << " : dict[str, str]";
+            out << nl << "    The request context for the invocation.";
         }
 
-        if (mode == OpDispatch)
+        if (methodKind == Dispatch)
         {
             const string currentParamName = getEscapedParamName(op->parameters(), "current");
-            _out << nl << currentParamName << " : Ice.Current";
-            _out << nl << "    The Current object for the dispatch.";
+            out << nl << currentParamName << " : Ice.Current";
+            out << nl << "    The Current object for the dispatch.";
         }
     }
 
-    //
     // Emit return value(s).
-    //
     bool hasReturnValue = false;
-    if (!op->returnsAnyValues() && (mode == OpAsync || mode == OpDispatch))
+    if (!op->returnsAnyValues() && (methodKind == AsyncInvocation || methodKind == Dispatch))
     {
         hasReturnValue = true;
         if (!overview.empty() || needArgs)
         {
-            _out << nl;
+            out << nl;
         }
-        _out << nl << "Returns";
-        _out << nl << "-------";
-        _out << nl << returnTypeHint(op, mode);
-        if (mode == OpAsync)
+        out << nl << "Returns";
+        out << nl << "-------";
+        out << nl << returnTypeHint(op, methodKind);
+        if (methodKind == AsyncInvocation)
         {
-            _out << nl << "    An awaitable that is completed when the invocation completes.";
+            out << nl << "    An awaitable that is completed when the invocation completes.";
         }
-        else if (mode == OpDispatch)
+        else if (methodKind == Dispatch)
         {
-            _out << nl << "    None or an awaitable that completes when the dispatch completes.";
+            out << nl << "    None or an awaitable that completes when the dispatch completes.";
         }
     }
     else if (op->returnsAnyValues())
@@ -2158,37 +2359,37 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, OperationMode
         hasReturnValue = true;
         if (!overview.empty() || needArgs)
         {
-            _out << nl;
+            out << nl;
         }
-        _out << nl << "Returns";
-        _out << nl << "-------";
-        _out << nl << returnTypeHint(op, mode);
+        out << nl << "Returns";
+        out << nl << "-------";
+        out << nl << returnTypeHint(op, methodKind);
 
         if (op->returnsMultipleValues())
         {
-            _out << nl;
-            _out << nl << "    A tuple containing:";
+            out << nl;
+            out << nl << "    A tuple containing:";
             if (returnType)
             {
-                _out << nl << "        - " << typeToTypeHintString(returnType, op->returnIsOptional());
+                out << nl << "        - " << typeToTypeHintString(returnType, op->returnIsOptional(), p);
                 bool firstLine = true;
                 for (const string& line : returnsDoc)
                 {
                     if (firstLine)
                     {
                         firstLine = false;
-                        _out << " " << line;
+                        out << " " << line;
                     }
                     else
                     {
-                        _out << nl << "          " << line;
+                        out << nl << "          " << line;
                     }
                 }
             }
 
             for (const auto& param : outParams)
             {
-                _out << nl << "        - " << typeToTypeHintString(param->type(), param->optional());
+                out << nl << "        - " << typeToTypeHintString(param->type(), param->optional(), p);
                 const auto r = parametersDoc.find(param->name());
                 if (r != parametersDoc.end())
                 {
@@ -2198,11 +2399,11 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, OperationMode
                         if (firstLine)
                         {
                             firstLine = false;
-                            _out << " " << line;
+                            out << " " << line;
                         }
                         else
                         {
-                            _out << nl << "          " << line;
+                            out << nl << "          " << line;
                         }
                     }
                 }
@@ -2212,220 +2413,172 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, OperationMode
         {
             for (const string& line : returnsDoc)
             {
-                _out << nl << "    " << line;
+                out << nl << "    " << line;
             }
         }
         else if (!outParams.empty())
         {
             assert(outParams.size() == 1);
             const auto& param = outParams.front();
-            _out << nl << typeToTypeHintString(param->type(), param->optional());
+            out << nl << typeToTypeHintString(param->type(), param->optional(), p);
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
                 for (const string& line : r->second)
                 {
-                    _out << nl << "    " << line;
+                    out << nl << "    " << line;
                 }
             }
         }
     }
 
-    //
     // Emit exceptions.
-    //
-    if ((mode == OpSync || mode == OpDispatch) && !exceptionsDoc.empty())
+    if ((methodKind == SyncInvocation || methodKind == Dispatch) && !exceptionsDoc.empty())
     {
         if (!overview.empty() || needArgs || hasReturnValue)
         {
-            _out << nl;
+            out << nl;
         }
-        _out << nl << "Raises";
-        _out << nl << "------";
+        out << nl << "Raises";
+        out << nl << "------";
         for (const auto& [exception, exceptionDescription] : exceptionsDoc)
         {
-            _out << nl << exception;
+            out << nl <<exception;
             for (const auto& line : exceptionDescription)
             {
-                _out << nl << "    " << line;
+                out << nl << "    " << line;
             }
         }
     }
 
-    writeRemarksDocComment(remarks, true);
+    writeRemarksDocComment(remarks, true, out);
 
-    _out << nl << tripleQuotes;
+    out << nl << tripleQuotes;
 }
 
-string
-Slice::Python::getPackageDirectory(const string& file, const UnitPtr& ut)
+namespace
 {
-    // file must be a fully-qualified path name.
-
-    // Check if the file contains the python:pkgdir file metadata.
-    // If the metadata is present, then the generated file was placed in the specified directory.
-    DefinitionContextPtr dc = ut->findDefinitionContext(file);
-    assert(dc);
-    return dc->getMetadataArgs("python:pkgdir").value_or("");
-}
-
-string
-Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const vector<string>& includePaths)
-{
-    //
-    // The file and includePaths arguments must be fully-qualified path names.
-    //
-
-    //
-    // Check if the file contains the python:pkgdir file metadata.
-    //
-    string pkgdir = getPackageDirectory(file, ut);
-    if (!pkgdir.empty())
+    Output& getModuleOutputFile(
+        const string& moduleName,
+        std::map<string, unique_ptr<Output>>& outputFiles,
+        const string& outputDir)
     {
-        //
-        // The metadata is present, so the generated file was placed in the specified directory.
-        //
-        vector<string> names;
-        IceInternal::splitString(pkgdir, "/", names);
-        assert(!names.empty());
-        pkgdir = "";
-        for (auto p = names.begin(); p != names.end(); ++p)
+        auto it = outputFiles.find(moduleName);
+        if (it != outputFiles.end())
         {
-            if (p != names.begin())
-            {
-                pkgdir += ".";
-            }
-            pkgdir += *p;
+            return *it->second;
         }
-        string name = file;
-        string::size_type pos = name.rfind('/');
-        if (pos != string::npos)
+
+        // Create a new output file for this module.
+        string fileName = moduleName;
+        replace(fileName.begin(), fileName.end(), '.', '/');
+        fileName += ".py";
+
+        string outputPath;
+        if (!outputDir.empty())
         {
-            name = name.substr(pos + 1); // Get the name of the file without the leading path.
+            outputPath = outputDir + "/";
         }
-        assert(!name.empty());
-        replace(name.begin(), name.end(), '.', '_'); // Convert .ice to _ice
-        return pkgdir + "." + name;
-    }
-    else
-    {
-        //
-        // The metadata is not present, so we transform the file name using the include paths (-I)
-        // given to the compiler.
-        //
-        string name = changeInclude(file, includePaths);
-        replace(name.begin(), name.end(), '/', '_');
-        return name + "_ice";
+        else
+        {
+            outputPath = "./";
+        }
+        Slice::Python::createPackagePath(moduleName, outputPath);
+        outputPath += fileName;
+
+        FileTracker::instance()->addFile(outputPath);
+
+        auto output = make_unique<Output>(outputPath.c_str());
+        Output& out = *output;
+        Slice::Python::writeHeader(out);
+
+        out << sp;
+        out << nl << "from __future__ import annotations";
+        out << nl << "import IcePy";
+
+        outputFiles[moduleName] = std::move(output);
+        return out;
     }
 }
 
 void
-Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& includePaths, Output& out)
+Slice::Python::generate(const Slice::UnitPtr& unit, const std::string& outputDir)
 {
     validatePythonMetadata(unit);
 
-    out << nl << "# Avoid evaluating annotations at function definition time.";
-    out << nl << "from __future__ import annotations";
+    ImportVisitor importVisitor;
+    unit->visit(&importVisitor);
 
-    if (unit->contains<InterfaceDef>())
-    {
-        // For async method annotations
-        out << nl << "from collections.abc import Awaitable";
-        // For skeleton classes
-        out << nl << "from abc import ABC, abstractmethod";
-    }
-
-    out << nl << "import Ice";
-    out << nl << "import IcePy";
-    out << nl << "import builtins as _builtins";
-
-    if (unit->contains<Enum>())
-    {
-        out << nl << "from enum import Enum";
-    }
-
-    if (!all)
-    {
-        vector<string> paths = includePaths;
-        for (auto& path : paths)
-        {
-            path = fullPath(path);
-        }
-
-        StringList includes = unit->includeFiles();
-        for (const auto& include : includes)
-        {
-            out << nl << "import " << getImportFileName(include, unit, paths);
-        }
-    }
-
-    set<string> moduleHistory;
-
-    ModuleVisitor moduleVisitor(out, moduleHistory);
-    unit->visit(&moduleVisitor);
-
-    CodeVisitor codeVisitor(out, moduleHistory);
+    CodeVisitor codeVisitor;
     unit->visit(&codeVisitor);
 
-    out << nl; // Trailing newline.
-}
+    const string fileBaseName = baseName(removeExtension(unit->topLevelFile()));
 
-string
-Slice::Python::getPackageMetadata(const ContainedPtr& cont)
-{
-    ModulePtr topLevelModule = cont->getTopLevelModule();
+    // A map from python module names to output files.
+    std::map<string, unique_ptr<Output>> outputFiles;
 
-    // The python:package metadata can be defined as file metadata or applied to a top-level module.
-    // We check for the metadata at the top-level module first and then fall back to the global scope.
-    static const string directive = "python:package";
-    if (auto packageMetadata = topLevelModule->getMetadataArgs(directive))
+    // Write the runtime imports.
+    ImportsMap runtimeImports = importVisitor.getRuntimeImports();
+    for (const auto& [sourceModuleName, imports] : runtimeImports)
     {
-        return *packageMetadata;
+        Output& out = getModuleOutputFile(sourceModuleName, outputFiles, outputDir);
+        for (const auto& [moduleName, definitions] : imports)
+        {
+            out << sp;
+            for (const auto& [name, alias] : definitions)
+            {
+                out << nl << "from " << moduleName << " import " << name << " as " << (alias.empty() ? name : alias);
+            }
+        }
     }
 
-    string_view file = cont->file();
-    DefinitionContextPtr dc = cont->unit()->findDefinitionContext(file);
-    assert(dc);
-    return dc->getMetadataArgs(directive).value_or("");
+    // Write typing imports
+    ImportsMap typingImports = importVisitor.getTypingImports();
+    for (const auto& [file, imports] : typingImports)
+    {
+        Output& out = getModuleOutputFile(file, outputFiles, outputDir);
+        out << sp;
+        out << nl << "if TYPE_CHECKING:";
+        out.inc();
+        for (const auto& [moduleName, definitions] : imports)
+        {
+            if (!definitions.empty())
+            {
+                out << sp;
+                for (const auto& [name, alias] : definitions)
+                {
+                    // TODO skip type hints that are already imported as part of the runtime imports.
+                    out << nl << "from " << moduleName << " import " << name << " as "
+                        << (alias.empty() ? name : alias);
+                }
+            }
+        }
+        out.dec();
+    }
+
+    // Emit the code fragments for the unit.
+    for (const auto& fragment : codeVisitor.codeFragments())
+    {
+        string moduleName;
+        if (dynamic_pointer_cast<ClassDecl>(fragment.contained) ||
+            dynamic_pointer_cast<InterfaceDecl>(fragment.contained))
+        {
+            moduleName = getPythonModuleForForwardDeclaration(fragment.contained);
+        }
+        else
+        {
+            moduleName = getPythonModuleForDefinition(fragment.contained);
+        }
+
+        Output& out = getModuleOutputFile(moduleName, outputFiles, outputDir);
+        out << sp;
+        out << fragment.code;
+        out << nl;
+    }
 }
 
 string
-Slice::Python::getAbsolute(const ContainedPtr& p)
-{
-    const string package = getPackageMetadata(p);
-    const string packagePrefix = package + (package.empty() ? "" : ".");
-    return packagePrefix + p->mappedScoped(".");
-}
-
-string
-Slice::Python::getTypeReference(const ContainedPtr& p)
-{
-    return "_M_" + getAbsolute(p);
-}
-
-string
-Slice::Python::getMetaTypeReference(const ContainedPtr& p)
-{
-    string absoluteName = getTypeReference(p);
-
-    // Append a "_t_" in front of the last name segment.
-    auto pos = absoluteName.rfind('.');
-    pos = (pos == string::npos ? 0 : pos + 1);
-    absoluteName.insert(pos, "_t_");
-
-    return absoluteName;
-}
-
-void
-Slice::Python::printHeader(IceInternal::Output& out)
-{
-    out << "# Copyright (c) ZeroC, Inc.";
-    out << sp;
-    out << nl << "# slice2py version " << ICE_STRING_VERSION;
-}
-
-string
-Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
+Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr& p, const SyntaxTreeBasePtr& target)
 {
     ostringstream result;
     if (target)
@@ -2446,7 +2599,7 @@ Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr&, const
             }
             else
             {
-                result << "``" << typeToTypeHintString(builtinTarget, false) << "``";
+                result << "``" << typeToTypeHintString(builtinTarget, false, p) << "``";
             }
         }
         else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
@@ -2549,38 +2702,6 @@ Slice::Python::validatePythonMetadata(const UnitPtr& unit)
         .extraValidation = pythonArrayTypeValidationFunc,
     };
     knownMetadata.emplace("python:memoryview", std::move(memoryViewInfo));
-
-    // "python:package"
-    MetadataInfo packageInfo = {
-        .validOn = {typeid(Module), typeid(Unit)},
-        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
-        {
-            const string msg = "'python:package' is deprecated; use 'python:identifier' to remap modules instead";
-            p->unit()->warning(metadata->file(), metadata->line(), Deprecated, msg);
-
-            if (auto cont = dynamic_pointer_cast<Contained>(p); cont && cont->hasMetadata("python:identifier"))
-            {
-                return "A Slice element can only have one of 'python:package' and 'python:identifier' applied to it";
-            }
-
-            // If 'python:package' is applied to a module, it must be a top-level module.
-            // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
-            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())
-            {
-                return "the 'python:package' metadata can only be applied at the file level or to top-level modules";
-            }
-            return nullopt;
-        },
-    };
-    knownMetadata.emplace("python:package", std::move(packageInfo));
-
-    // "python:pkgdir"
-    MetadataInfo pkgdirInfo = {
-        .validOn = {typeid(Unit)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
-    };
-    knownMetadata.emplace("python:pkgdir", std::move(pkgdirInfo));
 
     // "python:seq"
     // We support 3 arguments to this metadata: "default", "list", and "tuple".

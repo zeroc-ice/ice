@@ -9,7 +9,6 @@
 [["cpp:include:IceGrid/Config.h"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:IceGrid"]]
 
 #include "Exception.ice"
 #include "Glacier2/Session.ice"

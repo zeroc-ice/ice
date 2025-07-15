@@ -9,7 +9,6 @@
 [["cpp:include:Glacier2/Config.h"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:Glacier2"]]
 
 #include "Ice/BuiltinSequences.ice"
 

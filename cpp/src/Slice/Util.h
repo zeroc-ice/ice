@@ -11,6 +11,7 @@ namespace Slice
     std::string fullPath(const std::string& path);
     std::string changeInclude(const std::string& path, const std::vector<std::string>& includePaths);
     std::string removeExtension(const std::string& path);
+    std::string baseName(const std::string& path);
     void emitError(std::string_view file, int line, std::string_view message);
     void emitWarning(std::string_view file, int line, std::string_view message);
     void emitRaw(const char* message);
