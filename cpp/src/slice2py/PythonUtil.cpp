@@ -1619,6 +1619,11 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out.epar(")");
 
+    for (const auto& member : members)
+    {
+        writeAssign(member, out);
+    }
+
     out.dec();
 
     // Generate the __repr__ method for this Exception class.
