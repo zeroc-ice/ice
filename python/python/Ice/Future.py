@@ -317,7 +317,7 @@ def wrap_future(future: Future | asyncio.Future, *, loop: asyncio.AbstractEventL
     Raises
     ------
     AssertionError
-        If `future` is not an instance of Ice.Future.
+        If `future` is not an instance of Ice.Future or asyncio.Future.
     """
 
     if isinstance(future, asyncio.Future):
