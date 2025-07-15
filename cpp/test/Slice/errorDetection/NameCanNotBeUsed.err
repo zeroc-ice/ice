@@ -1,1 +1,1 @@
-NameCanNotBeUsed.ice:13: interface name 'IFoo' cannot be used as operation name
+NameCanNotBeUsed.ice:7: interface name 'IFoo' cannot be used as operation name
