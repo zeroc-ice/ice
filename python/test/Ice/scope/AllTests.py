@@ -2,14 +2,18 @@
 
 import sys
 
-
 import Test
 from Inner.Test.Inner2 import MyInterfacePrx as Inner_Test_Inner2_MyInterfacePrx
-from Test.Inner import MyInterfacePrx as Test_Inner_MyInterfacePrx, MyStruct as Test_Inner_MyStruct
+from Test.Inner import MyInterfacePrx as Test_Inner_MyInterfacePrx
+from Test.Inner import MyStruct as Test_Inner_MyStruct
+from Test.Inner.Inner2 import (
+    MyClass as Test_Inner_Inner2_MyClass,
+)
 from Test.Inner.Inner2 import (
     MyInterfacePrx as Test_Inner_Inner2_MyInterfacePrx,
+)
+from Test.Inner.Inner2 import (
     MyStruct as Test_Inner_Inner2_MyStruct,
-    MyClass as Test_Inner_Inner2_MyClass,
 )
 
 

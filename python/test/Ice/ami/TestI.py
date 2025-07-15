@@ -4,10 +4,9 @@ import threading
 import time
 
 import Test
+from Test.Outer.Inner import TestIntf as Inner_TestIntf
 
 import Ice
-
-from Test.Outer.Inner import TestIntf as Inner_TestIntf
 
 
 class TestIntfI(Test.TestIntf):

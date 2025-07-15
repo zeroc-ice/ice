@@ -2,9 +2,8 @@
 
 from typing import final
 
-from .ReplyStatus import ReplyStatus
-
 from .LocalException import LocalException
+from .ReplyStatus import ReplyStatus
 
 __name__ = "Ice"
 

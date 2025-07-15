@@ -3,11 +3,13 @@
 # Avoid evaluating annotations at function definition time.
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
 from collections.abc import Awaitable
+from typing import TYPE_CHECKING
+
+import IcePy
+
 from .OperationMode import OperationMode
 from .StringSeq import __Ice_StringSeq_t
-import IcePy
 
 if TYPE_CHECKING:
     from .Current import Current
