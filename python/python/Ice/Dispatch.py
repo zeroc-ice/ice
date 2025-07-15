@@ -2,13 +2,19 @@
 
 import inspect
 import sys
+from collections.abc import Callable, Coroutine
+from typing import Any, cast
+
+import IcePy
+
+from .Future import FutureLike
 
 
-def is_future(obj):
+def is_future(obj: object) -> bool:
     return callable(getattr(obj, "add_done_callback", None))
 
 
-def dispatch(cb, method, args):
+def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: list[Any]):
     """
     Dispatch a request to the given servant method.
 
@@ -27,7 +33,7 @@ def dispatch(cb, method, args):
     ----------
     cb : IcePy.DispatchCallback
         The callback used to return the result or report an exception to IcePy.
-    method : callable
+    method : Callable
         The servant method to invoke. This method is bound to the servant instance and takes the request parameters as
         arguments.
     args : list
@@ -50,8 +56,10 @@ def dispatch(cb, method, args):
 
     # If the result is a future, attach a done callback to handle dispatch completion.
     if is_future(result):
+        # Use a more precise type annotation while maintaining runtime behavior.
+        result = cast(FutureLike, result)
 
-        def handle_future_result(future):
+        def handle_future_result(future: FutureLike):
             try:
                 cb.response(future.result())
             except Exception:
@@ -69,7 +77,12 @@ def dispatch(cb, method, args):
         cb.response(result)
 
 
-def run_coroutine(cb, coroutine, value=None, exception=None):
+def run_coroutine(
+    cb: IcePy.DispatchCallback,
+    coroutine: Coroutine[Any, Any, Any],
+    value: object | None = None,
+    exception: BaseException | None = None,
+):
     """
     Run a coroutine until completion.
 
@@ -92,7 +105,7 @@ def run_coroutine(cb, coroutine, value=None, exception=None):
 
         if is_future(result):
 
-            def handle_future_result(future):
+            def handle_future_result(future: FutureLike):
                 try:
                     run_coroutine(cb, coroutine, value=future.result())
                 except BaseException:

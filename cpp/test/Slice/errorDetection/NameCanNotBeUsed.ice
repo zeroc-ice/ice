@@ -2,12 +2,6 @@
 
 module Test
 {
-    /*class Foo
-    {
-        // void Foo();
-        long l;
-    }*/
-
     interface IFoo
     {
         void IFoo();

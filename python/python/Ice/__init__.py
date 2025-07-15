@@ -220,7 +220,6 @@ __all__ = [
     "FixedProxyException",
     "FormatType",
     "Future",
-    "FutureBase",
     "Identity",
     "ImplicitContext",
     "InitializationData",

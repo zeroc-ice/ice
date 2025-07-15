@@ -41,41 +41,40 @@ IdentAsKeyword.ice:40: sequences can only be defined within a module
 IdentAsKeyword.ice:42: dictionaries can only be defined within a module
 IdentAsKeyword.ice:42: keyword 'throws' cannot be used as dictionary name
 IdentAsKeyword.ice:43: dictionary 'thRows' differs only in capitalization from dictionary 'throws'
-IdentAsKeyword.ice:44: dictionaries can only be defined within a module
-IdentAsKeyword.ice:46: syntax error
-IdentAsKeyword.ice:47: 'MODULE' is not defined
-IdentAsKeyword.ice:47: dictionaries can only be defined within a module
-IdentAsKeyword.ice:49: syntax error
-IdentAsKeyword.ice:50: dictionaries can only be defined within a module
-IdentAsKeyword.ice:52: syntax error
-IdentAsKeyword.ice:53: 'VOID' is an exception, which cannot be used as a type
-IdentAsKeyword.ice:53: 'VOid' is an exception, which cannot be used as a type
-IdentAsKeyword.ice:53: dictionaries can only be defined within a module
-IdentAsKeyword.ice:55: keyword 'idempotent' cannot be used as enumeration name
-IdentAsKeyword.ice:55: enums can only be defined within a module
-IdentAsKeyword.ice:56: enumeration 'IDEMPOTENT' differs only in capitalization from enumeration 'idempotent'
+IdentAsKeyword.ice:45: syntax error
+IdentAsKeyword.ice:46: 'MODULE' is not defined
+IdentAsKeyword.ice:46: dictionaries can only be defined within a module
+IdentAsKeyword.ice:48: syntax error
+IdentAsKeyword.ice:49: dictionaries can only be defined within a module
+IdentAsKeyword.ice:51: syntax error
+IdentAsKeyword.ice:52: 'VOID' is an exception, which cannot be used as a type
+IdentAsKeyword.ice:52: 'VOid' is an exception, which cannot be used as a type
+IdentAsKeyword.ice:52: dictionaries can only be defined within a module
+IdentAsKeyword.ice:54: keyword 'idempotent' cannot be used as enumeration name
+IdentAsKeyword.ice:54: enums can only be defined within a module
+IdentAsKeyword.ice:55: enumeration 'IDEMPOTENT' differs only in capitalization from enumeration 'idempotent'
+IdentAsKeyword.ice:57: enums can only be defined within a module
+IdentAsKeyword.ice:57: keyword 'long' cannot be used as enumerator
+IdentAsKeyword.ice:57: keyword 'byte' cannot be used as enumerator
 IdentAsKeyword.ice:58: enums can only be defined within a module
-IdentAsKeyword.ice:58: keyword 'long' cannot be used as enumerator
-IdentAsKeyword.ice:58: keyword 'byte' cannot be used as enumerator
-IdentAsKeyword.ice:59: enums can only be defined within a module
+IdentAsKeyword.ice:60: interfaces can only be defined within a module
 IdentAsKeyword.ice:61: interfaces can only be defined within a module
-IdentAsKeyword.ice:62: interfaces can only be defined within a module
+IdentAsKeyword.ice:63: interfaces can only be defined within a module
 IdentAsKeyword.ice:64: interfaces can only be defined within a module
-IdentAsKeyword.ice:65: interfaces can only be defined within a module
+IdentAsKeyword.ice:66: interfaces can only be defined within a module
+IdentAsKeyword.ice:66: syntax error
 IdentAsKeyword.ice:67: interfaces can only be defined within a module
-IdentAsKeyword.ice:67: syntax error
-IdentAsKeyword.ice:68: interfaces can only be defined within a module
+IdentAsKeyword.ice:69: interfaces can only be defined within a module
 IdentAsKeyword.ice:70: interfaces can only be defined within a module
-IdentAsKeyword.ice:71: interfaces can only be defined within a module
+IdentAsKeyword.ice:72: interfaces can only be defined within a module
 IdentAsKeyword.ice:73: interfaces can only be defined within a module
-IdentAsKeyword.ice:74: interfaces can only be defined within a module
-IdentAsKeyword.ice:76: interfaces can only be defined within a module
-IdentAsKeyword.ice:78: illegal leading underscore in identifier '_a'
+IdentAsKeyword.ice:75: interfaces can only be defined within a module
+IdentAsKeyword.ice:77: illegal leading underscore in identifier '_a'
+IdentAsKeyword.ice:78: illegal leading underscore in identifier '_true'
 IdentAsKeyword.ice:79: illegal leading underscore in identifier '_true'
-IdentAsKeyword.ice:80: illegal leading underscore in identifier '_true'
-IdentAsKeyword.ice:82: illegal trailing underscore in identifier 'b_'
-IdentAsKeyword.ice:84: illegal double underscore in identifier 'b__c'
-IdentAsKeyword.ice:85: illegal double underscore in identifier 'b___c'
+IdentAsKeyword.ice:81: illegal trailing underscore in identifier 'b_'
+IdentAsKeyword.ice:83: illegal double underscore in identifier 'b__c'
+IdentAsKeyword.ice:84: illegal double underscore in identifier 'b___c'
+IdentAsKeyword.ice:86: interfaces can only be defined within a module
 IdentAsKeyword.ice:87: interfaces can only be defined within a module
-IdentAsKeyword.ice:88: interfaces can only be defined within a module
-IdentAsKeyword.ice:89: syntax error
+IdentAsKeyword.ice:88: syntax error
