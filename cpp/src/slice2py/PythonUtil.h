@@ -37,7 +37,7 @@ namespace Slice::Python
     std::string
     pyLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
-    /// Validates the Slice python metadata for the given unit.
+    /// Validates the Slice Python metadata for the given unit.
     void validatePythonMetadata(const UnitPtr&);
 
     // Collects Python definitions for each generated Python package.
