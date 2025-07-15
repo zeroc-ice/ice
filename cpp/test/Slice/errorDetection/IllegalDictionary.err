@@ -2,6 +2,6 @@ IllegalDictionary.ice:12: dictionary 'b1' uses an illegal key type
 IllegalDictionary.ice:13: dictionary 'b2' uses an illegal key type
 IllegalDictionary.ice:14: dictionary 'b3' uses an illegal key type
 IllegalDictionary.ice:15: dictionary 'b4' uses an illegal key type
-IllegalDictionary.ice:19: dictionary 'd7' uses an illegal key type
-IllegalDictionary.ice:33: dictionary 'b8' uses an illegal key type
-IllegalDictionary.ice:38: dictionary 'b9' uses an illegal key type
+IllegalDictionary.ice:18: dictionary 'd7' uses an illegal key type
+IllegalDictionary.ice:32: dictionary 'b8' uses an illegal key type
+IllegalDictionary.ice:37: dictionary 'b9' uses an illegal key type
