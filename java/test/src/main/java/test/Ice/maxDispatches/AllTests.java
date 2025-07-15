@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 public class AllTests {
     static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
-        String proxyString = "test: " + helper.getTestEndpoint();
+        String proxyString = "test: " + helper.getTestEndpoint(0);
         var p = TestIntfPrx.createProxy(communicator, proxyString);
 
         String responderString = "responder: " + helper.getTestEndpoint(1);
