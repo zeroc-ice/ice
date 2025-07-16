@@ -37,7 +37,8 @@ from .ValueF import __Ice_Value_t
 #
 # Import local definitions that are part of the Ice module public API.
 #
-from .EventLoopAdapter import *
+from .StringUtil import format_fields
+from .EventLoopAdapter import EventLoopAdapter
 from .Current import *
 from .Future import *
 from .InvocationFuture import *
@@ -330,6 +331,7 @@ __all__ = [
     "__Ice_SliceChecksumDict_t",
     "__Ice_StringSeq_t",
     "createProperties",
+    "format_fields",
     "getProcessLogger",
     "getSliceDir",
     "iAPEndpointType",

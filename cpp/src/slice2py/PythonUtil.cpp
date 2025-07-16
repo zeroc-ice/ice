@@ -556,7 +556,7 @@ Slice::Python::createPackagePath(const string& moduleName, const string& outputP
 bool
 Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    addRuntimeImport("Ice.Util", {"format_fields", ""}, p);
+    addRuntimeImport("Ice.StringUtil", {"format_fields", ""}, p);
     // Import the meta type that is created in the Xxx_iceF module for forward declarations.
     addRuntimeImportForMetaType(p->declaration(), p);
 
@@ -657,7 +657,7 @@ Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
 {
     // Visit the data members.
     addRuntimeImport("typing", {"TYPE_CHECKING", ""}, p);
-    addRuntimeImport("Ice.Util", {"format_fields", ""}, p);
+    addRuntimeImport("Ice.StringUtil", {"format_fields", ""}, p);
     addRuntimeImport("dataclasses", {"dataclass", ""}, p);
     addRuntimeImport("dataclasses", {"field", ""}, p);
     // Add imports required for the data members.
@@ -668,7 +668,7 @@ Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Python::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    addRuntimeImport("Ice.Util", {"format_fields", ""}, p);
+    addRuntimeImport("Ice.StringUtil", {"format_fields", ""}, p);
     // Add imports required for base exception types.
     if (ExceptionPtr base = p->base())
     {
