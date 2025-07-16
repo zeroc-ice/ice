@@ -463,8 +463,8 @@ namespace Slice::Python
         void visitDataMembers(const ContainedPtr&, const list<DataMemberPtr>&);
 
         /// Adds a runtime import for the given Slice definition if it comes from a different module.
-        /// @p definition is the Slice definition to import.
-        /// @p source is the Slice definition that requires the import.
+        /// @param definition is the Slice definition to import.
+        /// @param source is the Slice definition that requires the import.
         void addRuntimeImport(
             const SyntaxTreeBasePtr& definition,
             const ContainedPtr& source,
@@ -506,8 +506,8 @@ namespace Slice::Python
         void addTypingImport(const string& packageName, const ContainedPtr& source);
 
         /// Import the meta type for the given Slice definition if it comes from a different module.
-        /// @p definition is the Slice definition to import.
-        /// @p source is the Slice definition that requires the import.
+        /// @param definition is the Slice definition to import.
+        /// @param source is the Slice definition that requires the import.
         void addRuntimeImportForMetaType(const SyntaxTreeBasePtr& definition, const ContainedPtr& source);
 
         ImportsMap _runtimeImports;
@@ -823,7 +823,7 @@ Slice::Python::ImportVisitor::addRuntimeImport(
 void
 Slice::Python::ImportVisitor::addTypingImport(
     const string& moduleName,
-    pair<string, string>& definition,
+    const pair<string, string>& definition,
     const ContainedPtr& source)
 {
     // The module importing the definition.

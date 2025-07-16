@@ -21,6 +21,54 @@ class Object:
     The base class for servants.
     """
 
+    _op_ice_isA = IcePy.Operation(
+        "ice_isA",
+        "ice_isA",
+        OperationMode.Idempotent,
+        None,
+        (),
+        (((), IcePy._t_string, False, 0),),
+        (),
+        ((), IcePy._t_bool, False, 0),
+        (),
+    )
+
+    _op_ice_ping = IcePy.Operation(
+        "ice_ping",
+        "ice_ping",
+        OperationMode.Idempotent,
+        None,
+        (),
+        (),
+        (),
+        None,
+        (),
+    )
+
+    _op_ice_ids = IcePy.Operation(
+        "ice_ids",
+        "ice_ids",
+        OperationMode.Idempotent,
+        None,
+        (),
+        (),
+        (),
+        ((), __Ice_StringSeq_t, False, 0),
+        (),
+    )
+
+    _op_ice_id = IcePy.Operation(
+        "ice_id",
+        "ice_id",
+        OperationMode.Idempotent,
+        None,
+        (),
+        (),
+        (),
+        ((), IcePy._t_string, False, 0),
+        (),
+    )
+
     def ice_isA(self, id: Identity, current: Current) -> bool | Awaitable[bool]:
         """
         Determine whether the target object supports the interface denoted by the given Slice type ID.
@@ -64,7 +112,7 @@ class Object:
         list of str
             A list of type IDs.
         """
-        return [self.ice_id(current)]
+        return [Object.ice_staticId()]
 
     def ice_id(self, current: Current) -> str | Awaitable[str]:
         """
@@ -80,7 +128,7 @@ class Object:
         str
             The type ID.
         """
-        return "::Ice::Object"
+        return Object.ice_staticId()
 
     @staticmethod
     def ice_staticId() -> str:
@@ -94,51 +142,3 @@ class Object:
         """
         return "::Ice::Object"
 
-
-Object._op_ice_isA = IcePy.Operation(
-    "ice_isA",
-    "ice_isA",
-    OperationMode.Idempotent,
-    None,
-    (),
-    (((), IcePy._t_string, False, 0),),
-    (),
-    ((), IcePy._t_bool, False, 0),
-    (),
-)
-
-Object._op_ice_ping = IcePy.Operation(
-    "ice_ping",
-    "ice_ping",
-    OperationMode.Idempotent,
-    None,
-    (),
-    (),
-    (),
-    None,
-    (),
-)
-
-Object._op_ice_ids = IcePy.Operation(
-    "ice_ids",
-    "ice_ids",
-    OperationMode.Idempotent,
-    None,
-    (),
-    (),
-    (),
-    ((), __Ice_StringSeq_t, False, 0),
-    (),
-)
-
-Object._op_ice_id = IcePy.Operation(
-    "ice_id",
-    "ice_id",
-    OperationMode.Idempotent,
-    None,
-    (),
-    (),
-    (),
-    ((), IcePy._t_string, False, 0),
-    (),
-)

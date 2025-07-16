@@ -27,8 +27,8 @@ namespace Slice::Python
     void writeHeader(IceInternal::Output& out);
 
     /// Generate Python code for a translation unit.
-    /// @p unit is the Slice unit to generate code for.
-    /// @p outputDir The base-directory to write the generated Python files to.
+    /// @param unit is the Slice unit to generate code for.
+    /// @param outputDir The base-directory to write the generated Python files to.
     void generate(const Slice::UnitPtr& unit, const std::string& outputDir);
 
     int compile(const std::vector<std::string>&);

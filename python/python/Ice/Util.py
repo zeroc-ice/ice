@@ -1,45 +1,42 @@
 # Copyright (c) ZeroC, Inc.
 
 from __future__ import annotations
-
 import asyncio
 import os
 import sys
 import threading
-from typing import TYPE_CHECKING, overload
+from typing import overload, TYPE_CHECKING
 
 import IcePy
 
 from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
 from .Communicator import Communicator
-from .EventLoopAdapter import EventLoopAdapter
 from .InitializationData import InitializationData
 from .LocalExceptions import InitializationException
 from .Properties import Properties
-from .ToStringMode import ToStringMode
 
 if TYPE_CHECKING:
-    from .Identity import Identity
+    import Ice
 
 __name__ = "Ice"
 
 
 @overload
-def initialize() -> Communicator: ...
+def initialize() -> Ice.Communicator: ...
 
 
 @overload
-def initialize(args: list[str]) -> Communicator: ...
+def initialize(args: list[str]) -> Ice.Communicator: ...
 
 
 @overload
-def initialize(args: list[str], initData: InitializationData) -> Communicator: ...
+def initialize(args: list[str], initData: Ice.InitializationData) -> Ice.Communicator: ...
 
 
 @overload
 def initialize(
-    args: list[str], configFile: str | None = None, eventLoop: EventLoopAdapter | None = None
-) -> Communicator: ...
+    args: list[str], configFile: str | None = None, eventLoop: Ice.EventLoopAdapter | None = None
+) -> Ice.Communicator: ...
 
 
 def initialize(args=None, initData=None, configFile=None, eventLoop=None):
@@ -101,7 +98,7 @@ def initialize(args=None, initData=None, configFile=None, eventLoop=None):
     return Communicator(communicator, eventLoopAdapter)
 
 
-def identityToString(identity: Identity, toStringMode: ToStringMode = None) -> str:
+def identityToString(identity: Ice.Identity, toStringMode: Ice.ToStringMode | None = None) -> str:
     """
     Convert an object identity to a string.
 
@@ -120,7 +117,7 @@ def identityToString(identity: Identity, toStringMode: ToStringMode = None) -> s
     return IcePy.identityToString(identity, toStringMode)
 
 
-def stringToIdentity(str: str) -> Identity:
+def stringToIdentity(str: str) -> Ice.Identity:
     """
     Convert a string to an object identity.
 
@@ -142,7 +139,7 @@ def stringToIdentity(str: str) -> Identity:
     return IcePy.stringToIdentity(str)
 
 
-def createProperties(args: list[str] = None, defaults: Properties = None) -> Properties:
+def createProperties(args: list[str] | None = None, defaults: Ice.Properties | None = None) -> Ice.Properties:
     """
     Creates a new property set.
 
@@ -237,7 +234,7 @@ def getSliceDir() -> str | None:
 _repr_running = threading.local()
 
 
-def safe_repr(obj):
+def safe_repr(obj: object) -> str:
     if not hasattr(_repr_running, "set"):
         _repr_running.set = set()
 
@@ -252,7 +249,7 @@ def safe_repr(obj):
         _repr_running.set.remove(obj_id)
 
 
-def format_fields(**fields):
+def format_fields(**fields: object) -> str:
     return ", ".join(f"{k}={safe_repr(v)}" for k, v in fields.items())
 
 
