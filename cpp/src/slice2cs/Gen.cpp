@@ -2592,6 +2592,14 @@ Slice::Gen::ServantVisitor::writeDispatch(const InterfaceDefPtr& p)
     if (!allOps.empty())
     {
         _out << sp;
+        _out << nl << "/// <summary>";
+        _out << nl
+             << "/// Dispatches an incoming request to one of the methods of this generated class, based on the "
+                "operation name carried by the request.";
+        _out << nl << "/// </summary>";
+        _out << nl << "/// <param name=\"request\">The incoming request.</param>";
+        _out << nl << "/// <returns>A value task that holds the outgoing response.</returns>";
+        _out << nl << "/// <remarks>Ice marshals any exception thrown by this method into the response.</remarks>";
         _out << nl
              << "public global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> "
                 "dispatchAsync(Ice.IncomingRequest request) =>";

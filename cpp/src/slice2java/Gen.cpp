@@ -4780,8 +4780,19 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     if (!allOps.empty())
     {
         out << sp;
-        out << nl << "@Override" << nl
-            << "default java.util.concurrent.CompletionStage<com.zeroc.Ice.OutgoingResponse> dispatch("
+        out << nl << "/**";
+        out << nl
+            << " * Dispatches an incoming request to one of the methods of this generated interface, based on the "
+               "operation name carried by the request.";
+        out << nl << " *";
+        out << nl << " * @param request the incoming request";
+        out << nl << " * @return the outgoing response";
+        out << nl
+            << " * @throws com.zeroc.Ice.UserException if a {@code UserException} is thrown, Ice will marshal it as "
+               "the response payload.";
+        out << nl << " */";
+        out << nl << "@Override";
+        out << nl << "default java.util.concurrent.CompletionStage<com.zeroc.Ice.OutgoingResponse> dispatch("
             << "com.zeroc.Ice.IncomingRequest request)";
         out.inc();
         out << nl << "throws com.zeroc.Ice.UserException";

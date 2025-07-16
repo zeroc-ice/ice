@@ -108,7 +108,7 @@ public interface Object {
      *
      * @param request The incoming request.
      * @return The outgoing response.
-     * @throws UserException when the response payload contains a {@code UserException}.
+     * @throws UserException If a {@code UserException} is thrown, Ice will marshal it as the response payload.
      */
     default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
         throws UserException {
