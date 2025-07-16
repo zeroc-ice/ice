@@ -14,7 +14,7 @@ public class Server extends TestHelper {
         properties.setProperty("Ice.Warn.Dispatch", "0");
 
         try (Communicator communicator = initialize(properties)) {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(
                 new RemoteCommunicatorFactoryI(),

@@ -18,7 +18,7 @@ Collocated::run(int argc, char** argv)
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
     properties->setProperty("Ice.Warn.AMICallback", "0");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
     communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
 

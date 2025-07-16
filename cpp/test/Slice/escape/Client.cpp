@@ -118,7 +118,7 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(std::make_shared<breakI>(), Ice::stringToIdentity("test"));
     adapter->activate();

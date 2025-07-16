@@ -14,7 +14,7 @@ public class Collocated extends TestHelper {
             // 2 threads are necessary to dispatch the collocated transient() call with AMI
             //
             communicator.getProperties().setProperty("TestAdapter.ThreadPool.Size", "2");
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.addServantLocator(new ServantLocatorI(), "");
             AllTests.allTests(this);

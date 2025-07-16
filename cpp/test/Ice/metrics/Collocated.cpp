@@ -28,7 +28,7 @@ Collocated::run(int argc, char** argv)
     initData.observer = observer;
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(make_shared<MetricsI>(), Ice::stringToIdentity("metrics"));
     // adapter->activate(); // Don't activate OA to ensure collocation is used.

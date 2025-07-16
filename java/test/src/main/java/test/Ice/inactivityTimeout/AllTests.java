@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 public class AllTests {
     static void allTests(TestHelper helper) {
         Communicator communicator = helper.communicator();
-        String proxyString = "test: " + helper.getTestEndpoint();
+        String proxyString = "test: " + helper.getTestEndpoint(0);
         TestIntfPrx p = TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
 
         String proxyString3s = "test: " + helper.getTestEndpoint(1);

@@ -85,7 +85,7 @@ public class Client : Test.TestHelper
     public override void run(string[] args)
     {
         using var communicator = initialize(ref args);
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new decimalI(), Ice.Util.stringToIdentity("test"));
         adapter.add(new Test1I(), Ice.Util.stringToIdentity("test1"));

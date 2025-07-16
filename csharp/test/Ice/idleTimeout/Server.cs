@@ -14,7 +14,7 @@ public class Server : global::Test.TestHelper
         properties.setProperty("TestAdapter.Connection.MaxDispatches", "1");
 
         using var communicator = initialize(properties);
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         var adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();

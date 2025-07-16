@@ -22,7 +22,7 @@ Server::run(int argc, char** argv)
     initData.properties->setProperty("TestAdapter.Connection.MaxDispatches", "1");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
     adapter->activate();

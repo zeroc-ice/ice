@@ -11,7 +11,7 @@ public class Server : global::Test.TestHelper
         using var communicator = initialize(ref args);
 
         // Plain adapter with no limit.
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         var adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
         adapter.activate();

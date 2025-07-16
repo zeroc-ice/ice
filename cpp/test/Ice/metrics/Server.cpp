@@ -23,7 +23,7 @@ Server::run(int argc, char** argv)
     properties->setProperty("Ice.MessageSizeMax", "50000");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(make_shared<MetricsI>(), Ice::stringToIdentity("metrics"));
     adapter->activate();

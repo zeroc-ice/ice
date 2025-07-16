@@ -22,7 +22,7 @@ Server::run(int argc, char** argv)
     auto responder = make_shared<ResponderI>();
     auto testIntf = make_shared<TestIntfI>(responder);
 
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(testIntf, Ice::stringToIdentity("test"));
     adapter->activate();

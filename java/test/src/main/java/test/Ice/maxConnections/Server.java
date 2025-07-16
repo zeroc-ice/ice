@@ -10,7 +10,7 @@ public class Server extends TestHelper {
     public void run(String[] args) {
         try (var communicator = initialize(args)) {
             // Plain adapter with no limit.
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             var adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new TestIntfI(), new Identity("test", ""));
             adapter.activate();
