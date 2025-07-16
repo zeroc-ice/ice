@@ -141,4 +141,3 @@ class Object:
             The type ID.
         """
         return "::Ice::Object"
-

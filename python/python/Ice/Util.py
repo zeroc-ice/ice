@@ -1,11 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
 from __future__ import annotations
+
 import asyncio
 import os
 import sys
 import threading
-from typing import overload, TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 import IcePy
 

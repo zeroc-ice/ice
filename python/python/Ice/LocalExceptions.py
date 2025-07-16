@@ -3,9 +3,8 @@
 from typing import final
 
 from .Identity import Identity
-from .ReplyStatus import ReplyStatus
-
 from .LocalException import LocalException
+from .ReplyStatus import ReplyStatus
 
 __name__ = "Ice"
 

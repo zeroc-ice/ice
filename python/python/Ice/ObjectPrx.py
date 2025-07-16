@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable
-from typing import Self, TYPE_CHECKING
+from typing import TYPE_CHECKING, Self
 
 import IcePy
 
