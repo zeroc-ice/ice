@@ -26,7 +26,7 @@ namespace
     /// @param p The Slice definition to get the mapped package for.
     /// @param packageSeparator Use this character as the separator between package segments.
     /// @return The mapped package name, with the specified separator.
-    string getMappedPackage(SyntaxTreeBasePtr p, char packageSeparator = '.')
+    string getMappedPackage(const SyntaxTreeBasePtr& p, char packageSeparator = '.')
     {
         if (dynamic_pointer_cast<Builtin>(p))
         {
@@ -398,7 +398,7 @@ namespace Slice::Python
         void visitEnum(const EnumPtr&) final;
         void visitConst(const ConstPtr&) final;
 
-        const vector<PythonCodeFragment>& codeFragments() const { return _codeFragments; }
+        [[nodiscard]] const vector<PythonCodeFragment>& codeFragments() const { return _codeFragments; }
 
     private:
         // Emit Python code for operations
@@ -455,9 +455,9 @@ namespace Slice::Python
         void visitEnum(const EnumPtr&) final;
         void visitConst(const ConstPtr&) final;
 
-        const ImportsMap& getRuntimeImports() const { return _runtimeImports; }
+        [[nodiscard]] const ImportsMap& getRuntimeImports() const { return _runtimeImports; }
 
-        const ImportsMap& getTypingImports() const { return _typingImports; }
+        [[nodiscard]] const ImportsMap& getTypingImports() const { return _typingImports; }
 
     private:
         void visitDataMembers(const ContainedPtr&, const list<DataMemberPtr>&);
@@ -476,7 +476,8 @@ namespace Slice::Python
         /// @param definition A pair consisting of the name and alias to use for the imported symbol.
         ///                   If the alias is empty, the name is used as the alias.
         /// @param source The Slice definition that requires this import.
-        void addRuntimeImport(const string& moduleName, pair<string, string> definition, const ContainedPtr& source);
+        void
+        addRuntimeImport(const string& moduleName, const pair<string, string>& definition, const ContainedPtr& source);
 
         /// Adds a typing import for the given definition from the specified Python module.
         ///
@@ -485,7 +486,8 @@ namespace Slice::Python
         /// @param moduleName The fully qualified name of the Python module to import from.
         /// @param definition The definition to import, represented as a pair of name and alias.
         /// @param source The Slice definition that requires this import.
-        void addTypingImport(const string& moduleName, pair<string, string> definition, const ContainedPtr& source);
+        void
+        addTypingImport(const string& moduleName, const pair<string, string>& definition, const ContainedPtr& source);
 
         /// Adds a typing import for the package containing the given Slice definition.
         ///
@@ -801,7 +803,7 @@ Slice::Python::ImportVisitor::addRuntimeImport(
 void
 Slice::Python::ImportVisitor::addRuntimeImport(
     const string& definitionModule,
-    pair<string, string> definition,
+    const pair<string, string>& definition,
     const ContainedPtr& source)
 {
     // The module importing the definition.
@@ -821,7 +823,7 @@ Slice::Python::ImportVisitor::addRuntimeImport(
 void
 Slice::Python::ImportVisitor::addTypingImport(
     const string& moduleName,
-    pair<string, string> definition,
+    pair<string, string>& definition,
     const ContainedPtr& source)
 {
     // The module importing the definition.

@@ -56,9 +56,12 @@ namespace Slice::Python
         void visitEnum(const EnumPtr&) final;
         void visitConst(const ConstPtr&) final;
 
-        const std::map<std::string, std::map<std::string, std::set<std::string>>>& imports() { return _imports; }
-        const std::set<std::string>& generatedModules() const { return _generatedModules; }
-        const std::set<std::string>& packageIndexFiles() const { return _packageIndexFiles; }
+        [[nodiscard]] const std::map<std::string, std::map<std::string, std::set<std::string>>>& imports()
+        {
+            return _imports;
+        }
+        [[nodiscard]] const std::set<std::string>& generatedModules() const { return _generatedModules; }
+        [[nodiscard]] const std::set<std::string>& packageIndexFiles() const { return _packageIndexFiles; }
 
     private:
         void addRuntimeImport(const ContainedPtr& definition, const std::string& prefix = "");
