@@ -41,10 +41,11 @@ def initialize(
 
 
 def initialize(
-        args: list[str] | None = None,
-        initData: Ice.InitializationData | None = None,
-        configFile: str | None = None,
-        eventLoop: Ice.EventLoopAdapter | None = None) -> Ice.Communicator:
+    args: list[str] | None = None,
+    initData: Ice.InitializationData | None = None,
+    configFile: str | None = None,
+    eventLoop: Ice.EventLoopAdapter | None = None,
+) -> Ice.Communicator:
     """
     Creates a new communicator.
 

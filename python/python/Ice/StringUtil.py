@@ -25,4 +25,5 @@ def safe_repr(obj: object) -> str:
 def format_fields(**fields: object) -> str:
     return ", ".join(f"{k}={safe_repr(v)}" for k, v in fields.items())
 
+
 __all__ = ["format_fields"]
