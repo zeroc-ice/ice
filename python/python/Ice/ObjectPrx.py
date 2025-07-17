@@ -58,18 +58,6 @@ def uncheckedCast(type: Type[T], proxy: ObjectPrx | None, facet: str | None = No
     return IcePy.ObjectPrx.newProxy(type, proxy)
 
 
-@overload
-def checkedCast(
-    type: Type[T], proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None
-) -> T: ...
-
-
-@overload
-def checkedCast(
-    type: Type[T], proxy: None, facet: str | None = None, context: dict[str, str] | None = None
-) -> None: ...
-
-
 def checkedCast(
     type: Type[T], proxy: ObjectPrx | None, facet: str | None = None, context: dict[str, str] | None = None
 ) -> T | None:
@@ -100,18 +88,6 @@ def checkedCast(
     if facet is not None:
         proxy = proxy.ice_facet(facet)
     return IcePy.ObjectPrx.newProxy(type, proxy) if proxy.ice_isA(type.ice_staticId(), context=context) else None
-
-
-@overload
-async def checkedCastAsync(
-    type: Type[T], proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None
-) -> T: ...
-
-
-@overload
-async def checkedCastAsync(
-    type: Type[T], proxy: None, facet: str | None = None, context: dict[str, str] | None = None
-) -> None: ...
 
 
 async def checkedCastAsync(
