@@ -2703,8 +2703,8 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
                     find_if(
                         processedFragments.begin(),
                         processedFragments.end(),
-                        [&moduleName](const auto& fragment)
-                        { return fragment.moduleName == moduleName; }) == processedFragments.end() &&
+                        [&moduleName](const auto& element)
+                        { return element.moduleName == moduleName; }) == processedFragments.end() &&
                     find(builtinModules.begin(), builtinModules.end(), moduleName) == builtinModules.end())
                 {
                     unseenDependencies = true;
