@@ -127,6 +127,24 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             PyObject* path = PyList_New(1);
             PyList_SetItem(path, 0, PyUnicode_FromString(fragment.fileName.c_str()));
             PyDict_SetItemString(moduleDict, "__path__", path);
+
+            // Link package to the parent package if it exists.
+            size_t dotPos = fragment.moduleName.rfind('.');
+            if (dotPos != std::string::npos)
+            {
+                std::string parentName = fragment.moduleName.substr(0, dotPos);
+                std::string childName = fragment.moduleName.substr(dotPos + 1);
+
+                // Get a borrowed reference to the parent module.
+                PyObject* parent = PyImport_AddModule(parentName.c_str());
+                if (!parent)
+                {
+                    return nullptr;
+                }
+
+                PyObject* parentDict = PyModule_GetDict(parent);
+                PyDict_SetItemString(parentDict, childName.c_str(), moduleRef);
+            }
         }
 
         PyObjectHandle result{PyEval_EvalCode(code.get(), moduleDict, moduleDict)};
