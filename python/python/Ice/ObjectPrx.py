@@ -4,17 +4,34 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, overload
 
 import IcePy
 
 from .Object import Object
 
 if TYPE_CHECKING:
-    import Ice
+    from typing import Type, TypeVar
+
+    from .Communicator import Communicator
+    from .EncodingVersion import EncodingVersion
+    from .EndpointSelectionType import EndpointSelectionType
+    from .Identity import Identity
+    from .Locator import LocatorPrx
+    from .Router import RouterPrx
+
+    T = TypeVar("T", bound=ObjectPrx)
 
 
-def uncheckedCast(type, proxy, facet=None):
+@overload
+def uncheckedCast(type: Type[T], proxy: ObjectPrx, facet: str | None = None) -> T: ...
+
+
+@overload
+def uncheckedCast(type: Type[T], proxy: None, facet: str | None = None) -> None: ...
+
+
+def uncheckedCast(type: Type[T], proxy: ObjectPrx | None, facet: str | None = None) -> T | None:
     """
     Downcasts a proxy without confirming the target object's type via a remote invocation.
 
@@ -22,8 +39,9 @@ def uncheckedCast(type, proxy, facet=None):
     ----------
     type : type
         The proxy target type.
-    proxy : ObjectPrx
-        The source proxy (can be None).
+
+    proxy : ObjectPrx or None
+        The source proxy.
 
     facet : str, optional
         A facet name.
@@ -40,7 +58,9 @@ def uncheckedCast(type, proxy, facet=None):
     return IcePy.ObjectPrx.newProxy(type, proxy)
 
 
-def checkedCast(type, proxy, facet=None, context: dict[str, str] | None = None):
+def checkedCast(
+    type: Type[T], proxy: ObjectPrx | None, facet: str | None = None, context: dict[str, str] | None = None
+) -> T | None:
     """
     Downcasts a proxy after confirming the target object's type via a remote invocation.
 
@@ -48,8 +68,9 @@ def checkedCast(type, proxy, facet=None, context: dict[str, str] | None = None):
     ----------
     type : type
         The proxy target type.
-    proxy : ObjectPrx
-        The source proxy (can be None).
+
+    proxy : ObjectPrx or None
+        The source proxy.
 
     facet : str, optional
         A facet name.
@@ -69,7 +90,9 @@ def checkedCast(type, proxy, facet=None, context: dict[str, str] | None = None):
     return IcePy.ObjectPrx.newProxy(type, proxy) if proxy.ice_isA(type.ice_staticId(), context=context) else None
 
 
-async def checkedCastAsync(type, proxy, facet=None, context: dict[str, str] | None = None):
+async def checkedCastAsync(
+    type: Type[T], proxy: ObjectPrx | None, facet: str | None = None, context: dict[str, str] | None = None
+) -> T | None:
     """
     Downcasts a proxy after confirming the target object's type via a remote invocation.
 
@@ -77,8 +100,9 @@ async def checkedCastAsync(type, proxy, facet=None, context: dict[str, str] | No
     ----------
     type : type
         The proxy target type.
-    proxy : ObjectPrx
-        The source proxy (can be None).
+
+    proxy : ObjectPrx or None
+        The source proxy.
 
     facet : str, optional
         A facet name.
@@ -99,20 +123,21 @@ async def checkedCastAsync(type, proxy, facet=None, context: dict[str, str] | No
     return IcePy.ObjectPrx.newProxy(type, proxy) if b else None
 
 
-class ObjectPrx(IcePy.ObjectPrx):
+# TODO: fix type hinting for IcePy.ObjectPrx
+class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
     """
     The base class for all proxies.
     """
 
     @staticmethod
-    def uncheckedCast(proxy: ObjectPrx, facet=None):
+    def uncheckedCast(proxy: ObjectPrx, facet: str | None = None) -> ObjectPrx | None:
         """
         Downcasts a proxy without confirming the target object's type via a remote invocation.
 
         Parameters
         ----------
-        proxy : ObjectPrx
-            The source proxy (can be None).
+        proxy : ObjectPrx or None
+            The source proxy.
 
         facet : str, optional
             A facet name.
@@ -125,14 +150,16 @@ class ObjectPrx(IcePy.ObjectPrx):
         return uncheckedCast(ObjectPrx, proxy, facet)
 
     @staticmethod
-    def checkedCast(proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None):
+    def checkedCast(
+        proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None
+    ) -> ObjectPrx | None:
         """
         Downcasts a proxy after confirming the target object's type via a remote invocation.
 
         Parameters
         ----------
-        proxy : ObjectPrx
-            The source proxy (can be None).
+        proxy : ObjectPrx or None
+            The source proxy.
 
         facet : str, optional
             A facet name.
@@ -148,14 +175,16 @@ class ObjectPrx(IcePy.ObjectPrx):
         return checkedCast(ObjectPrx, proxy, facet, context)
 
     @staticmethod
-    def checkedCastAsync(proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None):
+    def checkedCastAsync(
+        proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None
+    ) -> Awaitable[ObjectPrx | None]:
         """
         Downcasts a proxy after confirming the target object's type via a remote invocation.
 
         Parameters
         ----------
-        proxy : ObjectPrx
-            The source proxy (can be None).
+        proxy : ObjectPrx or None
+            The source proxy.
 
         facet : str, optional
             A facet name.
@@ -182,7 +211,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return "::Ice::Object"
 
-    def ice_getCommunicator(self) -> Ice.Communicator:
+    def ice_getCommunicator(self) -> Communicator:
         """
         Return the communicator that created this proxy.
 
@@ -323,18 +352,18 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return Object._op_ice_id.invokeAsync(self, ((), context))
 
-    def ice_getIdentity(self) -> Ice.Identity:
+    def ice_getIdentity(self) -> Identity:
         """
         Return the identity embedded in this proxy.
 
         Returns
         -------
-        Ice.Identity
+        Identity
             The identity of the target object.
         """
         return super().ice_getIdentity()
 
-    def ice_identity(self, newIdentity: Ice.Identity) -> Self:
+    def ice_identity(self, newIdentity: Identity) -> Self:
         """
         Create a new proxy that is identical to this proxy, except for the per-proxy context.
 
@@ -431,24 +460,24 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_adapterId(newAdapterId)
 
-    def ice_getEndpoints(self) -> list[Ice.Endpoint]:
+    def ice_getEndpoints(self) -> list[IcePy.Endpoint]:
         """
         Returns the endpoints used by this proxy.
 
         Returns
         -------
-        list of Ice.Endpoint
+        list of Endpoint
             The endpoints used by this proxy.
         """
         return super().ice_getEndpoints()
 
-    def ice_endpoints(self, newEndpoints: list[Ice.Endpoint]) -> Self:
+    def ice_endpoints(self, newEndpoints: list[IcePy.Endpoint]) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the endpoints.
 
         Parameters
         ----------
-        newEndpoints : list of Ice.Endpoint
+        newEndpoints : list of Endpoint
             The endpoints for the new proxy.
 
         Returns
@@ -539,7 +568,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_connectionCached(newCache)
 
-    def ice_getEndpointSelection(self) -> Ice.EndpointSelectionType:
+    def ice_getEndpointSelection(self) -> EndpointSelectionType:
         """
         Returns how this proxy selects endpoints (randomly or ordered).
 
@@ -550,7 +579,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getEndpointSelection()
 
-    def ice_endpointSelection(self, newType: Ice.EndpointSelectionType) -> Self:
+    def ice_endpointSelection(self, newType: EndpointSelectionType) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the endpoint selection policy.
 
@@ -594,7 +623,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_secure(secure)
 
-    def ice_encodingVersion(self, version: Ice.EncodingVersion) -> Self:
+    def ice_encodingVersion(self, version: EncodingVersion) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the encoding used to marshal parameters.
 
@@ -610,7 +639,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_encodingVersion(version)
 
-    def ice_getEncodingVersion(self) -> Ice.EncodingVersion:
+    def ice_getEncodingVersion(self) -> EncodingVersion:
         """
         Returns the encoding version used to marshal requests parameters.
 
@@ -649,7 +678,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_preferSecure(preferSecure)
 
-    def ice_getRouter(self) -> Ice.RouterPrx | None:
+    def ice_getRouter(self) -> RouterPrx | None:
         """
         Returns the router for this proxy.
 
@@ -660,7 +689,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getRouter()
 
-    def ice_router(self, router: Ice.RouterPrx | None) -> Self:
+    def ice_router(self, router: RouterPrx | None) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the router.
 
@@ -676,7 +705,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_router(router)
 
-    def ice_getLocator(self) -> Ice.LocatorPrx | None:
+    def ice_getLocator(self) -> LocatorPrx | None:
         """
         Returns the locator for this proxy.
 
@@ -687,7 +716,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_getLocator()
 
-    def ice_locator(self, locator: Ice.LocatorPrx | None) -> Self:
+    def ice_locator(self, locator: LocatorPrx | None) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the locator.
 

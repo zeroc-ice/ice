@@ -3,7 +3,7 @@
 # Avoid evaluating annotations at function definition time.
 from __future__ import annotations
 
-from collections.abc import Awaitable
+from collections.abc import Awaitable, Sequence
 from typing import TYPE_CHECKING
 
 import IcePy
@@ -85,7 +85,16 @@ class Object:
         bool
             True if the target object supports the interface, False otherwise.
         """
-        return id in self.ice_ids(current)
+        ret = self.ice_ids(current)
+        if isinstance(ret, Awaitable):
+            # wrap and do the check
+            async def wrapper():
+                ids = await ret
+                return id in ids
+
+            return wrapper()
+        else:
+            return id in ret
 
     def ice_ping(self, current: Current) -> None | Awaitable[None]:
         """
@@ -98,7 +107,7 @@ class Object:
         """
         pass
 
-    def ice_ids(self, current: Current) -> list[str] | Awaitable[list[str]]:
+    def ice_ids(self, current: Current) -> Sequence[str] | Awaitable[Sequence[str]]:
         """
         Obtain the type IDs corresponding to the Slice interfaces that are supported by the target object.
 
@@ -109,7 +118,7 @@ class Object:
 
         Returns
         -------
-        list of str
+        Sequence[str]
             A list of type IDs.
         """
         return [Object.ice_staticId()]

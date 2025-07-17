@@ -8,7 +8,12 @@ from typing import TYPE_CHECKING, final
 import IcePy
 
 if TYPE_CHECKING:
-    import Ice
+    from .Communicator import Communicator
+    from .Identity import Identity
+    from .Locator import LocatorPrx
+    from .Object import Object
+    from .ObjectPrx import ObjectPrx
+    from .ServantLocator import ServantLocator
 
 
 @final
@@ -40,7 +45,7 @@ class ObjectAdapter:
 
         Returns
         -------
-        Ice.Communicator
+        Communicator
             The communicator this object adapter belongs to.
         """
         communicator = self._impl.getCommunicator()
@@ -128,7 +133,7 @@ class ObjectAdapter:
         """
         self._impl.destroy()
 
-    def add(self, servant: Ice.Object, id: Ice.Identity) -> Ice.ObjectPrx:
+    def add(self, servant: Object, id: Identity) -> ObjectPrx:
         """
         Add a servant to this object adapter's Active Servant Map.
 
@@ -137,19 +142,19 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        servant : Ice.Object
+        servant : Object
             The servant to add.
-        id : Ice.Identity
+        id : Identity
             The identity of the Ice object that is implemented by the servant.
 
         Returns
         -------
-        Ice.ObjectPrx
+        ObjectPrx
             A proxy that matches the given identity and this object adapter.
         """
         return self._impl.add(servant, id)
 
-    def addFacet(self, servant: Ice.Object, id: Ice.Identity, facet: str = "") -> Ice.ObjectPrx:
+    def addFacet(self, servant: Object, id: Identity, facet: str = "") -> ObjectPrx:
         """
         Add a servant with a facet to this object adapter's Active Servant Map.
 
@@ -157,21 +162,21 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        servant : Ice.Object
+        servant : Object
             The servant to add.
-        id : Ice.Identity
+        id : Identity
             The identity of the Ice object that is implemented by the servant.
         facet : str
             The facet. An empty facet means the default facet.
 
         Returns
         -------
-        Ice.ObjectPrx
+        ObjectPrx
             A proxy that matches the given identity, facet, and this object adapter.
         """
         return self._impl.addFacet(servant, id, facet)
 
-    def addWithUUID(self, servant: Ice.Object) -> Ice.ObjectPrx:
+    def addWithUUID(self, servant: Object) -> ObjectPrx:
         """
         Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its identity.
 
@@ -179,17 +184,17 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        servant : Ice.Object
+        servant : Object
             The servant to add.
 
         Returns
         -------
-        Ice.ObjectPrx
+        ObjectPrx
             A proxy that matches the generated UUID identity and this object adapter.
         """
         return self._impl.addWithUUID(servant)
 
-    def addFacetWithUUID(self, servant: Ice.Object, facet: str) -> Ice.ObjectPrx:
+    def addFacetWithUUID(self, servant: Object, facet: str) -> ObjectPrx:
         """
         Add a servant with a facet to this object adapter's Active Servant Map, using an automatically generated UUID as its identity.
 
@@ -197,19 +202,19 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        servant : Ice.Object
+        servant : Object
             The servant to add.
         facet : str
             The facet. An empty facet means the default facet.
 
         Returns
         -------
-        Ice.ObjectPrx
+        ObjectPrx
             A proxy that matches the generated UUID identity, facet, and this object adapter.
         """
         return self._impl.addFacetWIthUUID(servant, facet)
 
-    def addDefaultServant(self, servant: Ice.Object, category: str) -> None:
+    def addDefaultServant(self, servant: Object, category: str) -> None:
         """
         Add a default servant to handle requests for a specific category.
 
@@ -228,14 +233,14 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        servant : Ice.Object
+        servant : Object
             The default servant.
         category : str
             The category for which the default servant is registered. An empty category means it will handle all categories.
         """
         self._impl.addDefaultServant(servant, category)
 
-    def remove(self, id: Ice.Identity) -> Ice.Object:
+    def remove(self, id: Identity) -> Object:
         """
         Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
 
@@ -243,18 +248,18 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        id : Ice.Identity
+        id : Identity
             The identity of the Ice object that is implemented by the servant. If the servant implements multiple Ice
             objects, `remove` has to be called for all those Ice objects.
 
         Returns
         -------
-        Ice.Object
+        Object
             The removed servant.
         """
         return self._impl.remove(id)
 
-    def removeFacet(self, id: Ice.Identity, facet: str) -> Ice.Object:
+    def removeFacet(self, id: Identity, facet: str) -> Object:
         """
         Remove a servant with a facet from the object adapter's Active Servant Map.
 
@@ -262,19 +267,19 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        id : Ice.Identity
+        id : Identity
             The identity of the Ice object that is implemented by the servant.
         facet : str
             The facet. An empty facet means the default facet.
 
         Returns
         -------
-        Ice.Object
+        Object
             The removed servant.
         """
         return self._impl.removeFacet(id, facet)
 
-    def removeAllFacets(self, id: Ice.Identity) -> dict[str, Ice.Object]:
+    def removeAllFacets(self, id: Identity) -> dict[str, Object]:
         """
         Remove all facets with the given identity from the Active Servant Map.
 
@@ -283,17 +288,17 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        id : Ice.Identity
+        id : Identity
             The identity of the Ice object to be removed.
 
         Returns
         -------
-        dict[str, Ice.Object]
+        dict[str, Object]
             A collection containing all the facet names and servants of the removed Ice object.
         """
         return self._impl.removeAllFacets(id)
 
-    def removeDefaultServant(self, category: str) -> Ice.Object:
+    def removeDefaultServant(self, category: str) -> Object:
         """
         Remove the default servant for a specific category.
 
@@ -306,12 +311,12 @@ class ObjectAdapter:
 
         Returns
         -------
-        Ice.Object
+        Object
             The default servant.
         """
         return self._impl.removeDefaultServant(category)
 
-    def find(self, id: Ice.Identity) -> Ice.Object | None:
+    def find(self, id: Identity) -> Object | None:
         """
         Look up a servant in this object adapter's Active Servant Map by the identity of the Ice object it implements.
 
@@ -320,17 +325,17 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        id : Ice.Identity
+        id : Identity
             The identity of the Ice object for which the servant should be returned.
 
         Returns
         -------
-        Ice.Object | None
+        Object | None
             The servant that implements the Ice object with the given identity, or None if no such servant has been found.
         """
         return self._impl.find(id)
 
-    def findFacet(self, id: Ice.Identity, facet: str) -> Ice.Object | None:
+    def findFacet(self, id: Identity, facet: str) -> Object | None:
         """
         Look up a servant in this object adapter's Active Servant Map by the identity and facet of the Ice object it implements.
 
@@ -338,36 +343,36 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        id : Ice.Identity
+        id : Identity
             The identity of the Ice object for which the servant should be returned.
         facet : str
             The facet. An empty facet means the default facet.
 
         Returns
         -------
-        Ice.Object | None
+        Object | None
             The servant that implements the Ice object with the given identity and facet, or None if no such servant has been found.
         """
         return self._impl.findFacet(id, facet)
 
-    def findAllFacets(self, id: Ice.Identity) -> dict[str, Ice.Object]:
+    def findAllFacets(self, id: Identity) -> dict[str, Object]:
         """
         Find all facets with the given identity in the Active Servant Map.
 
         Parameters
         ----------
-        id : Ice.Identity
+        id : Identity
             The identity of the Ice object for which the facets should be returned.
 
         Returns
         -------
-        dict[str, Ice.Object]
+        dict[str, Object]
             A dictionary containing all the facet names and servants that have been found, or an empty dictionary if
             there is no facet for the given identity.
         """
         return self._impl.findAllFacets(id)
 
-    def findByProxy(self, proxy: Ice.ObjectPrx) -> Ice.Object | None:
+    def findByProxy(self, proxy: ObjectPrx) -> Object | None:
         """
         Look up a servant in this object adapter's Active Servant Map, given a proxy.
 
@@ -376,17 +381,17 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        proxy : Ice.ObjectPrx
+        proxy : ObjectPrx
             The proxy for which the servant should be returned.
 
         Returns
         -------
-        Ice.Object | None
+        Object | None
             The servant that matches the proxy, or None if no such servant has been found.
         """
         return self._impl.findByProxy(proxy)
 
-    def addServantLocator(self, locator: Ice.ServantLocator, category: str) -> None:
+    def addServantLocator(self, locator: ServantLocator, category: str) -> None:
         """
         Add a Servant Locator to this object adapter.
 
@@ -408,7 +413,7 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        locator : Ice.ServantLocator
+        locator : ServantLocator
             The locator to add.
         category : str
             The category for which the Servant Locator can locate servants, or an empty string if the Servant Locator
@@ -416,7 +421,7 @@ class ObjectAdapter:
         """
         self._impl.addServantLocator(locator, category)
 
-    def removeServantLocator(self, category: str) -> Ice.ServantLocator:
+    def removeServantLocator(self, category: str) -> ServantLocator:
         """
         Remove a Servant Locator from this object adapter.
 
@@ -428,7 +433,7 @@ class ObjectAdapter:
 
         Returns
         -------
-        Ice.ServantLocator
+        ServantLocator
             The Servant Locator.
 
         Raises
@@ -438,7 +443,7 @@ class ObjectAdapter:
         """
         return self._impl.removeServantLocator(category)
 
-    def findServantLocator(self, category: str) -> Ice.ServantLocator | None:
+    def findServantLocator(self, category: str) -> ServantLocator | None:
         """
         Find a Servant Locator installed with this object adapter.
 
@@ -450,12 +455,12 @@ class ObjectAdapter:
 
         Returns
         -------
-        Ice.ServantLocator | None
+        ServantLocator | None
             The Servant Locator, or None if no Servant Locator was found for the given category.
         """
         return self._impl.findServantLocator(category)
 
-    def findDefaultServant(self, category: str) -> Ice.Object | None:
+    def findDefaultServant(self, category: str) -> Object | None:
         """
         Find the default servant for a specific category.
 
@@ -466,12 +471,12 @@ class ObjectAdapter:
 
         Returns
         -------
-        Ice.Object or None
+        Object or None
             The default servant, or None if no default servant was registered for the category.
         """
         return self._impl.findDefaultServant(category)
 
-    def createProxy(self, id: Ice.Identity) -> Ice.ObjectPrx:
+    def createProxy(self, id: Identity) -> ObjectPrx:
         """
         Create a proxy for the object with the given identity.
 
@@ -482,17 +487,17 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        id : Ice.Identity
+        id : Identity
             The object's identity.
 
         Returns
         -------
-        Ice.ObjectPrx
+        ObjectPrx
             A proxy for the object with the given identity.
         """
         return self._impl.createProxy(id)
 
-    def createDirectProxy(self, id: Ice.Identity) -> Ice.ObjectPrx:
+    def createDirectProxy(self, id: Identity) -> ObjectPrx:
         """
         Create a direct proxy for the object with the given identity.
 
@@ -500,17 +505,17 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        id : Ice.Identity
+        id : Identity
             The object's identity.
 
         Returns
         -------
-        Ice.ObjectPrx
+        ObjectPrx
             A proxy for the object with the given identity.
         """
         return self._impl.createDirectProxy(id)
 
-    def createIndirectProxy(self, id: Ice.Identity) -> Ice.ObjectPrx:
+    def createIndirectProxy(self, id: Identity) -> ObjectPrx:
         """
         Create an indirect proxy for the object with the given identity.
 
@@ -519,17 +524,17 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        id : Ice.Identity
+        id : Identity
             The object's identity.
 
         Returns
         -------
-        Ice.ObjectPrx
+        ObjectPrx
             A proxy for the object with the given identity.
         """
         return self._impl.createIndirectProxy(id)
 
-    def setLocator(self, locator: Ice.LocatorPrx) -> None:
+    def setLocator(self, locator: LocatorPrx) -> None:
         """
         Set an Ice locator for this object adapter.
 
@@ -539,18 +544,18 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        locator : Ice.LocatorPrx
+        locator : LocatorPrx
             The locator used by this object adapter.
         """
         self._impl.setLocator(locator)
 
-    def getLocator(self) -> Ice.LocatorPrx | None:
+    def getLocator(self) -> LocatorPrx | None:
         """
         Get the Ice locator used by this object adapter.
 
         Returns
         -------
-        Ice.LocatorPrx | None
+        LocatorPrx | None
             The locator used by this object adapter, or None if no locator is used by this object adapter.
         """
         return self._impl.getLocator()

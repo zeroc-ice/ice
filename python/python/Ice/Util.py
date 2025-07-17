@@ -40,7 +40,8 @@ def initialize(
 ) -> Ice.Communicator: ...
 
 
-def initialize(
+# TODO: pyright type hint fixes
+def initialize(  # type: ignore
     args: list[str] | None = None,
     initData: Ice.InitializationData | None = None,
     configFile: str | None = None,
