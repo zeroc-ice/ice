@@ -40,7 +40,7 @@ def uncheckedCast(type: Type[T], proxy: ObjectPrx | None, facet: str | None = No
     type : type
         The proxy target type.
 
-    proxy : ObjectPrx  or None
+    proxy : ObjectPrx or None
         The source proxy.
 
     facet : str, optional
