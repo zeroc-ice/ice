@@ -4,6 +4,7 @@ import threading
 import time
 
 import Test
+from Test.Outer.Inner import TestIntf as Inner_TestIntf
 
 import Ice
 
@@ -106,7 +107,7 @@ class TestIntfI(Test.TestIntf):
                 raise Test.TestIntfException()
 
 
-class TestIntfII(Test.Outer.Inner.TestIntf):
+class TestIntfII(Inner_TestIntf):
     def op(self, i, current):
         return (i, i)
 

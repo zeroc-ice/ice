@@ -4,12 +4,16 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable
+from typing import TYPE_CHECKING
 
-import Ice
-import Ice.BuiltinSequences_ice
 import IcePy
 
-from .Current import Current
+from .OperationMode import OperationMode
+from .StringSeq import __Ice_StringSeq_t as Ice_StringSeq_t
+
+if TYPE_CHECKING:
+    from .Current import Current
+    from .Identity import Identity
 
 
 class Object:
@@ -20,7 +24,7 @@ class Object:
     _op_ice_isA = IcePy.Operation(
         "ice_isA",
         "ice_isA",
-        Ice.OperationMode.Idempotent,
+        OperationMode.Idempotent,
         None,
         (),
         (((), IcePy._t_string, False, 0),),
@@ -32,7 +36,7 @@ class Object:
     _op_ice_ping = IcePy.Operation(
         "ice_ping",
         "ice_ping",
-        Ice.OperationMode.Idempotent,
+        OperationMode.Idempotent,
         None,
         (),
         (),
@@ -44,19 +48,19 @@ class Object:
     _op_ice_ids = IcePy.Operation(
         "ice_ids",
         "ice_ids",
-        Ice.OperationMode.Idempotent,
+        OperationMode.Idempotent,
         None,
         (),
         (),
         (),
-        ((), Ice._t_StringSeq, False, 0),
+        ((), Ice_StringSeq_t, False, 0),
         (),
     )
 
     _op_ice_id = IcePy.Operation(
         "ice_id",
         "ice_id",
-        Ice.OperationMode.Idempotent,
+        OperationMode.Idempotent,
         None,
         (),
         (),
@@ -65,7 +69,7 @@ class Object:
         (),
     )
 
-    def ice_isA(self, id: Ice.Identity, current: Current) -> bool | Awaitable[bool]:
+    def ice_isA(self, id: Identity, current: Current) -> bool | Awaitable[bool]:
         """
         Determine whether the target object supports the interface denoted by the given Slice type ID.
 
@@ -81,7 +85,6 @@ class Object:
         bool
             True if the target object supports the interface, False otherwise.
         """
-
         return id in self.ice_ids(current)
 
     def ice_ping(self, current: Current) -> None | Awaitable[None]:
@@ -109,7 +112,7 @@ class Object:
         list of str
             A list of type IDs.
         """
-        return ["::Ice::Object"]
+        return [Object.ice_staticId()]
 
     def ice_id(self, current: Current) -> str | Awaitable[str]:
         """
@@ -125,7 +128,7 @@ class Object:
         str
             The type ID.
         """
-        return "::Ice::Object"
+        return Object.ice_staticId()
 
     @staticmethod
     def ice_staticId() -> str:

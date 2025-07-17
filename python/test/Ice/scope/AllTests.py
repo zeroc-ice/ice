@@ -2,8 +2,19 @@
 
 import sys
 
-import Inner
 import Test
+from Inner.Test.Inner2 import MyInterfacePrx as Inner_Test_Inner2_MyInterfacePrx
+from Test.Inner import MyInterfacePrx as Test_Inner_MyInterfacePrx
+from Test.Inner import MyStruct as Test_Inner_MyStruct
+from Test.Inner.Inner2 import (
+    MyClass as Test_Inner_Inner2_MyClass,
+)
+from Test.Inner.Inner2 import (
+    MyInterfacePrx as Test_Inner_Inner2_MyInterfacePrx,
+)
+from Test.Inner.Inner2 import (
+    MyStruct as Test_Inner_Inner2_MyStruct,
+)
 
 
 def test(b):
@@ -62,9 +73,9 @@ def allTests(helper, communicator):
     c = i1.opMyOtherClass(Test.MyOtherClass("MyOtherClass"))
     test(c.s == "MyOtherClass")
 
-    i2 = Test.Inner.Inner2.MyInterfacePrx(communicator, f"i2:{helper.getTestEndpoint()}")
+    i2 = Test_Inner_Inner2_MyInterfacePrx(communicator, f"i2:{helper.getTestEndpoint()}")
 
-    s1 = Test.Inner.Inner2.MyStruct(0)
+    s1 = Test_Inner_Inner2_MyStruct(0)
 
     s2, s3 = i2.opMyStruct(s1)
 
@@ -83,7 +94,7 @@ def allTests(helper, communicator):
     test(smap2["a"] == s1)
     test(smap3["a"] == s1)
 
-    c1 = Test.Inner.Inner2.MyClass(s1)
+    c1 = Test_Inner_Inner2_MyClass(s1)
 
     c2, c3 = i2.opMyClass(c1)
 
@@ -101,9 +112,9 @@ def allTests(helper, communicator):
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i3 = Test.Inner.MyInterfacePrx(communicator, f"i3:{helper.getTestEndpoint()}")
+    i3 = Test_Inner_MyInterfacePrx(communicator, f"i3:{helper.getTestEndpoint()}")
 
-    s1 = Test.Inner.Inner2.MyStruct(0)
+    s1 = Test_Inner_Inner2_MyStruct(0)
 
     s2, s3 = i3.opMyStruct(s1)
 
@@ -122,7 +133,7 @@ def allTests(helper, communicator):
     test(smap2["a"] == s1)
     test(smap3["a"] == s1)
 
-    c1 = Test.Inner.Inner2.MyClass(s1)
+    c1 = Test_Inner_Inner2_MyClass(s1)
 
     c2, c3 = i3.opMyClass(c1)
 
@@ -140,7 +151,7 @@ def allTests(helper, communicator):
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i4 = Inner.Test.Inner2.MyInterfacePrx(communicator, f"i4:{helper.getTestEndpoint()}")
+    i4 = Inner_Test_Inner2_MyInterfacePrx(communicator, f"i4:{helper.getTestEndpoint()}")
 
     s1 = Test.MyStruct(0)
 

@@ -2,9 +2,7 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // for 'python:package'
-
-[["python:package:testpkg"]]
+["python:identifier:testpkg.Test2"]
 module Test2
 {
     class C1
@@ -28,7 +26,7 @@ module Test2
     }
 }
 
-["python:package:modpkg"]
+["python:identifier:modpkg.Test3"]
 module Test3
 {
     class C1

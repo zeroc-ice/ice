@@ -11,7 +11,6 @@
 [["cpp:include:Ice/StreamHelpers.h"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:Ice"]]
 
 ["java:identifier:com.zeroc.Ice"]
 module Ice

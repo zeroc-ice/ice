@@ -9,7 +9,6 @@
 [["cpp:include:list"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:Ice"]]
 
 #include "BuiltinSequences.ice"
 

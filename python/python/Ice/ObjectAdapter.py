@@ -5,11 +5,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, final
 
-import Ice
 import IcePy
 
 if TYPE_CHECKING:
-    from .Communicator import Communicator
+    import Ice
 
 
 @final

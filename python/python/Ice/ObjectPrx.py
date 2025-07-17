@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
-import Ice
 import IcePy
 
 from .Object import Object
+
+if TYPE_CHECKING:
+    import Ice
 
 
 def uncheckedCast(type, proxy, facet=None):

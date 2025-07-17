@@ -7,7 +7,6 @@
 [["cpp:header-ext:h"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:Ice"]]
 
 ["java:identifier:com.zeroc.Ice"]
 module Ice

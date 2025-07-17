@@ -2,10 +2,9 @@
 
 from typing import final
 
-import Ice.Identity_ice
-import Ice.ReplyStatus_ice
-
+from .Identity import Identity
 from .LocalException import LocalException
+from .ReplyStatus import ReplyStatus
 
 __name__ = "Ice"
 
@@ -22,13 +21,13 @@ class DispatchException(LocalException):
     """
 
     def __init__(self, replyStatus: int | None, msg: str = ""):
-        if replyStatus is None or replyStatus <= Ice.ReplyStatus.UserException.value or replyStatus > 255:
+        if replyStatus is None or replyStatus <= ReplyStatus.UserException.value or replyStatus > 255:
             raise ValueError("the reply status must fit in a byte and be greater than ReplyStatus.UserException.value")
 
         if msg == "":
             msg = "The dispatch failed with reply status "
             try:
-                msg += Ice.ReplyStatus(replyStatus).name
+                msg += ReplyStatus(replyStatus).name
             except ValueError:
                 # If the replyStatus is not a valid enumerator, we just use the int value.
                 # This can happen if the server uses a custom reply status.
@@ -58,21 +57,21 @@ class RequestFailedException(DispatchException):
     """
 
     def __init__(
-        self, replyStatus: int, id: Ice.Identity | None = None, facet: str = "", operation: str = "", msg: str = ""
+        self, replyStatus: int, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""
     ):
         DispatchException.__init__(self, replyStatus, msg)
-        self.__id = id if id is not None else Ice.Identity("", "")
+        self.__id = id if id is not None else Identity("", "")
         self.__facet = facet
         self.__operation = operation
 
     @property
-    def id(self) -> Ice.Identity:
+    def id(self) -> Identity:
         """
         Gets the identity of the Ice Object to which the request was sent.
 
         Returns
         -------
-        Ice.Identity
+        Identity
             The identity of the Ice Object to which the request was sent.
         """
         return self.__id
@@ -108,8 +107,8 @@ class ObjectNotExistException(RequestFailedException):
     The dispatch could not find a servant for the identity carried by the request.
     """
 
-    def __init__(self, id: Ice.Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
-        RequestFailedException.__init__(self, Ice.ReplyStatus.ObjectNotExist.value, id, facet, operation, msg)
+    def __init__(self, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
+        RequestFailedException.__init__(self, ReplyStatus.ObjectNotExist.value, id, facet, operation, msg)
 
 
 @final
@@ -118,8 +117,8 @@ class FacetNotExistException(RequestFailedException):
     The dispatch could not find a servant for the identity + facet carried by the request.
     """
 
-    def __init__(self, id: Ice.Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
-        RequestFailedException.__init__(self, Ice.ReplyStatus.FacetNotExist.value, id, facet, operation, msg)
+    def __init__(self, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
+        RequestFailedException.__init__(self, ReplyStatus.FacetNotExist.value, id, facet, operation, msg)
 
 
 @final
@@ -129,8 +128,8 @@ class OperationNotExistException(RequestFailedException):
     to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
     """
 
-    def __init__(self, id: Ice.Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
-        RequestFailedException.__init__(self, Ice.ReplyStatus.OperationNotExist.value, id, facet, operation, msg)
+    def __init__(self, id: Identity | None = None, facet: str = "", operation: str = "", msg: str = ""):
+        RequestFailedException.__init__(self, ReplyStatus.OperationNotExist.value, id, facet, operation, msg)
 
 
 class UnknownException(DispatchException):
@@ -138,7 +137,7 @@ class UnknownException(DispatchException):
     The dispatch failed with an exception that is not a LocalException or a UserException.
     """
 
-    def __init__(self, msg: str, replyStatus: int = Ice.ReplyStatus.UnknownException.value):
+    def __init__(self, msg: str, replyStatus: int = ReplyStatus.UnknownException.value):
         DispatchException.__init__(self, replyStatus, msg)
 
 
@@ -149,7 +148,7 @@ class UnknownLocalException(UnknownException):
     """
 
     def __init__(self, msg: str):
-        UnknownException.__init__(self, msg, Ice.ReplyStatus.UnknownLocalException.value)
+        UnknownException.__init__(self, msg, ReplyStatus.UnknownLocalException.value)
 
 
 @final
@@ -159,7 +158,7 @@ class UnknownUserException(UnknownException):
     """
 
     def __init__(self, msg: str):
-        UnknownException.__init__(self, msg, Ice.ReplyStatus.UnknownUserException.value)
+        UnknownException.__init__(self, msg, ReplyStatus.UnknownUserException.value)
 
 
 #
@@ -298,7 +297,7 @@ class AlreadyRegisteredException(LocalException):
     same ID.
     """
 
-    def __init__(self, kindOfObject: str, id: Ice.Identity | None, msg: str):
+    def __init__(self, kindOfObject: str, id: Identity | None, msg: str):
         LocalException.__init__(self, msg)
         self.__kindOfObject = kindOfObject
         self.__id = id
@@ -425,7 +424,7 @@ class NotRegisteredException(LocalException):
     when resolving an indirect proxy or when an object adapter is activated.
     """
 
-    def __init__(self, kindOfObject: str, id: Ice.Identity | None, msg: str):
+    def __init__(self, kindOfObject: str, id: Identity | None, msg: str):
         LocalException.__init__(self, msg)
         self.__kindOfObject = kindOfObject
         self.__id = id

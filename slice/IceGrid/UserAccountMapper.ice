@@ -9,7 +9,6 @@
 [["cpp:include:IceGrid/Config.h"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:IceGrid"]]
 
 ["java:identifier:com.zeroc.IceGrid"]
 module IceGrid

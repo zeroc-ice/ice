@@ -5,7 +5,6 @@
 [["cpp:header-ext:h"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:IceLocatorDiscovery"]]
 
 #include "Ice/Locator.ice"
 

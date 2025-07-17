@@ -9,7 +9,6 @@
 [["cpp:source-include:Ice/LocatorRegistry.h"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:Ice"]]
 
 #include "Identity.ice"
 

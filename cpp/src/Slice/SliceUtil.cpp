@@ -208,6 +208,18 @@ Slice::removeExtension(const string& path)
     return result;
 }
 
+string
+Slice::baseName(const string& path)
+{
+    string baseName = path;
+    string::size_type pos = baseName.find_last_of("/\\");
+    if (pos != string::npos)
+    {
+        baseName.erase(0, pos + 1);
+    }
+    return baseName;
+}
+
 void
 Slice::emitError(string_view file, int line, string_view message)
 {

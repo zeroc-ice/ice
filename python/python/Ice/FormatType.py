@@ -10,3 +10,6 @@ class FormatType(Enum):
 
     CompactFormat = 0
     SlicedFormat = 1
+
+
+__all__ = ["FormatType"]

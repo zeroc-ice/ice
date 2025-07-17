@@ -11,7 +11,6 @@
 [["cpp:include:cstdint"]]
 
 [["js:module:@zeroc/ice"]]
-[["python:pkgdir:Ice"]]
 
 // The endpoint types are called transport codes in IceRPC. They are used to marshal endpoints (as part of proxies) with
 // the Slice 1.x encoding.
