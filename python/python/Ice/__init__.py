@@ -81,8 +81,7 @@ from .BoolSeq import __Ice_BoolSeq_t
 from .ByteSeq import __Ice_ByteSeq_t
 from .Context import __Ice_Context_t
 from .DoubleSeq import __Ice_DoubleSeq_t
-from .EncodingVersion import EncodingVersion
-from .EncodingVersion import __Ice_EncodingVersion_t
+from .EncodingVersion import EncodingVersion, __Ice_EncodingVersion_t
 from .FloatSeq import __Ice_FloatSeq_t
 from .Identity import Identity
 from .Identity import __Ice_Identity_t
@@ -123,8 +122,7 @@ from .PropertiesAdmin import PropertiesAdmin
 from .PropertiesAdmin import PropertiesAdminPrx
 from .PropertiesAdminF import __Ice_PropertiesAdminPrx_t
 from .PropertyDict import __Ice_PropertyDict_t
-from .ProtocolVersion import ProtocolVersion
-from .ProtocolVersion import __Ice_ProtocolVersion_t
+from .ProtocolVersion import ProtocolVersion, __Ice_ProtocolVersion_t
 from .RemoteLogger import RemoteLogger
 from .RemoteLogger import RemoteLoggerPrx
 from .RemoteLoggerAlreadyAttachedException import RemoteLoggerAlreadyAttachedException
