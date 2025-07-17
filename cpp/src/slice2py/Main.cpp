@@ -20,7 +20,7 @@ main(int argc, char* argv[])
     vector<string> args = Slice::argvToArgs(argc, argv);
     try
     {
-        return Slice::Python::compile(args);
+        return Slice::Python::staticCompile(args);
     }
     catch (const std::exception& ex)
     {

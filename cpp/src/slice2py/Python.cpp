@@ -108,7 +108,7 @@ namespace
 }
 
 int
-Slice::Python::compile(const vector<string>& argv)
+Slice::Python::staticCompile(const vector<string>& argv)
 {
     IceInternal::Options opts;
     opts.addOpt("h", "help");
@@ -336,37 +336,7 @@ Slice::Python::compile(const vector<string>& argv)
         for (const auto& [packageName, imports] : packageVisitor.imports())
         {
             Output out{getPackageInitPath(packageName, outputDir).c_str()};
-            out << sp;
-            writeHeader(out);
-            if (!imports.empty())
-            {
-                out << sp;
-                std::list<string> allDefinitions;
-                for (const auto& [moduleName, definitions] : imports)
-                {
-                    for (const auto& name : definitions)
-                    {
-                        out << nl << "from ." << moduleName << " import " << name;
-                        allDefinitions.push_back(name);
-                    }
-                }
-                out << nl;
-
-                out << sp;
-                out << nl << "__all__ = [";
-                out.inc();
-                for (auto it = allDefinitions.begin(); it != allDefinitions.end();)
-                {
-                    out << nl << ("\"" + *it + "\"");
-                    if (++it != allDefinitions.end())
-                    {
-                        out << ",";
-                    }
-                }
-                out.dec();
-                out << nl << "]";
-                out << nl;
-            }
+            writePackageIndex(imports, out);
         }
     }
 

@@ -12,6 +12,33 @@
 
 namespace Slice::Python
 {
+    using ModuleImportsMap = std::map<std::string, std::set<std::pair<std::string, std::string>>>;
+
+    // Maps import statements per generated Python module.
+    // - Key: the generated module name, e.g., "Ice.Locator_ice" (we generate one Python module per each unique Slice
+    // module in a Slice file).
+    // - Value: a map from imported module name to the set of pairs representing the imported name and its alias.
+    using ImportsMap = std::map<std::string, ModuleImportsMap>;
+
+    /// Represents a Python code fragment generated for a Slice definition.
+    struct PythonCodeFragment
+    {
+        /// The Slice file name from which this code fragment was generated.
+        std::string sliceFileName;
+
+        /// The Python module for the generated code.
+        std::string moduleName;
+
+        /// The Python file name where this code fragment will be written.
+        std::string fileName;
+
+        /// Whether this code fragment is a package index file.
+        bool isPackageIndex = false;
+
+        /// The generated code.
+        std::string code;
+    };
+
     /// Creates the package directory structure for a given Python module name.
     ///
     /// For example, if the module name is "Foo.Bar.Baz", this function creates
@@ -26,12 +53,18 @@ namespace Slice::Python
     /// @param out The output stream to write the header to.
     void writeHeader(IceInternal::Output& out);
 
+    /// Write the package index that exports the given imports.
+    void writePackageIndex(const std::map<std::string, std::set<std::string>>& imports, IceInternal::Output& out);
+
+    std::vector<PythonCodeFragment>
+    dynamicCompile(const std::vector<std::string>& files, const std::vector<std::string>& cppArgs, bool debug);
+
+    int staticCompile(const std::vector<std::string>& files);
+
     /// Generate Python code for a translation unit.
     /// @param unit is the Slice unit to generate code for.
     /// @param outputDir The base-directory to write the generated Python files to.
     void generate(const Slice::UnitPtr& unit, const std::string& outputDir);
-
-    int compile(const std::vector<std::string>&);
 
     /// Returns a DocString formatted link to the provided Slice identifier.
     std::string
