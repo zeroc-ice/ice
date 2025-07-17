@@ -7,7 +7,7 @@ from collections.abc import Awaitable, Coroutine
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import Ice
+    from .Future import Future, FutureLike
 
 
 class EventLoopAdapter(ABC):
@@ -16,7 +16,7 @@ class EventLoopAdapter(ABC):
     """
 
     @abstractmethod
-    def runCoroutine(self, coroutine: Coroutine) -> Ice.FutureLike:
+    def runCoroutine(self, coroutine: Coroutine) -> FutureLike:
         """
         Run a coroutine in the application configured event loop. The Ice run time will call this method to run
         coroutines returned by async dispatch methods. This method is called from the Ice dispatch thread.
@@ -34,7 +34,7 @@ class EventLoopAdapter(ABC):
         pass
 
     @abstractmethod
-    def wrapFuture(self, future: Ice.Future) -> Awaitable:
+    def wrapFuture(self, future: Future) -> Awaitable:
         """
         Wraps an Ice.Future so that it can be awaited in the application event loop. The Ice run time calls this method
         before returning a future to the application.

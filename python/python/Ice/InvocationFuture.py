@@ -1,7 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
 import logging
-import traceback
 from collections.abc import Callable
 
 import IcePy

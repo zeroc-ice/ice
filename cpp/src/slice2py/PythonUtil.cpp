@@ -1210,8 +1210,10 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << "))";
     out.dec();
 
+    // Use setattr to set the _ice_type attribute on the class. Linting tools will complain about this if we
+    // don't use setattr, as the _ice_type attribute is not defined in the class body.
     out << sp;
-    out << nl << valueName << "._ice_type = " << metaType;
+    out << nl << "setattr(" << valueName << ", '_ice_type', " << metaType << ")";
 
     out << sp;
     out << nl << "__all__ = [\"" << valueName << "\", \"" << metaType << "\"]";
@@ -1228,6 +1230,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     string prxName = className + "Prx";
     string metaType = getMetaType(p);
     InterfaceList bases = p->bases();
+    OperationList operations = p->operations();
 
     // Emit a forward declarations for the proxy meta type.
     BufferedOutput outF;
@@ -1289,7 +1292,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "super().__init__(communicator, proxyString)";
     out.dec();
 
-    OperationList operations = p->operations();
     for (const auto& operation : operations)
     {
         const string opName = operation->name();
@@ -1382,7 +1384,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "@staticmethod";
     out << nl << "def checkedCast(";
     out.inc();
-    out << nl << "proxy: Ice_ObjectPrx | None,";
+    out << nl << "proxy: Ice.ObjectPrx | None,";
     out << nl << "facet: str | None = None,";
     out << nl << "context: dict[str, str] | None = None";
     out.dec();
@@ -1395,7 +1397,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "@staticmethod";
     out << nl << "def checkedCastAsync(";
     out.inc();
-    out << nl << "proxy: Ice_ObjectPrx | None,";
+    out << nl << "proxy: Ice.ObjectPrx | None,";
     out << nl << "facet: str | None = None,";
     out << nl << "context: dict[str, str] | None = None";
     out.dec();
@@ -1405,7 +1407,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out.dec();
 
     out << sp << nl << "@staticmethod";
-    out << nl << "def uncheckedCast(proxy: Ice_ObjectPrx | None, facet: str | None = None) -> " << prxTypeHint << ":";
+    out << nl << "def uncheckedCast(proxy: Ice.ObjectPrx | None, facet: str | None = None) -> " << prxTypeHint << ":";
     out.inc();
     out << nl << "return Ice_uncheckedCast(" << prxName << ", proxy, facet)";
     out.dec();
@@ -1440,6 +1442,13 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     out << "ABC" << epar << ':';
     out.inc();
+
+    out << sp;
+    // Pre-declare the _op_ methods
+    for (const auto& operation : operations)
+    {
+        out << nl << "_op_" << operation->name() << ": IcePy.Operation";
+    }
 
     // ice_ids
     StringList ids = p->ids();
@@ -1745,8 +1754,10 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << "))";
     out.dec();
 
+    // Use setattr to set the _ice_type attribute on the exception. Linting tools will complain about this if we
+    // don't use setattr, as the _ice_type attribute is not defined in the exception body.
     out << sp;
-    out << nl << name << "._ice_type = " << metaType;
+    out << nl << "setattr(" << name << ", '_ice_type', " << metaType << ")";
 
     out << sp;
     out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
@@ -2089,7 +2100,11 @@ Slice::Python::CodeVisitor::writeConstructorParams(const DataMemberList& members
     out << "self";
     for (const auto& member : members)
     {
-        out << ", " << member->mappedName() << "=";
+        const string typeHint = typeToTypeHintString(
+            member->type(),
+            member->optional(),
+            dynamic_pointer_cast<Contained>(member->container()));
+        out << ", " << member->mappedName() << ": " << typeHint << " = ";
         if (member->defaultValue())
         {
             writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue(), out);
