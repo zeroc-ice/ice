@@ -243,7 +243,7 @@ Slice::Python::compile(const vector<string>& argv)
             return EXIT_FAILURE;
         }
 
-        UnitPtr unit = Unit::createUnit("python", Slice::Python::pyLinkFormatter, false);
+        UnitPtr unit = Unit::createUnit("python", pyLinkFormatter, false);
         int parseStatus = unit->parse(fileName, cppHandle, debug);
 
         if (parseStatus == EXIT_FAILURE)
@@ -288,7 +288,7 @@ Slice::Python::compile(const vector<string>& argv)
                 // Collect the package imports and generated files.
                 unit->visit(&packageVisitor);
             }
-            catch (const Slice::FileException&)
+            catch (const FileException&)
             {
                 // If a file could not be created, then clean up any created files.
                 FileTracker::instance()->cleanup();

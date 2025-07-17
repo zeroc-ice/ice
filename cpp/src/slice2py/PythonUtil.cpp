@@ -2042,22 +2042,22 @@ Slice::Python::CodeVisitor::writeConstantValue(
     {
         switch (builtin->kind())
         {
-            case Slice::Builtin::KindBool:
+            case Builtin::KindBool:
             {
                 out << (value == "true" ? "True" : "False");
                 break;
             }
-            case Slice::Builtin::KindByte:
-            case Slice::Builtin::KindShort:
-            case Slice::Builtin::KindInt:
-            case Slice::Builtin::KindFloat:
-            case Slice::Builtin::KindDouble:
-            case Slice::Builtin::KindLong:
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
+            case Builtin::KindLong:
             {
                 out << value;
                 break;
             }
-            case Slice::Builtin::KindString:
+            case Builtin::KindString:
             {
                 const string controlChars = "\a\b\f\n\r\t\v";
                 const unsigned char cutOff = 0;
@@ -2065,9 +2065,9 @@ Slice::Python::CodeVisitor::writeConstantValue(
                 out << "\"" << toStringLiteral(value, controlChars, "", UCN, cutOff) << "\"";
                 break;
             }
-            case Slice::Builtin::KindValue:
-            case Slice::Builtin::KindObject:
-            case Slice::Builtin::KindObjectProxy:
+            case Builtin::KindValue:
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
                 assert(false);
         }
     }
@@ -2108,7 +2108,7 @@ Slice::Python::CodeVisitor::writeConstructorParams(const DataMemberList& members
 string
 Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
 {
-    return mode == Slice::Operation::Mode::Normal ? "Ice_OperationMode.Normal" : "Ice_OperationMode.Idempotent";
+    return mode == Operation::Mode::Normal ? "Ice_OperationMode.Normal" : "Ice_OperationMode.Idempotent";
 }
 
 void
@@ -2205,7 +2205,6 @@ Slice::Python::CodeVisitor::writeDocstring(
         out << nl << "----------";
         for (const auto& member : members)
         {
-            ;
             out << nl << member->mappedName() << " : "
                 << typeToTypeHintString(
                        member->type(),
@@ -2301,7 +2300,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
         return;
     }
 
-    auto p = dynamic_pointer_cast<Contained>(op->container());
+    auto p = op->interface();
 
     TypePtr returnType = op->returnType();
     ParameterList params = op->parameters();
@@ -2536,14 +2535,14 @@ namespace
         {
             outputPath = "./";
         }
-        Slice::Python::createPackagePath(moduleName, outputPath);
+        Python::createPackagePath(moduleName, outputPath);
         outputPath += fileName;
 
         FileTracker::instance()->addFile(outputPath);
 
         auto output = make_unique<Output>(outputPath.c_str());
         Output& out = *output;
-        Slice::Python::writeHeader(out);
+        Python::writeHeader(out);
 
         out << sp;
         out << nl << "from __future__ import annotations";
@@ -2555,7 +2554,7 @@ namespace
 }
 
 void
-Slice::Python::generate(const Slice::UnitPtr& unit, const std::string& outputDir)
+Slice::Python::generate(const UnitPtr& unit, const std::string& outputDir)
 {
     validatePythonMetadata(unit);
 
@@ -2637,7 +2636,7 @@ Slice::Python::generate(const Slice::UnitPtr& unit, const std::string& outputDir
 }
 
 string
-Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr& p, const SyntaxTreeBasePtr& target)
+Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     ostringstream result;
     if (target)
@@ -2658,7 +2657,7 @@ Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr& p, con
             }
             else
             {
-                result << "``" << typeToTypeHintString(builtinTarget, false, p) << "``";
+                result << "``" << typeToTypeHintString(builtinTarget, false, source) << "``";
             }
         }
         else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
@@ -2782,5 +2781,5 @@ Slice::Python::validatePythonMetadata(const UnitPtr& unit)
     knownMetadata.emplace("python:tuple", std::move(unqualifiedSeqInfo));
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(unit, "python", std::move(knownMetadata));
+    validateMetadata(unit, "python", std::move(knownMetadata));
 }
