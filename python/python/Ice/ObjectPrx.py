@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import Awaitable
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, overload
 
 import IcePy
 
@@ -23,7 +23,15 @@ if TYPE_CHECKING:
     T = TypeVar("T", bound=ObjectPrx)
 
 
-def uncheckedCast(type: Type[T], proxy: ObjectPrx, facet: str | None = None) -> T | None:
+@overload
+def uncheckedCast(type: Type[T], proxy: ObjectPrx, facet: str | None = None) -> T: ...
+
+
+@overload
+def uncheckedCast(type: Type[T], proxy: None, facet: str | None = None) -> None: ...
+
+
+def uncheckedCast(type: Type[T], proxy: ObjectPrx | None, facet: str | None = None) -> T | None:
     """
     Downcasts a proxy without confirming the target object's type via a remote invocation.
 
@@ -31,8 +39,9 @@ def uncheckedCast(type: Type[T], proxy: ObjectPrx, facet: str | None = None) -> 
     ----------
     type : type
         The proxy target type.
-    proxy : ObjectPrx
-        The source proxy (can be None).
+
+    proxy : ObjectPrx  or None
+        The source proxy.
 
     facet : str, optional
         A facet name.
@@ -49,8 +58,20 @@ def uncheckedCast(type: Type[T], proxy: ObjectPrx, facet: str | None = None) -> 
     return IcePy.ObjectPrx.newProxy(type, proxy)
 
 
+@overload
 def checkedCast(
     type: Type[T], proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None
+) -> T: ...
+
+
+@overload
+def checkedCast(
+    type: Type[T], proxy: None, facet: str | None = None, context: dict[str, str] | None = None
+) -> None: ...
+
+
+def checkedCast(
+    type: Type[T], proxy: ObjectPrx | None, facet: str | None = None, context: dict[str, str] | None = None
 ) -> T | None:
     """
     Downcasts a proxy after confirming the target object's type via a remote invocation.
@@ -59,8 +80,9 @@ def checkedCast(
     ----------
     type : type
         The proxy target type.
-    proxy : ObjectPrx
-        The source proxy (can be None).
+
+    proxy : ObjectPrx or None
+        The source proxy.
 
     facet : str, optional
         A facet name.
@@ -80,8 +102,20 @@ def checkedCast(
     return IcePy.ObjectPrx.newProxy(type, proxy) if proxy.ice_isA(type.ice_staticId(), context=context) else None
 
 
+@overload
 async def checkedCastAsync(
     type: Type[T], proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None
+) -> T: ...
+
+
+@overload
+async def checkedCastAsync(
+    type: Type[T], proxy: None, facet: str | None = None, context: dict[str, str] | None = None
+) -> None: ...
+
+
+async def checkedCastAsync(
+    type: Type[T], proxy: ObjectPrx | None, facet: str | None = None, context: dict[str, str] | None = None
 ) -> T | None:
     """
     Downcasts a proxy after confirming the target object's type via a remote invocation.
@@ -90,8 +124,9 @@ async def checkedCastAsync(
     ----------
     type : type
         The proxy target type.
-    proxy : ObjectPrx
-        The source proxy (can be None).
+
+    proxy : ObjectPrx or None
+        The source proxy.
 
     facet : str, optional
         A facet name.
@@ -125,8 +160,8 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
 
         Parameters
         ----------
-        proxy : ObjectPrx
-            The source proxy (can be None).
+        proxy : ObjectPrx or None
+            The source proxy.
 
         facet : str, optional
             A facet name.
@@ -147,8 +182,8 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
 
         Parameters
         ----------
-        proxy : ObjectPrx
-            The source proxy (can be None).
+        proxy : ObjectPrx or None
+            The source proxy.
 
         facet : str, optional
             A facet name.
@@ -172,8 +207,8 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
 
         Parameters
         ----------
-        proxy : ObjectPrx
-            The source proxy (can be None).
+        proxy : ObjectPrx or None
+            The source proxy.
 
         facet : str, optional
             A facet name.
