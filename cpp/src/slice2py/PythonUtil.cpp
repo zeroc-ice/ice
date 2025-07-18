@@ -736,7 +736,21 @@ Slice::Python::ImportVisitor::visitDataMembers(const ContainedPtr& parent, const
         }
         else
         {
-            addTypingImport(type, parent);
+            if (auto sequence = dynamic_pointer_cast<Sequence>(type))
+            {
+                addTypingImport(sequence->type(), parent);
+                // TODO We should use list[T] for sequence data members.
+                addTypingImport("collections.abc", {"Sequence", ""}, parent);
+            }
+            else if (auto dictionary = dynamic_pointer_cast<Dictionary>(type))
+            {
+                addTypingImport(dictionary->keyType(), parent);
+                addTypingImport(dictionary->valueType(), parent);
+            }
+            else
+            {
+                addTypingImport(type, parent);
+            }
         }
         addRuntimeImportForMetaType(type, parent);
 
