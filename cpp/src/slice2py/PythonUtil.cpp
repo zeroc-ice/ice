@@ -206,7 +206,7 @@ Slice::Python::typeToTypeHintString(
             bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
             if (forMarshaling)
             {
-                // For marshaling, we use a generic Sequence type hint, additionally we accept a bytes object fo byte
+                // For marshaling, we use a generic Sequence type hint, additionally we accept a bytes object for byte
                 // sequences, and for sequences with NumPy metadata we use the NumPy NDArray type hint because it
                 // doesn't conform to the generic sequence type.
                 os << "Sequence[" + typeToTypeHintString(seq->type(), false, source, forMarshaling) + "]";
