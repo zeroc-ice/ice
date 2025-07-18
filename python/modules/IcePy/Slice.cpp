@@ -14,6 +14,8 @@
 #include <ceval.h>
 #include <compile.h>
 
+#include <iostream>
+
 using namespace std;
 using namespace IcePy;
 using namespace Slice;
@@ -35,23 +37,15 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     {
         argSeq = IceInternal::Options::split(cmd);
     }
-    catch (const IceInternal::BadOptException& ex)
-    {
-        PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.what());
-        return nullptr;
-    }
-    catch (const IceInternal::APIException& ex)
+    catch (const std::exception& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.what());
         return nullptr;
     }
 
-    if (list)
+    if (list && !listToStringSeq(list, argSeq))
     {
-        if (!listToStringSeq(list, argSeq))
-        {
-            return nullptr;
-        }
+        return nullptr;
     }
 
     IceInternal::Options opts;
@@ -59,7 +53,6 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("d", "debug");
-    opts.addOpt("", "all");
 
     vector<string> files;
     try
@@ -72,153 +65,94 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             return nullptr;
         }
     }
-    catch (const IceInternal::BadOptException& ex)
-    {
-        PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.what());
-        return nullptr;
-    }
-    catch (const IceInternal::APIException& ex)
+    catch (const std::exception& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.what());
         return nullptr;
     }
 
     vector<string> cppArgs;
-    Ice::StringSeq includePaths;
     bool debug = false;
-    bool all = false;
-    if (opts.isSet("D"))
+
+    for (const auto& arg : opts.argVec("D"))
     {
-        vector<string> optargs = opts.argVec("D");
-        for (const auto& arg : optargs)
-        {
-            cppArgs.push_back("-D" + arg);
-        }
+        cppArgs.push_back("-D" + arg);
     }
-    if (opts.isSet("U"))
+
+    for (const auto& arg : opts.argVec("U"))
     {
-        vector<string> optargs = opts.argVec("U");
-        for (const auto& arg : optargs)
-        {
-            cppArgs.push_back("-U" + arg);
-        }
+        cppArgs.push_back("-U" + arg);
     }
-    if (opts.isSet("I"))
+
+    for (const auto& path : opts.argVec("I"))
     {
-        includePaths = opts.argVec("I");
-        for (const auto& path : includePaths)
-        {
-            cppArgs.push_back("-I" + path);
-        }
+        cppArgs.push_back("-I" + path);
     }
+
     debug = opts.isSet("d") || opts.isSet("debug");
-    all = opts.isSet("all");
 
-    for (const auto& file : files)
+    vector<PythonCodeFragment> fragments;
+    try
     {
-        Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
-        FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2PY__");
+        fragments = Python::dynamicCompile(files, cppArgs, debug);
+    }
+    catch (const std::exception& ex)
+    {
+        PyErr_Format(PyExc_RuntimeError, "error during Slice compilation: %s", ex.what());
+        return nullptr;
+    }
 
-        if (!cppHandle)
+    for (const auto& fragment : fragments)
+    {
+        PyObject* moduleRef = PyImport_AddModule(fragment.moduleName.c_str());
+        if (!moduleRef)
         {
-            PyErr_Format(PyExc_RuntimeError, "Slice preprocessing failed for `%s'", cmd);
+            PyErr_Format(PyExc_RuntimeError, "failed to add module `%s'", fragment.moduleName.c_str());
             return nullptr;
         }
 
-        UnitPtr u = Slice::Unit::createUnit("python", Slice::Python::pyLinkFormatter, all);
-        int parseStatus = u->parse(file, cppHandle, debug);
-
-        if (!icecpp->close() || parseStatus == EXIT_FAILURE)
-        {
-            PyErr_Format(PyExc_RuntimeError, "Slice parsing failed for `%s'", cmd);
-            u->destroy();
-            return nullptr;
-        }
-
-        //
-        // Generate the Python code into a string stream.
-        //
-        ostringstream codeStream;
-        IceInternal::Output out(codeStream);
-        out.setUseTab(false);
-
-        // TODO rework loadSlice
-        // generate(u, all, includePaths, out);
-        if (u->getStatus() == EXIT_FAILURE)
-        {
-            PyErr_Format(PyExc_RuntimeError, "Slice validation failed for `%s'", cmd);
-            u->destroy();
-            return nullptr;
-        }
-        u->destroy();
-
-        string code = codeStream.str();
-
-        //
-        // We need to invoke Ice.updateModules() so that all of the types we've just generated
-        // are made "public".
-        //
-        code += "\nIce.updateModules()\n";
-
-        PyObjectHandle src{
-            Py_CompileString(const_cast<char*>(code.c_str()), const_cast<char*>(file.c_str()), Py_file_input)};
-        if (!src.get())
+        // The file name is set to the Slice file the code was generated from, or to the package index file name for
+        // package index fragments.
+        string inputFile = fragment.isPackageIndex ? fragment.fileName : fragment.sliceFileName;
+        PyObjectHandle code{Py_CompileString(fragment.code.c_str(), inputFile.c_str(), Py_file_input)};
+        if (!code)
         {
             return nullptr;
         }
 
-        PyObjectHandle globals{PyDict_New()};
-        if (!globals.get())
+        PyObject* moduleDict = PyModule_GetDict(moduleRef); // Borrowed reference
+        if (fragment.isPackageIndex)
         {
-            return nullptr;
+            // If this is a package index, we need to set the `__path__` attribute.
+            PyObject* path = PyList_New(1);
+            PyList_SetItem(path, 0, PyUnicode_FromString(fragment.fileName.c_str()));
+            PyDict_SetItemString(moduleDict, "__path__", path);
+
+            // Link package to the parent package if it exists.
+            size_t dotPos = fragment.moduleName.rfind('.');
+            if (dotPos != std::string::npos)
+            {
+                std::string parentName = fragment.moduleName.substr(0, dotPos);
+                std::string childName = fragment.moduleName.substr(dotPos + 1);
+
+                // Get a borrowed reference to the parent module.
+                PyObject* parent = PyImport_AddModule(parentName.c_str());
+                if (!parent)
+                {
+                    return nullptr;
+                }
+
+                PyObject* parentDict = PyModule_GetDict(parent);
+                PyDict_SetItemString(parentDict, childName.c_str(), moduleRef);
+            }
         }
 
-        PyDict_SetItemString(globals.get(), "__builtins__", PyEval_GetBuiltins());
-        PyObjectHandle val{PyEval_EvalCode(src.get(), globals.get(), nullptr)};
-        if (!val.get())
+        PyObjectHandle result{PyEval_EvalCode(code.get(), moduleDict, moduleDict)};
+        if (!result)
         {
             return nullptr;
         }
     }
 
     return Py_None;
-}
-
-extern "C" PyObject*
-IcePy_compile(PyObject* /*self*/, PyObject* args)
-{
-    PyObject* list{nullptr};
-    if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &list))
-    {
-        return nullptr;
-    }
-
-    vector<string> argSeq;
-    if (list)
-    {
-        if (!listToStringSeq(list, argSeq))
-        {
-            return nullptr;
-        }
-    }
-
-    int rc;
-    try
-    {
-        rc = Slice::Python::compile(argSeq);
-    }
-    catch (const std::exception& ex)
-    {
-        consoleErr << argSeq[0] << ": error:" << ex.what() << endl;
-        rc = EXIT_FAILURE;
-    }
-    catch (...)
-    {
-        consoleErr << argSeq[0] << ": error:"
-                   << "unknown exception" << endl;
-        rc = EXIT_FAILURE;
-    }
-
-    // PyInt_FromLong doesn't exist in python 3.
-    return PyLong_FromLong(rc);
 }
