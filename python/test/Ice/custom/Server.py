@@ -62,22 +62,18 @@ class CustomI(Test.Custom):
     def sendS(self, val, current):
         test(isinstance(val.b1, bytes))
         test(isinstance(val.b2, list))
-        test(isinstance(val.b3, bytes))
         test(isinstance(val.b4, list))
         test(isinstance(val.s1, list))
         test(isinstance(val.s2, tuple))
         test(isinstance(val.s3, tuple))
-        test(isinstance(val.s4, list))
 
     def sendC(self, val, current):
         test(isinstance(val.b1, bytes))
         test(isinstance(val.b2, list))
-        test(isinstance(val.b3, bytes))
         test(isinstance(val.b4, list))
         test(isinstance(val.s1, list))
         test(isinstance(val.s2, tuple))
         test(isinstance(val.s3, tuple))
-        test(isinstance(val.s4, list))
 
     def opBoolSeq(self, v1, current):
         test(isinstance(v1, array.array))

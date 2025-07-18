@@ -2233,34 +2233,39 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(
 bool
 IcePy::SequenceInfo::SequenceMapping::getType(const Ice::StringSeq& metadata, Type& t)
 {
-    for (auto p = metadata.begin(); p != metadata.end(); ++p)
+    for (const auto& name : metadata)
     {
-        if ((*p) == "python:seq:default" || (*p) == "python:default")
-        {
-            t = SEQ_DEFAULT;
-            return true;
-        }
-        else if ((*p) == "python:seq:tuple" || (*p) == "python:tuple")
+        if (name == "python:seq:tuple")
         {
             t = SEQ_TUPLE;
             return true;
         }
-        else if ((*p) == "python:seq:list" || (*p) == "python:list")
+        else if (name == "python:seq:list")
         {
             t = SEQ_LIST;
             return true;
         }
-        else if ((*p) == "python:array.array")
+        else if (name == "python:tuple")
+        {
+            t = SEQ_TUPLE;
+            return true;
+        }
+        else if (name == "python:list")
+        {
+            t = SEQ_LIST;
+            return true;
+        }
+        else if (name == "python:array.array")
         {
             t = SEQ_ARRAY;
             return true;
         }
-        else if ((*p) == "python:numpy.ndarray")
+        else if (name == "python:numpy.ndarray")
         {
             t = SEQ_NUMPYARRAY;
             return true;
         }
-        else if (p->find("python:memoryview:") == 0)
+        else if (name.find("python:memoryview:") == 0)
         {
             t = SEQ_MEMORYVIEW;
             return true;

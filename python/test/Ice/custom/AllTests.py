@@ -53,9 +53,9 @@ def allTests(helper, communicator):
         test(b2[i] == byteList[i])
 
     (r, b2) = custom.opByteList2(byteList)
-    test(isinstance(r, bytes))
+    test(isinstance(r, list))
     test(isinstance(b2, tuple))
-    test(r == byteString)
+    test(r == byteList)
     for i in range(0, len(byteList)):
         test(b2[i] == byteList[i])
 
@@ -88,23 +88,19 @@ def allTests(helper, communicator):
     s = Test.S()
     s.b1 = byteList
     s.b2 = byteList
-    s.b3 = byteList
     s.b4 = byteList
     s.s1 = stringList
     s.s2 = stringList
     s.s3 = stringList
-    s.s4 = stringList
     custom.sendS(s)
 
     c = Test.C()
     c.b1 = byteList
     c.b2 = byteList
-    c.b3 = byteList
     c.b4 = byteList
     c.s1 = stringList
     c.s2 = stringList
     c.s3 = stringList
-    c.s4 = stringList
     custom.sendC(c)
 
     print("ok")

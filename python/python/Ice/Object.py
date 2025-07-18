@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 import IcePy
 
 from .OperationMode import OperationMode
-from .StringSeq import __Ice_StringSeq_t as Ice_StringSeq_t
+from .StringSeq import _Ice_StringSeq_t
 
 if TYPE_CHECKING:
     from .Current import Current
@@ -53,7 +53,7 @@ class Object:
         (),
         (),
         (),
-        ((), Ice_StringSeq_t, False, 0),
+        ((), _Ice_StringSeq_t, False, 0),
         (),
     )
 
