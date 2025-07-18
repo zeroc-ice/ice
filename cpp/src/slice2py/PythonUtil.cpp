@@ -2690,7 +2690,7 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
     while (!fragments.empty())
     {
         size_t fragmentsSize = fragments.size();
-        for (vector<PythonCodeFragment>::iterator it = fragments.begin(); it != fragments.end();)
+        for (auto it = fragments.begin(); it != fragments.end();)
         {
             PythonCodeFragment fragment = *it;
             const auto& moduleImports = runtimeImports[fragment.moduleName];
