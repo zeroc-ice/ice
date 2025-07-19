@@ -1582,37 +1582,42 @@ Slice::Container::createStruct(const string& name, NodeType nodeType)
 }
 
 SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type, MetadataList metadata, NodeType nodeType)
+Slice::Container::createSequence(const string& name, const TypePtr& type, MetadataList metadata)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    SequencePtr p = make_shared<Sequence>(shared_from_this(), name, type, std::move(metadata));
+    _contents.push_back(p);
+
+    checkForGlobalDefinition("sequences");
+
+    if (!name.empty())
     {
-        if (matches.front()->name() == name)
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        if (!matches.empty())
         {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as sequence";
-            unit()->error(os.str());
+            if (matches.front()->name() == name)
+            {
+                ostringstream os;
+                os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as sequence";
+                unit()->error(os.str());
+            }
+            else
+            {
+                ostringstream os;
+                os << "sequence '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
+                << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
         }
         else
         {
-            ostringstream os;
-            os << "sequence '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-               << matches.front()->name() << "'";
-            unit()->error(os.str());
+            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(p);
         }
-        return nullptr;
+
+        checkIdentifier(name);
     }
 
-    checkIdentifier(name); // Don't return here -- we create the sequence anyway.
-
-    if (nodeType == Real)
-    {
-        checkForGlobalDefinition("sequences"); // Don't return here -- we create the sequence anyway.
-    }
-
-    SequencePtr p = make_shared<Sequence>(shared_from_this(), name, type, std::move(metadata));
-    unit()->addContent(p);
-    _contents.push_back(p);
     return p;
 }
 
@@ -1622,43 +1627,8 @@ Slice::Container::createDictionary(
     const TypePtr& keyType,
     MetadataList keyMetadata,
     const TypePtr& valueType,
-    MetadataList valueMetadata,
-    NodeType nodeType)
+    MetadataList valueMetadata)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
-    {
-        if (matches.front()->name() == name)
-        {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as dictionary";
-            unit()->error(os.str());
-        }
-        else
-        {
-            ostringstream os;
-            os << "dictionary '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " '" << matches.front()->name() << "'";
-            unit()->error(os.str());
-        }
-        return nullptr;
-    }
-
-    checkIdentifier(name); // Don't return here -- we create the dictionary anyway.
-
-    if (nodeType == Real)
-    {
-        checkForGlobalDefinition("dictionaries"); // Don't return here -- we create the dictionary anyway.
-
-        if (keyType && !Dictionary::isLegalKeyType(keyType))
-        {
-            ostringstream os;
-            os << "dictionary '" << name << "' uses an illegal key type";
-            unit()->error(os.str());
-            return nullptr;
-        }
-    }
-
     DictionaryPtr p = make_shared<Dictionary>(
         shared_from_this(),
         name,
@@ -1666,43 +1636,83 @@ Slice::Container::createDictionary(
         std::move(keyMetadata),
         valueType,
         std::move(valueMetadata));
-    unit()->addContent(p);
     _contents.push_back(p);
+
+    checkForGlobalDefinition("dictionaries");
+    if (keyType && !Dictionary::isLegalKeyType(keyType))
+    {
+        unit()->error("dictionary '" + name + "' uses an illegal key type");
+    }
+
+    if (!name.empty())
+    {
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        if (!matches.empty())
+        {
+            if (matches.front()->name() == name)
+            {
+                ostringstream os;
+                os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as dictionary";
+                unit()->error(os.str());
+            }
+            else
+            {
+                ostringstream os;
+                os << "dictionary '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                << " '" << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
+        }
+        else
+        {
+            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(p);
+        }
+
+        checkIdentifier(name);
+    }
+
     return p;
 }
 
 EnumPtr
-Slice::Container::createEnum(const string& name, NodeType nodeType)
+Slice::Container::createEnum(const string& name)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    EnumPtr p = make_shared<Enum>(shared_from_this(), name);
+    _contents.push_back(p);
+
+    checkForGlobalDefinition("enums");
+
+    if (!name.empty())
     {
-        if (matches.front()->name() == name)
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        if (!matches.empty())
         {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as enumeration";
-            unit()->error(os.str());
+            if (matches.front()->name() == name)
+            {
+                ostringstream os;
+                os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as enumeration";
+                unit()->error(os.str());
+            }
+            else
+            {
+                ostringstream os;
+                os << "enumeration '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                << " '" << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
         }
         else
         {
-            ostringstream os;
-            os << "enumeration '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " '" << matches.front()->name() << "'";
-            unit()->error(os.str());
+            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(p);
         }
-        return nullptr;
+
+        checkIdentifier(name);
     }
 
-    checkIdentifier(name); // Don't return here -- we create the enumeration anyway.
-
-    if (nodeType == Real)
-    {
-        checkForGlobalDefinition("enums"); // Don't return here -- we create the enumeration anyway.
-    }
-
-    EnumPtr p = make_shared<Enum>(shared_from_this(), name);
-    unit()->addContent(p);
-    _contents.push_back(p);
     return p;
 }
 
@@ -1712,47 +1722,44 @@ Slice::Container::createConst(
     const TypePtr& type,
     MetadataList metadata,
     const SyntaxTreeBasePtr& valueType,
-    const string& valueString,
-    NodeType nodeType)
+    const string& valueString)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    SyntaxTreeBasePtr resolvedValueType = valueType;
+    validateConstant(name, type, resolvedValueType, valueString, true);
+    ConstPtr p = make_shared<Const>(shared_from_this(), name, type, std::move(metadata), resolvedValueType, valueString);
+    _contents.push_back(p);
+
+    checkForGlobalDefinition("constants");
+
+    if (!name.empty())
     {
-        if (matches.front()->name() == name)
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        if (!matches.empty())
         {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as constant";
-            unit()->error(os.str());
+            if (matches.front()->name() == name)
+            {
+                ostringstream os;
+                os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as constant";
+                unit()->error(os.str());
+            }
+            else
+            {
+                ostringstream os;
+                os << "constant '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
+                << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
+
+            checkIdentifier(name);
         }
         else
         {
-            ostringstream os;
-            os << "constant '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-               << matches.front()->name() << "'";
-            unit()->error(os.str());
+            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(p);
         }
-        return nullptr;
     }
 
-    checkIdentifier(name); // Don't return here -- we create the constant anyway.
-
-    if (nodeType == Real)
-    {
-        checkForGlobalDefinition("constants"); // Don't return here -- we create the constant anyway.
-    }
-
-    SyntaxTreeBasePtr resolvedValueType = valueType;
-
-    // Validate the constant and its value; for enums, find enumerator
-    if (nodeType == Real && !validateConstant(name, type, resolvedValueType, valueString, true))
-    {
-        return nullptr;
-    }
-
-    ConstPtr p =
-        make_shared<Const>(shared_from_this(), name, type, std::move(metadata), resolvedValueType, valueString);
-    unit()->addContent(p);
-    _contents.push_back(p);
     return p;
 }
 
@@ -2144,7 +2151,7 @@ Slice::Container::visitContents(ParserVisitor* visitor)
 bool
 Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedThing)
 {
-    if (scopedName[0] == ':') // Only unscoped names introduce anything.
+    if (scopedName.empty() || scopedName[0] == ':') // Only unscoped names introduce anything.
     {
         return true;
     }
@@ -2827,7 +2834,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
       _base(std::move(base)),
       _compactId(id)
 {
-    if (_compactId != -1)
+    if (_compactId != -1 && !name.empty())
     {
         unit()->addTypeId(_compactId, scoped());
     }
@@ -5016,6 +5023,7 @@ Slice::Unit::findDefinitionContext(string_view file) const
 void
 Slice::Unit::addContent(const ContainedPtr& contained)
 {
+    assert(!contained->name().empty());
     string scoped = IceInternal::toLower(contained->scoped());
     _contentMap[scoped].push_back(contained);
 }

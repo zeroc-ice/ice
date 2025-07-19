@@ -471,22 +471,20 @@ namespace Slice
         createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
         [[nodiscard]] StructPtr createStruct(const std::string& name, NodeType nodeType = Real);
         [[nodiscard]] SequencePtr
-        createSequence(const std::string& name, const TypePtr& type, MetadataList metadata, NodeType nodeType = Real);
+        createSequence(const std::string& name, const TypePtr& type, MetadataList metadata);
         [[nodiscard]] DictionaryPtr createDictionary(
             const std::string& name,
             const TypePtr& keyType,
             MetadataList keyMetadata,
             const TypePtr& valueType,
-            MetadataList valueMetadata,
-            NodeType nodeType = Real);
-        [[nodiscard]] EnumPtr createEnum(const std::string& name, NodeType nodeType = Real);
+            MetadataList valueMetadata);
+        [[nodiscard]] EnumPtr createEnum(const std::string& name);
         [[nodiscard]] ConstPtr createConst(
             const std::string& name,
             const TypePtr& constType,
             MetadataList metadata,
             const SyntaxTreeBasePtr& valueType,
-            const std::string& value,
-            NodeType nodeType = Real);
+            const std::string& value);
         [[nodiscard]] TypeList lookupType(const std::string& identifier);
         [[nodiscard]] TypeList
         lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);

@@ -376,30 +376,22 @@ opt_semicolon
 opt_semicolon
 | sequence_def
 {
-    assert($1 == nullptr || dynamic_pointer_cast<Sequence>($1));
-}
-';'
-| sequence_def
-{
-    currentUnit->error("';' missing after sequence definition");
-}
-| dictionary_def
-{
-    assert($1 == nullptr || dynamic_pointer_cast<Dictionary>($1));
+    assert(dynamic_pointer_cast<Sequence>($1));
 }
 ';'
 | dictionary_def
 {
-    currentUnit->error("';' missing after dictionary definition");
+    assert(dynamic_pointer_cast<Dictionary>($1));
 }
+';'
 | enum_def
 {
-    assert($1 == nullptr || dynamic_pointer_cast<Enum>($1));
+    assert(dynamic_pointer_cast<Enum>($1));
 }
 opt_semicolon
 | const_def
 {
-    assert($1 == nullptr || dynamic_pointer_cast<Const>($1));
+    assert(dynamic_pointer_cast<Const>($1));
 }
 ';'
 | const_def
@@ -1339,7 +1331,7 @@ exception
 // ----------------------------------------------------------------------
 sequence_def
 // ----------------------------------------------------------------------
-: ICE_SEQUENCE '<' metadata type '>' ICE_IDENTIFIER
+: ICE_SEQUENCE '<' metadata type '>' definition_name
 {
     auto ident = dynamic_pointer_cast<StringTok>($6);
     auto metadata = dynamic_pointer_cast<MetadataListTok>($3);
@@ -1347,21 +1339,12 @@ sequence_def
     ContainerPtr cont = currentUnit->currentContainer();
     $$ = cont->createSequence(ident->v, type, std::move(metadata->v));
 }
-| ICE_SEQUENCE '<' metadata type '>' keyword
-{
-    auto ident = dynamic_pointer_cast<StringTok>($6);
-    auto metadata = dynamic_pointer_cast<MetadataListTok>($3);
-    auto type = dynamic_pointer_cast<Type>($4);
-    ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, std::move(metadata->v)); // Dummy
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as sequence name");
-}
 ;
 
 // ----------------------------------------------------------------------
 dictionary_def
 // ----------------------------------------------------------------------
-: ICE_DICTIONARY '<' metadata type ',' metadata type '>' ICE_IDENTIFIER
+: ICE_DICTIONARY '<' metadata type ',' metadata type '>' definition_name
 {
     auto ident = dynamic_pointer_cast<StringTok>($9);
     auto keyMetadata = dynamic_pointer_cast<MetadataListTok>($3);
@@ -1371,80 +1354,30 @@ dictionary_def
     ContainerPtr cont = currentUnit->currentContainer();
     $$ = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v));
 }
-| ICE_DICTIONARY '<' metadata type ',' metadata type '>' keyword
-{
-    auto ident = dynamic_pointer_cast<StringTok>($9);
-    auto keyMetadata = dynamic_pointer_cast<MetadataListTok>($3);
-    auto keyType = dynamic_pointer_cast<Type>($4);
-    auto valueMetadata = dynamic_pointer_cast<MetadataListTok>($6);
-    auto valueType = dynamic_pointer_cast<Type>($7);
-    ContainerPtr cont = currentUnit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v)); // Dummy
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as dictionary name");
-}
-;
-
-// ----------------------------------------------------------------------
-enum_id
-// ----------------------------------------------------------------------
-: ICE_ENUM ICE_IDENTIFIER
-{
-    $$ = $2;
-}
-| ICE_ENUM keyword
-{
-    auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as enumeration name");
-    $$ = $2; // Dummy
-}
 ;
 
 // ----------------------------------------------------------------------
 enum_def
 // ----------------------------------------------------------------------
-: enum_id
+: ICE_ENUM definition_name
 {
-    auto ident = dynamic_pointer_cast<StringTok>($1);
+    auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
     EnumPtr en = cont->createEnum(ident->v);
-    if (en)
-    {
-        cont->checkIntroduced(ident->v, en);
-    }
-    else
-    {
-        en = cont->createEnum(Ice::generateUUID(), Dummy);
-    }
+    cont->checkIntroduced(ident->v, en);
     currentUnit->pushContainer(en);
     $$ = en;
 }
 '{' enumerators '}'
 {
-    auto en = dynamic_pointer_cast<Enum>($2);
-    if (en)
+    auto en = dynamic_pointer_cast<Enum>($3);
+    auto enumerators = dynamic_pointer_cast<EnumeratorListTok>($5);
+    if (enumerators->v.empty())
     {
-        auto enumerators = dynamic_pointer_cast<EnumeratorListTok>($4);
-        if (enumerators->v.empty())
-        {
-            currentUnit->error("enum '" + en->name() + "' must have at least one enumerator");
-        }
-        currentUnit->popContainer();
+        currentUnit->error("enum '" + en->name() + "' must have at least one enumerator");
     }
-    $$ = $2;
-}
-|
-ICE_ENUM
-{
-    currentUnit->error("missing enumeration name");
-    ContainerPtr cont = currentUnit->currentContainer();
-    EnumPtr en = cont->createEnum(Ice::generateUUID(), Dummy);
-    currentUnit->pushContainer(en);
-    $$ = en;
-}
-'{' enumerators '}'
-{
     currentUnit->popContainer();
-    $$ = $1;
+    $$ = en;
 }
 ;
 
@@ -1881,7 +1814,7 @@ const_initializer
 // ----------------------------------------------------------------------
 const_def
 // ----------------------------------------------------------------------
-: ICE_CONST metadata type ICE_IDENTIFIER '=' const_initializer
+: ICE_CONST metadata type definition_name '=' const_initializer
 {
     auto metadata = dynamic_pointer_cast<MetadataListTok>($2);
     auto const_type = dynamic_pointer_cast<Type>($3);
@@ -1890,14 +1823,30 @@ const_def
     $$ = currentUnit->currentContainer()->createConst(ident->v, const_type, std::move(metadata->v), value->v,
                                                       value->valueAsString);
 }
-| ICE_CONST metadata type '=' const_initializer
+;
+
+// ----------------------------------------------------------------------
+definition_name
+// ----------------------------------------------------------------------
+: ICE_IDENTIFIER
 {
-    auto metadata = dynamic_pointer_cast<MetadataListTok>($2);
-    auto const_type = dynamic_pointer_cast<Type>($3);
-    auto value = dynamic_pointer_cast<ConstDefTok>($5);
-    currentUnit->error("missing constant name");
-    $$ = currentUnit->currentContainer()->createConst(Ice::generateUUID(), const_type, std::move(metadata->v),
-                                                      value->v, value->valueAsString, Dummy); // Dummy
+    // All good, this is a valid identifier.
+    $$ = $1;
+}
+| keyword
+{
+    // If an un-escaped keyword was used as an identifier, we emit an error,
+    // but continue along, pretending like the user escaped the keyword.
+    auto ident = dynamic_pointer_cast<StringTok>($1);
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as a name");
+    $$ = ident;
+}
+| %empty
+{
+    // If the user forgot to give a name to a Slice definition, we emit an error,
+    // but continue along, returning an empty string instead of an identifier.
+    currentUnit->error("missing name");
+    $$ = make_shared<StringTok>();
 }
 ;
 
