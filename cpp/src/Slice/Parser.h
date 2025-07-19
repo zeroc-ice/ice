@@ -501,7 +501,7 @@ namespace Slice
         [[nodiscard]] ContainedList contents() const;
         void visitContents(ParserVisitor* visitor);
 
-        bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = nullptr);
+        void checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = nullptr);
 
         /// Returns `true` if this container is the global scope (i.e. it's of type `Unit`), and `false` otherwise.
         /// If false, we emit an error message. So this function should only be called for types which cannot appear at

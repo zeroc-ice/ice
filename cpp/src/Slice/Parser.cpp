@@ -293,44 +293,11 @@ namespace
         }
     }
 
-    StringList splitComment(string comment, bool escapeXml)
+    StringList splitComment(string comment)
     {
-        string::size_type pos = 0;
-
-        // Escape XML entities.
-        if (escapeXml)
-        {
-            const string amp = "&amp;";
-            const string lt = "&lt;";
-            const string gt = "&gt;";
-
-            pos = 0;
-            while ((pos = comment.find_first_of("&<>", pos)) != string::npos)
-            {
-                switch (comment[pos])
-                {
-                    case '&':
-                        comment.replace(pos, 1, amp);
-                        pos += amp.size();
-                        break;
-                    case '<':
-                        comment.replace(pos, 1, lt);
-                        pos += lt.size();
-                        break;
-                    case '>':
-                        comment.replace(pos, 1, gt);
-                        pos += gt.size();
-                        break;
-                    default:
-                        assert(false);
-                        break;
-                }
-            }
-        }
-
         // Split the comment into separate lines, and removing any trailing whitespace and lines from it.
         StringList result;
-        pos = 0;
+        string::size_type pos = 0;
         string::size_type nextPos;
         while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
         {
@@ -448,10 +415,44 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
     assert(linkFormatter.has_value());
 
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(p->docComment(), escapeXml);
+    StringList lines = splitComment(p->docComment());
     if (lines.empty())
     {
         return nullopt;
+    }
+
+    // Escape any XML entities if necessary.
+    if (escapeXml)
+    {
+        const string amp = "&amp;";
+        const string lt = "&lt;";
+        const string gt = "&gt;";
+
+        for (auto& line : lines)
+        {
+            string::size_type pos = 0;
+            while ((pos = line.find_first_of("&<>", pos)) != string::npos)
+            {
+                switch (line[pos])
+                {
+                    case '&':
+                        line.replace(pos, 1, amp);
+                        pos += amp.size();
+                        break;
+                    case '<':
+                        line.replace(pos, 1, lt);
+                        pos += lt.size();
+                        break;
+                    case '>':
+                        line.replace(pos, 1, gt);
+                        pos += gt.size();
+                        break;
+                    default:
+                        assert(false);
+                        break;
+                }
+            }
+        }
     }
 
     // Fix any link tags using the provided link formatter.
@@ -2141,7 +2142,7 @@ Slice::Container::visitContents(ParserVisitor* visitor)
     }
 }
 
-bool
+void
 Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedThing)
 {
     if (scopedName[0] == ':') // Only unscoped names introduce anything.
