@@ -31,15 +31,17 @@ IdentAsKeyword.ice:32: interfaces can only be defined within a module
 IdentAsKeyword.ice:33: keyword 'long' cannot be used as interface name
 IdentAsKeyword.ice:33: interfaces can only be defined within a module
 IdentAsKeyword.ice:35: sequences can only be defined within a module
+IdentAsKeyword.ice:36: keyword 'extends' cannot be used as a name
+IdentAsKeyword.ice:36: sequences can only be defined within a module
 IdentAsKeyword.ice:36: sequence 'extends' differs only in capitalization from sequence 'EXtends'
-IdentAsKeyword.ice:36: keyword 'extends' cannot be used as sequence name
+IdentAsKeyword.ice:37: keyword 'short' cannot be used as a name
 IdentAsKeyword.ice:37: sequences can only be defined within a module
-IdentAsKeyword.ice:37: keyword 'short' cannot be used as sequence name
 IdentAsKeyword.ice:39: syntax error
 IdentAsKeyword.ice:40: 'moDule' is not defined
 IdentAsKeyword.ice:40: sequences can only be defined within a module
+IdentAsKeyword.ice:42: keyword 'throws' cannot be used as a name
 IdentAsKeyword.ice:42: dictionaries can only be defined within a module
-IdentAsKeyword.ice:42: keyword 'throws' cannot be used as dictionary name
+IdentAsKeyword.ice:43: dictionaries can only be defined within a module
 IdentAsKeyword.ice:43: dictionary 'thRows' differs only in capitalization from dictionary 'throws'
 IdentAsKeyword.ice:45: syntax error
 IdentAsKeyword.ice:46: 'MODULE' is not defined
@@ -50,8 +52,9 @@ IdentAsKeyword.ice:51: syntax error
 IdentAsKeyword.ice:52: 'VOID' is an exception, which cannot be used as a type
 IdentAsKeyword.ice:52: 'VOid' is an exception, which cannot be used as a type
 IdentAsKeyword.ice:52: dictionaries can only be defined within a module
-IdentAsKeyword.ice:54: keyword 'idempotent' cannot be used as enumeration name
+IdentAsKeyword.ice:54: keyword 'idempotent' cannot be used as a name
 IdentAsKeyword.ice:54: enums can only be defined within a module
+IdentAsKeyword.ice:55: enums can only be defined within a module
 IdentAsKeyword.ice:55: enumeration 'IDEMPOTENT' differs only in capitalization from enumeration 'idempotent'
 IdentAsKeyword.ice:57: enums can only be defined within a module
 IdentAsKeyword.ice:57: keyword 'long' cannot be used as enumerator

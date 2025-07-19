@@ -17,9 +17,9 @@ IllegalUseOfKeyword.ice:40: keyword 'int' cannot be used as data member name
 IllegalUseOfKeyword.ice:41: keyword 'long' cannot be used as data member name
 IllegalUseOfKeyword.ice:42: keyword 'float' cannot be used as data member name
 IllegalUseOfKeyword.ice:43: keyword 'double' cannot be used as data member name
-IllegalUseOfKeyword.ice:46: keyword 'Object' cannot be used as sequence name
-IllegalUseOfKeyword.ice:48: keyword 'dictionary' cannot be used as dictionary name
-IllegalUseOfKeyword.ice:50: keyword 'string' cannot be used as enumeration name
+IllegalUseOfKeyword.ice:46: keyword 'Object' cannot be used as a name
+IllegalUseOfKeyword.ice:48: keyword 'dictionary' cannot be used as a name
+IllegalUseOfKeyword.ice:50: keyword 'string' cannot be used as a name
 IllegalUseOfKeyword.ice:57: keyword 'sequence' cannot be used as enumerator
 IllegalUseOfKeyword.ice:58: keyword 'dictionary' cannot be used as enumerator
 IllegalUseOfKeyword.ice:59: keyword 'enum' cannot be used as enumerator

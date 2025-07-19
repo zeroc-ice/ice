@@ -1749,8 +1749,6 @@ Slice::Container::createConst(
                 << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
-
-            checkIdentifier(name);
         }
         else
         {
@@ -1758,6 +1756,8 @@ Slice::Container::createConst(
             // add it to the unit's contentMap so it can be looked up later.
             unit()->addContent(p);
         }
+
+        checkIdentifier(name);
     }
 
     return p;
