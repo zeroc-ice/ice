@@ -262,13 +262,18 @@ namespace Slice
     class DocComment final
     {
     public:
-        /// Parses the raw doc-comment attached to `p` into a structured `DocComment`.
-        ///
-        /// @param p The slice element whose doc-comment should be parsed.
-        ///
-        /// @return A `DocComment` instance containing a parsed representation of `p`'s doc-comment, if a doc-comment
-        /// was present. If no doc-comment was present (or it contained only whitespace) this returns `nullopt` instead.
-        [[nodiscard]] static std::optional<DocComment> parseFrom(const ContainedPtr& p);
+        /// TODO
+        [[nodiscard]] static std::optional<DocComment> createUnparsed(std::string rawDocComment);
+
+        /// TODO
+        void parse(const ContainedPtr& p, const DocLinkFormatter& linkFormatter);
+
+        // Parses the raw doc-comment attached to `p` into a structured `DocComment`.
+        //
+        // @param p The slice element whose doc-comment should be parsed.
+        //
+        // @return A `DocComment` instance containing a parsed representation of `p`'s doc-comment, if a doc-comment
+        // was present. If no doc-comment was present (or it contained only whitespace) this returns `nullopt` instead.
 
         [[nodiscard]] bool isDeprecated() const;
         [[nodiscard]] const StringList& deprecated() const;
@@ -288,6 +293,8 @@ namespace Slice
         [[nodiscard]] const std::map<std::string, StringList>& exceptions() const;
 
     private:
+        StringList _rawDocCommentLines;
+
         bool _isDeprecated{false};
         StringList _deprecated;
         StringList _overview;
