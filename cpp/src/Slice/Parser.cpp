@@ -2147,7 +2147,7 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
 {
     if (scopedName[0] == ':') // Only unscoped names introduce anything.
     {
-        return true;
+        return;
     }
 
     // Split off first component.
@@ -2160,7 +2160,7 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
         ContainedList cl = lookupContained(firstComponent, false);
         if (cl.empty())
         {
-            return true; // Ignore types whose creation failed previously.
+            return; // Ignore types whose creation failed previously.
         }
         namedThing = cl.front();
     }
@@ -2209,26 +2209,16 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
         // We've previously introduced the first component to the current scope, check that it has not changed meaning.
         if (it->second->scoped() != namedThing->scoped())
         {
-            // Parameter are in its own scope.
-            if ((dynamic_pointer_cast<Parameter>(it->second) && !dynamic_pointer_cast<Parameter>(namedThing)) ||
-                (!dynamic_pointer_cast<Parameter>(it->second) && dynamic_pointer_cast<Parameter>(namedThing)))
+            // Parameter and data members are in their own scopes.
+            if (!(dynamic_pointer_cast<Parameter>(it->second) && !dynamic_pointer_cast<Parameter>(namedThing)) &&
+                !(!dynamic_pointer_cast<Parameter>(it->second) && dynamic_pointer_cast<Parameter>(namedThing)) &&
+                !(dynamic_pointer_cast<DataMember>(it->second) && !dynamic_pointer_cast<DataMember>(namedThing)) &&
+                !(!dynamic_pointer_cast<DataMember>(it->second) && dynamic_pointer_cast<DataMember>(namedThing)))
             {
-                return true;
+                unit()->error("'" + firstComponent + "' has changed meaning");
             }
-
-            // Data members are in its own scope.
-            if ((dynamic_pointer_cast<DataMember>(it->second) && !dynamic_pointer_cast<DataMember>(namedThing)) ||
-                (!dynamic_pointer_cast<DataMember>(it->second) && dynamic_pointer_cast<DataMember>(namedThing)))
-            {
-                return true;
-            }
-
-            unit()->error("'" + firstComponent + "' has changed meaning");
-
-            return false;
         }
     }
-    return true;
 }
 
 bool
