@@ -265,11 +265,10 @@ namespace Slice
         /// Parses the raw doc-comment attached to `p` into a structured `DocComment`.
         ///
         /// @param p The slice element whose doc-comment should be parsed.
-        /// @param escapeXml If true, escapes all XML special characters in the parsed comment. Defaults to false.
         ///
         /// @return A `DocComment` instance containing a parsed representation of `p`'s doc-comment, if a doc-comment
         /// was present. If no doc-comment was present (or it contained only whitespace) this returns `nullopt` instead.
-        [[nodiscard]] static std::optional<DocComment> parseFrom(const ContainedPtr& p, bool escapeXml = false);
+        [[nodiscard]] static std::optional<DocComment> parseFrom(const ContainedPtr& p);
 
         [[nodiscard]] bool isDeprecated() const;
         [[nodiscard]] const StringList& deprecated() const;
@@ -415,7 +414,7 @@ namespace Slice
         [[nodiscard]] const std::string& file() const;
         [[nodiscard]] int line() const;
 
-        [[nodiscard]] std::string docComment() const;
+        [[nodiscard]] const std::optional<DocComment>& docComment() const;
 
         [[nodiscard]] int includeLevel() const;
         [[nodiscard]] DefinitionContextPtr definitionContext() const;
@@ -448,7 +447,7 @@ namespace Slice
         std::string _name;
         std::string _file;
         int _line;
-        std::string _docComment;
+        std::optional<DocComment> _docComment;
         int _includeLevel;
         DefinitionContextPtr _definitionContext;
         MetadataList _metadata;

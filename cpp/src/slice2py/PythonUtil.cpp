@@ -1027,7 +1027,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "class " << valueName << '(' << (base ? getImportAlias(base) : "Ice_Value") << "):";
     out.inc();
 
-    writeDocstring(DocComment::parseFrom(p), members, out);
+    writeDocstring(p->docComment(), members, out);
 
     // __init__
     out << nl << "def __init__(";
@@ -1537,7 +1537,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "class " << name << '(' << (base ? getImportAlias(base) : "Ice_UserException") << "):";
     out.inc();
 
-    writeDocstring(DocComment::parseFrom(p), members, out);
+    writeDocstring(p->docComment(), members, out);
 
     // __init__
     out << nl << "def __init__(";
@@ -1621,7 +1621,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "class " << name << ":";
     out.inc();
 
-    writeDocstring(DocComment::parseFrom(p), members, out);
+    writeDocstring(p->docComment(), members, out);
 
     for (const auto& field : members)
     {
@@ -1714,7 +1714,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     out << nl << "class " << name << "(Enum):";
     out.inc();
 
-    writeDocstring(DocComment::parseFrom(p), p, out);
+    writeDocstring(p->docComment(), p, out);
 
     out << nl;
     for (const auto& enumerator : enumerators)
@@ -2051,7 +2051,7 @@ Slice::Python::CodeVisitor::writeDocstring(
     map<string, list<string>> docs;
     for (const auto& member : members)
     {
-        if (auto memberDoc = DocComment::parseFrom(member))
+        if (const auto& memberDoc = member->docComment())
         {
             const StringList& memberOverview = memberDoc->overview();
             if (!memberOverview.empty())
@@ -2121,7 +2121,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     map<string, list<string>> docs;
     for (const auto& enumerator : enumerators)
     {
-        if (auto enumeratorDoc = DocComment::parseFrom(enumerator))
+        if (const auto& enumeratorDoc = enumerator->docComment())
         {
             const StringList& enumeratorOverview = enumeratorDoc->overview();
             if (!enumeratorOverview.empty())
@@ -2176,7 +2176,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
 void
 Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind methodKind, Output& out)
 {
-    optional<DocComment> comment = DocComment::parseFrom(op);
+    const optional<DocComment>& comment = op->docComment();
     if (!comment)
     {
         return;

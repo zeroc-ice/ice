@@ -407,8 +407,12 @@ namespace
 }
 
 optional<DocComment>
-Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
+Slice::DocComment::parseFrom(const ContainedPtr& p)
 {
+    // TODO: this is a temporary hack since only "csharp" happens to set 'escapeXML'.
+    // If true, escapes all XML special characters in the parsed comment. Defaults to false.
+    const bool escapeXML = (p->unit()->languageName() == "cs");
+
     const optional<DocLinkFormatter>& linkFormatter = p->unit()->linkFormatter();
     // Some compilers don't generate doc-comments, and so don't provide a link formatter.
     // But, these compilers should also never be calling `parseFrom` in the first place.
