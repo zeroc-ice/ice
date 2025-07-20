@@ -1889,7 +1889,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     DataMemberList baseDataMembers;
 
     vector<string> allParameters;
-    map<string, string> allOverviews;
+    map<string, StringList> allOverviews;
 
     for (const auto& dataMember : allDataMembers)
     {
@@ -2342,7 +2342,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     if (!allDataMembers.empty())
     {
         vector<string> allParameters;
-        map<string, string> allOverviews;
+        map<string, StringList> allOverviews;
         DataMemberList dataMembers = p->dataMembers();
 
         for (const auto& dataMember : allDataMembers)
@@ -2352,7 +2352,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             allParameters.push_back(typeName + " " + dataMember->mappedName());
             if (const auto& comment = dataMember->docComment())
             {
-                allOverviews[dataMember->name()] = comment->docComment();
+                allOverviews[dataMember->name()] = comment->overview();
             }
         }
 

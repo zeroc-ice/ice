@@ -2,6 +2,7 @@
 
 #include "Parser.h"
 #include "DeprecationReporter.h"
+#include "DocCommentParser.h"
 #include "Ice/StringUtil.h"
 #include "Util.h"
 

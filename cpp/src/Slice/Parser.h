@@ -259,6 +259,8 @@ namespace Slice
     using DocLinkFormatter =
         std::string (*)(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
+    class DocCommentParser;
+
     class DocComment final
     {
     public:
@@ -448,6 +450,8 @@ namespace Slice
         [[nodiscard]] virtual std::string kindOf() const = 0;
 
     protected:
+        friend class DocCommentParser;
+
         Contained(const ContainerPtr& container, std::string name);
 
         ContainerPtr _container;
