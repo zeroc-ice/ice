@@ -2219,7 +2219,7 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
             // For example, if one is a parameter and the other is a class, they're logically in different scopes.
             // But, if both of them _are_ a parameter, or both of them _are not_ a parameter, then they're in the same
             // scope, and we should report an error. The same applies for data members.
-            if ((isFirstAParameter == isSecondAParameter) || (isFirstADataMember == isSecondADataMember))
+            if ((isFirstAParameter == isSecondAParameter) && (isFirstADataMember == isSecondADataMember))
             {
                 unit()->error("'" + firstComponent + "' has changed meaning");
             }
