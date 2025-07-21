@@ -293,7 +293,7 @@ namespace
         }
     }
 
-    StringList splitComment(string comment)
+    StringList splitComment(const string& comment)
     {
         // Split the comment into separate lines, and removing any trailing whitespace and lines from it.
         StringList result;
@@ -2209,11 +2209,17 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
         // We've previously introduced the first component to the current scope, check that it has not changed meaning.
         if (it->second->scoped() != namedThing->scoped())
         {
-            // Parameters and data members are in their own scopes.
-            if (!(dynamic_pointer_cast<Parameter>(it->second) && !dynamic_pointer_cast<Parameter>(namedThing)) &&
-                !(!dynamic_pointer_cast<Parameter>(it->second) && dynamic_pointer_cast<Parameter>(namedThing)) &&
-                !(dynamic_pointer_cast<DataMember>(it->second) && !dynamic_pointer_cast<DataMember>(namedThing)) &&
-                !(!dynamic_pointer_cast<DataMember>(it->second) && dynamic_pointer_cast<DataMember>(namedThing)))
+            // Parameters and data members are in their own scopes. So they can't conflict with other elements.
+            const bool isFirstAParameter = static_cast<bool>(dynamic_pointer_cast<Parameter>(it->second));
+            const bool isSecondAParameter = static_cast<bool>(dynamic_pointer_cast<Parameter>(namedThing));
+            const bool isFirstADataMember = static_cast<bool>(dynamic_pointer_cast<DataMember>(it->second));
+            const bool isSecondADataMember = static_cast<bool>(dynamic_pointer_cast<DataMember>(namedThing));
+
+            // We don't want to emit an error if one of them is a parameter/member, but the other isn't.
+            // For example, if one is a parameter and the other is a class, they're logically in different scopes.
+            // But, if both of them _are_ a parameter, or both of them _are not_ a parameter, then they're in the same
+            // scope, and we should report an error. The same applies for data members.
+            if ((isFirstAParameter == isSecondAParameter) || (isFirstADataMember == isSecondADataMember))
             {
                 unit()->error("'" + firstComponent + "' has changed meaning");
             }
