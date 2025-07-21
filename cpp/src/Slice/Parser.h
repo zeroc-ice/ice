@@ -470,8 +470,7 @@ namespace Slice
         [[nodiscard]] ExceptionPtr
         createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
         [[nodiscard]] StructPtr createStruct(const std::string& name, NodeType nodeType = Real);
-        [[nodiscard]] SequencePtr
-        createSequence(const std::string& name, const TypePtr& type, MetadataList metadata);
+        [[nodiscard]] SequencePtr createSequence(const std::string& name, const TypePtr& type, MetadataList metadata);
         [[nodiscard]] DictionaryPtr createDictionary(
             const std::string& name,
             const TypePtr& keyType,

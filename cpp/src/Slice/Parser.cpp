@@ -1603,8 +1603,8 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, Metada
             else
             {
                 ostringstream os;
-                os << "sequence '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-                << matches.front()->name() << "'";
+                os << "sequence '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                   << " '" << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
         }
@@ -1659,7 +1659,7 @@ Slice::Container::createDictionary(
             {
                 ostringstream os;
                 os << "dictionary '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-                << " '" << matches.front()->name() << "'";
+                   << " '" << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
         }
@@ -1699,7 +1699,7 @@ Slice::Container::createEnum(const string& name)
             {
                 ostringstream os;
                 os << "enumeration '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-                << " '" << matches.front()->name() << "'";
+                   << " '" << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
         }
@@ -1726,7 +1726,8 @@ Slice::Container::createConst(
 {
     SyntaxTreeBasePtr resolvedValueType = valueType;
     validateConstant(name, type, resolvedValueType, valueString, true);
-    ConstPtr p = make_shared<Const>(shared_from_this(), name, type, std::move(metadata), resolvedValueType, valueString);
+    ConstPtr p =
+        make_shared<Const>(shared_from_this(), name, type, std::move(metadata), resolvedValueType, valueString);
     _contents.push_back(p);
 
     checkForGlobalDefinition("constants");
@@ -1745,8 +1746,8 @@ Slice::Container::createConst(
             else
             {
                 ostringstream os;
-                os << "constant '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-                << matches.front()->name() << "'";
+                os << "constant '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                   << " '" << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
         }
