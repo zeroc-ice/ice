@@ -1065,19 +1065,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     // Generate the __repr__ method for this Value class.
     // The default __str__ method inherited from Ice.Value calls __repr__().
-    out << sp;
-    out << nl << "def __repr__(self):";
-    out.inc();
-    const auto& allDataMembers = p->allDataMembers();
-    if (allDataMembers.empty())
-    {
-        out << nl << "return \"" << getImportAlias(p) << "()\"";
-    }
-    else
-    {
-        out << nl << "return f\"" << getImportAlias(p) << "(" << formatFields(allDataMembers) << ")\"";
-    }
-    out.dec();
+    writeRepr(p, p->allDataMembers(), out);
 
     out.dec();
 
@@ -1092,43 +1080,10 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << ",";
     out << nl << "False,";
     out << nl << (base ? getMetaType(base) : "None") << ",";
-    out << nl << "(";
 
-    // Members
-    //
-    // Data members are represented as a tuple:
-    //
-    //   ("MemberName", MemberMetadata, MemberType, Optional, Tag)
-    //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
-    if (members.size() > 1)
-    {
-        out.inc();
-        out << nl;
-    }
+    writeMetaTypeDataMembers(p, p->dataMembers(), out);
 
-    for (auto r = members.begin(); r != members.end(); ++r)
-    {
-        if (r != members.begin())
-        {
-            out << ',' << nl;
-        }
-        out << "(\"" << (*r)->mappedName() << "\", ";
-        writeMetadata((*r)->getMetadata(), out);
-        out << ", " << getMetaType((*r)->type());
-        out << ", " << ((*r)->optional() ? "True" : "False") << ", " << ((*r)->optional() ? (*r)->tag() : 0) << ')';
-    }
-
-    if (members.size() == 1)
-    {
-        out << ',';
-    }
-    else if (members.size() > 1)
-    {
-        out.dec();
-        out << nl;
-    }
-    out << "))";
+    out << ")";
     out.dec();
 
     // Use setattr to set the _ice_type attribute on the class. Linting tools will complain about this if we
@@ -1606,19 +1561,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     // Generate the __repr__ method for this Exception class.
     // The default __str__ method inherited from Ice.UserException calls __repr__().
-    out << sp;
-    out << nl << "def __repr__(self) -> str:";
-    out.inc();
-    const auto& allDataMembers = p->allDataMembers();
-    if (allDataMembers.empty())
-    {
-        out << nl << "return \"" << getImportAlias(p) << "()\"";
-    }
-    else
-    {
-        out << nl << "return f\"" << getImportAlias(p) << "(" << formatFields(p->allDataMembers()) << ")\"";
-    }
-    out.dec();
+    writeRepr(p, p->allDataMembers(), out);
 
     // _ice_id
     out << sp;
@@ -1638,41 +1581,9 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << ",";
     out << nl << (base ? getMetaType(base) : "None") << ",";
 
-    out << nl << "(";
-    if (members.size() > 1)
-    {
-        out.inc();
-        out << nl;
-    }
-    //
-    // Data members are represented as a tuple:
-    //
-    //   ("MemberName", MemberMetadata, MemberType, Optional, Tag)
-    //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
-    //
-    for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
-    {
-        if (dmli != members.begin())
-        {
-            out << ',' << nl;
-        }
-        out << "(\"" << (*dmli)->mappedName() << "\", ";
-        writeMetadata((*dmli)->getMetadata(), out);
-        out << ", " << getMetaType((*dmli)->type());
-        out << ", " << ((*dmli)->optional() ? "True" : "False") << ", " << ((*dmli)->optional() ? (*dmli)->tag() : 0)
-            << ')';
-    }
-    if (members.size() == 1)
-    {
-        out << ',';
-    }
-    else if (members.size() > 1)
-    {
-        out.dec();
-        out << nl;
-    }
-    out << "))";
+    writeMetaTypeDataMembers(p, p->dataMembers(), out);
+
+    out << ")";
     out.dec();
 
     // Use setattr to set the _ice_type attribute on the exception. Linting tools will complain about this if we
@@ -1733,9 +1644,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     }
     out.dec();
 
-    //
     // Emit the type information.
-    //
     out << sp;
     out << nl << metaTypeName << " = IcePy.defineStruct(";
     out.inc();
@@ -1744,42 +1653,10 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl;
     writeMetadata(p->getMetadata(), out);
     out << ",";
-    //
-    // Data members are represented as a tuple:
-    //
-    //   ("MemberName", MemberMetadata, MemberType)
-    //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
-    //
-    out << nl << "(";
-    if (members.size() > 1)
-    {
-        out.inc();
-        out << nl;
-    }
 
-    for (auto r = members.begin(); r != members.end(); ++r)
-    {
-        if (r != members.begin())
-        {
-            out << ',' << nl;
-        }
-        out << "(\"" << (*r)->mappedName() << "\", ";
-        writeMetadata((*r)->getMetadata(), out);
-        out << ", " << getMetaType((*r)->type());
-        out << ')';
-    }
-
-    if (members.size() == 1)
-    {
-        out << ',';
-    }
-    else if (members.size() > 1)
-    {
-        out.dec();
-        out << nl;
-    }
-    out << "))";
+    out << nl;
+    writeMetaTypeDataMembers(p, p->dataMembers(), out);
+    out << ")";
     out.dec();
 
     out << sp;
@@ -1826,6 +1703,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 {
     string scoped = p->scoped();
     string name = p->mappedName();
+    string metaType = getMetaType(p);
     EnumeratorList enumerators = p->enumerators();
 
     BufferedOutput out;
@@ -1844,7 +1722,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 
     // Meta type definition.
     out << sp;
-    out << nl << getMetaType(p) << " = IcePy.defineEnum(";
+    out << nl << metaType << " = IcePy.defineEnum(";
     out.inc();
     out << nl << "\"" << scoped << "\",";
     out << nl << name << ",";
@@ -1862,7 +1740,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     out.dec();
 
     out << sp;
-    out << nl << "__all__ = [\"" << name << "\", \"" << getMetaType(p) << "\"]";
+    out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
 }
@@ -1913,6 +1791,73 @@ Slice::Python::CodeVisitor::getTypeInitializer(const DataMemberPtr& field)
 }
 
 void
+Slice::Python::CodeVisitor::writeRepr(const ContainedPtr& p, const DataMemberList& members, Output& out)
+{
+    out << sp;
+    out << nl << "def __repr__(self) -> str:";
+    out.inc();
+    if (members.empty())
+    {
+        out << nl << "return \"" << getImportAlias(p) << "()\"";
+    }
+    else
+    {
+        out << nl << "return f\"" << getImportAlias(p) << "(" << formatFields(members) << ")\"";
+    }
+    out.dec();
+}
+
+void
+Slice::Python::CodeVisitor::writeMetaTypeDataMembers(
+    const ContainedPtr& parent,
+    const DataMemberList& members,
+    Output& out)
+{
+    bool includeOptional = !dynamic_pointer_cast<Struct>(parent);
+    out << "(";
+
+    if (members.size() > 1)
+    {
+        out.inc();
+        out << nl;
+    }
+
+    bool isFirst = true;
+    for (const auto& member : members)
+    {
+        if (!isFirst)
+        {
+            out << ',';
+            out << nl;
+        }
+        isFirst = false;
+        out << "(\"" << member->mappedName() << "\", ";
+        writeMetadata(member->getMetadata(), out);
+        out << ", " << getMetaType(member->type());
+        if (includeOptional)
+        {
+            out << ", " << (member->optional() ? "True" : "False");
+            out << ", " << (member->optional() ? member->tag() : 0);
+        }
+        out << ')';
+    }
+
+    // A trailing comma is required for Python tuples with a single element.
+    if (members.size() == 1)
+    {
+        out << ',';
+    }
+
+    if (members.size() > 1)
+    {
+        out.dec();
+        out << nl;
+    }
+
+    out << ")";
+}
+
+void
 Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata, Output& out)
 {
     MetadataList pythonMetadata = metadata;
@@ -1923,18 +1868,14 @@ Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata, Output& 
     pythonMetadata.erase(newEnd, pythonMetadata.end());
 
     out << '(';
+
     for (const auto& meta : pythonMetadata)
     {
         out << "\"" << *meta << "\"";
-        if (meta != pythonMetadata.back())
+        if (meta != pythonMetadata.back() || pythonMetadata.size() == 1)
         {
             out << ", ";
         }
-    }
-
-    if (pythonMetadata.size() == 1)
-    {
-        out << ',';
     }
 
     out << ')';
@@ -1965,8 +1906,7 @@ Slice::Python::CodeVisitor::writeConstantValue(
     const string& value,
     Output& out)
 {
-    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
-    if (constant)
+    if (auto constant = dynamic_pointer_cast<Const>(valueType))
     {
         out << getImportAlias(constant);
     }
@@ -2734,9 +2674,13 @@ Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr& source
             // link to the method on the proxy interface
             result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "`";
         }
+        else if (dynamic_pointer_cast<Sequence>(target) || dynamic_pointer_cast<Dictionary>(target))
+        {
+            // For sequences and dictionaries there is nothing to link to.
+            result << "``" << typeToTypeHintString(builtinTarget, false, source, false) << "``";
+        }
         else
         {
-            // TODO this doesn't work for sequences or dictionaries as we don't have anything to link to.
             string targetScoped = dynamic_pointer_cast<Contained>(target)->mappedScoped(".");
             result << ":class:`" << targetScoped;
             if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
