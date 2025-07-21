@@ -26,6 +26,8 @@ namespace Slice
         void visitEnum(const EnumPtr& p) final;
         void visitConst(const ConstPtr& p) final;
 
+        bool shouldVisitIncludedDefinitions() const final { return true; }
+
     private:
         void parseDocCommentFor(const ContainedPtr& p);
 
