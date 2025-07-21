@@ -50,7 +50,6 @@ namespace
                       "-DNAME=DEF               Define NAME as DEF.\n"
                       "-UNAME                   Remove any definition for NAME.\n"
                       "-IDIR                    Put DIR in the include file search path.\n"
-                      "-E                       Print preprocessor output on stdout.\n"
                       "--output-dir DIR         Create files in the directory DIR.\n"
                       "-d, --debug              Print debug messages.\n"
                       "--depend-xml             Generate dependencies in XML format.\n"
@@ -97,7 +96,6 @@ namespace
         opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
         opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
         opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
-        opts.addOpt("E");
         opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
         opts.addOpt("", "depend-xml");
         opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
@@ -153,8 +151,6 @@ namespace
         {
             cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
         }
-
-        bool preprocess = opts.isSet("E");
 
         string output = opts.optArg("output-dir");
 
@@ -246,69 +242,51 @@ namespace
                     return EXIT_FAILURE;
                 }
 
-                if (preprocess)
+                UnitPtr u = Unit::createUnit("matlab", Slice::matlabLinkFormatter, all);
+                int parseStatus = u->parse(*i, cppHandle, debug);
+
+                if (!icecpp->close())
                 {
-                    char buf[4096];
-                    while (fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
-                    {
-                        if (fputs(buf, stdout) == EOF)
-                        {
-                            return EXIT_FAILURE;
-                        }
-                    }
-                    if (!icecpp->close())
-                    {
-                        return EXIT_FAILURE;
-                    }
+                    u->destroy();
+                    return EXIT_FAILURE;
+                }
+
+                if (parseStatus == EXIT_FAILURE)
+                {
+                    status = EXIT_FAILURE;
                 }
                 else
                 {
-                    UnitPtr u = Unit::createUnit("matlab", Slice::matlabLinkFormatter, all);
-                    int parseStatus = u->parse(*i, cppHandle, debug);
-
-                    if (!icecpp->close())
+                    string base = icecpp->getBaseName();
+                    string::size_type pos = base.find_last_of("/\\");
+                    if (pos != string::npos)
                     {
+                        base.erase(0, pos + 1);
+                    }
+
+                    try
+                    {
+                        validateMatlabMetadata(u);
+
+                        CodeVisitor codeVisitor(output);
+                        u->visit(&codeVisitor);
+                    }
+                    catch (const Slice::FileException& ex)
+                    {
+                        //
+                        // If a file could not be created, then cleanup any created files.
+                        //
+                        FileTracker::instance()->cleanup();
                         u->destroy();
-                        return EXIT_FAILURE;
-                    }
-
-                    if (parseStatus == EXIT_FAILURE)
-                    {
+                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
                         status = EXIT_FAILURE;
+                        FileTracker::instance()->error();
+                        break;
                     }
-                    else
-                    {
-                        string base = icecpp->getBaseName();
-                        string::size_type pos = base.find_last_of("/\\");
-                        if (pos != string::npos)
-                        {
-                            base.erase(0, pos + 1);
-                        }
-
-                        try
-                        {
-                            validateMatlabMetadata(u);
-
-                            CodeVisitor codeVisitor(output);
-                            u->visit(&codeVisitor);
-                        }
-                        catch (const Slice::FileException& ex)
-                        {
-                            //
-                            // If a file could not be created, then cleanup any created files.
-                            //
-                            FileTracker::instance()->cleanup();
-                            u->destroy();
-                            consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                            status = EXIT_FAILURE;
-                            FileTracker::instance()->error();
-                            break;
-                        }
-                    }
-
-                    status |= u->getStatus();
-                    u->destroy();
                 }
+
+                status |= u->getStatus();
+                u->destroy();
             }
 
             {

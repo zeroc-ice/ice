@@ -41,7 +41,6 @@ usage(const string& n)
                   "-DNAME=DEF               Define NAME as DEF.\n"
                   "-UNAME                   Remove any definition for NAME.\n"
                   "-IDIR                    Put DIR in the include file search path.\n"
-                  "-E                       Print preprocessor output on stdout.\n"
                   "--output-dir DIR         Create files in the directory DIR.\n"
                   "-d, --debug              Print debug messages.\n"
                   "--depend                 Generate Makefile dependencies.\n"
@@ -63,7 +62,6 @@ compile(const vector<string>& argv)
     opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
-    opts.addOpt("E");
     opts.addOpt("", "stdout");
     opts.addOpt("", "typescript");
     opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
@@ -118,8 +116,6 @@ compile(const vector<string>& argv)
     {
         preprocessorArgs.push_back("-I" + Preprocessor::normalizeIncludePath(path));
     }
-
-    bool preprocess = opts.isSet("E");
 
     bool useStdout = opts.isSet("stdout");
 
@@ -251,68 +247,50 @@ compile(const vector<string>& argv)
         }
         else
         {
-            if (preprocess)
+            UnitPtr p = Unit::createUnit("js", Slice::JavaScript::jsLinkFormatter, false);
+            int parseStatus = p->parse(*i, cppHandle, debug);
+
+            if (!preprocessor->close())
             {
-                char buf[4096];
-                while (fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
-                {
-                    if (fputs(buf, stdout) == EOF)
-                    {
-                        return EXIT_FAILURE;
-                    }
-                }
-                if (!preprocessor->close())
-                {
-                    return EXIT_FAILURE;
-                }
+                p->destroy();
+                return EXIT_FAILURE;
+            }
+
+            if (parseStatus == EXIT_FAILURE)
+            {
+                status = EXIT_FAILURE;
             }
             else
             {
-                UnitPtr p = Unit::createUnit("js", Slice::JavaScript::jsLinkFormatter, false);
-                int parseStatus = p->parse(*i, cppHandle, debug);
-
-                if (!preprocessor->close())
+                DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+                assert(dc);
+                try
                 {
+                    if (useStdout)
+                    {
+                        Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript, cout);
+                        gen.generate(p);
+                    }
+                    else
+                    {
+                        Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript);
+                        gen.generate(p);
+                    }
+                }
+                catch (const Slice::FileException& ex)
+                {
+                    //
+                    // If a file could not be created, then clean up any created files.
+                    //
+                    FileTracker::instance()->cleanup();
                     p->destroy();
+                    consoleErr << argv[0] << ": error: " << ex.what() << endl;
                     return EXIT_FAILURE;
                 }
-
-                if (parseStatus == EXIT_FAILURE)
-                {
-                    status = EXIT_FAILURE;
-                }
-                else
-                {
-                    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
-                    assert(dc);
-                    try
-                    {
-                        if (useStdout)
-                        {
-                            Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript, cout);
-                            gen.generate(p);
-                        }
-                        else
-                        {
-                            Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript);
-                            gen.generate(p);
-                        }
-                    }
-                    catch (const Slice::FileException& ex)
-                    {
-                        //
-                        // If a file could not be created, then clean up any created files.
-                        //
-                        FileTracker::instance()->cleanup();
-                        p->destroy();
-                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                        return EXIT_FAILURE;
-                    }
-                }
-
-                status |= p->getStatus();
-                p->destroy();
             }
+
+            status |= p->getStatus();
+            p->destroy();
             ++i;
         }
 

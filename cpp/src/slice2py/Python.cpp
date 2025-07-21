@@ -78,7 +78,6 @@ namespace
                "-DNAME=DEF               Define NAME as DEF.\n"
                "-UNAME                   Remove any definition for NAME.\n"
                "-IDIR                    Put DIR in the include file search path.\n"
-               "-E                       Print preprocessor output on stdout.\n"
                "--output-dir DIR         Create files in the directory DIR.\n"
                "-d, --debug              Print debug messages.\n"
                "--depend                 Generate Makefile dependencies.\n"
@@ -116,7 +115,6 @@ Slice::Python::staticCompile(const vector<string>& argv)
     opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
-    opts.addOpt("E");
     opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
@@ -168,8 +166,6 @@ Slice::Python::staticCompile(const vector<string>& argv)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
-
-    bool preprocess = opts.isSet("E");
 
     string outputDir = opts.optArg("output-dir");
 
@@ -262,17 +258,6 @@ Slice::Python::staticCompile(const vector<string>& argv)
                     "-D__SLICE2PY__"))
             {
                 return EXIT_FAILURE;
-            }
-        }
-        else if (preprocess)
-        {
-            char buf[4096];
-            while (fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
-            {
-                if (fputs(buf, stdout) == EOF)
-                {
-                    return EXIT_FAILURE;
-                }
             }
         }
         else

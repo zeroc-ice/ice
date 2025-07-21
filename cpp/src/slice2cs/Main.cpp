@@ -39,7 +39,6 @@ usage(const string& n)
                   "-DNAME=DEF               Define NAME as DEF.\n"
                   "-UNAME                   Remove any definition for NAME.\n"
                   "-IDIR                    Put DIR in the include file search path.\n"
-                  "-E                       Print preprocessor output on stdout.\n"
                   "--output-dir DIR         Create files in the directory DIR.\n"
                   "-d, --debug              Print debug messages.\n"
                   "--depend                 Generate Makefile dependencies.\n"
@@ -58,7 +57,6 @@ compile(const vector<string>& argv)
     opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
-    opts.addOpt("E");
     opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
@@ -112,8 +110,6 @@ compile(const vector<string>& argv)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
-
-    bool preprocess = opts.isSet("E");
 
     string output = opts.optArg("output-dir");
 
@@ -214,57 +210,40 @@ compile(const vector<string>& argv)
             {
                 return EXIT_FAILURE;
             }
-            if (preprocess)
+
+            UnitPtr p = Unit::createUnit("cs", Slice::Csharp::csLinkFormatter, false);
+            int parseStatus = p->parse(*i, cppHandle, debug);
+
+            if (!icecpp->close())
             {
-                char buf[4096];
-                while (fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
-                {
-                    if (fputs(buf, stdout) == EOF)
-                    {
-                        return EXIT_FAILURE;
-                    }
-                }
-                if (!icecpp->close())
-                {
-                    return EXIT_FAILURE;
-                }
+                p->destroy();
+                return EXIT_FAILURE;
+            }
+
+            if (parseStatus == EXIT_FAILURE)
+            {
+                status = EXIT_FAILURE;
             }
             else
             {
-                UnitPtr p = Unit::createUnit("cs", Slice::Csharp::csLinkFormatter, false);
-                int parseStatus = p->parse(*i, cppHandle, debug);
-
-                if (!icecpp->close())
+                try
                 {
+                    Gen gen(icecpp->getBaseName(), includePaths, output);
+                    gen.generate(p);
+                }
+                catch (const Slice::FileException& ex)
+                {
+                    // If a file could not be created, then
+                    // cleanup any created files.
+                    FileTracker::instance()->cleanup();
                     p->destroy();
+                    consoleErr << argv[0] << ": error: " << ex.what() << endl;
                     return EXIT_FAILURE;
                 }
-
-                if (parseStatus == EXIT_FAILURE)
-                {
-                    status = EXIT_FAILURE;
-                }
-                else
-                {
-                    try
-                    {
-                        Gen gen(icecpp->getBaseName(), includePaths, output);
-                        gen.generate(p);
-                    }
-                    catch (const Slice::FileException& ex)
-                    {
-                        // If a file could not be created, then
-                        // cleanup any created files.
-                        FileTracker::instance()->cleanup();
-                        p->destroy();
-                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                        return EXIT_FAILURE;
-                    }
-                }
-
-                status |= p->getStatus();
-                p->destroy();
             }
+
+            status |= p->getStatus();
+            p->destroy();
         }
 
         {
