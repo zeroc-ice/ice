@@ -535,7 +535,7 @@ namespace Slice
             bool isConstant);
 
         ContainedList _contents;
-        std::map<std::string, ContainedPtr> _introducedMap;
+        std::map<std::string, ContainedPtr, CICompare> _introducedMap;
     };
 
     // ----------------------------------------------------------------------

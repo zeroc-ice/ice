@@ -56,6 +56,7 @@ IdentAsKeyword.ice:54: keyword 'idempotent' cannot be used as a name
 IdentAsKeyword.ice:54: enums can only be defined within a module
 IdentAsKeyword.ice:55: enums can only be defined within a module
 IdentAsKeyword.ice:55: enumeration 'IDEMPOTENT' differs only in capitalization from enumeration 'idempotent'
+IdentAsKeyword.ice:55: 'IDEMPOTENT' has changed meaning
 IdentAsKeyword.ice:57: enums can only be defined within a module
 IdentAsKeyword.ice:57: keyword 'long' cannot be used as enumerator
 IdentAsKeyword.ice:57: keyword 'byte' cannot be used as enumerator
