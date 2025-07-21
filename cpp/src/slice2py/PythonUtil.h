@@ -346,7 +346,7 @@ namespace Slice::Python
         // Write Python metadata as a tuple.
         void writeMetadata(const MetadataList&, IceInternal::Output&);
 
-        // Write the __repr__ method for a generated class or excetion.
+        // Write the __repr__ method for a generated class or exception.
         void writeRepr(const ContainedPtr& contained, const DataMemberList& members, IceInternal::Output& out);
 
         // Write the data members meta-info for a meta type declaration.
