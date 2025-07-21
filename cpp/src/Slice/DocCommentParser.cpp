@@ -20,7 +20,6 @@ namespace Slice
         bool visitExceptionStart(const ExceptionPtr& p) final;
         bool visitStructStart(const StructPtr& p) final;
         void visitOperation(const OperationPtr& p) final;
-        void visitParameter(const ParameterPtr& p) final;
         void visitDataMember(const DataMemberPtr& p) final;
         void visitSequence(const SequencePtr& p) final;
         void visitDictionary(const DictionaryPtr& p) final;
@@ -95,12 +94,10 @@ void
 DocCommentParser::visitOperation(const OperationPtr& p)
 {
     parseDocCommentFor(p);
-}
-
-void
-DocCommentParser::visitParameter(const ParameterPtr& p)
-{
-    parseDocCommentFor(p);
+    for (const auto& param : p->parameters())
+    {
+        parseDocCommentFor(param);
+    }
 }
 
 void
@@ -125,6 +122,10 @@ void
 DocCommentParser::visitEnum(const EnumPtr& p)
 {
     parseDocCommentFor(p);
+    for (const auto& enumerator : p->enumerators())
+    {
+        parseDocCommentFor(enumerator);
+    }
 }
 
 void
