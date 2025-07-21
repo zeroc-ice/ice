@@ -1842,7 +1842,7 @@ Slice::Python::CodeVisitor::writeMetaTypeDataMembers(
         out << ')';
     }
 
-    // A trailing command is required for Python tuples with a single element.
+    // A trailing comma is required for Python tuples with a single element.
     if (members.size() == 1)
     {
         out << ',';
