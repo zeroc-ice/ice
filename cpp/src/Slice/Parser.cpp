@@ -2209,7 +2209,7 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
         // We've previously introduced the first component to the current scope, check that it has not changed meaning.
         if (it->second->scoped() != namedThing->scoped())
         {
-            // Parameter and data members are in their own scopes.
+            // Parameters and data members are in their own scopes.
             if (!(dynamic_pointer_cast<Parameter>(it->second) && !dynamic_pointer_cast<Parameter>(namedThing)) &&
                 !(!dynamic_pointer_cast<Parameter>(it->second) && dynamic_pointer_cast<Parameter>(namedThing)) &&
                 !(dynamic_pointer_cast<DataMember>(it->second) && !dynamic_pointer_cast<DataMember>(namedThing)) &&
