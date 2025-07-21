@@ -35,24 +35,20 @@ module Test
     {
         ByteString b1;
         ["python:seq:list"] ByteString b2;
-        ["python:seq:default"] ByteList b3;
         ByteList b4;
         StringList s1;
         ["python:seq:tuple"] StringList s2;
         StringTuple s3;
-        ["python:seq:default"] StringTuple s4;
     }
 
     class C
     {
         ByteString b1;
         ["python:seq:list"] ByteString b2;
-        ["python:seq:default"] ByteList b3;
         ByteList b4;
         StringList s1;
         ["python:seq:tuple"] StringList s2;
         StringTuple s3;
-        ["python:seq:default"] StringTuple s4;
     }
 
     class D
@@ -73,7 +69,7 @@ module Test
             ["python:seq:list"] out ByteString b2);
 
         ByteList opByteList1(ByteList b1, out ByteList b2);
-        ["python:seq:default"] ByteList opByteList2(["python:seq:tuple"] ByteList b1,
+        ["python:seq:list"] ByteList opByteList2(["python:seq:tuple"] ByteList b1,
             ["python:seq:tuple"] out ByteList b2);
 
         StringList opStringList1(StringList s1, out StringList s2);
@@ -82,7 +78,7 @@ module Test
 
         StringTuple opStringTuple1(StringTuple s1, out StringTuple s2);
         ["python:seq:list"] StringTuple opStringTuple2(["python:seq:list"] StringTuple s1,
-            ["python:seq:default"] out StringTuple s2);
+            ["python:seq:list"] out StringTuple s2);
 
         void sendS(S val);
         void sendC(C val);

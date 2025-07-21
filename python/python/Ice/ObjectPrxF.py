@@ -1,5 +1,5 @@
 import IcePy
 
-__Ice_ObjectPrx_t = IcePy.declareProxy("::Ice::Object")
+_Ice_ObjectPrx_t = IcePy.declareProxy("::Ice::Object")
 
-__all__ = ["__Ice_ObjectPrx_t"]
+__all__ = ["_Ice_ObjectPrx_t"]
