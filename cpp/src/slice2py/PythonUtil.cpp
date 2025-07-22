@@ -1900,7 +1900,7 @@ void
 Slice::Python::CodeVisitor::writeAssign(const DataMemberPtr& member, Output& out)
 {
     const string memberName = member->mappedName();
-    const TypePtr& memberType = member->type();
+    const TypePtr memberType = member->type();
 
     // Mutable types cannot be used as default values in Python as they are shared across instances.
     if (isMutableNonOptionalType(memberType) && !member->optional())
