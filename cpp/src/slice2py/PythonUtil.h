@@ -147,6 +147,11 @@ namespace Slice::Python
     /// Helper method to emit the generated code that format the fields of a type in __repr__ implementation.
     std::string formatFields(const DataMemberList& members);
 
+    /// Checks if the given Slice type corresponds to a mutable Python which is not a class.
+    /// Namely if the type corresponds to a Python  struct, sequence, or dictionary type.
+    /// Classes are always mapped to an optional in Python.
+    bool isMutableTypeNonClassType(const TypePtr& type);
+
     PythonCodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
 
     class BufferedOutputBase
@@ -341,7 +346,7 @@ namespace Slice::Python
         void writeOperations(const InterfaceDefPtr&, IceInternal::Output&);
 
         // Get the default value for initializing a given type.
-        std::string getTypeInitializer(const DataMemberPtr&);
+        std::string getTypeInitializer(const DataMemberPtr& dataMember, bool constructor);
 
         // Write Python metadata as a tuple.
         void writeMetadata(const MetadataList&, IceInternal::Output&);
