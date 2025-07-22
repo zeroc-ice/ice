@@ -5213,9 +5213,7 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(string languageName, bool all)
-    : _languageName(std::move(languageName)),
-      _all(all)
+Slice::Unit::Unit(string languageName, bool all) : _languageName(std::move(languageName)), _all(all)
 {
     if (!languageName.empty())
     {

@@ -1938,8 +1938,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 auto r = allOverviews.find(dataMember->name());
                 if (r != allOverviews.end())
                 {
-                    H << nl << "/// @param " << dataMember->mappedName() << " "
-                      << getFirstSentence(r->second);
+                    H << nl << "/// @param " << dataMember->mappedName() << " " << getFirstSentence(r->second);
                 }
             }
             H << nl << name << "(";
