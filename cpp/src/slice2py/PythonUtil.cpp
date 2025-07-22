@@ -1900,19 +1900,20 @@ void
 Slice::Python::CodeVisitor::writeAssign(const DataMemberPtr& member, Output& out)
 {
     const string memberName = member->mappedName();
+    const TypePtr& memberType = member->type();
 
     // Mutable types cannot be used as default values in Python as they are shared across instances.
-    if (isMutableNonOptionalType(member->type()) && !member->optional())
+    if (isMutableNonOptionalType(memberType) && !member->optional())
     {
         out << nl << "self." << memberName << " = " << memberName << " if " << memberName << " is not None else ";
 
-        if (dynamic_pointer_cast<Struct>(member->type()))
+        if (dynamic_pointer_cast<Struct>(memberType))
         {
-            out << getImportAlias(member->type()) << "()";
+            out << getImportAlias(memberType) << "()";
         }
         else
         {
-            out << typeToTypeHintString(member->type(), false, member, false) << "()";
+            out << typeToTypeHintString(memberType, false, member, false) << "()";
         }
     }
     else

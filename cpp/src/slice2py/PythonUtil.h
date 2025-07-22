@@ -148,7 +148,7 @@ namespace Slice::Python
     std::string formatFields(const DataMemberList& members);
 
     /// Checks if the given Slice type corresponds to a mutable Python which is not always optional.
-    /// Namely if the type corresponds to a Python struct, sequence, or dictionary type.
+    /// Namely if the type corresponds to a Python dataclass, sequence, or dictionary type.
     bool isMutableNonOptionalType(const TypePtr& type);
 
     PythonCodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
