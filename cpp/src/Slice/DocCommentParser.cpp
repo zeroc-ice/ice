@@ -10,7 +10,7 @@ namespace Slice
     class DocCommentParser final : public ParserVisitor
     {
     public:
-        DocCommentParser(DocLinkFormatter linkFormatter) : _linkFormatter(std::move(linkFormatter)) {}
+        DocCommentParser(DocLinkFormatter linkFormatter) : _linkFormatter(linkFormatter) {}
 
         bool visitModuleStart(const ModulePtr& p) final;
         void visitClassDecl(const ClassDeclPtr& p) final;
@@ -26,7 +26,7 @@ namespace Slice
         void visitEnum(const EnumPtr& p) final;
         void visitConst(const ConstPtr& p) final;
 
-        bool shouldVisitIncludedDefinitions() const final { return true; }
+        [[nodiscard]] bool shouldVisitIncludedDefinitions() const final { return true; }
 
     private:
         void parseDocCommentFor(const ContainedPtr& p);
@@ -38,7 +38,7 @@ namespace Slice
 void
 Slice::parseAllDocCommentsWithin(const UnitPtr& unit, DocLinkFormatter linkFormatter)
 {
-    DocCommentParser visitor{std::move(linkFormatter)};
+    DocCommentParser visitor{linkFormatter};
     unit->visit(&visitor);
 }
 
