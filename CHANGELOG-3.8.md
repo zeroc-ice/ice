@@ -780,6 +780,9 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Enumerations now inherit from Python's `enum.Enum` type. The `Ice.EnumBase` class has been removed.
 
+- The default value for struct, sequence, and dictionary Slice data members has been changed from `None`
+  to a default initialized instance.
+
 ## Ruby Changes
 
 ## Swift Changes
