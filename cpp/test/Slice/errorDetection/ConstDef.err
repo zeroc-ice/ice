@@ -8,7 +8,7 @@ ConstDef.ice:74: initializer of type 'string' is incompatible with the type 'byt
 ConstDef.ice:75: initializer of type 'double' is incompatible with the type 'short' of constant 'ic6'
 ConstDef.ice:76: type of initializer is incompatible with the type 'int' of constant 'ic7'
 ConstDef.ice:77: initializer of type 'bool' is incompatible with the type 'long' of constant 'ic8'
-ConstDef.ice:79: missing constant name
+ConstDef.ice:79: missing name
 ConstDef.ice:82: 'two' does not designate an enumerator of '::Test::color'
 ConstDef.ice:83: type of initializer is incompatible with the type of constant 'ic10'
 ConstDef.ice:92: integer constant '-9223372036854775809' out of range

@@ -28,8 +28,10 @@ CaseInsensitive.ice:146: dictionary 'D' differs only in capitalization from dict
 CaseInsensitive.ice:147: redefinition of module 'm1' as dictionary
 CaseInsensitive.ice:148: dictionary 'M1' differs only in capitalization from module 'm1'
 CaseInsensitive.ice:151: enumeration 'eN1' differs only in capitalization from enumeration 'en1'
+CaseInsensitive.ice:151: 'eN1' has changed meaning
 CaseInsensitive.ice:152: redefinition of module 'm1' as enumeration
 CaseInsensitive.ice:153: enumeration 'M1' differs only in capitalization from module 'm1'
+CaseInsensitive.ice:153: 'M1' has changed meaning
 CaseInsensitive.ice:154: enumerator 'EN1' differs only in capitalization from 'en1'
 CaseInsensitive.ice:167: interface name 'base' is capitalized inconsistently with its previous name: '::Test::xxx::xx::Base'
 CaseInsensitive.ice:168: redefinition of interface 'Derived'
