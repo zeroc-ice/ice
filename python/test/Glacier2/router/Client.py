@@ -4,6 +4,7 @@
 
 import sys
 import threading
+from typing import Any
 
 from generated.client import Test
 from TestHelper import TestHelper
@@ -12,7 +13,7 @@ import Glacier2
 import Ice
 
 
-def test(b: object | None):
+def test(b: Any):
     if not b:
         raise RuntimeError("test assertion failed")
 
