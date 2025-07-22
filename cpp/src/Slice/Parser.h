@@ -1073,13 +1073,11 @@ namespace Slice
     class Unit final : public Container
     {
     public:
-        static UnitPtr createUnit(std::string languageName, std::optional<DocLinkFormatter> linkFormatter, bool all);
+        static UnitPtr createUnit(std::string languageName, bool all);
 
-        Unit(std::string languageName, std::optional<DocLinkFormatter> linkFormatter, bool all);
+        Unit(std::string languageName, bool all);
 
         [[nodiscard]] std::string languageName() const;
-
-        [[nodiscard]] const std::optional<DocLinkFormatter>& linkFormatter() const;
 
         /// Sets `_currentDocComment` to the provided string, erasing anything currently stored in it.
         /// @param comment The raw comment string. It can span multiple lines and include comment formatting characters
@@ -1151,7 +1149,6 @@ namespace Slice
         void popDefinitionContext();
 
         const std::string _languageName;
-        const std::optional<DocLinkFormatter> _linkFormatter;
         bool _all;
         int _errors{0};
         std::string _currentDocComment;

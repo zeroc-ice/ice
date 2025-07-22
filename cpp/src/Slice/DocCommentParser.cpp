@@ -36,13 +36,10 @@ namespace Slice
 }
 
 void
-Slice::parseAllDocCommentsWithin(const UnitPtr& unit)
+Slice::parseAllDocCommentsWithin(const UnitPtr& unit, DocLinkFormatter linkFormatter)
 {
-    if (auto linkFormatter = unit->linkFormatter())
-    {
-        DocCommentParser visitor{*linkFormatter};
-        unit->visit(&visitor);
-    }
+    DocCommentParser visitor{std::move(linkFormatter)};
+    unit->visit(&visitor);
 }
 
 bool

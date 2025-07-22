@@ -2,6 +2,7 @@
 
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
+#include "../Slice/DocCommentParser.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
@@ -158,7 +159,7 @@ compile(const vector<string>& argv)
             return EXIT_FAILURE;
         }
 
-        UnitPtr p = Unit::createUnit("", Slice::slice2LinkFormatter, false);
+        UnitPtr p = Unit::createUnit("", false);
         int parseStatus = p->parse(*i, cppHandle, debug);
 
         if (!icecpp->close())
@@ -173,6 +174,8 @@ compile(const vector<string>& argv)
         }
         else
         {
+            parseAllDocCommentsWithin(p, Slice::slice2LinkFormatter);
+
             DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
             assert(dc);
 

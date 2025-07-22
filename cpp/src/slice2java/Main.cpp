@@ -2,6 +2,7 @@
 
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
+#include "../Slice/DocCommentParser.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
@@ -168,7 +169,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit("java", Slice::Java::javaLinkFormatter, false);
+            UnitPtr u = Unit::createUnit("java", false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -201,7 +202,7 @@ compile(const vector<string>& argv)
                 break;
             }
 
-            UnitPtr p = Unit::createUnit("java", Slice::Java::javaLinkFormatter, false);
+            UnitPtr p = Unit::createUnit("java", false);
             int parseStatus = p->parse(*i, cppHandle, debug);
 
             if (!icecpp->close())
@@ -218,6 +219,8 @@ compile(const vector<string>& argv)
             }
             else
             {
+                parseAllDocCommentsWithin(p, Slice::Java::javaLinkFormatter);
+
                 try
                 {
                     Gen gen(icecpp->getBaseName(), includePaths, output);

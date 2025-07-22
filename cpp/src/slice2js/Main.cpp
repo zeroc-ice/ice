@@ -2,6 +2,7 @@
 
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
+#include "../Slice/DocCommentParser.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
@@ -210,7 +211,7 @@ compile(const vector<string>& argv)
 
         if (depend || dependJSON || dependXml)
         {
-            UnitPtr u = Unit::createUnit("js", Slice::JavaScript::jsLinkFormatter, false);
+            UnitPtr u = Unit::createUnit("js", false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -247,7 +248,7 @@ compile(const vector<string>& argv)
         }
         else
         {
-            UnitPtr p = Unit::createUnit("js", Slice::JavaScript::jsLinkFormatter, false);
+            UnitPtr p = Unit::createUnit("js", false);
             int parseStatus = p->parse(*i, cppHandle, debug);
 
             if (!preprocessor->close())
@@ -262,6 +263,8 @@ compile(const vector<string>& argv)
             }
             else
             {
+                parseAllDocCommentsWithin(p, Slice::JavaScript::jsLinkFormatter);
+
                 DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
                 assert(dc);
                 try

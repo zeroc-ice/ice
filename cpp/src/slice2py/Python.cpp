@@ -3,6 +3,7 @@
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/Options.h"
+#include "../Slice/DocCommentParser.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
@@ -239,7 +240,7 @@ Slice::Python::staticCompile(const vector<string>& argv)
             return EXIT_FAILURE;
         }
 
-        UnitPtr unit = Unit::createUnit("python", pyLinkFormatter, false);
+        UnitPtr unit = Unit::createUnit("python", false);
         int parseStatus = unit->parse(fileName, cppHandle, debug);
 
         if (parseStatus == EXIT_FAILURE)
@@ -262,6 +263,8 @@ Slice::Python::staticCompile(const vector<string>& argv)
         }
         else
         {
+            parseAllDocCommentsWithin(unit, Slice::Python::pyLinkFormatter);
+
             try
             {
                 if (buildArg == "modules" || buildArg == "all")
