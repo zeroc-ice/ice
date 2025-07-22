@@ -266,7 +266,7 @@ namespace Slice
     public:
         /// Returns an unparsed 'DocComment' instance containing the provided string.
         /// If the provided string is empty or only contains whitespace, this returns 'nullopt' instead.
-        [[nodiscard]] static std::optional<DocComment> createUnparsed(std::string rawDocComment);
+        [[nodiscard]] static std::optional<DocComment> createUnparsed(const std::string& rawDocComment);
 
         /// Parses this doc-comment in-place, using the provided formatter to map language-specific elements.
         /// @param p The Slice element that this doc-comment is applied to.

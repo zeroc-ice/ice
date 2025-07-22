@@ -408,7 +408,7 @@ namespace
 }
 
 optional<DocComment>
-Slice::DocComment::createUnparsed(string rawDocComment)
+Slice::DocComment::createUnparsed(const string& rawDocComment)
 {
     // Split the comment's raw text up into lines.
     StringList lines = splitComment(rawDocComment);
