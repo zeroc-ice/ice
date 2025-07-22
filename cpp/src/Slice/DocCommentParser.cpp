@@ -10,7 +10,7 @@ namespace Slice
     class DocCommentParser final : public ParserVisitor
     {
     public:
-        DocCommentParser(DocLinkFormatter linkFormatter) : _linkFormatter(std::move(linkFormatter)) {};
+        DocCommentParser(DocLinkFormatter linkFormatter) : _linkFormatter(std::move(linkFormatter)) {}
 
         bool visitModuleStart(const ModulePtr& p) final;
         void visitClassDecl(const ClassDeclPtr& p) final;
