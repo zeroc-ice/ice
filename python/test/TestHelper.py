@@ -4,11 +4,12 @@ import importlib
 import os
 import sys
 import traceback
+from abc import ABC, abstractmethod
 
 import Ice
 
 
-class TestHelper:
+class TestHelper(ABC):
     def __init__(self) -> None:
         self._communicator: Ice.Communicator | None = None
 
@@ -84,6 +85,9 @@ class TestHelper:
         if self._communicator:
             self._communicator.shutdown()
 
+    @abstractmethod
+    def run(self, args: list[str]) -> None: ...
+
     @classmethod
     def loadSlice(cls, args: list[str]) -> None:
         sliceDir = Ice.getSliceDir()
@@ -93,7 +97,7 @@ class TestHelper:
         Ice.loadSlice("'-I{0}' {1}".format(sliceDir, args))
 
     @classmethod
-    def run(cls) -> int:
+    def runTest(cls) -> int:
         try:
             moduleName = os.path.splitext(sys.argv[1])[0]
             module = importlib.import_module(moduleName)
@@ -107,4 +111,4 @@ class TestHelper:
 
 
 if __name__ == "__main__":
-    sys.exit(TestHelper.run())
+    sys.exit(TestHelper.runTest())

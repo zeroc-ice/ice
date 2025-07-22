@@ -489,6 +489,7 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     addRuntimeImport("abc", {"ABC", ""}, p);
+    addRuntimeImport("typing", {"overload", ""}, p);
 
     addRuntimeImport("Ice.ObjectPrx", {"checkedCast", "Ice_checkedCast"}, p);
     addRuntimeImport("Ice.ObjectPrx", {"checkedCastAsync", "Ice_checkedCastAsync"}, p);
@@ -1284,6 +1285,21 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << ") -> Awaitable[" << prxTypeHint << "]:";
     out.inc();
     out << nl << "return Ice_checkedCastAsync(" << prxName << ", proxy, facet, context)";
+    out.dec();
+
+    out << sp << nl << "@overload";
+    out << nl << "@staticmethod";
+    out << nl << "def uncheckedCast(proxy: Ice.ObjectPrx, facet: str | None = None) -> "
+        << prxTypeHint.substr(0, prxTypeHint.find_first_of(" | None")) << ":";
+    out.inc();
+    out << nl << "...";
+    out.dec();
+
+    out << sp << nl << "@overload";
+    out << nl << "@staticmethod";
+    out << nl << "def uncheckedCast(proxy: None, facet: str | None = None) -> None :";
+    out.inc();
+    out << nl << "...";
     out.dec();
 
     out << sp << nl << "@staticmethod";
