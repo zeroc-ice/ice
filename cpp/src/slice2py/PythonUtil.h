@@ -147,8 +147,9 @@ namespace Slice::Python
     /// Helper method to emit the generated code that format the fields of a type in __repr__ implementation.
     std::string formatFields(const DataMemberList& members);
 
-    /// Checks if the given Slice type corresponds to a mutable Python which is not always optional.
-    /// Namely if the type corresponds to a Python dataclass, sequence, or dictionary type.
+    /// Checks if the given Slice type corresponds to non-optional type which can be used as default value in Python.
+    /// This is really anything that is not a Python dataclass, sequence, or dictionary type. Slice classes and
+    /// interfaces are always mapped as optional.
     bool canBeUsedAsDefaultValue(const TypePtr& type);
 
     PythonCodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);

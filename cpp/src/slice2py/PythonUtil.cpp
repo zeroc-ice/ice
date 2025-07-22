@@ -354,8 +354,8 @@ Slice::Python::formatFields(const DataMemberList& members)
 bool
 Slice::Python::canBeUsedAsDefaultValue(const TypePtr& type)
 {
-    return dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
-           dynamic_pointer_cast<Dictionary>(type);
+    return !dynamic_pointer_cast<Struct>(type) && !dynamic_pointer_cast<Sequence>(type) &&
+           !dynamic_pointer_cast<Dictionary>(type);
 }
 
 Python::PythonCodeFragment
@@ -1790,7 +1790,7 @@ Slice::Python::CodeVisitor::getTypeInitializer(const DataMemberPtr& field, bool 
     {
         return getImportAlias(enumeration) + "." + enumeration->enumerators().front()->mappedName();
     }
-    else if (!constructor && canBeUsedAsDefaultValue(field->type()))
+    else if (!constructor && !canBeUsedAsDefaultValue(field->type()))
     {
         string factory;
         if (auto st = dynamic_pointer_cast<Struct>(field->type()))
@@ -1920,7 +1920,7 @@ Slice::Python::CodeVisitor::writeAssign(const DataMemberPtr& member, Output& out
     const TypePtr memberType = member->type();
 
     // Mutable types cannot be used as default values in Python as they are shared across instances.
-    if (canBeUsedAsDefaultValue(memberType) && !member->optional())
+    if (!canBeUsedAsDefaultValue(memberType) && !member->optional())
     {
         out << nl << "self." << memberName << " = " << memberName << " if " << memberName << " is not None else ";
 
@@ -2020,7 +2020,7 @@ Slice::Python::CodeVisitor::writeConstructorParams(const DataMemberList& members
         // initialize the member in the constructor if it is None.
         const string typeHint = typeToTypeHintString(
             member->type(),
-            member->optional() || canBeUsedAsDefaultValue(member->type()),
+            member->optional() || !canBeUsedAsDefaultValue(member->type()),
             dynamic_pointer_cast<Contained>(member->container()),
             false);
         out << ", " << member->mappedName() << ": " << typeHint << " = ";
