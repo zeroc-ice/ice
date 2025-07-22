@@ -136,10 +136,10 @@ Slice::Python::typeToTypeHintString(
 
     if (optional)
     {
-        if (isProxyType(type))
+        if (isProxyType(type) || type->isClassType())
         {
-            // We map optional proxies like regular proxies, as XxxPrx or None.
-            return typeToTypeHintString(type, false, source, forMarshaling) + " | None";
+            // We map optional proxies and classes like regular ones.
+            return typeToTypeHintString(type, false, source, forMarshaling);
         }
         else
         {
@@ -184,6 +184,10 @@ Slice::Python::typeToTypeHintString(
         if (auto proxy = dynamic_pointer_cast<InterfaceDecl>(type))
         {
             return prefix + proxy->mappedName() + "Prx | None";
+        }
+        else if (auto cls = dynamic_pointer_cast<ClassDecl>(type))
+        {
+            return prefix + cls->mappedName() + " | None";
         }
         else if (auto seq = dynamic_pointer_cast<Sequence>(type))
         {
