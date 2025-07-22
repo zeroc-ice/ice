@@ -40,7 +40,6 @@ usage(const string& n)
                   "-DNAME=DEF               Define NAME as DEF.\n"
                   "-UNAME                   Remove any definition for NAME.\n"
                   "-IDIR                    Put DIR in the include file search path.\n"
-                  "-E                       Print preprocessor output on stdout.\n"
                   "--output-dir DIR         Create files in the directory DIR.\n"
                   "-d, --debug              Print debug messages.\n"
                   "--depend-xml             Generate dependencies in XML format.\n"
@@ -59,7 +58,6 @@ compile(const vector<string>& argv)
     opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
-    opts.addOpt("E");
     opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
@@ -113,8 +111,6 @@ compile(const vector<string>& argv)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
-
-    bool preprocess = opts.isSet("E");
 
     string output = opts.optArg("output-dir");
 
@@ -205,62 +201,44 @@ compile(const vector<string>& argv)
                 break;
             }
 
-            if (preprocess)
+            UnitPtr p = Unit::createUnit("java", Slice::Java::javaLinkFormatter, false);
+            int parseStatus = p->parse(*i, cppHandle, debug);
+
+            if (!icecpp->close())
             {
-                char buf[4096];
-                while (fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
-                {
-                    if (fputs(buf, stdout) == EOF)
-                    {
-                        return EXIT_FAILURE;
-                    }
-                }
-                if (!icecpp->close())
-                {
-                    return EXIT_FAILURE;
-                }
+                p->destroy();
+                FileTracker::instance()->error();
+                return EXIT_FAILURE;
+            }
+
+            if (parseStatus == EXIT_FAILURE)
+            {
+                p->destroy();
+                status = EXIT_FAILURE;
             }
             else
             {
-                UnitPtr p = Unit::createUnit("java", Slice::Java::javaLinkFormatter, false);
-                int parseStatus = p->parse(*i, cppHandle, debug);
-
-                if (!icecpp->close())
+                try
                 {
-                    p->destroy();
-                    FileTracker::instance()->error();
-                    return EXIT_FAILURE;
+                    Gen gen(icecpp->getBaseName(), includePaths, output);
+                    gen.generate(p);
                 }
-
-                if (parseStatus == EXIT_FAILURE)
+                catch (const Slice::FileException& ex)
                 {
+                    //
+                    // If a file could not be created then cleanup any files we've already created.
+                    //
+                    FileTracker::instance()->cleanup();
                     p->destroy();
+                    consoleErr << argv[0] << ": error: " << ex.what() << endl;
                     status = EXIT_FAILURE;
+                    FileTracker::instance()->error();
+                    break;
                 }
-                else
-                {
-                    try
-                    {
-                        Gen gen(icecpp->getBaseName(), includePaths, output);
-                        gen.generate(p);
-                    }
-                    catch (const Slice::FileException& ex)
-                    {
-                        //
-                        // If a file could not be created then cleanup any files we've already created.
-                        //
-                        FileTracker::instance()->cleanup();
-                        p->destroy();
-                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                        status = EXIT_FAILURE;
-                        FileTracker::instance()->error();
-                        break;
-                    }
-                }
-
-                status |= p->getStatus();
-                p->destroy();
             }
+
+            status |= p->getStatus();
+            p->destroy();
         }
 
         {

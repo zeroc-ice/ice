@@ -42,7 +42,6 @@ usage(const string& n)
                   "-DNAME=DEF               Define NAME as DEF.\n"
                   "-UNAME                   Remove any definition for NAME.\n"
                   "-IDIR                    Put DIR in the include file search path.\n"
-                  "-E                       Print preprocessor output on stdout.\n"
                   "--output-dir DIR         Create files in the directory DIR.\n"
                   "-d, --debug              Print debug messages.\n"
                   "--depend                 Generate Makefile dependencies.\n"
@@ -61,7 +60,6 @@ compile(const vector<string>& argv)
     opts.addOpt("D", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
-    opts.addOpt("E");
     opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
@@ -116,8 +114,6 @@ compile(const vector<string>& argv)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
-
-    bool preprocess = opts.isSet("E");
 
     string output = opts.optArg("output-dir");
 
@@ -218,66 +214,48 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            if (preprocess)
+            UnitPtr u = Unit::createUnit("swift", Slice::Swift::swiftLinkFormatter, false);
+            int parseStatus = u->parse(*i, cppHandle, debug);
+
+            if (!icecpp->close())
             {
-                char buf[4096];
-                while (fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
-                {
-                    if (fputs(buf, stdout) == EOF)
-                    {
-                        return EXIT_FAILURE;
-                    }
-                }
-                if (!icecpp->close())
-                {
-                    return EXIT_FAILURE;
-                }
+                u->destroy();
+                return EXIT_FAILURE;
+            }
+
+            if (parseStatus == EXIT_FAILURE)
+            {
+                status = EXIT_FAILURE;
             }
             else
             {
-                UnitPtr u = Unit::createUnit("swift", Slice::Swift::swiftLinkFormatter, false);
-                int parseStatus = u->parse(*i, cppHandle, debug);
-
-                if (!icecpp->close())
+                string base = icecpp->getBaseName();
+                string::size_type pos = base.find_last_of("/\\");
+                if (pos != string::npos)
                 {
+                    base.erase(0, pos + 1);
+                }
+
+                try
+                {
+                    Gen gen(icecpp->getBaseName(), includePaths, output);
+                    gen.generate(u);
+                }
+                catch (const Slice::FileException& ex)
+                {
+                    //
+                    // If a file could not be created, then cleanup any created files.
+                    //
+                    FileTracker::instance()->cleanup();
                     u->destroy();
-                    return EXIT_FAILURE;
-                }
-
-                if (parseStatus == EXIT_FAILURE)
-                {
+                    consoleErr << argv[0] << ": error: " << ex.what() << endl;
                     status = EXIT_FAILURE;
+                    break;
                 }
-                else
-                {
-                    string base = icecpp->getBaseName();
-                    string::size_type pos = base.find_last_of("/\\");
-                    if (pos != string::npos)
-                    {
-                        base.erase(0, pos + 1);
-                    }
-
-                    try
-                    {
-                        Gen gen(icecpp->getBaseName(), includePaths, output);
-                        gen.generate(u);
-                    }
-                    catch (const Slice::FileException& ex)
-                    {
-                        //
-                        // If a file could not be created, then cleanup any created files.
-                        //
-                        FileTracker::instance()->cleanup();
-                        u->destroy();
-                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                        status = EXIT_FAILURE;
-                        break;
-                    }
-                }
-
-                status |= u->getStatus();
-                u->destroy();
             }
+
+            status |= u->getStatus();
+            u->destroy();
         }
 
         {
