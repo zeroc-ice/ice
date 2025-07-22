@@ -149,7 +149,7 @@ namespace Slice::Python
 
     /// Checks if the given Slice type corresponds to a mutable Python which is not always optional.
     /// Namely if the type corresponds to a Python dataclass, sequence, or dictionary type.
-    bool isMutableNonOptionalType(const TypePtr& type);
+    bool canBeUsedAsDefaultValue(const TypePtr& type);
 
     PythonCodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
 

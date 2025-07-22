@@ -352,7 +352,7 @@ Slice::Python::formatFields(const DataMemberList& members)
 }
 
 bool
-Slice::Python::isMutableNonOptionalType(const TypePtr& type)
+Slice::Python::canBeUsedAsDefaultValue(const TypePtr& type)
 {
     return dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
            dynamic_pointer_cast<Dictionary>(type);
@@ -1790,16 +1790,33 @@ Slice::Python::CodeVisitor::getTypeInitializer(const DataMemberPtr& field, bool 
     {
         return getImportAlias(enumeration) + "." + enumeration->enumerators().front()->mappedName();
     }
-    else if (!constructor && isMutableNonOptionalType(field->type()))
+    else if (!constructor && canBeUsedAsDefaultValue(field->type()))
     {
+        string factory;
         if (auto st = dynamic_pointer_cast<Struct>(field->type()))
         {
-            return "field(default_factory=" + getImportAlias(st) + ")";
+            factory = getImportAlias(st);
         }
-        else
+        else if (auto seq = dynamic_pointer_cast<Sequence>(field->type()))
         {
-            return "field(default_factory=" + typeToTypeHintString(field->type(), false, field, false) + ")";
+            // TODO: handle metadata for sequences.
+            auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
+            bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
+            if (isByteSequence)
+            {
+                factory = "bytes";
+            }
+            else
+            {
+                factory = "list";
+            }
         }
+        else if (auto dict = dynamic_pointer_cast<Dictionary>(field->type()))
+        {
+            factory = "dict"; // Dictionaries are initialized with an empty dictionary.
+        }
+
+        return "field(default_factory=" + factory + ")";
     }
 
     return "None";
@@ -1903,7 +1920,7 @@ Slice::Python::CodeVisitor::writeAssign(const DataMemberPtr& member, Output& out
     const TypePtr memberType = member->type();
 
     // Mutable types cannot be used as default values in Python as they are shared across instances.
-    if (isMutableNonOptionalType(memberType) && !member->optional())
+    if (canBeUsedAsDefaultValue(memberType) && !member->optional())
     {
         out << nl << "self." << memberName << " = " << memberName << " if " << memberName << " is not None else ";
 
@@ -1911,9 +1928,23 @@ Slice::Python::CodeVisitor::writeAssign(const DataMemberPtr& member, Output& out
         {
             out << getImportAlias(memberType) << "()";
         }
-        else
+        else if (auto seq = dynamic_pointer_cast<Sequence>(memberType))
         {
-            out << typeToTypeHintString(memberType, false, member, false) << "()";
+            auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
+            bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
+            if (isByteSequence)
+            {
+                out << "b''"; // Byte sequences are initialized with an empty byte string.
+            }
+            else
+            {
+                // TODO: handle metadata for sequences.
+                out << "[]"; // Other sequences are initialized with an empty list.
+            }
+        }
+        else if (dynamic_pointer_cast<Dictionary>(memberType))
+        {
+            out << "{}";
         }
     }
     else
@@ -1989,7 +2020,7 @@ Slice::Python::CodeVisitor::writeConstructorParams(const DataMemberList& members
         // initialize the member in the constructor if it is None.
         const string typeHint = typeToTypeHintString(
             member->type(),
-            member->optional() || isMutableNonOptionalType(member->type()),
+            member->optional() || canBeUsedAsDefaultValue(member->type()),
             dynamic_pointer_cast<Contained>(member->container()),
             false);
         out << ", " << member->mappedName() << ": " << typeHint << " = ";
