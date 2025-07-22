@@ -352,7 +352,7 @@ Slice::Python::formatFields(const DataMemberList& members)
 }
 
 bool
-Slice::Python::isMutableTypeNonClassType(const TypePtr& type)
+Slice::Python::isMutableNonOptionalType(const TypePtr& type)
 {
     return dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
            dynamic_pointer_cast<Dictionary>(type);
@@ -1790,7 +1790,7 @@ Slice::Python::CodeVisitor::getTypeInitializer(const DataMemberPtr& field, bool 
     {
         return getImportAlias(enumeration) + "." + enumeration->enumerators().front()->mappedName();
     }
-    else if (!constructor && isMutableTypeNonClassType(field->type()))
+    else if (!constructor && isMutableNonOptionalType(field->type()))
     {
         if (auto st = dynamic_pointer_cast<Struct>(field->type()))
         {
@@ -1902,7 +1902,7 @@ Slice::Python::CodeVisitor::writeAssign(const DataMemberPtr& member, Output& out
     const string memberName = member->mappedName();
 
     // Mutable types cannot be used as default values in Python as they are shared across instances.
-    if (isMutableTypeNonClassType(member->type()) && !member->optional())
+    if (isMutableNonOptionalType(member->type()) && !member->optional())
     {
         out << nl << "self." << memberName << " = " << memberName << " if " << memberName << " is not None else ";
 
@@ -1988,7 +1988,7 @@ Slice::Python::CodeVisitor::writeConstructorParams(const DataMemberList& members
         // initialize the member in the constructor if it is None.
         const string typeHint = typeToTypeHintString(
             member->type(),
-            member->optional() || isMutableTypeNonClassType(member->type()),
+            member->optional() || isMutableNonOptionalType(member->type()),
             dynamic_pointer_cast<Contained>(member->container()),
             false);
         out << ", " << member->mappedName() << ": " << typeHint << " = ";
