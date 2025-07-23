@@ -1183,28 +1183,31 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     writeDocstring(p->docComment(), members, out);
 
-    // __init__
-    out << nl << "def __init__(";
-    writeConstructorParams(p, p->allDataMembers(), out);
-    out << "):";
-    out.inc();
-
-    out << nl << "super().__init__";
-    out.spar("(");
-    if (base)
+    if (!members.empty())
     {
-        for (const auto& member : base->allDataMembers())
+        // __init__
+        out << nl << "def __init__(";
+        writeConstructorParams(p, p->allDataMembers(), out);
+        out << "):";
+        out.inc();
+
+        out << nl << "super().__init__";
+        out.spar("(");
+        if (base)
         {
-            out << member->mappedName();
+            for (const auto& member : base->allDataMembers())
+            {
+                out << member->mappedName();
+            }
         }
-    }
-    out.epar(")");
+        out.epar(")");
 
-    for (const auto& member : members)
-    {
-        writeAssign(p, member, out);
+        for (const auto& member : members)
+        {
+            writeAssign(p, member, out);
+        }
+        out.dec();
     }
-    out.dec();
 
     // ice_id
     out << sp;
@@ -1296,27 +1299,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string objectPrxAlias = getImportAlias(p, "Ice.ObjectPrx", "ObjectPrx");
     const string currentAlias = getImportAlias(p, "Ice.Current", "Current");
     const string formatTypeAlias = getImportAlias(p, "Ice.FormatType", "FormatType");
-
-    out << sp;
-    out << nl << "def __init__(self, communicator: " << communicatorAlias << ", proxyString: str):";
-    out.inc();
-    out << nl << tripleQuotes;
-    out << nl << "Creates a new " << prxName << " proxy";
-    out << nl;
-    out << nl << "Parameters";
-    out << nl << "----------";
-    out << nl << "communicator : " << communicatorAlias;
-    out << nl << "    The communicator of the new proxy.";
-    out << nl << "proxyString : str";
-    out << nl << "    The string representation of the proxy.";
-    out << nl;
-    out << nl << "Raises";
-    out << nl << "------";
-    out << nl << "ParseException";
-    out << nl << "    Thrown when proxyString is not a valid proxy string.";
-    out << nl << tripleQuotes;
-    out << nl << "super().__init__(communicator, proxyString)";
-    out.dec();
 
     for (const auto& operation : operations)
     {
@@ -1701,32 +1683,33 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "class " << name << '('
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.UserException", "UserException")) << "):";
     out.inc();
-
     writeDocstring(p->docComment(), members, out);
 
-    // __init__
-    out << nl << "def __init__(";
-    writeConstructorParams(p, p->allDataMembers(), out);
-    out << "):";
-    out.inc();
-
-    out << nl << "super().__init__";
-    out.spar("(");
-    if (base)
+    if (!members.empty())
     {
-        for (const auto& member : base->allDataMembers())
+        // __init__
+        out << nl << "def __init__(";
+        writeConstructorParams(p, p->allDataMembers(), out);
+        out << "):";
+        out.inc();
+
+        out << nl << "super().__init__";
+        out.spar("(");
+        if (base)
         {
-            out << member->mappedName();
+            for (const auto& member : base->allDataMembers())
+            {
+                out << member->mappedName();
+            }
         }
-    }
-    out.epar(")");
+        out.epar(")");
 
-    for (const auto& member : members)
-    {
-        writeAssign(p, member, out);
+        for (const auto& member : members)
+        {
+            writeAssign(p, member, out);
+        }
+        out.dec();
     }
-
-    out.dec();
 
     // Generate the __repr__ method for this Exception class.
     // The default __str__ method inherited from Ice.UserException calls __repr__().
