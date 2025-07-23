@@ -28,15 +28,15 @@ class ServantLocator(ABC):
 
         Parameters
         ----------
-        current : Ice.Current
+        current : Current
             Information about the current operation for which a servant is required.
 
         Returns
         -------
-        tuple of (Ice.Object or None, object)
+        tuple[Object | None, object]
 
             A tuple containing the following:
-                - retval : Ice.Object or None
+                - retval : Object or None
                     The located servant, or None if no suitable servant has been found.
                 - cookie : object
                     A "cookie" that will be passed to `finished`.
@@ -63,9 +63,9 @@ class ServantLocator(ABC):
 
         Parameters
         ----------
-        current : Ice.Current
+        current : Current
             Information about the current operation call for which a servant was located by `locate`.
-        servant : Ice.Object
+        servant : Object
             The servant that was returned by `locate`.
         cookie : object
             The cookie that was returned by `locate`.
@@ -88,3 +88,6 @@ class ServantLocator(ABC):
             Indicates for which category the servant locator is being deactivated.
         """
         pass
+
+
+__all__ = ["ServantLocator"]

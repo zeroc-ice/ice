@@ -29,3 +29,6 @@ class ToStringMode(Enum):
     Unicode = 0
     ASCII = 1
     Compat = 2
+
+
+__all__ = ["ToStringMode"]

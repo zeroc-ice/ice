@@ -1,6 +1,6 @@
 IllegalIdentifier.ice:6: illegal input character: '\305'
-IllegalIdentifier.ice:6: syntax error
+IllegalIdentifier.ice:6: syntax error, unexpected invalid character
 IllegalIdentifier.ice:6: illegal input character: '\222'
 IllegalIdentifier.ice:8: illegal input character: '\305'
 IllegalIdentifier.ice:8: illegal input character: '\223'
-IllegalIdentifier.ice:10: syntax error
+IllegalIdentifier.ice:10: syntax error, unexpected '}'

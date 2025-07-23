@@ -104,17 +104,8 @@ using namespace Slice;
 void
 slice_error(const char* s)
 {
-    // yacc and recent versions of Bison use "syntax error" instead
-    // of "parse error".
-
-    if (strcmp(s, "parse error") == 0)
-    {
-        currentUnit->error("syntax error");
-    }
-    else
-    {
-        currentUnit->error(s);
-    }
+    // We want 'unit' to emit the error so its error count is incremented.
+    currentUnit->error(s);
 }
 
 namespace
@@ -151,54 +142,57 @@ namespace
 // Specify a custom location type for storing the location & filename of tokens.
 %define api.location.type {Slice::TokenContext}
 
+// Tell Bison to emit additional information with its syntax error messages (like which tokens it expected).
+%define parse.error detailed
+
 // All keyword tokens. Make sure to modify the "keyword" rule in this
 // file if the list of keywords is changed. Also make sure to add the
 // keyword to the keyword table in Scanner.l.
-%token ICE_MODULE
-%token ICE_CLASS
-%token ICE_INTERFACE
-%token ICE_EXCEPTION
-%token ICE_STRUCT
-%token ICE_SEQUENCE
-%token ICE_DICTIONARY
-%token ICE_ENUM
-%token ICE_OUT
-%token ICE_EXTENDS
-%token ICE_THROWS
-%token ICE_VOID
-%token ICE_BOOL
-%token ICE_BYTE
-%token ICE_SHORT
-%token ICE_INT
-%token ICE_LONG
-%token ICE_FLOAT
-%token ICE_DOUBLE
-%token ICE_STRING
-%token ICE_OBJECT
-%token ICE_CONST
-%token ICE_FALSE
-%token ICE_TRUE
-%token ICE_IDEMPOTENT
-%token ICE_OPTIONAL
-%token ICE_VALUE
+%token ICE_MODULE "module keyword"
+%token ICE_CLASS "class keyword"
+%token ICE_INTERFACE "interface keyword"
+%token ICE_EXCEPTION "exception keyword"
+%token ICE_STRUCT "struct keyword"
+%token ICE_SEQUENCE "sequence keyword"
+%token ICE_DICTIONARY "dictionary keyword"
+%token ICE_ENUM "enum keyword"
+%token ICE_OUT "out keyword"
+%token ICE_EXTENDS "extends keyword"
+%token ICE_THROWS "throws keyword"
+%token ICE_VOID "void keyword"
+%token ICE_BOOL "bool keyword"
+%token ICE_BYTE "byte keyword"
+%token ICE_SHORT "short keyword"
+%token ICE_INT "int keyword"
+%token ICE_LONG "long keyword"
+%token ICE_FLOAT "float keyword"
+%token ICE_DOUBLE "double keyword"
+%token ICE_STRING "string keyword"
+%token ICE_OBJECT "Object keyword"
+%token ICE_CONST "const keyword"
+%token ICE_FALSE "false keyword"
+%token ICE_TRUE "true keyword"
+%token ICE_IDEMPOTENT "idempotent keyword"
+%token ICE_OPTIONAL "optional keyword"
+%token ICE_VALUE "Value keyword"
 
 // Other tokens.
-%token ICE_STRING_LITERAL
-%token ICE_INTEGER_LITERAL
-%token ICE_FLOATING_POINT_LITERAL
-%token ICE_IDENTIFIER
-%token ICE_SCOPED_IDENTIFIER
-%token ICE_METADATA_OPEN
-%token ICE_METADATA_CLOSE
-%token ICE_FILE_METADATA_OPEN
-%token ICE_FILE_METADATA_CLOSE
+%token ICE_STRING_LITERAL "string literal"
+%token ICE_INTEGER_LITERAL "integer literal"
+%token ICE_FLOATING_POINT_LITERAL "floating-point literal"
+%token ICE_IDENTIFIER "identifier"
+%token ICE_SCOPED_IDENTIFIER "scoped identifier"
+%token ICE_METADATA_OPEN "["
+%token ICE_METADATA_CLOSE "]"
+%token ICE_FILE_METADATA_OPEN "[["
+%token ICE_FILE_METADATA_CLOSE "]]"
 
 // Here 'OPEN' means these tokens end with an open parenthesis.
-%token ICE_IDENT_OPEN
-%token ICE_KEYWORD_OPEN
-%token ICE_OPTIONAL_OPEN
+%token ICE_IDENT_OPEN "identifier("
+%token ICE_KEYWORD_OPEN "keyword("
+%token ICE_OPTIONAL_OPEN "optional("
 
-%token BAD_TOKEN
+%token BAD_TOKEN "invalid character"
 
 %%
 
@@ -313,90 +307,57 @@ definitions
 // ----------------------------------------------------------------------
 definition
 // ----------------------------------------------------------------------
-: module_def
+: module_def opt_semicolon
 {
     assert($1 == nullptr || dynamic_pointer_cast<Module>($1));
 }
-opt_semicolon
-| class_decl
+| class_decl ';'
 {
     assert($1 == nullptr || dynamic_pointer_cast<ClassDecl>($1));
 }
-';'
-| class_decl
-{
-    currentUnit->error("';' missing after class forward declaration");
-}
-| class_def
+| class_def opt_semicolon
 {
     assert($1 == nullptr || dynamic_pointer_cast<ClassDef>($1));
 }
-opt_semicolon
-| interface_decl
+| interface_decl ';'
 {
     assert($1 == nullptr || dynamic_pointer_cast<InterfaceDecl>($1));
 }
-';'
-| interface_decl
-{
-    currentUnit->error("';' missing after interface forward declaration");
-}
-| interface_def
+| interface_def opt_semicolon
 {
     assert($1 == nullptr || dynamic_pointer_cast<InterfaceDef>($1));
 }
-opt_semicolon
-| exception_decl
+| exception_decl ';'
 {
     assert($1 == nullptr);
 }
-';'
-| exception_decl
-{
-    currentUnit->error("';' missing after exception forward declaration");
-}
-| exception_def
+| exception_def opt_semicolon
 {
     assert($1 == nullptr || dynamic_pointer_cast<Exception>($1));
 }
-opt_semicolon
-| struct_decl
+| struct_decl ';'
 {
     assert($1 == nullptr);
 }
-';'
-| struct_decl
-{
-    currentUnit->error("';' missing after struct forward declaration");
-}
-| struct_def
+| struct_def opt_semicolon
 {
     assert($1 == nullptr || dynamic_pointer_cast<Struct>($1));
 }
-opt_semicolon
-| sequence_def
+| sequence_def ';'
 {
     assert(dynamic_pointer_cast<Sequence>($1));
 }
-';'
-| dictionary_def
+| dictionary_def ';'
 {
     assert(dynamic_pointer_cast<Dictionary>($1));
 }
-';'
-| enum_def
+| enum_def opt_semicolon
 {
     assert(dynamic_pointer_cast<Enum>($1));
 }
-opt_semicolon
-| const_def
+| const_def ';'
 {
     assert(dynamic_pointer_cast<Const>($1));
-}
-';'
-| const_def
-{
-    currentUnit->error("';' missing after const definition");
 }
 | error ';'
 {
@@ -1721,14 +1682,6 @@ metadata_list
     metadataList->v.push_back(metadata);
 
     $$ = metadataList;
-}
-| metadata_list ',' BAD_TOKEN
-{
-    $$ = $1;
-}
-| BAD_TOKEN
-{
-    $$ = make_shared<MetadataListTok>();
 }
 ;
 

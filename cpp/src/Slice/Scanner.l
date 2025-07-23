@@ -472,7 +472,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     StringTokPtr str = make_shared<StringTok>();
     str->literal = yytext;
     *yylval = str;
-    return BAD_TOKEN;
+    return ICE_STRING_LITERAL;
 }
 
   /* ========== Identifiers and Keywords ========== */

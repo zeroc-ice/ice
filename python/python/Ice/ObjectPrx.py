@@ -40,7 +40,7 @@ def uncheckedCast(type: Type[T], proxy: ObjectPrx | None, facet: str | None = No
     type : type
         The proxy target type.
 
-    proxy : ObjectPrx or None
+    proxy : ObjectPrx | None
         The source proxy.
 
     facet : str, optional
@@ -48,7 +48,7 @@ def uncheckedCast(type: Type[T], proxy: ObjectPrx | None, facet: str | None = No
 
     Returns
     -------
-    ObjectPrx or None
+    ObjectPrx | None
         A proxy with the requested type.
     """
     if proxy is None:
@@ -69,7 +69,7 @@ def checkedCast(
     type : type
         The proxy target type.
 
-    proxy : ObjectPrx or None
+    proxy : ObjectPrx | None
         The source proxy.
 
     facet : str, optional
@@ -80,7 +80,7 @@ def checkedCast(
 
     Returns
     -------
-    ObjectPrx or None
+    ObjectPrx | None
         A proxy with the requested type, or None if the target object does not support the requested type.
     """
     if proxy is None:
@@ -101,7 +101,7 @@ async def checkedCastAsync(
     type : type
         The proxy target type.
 
-    proxy : ObjectPrx or None
+    proxy : ObjectPrx | None
         The source proxy.
 
     facet : str, optional
@@ -112,7 +112,7 @@ async def checkedCastAsync(
 
     Returns
     -------
-    ObjectPrx or None
+    ObjectPrx | None
         A proxy with the requested type, or None if the target object does not support the requested type.
     """
     if proxy is None:
@@ -136,7 +136,7 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
 
         Parameters
         ----------
-        proxy : ObjectPrx or None
+        proxy : ObjectPrx | None
             The source proxy.
 
         facet : str, optional
@@ -144,7 +144,7 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
 
         Returns
         -------
-        ObjectPrx or None
+        ObjectPrx | None
             A proxy with the requested type, or None if the target object does not support the requested type.
         """
         return uncheckedCast(ObjectPrx, proxy, facet)
@@ -158,7 +158,7 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
 
         Parameters
         ----------
-        proxy : ObjectPrx or None
+        proxy : ObjectPrx | None
             The source proxy.
 
         facet : str, optional
@@ -169,7 +169,7 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
 
         Returns
         -------
-        ObjectPrx or None
+        ObjectPrx | None
             A proxy with the requested type, or None if the target object does not support the requested type.
         """
         return checkedCast(ObjectPrx, proxy, facet, context)
@@ -183,7 +183,7 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
 
         Parameters
         ----------
-        proxy : ObjectPrx or None
+        proxy : ObjectPrx | None
             The source proxy.
 
         facet : str, optional
@@ -194,7 +194,7 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
 
         Returns
         -------
-        ObjectPrx or None
+        ObjectPrx | None
             A proxy with the requested type, or None if the target object does not support the requested type.
         """
         return checkedCastAsync(ObjectPrx, proxy, facet, context)
