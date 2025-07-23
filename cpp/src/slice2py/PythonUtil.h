@@ -45,6 +45,10 @@ namespace Slice::Python
         Return
     };
 
+    /// A map with the import statements for a generated Python module.
+    /// - Key: the imported module name, e.g., "Ice.Communicator".
+    /// - Value: a set of pairs representing the imported name and its alias. The first element of the pair is the
+    ///   imported name, and the second element is the alias used in the generated code.
     using ModuleImportsMap = std::map<std::string, std::set<std::pair<std::string, std::string>>>;
 
     // Maps import statements per generated Python module.
@@ -71,12 +75,6 @@ namespace Slice::Python
         /// The generated code.
         std::string code;
     };
-
-    /// Determines the mapped package for a given Slice definition.
-    /// @param p The Slice definition to get the mapped package for.
-    /// @param packageSeparator Use this character as the separator between package segments.
-    /// @return The mapped package name, with the specified separator.
-    std::string getMappedPackage(const SyntaxTreeBasePtr& p, char packageSeparator = '.');
 
     /// Returns the fully qualified name of the Python module that corresponds to the given Slice definition.
     ///

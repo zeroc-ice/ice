@@ -28,27 +28,6 @@ namespace
 }
 
 string
-Slice::Python::getMappedPackage(const SyntaxTreeBasePtr& p, char packageSeparator)
-{
-    if (dynamic_pointer_cast<Builtin>(p))
-    {
-        return string{"Ice"} + packageSeparator;
-    }
-    else
-    {
-        auto contained = dynamic_pointer_cast<Contained>(p);
-        assert(contained);
-        string package = contained->mappedScope(string{packageSeparator});
-        if (packageSeparator != '.')
-        {
-            // Replace "." with the specified separator.
-            replace(package.begin(), package.end(), '.', packageSeparator);
-        }
-        return package;
-    }
-}
-
-string
 Slice::Python::getPythonModuleForDefinition(const SyntaxTreeBasePtr& p)
 {
     if (auto builtin = dynamic_pointer_cast<Builtin>(p))
@@ -61,7 +40,7 @@ Slice::Python::getPythonModuleForDefinition(const SyntaxTreeBasePtr& p)
     {
         auto contained = dynamic_pointer_cast<Contained>(p);
         assert(contained);
-        return getMappedPackage(contained) + contained->mappedName();
+        return contained->mappedScoped(".");
     }
 }
 
@@ -187,7 +166,9 @@ Slice::Python::getMetaType(const SyntaxTreeBasePtr& p)
     {
         auto contained = dynamic_pointer_cast<Contained>(p);
         assert(contained);
-        string s = "_" + getMappedPackage(contained, '_') + contained->mappedName();
+        string s = "_" + contained->mappedScoped("_");
+        // Replace here is required in case any module is remap with python:identifier into a nested package.
+        replace(s.begin(), s.end(), '.', '_');
         if (dynamic_pointer_cast<InterfaceDef>(contained) || dynamic_pointer_cast<InterfaceDecl>(contained))
         {
             s += "Prx";
@@ -980,7 +961,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
 bool
 Slice::Python::PackageVisitor::visitModuleStart(const ModulePtr& p)
 {
-    string packageName = getMappedPackage(p) + p->mappedName();
+    string packageName = p->mappedScoped(".");
 
     // Ensure all parent packages exits, that is necessary to account for modules
     // that are mapped to a nested package using python:identifier metadata.
@@ -1066,7 +1047,7 @@ Slice::Python::PackageVisitor::visitConst(const ConstPtr& p)
 void
 Slice::Python::PackageVisitor::addRuntimeImport(const ContainedPtr& definition, const string& prefix)
 {
-    string packageName = getMappedPackage(definition);
+    string packageName = definition->mappedScope(".");
     string moduleName = definition->mappedName();
     auto& packageImports = _imports[packageName];
     auto& definitions = packageImports[moduleName];
@@ -1081,7 +1062,7 @@ Slice::Python::PackageVisitor::addRuntimeImport(const ContainedPtr& definition, 
 void
 Slice::Python::PackageVisitor::addRuntimeImportForMetaType(const ContainedPtr& definition)
 {
-    string packageName = getMappedPackage(definition);
+    string packageName = definition->mappedScope(".");
     string moduleName = definition->mappedName();
 
     // The meta type for Slice classes or interfaces is always imported from the Xxx_iceF module containing the forward
