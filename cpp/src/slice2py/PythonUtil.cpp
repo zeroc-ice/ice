@@ -2504,7 +2504,7 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
             throw runtime_error("Failed to parse Slice files");
         }
 
-        parseAllDocCommentsWithin(unit, Slice::Python::pyLinkFormatter);
+        parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
         validatePythonMetadata(unit);
 
         unit->visit(&packageVisitor);

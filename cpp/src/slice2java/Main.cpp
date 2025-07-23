@@ -219,7 +219,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocCommentsWithin(p, Slice::Java::javaLinkFormatter);
+                parseAllDocComments(p, Slice::Java::javaLinkFormatter);
 
                 try
                 {

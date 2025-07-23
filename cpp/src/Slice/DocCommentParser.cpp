@@ -36,7 +36,7 @@ namespace Slice
 }
 
 void
-Slice::parseAllDocCommentsWithin(const UnitPtr& unit, DocLinkFormatter linkFormatter)
+Slice::parseAllDocComments(const UnitPtr& unit, DocLinkFormatter linkFormatter)
 {
     DocCommentParser visitor{linkFormatter};
     unit->visit(&visitor);

@@ -174,7 +174,7 @@ compile(const vector<string>& argv)
         }
         else
         {
-            parseAllDocCommentsWithin(p, Slice::slice2LinkFormatter);
+            parseAllDocComments(p, Slice::slice2LinkFormatter);
 
             DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
             assert(dc);

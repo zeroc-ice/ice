@@ -258,7 +258,7 @@ namespace
                 }
                 else
                 {
-                    parseAllDocCommentsWithin(u, Slice::matlabLinkFormatter);
+                    parseAllDocComments(u, Slice::matlabLinkFormatter);
 
                     string base = icecpp->getBaseName();
                     string::size_type pos = base.find_last_of("/\\");

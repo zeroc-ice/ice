@@ -255,7 +255,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocCommentsWithin(u, Slice::cppLinkFormatter);
+                parseAllDocComments(u, Slice::cppLinkFormatter);
 
                 try
                 {

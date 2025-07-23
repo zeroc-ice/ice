@@ -263,7 +263,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocCommentsWithin(p, Slice::JavaScript::jsLinkFormatter);
+                parseAllDocComments(p, Slice::JavaScript::jsLinkFormatter);
 
                 DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
                 assert(dc);

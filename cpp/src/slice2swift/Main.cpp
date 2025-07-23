@@ -230,7 +230,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocCommentsWithin(u, Slice::Swift::swiftLinkFormatter);
+                parseAllDocComments(u, Slice::Swift::swiftLinkFormatter);
 
                 string base = icecpp->getBaseName();
                 string::size_type pos = base.find_last_of("/\\");

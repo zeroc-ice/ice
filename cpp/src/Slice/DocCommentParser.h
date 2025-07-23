@@ -8,6 +8,6 @@
 namespace Slice
 {
     /// Parses all doc-comments within the provided unit (in-place).
-    void parseAllDocCommentsWithin(const UnitPtr& unit, DocLinkFormatter linkFormatter);
+    void parseAllDocComments(const UnitPtr& unit, DocLinkFormatter linkFormatter);
 }
 #endif

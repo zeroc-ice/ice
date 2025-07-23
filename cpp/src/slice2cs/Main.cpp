@@ -227,7 +227,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocCommentsWithin(p, Slice::Csharp::csLinkFormatter);
+                parseAllDocComments(p, Slice::Csharp::csLinkFormatter);
 
                 try
                 {

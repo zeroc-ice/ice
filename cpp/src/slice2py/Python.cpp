@@ -263,7 +263,7 @@ Slice::Python::staticCompile(const vector<string>& argv)
         }
         else
         {
-            parseAllDocCommentsWithin(unit, Slice::Python::pyLinkFormatter);
+            parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
 
             try
             {
