@@ -145,7 +145,6 @@ Slice::Python::getImportAlias(
 
     if (useAlias)
     {
-        assert(!moduleName.ends_with("."));
         string alias = "_m_" + moduleName + "_" + name;
         std::replace(alias.begin(), alias.end(), '.', '_');
         return alias;
