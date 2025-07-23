@@ -4,6 +4,7 @@
 
 #include "Ice/BuiltinSequences.ice"
 
+["python:identifier:generated.test.Ice.executor.Test"]
 module Test
 {
     interface TestIntf

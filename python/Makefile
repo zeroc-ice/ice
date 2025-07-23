@@ -36,3 +36,5 @@ all:: srcs
 all generate-srcs clean distclean install::
 	+$(Q)$(MAKE) -C python $@
 	+$(Q)$(MAKE) -C test $@
+
+srcs:: generate-srcs

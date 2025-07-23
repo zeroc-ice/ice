@@ -4,7 +4,7 @@ import array
 import sys
 import threading
 
-import Test
+from generated.test.Ice.exceptions import Test
 
 import Ice
 

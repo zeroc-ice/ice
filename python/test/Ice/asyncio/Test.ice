@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Ice.asyncio.Test"]
 module Test
 {
     exception TestException

@@ -4,6 +4,7 @@
 
 #include "Ice/Context.ice"
 
+["python:identifier:generated.test.Ice.operations.Test"]
 module Test
 {
     enum MyEnum
@@ -341,6 +342,7 @@ module Test
     const string su2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 }
 
+["python:identifier:generated.test.Ice.operations.Test2"]
 module Test2
 {
     /**

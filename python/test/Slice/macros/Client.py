@@ -4,7 +4,7 @@
 
 import sys
 
-import Test
+from generated.test.Slice.macros import Test
 from TestHelper import TestHelper
 
 import Ice

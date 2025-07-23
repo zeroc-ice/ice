@@ -4,6 +4,7 @@
 
 #include "Ice/Context.ice"
 
+["python:identifier:generated.test.Ice.info.Test"]
 module Test
 {
     interface TestIntf

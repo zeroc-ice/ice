@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-import Test
+from generated.test.Ice.info import Test
 
 import Ice
 

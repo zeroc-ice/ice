@@ -2,17 +2,17 @@
 
 import sys
 
-import Test
-from Inner.Test.Inner2 import MyInterfacePrx as Inner_Test_Inner2_MyInterfacePrx
-from Test.Inner import MyInterfacePrx as Test_Inner_MyInterfacePrx
-from Test.Inner import MyStruct as Test_Inner_MyStruct
-from Test.Inner.Inner2 import (
+from generated.test.Ice.scope import Test
+from generated.test.Ice.scope.Inner.Test.Inner2 import MyInterfacePrx as Inner_Test_Inner2_MyInterfacePrx
+from generated.test.Ice.scope.Test.Inner import MyInterfacePrx as Test_Inner_MyInterfacePrx
+from generated.test.Ice.scope.Test.Inner import MyStruct as Test_Inner_MyStruct
+from generated.test.Ice.scope.Test.Inner.Inner2 import (
     MyClass as Test_Inner_Inner2_MyClass,
 )
-from Test.Inner.Inner2 import (
+from generated.test.Ice.scope.Test.Inner.Inner2 import (
     MyInterfacePrx as Test_Inner_Inner2_MyInterfacePrx,
 )
-from Test.Inner.Inner2 import (
+from generated.test.Ice.scope.Test.Inner.Inner2 import (
     MyStruct as Test_Inner_Inner2_MyStruct,
 )
 

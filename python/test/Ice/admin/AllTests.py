@@ -2,8 +2,8 @@
 
 import sys
 
-import Test
 import TestI
+from generated.test.Ice.admin import Test
 
 import Ice
 

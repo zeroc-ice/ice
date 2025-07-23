@@ -2,7 +2,8 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import Test
+from generated.test.Ice.slicing.objects import Test
+from generated.test.Ice.slicing.objects.server_private import Test as ServerPrivateTest
 from TestHelper import TestHelper
 
 import Ice
@@ -37,27 +38,27 @@ class TestI(Test.TestIntf):
         return Ice.Future.completed(sbskd)
 
     def SBSUnknownDerivedAsSBase(self, current):
-        sbsud = Test.SBSUnknownDerived()
+        sbsud = ServerPrivateTest.SBSUnknownDerived()
         sbsud.sb = "SBSUnknownDerived.sb"
         sbsud.sbsud = "SBSUnknownDerived.sbsud"
         return Ice.Future.completed(sbsud)
 
     def SBSUnknownDerivedAsSBaseCompact(self, current):
-        sbsud = Test.SBSUnknownDerived()
+        sbsud = ServerPrivateTest.SBSUnknownDerived()
         sbsud.sb = "SBSUnknownDerived.sb"
         sbsud.sbsud = "SBSUnknownDerived.sbsud"
         return Ice.Future.completed(sbsud)
 
     def SUnknownAsObject(self, current):
-        su = Test.SUnknown()
+        su = ServerPrivateTest.SUnknown()
         su.su = "SUnknown.su"
         return Ice.Future.completed(su)
 
     def checkSUnknown(self, obj, current):
         if current.encoding == Ice.Encoding_1_0:
-            test(not isinstance(obj, Test.SUnknown))
+            test(not isinstance(obj, ServerPrivateTest.SUnknown))
         else:
-            test(isinstance(obj, Test.SUnknown))
+            test(isinstance(obj, ServerPrivateTest.SUnknown))
             test(obj.su == "SUnknown.su")
         return Ice.Future.completed(None)
 
@@ -154,7 +155,7 @@ class TestI(Test.TestIntf):
         d1.pd1 = None
         d2.pd2 = d1
 
-        d4 = Test.D2()
+        d4 = ServerPrivateTest.D2()
         d4.sb = "D2.sb (p2 1)"
         d4.pb = None
         d4.sd2 = "D2.sd2 (p2 1)"
@@ -169,7 +170,7 @@ class TestI(Test.TestIntf):
         return Ice.Future.completed((d3, d2, d4))
 
     def paramTest4(self, current):
-        d4 = Test.D4()
+        d4 = ServerPrivateTest.D4()
         d4.sb = "D4.sb (1)"
         d4.pb = None
         d4.p1 = Test.B()
@@ -184,7 +185,7 @@ class TestI(Test.TestIntf):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
-        d2 = Test.D2()
+        d2 = ServerPrivateTest.D2()
         d2.pb = d1
         d2.sb = "D2.sb"
         d2.sd2 = "D2.sd2"
@@ -245,7 +246,7 @@ class TestI(Test.TestIntf):
         return Ice.Future.completed(pb)
 
     def PBSUnknownAsPreserved(self, current):
-        r = Test.PSUnknown()
+        r = ServerPrivateTest.PSUnknown()
         r.pi = 5
         r.ps = "preserved"
         r.psu = "unknown"
@@ -254,11 +255,11 @@ class TestI(Test.TestIntf):
 
     def checkPBSUnknown(self, p, current):
         if current.encoding == Ice.Encoding_1_0:
-            test(not isinstance(p, Test.PSUnknown))
+            test(not isinstance(p, ServerPrivateTest.PSUnknown))
             test(p.pi == 5)
             test(p.ps == "preserved")
         else:
-            test(isinstance(p, Test.PSUnknown))
+            test(isinstance(p, ServerPrivateTest.PSUnknown))
             test(p.pi == 5)
             test(p.ps == "preserved")
             test(p.psu == "unknown")
@@ -266,7 +267,7 @@ class TestI(Test.TestIntf):
         return Ice.Future.completed(None)
 
     def PBSUnknownAsPreservedWithGraph(self, current):
-        r = Test.PSUnknown()
+        r = ServerPrivateTest.PSUnknown()
         r.pi = 5
         r.ps = "preserved"
         r.psu = "unknown"
@@ -279,11 +280,11 @@ class TestI(Test.TestIntf):
 
     def checkPBSUnknownWithGraph(self, p, current):
         if current.encoding == Ice.Encoding_1_0:
-            test(not isinstance(p, Test.PSUnknown))
+            test(not isinstance(p, ServerPrivateTest.PSUnknown))
             test(p.pi == 5)
             test(p.ps == "preserved")
         else:
-            test(isinstance(p, Test.PSUnknown))
+            test(isinstance(p, ServerPrivateTest.PSUnknown))
             test(p.pi == 5)
             test(p.ps == "preserved")
             test(p.psu == "unknown")
@@ -294,7 +295,7 @@ class TestI(Test.TestIntf):
         return Ice.Future.completed(None)
 
     def PBSUnknown2AsPreservedWithGraph(self, current):
-        r = Test.PSUnknown2()
+        r = ServerPrivateTest.PSUnknown2()
         r.pi = 5
         r.ps = "preserved"
         r.pb = r
@@ -303,11 +304,11 @@ class TestI(Test.TestIntf):
 
     def checkPBSUnknown2WithGraph(self, p, current):
         if current.encoding == Ice.Encoding_1_0:
-            test(not isinstance(p, Test.PSUnknown2))
+            test(not isinstance(p, ServerPrivateTest.PSUnknown2))
             test(p.pi == 5)
             test(p.ps == "preserved")
         else:
-            test(isinstance(p, Test.PSUnknown2))
+            test(isinstance(p, ServerPrivateTest.PSUnknown2))
             test(p.pi == 5)
             test(p.ps == "preserved")
             test(p.pb == p)
@@ -366,7 +367,7 @@ class TestI(Test.TestIntf):
         d2.sd2 = "sd2 d2"
         d2.pd2 = d2
 
-        ude = Test.UnknownDerivedException()
+        ude = ServerPrivateTest.UnknownDerivedException()
         ude.sbe = "sbe"
         ude.pb = d2
         ude.sude = "sude"

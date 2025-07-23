@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-import Test
 import TestAMDI
+from generated.test.Ice.servantLocator import Test
 
 
 class TestActivationAMDI(Test.TestActivation):

@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Ice.timeout.Test"]
 module Test
 {
     sequence<byte> ByteSeq;

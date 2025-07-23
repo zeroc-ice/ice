@@ -4,6 +4,7 @@
 
 #include "Test.ice"
 
+["python:identifier:generated.test.Ice.optional.client_private.Test"]
 module Test
 {
     //

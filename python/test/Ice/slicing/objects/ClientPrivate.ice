@@ -4,6 +4,7 @@
 
 #include "Test.ice"
 
+["python:identifier:generated.test.Ice.slicing.objects.client_private.Test"]
 module Test
 {
     class D3 extends B

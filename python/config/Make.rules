@@ -88,7 +88,9 @@ ifeq ($$(filter %clean,$$(MAKECMDGOALS)),)
 endif
 
 # Add to build target
-generated-srcs all:: $$(STAMPS_$1)
+generate-srcs all:: $$(STAMPS_$1)
+
+srcs:: generate-srcs
 
 # Clean rule
 clean::
@@ -110,7 +112,9 @@ $1/__init__.py: $2 $(slice2py_path)
 	$(E) "Creating $1 package"
 	$$(Q)$$(slice2py_path) -I$(top_srcdir)/slice --output-dir=. --build index $2
 
-generated-srcs all:: $1/__init__.py
+generate-srcs all:: $1/__init__.py
+
+srcs:: generate-srcs
 
 clean::
 	$(E) "Cleaning Python package $1..."
@@ -130,32 +134,16 @@ endef
 #
 define make-python-test-project
 
-$1_client_slices=$(filter-out $1/Server%.ice,$(wildcard $1/*.ice))
-$1_server_slices=$(filter-out $1/Client%.ice,$(wildcard $1/*.ice))
+$1_slices=$(wildcard $1/*.ice)
 
-ifneq ($$($1_client_slices),)
-$1/generated/client/.depend: $$($1_client_slices) $(slice2py_path)
+ifneq ($$($1_slices),)
+$1/.depend: $$($1_slices) $(slice2py_path)
 	$(E) "Compiling $1 $$<"
-	$(Q) mkdir -p $1/generated/client
-	$(Q)$(slice2py_path) $(slice2py_flags) -I$(slicedir) -I$1 --output-dir $1/generated/client $$($1_sliceflags) $$($1_client_slices)
-	$(Q)touch $1/generated/client/.depend
+	$(Q) mkdir -p $1
+	$(Q)$(slice2py_path) $(slice2py_flags) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) $$($1_slices)
+	$(Q)touch $1/.depend
 
-generated-srcs all:: $1/generated/client/.depend
-endif
-
-ifneq ($$($1_server_slices),)
-$1/generated/server/.depend: $$($1_server_slices) $(slice2py_path)
-	$(E) "Compiling $1 $$<"
-	$(Q) mkdir -p $1/generated/server
-	$(Q)$(slice2py_path) $(slice2py_flags) -I$(slicedir) -I$1 --output-dir $1/generated/server $$($1_sliceflags) $$($1_server_slices)
-	$(Q)touch $1/generated/server/.depend
-
-generated-srcs all:: $1/generated/server/.depend
-
-clean::
-	$(E) "Cleaning generated Python files for $1..."
-	$(Q)$(RM) -rf $1/generated/client $1/generated/server
-else
+generate-srcs all:: $1/.depend
 endif
 
 endef

@@ -91,13 +91,13 @@ from .InvalidReplicaGroupIdException import InvalidReplicaGroupIdException
 from .InvalidReplicaGroupIdException import _Ice_InvalidReplicaGroupIdException_t
 from .Locator import Locator
 from .Locator import LocatorPrx
-from .LocatorF import _Ice_LocatorPrx_t
+from .Locator_iceF import _Ice_LocatorPrx_t
 from .LocatorFinder import LocatorFinder
 from .LocatorFinder import LocatorFinderPrx
-from .LocatorFinderF import _Ice_LocatorFinderPrx_t
+from .LocatorFinder_iceF import _Ice_LocatorFinderPrx_t
 from .LocatorRegistry import LocatorRegistry
 from .LocatorRegistry import LocatorRegistryPrx
-from .LocatorRegistryF import _Ice_LocatorRegistryPrx_t
+from .LocatorRegistry_iceF import _Ice_LocatorRegistryPrx_t
 from .LogMessage import LogMessage
 from .LogMessage import _Ice_LogMessage_t
 from .LogMessageSeq import _Ice_LogMessageSeq_t
@@ -106,7 +106,7 @@ from .LogMessageType import _Ice_LogMessageType_t
 from .LogMessageTypeSeq import _Ice_LogMessageTypeSeq_t
 from .LoggerAdmin import LoggerAdmin
 from .LoggerAdmin import LoggerAdminPrx
-from .LoggerAdminF import _Ice_LoggerAdminPrx_t
+from .LoggerAdmin_iceF import _Ice_LoggerAdminPrx_t
 from .LongSeq import _Ice_LongSeq_t
 from .ObjectNotFoundException import ObjectNotFoundException
 from .ObjectNotFoundException import _Ice_ObjectNotFoundException_t
@@ -117,25 +117,25 @@ from .OperationMode import _Ice_OperationMode_t
 from .Process import Process
 from .Process import ProcessPrx
 from .ProcessLogger import getProcessLogger, setProcessLogger
-from .ProcessF import _Ice_ProcessPrx_t
+from .Process_iceF import _Ice_ProcessPrx_t
 from .PropertiesAdmin import PropertiesAdmin
 from .PropertiesAdmin import PropertiesAdminPrx
-from .PropertiesAdminF import _Ice_PropertiesAdminPrx_t
+from .PropertiesAdmin_iceF import _Ice_PropertiesAdminPrx_t
 from .PropertyDict import _Ice_PropertyDict_t
 from .ProtocolVersion import ProtocolVersion, _Ice_ProtocolVersion_t
 from .RemoteLogger import RemoteLogger
 from .RemoteLogger import RemoteLoggerPrx
 from .RemoteLoggerAlreadyAttachedException import RemoteLoggerAlreadyAttachedException
 from .RemoteLoggerAlreadyAttachedException import _Ice_RemoteLoggerAlreadyAttachedException_t
-from .RemoteLoggerF import _Ice_RemoteLoggerPrx_t
+from .RemoteLogger_iceF import _Ice_RemoteLoggerPrx_t
 from .ReplyStatus import ReplyStatus
 from .ReplyStatus import _Ice_ReplyStatus_t
 from .Router import Router
 from .Router import RouterPrx
-from .RouterF import _Ice_RouterPrx_t
+from .Router_iceF import _Ice_RouterPrx_t
 from .RouterFinder import RouterFinder
 from .RouterFinder import RouterFinderPrx
-from .RouterFinderF import _Ice_RouterFinderPrx_t
+from .RouterFinder_iceF import _Ice_RouterFinderPrx_t
 from .SSLEndpointType import SSLEndpointType
 from .ServerNotFoundException import ServerNotFoundException
 from .ServerNotFoundException import _Ice_ServerNotFoundException_t

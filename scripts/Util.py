@@ -3699,10 +3699,7 @@ class PythonMapping(CppBasedMapping):
             # the Ice python directory to PYTHONPATH
             dirs += self.getPythonDirs(self.component.getInstallDir(self, current), current.config)
         dirs += [current.testcase.getPath(current)]
-        if isinstance(process, Server):
-            dirs += [os.path.join(current.testcase.getPath(current), "generated", "server")]
-        else:
-            dirs += [os.path.join(current.testcase.getPath(current), "generated", "client")]
+        dirs += [os.path.join(current.testcase.getPath(current), "generated")]
         env["PYTHONPATH"] = os.pathsep.join(dirs)
         return env
 

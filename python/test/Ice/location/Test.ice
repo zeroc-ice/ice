@@ -5,6 +5,7 @@
 #include "Ice/Locator.ice"
 #include "Ice/LocatorRegistry.ice"
 
+["python:identifier:generated.test.Ice.location.Test"]
 module Test
 {
     interface TestLocatorRegistry extends Ice::LocatorRegistry

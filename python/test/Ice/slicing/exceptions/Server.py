@@ -2,7 +2,8 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import Test
+from generated.test.Ice.slicing.exceptions import Test
+from generated.test.Ice.slicing.exceptions.server_private import Test as ServerPrivateTest
 from TestHelper import TestHelper
 
 import Ice
@@ -18,7 +19,7 @@ class TestI(Test.TestIntf):
         raise b
 
     def unknownDerivedAsBase(self, current):
-        d = Test.UnknownDerived()
+        d = ServerPrivateTest.UnknownDerived()
         d.b = "UnknownDerived.b"
         d.ud = "UnknownDerived.ud"
         raise d
@@ -36,7 +37,7 @@ class TestI(Test.TestIntf):
         raise d
 
     def unknownIntermediateAsBase(self, current):
-        ui = Test.UnknownIntermediate()
+        ui = ServerPrivateTest.UnknownIntermediate()
         ui.b = "UnknownIntermediate.b"
         ui.ui = "UnknownIntermediate.ui"
         raise ui
@@ -75,21 +76,21 @@ class TestI(Test.TestIntf):
         raise kmd
 
     def unknownMostDerived1AsBase(self, current):
-        umd1 = Test.UnknownMostDerived1()
+        umd1 = ServerPrivateTest.UnknownMostDerived1()
         umd1.b = "UnknownMostDerived1.b"
         umd1.ki = "UnknownMostDerived1.ki"
         umd1.umd1 = "UnknownMostDerived1.umd1"
         raise umd1
 
     def unknownMostDerived1AsKnownIntermediate(self, current):
-        umd1 = Test.UnknownMostDerived1()
+        umd1 = ServerPrivateTest.UnknownMostDerived1()
         umd1.b = "UnknownMostDerived1.b"
         umd1.ki = "UnknownMostDerived1.ki"
         umd1.umd1 = "UnknownMostDerived1.umd1"
         raise umd1
 
     def unknownMostDerived2AsBase(self, current):
-        umd2 = Test.UnknownMostDerived2()
+        umd2 = ServerPrivateTest.UnknownMostDerived2()
         umd2.b = "UnknownMostDerived2.b"
         umd2.ui = "UnknownMostDerived2.ui"
         umd2.umd2 = "UnknownMostDerived2.umd2"

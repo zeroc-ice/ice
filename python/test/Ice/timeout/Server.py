@@ -5,7 +5,7 @@
 import threading
 import time
 
-import Test
+from generated.test.Ice.timeout import Test
 from TestHelper import TestHelper
 
 import Ice

@@ -5,6 +5,7 @@
 #include "Ice/BuiltinSequences.ice"
 #include "Ice/Identity.ice"
 
+["python:identifier:generated.test.Ice.exceptions.Test"]
 module Test
 {
     interface Empty

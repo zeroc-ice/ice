@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+["python:identifier:generated.test.Slice.structure.Test"]
 module Test
 {
     sequence<int> IntSeq;

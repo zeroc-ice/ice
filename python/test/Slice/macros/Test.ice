@@ -18,6 +18,7 @@
 #   define NODEFAULT(X) /**/
 #endif
 
+["python:identifier:generated.test.Slice.macros.Test"]
 module Test
 {
     class Default
