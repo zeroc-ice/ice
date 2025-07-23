@@ -24,3 +24,16 @@ jobs:
 
       - name: Ruff format
         run: ruff format . --check --diff
+
+  pyright:
+    name: Pyright
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Pyright
+        run: npm install -g pyright
+
+      - name: Pyright check
+        run: pyright python/python

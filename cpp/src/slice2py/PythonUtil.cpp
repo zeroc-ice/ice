@@ -640,7 +640,7 @@ Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
     {
         // Import field if we have at least one data member that cannot be used as a default value.
         // This is required to use the `dataclasses.field` function to initialize the field.
-        if (canBeUsedAsDefaultValue(member->type()))
+        if (!canBeUsedAsDefaultValue(member->type()))
         {
             addRuntimeImport("dataclasses", "field", p);
             break;
