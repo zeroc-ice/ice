@@ -1555,7 +1555,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << ')';
         }
 
-        // A trailing comma to ensure that the outut is interpreted as a Python tuple.
+        // A trailing comma to ensure that the output is interpreted as a Python tuple.
         if (operation->inParameters().size() == 1)
         {
             out << ',';
