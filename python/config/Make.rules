@@ -88,9 +88,9 @@ ifeq ($$(filter %clean,$$(MAKECMDGOALS)),)
 endif
 
 # Add to build target
-generated-srcs all:: $$(STAMPS_$1)
+generate-srcs all:: $$(STAMPS_$1)
 
-srcs:: generated-srcs
+srcs:: generate-srcs
 
 # Clean rule
 clean::
@@ -112,9 +112,9 @@ $1/__init__.py: $2 $(slice2py_path)
 	$(E) "Creating $1 package"
 	$$(Q)$$(slice2py_path) -I$(top_srcdir)/slice --output-dir=. --build index $2
 
-generated-srcs all:: $1/__init__.py
+generate-srcs all:: $1/__init__.py
 
-srcs:: generated-srcs
+srcs:: generate-srcs
 
 clean::
 	$(E) "Cleaning Python package $1..."
@@ -143,7 +143,7 @@ $1/.depend: $$($1_slices) $(slice2py_path)
 	$(Q)$(slice2py_path) $(slice2py_flags) -I$(slicedir) -I$1 --output-dir $1 $$($1_sliceflags) $$($1_slices)
 	$(Q)touch $1/.depend
 
-generated-srcs all:: $1/.depend
+generate-srcs all:: $1/.depend
 endif
 
 endef
