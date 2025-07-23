@@ -566,7 +566,7 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
     }
 
-    addRuntimeImport("abc", "ABC", p);      
+    addRuntimeImport("abc", "ABC", p);
     addRuntimeImport("typing", "overload", p);
 
     addRuntimeImport("Ice.ObjectPrx", "checkedCast", p);
