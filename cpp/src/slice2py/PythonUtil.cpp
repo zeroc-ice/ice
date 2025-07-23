@@ -2143,7 +2143,8 @@ Slice::Python::getAll(const ContainedPtr& definition)
         all.push_back(definition->mappedName() + "Prx");
     }
 
-    if (dynamic_pointer_cast<Type>(definition) || dynamic_pointer_cast<Exception>(definition) || dynamic_pointer_cast<InterfaceDef>(definition))
+    if (dynamic_pointer_cast<Type>(definition) || dynamic_pointer_cast<Exception>(definition) ||
+        dynamic_pointer_cast<InterfaceDef>(definition))
     {
         // for types and exceptions, we also export the meta type.
         all.push_back(getMetaType(definition));
