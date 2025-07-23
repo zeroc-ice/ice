@@ -136,7 +136,7 @@ Slice::Python::getImportAlias(
     }
     else if (find(all.begin(), all.end(), name) != all.end())
     {
-        // The name being bind comes from a different module and conflicts with one of the names
+        // The name being bound comes from a different module and conflicts with one of the names
         // exported by the source module. We need to use an alias.
         useAlias = true;
     }
