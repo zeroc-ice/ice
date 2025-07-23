@@ -2,6 +2,7 @@
 
 #include "PythonUtil.h"
 #include "../Ice/FileUtil.h"
+#include "../Slice/DocCommentParser.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/MetadataValidation.h"
 #include "../Slice/Preprocessor.h"
@@ -1170,7 +1171,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.Value", "Value")) << "):";
     out.inc();
 
-    writeDocstring(DocComment::parseFrom(p), members, out);
+    writeDocstring(p->docComment(), members, out);
 
     // __init__
     out << nl << "def __init__(";
@@ -1676,7 +1677,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.UserException", "UserException")) << "):";
     out.inc();
 
-    writeDocstring(DocComment::parseFrom(p), members, out);
+    writeDocstring(p->docComment(), members, out);
 
     // __init__
     out << nl << "def __init__(";
@@ -1760,7 +1761,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "class " << name << ":";
     out.inc();
 
-    writeDocstring(DocComment::parseFrom(p), members, out);
+    writeDocstring(p->docComment(), members, out);
 
     for (const auto& field : members)
     {
@@ -1853,7 +1854,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     out << nl << "class " << name << "(Enum):";
     out.inc();
 
-    writeDocstring(DocComment::parseFrom(p), p, out);
+    writeDocstring(p->docComment(), p, out);
 
     out << nl;
     for (const auto& enumerator : enumerators)
@@ -2211,7 +2212,7 @@ Slice::Python::CodeVisitor::writeDocstring(
     map<string, list<string>> docs;
     for (const auto& member : members)
     {
-        if (auto memberDoc = DocComment::parseFrom(member))
+        if (const auto& memberDoc = member->docComment())
         {
             const StringList& memberOverview = memberDoc->overview();
             if (!memberOverview.empty())
@@ -2281,7 +2282,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
     map<string, list<string>> docs;
     for (const auto& enumerator : enumerators)
     {
-        if (auto enumeratorDoc = DocComment::parseFrom(enumerator))
+        if (const auto& enumeratorDoc = enumerator->docComment())
         {
             const StringList& enumeratorOverview = enumeratorDoc->overview();
             if (!enumeratorOverview.empty())
@@ -2336,7 +2337,7 @@ Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, 
 void
 Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind methodKind, Output& out)
 {
-    optional<DocComment> comment = DocComment::parseFrom(op);
+    const optional<DocComment>& comment = op->docComment();
     if (!comment)
     {
         return;
@@ -2707,7 +2708,7 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
             throw runtime_error("Failed to preprocess Slice files");
         }
 
-        UnitPtr unit = Unit::createUnit("python", Slice::Python::pyLinkFormatter, debug);
+        UnitPtr unit = Unit::createUnit("python", debug);
         int parseStatus = unit->parse(fileName, cppHandle, false);
 
         if (parseStatus == EXIT_FAILURE)
@@ -2716,6 +2717,7 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
             throw runtime_error("Failed to parse Slice files");
         }
 
+        parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
         validatePythonMetadata(unit);
 
         unit->visit(&packageVisitor);

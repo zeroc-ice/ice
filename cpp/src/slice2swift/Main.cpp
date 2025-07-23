@@ -2,6 +2,7 @@
 
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
+#include "../Slice/DocCommentParser.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Parser.h"
 #include "../Slice/Preprocessor.h"
@@ -181,7 +182,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit("swift", Slice::Swift::swiftLinkFormatter, false);
+            UnitPtr u = Unit::createUnit("swift", false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -214,7 +215,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit("swift", Slice::Swift::swiftLinkFormatter, false);
+            UnitPtr u = Unit::createUnit("swift", false);
             int parseStatus = u->parse(*i, cppHandle, debug);
 
             if (!icecpp->close())
@@ -229,6 +230,8 @@ compile(const vector<string>& argv)
             }
             else
             {
+                parseAllDocComments(u, Slice::Swift::swiftLinkFormatter);
+
                 string base = icecpp->getBaseName();
                 string::size_type pos = base.find_last_of("/\\");
                 if (pos != string::npos)

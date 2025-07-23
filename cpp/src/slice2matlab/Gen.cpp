@@ -426,7 +426,7 @@ namespace
             for (const auto& field : list)
             {
                 out << nl << "%     " << field->mappedName();
-                if (auto fieldDoc = DocComment::parseFrom(field))
+                if (const auto& fieldDoc = field->docComment())
                 {
                     const StringList& fieldOverview = fieldDoc->overview();
                     if (!fieldOverview.empty())
@@ -446,7 +446,7 @@ namespace
         // No space and upper-case, per MATLAB conventions.
         out << nl << "%" << toUpper(name);
 
-        optional<DocComment> doc = DocComment::parseFrom(p);
+        const optional<DocComment>& doc = p->docComment();
         StringList docOverview;
         if (doc)
         {
@@ -492,7 +492,7 @@ namespace
     {
         out << nl << "%" << toUpper(p->mappedName() + (async ? "Async" : ""));
 
-        optional<DocComment> doc = DocComment::parseFrom(p);
+        const optional<DocComment>& doc = p->docComment();
         if (doc)
         {
             StringList docOverview = doc->overview();
@@ -613,7 +613,7 @@ namespace
         const string name = p->mappedName() + "Prx";
         out << nl << "%" << toUpper(name);
 
-        optional<DocComment> doc = DocComment::parseFrom(p);
+        const optional<DocComment>& doc = p->docComment();
         StringList docOverview;
         if (doc)
         {
@@ -657,7 +657,7 @@ namespace
             for (const auto& op : ops)
             {
                 const string opName = op->mappedName();
-                const optional<DocComment> opdoc = DocComment::parseFrom(op);
+                const optional<DocComment>& opdoc = op->docComment();
                 out << nl << "%     " << opName;
                 if (opdoc)
                 {
@@ -883,7 +883,7 @@ namespace
 
     void documentProperty(IceInternal::Output& out, const DataMemberPtr& field)
     {
-        optional<DocComment> doc = DocComment::parseFrom(field);
+        const optional<DocComment>& doc = field->docComment();
         documentArgumentOrProperty(
             out,
             toUpper(field->mappedName()),

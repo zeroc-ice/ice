@@ -167,7 +167,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit("ruby", nullopt, false);
+            UnitPtr u = Unit::createUnit("ruby", false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -200,7 +200,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit("ruby", nullopt, all);
+            UnitPtr u = Unit::createUnit("ruby", all);
             int parseStatus = u->parse(*i, cppHandle, debug);
 
             if (!icecpp->close())

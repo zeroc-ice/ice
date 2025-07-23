@@ -3,6 +3,7 @@
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/Options.h"
+#include "../Slice/DocCommentParser.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/MetadataValidation.h"
 #include "../Slice/Preprocessor.h"
@@ -211,7 +212,7 @@ namespace
                     return EXIT_FAILURE;
                 }
 
-                UnitPtr u = Unit::createUnit("matlab", Slice::matlabLinkFormatter, false);
+                UnitPtr u = Unit::createUnit("matlab", false);
                 int parseStatus = u->parse(*i, cppHandle, debug);
                 u->destroy();
 
@@ -242,7 +243,7 @@ namespace
                     return EXIT_FAILURE;
                 }
 
-                UnitPtr u = Unit::createUnit("matlab", Slice::matlabLinkFormatter, all);
+                UnitPtr u = Unit::createUnit("matlab", all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if (!icecpp->close())
@@ -257,6 +258,8 @@ namespace
                 }
                 else
                 {
+                    parseAllDocComments(u, Slice::matlabLinkFormatter);
+
                     string base = icecpp->getBaseName();
                     string::size_type pos = base.find_last_of("/\\");
                     if (pos != string::npos)

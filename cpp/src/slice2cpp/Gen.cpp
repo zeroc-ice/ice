@@ -266,7 +266,7 @@ namespace
 
     void writeDocSummary(Output& out, const ContainedPtr& p, DocSummaryOptions options = {})
     {
-        optional<DocComment> doc = DocComment::parseFrom(p);
+        const optional<DocComment>& doc = p->docComment();
         if (!doc)
         {
             return;
@@ -1441,7 +1441,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     const string deprecatedAttribute = getDeprecatedAttribute(p);
 
-    optional<DocComment> comment = DocComment::parseFrom(p);
+    const optional<DocComment>& comment = p->docComment();
     const string contextDoc = "@param " + contextParam + " The request context.";
 
     H << sp;
@@ -1889,7 +1889,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     DataMemberList baseDataMembers;
 
     vector<string> allParameters;
-    map<string, DocComment> allDocComments;
+    map<string, StringList> allOverviews;
 
     for (const auto& dataMember : allDataMembers)
     {
@@ -1897,9 +1897,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
         allParameters.push_back(typeName + " " + dataMember->mappedName());
 
-        if (auto comment = DocComment::parseFrom(dataMember))
+        if (const auto& comment = dataMember->docComment())
         {
-            allDocComments[dataMember->name()] = std::move(*comment);
+            allOverviews[dataMember->name()] = comment->overview();
         }
     }
 
@@ -1935,11 +1935,10 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             H << nl << "/// One-shot constructor to initialize all data members.";
             for (const auto& dataMember : allDataMembers)
             {
-                auto r = allDocComments.find(dataMember->name());
-                if (r != allDocComments.end())
+                auto r = allOverviews.find(dataMember->name());
+                if (r != allOverviews.end())
                 {
-                    H << nl << "/// @param " << dataMember->mappedName() << " "
-                      << getFirstSentence(r->second.overview());
+                    H << nl << "/// @param " << dataMember->mappedName() << " " << getFirstSentence(r->second);
                 }
             }
             H << nl << name << "(";
@@ -2342,7 +2341,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     if (!allDataMembers.empty())
     {
         vector<string> allParameters;
-        map<string, DocComment> allDocComments;
+        map<string, StringList> allOverviews;
         DataMemberList dataMembers = p->dataMembers();
 
         for (const auto& dataMember : allDataMembers)
@@ -2350,9 +2349,9 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             string typeName =
                 typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
             allParameters.push_back(typeName + " " + dataMember->mappedName());
-            if (auto comment = DocComment::parseFrom(dataMember))
+            if (const auto& comment = dataMember->docComment())
             {
-                allDocComments[dataMember->name()] = std::move(*comment);
+                allOverviews[dataMember->name()] = comment->overview();
             }
         }
 
@@ -2360,10 +2359,10 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         H << nl << "/// One-shot constructor to initialize all data members.";
         for (const auto& dataMember : allDataMembers)
         {
-            auto r = allDocComments.find(dataMember->name());
-            if (r != allDocComments.end())
+            auto r = allOverviews.find(dataMember->name());
+            if (r != allOverviews.end())
             {
-                H << nl << "/// @param " << dataMember->mappedName() << " " << getFirstSentence(r->second.overview());
+                H << nl << "/// @param " << dataMember->mappedName() << " " << getFirstSentence(r->second);
             }
         }
         H << nl;
@@ -2697,7 +2696,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     const string currentTypeDecl = "const Ice::Current&";
     const string currentDecl = currentTypeDecl + " " + currentParam;
 
-    optional<DocComment> comment = DocComment::parseFrom(p);
+    const optional<DocComment>& comment = p->docComment();
 
     string isConst = p->hasMetadata("cpp:const") ? " const" : "";
     string noDiscard = "";

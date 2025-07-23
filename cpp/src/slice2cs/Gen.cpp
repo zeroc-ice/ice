@@ -676,7 +676,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers)
 void
 Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& generatedType, const string& notes)
 {
-    optional<DocComment> comment = DocComment::parseFrom(p, true);
+    const optional<DocComment>& comment = p->docComment();
     StringList remarks;
     if (comment)
     {
@@ -736,7 +736,7 @@ Slice::CsVisitor::writeHelperDocComment(
 void
 Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>& extraParams, bool isAsync)
 {
-    optional<DocComment> comment = DocComment::parseFrom(op, true);
+    const optional<DocComment>& comment = op->docComment();
     if (!comment)
     {
         return;
