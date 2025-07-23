@@ -104,7 +104,7 @@ using namespace Slice;
 void
 slice_error(const char* s)
 {
-    // We want 'unit' to emit the error so it's error count is incremented.
+    // We want 'unit' to emit the error so its error count is incremented.
     currentUnit->error(s);
 }
 
@@ -142,7 +142,7 @@ namespace
 // Specify a custom location type for storing the location & filename of tokens.
 %define api.location.type {Slice::TokenContext}
 
-// Tell Bison to emit additional information with it's syntax error messages (like which tokens it expected).
+// Tell Bison to emit additional information with its syntax error messages (like which tokens it expected).
 %define parse.error detailed
 
 // All keyword tokens. Make sure to modify the "keyword" rule in this
@@ -178,7 +178,7 @@ namespace
 
 // Other tokens.
 %token ICE_STRING_LITERAL "string literal"
-%token ICE_INTEGER_LITERAL "interface literal"
+%token ICE_INTEGER_LITERAL "integer literal"
 %token ICE_FLOATING_POINT_LITERAL "floating-point literal"
 %token ICE_IDENTIFIER "identifier"
 %token ICE_SCOPED_IDENTIFIER "scoped identifier"

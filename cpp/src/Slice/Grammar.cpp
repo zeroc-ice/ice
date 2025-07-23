@@ -154,7 +154,7 @@ using namespace Slice;
 void
 slice_error(const char* s)
 {
-    // We want 'unit' to emit the error so it's error count is incremented.
+    // We want 'unit' to emit the error so its error count is incremented.
     currentUnit->error(s);
 }
 
@@ -241,7 +241,7 @@ enum yysymbol_kind_t
   YYSYMBOL_ICE_OPTIONAL = 28,              /* "optional keyword"  */
   YYSYMBOL_ICE_VALUE = 29,                 /* "Value keyword"  */
   YYSYMBOL_ICE_STRING_LITERAL = 30,        /* "string literal"  */
-  YYSYMBOL_ICE_INTEGER_LITERAL = 31,       /* "interface literal"  */
+  YYSYMBOL_ICE_INTEGER_LITERAL = 31,       /* "integer literal"  */
   YYSYMBOL_ICE_FLOATING_POINT_LITERAL = 32, /* "floating-point literal"  */
   YYSYMBOL_ICE_IDENTIFIER = 33,            /* "identifier"  */
   YYSYMBOL_ICE_SCOPED_IDENTIFIER = 34,     /* "scoped identifier"  */
@@ -777,7 +777,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
   "int keyword", "long keyword", "float keyword", "double keyword",
   "string keyword", "Object keyword", "const keyword", "false keyword",
   "true keyword", "idempotent keyword", "optional keyword",
-  "Value keyword", "string literal", "interface literal",
+  "Value keyword", "string literal", "integer literal",
   "floating-point literal", "identifier", "scoped identifier", "[", "]",
   "[[", "]]", "identifier(", "keyword(", "optional(", "invalid character",
   "';'", "'{'", "'}'", "')'", "':'", "'='", "','", "'<'", "'>'", "'*'",
@@ -3573,7 +3573,7 @@ yyreduce:
 #line 3574 "src/Slice/Grammar.cpp"
     break;
 
-  case 142: /* integer_constant: "interface literal"  */
+  case 142: /* integer_constant: "integer literal"  */
 #line 1564 "src/Slice/Grammar.y"
 {
     yyval = yyvsp[0];
@@ -3710,7 +3710,7 @@ yyreduce:
 #line 3711 "src/Slice/Grammar.cpp"
     break;
 
-  case 148: /* const_initializer: "interface literal"  */
+  case 148: /* const_initializer: "integer literal"  */
 #line 1692 "src/Slice/Grammar.y"
 {
     BuiltinPtr type = currentUnit->createBuiltin(Builtin::KindLong);

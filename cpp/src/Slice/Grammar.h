@@ -102,7 +102,7 @@ extern int slice_debug;
     ICE_OPTIONAL = 283,            /* "optional keyword"  */
     ICE_VALUE = 284,               /* "Value keyword"  */
     ICE_STRING_LITERAL = 285,      /* "string literal"  */
-    ICE_INTEGER_LITERAL = 286,     /* "interface literal"  */
+    ICE_INTEGER_LITERAL = 286,     /* "integer literal"  */
     ICE_FLOATING_POINT_LITERAL = 287, /* "floating-point literal"  */
     ICE_IDENTIFIER = 288,          /* "identifier"  */
     ICE_SCOPED_IDENTIFIER = 289,   /* "scoped identifier"  */
