@@ -1435,7 +1435,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << sp << nl << "@overload";
     out << nl << "@staticmethod";
     out << nl << "def uncheckedCast(proxy: " << objectPrxAlias << ", facet: str | None = None) -> "
-        << prxName<< ":";
+        << prxName << ":";
     out.inc();
     out << nl << "...";
     out.dec();
