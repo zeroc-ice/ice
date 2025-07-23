@@ -134,6 +134,11 @@ namespace Slice::Python
     /// Helper method to emit the generated code that format the fields of a type in __repr__ implementation.
     std::string formatFields(const DataMemberList& members);
 
+    /// Checks if the given Slice type corresponds to non-optional type which can be used as default value in Python.
+    /// This is really anything that is not a Python dataclass, sequence, or dictionary type. Slice classes and
+    /// interfaces are always mapped as optional.
+    bool canBeUsedAsDefaultValue(const TypePtr& type);
+
     PythonCodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
 
     // Get a list of all definitions exported for the Python module corresponding to the given Slice definition.
@@ -382,7 +387,9 @@ namespace Slice::Python
         /// Get the default value for initializing a given type.
         /// @param source The Slice definition that is initializing the type.
         /// @param member The data member to initialize.
-        std::string getTypeInitializer(const ContainedPtr& source, const DataMemberPtr& member);
+        /// @param forConstructor If true, the initialization is for a constructor parameter, otherwise it is for a
+        /// dataclass field.
+        std::string getTypeInitializer(const ContainedPtr& source, const DataMemberPtr& member, bool forConstructor);
 
         // Write Python metadata as a tuple.
         void writeMetadata(const MetadataList&, IceInternal::Output&);
