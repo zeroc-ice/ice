@@ -142,7 +142,7 @@ Slice::Python::getImportAlias(
     }
     else
     {
-        // If the name being bind is already imported from a different module, we need to use an alias.
+        // If the name being bound is already imported from a different module, we need to use an alias.
         auto p = allImports.find(name);
         if (p != allImports.end())
         {
