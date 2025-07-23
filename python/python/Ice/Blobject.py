@@ -2,7 +2,6 @@
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable
-from typing import TYPE_CHECKING
 
 from .Current import Current
 from .Object import Object
