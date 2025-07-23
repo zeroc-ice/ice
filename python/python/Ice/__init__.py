@@ -52,7 +52,7 @@ from .EventLoopAdapter import EventLoopAdapter
 from .Exception import Exception
 from .FloatSeq import _Ice_FloatSeq_t
 from .FormatType import FormatType
-from .Future import Future, wrap_future
+from .Future import Future, FutureLike, wrap_future
 from .iAPEndpointType import iAPEndpointType
 from .iAPSEndpointType import iAPSEndpointType
 from .Identity import Identity, _Ice_Identity_t
@@ -209,6 +209,7 @@ __all__ = [
     "FixedProxyException",
     "FormatType",
     "Future",
+    "FutureLike",
     "IPConnectionInfo",
     "IPEndpointInfo",
     "Identity",
