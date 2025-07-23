@@ -92,7 +92,7 @@ Slice::Python::getPythonModuleForForwardDeclaration(const SyntaxTreeBasePtr& p)
 string
 Slice::Python::getImportAlias(
     const ContainedPtr& source,
-    const std::map<std::string, std::string>& allImports,
+    const map<string, string>& allImports,
     const SyntaxTreeBasePtr& p)
 {
     if (auto builtin = dynamic_pointer_cast<Builtin>(p))
