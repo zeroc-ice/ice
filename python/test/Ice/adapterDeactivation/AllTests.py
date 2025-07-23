@@ -2,7 +2,7 @@
 
 import sys
 
-import Test
+from generated.test.Ice.adapterDeactivation import Test
 
 import Ice
 

@@ -4,6 +4,7 @@
 
 [["suppress-warning:deprecated"]] // For enumerator references
 
+["python:identifier:generated.test.Ice.defaultValue.Test"]
 module Test
 {
     enum Color { red, green, blue }

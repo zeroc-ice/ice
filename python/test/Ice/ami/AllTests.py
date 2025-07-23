@@ -5,7 +5,7 @@ import sys
 import threading
 import time
 
-import Test
+from generated.test.Ice.ami import Test
 
 import Ice
 import IcePy

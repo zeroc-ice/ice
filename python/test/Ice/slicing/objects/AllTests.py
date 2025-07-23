@@ -6,7 +6,8 @@ import gc
 import sys
 import threading
 
-import Test
+from generated.test.Ice.slicing.objects import Test
+from generated.test.Ice.slicing.objects.client_private import Test as ClientPrivateTest
 
 import Ice
 
@@ -307,14 +308,14 @@ class Callback(CallbackBase):
     def response_preserved2encoding10(self, f):
         r = f.result()
         test(r)
-        test(not isinstance(r, Test.PCUnknown))
+        test(not isinstance(r, ClientPrivateTest.PCUnknown))
         test(r.pi == 3)
         self.called()
 
     def response_preserved2encoding11(self, f):
         r = f.result()
         test(r)
-        test(isinstance(r, Test.PCUnknown))
+        test(isinstance(r, ClientPrivateTest.PCUnknown))
         test(r.pi == 3)
         test(r.pu == "preserved")
         self.called()
@@ -324,7 +325,7 @@ class Callback(CallbackBase):
         # Encoding 1.0
         #
         r = f.result()
-        test(not isinstance(r, Test.PCDerived))
+        test(not isinstance(r, ClientPrivateTest.PCDerived))
         test(r.pi == 3)
         self.called()
 
@@ -333,18 +334,18 @@ class Callback(CallbackBase):
         # Encoding > 1.0
         #
         r = f.result()
-        test(isinstance(r, Test.PCDerived))
+        test(isinstance(r, ClientPrivateTest.PCDerived))
         test(r.pi == 3)
         test(r.pbs[0] == r)
         self.called()
 
     def response_preserved5(self, f):
         r = f.result()
-        test(isinstance(r, Test.PCDerived3))
+        test(isinstance(r, ClientPrivateTest.PCDerived3))
         test(r.pi == 3)
         for i in range(0, 300):
             p2 = r.pbs[i]
-            test(isinstance(p2, Test.PCDerived2))
+            test(isinstance(p2, ClientPrivateTest.PCDerived2))
             test(p2.pi == i)
             test(len(p2.pbs) == 1)
             test(not p2.pbs[0])
@@ -358,7 +359,7 @@ class Callback(CallbackBase):
         # Encoding 1.0
         #
         r = f.result()
-        test(not isinstance(r, Test.CompactPCDerived))
+        test(not isinstance(r, ClientPrivateTest.CompactPCDerived))
         test(r.pi == 3)
         self.called()
 
@@ -367,7 +368,7 @@ class Callback(CallbackBase):
         # Encoding > 1.0
         #
         r = f.result()
-        test(isinstance(r, Test.CompactPCDerived))
+        test(isinstance(r, ClientPrivateTest.CompactPCDerived))
         test(r.pi == 3)
         test(r.pbs[0] == r)
         self.called()
@@ -786,7 +787,7 @@ def allTests(helper, communicator):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
-        d3 = Test.D3()
+        d3 = ClientPrivateTest.D3()
         d3.pb = d1
         d3.sb = "D3.sb"
         d3.sd3 = "D3.sd3"
@@ -810,9 +811,9 @@ def allTests(helper, communicator):
         test(b2.pb == b1)
         p3 = b2
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(p3, Test.D3))
+            test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(b2, Test.D3))
+            test(isinstance(b2, ClientPrivateTest.D3))
             test(p3.pd3 == p1)
             test(p3.sd3 == "D3.sd3")
 
@@ -830,7 +831,7 @@ def allTests(helper, communicator):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
-        d3 = Test.D3()
+        d3 = ClientPrivateTest.D3()
         d3.pb = d1
         d3.sb = "D3.sb"
         d3.sd3 = "D3.sd3"
@@ -857,9 +858,9 @@ def allTests(helper, communicator):
         test(b2.pb == b1)
         p3 = b2
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(p3, Test.D3))
+            test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(b2, Test.D3))
+            test(isinstance(b2, ClientPrivateTest.D3))
             test(p3.pd3 == p1)
             test(p3.sd3 == "D3.sd3")
 
@@ -877,7 +878,7 @@ def allTests(helper, communicator):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
-        d3 = Test.D3()
+        d3 = ClientPrivateTest.D3()
         d3.pb = d1
         d3.sb = "D3.sb"
         d3.sd3 = "D3.sd3"
@@ -903,9 +904,9 @@ def allTests(helper, communicator):
 
         p1 = b1
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(p1, Test.D3))
+            test(not isinstance(p1, ClientPrivateTest.D3))
         else:
-            test(isinstance(p1, Test.D3))
+            test(isinstance(p1, ClientPrivateTest.D3))
             test(p1.pd3 == b2)
             test(p1.sd3 == "D3.sd3")
 
@@ -923,7 +924,7 @@ def allTests(helper, communicator):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
-        d3 = Test.D3()
+        d3 = ClientPrivateTest.D3()
         d3.pb = d1
         d3.sb = "D3.sb"
         d3.sd3 = "D3.sd3"
@@ -949,9 +950,9 @@ def allTests(helper, communicator):
 
         p1 = b1
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(p1, Test.D3))
+            test(not isinstance(p1, ClientPrivateTest.D3))
         else:
-            test(isinstance(p1, Test.D3))
+            test(isinstance(p1, ClientPrivateTest.D3))
             test(p1.pd3 == b2)
             test(p1.sd3 == "D3.sd3")
 
@@ -1025,7 +1026,7 @@ def allTests(helper, communicator):
         b1.sb = "B.sb(1)"
         b1.pb = b1
 
-        d3 = Test.D3()
+        d3 = ClientPrivateTest.D3()
         d3.sb = "D3.sb"
         d3.pb = d3
         d3.sd3 = "D3.sd3"
@@ -1041,9 +1042,9 @@ def allTests(helper, communicator):
 
         p3 = r
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(p3, Test.D3))
+            test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(p3, Test.D3))
+            test(isinstance(p3, ClientPrivateTest.D3))
 
             test(p3.sb == "D3.sb")
             test(p3.pb == r)
@@ -1064,7 +1065,7 @@ def allTests(helper, communicator):
         b1.sb = "B.sb(1)"
         b1.pb = b1
 
-        d3 = Test.D3()
+        d3 = ClientPrivateTest.D3()
         d3.sb = "D3.sb"
         d3.pb = d3
         d3.sd3 = "D3.sd3"
@@ -1081,9 +1082,9 @@ def allTests(helper, communicator):
 
         p3 = r
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(p3, Test.D3))
+            test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(p3, Test.D3))
+            test(isinstance(p3, ClientPrivateTest.D3))
 
             test(p3.sb == "D3.sb")
             test(p3.pb == r)
@@ -1105,7 +1106,7 @@ def allTests(helper, communicator):
         d11.sd1 = "D1.sd1(1)"
         d11.pd1 = None
 
-        d3 = Test.D3()
+        d3 = ClientPrivateTest.D3()
         d3.sb = "D3.sb"
         d3.pb = d3
         d3.sd3 = "D3.sd3"
@@ -1123,9 +1124,9 @@ def allTests(helper, communicator):
         test(r.pb == r)
         p3 = r
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(p3, Test.D3))
+            test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(p3, Test.D3))
+            test(isinstance(p3, ClientPrivateTest.D3))
             test(p3.sd3 == "D3.sd3")
             test(p3.pd3.ice_id() == "::Test::D1")
 
@@ -1142,7 +1143,7 @@ def allTests(helper, communicator):
         d11.sd1 = "D1.sd1(1)"
         d11.pd1 = None
 
-        d3 = Test.D3()
+        d3 = ClientPrivateTest.D3()
         d3.sb = "D3.sb"
         d3.pb = d3
         d3.sd3 = "D3.sd3"
@@ -1163,9 +1164,9 @@ def allTests(helper, communicator):
         test(r.pb == r)
         p3 = r
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(p3, Test.D3))
+            test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(p3, Test.D3))
+            test(isinstance(p3, ClientPrivateTest.D3))
             test(p3.sd3 == "D3.sd3")
             test(p3.pd3.ice_id() == "::Test::D1")
 
@@ -1186,7 +1187,7 @@ def allTests(helper, communicator):
         ss1d1.sd1 = "D1.sd1"
         ss1d1.pb = ss1b
 
-        ss1d3 = Test.D3()
+        ss1d3 = ClientPrivateTest.D3()
         ss1d3.sb = "D3.sb"
         ss1d3.sd3 = "D3.sd3"
         ss1d3.pb = ss1b
@@ -1200,7 +1201,7 @@ def allTests(helper, communicator):
         ss2d1.sd1 = "D1.sd1"
         ss2d1.pb = ss2b
 
-        ss2d3 = Test.D3()
+        ss2d3 = ClientPrivateTest.D3()
         ss2d3.sb = "D3.sb"
         ss2d3.sd3 = "D3.sd3"
         ss2d3.pb = ss2b
@@ -1268,7 +1269,7 @@ def allTests(helper, communicator):
         ss1d1.sd1 = "D1.sd1"
         ss1d1.pb = ss1b
 
-        ss1d3 = Test.D3()
+        ss1d3 = ClientPrivateTest.D3()
         ss1d3.sb = "D3.sb"
         ss1d3.sd3 = "D3.sd3"
         ss1d3.pb = ss1b
@@ -1282,7 +1283,7 @@ def allTests(helper, communicator):
         ss2d1.sd1 = "D1.sd1"
         ss2d1.pb = ss2b
 
-        ss2d3 = Test.D3()
+        ss2d3 = ClientPrivateTest.D3()
         ss2d3.sb = "D3.sb"
         ss2d3.sd3 = "D3.sd3"
         ss2d3.pb = ss2b
@@ -1569,7 +1570,7 @@ def allTests(helper, communicator):
         #
         # Server only knows the base (non-preserved) type, so the object is sliced.
         #
-        pu = Test.PCUnknown()
+        pu = ClientPrivateTest.PCUnknown()
         pu.pi = 3
         pu.pu = "preserved"
 
@@ -1578,25 +1579,25 @@ def allTests(helper, communicator):
 
         p2 = r
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(p2, Test.PCUnknown))
+            test(not isinstance(p2, ClientPrivateTest.PCUnknown))
         else:
-            test(isinstance(p2, Test.PCUnknown))
+            test(isinstance(p2, ClientPrivateTest.PCUnknown))
             test(p2.pu == "preserved")
 
         #
         # Server only knows the intermediate type Preserved. The object will be sliced to
         # Preserved for the 1.0 encoding; otherwise it should be returned intact.
         #
-        pcd = Test.PCDerived()
+        pcd = ClientPrivateTest.PCDerived()
         pcd.pi = 3
         pcd.pbs = [pcd]
 
         r = t.exchangePBase(pcd)
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(r, Test.PCDerived))
+            test(not isinstance(r, ClientPrivateTest.PCDerived))
             test(r.pi == 3)
         else:
-            test(isinstance(r, Test.PCDerived))
+            test(isinstance(r, ClientPrivateTest.PCDerived))
             test(r.pi == 3)
             test(r.pbs[0] == r)
 
@@ -1604,16 +1605,16 @@ def allTests(helper, communicator):
         # Server only knows the intermediate type CompactPDerived. The object will be sliced to
         # CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
         #
-        pcd = Test.CompactPCDerived()
+        pcd = ClientPrivateTest.CompactPCDerived()
         pcd.pi = 3
         pcd.pbs = [pcd]
 
         r = t.exchangePBase(pcd)
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(r, Test.CompactPCDerived))
+            test(not isinstance(r, ClientPrivateTest.CompactPCDerived))
             test(r.pi == 3)
         else:
-            test(isinstance(r, Test.CompactPCDerived))
+            test(isinstance(r, ClientPrivateTest.CompactPCDerived))
             test(r.pi == 3)
             test(r.pbs[0] == r)
 
@@ -1621,14 +1622,14 @@ def allTests(helper, communicator):
         # Send an object that will have multiple preserved slices in the server.
         # The object will be sliced to Preserved for the 1.0 encoding.
         #
-        pcd = Test.PCDerived3()
+        pcd = ClientPrivateTest.PCDerived3()
         pcd.pi = 3
         #
         # Sending more than 254 objects exercises the encoding for object ids.
         #
         pcd.pbs = []
         for i in range(0, 300):
-            p2 = Test.PCDerived2()
+            p2 = ClientPrivateTest.PCDerived2()
             p2.pi = i
             p2.pbs = [None]  # Nil reference. This slice should not have an indirection table.
             p2.pcd2 = i
@@ -1638,15 +1639,15 @@ def allTests(helper, communicator):
 
         r = t.exchangePBase(pcd)
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(not isinstance(r, Test.PCDerived3))
+            test(not isinstance(r, ClientPrivateTest.PCDerived3))
             test(isinstance(r, Test.Preserved))
             test(r.pi == 3)
         else:
-            test(isinstance(r, Test.PCDerived3))
+            test(isinstance(r, ClientPrivateTest.PCDerived3))
             test(r.pi == 3)
             for i in range(0, 300):
                 p2 = r.pbs[i]
-                test(isinstance(p2, Test.PCDerived2))
+                test(isinstance(p2, ClientPrivateTest.PCDerived2))
                 test(p2.pi == i)
                 test(len(p2.pbs) == 1)
                 test(not p2.pbs[0])
@@ -1692,7 +1693,7 @@ def allTests(helper, communicator):
     #
     # Server only knows the base (non-preserved) type, so the object is sliced.
     #
-    pu = Test.PCUnknown()
+    pu = ClientPrivateTest.PCUnknown()
     pu.pi = 3
     pu.pu = "preserved"
 
@@ -1707,7 +1708,7 @@ def allTests(helper, communicator):
     # Server only knows the intermediate type Preserved. The object will be sliced to
     # Preserved for the 1.0 encoding; otherwise it should be returned intact.
     #
-    pcd = Test.PCDerived()
+    pcd = ClientPrivateTest.PCDerived()
     pcd.pi = 3
     pcd.pbs = [pcd]
 
@@ -1722,7 +1723,7 @@ def allTests(helper, communicator):
     # Server only knows the intermediate type CompactPDerived. The object will be sliced to
     # CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
     #
-    pcd = Test.CompactPCDerived()
+    pcd = ClientPrivateTest.CompactPCDerived()
     pcd.pi = 3
     pcd.pbs = [pcd]
 
@@ -1737,14 +1738,14 @@ def allTests(helper, communicator):
     # Send an object that will have multiple preserved slices in the server.
     # The object will be sliced to Preserved for the 1.0 encoding.
     #
-    pcd = Test.PCDerived3()
+    pcd = ClientPrivateTest.PCDerived3()
     pcd.pi = 3
     #
     # Sending more than 254 objects exercises the encoding for object ids.
     #
     pcd.pbs = []
     for i in range(0, 300):
-        p2 = Test.PCDerived2()
+        p2 = ClientPrivateTest.PCDerived2()
         p2.pi = i
         p2.pbs = [None]  # Nil reference. This slice should not have an indirection table.
         p2.pcd2 = i

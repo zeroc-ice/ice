@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Ice.objects.Test"]
 module Test
 {
     struct S
@@ -211,4 +212,52 @@ module Test
         F3 opF3(F3 f31, out F3 f32);
         bool hasF3();
     }
+
+    class Empty
+    {
+    }
+
+    class AlsoEmpty
+    {
+    }
+
+    //
+    // Remaining definitions are here to ensure that the generated code compiles.
+    //
+
+    class COneMember
+    {
+        Empty e;
+    }
+
+    class CTwoMembers
+    {
+        Empty e1;
+        Empty e2;
+    }
+
+    exception EOneMember
+    {
+        Empty e;
+    }
+
+    exception ETwoMembers
+    {
+        Empty e1;
+        Empty e2;
+    }
+
+    struct SOneMember
+    {
+        Empty e;
+    }
+
+    struct STwoMembers
+    {
+        Empty e1;
+        Empty e2;
+    }
+
+    dictionary<int, COneMember> DOneMember;
+    dictionary<int, CTwoMembers> DTwoMembers;
 }

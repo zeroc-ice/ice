@@ -3,8 +3,8 @@
 import threading
 import time
 
-import Test
-from Test.Outer.Inner import TestIntf as Inner_TestIntf
+from generated.test.Ice.ami import Test
+from generated.test.Ice.ami.Test.Outer.Inner import TestIntf as Inner_TestIntf
 
 import Ice
 

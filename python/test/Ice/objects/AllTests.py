@@ -2,7 +2,8 @@
 
 import sys
 
-import Test
+from generated.test.Ice.objects import Test
+from generated.test.Ice.objects.client_private.Test import UnexpectedObjectExceptionTestPrx
 
 import Ice
 
@@ -210,7 +211,7 @@ def allTests(helper, communicator):
     if initial.ice_getConnection():
         sys.stdout.write("testing UnexpectedObjectException... ")
         sys.stdout.flush()
-        uoet = Test.UnexpectedObjectExceptionTestPrx(communicator, f"uoet:{helper.getTestEndpoint()}")
+        uoet = UnexpectedObjectExceptionTestPrx(communicator, f"uoet:{helper.getTestEndpoint()}")
         test(uoet)
         try:
             uoet.op()

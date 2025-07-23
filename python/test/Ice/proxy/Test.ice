@@ -4,6 +4,7 @@
 
 #include "Ice/Context.ice"
 
+["python:identifier:generated.test.Ice.proxy.Test"]
 module Test
 {
     interface MyClass

@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Glacier2.router.Test"]
 module Test
 {
     exception CallbackException

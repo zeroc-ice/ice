@@ -4,7 +4,7 @@
 
 import os
 
-import Test
+from generated.test.Ice.faultTolerance import Test
 from TestHelper import TestHelper
 
 import Ice

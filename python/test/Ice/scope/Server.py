@@ -2,10 +2,10 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import Test
-from Inner.Test.Inner2 import MyInterface as Inner_Test_Inner2_MyInterface
-from Test.Inner import MyInterface as Test_Inner_MyInterface
-from Test.Inner.Inner2 import MyInterface as Test_Inner_Inner2_MyInterface
+from generated.test.Ice.scope import Test
+from generated.test.Ice.scope.Inner.Test.Inner2 import MyInterface as Inner_Test_Inner2_MyInterface
+from generated.test.Ice.scope.Test.Inner import MyInterface as Test_Inner_MyInterface
+from generated.test.Ice.scope.Test.Inner.Inner2 import MyInterface as Test_Inner_Inner2_MyInterface
 from TestHelper import TestHelper
 
 import Ice

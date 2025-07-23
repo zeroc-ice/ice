@@ -5,7 +5,7 @@
 import sys
 
 import RouterI
-import Test
+from generated.test.Ice.blobject import Test
 from TestHelper import TestHelper
 
 import Ice
