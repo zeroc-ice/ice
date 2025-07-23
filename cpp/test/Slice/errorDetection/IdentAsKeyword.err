@@ -1,4 +1,4 @@
-IdentAsKeyword.ice:5: syntax error
+IdentAsKeyword.ice:5: syntax error, unexpected identifier
 IdentAsKeyword.ice:7: exceptions can only be defined within a module
 IdentAsKeyword.ice:8: keyword 'int' cannot be used as exception name
 IdentAsKeyword.ice:8: exceptions can only be defined within a module
@@ -36,19 +36,19 @@ IdentAsKeyword.ice:36: sequences can only be defined within a module
 IdentAsKeyword.ice:36: sequence 'extends' differs only in capitalization from sequence 'EXtends'
 IdentAsKeyword.ice:37: keyword 'short' cannot be used as a name
 IdentAsKeyword.ice:37: sequences can only be defined within a module
-IdentAsKeyword.ice:39: syntax error
+IdentAsKeyword.ice:39: syntax error, unexpected module keyword
 IdentAsKeyword.ice:40: 'moDule' is not defined
 IdentAsKeyword.ice:40: sequences can only be defined within a module
 IdentAsKeyword.ice:42: keyword 'throws' cannot be used as a name
 IdentAsKeyword.ice:42: dictionaries can only be defined within a module
 IdentAsKeyword.ice:43: dictionaries can only be defined within a module
 IdentAsKeyword.ice:43: dictionary 'thRows' differs only in capitalization from dictionary 'throws'
-IdentAsKeyword.ice:45: syntax error
+IdentAsKeyword.ice:45: syntax error, unexpected module keyword
 IdentAsKeyword.ice:46: 'MODULE' is not defined
 IdentAsKeyword.ice:46: dictionaries can only be defined within a module
-IdentAsKeyword.ice:48: syntax error
+IdentAsKeyword.ice:48: syntax error, unexpected out keyword
 IdentAsKeyword.ice:49: dictionaries can only be defined within a module
-IdentAsKeyword.ice:51: syntax error
+IdentAsKeyword.ice:51: syntax error, unexpected void keyword
 IdentAsKeyword.ice:52: 'VOID' is an exception, which cannot be used as a type
 IdentAsKeyword.ice:52: 'VOid' is an exception, which cannot be used as a type
 IdentAsKeyword.ice:52: dictionaries can only be defined within a module
@@ -66,7 +66,7 @@ IdentAsKeyword.ice:61: interfaces can only be defined within a module
 IdentAsKeyword.ice:63: interfaces can only be defined within a module
 IdentAsKeyword.ice:64: interfaces can only be defined within a module
 IdentAsKeyword.ice:66: interfaces can only be defined within a module
-IdentAsKeyword.ice:66: syntax error
+IdentAsKeyword.ice:66: syntax error, unexpected out keyword
 IdentAsKeyword.ice:67: interfaces can only be defined within a module
 IdentAsKeyword.ice:69: interfaces can only be defined within a module
 IdentAsKeyword.ice:70: interfaces can only be defined within a module
@@ -81,4 +81,4 @@ IdentAsKeyword.ice:83: illegal double underscore in identifier 'b__c'
 IdentAsKeyword.ice:84: illegal double underscore in identifier 'b___c'
 IdentAsKeyword.ice:86: interfaces can only be defined within a module
 IdentAsKeyword.ice:87: interfaces can only be defined within a module
-IdentAsKeyword.ice:88: syntax error
+IdentAsKeyword.ice:88: syntax error, unexpected '}'

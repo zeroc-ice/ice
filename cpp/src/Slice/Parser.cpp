@@ -2161,16 +2161,16 @@ Slice::Container::visitContents(ParserVisitor* visitor)
 }
 
 void
-Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedThing)
+Slice::Container::checkIntroduced(const string& name, ContainedPtr namedThing)
 {
-    if (scopedName.empty() || scopedName[0] == ':') // Only unscoped names introduce anything.
+    if (name.empty() || name[0] == ':') // Only unscoped names introduce anything.
     {
         return;
     }
 
     // Split off first component.
-    string::size_type pos = scopedName.find("::");
-    string firstComponent = pos == string::npos ? scopedName : scopedName.substr(0, pos);
+    string::size_type pos = name.find("::");
+    string firstComponent = pos == string::npos ? name : name.substr(0, pos);
 
     // If we don't have a type, the thing that is introduced is the contained for the first component.
     if (namedThing == nullptr)
@@ -2205,7 +2205,7 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
             first = false;
             if (pos != string::npos)
             {
-                pos = scopedName.find("::", pos + 2);
+                pos = name.find("::", pos + 2);
             }
         }
 

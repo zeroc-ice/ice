@@ -7,7 +7,7 @@ OptionalParams.ice:35: invalid tag '-1': tags cannot be negative
 OptionalParams.ice:37: invalid tag 'C3' (-1): tags cannot be negative
 OptionalParams.ice:38: invalid tag 'C4' (2147483649): tags must be less than or equal to '2147483647'
 OptionalParams.ice:39: constant 'C5' cannot be used as an integer constant
-OptionalParams.ice:42: syntax error
+OptionalParams.ice:42: syntax error, unexpected void keyword
 OptionalParams.ice:44: missing tag
 OptionalParams.ice:45: missing tag
 OptionalParams.ice:46: 'abc' is not defined
