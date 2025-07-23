@@ -90,6 +90,8 @@ endif
 # Add to build target
 generated-srcs all:: $$(STAMPS_$1)
 
+srcs:: generated-srcs
+
 # Clean rule
 clean::
 	@echo "Cleaning generated Python files for $1..."
@@ -111,6 +113,8 @@ $1/__init__.py: $2 $(slice2py_path)
 	$$(Q)$$(slice2py_path) -I$(top_srcdir)/slice --output-dir=. --build index $2
 
 generated-srcs all:: $1/__init__.py
+
+srcs:: generated-srcs
 
 clean::
 	$(E) "Cleaning Python package $1..."
