@@ -167,7 +167,7 @@ module Test
         Color c1;
         ByteSeq bs;
         IntSeq iseq;
-        IntStringDict dict;
+        IntStringDict isDict;
         InnerStruct st;
     }
 
@@ -181,7 +181,7 @@ module Test
     exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
     {
         InnerStruct st;
-        IntStringDict dict;
+        IntStringDict isDict;
     }
 
     class ClassNoDefaultsBase
@@ -194,6 +194,6 @@ module Test
     class ClassNoDefaults extends ClassNoDefaultsBase
     {
         InnerStruct st;
-        IntStringDict dict;
+        IntStringDict isDict;
     }
 }

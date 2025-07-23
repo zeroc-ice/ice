@@ -4,16 +4,6 @@ WarningInvalidComment.ice:11: warning: the '@exception' tag is only valid on ope
 WarningInvalidComment.ice:11: warning: the '@return' tag is only valid on operations
 WarningInvalidComment.ice:15: warning: missing link target after '@see' tag
 WarningInvalidComment.ice:17: warning: ignoring trailing '.' character in '@see' tag
-WarningInvalidComment.ice:43: warning: '@param NoParam' does not correspond to any parameter in operation 'voidOp'
-WarningInvalidComment.ice:43: warning: '@return' is only valid on operations with non-void return types
-WarningInvalidComment.ice:43: warning: '@throws FakeException': no exception with this name could be found from the current scope
-WarningInvalidComment.ice:43: warning: '@throws CommentDummy': this exception is not listed in the exception specification of 'voidOp'
-WarningInvalidComment.ice:54: warning: ignoring duplicate doc-comment tag: '@param value'
-WarningInvalidComment.ice:54: warning: '@param namess' does not correspond to any parameter in operation 'stringOp'
-WarningInvalidComment.ice:54: warning: ignoring duplicate doc-comment tag: '@return'
-WarningInvalidComment.ice:54: warning: '@throws DerivedFromDummy': this exception is not listed in the exception specification of 'stringOp'
-WarningInvalidComment.ice:54: warning: '@throws SomeOtherException': this exception is not listed in the exception specification of 'stringOp'
-WarningInvalidComment.ice:54: warning: ignoring duplicate doc-comment tag: '@throws CommentDummy'
 WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@something' in comment
 WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@params' in comment
 WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@throwss' in comment

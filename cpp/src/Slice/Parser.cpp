@@ -2,6 +2,7 @@
 
 #include "Parser.h"
 #include "DeprecationReporter.h"
+#include "DocCommentParser.h"
 #include "Ice/StringUtil.h"
 #include "Util.h"
 
@@ -407,19 +408,31 @@ namespace
 }
 
 optional<DocComment>
-Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
+Slice::DocComment::createUnparsed(const string& rawDocComment)
 {
-    const optional<DocLinkFormatter>& linkFormatter = p->unit()->linkFormatter();
-    // Some compilers don't generate doc-comments, and so don't provide a link formatter.
-    // But, these compilers should also never be calling `parseFrom` in the first place.
-    assert(linkFormatter.has_value());
-
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(p->docComment());
+    StringList lines = splitComment(rawDocComment);
     if (lines.empty())
     {
         return nullopt;
     }
+    else
+    {
+        DocComment comment;
+        comment._rawDocCommentLines = std::move(lines);
+        return comment;
+    }
+}
+
+void
+Slice::DocComment::parse(const ContainedPtr& p, const DocLinkFormatter& linkFormatter)
+{
+    // TODO: this is a temporary hack since only "csharp" happens to set 'escapeXml'.
+    // If true, escapes all XML special characters in the parsed comment. Defaults to false.
+    const bool escapeXml = (p->unit()->languageName() == "cs");
+
+    // Split the comment's raw text up into lines.
+    StringList lines = _rawDocCommentLines;
 
     // Escape any XML entities if necessary.
     if (escapeXml)
@@ -512,8 +525,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
     const string returnTag = "@return";
     const string deprecatedTag = "@deprecated";
 
-    DocComment comment;
-    StringList* currentSection = &comment._overview;
+    StringList* currentSection = &_overview;
     string lineText;
     string name;
 
@@ -544,7 +556,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
                 }
 
                 // Check if this is a duplicate tag. If it is, ignore it and issue a warning.
-                if (comment._parameters.count(name) != 0)
+                if (_parameters.count(name) != 0)
                 {
                     const string msg = "ignoring duplicate doc-comment tag: '" + paramTag + " " + name + "'";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
@@ -552,8 +564,8 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
                 }
                 else
                 {
-                    comment._parameters[name] = {};
-                    currentSection = &comment._parameters[name];
+                    _parameters[name] = {};
+                    currentSection = &_parameters[name];
                 }
             }
         }
@@ -594,7 +606,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
                     }
 
                     // Check if this is a duplicate tag. If it is, ignore it and issue a warning.
-                    if (comment._exceptions.count(name) != 0)
+                    if (_exceptions.count(name) != 0)
                     {
                         const string msg = "ignoring duplicate doc-comment tag: '" + actualTag + " " + name + "'";
                         p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
@@ -602,19 +614,19 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
                     }
                     else
                     {
-                        comment._exceptions[name] = {};
-                        currentSection = &comment._exceptions[name];
+                        _exceptions[name] = {};
+                        currentSection = &_exceptions[name];
                     }
                 }
             }
         }
         else if (parseCommentLine(line, remarkTag, lineText) || parseCommentLine(line, remarksTag, lineText))
         {
-            currentSection = &comment._remarks;
+            currentSection = &_remarks;
         }
         else if (parseCommentLine(line, seeTag, lineText))
         {
-            currentSection = &comment._seeAlso;
+            currentSection = &_seeAlso;
 
             // Remove any leading and trailing whitespace from the line.
             // There's no concern of losing formatting for `@see` due to its simplicity.
@@ -652,7 +664,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
                 }
 
                 // Check if this is a duplicate tag. If it is, ignore it and issue a warning.
-                if (!comment._returns.empty())
+                if (!_returns.empty())
                 {
                     const string msg = "ignoring duplicate doc-comment tag: '" + returnTag + "'";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
@@ -660,14 +672,14 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
                 }
                 else
                 {
-                    currentSection = &comment._returns;
+                    currentSection = &_returns;
                 }
             }
         }
         else if (parseCommentLine(line, deprecatedTag, lineText))
         {
             // Check if this is a duplicate tag (ie. multiple '@deprecated'). If it is, ignore it and issue a warning.
-            if (comment._isDeprecated)
+            if (_isDeprecated)
             {
                 const string msg = "ignoring duplicate doc-comment tag: '" + deprecatedTag + "'";
                 p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
@@ -675,8 +687,8 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
             }
             else
             {
-                comment._isDeprecated = true;
-                currentSection = &comment._deprecated;
+                _isDeprecated = true;
+                currentSection = &_deprecated;
             }
         }
         else // This line didn't introduce a new tag. Either we're in the overview or a tag whose content is multi-line.
@@ -693,7 +705,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
                 }
 
                 // '@see' tags are not allowed to span multiple lines.
-                if (currentSection == &comment._seeAlso)
+                if (currentSection == &_seeAlso)
                 {
                     string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
@@ -718,12 +730,10 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, bool escapeXml)
         }
     }
 
-    trimLines(comment._overview);
-    trimLines(comment._remarks);
-    trimLines(comment._deprecated);
-    trimLines(comment._returns);
-
-    return comment;
+    trimLines(_overview);
+    trimLines(_remarks);
+    trimLines(_deprecated);
+    trimLines(_returns);
 }
 
 bool
@@ -1049,7 +1059,7 @@ Slice::Contained::line() const
     return _line;
 }
 
-string
+const optional<DocComment>&
 Slice::Contained::docComment() const
 {
     return _docComment;
@@ -1167,7 +1177,7 @@ Slice::Contained::Contained(const ContainerPtr& container, string name) : _conta
     UnitPtr unit = container->unit();
     _file = unit->currentFile();
     _line = unit->currentLine();
-    _docComment = unit->currentDocComment();
+    _docComment = DocComment::createUnparsed(unit->currentDocComment());
     _includeLevel = unit->currentIncludeLevel();
     _definitionContext = unit->currentDefinitionContext();
 }
@@ -4719,21 +4729,15 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(string languageName, std::optional<DocLinkFormatter> linkFormatter, bool all)
+Slice::Unit::createUnit(string languageName, bool all)
 {
-    return make_shared<Unit>(std::move(languageName), linkFormatter, all);
+    return make_shared<Unit>(std::move(languageName), all);
 }
 
 string
 Slice::Unit::languageName() const
 {
     return _languageName;
-}
-
-const optional<DocLinkFormatter>&
-Slice::Unit::linkFormatter() const
-{
-    return _linkFormatter;
 }
 
 void
@@ -5209,10 +5213,7 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(string languageName, optional<DocLinkFormatter> linkFormatter, bool all)
-    : _languageName(std::move(languageName)),
-      _linkFormatter(linkFormatter),
-      _all(all)
+Slice::Unit::Unit(string languageName, bool all) : _languageName(std::move(languageName)), _all(all)
 {
     if (!languageName.empty())
     {

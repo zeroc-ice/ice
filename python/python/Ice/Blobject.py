@@ -1,6 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 from abc import ABC, abstractmethod
+from collections.abc import Awaitable
 
 from .Current import Current
 from .Object import Object
@@ -17,7 +18,7 @@ class Blobject(Object, ABC):
     """
 
     @abstractmethod
-    def ice_invoke(self, bytes: bytes, current: Current):
+    def ice_invoke(self, bytes: bytes, current: Current) -> tuple[bool, bytes] | Awaitable[tuple[bool, bytes]]:
         """
         Dispatches a synchronous Ice invocation.
 
