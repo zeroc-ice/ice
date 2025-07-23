@@ -638,13 +638,15 @@ Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
     addRuntimeImport("dataclasses", "dataclass", p);
     for (const auto& member : p->dataMembers())
     {
-        // Import field if we have at least one data member that is a Struct.
-        if (dynamic_pointer_cast<Struct>(member->type()))
+        // Import field if we have at least one data member that cannot be used as a default value.
+        // This is required to use the `dataclasses.field` function to initialize the field.
+        if (canBeUsedAsDefaultValue(member->type()))
         {
             addRuntimeImport("dataclasses", "field", p);
             break;
         }
     }
+
     // Add imports required for the data members.
     visitDataMembers(p, p->dataMembers());
     return false;
