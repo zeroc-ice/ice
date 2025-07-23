@@ -4,6 +4,7 @@
 
 import sys
 import threading
+from typing import Any
 
 from generated.test.Glacier2.router import Test
 from TestHelper import TestHelper
@@ -12,7 +13,7 @@ import Glacier2
 import Ice
 
 
-def test(b):
+def test(b: Any):
     if not b:
         raise RuntimeError("test assertion failed")
 
@@ -22,12 +23,12 @@ class CallbackReceiverI(Test.CallbackReceiver):
         self._callback = False
         self._cond = threading.Condition()
 
-    def callback(self, current):
+    def callback(self, current: Ice.Current):
         with self._cond:
             self._callback = True
             self._cond.notify()
 
-    def callbackEx(self, current):
+    def callbackEx(self, current: Ice.Current):
         self.callback(current)
         ex = Test.CallbackException()
         ex.someValue = 3.14
@@ -43,7 +44,7 @@ class CallbackReceiverI(Test.CallbackReceiver):
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]) -> None:
         shutdown = "--shutdown" in args
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "1")
@@ -52,13 +53,13 @@ class Client(TestHelper):
             sys.stdout.write("testing stringToProxy for router... ")
             sys.stdout.flush()
             routerBase = communicator.stringToProxy(f"Glacier2/router:{self.getTestEndpoint(num=50)}")
-            test(routerBase is not None)
+            assert routerBase is not None
             print("ok")
 
             sys.stdout.write("testing checked cast for router... ")
             sys.stdout.flush()
             router = Glacier2.RouterPrx.checkedCast(routerBase)
-            test(router is not None)
+            assert router is not None
             print("ok")
 
             sys.stdout.write("installing router with communicator... ")
@@ -75,6 +76,7 @@ class Client(TestHelper):
             sys.stdout.write("testing stringToProxy for server object... ")
             sys.stdout.flush()
             base = communicator.stringToProxy(f"c1/callback:{self.getTestEndpoint()}")
+            assert base is not None
             print("ok")
 
             sys.stdout.write("trying to ping server before session creation... ")
@@ -125,6 +127,7 @@ class Client(TestHelper):
             sys.stdout.write("pinging object with client endpoint... ")
             sys.stdout.flush()
             baseC = communicator.stringToProxy(f"collocated:{self.getTestEndpoint(num=50)}")
+            assert baseC is not None
             try:
                 baseC.ice_ping()
             except Exception:
@@ -134,7 +137,7 @@ class Client(TestHelper):
             sys.stdout.write("testing checked cast for server object... ")
             sys.stdout.flush()
             twoway = Test.CallbackPrx.checkedCast(base)
-            test(twoway is not None)
+            assert twoway is not None
             print("ok")
 
             sys.stdout.write("creating and activating callback receiver adapter... ")
@@ -272,7 +275,7 @@ class Client(TestHelper):
                 sys.stdout.write("testing checked cast for admin object... ")
                 sys.stdout.flush()
                 processPrx = Ice.ProcessPrx.checkedCast(processBase)
-                test(processPrx is not None)
+                assert processPrx is not None
                 print("ok")
 
                 sys.stdout.write("testing Glacier2 shutdown... ")
