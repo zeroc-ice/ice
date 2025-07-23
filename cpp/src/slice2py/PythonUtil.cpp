@@ -82,7 +82,7 @@ Slice::Python::getPythonModuleForForwardDeclaration(const SyntaxTreeBasePtr& p)
         }
         else
         {
-            // For other definitions, append "F" to the module name.
+            // For other generated modules, append "_iceF" to the module name.
             declarationModule += "_iceF";
         }
     }
@@ -122,20 +122,27 @@ Slice::Python::getImportAlias(
     const string& moduleName,
     const string& name)
 {
+    // Get the list of definitions exported for the source Python module.
     auto all = getAll(source);
 
+    // Whether we need to use an alias for the import.
     bool useAlias = false;
 
     if (moduleName == source->mappedScoped("."))
     {
-        return name;
+        // If the source module is the same as the module name being imported. We are using a
+        // definition from the current module and we don't need an alias.
+        useAlias = false;
     }
     else if (find(all.begin(), all.end(), name) != all.end())
     {
+        // The name being bind comes from a different module and conflicts with one of the names
+        // exported by the source module. We need to use an alias.
         useAlias = true;
     }
     else
     {
+        // If the name being bind is already imported from a different module, we need to use an alias.
         auto p = allImports.find(name);
         if (p != allImports.end())
         {
@@ -429,7 +436,7 @@ Slice::Python::createCodeFragmentForPythonModule(const ContainedPtr& contained, 
     fragment.sliceFileName = contained->file();
     string fileName = fragment.moduleName;
     replace(fileName.begin(), fileName.end(), '.', '/');
-    fragment.fileName = fileName + (isForwardDeclaration ? "F.py" : ".py");
+    fragment.fileName = fileName + (isForwardDeclaration ? "_iceF.py" : ".py");
     fragment.isPackageIndex = false;
     return fragment;
 }
@@ -1857,15 +1864,16 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     out << nl;
     writeMetadata(p->getMetadata(), out);
     out << ",";
-    out << nl;
-    out.spar("{");
+    out << nl << "{";
+    out.inc();
     for (const auto& enumerator : enumerators)
     {
-        out << (to_string(enumerator->value()) + ": " + name + "." + enumerator->mappedName());
+        out << nl << to_string(enumerator->value()) << ": " << name << "." << enumerator->mappedName() << ",";
     }
-    out.epar("}");
-    out << ")";
     out.dec();
+    out << nl << "}";
+    out.dec();
+    out << nl << ")";
 
     out << sp;
     out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
