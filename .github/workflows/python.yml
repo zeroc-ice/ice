@@ -16,6 +16,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
       - name: Install Ruff
         run: pip install ruff
 
@@ -32,8 +35,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup C++
+        uses: ./.github/actions/setup-cpp
+
+      - name: Setup Python
+        uses: ./.github/actions/setup-python
+
       - name: Install Pyright
         run: npm install -g pyright
+
+      - name: Build Ice for Python
+        run: |
+          make -C cpp srcs
+          make -C python
 
       - name: Pyright check
         run: pyright python/python
