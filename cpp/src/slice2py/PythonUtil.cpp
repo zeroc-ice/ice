@@ -976,9 +976,10 @@ Slice::Python::PackageVisitor::visitModuleStart(const ModulePtr& p)
         {
             // If the package does not exist, we create an empty map for it.
             _imports[current] = {};
-            replace(current.begin(), current.end(), '.', '/');
-            current += "__init__.py";
-            _packageIndexFiles.insert(current);
+            string currentPath = current;
+            replace(currentPath.begin(), currentPath.end(), '.', '/');
+            currentPath += "__init__.py";
+            _packageIndexFiles.insert(currentPath);
         }
     }
     return true;
@@ -2588,6 +2589,7 @@ namespace
         {
             outputPath = "./";
         }
+
         Python::createPackagePath(moduleName, outputPath);
         outputPath += fileName;
 
