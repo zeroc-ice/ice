@@ -27,3 +27,5 @@ IcePy._t_UnknownSlicedValue = IcePy.defineValue(
 )
 
 UnknownSlicedValue._ice_type = IcePy._t_UnknownSlicedValue
+
+__all__ = ["UnknownSlicedValue"]

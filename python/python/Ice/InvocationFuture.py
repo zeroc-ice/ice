@@ -89,7 +89,7 @@ class InvocationFuture(Future):
 
         Parameters
         ----------
-        fn : callable
+        fn : Callable
             The function to execute when the invocation is sent.
         """
         with self._condition:
@@ -110,7 +110,7 @@ class InvocationFuture(Future):
 
         Parameters
         ----------
-        timeout : int or float, optional
+        timeout : int | float, optional
             Maximum time (in seconds) to wait for the operation to be sent. If `None`, the method waits
             indefinitely.
 

@@ -1,15 +1,20 @@
 # Copyright (c) ZeroC, Inc.
 
-from collections.abc import Callable
+from __future__ import annotations
+
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from IcePy import BatchRequest, Connection
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-from .EventLoopAdapter import EventLoopAdapter
-from .Logger import Logger
-from .Properties import Properties
-from .UserException import UserException
-from .Value import Value
+    from IcePy import BatchRequest, Connection
+
+    from .EventLoopAdapter import EventLoopAdapter
+    from .Logger import Logger
+    from .Properties import Properties
+    from .UserException import UserException
+    from .Value import Value
 
 
 @dataclass
@@ -21,7 +26,7 @@ class InitializationData:
     ----------
     properties : Ice.Properties | None
         You can use the Ice.createProperties function to create a new property set.
-    logger : Ice.Logger | None
+    logger : Logger | None
         The logger to use for the communicator.
     threadStart : Callable[[], None] | None
         A callable that is invoked for each new Ice thread that is started.
@@ -54,3 +59,6 @@ class InitializationData:
     batchRequestInterceptor: Callable[[BatchRequest, int, int], None] | None = None
     eventLoopAdapter: EventLoopAdapter | None = None
     sliceLoader: Callable[[str], Value | UserException | None] | None = None
+
+
+__all__ = ["InitializationData"]

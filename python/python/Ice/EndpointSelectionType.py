@@ -17,3 +17,6 @@ class EndpointSelectionType(Enum):
 
     Random = 0
     Ordered = 1
+
+
+__all__ = ["EndpointSelectionType"]

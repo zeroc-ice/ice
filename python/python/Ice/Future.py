@@ -131,7 +131,7 @@ class Future(Awaitable[_T]):
 
         Parameters
         ----------
-        timeout : int or float, optional
+        timeout : int | float, optional
             Maximum time (in seconds) to wait for the result. If `None`, the method waits indefinitely until the
             operation completes.
 
@@ -175,7 +175,7 @@ class Future(Awaitable[_T]):
 
         Parameters
         ----------
-        timeout : int or float, optional
+        timeout : int | float, optional
             Maximum time (in seconds) to wait for the exception. If `None`, the method waits indefinitely until the
             operation completes.
 
@@ -302,7 +302,7 @@ def wrap_future(future: Future | asyncio.Future, *, loop: asyncio.AbstractEventL
 
     Parameters
     ----------
-    future : Future or asyncio.Future
+    future : Future | asyncio.Future
         The Ice.Future object to wrap. If an asyncio.Future is passed, it is returned as-is.
 
     loop : asyncio.AbstractEventLoop, optional

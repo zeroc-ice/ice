@@ -592,3 +592,6 @@ class ObjectAdapter:
             The new set of endpoints that the object adapter will embed in proxies.
         """
         self._impl.setPublishedEndpoints(newEndpoints)
+
+
+__all__ = ["ObjectAdapter"]

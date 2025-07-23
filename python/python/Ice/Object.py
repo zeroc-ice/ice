@@ -77,7 +77,7 @@ class Object:
         ----------
         id : str
             The Slice type ID.
-        current : Ice.Current
+        current : Current
             The current context.
 
         Returns
@@ -102,7 +102,7 @@ class Object:
 
         Parameters
         ----------
-        current : Ice.Current
+        current : Current
             The current context.
         """
         pass
@@ -113,7 +113,7 @@ class Object:
 
         Parameters
         ----------
-        current : Ice.Current
+        current : Current
             The current context.
 
         Returns
@@ -129,7 +129,7 @@ class Object:
 
         Parameters
         ----------
-        current : Ice.Current
+        current : Current
             The current context.
 
         Returns

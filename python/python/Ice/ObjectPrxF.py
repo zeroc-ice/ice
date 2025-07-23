@@ -1,3 +1,5 @@
+# Copyright (c) ZeroC, Inc.
+
 import IcePy
 
 _Ice_ObjectPrx_t = IcePy.declareProxy("::Ice::Object")
