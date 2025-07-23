@@ -6,9 +6,9 @@ import BatchOneways
 import BatchOnewaysFuture
 import Oneways
 import OnewaysFuture
-from generated.test.Ice.operations import Test
 import Twoways
 import TwowaysFuture
+from generated.test.Ice.operations import Test
 
 import Ice
 
