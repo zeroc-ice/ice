@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Ice.custom.Test"]
 module Test
 {
     sequence<byte> ByteString; /* By default, sequence<byte> is received as a string. */

@@ -4,6 +4,7 @@
 
 #include "Test.ice"
 
+["python:identifier:generated.test.Ice.slicing.exceptions.server_private.Test"]
 module Test
 {
     exception UnknownDerived extends Base

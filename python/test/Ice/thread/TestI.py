@@ -3,7 +3,7 @@
 import threading
 import time
 
-import Test
+from generated.test.Ice.thread import Test
 
 import Ice
 

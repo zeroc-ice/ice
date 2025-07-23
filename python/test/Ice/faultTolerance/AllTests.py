@@ -3,7 +3,7 @@
 import sys
 import threading
 
-import Test
+from generated.test.Ice.faultTolerance import Test
 
 import Ice
 

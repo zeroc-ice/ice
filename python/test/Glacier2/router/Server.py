@@ -2,7 +2,7 @@
 
 # Copyright (c) ZeroC, Inc.
 
-import Test
+from generated.test.Glacier2.router import Test
 from TestHelper import TestHelper
 
 import Ice

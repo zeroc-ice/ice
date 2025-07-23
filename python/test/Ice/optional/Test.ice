@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Ice.optional.Test"]
 module Test
 {
     class OneOptional

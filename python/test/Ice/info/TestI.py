@@ -1,8 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-import Test
-
 import Ice
+from generated.test.Ice.info import Test
 
 
 def getIPEndpointInfo(info):

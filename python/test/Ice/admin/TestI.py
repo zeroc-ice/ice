@@ -2,7 +2,7 @@
 
 import threading
 
-import Test
+from generated.test.Ice.admin import Test
 
 import Ice
 

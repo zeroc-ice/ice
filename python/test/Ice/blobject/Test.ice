@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Ice.blobject.Test"]
 module Test
 {
     exception UE

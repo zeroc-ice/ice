@@ -3,7 +3,7 @@
 import sys
 import uuid
 
-import Test
+from generated.test.Ice.location import Test
 
 import Ice
 

@@ -5,7 +5,7 @@
 import copy
 import sys
 
-import Test
+from generated.test.Slice.structure import Test
 from TestHelper import TestHelper
 
 

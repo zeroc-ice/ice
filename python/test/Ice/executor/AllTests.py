@@ -5,7 +5,7 @@ import sys
 import threading
 
 import Executor
-import Test
+from generated.test.Ice.executor import Test
 
 import Ice
 

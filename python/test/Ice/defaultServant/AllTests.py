@@ -3,7 +3,7 @@
 import sys
 
 import MyObjectI
-import Test
+from generated.test.Ice.defaultServant import Test
 
 import Ice
 

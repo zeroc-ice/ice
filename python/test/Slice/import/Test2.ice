@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+["python:identifier:generated.test.Slice.import_test.Test"]
 module Test
 {
     module SubA

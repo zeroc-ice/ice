@@ -4,6 +4,7 @@
 
 #include "Test.ice"
 
+["python:identifier:generated.test.Ice.slicing.objects.server_private.Test"]
 module Test
 {
     class SBSUnknownDerived extends SBase

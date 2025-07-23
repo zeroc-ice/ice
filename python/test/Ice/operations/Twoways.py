@@ -4,7 +4,7 @@ import array
 import math
 from sys import version_info
 
-import Test
+from generated.test.Ice.operations import Test
 
 import Ice
 

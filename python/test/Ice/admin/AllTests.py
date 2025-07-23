@@ -2,7 +2,7 @@
 
 import sys
 
-import Test
+from generated.test.Ice.admin import Test
 import TestI
 
 import Ice

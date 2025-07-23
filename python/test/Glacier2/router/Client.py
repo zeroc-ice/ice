@@ -5,7 +5,7 @@
 import sys
 import threading
 
-import Test
+from generated.test.Glacier2.router import Test
 from TestHelper import TestHelper
 
 import Glacier2

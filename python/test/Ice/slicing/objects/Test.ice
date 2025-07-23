@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Ice.slicing.objects.Test"]
 module Test
 {
     class SBase

@@ -5,6 +5,7 @@
 
 #include "Ice/PropertyDict.ice"
 
+["python:identifier:generated.test.Ice.thread.Test"]
 module Test
 {
     interface TestIntf

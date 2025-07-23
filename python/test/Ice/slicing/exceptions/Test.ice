@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Ice.slicing.exceptions.Test"]
 module Test
 {
     exception Base
