@@ -1,9 +1,14 @@
 # Copyright (c) ZeroC, Inc.
 
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
-from .Current import Current
 from .Object import Object
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable
+
+    from .Current import Current
 
 
 class Blobject(Object, ABC):
@@ -17,7 +22,7 @@ class Blobject(Object, ABC):
     """
 
     @abstractmethod
-    def ice_invoke(self, bytes: bytes, current: Current):
+    def ice_invoke(self, bytes: bytes, current: Current) -> tuple[bool, bytes] | Awaitable[tuple[bool, bytes]]:
         """
         Dispatches a synchronous Ice invocation.
 
