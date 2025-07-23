@@ -874,9 +874,16 @@ Slice::Python::ImportVisitor::addTypingImport(
     const ContainedPtr& source,
     bool forMarshaling)
 {
-    if (dynamic_pointer_cast<Builtin>(definition))
+    if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
     {
-        return;
+        if (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)
+        {
+            addTypingImport("Ice.Value", "Value", source);
+        }
+        else if (builtin->kind() == Builtin::KindObjectProxy)
+        {
+            addTypingImport("Ice.ObjectPrx", "ObjectPrx", source);
+        }
     }
     else if (auto sequence = dynamic_pointer_cast<Sequence>(definition))
     {
@@ -2186,12 +2193,13 @@ Slice::Python::getAll(const ContainedPtr& definition)
 
     all.push_back(definition->mappedName());
 
-    if (dynamic_pointer_cast<InterfaceDecl>(definition))
+    if (dynamic_pointer_cast<InterfaceDecl>(definition) || dynamic_pointer_cast<InterfaceDef>(definition))
     {
         all.push_back(definition->mappedName() + "Prx");
     }
 
-    if (dynamic_pointer_cast<Type>(definition) || dynamic_pointer_cast<Exception>(definition))
+    if (dynamic_pointer_cast<Type>(definition) || dynamic_pointer_cast<Exception>(definition) ||
+        dynamic_pointer_cast<InterfaceDef>(definition))
     {
         // for types and exceptions, we also export the meta type.
         all.push_back(getMetaType(definition));

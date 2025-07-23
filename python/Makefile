@@ -33,6 +33,8 @@ all:: srcs
 # We use a separate Makefile for building the python packages because their building
 # requires .NOTPARALLEL
 #
-all generate-srcs clean distclean install::
+all generated-srcs clean distclean install::
 	+$(Q)$(MAKE) -C python $@
 	+$(Q)$(MAKE) -C test $@
+
+srcs:: generated-srcs
