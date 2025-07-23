@@ -1801,7 +1801,6 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     writeMetadata(p->getMetadata(), out);
     out << ",";
 
-    out << nl;
     writeMetaTypeDataMembers(p, p->dataMembers(), out);
     out << ")";
     out.dec();
@@ -1988,7 +1987,7 @@ Slice::Python::CodeVisitor::writeMetaTypeDataMembers(
     Output& out)
 {
     bool includeOptional = !dynamic_pointer_cast<Struct>(parent);
-    out << "(";
+    out << nl << "(";
 
     if (members.size() > 1)
     {
