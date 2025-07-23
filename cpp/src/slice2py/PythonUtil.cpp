@@ -167,7 +167,7 @@ Slice::Python::getMetaType(const SyntaxTreeBasePtr& p)
         auto contained = dynamic_pointer_cast<Contained>(p);
         assert(contained);
         string s = "_" + contained->mappedScoped("_");
-        // Replace here is required in case any module is remap with python:identifier into a nested package.
+        // Replace here is required in case any module is remapped with python:identifier into a nested package.
         replace(s.begin(), s.end(), '.', '_');
         if (dynamic_pointer_cast<InterfaceDef>(contained) || dynamic_pointer_cast<InterfaceDecl>(contained))
         {
