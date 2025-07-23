@@ -95,3 +95,6 @@ class Logger(ABC):
             A new logger instance with the specified prefix.
         """
         pass
+
+
+__all__ = ["Logger"]

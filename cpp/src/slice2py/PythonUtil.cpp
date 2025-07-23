@@ -1427,15 +1427,14 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "facet: str | None = None,";
     out << nl << "context: dict[str, str] | None = None";
     out.dec();
-    out << nl << ") -> Awaitable[" << prxTypeHint << "]:";
+    out << nl << ") -> Awaitable[" << prxName << " | None ]:";
     out.inc();
     out << nl << "return checkedCastAsync(" << prxName << ", proxy, facet, context)";
     out.dec();
 
     out << sp << nl << "@overload";
     out << nl << "@staticmethod";
-    out << nl << "def uncheckedCast(proxy: Ice.ObjectPrx, facet: str | None = None) -> "
-        << prxTypeHint.substr(0, prxTypeHint.find_first_of(" | None")) << ":";
+    out << nl << "def uncheckedCast(proxy: " << objectPrxAlias << ", facet: str | None = None) -> " << prxName << ":";
     out.inc();
     out << nl << "...";
     out.dec();

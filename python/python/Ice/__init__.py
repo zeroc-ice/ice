@@ -1,177 +1,169 @@
 # Copyright (c) ZeroC, Inc.
 
-# ruff: noqa: F401  # Unused imports
-# ruff: noqa: F821  # Undefined names
-# ruff: noqa: E402  # Module level import not at top of file
-# ruff: noqa: F403  # 'from module import *' used
-# ruff: noqa: F405  # Name may be undefined from wildcard import
-# ruff: noqa: I001  # Import block is unsorted or unformatted
-
 """
 Ice module
 """
 
-import IcePy
-
-#
-# Add some symbols to the Ice module.
-#
-stringVersion = IcePy.stringVersion
-intVersion = IcePy.intVersion
-currentProtocol = IcePy.currentProtocol
-currentProtocolEncoding = IcePy.currentProtocolEncoding
-currentEncoding = IcePy.currentEncoding
-stringToProtocolVersion = IcePy.stringToProtocolVersion
-protocolVersionToString = IcePy.protocolVersionToString
-stringToEncodingVersion = IcePy.stringToEncodingVersion
-encodingVersionToString = IcePy.encodingVersionToString
-loadSlice = IcePy.loadSlice
-AsyncInvocationContext = IcePy.AsyncInvocationContext
-
-#
-# Forward declarations.
-#
-from .ObjectPrxF import _Ice_ObjectPrx_t
-from .ValueF import _Ice_Value_t
-
-#
-# Import local definitions that are part of the Ice module public API.
-#
-from .StringUtil import format_fields
-from .EventLoopAdapter import EventLoopAdapter
-from .Current import *
-from .Future import *
-from .InvocationFuture import *
-from .Value import *
-from .Object import Object
-from .ObjectPrx import ObjectPrx, checkedCast, checkedCastAsync, uncheckedCast
-from .Blobject import Blobject
-from .FormatType import *
-from .SlicedData import SlicedData
-from .SliceInfo import SliceInfo
-from .UnknownSlicedValue import *
-from .ToStringMode import *
-from .Exception import *
-from .LocalException import *
-from .UserException import *
-from .Communicator import *
-from .ImplicitContext import *
-from .EndpointSelectionType import *
-from .ObjectAdapter import *
-from .CompressBatch import CompressBatch
-from .ServantLocator import *
-from .InitializationData import *
-from .Properties import Properties
-from .Logger import *
-from .LocalExceptions import *
-from .Proxy import *
-from .Current import Current
-from .Dispatch import *
+from IcePy import (
+    ConnectionInfo,
+    EndpointInfo,
+    IPConnectionInfo,
+    IPEndpointInfo,
+    NativePropertiesAdmin,
+    OpaqueEndpointInfo,
+    SSLConnectionInfo,
+    SSLEndpointInfo,
+    TCPConnectionInfo,
+    TCPEndpointInfo,
+    UDPConnectionInfo,
+    UDPEndpointInfo,
+    WSConnectionInfo,
+    WSEndpointInfo,
+    currentEncoding,
+    currentProtocol,
+    currentProtocolEncoding,
+    encodingVersionToString,
+    intVersion,
+    loadSlice,
+    protocolVersionToString,
+    stringToEncodingVersion,
+    stringToProtocolVersion,
+    stringVersion,
+)
 
 #
 # Import the generated code for the Ice module.
 #
-from .AdapterAlreadyActiveException import AdapterAlreadyActiveException
-from .AdapterAlreadyActiveException import _Ice_AdapterAlreadyActiveException_t
-from .AdapterNotFoundException import AdapterNotFoundException
-from .AdapterNotFoundException import _Ice_AdapterNotFoundException_t
+from .AdapterAlreadyActiveException import AdapterAlreadyActiveException, _Ice_AdapterAlreadyActiveException_t
+from .AdapterNotFoundException import AdapterNotFoundException, _Ice_AdapterNotFoundException_t
+from .Blobject import Blobject
+from .BoolSeq import _Ice_BoolSeq_t
 from .BTEndpointType import BTEndpointType
 from .BTSEndpointType import BTSEndpointType
-from .BoolSeq import _Ice_BoolSeq_t
 from .ByteSeq import _Ice_ByteSeq_t
+from .Communicator import Communicator
+from .CompressBatch import CompressBatch
 from .Context import _Ice_Context_t
+from .Current import Current
 from .DoubleSeq import _Ice_DoubleSeq_t
 from .EncodingVersion import EncodingVersion, _Ice_EncodingVersion_t
+from .EndpointSelectionType import EndpointSelectionType
+from .EventLoopAdapter import EventLoopAdapter
+from .Exception import Exception
 from .FloatSeq import _Ice_FloatSeq_t
-from .Identity import Identity
-from .Identity import _Ice_Identity_t
+from .FormatType import FormatType
+from .Future import Future, FutureLike, wrap_future
+from .iAPEndpointType import iAPEndpointType
+from .iAPSEndpointType import iAPSEndpointType
+from .Identity import Identity, _Ice_Identity_t
 from .IdentitySeq import _Ice_IdentitySeq_t
+from .ImplicitContext import ImplicitContext
+from .InitializationData import InitializationData
 from .IntSeq import _Ice_IntSeq_t
-from .InvalidReplicaGroupIdException import InvalidReplicaGroupIdException
-from .InvalidReplicaGroupIdException import _Ice_InvalidReplicaGroupIdException_t
-from .Locator import Locator
-from .Locator import LocatorPrx
+from .InvalidReplicaGroupIdException import InvalidReplicaGroupIdException, _Ice_InvalidReplicaGroupIdException_t
+from .InvocationFuture import InvocationFuture
+from .LocalException import LocalException
+from .LocalExceptions import (
+    AlreadyRegisteredException,
+    CloseConnectionException,
+    CloseTimeoutException,
+    CommunicatorDestroyedException,
+    ConnectFailedException,
+    ConnectionAbortedException,
+    ConnectionClosedException,
+    ConnectionLostException,
+    ConnectionRefusedException,
+    ConnectTimeoutException,
+    DatagramLimitException,
+    DispatchException,
+    DNSException,
+    FacetNotExistException,
+    FeatureNotSupportedException,
+    FixedProxyException,
+    InitializationException,
+    InvocationCanceledException,
+    InvocationTimeoutException,
+    MarshalException,
+    NoEndpointException,
+    NotRegisteredException,
+    ObjectAdapterDeactivatedException,
+    ObjectAdapterDestroyedException,
+    ObjectAdapterIdInUseException,
+    ObjectNotExistException,
+    OperationNotExistException,
+    ParseException,
+    PropertyException,
+    ProtocolException,
+    RequestFailedException,
+    SecurityException,
+    SocketException,
+    SyscallException,
+    TimeoutException,
+    TwowayOnlyException,
+    UnknownException,
+    UnknownLocalException,
+    UnknownUserException,
+)
+from .Locator import Locator, LocatorPrx
 from .Locator_iceF import _Ice_LocatorPrx_t
-from .LocatorFinder import LocatorFinder
-from .LocatorFinder import LocatorFinderPrx
+from .LocatorFinder import LocatorFinder, LocatorFinderPrx
 from .LocatorFinder_iceF import _Ice_LocatorFinderPrx_t
-from .LocatorRegistry import LocatorRegistry
-from .LocatorRegistry import LocatorRegistryPrx
+from .LocatorRegistry import LocatorRegistry, LocatorRegistryPrx
 from .LocatorRegistry_iceF import _Ice_LocatorRegistryPrx_t
-from .LogMessage import LogMessage
-from .LogMessage import _Ice_LogMessage_t
-from .LogMessageSeq import _Ice_LogMessageSeq_t
-from .LogMessageType import LogMessageType
-from .LogMessageType import _Ice_LogMessageType_t
-from .LogMessageTypeSeq import _Ice_LogMessageTypeSeq_t
-from .LoggerAdmin import LoggerAdmin
-from .LoggerAdmin import LoggerAdminPrx
+from .Logger import Logger
+from .LoggerAdmin import LoggerAdmin, LoggerAdminPrx
 from .LoggerAdmin_iceF import _Ice_LoggerAdminPrx_t
+from .LogMessage import LogMessage, _Ice_LogMessage_t
+from .LogMessageSeq import _Ice_LogMessageSeq_t
+from .LogMessageType import LogMessageType, _Ice_LogMessageType_t
+from .LogMessageTypeSeq import _Ice_LogMessageTypeSeq_t
 from .LongSeq import _Ice_LongSeq_t
-from .ObjectNotFoundException import ObjectNotFoundException
-from .ObjectNotFoundException import _Ice_ObjectNotFoundException_t
+from .Object import Object
+from .ObjectAdapter import ObjectAdapter
+from .ObjectNotFoundException import ObjectNotFoundException, _Ice_ObjectNotFoundException_t
 from .ObjectProxySeq import _Ice_ObjectProxySeq_t
+from .ObjectPrx import ObjectPrx
 from .ObjectSeq import _Ice_ObjectSeq_t
-from .OperationMode import OperationMode
-from .OperationMode import _Ice_OperationMode_t
-from .Process import Process
-from .Process import ProcessPrx
-from .ProcessLogger import getProcessLogger, setProcessLogger
+from .OperationMode import OperationMode, _Ice_OperationMode_t
+from .Process import Process, ProcessPrx
 from .Process_iceF import _Ice_ProcessPrx_t
-from .PropertiesAdmin import PropertiesAdmin
-from .PropertiesAdmin import PropertiesAdminPrx
+from .ProcessLogger import getProcessLogger, setProcessLogger
+from .Properties import Properties
+from .PropertiesAdmin import PropertiesAdmin, PropertiesAdminPrx
 from .PropertiesAdmin_iceF import _Ice_PropertiesAdminPrx_t
 from .PropertyDict import _Ice_PropertyDict_t
 from .ProtocolVersion import ProtocolVersion, _Ice_ProtocolVersion_t
-from .RemoteLogger import RemoteLogger
-from .RemoteLogger import RemoteLoggerPrx
-from .RemoteLoggerAlreadyAttachedException import RemoteLoggerAlreadyAttachedException
-from .RemoteLoggerAlreadyAttachedException import _Ice_RemoteLoggerAlreadyAttachedException_t
+from .Proxy import proxyIdentityAndFacetCompare, proxyIdentityAndFacetEqual, proxyIdentityCompare, proxyIdentityEqual
+from .RemoteLogger import RemoteLogger, RemoteLoggerPrx
 from .RemoteLogger_iceF import _Ice_RemoteLoggerPrx_t
-from .ReplyStatus import ReplyStatus
-from .ReplyStatus import _Ice_ReplyStatus_t
-from .Router import Router
-from .Router import RouterPrx
+from .RemoteLoggerAlreadyAttachedException import (
+    RemoteLoggerAlreadyAttachedException,
+    _Ice_RemoteLoggerAlreadyAttachedException_t,
+)
+from .ReplyStatus import ReplyStatus, _Ice_ReplyStatus_t
+from .Router import Router, RouterPrx
 from .Router_iceF import _Ice_RouterPrx_t
-from .RouterFinder import RouterFinder
-from .RouterFinder import RouterFinderPrx
+from .RouterFinder import RouterFinder, RouterFinderPrx
 from .RouterFinder_iceF import _Ice_RouterFinderPrx_t
-from .SSLEndpointType import SSLEndpointType
-from .ServerNotFoundException import ServerNotFoundException
-from .ServerNotFoundException import _Ice_ServerNotFoundException_t
+from .ServantLocator import ServantLocator
+from .ServerNotFoundException import ServerNotFoundException, _Ice_ServerNotFoundException_t
 from .ShortSeq import _Ice_ShortSeq_t
 from .SliceChecksumDict import _Ice_SliceChecksumDict_t
+from .SlicedData import SlicedData
+from .SliceInfo import SliceInfo
+from .SSLEndpointType import SSLEndpointType
 from .StringSeq import _Ice_StringSeq_t
+from .StringUtil import format_fields
 from .TCPEndpointType import TCPEndpointType
+from .ToStringMode import ToStringMode
 from .UDPEndpointType import UDPEndpointType
+from .UnknownSlicedValue import UnknownSlicedValue
 from .URIEndpointType import URIEndpointType
+from .UserException import UserException
+from .Util import createProperties, getSliceDir, identityToString, initialize, stringToIdentity
+from .Value import Value
 from .WSEndpointType import WSEndpointType
 from .WSSEndpointType import WSSEndpointType
-from .iAPEndpointType import iAPEndpointType
-from .iAPSEndpointType import iAPSEndpointType
-
-from .Util import *
-
-#
-# Add EndpointInfo alias in Ice module.
-#
-EndpointInfo = IcePy.EndpointInfo
-IPEndpointInfo = IcePy.IPEndpointInfo
-TCPEndpointInfo = IcePy.TCPEndpointInfo
-UDPEndpointInfo = IcePy.UDPEndpointInfo
-WSEndpointInfo = IcePy.WSEndpointInfo
-OpaqueEndpointInfo = IcePy.OpaqueEndpointInfo
-SSLEndpointInfo = IcePy.SSLEndpointInfo
-
-#
-# Add ConnectionInfo alias in Ice module.
-#
-ConnectionInfo = IcePy.ConnectionInfo
-IPConnectionInfo = IcePy.IPConnectionInfo
-TCPConnectionInfo = IcePy.TCPConnectionInfo
-UDPConnectionInfo = IcePy.UDPConnectionInfo
-WSConnectionInfo = IcePy.WSConnectionInfo
-SSLConnectionInfo = IcePy.SSLConnectionInfo
 
 #
 # Protocol and Encoding constants
@@ -180,10 +172,6 @@ Protocol_1_0 = ProtocolVersion(1, 0)
 Encoding_1_0 = EncodingVersion(1, 0)
 Encoding_1_1 = EncodingVersion(1, 1)
 
-#
-# Native PropertiesAdmin admin facet.
-#
-NativePropertiesAdmin = IcePy.NativePropertiesAdmin
 
 # __all__ defines the public symbols of the Ice module.
 # It controls what is imported when using `from Ice import *`.
@@ -204,6 +192,7 @@ __all__ = [
     "ConnectTimeoutException",
     "ConnectionAbortedException",
     "ConnectionClosedException",
+    "ConnectionInfo",
     "ConnectionLostException",
     "ConnectionRefusedException",
     "Current",
@@ -211,6 +200,7 @@ __all__ = [
     "DatagramLimitException",
     "DispatchException",
     "EncodingVersion",
+    "EndpointInfo",
     "EndpointSelectionType",
     "EventLoopAdapter",
     "Exception",
@@ -219,6 +209,9 @@ __all__ = [
     "FixedProxyException",
     "FormatType",
     "Future",
+    "FutureLike",
+    "IPConnectionInfo",
+    "IPEndpointInfo",
     "Identity",
     "ImplicitContext",
     "InitializationData",
@@ -240,6 +233,7 @@ __all__ = [
     "LoggerAdmin",
     "LoggerAdminPrx",
     "MarshalException",
+    "NativePropertiesAdmin",
     "NoEndpointException",
     "NotRegisteredException",
     "Object",
@@ -250,6 +244,7 @@ __all__ = [
     "ObjectNotExistException",
     "ObjectNotFoundException",
     "ObjectPrx",
+    "OpaqueEndpointInfo",
     "OperationMode",
     "OperationNotExistException",
     "ParseException",
@@ -270,16 +265,24 @@ __all__ = [
     "RouterFinder",
     "RouterFinderPrx",
     "RouterPrx",
+    "SSLConnectionInfo",
+    "SSLEndpointInfo",
     "SSLEndpointType",
     "SecurityException",
     "ServantLocator",
     "ServerNotFoundException",
+    "SliceInfo",
+    "SlicedData",
     "SocketException",
     "SyscallException",
+    "TCPConnectionInfo",
+    "TCPEndpointInfo",
     "TCPEndpointType",
     "TimeoutException",
     "ToStringMode",
     "TwowayOnlyException",
+    "UDPConnectionInfo",
+    "UDPEndpointInfo",
     "UDPEndpointType",
     "URIEndpointType",
     "UnknownException",
@@ -288,6 +291,8 @@ __all__ = [
     "UnknownUserException",
     "UserException",
     "Value",
+    "WSConnectionInfo",
+    "WSEndpointInfo",
     "WSEndpointType",
     "WSSEndpointType",
     "_Ice_AdapterAlreadyActiveException_t",
@@ -329,6 +334,10 @@ __all__ = [
     "_Ice_SliceChecksumDict_t",
     "_Ice_StringSeq_t",
     "createProperties",
+    "currentEncoding",
+    "currentProtocol",
+    "currentProtocolEncoding",
+    "encodingVersionToString",
     "format_fields",
     "getProcessLogger",
     "getSliceDir",
@@ -336,9 +345,17 @@ __all__ = [
     "iAPSEndpointType",
     "identityToString",
     "initialize",
+    "intVersion",
+    "loadSlice",
+    "protocolVersionToString",
+    "proxyIdentityAndFacetCompare",
+    "proxyIdentityAndFacetEqual",
     "proxyIdentityCompare",
     "proxyIdentityEqual",
     "setProcessLogger",
+    "stringToEncodingVersion",
     "stringToIdentity",
+    "stringToProtocolVersion",
+    "stringVersion",
     "wrap_future",
 ]

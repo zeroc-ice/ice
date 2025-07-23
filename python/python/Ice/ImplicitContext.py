@@ -101,7 +101,7 @@ class ImplicitContext:
 
         Returns
         -------
-        str or None
+        str | None
             The previous value associated with the key, if any, otherwise None.
         """
         return self._impl.put(key, value)
@@ -117,7 +117,10 @@ class ImplicitContext:
 
         Returns
         -------
-        str or None
+        str | None
             The value associated with the key, if any, otherwise None.
         """
         return self._impl.remove(key)
+
+
+__all__ = ["ImplicitContext"]

@@ -55,3 +55,6 @@ def proxyIdentityAndFacetCompare(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> 
         lf = lhs.ice_getFacet()
         rf = rhs.ice_getFacet()
         return (lf > rf) - (lf < rf)
+
+
+__all__ = ["proxyIdentityEqual", "proxyIdentityCompare", "proxyIdentityAndFacetEqual", "proxyIdentityAndFacetCompare"]

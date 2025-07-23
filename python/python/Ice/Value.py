@@ -45,7 +45,7 @@ class Value(object):
 
         Returns
         -------
-        Ice.SlicedData or None
+        SlicedData | None
             The sliced data or None.
         """
         return getattr(self, "_ice_slicedData", None)

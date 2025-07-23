@@ -340,7 +340,9 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     char* sliceName;
     char* mappedName;
-    PyObject* modeType = lookupType("Ice.OperationMode");
+    // We use `Ice.OperationMode.OperationMode` to import directly from Ice/OperationMode.py and
+    // avoid circular dependencies.
+    PyObject* modeType = lookupType("Ice.OperationMode.OperationMode");
     assert(modeType);
     PyObject* mode;
     PyObject* format;

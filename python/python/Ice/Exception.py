@@ -24,3 +24,6 @@ class Exception(BuiltinsException):
             The type ID of the exception.
         """
         return self._ice_id
+
+
+__all__ = ["Exception"]

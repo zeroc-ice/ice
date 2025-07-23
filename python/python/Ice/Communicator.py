@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 @final
 class Communicator:
     """
-    The main entry point to the Ice runtime, represented by the `Ice.Communicator` class.
+    The main entry point to the Ice runtime, represented by the ``Communicator`` class.
 
     Example
     -------
@@ -71,7 +71,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.EventLoopAdapter or None
+        EventLoopAdapter | None
             The event loop adapter used for integrating Ice with a custom event loop.
         """
 
@@ -126,14 +126,14 @@ class Communicator:
 
     def shutdownCompleted(self) -> Awaitable[None]:
         """
-        Return a Future that is marked as done when the communicator's shutdown completes.
+        Return an awaitable that completes when the communicator's shutdown completes.
 
         The returned Future always completes successfully.
 
         Returns
         -------
-        Ice.Future
-            A Future that is marked as done upon shutdown completion.
+        Awaitable[None]
+            An awaitable that completes upon shutdown completion.
         """
         return self._impl.shutdownCompleted()
 
@@ -164,7 +164,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.ObjectPrx or None
+        ObjectPrx | None
             The proxy, or None if the string is empty.
 
         Raises
@@ -180,7 +180,7 @@ class Communicator:
 
         Parameters
         ----------
-        proxy : Ice.ObjectPrx or None
+        proxy : ObjectPrx | None
             The proxy to convert into a string representation.
 
         Returns
@@ -206,7 +206,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.ObjectPrx
+        ObjectPrx
             The proxy.
         """
         return self._impl.propertyToProxy(property)
@@ -217,7 +217,7 @@ class Communicator:
 
         Parameters
         ----------
-        proxy : Ice.ObjectPrx
+        proxy : ObjectPrx
             The proxy to convert.
         property : str
             The base property name.
@@ -235,7 +235,7 @@ class Communicator:
 
         Parameters
         ----------
-        identity : Ice.Identity
+        identity : Identity
             The identity to convert into a string.
 
         Returns
@@ -261,7 +261,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.ObjectAdapter
+        ObjectAdapter
             The new object adapter.
         """
         adapter = self._impl.createObjectAdapter(name)
@@ -283,7 +283,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.ObjectAdapter
+        ObjectAdapter
             The new object adapter.
         """
         adapter = self._impl.createObjectAdapterWithEndpoints(name, endpoints)
@@ -299,12 +299,12 @@ class Communicator:
         ----------
         name : str
             The object adapter name.
-        router : Ice.RouterPrx
+        router : RouterPrx
             The router.
 
         Returns
         -------
-        Ice.ObjectAdapter
+        ObjectAdapter
             The new object adapter.
         """
         adapter = self._impl.createObjectAdapterWithRouter(name, router)
@@ -317,7 +317,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.ObjectAdapter or None
+        ObjectAdapter | None
             The object adapter associated by default with new outgoing connections.
         """
         return self._impl.getDefaultObjectAdapter()
@@ -328,7 +328,7 @@ class Communicator:
 
         Parameters
         ----------
-        adapter : Ice.ObjectAdapter or None
+        adapter : ObjectAdapter | None
             The object adapter to associate with new outgoing connections.
         """
         self._impl.setDefaultObjectAdapter(adapter)
@@ -339,8 +339,8 @@ class Communicator:
 
         Returns
         -------
-        Ice.ImplicitContext or None
-            The implicit context associated with this communicator, or None if the property Ice.ImplicitContext is not set or is set to None.
+        ImplicitContext or None
+            The implicit context associated with this communicator, or None if the property Ice.ImplicitContext is not set or is set to ``"None"``.
         """
         context = self._impl.getImplicitContext()
         if context is None:
@@ -354,7 +354,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.Properties
+        Properties
             The properties associated with this communicator.
         """
         properties = self._impl.getProperties()
@@ -366,7 +366,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.Logger
+        Logger
             The logger associated with this communicator.
         """
         logger = self._impl.getLogger()
@@ -381,7 +381,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.RouterPrx or None
+        RouterPrx | None
             The default router for this communicator, or None if no default router has been set.
         """
         return self._impl.getDefaultRouter()
@@ -393,12 +393,12 @@ class Communicator:
         All newly created proxies will use this default router. To disable the default router, pass `None`.
         Note that this operation has no effect on existing proxies.
 
-        You can also set a router for an individual proxy by calling the method `Ice.ObjectPrx.ice_router` on the
+        You can also set a router for an individual proxy by calling the method `ObjectPrx.ice_router` on the
         proxy.
 
         Parameters
         ----------
-        router : Ice.RouterPrx or None
+        router : RouterPrx | None
             The default router to use for this communicator.
         """
         self._impl.setDefaultRouter(router)
@@ -409,7 +409,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.LocatorPrx or None
+        LocatorPrx | None
             The default locator for this communicator, or None if no default locator has been set.
         """
         return self._impl.getDefaultLocator()
@@ -421,12 +421,12 @@ class Communicator:
         All newly created proxies and object adapters will use this default locator. To disable the default locator,
         pass `None`. Note that this operation has no effect on existing proxies or object adapters.
 
-        You can also set a locator for an individual proxy by calling the method :any:`Ice.ObjectPrx.ice_locator` on the
-        proxy, or for an object adapter by calling :any:`ObjectAdapter.setLocator` on the object adapter.
+        You can also set a locator for an individual proxy by calling the method `ObjectPrx.ice_locator` on the
+        proxy, or for an object adapter by calling `ObjectAdapter.setLocator` on the object adapter.
 
         Parameters
         ----------
-        locator : Ice.LocatorPrx or None
+        locator : LocatorPrx | None
             The default locator to use for this communicator.
         """
         self._impl.setDefaultLocator(locator)
@@ -463,19 +463,19 @@ class Communicator:
 
         If ``Ice.Admin.ServerId`` is set and the provided object adapter has a Locator, ``createAdmin`` registers the
         Admin's Process facet with the Locator's LocatorRegistry. ``createAdmin`` must only be called once;
-        subsequent calls raise InitializationException.
+        subsequent calls raise `InitializationException`.
 
         Parameters
         ----------
-        adminAdapter : Ice.ObjectAdapter or None
+        adminAdapter : ObjectAdapter | None
             The object adapter used to host the Admin object. If `None` and `Ice.Admin.Endpoints` is set,
-            create, activate, and use the Ice.Admin object adapter.
-        adminId : Ice.Identity
+            create, activate, and use the Admin object adapter.
+        adminId : Identity
             The identity of the Admin object.
 
         Returns
         -------
-        Ice.ObjectPrx
+        ObjectPrx
             A proxy to the main ("") facet of the Admin object.
 
         Raises
@@ -497,7 +497,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.ObjectPrx or None
+        ObjectPrx | None
             A proxy to the main ("") facet of the Admin object, or None if no Admin object is configured.
         """
         return self._impl.getAdmin()
@@ -510,7 +510,7 @@ class Communicator:
 
         Parameters
         ----------
-        servant : Ice.Object
+        servant : Object
             The servant that implements the new Admin facet.
         facet : str
             The name of the new Admin facet.
@@ -535,7 +535,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.Object
+        Object
             The servant associated with the removed Admin facet.
 
         Raises
@@ -556,7 +556,7 @@ class Communicator:
 
         Returns
         -------
-        Ice.Object or None
+        Object | None
             The servant associated with the specified Admin facet, or None if no facet is registered with the given name.
         """
         return self._impl.findAdminFacet(facet)
@@ -571,3 +571,6 @@ class Communicator:
             A dictionary where the keys are facet names and the values are the associated servants.
         """
         return self._impl.findAllAdminFacets()
+
+
+__all__ = ["Communicator"]
