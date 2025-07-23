@@ -5,7 +5,7 @@
 import sys
 import threading
 
-import Test
+from generated.test.Ice.slicing.exceptions import Test
 
 
 def test(b):

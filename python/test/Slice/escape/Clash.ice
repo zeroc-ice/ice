@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-module Clash
+["python:identifier:generated.test.Slice.escape.Test"]
+module Test
 {
     interface Intf
     {

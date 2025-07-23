@@ -111,38 +111,25 @@ namespace Slice::Python
     /// If the definition represents an interface, the suffix `"Prx"` is appended to the alias to refer to the proxy
     /// type.
     ///
+    /// @param source The Slice definition that is importing the given definition.
     /// @param p The Slice definition to get the Python import alias for.
     /// @return The alias to use when importing the given definition in generated Python code.
-    std::string getImportAlias(const SyntaxTreeBasePtr& p);
+    std::string getImportAlias(
+        const ContainedPtr& source,
+        const std::map<std::string, std::string>& allImports,
+        const SyntaxTreeBasePtr& p);
+
+    std::string getImportAlias(
+        const ContainedPtr& source,
+        const std::map<std::string, std::string>& allImports,
+        const std::string& scope,
+        const std::string& name);
 
     /// Gets the name used for the meta-type of the given Slice definition. IcePy creates a meta-type for each Slice
     /// type. The generated code uses these meta-types to call IcePy.
     /// @param p The Slice definition to get the meta-type name for.
     /// @return The name of the meta-type for the given Slice definition.
     std::string getMetaType(const SyntaxTreeBasePtr& p);
-
-    /// Returns a string representation of the type hint for the given Slice type.
-    /// @param type The Slice type to convert to a type hint string.
-    /// @param optional If true, the type hint will indicate that the type is optional (i.e., it can be `None`).
-    /// @param source The Slice definition requesting the type hint.
-    /// @param forMarshaling If true, the type is used for marshaling (invocation input parameter, or dispatch output
-    /// parameter).
-    /// @return The string representation of the type hint for the given Slice type.
-    std::string
-    typeToTypeHintString(const TypePtr& type, bool optional, const SyntaxTreeBasePtr& source, bool forMarshaling);
-
-    /// Returns a string representation of the return type hint for the given operation.
-    /// @param operation The Slice operation to get the return type hint for.
-    /// @param methodKind The kind of method being documented or generated (sync, async, or dispatch).
-    /// @return The string representation of the return type hint for the given operation.
-    std::string returnTypeHint(const OperationPtr& operation, MethodKind methodKind);
-
-    /// Returns a string representation of the operation's return type hint. This is the same as `returnTypeHint`, but
-    /// with the " -> " prefix for use in function signatures.
-    /// @param operation The Slice operation to get the return type hint for.
-    /// @param methodKind The kind of method being documented or generated (sync, async, or dispatch).
-    /// @return The string representation of the operation's return type hint, prefixed with " -> ".
-    std::string operationReturnTypeHint(const OperationPtr& operation, MethodKind methodKind);
 
     /// Helper method to emit the generated code that format the fields of a type in __repr__ implementation.
     std::string formatFields(const DataMemberList& members);
@@ -153,6 +140,9 @@ namespace Slice::Python
     bool canBeUsedAsDefaultValue(const TypePtr& type);
 
     PythonCodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
+
+    // Get a list of all definitions exported for the Python module corresponding to the given Slice definition.
+    std::vector<std::string> getAll(const ContainedPtr& definition);
 
     class BufferedOutputBase
     {
@@ -204,6 +194,17 @@ namespace Slice::Python
 
     /// Validates the Slice Python metadata for the given unit.
     void validatePythonMetadata(const UnitPtr&);
+
+    /// Gets a map with all the import names for the given source module. The map key is the imported definition name,
+    /// and the value is the Python module name where the definition is imported from.
+    /// @param sourceModule The name of the source module.
+    /// @param runtimeImports The map of runtime imports. This map contains the runtime imports for each generated
+    /// Python module.
+    /// @param typingImports The map of typing imports. This map contains the typing imports for each generated
+    /// Python module.
+    /// @return A map with all the import names for the given source module.
+    std::map<std::string, std::string>
+    getAllImports(const std::string& sourceModule, const ImportsMap& runtimeImports, const ImportsMap& typingImports);
 
     // Collects Python definitions for each generated Python package.
     // Each package corresponds to a Slice module and includes an `__init__.py` file
@@ -264,6 +265,11 @@ namespace Slice::Python
 
         [[nodiscard]] const ImportsMap& getTypingImports() const { return _typingImports; }
 
+        [[nodiscard]] const std::map<std::string, std::map<std::string, std::string>> getAllImportNames() const
+        {
+            return _allImports;
+        }
+
     private:
         void visitDataMembers(const ContainedPtr&, const std::list<DataMemberPtr>&);
 
@@ -281,10 +287,7 @@ namespace Slice::Python
         /// @param definition A pair consisting of the name and alias to use for the imported symbol.
         ///                   If the alias is empty, the name is used as the alias.
         /// @param source The Slice definition that requires this import.
-        void addRuntimeImport(
-            const std::string& moduleName,
-            const std::pair<std::string, std::string>& definition,
-            const ContainedPtr& source);
+        void addRuntimeImport(const std::string& moduleName, const std::string& definition, const ContainedPtr& source);
 
         /// Adds a typing import for the given definition from the specified Python module.
         ///
@@ -293,10 +296,7 @@ namespace Slice::Python
         /// @param moduleName The fully qualified name of the Python module to import from.
         /// @param definition The definition to import, represented as a pair of name and alias.
         /// @param source The Slice definition that requires this import.
-        void addTypingImport(
-            const std::string& moduleName,
-            const std::pair<std::string, std::string>& definition,
-            const ContainedPtr& source);
+        void addTypingImport(const std::string& moduleName, const std::string& definition, const ContainedPtr& source);
 
         /// Adds a typing import for the package containing the given Slice definition.
         ///
@@ -324,12 +324,28 @@ namespace Slice::Python
 
         ImportsMap _runtimeImports;
         ImportsMap _typingImports;
+
+        /// A map of all import names for each source module.
+        /// - Key: the Python generated module name.
+        /// - Value: a map where the key is the imported definition name or alias, and the value is the Python
+        /// module name where the definition is imported from.
+        std::map<std::string, std::map<std::string, std::string>> _allImports;
     };
 
     // CodeVisitor generates the Python mapping for a translation unit.
     class CodeVisitor final : public ParserVisitor
     {
     public:
+        CodeVisitor(
+            ImportsMap runtimeImports,
+            ImportsMap typingImports,
+            std::map<std::string, std::map<std::string, std::string>> allImports)
+            : _runtimeImports(std::move(runtimeImports)),
+              _typingImports(std::move(typingImports)),
+              _allImports(std::move(allImports))
+        {
+        }
+
         bool visitClassDefStart(const ClassDefPtr&) final;
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
         bool visitExceptionStart(const ExceptionPtr&) final;
@@ -342,11 +358,38 @@ namespace Slice::Python
         [[nodiscard]] const std::vector<PythonCodeFragment>& codeFragments() const { return _codeFragments; }
 
     private:
+        /// Returns a string representation of the type hint for the given Slice type.
+        /// @param type The Slice type to convert to a type hint string.
+        /// @param optional If true, the type hint will indicate that the type is optional (i.e., it can be `None`).
+        /// @param source The Slice definition requesting the type hint.
+        /// @param forMarshaling If true, the type is used for marshaling (invocation input parameter, or dispatch
+        /// output parameter).
+        /// @return The string representation of the type hint for the given Slice type.
+        std::string
+        typeToTypeHintString(const TypePtr& type, bool optional, const ContainedPtr& source, bool forMarshaling);
+
+        /// Returns a string representation of the return type hint for the given operation.
+        /// @param operation The Slice operation to get the return type hint for.
+        /// @param methodKind The kind of method being documented or generated (sync, async, or dispatch).
+        /// @return The string representation of the return type hint for the given operation.
+        std::string returnTypeHint(const OperationPtr& operation, MethodKind methodKind);
+
+        /// Returns a string representation of the operation's return type hint. This is the same as `returnTypeHint`,
+        /// but with the " -> " prefix for use in function signatures.
+        /// @param operation The Slice operation to get the return type hint for.
+        /// @param methodKind The kind of method being documented or generated (sync, async, or dispatch).
+        /// @return The string representation of the operation's return type hint, prefixed with " -> ".
+        std::string operationReturnTypeHint(const OperationPtr& operation, MethodKind methodKind);
+
         // Emit Python code for operations
         void writeOperations(const InterfaceDefPtr&, IceInternal::Output&);
 
-        // Get the default value for initializing a given type.
-        std::string getTypeInitializer(const DataMemberPtr& dataMember, bool constructor);
+        /// Get the default value for initializing a given type.
+        /// @param source The Slice definition that is initializing the type.
+        /// @param member The data member to initialize.
+        /// @param forConstructor If true, the initialization is for a constructor parameter, otherwise it is for a
+        /// dataclass field.
+        std::string getTypeInitializer(const ContainedPtr& source, const DataMemberPtr& member, bool forConstructor);
 
         // Write Python metadata as a tuple.
         void writeMetadata(const MetadataList&, IceInternal::Output&);
@@ -360,17 +403,19 @@ namespace Slice::Python
             const DataMemberList& members,
             IceInternal::Output& out);
 
-        // Convert an operation mode into a string.
-        std::string getOperationMode(Slice::Operation::Mode);
-
         // Write a member assignment statement for a constructor.
-        void writeAssign(const DataMemberPtr& member, IceInternal::Output& out);
+        void writeAssign(const ContainedPtr& source, const DataMemberPtr& member, IceInternal::Output& out);
 
         // Write a constant value.
-        void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&, IceInternal::Output&);
+        void writeConstantValue(
+            const ContainedPtr& source,
+            const TypePtr&,
+            const SyntaxTreeBasePtr&,
+            const std::string&,
+            IceInternal::Output&);
 
         /// Write constructor parameters with default values.
-        void writeConstructorParams(const DataMemberList& members, IceInternal::Output&);
+        void writeConstructorParams(const ContainedPtr& source, const DataMemberList& members, IceInternal::Output&);
 
         /// Writes the provided @p remarks in its own subheading in the current comment (if @p remarks is non-empty).
         void writeRemarksDocComment(const StringList& remarks, bool needsNewline, IceInternal::Output& out);
@@ -381,9 +426,21 @@ namespace Slice::Python
 
         void writeDocstring(const OperationPtr&, MethodKind, IceInternal::Output&);
 
+        std::string getImportAlias(const ContainedPtr& source, const SyntaxTreeBasePtr& definition);
+        std::string getImportAlias(const ContainedPtr& source, const std::string& moduleName, const std::string& name);
+
         // The list of generated Python code fragments in the current translation unit.
         // Each fragment corresponds to a Slice definition and contains the generated code for that definition.
         std::vector<PythonCodeFragment> _codeFragments;
+
+        ImportsMap _runtimeImports;
+        ImportsMap _typingImports;
+
+        /// A map of all import names for each source module.
+        /// - Key: the Python generated module name.
+        /// - Value: a map where the key is the imported definition name or alias, and the value is the Python
+        /// module name where the definition is imported from.
+        std::map<std::string, std::map<std::string, std::string>> _allImports;
     };
 }
 

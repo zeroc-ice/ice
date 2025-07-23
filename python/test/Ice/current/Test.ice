@@ -5,6 +5,7 @@
 #include "Ice/Context.ice"
 #include "Ice/Identity.ice"
 
+["python:identifier:generated.test.Ice.current.Test"]
 module Test
 {
     interface TestIntf

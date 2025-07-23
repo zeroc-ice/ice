@@ -3,7 +3,7 @@
 import asyncio
 import sys
 
-import Test
+from generated.test.Ice.asyncio import Test
 
 import Ice
 import Ice.asyncio

@@ -5,6 +5,7 @@
 
 #include "Ice/PropertyDict.ice"
 
+["python:identifier:generated.test.Ice.admin.Test"]
 module Test
 {
     interface RemoteCommunicator

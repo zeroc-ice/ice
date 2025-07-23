@@ -5,6 +5,7 @@
 #include "Ice/BuiltinSequences.ice"
 #include "Ice/Identity.ice"
 
+["python:identifier:generated.test.Ice.ami.Test"]
 module Test
 {
     exception TestIntfException

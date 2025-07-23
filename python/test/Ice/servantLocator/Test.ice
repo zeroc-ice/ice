@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Ice.servantLocator.Test"]
 module Test
 {
     exception TestIntfUserException

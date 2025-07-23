@@ -2,7 +2,8 @@
 
 import sys
 
-import Test
+from generated.test.Ice.optional import Test
+from generated.test.Ice.optional.client_private.Test import Initial2Prx
 
 import Ice
 
@@ -305,7 +306,7 @@ def allTests(helper, communicator):
     test(r.gg2Opt.a == 20)
     test(r.gg1.a == "gg1")
 
-    initial2 = Test.Initial2Prx(communicator, f"initial:{helper.getTestEndpoint()}")
+    initial2 = Initial2Prx(communicator, f"initial:{helper.getTestEndpoint()}")
     initial2.opVoid(15, "test")
 
     print("ok")
@@ -407,7 +408,7 @@ def allTests(helper, communicator):
         sys.stdout.write("testing operations with unknown optionals... ")
         sys.stdout.flush()
 
-        initial2 = Test.Initial2Prx(communicator, f"initial:{helper.getTestEndpoint()}")
+        initial2 = Initial2Prx(communicator, f"initial:{helper.getTestEndpoint()}")
         ovs = Test.VarStruct("test")
         initial2.opClassAndUnknownOptional(Test.A(), ovs)
 

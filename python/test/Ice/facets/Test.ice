@@ -2,6 +2,7 @@
 
 #pragma once
 
+["python:identifier:generated.test.Ice.facets.Test"]
 module Test
 {
     interface Empty

@@ -4,7 +4,7 @@
 
 import sys
 
-import escaped_and
+from generated.test.Slice.escape.Test import escaped_and
 from TestHelper import TestHelper
 
 import Ice

@@ -12,10 +12,10 @@ except ImportError:
     hasNumPy = False
     pass
 
-import Test
+from generated.test.Ice.custom import Test
 
 if hasNumPy:
-    import Test.NumPy
+    from generated.test.Ice.custom.Test import NumPy
 import array
 
 import Ice
@@ -130,7 +130,7 @@ class CustomI(Test.Custom):
 
 if hasNumPy:
 
-    class NumPyCustomI(Test.NumPy.Custom):
+    class NumPyCustomI(NumPy.Custom):
         def opBoolSeq(self, v1, current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1

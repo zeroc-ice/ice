@@ -2,7 +2,7 @@
 
 import sys
 
-import Test
+from generated.test.Ice.defaultValue import Test
 
 
 def test(b):

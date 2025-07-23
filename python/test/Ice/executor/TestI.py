@@ -3,7 +3,7 @@
 import time
 
 import Executor
-import Test
+from generated.test.Ice.executor import Test
 
 
 def test(b):

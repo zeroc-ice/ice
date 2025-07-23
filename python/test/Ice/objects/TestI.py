@@ -1,6 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-import Test
+from generated.test.Ice.objects import Test
+from generated.test.Ice.objects.server_private.Test import UnexpectedObjectExceptionTest
 
 import Ice
 
@@ -192,7 +193,7 @@ class InitialI(Test.Initial):
         return True
 
 
-class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
+class UnexpectedObjectExceptionTestI(UnexpectedObjectExceptionTest):
     def op(self, current):
         return Test.AlsoEmpty()
 

@@ -2,7 +2,7 @@
 
 import asyncio
 
-import Test
+from generated.test.Ice.asyncio import Test
 
 # The implementation of the coroutines below assume the use of an Ice executor which
 # dispatch the calls on an asyncio event loop

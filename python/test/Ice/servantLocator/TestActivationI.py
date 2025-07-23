@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-import Test
 import TestI
+from generated.test.Ice.servantLocator import Test
 
 
 class TestActivationI(Test.TestActivation):

@@ -10,10 +10,11 @@ try:
 except ImportError:
     hasNumPy = False
     pass
-import Test
+
+from generated.test.Ice.custom import Test
 
 if hasNumPy:
-    import Test.NumPy
+    from generated.test.Ice.custom.Test import NumPy
 
 
 def test(b):
@@ -356,7 +357,7 @@ def allTests(helper, communicator):
         base = communicator.stringToProxy(ref)
         test(base)
 
-        custom = Test.NumPy.CustomPrx.checkedCast(base)
+        custom = NumPy.CustomPrx.checkedCast(base)
         test(custom)
         sys.stdout.write("testing python:numpy.ndarray... ")
         sys.stdout.flush()
@@ -480,7 +481,7 @@ def allTests(helper, communicator):
         test(len(v1) == 0)
         test(len(v2) == 0)
 
-        d = Test.NumPy.D()
+        d = NumPy.D()
         d.boolSeq = numpy.array([True, False, True, False, True], numpy.bool_)
         d.byteSeq = numpy.array([0, 2, 4, 8, 16, 32, 64, 127], numpy.int8)
         d.shortSeq = numpy.array([0, 2, 4, 8, 16, 32, 64, 128, 256], numpy.int16)
@@ -520,7 +521,7 @@ def allTests(helper, communicator):
         for i in range(len(d.doubleSeq)):
             test(round(d.doubleSeq[i], 1) == round(d1.doubleSeq[i], 1))
 
-        d1 = custom.opD(Test.NumPy.D())
+        d1 = custom.opD(NumPy.D())
         test(d1.boolSeq is None)
         test(d1.byteSeq is None)
         test(d1.intSeq is None)

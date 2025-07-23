@@ -59,6 +59,7 @@ namespace
         {
             outputPath = "./";
         }
+
         createPackagePath(packageName, outputPath);
         outputPath += fileName;
 
