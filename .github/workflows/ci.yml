@@ -194,7 +194,7 @@ jobs:
           # to ensure we use the dynamically generated code.
           find python/test -name generated -exec rm -rf {} +
         shell: bash
-        if: matrix.python_tests == 'true'
+        if: matrix.python_tests == true
 
       - name: Python loadSlice Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
@@ -202,7 +202,7 @@ jobs:
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: "${{ matrix.test_flags }} --load-slice"
-        if: matrix.python_tests == 'true'
+        if: matrix.python_tests == true
 
       - name: Generate API Reference
         uses: ./.github/actions/documentation
