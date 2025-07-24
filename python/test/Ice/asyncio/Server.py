@@ -3,9 +3,14 @@
 # Copyright (c) ZeroC, Inc.
 
 import asyncio
+import sys
+
+from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
 
 import TestI
-from TestHelper import TestHelper
 
 import Ice
 

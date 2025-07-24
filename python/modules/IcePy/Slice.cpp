@@ -114,6 +114,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         // The file name is set to the Slice file the code was generated from, or to the package index file name for
         // package index fragments.
         string inputFile = fragment.isPackageIndex ? fragment.fileName : fragment.sliceFileName;
+
         PyObjectHandle code{Py_CompileString(fragment.code.c_str(), inputFile.c_str(), Py_file_input)};
         if (!code)
         {
@@ -146,6 +147,9 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
                 PyDict_SetItemString(parentDict, childName.c_str(), moduleRef);
             }
         }
+
+        PyObject* builtins = PyEval_GetBuiltins();
+        PyDict_SetItemString(moduleDict, "__builtins__", builtins);
 
         PyObjectHandle result{PyEval_EvalCode(code.get(), moduleDict, moduleDict)};
         if (!result)

@@ -2,7 +2,7 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from TestHelper import TestHelper
+import sys
 
 try:
     import numpy
@@ -12,9 +12,17 @@ except ImportError:
     hasNumPy = False
     pass
 
+from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
+
 from generated.test.Ice.custom import Test
 
 if hasNumPy:
+    if "--load-slice" in sys.argv:
+        TestHelper.loadSlice("TestNumPy.ice")
+
     from generated.test.Ice.custom.Test import NumPy
 import array
 

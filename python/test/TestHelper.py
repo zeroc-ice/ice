@@ -10,6 +10,7 @@ import Ice
 
 
 class TestHelper(ABC):
+
     def __init__(self) -> None:
         self._communicator: Ice.Communicator | None = None
 
@@ -88,13 +89,13 @@ class TestHelper(ABC):
     @abstractmethod
     def run(self, args: list[str]) -> None: ...
 
-    @classmethod
-    def loadSlice(cls, args: list[str]) -> None:
+    @staticmethod
+    def loadSlice(args: str) -> None:
         sliceDir = Ice.getSliceDir()
         if not sliceDir:
             print(sys.argv[0] + ": Slice directory not found.")
             sys.exit(1)
-        Ice.loadSlice("'-I{0}' {1}".format(sliceDir, args))
+        Ice.loadSlice(f"'-I{sliceDir}' {args}")
 
     @classmethod
     def runTest(cls) -> int:

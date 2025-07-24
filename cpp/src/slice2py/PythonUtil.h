@@ -149,7 +149,7 @@ namespace Slice::Python
     // Get a list of all definitions exported for the Python module corresponding to the given Slice definition.
     std::vector<std::string> getAll(const ContainedPtr& definition);
 
-    // A helper class to initialize the _outBuffer member of BufferedOutput before is passed toe the Output
+    // A helper class to initialize the _outBuffer member of BufferedOutput before is passed to the Output
     // constructor.
     class BufferedOutputBase
     {

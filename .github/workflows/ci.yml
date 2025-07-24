@@ -25,6 +25,7 @@ jobs:
             config: "release"
             # We want to test C++ and Swift only (in each direction)
             cross_test_flags: "--all-cross --filter cpp --filter swift"
+            python_tests: true
           - os: ubuntu-24.04
             config: "release"
             cross_test_flags: "--all-cross"
@@ -32,22 +33,26 @@ jobs:
             config: "release"
             build_flags: "SKIP=csharp" # Skip C# on ARM as .NET compiler keeps crashing
             test_flags: "--rfilter=java/Ice/udp --rfilter=csharp" # Remove rfilter once https://github.com/zeroc-ice/ice/issues/3389 is fixed
+            python_tests: true
           - os: windows-2022
             config: "release"
             build_flags: "/p:Platform=x64"
             test_flags: "--platform=x64"
+            python_tests: true
           - os: windows-2022
             config: "cpp-win32-release"
             working_directory: "cpp"
             build_flags: "/p:Platform=Win32"
             msbuild_project: "msbuild/ice.proj"
             test_flags: "--platform=Win32"
+            python_tests: true
 
           # Debug builds
           - os: macos-15
             config: "debug"
             build_flags: "OPTIMIZE=no"
             test_flags: "--swift-config=debug --csharp-config=Debug"
+            python_tests: true
           - os: ubuntu-24.04
             config: "debug"
             build_flags: "OPTIMIZE=no"
@@ -59,6 +64,7 @@ jobs:
             build_flags: "/p:Platform=x64 /p:Configuration=Debug"
             test_flags: "--platform=x64 --config=Debug"
             msbuild_project: "msbuild/ice.proj"
+            python_tests: true
 
           # iOS
           - os: macos-15
@@ -181,6 +187,22 @@ jobs:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.cross_test_flags }}
         if: matrix.cross_test_flags != ''
+
+      - name: Remove Python tests generated
+        run: |
+          # Remove generated files from previous runs before to test with loadSlice
+          # to ensure we use the dynamically generated code.
+          find python/test -name generated -exec rm -rf {} +
+        shell: bash
+        if: matrix.python_tests == 'true'
+
+      - name: Python loadSlice Test ${{ matrix.config }} on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 45
+        with:
+          working_directory: ${{ matrix.working_directory || '.' }}
+          flags: "${{ matrix.test_flags }} --load-slice"
+        if: matrix.python_tests == 'true'
 
       - name: Generate API Reference
         uses: ./.github/actions/documentation
