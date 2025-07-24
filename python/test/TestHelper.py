@@ -10,7 +10,6 @@ import Ice
 
 
 class TestHelper(ABC):
-
     def __init__(self) -> None:
         self._communicator: Ice.Communicator | None = None
 

@@ -19,7 +19,6 @@ except ImportError:
 from generated.test.Ice.custom import Test
 
 if hasNumPy:
-
     if "--load-slice" in sys.argv:
         TestHelper.loadSlice("TestNumPy.ice")
 
