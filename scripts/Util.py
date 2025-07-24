@@ -625,7 +625,9 @@ class Mapping(object):
             self.python = sys.executable
             self.loadSlice = False  # Use Ice.loadSlice instead of the static generated code
 
-            parseOptions(self, options, {"config": "buildConfig", "platform": "buildPlatform", "load-slice": "loadSlice"})
+            parseOptions(
+                self, options, {"config": "buildConfig", "platform": "buildPlatform", "load-slice": "loadSlice"}
+            )
 
         def __str__(self):
             s = []
@@ -3686,7 +3688,6 @@ class PythonMapping(CppBasedMapping):
             return self.pythonVersion
 
     def getCommandLine(self, current, process, exe, args):
-
         if current.config.loadSlice:
             args = f"--load-slice {args}"
 
