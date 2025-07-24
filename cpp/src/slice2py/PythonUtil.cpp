@@ -1164,28 +1164,31 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     writeDocstring(p->docComment(), members, out);
 
-    // __init__
-    out << nl << "def __init__(";
-    writeConstructorParams(p, p->allDataMembers(), out);
-    out << "):";
-    out.inc();
-
-    out << nl << "super().__init__";
-    out.spar("(");
-    if (base)
+    if (!members.empty())
     {
-        for (const auto& member : base->allDataMembers())
+        // __init__
+        out << nl << "def __init__(";
+        writeConstructorParams(p, p->allDataMembers(), out);
+        out << "):";
+        out.inc();
+
+        out << nl << "super().__init__";
+        out.spar("(");
+        if (base)
         {
-            out << member->mappedName();
+            for (const auto& member : base->allDataMembers())
+            {
+                out << member->mappedName();
+            }
         }
-    }
-    out.epar(")");
+        out.epar(")");
 
-    for (const auto& member : members)
-    {
-        writeAssign(p, member, out);
+        for (const auto& member : members)
+        {
+            writeAssign(p, member, out);
+        }
+        out.dec();
     }
-    out.dec();
 
     // ice_id
     out << sp;
@@ -1277,27 +1280,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string objectPrxAlias = getImportAlias(p, "Ice.ObjectPrx", "ObjectPrx");
     const string currentAlias = getImportAlias(p, "Ice.Current", "Current");
     const string formatTypeAlias = getImportAlias(p, "Ice.FormatType", "FormatType");
-
-    out << sp;
-    out << nl << "def __init__(self, communicator: " << communicatorAlias << ", proxyString: str):";
-    out.inc();
-    out << nl << tripleQuotes;
-    out << nl << "Creates a new " << prxName << " proxy";
-    out << nl;
-    out << nl << "Parameters";
-    out << nl << "----------";
-    out << nl << "communicator : " << communicatorAlias;
-    out << nl << "    The communicator of the new proxy.";
-    out << nl << "proxyString : str";
-    out << nl << "    The string representation of the proxy.";
-    out << nl;
-    out << nl << "Raises";
-    out << nl << "------";
-    out << nl << "ParseException";
-    out << nl << "    Thrown when proxyString is not a valid proxy string.";
-    out << nl << tripleQuotes;
-    out << nl << "super().__init__(communicator, proxyString)";
-    out.dec();
 
     for (const auto& operation : operations)
     {
@@ -1681,32 +1663,33 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "class " << name << '('
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.UserException", "UserException")) << "):";
     out.inc();
-
     writeDocstring(p->docComment(), members, out);
 
-    // __init__
-    out << nl << "def __init__(";
-    writeConstructorParams(p, p->allDataMembers(), out);
-    out << "):";
-    out.inc();
-
-    out << nl << "super().__init__";
-    out.spar("(");
-    if (base)
+    if (!members.empty())
     {
-        for (const auto& member : base->allDataMembers())
+        // __init__
+        out << nl << "def __init__(";
+        writeConstructorParams(p, p->allDataMembers(), out);
+        out << "):";
+        out.inc();
+
+        out << nl << "super().__init__";
+        out.spar("(");
+        if (base)
         {
-            out << member->mappedName();
+            for (const auto& member : base->allDataMembers())
+            {
+                out << member->mappedName();
+            }
         }
-    }
-    out.epar(")");
+        out.epar(")");
 
-    for (const auto& member : members)
-    {
-        writeAssign(p, member, out);
+        for (const auto& member : members)
+        {
+            writeAssign(p, member, out);
+        }
+        out.dec();
     }
-
-    out.dec();
 
     // Generate the __repr__ method for this Exception class.
     // The default __str__ method inherited from Ice.UserException calls __repr__().
@@ -1798,7 +1781,6 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     writeMetadata(p->getMetadata(), out);
     out << ",";
 
-    out << nl;
     writeMetaTypeDataMembers(p, p->dataMembers(), out);
     out << ")";
     out.dec();
@@ -1985,7 +1967,7 @@ Slice::Python::CodeVisitor::writeMetaTypeDataMembers(
     Output& out)
 {
     bool includeOptional = !dynamic_pointer_cast<Struct>(parent);
-    out << "(";
+    out << nl << "(";
 
     if (members.size() > 1)
     {
@@ -2742,21 +2724,27 @@ namespace
 }
 
 vector<Slice::Python::PythonCodeFragment>
-Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>& cppArgs, bool debug)
+Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>& preprocessorArgs, bool debug)
 {
+    // The package visitor is reused to compile all Slice files so that it collects the definitions for all Slice files
+    // contributing to a given package.
     PackageVisitor packageVisitor;
+
+    // The import visitor is reused to collect the imports from all generated Python modules, which are later used to
+    // compute the order in which Python modules should be evaluated.
     ImportVisitor importVisitor;
+
     // The list of code fragments generated by the code visitor.
     vector<PythonCodeFragment> fragments;
 
     for (const auto& fileName : files)
     {
-        PreprocessorPtr preprocessor = Preprocessor::create("IcePy", fileName, cppArgs);
+        PreprocessorPtr preprocessor = Preprocessor::create("IcePy", fileName, preprocessorArgs);
         FILE* cppHandle = preprocessor->preprocess(true, "-D__SLICE2PY__");
 
         if (cppHandle == nullptr)
         {
-            throw runtime_error("Failed to preprocess Slice files");
+            throw runtime_error("Failed to preprocess Slice file: " + fileName);
         }
 
         UnitPtr unit = Unit::createUnit("python", debug);
@@ -2765,7 +2753,7 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         if (parseStatus == EXIT_FAILURE)
         {
             unit->destroy();
-            throw runtime_error("Failed to parse Slice files");
+            throw runtime_error("Failed to parse Slice file: " + fileName);
         }
 
         parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
@@ -2780,10 +2768,8 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
             importVisitor.getAllImportNames()};
         unit->visit(&codeVisitor);
 
-        for (const auto& fragment : codeVisitor.codeFragments())
-        {
-            fragments.push_back(fragment);
-        }
+        const vector<PythonCodeFragment>& newFragments = codeVisitor.codeFragments();
+        fragments.insert(fragments.end(), newFragments.begin(), newFragments.end());
         unit->destroy();
     }
 
@@ -2862,15 +2848,14 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         if (fragments.size() == fragmentsSize)
         {
             assert(false);
-            throw runtime_error(
-                "Circular dependency detected in Slice files. Please check the imports and package definitions.");
+            throw runtime_error("Circular dependency detected in Slice files.");
         }
     }
 
     // Add fragments for the package-index files.
     for (const auto& [name, imports] : packageVisitor.imports())
     {
-        string packageName = name; // Remove the trailing dot.
+        string packageName = name;
         // The pop_back call removes the last dot from the package name.
         packageName.pop_back();
         BufferedOutput out;
