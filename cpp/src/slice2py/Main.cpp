@@ -121,9 +121,11 @@ main(int argc, char* argv[])
         opts.addOpt("", "build", IceInternal::Options::NeedArg, "all");
         opts.addOpt("", "list-generated", IceInternal::Options::NeedArg);
 
+        vector<string> sliceFiles;
         try
         {
-            args = opts.parse(args);
+            // The non-option arguments are the Slice files.
+            sliceFiles = opts.parse(args);
         }
         catch (const IceInternal::BadOptException& e)
         {
@@ -178,7 +180,7 @@ main(int argc, char* argv[])
 
         string listArg = opts.optArg("list-generated");
 
-        if (args.empty())
+        if (sliceFiles.empty())
         {
             consoleErr << args[0] << ": error: no input file" << endl;
             usage(args[0]);
@@ -225,7 +227,7 @@ main(int argc, char* argv[])
 
         PackageVisitor packageVisitor;
 
-        for (const auto& fileName : args)
+        for (const auto& fileName : sliceFiles)
         {
             PreprocessorPtr preprocessor = Preprocessor::create(args[0], fileName, cppArgs);
             FILE* cppHandle = preprocessor->preprocess(true, "-D__SLICE2PY__");
