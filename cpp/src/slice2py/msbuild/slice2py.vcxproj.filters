@@ -18,9 +18,6 @@
     <ClCompile Include="..\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Python.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\PythonUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
