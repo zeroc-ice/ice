@@ -10,6 +10,7 @@
 #include "Ice/CtrlCHandler.h"
 #include "PythonUtil.h"
 
+#include <algorithm>
 #include <iostream>
 #include <mutex>
 #include <string>
@@ -103,6 +104,7 @@ int
 main(int argc, char* argv[])
 #endif
 {
+    vector<string> args = Slice::argvToArgs(argc, argv);
     try
     {
         IceInternal::Options opts;
@@ -119,21 +121,20 @@ main(int argc, char* argv[])
         opts.addOpt("", "build", IceInternal::Options::NeedArg, "all");
         opts.addOpt("", "list-generated", IceInternal::Options::NeedArg);
 
-        vector<string> args;
         try
         {
-            args = opts.parse(argc, argv);
+            args = opts.parse(args);
         }
         catch (const IceInternal::BadOptException& e)
         {
-            consoleErr << argv[0] << ": error: " << e.what() << endl;
-            usage(argv[0]);
+            consoleErr << args[0] << ": error: " << e.what() << endl;
+            usage(args[0]);
             return EXIT_FAILURE;
         }
 
         if (opts.isSet("help"))
         {
-            usage(argv[0]);
+            usage(args[0]);
             return EXIT_SUCCESS;
         }
 
@@ -179,35 +180,35 @@ main(int argc, char* argv[])
 
         if (args.empty())
         {
-            consoleErr << argv[0] << ": error: no input file" << endl;
-            usage(argv[0]);
+            consoleErr << args[0] << ": error: no input file" << endl;
+            usage(args[0]);
             return EXIT_FAILURE;
         }
 
         if (depend && dependxml)
         {
-            consoleErr << argv[0] << ": error: cannot specify both --depend and --dependxml" << endl;
-            usage(argv[0]);
+            consoleErr << args[0] << ": error: cannot specify both --depend and --dependxml" << endl;
+            usage(args[0]);
             return EXIT_FAILURE;
         }
 
         if (buildArg != "modules" && buildArg != "index" && buildArg != "all")
         {
-            consoleErr << argv[0] << ": error: invalid argument for --build: " << buildArg << endl;
-            usage(argv[0]);
+            consoleErr << args[0] << ": error: invalid argument for --build: " << buildArg << endl;
+            usage(args[0]);
             return EXIT_FAILURE;
         }
 
         if (listArg != "modules" && listArg != "index" && listArg != "all" && !listArg.empty())
         {
-            consoleErr << argv[0] << ": error: invalid argument for --list-generated: " << listArg << endl;
-            usage(argv[0]);
+            consoleErr << args[0] << ": error: invalid argument for --list-generated: " << listArg << endl;
+            usage(args[0]);
             return EXIT_FAILURE;
         }
 
         if (!outputDir.empty() && !IceInternal::directoryExists(outputDir))
         {
-            consoleErr << argv[0] << ": error: argument for --output-dir does not exist or is not a directory" << endl;
+            consoleErr << args[0] << ": error: argument for --output-dir does not exist or is not a directory" << endl;
             return EXIT_FAILURE;
         }
 
@@ -226,7 +227,7 @@ main(int argc, char* argv[])
 
         for (const auto& fileName : args)
         {
-            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, cppArgs);
+            PreprocessorPtr preprocessor = Preprocessor::create(args[0], fileName, cppArgs);
             FILE* cppHandle = preprocessor->preprocess(true, "-D__SLICE2PY__");
 
             if (cppHandle == nullptr)
@@ -346,12 +347,12 @@ main(int argc, char* argv[])
     }
     catch (const std::exception& ex)
     {
-        consoleErr << argv[0] << ": error:" << ex.what() << endl;
+        consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch (...)
     {
-        consoleErr << argv[0] << ": error:unknown exception" << endl;
+        consoleErr << args[0] << ": error:unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }
