@@ -77,12 +77,6 @@ namespace Slice::Python
         std::string code;
     };
 
-    /// Determines the mapped package for a given Slice definition.
-    /// @param p The Slice definition to get the mapped package for.
-    /// @param packageSeparator Use this character as the separator between package segments.
-    /// @return The mapped package name, with the specified separator.
-    std::string getMappedPackage(const SyntaxTreeBasePtr& p, char packageSeparator = '.');
-
     /// Returns the fully qualified name of the Python module that corresponds to the given Slice definition.
     ///
     /// Each Slice module is mapped to a Python package with the same name, but with "::" replaced by ".".
