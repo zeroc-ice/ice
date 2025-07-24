@@ -50,7 +50,7 @@ Slice::Python::getPythonModuleForForwardDeclaration(const SyntaxTreeBasePtr& p)
     string declarationModule = getPythonModuleForDefinition(p);
     if (!declarationModule.empty())
     {
-        // For other generated modules, append "_forward" to the module name.
+        // Append "_forward" to the module name for generated modules.
         declarationModule += "_forward";
     }
     return declarationModule;
