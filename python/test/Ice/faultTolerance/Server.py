@@ -3,9 +3,14 @@
 # Copyright (c) ZeroC, Inc.
 
 import os
+import sys
+
+from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
 
 from generated.test.Ice.faultTolerance import Test
-from TestHelper import TestHelper
 
 import Ice
 

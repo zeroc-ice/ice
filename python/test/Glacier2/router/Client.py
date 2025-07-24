@@ -6,8 +6,12 @@ import sys
 import threading
 from typing import Any
 
-from generated.test.Glacier2.router import Test
 from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Callback.ice")
+
+from generated.test.Glacier2.router import Test
 
 import Glacier2
 import Ice

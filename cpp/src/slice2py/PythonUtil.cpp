@@ -425,7 +425,7 @@ Slice::Python::createCodeFragmentForPythonModule(const ContainedPtr& contained, 
     fragment.sliceFileName = contained->file();
     string fileName = fragment.moduleName;
     replace(fileName.begin(), fileName.end(), '.', '/');
-    fragment.fileName = fileName + (isForwardDeclaration ? "_iceF.py" : ".py");
+    fragment.fileName = fileName + ".py";
     fragment.isPackageIndex = false;
     return fragment;
 }
@@ -2773,6 +2773,13 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         unit->destroy();
     }
 
+    vector<string> generatedModules;
+    for (const auto& fragment : fragments)
+    {
+        // Collect the names of all generated modules.
+        generatedModules.push_back(fragment.moduleName);
+    }
+
     // The list of non generated modules that are imported by the generated modules.
     vector<string> builtinModules{
         "Ice.FormatType",
@@ -2803,12 +2810,13 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         {
             PythonCodeFragment fragment = *it;
             const auto& moduleImports = runtimeImports[fragment.moduleName];
+
             bool unseenDependencies = false;
             for (const auto& [moduleName, _] : moduleImports)
             {
                 // If the current module depends on a module that is being generated but not yet seen we postpone its
                 // compilation.
-                if (runtimeImports.find(moduleName) != runtimeImports.end() &&
+                if (find(generatedModules.begin(), generatedModules.end(), moduleName) != generatedModules.end() &&
                     find_if(
                         processedFragments.begin(),
                         processedFragments.end(),
