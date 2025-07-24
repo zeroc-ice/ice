@@ -57,6 +57,8 @@ jobs:
             config: "debug"
             build_flags: "OPTIMIZE=no"
             test_flags: "--csharp-config=Debug"
+            python_tests: true
+
           # TODO - figure out how to properly install debug Python
           - os: windows-2022
             config: "debug"
@@ -188,15 +190,15 @@ jobs:
           flags: ${{ matrix.cross_test_flags }}
         if: matrix.cross_test_flags != ''
 
-      - name: Remove Python tests generated
+      - name: Remove Python tests generated code
         run: |
           # Remove generated files from previous runs before to test with loadSlice
           # to ensure we use the dynamically generated code.
-          find python/test -name generated -exec rm -rf {} +
+          find python/test -name generated -exec rm -rfv {} +
         shell: bash
         if: matrix.python_tests == true
 
-      - name: Python loadSlice Test ${{ matrix.config }} on ${{ matrix.os }}
+      - name: Python Test with loadSlice ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
         timeout-minutes: 45
         with:
