@@ -1052,8 +1052,8 @@ Slice::Python::PackageVisitor::addRuntimeImportForMetaType(const ContainedPtr& d
     string packageName = definition->mappedScope(".");
     string moduleName = definition->mappedName();
 
-    // The meta type for Slice classes or interfaces is always imported from the Xxx_forward module containing the forward
-    // declaration.
+    // The meta type for Slice classes or interfaces is always imported from the Xxx_forward module containing the
+    // forward declaration.
     if (dynamic_pointer_cast<ClassDecl>(definition) || dynamic_pointer_cast<InterfaceDecl>(definition))
     {
         moduleName += "_forward";
@@ -2761,6 +2761,7 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
     }
 
     vector<string> generatedModules;
+    generatedModules.reserve(fragments.size());
     for (const auto& fragment : fragments)
     {
         // Collect the names of all generated modules.
