@@ -50,21 +50,8 @@ Slice::Python::getPythonModuleForForwardDeclaration(const SyntaxTreeBasePtr& p)
     string declarationModule = getPythonModuleForDefinition(p);
     if (!declarationModule.empty())
     {
-        if (declarationModule == "Ice.Value")
-        {
-            // The forward declaration for Ice.Value is in the Ice.ValueF module.
-            declarationModule = "Ice.ValueF";
-        }
-        else if (declarationModule == "Ice.ObjectPrx")
-        {
-            // The forward declaration for Ice.ObjectPrx is in the Ice.ObjectPrxF module.
-            declarationModule = "Ice.ObjectPrxF";
-        }
-        else
-        {
-            // For other generated modules, append "_iceF" to the module name.
-            declarationModule += "_iceF";
-        }
+        // For other generated modules, append "_forward" to the module name.
+        declarationModule += "_forward";
     }
     return declarationModule;
 }
@@ -513,7 +500,7 @@ Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
         addRuntimeImport("Ice.StringUtil", "format_fields", p);
     }
 
-    // Import the meta type that is created in the Xxx_iceF module for forward declarations.
+    // Import the meta type that is created in the Xxx_forward module for forward declarations.
     addRuntimeImportForMetaType(p->declaration(), p);
 
     // Add imports required for the base class type.
@@ -935,7 +922,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
         return;
     }
 
-    // The meta type for a Slice class or interface is always imported from the Xxx_iceF module.
+    // The meta type for a Slice class or interface is always imported from the Xxx_forward module.
     bool isForwardDeclared =
         dynamic_pointer_cast<ClassDecl>(definition) || dynamic_pointer_cast<ClassDef>(definition) ||
         dynamic_pointer_cast<InterfaceDecl>(definition) || dynamic_pointer_cast<InterfaceDef>(definition) || builtin;
@@ -1065,11 +1052,11 @@ Slice::Python::PackageVisitor::addRuntimeImportForMetaType(const ContainedPtr& d
     string packageName = definition->mappedScope(".");
     string moduleName = definition->mappedName();
 
-    // The meta type for Slice classes or interfaces is always imported from the Xxx_iceF module containing the forward
+    // The meta type for Slice classes or interfaces is always imported from the Xxx_forward module containing the forward
     // declaration.
     if (dynamic_pointer_cast<ClassDecl>(definition) || dynamic_pointer_cast<InterfaceDecl>(definition))
     {
-        moduleName += "_iceF";
+        moduleName += "_forward";
     }
     auto& packageImports = _imports[packageName];
     auto& definitions = packageImports[moduleName];
@@ -2785,12 +2772,12 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         "Ice.FormatType",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "Ice.ObjectPrxF",
+        "Ice.ObjectPrx_forward",
         "Ice.OperationMode",
         "Ice.StringUtil",
         "Ice.UserException",
         "Ice.Value",
-        "Ice.ValueF",
+        "Ice.Value_forward",
         "abc",
         "dataclasses",
         "enum",
