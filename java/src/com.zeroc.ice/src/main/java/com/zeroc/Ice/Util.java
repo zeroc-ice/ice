@@ -496,7 +496,8 @@ public final class Util {
      *
      * @param f The CompletableFuture returned by an asynchronous invocation.
      * @param <T> The result type.
-     * @return The InvocationFuture object.
+     * @return f casted to an {@code InvocationFuture<T>}.
+     * @throws ClassCastException if f is not an {@code InvocationFuture<T>}.
      */
     public static <T> InvocationFuture<T> getInvocationFuture(CompletableFuture<T> f) {
         return (InvocationFuture<T>) f;
