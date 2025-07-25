@@ -492,18 +492,13 @@ public final class Util {
     }
 
     /**
-     * Returns the InvocationFuture equivalent of the given CompletableFuture.
+     * Downcasts a {@code CompletableFuture<T>} to an {@code InvocationFuture<T>} object.
      *
-     * @param f The CompletableFuture returned by an asynchronous Ice proxy invocation.
+     * @param f The CompletableFuture returned by an asynchronous invocation.
      * @param <T> The result type.
      * @return The InvocationFuture object.
      */
-    public static <T> InvocationFuture<T> getInvocationFuture(
-            CompletableFuture<T> f) {
-        if (!(f instanceof InvocationFuture)) {
-            throw new IllegalArgumentException(
-                "future did not originate from an asynchronous proxy invocation");
-        }
+    public static <T> InvocationFuture<T> getInvocationFuture(CompletableFuture<T> f) {
         return (InvocationFuture<T>) f;
     }
 
