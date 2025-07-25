@@ -829,7 +829,7 @@ Slice::Java::validateJavaMetadata(const UnitPtr& u)
     Slice::validateMetadata(u, "java", std::move(knownMetadata));
 }
 
-Slice::JavaOutput::JavaOutput() = default;
+Slice::JavaOutput::JavaOutput() : Output(false, false) {}
 
 void
 Slice::JavaOutput::openClass(const string& cls, const string& prefix, const string& sliceFile)
