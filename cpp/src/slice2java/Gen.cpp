@@ -372,8 +372,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                 writeSequenceMarshalUnmarshalCode(out, package, seq, s, false, iter, true, customStream, metadata);
 
                 out << nl << param << " = java.util.Optional.of(" << s << ");";
-                out << eb;
-                out << nl << "else";
+                out << eb << " else";
                 out << sb;
                 out << nl << param << " = java.util.Optional.empty();";
                 out << eb;
@@ -517,8 +516,7 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
             writeDictionaryMarshalUnmarshalCode(out, package, dict, d, marshal, iter, true, customStream, metadata);
 
             out << nl << param << " = java.util.Optional.of(" << d << ");";
-            out << eb;
-            out << nl << "else";
+            out << eb << " else";
             out << sb;
             out << nl << param << " = java.util.Optional.empty();";
             out << eb;
@@ -537,12 +535,11 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
             out << nl << "if (" << param << " == null)";
             out << sb;
             out << nl << "ostr.writeSize(0);";
-            out << eb;
-            out << nl << "else";
+            out << eb << " else";
             out << sb;
             out << nl << "ostr.writeSize(" << param << ".size());";
             out << nl;
-            out << "for(java.util.Map.Entry<" << keyS << ", " << valueS << "> e : " << param << ".entrySet())";
+            out << "for (java.util.Map.Entry<" << keyS << ", " << valueS << "> e : " << param << ".entrySet())";
             out << sb;
             writeMarshalUnmarshalCode(out, package, keyT, false, false, 0, "e.getKey()", true, iter, customStream);
             writeMarshalUnmarshalCode(out, package, valueT, false, false, 0, "e.getValue()", true, iter, customStream);
@@ -556,7 +553,7 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
 
             out << nl << param << " = new " << instanceType << "();";
             out << nl << "int sz" << iterS << " = " << stream << ".readSize();";
-            out << nl << "for(int i" << iterS << " = 0; i" << iterS << " < sz" << iterS << "; i" << iterS << "++)";
+            out << nl << "for (int i" << iterS << " = 0; i" << iterS << " < sz" << iterS << "; i" << iterS << "++)";
             out << sb;
 
             if (valueT->isClassType())
@@ -735,12 +732,11 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
             out << nl << "if (" << param << " == null)";
             out << sb;
             out << nl << stream << ".writeSize(0);";
-            out << eb;
-            out << nl << "else";
+            out << eb << " else";
             out << sb;
             out << nl << stream << ".writeSize(" << param << ".size());";
             string ctypeS = typeToString(type, TypeModeIn, package);
-            out << nl << "for(" << ctypeS << " elem : " << param << ')';
+            out << nl << "for (" << ctypeS << " elem : " << param << ')';
             out << sb;
             writeMarshalUnmarshalCode(out, package, type, false, false, 0, "elem", true, iter, customStream);
             out << eb;
@@ -751,7 +747,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
             out << nl << param << " = new " << instanceType << "();";
             out << nl << "final int len" << iter << " = " << stream << ".readAndCheckSeqSize(" << type->minWireSize()
                 << ");";
-            out << nl << "for(int i" << iter << " = 0; i" << iter << " < len" << iter << "; i" << iter << "++)";
+            out << nl << "for (int i" << iter << " = 0; i" << iter << " < len" << iter << "; i" << iter << "++)";
             out << sb;
             if (type->isClassType())
             {
@@ -809,11 +805,10 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                 out << nl << "if (" << param << " == null)";
                 out << sb;
                 out << nl << stream << ".writeSize(0);";
-                out << eb;
-                out << nl << "else";
+                out << eb << " else";
                 out << sb;
                 out << nl << stream << ".writeSize(" << param << ".length);";
-                out << nl << "for(int i" << iter << " = 0; i" << iter << " < " << param << ".length; i" << iter
+                out << nl << "for (int i" << iter << " = 0; i" << iter << " < " << param << ".length; i" << iter
                     << "++)";
                 out << sb;
                 ostringstream o;
@@ -874,7 +869,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                     out << "[]";
                 }
                 out << ';';
-                out << nl << "for(int i" << iter << " = 0; i" << iter << " < len" << iter << "; i" << iter << "++)";
+                out << nl << "for (int i" << iter << " = 0; i" << iter << " < len" << iter << "; i" << iter << "++)";
                 out << sb;
                 ostringstream o;
                 o << param << "[i" << iter << "]";
@@ -924,8 +919,7 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
     for (const auto& param : op->sortedReturnAndOutParameters(retval))
     {
         const bool isOptional = param->optional();
-        const bool isReturn = param->isOutParam() == false; // The return value is not an out parameter.
-        const string name = (isReturn ? param->name() : paramPrefix + param->mappedName());
+        const string name = paramPrefix + param->mappedName();
         const string patchParams = isMarshalling ? getPatcher(param->type(), package, name) : "";
 
         writeMarshalUnmarshalCode(
@@ -962,6 +956,51 @@ Slice::JavaVisitor::writeResultType(
     // Make sure none of the out parameters are named "returnValue".
     string retval = getEscapedParamName(op->outParameters(), "returnValue");
 
+    const ParameterList outParams = op->outParameters();
+    const TypePtr ret = op->returnType();
+
+    //
+    // Fields.
+    //
+    if (ret)
+    {
+        if (comment)
+        {
+            const StringList& returns = comment->returns();
+            if (!returns.empty())
+            {
+                out << nl << "/**";
+                out << nl << " * ";
+                writeDocCommentLines(out, returns);
+                out << nl << " **/";
+            }
+        }
+        out << nl << "public "
+            << typeToString(ret, TypeModeIn, package, op->getMetadata(), true, op->returnIsOptional()) << ' ' << retval
+            << ';';
+        out << sp;
+    }
+
+    for (const auto& outParam : outParams)
+    {
+        if (comment)
+        {
+            const map<string, StringList>& paramDocs = comment->parameters();
+            auto q = paramDocs.find(outParam->name());
+            if (q != paramDocs.end() && !q->second.empty())
+            {
+                out << nl << "/**";
+                out << nl << " * ";
+                writeDocCommentLines(out, q->second);
+                out << nl << " **/";
+            }
+        }
+        out << nl << "public "
+            << typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, outParam->optional())
+            << ' ' << outParam->mappedName() << ';';
+        out << sp;
+    }
+
     //
     // Default constructor.
     //
@@ -976,9 +1015,6 @@ Slice::JavaVisitor::writeResultType(
 
     bool needMandatoryOnly = false;
     bool generateMandatoryOnly = false;
-
-    const ParameterList outParams = op->outParameters();
-    const TypePtr ret = op->returnType();
 
     do
     {
@@ -1080,47 +1116,6 @@ Slice::JavaVisitor::writeResultType(
         }
         out << eb;
     } while (needMandatoryOnly);
-
-    //
-    // Members.
-    //
-    out << sp;
-    if (ret)
-    {
-        if (comment)
-        {
-            const StringList& returns = comment->returns();
-            if (!returns.empty())
-            {
-                out << nl << "/**";
-                out << nl << " * ";
-                writeDocCommentLines(out, returns);
-                out << nl << " **/";
-            }
-        }
-        out << nl << "public "
-            << typeToString(ret, TypeModeIn, package, op->getMetadata(), true, op->returnIsOptional()) << ' ' << retval
-            << ';';
-    }
-
-    for (const auto& outParam : outParams)
-    {
-        if (comment)
-        {
-            const map<string, StringList>& paramDocs = comment->parameters();
-            auto q = paramDocs.find(outParam->name());
-            if (q != paramDocs.end() && !q->second.empty())
-            {
-                out << nl << "/**";
-                out << nl << " * ";
-                writeDocCommentLines(out, q->second);
-                out << nl << " **/";
-            }
-        }
-        out << nl << "public "
-            << typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, outParam->optional())
-            << ' ' << outParam->mappedName() << ';';
-    }
 
     out << sp;
     out << nl << "/**";
@@ -1432,12 +1427,12 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
         for (const auto& t : throws)
         {
             string exS = getUnqualified(t, package);
-            out << nl << "catch(" << exS << " ex)";
+            out << " catch (" << exS << " ex)";
             out << sb;
             out << nl << "throw ex;";
             out << eb;
         }
-        out << nl << "catch(com.zeroc.Ice.UserException ex)";
+        out << " catch (com.zeroc.Ice.UserException ex)";
         out << sb;
         out << nl << "throw com.zeroc.Ice.UnknownUserException.fromTypeId(ex.ice_id());";
         out << eb;
@@ -1712,18 +1707,12 @@ Slice::JavaVisitor::writeThrowsClause(
     {
         out.inc();
         out << nl << "throws ";
-        out.useCurrentPosAsIndent();
-        int count = 0;
-        for (const auto& r : throws)
+        out.spar("");
+        for (const auto& exception : throws)
         {
-            if (count > 0)
-            {
-                out << "," << nl;
-            }
-            out << getUnqualified(r, package);
-            count++;
+            out << getUnqualified(exception, package);
         }
-        out.restoreIndent();
+        out.epar("");
         out.dec();
     }
 }
@@ -2474,20 +2463,8 @@ bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string name = p->mappedName();
-    ClassDefPtr baseClass = p->base();
+    ClassDefPtr base = p->base();
     string package = getPackage(p);
-    DataMemberList members = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
-    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-
-    DataMemberList requiredMembers;
-    for (const auto& member : allDataMembers)
-    {
-        if (!member->optional())
-        {
-            requiredMembers.push_back(member);
-        }
-    }
 
     open(getUnqualified(p), p->file());
     Output& out = output();
@@ -2507,20 +2484,40 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "@com.zeroc.Ice.CompactSliceTypeId(value = " << p->compactId() << ")";
     }
     out << nl << "public class " << name;
-    out.useCurrentPosAsIndent();
 
-    if (baseClass)
+    if (base)
     {
-        out << " extends " << getUnqualified(baseClass, package);
+        out << " extends " << getUnqualified(base, package);
     }
     else
     {
         out << " extends com.zeroc.Ice.Value";
     }
 
-    out.restoreIndent();
-
     out << sb;
+    return true;
+}
+
+void
+Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
+{
+    Output& out = output();
+    const string name = p->mappedName();
+    const string package = getPackage(p);
+    const ClassDefPtr base = p->base();
+
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList allDataMembers = p->allDataMembers();
+    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+
+    DataMemberList requiredMembers;
+    for (const auto& member : allDataMembers)
+    {
+        if (!member->optional())
+        {
+            requiredMembers.push_back(member);
+        }
+    }
 
     if (!allDataMembers.empty())
     {
@@ -2531,7 +2528,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeDocComment(out, "Constructs a {@code " + name + "}.");
         out << nl << "public " << name << "()";
         out << sb;
-        if (baseClass)
+        if (base)
         {
             out << nl << "super();";
         }
@@ -2544,9 +2541,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         if (isValidMethodParameterList(allDataMembers))
         {
             DataMemberList baseDataMembers;
-            if (baseClass)
+            if (base)
             {
-                baseDataMembers = baseClass->allDataMembers();
+                baseDataMembers = base->allDataMembers();
             }
 
             if (!requiredMembers.empty() && !optionalMembers.empty())
@@ -2629,7 +2626,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out << parameters << epar;
             out << sb;
-            if (baseClass && allDataMembers.size() != members.size())
+            if (base && allDataMembers.size() != members.size())
             {
                 out << nl << "super" << spar;
                 vector<string> baseParamNames;
@@ -2657,24 +2654,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    return true;
-}
-
-void
-Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
-{
-    Output& out = output();
-    const string name = p->mappedName();
-    const string package = getPackage(p);
-    const ClassDefPtr base = p->base();
-
-    const DataMemberList members = p->dataMembers();
-    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-
     // Implementation of 'clone'.
     out << sp << nl << "public " << name << " clone()";
     out << sb;
-    out << nl << "return (" << name << ")super.clone();";
+    out << nl << "return (" << name << ") super.clone();";
     out << eb;
 
     // Implementation of 'ice_staticId'.
@@ -2771,23 +2754,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string name = p->mappedName();
     ExceptionPtr base = p->base();
     string package = getPackage(p);
-    DataMemberList members = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
-    DataMemberList baseDataMembers;
-    if (base)
-    {
-        baseDataMembers = base->allDataMembers();
-    }
-
-    DataMemberList requiredMembers;
-    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-    for (const auto& member : allDataMembers)
-    {
-        if (!member->optional())
-        {
-            requiredMembers.push_back(member);
-        }
-    }
 
     open(getUnqualified(p), p->file());
 
@@ -2814,6 +2780,37 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << getUnqualified(base, package);
     }
     out << sb;
+    return true;
+}
+
+void
+Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
+{
+    Output& out = output();
+
+    string package = getPackage(p);
+    ExceptionPtr base = p->base();
+
+    string name = p->mappedName();
+    DataMemberList members = p->dataMembers();
+    DataMemberList allDataMembers = p->allDataMembers();
+    DataMemberList baseDataMembers;
+    if (base)
+    {
+        baseDataMembers = base->allDataMembers();
+    }
+
+    DataMemberList requiredMembers;
+    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+    for (const auto& member : allDataMembers)
+    {
+        if (!member->optional())
+        {
+            requiredMembers.push_back(member);
+        }
+    }
+
+    int iter;
 
     // Default constructor.
     out << sp;
@@ -2949,21 +2946,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "return \"" << p->scoped() << "\";";
     out << eb;
 
-    return true;
-}
-
-void
-Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
-{
-    Output& out = output();
-
-    string package = getPackage(p);
-    ExceptionPtr base = p->base();
-
-    DataMemberList members = p->dataMembers();
-    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-    int iter;
-
     out << sp;
     writeDocComment(
         out,
@@ -3056,11 +3038,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << nl << "@Deprecated";
     }
 
-    out << nl << "public final class " << p->mappedName() << " implements ";
-    out.useCurrentPosAsIndent();
-    out << "java.lang.Cloneable";
-    out << "," << nl << "java.io.Serializable";
-    out.restoreIndent();
+    out << nl << "public final class " << p->mappedName() << " implements java.lang.Cloneable, java.io.Serializable";
     out << sb;
 
     return true;
@@ -3249,9 +3227,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << name << " c = null;";
     out << nl << "try";
     out << sb;
-    out << nl << "c = (" << name << ")super.clone();";
-    out << eb;
-    out << nl << "catch(CloneNotSupportedException ex)";
+    out << nl << "c = (" << name << ") super.clone();";
+    out << eb << " catch (CloneNotSupportedException ex)";
     out << sb;
     out << nl << "assert false; // impossible";
     out << eb;
@@ -3300,8 +3277,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "if (v == null)";
     out << sb;
     out << nl << "_nullMarshalValue.ice_writeMembers(ostr);";
-    out << eb;
-    out << nl << "else";
+    out << eb << " else";
     out << sb;
     out << nl << "v.ice_writeMembers(ostr);";
     out << eb;
@@ -3385,8 +3361,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << nl << "istr.skipSize();";
     }
     out << nl << "return java.util.Optional.of(" << typeS << ".ice_read(istr));";
-    out << eb;
-    out << nl << "else";
+    out << eb << " else";
     out << sb;
     out << nl << "return java.util.Optional.empty();";
     out << eb;
@@ -3528,8 +3503,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << nl << "if (v == null || !v.isPresent())";
             out << sb;
             out << nl << "_" << name << " = false;";
-            out << eb;
-            out << nl << "else";
+            out << eb << " else";
             out << sb;
             out << nl << "_" << name << " = true;";
             if (b && b->kind() == Builtin::KindInt)
@@ -3581,8 +3555,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             {
                 out << nl << "return java.util.Optional.of(" << name << ");";
             }
-            out << eb;
-            out << nl << "else";
+            out << eb << " else";
             out << sb;
             if (b && b->kind() == Builtin::KindInt)
             {
@@ -3787,8 +3760,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sb;
     string firstEnum = enumerators.front()->mappedName();
     out << nl << "ostr.writeEnum(" << absolute << '.' << firstEnum << ".value(), " << p->maxValue() << ");";
-    out << eb;
-    out << nl << "else";
+    out << eb << " else";
     out << sb;
     out << nl << "ostr.writeEnum(v.value(), " << p->maxValue() << ");";
     out << eb;
@@ -3853,8 +3825,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "if (istr.readOptional(tag, " << getOptionalFormat(p) << "))";
     out << sb;
     out << nl << "return java.util.Optional.of(ice_read(istr));";
-    out << eb;
-    out << nl << "else";
+    out << eb << " else";
     out << sb;
     out << nl << "return java.util.Optional.empty();";
     out << eb;
@@ -4054,8 +4025,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << typeS << " v;";
     writeSequenceMarshalUnmarshalCode(out, package, p, "v", false, iter, true);
     out << nl << "return java.util.Optional.of(v);";
-    out << eb;
-    out << nl << "else";
+    out << eb << " else";
     out << sb;
     out << nl << "return java.util.Optional.empty();";
     out << eb;
@@ -4180,8 +4150,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << formalType << " v;";
     writeDictionaryMarshalUnmarshalCode(out, package, p, "v", false, iter, true);
     out << nl << "return java.util.Optional.of(v);";
-    out << eb;
-    out << nl << "else";
+    out << eb << " else";
     out << sb;
     out << nl << "return java.util.Optional.empty();";
     out << eb;
@@ -4239,23 +4208,19 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << p->mappedName() << "Prx extends ";
-    out.useCurrentPosAsIndent();
     if (bases.empty())
     {
         out << "com.zeroc.Ice.ObjectPrx";
     }
     else
     {
-        for (auto q = bases.begin(); q != bases.end(); ++q)
+        out.spar("");
+        for (const auto& base : bases)
         {
-            if (q != bases.begin())
-            {
-                out << ',' << nl;
-            }
-            out << getUnqualified(*q, package) + "Prx";
+            out << getUnqualified(base, package) + "Prx";
         }
+        out.epar("");
     }
-    out.restoreIndent();
 
     out << sb;
 
@@ -4525,22 +4490,19 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
     out << nl << "public interface " << p->mappedName() << " extends ";
-    auto q = bases.begin();
-    out.useCurrentPosAsIndent();
     if (bases.empty())
     {
         out << "com.zeroc.Ice.Object";
     }
-    else if (q != bases.end())
+    else
     {
-        out << getUnqualified(*q++, package);
+        out.spar("");
+        for (const auto& base : bases)
+        {
+            out << getUnqualified(base, package);
+        }
+        out.epar("");
     }
-
-    for (; q != bases.end(); ++q)
-    {
-        out << ',' << nl << getUnqualified(*q, package);
-    }
-    out.restoreIndent();
     out << sb;
     return true;
 }
