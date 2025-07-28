@@ -3209,8 +3209,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "try";
     out << sb;
     out << nl << "c = (" << name << ") super.clone();";
-    out << eb;
-    out << nl << "catch (java.lang.CloneNotSupportedException ex)";
+    out << eb << " catch (java.lang.CloneNotSupportedException ex)";
     out << sb;
     out << nl << "assert false; // impossible";
     out << eb;
