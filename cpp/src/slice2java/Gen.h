@@ -91,8 +91,12 @@ namespace Slice
             IceInternal::Output& out,
             const OperationPtr& p,
             const std::vector<std::string>& params,
-            const ExceptionList& throws,
-            const std::optional<DocComment>& dc,
+            const std::optional<DocComment>& dc);
+
+        static void writeIceIHelperMethods(
+            IceInternal::Output& out,
+            const OperationPtr& p,
+            bool hasExceptionSpecification,
             bool optionalMapping);
 
         static void writeMarshalProxyParams(
@@ -158,7 +162,6 @@ namespace Slice
             const std::optional<DocComment>&,
             bool,
             const std::string&);
-        static void writeHiddenProxyDocComment(IceInternal::Output&, const OperationPtr&);
         static void writeServantOpDocComment(IceInternal::Output&, const OperationPtr&, const std::string&, bool);
         static void writeSeeAlso(IceInternal::Output&, const UnitPtr&, const std::string&);
         static void writeParamDocComments(IceInternal::Output& out, const DataMemberList& members);

@@ -1445,16 +1445,13 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
     Output& out,
     const OperationPtr& p,
     const vector<string>& params,
-    const ExceptionList& throws,
-    const optional<DocComment>& dc,
-    bool optionalMapping)
+    const optional<DocComment>& dc)
 {
     const string name = p->mappedName();
     const string package = getPackage(p->interface());
 
     const string resultType = getResultType(p, package, true, false);
     const string futureType = "java.util.concurrent.CompletableFuture<" + resultType + ">";
-    const string futureImplType = "com.zeroc.Ice.OutgoingAsync<" + resultType + ">";
 
     const string contextParamName = getEscapedParamName(p->parameters(), "context");
     const string contextDoc = "@param " + contextParamName + " The Context map to send with the invocation.";
@@ -1485,16 +1482,30 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
     out << sb;
     out << nl << "return _iceI_" << name << "Async" << spar << args << contextParamName << "false" << epar << ';';
     out << eb;
+}
+
+void
+Slice::JavaVisitor::writeIceIHelperMethods(
+    Output& out,
+    const OperationPtr& p,
+    bool hasExceptionSpecification,
+    bool optionalMapping)
+{
+    const string name = p->mappedName();
+    const string package = getPackage(p->interface());
+
+    const string resultType = getResultType(p, package, true, false);
+    const string futureImplType = "com.zeroc.Ice.OutgoingAsync<" + resultType + ">";
 
     // Generate the internal method '_iceI_<NAME>Async'.
     out << sp;
-    writeHiddenProxyDocComment(out, p);
-    out << nl << "default " << futureImplType << " _iceI_" << name << "Async" << spar
+    out << nl << "private " << futureImplType << " _iceI_" << name << "Async" << spar
         << getParamsProxy(p, package, optionalMapping, true) << "java.util.Map<String, String> context"
         << "boolean sync" << epar;
     out << sb;
     out << nl << futureImplType << " f = new com.zeroc.Ice.OutgoingAsync<>(this, \"" << p->name() << "\", "
-        << sliceModeToIceMode(p->mode()) << ", sync, " << (throws.empty() ? "null" : "_iceE_" + name) << ");";
+        << sliceModeToIceMode(p->mode()) << ", sync, " << (hasExceptionSpecification ? "_iceE_" + name : "null")
+        << ");";
     out << nl << "f.invoke(";
     out.useCurrentPosAsIndent();
     out << (p->returnsData() ? "true" : "false") << ", context, " << opFormatTypeToString(p) << ", ";
@@ -2219,36 +2230,6 @@ Slice::JavaVisitor::writeProxyOpDocComment(
         out << nl << " * @deprecated";
     }
 
-    out << nl << " **/";
-}
-
-void
-Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& p)
-{
-    // the _iceI_ methods are all async
-
-    out << nl << "/**";
-
-    out << nl << " * Invokes the " << p->name()
-        << " operation on this proxy with the given parameters and returns a future that will be completed with the "
-           "result.";
-    out << nl << " *";
-
-    // Show in-params in order of declaration
-    for (const auto& param : p->inParameters())
-    {
-        out << nl << " * @param " << "iceP_" << param->mappedName() << " parameter";
-    }
-    out << nl << " * @param context the request context";
-    out << nl << " * @param sync {@code true} if the operation is synchronous, {@code false} otherwise";
-
-    // There is always a return value since it's async
-    out << nl << " * @return a CompletableFuture that will be completed with the result of the operation";
-
-    // Hide this method generated documentation
-    out << nl << " * @hidden";
-
-    // No throws since it's async
     out << nl << " **/";
 }
 
@@ -4446,11 +4427,17 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     }
 
     // Asynchronous methods with required parameters.
-    writeAsyncIceInvokeMethods(out, p, params, throws, dc, false);
+    writeAsyncIceInvokeMethods(out, p, params, dc);
     if (sendsOptionals)
     {
         // Asynchronous methods with optional parameters.
-        writeAsyncIceInvokeMethods(out, p, paramsOpt, throws, dc, true);
+        writeAsyncIceInvokeMethods(out, p, paramsOpt, dc);
+    }
+
+    writeIceIHelperMethods(out, p, !throws.empty(), false);
+    if (sendsOptionals)
+    {
+        writeIceIHelperMethods(out, p, !throws.empty(), true);
     }
 
     // Generate a list of exceptions that can be thrown by this operation.
