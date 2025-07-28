@@ -91,8 +91,12 @@ namespace Slice
             IceInternal::Output& out,
             const OperationPtr& p,
             const std::vector<std::string>& params,
-            const ExceptionList& throws,
-            const std::optional<DocComment>& dc,
+            const std::optional<DocComment>& dc);
+
+        static void writeIceIHelperMethods(
+            IceInternal::Output& out,
+            const OperationPtr& p,
+            bool hasExceptionSpecification,
             bool optionalMapping);
 
         static void writeMarshalProxyParams(
