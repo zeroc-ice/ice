@@ -550,7 +550,6 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     addRuntimeImport("Ice.ObjectPrx", "uncheckedCast", p);
 
     addTypingImport("Ice.ObjectPrx", "ObjectPrx", p);
-    addTypingImport("Ice.Communicator", "Communicator", p);
     addTypingImport("Ice.Current", "Current", p);
 
     // Add imports required for operation parameters and return types.
@@ -588,7 +587,6 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         for (const auto& ex : op->throws())
         {
-            addTypingImport(ex, p);
             addRuntimeImportForMetaType(ex, p);
         }
 
@@ -2673,7 +2671,6 @@ namespace
             {
                 if (!definitions.empty())
                 {
-                    outT << sp;
                     for (const auto& [name, alias] : definitions)
                     {
                         bool allreadyImported = !allImports.insert(alias.empty() ? name : alias).second;
