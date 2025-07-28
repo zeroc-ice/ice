@@ -407,7 +407,9 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeRemarks,
 }
 
 Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool typeScript)
-    : _includePaths(includePaths),
+    : _javaScriptOutput(false, true), // No break before opening block in JS + short empty blocks
+      _typeScriptOutput(false, true), // No break before opening block in TS + short empty blocks
+      _includePaths(includePaths),
       _useStdout(false),
       _typeScript(typeScript)
 {
@@ -461,8 +463,8 @@ Slice::Gen::Gen(
     const string& /*dir*/,
     bool typeScript,
     ostream& out)
-    : _javaScriptOutput(out),
-      _typeScriptOutput(out),
+    : _javaScriptOutput(out, false, true),
+      _typeScriptOutput(out, false, true),
       _includePaths(includePaths),
       _useStdout(true),
       _typeScript(typeScript)
