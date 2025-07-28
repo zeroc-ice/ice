@@ -2506,9 +2506,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     const string package = getPackage(p);
     const ClassDefPtr base = p->base();
 
-    DataMemberList members = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
-    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList allDataMembers = p->allDataMembers();
+    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     DataMemberList requiredMembers;
     for (const auto& member : allDataMembers)
