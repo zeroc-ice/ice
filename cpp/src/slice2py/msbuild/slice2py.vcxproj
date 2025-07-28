@@ -105,7 +105,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Main.cpp" />
-    <ClCompile Include="..\Python.cpp" />
     <ClCompile Include="..\PythonUtil.cpp" />
   </ItemGroup>
   <ItemGroup>

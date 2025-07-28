@@ -28,27 +28,6 @@ namespace
 }
 
 string
-Slice::Python::getMappedPackage(const SyntaxTreeBasePtr& p, char packageSeparator)
-{
-    if (dynamic_pointer_cast<Builtin>(p))
-    {
-        return string{"Ice"} + packageSeparator;
-    }
-    else
-    {
-        auto contained = dynamic_pointer_cast<Contained>(p);
-        assert(contained);
-        string package = contained->mappedScope(string{packageSeparator});
-        if (packageSeparator != '.')
-        {
-            // Replace "." with the specified separator.
-            replace(package.begin(), package.end(), '.', packageSeparator);
-        }
-        return package;
-    }
-}
-
-string
 Slice::Python::getPythonModuleForDefinition(const SyntaxTreeBasePtr& p)
 {
     if (auto builtin = dynamic_pointer_cast<Builtin>(p))
@@ -61,7 +40,7 @@ Slice::Python::getPythonModuleForDefinition(const SyntaxTreeBasePtr& p)
     {
         auto contained = dynamic_pointer_cast<Contained>(p);
         assert(contained);
-        return getMappedPackage(contained) + contained->mappedName();
+        return contained->mappedScoped(".");
     }
 }
 
@@ -71,21 +50,8 @@ Slice::Python::getPythonModuleForForwardDeclaration(const SyntaxTreeBasePtr& p)
     string declarationModule = getPythonModuleForDefinition(p);
     if (!declarationModule.empty())
     {
-        if (declarationModule == "Ice.Value")
-        {
-            // The forward declaration for Ice.Value is in the Ice.ValueF module.
-            declarationModule = "Ice.ValueF";
-        }
-        else if (declarationModule == "Ice.ObjectPrx")
-        {
-            // The forward declaration for Ice.ObjectPrx is in the Ice.ObjectPrxF module.
-            declarationModule = "Ice.ObjectPrxF";
-        }
-        else
-        {
-            // For other generated modules, append "_iceF" to the module name.
-            declarationModule += "_iceF";
-        }
+        // Append "_forward" to the module name for generated modules.
+        declarationModule += "_forward";
     }
     return declarationModule;
 }
@@ -187,7 +153,9 @@ Slice::Python::getMetaType(const SyntaxTreeBasePtr& p)
     {
         auto contained = dynamic_pointer_cast<Contained>(p);
         assert(contained);
-        string s = "_" + getMappedPackage(contained, '_') + contained->mappedName();
+        string s = "_" + contained->mappedScoped("_");
+        // Replace here is required in case any module is remapped with python:identifier into a nested package.
+        replace(s.begin(), s.end(), '.', '_');
         if (dynamic_pointer_cast<InterfaceDef>(contained) || dynamic_pointer_cast<InterfaceDecl>(contained))
         {
             s += "Prx";
@@ -444,7 +412,7 @@ Slice::Python::createCodeFragmentForPythonModule(const ContainedPtr& contained, 
     fragment.sliceFileName = contained->file();
     string fileName = fragment.moduleName;
     replace(fileName.begin(), fileName.end(), '.', '/');
-    fragment.fileName = fileName + (isForwardDeclaration ? "_iceF.py" : ".py");
+    fragment.fileName = fileName + ".py";
     fragment.isPackageIndex = false;
     return fragment;
 }
@@ -532,7 +500,7 @@ Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
         addRuntimeImport("Ice.StringUtil", "format_fields", p);
     }
 
-    // Import the meta type that is created in the Xxx_iceF module for forward declarations.
+    // Import the meta type that is created in the Xxx_forward module for forward declarations.
     addRuntimeImportForMetaType(p->declaration(), p);
 
     // Add imports required for the base class type.
@@ -952,7 +920,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
         return;
     }
 
-    // The meta type for a Slice class or interface is always imported from the Xxx_iceF module.
+    // The meta type for a Slice class or interface is always imported from the Xxx_forward module.
     bool isForwardDeclared =
         dynamic_pointer_cast<ClassDecl>(definition) || dynamic_pointer_cast<ClassDef>(definition) ||
         dynamic_pointer_cast<InterfaceDecl>(definition) || dynamic_pointer_cast<InterfaceDef>(definition) || builtin;
@@ -978,7 +946,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
 bool
 Slice::Python::PackageVisitor::visitModuleStart(const ModulePtr& p)
 {
-    string packageName = getMappedPackage(p) + p->mappedName();
+    string packageName = p->mappedScoped(".");
 
     // Ensure all parent packages exits, that is necessary to account for modules
     // that are mapped to a nested package using python:identifier metadata.
@@ -1064,7 +1032,7 @@ Slice::Python::PackageVisitor::visitConst(const ConstPtr& p)
 void
 Slice::Python::PackageVisitor::addRuntimeImport(const ContainedPtr& definition, const string& prefix)
 {
-    string packageName = getMappedPackage(definition);
+    string packageName = definition->mappedScope(".");
     string moduleName = definition->mappedName();
     auto& packageImports = _imports[packageName];
     auto& definitions = packageImports[moduleName];
@@ -1079,14 +1047,14 @@ Slice::Python::PackageVisitor::addRuntimeImport(const ContainedPtr& definition, 
 void
 Slice::Python::PackageVisitor::addRuntimeImportForMetaType(const ContainedPtr& definition)
 {
-    string packageName = getMappedPackage(definition);
+    string packageName = definition->mappedScope(".");
     string moduleName = definition->mappedName();
 
-    // The meta type for Slice classes or interfaces is always imported from the Xxx_iceF module containing the forward
-    // declaration.
+    // The meta type for Slice classes or interfaces is always imported from the Xxx_forward module containing the
+    // forward declaration.
     if (dynamic_pointer_cast<ClassDecl>(definition) || dynamic_pointer_cast<InterfaceDecl>(definition))
     {
-        moduleName += "_iceF";
+        moduleName += "_forward";
     }
     auto& packageImports = _imports[packageName];
     auto& definitions = packageImports[moduleName];
@@ -2740,21 +2708,27 @@ namespace
 }
 
 vector<Slice::Python::PythonCodeFragment>
-Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>& cppArgs, bool debug)
+Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>& preprocessorArgs, bool debug)
 {
+    // The package visitor is reused to compile all Slice files so that it collects the definitions for all Slice files
+    // contributing to a given package.
     PackageVisitor packageVisitor;
+
+    // The import visitor is reused to collect the imports from all generated Python modules, which are later used to
+    // compute the order in which Python modules should be evaluated.
     ImportVisitor importVisitor;
+
     // The list of code fragments generated by the code visitor.
     vector<PythonCodeFragment> fragments;
 
     for (const auto& fileName : files)
     {
-        PreprocessorPtr preprocessor = Preprocessor::create("IcePy", fileName, cppArgs);
+        PreprocessorPtr preprocessor = Preprocessor::create("IcePy", fileName, preprocessorArgs);
         FILE* cppHandle = preprocessor->preprocess(true, "-D__SLICE2PY__");
 
         if (cppHandle == nullptr)
         {
-            throw runtime_error("Failed to preprocess Slice files");
+            throw runtime_error("Failed to preprocess Slice file: " + fileName);
         }
 
         UnitPtr unit = Unit::createUnit("python", debug);
@@ -2763,7 +2737,7 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         if (parseStatus == EXIT_FAILURE)
         {
             unit->destroy();
-            throw runtime_error("Failed to parse Slice files");
+            throw runtime_error("Failed to parse Slice file: " + fileName);
         }
 
         parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
@@ -2778,11 +2752,17 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
             importVisitor.getAllImportNames()};
         unit->visit(&codeVisitor);
 
-        for (const auto& fragment : codeVisitor.codeFragments())
-        {
-            fragments.push_back(fragment);
-        }
+        const vector<PythonCodeFragment>& newFragments = codeVisitor.codeFragments();
+        fragments.insert(fragments.end(), newFragments.begin(), newFragments.end());
         unit->destroy();
+    }
+
+    vector<string> generatedModules;
+    generatedModules.reserve(fragments.size());
+    for (const auto& fragment : fragments)
+    {
+        // Collect the names of all generated modules.
+        generatedModules.push_back(fragment.moduleName);
     }
 
     // The list of non generated modules that are imported by the generated modules.
@@ -2790,12 +2770,12 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         "Ice.FormatType",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "Ice.ObjectPrxF",
+        "Ice.ObjectPrx_forward",
         "Ice.OperationMode",
         "Ice.StringUtil",
         "Ice.UserException",
         "Ice.Value",
-        "Ice.ValueF",
+        "Ice.Value_forward",
         "abc",
         "dataclasses",
         "enum",
@@ -2815,12 +2795,13 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         {
             PythonCodeFragment fragment = *it;
             const auto& moduleImports = runtimeImports[fragment.moduleName];
+
             bool unseenDependencies = false;
             for (const auto& [moduleName, _] : moduleImports)
             {
                 // If the current module depends on a module that is being generated but not yet seen we postpone its
                 // compilation.
-                if (runtimeImports.find(moduleName) != runtimeImports.end() &&
+                if (find(generatedModules.begin(), generatedModules.end(), moduleName) != generatedModules.end() &&
                     find_if(
                         processedFragments.begin(),
                         processedFragments.end(),
@@ -2860,15 +2841,14 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         if (fragments.size() == fragmentsSize)
         {
             assert(false);
-            throw runtime_error(
-                "Circular dependency detected in Slice files. Please check the imports and package definitions.");
+            throw runtime_error("Circular dependency detected in Slice files.");
         }
     }
 
     // Add fragments for the package-index files.
     for (const auto& [name, imports] : packageVisitor.imports())
     {
-        string packageName = name; // Remove the trailing dot.
+        string packageName = name;
         // The pop_back call removes the last dot from the package name.
         packageName.pop_back();
         BufferedOutput out;

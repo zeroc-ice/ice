@@ -2,8 +2,14 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from generated.test.Ice.enums import Test
+import sys
+
 from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
+
+from generated.test.Ice.enums import Test
 
 import Ice
 

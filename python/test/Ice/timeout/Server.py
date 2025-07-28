@@ -2,11 +2,16 @@
 
 # Copyright (c) ZeroC, Inc.
 
+import sys
 import threading
 import time
 
-from generated.test.Ice.timeout import Test
 from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
+
+from generated.test.Ice.timeout import Test
 
 import Ice
 

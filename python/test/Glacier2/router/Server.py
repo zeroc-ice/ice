@@ -2,8 +2,14 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from generated.test.Glacier2.router import Test
+import sys
+
 from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Callback.ice")
+
+from generated.test.Glacier2.router import Test
 
 import Ice
 

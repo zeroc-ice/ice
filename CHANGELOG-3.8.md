@@ -333,7 +333,7 @@ classDiagram
   Note that this only affects the _mapped_ name of Slice definitions.
   It has no effect on Slice type IDs, or a definition's on-the-wire representation.
 
-- Deprecated the `cs:namespace`, `java:package`, `python:package`, and `swift:module` metadata.
+- Deprecated the `cs:namespace`, `java:package`, and `swift:module` metadata.
   `<lang>:identifier` metadata is now the preferred way to change how Slice modules are mapped.
 
 - Removed automatic escaping of Slice identifiers. Previously, the Slice compilers had a list of each language's
@@ -782,6 +782,48 @@ initialization. See `InitializationData.pluginFactories`.
 
 - The default value for struct, sequence, and dictionary Slice data members has been changed from `None`
   to a default initialized instance.
+
+- Removed support for the `python:package` Slice metadata. Use instead the `python:identifier` metadata directive to
+  map Slice module to a custom Python package.
+
+- Removed support for the `python:pkgdir` Slice metadata. Generated code is now always placed in the corresponding
+  package directory relative to the specified output directory.
+
+- The Slice for Python compiler (`slice2py`) and dynamic Slice-to-Python compilation using `Ice.loadSlice` no longer
+  support the `--all` option, which previously allowed compiling files included by other Slice files. Instead, you must
+  explicitly pass all required Slice files to `slice2py` or `Ice.loadSlice`.
+
+- The `--prefix` option, which previously allowed users to specify a custom prefix for generated file names, has been
+  removed from the Slice for Python compiler (`slice2py`). Generated file names are now always derived from the Slice
+  definition name. If a name would conflict with a Python built-in keyword or module, it must be renamed using the new
+  `python:identifier` metadata.
+
+- The Slice for Python compiler now generates a separate Python module for each Slice definition. The module name is
+  derived from the Slice definition name. For example, `enum MyEnum` in Slice module `Foo::Bar` results in the Python
+  module `Foo.Bar.MyEnum`, generated in `Foo/Bar/MyEnum.py`.
+
+  For classes and interfaces, an additional `_forward` module is generated to contain forward declarations for proxies
+  and class meta-types. Application code does not need to import these files.
+
+  Package index files are also generated for each module unless the `--build=modules` option is specified to generate
+  only the module files.
+
+- The Slice for Python compiler no longer edits existing package index files. Instead, it recreates them on each run.
+  When generating package index files, all Slice files contributing to the package must be passed to the compiler to
+  ensure that all definitions are included in the package exports.
+
+- The `--no-package` and `--build-package` options have been replaced by the more comprehensive
+  `--build=modules|package-index|all` option.
+
+  - `--build=all` generates both the Python modules for each Slice definition and the package index files for each
+    module.
+  - `--build=modules` generates only the Python modules.
+  - `--build=package-index` generates only the package index files.
+
+- A new `--list=all|modules|package-index` option has been added to `slice2py` to list the generated files. In previous
+  versions, the compiler generated a single Python module with a `_ice.py` extension per Slice file, making it easy to
+  track outputs. In 3.8, each Slice definition is compiled into a separate module under its Python package path. The
+  new `--list` option helps track the set of generated files.
 
 ## Ruby Changes
 

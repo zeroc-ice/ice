@@ -4,8 +4,12 @@
 
 import sys
 
-from generated.test.Slice.escape.Test import escaped_and
 from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Key.ice Clash.ice")
+
+from generated.test.Slice.escape.Test import escaped_and
 
 import Ice
 

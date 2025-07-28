@@ -4,9 +4,13 @@
 
 import sys
 
+from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
+
 import RouterI
 from generated.test.Ice.blobject import Test
-from TestHelper import TestHelper
 
 import Ice
 

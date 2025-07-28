@@ -2,10 +2,15 @@
 
 # Copyright (c) ZeroC, Inc.
 
+import sys
 import time
 
-from generated.test.Ice.blobject import Test
 from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
+
+from generated.test.Ice.blobject import Test
 
 import Ice
 
