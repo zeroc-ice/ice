@@ -2,9 +2,15 @@
 
 # Copyright (c) ZeroC, Inc.
 
+import sys
+
+from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice ServerPrivate.ice")
+
 from generated.test.Ice.slicing.exceptions import Test
 from generated.test.Ice.slicing.exceptions.server_private import Test as ServerPrivateTest
-from TestHelper import TestHelper
 
 import Ice
 

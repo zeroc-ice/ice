@@ -19,7 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\cpp\src\slice2py\Python.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\slice2py\PythonUtil.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\DeprecationReporter.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\DocCommentParser.cpp" />

@@ -565,12 +565,11 @@ IcePy::lookupType(const string& typeName)
     PyObject* dict{nullptr};
     if (!module)
     {
-        //
         // Not found, so we need to import the module.
-        //
         PyObjectHandle h{PyImport_ImportModule(const_cast<char*>(moduleName.c_str()))};
         if (!h.get())
         {
+            PyErr_Print(); // Print full Python exception and traceback
             return nullptr;
         }
 

@@ -3,6 +3,11 @@
 import array
 import sys
 
+from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
+
 try:
     import numpy
 
@@ -14,6 +19,9 @@ except ImportError:
 from generated.test.Ice.custom import Test
 
 if hasNumPy:
+    if "--load-slice" in sys.argv:
+        TestHelper.loadSlice("TestNumPy.ice")
+
     from generated.test.Ice.custom.Test import NumPy
 
 

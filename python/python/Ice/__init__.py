@@ -45,6 +45,7 @@ from .Communicator import Communicator
 from .CompressBatch import CompressBatch
 from .Context import _Ice_Context_t
 from .Current import Current
+from .Dispatch import dispatch
 from .DoubleSeq import _Ice_DoubleSeq_t
 from .EncodingVersion import EncodingVersion, _Ice_EncodingVersion_t
 from .EndpointSelectionType import EndpointSelectionType
@@ -105,14 +106,14 @@ from .LocalExceptions import (
     UnknownUserException,
 )
 from .Locator import Locator, LocatorPrx
-from .Locator_iceF import _Ice_LocatorPrx_t
+from .Locator_forward import _Ice_LocatorPrx_t
 from .LocatorFinder import LocatorFinder, LocatorFinderPrx
-from .LocatorFinder_iceF import _Ice_LocatorFinderPrx_t
+from .LocatorFinder_forward import _Ice_LocatorFinderPrx_t
 from .LocatorRegistry import LocatorRegistry, LocatorRegistryPrx
-from .LocatorRegistry_iceF import _Ice_LocatorRegistryPrx_t
+from .LocatorRegistry_forward import _Ice_LocatorRegistryPrx_t
 from .Logger import Logger
 from .LoggerAdmin import LoggerAdmin, LoggerAdminPrx
-from .LoggerAdmin_iceF import _Ice_LoggerAdminPrx_t
+from .LoggerAdmin_forward import _Ice_LoggerAdminPrx_t
 from .LogMessage import LogMessage, _Ice_LogMessage_t
 from .LogMessageSeq import _Ice_LogMessageSeq_t
 from .LogMessageType import LogMessageType, _Ice_LogMessageType_t
@@ -126,25 +127,25 @@ from .ObjectPrx import ObjectPrx
 from .ObjectSeq import _Ice_ObjectSeq_t
 from .OperationMode import OperationMode, _Ice_OperationMode_t
 from .Process import Process, ProcessPrx
-from .Process_iceF import _Ice_ProcessPrx_t
+from .Process_forward import _Ice_ProcessPrx_t
 from .ProcessLogger import getProcessLogger, setProcessLogger
 from .Properties import Properties
 from .PropertiesAdmin import PropertiesAdmin, PropertiesAdminPrx
-from .PropertiesAdmin_iceF import _Ice_PropertiesAdminPrx_t
+from .PropertiesAdmin_forward import _Ice_PropertiesAdminPrx_t
 from .PropertyDict import _Ice_PropertyDict_t
 from .ProtocolVersion import ProtocolVersion, _Ice_ProtocolVersion_t
 from .Proxy import proxyIdentityAndFacetCompare, proxyIdentityAndFacetEqual, proxyIdentityCompare, proxyIdentityEqual
 from .RemoteLogger import RemoteLogger, RemoteLoggerPrx
-from .RemoteLogger_iceF import _Ice_RemoteLoggerPrx_t
+from .RemoteLogger_forward import _Ice_RemoteLoggerPrx_t
 from .RemoteLoggerAlreadyAttachedException import (
     RemoteLoggerAlreadyAttachedException,
     _Ice_RemoteLoggerAlreadyAttachedException_t,
 )
 from .ReplyStatus import ReplyStatus, _Ice_ReplyStatus_t
 from .Router import Router, RouterPrx
-from .Router_iceF import _Ice_RouterPrx_t
+from .Router_forward import _Ice_RouterPrx_t
 from .RouterFinder import RouterFinder, RouterFinderPrx
-from .RouterFinder_iceF import _Ice_RouterFinderPrx_t
+from .RouterFinder_forward import _Ice_RouterFinderPrx_t
 from .ServantLocator import ServantLocator
 from .ServerNotFoundException import ServerNotFoundException, _Ice_ServerNotFoundException_t
 from .ShortSeq import _Ice_ShortSeq_t
@@ -337,6 +338,7 @@ __all__ = [
     "currentEncoding",
     "currentProtocol",
     "currentProtocolEncoding",
+    "dispatch",
     "encodingVersionToString",
     "format_fields",
     "getProcessLogger",

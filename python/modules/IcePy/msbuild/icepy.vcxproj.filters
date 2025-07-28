@@ -106,9 +106,6 @@
     <ClCompile Include="..\Future.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\cpp\src\slice2py\Python.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\slice2py\PythonUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

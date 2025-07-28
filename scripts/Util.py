@@ -623,8 +623,11 @@ class Mapping(object):
             self.avd = ""
             self.phpVersion = "7.1"
             self.python = sys.executable
+            self.loadSlice = False  # Use Ice.loadSlice instead of the static generated code
 
-            parseOptions(self, options, {"config": "buildConfig", "platform": "buildPlatform"})
+            parseOptions(
+                self, options, {"config": "buildConfig", "platform": "buildPlatform", "load-slice": "loadSlice"}
+            )
 
         def __str__(self):
             s = []
@@ -3657,13 +3660,14 @@ class PythonMapping(CppBasedMapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["python="])
+            return ("", ["python=", "load-slice"])
 
         @classmethod
         def usage(self):
             print("")
             print("Python mapping options:")
             print("--python=<interpreter>   Choose the interperter used to run python tests")
+            print("--load-slice             Use Ice.loadSlice instead of the slice2py static generated code.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
@@ -3684,6 +3688,9 @@ class PythonMapping(CppBasedMapping):
             return self.pythonVersion
 
     def getCommandLine(self, current, process, exe, args):
+        if current.config.loadSlice:
+            args = f"--load-slice {args}"
+
         return '"{0}"  {1} {2} {3}'.format(
             current.config.python,
             os.path.join(self.path, "test", "TestHelper.py"),
@@ -3699,7 +3706,8 @@ class PythonMapping(CppBasedMapping):
             # the Ice python directory to PYTHONPATH
             dirs += self.getPythonDirs(self.component.getInstallDir(self, current), current.config)
         dirs += [current.testcase.getPath(current)]
-        dirs += [os.path.join(current.testcase.getPath(current), "generated")]
+        if not current.config.loadSlice:
+            dirs += [os.path.join(current.testcase.getPath(current), "generated")]
         env["PYTHONPATH"] = os.pathsep.join(dirs)
         return env
 

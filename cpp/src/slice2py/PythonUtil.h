@@ -45,6 +45,11 @@ namespace Slice::Python
         Return
     };
 
+    /// A map with the import statements for a generated Python module.
+    /// - Key: the imported module name, e.g., "Ice.Communicator".
+    /// - Value: a set of pairs representing the imported name and its alias. The first element of the pair is the
+    ///   imported name, and the second element is the alias used in the generated code. When the alias is empty,
+    ///   the imported name is used directly.
     using ModuleImportsMap = std::map<std::string, std::set<std::pair<std::string, std::string>>>;
 
     // Maps import statements per generated Python module.
@@ -72,19 +77,14 @@ namespace Slice::Python
         std::string code;
     };
 
-    /// Determines the mapped package for a given Slice definition.
-    /// @param p The Slice definition to get the mapped package for.
-    /// @param packageSeparator Use this character as the separator between package segments.
-    /// @return The mapped package name, with the specified separator.
-    std::string getMappedPackage(const SyntaxTreeBasePtr& p, char packageSeparator = '.');
-
     /// Returns the fully qualified name of the Python module that corresponds to the given Slice definition.
     ///
     /// Each Slice module is mapped to a Python package with the same name, but with "::" replaced by ".".
     /// Within that package, each Slice definition is mapped to a Python module with the same name as the definition.
     ///
     /// For example:
-    /// - A Slice definition named `Baz` in the module `::Bar::Foo` is mapped to the Python module `"Bar.Foo.Baz"`.
+    /// - A Slice definition named `Baz` in the module `::Bar::Foo` is mapped to the Python module `"Bar.Foo.Baz"`
+    ///   in Bar/Foo/Baz.py file.
     ///
     /// @param p The Slice definition to map to a Python module.
     /// @return The fully qualified Python module name corresponding to the Slice definition.
@@ -92,26 +92,22 @@ namespace Slice::Python
 
     /// Returns the fully qualified name of the Python module where the given Slice definition is forward-declared.
     ///
-    /// Forward declarations are generated only for classes and interfaces. The corresponding Python module name
-    /// is the same as the definition module returned by `getPythonModuleForDefinition`, with an "F" appended to the
-    /// end.
+    /// Forward declarations are generated only for classes and interfaces. The corresponding Python module name is the
+    /// same as the definition module returned by `getPythonModuleForDefinition`, with an "_iceF" appended to the end.
     ///
-    /// For example, the forward declaration of the class `Bar::MyClass` is placed in the module `"Bar.MyClassF"`.
+    /// For example, the forward declaration of the class `Bar::MyClass` is placed in the module `"Bar.MyClass_iceF"`
+    /// in Bar/MyClass_iceF.py file.
     ///
     /// @param p The Slice definition to get the forward declaration module name for. Must be a class or interface.
     /// @return The fully qualified Python module name for the forward declaration.
     std::string getPythonModuleForForwardDeclaration(const SyntaxTreeBasePtr& p);
 
-    /// Returns the alias used for importing the given Slice definition in Python.
-    ///
-    /// The alias follows the pattern `"M1_M2_Xxx"`, where:
-    /// - `M1_M2` is the mapped scope of the definition, using underscores (`_`) as separators instead of `::`.
-    /// - `Xxx` is the mapped name of the definition (typically the class or interface name).
-    ///
-    /// If the definition represents an interface, the suffix `"Prx"` is appended to the alias to refer to the proxy
-    /// type.
+    /// Returns the alias used for importing the given Slice definition in Python. If there is not conflict, the alias
+    /// is the same as the definition name.
     ///
     /// @param source The Slice definition that is importing the given definition.
+    /// @param allImports The map of all imports for the source module. The key is the imported definition name, and
+    /// the value is the Python module name where the definition is imported from.
     /// @param p The Slice definition to get the Python import alias for.
     /// @return The alias to use when importing the given definition in generated Python code.
     std::string getImportAlias(
@@ -119,10 +115,19 @@ namespace Slice::Python
         const std::map<std::string, std::string>& allImports,
         const SyntaxTreeBasePtr& p);
 
+    /// Returns the alias to use when imported the given @p name from the given @p moduleName. If there is no conflict
+    /// with other definitions in the current module or from imported modules, the alias is the same as the name.
+    ///
+    /// @param source The Slice definition that is importing the given definition.
+    /// @param allImports The map of all imports for the source module. The key is the imported definition name, and
+    /// the value is the Python module name where the definition is imported from.
+    /// @param moduleName The name of the module where the definition is located.
+    /// @param name The name of the definition to import.
+    /// @return The alias to use when importing the given definition in generated Python code.
     std::string getImportAlias(
         const ContainedPtr& source,
         const std::map<std::string, std::string>& allImports,
-        const std::string& scope,
+        const std::string& moduleName,
         const std::string& name);
 
     /// Gets the name used for the meta-type of the given Slice definition. IcePy creates a meta-type for each Slice
@@ -144,6 +149,8 @@ namespace Slice::Python
     // Get a list of all definitions exported for the Python module corresponding to the given Slice definition.
     std::vector<std::string> getAll(const ContainedPtr& definition);
 
+    // A helper class to initialize the _outBuffer member of BufferedOutput before is passed to the Output
+    // constructor.
     class BufferedOutputBase
     {
     protected:
@@ -163,8 +170,8 @@ namespace Slice::Python
 
     /// Creates the package directory structure for a given Python module name.
     ///
-    /// For example, if the module name is "Foo.Bar.Baz", this function creates
-    /// the directories "Foo/Bar" under the specified output path.
+    /// For example, if the module name is "Foo.Bar.Baz", this function creates the directories "Foo/Bar" under the
+    /// specified output path.
     ///
     /// @param moduleName The name of the Python module (e.g., "Foo.Bar.Baz").
     /// @param outputPath The base directory in which to create the package directories. Must already exist.
@@ -176,12 +183,20 @@ namespace Slice::Python
     void writeHeader(IceInternal::Output& out);
 
     /// Write the package index that exports the given imports.
+    ///
+    /// @param imports The map of imports to write to the package index. The key is the module name, and the value is
+    /// a set of pairs representing the imported name and its alias.
+    /// @param out The output stream to write the package index to.
     void writePackageIndex(const std::map<std::string, std::set<std::string>>& imports, IceInternal::Output& out);
 
+    /// Generates the Python modules and packages for the given Slice files. The code is returned as a vector of
+    /// PythonCodeFragment objects, sorted in the order required for evaluation by the Python interpreter.
+    /// @param files The list of Slice files to process.
+    /// @param preprocessorArgs The arguments to pass to the preprocessor.
+    /// @param debug Whether to enable debug output.
+    /// @return A vector of PythonCodeFragment objects representing the generated code.
     std::vector<PythonCodeFragment>
-    dynamicCompile(const std::vector<std::string>& files, const std::vector<std::string>& cppArgs, bool debug);
-
-    int staticCompile(const std::vector<std::string>& files);
+    dynamicCompile(const std::vector<std::string>& files, const std::vector<std::string>& preprocessorArgs, bool debug);
 
     /// Generate Python code for a translation unit.
     /// @param unit is the Slice unit to generate code for.
@@ -195,20 +210,9 @@ namespace Slice::Python
     /// Validates the Slice Python metadata for the given unit.
     void validatePythonMetadata(const UnitPtr&);
 
-    /// Gets a map with all the import names for the given source module. The map key is the imported definition name,
-    /// and the value is the Python module name where the definition is imported from.
-    /// @param sourceModule The name of the source module.
-    /// @param runtimeImports The map of runtime imports. This map contains the runtime imports for each generated
-    /// Python module.
-    /// @param typingImports The map of typing imports. This map contains the typing imports for each generated
-    /// Python module.
-    /// @return A map with all the import names for the given source module.
-    std::map<std::string, std::string>
-    getAllImports(const std::string& sourceModule, const ImportsMap& runtimeImports, const ImportsMap& typingImports);
-
     // Collects Python definitions for each generated Python package.
-    // Each package corresponds to a Slice module and includes an `__init__.py` file
-    // that re-exports selected definitions from the package's internal modules.
+    // Each package corresponds to a Slice module and includes an `__init__.py` file that re-exports selected
+    // definitions from the package's internal modules.
     class PackageVisitor final : public ParserVisitor
     {
     public:
@@ -430,7 +434,7 @@ namespace Slice::Python
         std::string getImportAlias(const ContainedPtr& source, const std::string& moduleName, const std::string& name);
 
         // The list of generated Python code fragments in the current translation unit.
-        // Each fragment corresponds to a Slice definition and contains the generated code for that definition.
+        // Each fragment corresponds to a Python module generated from a Slice definition with the same name.
         std::vector<PythonCodeFragment> _codeFragments;
 
         ImportsMap _runtimeImports;

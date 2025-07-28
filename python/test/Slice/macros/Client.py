@@ -4,8 +4,12 @@
 
 import sys
 
-from generated.test.Slice.macros import Test
 from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
+
+from generated.test.Slice.macros import Test
 
 import Ice
 

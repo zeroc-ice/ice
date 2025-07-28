@@ -2,9 +2,15 @@
 
 # Copyright (c) ZeroC, Inc.
 
+import sys
+
 import Executor
-import TestI
 from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
+
+import TestI
 
 import Ice
 

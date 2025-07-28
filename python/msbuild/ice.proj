@@ -45,7 +45,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <TestSliceCompile Include="$(MSBuildThisFileDirectory)..\test\**\*.ice" Exclude="**\Server*.ice">
+        <TestSliceCompile Include="$(MSBuildThisFileDirectory)..\test\**\*.ice">
             <OutputDir>$(MSBuildThisFileDirectory)..\test\%(RecursiveDir)</OutputDir>
         </TestSliceCompile>
     </ItemGroup>
