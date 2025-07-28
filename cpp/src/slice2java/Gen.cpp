@@ -2234,36 +2234,6 @@ Slice::JavaVisitor::writeProxyOpDocComment(
 }
 
 void
-Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& p)
-{
-    // the _iceI_ methods are all async
-
-    out << nl << "/**";
-
-    out << nl << " * Invokes the " << p->name()
-        << " operation on this proxy with the given parameters and returns a future that will be completed with the "
-           "result.";
-    out << nl << " *";
-
-    // Show in-params in order of declaration
-    for (const auto& param : p->inParameters())
-    {
-        out << nl << " * @param " << "iceP_" << param->mappedName() << " parameter";
-    }
-    out << nl << " * @param context the request context";
-    out << nl << " * @param sync {@code true} if the operation is synchronous, {@code false} otherwise";
-
-    // There is always a return value since it's async
-    out << nl << " * @return a CompletableFuture that will be completed with the result of the operation";
-
-    // Hide this method generated documentation
-    out << nl << " * @hidden";
-
-    // No throws since it's async
-    out << nl << " **/";
-}
-
-void
 Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p, const string& package, bool async)
 {
     const optional<DocComment>& dc = p->docComment();
