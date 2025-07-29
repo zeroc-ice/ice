@@ -335,7 +335,7 @@ Slice::Java::typeToString(
         "long",
         "float",
         "double",
-        "String",
+        "java.lang.String",
         "com.zeroc.Ice.ObjectPrx",
         "com.zeroc.Ice.Value"};
 
