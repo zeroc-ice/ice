@@ -407,9 +407,6 @@ namespace Slice::Python
             const DataMemberList& members,
             IceInternal::Output& out);
 
-        // Write a member assignment statement for a constructor.
-        void writeAssign(const ContainedPtr& source, const DataMemberPtr& member, IceInternal::Output& out);
-
         // Write a constant value.
         void writeConstantValue(
             const ContainedPtr& source,
@@ -417,9 +414,6 @@ namespace Slice::Python
             const SyntaxTreeBasePtr&,
             const std::string&,
             IceInternal::Output&);
-
-        /// Write constructor parameters with default values.
-        void writeConstructorParams(const ContainedPtr& source, const DataMemberList& members, IceInternal::Output&);
 
         /// Writes the provided @p remarks in its own subheading in the current comment (if @p remarks is non-empty).
         void writeRemarksDocComment(const StringList& remarks, bool needsNewline, IceInternal::Output& out);

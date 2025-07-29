@@ -617,11 +617,19 @@ Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Python::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    auto allDataMembers = p->allDataMembers();
-    if (!allDataMembers.empty())
+    addRuntimeImport("dataclasses", "dataclass", p);
+
+    for (const auto& member : p->dataMembers())
     {
-        addRuntimeImport("Ice.StringUtil", "format_fields", p);
+        // Import field if we have at least one data member that cannot be used as a default value.
+        // This is required to use the `dataclasses.field` function to initialize the field.
+        if (!canBeUsedAsDefaultValue(member->type()))
+        {
+            addRuntimeImport("dataclasses", "field", p);
+            break;
+        }
     }
+
 
     // Add imports required for base exception types.
     if (ExceptionPtr base = p->base())
@@ -635,7 +643,7 @@ Slice::Python::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
         addRuntimeImport("Ice.UserException", "UserException", p);
     }
     // Add imports required for the data members.
-    visitDataMembers(p, allDataMembers);
+    visitDataMembers(p, p->dataMembers());
     return false;
 }
 
@@ -1630,40 +1638,31 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList members = p->dataMembers();
 
     out << sp;
+    out << nl << "@dataclass";
     out << nl << "class " << name << '('
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.UserException", "UserException")) << "):";
     out.inc();
     writeDocstring(p->docComment(), members, out);
 
-    if (!members.empty())
+    // TODO: duplicated with struct code
+    for (const auto& field : members)
     {
-        // __init__
-        out << nl << "def __init__(";
-        writeConstructorParams(p, p->allDataMembers(), out);
-        out << "):";
-        out.inc();
+        out << nl << field->mappedName() << ": " << typeToTypeHintString(field->type(), field->optional(), p, false);
 
-        out << nl << "super().__init__";
-        out.spar("(");
-        if (base)
+        if (field->defaultValue())
         {
-            for (const auto& member : base->allDataMembers())
-            {
-                out << member->mappedName();
-            }
+            out << " = ";
+            writeConstantValue(p, field->type(), field->defaultValueType(), *field->defaultValue(), out);
         }
-        out.epar(")");
-
-        for (const auto& member : members)
+        else if (field->optional())
         {
-            writeAssign(p, member, out);
+            out << " = None";
         }
-        out.dec();
+        else
+        {
+            out << " = " + getTypeInitializer(p, field, false);
+        }
     }
-
-    // Generate the __repr__ method for this Exception class.
-    // The default __str__ method inherited from Ice.UserException calls __repr__().
-    writeRepr(p, p->allDataMembers(), out);
 
     // _ice_id
     out << sp;
@@ -2004,46 +2003,6 @@ Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata, Output& 
 }
 
 void
-Slice::Python::CodeVisitor::writeAssign(const ContainedPtr& source, const DataMemberPtr& member, Output& out)
-{
-    const string memberName = member->mappedName();
-    const TypePtr memberType = member->type();
-
-    // Mutable types cannot be used as default values in Python as they are shared across instances.
-    if (!canBeUsedAsDefaultValue(memberType) && !member->optional())
-    {
-        out << nl << "self." << memberName << " = " << memberName << " if " << memberName << " is not None else ";
-
-        if (dynamic_pointer_cast<Struct>(memberType))
-        {
-            out << getImportAlias(source, memberType) << "()";
-        }
-        else if (auto seq = dynamic_pointer_cast<Sequence>(memberType))
-        {
-            auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
-            bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
-            if (isByteSequence)
-            {
-                out << "b''"; // Byte sequences are initialized with an empty byte string.
-            }
-            else
-            {
-                // TODO: handle metadata for sequences.
-                out << "[]"; // Other sequences are initialized with an empty list.
-            }
-        }
-        else if (dynamic_pointer_cast<Dictionary>(memberType))
-        {
-            out << "{}";
-        }
-    }
-    else
-    {
-        out << nl << "self." << memberName << " = " << memberName;
-    }
-}
-
-void
 Slice::Python::CodeVisitor::writeConstantValue(
     const ContainedPtr& source,
     const TypePtr& type,
@@ -2096,39 +2055,6 @@ Slice::Python::CodeVisitor::writeConstantValue(
     else
     {
         assert(false); // Unknown const type.
-    }
-}
-
-void
-Slice::Python::CodeVisitor::writeConstructorParams(
-    const ContainedPtr& source,
-    const DataMemberList& members,
-    Output& out)
-{
-    out << "self";
-    for (const auto& member : members)
-    {
-        // Using mutable types in Python as default values is bad as they are shared across instances.
-        // The standard way to handle this is to use an optional with a default value of None, and then
-        // initialize the member in the constructor if it is None.
-        const string typeHint = typeToTypeHintString(
-            member->type(),
-            member->optional() || !canBeUsedAsDefaultValue(member->type()),
-            dynamic_pointer_cast<Contained>(member->container()),
-            false);
-        out << ", " << member->mappedName() << ": " << typeHint << " = ";
-        if (member->defaultValue())
-        {
-            writeConstantValue(source, member->type(), member->defaultValueType(), *member->defaultValue(), out);
-        }
-        else if (member->optional())
-        {
-            out << "None";
-        }
-        else
-        {
-            out << getTypeInitializer(source, member, true);
-        }
     }
 }
 
