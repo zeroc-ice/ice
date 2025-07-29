@@ -1090,6 +1090,63 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
 }
 
 bool
+Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
+{
+    const string name = p->mappedName();
+    ;
+    const DataMemberList members = p->dataMembers();
+
+    _out = std::make_unique<BufferedOutput>();
+    auto& out = *_out;
+
+    out << sp;
+    out << nl << "@dataclass";
+    if (Dictionary::isLegalKeyType(p))
+    {
+        out << "(order=True, unsafe_hash=True)";
+    }
+
+    out << nl << "class " << name << ":";
+    out.inc();
+
+    writeDocstring(p->docComment(), members, out);
+    return true;
+}
+
+void
+Slice::Python::CodeVisitor::visitStructEnd(const StructPtr& p)
+{
+    const string scoped = p->scoped();
+    const string name = p->mappedName();
+    const string metaTypeName = getMetaType(p);
+
+    assert(_out);
+    auto& out = *_out;
+
+    out.dec();
+
+    // Emit the type information.
+    out << sp;
+    out << nl << metaTypeName << " = IcePy.defineStruct(";
+    out.inc();
+    out << nl << "\"" << scoped << "\",";
+    out << nl << name << ",";
+    out << nl;
+    writeMetadata(p->getMetadata(), out);
+    out << ",";
+
+    writeMetaTypeDataMembers(p, p->dataMembers(), out);
+    out << ")";
+    out.dec();
+
+    out << sp;
+    out << nl << "__all__ = [\"" << name << "\", \"" << metaTypeName << "\"]";
+
+    _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
+    _out.reset();
+}
+
+bool
 Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string scoped = p->scoped();
@@ -1108,7 +1165,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _codeFragments.push_back(createCodeFragmentForPythonModule(p->declaration(), outF.str()));
 
     // Emit the class definition.
-    BufferedOutput out;
+    _out = std::make_unique<BufferedOutput>();
+    auto& out = *_out;
 
     // Equality for Slice classes is reference equality, so we disable the dataclass eq.
     out << nl << "@dataclass(eq=False)";
@@ -1117,26 +1175,19 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.inc();
 
     writeDocstring(p->docComment(), members, out);
+    return true;
+}
 
-    // TODO: duplicated with struct code
-    for (const auto& field : members)
-    {
-        out << nl << field->mappedName() << ": " << typeToTypeHintString(field->type(), field->optional(), p, false);
+void
+Slice::Python::CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
+{
+    const string scoped = p->scoped();
+    const string metaType = getMetaType(p);
+    const string valueName = p->mappedName();
+    const ClassDefPtr base = p->base();
 
-        if (field->defaultValue())
-        {
-            out << " = ";
-            writeConstantValue(p, field->type(), field->defaultValueType(), *field->defaultValue(), out);
-        }
-        else if (field->optional())
-        {
-            out << " = None";
-        }
-        else
-        {
-            out << " = " + getTypeInitializer(p, field, false);
-        }
-    }
+    assert(_out);
+    auto& out = *_out;
 
     // ice_id
     out << sp;
@@ -1181,7 +1232,98 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "__all__ = [\"" << valueName << "\", \"" << metaType << "\"]";
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
-    return false;
+    _out.reset();
+}
+
+bool
+Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    const string scoped = p->scoped();
+    const string name = p->mappedName();
+    const ExceptionPtr base = p->base();
+
+    _out = std::make_unique<BufferedOutput>();
+    auto& out = *_out;
+
+    const DataMemberList members = p->dataMembers();
+
+    out << sp;
+    out << nl << "@dataclass";
+    out << nl << "class " << name << '('
+        << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.UserException", "UserException")) << "):";
+    out.inc();
+    writeDocstring(p->docComment(), members, out);
+
+    return true;
+}
+
+void
+Slice::Python::CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
+{
+    const string scoped = p->scoped();
+    const string name = p->mappedName();
+    const ExceptionPtr base = p->base();
+
+    assert(_out);
+    auto& out = *_out;
+
+    // _ice_id
+    out << sp;
+    out << nl << "_ice_id = \"" << scoped << "\"";
+
+    out.dec();
+
+    // Emit the type information.
+    string metaType = getMetaType(p);
+    out << sp;
+    out << nl << metaType << " = IcePy.defineException(";
+    out.inc();
+    out << nl << "\"" << scoped << "\",";
+    out << nl << name << ",";
+    out << nl;
+    writeMetadata(p->getMetadata(), out);
+    out << ",";
+    out << nl << (base ? getMetaType(base) : "None") << ",";
+
+    writeMetaTypeDataMembers(p, p->dataMembers(), out);
+
+    out << ")";
+    out.dec();
+
+    // Use setattr to set the _ice_type attribute on the exception. Linting tools will complain about this if we
+    // don't use setattr, as the _ice_type attribute is not defined in the exception body.
+    out << sp;
+    out << nl << "setattr(" << name << ", '_ice_type', " << metaType << ")";
+
+    out << sp;
+    out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
+
+    _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
+    _out.reset();
+}
+
+void
+Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    assert(_out);
+    auto& out = *_out;
+    auto parent = dynamic_pointer_cast<Contained>(p->container());
+
+    out << nl << p->mappedName() << ": " << typeToTypeHintString(p->type(), p->optional(), parent, false);
+
+    if (p->defaultValue())
+    {
+        out << " = ";
+        writeConstantValue(parent, p->type(), p->defaultValueType(), *p->defaultValue(), out);
+    }
+    else if (p->optional())
+    {
+        out << " = None";
+    }
+    else
+    {
+        out << " = " + getTypeInitializer(parent, p, false);
+    }
 }
 
 bool
@@ -1592,141 +1734,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     return false;
 }
 
-bool
-Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    const string scoped = p->scoped();
-    const string name = p->mappedName();
-
-    const ExceptionPtr base = p->base();
-    BufferedOutput out;
-
-    const DataMemberList members = p->dataMembers();
-
-    out << sp;
-    out << nl << "@dataclass";
-    out << nl << "class " << name << '('
-        << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.UserException", "UserException")) << "):";
-    out.inc();
-    writeDocstring(p->docComment(), members, out);
-
-    // TODO: duplicated with struct code
-    for (const auto& field : members)
-    {
-        out << nl << field->mappedName() << ": " << typeToTypeHintString(field->type(), field->optional(), p, false);
-
-        if (field->defaultValue())
-        {
-            out << " = ";
-            writeConstantValue(p, field->type(), field->defaultValueType(), *field->defaultValue(), out);
-        }
-        else if (field->optional())
-        {
-            out << " = None";
-        }
-        else
-        {
-            out << " = " + getTypeInitializer(p, field, false);
-        }
-    }
-
-    // _ice_id
-    out << sp;
-    out << nl << "_ice_id = \"" << scoped << "\"";
-
-    out.dec();
-
-    // Emit the type information.
-    string metaType = getMetaType(p);
-    out << sp;
-    out << nl << metaType << " = IcePy.defineException(";
-    out.inc();
-    out << nl << "\"" << scoped << "\",";
-    out << nl << name << ",";
-    out << nl;
-    writeMetadata(p->getMetadata(), out);
-    out << ",";
-    out << nl << (base ? getMetaType(base) : "None") << ",";
-
-    writeMetaTypeDataMembers(p, p->dataMembers(), out);
-
-    out << ")";
-    out.dec();
-
-    // Use setattr to set the _ice_type attribute on the exception. Linting tools will complain about this if we
-    // don't use setattr, as the _ice_type attribute is not defined in the exception body.
-    out << sp;
-    out << nl << "setattr(" << name << ", '_ice_type', " << metaType << ")";
-
-    out << sp;
-    out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
-
-    _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
-    return false;
-}
-
-bool
-Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
-{
-    const string scoped = p->scoped();
-    const string name = p->mappedName();
-    const string metaTypeName = getMetaType(p);
-    const DataMemberList members = p->dataMembers();
-    BufferedOutput out;
-
-    out << sp;
-    out << nl << "@dataclass";
-    if (Dictionary::isLegalKeyType(p))
-    {
-        out << "(order=True, unsafe_hash=True)";
-    }
-
-    out << nl << "class " << name << ":";
-    out.inc();
-
-    writeDocstring(p->docComment(), members, out);
-
-    for (const auto& field : members)
-    {
-        out << nl << field->mappedName() << ": " << typeToTypeHintString(field->type(), field->optional(), p, false);
-
-        if (field->defaultValue())
-        {
-            out << " = ";
-            writeConstantValue(p, field->type(), field->defaultValueType(), *field->defaultValue(), out);
-        }
-        else if (field->optional())
-        {
-            out << " = None";
-        }
-        else
-        {
-            out << " = " + getTypeInitializer(p, field, false);
-        }
-    }
-    out.dec();
-
-    // Emit the type information.
-    out << sp;
-    out << nl << metaTypeName << " = IcePy.defineStruct(";
-    out.inc();
-    out << nl << "\"" << scoped << "\",";
-    out << nl << name << ",";
-    out << nl;
-    writeMetadata(p->getMetadata(), out);
-    out << ",";
-
-    writeMetaTypeDataMembers(p, p->dataMembers(), out);
-    out << ")";
-    out.dec();
-
-    out << sp;
-    out << nl << "__all__ = [\"" << name << "\", \"" << metaTypeName << "\"]";
-
-    _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
-    return false;
-}
-
 void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
@@ -1875,23 +1882,6 @@ Slice::Python::CodeVisitor::getTypeInitializer(const ContainedPtr& source, const
     }
 
     return "None";
-}
-
-void
-Slice::Python::CodeVisitor::writeRepr(const ContainedPtr& p, const DataMemberList& members, Output& out)
-{
-    out << sp;
-    out << nl << "def __repr__(self) -> str:";
-    out.inc();
-    if (members.empty())
-    {
-        out << nl << "return \"" << p->mappedName() << "()\"";
-    }
-    else
-    {
-        out << nl << "return f\"" << p->mappedName() << "(" << formatFields(members) << ")\"";
-    }
-    out.dec();
 }
 
 void

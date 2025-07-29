@@ -353,10 +353,16 @@ namespace Slice::Python
         {
         }
 
-        bool visitClassDefStart(const ClassDefPtr&) final;
-        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-        bool visitExceptionStart(const ExceptionPtr&) final;
         bool visitStructStart(const StructPtr&) final;
+        void visitStructEnd(const StructPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitClassDefEnd(const ClassDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitExceptionEnd(const ExceptionPtr&) final;
+        void visitDataMember(const DataMemberPtr&) final;
+
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+
         void visitSequence(const SequencePtr&) final;
         void visitDictionary(const DictionaryPtr&) final;
         void visitEnum(const EnumPtr&) final;
@@ -401,9 +407,6 @@ namespace Slice::Python
         // Write Python metadata as a tuple.
         void writeMetadata(const MetadataList&, IceInternal::Output&);
 
-        // Write the __repr__ method for a generated class or exception.
-        void writeRepr(const ContainedPtr& contained, const DataMemberList& members, IceInternal::Output& out);
-
         // Write the data members meta-info for a meta type declaration.
         void writeMetaTypeDataMembers(
             const ContainedPtr& contained,
@@ -442,6 +445,8 @@ namespace Slice::Python
         /// - Value: a map where the key is the imported definition name or alias, and the value is the Python
         /// module name where the definition is imported from.
         std::map<std::string, std::map<std::string, std::string>> _allImports;
+
+        std::unique_ptr<BufferedOutput> _out;
     };
 }
 
