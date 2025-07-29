@@ -503,26 +503,10 @@ class ShowIceLogDialog extends JDialog {
                             (LogMessageType) getModel().getValueAt(modelRow, 1);
                         if (type != null) {
                             switch (type) {
-                                case ErrorMessage:
-                                {
-                                    c.setBackground(Color.RED);
-                                    break;
-                                }
-                                case WarningMessage:
-                                {
-                                    c.setBackground(Color.ORANGE);
-                                    break;
-                                }
-                                case PrintMessage:
-                                {
-                                    c.setBackground(Color.LIGHT_GRAY);
-                                    break;
-                                }
-                                default:
-                                {
-                                    c.setBackground(getBackground());
-                                    break;
-                                }
+                                case ErrorMessage -> c.setBackground(Color.RED);
+                                case WarningMessage -> c.setBackground(Color.ORANGE);
+                                case PrintMessage -> c.setBackground(Color.LIGHT_GRAY);
+                                default -> c.setBackground(getBackground());
                             }
                         }
                     }

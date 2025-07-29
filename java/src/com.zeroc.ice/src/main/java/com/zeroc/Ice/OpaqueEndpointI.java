@@ -258,8 +258,7 @@ final class OpaqueEndpointI extends EndpointI {
     @Override
     protected boolean checkOption(String option, String argument, String endpoint) {
         switch (option.charAt(1)) {
-            case 't':
-            {
+            case 't': {
                 if (_type > -1) {
                     throw new ParseException(
                         "multiple -t options in endpoint '" + endpoint + "'");
@@ -297,8 +296,7 @@ final class OpaqueEndpointI extends EndpointI {
                 return true;
             }
 
-            case 'v':
-            {
+            case 'v': {
                 if (_rawBytes.length > 0) {
                     throw new ParseException(
                         "multiple -v options in endpoint '" + endpoint + "'");
@@ -319,8 +317,7 @@ final class OpaqueEndpointI extends EndpointI {
                 return true;
             }
 
-            case 'e':
-            {
+            case 'e': {
                 if (argument == null) {
                     throw new ParseException(
                         "no argument provided for -e option in endpoint '"
@@ -342,8 +339,7 @@ final class OpaqueEndpointI extends EndpointI {
                 return true;
             }
 
-            default:
-            {
+            default: {
                 return false;
             }
         }

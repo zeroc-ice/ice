@@ -1011,60 +1011,21 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
 
         @Override
         public Class<?> getColumnClass(int columnIndex) {
-            switch (columnIndex) {
-                case 0: // Visible
-                    {
-                        return Boolean.class;
-                    }
-                case 1: // Component Name
-                    {
-                        return String.class;
-                    }
-                case 2: // View Name
-                    {
-                        return String.class;
-                    }
-                case 3: // Metrics Name
-                    {
-                        return String.class;
-                    }
-                case 4: // Metrics Id
-                    {
-                        return String.class;
-                    }
-                case 5: // Column Name
-                    {
-                        return String.class;
-                    }
-                case 6: // Scale factor
-                    {
-                        return Double.class;
-                    }
-                case 7: // Last value
-                    {
-                        return Double.class;
-                    }
-                case 8: // Average value
-                    {
-                        return Double.class;
-                    }
-                case 9: // Min value
-                    {
-                        return Double.class;
-                    }
-                case 10: // Max value
-                    {
-                        return Double.class;
-                    }
-                case 11: // Color
-                    {
-                        return Color.class;
-                    }
-                default:
-                {
-                    return null;
-                }
-            }
+            return switch (columnIndex) {
+                case 0 -> Boolean.class; // Visible
+                case 1 -> String.class; // Component Name
+                case 2 -> String.class; // View Name
+                case 3 -> String.class; // Metrics Name
+                case 4 -> String.class; // Metrics Id
+                case 5 -> String.class; // Column Name
+                case 6 -> Double.class; // Scale factor
+                case 7 -> Double.class; // Last value
+                case 8 -> Double.class; // Average value
+                case 9 -> Double.class; // Min value
+                case 10 -> Double.class; // Max value
+                case 11 -> Color.class; // Color
+                default -> null;
+            };
         }
 
         @Override
@@ -1073,60 +1034,21 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                 return null;
             }
             MetricsRow row = _rows.get(rowIndex);
-            switch (columnIndex) {
-                case 0:
-                {
-                    return row.visible;
-                }
-                case 1:
-                {
-                    return row.info.component;
-                }
-                case 2:
-                {
-                    return row.info.view;
-                }
-                case 3:
-                {
-                    return row.cell.getField().getMetricsName();
-                }
-                case 4:
-                {
-                    return row.cell.getId();
-                }
-                case 5:
-                {
-                    return row.cell.getField().getColumnName();
-                }
-                case 6:
-                {
-                    return row.cell.getScaleFactor();
-                }
-                case 7:
-                {
-                    return row.cell.getLast();
-                }
-                case 8:
-                {
-                    return row.cell.getAverage();
-                }
-                case 9:
-                {
-                    return row.cell.getMin();
-                }
-                case 10:
-                {
-                    return row.cell.getMax();
-                }
-                case 11:
-                {
-                    return new Color(Integer.parseInt(row.color.substring(1), 16));
-                }
-                default:
-                {
-                    return null;
-                }
-            }
+            return switch (columnIndex) {
+                case 0 -> row.visible;
+                case 1 -> row.info.component;
+                case 2 -> row.info.view;
+                case 3 -> row.cell.getField().getMetricsName();
+                case 4 -> row.cell.getId();
+                case 5 -> row.cell.getField().getColumnName();
+                case 6 -> row.cell.getScaleFactor();
+                case 7 -> row.cell.getLast();
+                case 8 -> row.cell.getAverage();
+                case 9 -> row.cell.getMin();
+                case 10 -> row.cell.getMax();
+                case 11 -> new Color(Integer.parseInt(row.color.substring(1), 16));
+                default -> null;
+            };
         }
 
         @Override

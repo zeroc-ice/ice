@@ -69,8 +69,7 @@ final class HttpParser {
             char c = (char) buf.get(p);
 
             switch (_state) {
-                case Init:
-                {
+                case Init: {
                     _method.setLength(0);
                     _uri.setLength(0);
                     _versionMajor = -1;
@@ -81,14 +80,11 @@ final class HttpParser {
                     _state = State.Type;
                     continue;
                 }
-                case Type:
-                {
+                case Type: {
                     if (c == CR || c == LF) {
                         break;
                     } else if (c == 'H') {
-                        //
                         // Could be the start of "HTTP/1.1" or "HEAD".
-                        //
                         _state = State.TypeCheck;
                         break;
                     } else {
@@ -96,8 +92,7 @@ final class HttpParser {
                         continue;
                     }
                 }
-                case TypeCheck:
-                {
+                case TypeCheck: {
                     if (c == 'T') {
                         // Continuing "H_T_TP/1.1"
                         _state = State.Response;
@@ -111,14 +106,12 @@ final class HttpParser {
                     }
                     break;
                 }
-                case Request:
-                {
+                case Request: {
                     _type = Type.Request;
                     _state = State.RequestMethod;
                     continue;
                 }
-                case RequestMethod:
-                {
+                case RequestMethod: {
                     if (c == ' ' || c == CR || c == LF) {
                         _state = State.RequestMethodSP;
                         continue;
@@ -126,8 +119,7 @@ final class HttpParser {
                     _method.append(c);
                     break;
                 }
-                case RequestMethodSP:
-                {
+                case RequestMethodSP: {
                     if (c == ' ') {
                         break;
                     } else if (c == CR || c == LF) {
@@ -136,8 +128,7 @@ final class HttpParser {
                     _state = State.RequestURI;
                     continue;
                 }
-                case RequestURI:
-                {
+                case RequestURI: {
                     if (c == ' ' || c == CR || c == LF) {
                         _state = State.RequestURISP;
                         continue;
@@ -145,8 +136,7 @@ final class HttpParser {
                     _uri.append(c);
                     break;
                 }
-                case RequestURISP:
-                {
+                case RequestURISP: {
                     if (c == ' ') {
                         break;
                     } else if (c == CR || c == LF) {
@@ -155,21 +145,17 @@ final class HttpParser {
                     _state = State.Version;
                     continue;
                 }
-                case RequestLF:
-                {
+                case RequestLF: {
                     if (c != LF) {
                         throw new WebSocketException("malformed request");
                     }
                     _state = State.HeaderFieldStart;
                     break;
                 }
-                case HeaderFieldStart:
-                {
-                    //
+                case HeaderFieldStart: {
                     // We've already seen a LF to reach this state.
                     //
                     // Another CR or LF indicates the end of the header fields.
-                    //
                     if (c == CR) {
                         _state = State.HeaderFieldEndLF;
                         break;
@@ -177,9 +163,7 @@ final class HttpParser {
                         _state = State.Complete;
                         break;
                     } else if (c == ' ') {
-                        //
                         // Could be a continuation line.
-                        //
                         _state = State.HeaderFieldContStart;
                         break;
                     }
@@ -187,8 +171,7 @@ final class HttpParser {
                     _state = State.HeaderFieldNameStart;
                     continue;
                 }
-                case HeaderFieldContStart:
-                {
+                case HeaderFieldContStart: {
                     if (c == ' ') {
                         break;
                     }
@@ -197,8 +180,7 @@ final class HttpParser {
                     start = p;
                     continue;
                 }
-                case HeaderFieldCont:
-                {
+                case HeaderFieldCont: {
                     if (c == CR || c == LF) {
                         if (p > start) {
                             if (_headerName.isEmpty()) {
@@ -223,16 +205,14 @@ final class HttpParser {
 
                     break;
                 }
-                case HeaderFieldNameStart:
-                {
+                case HeaderFieldNameStart: {
                     assert (c != ' ');
                     start = p;
                     _headerName = "";
                     _state = State.HeaderFieldName;
                     continue;
                 }
-                case HeaderFieldName:
-                {
+                case HeaderFieldName: {
                     if (c == ' ' || c == ':') {
                         _state = State.HeaderFieldNameEnd;
                         continue;
@@ -241,8 +221,7 @@ final class HttpParser {
                     }
                     break;
                 }
-                case HeaderFieldNameEnd:
-                {
+                case HeaderFieldNameEnd: {
                     if (_headerName.isEmpty()) {
                         StringBuffer str = new StringBuffer();
                         for (int i = start; i < p; i++) {
@@ -267,8 +246,7 @@ final class HttpParser {
                     _state = State.HeaderFieldValueStart;
                     break;
                 }
-                case HeaderFieldValueStart:
-                {
+                case HeaderFieldValueStart: {
                     if (c == ' ') {
                         break;
                     }
@@ -288,16 +266,14 @@ final class HttpParser {
                     _state = State.HeaderFieldValue;
                     continue;
                 }
-                case HeaderFieldValue:
-                {
+                case HeaderFieldValue: {
                     if (c == CR || c == LF) {
                         _state = State.HeaderFieldValueEnd;
                         continue;
                     }
                     break;
                 }
-                case HeaderFieldValueEnd:
-                {
+                case HeaderFieldValueEnd: {
                     assert (c == CR || c == LF);
                     if (p > start) {
                         StringBuffer str = new StringBuffer();
@@ -319,64 +295,56 @@ final class HttpParser {
                     }
                     break;
                 }
-                case HeaderFieldLF:
-                {
+                case HeaderFieldLF: {
                     if (c != LF) {
                         throw new WebSocketException("malformed header");
                     }
                     _state = State.HeaderFieldStart;
                     break;
                 }
-                case HeaderFieldEndLF:
-                {
+                case HeaderFieldEndLF: {
                     if (c != LF) {
                         throw new WebSocketException("malformed header");
                     }
                     _state = State.Complete;
                     break;
                 }
-                case Version:
-                {
+                case Version: {
                     if (c != 'H') {
                         throw new WebSocketException("malformed version");
                     }
                     _state = State.VersionH;
                     break;
                 }
-                case VersionH:
-                {
+                case VersionH: {
                     if (c != 'T') {
                         throw new WebSocketException("malformed version");
                     }
                     _state = State.VersionHT;
                     break;
                 }
-                case VersionHT:
-                {
+                case VersionHT: {
                     if (c != 'T') {
                         throw new WebSocketException("malformed version");
                     }
                     _state = State.VersionHTT;
                     break;
                 }
-                case VersionHTT:
-                {
+                case VersionHTT: {
                     if (c != 'P') {
                         throw new WebSocketException("malformed version");
                     }
                     _state = State.VersionHTTP;
                     break;
                 }
-                case VersionHTTP:
-                {
+                case VersionHTTP: {
                     if (c != '/') {
                         throw new WebSocketException("malformed version");
                     }
                     _state = State.VersionMajor;
                     break;
                 }
-                case VersionMajor:
-                {
+                case VersionMajor: {
                     if (c == '.') {
                         if (_versionMajor == -1) {
                             throw new WebSocketException("malformed version");
@@ -393,8 +361,7 @@ final class HttpParser {
                     _versionMajor += c - '0';
                     break;
                 }
-                case VersionMinor:
-                {
+                case VersionMinor: {
                     if (c == CR) {
                         if (_versionMinor == -1 || _type != Type.Request) {
                             throw new WebSocketException("malformed version");
@@ -423,14 +390,12 @@ final class HttpParser {
                     _versionMinor += c - '0';
                     break;
                 }
-                case Response:
-                {
+                case Response: {
                     _type = Type.Response;
                     _state = State.VersionHT;
                     continue;
                 }
-                case ResponseVersionSP:
-                {
+                case ResponseVersionSP: {
                     if (c == ' ') {
                         break;
                     }
@@ -438,8 +403,7 @@ final class HttpParser {
                     _state = State.ResponseStatus;
                     continue;
                 }
-                case ResponseStatus:
-                {
+                case ResponseStatus: {
                     // TODO: Is reason string optional?
                     if (c == CR) {
                         if (_status == -1) {
@@ -469,8 +433,7 @@ final class HttpParser {
                     _status += c - '0';
                     break;
                 }
-                case ResponseReasonStart:
-                {
+                case ResponseReasonStart: {
                     //
                     // Skip leading spaces.
                     //
@@ -482,8 +445,7 @@ final class HttpParser {
                     start = p;
                     continue;
                 }
-                case ResponseReason:
-                {
+                case ResponseReason: {
                     if (c == CR || c == LF) {
                         if (p > start) {
                             StringBuffer str = new StringBuffer();
@@ -497,16 +459,14 @@ final class HttpParser {
 
                     break;
                 }
-                case ResponseLF:
-                {
+                case ResponseLF: {
                     if (c != LF) {
                         throw new WebSocketException("malformed status line");
                     }
                     _state = State.HeaderFieldStart;
                     break;
                 }
-                case Complete:
-                {
+                case Complete: {
                     assert false; // Shouldn't reach
                 }
             }

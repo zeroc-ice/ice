@@ -657,8 +657,7 @@ public final class Properties {
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
             switch (state) {
-                case ParseStateKey:
-                {
+                case ParseStateKey: {
                     switch (c) {
                         case '\\':
                             if (i < line.length() - 1) {
@@ -718,8 +717,7 @@ public final class Properties {
                     break;
                 }
 
-                case ParseStateValue:
-                {
+                case ParseStateValue: {
                     switch (c) {
                         case '\\':
                             if (i < line.length() - 1) {

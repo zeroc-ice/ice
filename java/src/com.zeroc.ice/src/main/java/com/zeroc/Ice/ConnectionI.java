@@ -115,19 +115,14 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     public synchronized void destroy(int reason) {
         switch (reason) {
-            case ObjectAdapterDeactivated:
-            {
+            case ObjectAdapterDeactivated -> {
                 setState(
                     StateClosing,
-                    new ObjectAdapterDeactivatedException(
-                        _adapter != null ? _adapter.getName() : ""));
-                break;
+                    new ObjectAdapterDeactivatedException(_adapter != null ? _adapter.getName() : ""));
             }
 
-            case CommunicatorDestroyed:
-            {
+            case CommunicatorDestroyed -> {
                 setState(StateClosing, new CommunicatorDestroyedException());
-                break;
             }
         }
     }
@@ -1324,23 +1319,18 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
         try {
             switch (state) {
-                case StateNotInitialized:
-                {
+                case StateNotInitialized -> {
                     assert false;
-                    break;
                 }
 
-                case StateNotValidated:
-                {
+                case StateNotValidated -> {
                     if (_state != StateNotInitialized) {
                         assert (_state == StateClosed);
                         return;
                     }
-                    break;
                 }
 
-                case StateActive:
-                {
+                case StateActive -> {
                     // Can only switch from holding or not validated to active.
                     if (_state != StateHolding && _state != StateNotValidated) {
                         return;
@@ -1353,11 +1343,9 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         }
                     }
                     // else don't resume reading since we're at or over the _maxDispatches limit.
-                    break;
                 }
 
-                case StateHolding:
-                {
+                case StateHolding -> {
                     // Can only switch from active or not validated to holding.
                     if (_state != StateActive && _state != StateNotValidated) {
                         return;
@@ -1370,21 +1358,16 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         }
                     }
                     // else reads are already disabled because the _maxDispatches limit is reached or exceeded.
-                    break;
                 }
 
-                case StateClosing:
-                case StateClosingPending:
-                {
+                case StateClosing, StateClosingPending -> {
                     // Can't change back from closing pending.
                     if (_state >= StateClosingPending) {
                         return;
                     }
-                    break;
                 }
 
-                case StateClosed:
-                {
+                case StateClosed -> {
                     if (_state == StateFinished) {
                         return;
                     }
@@ -1396,14 +1379,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     if (_threadPool.finish(this, false)) {
                         _transceiver.close();
                     }
-                    break;
                 }
 
-                case StateFinished:
-                {
+                case StateFinished -> {
                     assert (_state == StateClosed);
                     _communicator = null;
-                    break;
                 }
             }
         } catch (LocalException ex) {
@@ -1922,8 +1902,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             info.stream.pos(Protocol.headerSize);
 
             switch (messageType) {
-                case Protocol.closeConnectionMsg:
-                {
+                case Protocol.closeConnectionMsg: {
                     TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                     if (_endpoint.datagram()) {
                         if (_warn) {
@@ -1948,8 +1927,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     break;
                 }
 
-                case Protocol.requestMsg:
-                {
+                case Protocol.requestMsg: {
                     if (_state >= StateClosing) {
                         TraceUtil.trace(
                             "received request during closing\n"
@@ -1971,8 +1949,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     break;
                 }
 
-                case Protocol.requestBatchMsg:
-                {
+                case Protocol.requestBatchMsg: {
                     if (_state >= StateClosing) {
                         TraceUtil.trace(
                             "received batch request during closing\n"
@@ -2000,8 +1977,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     break;
                 }
 
-                case Protocol.replyMsg:
-                {
+                case Protocol.replyMsg: {
                     TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                     info.requestId = info.stream.readInt();
 
@@ -2016,14 +1992,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     break;
                 }
 
-                case Protocol.validateConnectionMsg:
-                {
+                case Protocol.validateConnectionMsg: {
                     TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                     break;
                 }
 
-                default:
-                {
+                default: {
                     TraceUtil.trace(
                         "received unknown message\n(invalid, closing connection)",
                         info.stream,

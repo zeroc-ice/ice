@@ -114,19 +114,9 @@ public class AllTests {
 
     private static void throwEx(ThrowType t) {
         switch (t) {
-            case LocalException:
-            {
-                throw new ObjectNotExistException();
-            }
-            case OtherException:
-            {
-                throw new RuntimeException();
-            }
-            default:
-            {
-                assert false;
-                break;
-            }
+            case LocalException -> throw new ObjectNotExistException();
+            case OtherException -> throw new RuntimeException();
+            default -> throw new AssertionError();
         }
     }
 

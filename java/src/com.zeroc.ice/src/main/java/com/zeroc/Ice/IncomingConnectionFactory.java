@@ -440,8 +440,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         }
 
         switch (state) {
-            case StateActive:
-            {
+            case StateActive -> {
                 // Can only switch from holding to active.
                 if (_state != StateHolding) {
                     return;
@@ -463,11 +462,9 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 for (ConnectionI connection : _connections) {
                     connection.activate();
                 }
-                break;
             }
 
-            case StateHolding:
-            {
+            case StateHolding -> {
                 // Can only switch from active to holding.
                 if (_state != StateActive) {
                     return;
@@ -490,11 +487,9 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 for (ConnectionI connection : _connections) {
                     connection.hold();
                 }
-                break;
             }
 
-            case StateClosed:
-            {
+            case StateClosed -> {
                 if (_acceptorStarted) {
                     //
                     // If possible, close the acceptor now to prevent new connections from being
@@ -513,13 +508,10 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 for (ConnectionI connection : _connections) {
                     connection.destroy(ConnectionI.ObjectAdapterDeactivated);
                 }
-                break;
             }
 
-            case StateFinished:
-            {
+            case StateFinished -> {
                 assert (_state == StateClosed);
-                break;
             }
         }
 

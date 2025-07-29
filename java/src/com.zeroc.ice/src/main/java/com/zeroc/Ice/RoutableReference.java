@@ -580,17 +580,10 @@ class RoutableReference extends Reference {
             }
         }
 
-        //
         // Filter out endpoints according to the mode of the reference.
-        //
         switch (getMode()) {
-            case Reference.ModeTwoway:
-            case Reference.ModeOneway:
-            case Reference.ModeBatchOneway:
-            {
-                //
+            case Reference.ModeTwoway, Reference.ModeOneway, Reference.ModeBatchOneway -> {
                 // Filter out datagram endpoints.
-                //
                 Iterator<EndpointI> i = endpoints.iterator();
                 while (i.hasNext()) {
                     EndpointI endpoint = i.next();
@@ -598,15 +591,10 @@ class RoutableReference extends Reference {
                         i.remove();
                     }
                 }
-                break;
             }
 
-            case Reference.ModeDatagram:
-            case Reference.ModeBatchDatagram:
-            {
-                //
+            case Reference.ModeDatagram, Reference.ModeBatchDatagram -> {
                 // Filter out non-datagram endpoints.
-                //
                 Iterator<EndpointI> i = endpoints.iterator();
                 while (i.hasNext()) {
                     EndpointI endpoint = i.next();
@@ -614,37 +602,19 @@ class RoutableReference extends Reference {
                         i.remove();
                     }
                 }
-                break;
             }
         }
 
-        //
         // Sort the endpoints according to the endpoint selection type.
-        //
         switch (getEndpointSelection()) {
-            case Random:
-            {
-                Collections.shuffle(endpoints);
-                break;
-            }
-            case Ordered:
-            {
-                // Nothing to do.
-                break;
-            }
-            default:
-            {
-                assert false;
-                break;
-            }
+            case Random -> Collections.shuffle(endpoints);
+            case Ordered -> { /* Nothing to do. */ }
+            default -> throw new AssertionError();
         }
 
-        //
-        // If a secure connection is requested or secure overrides is
-        // set, remove all non-secure endpoints. Otherwise if preferSecure is set
-        // make secure endpoints preferred. By default make non-secure
-        // endpoints preferred over secure endpoints.
-        //
+        // If a secure connection is requested or secure overrides is set, remove all non-secure endpoints.
+        // Otherwise if preferSecure is set make secure endpoints preferred.
+        // By default make non-secure endpoints preferred over secure endpoints.
         DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
         if (overrides.overrideSecure.isPresent() ? overrides.overrideSecure.get() : getSecure()) {
             Iterator<EndpointI> i = endpoints.iterator();
@@ -663,8 +633,7 @@ class RoutableReference extends Reference {
         return endpoints.toArray(new EndpointI[endpoints.size()]);
     }
 
-    protected void createConnection(
-            EndpointI[] allEndpoints, final GetConnectionCallback callback) {
+    protected void createConnection(EndpointI[] allEndpoints, final GetConnectionCallback callback) {
         final EndpointI[] endpoints = filterEndpoints(allEndpoints);
         if (endpoints.length == 0) {
             callback.setException(new NoEndpointException(new _ObjectPrxI(this)));

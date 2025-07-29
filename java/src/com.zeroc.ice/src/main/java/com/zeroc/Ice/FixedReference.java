@@ -178,23 +178,16 @@ class FixedReference extends Reference {
         // `changeConnection()` clones then sets the connection.
 
         switch (getMode()) {
-            case Reference.ModeTwoway:
-            case Reference.ModeOneway:
-            case Reference.ModeBatchOneway:
-            {
+            case Reference.ModeTwoway, Reference.ModeOneway, Reference.ModeBatchOneway -> {
                 if (_fixedConnection.endpoint().datagram()) {
                     throw new NoEndpointException(new _ObjectPrxI(this));
                 }
-                break;
             }
 
-            case Reference.ModeDatagram:
-            case Reference.ModeBatchDatagram:
-            {
+            case Reference.ModeDatagram, Reference.ModeBatchDatagram -> {
                 if (!_fixedConnection.endpoint().datagram()) {
                     throw new NoEndpointException(new _ObjectPrxI(this));
                 }
-                break;
             }
         }
 

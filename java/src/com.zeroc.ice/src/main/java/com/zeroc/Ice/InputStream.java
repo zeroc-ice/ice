@@ -1397,45 +1397,14 @@ public final class InputStream {
 
     private void skipOptional(OptionalFormat format) {
         switch (format) {
-            case F1:
-            {
-                skip(1);
-                break;
-            }
-            case F2:
-            {
-                skip(2);
-                break;
-            }
-            case F4:
-            {
-                skip(4);
-                break;
-            }
-            case F8:
-            {
-                skip(8);
-                break;
-            }
-            case Size:
-            {
-                skipSize();
-                break;
-            }
-            case VSize:
-            {
-                skip(readSize());
-                break;
-            }
-            case FSize:
-            {
-                skip(readInt());
-                break;
-            }
-            case Class:
-            {
-                throw new MarshalException("cannot skip an optional class");
-            }
+            case F1 -> skip(1);
+            case F2 -> skip(2);
+            case F4 -> skip(4);
+            case F8 -> skip(8);
+            case Size -> skipSize();
+            case VSize -> skip(readSize());
+            case FSize -> skip(readInt());
+            case Class -> throw new MarshalException("cannot skip an optional class");
         }
     }
 

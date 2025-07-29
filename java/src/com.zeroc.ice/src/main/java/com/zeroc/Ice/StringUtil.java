@@ -64,68 +64,31 @@ public final class StringUtil {
     private static void encodeChar(
             char c, StringBuilder sb, String special, ToStringMode toStringMode) {
         switch (c) {
-            case '\\':
-            {
-                sb.append("\\\\");
-                break;
-            }
-            case '\'':
-            {
-                sb.append("\\'");
-                break;
-            }
-            case '"':
-            {
-                sb.append("\\\"");
-                break;
-            }
-            case '\007':
-            {
+            case '\\' -> sb.append("\\\\");
+            case '\'' -> sb.append("\\'");
+            case '"' -> sb.append("\\\"");
+            case '\007' -> {
                 if (toStringMode == ToStringMode.Compat) {
                     // Octal escape for compatibility with 3.6 and earlier
                     sb.append("\\007");
                 } else {
                     sb.append("\\a");
                 }
-                break;
             }
-            case '\b':
-            {
-                sb.append("\\b");
-                break;
-            }
-            case '\f':
-            {
-                sb.append("\\f");
-                break;
-            }
-            case '\n':
-            {
-                sb.append("\\n");
-                break;
-            }
-            case '\r':
-            {
-                sb.append("\\r");
-                break;
-            }
-            case '\t':
-            {
-                sb.append("\\t");
-                break;
-            }
-            case '\013':
-            {
+            case '\b' -> sb.append("\\b");
+            case '\f' -> sb.append("\\f");
+            case '\n' -> sb.append("\\n");
+            case '\r' -> sb.append("\\r");
+            case '\t' -> sb.append("\\t");
+            case '\013' -> {
                 if (toStringMode == ToStringMode.Compat) {
                     // Octal escape for compatibility with 3.6 and earlier
                     sb.append("\\013");
                 } else {
                     sb.append("\\v");
                 }
-                break;
             }
-            default:
-            {
+            default -> {
                 if (special != null && special.indexOf(c) != -1) {
                     sb.append('\\');
                     sb.append(c);
@@ -148,9 +111,7 @@ public final class StringUtil {
                                 sb.append('0');
                             }
                             sb.append(octal);
-                        } else if (c < 32
-                            || c == 127
-                            || toStringMode == ToStringMode.ASCII) {
+                        } else if (c < 32 || c == 127 || toStringMode == ToStringMode.ASCII) {
                             // append \\unnnn
                             sb.append("\\u");
                             String hex = Integer.toHexString(c);
@@ -167,7 +128,6 @@ public final class StringUtil {
                         sb.append(c);
                     }
                 }
-                break;
             }
         }
     }
@@ -274,60 +234,40 @@ public final class StringUtil {
             char c = s.charAt(++start);
 
             switch (c) {
-                case '\\':
-                case '\'':
-                case '"':
-                case '?':
-                {
+                case '\\', '\'', '"', '?' -> {
                     ++start;
                     result.append(c);
-                    break;
                 }
-                case 'a':
-                {
+                case 'a' -> {
                     ++start;
                     result.append('\u0007');
-                    break;
                 }
-                case 'b':
-                {
+                case 'b' -> {
                     ++start;
                     result.append('\b');
-                    break;
                 }
-                case 'f':
-                {
+                case 'f' -> {
                     ++start;
                     result.append('\f');
-                    break;
                 }
-                case 'n':
-                {
+                case 'n' -> {
                     ++start;
                     result.append('\n');
-                    break;
                 }
-                case 'r':
-                {
+                case 'r' -> {
                     ++start;
                     result.append('\r');
-                    break;
                 }
-                case 't':
-                {
+                case 't' -> {
                     ++start;
                     result.append('\t');
-                    break;
                 }
-                case 'v':
-                {
+                case 'v' -> {
                     ++start;
                     result.append('\u000b');
-                    break;
                 }
-                case 'u':
-                case 'U':
-                {
+
+                case 'u', 'U' -> {
                     int codePoint = 0;
                     boolean inBMP = c == 'u';
                     int size = inBMP ? 4 : 8;
@@ -360,21 +300,10 @@ public final class StringUtil {
                     } else {
                         result.append(Character.toChars(codePoint));
                     }
-                    break;
                 }
 
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case 'x':
-                {
-                    // UTF-8 byte sequence encoded with octal or hex escapes
-
+                // UTF-8 byte sequence encoded with octal or hex escapes
+                case '0', '1', '2', '3', '4', '5', '6', '7', 'x' -> {
                     byte[] arr = new byte[end - start];
                     int i = 0;
                     boolean more = true;
@@ -415,11 +344,7 @@ public final class StringUtil {
                             }
                             if (val > 255) {
                                 String msg =
-                                    "octal value \\"
-                                        + Integer.toOctalString(val)
-                                        + " ("
-                                        + val
-                                        + ") is out of range";
+                                    "octal value \\" + Integer.toOctalString(val) + " (" + val + ") is out of range";
                                 throw new IllegalArgumentException(msg);
                             }
                         }
@@ -442,15 +367,13 @@ public final class StringUtil {
                     } catch (UnsupportedEncodingException ex) {
                         throw new IllegalArgumentException("unsupported encoding", ex);
                     }
-                    break;
                 }
-                default:
-                {
+
+                default -> {
                     if (special == null || special.isEmpty() || special.indexOf(c) == -1) {
                         result.append('\\'); // not in special, so we keep the backslash
                     }
                     result.append(checkChar(s, start++));
-                    break;
                 }
             }
         }
