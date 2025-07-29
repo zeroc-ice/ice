@@ -38,7 +38,6 @@ namespace
             "java.nio.DoubleBuffer",
             "???",
             "???",
-            "???",
             "???"};
 
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);

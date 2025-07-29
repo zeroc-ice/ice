@@ -3039,7 +3039,6 @@ CodeVisitor::marshal(
         if (b && b->kind() <= Builtin::KindString)
         {
             static const char* builtinTable[] = {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String"};
-            string bs = builtinTable[b->kind()];
             out << nl << stream << ".write" << builtinTable[b->kind()] << "Seq";
             if (optional)
             {
@@ -3279,7 +3278,6 @@ CodeVisitor::unmarshal(
         if (b && b->kind() <= Builtin::KindString)
         {
             static const char* builtinTable[] = {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String"};
-            string bs = builtinTable[b->kind()];
             out << nl << v << " = " << stream << ".read" << builtinTable[b->kind()] << "Seq";
             if (optional)
             {
