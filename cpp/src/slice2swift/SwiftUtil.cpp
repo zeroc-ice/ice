@@ -703,7 +703,6 @@ Slice::Swift::typeToString(const TypePtr& type, const ContainedPtr& usedBy, bool
         "Swift.Float",
         "Swift.Double",
         "Swift.String",
-        "Ice.Value",     // Object, which is instead mapped to `Value` here.
         "Ice.ObjectPrx", // ObjectPrx
         "Ice.Value"      // Value
     };
@@ -796,7 +795,6 @@ Slice::Swift::isNullableType(const TypePtr& type)
     {
         switch (builtin->kind())
         {
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindValue:
             {
@@ -1034,7 +1032,6 @@ Slice::Swift::writeMarshalUnmarshalCode(
                 }
                 break;
             }
-            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 if (marshal)

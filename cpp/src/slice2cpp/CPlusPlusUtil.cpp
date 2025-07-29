@@ -413,7 +413,6 @@ Slice::isMovable(const TypePtr& type)
         switch (builtin->kind())
         {
             case Builtin::KindString:
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindValue:
             {
@@ -489,7 +488,6 @@ Slice::typeToString(
         "float",
         "double",
         "****", // string or wstring, see below
-        "Ice::ValuePtr",
         "std::optional<Ice::ObjectPrx>",
         "Ice::ValuePtr"};
 
@@ -502,14 +500,7 @@ Slice::typeToString(
         }
         else
         {
-            if (builtin->kind() == Builtin::KindObject)
-            {
-                return string{builtinTable[Builtin::KindValue]};
-            }
-            else
-            {
-                return string{builtinTable[builtin->kind()]};
-            }
+            return string{builtinTable[builtin->kind()]};
         }
     }
 

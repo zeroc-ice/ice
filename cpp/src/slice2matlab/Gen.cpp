@@ -55,7 +55,6 @@ namespace
             "single",
             "double",
             "char",
-            "Ice.Value",     // Object
             "Ice.ObjectPrx", // ObjectPrx
             "Ice.Value"      // Value
         };
@@ -136,7 +135,6 @@ namespace
                     case Builtin::KindLong:
                     case Builtin::KindFloat:
                     case Builtin::KindDouble:
-                    case Builtin::KindObject:
                     case Builtin::KindObjectProxy:
                     case Builtin::KindValue:
                     {
@@ -191,7 +189,6 @@ namespace
                         return ""; // use implicit default
                     case Builtin::KindObjectProxy:
                         return "Ice.ObjectPrx.empty";
-                    case Builtin::KindObject:
                     case Builtin::KindValue:
                         return "Ice.UnknownSlicedValue.empty";
                 }
@@ -699,7 +696,6 @@ namespace
                 case Builtin::KindString:
                     out << " (1, :)";
                     break;
-                case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindValue:
                     mustBeScalarOrEmpty = true;
@@ -810,7 +806,6 @@ namespace
                 case Builtin::KindString:
                     out << "character vector";
                     break;
-                case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindValue:
                     out << typeStr << " scalar | empty array of " << typeStr;
@@ -2111,7 +2106,6 @@ CodeVisitor::visitSequence(const SequencePtr& p)
             {
                 return;
             }
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindValue:
             {
@@ -2950,7 +2944,6 @@ CodeVisitor::marshal(
                 }
                 return;
             }
-            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 // Handled by isClassType below.
@@ -3043,12 +3036,9 @@ CodeVisitor::marshal(
         const TypePtr content = seq->type();
         const BuiltinPtr b = dynamic_pointer_cast<Builtin>(content);
 
-        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
-            b->kind() != Builtin::KindValue)
+        if (b && b->kind() <= Builtin::KindString)
         {
-            static const char* builtinTable[] =
-                {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "???", "???", "???", "???"};
-            string bs = builtinTable[b->kind()];
+            static const char* builtinTable[] = {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String"};
             out << nl << stream << ".write" << builtinTable[b->kind()] << "Seq";
             if (optional)
             {
@@ -3187,7 +3177,6 @@ CodeVisitor::unmarshal(
                 }
                 break;
             }
-            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 assert(!optional); // Optional classes are disallowed by the parser.
@@ -3286,12 +3275,9 @@ CodeVisitor::unmarshal(
         const TypePtr content = seq->type();
         const BuiltinPtr b = dynamic_pointer_cast<Builtin>(content);
 
-        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
-            b->kind() != Builtin::KindValue)
+        if (b && b->kind() <= Builtin::KindString)
         {
-            static const char* builtinTable[] =
-                {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "???", "???", "???", "???"};
-            string bs = builtinTable[b->kind()];
+            static const char* builtinTable[] = {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String"};
             out << nl << v << " = " << stream << ".read" << builtinTable[b->kind()] << "Seq";
             if (optional)
             {

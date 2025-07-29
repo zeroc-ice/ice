@@ -38,7 +38,6 @@ namespace
             "java.nio.DoubleBuffer",
             "???",
             "???",
-            "???",
             "???"};
 
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -233,7 +232,7 @@ Slice::Java::mapsToJavaBuiltinType(const TypePtr& p)
 {
     if (auto builtin = dynamic_pointer_cast<Builtin>(p))
     {
-        return builtin->kind() < Builtin::KindObject;
+        return builtin->kind() <= Builtin::KindString;
     }
     return false;
 }
@@ -303,11 +302,7 @@ Slice::Java::getStaticId(const TypePtr& type, const string& package)
 
     assert((b && b->usesClasses()) || cl);
 
-    if (b && b->kind() == Builtin::KindObject)
-    {
-        return "com.zeroc.Ice.Object.ice_staticId()";
-    }
-    else if (b && b->kind() == Builtin::KindValue)
+    if (b && b->kind() == Builtin::KindValue)
     {
         return "com.zeroc.Ice.Value.ice_staticId()";
     }
@@ -341,7 +336,6 @@ Slice::Java::typeToString(
         "float",
         "double",
         "java.lang.String",
-        "com.zeroc.Ice.Object",
         "com.zeroc.Ice.ObjectPrx",
         "com.zeroc.Ice.Value"};
 
@@ -353,7 +347,6 @@ Slice::Java::typeToString(
         "java.util.OptionalLong",
         "java.util.Optional<java.lang.Float>",
         "java.util.OptionalDouble",
-        "???",
         "???",
         "???",
         "???"};
@@ -382,7 +375,6 @@ Slice::Java::typeToString(
                     return getUnqualified(builtinOptionalTable[builtin->kind()], package);
                 }
                 case Builtin::KindString:
-                case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindValue:
                 {
@@ -392,14 +384,7 @@ Slice::Java::typeToString(
         }
         else
         {
-            if (builtin->kind() == Builtin::KindObject)
-            {
-                return getUnqualified(builtinTable[Builtin::KindValue], package);
-            }
-            else
-            {
-                return getUnqualified(builtinTable[builtin->kind()], package);
-            }
+            return getUnqualified(builtinTable[builtin->kind()], package);
         }
     }
 
@@ -469,7 +454,6 @@ Slice::Java::typeToObjectString(
         "java.lang.Float",
         "java.lang.Double",
         "java.lang.String",
-        "com.zeroc.Ice.Value",
         "com.zeroc.Ice.ObjectPrx",
         "com.zeroc.Ice.Value"};
 

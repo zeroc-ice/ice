@@ -821,7 +821,7 @@ Slice::Builtin::unit() const
 bool
 Slice::Builtin::isClassType() const
 {
-    return _kind == KindObject || _kind == KindValue;
+    return _kind == KindValue;
 }
 
 size_t
@@ -845,8 +845,6 @@ Slice::Builtin::minWireSize() const
             return 8;
         case KindString:
             return 1; // at least one byte for an empty string.
-        case KindObject:
-            return 1; // at least one byte (to marshal an index instead of an instance).
         case KindObjectProxy:
             return 2; // at least an empty identity for a nil proxy, that is, 2 bytes.
         case KindValue:
@@ -875,7 +873,6 @@ Slice::Builtin::getOptionalFormat() const
             return "F8";
         case KindString:
             return "VSize";
-        case KindObject:
         case KindValue:
             return "Class";
         case KindObjectProxy:
@@ -892,7 +889,6 @@ Slice::Builtin::isVariableLength() const
     switch (_kind)
     {
         case KindString:
-        case KindObject:
         case KindObjectProxy:
         case KindValue:
             return true;
@@ -948,6 +944,12 @@ Slice::Builtin::kindAsString() const
 optional<Slice::Builtin::Kind>
 Slice::Builtin::kindFromString(string_view str)
 {
+    // Object is an alias for Value that we don't put in the builtinTable.
+    if (str == "Object")
+    {
+        return KindValue;
+    }
+
     for (size_t i = 0; i < builtinTable.size(); i++)
     {
         if (str == builtinTable[i])
@@ -4306,7 +4308,6 @@ Slice::Dictionary::isLegalKeyType(const TypePtr& type)
 
             case Builtin::KindFloat:
             case Builtin::KindDouble:
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindValue:
             {

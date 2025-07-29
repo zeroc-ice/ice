@@ -110,30 +110,13 @@ Slice::Csharp::typeToString(const TypePtr& type, const string& package, bool opt
     }
     // else, just use the regular mapping. null represents "not set".
 
-    static const char* builtinTable[] = {
-        "byte",
-        "bool",
-        "short",
-        "int",
-        "long",
-        "float",
-        "double",
-        "string",
-        "Ice.Object", // not used anymore
-        "Ice.ObjectPrx?",
-        "Ice.Value?"};
+    static const char* builtinTable[] =
+        {"byte", "bool", "short", "int", "long", "float", "double", "string", "Ice.ObjectPrx?", "Ice.Value?"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
     {
-        if (builtin->kind() == Builtin::KindObject)
-        {
-            return builtinTable[Builtin::KindValue];
-        }
-        else
-        {
-            return builtinTable[builtin->kind()];
-        }
+        return builtinTable[builtin->kind()];
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
@@ -248,7 +231,6 @@ Slice::Csharp::isValueType(const TypePtr& type)
         switch (builtin->kind())
         {
             case Builtin::KindString:
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindValue:
             {
@@ -448,7 +430,6 @@ Slice::Csharp::writeMarshalUnmarshalCode(
                 }
                 return;
             }
-            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 // Handled by isClassType below.
@@ -688,7 +669,6 @@ Slice::Csharp::writeOptionalMarshalUnmarshalCode(
                 }
                 break;
             }
-            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 // Unreachable because we reject all class types at the start of the function.
@@ -943,7 +923,6 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
         switch (kind)
         {
             case Builtin::KindValue:
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             {
                 if (marshal)
@@ -975,8 +954,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
                                 << ".GetEnumerator();";
                             out << nl << "while (e.MoveNext())";
                             out << sb;
-                            string func = (kind == Builtin::KindObject || kind == Builtin::KindValue) ? "writeValue"
-                                                                                                      : "writeProxy";
+                            string func = (kind == Builtin::KindValue) ? "writeValue" : "writeProxy";
                             out << nl << stream << '.' << func << "(e.Current);";
                             out << eb;
                         }
@@ -985,8 +963,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
                     {
                         out << nl << "for (int ix = 0; ix < " << param << '.' << limitID << "; ++ix)";
                         out << sb;
-                        string func =
-                            (kind == Builtin::KindObject || kind == Builtin::KindValue) ? "writeValue" : "writeProxy";
+                        string func = (kind == Builtin::KindValue) ? "writeValue" : "writeProxy";
                         out << nl << stream << '.' << func << '(' << param << "[ix]);";
                         out << eb;
                     }
@@ -1000,7 +977,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
                     {
                         out << nl << param << " = new ";
                     }
-                    if ((kind == Builtin::KindObject || kind == Builtin::KindValue))
+                    if (kind == Builtin::KindValue)
                     {
                         string patcherName;
                         if (isArray)
@@ -1580,7 +1557,6 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
             }
 
             case Builtin::KindValue:
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             {
                 if (marshal)

@@ -882,7 +882,6 @@ CodeVisitor::getType(const TypePtr& p)
             {
                 return "$IcePHP__t_string";
             }
-            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 return "$Ice__t_Value";
@@ -938,7 +937,6 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
                 _out << "''";
                 break;
             }
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindValue:
             {
@@ -1032,7 +1030,6 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                     _out << "\"" << toStringLiteral(value, "\f\n\r\t\v\x1b", "$", Octal, 0) << "\"";
                     break;
                 }
-                case Slice::Builtin::KindObject:
                 case Slice::Builtin::KindObjectProxy:
                 case Slice::Builtin::KindValue:
                     assert(false);

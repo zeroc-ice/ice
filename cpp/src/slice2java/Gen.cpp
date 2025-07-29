@@ -167,7 +167,6 @@ Slice::JavaVisitor::writeMarshalUnmarshalCode(
                 }
                 return;
             }
-            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 assert(false); // already handled by 'isClassType' check above.
@@ -1871,7 +1870,6 @@ Slice::JavaVisitor::writeConstantValue(
                 case Builtin::KindShort:
                 case Builtin::KindInt:
                 case Builtin::KindDouble:
-                case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindValue:
                 {
@@ -3117,7 +3115,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 }
 
                 case Builtin::KindString:
-                case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindValue:
                 {

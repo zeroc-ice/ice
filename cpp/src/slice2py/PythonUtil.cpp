@@ -32,7 +32,7 @@ Slice::Python::getPythonModuleForDefinition(const SyntaxTreeBasePtr& p)
 {
     if (auto builtin = dynamic_pointer_cast<Builtin>(p))
     {
-        static const char* builtinTable[] = {"", "", "", "", "", "", "", "", "Ice.Value", "Ice.ObjectPrx", "Ice.Value"};
+        static const char* builtinTable[] = {"", "", "", "", "", "", "", "", "Ice.ObjectPrx", "Ice.Value"};
 
         return builtinTable[builtin->kind()];
     }
@@ -68,7 +68,7 @@ Slice::Python::getImportAlias(
         {
             return getImportAlias(source, allImports, "Ice.ObjectPrx", "ObjectPrx");
         }
-        else if (builtin->kind() == Builtin::KindValue || builtin->kind() == Builtin::KindObject)
+        else if (builtin->kind() == Builtin::KindValue)
         {
             return getImportAlias(source, allImports, "Ice.Value", "Value");
         }
@@ -143,7 +143,6 @@ Slice::Python::getMetaType(const SyntaxTreeBasePtr& p)
             "IcePy._t_float",
             "IcePy._t_double",
             "IcePy._t_string",
-            "_Ice_Value_t",
             "_Ice_ObjectPrx_t",
             "_Ice_Value_t"};
 
@@ -187,18 +186,8 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         }
     }
 
-    static constexpr string_view builtinTable[] = {
-        "int",
-        "bool",
-        "int",
-        "int",
-        "int",
-        "float",
-        "float",
-        "str",
-        "Ice.Value | None", // Builtin::KindObject not used anymore
-        "Ice.ObjectPrx | None",
-        "Ice.Value | None"};
+    static constexpr string_view builtinTable[] =
+        {"int", "bool", "int", "int", "int", "float", "float", "str", "Ice.ObjectPrx | None", "Ice.Value | None"};
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
@@ -206,7 +195,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         {
             return getImportAlias(source, "Ice.ObjectPrx", "ObjectPrx") + " | None";
         }
-        else if (builtin->kind() == Builtin::KindValue || builtin->kind() == Builtin::KindObject)
+        else if (builtin->kind() == Builtin::KindValue)
         {
             return getImportAlias(source, "Ice.Value", "Value") + " | None";
         }
@@ -243,7 +232,6 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                 "numpy.int64",
                 "numpy.float32",
                 "numpy.float64",
-                "",
                 "",
                 "",
                 ""};
@@ -733,8 +721,7 @@ Slice::Python::ImportVisitor::addRuntimeImport(
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
     {
-        if (builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue &&
-            builtin->kind() != Builtin::KindObject)
+        if (builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue)
         {
             // Builtin types other than ObjectPrx and Value don't need imports.
             return;
@@ -844,7 +831,7 @@ Slice::Python::ImportVisitor::addTypingImport(
 {
     if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
     {
-        if (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)
+        if (builtin->kind() == Builtin::KindValue)
         {
             addTypingImport("Ice.Value", "Value", source);
         }
@@ -913,8 +900,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
     const ContainedPtr& source)
 {
     auto builtin = dynamic_pointer_cast<Builtin>(definition);
-    if (builtin && builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue &&
-        builtin->kind() != Builtin::KindObject)
+    if (builtin && builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue)
     {
         // Builtin types other than ObjectPrx and Value don't need imports.
         return;
@@ -1884,7 +1870,6 @@ Slice::Python::CodeVisitor::getTypeInitializer(const ContainedPtr& source, const
         "0.0",   // Builtin::KindFloat
         "0.0",   // Builtin::KindDouble
         R"("")", // Builtin::KindString
-        "None",  // Builtin::KindObject. Not used anymore
         "None",  // Builtin::KindObjectProxy.
         "None"}; // Builtin::KindValue.
 
@@ -2099,7 +2084,6 @@ Slice::Python::CodeVisitor::writeConstantValue(
                 break;
             }
             case Builtin::KindValue:
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
                 assert(false);
         }
@@ -2908,11 +2892,7 @@ Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr&, const
     {
         if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
         {
-            if (builtinTarget->kind() == Builtin::KindObject)
-            {
-                result << ":class:`Ice.Object`";
-            }
-            else if (builtinTarget->kind() == Builtin::KindValue)
+            if (builtinTarget->kind() == Builtin::KindValue)
             {
                 result << ":class:`Ice.Value`";
             }

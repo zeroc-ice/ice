@@ -2,7 +2,7 @@ ConstDef.ice:65: 'XXX' is not defined
 ConstDef.ice:66: redefinition of constant 'f11' as constant
 ConstDef.ice:67: constant 'F10' differs only in capitalization from constant 'f10'
 ConstDef.ice:70: constant 'ic2' has illegal type
-ConstDef.ice:71: constant 'ic3' has illegal type: 'Object'
+ConstDef.ice:71: constant 'ic3' has illegal type: 'Value'
 ConstDef.ice:73: initializer of type 'long' is incompatible with the type 'bool' of constant 'ic4'
 ConstDef.ice:74: initializer of type 'string' is incompatible with the type 'byte' of constant 'ic5'
 ConstDef.ice:75: initializer of type 'double' is incompatible with the type 'short' of constant 'ic6'
