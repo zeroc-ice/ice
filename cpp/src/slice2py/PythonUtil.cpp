@@ -482,10 +482,17 @@ Slice::Python::createPackagePath(const string& moduleName, const string& outputP
 bool
 Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    auto allDataMembers = p->allDataMembers();
-    if (!allDataMembers.empty())
+    addRuntimeImport("dataclasses", "dataclass", p);
+
+    for (const auto& member : p->dataMembers())
     {
-        addRuntimeImport("Ice.StringUtil", "format_fields", p);
+        // Import field if we have at least one data member that cannot be used as a default value.
+        // This is required to use the `dataclasses.field` function to initialize the field.
+        if (!canBeUsedAsDefaultValue(member->type()))
+        {
+            addRuntimeImport("dataclasses", "field", p);
+            break;
+        }
     }
 
     // Import the meta type that is created in the Xxx_forward module for forward declarations.
@@ -504,7 +511,7 @@ Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     // Add imports required for the data members.
-    visitDataMembers(p, allDataMembers);
+    visitDataMembers(p, p->dataMembers());
     return false;
 }
 
@@ -590,7 +597,6 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
 {
-    // Visit the data members.
     addRuntimeImport("dataclasses", "dataclass", p);
     for (const auto& member : p->dataMembers())
     {
@@ -1129,36 +1135,33 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     // Emit the class definition.
     BufferedOutput out;
+
+    // Equality for Slice classes is reference equality, so we disable the dataclass eq.
+    out << nl << "@dataclass(eq=False)";
     out << nl << "class " << valueName << '('
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.Value", "Value")) << "):";
     out.inc();
 
     writeDocstring(p->docComment(), members, out);
 
-    if (!members.empty())
+    // TODO: duplicated with struct code
+    for (const auto& field : members)
     {
-        // __init__
-        out << nl << "def __init__(";
-        writeConstructorParams(p, p->allDataMembers(), out);
-        out << "):";
-        out.inc();
+        out << nl << field->mappedName() << ": " << typeToTypeHintString(field->type(), field->optional(), p, false);
 
-        out << nl << "super().__init__";
-        out.spar("(");
-        if (base)
+        if (field->defaultValue())
         {
-            for (const auto& member : base->allDataMembers())
-            {
-                out << member->mappedName();
-            }
+            out << " = ";
+            writeConstantValue(p, field->type(), field->defaultValueType(), *field->defaultValue(), out);
         }
-        out.epar(")");
-
-        for (const auto& member : members)
+        else if (field->optional())
         {
-            writeAssign(p, member, out);
+            out << " = None";
         }
-        out.dec();
+        else
+        {
+            out << " = " + getTypeInitializer(p, field, false);
+        }
     }
 
     // ice_id
@@ -1175,10 +1178,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.inc();
     out << nl << "return \"" << scoped << "\"";
     out.dec();
-
-    // Generate the __repr__ method for this Value class.
-    // The default __str__ method inherited from Ice.Value calls __repr__().
-    writeRepr(p, p->allDataMembers(), out);
 
     out.dec();
 
