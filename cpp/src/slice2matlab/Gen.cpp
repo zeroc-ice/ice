@@ -3036,10 +3036,9 @@ CodeVisitor::marshal(
         const TypePtr content = seq->type();
         const BuiltinPtr b = dynamic_pointer_cast<Builtin>(content);
 
-        if (b && b->kind() != Builtin::KindObjectProxy && b->kind() != Builtin::KindValue)
+        if (b && b->kind() <= Builtin::KindString)
         {
-            static const char* builtinTable[] =
-                {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "???", "???"};
+            static const char* builtinTable[] = {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String"};
             string bs = builtinTable[b->kind()];
             out << nl << stream << ".write" << builtinTable[b->kind()] << "Seq";
             if (optional)
@@ -3277,10 +3276,9 @@ CodeVisitor::unmarshal(
         const TypePtr content = seq->type();
         const BuiltinPtr b = dynamic_pointer_cast<Builtin>(content);
 
-        if (b && b->kind() != Builtin::KindObjectProxy && b->kind() != Builtin::KindValue)
+        if (b && b->kind() <= Builtin::KindString)
         {
-            static const char* builtinTable[] =
-                {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String", "???", "???"};
+            static const char* builtinTable[] = {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String"};
             string bs = builtinTable[b->kind()];
             out << nl << v << " = " << stream << ".read" << builtinTable[b->kind()] << "Seq";
             if (optional)
