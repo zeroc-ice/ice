@@ -420,19 +420,19 @@ public class AllTests {
         ObjectPrx b2 = communicator.stringToProxy(communicator.proxyToString(b1));
         test(b1.equals(b2));
 
-        if (b1.ice_getConnection() != null) // not colloc-optimized target
-            {
-                b2 = b1.ice_getConnection().createProxy(Util.stringToIdentity("fixed"));
-                String str = communicator.proxyToString(b2);
-                test(b2.toString().equals(str));
-                String str2 =
-                    b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
+        // not colloc-optimized target
+        if (b1.ice_getConnection() != null) {
+            b2 = b1.ice_getConnection().createProxy(Util.stringToIdentity("fixed"));
+            String str = communicator.proxyToString(b2);
+            test(b2.toString().equals(str));
+            String str2 =
+                b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
 
-                // Verify that the stringified fixed proxy is the same as a regular stringified proxy
-                // but without endpoints
-                test(str2.startsWith(str));
-                test(str2.charAt(str.length()) == ':');
-            }
+            // Verify that the stringified fixed proxy is the same as a regular stringified proxy
+            // but without endpoints
+            test(str2.startsWith(str));
+            test(str2.charAt(str.length()) == ':');
+        }
         out.println("ok");
 
         out.print("testing propertyToProxy... ");

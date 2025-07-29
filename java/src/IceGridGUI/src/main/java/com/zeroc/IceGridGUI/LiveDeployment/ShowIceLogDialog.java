@@ -536,13 +536,13 @@ class ShowIceLogDialog extends JDialog {
                     int row = rowAtPoint(p);
                     int col = columnAtPoint(p);
 
-                    if (col == 3 && row >= 0) // Log message
-                        {
-                            Object obj = getValueAt(row, col);
-                            if (obj != null) {
-                                tip = "<html>" + obj.toString().replace("\n", "<br>") + "</html>";
-                            }
+                    // Log message
+                    if (col == 3 && row >= 0) {
+                        Object obj = getValueAt(row, col);
+                        if (obj != null) {
+                            tip = "<html>" + obj.toString().replace("\n", "<br>") + "</html>";
                         }
+                    }
                     return tip;
                 }
             };

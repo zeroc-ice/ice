@@ -59,10 +59,9 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
         } catch (ExecutionException ee) {
             try {
                 throw ee.getCause().fillInStackTrace();
-            } catch (RuntimeException ex) // Includes LocalException
-                {
-                    throw ex;
-                } catch (Throwable ex) {
+            } catch (RuntimeException ex /* Includes LocalException */) {
+                throw ex;
+            } catch (Throwable ex) {
                 throw new UnknownException(ex);
             }
         }

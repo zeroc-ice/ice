@@ -338,32 +338,25 @@ class LookupI implements Lookup {
         }
     }
 
-    synchronized void foundObject(
-            Identity id, String requestId, ObjectPrx proxy) {
+    synchronized void foundObject(Identity id, String requestId, ObjectPrx proxy) {
+        // Ignore responses from old requests
         ObjectRequest request = _objectRequests.get(id);
-        if (request != null
-            && request.getRequestId().equals(requestId)) // Ignore responses from old requests
-            {
-                request.response(proxy);
-                request.cancelTimer();
-                _objectRequests.remove(id);
-            }
+        if (request != null && request.getRequestId().equals(requestId)) {
+            request.response(proxy);
+            request.cancelTimer();
+            _objectRequests.remove(id);
+        }
     }
 
-    synchronized void foundAdapter(
-            String adapterId,
-            String requestId,
-            ObjectPrx proxy,
-            boolean isReplicaGroup) {
+    synchronized void foundAdapter(String adapterId, String requestId, ObjectPrx proxy, boolean isReplicaGroup) {
+        // Ignore responses from old requests
         AdapterRequest request = _adapterRequests.get(adapterId);
-        if (request != null
-            && request.getRequestId().equals(requestId)) // Ignore responses from old requests
-            {
-                if (request.response(proxy, isReplicaGroup)) {
-                    request.cancelTimer();
-                    _adapterRequests.remove(adapterId);
-                }
+        if (request != null && request.getRequestId().equals(requestId)) {
+            if (request.response(proxy, isReplicaGroup)) {
+                request.cancelTimer();
+                _adapterRequests.remove(adapterId);
             }
+        }
     }
 
     synchronized void objectRequestTimedOut(ObjectRequest request) {

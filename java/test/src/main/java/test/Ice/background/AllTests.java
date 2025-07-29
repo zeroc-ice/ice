@@ -111,11 +111,11 @@ public class AllTests {
                 }
 
                 try {
-                    if (++count == 10) // Don't blast the connection with only oneway's
-                        {
-                            count = 0;
-                            _background.ice_twoway().ice_ping();
-                        }
+                    // Don't blast the connection with only oneways
+                    if (++count == 10) {
+                        count = 0;
+                        _background.ice_twoway().ice_ping();
+                    }
                     _background.op();
                     try {
                         Thread.sleep(1);
@@ -124,10 +124,10 @@ public class AllTests {
             }
         }
 
-        public synchronized void _destroy() // Thread.destroy is deprecated
-            {
-                _destroyed = true;
-            }
+        // Thread.destroy is deprecated
+        public synchronized void _destroy() {
+            _destroyed = true;
+        }
 
         private boolean _destroyed;
         private BackgroundPrx _background;
@@ -893,10 +893,9 @@ public class AllTests {
         new Random().nextBytes(seq); // Make sure the request doesn't compress too well.
 
         // Fill up the receive and send buffers
-        for (int i = 0; i < 200; i++) // 2MB
-            {
-                backgroundOneway.opWithPayloadAsync(seq).whenComplete((result, ex) -> test(false));
-            }
+        for (int i = 0; i < 200 /*2MB*/; i++) {
+            backgroundOneway.opWithPayloadAsync(seq).whenComplete((result, ex) -> test(false));
+        }
 
         OpAMICallback cb = new OpAMICallback();
         CompletableFuture<Void> r1 = background.opAsync();

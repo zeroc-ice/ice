@@ -111,21 +111,23 @@ public final class Options {
                             arg.append('\\');
                         }
                         arg.append(c);
-                    } else if (c == '"') // End of double-quote mode.
-                        {
-                            state = NormalState;
-                        } else {
-                        arg.append(c); // Everything else is taken literally.
+                    } else if (c == '"') {
+                        // End of double-quote mode.
+                        state = NormalState;
+                    } else {
+                        // Everything else is taken literally.
+                        arg.append(c);
                     }
                     break;
                 }
                 case SingleQuoteState:
                 {
-                    if (c == '\'') // End of single-quote mode.
-                        {
-                            state = NormalState;
-                        } else {
-                        arg.append(c); // Everything else is taken literally.
+                    if (c == '\'') {
+                        // End of single-quote mode.
+                        state = NormalState;
+                    } else {
+                        // Everything else is taken literally.
+                        arg.append(c);
                     }
                     break;
                 }

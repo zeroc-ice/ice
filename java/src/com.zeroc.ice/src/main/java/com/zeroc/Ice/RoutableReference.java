@@ -100,16 +100,14 @@ class RoutableReference extends Reference {
     @Override
     public Reference changeCompress(boolean newCompress) {
         RoutableReference r = (RoutableReference) super.changeCompress(newCompress);
-        if (r != this
-            && _endpoints.length
-            > 0) // Also override the compress flag on the endpoints if it was updated.
-            {
-                EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
-                for (int i = 0; i < _endpoints.length; i++) {
-                    newEndpoints[i] = _endpoints[i].compress(newCompress);
-                }
-                r._endpoints = newEndpoints;
+        if (r != this && _endpoints.length > 0) {
+            // Also override the compress flag on the endpoints if it was updated.
+            EndpointI[] newEndpoints = new EndpointI[_endpoints.length];
+            for (int i = 0; i < _endpoints.length; i++) {
+                newEndpoints[i] = _endpoints[i].compress(newCompress);
             }
+            r._endpoints = newEndpoints;
+        }
         return r;
     }
 

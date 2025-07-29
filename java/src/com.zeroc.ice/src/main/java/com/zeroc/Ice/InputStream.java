@@ -393,11 +393,10 @@ public final class InputStream {
     /**
      * Reads the start of a value or exception slice.
      */
-    public void startSlice()
-        {
-            assert (_encapsStack != null && _encapsStack.decoder != null);
-            _encapsStack.decoder.startSlice();
-        }
+    public void startSlice() {
+        assert (_encapsStack != null && _encapsStack.decoder != null);
+        _encapsStack.decoder.startSlice();
+    }
 
     /** Indicates that the end of a value or exception slice has been reached. */
     public void endSlice() {
@@ -1576,7 +1575,8 @@ public final class InputStream {
         void readPendingValues() {}
 
         protected String readTypeId(boolean isIndex) {
-            if (_typeIdMap == null) {// Lazy initialization
+            // Lazy initialization
+            if (_typeIdMap == null) {
                 _typeIdMap = new TreeMap<>();
             }
 
@@ -1673,7 +1673,8 @@ public final class InputStream {
             if ((_patchMap == null || _patchMap.isEmpty()) && _valueList == null) {
                 v.ice_postUnmarshal();
             } else {
-                if (_valueList == null) {// Lazy initialization
+                // Lazy initialization
+                if (_valueList == null) {
                     _valueList = new ArrayList<>();
                 }
                 _valueList.add(v);
@@ -1820,18 +1821,14 @@ public final class InputStream {
                 return;
             }
 
+            // For class instances, first read the type ID boolean which indicates whether or not
+            // the type ID is encoded as a string or as an index.
             //
-            // For class instances, first read the type ID boolean which indicates
-            // whether or not the type ID is encoded as a string or as an index. For exceptions, the
-            // type ID is always encoded as a string.
-            //
-            if (_sliceType
-                == SliceType.ValueSlice) // For exceptions, the type ID is always encoded as a
-                // string
-                {
-                    boolean isIndex = _stream.readBool();
-                    _typeId = readTypeId(isIndex);
-                } else {
+            // For exceptions, the type ID is always encoded as a string.
+            if (_sliceType == SliceType.ValueSlice) {
+                boolean isIndex = _stream.readBool();
+                _typeId = readTypeId(isIndex);
+            } else {
                 _typeId = _stream.readString();
             }
 
@@ -1960,8 +1957,7 @@ public final class InputStream {
                 throw new MarshalException("invalid object id");
             } else if (index == 0) {
                 cb.accept(null);
-            } else if (_current != null
-                && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
+            } else if (_current != null && (_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0) {
                 //
                 // When reading a class instance within a slice and there's an indirect instance
                 // table, always read an indirect reference
@@ -1973,7 +1969,9 @@ public final class InputStream {
                 // derive an index into the indirection table that we'll read
                 // at the end of the slice.
                 //
-                if (_current.indirectPatchList == null) {// Lazy initialization
+                
+                // Lazy initialization
+                if (_current.indirectPatchList == null) {
                     _current.indirectPatchList = new ArrayDeque<>();
                 }
                 IndirectPatchEntry e = new IndirectPatchEntry();
@@ -2044,10 +2042,8 @@ public final class InputStream {
 
         @Override
         void startSlice() {
-            //
             // If first slice, don't read the header, it was already read in
             // readInstance or throwException to find the factory.
-            //
             if (_current.skipFirstSlice) {
                 _current.skipFirstSlice = false;
                 return;
@@ -2055,28 +2051,21 @@ public final class InputStream {
 
             _current.sliceFlags = _stream.readByte();
 
-            //
             // Read the type ID, for value slices the type ID is encoded as a string or as an index,
             // for exceptions it's always encoded as a string.
-            //
             if (_current.sliceType == SliceType.ValueSlice) {
-                if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT)
-                    == Protocol.FLAG_HAS_TYPE_ID_COMPACT) // Must be checked 1st!
-                    {
-                        _current.compactId = _stream.readSize();
-                        _current.typeId = String.valueOf(_current.compactId);
-                    } else if ((_current.sliceFlags
-                    & (Protocol.FLAG_HAS_TYPE_ID_INDEX
-                    | Protocol.FLAG_HAS_TYPE_ID_STRING))
-                    != 0) {
+                // Must be checked 1st!
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_COMPACT) == Protocol.FLAG_HAS_TYPE_ID_COMPACT) {
+                    _current.compactId = _stream.readSize();
+                    _current.typeId = String.valueOf(_current.compactId);
+                } else if (
+                    (_current.sliceFlags & (Protocol.FLAG_HAS_TYPE_ID_INDEX | Protocol.FLAG_HAS_TYPE_ID_STRING)) != 0) {
                     _current.typeId =
                         readTypeId(
                             (_current.sliceFlags & Protocol.FLAG_HAS_TYPE_ID_INDEX) != 0);
                     _current.compactId = -1;
                 } else {
-                    //
                     // Only the most derived slice encodes the type ID for the compact format.
-                    //
                     _current.typeId = "";
                     _current.compactId = -1;
                 }
@@ -2085,9 +2074,7 @@ public final class InputStream {
                 _current.compactId = -1;
             }
 
-            //
             // Read the slice size if necessary.
-            //
             if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0) {
                 _current.sliceSize = _stream.readInt();
                 if (_current.sliceSize < 4) {
@@ -2199,13 +2186,15 @@ public final class InputStream {
                         hasOptionalMembers,
                         (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0);
 
-                if (_current.slices == null) {// Lazy initialization
+                // Lazy initialization
+                if (_current.slices == null) {
                     _current.slices = new ArrayList<>();
                 }
                 _current.slices.add(info);
             }
 
-            if (_current.indirectionTables == null) {// Lazy initialization
+            // Lazy initialization
+            if (_current.indirectionTables == null) {
                 _current.indirectionTables = new ArrayList<>();
             }
 
@@ -2317,20 +2306,17 @@ public final class InputStream {
         }
 
         private SlicedData readSlicedData() {
-            if (_current.slices == null) {// No preserved slices.
+            // No preserved slices.
+            if (_current.slices == null) {
                 return null;
             }
 
-            //
             // The _indirectionTables member holds the indirection table for each slice in _slices.
-            //
             assert (_current.slices.size() == _current.indirectionTables.size());
             for (int n = 0; n < _current.slices.size(); n++) {
-                //
-                // We use the "instances" list in SliceInfo to hold references
-                // to the target instances. Note that the instances might not have been read yet in
-                // the case of a circular reference to an enclosing instance.
-                //
+                // We use the "instances" list in SliceInfo to hold references to the target instances.
+                // Note that the instances might not have been read yet in the case of a circular reference
+                // to an enclosing instance.
                 final int[] table = _current.indirectionTables.get(n);
                 SliceInfo info = _current.slices.get(n);
                 info.instances = new Value[table != null ? table.length : 0];
@@ -2426,19 +2412,20 @@ public final class InputStream {
     private Encaps _encapsCache;
 
     private void initEncaps() {
-        if (_encapsStack == null) // Lazy initialization
-            {
-                _encapsStack = _encapsCache;
-                if (_encapsStack != null) {
-                    _encapsCache = _encapsCache.next;
-                } else {
-                    _encapsStack = new Encaps();
-                }
-                _encapsStack.setEncoding(_encoding);
-                _encapsStack.sz = _buf.b.limit();
+        // Lazy initialization
+        if (_encapsStack == null) {
+            _encapsStack = _encapsCache;
+            if (_encapsStack != null) {
+                _encapsCache = _encapsCache.next;
+            } else {
+                _encapsStack = new Encaps();
             }
+            _encapsStack.setEncoding(_encoding);
+            _encapsStack.sz = _buf.b.limit();
+        }
 
-        if (_encapsStack.decoder == null) {// Lazy initialization.
+        // Lazy initialization.
+        if (_encapsStack.decoder == null) {
             if (_encapsStack.encoding_1_0) {
                 _encapsStack.decoder =
                     new EncapsDecoder10(

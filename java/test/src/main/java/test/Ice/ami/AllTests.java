@@ -878,11 +878,10 @@ public class AllTests {
                 try {
                     InvocationFuture<Void> r = null;
                     byte[] seq = new byte[10024];
-                    for (int i = 0; i < 200; i++) // 2MB
-                        {
-                            r = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
-                            results.add(r);
-                        }
+                    for (int i = 0; i < 200 /*2MB*/; i++) {
+                        r = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
+                        results.add(r);
+                    }
 
                     test(!r.isSent());
 

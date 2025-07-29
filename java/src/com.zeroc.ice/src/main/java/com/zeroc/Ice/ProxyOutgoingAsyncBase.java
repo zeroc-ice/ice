@@ -210,12 +210,12 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                                 invocationTimeout.toMillis(),
                                 TimeUnit.MILLISECONDS);
                 }
-            } else // If not called from the user thread, it's called from the retry queue
-                {
-                    if (_observer != null) {
-                        _observer.retried();
-                    }
+            } else {
+                // If not called from the user thread, it's called from the retry queue.
+                if (_observer != null) {
+                    _observer.retried();
                 }
+            }
 
             while (true) {
                 try {
@@ -259,10 +259,10 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             // will be caught by the caller and handled using abort().
             if (userThread) {
                 throw ex;
-            } else if (finished(ex)) // No retries, we're done
-                {
-                    invokeCompletedAsync();
-                }
+            } else if (finished(ex)) {
+                // No retries, we're done
+                invokeCompletedAsync();
+            }
         }
     }
 

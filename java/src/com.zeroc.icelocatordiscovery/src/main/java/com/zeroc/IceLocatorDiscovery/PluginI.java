@@ -293,13 +293,13 @@ class PluginI implements Plugin {
                 return;
             }
 
-            if (_pending) // No need to continue, we found a locator
-                {
-                    _future.cancel(false);
-                    _future = null;
-                    _pendingRetryCount = 0;
-                    _pending = false;
-                }
+            if (_pending) {
+                // No need to continue, we found a locator
+                _future.cancel(false);
+                _future = null;
+                _pendingRetryCount = 0;
+                _pending = false;
+            }
 
             if (_traceLevel > 0) {
                 StringBuffer s = new StringBuffer("locator lookup succeeded:\nlocator = ");
@@ -374,57 +374,57 @@ class PluginI implements Plugin {
                     _pendingRequests.add(request);
                 }
 
-                if (!_pending) // No request in progress
-                    {
-                        _pending = true;
-                        _pendingRetryCount = _retryCount;
-                        _failureCount = 0;
-                        try {
-                            if (_traceLevel > 1) {
-                                StringBuilder s = new StringBuilder("looking up locator:\nlookup = ");
-                                s.append(_lookup);
-                                if (!_instanceName.isEmpty()) {
-                                    s.append("\ninstance name = ").append(_instanceName);
-                                }
-                                _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                // If there are no requests in progress.
+                if (!_pending) {
+                    _pending = true;
+                    _pendingRetryCount = _retryCount;
+                    _failureCount = 0;
+                    try {
+                        if (_traceLevel > 1) {
+                            StringBuilder s = new StringBuilder("looking up locator:\nlookup = ");
+                            s.append(_lookup);
+                            if (!_instanceName.isEmpty()) {
+                                s.append("\ninstance name = ").append(_instanceName);
                             }
-                            for (Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet()) {
-                                entry.getKey()
-                                    .findLocatorAsync(_instanceName, entry.getValue())
-                                    .whenCompleteAsync(
-                                        (v, ex) -> {
-                                            if (ex != null) {
-                                                exception(ex);
-                                            }
-                                        },
-                                        entry.getKey()
-                                            .ice_executor()); // Send multicast request.
-                            }
-                            _future =
-                                _timer.schedule(
-                                    _retryTask,
-                                    _timeout,
-                                    TimeUnit.MILLISECONDS);
-                        } catch (LocalException ex) {
-                            if (_traceLevel > 0) {
-                                StringBuilder s =
-                                    new StringBuilder("locator lookup failed:\nlookup = ");
-                                s.append(_lookup);
-                                if (!_instanceName.isEmpty()) {
-                                    s.append("\ninstance name = ").append(_instanceName);
-                                }
-                                s.append("\n").append(ex);
-                                _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
-                            }
-
-                            for (Request req : _pendingRequests) {
-                                req.invoke(_voidLocator);
-                            }
-                            _pendingRequests.clear();
-                            _pending = false;
-                            _pendingRetryCount = 0;
+                            _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
                         }
+                        for (Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet()) {
+                            entry.getKey()
+                                .findLocatorAsync(_instanceName, entry.getValue())
+                                .whenCompleteAsync(
+                                    (v, ex) -> {
+                                        if (ex != null) {
+                                            exception(ex);
+                                        }
+                                    },
+                                    entry.getKey()
+                                        .ice_executor()); // Send multicast request.
+                        }
+                        _future =
+                            _timer.schedule(
+                                _retryTask,
+                                _timeout,
+                                TimeUnit.MILLISECONDS);
+                    } catch (LocalException ex) {
+                        if (_traceLevel > 0) {
+                            StringBuilder s =
+                                new StringBuilder("locator lookup failed:\nlookup = ");
+                            s.append(_lookup);
+                            if (!_instanceName.isEmpty()) {
+                                s.append("\ninstance name = ").append(_instanceName);
+                            }
+                            s.append("\n").append(ex);
+                            _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                        }
+
+                        for (Request req : _pendingRequests) {
+                            req.invoke(_voidLocator);
+                        }
+                        _pendingRequests.clear();
+                        _pending = false;
+                        _pendingRetryCount = 0;
                     }
+                }
             }
         }
 

@@ -98,15 +98,15 @@ final class HttpParser {
                 }
                 case TypeCheck:
                 {
-                    if (c == 'T') // Continuing "H_T_TP/1.1"
-                        {
-                            _state = State.Response;
-                        } else if (c == 'E') // Expecting "HEAD"
-                        {
-                            _state = State.Request;
-                            _method.append('H');
-                            _method.append('E');
-                        } else {
+                    if (c == 'T') {
+                        // Continuing "H_T_TP/1.1"
+                        _state = State.Response;
+                    } else if (c == 'E') {
+                        // Expecting "HEAD"
+                        _state = State.Request;
+                        _method.append('H');
+                        _method.append('E');
+                    } else {
                         throw new WebSocketException("malformed request or response");
                     }
                     break;

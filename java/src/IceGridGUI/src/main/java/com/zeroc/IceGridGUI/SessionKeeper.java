@@ -2593,18 +2593,18 @@ public class SessionKeeper {
                         return false;
                     }
                 }
-            } else // Routed
-                {
-                    if (_routedDefaultEndpoints.isSelected()) {
-                        if (!validateWizardStep(WizardStep.RoutedDefaultEndpointStep)) {
-                            return false;
-                        }
-                    } else {
-                        if (!validateWizardStep(WizardStep.RoutedCustomEndpointStep)) {
-                            return false;
-                        }
+            } else {
+                // Routed
+                if (_routedDefaultEndpoints.isSelected()) {
+                    if (!validateWizardStep(WizardStep.RoutedDefaultEndpointStep)) {
+                        return false;
+                    }
+                } else {
+                    if (!validateWizardStep(WizardStep.RoutedCustomEndpointStep)) {
+                        return false;
                     }
                 }
+            }
 
             if (_x509CertificateYesButton.isSelected()) {
                 if (_directConnection.isSelected()) {
@@ -4544,144 +4544,144 @@ public class SessionKeeper {
                     _authDialog.showDialog();
                 }
             }
-        } else // X509CertificateAuthDialog dialog
-            {
-                class X509CertificateAuthDialog extends AuthDialog {
-                    X509CertificateAuthDialog() {
-                        super(parent, "Login - IceGrid GUI");
+        } else {
+            // X509CertificateAuthDialog dialog
+            class X509CertificateAuthDialog extends AuthDialog {
+                X509CertificateAuthDialog() {
+                    super(parent, "Login - IceGrid GUI");
 
-                        Container contentPane = getContentPane();
-                        contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+                    Container contentPane = getContentPane();
+                    contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
-                        {
-                            // Build the basic login panel.
-                            FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
-                            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                            builder.border(Borders.DIALOG);
+                    {
+                        // Build the basic login panel.
+                        FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
+                        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                        builder.border(Borders.DIALOG);
 
-                            builder.append(new JLabel("Key Password"), _keyPassword);
-                            builder.nextLine();
-                            _storeKeyPassword = new JCheckBox("Save Key Password.");
-                            _storeKeyPassword.setEnabled(false);
-                            _keyPassword
-                                .getDocument()
-                                .addDocumentListener(
-                                    new DocumentListener() {
-                                        @Override
-                                        public void changedUpdate(DocumentEvent e) {
-                                            _storeKeyPassword.setEnabled(
-                                                _keyPassword.getPassword() != null
-                                                    && _keyPassword.getPassword().length
-                                                    > 0);
-                                        }
-
-                                        @Override
-                                        public void removeUpdate(DocumentEvent e) {
-                                            _storeKeyPassword.setEnabled(
-                                                _keyPassword.getPassword() != null
-                                                    && _keyPassword.getPassword().length
-                                                    > 0);
-                                        }
-
-                                        @Override
-                                        public void insertUpdate(DocumentEvent e) {
-                                            _storeKeyPassword.setEnabled(
-                                                _keyPassword.getPassword() != null
-                                                    && _keyPassword.getPassword().length
-                                                    > 0);
-                                        }
-                                    });
-                            builder.append("", _storeKeyPassword);
-                            builder.nextLine();
-                            contentPane.add(builder.getPanel());
-                        }
-
-                        JButton okButton = new JButton();
-                        JButton cancelButton = new JButton();
-
-                        AbstractAction okAction =
-                            new AbstractAction("OK") {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    if (_session != null) {
-                                        logout(true);
+                        builder.append(new JLabel("Key Password"), _keyPassword);
+                        builder.nextLine();
+                        _storeKeyPassword = new JCheckBox("Save Key Password.");
+                        _storeKeyPassword.setEnabled(false);
+                        _keyPassword
+                            .getDocument()
+                            .addDocumentListener(
+                                new DocumentListener() {
+                                    @Override
+                                    public void changedUpdate(DocumentEvent e) {
+                                        _storeKeyPassword.setEnabled(
+                                            _keyPassword.getPassword() != null
+                                                && _keyPassword.getPassword().length
+                                                > 0);
                                     }
-                                    assert _session == null;
 
-                                    info.setKeyPassword(_keyPassword.getPassword());
-
-                                    if (checkCertificateRequirePassword(info.getAlias())
-                                        && !checkCertificatePassword(
-                                        info.getAlias(), info.getKeyPassword())) {
-                                        dispose();
-                                        permissionDenied(
-                                            parent, info, "Invalid certificate password");
-                                    } else {
-                                        _authDialog.setCursor(
-                                            Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                        _authDialog.setDefaultCloseOperation(
-                                            WindowConstants.DO_NOTHING_ON_CLOSE);
-                                        Utils.removeEscapeListener(_authDialog);
-                                        okButton.setEnabled(false);
-                                        cancelButton.setEnabled(false);
-                                        _coordinator.login(SessionKeeper.this, info, parent);
+                                    @Override
+                                    public void removeUpdate(DocumentEvent e) {
+                                        _storeKeyPassword.setEnabled(
+                                            _keyPassword.getPassword() != null
+                                                && _keyPassword.getPassword().length
+                                                > 0);
                                     }
-                                }
-                            };
-                        okButton.setAction(okAction);
 
-                        AbstractAction cancelAction =
-                            new AbstractAction("Cancel") {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    dispose();
-                                }
-                            };
-                        cancelButton.setAction(cancelAction);
-
-                        JComponent buttonBar =
-                            new ButtonBarBuilder()
-                                .addGlue()
-                                .addButton(okButton, cancelButton)
-                                .addGlue()
-                                .build();
-                        buttonBar.setBorder(Borders.DIALOG);
-                        contentPane.add(buttonBar);
-
-                        getRootPane().setDefaultButton(okButton);
-                        pack();
-                        setResizable(false);
+                                    @Override
+                                    public void insertUpdate(DocumentEvent e) {
+                                        _storeKeyPassword.setEnabled(
+                                            _keyPassword.getPassword() != null
+                                                && _keyPassword.getPassword().length
+                                                > 0);
+                                    }
+                                });
+                        builder.append("", _storeKeyPassword);
+                        builder.nextLine();
+                        contentPane.add(builder.getPanel());
                     }
 
-                    private JPasswordField _keyPassword = new JPasswordField(20);
-                    private JCheckBox _storeKeyPassword;
+                    JButton okButton = new JButton();
+                    JButton cancelButton = new JButton();
+
+                    AbstractAction okAction =
+                        new AbstractAction("OK") {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                if (_session != null) {
+                                    logout(true);
+                                }
+                                assert _session == null;
+
+                                info.setKeyPassword(_keyPassword.getPassword());
+
+                                if (checkCertificateRequirePassword(info.getAlias())
+                                    && !checkCertificatePassword(
+                                    info.getAlias(), info.getKeyPassword())) {
+                                    dispose();
+                                    permissionDenied(
+                                        parent, info, "Invalid certificate password");
+                                } else {
+                                    _authDialog.setCursor(
+                                        Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                    _authDialog.setDefaultCloseOperation(
+                                        WindowConstants.DO_NOTHING_ON_CLOSE);
+                                    Utils.removeEscapeListener(_authDialog);
+                                    okButton.setEnabled(false);
+                                    cancelButton.setEnabled(false);
+                                    _coordinator.login(SessionKeeper.this, info, parent);
+                                }
+                            }
+                        };
+                    okButton.setAction(okAction);
+
+                    AbstractAction cancelAction =
+                        new AbstractAction("Cancel") {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                dispose();
+                            }
+                        };
+                    cancelButton.setAction(cancelAction);
+
+                    JComponent buttonBar =
+                        new ButtonBarBuilder()
+                            .addGlue()
+                            .addButton(okButton, cancelButton)
+                            .addGlue()
+                            .build();
+                    buttonBar.setBorder(Borders.DIALOG);
+                    contentPane.add(buttonBar);
+
+                    getRootPane().setDefaultButton(okButton);
+                    pack();
+                    setResizable(false);
                 }
 
-                // If the certificate requires a password and the password isn't provided, we show the
-                // login dialog.
-                if ((info.getKeyPassword() == null || info.getKeyPassword().length == 0)
-                    && checkCertificateRequirePassword(info.getAlias())) {
-                    _authDialog = new X509CertificateAuthDialog();
-                    Utils.addEscapeListener(_authDialog);
-                    _authDialog.showDialog();
-                } else {
-                    if (_session != null) {
-                        logout(true);
-                    }
-                    assert _session == null;
+                private JPasswordField _keyPassword = new JPasswordField(20);
+                private JCheckBox _storeKeyPassword;
+            }
 
-                    if (checkCertificateRequirePassword(info.getAlias())
-                        && !checkCertificatePassword(info.getAlias(), info.getKeyPassword())) {
-                        permissionDenied(parent, info, "Invalid certificate password");
-                    } else {
-                        _authDialog = new StoredPasswordAuthDialog(parent);
-                        _authDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                        _authDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-                        _coordinator.login(SessionKeeper.this, info, parent);
-                        _authDialog.showDialog();
-                    }
+            // If the certificate requires a password and the password isn't provided, we show the
+            // login dialog.
+            if ((info.getKeyPassword() == null || info.getKeyPassword().length == 0)
+                && checkCertificateRequirePassword(info.getAlias())) {
+                _authDialog = new X509CertificateAuthDialog();
+                Utils.addEscapeListener(_authDialog);
+                _authDialog.showDialog();
+            } else {
+                if (_session != null) {
+                    logout(true);
+                }
+                assert _session == null;
+
+                if (checkCertificateRequirePassword(info.getAlias())
+                    && !checkCertificatePassword(info.getAlias(), info.getKeyPassword())) {
+                    permissionDenied(parent, info, "Invalid certificate password");
+                } else {
+                    _authDialog = new StoredPasswordAuthDialog(parent);
+                    _authDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    _authDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                    _coordinator.login(SessionKeeper.this, info, parent);
+                    _authDialog.showDialog();
                 }
             }
+        }
     }
 
     public void loginSuccess(

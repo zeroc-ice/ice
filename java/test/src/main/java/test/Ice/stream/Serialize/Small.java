@@ -4,7 +4,7 @@ package test.Ice.stream.Serialize;
 
 import java.io.Serializable;
 
-public class Small implements Serializable // Fewer than 254 bytes when serialized.
-{
+// Fewer than 254 bytes when serialized.
+public class Small implements Serializable {
     public int i;
 }
