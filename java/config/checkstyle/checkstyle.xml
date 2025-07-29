@@ -73,6 +73,14 @@
     <property name="ignorePattern" value="^(package|import|\s*&quot;).*|(http|https|ftp)://"/>
   </module>
 
+  <!-- Reject trailing whitespace. -->
+  <!-- This is a custom rule that allows you to match any regular expression as disallowed. -->
+  <!-- See https://checkstyle.org/checks/regexp/regexpsingleline.html -->
+  <module name="RegexpSingleline">
+    <property name="format" value="\s+$"/>
+    <property name="message" value="trailing whitespace detected"/>
+  </module>
+
   <!-- 'TreeWalker' is what Checkstyle uses to traverse the source code's AST. -->
   <!-- Any checks that require some language awareness must be in this module. -->
   <module name="TreeWalker">

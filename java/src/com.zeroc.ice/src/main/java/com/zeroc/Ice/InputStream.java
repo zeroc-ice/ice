@@ -1969,7 +1969,7 @@ public final class InputStream {
                 // derive an index into the indirection table that we'll read
                 // at the end of the slice.
                 //
-                
+
                 // Lazy initialization
                 if (_current.indirectPatchList == null) {
                     _current.indirectPatchList = new ArrayDeque<>();
