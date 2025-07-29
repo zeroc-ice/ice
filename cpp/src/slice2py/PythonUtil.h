@@ -256,10 +256,13 @@ namespace Slice::Python
     class ImportVisitor final : public ParserVisitor
     {
     public:
-        bool visitClassDefStart(const ClassDefPtr&) final;
-        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
         bool visitStructStart(const StructPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
         bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitDataMember(const DataMemberPtr&) final;
+
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+
         void visitSequence(const SequencePtr&) final;
         void visitDictionary(const DictionaryPtr&) final;
         void visitEnum(const EnumPtr&) final;

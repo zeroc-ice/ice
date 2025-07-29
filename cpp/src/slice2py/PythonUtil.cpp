@@ -480,20 +480,16 @@ Slice::Python::createPackagePath(const string& moduleName, const string& outputP
 }
 
 bool
+Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
+{
+    addRuntimeImport("dataclasses", "dataclass", p);
+    return true;
+}
+
+bool
 Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     addRuntimeImport("dataclasses", "dataclass", p);
-
-    for (const auto& member : p->dataMembers())
-    {
-        // Import field if we have at least one data member that cannot be used as a default value.
-        // This is required to use the `dataclasses.field` function to initialize the field.
-        if (!canBeUsedAsDefaultValue(member->type()))
-        {
-            addRuntimeImport("dataclasses", "field", p);
-            break;
-        }
-    }
 
     // Import the meta type that is created in the Xxx_forward module for forward declarations.
     addRuntimeImportForMetaType(p->declaration(), p);
@@ -510,9 +506,63 @@ Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
         addRuntimeImport("Ice.Value", "Value", p);
     }
 
-    // Add imports required for the data members.
-    visitDataMembers(p, p->dataMembers());
-    return false;
+    return true;
+}
+
+bool
+Slice::Python::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    addRuntimeImport("dataclasses", "dataclass", p);
+
+    // Add imports required for base exception types.
+    if (ExceptionPtr base = p->base())
+    {
+        addRuntimeImport(base, p);
+        addRuntimeImportForMetaType(base, p);
+    }
+    else
+    {
+        // If the exception has no base, we import the Ice.UserException type.
+        addRuntimeImport("Ice.UserException", "UserException", p);
+    }
+    return true;
+}
+
+void
+Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    auto parent = dynamic_pointer_cast<Contained>(p->container());
+
+    // Import field if we have at least one data member that cannot be used as a default value.
+    // This is required to use the `dataclasses.field` function to initialize the field.
+    if (!canBeUsedAsDefaultValue(p->type()))
+    {
+        addRuntimeImport("dataclasses", "field", parent);
+    }
+
+    // Add imports required for data member types.
+    auto type = p->type();
+
+    // For fields with a type that is a Struct, we need to import it as a RuntimeImport, to
+    // initialize the field in the constructor. For other contained types, we only need the
+    // import for type hints.
+    if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
+    {
+        addRuntimeImport(type, parent);
+    }
+    else
+    {
+        addTypingImport(type, parent, true);
+    }
+    addRuntimeImportForMetaType(type, parent);
+
+    // If the data member has a default value, and the type of the default value is an Enum or a Const
+    // we need to import the corresponding Enum or Const.
+    if (p->defaultValue() &&
+        (dynamic_pointer_cast<Const>(p->defaultValueType()) || dynamic_pointer_cast<Enum>(p->defaultValueType())))
+    {
+        addRuntimeImport(p->defaultValueType(), parent);
+    }
 }
 
 bool
@@ -592,90 +642,6 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     return false;
-}
-
-bool
-Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
-{
-    addRuntimeImport("dataclasses", "dataclass", p);
-    for (const auto& member : p->dataMembers())
-    {
-        // Import field if we have at least one data member that cannot be used as a default value.
-        // This is required to use the `dataclasses.field` function to initialize the field.
-        if (!canBeUsedAsDefaultValue(member->type()))
-        {
-            addRuntimeImport("dataclasses", "field", p);
-            break;
-        }
-    }
-
-    // Add imports required for the data members.
-    visitDataMembers(p, p->dataMembers());
-    return false;
-}
-
-bool
-Slice::Python::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    addRuntimeImport("dataclasses", "dataclass", p);
-
-    for (const auto& member : p->dataMembers())
-    {
-        // Import field if we have at least one data member that cannot be used as a default value.
-        // This is required to use the `dataclasses.field` function to initialize the field.
-        if (!canBeUsedAsDefaultValue(member->type()))
-        {
-            addRuntimeImport("dataclasses", "field", p);
-            break;
-        }
-    }
-
-
-    // Add imports required for base exception types.
-    if (ExceptionPtr base = p->base())
-    {
-        addRuntimeImport(base, p);
-        addRuntimeImportForMetaType(base, p);
-    }
-    else
-    {
-        // If the exception has no base, we import the Ice.UserException type.
-        addRuntimeImport("Ice.UserException", "UserException", p);
-    }
-    // Add imports required for the data members.
-    visitDataMembers(p, p->dataMembers());
-    return false;
-}
-
-void
-Slice::Python::ImportVisitor::visitDataMembers(const ContainedPtr& parent, const list<DataMemberPtr>& members)
-{
-    for (const auto& member : members)
-    {
-        // Add imports required for data member types.
-        auto type = member->type();
-
-        // For fields with a type that is a Struct, we need to import it as a RuntimeImport, to
-        // initialize the field in the constructor. For other contained types, we only need the
-        // import for type hints.
-        if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
-        {
-            addRuntimeImport(type, parent);
-        }
-        else
-        {
-            addTypingImport(type, parent, true);
-        }
-        addRuntimeImportForMetaType(type, parent);
-
-        // If the data member has a default value, and the type of the default value is an Enum or a Const
-        // we need to import the corresponding Enum or Const.
-        if (member->defaultValue() && (dynamic_pointer_cast<Const>(member->defaultValueType()) ||
-                                       dynamic_pointer_cast<Enum>(member->defaultValueType())))
-        {
-            addRuntimeImport(member->defaultValueType(), parent);
-        }
-    }
 }
 
 void
