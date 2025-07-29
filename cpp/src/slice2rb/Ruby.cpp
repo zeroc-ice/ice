@@ -65,10 +65,10 @@ Slice::Ruby::compile(const vector<string>& argv)
     opts.addOpt("d", "debug");
     opts.addOpt("", "all");
 
-    vector<string> args;
+    vector<string> sliceFiles;
     try
     {
-        args = opts.parse(argv);
+        sliceFiles = opts.parse(argv);
     }
     catch (const IceInternal::BadOptException& e)
     {
@@ -89,31 +89,31 @@ Slice::Ruby::compile(const vector<string>& argv)
         return EXIT_SUCCESS;
     }
 
-    vector<string> cppArgs;
+    vector<string> preprocessorArgs;
     vector<string> optargs = opts.argVec("D");
-    cppArgs.reserve(optargs.size()); // not quite sufficient but keeps clang-tidy happy
+    preprocessorArgs.reserve(optargs.size()); // not quite sufficient but keeps clang-tidy happy
     for (const auto& optarg : optargs)
     {
-        cppArgs.push_back("-D" + optarg);
+        preprocessorArgs.push_back("-D" + optarg);
     }
 
     optargs = opts.argVec("U");
     for (const auto& optarg : optargs)
     {
-        cppArgs.push_back("-U" + optarg);
+        preprocessorArgs.push_back("-U" + optarg);
     }
 
     vector<string> includePaths = opts.argVec("I");
     for (const auto& includePath : includePaths)
     {
-        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
+        preprocessorArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
 
     string output = opts.optArg("output-dir");
 
     bool depend = opts.isSet("depend");
 
-    bool dependxml = opts.isSet("depend-xml");
+    bool dependXML = opts.isSet("depend-xml");
 
     string dependFile = opts.optArg("depend-file");
 
@@ -121,16 +121,16 @@ Slice::Ruby::compile(const vector<string>& argv)
 
     bool all = opts.isSet("all");
 
-    if (args.empty())
+    if (sliceFiles.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
 
-    if (depend && dependxml)
+    if (depend && dependXML)
     {
-        consoleErr << argv[0] << ": error: cannot specify both --depend and --dependxml" << endl;
+        consoleErr << argv[0] << ": error: cannot specify both --depend and --dependXML" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -140,130 +140,85 @@ Slice::Ruby::compile(const vector<string>& argv)
     Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    ostringstream os;
-    if (dependxml)
-    {
-        os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
-    }
+    DependencyVisitor dependencyVisitor;
 
-    for (auto i = args.begin(); i != args.end(); ++i)
+    for (const auto& fileName : sliceFiles)
     {
-        //
-        // Ignore duplicates.
-        //
-        auto p = find(args.begin(), args.end(), *i);
-        if (p != i)
+        PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+        FILE* preprocessedHandle = preprocessor->preprocess(true, "-D__SLICE2RB__");
+
+        if (preprocessedHandle == nullptr)
         {
-            continue;
+            return EXIT_FAILURE;
         }
 
-        if (depend || dependxml)
+        UnitPtr unit = Unit::createUnit("ruby", all);
+        int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+
+        if (!preprocessor->close())
         {
-            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2RB__");
+            unit->destroy();
+            return EXIT_FAILURE;
+        }
 
-            if (cppHandle == nullptr)
+        if (parseStatus == EXIT_FAILURE)
+        {
+            status = EXIT_FAILURE;
+        }
+        else if (depend | dependXML)
+        {
+            unit->visit(&dependencyVisitor);
+            if (depend)
             {
-                return EXIT_FAILURE;
+                string target = removeExtension(baseName(fileName)) + ".rb";
+                dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
             }
-
-            UnitPtr u = Unit::createUnit("ruby", false);
-            int parseStatus = u->parse(*i, cppHandle, debug);
-            u->destroy();
-
-            if (parseStatus == EXIT_FAILURE)
-            {
-                return EXIT_FAILURE;
-            }
-
-            if (!icecpp->printMakefileDependencies(
-                    os,
-                    depend ? Preprocessor::Ruby : Preprocessor::SliceXML,
-                    includePaths,
-                    "-D__SLICE2RB__"))
-            {
-                return EXIT_FAILURE;
-            }
-
-            if (!icecpp->close())
-            {
-                return EXIT_FAILURE;
-            }
+            // Else XML dependencies are handled below after all units have been processed.
         }
         else
         {
-            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2RB__");
+            string base = removeExtension(baseName(fileName));
 
-            if (cppHandle == nullptr)
+            string file = base + ".rb";
+            if (!output.empty())
             {
+                file = output + '/' + file;
+            }
+
+            try
+            {
+                IceInternal::Output out;
+                out.open(file.c_str());
+                if (!out)
+                {
+                    ostringstream oss;
+                    oss << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
+                    throw FileException(oss.str());
+                }
+                FileTracker::instance()->addFile(file);
+
+                printHeader(out);
+                printGeneratedHeader(out, base + ".ice", "#");
+                out << sp;
+
+                //
+                // Generate the Ruby mapping.
+                //
+                generate(unit, all, includePaths, out);
+
+                out.close();
+            }
+            catch (const Slice::FileException& ex)
+            {
+                // If a file could not be created, then cleanup any created files.
+                FileTracker::instance()->cleanup();
+                unit->destroy();
+                consoleErr << argv[0] << ": error: " << ex.what() << endl;
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit("ruby", all);
-            int parseStatus = u->parse(*i, cppHandle, debug);
-
-            if (!icecpp->close())
-            {
-                u->destroy();
-                return EXIT_FAILURE;
-            }
-
-            if (parseStatus == EXIT_FAILURE)
-            {
-                status = EXIT_FAILURE;
-            }
-            else
-            {
-                string base = icecpp->getBaseName();
-                string::size_type pos = base.find_last_of("/\\");
-                if (pos != string::npos)
-                {
-                    base.erase(0, pos + 1);
-                }
-
-                string file = base + ".rb";
-                if (!output.empty())
-                {
-                    file = output + '/' + file;
-                }
-
-                try
-                {
-                    IceInternal::Output out;
-                    out.open(file.c_str());
-                    if (!out)
-                    {
-                        ostringstream oss;
-                        oss << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
-                        throw FileException(oss.str());
-                    }
-                    FileTracker::instance()->addFile(file);
-
-                    printHeader(out);
-                    printGeneratedHeader(out, base + ".ice", "#");
-                    out << sp;
-
-                    //
-                    // Generate the Ruby mapping.
-                    //
-                    generate(u, all, includePaths, out);
-
-                    out.close();
-                }
-                catch (const Slice::FileException& ex)
-                {
-                    // If a file could not be created, then cleanup
-                    // any created files.
-                    FileTracker::instance()->cleanup();
-                    u->destroy();
-                    consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                    return EXIT_FAILURE;
-                }
-            }
-
-            status |= u->getStatus();
-            u->destroy();
+            status |= unit->getStatus();
+            unit->destroy();
         }
 
         {
@@ -276,14 +231,9 @@ Slice::Ruby::compile(const vector<string>& argv)
         }
     }
 
-    if (dependxml)
+    if (dependXML)
     {
-        os << "</dependencies>\n";
-    }
-
-    if (depend || dependxml)
-    {
-        writeDependencies(os.str(), dependFile);
+       dependencyVisitor.writeXMLDependencies(dependFile);
     }
 
     return status;

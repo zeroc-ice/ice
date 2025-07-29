@@ -74,10 +74,10 @@ compile(const vector<string>& argv)
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
-    vector<string> args;
+    vector<string> sliceFiles;
     try
     {
-        args = opts.parse(argv);
+        sliceFiles = opts.parse(argv);
     }
     catch (const IceInternal::BadOptException& e)
     {
@@ -126,7 +126,7 @@ compile(const vector<string>& argv)
 
     bool dependJSON = opts.isSet("depend-json");
 
-    bool dependXml = opts.isSet("depend-xml");
+    bool dependXML = opts.isSet("depend-xml");
 
     string dependFile = opts.optArg("depend-file");
 
@@ -134,7 +134,7 @@ compile(const vector<string>& argv)
 
     bool typeScript = opts.isSet("typescript");
 
-    if (args.empty())
+    if (sliceFiles.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
         if (!validate)
@@ -154,7 +154,7 @@ compile(const vector<string>& argv)
         return EXIT_FAILURE;
     }
 
-    if (depend && dependXml)
+    if (depend && dependXML)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
         if (!validate)
@@ -164,7 +164,7 @@ compile(const vector<string>& argv)
         return EXIT_FAILURE;
     }
 
-    if (dependXml && dependJSON)
+    if (dependXML && dependJSON)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend-xml and --depend-json" << endl;
         if (!validate)
@@ -184,117 +184,70 @@ compile(const vector<string>& argv)
     Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    ostringstream os;
-    if (dependJSON)
-    {
-        os << "{" << endl;
-    }
-    else if (dependXml)
-    {
-        os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
-    }
+    DependencyVisitor dependencyVisitor;
 
-    //
-    // Create a copy of args without the duplicates.
-    //
-    set<string> sources(args.begin(), args.end());
-
-    for (auto i = sources.cbegin(); i != sources.cend();)
+    for (const auto& fileName : sliceFiles)
     {
-        PreprocessorPtr preprocessor = Preprocessor::create(argv[0], *i, preprocessorArgs);
-        FILE* cppHandle = preprocessor->preprocess(true, "-D__SLICE2JS__");
+        PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+        FILE* preprocessedHandle = preprocessor->preprocess(true, "-D__SLICE2JS__");
 
-        if (cppHandle == nullptr)
+        if (preprocessedHandle == nullptr)
         {
             return EXIT_FAILURE;
         }
 
-        if (depend || dependJSON || dependXml)
+        UnitPtr unit = Unit::createUnit("js", false);
+        int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+
+        if (!preprocessor->close())
         {
-            UnitPtr u = Unit::createUnit("js", false);
-            int parseStatus = u->parse(*i, cppHandle, debug);
-            u->destroy();
+            unit->destroy();
+            return EXIT_FAILURE;
+        }
 
-            if (parseStatus == EXIT_FAILURE)
+        if (parseStatus == EXIT_FAILURE)
+        {
+            status = EXIT_FAILURE;
+        }
+        else if (depend | dependJSON | dependXML)
+        {
+            unit->visit(&dependencyVisitor);
+            if (depend)
             {
-                return EXIT_FAILURE;
+                string target = removeExtension(baseName(fileName)) + ".js";
+                dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
             }
-
-            bool last = (++i == sources.cend());
-
-            if (!preprocessor->printMakefileDependencies(
-                    os,
-                    depend ? Preprocessor::JavaScript
-                           : (dependJSON ? Preprocessor::JavaScriptJSON : Preprocessor::SliceXML),
-                    includePaths,
-                    "-D__SLICE2JS__"))
-            {
-                return EXIT_FAILURE;
-            }
-
-            if (!preprocessor->close())
-            {
-                return EXIT_FAILURE;
-            }
-
-            if (dependJSON)
-            {
-                if (!last)
-                {
-                    os << ",";
-                }
-                os << "\n";
-            }
+            // Else JSON and XML dependencies are handled below after all units have been processed.
         }
         else
-        {
-            UnitPtr p = Unit::createUnit("js", false);
-            int parseStatus = p->parse(*i, cppHandle, debug);
-
-            if (!preprocessor->close())
+        {            
+            parseAllDocComments(unit, Slice::JavaScript::jsLinkFormatter);
+            try
             {
-                p->destroy();
+                if (useStdout)
+                {
+                    Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript, cout);
+                    gen.generate(unit);
+                }
+                else
+                {
+                    Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript);
+                    gen.generate(unit);
+                }
+            }
+            catch (const Slice::FileException& ex)
+            {
+                //
+                // If a file could not be created, then clean up any created files.
+                //
+                FileTracker::instance()->cleanup();
+                unit->destroy();
+                consoleErr << argv[0] << ": error: " << ex.what() << endl;
                 return EXIT_FAILURE;
             }
 
-            if (parseStatus == EXIT_FAILURE)
-            {
-                status = EXIT_FAILURE;
-            }
-            else
-            {
-                parseAllDocComments(p, Slice::JavaScript::jsLinkFormatter);
-
-                DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
-                assert(dc);
-                try
-                {
-                    if (useStdout)
-                    {
-                        Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript, cout);
-                        gen.generate(p);
-                    }
-                    else
-                    {
-                        Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript);
-                        gen.generate(p);
-                    }
-                }
-                catch (const Slice::FileException& ex)
-                {
-                    //
-                    // If a file could not be created, then clean up any created files.
-                    //
-                    FileTracker::instance()->cleanup();
-                    p->destroy();
-                    consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                    return EXIT_FAILURE;
-                }
-            }
-
-            status |= p->getStatus();
-            p->destroy();
-            ++i;
+            status |= unit->getStatus();
+            unit->destroy();
         }
 
         {
@@ -309,16 +262,11 @@ compile(const vector<string>& argv)
 
     if (dependJSON)
     {
-        os << "}\n";
+        dependencyVisitor.writeJSONDependencies(dependFile);
     }
-    else if (dependXml)
+    else if (dependXML)
     {
-        os << "</dependencies>\n";
-    }
-
-    if (depend || dependJSON || dependXml)
-    {
-        writeDependencies(os.str(), dependFile);
+        dependencyVisitor.writeXMLDependencies(dependFile);
     }
 
     return status;

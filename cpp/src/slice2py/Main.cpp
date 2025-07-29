@@ -146,31 +146,31 @@ main(int argc, char* argv[])
             return EXIT_SUCCESS;
         }
 
-        vector<string> cppArgs;
+        vector<string> preprocessorArgs;
         vector<string> optargs = opts.argVec("D");
-        cppArgs.reserve(optargs.size());
+        preprocessorArgs.reserve(optargs.size());
         for (const auto& arg : optargs)
         {
-            cppArgs.push_back("-D" + arg);
+            preprocessorArgs.push_back("-D" + arg);
         }
 
         optargs = opts.argVec("U");
         for (const auto& arg : optargs)
         {
-            cppArgs.push_back("-U" + arg);
+            preprocessorArgs.push_back("-U" + arg);
         }
 
         vector<string> includePaths = opts.argVec("I");
         for (const auto& includePath : includePaths)
         {
-            cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
+            preprocessorArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
         }
 
         string outputDir = opts.optArg("output-dir");
 
         bool depend = opts.isSet("depend");
 
-        bool dependxml = opts.isSet("depend-xml");
+        bool dependXML = opts.isSet("depend-xml");
 
         string dependFile = opts.optArg("depend-file");
 
@@ -187,9 +187,9 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
 
-        if (depend && dependxml)
+        if (depend && dependXML)
         {
-            consoleErr << args[0] << ": error: cannot specify both --depend and --dependxml" << endl;
+            consoleErr << args[0] << ": error: cannot specify both --depend and --dependXML" << endl;
             usage(args[0]);
             return EXIT_FAILURE;
         }
@@ -219,27 +219,29 @@ main(int argc, char* argv[])
         Ice::CtrlCHandler ctrlCHandler;
         ctrlCHandler.setCallback(interruptedCallback);
 
-        ostringstream os;
-        if (dependxml)
-        {
-            os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
-        }
-
+        DependencyVisitor dependencyVisitor;
         PackageVisitor packageVisitor;
+
+        std::map<string, StringList> dependencyMap;
 
         for (const auto& fileName : sliceFiles)
         {
-            PreprocessorPtr preprocessor = Preprocessor::create(args[0], fileName, cppArgs);
-            FILE* cppHandle = preprocessor->preprocess(true, "-D__SLICE2PY__");
+            PreprocessorPtr preprocessor = Preprocessor::create(args[0], fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor->preprocess(true, "-D__SLICE2PY__");
 
-            if (cppHandle == nullptr)
+            if (preprocessedHandle == nullptr)
             {
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
 
             UnitPtr unit = Unit::createUnit("python", false);
-            int parseStatus = unit->parse(fileName, cppHandle, debug);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+
+            if (!preprocessor->close())
+            {
+                return EXIT_FAILURE;
+            }
 
             if (parseStatus == EXIT_FAILURE)
             {
@@ -248,31 +250,19 @@ main(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if (depend || dependxml)
-            {
-                if (!preprocessor->printMakefileDependencies(
-                        os,
-                        depend ? Preprocessor::Python : Preprocessor::SliceXML,
-                        includePaths,
-                        "-D__SLICE2PY__"))
-                {
-                    return EXIT_FAILURE;
-                }
-            }
-            else
+            // Collect the dependencies of the unit.
+            unit->visit(&dependencyVisitor);
+
+            // Collect the package imports and generated files.
+            unit->visit(&packageVisitor);
+
+            if (buildArg == "modules" || buildArg == "all")
             {
                 parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
 
                 try
                 {
-                    if (buildArg == "modules" || buildArg == "all")
-                    {
-                        // Generate Python code.
-                        generate(unit, outputDir);
-                    }
-
-                    // Collect the package imports and generated files.
-                    unit->visit(&packageVisitor);
+                     generate(unit, outputDir);
                 }
                 catch (const FileException&)
                 {
@@ -280,11 +270,6 @@ main(int argc, char* argv[])
                     FileTracker::instance()->cleanup();
                     throw;
                 }
-            }
-
-            if (!preprocessor->close())
-            {
-                return EXIT_FAILURE;
             }
 
             status |= unit->getStatus();
@@ -298,22 +283,45 @@ main(int argc, char* argv[])
             return status;
         }
 
-        if (!listArg.empty())
+        if (depend)
         {
-            if (listArg == "modules" || listArg == "all")
+            for (const auto& [source, files] : packageVisitor.generated())
             {
-                for (const auto& moduleName : packageVisitor.generatedModules())
+                for (const auto& file : files)
                 {
-                    cout << moduleName << endl;
+                    dependencyVisitor.writeMakefileDependencies(
+                        dependFile,
+                        source,
+                        file);
+                }
+            }
+        }
+        else if (dependXML)
+        {
+            dependencyVisitor.writeXMLDependencies(dependFile);
+        }
+        else if (!listArg.empty())
+        {
+            std::set<string> generated;
+
+            for (const auto& [source, files] : packageVisitor.generated())
+            {
+                for (const auto& file : files)
+                {
+                    bool skip = (listArg == "modules" && file.find("/__init__.py") != string::npos) ||
+                                (listArg == "index" && file.find("/__init__.py") == string::npos);
+
+                    if (skip)
+                    {
+                        continue;
+                    }
+                    generated.insert(file);
                 }
             }
 
-            if (listArg == "index" || listArg == "all")
+            for (const auto& file : generated)
             {
-                for (const auto& fileName : packageVisitor.packageIndexFiles())
-                {
-                    cout << fileName << endl;
-                }
+                cout << file << endl;
             }
         }
         else if (buildArg == "index" || buildArg == "all")
@@ -333,16 +341,6 @@ main(int argc, char* argv[])
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
-        }
-
-        if (dependxml)
-        {
-            os << "</dependencies>\n";
-        }
-
-        if (depend || dependxml)
-        {
-            writeDependencies(os.str(), dependFile);
         }
 
         return status;

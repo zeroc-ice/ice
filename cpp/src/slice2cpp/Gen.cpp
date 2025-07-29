@@ -10,6 +10,7 @@
 #include <cassert>
 #include <limits>
 #include <string>
+#include <iostream>
 
 using namespace std;
 using namespace Slice;
@@ -619,6 +620,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     H.open(fileH.c_str());
+    cerr << "Generating header file: " << fileH << endl;
     if (!H)
     {
         ostringstream os;
@@ -899,6 +901,7 @@ Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 Slice::Gen::ForwardDeclVisitor::visitStructStart(const StructPtr& p)
 {
+    cerr << "Generating forward declaration for struct: " << p->mappedName() << endl;
     if (_firstElement)
     {
         _firstElement = false;

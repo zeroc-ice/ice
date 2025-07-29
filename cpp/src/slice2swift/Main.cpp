@@ -69,10 +69,10 @@ compile(const vector<string>& argv)
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
-    vector<string> args;
+    vector<string> sliceFiles;
     try
     {
-        args = opts.parse(argv);
+        sliceFiles = opts.parse(argv);
     }
     catch (const IceInternal::BadOptException& e)
     {
@@ -96,37 +96,37 @@ compile(const vector<string>& argv)
         return EXIT_SUCCESS;
     }
 
-    vector<string> cppArgs;
+    vector<string> preprocessorArgs;
     vector<string> optargs = opts.argVec("D");
-    cppArgs.reserve(optargs.size()); // not quite sufficient but keeps clang-tidy happy
+    preprocessorArgs.reserve(optargs.size()); // not quite sufficient but keeps clang-tidy happy
     for (const auto& optarg : optargs)
     {
-        cppArgs.push_back("-D" + optarg);
+        preprocessorArgs.push_back("-D" + optarg);
     }
 
     optargs = opts.argVec("U");
     for (const auto& optarg : optargs)
     {
-        cppArgs.push_back("-U" + optarg);
+        preprocessorArgs.push_back("-U" + optarg);
     }
 
     vector<string> includePaths = opts.argVec("I");
     for (const auto& includePath : includePaths)
     {
-        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
+        preprocessorArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
 
     string output = opts.optArg("output-dir");
 
     bool depend = opts.isSet("depend");
 
-    bool dependxml = opts.isSet("depend-xml");
+    bool dependXML = opts.isSet("depend-xml");
 
     string dependFile = opts.optArg("depend-file");
 
     bool debug = opts.isSet("debug");
 
-    if (args.empty())
+    if (sliceFiles.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
         if (!validate)
@@ -136,7 +136,7 @@ compile(const vector<string>& argv)
         return EXIT_FAILURE;
     }
 
-    if (depend && dependxml)
+    if (depend && dependXML)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
         if (!validate)
@@ -156,109 +156,64 @@ compile(const vector<string>& argv)
     Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    ostringstream os;
-    if (dependxml)
-    {
-        os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
-    }
+    DependencyVisitor dependencyVisitor;
 
-    for (auto i = args.begin(); i != args.end(); ++i)
+    for (const auto& fileName : sliceFiles)
     {
-        //
-        // Ignore duplicates.
-        //
-        if (find(args.begin(), args.end(), *i) != i)
+        PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+        FILE* preprocessedHandle = preprocessor->preprocess(true, "-D__SLICE2SWIFT__");
+
+        if (preprocessedHandle == nullptr)
         {
-            continue;
+            return EXIT_FAILURE;
         }
 
-        if (depend || dependxml)
+        UnitPtr unit = Unit::createUnit("swift", false);
+        int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+
+        if (!preprocessor->close())
         {
-            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2SWIFT__");
+            unit->destroy();
+            return EXIT_FAILURE;
+        }
 
-            if (cppHandle == nullptr)
+        if (parseStatus == EXIT_FAILURE)
+        {
+            status = EXIT_FAILURE;
+        }
+        else if (depend | dependXML)
+        {
+            unit->visit(&dependencyVisitor);
+            if (depend)
             {
-                return EXIT_FAILURE;
+                string target = removeExtension(baseName(fileName)) + ".swift";
+                dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
             }
-
-            UnitPtr u = Unit::createUnit("swift", false);
-            int parseStatus = u->parse(*i, cppHandle, debug);
-            u->destroy();
-
-            if (parseStatus == EXIT_FAILURE)
-            {
-                return EXIT_FAILURE;
-            }
-
-            if (!icecpp->printMakefileDependencies(
-                    os,
-                    depend ? Preprocessor::Swift : Preprocessor::SliceXML,
-                    includePaths,
-                    "-D__SLICE2SWIFT__"))
-            {
-                return EXIT_FAILURE;
-            }
-
-            if (!icecpp->close())
-            {
-                return EXIT_FAILURE;
-            }
+            // Else XML dependencies are handled below after all units have been processed.
         }
         else
         {
-            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2SWIFT__");
+            parseAllDocComments(unit, Slice::Swift::swiftLinkFormatter);
 
-            if (cppHandle == nullptr)
+            try
             {
-                return EXIT_FAILURE;
+                Gen gen(preprocessor->getBaseName(), includePaths, output);
+                gen.generate(unit);
             }
-
-            UnitPtr u = Unit::createUnit("swift", false);
-            int parseStatus = u->parse(*i, cppHandle, debug);
-
-            if (!icecpp->close())
+            catch (const Slice::FileException& ex)
             {
-                u->destroy();
-                return EXIT_FAILURE;
-            }
-
-            if (parseStatus == EXIT_FAILURE)
-            {
+                //
+                // If a file could not be created, then cleanup any created files.
+                //
+                FileTracker::instance()->cleanup();
+                unit->destroy();
+                consoleErr << argv[0] << ": error: " << ex.what() << endl;
                 status = EXIT_FAILURE;
-            }
-            else
-            {
-                parseAllDocComments(u, Slice::Swift::swiftLinkFormatter);
-
-                string base = icecpp->getBaseName();
-                string::size_type pos = base.find_last_of("/\\");
-                if (pos != string::npos)
-                {
-                    base.erase(0, pos + 1);
-                }
-
-                try
-                {
-                    Gen gen(icecpp->getBaseName(), includePaths, output);
-                    gen.generate(u);
-                }
-                catch (const Slice::FileException& ex)
-                {
-                    //
-                    // If a file could not be created, then cleanup any created files.
-                    //
-                    FileTracker::instance()->cleanup();
-                    u->destroy();
-                    consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                    status = EXIT_FAILURE;
-                    break;
-                }
+                break;
             }
 
-            status |= u->getStatus();
-            u->destroy();
+            status |= unit->getStatus();
+            unit->destroy();
         }
 
         {
@@ -271,14 +226,9 @@ compile(const vector<string>& argv)
         }
     }
 
-    if (dependxml)
+    if (dependXML)
     {
-        os << "</dependencies>\n";
-    }
-
-    if (depend || dependxml)
-    {
-        writeDependencies(os.str(), dependFile);
+        dependencyVisitor.writeXMLDependencies(dependFile);
     }
 
     return status;
@@ -304,8 +254,7 @@ main(int argc, char* argv[])
     }
     catch (...)
     {
-        consoleErr << args[0] << ": error:"
-                   << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

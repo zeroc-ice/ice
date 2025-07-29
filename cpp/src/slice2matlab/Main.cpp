@@ -106,10 +106,10 @@ namespace
 
         bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
-        vector<string> args;
+        vector<string> sliceFiles;
         try
         {
-            args = opts.parse(argv);
+            sliceFiles = opts.parse(argv);
         }
         catch (const IceInternal::BadOptException& e)
         {
@@ -133,29 +133,29 @@ namespace
             return EXIT_SUCCESS;
         }
 
-        vector<string> cppArgs;
+        vector<string> preprocessorArgs;
         vector<string> optargs = opts.argVec("D");
-        cppArgs.reserve(optargs.size()); // keeps clang-tidy happy
+        preprocessorArgs.reserve(optargs.size()); // keeps clang-tidy happy
         for (const auto& arg : optargs)
         {
-            cppArgs.push_back("-D" + arg);
+            preprocessorArgs.push_back("-D" + arg);
         }
 
         optargs = opts.argVec("U");
         for (const auto& arg : optargs)
         {
-            cppArgs.push_back("-U" + arg);
+            preprocessorArgs.push_back("-U" + arg);
         }
 
         vector<string> includePaths = opts.argVec("I");
         for (const auto& includePath : includePaths)
         {
-            cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
+            preprocessorArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
         }
 
         string output = opts.optArg("output-dir");
 
-        bool dependxml = opts.isSet("depend-xml");
+        bool dependXML = opts.isSet("depend-xml");
 
         string dependFile = opts.optArg("depend-file");
 
@@ -165,7 +165,7 @@ namespace
 
         bool listGenerated = opts.isSet("list-generated");
 
-        if (args.empty())
+        if (sliceFiles.empty())
         {
             consoleErr << argv[0] << ": error: no input file" << endl;
             if (!validate)
@@ -185,111 +185,63 @@ namespace
         Ice::CtrlCHandler ctrlCHandler;
         ctrlCHandler.setCallback(interruptedCallback);
 
-        ostringstream os;
-        if (dependxml)
-        {
-            os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
-        }
+        DependencyVisitor dependencyVisitor;
 
-        for (auto i = args.begin(); i != args.end(); ++i)
+        for (const auto& fileName : sliceFiles)
         {
-            //
-            // Ignore duplicates.
-            //
-            auto p = find(args.begin(), args.end(), *i);
-            if (p != i)
+            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor->preprocess(true, "-D__SLICE2MATLAB__");
+
+            if (preprocessedHandle == nullptr)
             {
-                continue;
+                return EXIT_FAILURE;
             }
 
-            if (dependxml)
+            UnitPtr unit = Unit::createUnit("matlab", all);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+
+            if (!preprocessor->close())
             {
-                PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-                FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2MATLAB__");
+                unit->destroy();
+                return EXIT_FAILURE;
+            }
 
-                if (cppHandle == nullptr)
-                {
-                    return EXIT_FAILURE;
-                }
-
-                UnitPtr u = Unit::createUnit("matlab", false);
-                int parseStatus = u->parse(*i, cppHandle, debug);
-                u->destroy();
-
-                if (parseStatus == EXIT_FAILURE)
-                {
-                    return EXIT_FAILURE;
-                }
-
-                if (!icecpp->printMakefileDependencies(os, Preprocessor::SliceXML, includePaths, "-D__SLICE2MATLAB__"))
-                {
-                    return EXIT_FAILURE;
-                }
-
-                if (!icecpp->close())
-                {
-                    return EXIT_FAILURE;
-                }
+            if (parseStatus == EXIT_FAILURE)
+            {
+                status = EXIT_FAILURE;
+            }
+            else if (dependXML)
+            {
+                unit->visit(&dependencyVisitor);
             }
             else
             {
-                FileTracker::instance()->setSource(*i);
+                FileTracker::instance()->setSource(fileName);
 
-                PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-                FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2MATLAB__");
+                parseAllDocComments(unit, Slice::matlabLinkFormatter);
 
-                if (cppHandle == nullptr)
+                try
                 {
-                    return EXIT_FAILURE;
+                    validateMatlabMetadata(unit);
+
+                    CodeVisitor codeVisitor(output);
+                    unit->visit(&codeVisitor);
                 }
-
-                UnitPtr u = Unit::createUnit("matlab", all);
-                int parseStatus = u->parse(*i, cppHandle, debug);
-
-                if (!icecpp->close())
+                catch (const Slice::FileException& ex)
                 {
-                    u->destroy();
-                    return EXIT_FAILURE;
-                }
-
-                if (parseStatus == EXIT_FAILURE)
-                {
+                    //
+                    // If a file could not be created, then cleanup any created files.
+                    //
+                    FileTracker::instance()->cleanup();
+                    unit->destroy();
+                    consoleErr << argv[0] << ": error: " << ex.what() << endl;
                     status = EXIT_FAILURE;
-                }
-                else
-                {
-                    parseAllDocComments(u, Slice::matlabLinkFormatter);
-
-                    string base = icecpp->getBaseName();
-                    string::size_type pos = base.find_last_of("/\\");
-                    if (pos != string::npos)
-                    {
-                        base.erase(0, pos + 1);
-                    }
-
-                    try
-                    {
-                        validateMatlabMetadata(u);
-
-                        CodeVisitor codeVisitor(output);
-                        u->visit(&codeVisitor);
-                    }
-                    catch (const Slice::FileException& ex)
-                    {
-                        //
-                        // If a file could not be created, then cleanup any created files.
-                        //
-                        FileTracker::instance()->cleanup();
-                        u->destroy();
-                        consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                        status = EXIT_FAILURE;
-                        FileTracker::instance()->error();
-                        break;
-                    }
+                    FileTracker::instance()->error();
+                    break;
                 }
 
-                status |= u->getStatus();
-                u->destroy();
+                status |= unit->getStatus();
+                unit->destroy();
             }
 
             {
@@ -302,10 +254,9 @@ namespace
             }
         }
 
-        if (dependxml)
+        if (dependXML)
         {
-            os << "</dependencies>\n";
-            writeDependencies(os.str(), dependFile);
+            dependencyVisitor.writeXMLDependencies(dependFile);
         }
 
         if (listGenerated)
@@ -337,8 +288,7 @@ main(int argc, char* argv[])
     }
     catch (...)
     {
-        consoleErr << args[0] << ": error:"
-                   << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

@@ -24,26 +24,6 @@ namespace Slice
         FILE* preprocess(bool keepComments, const std::string& languageArg = "");
         bool close();
 
-        enum Language
-        {
-            CPlusPlus,
-            CSharp,
-            Python,
-            Ruby,
-            PHP,
-            JavaScript,
-            JavaScriptJSON,
-            SliceXML,
-            Swift
-        };
-
-        bool printMakefileDependencies(
-            std::ostream& out,
-            Language lang,
-            const std::vector<std::string>& includePaths,
-            const std::string& languageArg = "",
-            const std::string& optValue = "");
-
         std::string getFileName();
         std::string getBaseName();
 

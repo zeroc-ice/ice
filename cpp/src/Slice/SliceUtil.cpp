@@ -9,6 +9,7 @@
 #include <cassert>
 #include <climits>
 #include <cstring>
+#include <iostream>
 
 #ifndef _MSC_VER
 #    include <unistd.h> // For readlink()
@@ -18,9 +19,7 @@ using namespace std;
 using namespace Slice;
 using namespace IceInternal;
 
-namespace
-{
-    string normalizePath(const string& path)
+    string Slice::normalizePath(const string& path)
     {
         string result = path;
 
@@ -75,7 +74,6 @@ namespace
         }
         return result;
     }
-}
 
 string
 Slice::fullPath(const string& path)
@@ -98,7 +96,7 @@ Slice::fullPath(const string& path)
         string cwd;
         if (IceInternal::getcwd(cwd) == 0)
         {
-            result = string(cwd) + '/' + result;
+            result = cwd + '/' + result;
         }
     }
 
@@ -218,6 +216,28 @@ Slice::baseName(const string& path)
         baseName.erase(0, pos + 1);
     }
     return baseName;
+}
+
+string
+Slice::dirName(const string& path)
+{
+    string dirName = path;
+    string::size_type pos = dirName.find_last_of("/\\");
+    if (pos == string::npos)
+    {
+        // If there is no slash, return the current directory.
+        return ".";
+    }
+    else if (pos == 0)
+    {
+        // If the last slash is the first character, return the root directory.
+        return "/";
+    }
+    else
+    {
+        // Otherwise, return the directory part of the path.
+        return dirName.substr(0, pos);
+    }
 }
 
 void
@@ -604,4 +624,161 @@ Slice::getTypeScopedName(const TypePtr& type)
         assert(contained);
         return contained->scoped();
     }
+}
+
+string
+Slice::relativePath(const string& path1, const string& path2)
+{
+    vector<string> tokens1;
+    vector<string> tokens2;
+
+    splitString(path1, "/\\", tokens1);
+    splitString(path2, "/\\", tokens2);
+
+    string f1 = tokens1.back();
+
+    tokens1.pop_back();
+
+    auto i1 = tokens1.begin();
+    auto i2 = tokens2.begin();
+
+    while (i1 != tokens1.end() && i2 != tokens2.end() && *i1 == *i2)
+    {
+        i1++;
+        i2++;
+    }
+
+    //
+    // Different volumes, relative path not possible.
+    //
+    if (i1 == tokens1.begin() && i2 == tokens2.begin())
+    {
+        return path1;
+    }
+
+    string newPath;
+    if (i2 == tokens2.end())
+    {
+        newPath += "./";
+        for (; i1 != tokens1.end(); ++i1)
+        {
+            newPath += *i1 + "/";
+        }
+    }
+    else
+    {
+        for (vector<string>::difference_type i = tokens2.end() - i2; i > 0; i--)
+        {
+            newPath += "../";
+        }
+
+        for (; i1 != tokens1.end(); ++i1)
+        {
+            newPath += *i1 + "/";
+        }
+    }
+    newPath += f1;
+
+    return newPath;
+}
+
+void
+Slice::DependencyVisitor::visitUnitEnd(const UnitPtr& unit)
+{
+    _dependencyMap[unit->topLevelFile()] = unit->allFiles();
+}
+
+void
+Slice::DependencyVisitor::writeMakefileDependencies(const string& dependFile, const string& source, const std::string& target)
+{
+    ostringstream os;
+    StringList dependencies = _dependencyMap[source];
+    // Write the target
+    if (dependencies.empty())
+    {
+        os << target << ":" << std::endl;
+    }
+    else
+    {
+        vector<string> updatedDependencies;
+
+        // The first dependency is the Input Slice file, and is relative to the working directory.
+        auto first = dependencies.front();
+        string dirName = Slice::dirName(first);
+        dependencies.pop_front();
+        updatedDependencies.push_back(first);
+
+        for (const auto& dependency : dependencies)
+        {
+            string updatedPath = dependency;
+            if (!IceInternal::isAbsolutePath(dependency))
+            {
+                updatedPath = normalizePath(dirName + "/" + dependency);
+            }
+            updatedDependencies.push_back(updatedPath);
+        }
+
+        os << target << ": \\" << std::endl;
+        for (const auto& dependency : updatedDependencies)
+        {
+            os << " " << dependency;
+
+            if (dependency != updatedDependencies.back())
+            {
+                os << " \\";
+            }
+            os << std::endl;
+        }
+    }
+    writeDependencies(os.str(), dependFile);
+}
+
+void
+Slice::DependencyVisitor::writeXMLDependencies(const std::string& dependFile)
+{
+    ostringstream os;
+    os << R"(<?xml version="1.0" encoding="UTF-8"?>)";
+    os << endl << "<dependencies>";
+    for (auto [_, dependencies] : _dependencyMap)
+    {
+        string source = dependencies.front();
+        dependencies.pop_front();
+        string dirName = Slice::dirName(source);
+        os << endl << "  <source name=\"" << source << "\">";
+        for (const auto& dependency : dependencies)
+        {
+            os << endl << "    <dependsOn name=\"" << dependency << "\" />";
+        }
+        os << endl << "  </source>";
+    }
+    os << endl << "</dependencies>";
+    writeDependencies(os.str(), dependFile);
+}
+
+void
+Slice::DependencyVisitor::writeJSONDependencies(const std::string& dependFile)
+{
+    ostringstream os;
+    os << "{";
+    for (auto [_, dependencies] : _dependencyMap)
+    {
+        string source = dependencies.front();
+        dependencies.pop_front();
+        string dirName = Slice::dirName(source);
+        os << endl << "  \"" << source << "\" : [";
+        for (const auto& dependency : dependencies)
+        {
+            if (IceInternal::isAbsolutePath(dependency))
+            {
+                os << endl << "    \"" << dependency << "\"";
+            }
+            else
+            {
+                os << endl << "    \"" << normalizePath(dirName + "/" + dependency) << "\"";
+            }
+        }
+        os << endl << "  ]";
+    }
+    os << endl << "}";
+    writeDependencies(os.str(), dependFile);
 }

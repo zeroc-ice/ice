@@ -755,7 +755,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
             if (IceInternal::isAbsolutePath(f))
             {
                 // If the include file is an absolute path, we need to generate a relative path.
-                f = relativePath(f, p->topLevelFile());
+                f = relativePath(f, Slice::dirName(p->topLevelFile()));
             }
             else if (f[0] != '.')
             {
@@ -1708,7 +1708,7 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
                 if (IceInternal::isAbsolutePath(f))
                 {
                     // If the include file is an absolute path, we need to generate a relative path.
-                    f = relativePath(f, _filename);
+                    f = relativePath(f, Slice::dirName(_filename));
                 }
                 else if (f[0] != '.')
                 {
@@ -1755,7 +1755,7 @@ Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& unit)
                 if (IceInternal::isAbsolutePath(f))
                 {
                     // If the include file is an absolute path, we need to generate a relative path.
-                    f = relativePath(f, _filename);
+                    f = relativePath(f, Slice::dirName(_filename));
                 }
                 else if (f[0] != '.')
                 {

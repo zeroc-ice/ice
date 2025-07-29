@@ -199,7 +199,7 @@ public abstract class SliceDependTask : Task
             {
                 XmlNodeList options = dependsDoc.DocumentElement.SelectNodes(
                     string.Format("/dependencies/source[@name='{0}']/options/child::node()",
-                                    source.GetMetadata("Identity")));
+                                    source.GetMetadata("FullPath")));
                 if (options != null)
                 {
                     var newOptions = GetOptions(source);
@@ -222,7 +222,7 @@ public abstract class SliceDependTask : Task
             if (skip)
             {
                 XmlNodeList depends = dependsDoc.DocumentElement.SelectNodes(
-                    string.Format("/dependencies/source[@name='{0}']/dependsOn", source.GetMetadata("Identity")));
+                    string.Format("/dependencies/source[@name='{0}']/dependsOn", source.GetMetadata("FullPath")));
 
                 if (depends != null)
                 {
