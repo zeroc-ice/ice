@@ -347,7 +347,6 @@ namespace Slice
             KindFloat,
             KindDouble,
             KindString,
-            KindObject,
             KindObjectProxy,
             KindValue
         };
@@ -369,8 +368,8 @@ namespace Slice
         static std::optional<Kind> kindFromString(std::string_view str);
 
         // NOLINTNEXTLINE(cert-err58-cpp)
-        inline static const std::array<std::string, 11> builtinTable =
-            {"byte", "bool", "short", "int", "long", "float", "double", "string", "Object", "Object*", "Value"};
+        inline static const std::array<std::string, 10> builtinTable =
+            {"byte", "bool", "short", "int", "long", "float", "double", "string", "Object*", "Value"};
 
     private:
         const Kind _kind;

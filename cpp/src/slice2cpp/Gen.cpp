@@ -32,7 +32,6 @@ namespace
                 case Builtin::KindFloat:
                 case Builtin::KindDouble:
                 case Builtin::KindValue:
-                case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 {
                     return true;

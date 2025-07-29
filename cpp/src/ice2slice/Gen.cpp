@@ -104,7 +104,6 @@ namespace
             "float32",                 // KindFloat
             "float64",                 // KindDouble
             "string",                  // KindString
-            "AnyClass?",               // KindObject
             "IceRpc::ServiceAddress?", // KindObjectProxy
             "AnyClass?"                // KindValue
         };
@@ -154,7 +153,6 @@ namespace
             "float",                           // KindFloat
             "double",                          // KindDouble
             "string",                          // KindString
-            "AnyClass",                        // KindObject
             "IceRpc.Slice.Ice.IceObjectProxy", // KindObjectProxy
             "AnyClass"                         // KindValue
         };
