@@ -6,6 +6,10 @@ from .SlicedData import SlicedData
 
 
 class Value(object):
+    """
+    The base class for instances of Slice-defined classes.
+    """
+
     def ice_id(self) -> str:
         """
         Obtain the type ID corresponding to the most-derived Slice interface supported by the target object.
@@ -50,9 +54,6 @@ class Value(object):
             The sliced data or None.
         """
         return getattr(self, "_ice_slicedData", None)
-
-    def __str__(self) -> str:
-        return repr(self)
 
 
 IcePy._t_Value = IcePy.defineValue("::Ice::Object", Value, -1, (), False, None, ())

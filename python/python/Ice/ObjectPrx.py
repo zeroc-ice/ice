@@ -989,4 +989,4 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
         )
 
     def __str__(self) -> str:
-        return repr(self)
+        return self.ice_toString()

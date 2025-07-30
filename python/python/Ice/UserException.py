@@ -4,10 +4,9 @@ from .Exception import Exception as IceException
 
 
 class UserException(IceException):
-    """The base class for all user-defined exceptions."""
-
-    def __str__(self) -> str:
-        return repr(self)
+    """
+    The base class for all user-defined exceptions.
+    """
 
 
 __all__ = ["UserException"]
