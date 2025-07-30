@@ -9,7 +9,6 @@
 #include <cassert>
 #include <climits>
 #include <cstring>
-#include <iostream>
 
 #ifndef _MSC_VER
 #    include <unistd.h> // For readlink()
@@ -700,30 +699,11 @@ Slice::DependencyVisitor::writeMakefileDependencies(const string& dependFile, co
     }
     else
     {
-        vector<string> updatedDependencies;
-
-        // The first dependency is the Input Slice file, and is relative to the working directory.
-        auto first = dependencies.front();
-        string dirName = Slice::dirName(first);
-        dependencies.pop_front();
-        updatedDependencies.push_back(first);
-
+        os << target << ": \\" << std::endl;
         for (const auto& dependency : dependencies)
         {
-            string updatedPath = dependency;
-            if (!IceInternal::isAbsolutePath(dependency))
-            {
-                updatedPath = normalizePath(dirName + "/" + dependency);
-            }
-            updatedDependencies.push_back(updatedPath);
-        }
-
-        os << target << ": \\" << std::endl;
-        for (const auto& dependency : updatedDependencies)
-        {
             os << " " << dependency;
-
-            if (dependency != updatedDependencies.back())
+            if (dependency != dependencies.back())
             {
                 os << " \\";
             }
@@ -768,14 +748,7 @@ Slice::DependencyVisitor::writeJSONDependencies(const std::string& dependFile)
         os << endl << "  \"" << source << "\" : [";
         for (const auto& dependency : dependencies)
         {
-            if (IceInternal::isAbsolutePath(dependency))
-            {
-                os << endl << "    \"" << dependency << "\"";
-            }
-            else
-            {
-                os << endl << "    \"" << normalizePath(dirName + "/" + dependency) << "\"";
-            }
+            os << endl << "    \"" << normalizePath(dirName + "/" + dependency) << "\"";
         }
         os << endl << "  ]";
     }

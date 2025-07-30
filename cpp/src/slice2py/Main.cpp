@@ -189,7 +189,7 @@ main(int argc, char* argv[])
 
         if (depend && dependXML)
         {
-            consoleErr << args[0] << ": error: cannot specify both --depend and --dependXML" << endl;
+            consoleErr << args[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
             usage(args[0]);
             return EXIT_FAILURE;
         }
@@ -264,9 +264,8 @@ main(int argc, char* argv[])
                 {
                      generate(unit, outputDir);
                 }
-                catch (const FileException&)
+                catch (...)
                 {
-                    // If a file could not be created, then clean up any created files.
                     FileTracker::instance()->cleanup();
                     throw;
                 }

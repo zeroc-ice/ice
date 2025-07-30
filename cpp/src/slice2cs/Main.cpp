@@ -185,7 +185,7 @@ compile(const vector<string>& argv)
                 string target = removeExtension(baseName(fileName)) + ".cs";
                 dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
             }
-            // else XML dependencies are written after all units have been processed.
+            // else XML dependencies are written below after all units have been processed.
         }
         else
         {
@@ -196,13 +196,11 @@ compile(const vector<string>& argv)
                 Gen gen(preprocessor->getBaseName(), includePaths, output);
                 gen.generate(unit);
             }
-            catch (const Slice::FileException& ex)
+            catch (...)
             {
-                // If a file could not be created, then cleanup any created files.
                 FileTracker::instance()->cleanup();
                 unit->destroy();
-                consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                return EXIT_FAILURE;
+                throw;
             }
 
             status |= unit->getStatus();
@@ -217,6 +215,13 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
         }
+    }
+
+    if (status == EXIT_FAILURE)
+    {
+        // If the compilation failed, clean up any created files.
+        FileTracker::instance()->cleanup();
+        return status;
     }
 
     if (dependXML)

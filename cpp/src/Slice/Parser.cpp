@@ -13,8 +13,6 @@
 #include <iterator>
 #include <limits>
 
-#include <iostream>
-
 using namespace std;
 using namespace Slice;
 
@@ -4848,13 +4846,15 @@ Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
 {
     assert(!currentFile.empty());
 
-    string absolutePath = currentFile;
-
+    string absolutePath;
     if (IceInternal::isAbsolutePath(currentFile))
     {
-        // MCPP can report bogus absolute paths, for files using relative includes.
+        absolutePath = currentFile;
         if (!IceInternal::fileExists(absolutePath))
         {
+            // MCPP can report bogus absolute paths, for files using relative includes.
+            // see: https://github.com/zeroc-ice/ice/issues/4253
+
             // If the file is an absolute path, and it does not exists, it must be relative to the current definition
             // context.
             DefinitionContextPtr dc = currentDefinitionContext();
@@ -4890,11 +4890,10 @@ Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
     }
     else
     {
+        // Relative paths are relative to the current definition context, which represents the file being parsed.
         DefinitionContextPtr dc = currentDefinitionContext();
         assert(dc);
-
-        string dirName = Slice::dirName(dc->resolvedFilename());
-        absolutePath = normalizePath(dirName + "/" + absolutePath);
+        absolutePath = normalizePath(Slice::dirName(dc->resolvedFilename()) + "/" + currentFile);
     }
 
     enum LineType
@@ -4950,8 +4949,10 @@ Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
         }
     }
 
-    if (type == File || type == Push)
+    if ((type == File && _allFiles.empty()) || type == Push)
     {
+        // Either this is the first file being parsed, or we are pushing a new file onto the stack.
+
         DefinitionContextPtr dc = currentDefinitionContext();
         assert(dc);
         dc->setFilename(currentFile, absolutePath);

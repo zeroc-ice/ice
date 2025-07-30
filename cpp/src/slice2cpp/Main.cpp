@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <cassert>
 #include <mutex>
-#include <iostream>
 
 using namespace std;
 using namespace Slice;
@@ -202,17 +201,18 @@ compile(const vector<string>& argv)
         {
             status = EXIT_FAILURE;
         }
-        if (depend || dependXML)
+        else if (depend || dependXML)
         {
             unit->visit(&dependencyVisitor);
             if (depend)
             {
                 DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
                 assert(dc);
-                string target = removeExtension(baseName(fileName)) + "." + dc->getMetadataArgs("cpp:header-ext").value_or(headerExtension);
+                string target = removeExtension(baseName(fileName)) + "." +
+                                dc->getMetadataArgs("cpp:header-ext").value_or(headerExtension);
                 dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
             }
-            // else XML dependencies are written after all units have been processed.
+            // else XML dependencies are written below after all units have been processed.
         }
         else
         {
@@ -231,14 +231,11 @@ compile(const vector<string>& argv)
                     output);
                 gen.generate(unit);
             }
-            catch (const Slice::FileException& ex)
+            catch (...)
             {
-                // If a file could not be created, then
-                // cleanup any created files.
                 FileTracker::instance()->cleanup();
                 unit->destroy();
-                consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                return EXIT_FAILURE;
+                throw;
             }
 
             status |= unit->getStatus();
@@ -253,6 +250,13 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
         }
+    }
+
+    if (status == EXIT_FAILURE)
+    {
+        // If the compilation failed, clean up any created files.
+        FileTracker::instance()->cleanup();
+        return status;
     }
 
     if (dependXML)

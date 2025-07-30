@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <iterator>
 #include <mutex>
-#include <iostream>
 
 using namespace std;
 using namespace Slice;
@@ -176,7 +175,6 @@ compile(const vector<string>& argv)
         }
         else
         {
-            cerr << "Processing " << fileName << endl;
             parseAllDocComments(unit, Slice::Java::javaLinkFormatter);
 
             try
@@ -184,17 +182,11 @@ compile(const vector<string>& argv)
                 Gen gen(preprocessor->getBaseName(), includePaths, output);
                 gen.generate(unit);
             }
-            catch (const Slice::FileException& ex)
+            catch (...)
             {
-                //
-                // If a file could not be created then cleanup any files we've already created.
-                //
                 FileTracker::instance()->cleanup();
                 unit->destroy();
-                consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                status = EXIT_FAILURE;
-                FileTracker::instance()->error();
-                break;
+                throw;
             }
 
             status |= unit->getStatus();
@@ -209,6 +201,13 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
         }
+    }
+
+    if (status == EXIT_FAILURE)
+    {
+        // If the compilation failed, clean up any created files.
+        FileTracker::instance()->cleanup();
+        return status;
     }
 
     if (dependXML)

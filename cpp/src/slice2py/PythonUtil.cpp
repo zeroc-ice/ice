@@ -965,7 +965,7 @@ Slice::Python::PackageVisitor::visitModuleStart(const ModulePtr& p)
             string currentPath = current;
             replace(currentPath.begin(), currentPath.end(), '.', '/');
             currentPath += "__init__.py";
-            _packageIndexFiles.insert(currentPath);
+            _generated[p->unit()->topLevelFile()].insert(currentPath);
         }
     }
     return true;
@@ -1043,7 +1043,8 @@ Slice::Python::PackageVisitor::addRuntimeImport(const ContainedPtr& definition, 
     // Add the definition to the list of generated Python modules.
     string modulePath = packageName;
     replace(modulePath.begin(), modulePath.end(), '.', '/');
-    _generatedModules.insert(modulePath + moduleName + ".py");
+
+    _generated[definition->unit()->topLevelFile()].insert(modulePath + moduleName + ".py");
 }
 
 void
@@ -1064,7 +1065,7 @@ Slice::Python::PackageVisitor::addRuntimeImportForMetaType(const ContainedPtr& d
 
     // Add the definition to the list of generated Python modules.
     replace(packageName.begin(), packageName.end(), '.', '/');
-    _generatedModules.insert(packageName + moduleName + ".py");
+    _generated[definition->unit()->topLevelFile()].insert(packageName + moduleName + ".py");
 }
 
 // CodeVisitor implementation.

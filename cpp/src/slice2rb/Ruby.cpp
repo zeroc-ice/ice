@@ -130,7 +130,7 @@ Slice::Ruby::compile(const vector<string>& argv)
 
     if (depend && dependXML)
     {
-        consoleErr << argv[0] << ": error: cannot specify both --depend and --dependXML" << endl;
+        consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -173,7 +173,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                 string target = removeExtension(baseName(fileName)) + ".rb";
                 dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
             }
-            // Else XML dependencies are handled below after all units have been processed.
+            // Else XML dependencies are written below after all units have been processed.
         }
         else
         {
@@ -201,20 +201,16 @@ Slice::Ruby::compile(const vector<string>& argv)
                 printGeneratedHeader(out, base + ".ice", "#");
                 out << sp;
 
-                //
                 // Generate the Ruby mapping.
-                //
                 generate(unit, all, includePaths, out);
 
                 out.close();
             }
-            catch (const Slice::FileException& ex)
+            catch (...)
             {
-                // If a file could not be created, then cleanup any created files.
                 FileTracker::instance()->cleanup();
                 unit->destroy();
-                consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                return EXIT_FAILURE;
+                throw;
             }
 
             status |= unit->getStatus();
@@ -229,6 +225,13 @@ Slice::Ruby::compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
         }
+    }
+
+    if (status == EXIT_FAILURE)
+    {
+        // If the compilation failed, clean up any created files.
+        FileTracker::instance()->cleanup();
+        return status;
     }
 
     if (dependXML)
