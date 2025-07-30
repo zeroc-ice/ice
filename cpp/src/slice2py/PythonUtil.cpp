@@ -532,16 +532,16 @@ void
 Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
 {
     auto parent = dynamic_pointer_cast<Contained>(p->container());
+    auto type = p->type();
 
     // Import field if we have at least one data member that cannot be used as a default value.
     // This is required to use the `dataclasses.field` function to initialize the field.
-    if (!canBeUsedAsDefaultValue(p->type()))
+    if (!canBeUsedAsDefaultValue(type))
     {
         addRuntimeImport("dataclasses", "field", parent);
     }
 
     // Add imports required for data member types.
-    auto type = p->type();
 
     // For fields with a type that is a Struct, we need to import it as a RuntimeImport, to
     // initialize the field in the constructor. For other contained types, we only need the
@@ -1093,7 +1093,6 @@ bool
 Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 {
     const string name = p->mappedName();
-    ;
     const DataMemberList members = p->dataMembers();
 
     _out = std::make_unique<BufferedOutput>();
@@ -1322,7 +1321,7 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
     }
     else
     {
-        out << " = " + getTypeInitializer(parent, p, false);
+        out << " = " << getTypeInitializer(parent, p, false);
     }
 }
 
