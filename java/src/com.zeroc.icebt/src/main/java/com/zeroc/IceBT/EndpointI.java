@@ -374,15 +374,15 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
                     ex);
             }
 
-            if (_channel < 0 || _channel > 30) // RFCOMM channel limit is 30
-                {
-                    throw new ParseException(
-                        "channel value '"
-                            + argument
-                            + "' out of range in endpoint '"
-                            + endpoint
-                            + "'");
-                }
+            // RFCOMM channel limit is 30
+            if (_channel < 0 || _channel > 30) {
+                throw new ParseException(
+                    "channel value '"
+                        + argument
+                        + "' out of range in endpoint '"
+                        + endpoint
+                        + "'");
+            }
         } else if ("-t".equals(option)) {
             if (argument == null) {
                 throw new ParseException(

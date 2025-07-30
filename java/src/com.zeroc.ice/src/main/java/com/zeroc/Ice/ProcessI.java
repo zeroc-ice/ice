@@ -15,16 +15,8 @@ class ProcessI implements Process {
     @Override
     public void writeMessage(String message, int fd, Current current) {
         switch (fd) {
-            case 1:
-            {
-                System.out.println(message);
-                break;
-            }
-            case 2:
-            {
-                System.err.println(message);
-                break;
-            }
+            case 1 -> System.out.println(message);
+            case 2 -> System.err.println(message);
         }
     }
 

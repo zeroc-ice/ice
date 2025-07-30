@@ -58,9 +58,7 @@ final class ReferenceFactory {
             _communicator,
             ident,
             "", // Facet
-            fixedConnection.endpoint().datagram()
-                ? Reference.ModeDatagram
-                : Reference.ModeTwoway,
+            fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
             fixedConnection.endpoint().secure(),
             Optional.empty(),
             Util.Protocol_1_0,
@@ -90,8 +88,7 @@ final class ReferenceFactory {
 
         beg = StringUtil.findFirstNotOf(s, delim, end);
         if (beg == -1) {
-            throw new ParseException(
-                "no non-whitespace characters found in proxy string '" + s + "'");
+            throw new ParseException("no non-whitespace characters found in proxy string '" + s + "'");
         }
 
         //
@@ -101,8 +98,7 @@ final class ReferenceFactory {
         String idstr = null;
         end = StringUtil.checkQuote(s, beg);
         if (end == -1) {
-            throw new ParseException(
-                "mismatched quotes around identity in proxy string '" + s + "'");
+            throw new ParseException("mismatched quotes around identity in proxy string '" + s + "'");
         } else if (end == 0) {
             end = StringUtil.findFirstOf(s, delim + ":@", beg);
             if (end == -1) {
@@ -119,22 +115,15 @@ final class ReferenceFactory {
             throw new ParseException("no identity in proxy string '" + s + "'");
         }
 
-        //
         // Parsing the identity may raise ParseException.
-        //
         Identity ident = Util.stringToIdentity(idstr);
 
         if (ident.name.isEmpty()) {
-            //
-            // An identity with an empty name and a non-empty
-            // category is illegal.
-            //
+            // An identity with an empty name and a non-empty category is illegal.
             if (ident.category.length() > 0) {
-                throw new ParseException(
-                    "The category of a null Ice object identity must be empty.");
+                throw new ParseException("The category of a null Ice object identity must be empty.");
             } else if (StringUtil.findFirstNotOf(s, delim, end) != -1) {
-                throw new ParseException(
-                    "invalid characters after identity in proxy string '" + s + "'");
+                throw new ParseException("invalid characters after identity in proxy string '" + s + "'");
             } else {
                 return null;
             }
@@ -176,11 +165,8 @@ final class ReferenceFactory {
                         + "'");
             }
 
-            //
-            // Check for the presence of an option argument. The
-            // argument may be enclosed in single or double
-            // quotation marks.
-            //
+            // Check for the presence of an option argument.
+            // The argument may be enclosed in single or double quotation marks.
             String argument = null;
             int argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
             if (argumentBeg != -1) {
@@ -209,32 +195,24 @@ final class ReferenceFactory {
                 }
             }
 
-            //
             // If any new options are added here,
             // com.zeroc.Ice.Reference.toString() and its derived classes must be updated as well.
-            //
             switch (option.charAt(1)) {
-                case 'f':
-                {
+                case 'f': {
                     if (argument == null) {
-                        throw new ParseException(
-                            "no argument provided for -f option in proxy string '"
-                                + s
-                                + "'");
+                        throw new ParseException("no argument provided for -f option in proxy string '" + s + "'");
                     }
 
                     try {
                         facet = StringUtil.unescapeString(argument, 0, argument.length(), "");
                     } catch (IllegalArgumentException ex) {
-                        throw new ParseException(
-                            "invalid facet in proxy string '" + s + "'", ex);
+                        throw new ParseException("invalid facet in proxy string '" + s + "'", ex);
                     }
 
                     break;
                 }
 
-                case 't':
-                {
+                case 't': {
                     if (argument != null) {
                         throw new ParseException(
                             "unexpected argument '"
@@ -247,8 +225,7 @@ final class ReferenceFactory {
                     break;
                 }
 
-                case 'o':
-                {
+                case 'o': {
                     if (argument != null) {
                         throw new ParseException(
                             "unexpected argument '"
@@ -261,8 +238,7 @@ final class ReferenceFactory {
                     break;
                 }
 
-                case 'O':
-                {
+                case 'O': {
                     if (argument != null) {
                         throw new ParseException(
                             "unexpected argument '"
@@ -275,8 +251,7 @@ final class ReferenceFactory {
                     break;
                 }
 
-                case 'd':
-                {
+                case 'd': {
                     if (argument != null) {
                         throw new ParseException(
                             "unexpected argument '"
@@ -289,8 +264,7 @@ final class ReferenceFactory {
                     break;
                 }
 
-                case 'D':
-                {
+                case 'D': {
                     if (argument != null) {
                         throw new ParseException(
                             "unexpected argument '"
@@ -303,8 +277,7 @@ final class ReferenceFactory {
                     break;
                 }
 
-                case 's':
-                {
+                case 's': {
                     if (argument != null) {
                         throw new ParseException(
                             "unexpected argument '"
@@ -317,13 +290,9 @@ final class ReferenceFactory {
                     break;
                 }
 
-                case 'e':
-                {
+                case 'e': {
                     if (argument == null) {
-                        throw new ParseException(
-                            "no argument provided for -e option in in proxy string '"
-                                + s
-                                + "'");
+                        throw new ParseException("no argument provided for -e option in in proxy string '" + s + "'");
                     }
 
                     try {
@@ -340,13 +309,9 @@ final class ReferenceFactory {
                     break;
                 }
 
-                case 'p':
-                {
+                case 'p': {
                     if (argument == null) {
-                        throw new ParseException(
-                            "no argument provided for -p option in proxy string '"
-                                + s
-                                + "'");
+                        throw new ParseException("no argument provided for -p option in proxy string '" + s + "'");
                     }
 
                     try {
@@ -363,26 +328,14 @@ final class ReferenceFactory {
                     break;
                 }
 
-                default:
-                {
-                    throw new ParseException(
-                        "unknown option '" + option + "' in proxy string '" + s + "'");
+                default: {
+                    throw new ParseException("unknown option '" + option + "' in proxy string '" + s + "'");
                 }
             }
         }
 
         if (beg == -1) {
-            return create(
-                ident,
-                facet,
-                mode,
-                secure,
-                Optional.empty(),
-                protocol,
-                encoding,
-                null,
-                null,
-                propertyPrefix);
+            return create(ident, facet, mode, secure, Optional.empty(), protocol, encoding, null, null, propertyPrefix);
         }
 
         ArrayList<EndpointI> endpoints = new ArrayList<>();

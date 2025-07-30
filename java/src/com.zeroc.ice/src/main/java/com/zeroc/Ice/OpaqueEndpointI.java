@@ -209,60 +209,56 @@ final class OpaqueEndpointI extends EndpointI {
         return s;
     }
 
-    //
     // Compare endpoints for sorting purposes
-    //
     @Override
-    public int compareTo(EndpointI obj) // From java.lang.Comparable
-        {
-            if (!(obj instanceof OpaqueEndpointI)) {
-                return type() < obj.type() ? -1 : 1;
-            }
+    public int compareTo(EndpointI obj) {
+        if (!(obj instanceof OpaqueEndpointI)) {
+            return type() < obj.type() ? -1 : 1;
+        }
 
-            OpaqueEndpointI p = (OpaqueEndpointI) obj;
-            if (this == p) {
-                return 0;
-            }
-
-            if (_type < p._type) {
-                return -1;
-            } else if (p._type < _type) {
-                return 1;
-            }
-
-            if (_rawEncoding.major < p._rawEncoding.major) {
-                return -1;
-            } else if (p._rawEncoding.major < _rawEncoding.major) {
-                return 1;
-            }
-
-            if (_rawEncoding.minor < p._rawEncoding.minor) {
-                return -1;
-            } else if (p._rawEncoding.minor < _rawEncoding.minor) {
-                return 1;
-            }
-
-            if (_rawBytes.length < p._rawBytes.length) {
-                return -1;
-            } else if (p._rawBytes.length < _rawBytes.length) {
-                return 1;
-            }
-            for (int i = 0; i < _rawBytes.length; i++) {
-                if (_rawBytes[i] < p._rawBytes[i]) {
-                    return -1;
-                } else if (p._rawBytes[i] < _rawBytes[i]) {
-                    return 1;
-                }
-            }
-
+        OpaqueEndpointI p = (OpaqueEndpointI) obj;
+        if (this == p) {
             return 0;
         }
+
+        if (_type < p._type) {
+            return -1;
+        } else if (p._type < _type) {
+            return 1;
+        }
+
+        if (_rawEncoding.major < p._rawEncoding.major) {
+            return -1;
+        } else if (p._rawEncoding.major < _rawEncoding.major) {
+            return 1;
+        }
+
+        if (_rawEncoding.minor < p._rawEncoding.minor) {
+            return -1;
+        } else if (p._rawEncoding.minor < _rawEncoding.minor) {
+            return 1;
+        }
+
+        if (_rawBytes.length < p._rawBytes.length) {
+            return -1;
+        } else if (p._rawBytes.length < _rawBytes.length) {
+            return 1;
+        }
+        for (int i = 0; i < _rawBytes.length; i++) {
+            if (_rawBytes[i] < p._rawBytes[i]) {
+                return -1;
+            } else if (p._rawBytes[i] < _rawBytes[i]) {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
 
     @Override
     protected boolean checkOption(String option, String argument, String endpoint) {
         switch (option.charAt(1)) {
-            case 't':
-            {
+            case 't': {
                 if (_type > -1) {
                     throw new ParseException(
                         "multiple -t options in endpoint '" + endpoint + "'");
@@ -300,8 +296,7 @@ final class OpaqueEndpointI extends EndpointI {
                 return true;
             }
 
-            case 'v':
-            {
+            case 'v': {
                 if (_rawBytes.length > 0) {
                     throw new ParseException(
                         "multiple -v options in endpoint '" + endpoint + "'");
@@ -322,8 +317,7 @@ final class OpaqueEndpointI extends EndpointI {
                 return true;
             }
 
-            case 'e':
-            {
+            case 'e': {
                 if (argument == null) {
                     throw new ParseException(
                         "no argument provided for -e option in endpoint '"
@@ -345,8 +339,7 @@ final class OpaqueEndpointI extends EndpointI {
                 return true;
             }
 
-            default:
-            {
+            default: {
                 return false;
             }
         }

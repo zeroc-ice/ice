@@ -260,16 +260,15 @@ final class OutgoingConnectionFactory {
             }
 
             for (ConnectionI connection : connectionList) {
-                if (connection
-                    .isActiveOrHolding()) // Don't return destroyed or un-validated connections
-                    {
-                        if (defaultsAndOverrides.overrideCompress.isPresent()) {
-                            compress.value = defaultsAndOverrides.overrideCompress.get();
-                        } else {
-                            compress.value = endpoint.compress();
-                        }
-                        return connection;
+                // Don't return destroyed or un-validated connections
+                if (connection.isActiveOrHolding()) {
+                    if (defaultsAndOverrides.overrideCompress.isPresent()) {
+                        compress.value = defaultsAndOverrides.overrideCompress.get();
+                    } else {
+                        compress.value = endpoint.compress();
                     }
+                    return connection;
+                }
             }
         }
 
@@ -301,16 +300,15 @@ final class OutgoingConnectionFactory {
             }
 
             for (ConnectionI connection : connectionList) {
-                if (connection
-                    .isActiveOrHolding()) // Don't return destroyed or un-validated connections
-                    {
-                        if (defaultsAndOverrides.overrideCompress.isPresent()) {
-                            compress.value = defaultsAndOverrides.overrideCompress.get();
-                        } else {
-                            compress.value = ci.endpoint.compress();
-                        }
-                        return connection;
+                // Don't return destroyed or un-validated connections
+                if (connection.isActiveOrHolding()) {
+                    if (defaultsAndOverrides.overrideCompress.isPresent()) {
+                        compress.value = defaultsAndOverrides.overrideCompress.get();
+                    } else {
+                        compress.value = ci.endpoint.compress();
                     }
+                    return connection;
+                }
             }
         }
 

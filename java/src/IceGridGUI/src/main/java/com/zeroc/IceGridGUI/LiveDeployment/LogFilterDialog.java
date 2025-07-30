@@ -97,10 +97,10 @@ class LogFilterDialog extends JDialog {
                             return;
                         }
 
-                        if (traceCategoryFilter.length == 0) // only separators
-                            {
-                                traceCategoryFilter = null;
-                            }
+                        // If the traceCategory only contained separators.
+                        if (traceCategoryFilter.length == 0) {
+                            traceCategoryFilter = null;
+                        }
                     }
 
                     Set<LogMessageType> messageTypeFilterSet =

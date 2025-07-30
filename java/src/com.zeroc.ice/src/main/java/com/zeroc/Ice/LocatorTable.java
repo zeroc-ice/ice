@@ -14,13 +14,12 @@ final class LocatorTable {
         _objectTable.clear();
     }
 
-    synchronized EndpointI[] getAdapterEndpoints(
-            String adapter, Duration ttl, Holder<Boolean> cached) {
-        if (ttl.isZero()) // Locator cache disabled.
-            {
-                cached.value = false;
-                return null;
-            }
+    synchronized EndpointI[] getAdapterEndpoints(String adapter, Duration ttl, Holder<Boolean> cached) {
+        // If the locator cache is disabled.
+        if (ttl.isZero()) {
+            cached.value = false;
+            return null;
+        }
 
         EndpointTableEntry entry = _adapterEndpointsTable.get(adapter);
         if (entry != null) {
@@ -42,11 +41,11 @@ final class LocatorTable {
     }
 
     synchronized Reference getObjectReference(Identity id, Duration ttl, Holder<Boolean> cached) {
-        if (ttl.isZero()) // Locator cache disabled.
-            {
-                cached.value = false;
-                return null;
-            }
+        // If the locator cache is disabled.
+        if (ttl.isZero()) {
+            cached.value = false;
+            return null;
+        }
 
         ReferenceTableEntry entry = _objectTable.get(id);
         if (entry != null) {
@@ -68,10 +67,9 @@ final class LocatorTable {
 
     private boolean checkTTL(long time, Duration ttl) {
         assert (!ttl.isZero());
-        if (ttl.compareTo(Duration.ZERO) < 0) // TTL = infinite
-            {
-                return true;
-            } else {
+        if (ttl.compareTo(Duration.ZERO) < 0 /* TTL = infinite */) {
+            return true;
+        } else {
             return Time.currentMonotonicTimeMillis() - time <= ttl.toMillis();
         }
     }

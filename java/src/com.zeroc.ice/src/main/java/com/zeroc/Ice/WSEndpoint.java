@@ -235,25 +235,15 @@ final class WSEndpoint extends EndpointI {
 
     @Override
     protected boolean checkOption(String option, String argument, String endpoint) {
-        switch (option.charAt(1)) {
-            case 'r':
-            {
-                if (argument == null) {
-                    throw new ParseException(
-                        "no argument provided for -r option in endpoint '"
-                            + endpoint
-                            + _delegate.options()
-                            + "'");
-                }
-                _resource = argument;
-                return true;
+        if (option.charAt(1) == 'r') {
+            if (argument == null) {
+                throw new ParseException(
+                    "no argument provided for -r option in endpoint '" + endpoint + _delegate.options() + "'");
             }
-
-            default:
-            {
-                return false;
-            }
+            _resource = argument;
+            return true;
         }
+        return false;
     }
 
     private final ProtocolInstance _instance;

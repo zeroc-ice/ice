@@ -707,8 +707,7 @@ final class WSTransceiver implements Transceiver {
             final MessageDigest sha1 = MessageDigest.getInstance("SHA1");
             sha1.update(input.getBytes(_ascii));
             if (!val.equals(Base64.encode(sha1.digest()))) {
-                throw new WebSocketException(
-                    "invalid value `" + val + "' for Sec-WebSocket-Accept");
+                throw new WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
             }
         } catch (NoSuchAlgorithmException ex) {
             throw new WebSocketException(ex);
@@ -791,16 +790,13 @@ final class WSTransceiver implements Transceiver {
             }
 
             if (_readState == ReadStateHeader) {
-                //
                 // Is there enough data available to read the header?
-                //
                 if (_readHeaderLength > 0 && !readBuffered(_readHeaderLength)) {
                     return true;
                 }
 
                 if (_readPayloadLength == 126) {
-                    _readPayloadLength =
-                        _readBuffer.b.getShort(_readBufferPos); // Uses network byte order.
+                    _readPayloadLength = _readBuffer.b.getShort(_readBufferPos); // Uses network byte order.
                     if (_readPayloadLength < 0) {
                         _readPayloadLength += 65536;
                     }
@@ -814,84 +810,70 @@ final class WSTransceiver implements Transceiver {
                     _readPayloadLength = (int) l;
                 }
 
-                //
                 // Read the mask if this is an incoming connection.
-                //
                 if (_incoming) {
-                    assert (_readBuffer.b.position() - _readBufferPos
-                        >= 4); // We must have needed to read the mask.
+                    assert (_readBuffer.b.position() - _readBufferPos >= 4); // We must have needed to read the mask.
                     for (int i = 0; i < 4; i++) {
                         _readMask[i] = _readBuffer.b.get(_readBufferPos++); // Copy the mask.
                     }
                 }
 
                 switch (_readOpCode) {
-                    case OP_TEXT: // Text frame
-                        {
-                            throw new ProtocolException("text frames not supported");
-                        }
-                    case OP_CONT: // Continuation frame
-                    case OP_DATA: // Data frame
-                        {
-                            if (_instance.traceLevel() >= 2) {
-                                _instance
-                                    .logger()
-                                    .trace(
-                                        _instance.traceCategory(),
-                                        "received "
-                                            + protocol()
-                                            + (_readOpCode == OP_DATA
-                                            ? " data"
-                                            : " continuation")
-                                            + " frame with payload length of "
-                                            + _readPayloadLength
-                                            + " bytes\n"
-                                            + toString());
-                            }
+                    case OP_TEXT /* Text frame */ -> {
+                        throw new ProtocolException("text frames not supported");
+                    }
 
-                            if (_readPayloadLength <= 0) {
-                                throw new ProtocolException("payload length is 0");
-                            }
-                            _readState = ReadStatePayload;
-                            assert (buf.b.hasRemaining());
-                            _readFrameStart = buf.b.position();
-                            break;
+                    case OP_CONT /* Continuation frame */,  OP_DATA /* Data frame */ -> {
+                        if (_instance.traceLevel() >= 2) {
+                            _instance
+                                .logger()
+                                .trace(
+                                    _instance.traceCategory(),
+                                    "received "
+                                        + protocol()
+                                        + (_readOpCode == OP_DATA ? " data" : " continuation")
+                                        + " frame with payload length of "
+                                        + _readPayloadLength
+                                        + " bytes\n"
+                                        + toString());
                         }
-                    case OP_CLOSE: // Connection close
-                        {
-                            if (_instance.traceLevel() >= 2) {
-                                _instance
-                                    .logger()
-                                    .trace(
-                                        _instance.traceCategory(),
-                                        "received "
-                                            + protocol()
-                                            + " connection close frame\n"
-                                            + toString());
-                            }
 
-                            int s = _nextState == StateOpened ? _state : _nextState;
-                            if (s == StateClosingRequestPending) {
-                                //
-                                // If we receive a close frame while we were actually
-                                // waiting to send one, change the role and send a
-                                // close frame response.
-                                //
-                                if (!_closingInitiator) {
-                                    _closingInitiator = true;
-                                }
-                                if (_state == StateClosingRequestPending) {
-                                    _state = StateClosingResponsePending;
-                                } else {
-                                    _nextState = StateClosingResponsePending;
-                                }
-                                return false; // No longer interested in reading
+                        if (_readPayloadLength <= 0) {
+                            throw new ProtocolException("payload length is 0");
+                        }
+                        _readState = ReadStatePayload;
+                        assert (buf.b.hasRemaining());
+                        _readFrameStart = buf.b.position();
+                    }
+
+                    case OP_CLOSE /* Connection close */ -> {
+                        if (_instance.traceLevel() >= 2) {
+                            _instance
+                                .logger()
+                                .trace(
+                                    _instance.traceCategory(),
+                                    "received " + protocol() + " connection close frame\n" + toString());
+                        }
+
+                        int s = _nextState == StateOpened ? _state : _nextState;
+                        if (s == StateClosingRequestPending) {
+                            // If we receive a close frame while we were actually waiting to send one,
+                            // change the role and send a close frame response.
+                            if (!_closingInitiator) {
+                                _closingInitiator = true;
+                            }
+                            if (_state == StateClosingRequestPending) {
+                                _state = StateClosingResponsePending;
                             } else {
-                                throw new ConnectionLostException();
+                                _nextState = StateClosingResponsePending;
                             }
+                            return false; // No longer interested in reading
+                        } else {
+                            throw new ConnectionLostException();
                         }
-                    case OP_PING:
-                    {
+                    }
+
+                    case OP_PING -> {
                         if (_instance.traceLevel() >= 2) {
                             _instance
                                 .logger()
@@ -903,27 +885,23 @@ final class WSTransceiver implements Transceiver {
                                         + toString());
                         }
                         _readState = ReadStateControlFrame;
-                        break;
                     }
-                    case OP_PONG: // Pong
-                        {
-                            if (_instance.traceLevel() >= 2) {
-                                _instance
-                                    .logger()
-                                    .trace(
-                                        _instance.traceCategory(),
-                                        "received "
-                                            + protocol()
-                                            + " connection pong frame\n"
-                                            + toString());
-                            }
-                            _readState = ReadStateControlFrame;
-                            break;
+
+                    case OP_PONG -> {
+                        if (_instance.traceLevel() >= 2) {
+                            _instance
+                                .logger()
+                                .trace(
+                                    _instance.traceCategory(),
+                                    "received "
+                                        + protocol()
+                                        + " connection pong frame\n"
+                                        + toString());
                         }
-                    default:
-                    {
-                        throw new ProtocolException("unsupported opcode: " + _readOpCode);
+                        _readState = ReadStateControlFrame;
                     }
+
+                    default -> throw new ProtocolException("unsupported opcode: " + _readOpCode);
                 }
             }
 

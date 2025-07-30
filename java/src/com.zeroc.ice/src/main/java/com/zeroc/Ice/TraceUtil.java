@@ -162,29 +162,10 @@ final class TraceUtil {
             byte mode = stream.readByte();
             out.write("\nmode = " + (int) mode + ' ');
             switch (OperationMode.values()[mode]) {
-                case Normal:
-                {
-                    out.write("(normal)");
-                    break;
-                }
-
-                case Nonmutating:
-                {
-                    out.write("(nonmutating)");
-                    break;
-                }
-
-                case Idempotent:
-                {
-                    out.write("(idempotent)");
-                    break;
-                }
-
-                default:
-                {
-                    out.write("(unknown)");
-                    break;
-                }
+                case Normal -> out.write("(normal)");
+                case Nonmutating -> out.write("(nonmutating)");
+                case Idempotent -> out.write("(idempotent)");
+                default -> out.write("(unknown)");
             }
 
             int sz = stream.readSize();
@@ -233,29 +214,10 @@ final class TraceUtil {
             byte compress = stream.readByte();
             out.write("\ncompression status = " + (int) compress + ' ');
             switch (compress) {
-                case (byte) 0:
-                {
-                    out.write("(not compressed; do not compress response, if any)");
-                    break;
-                }
-
-                case (byte) 1:
-                {
-                    out.write("(not compressed; compress response, if any)");
-                    break;
-                }
-
-                case (byte) 2:
-                {
-                    out.write("(compressed; compress response, if any)");
-                    break;
-                }
-
-                default:
-                {
-                    out.write("(unknown)");
-                    break;
-                }
+                case (byte) 0 -> out.write("(not compressed; do not compress response, if any)");
+                case (byte) 1 -> out.write("(not compressed; compress response, if any)");
+                case (byte) 2 -> out.write("(compressed; compress response, if any)");
+                default -> out.write("(unknown)");
             }
 
             int size = stream.readInt();
@@ -267,40 +229,15 @@ final class TraceUtil {
         }
     }
 
-    private static byte printMessage(
-            StringWriter s, InputStream str, ConnectionI connection) {
+    private static byte printMessage(StringWriter s, InputStream str, ConnectionI connection) {
         byte type = printHeader(s, str);
 
         switch (type) {
-            case Protocol.closeConnectionMsg:
-            case Protocol.validateConnectionMsg:
-            {
-                // We're done.
-                break;
-            }
-
-            case Protocol.requestMsg:
-            {
-                printRequest(s, str);
-                break;
-            }
-
-            case Protocol.requestBatchMsg:
-            {
-                printBatchRequest(s, str);
-                break;
-            }
-
-            case Protocol.replyMsg:
-            {
-                printReply(s, str);
-                break;
-            }
-
-            default:
-            {
-                break;
-            }
+            case Protocol.closeConnectionMsg, Protocol.validateConnectionMsg -> { /* we're done */ }
+            case Protocol.requestMsg -> printRequest(s, str);
+            case Protocol.requestBatchMsg -> printBatchRequest(s, str);
+            case Protocol.replyMsg -> printReply(s, str);
+            default -> {}
         }
 
         if (connection != null) {
@@ -318,20 +255,14 @@ final class TraceUtil {
     }
 
     private static String getMessageTypeAsString(byte type) {
-        switch (type) {
-            case Protocol.requestMsg:
-                return "request";
-            case Protocol.requestBatchMsg:
-                return "batch request";
-            case Protocol.replyMsg:
-                return "reply";
-            case Protocol.closeConnectionMsg:
-                return "close connection";
-            case Protocol.validateConnectionMsg:
-                return "validate connection";
-            default:
-                return "unknown";
-        }
+        return switch (type) {
+            case Protocol.requestMsg -> "request";
+            case Protocol.requestBatchMsg -> "batch request";
+            case Protocol.replyMsg -> "reply";
+            case Protocol.closeConnectionMsg -> "close connection";
+            case Protocol.validateConnectionMsg -> "validate connection";
+            default -> "unknown";
+        };
     }
 
     private TraceUtil() {}
