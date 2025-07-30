@@ -2730,13 +2730,10 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         PreprocessorPtr preprocessor = Preprocessor::create("IcePy", fileName, preprocessorArgs);
         FILE* cppHandle = preprocessor->preprocess("-D__SLICE2PY__");
 
-        if (cppHandle == nullptr)
-        {
-            throw runtime_error("Failed to preprocess Slice file: " + fileName);
-        }
-
         UnitPtr unit = Unit::createUnit("python", debug);
         int parseStatus = unit->parse(fileName, cppHandle, false);
+
+        preprocessor->close();
 
         if (parseStatus == EXIT_FAILURE)
         {

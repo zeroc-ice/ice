@@ -180,46 +180,39 @@ compile(const vector<string>& argv)
 
     for (const auto& fileName : sliceFiles)
     {
-        PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
-        FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2CPP__");
-
-        if (preprocessedHandle == nullptr)
+        UnitPtr unit;
+        try
         {
-            return EXIT_FAILURE;
-        }
+            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2CPP__");
+            assert(preprocessedHandle);
 
-        UnitPtr unit = Unit::createUnit("cpp", false);
-        int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+            unit = Unit::createUnit("cpp", false);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-        if (!preprocessor->close())
-        {
-            unit->destroy();
-            return EXIT_FAILURE;
-        }
+            preprocessor->close();
 
-        if (parseStatus == EXIT_FAILURE)
-        {
-            status = EXIT_FAILURE;
-        }
-        else if (depend || dependXML)
-        {
-            unit->visit(&dependencyVisitor);
-            if (depend)
+            if (parseStatus == EXIT_FAILURE)
             {
-                DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
-                assert(dc);
-                string target = removeExtension(baseName(fileName)) + "." +
-                                dc->getMetadataArgs("cpp:header-ext").value_or(headerExtension);
-                dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                status = EXIT_FAILURE;
             }
-            // else XML dependencies are written below after all units have been processed.
-        }
-        else
-        {
-            parseAllDocComments(unit, Slice::cppLinkFormatter);
-
-            try
+            else if (depend || dependXML)
             {
+                unit->visit(&dependencyVisitor);
+                if (depend)
+                {
+                    DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
+                    assert(dc);
+                    string target = removeExtension(baseName(fileName)) + "." +
+                                    dc->getMetadataArgs("cpp:header-ext").value_or(headerExtension);
+                    dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                }
+                // else XML dependencies are written below after all units have been processed.
+            }
+            else
+            {
+                parseAllDocComments(unit, Slice::cppLinkFormatter);
+
                 Gen gen(
                     preprocessor->getBaseName(),
                     headerExtension,
@@ -230,16 +223,19 @@ compile(const vector<string>& argv)
                     dllExport,
                     output);
                 gen.generate(unit);
-            }
-            catch (...)
-            {
-                FileTracker::instance()->cleanup();
-                unit->destroy();
-                throw;
-            }
 
-            status |= unit->getStatus();
+                status |= unit->getStatus();
+            }
             unit->destroy();
+        }
+        catch (...)
+        {
+            FileTracker::instance()->cleanup();
+            if (unit)
+            {
+                unit->destroy();
+            }
+            throw;
         }
 
         {

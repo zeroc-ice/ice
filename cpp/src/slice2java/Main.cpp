@@ -10,6 +10,7 @@
 #include "Ice/CtrlCHandler.h"
 
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <mutex>
 
@@ -147,50 +148,46 @@ compile(const vector<string>& argv)
 
     for (const auto& fileName : sliceFiles)
     {
-        FileTracker::instance()->setSource(fileName);
-        PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
-        FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2JAVA__");
-
-        if (preprocessedHandle == nullptr)
+        UnitPtr unit;
+        try
         {
-            return EXIT_FAILURE;
-        }
+            FileTracker::instance()->setSource(fileName);
+            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2JAVA__");
+            assert(preprocessedHandle);
 
-        UnitPtr unit = Unit::createUnit("java", false);
-        int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+            unit = Unit::createUnit("java", false);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-        if (!preprocessor->close())
-        {
-            unit->destroy();
-            return EXIT_FAILURE;
-        }
+            preprocessor->close();
 
-        if (parseStatus == EXIT_FAILURE)
-        {
-            status = EXIT_FAILURE;
-        }
-        else if (dependXML)
-        {
-            unit->visit(&dependencyVisitor);
-        }
-        else
-        {
-            parseAllDocComments(unit, Slice::Java::javaLinkFormatter);
-
-            try
+            if (parseStatus == EXIT_FAILURE)
             {
+                status = EXIT_FAILURE;
+            }
+            else if (dependXML)
+            {
+                unit->visit(&dependencyVisitor);
+            }
+            else
+            {
+                parseAllDocComments(unit, Slice::Java::javaLinkFormatter);
+
                 Gen gen(preprocessor->getBaseName(), includePaths, output);
                 gen.generate(unit);
-            }
-            catch (...)
-            {
-                FileTracker::instance()->cleanup();
-                unit->destroy();
-                throw;
-            }
 
-            status |= unit->getStatus();
+                status |= unit->getStatus();
+            }
             unit->destroy();
+        }
+        catch (...)
+        {
+            FileTracker::instance()->cleanup();
+            if (unit)
+            {
+                unit->destroy();
+            }
+            throw;
         }
 
         {

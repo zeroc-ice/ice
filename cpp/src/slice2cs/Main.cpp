@@ -10,6 +10,7 @@
 #include "Ice/CtrlCHandler.h"
 
 #include <algorithm>
+#include <cassert>
 #include <mutex>
 
 using namespace std;
@@ -156,55 +157,51 @@ compile(const vector<string>& argv)
 
     for (const auto& fileName : sliceFiles)
     {
-        PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
-        FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2CS__");
-
-        if (preprocessedHandle == nullptr)
+        UnitPtr unit;
+        try
         {
-            return EXIT_FAILURE;
-        }
+            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2CS__");
+            assert(preprocessedHandle);
 
-        UnitPtr unit = Unit::createUnit("cs", false);
-        int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+            unit = Unit::createUnit("cs", false);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-        if (!preprocessor->close())
-        {
-            unit->destroy();
-            return EXIT_FAILURE;
-        }
+            preprocessor->close();
 
-        if (parseStatus == EXIT_FAILURE)
-        {
-            status = EXIT_FAILURE;
-        }
-        else if (depend || dependXML)
-        {
-            unit->visit(&dependencyVisitor);
-            if (depend)
+            if (parseStatus == EXIT_FAILURE)
             {
-                string target = removeExtension(baseName(fileName)) + ".cs";
-                dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                status = EXIT_FAILURE;
             }
-            // else XML dependencies are written below after all units have been processed.
-        }
-        else
-        {
-            parseAllDocComments(unit, Slice::Csharp::csLinkFormatter);
-
-            try
+            else if (depend || dependXML)
             {
+                unit->visit(&dependencyVisitor);
+                if (depend)
+                {
+                    string target = removeExtension(baseName(fileName)) + ".cs";
+                    dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                }
+                // else XML dependencies are written below after all units have been processed.
+            }
+            else
+            {
+                parseAllDocComments(unit, Slice::Csharp::csLinkFormatter);
+
                 Gen gen(preprocessor->getBaseName(), includePaths, output);
                 gen.generate(unit);
-            }
-            catch (...)
-            {
-                FileTracker::instance()->cleanup();
-                unit->destroy();
-                throw;
-            }
 
-            status |= unit->getStatus();
+                status |= unit->getStatus();
+            }
             unit->destroy();
+        }
+        catch (...)
+        {
+            FileTracker::instance()->cleanup();
+            if (unit)
+            {
+                unit->destroy();
+            }
+            throw;
         }
 
         {

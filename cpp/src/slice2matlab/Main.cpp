@@ -189,53 +189,49 @@ namespace
 
         for (const auto& fileName : sliceFiles)
         {
-            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
-            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2MATLAB__");
-
-            if (preprocessedHandle == nullptr)
+            UnitPtr unit;
+            try
             {
-                return EXIT_FAILURE;
-            }
+                PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+                FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2MATLAB__");
+                assert(preprocessedHandle);
 
-            UnitPtr unit = Unit::createUnit("matlab", all);
-            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+                unit = Unit::createUnit("matlab", all);
+                int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-            if (!preprocessor->close())
-            {
-                unit->destroy();
-                return EXIT_FAILURE;
-            }
+                preprocessor->close();
 
-            if (parseStatus == EXIT_FAILURE)
-            {
-                status = EXIT_FAILURE;
-            }
-            else if (dependXML)
-            {
-                unit->visit(&dependencyVisitor);
-            }
-            else
-            {
-                FileTracker::instance()->setSource(fileName);
-
-                parseAllDocComments(unit, Slice::matlabLinkFormatter);
-
-                try
+                if (parseStatus == EXIT_FAILURE)
                 {
+                    status = EXIT_FAILURE;
+                }
+                else if (dependXML)
+                {
+                    unit->visit(&dependencyVisitor);
+                }
+                else
+                {
+                    FileTracker::instance()->setSource(fileName);
+
+                    parseAllDocComments(unit, Slice::matlabLinkFormatter);
+
                     validateMatlabMetadata(unit);
 
                     CodeVisitor codeVisitor(output);
                     unit->visit(&codeVisitor);
-                }
-                catch (...)
-                {
-                    FileTracker::instance()->cleanup();
-                    unit->destroy();
-                    throw;
-                }
 
-                status |= unit->getStatus();
+                    status |= unit->getStatus();
+                }
                 unit->destroy();
+            }
+            catch (...)
+            {
+                FileTracker::instance()->cleanup();
+                if (unit)
+                {
+                    unit->destroy();
+                }
+                throw;
             }
 
             {

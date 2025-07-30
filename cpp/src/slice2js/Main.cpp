@@ -188,42 +188,36 @@ compile(const vector<string>& argv)
 
     for (const auto& fileName : sliceFiles)
     {
-        PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
-        FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2JS__");
-
-        if (preprocessedHandle == nullptr)
+        UnitPtr unit;
+        try
         {
-            return EXIT_FAILURE;
-        }
+            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2JS__");
+            assert(preprocessedHandle);
 
-        UnitPtr unit = Unit::createUnit("js", false);
-        int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+            unit = Unit::createUnit("js", false);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-        if (!preprocessor->close())
-        {
-            unit->destroy();
-            return EXIT_FAILURE;
-        }
+            preprocessor->close();
 
-        if (parseStatus == EXIT_FAILURE)
-        {
-            status = EXIT_FAILURE;
-        }
-        else if (depend | dependJSON | dependXML)
-        {
-            unit->visit(&dependencyVisitor);
-            if (depend)
+            if (parseStatus == EXIT_FAILURE)
             {
-                string target = removeExtension(baseName(fileName)) + ".js";
-                dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                status = EXIT_FAILURE;
             }
-            // Else JSON and XML dependencies are written below after all units have been processed.
-        }
-        else
-        {
-            parseAllDocComments(unit, Slice::JavaScript::jsLinkFormatter);
-            try
+            else if (depend | dependJSON | dependXML)
             {
+                unit->visit(&dependencyVisitor);
+                if (depend)
+                {
+                    string target = removeExtension(baseName(fileName)) + ".js";
+                    dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                }
+                // Else JSON and XML dependencies are written below after all units have been processed.
+            }
+            else
+            {
+                parseAllDocComments(unit, Slice::JavaScript::jsLinkFormatter);
+
                 if (useStdout)
                 {
                     Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript, cout);
@@ -234,16 +228,19 @@ compile(const vector<string>& argv)
                     Gen gen(preprocessor->getBaseName(), includePaths, output, typeScript);
                     gen.generate(unit);
                 }
-            }
-            catch (...)
-            {
-                FileTracker::instance()->cleanup();
-                unit->destroy();
-                throw;
-            }
 
-            status |= unit->getStatus();
+                status |= unit->getStatus();
+            }
             unit->destroy();
+        }
+        catch (...)
+        {
+            FileTracker::instance()->cleanup();
+            if (unit)
+            {
+                unit->destroy();
+            }
+            throw;
         }
 
         {

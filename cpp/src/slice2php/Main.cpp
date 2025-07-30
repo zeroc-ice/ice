@@ -1266,49 +1266,42 @@ compile(const vector<string>& argv)
 
     for (const auto& fileName : sliceFiles)
     {
-        PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
-        FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PHP__");
-
-        if (preprocessedHandle == nullptr)
+        UnitPtr unit;
+        try
         {
-            return EXIT_FAILURE;
-        }
+            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PHP__");
+            assert(preprocessedHandle);
 
-        UnitPtr unit = Unit::createUnit("php", all);
-        int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+            unit = Unit::createUnit("php", all);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-        if (!preprocessor->close())
-        {
-            unit->destroy();
-            return EXIT_FAILURE;
-        }
+            preprocessor->close();
 
-        if (parseStatus == EXIT_FAILURE)
-        {
-            status = EXIT_FAILURE;
-        }
-        else if (depend | dependXML)
-        {
-            unit->visit(&dependencyVisitor);
-            if (depend)
+            if (parseStatus == EXIT_FAILURE)
             {
-                string target = removeExtension(baseName(fileName)) + ".php";
-                dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                status = EXIT_FAILURE;
             }
-            // Else XML dependencies are handled below after all units have been processed.
-        }
-        else
-        {
-            string base = removeExtension(baseName(fileName));
-
-            string file = base + ".php";
-            if (!output.empty())
+            else if (depend | dependXML)
             {
-                file = output + '/' + file;
+                unit->visit(&dependencyVisitor);
+                if (depend)
+                {
+                    string target = removeExtension(baseName(fileName)) + ".php";
+                    dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                }
+                // Else XML dependencies are handled below after all units have been processed.
             }
-
-            try
+            else
             {
+                string base = removeExtension(baseName(fileName));
+
+                string file = base + ".php";
+                if (!output.empty())
+                {
+                    file = output + '/' + file;
+                }
+
                 IceInternal::Output out;
                 out.open(file.c_str());
                 if (!out)
@@ -1326,16 +1319,19 @@ compile(const vector<string>& argv)
                 // Generate the PHP mapping.
                 generate(unit, all, includePaths, out);
                 out.close();
-            }
-            catch (...)
-            {
-                FileTracker::instance()->cleanup();
-                unit->destroy();
-                throw;
-            }
 
-            status |= unit->getStatus();
+                status |= unit->getStatus();
+            }
             unit->destroy();
+        }
+        catch (...)
+        {
+            FileTracker::instance()->cleanup();
+            if (unit)
+            {
+                unit->destroy();
+            }
+            throw;
         }
 
         {

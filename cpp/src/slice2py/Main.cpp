@@ -11,6 +11,7 @@
 #include "PythonUtil.h"
 
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <mutex>
 #include <string>
@@ -226,53 +227,50 @@ main(int argc, char* argv[])
 
         for (const auto& fileName : sliceFiles)
         {
-            PreprocessorPtr preprocessor = Preprocessor::create(args[0], fileName, preprocessorArgs);
-            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
-
-            if (preprocessedHandle == nullptr)
+            UnitPtr unit;
+            try
             {
-                FileTracker::instance()->cleanup();
-                return EXIT_FAILURE;
-            }
+                PreprocessorPtr preprocessor = Preprocessor::create(args[0], fileName, preprocessorArgs);
+                FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
+                assert(preprocessedHandle);
 
-            UnitPtr unit = Unit::createUnit("python", false);
-            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
+                unit = Unit::createUnit("python", false);
+                int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-            if (!preprocessor->close())
-            {
-                return EXIT_FAILURE;
-            }
+                preprocessor->close();
 
-            if (parseStatus == EXIT_FAILURE)
-            {
-                FileTracker::instance()->cleanup();
+                if (parseStatus == EXIT_FAILURE)
+                {
+                    status = EXIT_FAILURE;
+                }
+                else
+                {
+                    // Collect the dependencies of the unit.
+                    unit->visit(&dependencyVisitor);
+
+                    // Collect the package imports and generated files.
+                    unit->visit(&packageVisitor);
+
+                    if (buildArg == "modules" || buildArg == "all")
+                    {
+                        parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
+
+                        generate(unit, outputDir);
+                    }
+
+                    status |= unit->getStatus();
+                }
                 unit->destroy();
-                return EXIT_FAILURE;
             }
-
-            // Collect the dependencies of the unit.
-            unit->visit(&dependencyVisitor);
-
-            // Collect the package imports and generated files.
-            unit->visit(&packageVisitor);
-
-            if (buildArg == "modules" || buildArg == "all")
+            catch (...)
             {
-                parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
-
-                try
+                FileTracker::instance()->cleanup();
+                if (unit)
                 {
-                    generate(unit, outputDir);
+                    unit->destroy();
                 }
-                catch (...)
-                {
-                    FileTracker::instance()->cleanup();
-                    throw;
-                }
+                throw;
             }
-
-            status |= unit->getStatus();
-            unit->destroy();
         }
 
         if (status == EXIT_FAILURE)

@@ -154,14 +154,9 @@ namespace
 FILE*
 Slice::Preprocessor::preprocess(const string& languageArg)
 {
-    if (!checkInputFile())
-    {
-        return nullptr;
-    }
+    checkInputFile();
 
-    //
     // Build arguments list.
-    //
     vector<string> args = baseArgs(_args, languageArg, _fileName);
     const char** argv = new const char*[args.size() + 1];
     argv[0] = "mcpp";
@@ -170,16 +165,12 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         argv[i + 1] = args[i].c_str();
     }
 
-    //
     // Call mcpp using memory buffer.
-    //
     mcpp_use_mem_buffers(1);
     int status = mcpp_lib_main(static_cast<int>(args.size()) + 1, const_cast<char**>(argv));
     delete[] argv;
 
-    //
     // Display any errors.
-    //
     char* err = mcpp_get_mem_buffer(Err);
     if (err)
     {
@@ -227,9 +218,7 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         _cppHandle = tmpfile();
 #endif
 
-        //
         // If that fails try to open file in current directory.
-        //
         if (_cppHandle == nullptr)
         {
 #ifdef _WIN32
@@ -250,19 +239,19 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         }
         else
         {
-            consoleErr << _path << ": error: could not open temporary file: " << _cppFile << endl;
+            // Calling this again causes the memory buffers to be freed.
+            mcpp_use_mem_buffers(1);
+            throw runtime_error(_path + ": error: could not open temporary file: " + _cppFile);
         }
     }
 
-    //
     // Calling this again causes the memory buffers to be freed.
-    //
     mcpp_use_mem_buffers(1);
 
     return _cppHandle;
 }
 
-bool
+void
 Slice::Preprocessor::close()
 {
     if (_cppHandle != nullptr)
@@ -277,14 +266,12 @@ Slice::Preprocessor::close()
 
         if (status != 0)
         {
-            return false;
+            throw runtime_error("failed to close preprocessor file: " + IceInternal::lastErrorToString());
         }
     }
-
-    return true;
 }
 
-bool
+void
 Slice::Preprocessor::checkInputFile()
 {
     string base(_fileName);
@@ -296,17 +283,13 @@ Slice::Preprocessor::checkInputFile()
     }
     if (suffix != ".ice")
     {
-        consoleErr << _path << ": error: input files must end with `.ice'" << endl;
-        return false;
+        throw runtime_error(_path + ": error: input files must end with `.ice'");
     }
 
     ifstream test(IceInternal::streamFilename(_fileName).c_str());
     if (!test)
     {
-        consoleErr << _path << ": error: cannot open '" << _fileName << "' for reading" << endl;
-        return false;
+        throw runtime_error(_path + ": error: cannot open '" + _fileName + "' for reading");
     }
     test.close();
-
-    return true;
 }

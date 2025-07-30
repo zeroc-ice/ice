@@ -22,7 +22,7 @@ namespace Slice
         ~Preprocessor();
 
         FILE* preprocess(const std::string& languageArg = "");
-        bool close();
+        void close();
 
         std::string getFileName();
         std::string getBaseName();
@@ -30,7 +30,7 @@ namespace Slice
         static std::string normalizeIncludePath(const std::string& path);
 
     private:
-        bool checkInputFile();
+        void checkInputFile();
 
         const std::string _path;
         const std::string _fileName;
