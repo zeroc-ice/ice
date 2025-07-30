@@ -216,7 +216,15 @@ namespace Slice
     public:
         DefinitionContext(int includeLevel);
 
+        /// Returns the file name of the definition context, as reported by the preprocessor.
+        /// This may be an absolute or relative path.
+        ///
+        /// @return A reference to the file name.
         [[nodiscard]] const std::string& filename() const;
+
+        /// Returns the resolved file name of the definition context. This is always an absolute path.
+        ///
+        /// @return A reference to the resolved file name.
         [[nodiscard]] const std::string& resolvedFilename() const;
         [[nodiscard]] int line() const;
         [[nodiscard]] int includeLevel() const;
@@ -1115,6 +1123,13 @@ namespace Slice
         void popContainer();
 
         [[nodiscard]] DefinitionContextPtr currentDefinitionContext() const;
+
+        /// Returns the definition context for the given file, or nullptr if none exists.
+        /// This method only checks `DefinitionContext::filename` and does not consider
+        /// `DefinitionContext::resolvedFilename`.
+        ///
+        /// @param file The file name to search for.
+        /// @return A pointer to the matching definition context, or nullptr if not found.
         [[nodiscard]] DefinitionContextPtr findDefinitionContext(std::string_view file) const;
 
         void addContent(const ContainedPtr& contained);
@@ -1126,7 +1141,11 @@ namespace Slice
         // Returns the path names of the files included directly by the top-level file.
         [[nodiscard]] StringList includeFiles() const;
 
-        // Returns the path names of all files parsed by this unit.
+        /// Returns the absolute paths of all files parsed by this unit.
+        /// The first entry is the top-level file, followed by its direct and transitive dependencies in the order they
+        /// were parsed.
+        ///
+        /// @return A list of absolute paths to the parsed files.
         [[nodiscard]] StringList allFiles() const;
 
         int parse(const std::string& filename, FILE* file, bool debugMode);

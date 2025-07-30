@@ -4847,16 +4847,20 @@ Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
 {
     assert(!currentFile.empty());
 
-    string absolutePath;
+    // `currentFile` is the file being parsed, as reported by the MCPP preprocessor.
+    // It may be an absolute or relative path.
+    //
+    // `resolvedFilename` is always an absolute path, computed from `currentFile` and the current definition context.
+    string resolvedFilename;
     if (IceInternal::isAbsolutePath(currentFile))
     {
-        absolutePath = currentFile;
-        if (!IceInternal::fileExists(absolutePath))
+        resolvedFilename = currentFile;
+        if (!IceInternal::fileExists(resolvedFilename))
         {
-            // MCPP can report bogus absolute paths, for files using relative includes.
-            // see: https://github.com/zeroc-ice/ice/issues/4253
+            // MCPP may report incorrect absolute paths when files are included using relative paths.
+            // See: https://github.com/zeroc-ice/ice/issues/4253
 
-            // If the file is an absolute path, and it does not exists, it must be relative to the current definition
+            // If the path is absolute but the file doesn't exist, treat it as relative to the current definition
             // context.
             DefinitionContextPtr dc = currentDefinitionContext();
             assert(dc);
@@ -4866,7 +4870,7 @@ Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
             vector<string> tokens2;
 
             IceInternal::splitString(previousDir, "/\\", tokens1);
-            IceInternal::splitString(absolutePath, "/\\", tokens2);
+            IceInternal::splitString(resolvedFilename, "/\\", tokens2);
 
             auto i1 = tokens1.begin();
             auto i2 = tokens2.begin();
@@ -4879,22 +4883,23 @@ Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
             }
 
             // The remaining elements represent the path relative the current definition context.
-            absolutePath = "";
+            resolvedFilename = "";
             for (; i2 != tokens2.end(); ++i2)
             {
-                absolutePath += "/" + *i2;
+                resolvedFilename += "/" + *i2;
             }
 
-            absolutePath = normalizePath(previousDir + absolutePath);
-            currentFile = absolutePath;
+            resolvedFilename = normalizePath(previousDir + resolvedFilename);
+            currentFile = resolvedFilename;
         }
     }
     else
     {
-        // Relative paths are relative to the current definition context, which represents the file being parsed.
+        // Relative paths are interpreted relative to the current definition context, which corresponds to the file
+        // currently being parsed.
         DefinitionContextPtr dc = currentDefinitionContext();
         assert(dc);
-        absolutePath = normalizePath(Slice::dirName(dc->resolvedFilename()) + "/" + currentFile);
+        resolvedFilename = normalizePath(Slice::dirName(dc->resolvedFilename()) + "/" + currentFile);
     }
 
     enum LineType
@@ -4956,12 +4961,12 @@ Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
 
         DefinitionContextPtr dc = currentDefinitionContext();
         assert(dc);
-        dc->setFilename(currentFile, absolutePath);
+        dc->setFilename(currentFile, resolvedFilename);
         _definitionContextMap.insert(make_pair(currentFile, dc));
 
-        if (find(_allFiles.begin(), _allFiles.end(), absolutePath) == _allFiles.end())
+        if (find(_allFiles.begin(), _allFiles.end(), resolvedFilename) == _allFiles.end())
         {
-            _allFiles.push_back(absolutePath);
+            _allFiles.push_back(resolvedFilename);
         }
     }
 
