@@ -747,11 +747,10 @@ Slice::DependencyVisitor::writeJSONDependencies(const std::string& dependFile)
     {
         string source = dependencies.front();
         dependencies.pop_front();
-        string dirName = Slice::dirName(source);
         os << endl << "  \"" << source << "\" : [";
         for (const auto& dependency : dependencies)
         {
-            os << endl << "    \"" << normalizePath(dirName + "/" + dependency) << "\"";
+            os << endl << "    \"" << dependency << "\"";
         }
         os << endl << "  ]";
     }

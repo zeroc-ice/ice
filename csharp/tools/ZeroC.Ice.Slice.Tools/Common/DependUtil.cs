@@ -1,3 +1,4 @@
+// Copyright (c) ZeroC, Inc.
 
 using System;
 using System.IO;
