@@ -15,7 +15,8 @@ class Value(object):
         str
             The type ID.
         """
-        return "::Ice::Object"
+        # Call ice_staticId() on self to get the value from the most-derived class.
+        return self.ice_staticId()
 
     @staticmethod
     def ice_staticId() -> str:

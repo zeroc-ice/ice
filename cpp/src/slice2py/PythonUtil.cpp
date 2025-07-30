@@ -1188,13 +1188,6 @@ Slice::Python::CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
     assert(_out);
     auto& out = *_out;
 
-    // ice_id
-    out << sp;
-    out << nl << "def ice_id(self) -> str:";
-    out.inc();
-    out << nl << "return \"" << scoped << "\"";
-    out.dec();
-
     // ice_staticId
     out << sp;
     out << nl << "@staticmethod";
@@ -1549,13 +1542,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     // ice_ids is implemented by the base Ice.Object class using the `_ice_ids` class variable.
-
-    // ice_id
-    out << sp;
-    out << nl << "def ice_id(self, current: " << currentAlias << ") -> str | Awaitable[str]:";
-    out.inc();
-    out << nl << "return \"" << scoped << "\"";
-    out.dec();
 
     // ice_staticId
     out << sp;
