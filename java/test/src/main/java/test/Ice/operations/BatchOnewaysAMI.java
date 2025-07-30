@@ -70,13 +70,12 @@ class BatchOnewaysAMI {
         }
 
         int count = 0;
-        while (count < 27) // 3 * 9 requests auto-flushed.
-            {
-                count += p.opByteSOnewayCallCount();
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ex) {}
-            }
+        while (count < 27 /* 3*9 requests auto-flushed */) {
+            count += p.opByteSOnewayCallCount();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {}
+        }
 
         final boolean bluetooth =
             properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;

@@ -1817,50 +1817,34 @@ public class SessionKeeper {
                         _nextButton.setEnabled(false);
                         WizardStep step = _wizardSteps.elementAt(_wizardSteps.size() - 1);
                         switch (step) {
-                            case ConnectionTypeStep:
-                            {
+                            case ConnectionTypeStep -> {
                                 if (_directConnection.isSelected()) {
-                                    _cardLayout.show(
-                                        _cardPanel,
-                                        WizardStep.DirectMasterStep.toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.DirectMasterStep.toString());
                                     _wizardSteps.push(WizardStep.DirectMasterStep);
                                 } else {
-                                    _cardLayout.show(
-                                        _cardPanel,
-                                        WizardStep.RoutedEndpointStep.toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.RoutedEndpointStep.toString());
                                     _wizardSteps.push(WizardStep.RoutedEndpointStep);
                                 }
-                                break;
                             }
 
-                            case DirectMasterStep:
-                            {
-                                _cardLayout.show(
-                                    _cardPanel,
-                                    WizardStep.DirectDiscoveryChooseStep.toString());
+                            case DirectMasterStep -> {
+                                _cardLayout.show(_cardPanel, WizardStep.DirectDiscoveryChooseStep.toString());
                                 _wizardSteps.push(WizardStep.DirectDiscoveryChooseStep);
                                 if (_directDiscoveryDiscoveredLocators.isSelected()) {
                                     refreshDiscoveryLocators();
                                 }
-                                break;
                             }
 
-                            case DirectDiscoveryChooseStep:
-                            {
+                            case DirectDiscoveryChooseStep -> {
                                 if (_directDiscoveryManualEndpoint.isSelected()) {
-                                    _cardLayout.show(
-                                        _cardPanel,
-                                        WizardStep.DirectEndpointStep.toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.DirectEndpointStep.toString());
                                     _wizardSteps.push(WizardStep.DirectEndpointStep);
                                 } else {
-                                    LocatorPrx locator =
-                                        _directDiscoveryLocatorList.getSelectedValue();
-                                    _directInstanceName.setText(
-                                        locator.ice_getIdentity().category);
+                                    LocatorPrx locator = _directDiscoveryLocatorList.getSelectedValue();
+                                    _directInstanceName.setText(locator.ice_getIdentity().category);
 
                                     String endpoints = null;
-                                    for (Endpoint endpoint :
-                                                    locator.ice_getEndpoints()) {
+                                    for (Endpoint endpoint : locator.ice_getEndpoints()) {
                                         if (endpoints == null) {
                                             endpoints = endpoint.toString();
                                         } else {
@@ -1870,63 +1854,40 @@ public class SessionKeeper {
                                     _directCustomEndpointValue.setText(endpoints);
                                     _directCustomEndpoints.setSelected(true);
 
-                                    _cardLayout.show(
-                                        _cardPanel,
-                                        WizardStep.DirectCustomEndpointStep.toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.DirectCustomEndpointStep.toString());
                                     _wizardSteps.push(WizardStep.DirectCustomEndpointStep);
                                 }
-                                break;
                             }
 
-                            case DirectEndpointStep:
-                            {
+                            case DirectEndpointStep -> {
                                 if (_directDefaultEndpoints.isSelected()) {
-                                    _cardLayout.show(
-                                        _cardPanel,
-                                        WizardStep.DirectDefaultEndpointStep
-                                            .toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.DirectDefaultEndpointStep.toString());
                                     _wizardSteps.push(WizardStep.DirectDefaultEndpointStep);
                                 } else {
-                                    _cardLayout.show(
-                                        _cardPanel,
-                                        WizardStep.DirectCustomEndpointStep.toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.DirectCustomEndpointStep.toString());
                                     _wizardSteps.push(WizardStep.DirectCustomEndpointStep);
                                 }
-                                break;
                             }
 
-                            case RoutedEndpointStep:
-                            {
+                            case RoutedEndpointStep -> {
                                 if (_routedDefaultEndpoints.isSelected()) {
-                                    _cardLayout.show(
-                                        _cardPanel,
-                                        WizardStep.RoutedDefaultEndpointStep
-                                            .toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.RoutedDefaultEndpointStep.toString());
                                     _wizardSteps.push(WizardStep.RoutedDefaultEndpointStep);
                                 } else {
-                                    _cardLayout.show(
-                                        _cardPanel,
-                                        WizardStep.RoutedCustomEndpointStep.toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.RoutedCustomEndpointStep.toString());
                                     _wizardSteps.push(WizardStep.RoutedCustomEndpointStep);
                                 }
-                                break;
                             }
 
-                            case DirectDefaultEndpointStep:
-                            {
+                            case DirectDefaultEndpointStep -> {
                                 if (_directDefaultEndpointSSL.isSelected()) {
-                                    _cardLayout.show(
-                                        _cardPanel,
-                                        WizardStep.X509CertificateStep.toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                     _wizardSteps.push(WizardStep.X509CertificateStep);
                                 } else {
                                     _cardLayout.show(
                                         _cardPanel,
-                                        WizardStep.DirectUsernamePasswordCredentialsStep
-                                            .toString());
-                                    _wizardSteps.push(
-                                        WizardStep
-                                            .DirectUsernamePasswordCredentialsStep);
+                                        WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                    _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                 }
                                 if (_x509CertificateDefault) {
                                     if (_directDefaultEndpointSSL.isSelected()) {
@@ -1937,24 +1898,17 @@ public class SessionKeeper {
                                         _usernamePasswordAuthButton.setSelected(true);
                                     }
                                 }
-                                break;
                             }
 
-                            case RoutedDefaultEndpointStep:
-                            {
+                            case RoutedDefaultEndpointStep -> {
                                 if (_routedDefaultEndpointSSL.isSelected()) {
-                                    _cardLayout.show(
-                                        _cardPanel,
-                                        WizardStep.X509CertificateStep.toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                     _wizardSteps.push(WizardStep.X509CertificateStep);
                                 } else {
                                     _cardLayout.show(
                                         _cardPanel,
-                                        WizardStep.RoutedUsernamePasswordCredentialsStep
-                                            .toString());
-                                    _wizardSteps.push(
-                                        WizardStep
-                                            .RoutedUsernamePasswordCredentialsStep);
+                                        WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                    _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                 }
                                 if (_x509CertificateDefault) {
                                     if (_routedDefaultEndpointSSL.isSelected()) {
@@ -1965,39 +1919,26 @@ public class SessionKeeper {
                                         _usernamePasswordAuthButton.setSelected(true);
                                     }
                                 }
-                                break;
                             }
 
-                            case DirectCustomEndpointStep:
-                            {
+                            case DirectCustomEndpointStep -> {
                                 try {
-                                    Identity id =
-                                        new Identity();
+                                    Identity id = new Identity();
                                     id.name = "Locator";
                                     id.category = _directInstanceName.getText();
                                     StringBuilder endpoint = new StringBuilder();
-                                    endpoint.append(_coordinator
-                                        .getCommunicator()
-                                        .identityToString(id));
+                                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_directCustomEndpointValue.getText());
-                                    _coordinator
-                                        .getCommunicator()
-                                        .stringToProxy(endpoint.toString());
+                                    _coordinator.getCommunicator().stringToProxy(endpoint.toString());
                                     if (containsSecureEndpoints(endpoint.toString())) {
-                                        _cardLayout.show(
-                                            _cardPanel,
-                                            WizardStep.X509CertificateStep.toString());
+                                        _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                         _wizardSteps.push(WizardStep.X509CertificateStep);
                                     } else {
                                         _cardLayout.show(
                                             _cardPanel,
-                                            WizardStep
-                                                .DirectUsernamePasswordCredentialsStep
-                                                .toString());
-                                        _wizardSteps.push(
-                                            WizardStep
-                                                .DirectUsernamePasswordCredentialsStep);
+                                            WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                     }
                                 } catch (ParseException ex) {
                                     JOptionPane.showMessageDialog(
@@ -2024,38 +1965,25 @@ public class SessionKeeper {
                                         _usernamePasswordAuthButton.setSelected(true);
                                     }
                                 }
-                                break;
                             }
-                            case RoutedCustomEndpointStep:
-                            {
+                            case RoutedCustomEndpointStep -> {
                                 try {
-                                    Identity id =
-                                        new Identity();
+                                    Identity id = new Identity();
                                     id.name = "router";
                                     id.category = _routedInstanceName.getText();
                                     StringBuilder endpoint = new StringBuilder();
-                                    endpoint.append(_coordinator
-                                        .getCommunicator()
-                                        .identityToString(id));
+                                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_routedCustomEndpointValue.getText());
-                                    _coordinator
-                                        .getCommunicator()
-                                        .stringToProxy(endpoint.toString());
+                                    _coordinator.getCommunicator().stringToProxy(endpoint.toString());
                                     if (containsSecureEndpoints(endpoint.toString())) {
-                                        _cardLayout.show(
-                                            _cardPanel,
-                                            WizardStep.X509CertificateStep.toString());
+                                        _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                         _wizardSteps.push(WizardStep.X509CertificateStep);
                                     } else {
                                         _cardLayout.show(
                                             _cardPanel,
-                                            WizardStep
-                                                .RoutedUsernamePasswordCredentialsStep
-                                                .toString());
-                                        _wizardSteps.push(
-                                            WizardStep
-                                                .RoutedUsernamePasswordCredentialsStep);
+                                            WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                     }
                                 } catch (ParseException ex) {
                                     JOptionPane.showMessageDialog(
@@ -2075,90 +2003,54 @@ public class SessionKeeper {
                                         _usernamePasswordAuthButton.setSelected(true);
                                     }
                                 }
-                                break;
                             }
 
-                            case X509CertificateStep:
-                            {
+                            case X509CertificateStep -> {
                                 if (_x509CertificateYesButton.isSelected()) {
                                     if (_directConnection.isSelected()) {
                                         loadCertificateAliases(_directCertificateAliases);
-                                        _cardLayout.show(
-                                            _cardPanel,
-                                            WizardStep.DirectX509CredentialsStep
-                                                .toString());
-                                        _wizardSteps.push(
-                                            WizardStep.DirectX509CredentialsStep);
+                                        _cardLayout.show(_cardPanel, WizardStep.DirectX509CredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.DirectX509CredentialsStep);
                                     } else {
                                         loadCertificateAliases(_routedCertificateAliases);
-                                        _cardLayout.show(
-                                            _cardPanel,
-                                            WizardStep.RoutedX509CredentialsStep
-                                                .toString());
-                                        _wizardSteps.push(
-                                            WizardStep.RoutedX509CredentialsStep);
+                                        _cardLayout.show(_cardPanel, WizardStep.RoutedX509CredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.RoutedX509CredentialsStep);
                                     }
                                 } else {
                                     if (_directConnection.isSelected()) {
                                         _cardLayout.show(
                                             _cardPanel,
-                                            WizardStep
-                                                .DirectUsernamePasswordCredentialsStep
-                                                .toString());
-                                        _wizardSteps.push(
-                                            WizardStep
-                                                .DirectUsernamePasswordCredentialsStep);
+                                            WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                     } else {
                                         _cardLayout.show(
                                             _cardPanel,
-                                            WizardStep
-                                                .RoutedUsernamePasswordCredentialsStep
-                                                .toString());
-                                        _wizardSteps.push(
-                                            WizardStep
-                                                .RoutedUsernamePasswordCredentialsStep);
+                                            WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                     }
                                 }
-                                break;
                             }
-                            case RoutedX509CredentialsStep:
-                            case DirectX509CredentialsStep:
-                            {
-                                _cardLayout.show(
-                                    _cardPanel, WizardStep.AuthStep.toString());
+                            case RoutedX509CredentialsStep, DirectX509CredentialsStep -> {
+                                _cardLayout.show(_cardPanel, WizardStep.AuthStep.toString());
                                 _wizardSteps.push(WizardStep.AuthStep);
-                                break;
                             }
-                            case AuthStep:
-                            {
+                            case AuthStep -> {
                                 if (_usernamePasswordAuthButton.isSelected()) {
                                     if (_directConnection.isSelected()) {
                                         _cardLayout.show(
                                             _cardPanel,
-                                            WizardStep
-                                                .DirectUsernamePasswordCredentialsStep
-                                                .toString());
-                                        _wizardSteps.push(
-                                            WizardStep
-                                                .DirectUsernamePasswordCredentialsStep);
+                                            WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                     } else {
                                         _cardLayout.show(
                                             _cardPanel,
-                                            WizardStep
-                                                .RoutedUsernamePasswordCredentialsStep
-                                                .toString());
-                                        _wizardSteps.push(
-                                            WizardStep
-                                                .RoutedUsernamePasswordCredentialsStep);
+                                            WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                     }
                                 }
-                                break;
                             }
 
-                            default:
-                            {
-                                break;
-                            }
+                            default -> {}
                         }
                         if (!_wizardSteps.isEmpty()) {
                             _backButton.setEnabled(true);
@@ -2205,13 +2097,11 @@ public class SessionKeeper {
                             }
 
                             if (_x509CertificateYesButton.isSelected()) {
-                                inf.setAlias(
-                                    (String) _directCertificateAliases.getSelectedItem());
+                                inf.setAlias((String) _directCertificateAliases.getSelectedItem());
                                 if (_directCertificatePassword.getPassword() != null
                                     && _directCertificatePassword.getPassword().length
                                     > 0) {
-                                    inf.setKeyPassword(
-                                        _directCertificatePassword.getPassword());
+                                    inf.setKeyPassword(_directCertificatePassword.getPassword());
                                     inf.setStoreKeyPassword(true);
                                 } else {
                                     inf.setKeyPassword(null);
@@ -2251,13 +2141,11 @@ public class SessionKeeper {
                             }
 
                             if (_x509CertificateYesButton.isSelected()) {
-                                inf.setAlias(
-                                    (String) _routedCertificateAliases.getSelectedItem());
+                                inf.setAlias((String) _routedCertificateAliases.getSelectedItem());
                                 if (_routedCertificatePassword.getPassword() != null
                                     && _routedCertificatePassword.getPassword().length
                                     > 0) {
-                                    inf.setKeyPassword(
-                                        _routedCertificatePassword.getPassword());
+                                    inf.setKeyPassword(_routedCertificatePassword.getPassword());
                                     inf.setStoreKeyPassword(true);
                                 } else {
                                     inf.setKeyPassword(null);
@@ -2341,101 +2229,72 @@ public class SessionKeeper {
 
             boolean lastStep = false; // No next step
             switch (step) {
-                case DirectDiscoveryChooseStep:
-                {
+                case DirectDiscoveryChooseStep -> {
                     if (_directDiscoveryManualEndpoint.isSelected()) {
                         _directDiscoveryManualEndpoint.requestFocusInWindow();
                     } else {
                         _directDiscoveryLocatorList.requestFocusInWindow();
                     }
-                    break;
                 }
 
-                case DirectEndpointStep:
-                {
+                case DirectEndpointStep -> {
                     if (_directDefaultEndpoints.isSelected()) {
                         _directDefaultEndpoints.requestFocusInWindow();
                     } else {
                         _directCustomEndpoints.requestFocusInWindow();
                     }
-                    break;
                 }
-                case DirectDefaultEndpointStep:
-                {
+                case DirectDefaultEndpointStep -> {
                     _directDefaultEndpointHost.requestFocusInWindow();
-                    break;
                 }
-                case DirectCustomEndpointStep:
-                {
+                case DirectCustomEndpointStep -> {
                     _directCustomEndpointValue.requestFocusInWindow();
-                    break;
                 }
 
-                case RoutedEndpointStep:
-                {
+                case RoutedEndpointStep -> {
                     if (_routedDefaultEndpoints.isSelected()) {
                         _routedDefaultEndpoints.requestFocusInWindow();
                     } else {
                         _routedCustomEndpoints.requestFocusInWindow();
                     }
-                    break;
                 }
-                case RoutedDefaultEndpointStep:
-                {
+                case RoutedDefaultEndpointStep -> {
                     _routedDefaultEndpointHost.requestFocusInWindow();
-                    break;
                 }
-                case RoutedCustomEndpointStep:
-                {
+                case RoutedCustomEndpointStep -> {
                     _routedCustomEndpointValue.requestFocusInWindow();
-                    break;
                 }
-                case X509CertificateStep:
-                {
+                case X509CertificateStep -> {
                     if (_x509CertificateYesButton.isSelected()) {
                         _x509CertificateYesButton.requestFocusInWindow();
                     } else {
                         _x509CertificateNoButton.requestFocusInWindow();
                     }
-                    break;
                 }
-                case DirectX509CredentialsStep:
-                {
+                case DirectX509CredentialsStep -> {
                     _directCertificateAliases.requestFocusInWindow();
-                    break;
                 }
-                case RoutedX509CredentialsStep:
-                {
+                case RoutedX509CredentialsStep -> {
                     _routedCertificateAliases.requestFocusInWindow();
-                    break;
                 }
-                case AuthStep:
-                {
+                case AuthStep -> {
                     if (_usernamePasswordAuthButton.isSelected()) {
                         _usernamePasswordAuthButton.requestFocusInWindow();
                     } else {
                         lastStep = true;
                         _certificateAuthButton.requestFocusInWindow();
                     }
-                    break;
                 }
-                case DirectUsernamePasswordCredentialsStep:
-                {
+                case DirectUsernamePasswordCredentialsStep -> {
                     lastStep = true;
                     _directUsername.requestFocusInWindow();
-                    break;
                 }
-                case RoutedUsernamePasswordCredentialsStep:
-                {
+                case RoutedUsernamePasswordCredentialsStep -> {
                     lastStep = true;
                     _routedUsername.requestFocusInWindow();
-                    break;
                 }
 
-                default:
-                {
-                    break;
-                }
+                default -> {}
             }
 
             boolean validated = validateWizardStep(step);
@@ -2459,24 +2318,19 @@ public class SessionKeeper {
         boolean validateWizardStep(WizardStep step) {
             boolean validated = false;
             switch (step) {
-                case ConnectionTypeStep:
-                {
+                case ConnectionTypeStep -> {
                     validated = true;
-                    break;
                 }
 
-                case DirectDiscoveryChooseStep:
-                {
+                case DirectDiscoveryChooseStep -> {
                     if (_directDiscoveryManualEndpoint.isSelected()) {
                         validated = true;
                     } else {
                         validated = _directDiscoveryLocatorList.getSelectedValue() != null;
                     }
-                    break;
                 }
 
-                case DirectDefaultEndpointStep:
-                {
+                case DirectDefaultEndpointStep -> {
                     validated =
                         _directDefaultEndpointHost.getText() != null
                             && _directDefaultEndpointHost.getText().length() > 0;
@@ -2493,18 +2347,14 @@ public class SessionKeeper {
                                 JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                    break;
                 }
-                case DirectCustomEndpointStep:
-                {
+                case DirectCustomEndpointStep -> {
                     validated =
                         _directCustomEndpointValue.getText() != null
                             && _directCustomEndpointValue.getText().length() > 0;
-                    break;
                 }
 
-                case RoutedDefaultEndpointStep:
-                {
+                case RoutedDefaultEndpointStep -> {
                     validated =
                         _routedDefaultEndpointHost.getText() != null
                             && _routedDefaultEndpointHost.getText().length() > 0;
@@ -2521,53 +2371,34 @@ public class SessionKeeper {
                                 JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                    break;
                 }
-                case RoutedCustomEndpointStep:
-                {
+                case RoutedCustomEndpointStep -> {
                     validated =
                         _routedCustomEndpointValue.getText() != null
                             && _routedCustomEndpointValue.getText().length() > 0;
-                    break;
                 }
-                case DirectX509CredentialsStep:
-                {
+                case DirectX509CredentialsStep -> {
                     validated = _directCertificateAliases.getSelectedItem() != null;
-                    break;
                 }
-                case RoutedX509CredentialsStep:
-                {
+                case RoutedX509CredentialsStep -> {
                     validated = _routedCertificateAliases.getSelectedItem() != null;
-                    break;
                 }
-                case DirectUsernamePasswordCredentialsStep:
-                {
+                case DirectUsernamePasswordCredentialsStep -> {
                     validated =
                         _directUsername.getText() != null
                             && _directUsername.getText().length() > 0;
-                    break;
                 }
-                case RoutedUsernamePasswordCredentialsStep:
-                {
+                case RoutedUsernamePasswordCredentialsStep -> {
                     validated =
                         _routedUsername.getText() != null
                             && _routedUsername.getText().length() > 0;
-                    break;
                 }
 
-                case DirectMasterStep:
-                case RoutedEndpointStep:
-                case DirectEndpointStep:
-                case AuthStep:
-                case X509CertificateStep:
-                {
+                case DirectMasterStep, RoutedEndpointStep, DirectEndpointStep, AuthStep, X509CertificateStep -> {
                     validated = true;
-                    break;
                 }
-                default:
-                {
-                    break;
-                }
+
+                default -> {}
             }
             return validated;
         }
@@ -2593,18 +2424,18 @@ public class SessionKeeper {
                         return false;
                     }
                 }
-            } else // Routed
-                {
-                    if (_routedDefaultEndpoints.isSelected()) {
-                        if (!validateWizardStep(WizardStep.RoutedDefaultEndpointStep)) {
-                            return false;
-                        }
-                    } else {
-                        if (!validateWizardStep(WizardStep.RoutedCustomEndpointStep)) {
-                            return false;
-                        }
+            } else {
+                // Routed
+                if (_routedDefaultEndpoints.isSelected()) {
+                    if (!validateWizardStep(WizardStep.RoutedDefaultEndpointStep)) {
+                        return false;
+                    }
+                } else {
+                    if (!validateWizardStep(WizardStep.RoutedCustomEndpointStep)) {
+                        return false;
                     }
                 }
+            }
 
             if (_x509CertificateYesButton.isSelected()) {
                 if (_directConnection.isSelected()) {
@@ -2672,14 +2503,12 @@ public class SessionKeeper {
                         if (_conf.getSSL()) {
                             _directDefaultEndpointSSL.setSelected(true);
                             if (!_conf.getDefaultPort()) {
-                                _directDefaultEndpointPort.setText(
-                                    Integer.toString(_conf.getPort()));
+                                _directDefaultEndpointPort.setText(Integer.toString(_conf.getPort()));
                             }
                         } else {
                             _directDefaultEndpointTCP.setSelected(true);
                             if (!_conf.getDefaultPort()) {
-                                _directDefaultEndpointPort.setText(
-                                    Integer.toString(_conf.getPort()));
+                                _directDefaultEndpointPort.setText(Integer.toString(_conf.getPort()));
                             }
                         }
                     } else {
@@ -2711,14 +2540,12 @@ public class SessionKeeper {
                         if (_conf.getSSL()) {
                             _routedDefaultEndpointSSL.setSelected(true);
                             if (!_conf.getDefaultPort()) {
-                                _routedDefaultEndpointPort.setText(
-                                    Integer.toString(_conf.getPort()));
+                                _routedDefaultEndpointPort.setText(Integer.toString(_conf.getPort()));
                             }
                         } else {
                             _routedDefaultEndpointTCP.setSelected(true);
                             if (!_conf.getDefaultPort()) {
-                                _routedDefaultEndpointPort.setText(
-                                    Integer.toString(_conf.getPort()));
+                                _routedDefaultEndpointPort.setText(Integer.toString(_conf.getPort()));
                             }
                         }
                     } else {
@@ -2867,8 +2694,7 @@ public class SessionKeeper {
 
     private boolean containsSecureEndpoints(String str) {
         try {
-            for (Endpoint endpoint :
-                    _coordinator.getCommunicator().stringToProxy(str).ice_getEndpoints()) {
+            for (Endpoint endpoint : _coordinator.getCommunicator().stringToProxy(str).ice_getEndpoints()) {
                 if (endpoint.getInfo().secure()) {
                     return true;
                 }
@@ -4544,144 +4370,144 @@ public class SessionKeeper {
                     _authDialog.showDialog();
                 }
             }
-        } else // X509CertificateAuthDialog dialog
-            {
-                class X509CertificateAuthDialog extends AuthDialog {
-                    X509CertificateAuthDialog() {
-                        super(parent, "Login - IceGrid GUI");
+        } else {
+            // X509CertificateAuthDialog dialog
+            class X509CertificateAuthDialog extends AuthDialog {
+                X509CertificateAuthDialog() {
+                    super(parent, "Login - IceGrid GUI");
 
-                        Container contentPane = getContentPane();
-                        contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+                    Container contentPane = getContentPane();
+                    contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 
-                        {
-                            // Build the basic login panel.
-                            FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
-                            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                            builder.border(Borders.DIALOG);
+                    {
+                        // Build the basic login panel.
+                        FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
+                        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                        builder.border(Borders.DIALOG);
 
-                            builder.append(new JLabel("Key Password"), _keyPassword);
-                            builder.nextLine();
-                            _storeKeyPassword = new JCheckBox("Save Key Password.");
-                            _storeKeyPassword.setEnabled(false);
-                            _keyPassword
-                                .getDocument()
-                                .addDocumentListener(
-                                    new DocumentListener() {
-                                        @Override
-                                        public void changedUpdate(DocumentEvent e) {
-                                            _storeKeyPassword.setEnabled(
-                                                _keyPassword.getPassword() != null
-                                                    && _keyPassword.getPassword().length
-                                                    > 0);
-                                        }
-
-                                        @Override
-                                        public void removeUpdate(DocumentEvent e) {
-                                            _storeKeyPassword.setEnabled(
-                                                _keyPassword.getPassword() != null
-                                                    && _keyPassword.getPassword().length
-                                                    > 0);
-                                        }
-
-                                        @Override
-                                        public void insertUpdate(DocumentEvent e) {
-                                            _storeKeyPassword.setEnabled(
-                                                _keyPassword.getPassword() != null
-                                                    && _keyPassword.getPassword().length
-                                                    > 0);
-                                        }
-                                    });
-                            builder.append("", _storeKeyPassword);
-                            builder.nextLine();
-                            contentPane.add(builder.getPanel());
-                        }
-
-                        JButton okButton = new JButton();
-                        JButton cancelButton = new JButton();
-
-                        AbstractAction okAction =
-                            new AbstractAction("OK") {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    if (_session != null) {
-                                        logout(true);
+                        builder.append(new JLabel("Key Password"), _keyPassword);
+                        builder.nextLine();
+                        _storeKeyPassword = new JCheckBox("Save Key Password.");
+                        _storeKeyPassword.setEnabled(false);
+                        _keyPassword
+                            .getDocument()
+                            .addDocumentListener(
+                                new DocumentListener() {
+                                    @Override
+                                    public void changedUpdate(DocumentEvent e) {
+                                        _storeKeyPassword.setEnabled(
+                                            _keyPassword.getPassword() != null
+                                                && _keyPassword.getPassword().length
+                                                > 0);
                                     }
-                                    assert _session == null;
 
-                                    info.setKeyPassword(_keyPassword.getPassword());
-
-                                    if (checkCertificateRequirePassword(info.getAlias())
-                                        && !checkCertificatePassword(
-                                        info.getAlias(), info.getKeyPassword())) {
-                                        dispose();
-                                        permissionDenied(
-                                            parent, info, "Invalid certificate password");
-                                    } else {
-                                        _authDialog.setCursor(
-                                            Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                        _authDialog.setDefaultCloseOperation(
-                                            WindowConstants.DO_NOTHING_ON_CLOSE);
-                                        Utils.removeEscapeListener(_authDialog);
-                                        okButton.setEnabled(false);
-                                        cancelButton.setEnabled(false);
-                                        _coordinator.login(SessionKeeper.this, info, parent);
+                                    @Override
+                                    public void removeUpdate(DocumentEvent e) {
+                                        _storeKeyPassword.setEnabled(
+                                            _keyPassword.getPassword() != null
+                                                && _keyPassword.getPassword().length
+                                                > 0);
                                     }
-                                }
-                            };
-                        okButton.setAction(okAction);
 
-                        AbstractAction cancelAction =
-                            new AbstractAction("Cancel") {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    dispose();
-                                }
-                            };
-                        cancelButton.setAction(cancelAction);
-
-                        JComponent buttonBar =
-                            new ButtonBarBuilder()
-                                .addGlue()
-                                .addButton(okButton, cancelButton)
-                                .addGlue()
-                                .build();
-                        buttonBar.setBorder(Borders.DIALOG);
-                        contentPane.add(buttonBar);
-
-                        getRootPane().setDefaultButton(okButton);
-                        pack();
-                        setResizable(false);
+                                    @Override
+                                    public void insertUpdate(DocumentEvent e) {
+                                        _storeKeyPassword.setEnabled(
+                                            _keyPassword.getPassword() != null
+                                                && _keyPassword.getPassword().length
+                                                > 0);
+                                    }
+                                });
+                        builder.append("", _storeKeyPassword);
+                        builder.nextLine();
+                        contentPane.add(builder.getPanel());
                     }
 
-                    private JPasswordField _keyPassword = new JPasswordField(20);
-                    private JCheckBox _storeKeyPassword;
+                    JButton okButton = new JButton();
+                    JButton cancelButton = new JButton();
+
+                    AbstractAction okAction =
+                        new AbstractAction("OK") {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                if (_session != null) {
+                                    logout(true);
+                                }
+                                assert _session == null;
+
+                                info.setKeyPassword(_keyPassword.getPassword());
+
+                                if (checkCertificateRequirePassword(info.getAlias())
+                                    && !checkCertificatePassword(
+                                    info.getAlias(), info.getKeyPassword())) {
+                                    dispose();
+                                    permissionDenied(
+                                        parent, info, "Invalid certificate password");
+                                } else {
+                                    _authDialog.setCursor(
+                                        Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                    _authDialog.setDefaultCloseOperation(
+                                        WindowConstants.DO_NOTHING_ON_CLOSE);
+                                    Utils.removeEscapeListener(_authDialog);
+                                    okButton.setEnabled(false);
+                                    cancelButton.setEnabled(false);
+                                    _coordinator.login(SessionKeeper.this, info, parent);
+                                }
+                            }
+                        };
+                    okButton.setAction(okAction);
+
+                    AbstractAction cancelAction =
+                        new AbstractAction("Cancel") {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                dispose();
+                            }
+                        };
+                    cancelButton.setAction(cancelAction);
+
+                    JComponent buttonBar =
+                        new ButtonBarBuilder()
+                            .addGlue()
+                            .addButton(okButton, cancelButton)
+                            .addGlue()
+                            .build();
+                    buttonBar.setBorder(Borders.DIALOG);
+                    contentPane.add(buttonBar);
+
+                    getRootPane().setDefaultButton(okButton);
+                    pack();
+                    setResizable(false);
                 }
 
-                // If the certificate requires a password and the password isn't provided, we show the
-                // login dialog.
-                if ((info.getKeyPassword() == null || info.getKeyPassword().length == 0)
-                    && checkCertificateRequirePassword(info.getAlias())) {
-                    _authDialog = new X509CertificateAuthDialog();
-                    Utils.addEscapeListener(_authDialog);
-                    _authDialog.showDialog();
-                } else {
-                    if (_session != null) {
-                        logout(true);
-                    }
-                    assert _session == null;
+                private JPasswordField _keyPassword = new JPasswordField(20);
+                private JCheckBox _storeKeyPassword;
+            }
 
-                    if (checkCertificateRequirePassword(info.getAlias())
-                        && !checkCertificatePassword(info.getAlias(), info.getKeyPassword())) {
-                        permissionDenied(parent, info, "Invalid certificate password");
-                    } else {
-                        _authDialog = new StoredPasswordAuthDialog(parent);
-                        _authDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                        _authDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-                        _coordinator.login(SessionKeeper.this, info, parent);
-                        _authDialog.showDialog();
-                    }
+            // If the certificate requires a password and the password isn't provided, we show the
+            // login dialog.
+            if ((info.getKeyPassword() == null || info.getKeyPassword().length == 0)
+                && checkCertificateRequirePassword(info.getAlias())) {
+                _authDialog = new X509CertificateAuthDialog();
+                Utils.addEscapeListener(_authDialog);
+                _authDialog.showDialog();
+            } else {
+                if (_session != null) {
+                    logout(true);
+                }
+                assert _session == null;
+
+                if (checkCertificateRequirePassword(info.getAlias())
+                    && !checkCertificatePassword(info.getAlias(), info.getKeyPassword())) {
+                    permissionDenied(parent, info, "Invalid certificate password");
+                } else {
+                    _authDialog = new StoredPasswordAuthDialog(parent);
+                    _authDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    _authDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                    _coordinator.login(SessionKeeper.this, info, parent);
+                    _authDialog.showDialog();
                 }
             }
+        }
     }
 
     public void loginSuccess(

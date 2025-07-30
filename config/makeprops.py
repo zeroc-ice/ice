@@ -367,8 +367,7 @@ class JavaPropertyHandler(PropertyHandler):
 {commonPreamble}
 package com.zeroc.Ice;
 
-final class PropertyNames
-{{
+final class PropertyNames {{
 """)
 
     @override

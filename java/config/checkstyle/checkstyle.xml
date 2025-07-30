@@ -26,56 +26,64 @@
 
 <module name="Checker">
 
+  <!-- General configuration for Checkstyle -->
+  <!-- See https://checkstyle.org/config.html#Checker -->
   <property name="charset" value="UTF-8"/>
-
+  <property name="tabWidth" value="4"/>
+  <property name="fileExtensions" value="java"/>
   <property name="severity" value="${org.checkstyle.google.severity}" default="warning"/>
 
-  <!-- It's standard practice to separate any exceptions/suppressions into a separate XML file. -->
-  <module name="SuppressionFilter">
-    <property name="file" value="${config_loc}/suppressions.xml" />
-  </module>
-
-  <property name="fileExtensions" value="java, properties, xml"/>
-  <!-- Excludes all 'module-info.java' files              -->
+  <!-- Fine-grained exclusion rules -->
   <!-- See https://checkstyle.org/filefilters/index.html -->
   <module name="BeforeExecutionExclusionFileFilter">
+    <!-- Exclude all 'module-info.java' files -->
     <property name="fileNamePattern" value="module\-info\.java$"/>
   </module>
 
-  <module name="SuppressWarningsFilter"/>
+  <!-- Warning Suppression -->
 
-  <!-- https://checkstyle.org/filters/suppressionfilter.html -->
+  <!-- It's standard practice to place suppression rules in a separate XML file. -->
+  <!-- See https://checkstyle.org/filters/suppressionfilter.html -->
   <module name="SuppressionFilter">
-    <property name="file" value="${org.checkstyle.google.suppressionfilter.config}"
-           default="checkstyle-suppressions.xml" />
+    <property name="file" value="${config_loc}/suppressions.xml" />
     <property name="optional" value="true"/>
   </module>
 
-  <module name="SuppressWarningsFilter"/>
-
-  <!-- https://checkstyle.org/filters/suppresswithnearbytextfilter.html -->
+  <!-- Allows you to suppress checkstyle warnings on a single line by writing '// CHECKSTYLE.SUPPRESS: <RULE> '-->
+  <!-- See https://checkstyle.org/filters/suppresswithnearbytextfilter.html -->
   <module name="SuppressWithNearbyTextFilter">
-    <property name="nearbyTextPattern"
-              value="CHECKSTYLE.SUPPRESS\: (\w+) for ([+-]\d+) lines"/>
+    <property name="nearbyTextPattern" value="CHECKSTYLE.SUPPRESS\: (\w+)"/>
     <property name="checkPattern" value="$1"/>
-    <property name="lineRange" value="$2"/>
   </module>
 
-  <!-- Checks for whitespace                               -->
-  <!-- See http://checkstyle.org/checks/whitespace/index.html -->
+  <!-- Basic Formatting Checks -->
+
+  <!-- Reject tabs in source code -->
+  <!-- See https://checkstyle.org/checks/whitespace/filetabcharacter.html -->
   <module name="FileTabCharacter">
     <property name="eachLine" value="true"/>
   </module>
 
+  <!-- Enforce a line length limit of 120 columns in all '.java' files. -->
+  <!-- See https://checkstyle.org/checks/sizes/linelength.html -->
   <module name="LineLength">
     <property name="fileExtensions" value="java"/>
     <property name="max" value="120"/>
-    <property name="ignorePattern"
-             value="^package.*|^import.*|^\s*&quot;|href\s*=\s*&quot;[^&quot;]*&quot;|http://|https://|ftp://"/>
+    <!-- Exceptions to the line-length limit. -->
+    <property name="ignorePattern" value="^(package|import|\s*&quot;).*|(http|https|ftp)://"/>
   </module>
 
+  <!-- Reject trailing whitespace. -->
+  <!-- This is a custom rule that allows you to match any regular expression as disallowed. -->
+  <!-- See https://checkstyle.org/checks/regexp/regexpsingleline.html -->
+  <module name="RegexpSingleline">
+    <property name="format" value="\s+$"/>
+    <property name="message" value="trailing whitespace detected"/>
+  </module>
+
+  <!-- 'TreeWalker' is what Checkstyle uses to traverse the source code's AST. -->
+  <!-- Any checks that require some language awareness must be in this module. -->
   <module name="TreeWalker">
-  <module name="SuppressWarningsHolder"/>
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
       <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
@@ -98,29 +106,17 @@
       <property name="tokens"
                value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
     </module>
-    <!-- TODO: Please enable this and fix presented warnings in a follow-up PR.-->
-    <!--<module name="LeftCurly">
-      <property name="id" value="LeftCurlyEol"/>
-      <property name="tokens"
-                value="ANNOTATION_DEF, CLASS_DEF, CTOR_DEF, ENUM_CONSTANT_DEF, ENUM_DEF,
-                    INTERFACE_DEF, LAMBDA, LITERAL_CATCH,
-                    LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF,
-                    LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, METHOD_DEF,
-                    OBJBLOCK, STATIC_INIT, RECORD_DEF, COMPACT_CTOR_DEF"/>
-    </module>-->
+
+    <!-- Left curly-braces should be placed on the same line as the statement they're attached to. -->
+    <!-- They should not be placed on a separate line. -->
+    <!-- See: https://checkstyle.org/checks/blocks/leftcurly.html -->
     <module name="LeftCurly">
-      <property name="id" value="LeftCurlyNl"/>
-      <property name="option" value="nl"/>
-      <property name="tokens"
-                value="LITERAL_CASE, LITERAL_DEFAULT"/>
+      <property name="option" value="eol"/>
     </module>
-    <module name="SuppressionXpathSingleFilter">
-      <!-- LITERAL_CASE, LITERAL_DEFAULT are reused in SWITCH_RULE  -->
-      <property name="id" value="LeftCurlyNl"/>
-      <property name="query" value="//SWITCH_RULE/SLIST"/>
-    </module>
+
     <module name="RightCurly">
       <property name="id" value="RightCurlySame"/>
+      <property name="option" value="same"/>
       <property name="tokens"
                value="LITERAL_TRY, LITERAL_CATCH, LITERAL_IF, LITERAL_ELSE,
                     LITERAL_DO"/>
@@ -131,7 +127,7 @@
       <property name="tokens"
                value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT,
                     INSTANCE_INIT, ANNOTATION_DEF, ENUM_DEF, INTERFACE_DEF, RECORD_DEF,
-                    COMPACT_CTOR_DEF, LITERAL_SWITCH, LITERAL_CASE, LITERAL_FINALLY"/>
+                    COMPACT_CTOR_DEF, LITERAL_SWITCH, LITERAL_FINALLY"/>
     </module>
     <module name="SuppressionXpathSingleFilter">
       <!-- suppression is required till https://github.com/checkstyle/checkstyle/issues/7541 -->
@@ -146,8 +142,7 @@
                     LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_CATCH, LAMBDA,
                     LITERAL_YIELD, LITERAL_CASE, LITERAL_WHEN"/>
     </module>
-    <!-- TODO: Please enable this and fix presented warnings in a follow-up PR. -->
-    <!--<module name="WhitespaceAround">
+    <module name="WhitespaceAround">
       <property name="allowEmptyConstructors" value="true"/>
       <property name="allowEmptyLambdas" value="true"/>
       <property name="allowEmptyMethods" value="true"/>
@@ -169,7 +164,7 @@
                may only be represented as '{}' when not part of a multi-block statement (4.1.3)"/>
       <message key="ws.notPreceded"
               value="WhitespaceAround: ''{0}'' is not preceded with whitespace."/>
-    </module>-->
+    </module>
     <module name="SuppressionXpathSingleFilter">
       <property name="checks" value="WhitespaceAround"/>
       <property name="query" value="//*[self::LITERAL_IF or self::LITERAL_ELSE or self::STATIC_INIT
@@ -297,7 +292,9 @@
       <message key="name.invalidPattern"
              value="Interface type name ''{0}'' must match pattern ''{1}''."/>
     </module> -->
-    <module name="NoFinalizer"/>
+
+    <!-- We rely on finalizers in a number of places. -->
+    <!-- <module name="NoFinalizer"/> -->
     <module name="GenericWhitespace">
       <message key="ws.followed"
              value="GenericWhitespace ''{0}'' is followed by whitespace."/>
@@ -307,13 +304,6 @@
              value="GenericWhitespace ''{0}'' should followed by whitespace."/>
       <message key="ws.notPreceded"
              value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
-    </module>
-    <!-- Suppression for block code until we find a way to detect them properly
-         until https://github.com/checkstyle/checkstyle/issues/15769 -->
-    <module name="SuppressionXpathSingleFilter">
-      <property name="checks" value="Indentation"/>
-      <property name="query" value="//SLIST[not(parent::CASE_GROUP)]/SLIST
-                                   | //SLIST[not(parent::CASE_GROUP)]/SLIST/RCURLY"/>
     </module>
     <!-- TODO: Please enable the following modules and fix presented warnings in a follow-up PR.-->
     <!--<module name="OverloadMethodsDeclarationOrder"/>-->
@@ -406,14 +396,6 @@
       <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF,
                                    COMPACT_CTOR_DEF"/>
     </module>-->
-    <module name="SuppressionXpathSingleFilter">
-      <property name="checks" value="MissingJavadocMethod"/>
-      <property name="query" value="//*[self::METHOD_DEF or self::CTOR_DEF
-                                 or self::ANNOTATION_FIELD_DEF or self::COMPACT_CTOR_DEF]
-                                 [ancestor::*[self::INTERFACE_DEF or self::CLASS_DEF
-                                 or self::RECORD_DEF or self::ENUM_DEF]
-                                 [not(./MODIFIERS/LITERAL_PUBLIC)]]"/>
-    </module>
     <!-- TODO: Please enable this and fix presented warnings in a follow-up PR.-->
     <!--<module name="MissingJavadocType">
       <property name="scope" value="protected"/>
@@ -422,13 +404,6 @@
                       RECORD_DEF, ANNOTATION_DEF"/>
       <property name="excludeScope" value="nothing"/>
     </module>-->
-    <module name="SuppressionXpathSingleFilter">
-      <property name="checks" value="MethodName"/>
-      <property name="query" value="//METHOD_DEF[
-                                     ./MODIFIERS/ANNOTATION//IDENT[contains(@text, 'Test')]
-                                   ]/IDENT"/>
-      <property name="message" value="'[a-z][a-z0-9][a-zA-Z0-9]*(?:_[a-z][a-z0-9][a-zA-Z0-9]*)*'"/>
-    </module>
     <module name="SingleLineJavadoc"/>
     <!-- TODO: Please enable this and fix presented warnings in a follow-up PR.-->
     <!--<module name="EmptyCatchBlock">
@@ -436,12 +411,6 @@
     </module>-->
     <module name="CommentsIndentation">
       <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
-    </module>
-    <!-- https://checkstyle.org/filters/suppressionxpathfilter.html -->
-    <module name="SuppressionXpathFilter">
-      <property name="file" value="${org.checkstyle.google.suppressionxpathfilter.config}"
-             default="checkstyle-xpath-suppressions.xml" />
-      <property name="optional" value="true"/>
     </module>
     <module name="SuppressWarningsHolder" />
     <module name="SuppressionCommentFilter">

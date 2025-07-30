@@ -128,44 +128,37 @@ final class Selector {
     void finishSelect(List<EventHandlerOpPair> handlers) {
         assert (handlers.isEmpty());
 
-        if (_keys.isEmpty()
-            && _readyHandlers.isEmpty()
-            && !_interrupted) // If key set is empty and we weren't woken up.
-            {
-                //
-                // This is necessary to prevent a busy loop in case of a spurious wake-up which
-                // sometime occurs in the client thread pool when the communicator is destroyed.
-                // If there are too many successive spurious wake-ups, we log an error.
-                //
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException ex) {
-                    //
-                    // Eat the InterruptedException (as we do in ThreadPool.promoteFollower).
-                    //
-                }
-
-                if (++_spuriousWakeUp > 100) {
-                    _spuriousWakeUp = 0;
-                    _instance.initializationData().logger.warning("spurious selector wake up");
-                }
-                return;
+        // If key set is empty and we weren't woken up.
+        if (_keys.isEmpty() && _readyHandlers.isEmpty() && !_interrupted) {
+            // This is necessary to prevent a busy loop in case of a spurious wake-up which
+            // sometime occurs in the client thread pool when the communicator is destroyed.
+            // If there are too many successive spurious wake-ups, we log an error.
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException ex) {
+                // Eat the InterruptedException (as we do in ThreadPool.promoteFollower).
             }
+
+            if (++_spuriousWakeUp > 100) {
+                _spuriousWakeUp = 0;
+                _instance.initializationData().logger.warning("spurious selector wake up");
+            }
+            return;
+        }
         _interrupted = false;
         _spuriousWakeUp = 0;
 
         for (SelectionKey key : _keys) {
             EventHandler handler = (EventHandler) key.attachment();
             try {
-                //
                 // Use the intersection of readyOps and interestOps because we only want to
                 // report the operations in which the handler is still interested.
-                //
                 final int op = fromJavaOps(key.readyOps() & key.interestOps());
-                if (!_readyHandlers.contains(handler)) // Handler will be added by the loop below
-                    {
-                        handlers.add(new EventHandlerOpPair(handler, op));
-                    }
+
+                // Handler will be added by the loop below.
+                if (!_readyHandlers.contains(handler)) {
+                    handlers.add(new EventHandlerOpPair(handler, op));
+                }
             } catch (CancelledKeyException ex) {
                 assert (handler._registered == 0);
             }

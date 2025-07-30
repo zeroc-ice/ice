@@ -172,12 +172,11 @@ public class TestI implements TestIntf {
     public synchronized void finishDispatch(Current current) {
         if (_shutdown) {
             return;
-        } else if (_pending
-            != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
-            {
-                _pending.complete(null);
-                _pending = null;
-            }
+        } else if (_pending != null) {
+            // Pending might not be set yet if startDispatch is dispatch out-of-order
+            _pending.complete(null);
+            _pending = null;
+        }
     }
 
     @Override

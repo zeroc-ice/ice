@@ -222,8 +222,7 @@ final class TcpEndpointI extends IPEndpointI {
         }
 
         switch (option.charAt(1)) {
-            case 't':
-            {
+            case 't': {
                 if (argument == null) {
                     throw new ParseException(
                         "no argument provided for -t option in endpoint '"
@@ -258,8 +257,7 @@ final class TcpEndpointI extends IPEndpointI {
                 return true;
             }
 
-            case 'z':
-            {
+            case 'z': {
                 if (argument != null) {
                     throw new ParseException(
                         "unexpected argument '"
@@ -274,8 +272,7 @@ final class TcpEndpointI extends IPEndpointI {
                 return true;
             }
 
-            default:
-            {
+            default: {
                 return false;
             }
         }

@@ -154,7 +154,6 @@ from .SlicedData import SlicedData
 from .SliceInfo import SliceInfo
 from .SSLEndpointType import SSLEndpointType
 from .StringSeq import _Ice_StringSeq_t
-from .StringUtil import format_fields
 from .TCPEndpointType import TCPEndpointType
 from .ToStringMode import ToStringMode
 from .UDPEndpointType import UDPEndpointType
@@ -340,7 +339,6 @@ __all__ = [
     "currentProtocolEncoding",
     "dispatch",
     "encodingVersionToString",
-    "format_fields",
     "getProcessLogger",
     "getSliceDir",
     "iAPEndpointType",

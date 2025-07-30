@@ -570,35 +570,11 @@ public abstract class Reference implements Cloneable {
         }
 
         switch (_mode) {
-            case ModeTwoway:
-            {
-                // Don't print the default mode.
-                break;
-            }
-
-            case ModeOneway:
-            {
-                s.append(" -o");
-                break;
-            }
-
-            case ModeBatchOneway:
-            {
-                s.append(" -O");
-                break;
-            }
-
-            case ModeDatagram:
-            {
-                s.append(" -d");
-                break;
-            }
-
-            case ModeBatchDatagram:
-            {
-                s.append(" -D");
-                break;
-            }
+            case ModeTwoway -> {} // Don't print the default mode.
+            case ModeOneway -> s.append(" -o");
+            case ModeBatchOneway -> s.append(" -O");
+            case ModeDatagram -> s.append(" -d");
+            case ModeBatchDatagram -> s.append(" -D");
         }
 
         if (_secure) {

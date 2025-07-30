@@ -46,7 +46,6 @@ Slice::JavaScript::typeToJsString(const TypePtr& type, bool definition)
         "Number",  // float
         "Number",  // double
         "String",
-        "Ice.Value",
         "Ice.ObjectPrx",
         "Ice.Value"};
 
@@ -217,7 +216,6 @@ Slice::JavaScript::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, c
                 }
                 return;
             }
-            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 // Handled by isClassType below.
@@ -382,7 +380,6 @@ Slice::JavaScript::getHelper(const TypePtr& type)
             {
                 return "Ice.StringHelper";
             }
-            case Builtin::KindObject:
             case Builtin::KindValue:
             {
                 return "Ice.ObjectHelper";

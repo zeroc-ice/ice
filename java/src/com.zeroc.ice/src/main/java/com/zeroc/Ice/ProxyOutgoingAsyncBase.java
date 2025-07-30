@@ -51,6 +51,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             var replyStatus = ReplyStatus.valueOf(replyStatusInt);
 
             if (replyStatus != null) {
+                //CHECKSTYLE.OFF: FallThrough
                 switch (replyStatus) {
                     case Ok:
                         break;
@@ -64,7 +65,6 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                     case ObjectNotExist:
                     case FacetNotExist:
                     case OperationNotExist:
-                    {
                         Identity id = Identity.ice_read(is);
 
                         //
@@ -87,18 +87,12 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                         String operation = is.readString();
 
                         switch (replyStatus) {
-                            case ObjectNotExist ->
-                                throw new ObjectNotExistException(id, facet, operation);
-                            case FacetNotExist ->
-                                throw new FacetNotExistException(id, facet, operation);
-                            default ->
-                                throw new OperationNotExistException(id, facet, operation);
+                            case ObjectNotExist -> throw new ObjectNotExistException(id, facet, operation);
+                            case FacetNotExist -> throw new FacetNotExistException(id, facet, operation);
+                            default -> throw new OperationNotExistException(id, facet, operation);
                         }
-                    }
 
-                    //CHECKSTYLE:OFF: FallThrough
                     default:
-                    {
                         String message = is.readString();
                         switch (replyStatus) {
                             case UnknownException -> throw new UnknownException(message);
@@ -106,9 +100,8 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                             case UnknownUserException -> throw new UnknownUserException(message);
                             default -> throw new DispatchException(replyStatusInt, message);
                         }
-                    }
-                    //CHECKSTYLE:OFF: FallThrough
                 }
+                //CHECKSTYLE.ON: FallThrough
                 return finished(replyStatus == ReplyStatus.Ok, true);
 
             } else {
@@ -210,12 +203,12 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                                 invocationTimeout.toMillis(),
                                 TimeUnit.MILLISECONDS);
                 }
-            } else // If not called from the user thread, it's called from the retry queue
-                {
-                    if (_observer != null) {
-                        _observer.retried();
-                    }
+            } else {
+                // If not called from the user thread, it's called from the retry queue.
+                if (_observer != null) {
+                    _observer.retried();
                 }
+            }
 
             while (true) {
                 try {
@@ -259,10 +252,10 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             // will be caught by the caller and handled using abort().
             if (userThread) {
                 throw ex;
-            } else if (finished(ex)) // No retries, we're done
-                {
-                    invokeCompletedAsync();
-                }
+            } else if (finished(ex)) {
+                // No retries, we're done
+                invokeCompletedAsync();
+            }
         }
     }
 

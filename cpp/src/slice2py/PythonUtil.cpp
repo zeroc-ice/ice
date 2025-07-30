@@ -32,7 +32,7 @@ Slice::Python::getPythonModuleForDefinition(const SyntaxTreeBasePtr& p)
 {
     if (auto builtin = dynamic_pointer_cast<Builtin>(p))
     {
-        static const char* builtinTable[] = {"", "", "", "", "", "", "", "", "Ice.Value", "Ice.ObjectPrx", "Ice.Value"};
+        static const char* builtinTable[] = {"", "", "", "", "", "", "", "", "Ice.ObjectPrx", "Ice.Value"};
 
         return builtinTable[builtin->kind()];
     }
@@ -68,7 +68,7 @@ Slice::Python::getImportAlias(
         {
             return getImportAlias(source, allImports, "Ice.ObjectPrx", "ObjectPrx");
         }
-        else if (builtin->kind() == Builtin::KindValue || builtin->kind() == Builtin::KindObject)
+        else if (builtin->kind() == Builtin::KindValue)
         {
             return getImportAlias(source, allImports, "Ice.Value", "Value");
         }
@@ -143,7 +143,6 @@ Slice::Python::getMetaType(const SyntaxTreeBasePtr& p)
             "IcePy._t_float",
             "IcePy._t_double",
             "IcePy._t_string",
-            "_Ice_Value_t",
             "_Ice_ObjectPrx_t",
             "_Ice_Value_t"};
 
@@ -187,18 +186,8 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         }
     }
 
-    static constexpr string_view builtinTable[] = {
-        "int",
-        "bool",
-        "int",
-        "int",
-        "int",
-        "float",
-        "float",
-        "str",
-        "Ice.Value | None", // Builtin::KindObject not used anymore
-        "Ice.ObjectPrx | None",
-        "Ice.Value | None"};
+    static constexpr string_view builtinTable[] =
+        {"int", "bool", "int", "int", "int", "float", "float", "str", "Ice.ObjectPrx | None", "Ice.Value | None"};
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
@@ -206,7 +195,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         {
             return getImportAlias(source, "Ice.ObjectPrx", "ObjectPrx") + " | None";
         }
-        else if (builtin->kind() == Builtin::KindValue || builtin->kind() == Builtin::KindObject)
+        else if (builtin->kind() == Builtin::KindValue)
         {
             return getImportAlias(source, "Ice.Value", "Value") + " | None";
         }
@@ -243,7 +232,6 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                 "numpy.int64",
                 "numpy.float32",
                 "numpy.float64",
-                "",
                 "",
                 "",
                 ""};
@@ -492,13 +480,16 @@ Slice::Python::createPackagePath(const string& moduleName, const string& outputP
 }
 
 bool
+Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
+{
+    addRuntimeImport("dataclasses", "dataclass", p);
+    return true;
+}
+
+bool
 Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    auto allDataMembers = p->allDataMembers();
-    if (!allDataMembers.empty())
-    {
-        addRuntimeImport("Ice.StringUtil", "format_fields", p);
-    }
+    addRuntimeImport("dataclasses", "dataclass", p);
 
     // Import the meta type that is created in the Xxx_forward module for forward declarations.
     addRuntimeImportForMetaType(p->declaration(), p);
@@ -515,9 +506,63 @@ Slice::Python::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
         addRuntimeImport("Ice.Value", "Value", p);
     }
 
-    // Add imports required for the data members.
-    visitDataMembers(p, allDataMembers);
-    return false;
+    return true;
+}
+
+bool
+Slice::Python::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    addRuntimeImport("dataclasses", "dataclass", p);
+
+    // Add imports required for base exception types.
+    if (ExceptionPtr base = p->base())
+    {
+        addRuntimeImport(base, p);
+        addRuntimeImportForMetaType(base, p);
+    }
+    else
+    {
+        // If the exception has no base, we import the Ice.UserException type.
+        addRuntimeImport("Ice.UserException", "UserException", p);
+    }
+    return true;
+}
+
+void
+Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    auto parent = dynamic_pointer_cast<Contained>(p->container());
+    auto type = p->type();
+
+    // Import field if we have at least one data member that cannot be used as a default value.
+    // This is required to use the `dataclasses.field` function to initialize the field.
+    if (!canBeUsedAsDefaultValue(type))
+    {
+        addRuntimeImport("dataclasses", "field", parent);
+    }
+
+    // Add imports required for data member types.
+
+    // For fields with a type that is a Struct, we need to import it as a RuntimeImport, to
+    // initialize the field in the constructor. For other contained types, we only need the
+    // import for type hints.
+    if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
+    {
+        addRuntimeImport(type, parent);
+    }
+    else
+    {
+        addTypingImport(type, parent, true);
+    }
+    addRuntimeImportForMetaType(type, parent);
+
+    // If the data member has a default value, and the type of the default value is an Enum or a Const
+    // we need to import the corresponding Enum or Const.
+    if (p->defaultValue() &&
+        (dynamic_pointer_cast<Const>(p->defaultValueType()) || dynamic_pointer_cast<Enum>(p->defaultValueType())))
+    {
+        addRuntimeImport(p->defaultValueType(), parent);
+    }
 }
 
 bool
@@ -550,7 +595,6 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     addRuntimeImport("Ice.ObjectPrx", "uncheckedCast", p);
 
     addTypingImport("Ice.ObjectPrx", "ObjectPrx", p);
-    addTypingImport("Ice.Communicator", "Communicator", p);
     addTypingImport("Ice.Current", "Current", p);
 
     // Add imports required for operation parameters and return types.
@@ -588,7 +632,6 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         for (const auto& ex : op->throws())
         {
-            addTypingImport(ex, p);
             addRuntimeImportForMetaType(ex, p);
         }
 
@@ -599,83 +642,6 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     return false;
-}
-
-bool
-Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
-{
-    // Visit the data members.
-    addRuntimeImport("dataclasses", "dataclass", p);
-    for (const auto& member : p->dataMembers())
-    {
-        // Import field if we have at least one data member that cannot be used as a default value.
-        // This is required to use the `dataclasses.field` function to initialize the field.
-        if (!canBeUsedAsDefaultValue(member->type()))
-        {
-            addRuntimeImport("dataclasses", "field", p);
-            break;
-        }
-    }
-
-    // Add imports required for the data members.
-    visitDataMembers(p, p->dataMembers());
-    return false;
-}
-
-bool
-Slice::Python::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    auto allDataMembers = p->allDataMembers();
-    if (!allDataMembers.empty())
-    {
-        addRuntimeImport("Ice.StringUtil", "format_fields", p);
-    }
-
-    // Add imports required for base exception types.
-    if (ExceptionPtr base = p->base())
-    {
-        addRuntimeImport(base, p);
-        addRuntimeImportForMetaType(base, p);
-    }
-    else
-    {
-        // If the exception has no base, we import the Ice.UserException type.
-        addRuntimeImport("Ice.UserException", "UserException", p);
-    }
-    // Add imports required for the data members.
-    visitDataMembers(p, allDataMembers);
-    return false;
-}
-
-void
-Slice::Python::ImportVisitor::visitDataMembers(const ContainedPtr& parent, const list<DataMemberPtr>& members)
-{
-    for (const auto& member : members)
-    {
-        // Add imports required for data member types.
-        auto type = member->type();
-
-        // For fields with a type that is a Struct, we need to import it as a RuntimeImport, to
-        // initialize the field in the constructor. For other contained types, we only need the
-        // import for type hints.
-        if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
-        {
-            addRuntimeImport(type, parent);
-        }
-        else
-        {
-            addTypingImport(type, parent, true);
-        }
-        addRuntimeImportForMetaType(type, parent);
-
-        // If the data member has a default value, and the type of the default value is an Enum or a Const
-        // we need to import the corresponding Enum or Const.
-        if (member->defaultValue() && (dynamic_pointer_cast<Const>(member->defaultValueType()) ||
-                                       dynamic_pointer_cast<Enum>(member->defaultValueType())))
-        {
-            addRuntimeImport(member->defaultValueType(), parent);
-        }
-    }
 }
 
 void
@@ -735,8 +701,7 @@ Slice::Python::ImportVisitor::addRuntimeImport(
 
     if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
     {
-        if (builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue &&
-            builtin->kind() != Builtin::KindObject)
+        if (builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue)
         {
             // Builtin types other than ObjectPrx and Value don't need imports.
             return;
@@ -846,7 +811,7 @@ Slice::Python::ImportVisitor::addTypingImport(
 {
     if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
     {
-        if (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)
+        if (builtin->kind() == Builtin::KindValue)
         {
             addTypingImport("Ice.Value", "Value", source);
         }
@@ -915,8 +880,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
     const ContainedPtr& source)
 {
     auto builtin = dynamic_pointer_cast<Builtin>(definition);
-    if (builtin && builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue &&
-        builtin->kind() != Builtin::KindObject)
+    if (builtin && builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue)
     {
         // Builtin types other than ObjectPrx and Value don't need imports.
         return;
@@ -1127,6 +1091,62 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
 }
 
 bool
+Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
+{
+    const string name = p->mappedName();
+    const DataMemberList members = p->dataMembers();
+
+    _out = std::make_unique<BufferedOutput>();
+    auto& out = *_out;
+
+    out << sp;
+    out << nl << "@dataclass";
+    if (Dictionary::isLegalKeyType(p))
+    {
+        out << "(order=True, unsafe_hash=True)";
+    }
+
+    out << nl << "class " << name << ":";
+    out.inc();
+
+    writeDocstring(p->docComment(), members, out);
+    return true;
+}
+
+void
+Slice::Python::CodeVisitor::visitStructEnd(const StructPtr& p)
+{
+    const string scoped = p->scoped();
+    const string name = p->mappedName();
+    const string metaTypeName = getMetaType(p);
+
+    assert(_out);
+    auto& out = *_out;
+
+    out.dec();
+
+    // Emit the type information.
+    out << sp;
+    out << nl << metaTypeName << " = IcePy.defineStruct(";
+    out.inc();
+    out << nl << "\"" << scoped << "\",";
+    out << nl << name << ",";
+    out << nl;
+    writeMetadata(p->getMetadata(), out);
+    out << ",";
+
+    writeMetaTypeDataMembers(p, p->dataMembers(), out);
+    out << ")";
+    out.dec();
+
+    out << sp;
+    out << nl << "__all__ = [\"" << name << "\", \"" << metaTypeName << "\"]";
+
+    _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
+    _out.reset();
+}
+
+bool
 Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string scoped = p->scoped();
@@ -1145,38 +1165,29 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _codeFragments.push_back(createCodeFragmentForPythonModule(p->declaration(), outF.str()));
 
     // Emit the class definition.
-    BufferedOutput out;
+    _out = std::make_unique<BufferedOutput>();
+    auto& out = *_out;
+
+    // Equality for Slice classes is reference equality, so we disable the dataclass eq.
+    out << nl << "@dataclass(eq=False)";
     out << nl << "class " << valueName << '('
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.Value", "Value")) << "):";
     out.inc();
 
     writeDocstring(p->docComment(), members, out);
+    return true;
+}
 
-    if (!members.empty())
-    {
-        // __init__
-        out << nl << "def __init__(";
-        writeConstructorParams(p, p->allDataMembers(), out);
-        out << "):";
-        out.inc();
+void
+Slice::Python::CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
+{
+    const string scoped = p->scoped();
+    const string metaType = getMetaType(p);
+    const string valueName = p->mappedName();
+    const ClassDefPtr base = p->base();
 
-        out << nl << "super().__init__";
-        out.spar("(");
-        if (base)
-        {
-            for (const auto& member : base->allDataMembers())
-            {
-                out << member->mappedName();
-            }
-        }
-        out.epar(")");
-
-        for (const auto& member : members)
-        {
-            writeAssign(p, member, out);
-        }
-        out.dec();
-    }
+    assert(_out);
+    auto& out = *_out;
 
     // ice_id
     out << sp;
@@ -1192,10 +1203,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.inc();
     out << nl << "return \"" << scoped << "\"";
     out.dec();
-
-    // Generate the __repr__ method for this Value class.
-    // The default __str__ method inherited from Ice.Value calls __repr__().
-    writeRepr(p, p->allDataMembers(), out);
 
     out.dec();
 
@@ -1225,7 +1232,98 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "__all__ = [\"" << valueName << "\", \"" << metaType << "\"]";
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
-    return false;
+    _out.reset();
+}
+
+bool
+Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    const string scoped = p->scoped();
+    const string name = p->mappedName();
+    const ExceptionPtr base = p->base();
+
+    _out = std::make_unique<BufferedOutput>();
+    auto& out = *_out;
+
+    const DataMemberList members = p->dataMembers();
+
+    out << sp;
+    out << nl << "@dataclass";
+    out << nl << "class " << name << '('
+        << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.UserException", "UserException")) << "):";
+    out.inc();
+    writeDocstring(p->docComment(), members, out);
+
+    return true;
+}
+
+void
+Slice::Python::CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
+{
+    const string scoped = p->scoped();
+    const string name = p->mappedName();
+    const ExceptionPtr base = p->base();
+
+    assert(_out);
+    auto& out = *_out;
+
+    // _ice_id
+    out << sp;
+    out << nl << "_ice_id = \"" << scoped << "\"";
+
+    out.dec();
+
+    // Emit the type information.
+    string metaType = getMetaType(p);
+    out << sp;
+    out << nl << metaType << " = IcePy.defineException(";
+    out.inc();
+    out << nl << "\"" << scoped << "\",";
+    out << nl << name << ",";
+    out << nl;
+    writeMetadata(p->getMetadata(), out);
+    out << ",";
+    out << nl << (base ? getMetaType(base) : "None") << ",";
+
+    writeMetaTypeDataMembers(p, p->dataMembers(), out);
+
+    out << ")";
+    out.dec();
+
+    // Use setattr to set the _ice_type attribute on the exception. Linting tools will complain about this if we
+    // don't use setattr, as the _ice_type attribute is not defined in the exception body.
+    out << sp;
+    out << nl << "setattr(" << name << ", '_ice_type', " << metaType << ")";
+
+    out << sp;
+    out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
+
+    _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
+    _out.reset();
+}
+
+void
+Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    assert(_out);
+    auto& out = *_out;
+    auto parent = dynamic_pointer_cast<Contained>(p->container());
+
+    out << nl << p->mappedName() << ": " << typeToTypeHintString(p->type(), p->optional(), parent, false);
+
+    if (p->defaultValue())
+    {
+        out << " = ";
+        writeConstantValue(parent, p->type(), p->defaultValueType(), *p->defaultValue(), out);
+    }
+    else if (p->optional())
+    {
+        out << " = None";
+    }
+    else
+    {
+        out << " = " << getTypeInitializer(parent, p, false);
+    }
 }
 
 bool
@@ -1636,150 +1734,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     return false;
 }
 
-bool
-Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    const string scoped = p->scoped();
-    const string name = p->mappedName();
-
-    const ExceptionPtr base = p->base();
-    BufferedOutput out;
-
-    const DataMemberList members = p->dataMembers();
-
-    out << sp;
-    out << nl << "class " << name << '('
-        << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.UserException", "UserException")) << "):";
-    out.inc();
-    writeDocstring(p->docComment(), members, out);
-
-    if (!members.empty())
-    {
-        // __init__
-        out << nl << "def __init__(";
-        writeConstructorParams(p, p->allDataMembers(), out);
-        out << "):";
-        out.inc();
-
-        out << nl << "super().__init__";
-        out.spar("(");
-        if (base)
-        {
-            for (const auto& member : base->allDataMembers())
-            {
-                out << member->mappedName();
-            }
-        }
-        out.epar(")");
-
-        for (const auto& member : members)
-        {
-            writeAssign(p, member, out);
-        }
-        out.dec();
-    }
-
-    // Generate the __repr__ method for this Exception class.
-    // The default __str__ method inherited from Ice.UserException calls __repr__().
-    writeRepr(p, p->allDataMembers(), out);
-
-    // _ice_id
-    out << sp;
-    out << nl << "_ice_id = \"" << scoped << "\"";
-
-    out.dec();
-
-    // Emit the type information.
-    string metaType = getMetaType(p);
-    out << sp;
-    out << nl << metaType << " = IcePy.defineException(";
-    out.inc();
-    out << nl << "\"" << scoped << "\",";
-    out << nl << name << ",";
-    out << nl;
-    writeMetadata(p->getMetadata(), out);
-    out << ",";
-    out << nl << (base ? getMetaType(base) : "None") << ",";
-
-    writeMetaTypeDataMembers(p, p->dataMembers(), out);
-
-    out << ")";
-    out.dec();
-
-    // Use setattr to set the _ice_type attribute on the exception. Linting tools will complain about this if we
-    // don't use setattr, as the _ice_type attribute is not defined in the exception body.
-    out << sp;
-    out << nl << "setattr(" << name << ", '_ice_type', " << metaType << ")";
-
-    out << sp;
-    out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
-
-    _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
-    return false;
-}
-
-bool
-Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
-{
-    const string scoped = p->scoped();
-    const string name = p->mappedName();
-    const string metaTypeName = getMetaType(p);
-    const DataMemberList members = p->dataMembers();
-    BufferedOutput out;
-
-    out << sp;
-    out << nl << "@dataclass";
-    if (Dictionary::isLegalKeyType(p))
-    {
-        out << "(order=True, unsafe_hash=True)";
-    }
-
-    out << nl << "class " << name << ":";
-    out.inc();
-
-    writeDocstring(p->docComment(), members, out);
-
-    for (const auto& field : members)
-    {
-        out << nl << field->mappedName() << ": " << typeToTypeHintString(field->type(), field->optional(), p, false);
-
-        if (field->defaultValue())
-        {
-            out << " = ";
-            writeConstantValue(p, field->type(), field->defaultValueType(), *field->defaultValue(), out);
-        }
-        else if (field->optional())
-        {
-            out << " = None";
-        }
-        else
-        {
-            out << " = " + getTypeInitializer(p, field, false);
-        }
-    }
-    out.dec();
-
-    // Emit the type information.
-    out << sp;
-    out << nl << metaTypeName << " = IcePy.defineStruct(";
-    out.inc();
-    out << nl << "\"" << scoped << "\",";
-    out << nl << name << ",";
-    out << nl;
-    writeMetadata(p->getMetadata(), out);
-    out << ",";
-
-    writeMetaTypeDataMembers(p, p->dataMembers(), out);
-    out << ")";
-    out.dec();
-
-    out << sp;
-    out << nl << "__all__ = [\"" << name << "\", \"" << metaTypeName << "\"]";
-
-    _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
-    return false;
-}
-
 void
 Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 {
@@ -1887,7 +1841,6 @@ Slice::Python::CodeVisitor::getTypeInitializer(const ContainedPtr& source, const
         "0.0",   // Builtin::KindFloat
         "0.0",   // Builtin::KindDouble
         R"("")", // Builtin::KindString
-        "None",  // Builtin::KindObject. Not used anymore
         "None",  // Builtin::KindObjectProxy.
         "None"}; // Builtin::KindValue.
 
@@ -1929,23 +1882,6 @@ Slice::Python::CodeVisitor::getTypeInitializer(const ContainedPtr& source, const
     }
 
     return "None";
-}
-
-void
-Slice::Python::CodeVisitor::writeRepr(const ContainedPtr& p, const DataMemberList& members, Output& out)
-{
-    out << sp;
-    out << nl << "def __repr__(self) -> str:";
-    out.inc();
-    if (members.empty())
-    {
-        out << nl << "return \"" << p->mappedName() << "()\"";
-    }
-    else
-    {
-        out << nl << "return f\"" << p->mappedName() << "(" << formatFields(members) << ")\"";
-    }
-    out.dec();
 }
 
 void
@@ -2023,46 +1959,6 @@ Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata, Output& 
 }
 
 void
-Slice::Python::CodeVisitor::writeAssign(const ContainedPtr& source, const DataMemberPtr& member, Output& out)
-{
-    const string memberName = member->mappedName();
-    const TypePtr memberType = member->type();
-
-    // Mutable types cannot be used as default values in Python as they are shared across instances.
-    if (!canBeUsedAsDefaultValue(memberType) && !member->optional())
-    {
-        out << nl << "self." << memberName << " = " << memberName << " if " << memberName << " is not None else ";
-
-        if (dynamic_pointer_cast<Struct>(memberType))
-        {
-            out << getImportAlias(source, memberType) << "()";
-        }
-        else if (auto seq = dynamic_pointer_cast<Sequence>(memberType))
-        {
-            auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
-            bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
-            if (isByteSequence)
-            {
-                out << "b''"; // Byte sequences are initialized with an empty byte string.
-            }
-            else
-            {
-                // TODO: handle metadata for sequences.
-                out << "[]"; // Other sequences are initialized with an empty list.
-            }
-        }
-        else if (dynamic_pointer_cast<Dictionary>(memberType))
-        {
-            out << "{}";
-        }
-    }
-    else
-    {
-        out << nl << "self." << memberName << " = " << memberName;
-    }
-}
-
-void
 Slice::Python::CodeVisitor::writeConstantValue(
     const ContainedPtr& source,
     const TypePtr& type,
@@ -2102,7 +1998,6 @@ Slice::Python::CodeVisitor::writeConstantValue(
                 break;
             }
             case Builtin::KindValue:
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
                 assert(false);
         }
@@ -2116,39 +2011,6 @@ Slice::Python::CodeVisitor::writeConstantValue(
     else
     {
         assert(false); // Unknown const type.
-    }
-}
-
-void
-Slice::Python::CodeVisitor::writeConstructorParams(
-    const ContainedPtr& source,
-    const DataMemberList& members,
-    Output& out)
-{
-    out << "self";
-    for (const auto& member : members)
-    {
-        // Using mutable types in Python as default values is bad as they are shared across instances.
-        // The standard way to handle this is to use an optional with a default value of None, and then
-        // initialize the member in the constructor if it is None.
-        const string typeHint = typeToTypeHintString(
-            member->type(),
-            member->optional() || !canBeUsedAsDefaultValue(member->type()),
-            dynamic_pointer_cast<Contained>(member->container()),
-            false);
-        out << ", " << member->mappedName() << ": " << typeHint << " = ";
-        if (member->defaultValue())
-        {
-            writeConstantValue(source, member->type(), member->defaultValueType(), *member->defaultValue(), out);
-        }
-        else if (member->optional())
-        {
-            out << "None";
-        }
-        else
-        {
-            out << getTypeInitializer(source, member, true);
-        }
     }
 }
 
@@ -2674,7 +2536,6 @@ namespace
             {
                 if (!definitions.empty())
                 {
-                    outT << sp;
                     for (const auto& [name, alias] : definitions)
                     {
                         bool allreadyImported = !allImports.insert(alias.empty() ? name : alias).second;
@@ -2909,11 +2770,7 @@ Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr&, const
     {
         if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
         {
-            if (builtinTarget->kind() == Builtin::KindObject)
-            {
-                result << ":class:`Ice.Object`";
-            }
-            else if (builtinTarget->kind() == Builtin::KindValue)
+            if (builtinTarget->kind() == Builtin::KindValue)
             {
                 result << ":class:`Ice.Value`";
             }

@@ -407,7 +407,9 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeRemarks,
 }
 
 Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool typeScript)
-    : _includePaths(includePaths),
+    : _javaScriptOutput(false, true), // No break before opening block in JS + short empty blocks
+      _typeScriptOutput(false, true), // No break before opening block in TS + short empty blocks
+      _includePaths(includePaths),
       _useStdout(false),
       _typeScript(typeScript)
 {
@@ -461,8 +463,8 @@ Slice::Gen::Gen(
     const string& /*dir*/,
     bool typeScript,
     ostream& out)
-    : _javaScriptOutput(out),
-      _typeScriptOutput(out),
+    : _javaScriptOutput(out, false, true),
+      _typeScriptOutput(out, false, true),
       _includePaths(includePaths),
       _useStdout(true),
       _typeScript(typeScript)
@@ -614,7 +616,7 @@ Slice::Gen::ImportVisitor::visitSequence(const SequencePtr& seq)
     {
         switch (builtin->kind())
         {
-            case Builtin::KindObject:
+            case Builtin::KindValue:
                 _seenObjectSeq = true;
                 break;
             case Builtin::KindObjectProxy:
@@ -635,7 +637,7 @@ Slice::Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
     {
         switch (builtin->kind())
         {
-            case Builtin::KindObject:
+            case Builtin::KindValue:
                 _seenObjectDict = true;
                 break;
             case Builtin::KindObjectProxy:
@@ -1620,17 +1622,16 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     assert(type);
 
     static const char* builtinTable[] = {
-        "0",  // byte
-        "1",  // bool
-        "2",  // short
-        "3",  // int
-        "4",  // long
-        "5",  // float
-        "6",  // double
-        "7",  // string
-        "8",  // Ice.Object
-        "9",  // Ice.ObjectPrx
-        "10", // Ice.Value
+        "0", // byte
+        "1", // bool
+        "2", // short
+        "3", // int
+        "4", // long
+        "5", // float
+        "6", // double
+        "7", // string
+        "8", // Ice.ObjectPrx
+        "9", // Ice.Value
     };
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -1935,7 +1936,6 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
         "number",  // float
         "number",  // double
         "string",
-        "Ice.Value", // Ice.Object
         "Ice.ObjectPrx",
         "Ice.Value"};
 
@@ -1954,7 +1954,6 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
                 }
                 break;
             }
-            case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindValue:
             {

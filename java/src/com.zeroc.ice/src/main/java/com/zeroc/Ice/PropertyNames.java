@@ -6,8 +6,7 @@
 
 package com.zeroc.Ice;
 
-final class PropertyNames
-{
+final class PropertyNames {
     public static final PropertyArray ProxyProps = new PropertyArray(
         "Proxy",
         false,

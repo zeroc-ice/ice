@@ -307,22 +307,17 @@ final class TransceiverI implements Transceiver {
             while (!_engine.isOutboundDone() && !_engine.isInboundDone()) {
                 SSLEngineResult result = null;
                 switch (status) {
-                    case FINISHED:
-                    case NOT_HANDSHAKING:
-                    {
+                    case FINISHED, NOT_HANDSHAKING -> {
                         return SocketOperation.None;
                     }
-                    case NEED_TASK:
-                    {
+                    case NEED_TASK -> {
                         Runnable task;
                         while ((task = _engine.getDelegatedTask()) != null) {
                             task.run();
                         }
                         status = _engine.getHandshakeStatus();
-                        break;
                     }
-                    case NEED_UNWRAP:
-                    {
+                    case NEED_UNWRAP -> {
                         if (_netInput.b.position() == 0) {
                             int s = _delegate.read(_netInput);
                             if (s != SocketOperation.None && _netInput.b.position() == 0) {
@@ -344,45 +339,24 @@ final class TransceiverI implements Transceiver {
                         //
                         status = result.getHandshakeStatus();
                         switch (result.getStatus()) {
-                            case BUFFER_OVERFLOW:
-                            {
-                                assert false;
-                                break;
-                            }
-                            case BUFFER_UNDERFLOW:
-                            {
-                                assert (status
-                                    == SSLEngineResult.HandshakeStatus
-                                    .NEED_UNWRAP);
+                            case BUFFER_OVERFLOW -> throw new AssertionError();
+                            case BUFFER_UNDERFLOW -> {
+                                assert (status == SSLEngineResult.HandshakeStatus.NEED_UNWRAP);
                                 int position = _netInput.b.position();
                                 int s = _delegate.read(_netInput);
-                                if (s != SocketOperation.None
-                                    && _netInput.b.position() == position) {
+                                if (s != SocketOperation.None && _netInput.b.position() == position) {
                                     return s;
                                 }
-                                break;
                             }
-                            case CLOSED:
-                            {
-                                throw new ConnectionLostException();
-                            }
-                            case OK:
-                            {
-                                break;
-                            }
-                            default: // 1.9 introduced NEEDS_UNWRAP_AGAIN for DTLS
-                                {
-                                    assert false;
-                                    break;
-                                }
+                            case CLOSED -> throw new ConnectionLostException();
+                            case OK -> {}
+
+                            // 1.9 introduced NEEDS_UNWRAP_AGAIN for DTLS
+                            default -> throw new AssertionError();
                         }
-                        break;
                     }
-                    case NEED_WRAP:
-                    {
-                        //
+                    case NEED_WRAP -> {
                         // The engine needs to send a message.
-                        //
                         result = _engine.wrap(_emptyBuffer, _netOutput.b);
                         if (result.bytesProduced() > 0) {
                             int s = flushNonBlocking();
@@ -391,12 +365,8 @@ final class TransceiverI implements Transceiver {
                             }
                         }
 
-                        //
-                        // FINISHED is only returned from wrap or unwrap, not from
-                        // engine.getHandshakeResult().
-                        //
+                        // FINISHED is only returned from wrap or unwrap, not from engine.getHandshakeResult().
                         status = result.getHandshakeStatus();
-                        break;
                     }
                 }
 

@@ -28,7 +28,6 @@ const builtinHelpers = [
     FloatHelper,
     DoubleHelper,
     StringHelper,
-    Value,
     ObjectPrx,
     Value,
 ];

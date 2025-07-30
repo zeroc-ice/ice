@@ -239,15 +239,15 @@ public final class Instance {
             throw new CommunicatorDestroyedException();
         }
 
-        if (_serverThreadPool == null) // Lazy initialization.
-            {
-                if (_state == StateDestroyInProgress) {
-                    throw new CommunicatorDestroyedException();
-                }
-
-                int timeout = _initData.properties.getIcePropertyAsInt("Ice.ServerIdleTime");
-                _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
+        // Lazy initialization.
+        if (_serverThreadPool == null) {
+            if (_state == StateDestroyInProgress) {
+                throw new CommunicatorDestroyedException();
             }
+
+            int timeout = _initData.properties.getIcePropertyAsInt("Ice.ServerIdleTime");
+            _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
+        }
 
         return _serverThreadPool;
     }
