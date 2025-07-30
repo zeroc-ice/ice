@@ -691,7 +691,7 @@ void
 Slice::DependencyVisitor::writeMakefileDependencies(
     const string& dependFile,
     const string& source,
-    const std::string& target)
+    const string& target)
 {
     ostringstream os;
     StringList dependencies = _dependencyMap[source];
