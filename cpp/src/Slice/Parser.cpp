@@ -1232,20 +1232,21 @@ Slice::Container::createModule(const string& name, bool nestedSyntax)
 
                 ostringstream os;
                 os << "module '" << name << "' is capitalized inconsistently with its previous name: '"
-                << module->name() << "'";
+                   << module->name() << "'";
                 unit()->error(os.str());
             }
             else if (!differsOnlyInCase)
             {
                 ostringstream os;
-                os << "redefinition of " << matches.front()->kindOf() << " '" << matches.front()->name() << "' as module";
+                os << "redefinition of " << matches.front()->kindOf() << " '" << matches.front()->name()
+                   << "' as module";
                 unit()->error(os.str());
             }
             else
             {
                 ostringstream os;
                 os << "module '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-                << " name '" << matches.front()->name() << "'";
+                   << " name '" << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
             hasValidIdentifier = false;
@@ -1426,7 +1427,7 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         }
 
         // Interface definitions are allowed to have the same name as interface forward declarations.
-        matches.remove_if([](const ContainedPtr& p){ return dynamic_pointer_cast<InterfaceDecl>(p); });
+        matches.remove_if([](const ContainedPtr& p) { return dynamic_pointer_cast<InterfaceDecl>(p); });
         if (!matches.empty())
         {
             if (dynamic_pointer_cast<InterfaceDef>(matches.front()))
@@ -1439,7 +1440,7 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
             {
                 ostringstream os;
                 os << "interface definition '" << name << "' differs only in capitalization from "
-                << matches.front()->kindOf() << " name '" << matches.front()->name() << "'";
+                   << matches.front()->kindOf() << " name '" << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
             else
@@ -1473,14 +1474,15 @@ Slice::Container::createInterfaceDecl(const string& name)
     {
         ContainedList matches = unit()->findContents(thisScope() + name);
         // Interface forward declarations can have the same name as other interface definitions/declarations.
-        matches.remove_if([](const ContainedPtr& p){ return dynamic_pointer_cast<InterfaceDef>(p) || dynamic_pointer_cast<InterfaceDecl>(p); });
+        matches.remove_if([](const ContainedPtr& p)
+                          { return dynamic_pointer_cast<InterfaceDef>(p) || dynamic_pointer_cast<InterfaceDecl>(p); });
         if (!matches.empty())
         {
             if (matches.front()->name() != name)
             {
                 ostringstream os;
                 os << "interface declaration '" << name << "' differs only in capitalization from "
-                << matches.front()->kindOf() << " name '" << matches.front()->name() << "'";
+                   << matches.front()->kindOf() << " name '" << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
             else
@@ -1546,8 +1548,8 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base)
             else
             {
                 ostringstream os;
-                os << "exception '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-                << matches.front()->name() << "'";
+                os << "exception '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                   << " '" << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
         }
@@ -1586,8 +1588,8 @@ Slice::Container::createStruct(const string& name)
             else
             {
                 ostringstream os;
-                os << "struct '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-                << matches.front()->name() << "'";
+                os << "struct '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                   << " '" << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
         }
