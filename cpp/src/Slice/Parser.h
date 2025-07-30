@@ -216,11 +216,20 @@ namespace Slice
     public:
         DefinitionContext(int includeLevel);
 
+        /// Returns the file name of the definition context, as reported by the preprocessor.
+        /// This may be an absolute or relative path.
+        ///
+        /// @return A reference to the file name.
         [[nodiscard]] const std::string& filename() const;
+
+        /// Returns the resolved file name of the definition context. This is always an absolute path.
+        ///
+        /// @return A reference to the resolved file name.
+        [[nodiscard]] const std::string& resolvedFilename() const;
         [[nodiscard]] int includeLevel() const;
         [[nodiscard]] bool seenDefinition() const;
 
-        void setFilename(std::string filename);
+        void setFilename(std::string filename, std::string resolvedFilename);
         void setSeenDefinition();
 
         [[nodiscard]] const MetadataList& getMetadata() const;
@@ -237,6 +246,7 @@ namespace Slice
         int _includeLevel;
         MetadataList _metadata;
         std::string _filename;
+        std::string _resolvedFilename;
         bool _seenDefinition{false};
         std::set<WarningCategory> _suppressedWarnings;
     };
@@ -1095,7 +1105,7 @@ namespace Slice
         [[nodiscard]] const std::string& topLevelFile() const;
         [[nodiscard]] int currentLine() const;
 
-        int setCurrentFile(const std::string& currentFile, int lineNumber);
+        int setCurrentFile(std::string currentFile, int lineNumber);
         [[nodiscard]] int currentIncludeLevel() const;
 
         void addFileMetadata(MetadataList metadata);
@@ -1112,6 +1122,13 @@ namespace Slice
         void popContainer();
 
         [[nodiscard]] DefinitionContextPtr currentDefinitionContext() const;
+
+        /// Returns the definition context for the given file, or nullptr if none exists.
+        /// This method only checks `DefinitionContext::filename` and does not consider
+        /// `DefinitionContext::resolvedFilename`.
+        ///
+        /// @param file The file name to search for.
+        /// @return A pointer to the matching definition context, or nullptr if not found.
         [[nodiscard]] DefinitionContextPtr findDefinitionContext(std::string_view file) const;
 
         void addContent(const ContainedPtr& contained);
@@ -1123,7 +1140,11 @@ namespace Slice
         // Returns the path names of the files included directly by the top-level file.
         [[nodiscard]] StringList includeFiles() const;
 
-        // Returns the path names of all files parsed by this unit.
+        /// Returns the absolute paths of all files parsed by this unit.
+        /// The first entry is the top-level file, followed by its direct and transitive dependencies in the order they
+        /// were parsed.
+        ///
+        /// @return A list of absolute paths to the parsed files.
         [[nodiscard]] StringList allFiles() const;
 
         int parse(const std::string& filename, FILE* file, bool debugMode);
@@ -1159,6 +1180,7 @@ namespace Slice
         std::map<std::string, DefinitionContextPtr, std::less<>> _definitionContextMap;
         std::map<std::int32_t, std::string> _typeIds;
         std::map<std::string, std::set<std::string>> _fileTopLevelModules;
+        StringList _allFiles;
     };
 
     extern Unit* currentUnit; // The current parser for bison/flex

@@ -8,10 +8,12 @@
 
 namespace Slice
 {
+    std::string normalizePath(const std::string& path);
     std::string fullPath(const std::string& path);
     std::string changeInclude(const std::string& path, const std::vector<std::string>& includePaths);
     std::string removeExtension(const std::string& path);
     std::string baseName(const std::string& path);
+    std::string dirName(const std::string& path);
     void emitError(std::string_view file, int line, std::string_view message);
     void emitWarning(std::string_view file, int line, std::string_view message);
     void emitRaw(const char* message);
@@ -83,5 +85,42 @@ namespace Slice
     /// @param type The type.
     /// @return The fully qualified name of the type.
     std::string getTypeScopedName(const TypePtr& type);
+
+    [[nodiscard]] std::string relativePath(const std::string& path1, const std::string& path2);
+
+    /// The DependencyGenerator class is used to collect dependencies of Slice units.
+    class DependencyGenerator final
+    {
+    public:
+        void addDependenciesFor(const UnitPtr& unit);
+
+        /// Writes the dependencies in Makefile format to the specified file. If 'dependFile' is empty, it writes the
+        /// dependencies to standard output instead.
+        ///
+        /// @param dependFile The file to write the dependencies to or empty to write to standard output.
+        /// @param source The source file for which dependencies are being written.
+        /// @param target The target file that is generated from the source. This is used as the Makefile target.
+        void
+        writeMakefileDependencies(const std::string& dependFile, const std::string& source, const std::string& target);
+
+        /// Writes the dependencies in XML format to the specified file. If 'dependFile' is empty, it writes the
+        /// dependencies to standard output instead.
+        ///
+        /// This method write the dependencies for all visited units in a single XML document.
+        ///
+        /// @param dependFile The file to write the dependencies to or empty to write to standard output.
+        void writeXMLDependencies(const std::string& dependFile);
+
+        /// Writes the dependencies in JSON format to the specified file. If 'dependFile' is empty, it writes the
+        /// dependencies to standard output instead.
+        ///
+        /// This method write the dependencies for all visited units in a single JSON document.
+        ///
+        /// @param dependFile The file to write the dependencies to or empty to write to standard output.
+        void writeJSONDependencies(const std::string& dependFile);
+
+    private:
+        std::map<std::string, StringList> _dependencyMap;
+    };
 }
 #endif

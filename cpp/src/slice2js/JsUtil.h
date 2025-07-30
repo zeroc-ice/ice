@@ -8,7 +8,6 @@
 
 namespace Slice::JavaScript
 {
-    [[nodiscard]] std::string relativePath(const std::string& path1, const std::string& path2);
     [[nodiscard]] std::string getJavaScriptModule(const DefinitionContextPtr& dc);
 
     [[nodiscard]] std::string typeToJsString(const TypePtr& type, bool definition = false);

@@ -21,28 +21,8 @@ namespace Slice
         Preprocessor(std::string path, const std::string& fileName, const std::vector<std::string>& args);
         ~Preprocessor();
 
-        FILE* preprocess(bool keepComments, const std::string& languageArg = "");
-        bool close();
-
-        enum Language
-        {
-            CPlusPlus,
-            CSharp,
-            Python,
-            Ruby,
-            PHP,
-            JavaScript,
-            JavaScriptJSON,
-            SliceXML,
-            Swift
-        };
-
-        bool printMakefileDependencies(
-            std::ostream& out,
-            Language lang,
-            const std::vector<std::string>& includePaths,
-            const std::string& languageArg = "",
-            const std::string& optValue = "");
+        FILE* preprocess(const std::string& languageArg = "");
+        void close();
 
         std::string getFileName();
         std::string getBaseName();
@@ -50,7 +30,7 @@ namespace Slice
         static std::string normalizeIncludePath(const std::string& path);
 
     private:
-        bool checkInputFile();
+        void checkInputFile();
 
         const std::string _path;
         const std::string _fileName;

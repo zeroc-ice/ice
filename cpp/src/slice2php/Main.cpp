@@ -1170,10 +1170,10 @@ compile(const vector<string>& argv)
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
-    vector<string> args;
+    vector<string> sliceFiles;
     try
     {
-        args = opts.parse(argv);
+        sliceFiles = opts.parse(argv);
     }
     catch (const IceInternal::BadOptException& e)
     {
@@ -1197,31 +1197,31 @@ compile(const vector<string>& argv)
         return EXIT_SUCCESS;
     }
 
-    vector<string> cppArgs;
+    vector<string> preprocessorArgs;
     vector<string> optargs = opts.argVec("D");
-    cppArgs.reserve(optargs.size()); // keep clang-tidy happy
+    preprocessorArgs.reserve(optargs.size()); // keep clang-tidy happy
     for (const auto& optarg : optargs)
     {
-        cppArgs.push_back("-D" + optarg);
+        preprocessorArgs.push_back("-D" + optarg);
     }
 
     optargs = opts.argVec("U");
     for (const auto& optarg : optargs)
     {
-        cppArgs.push_back("-U" + optarg);
+        preprocessorArgs.push_back("-U" + optarg);
     }
 
     vector<string> includePaths = opts.argVec("I");
     for (const auto& includePath : includePaths)
     {
-        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
+        preprocessorArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
 
     string output = opts.optArg("output-dir");
 
     bool depend = opts.isSet("depend");
 
-    bool dependxml = opts.isSet("depend-xml");
+    bool dependXML = opts.isSet("depend-xml");
 
     string dependFile = opts.optArg("depend-file");
 
@@ -1229,7 +1229,7 @@ compile(const vector<string>& argv)
 
     bool all = opts.isSet("all");
 
-    if (args.empty())
+    if (sliceFiles.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
         if (!validate)
@@ -1239,7 +1239,7 @@ compile(const vector<string>& argv)
         return EXIT_FAILURE;
     }
 
-    if (depend && dependxml)
+    if (depend && dependXML)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
         if (!validate)
@@ -1259,85 +1259,39 @@ compile(const vector<string>& argv)
     Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    ostringstream os;
-    if (dependxml)
+    DependencyGenerator dependencyGenerator;
+
+    for (const auto& fileName : sliceFiles)
     {
-        os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
-    }
-
-    for (auto i = args.begin(); i != args.end(); ++i)
-    {
-        // Ignore duplicates.
-        auto p = find(args.begin(), args.end(), *i);
-        if (p != i)
+        UnitPtr unit;
+        try
         {
-            continue;
-        }
+            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PHP__");
+            assert(preprocessedHandle);
 
-        if (depend || dependxml)
-        {
-            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2PHP__");
+            unit = Unit::createUnit("php", all);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-            if (cppHandle == nullptr)
-            {
-                return EXIT_FAILURE;
-            }
-
-            UnitPtr u = Unit::createUnit("php", false);
-            int parseStatus = u->parse(*i, cppHandle, debug);
-            u->destroy();
-
-            if (parseStatus == EXIT_FAILURE)
-            {
-                return EXIT_FAILURE;
-            }
-
-            if (!icecpp->printMakefileDependencies(
-                    os,
-                    depend ? Preprocessor::PHP : Preprocessor::SliceXML,
-                    includePaths,
-                    "-D__SLICE2PHP__"))
-            {
-                return EXIT_FAILURE;
-            }
-
-            if (!icecpp->close())
-            {
-                return EXIT_FAILURE;
-            }
-        }
-        else
-        {
-            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2PHP__");
-
-            if (cppHandle == nullptr)
-            {
-                return EXIT_FAILURE;
-            }
-
-            UnitPtr u = Unit::createUnit("php", all);
-            int parseStatus = u->parse(*i, cppHandle, debug);
-
-            if (!icecpp->close())
-            {
-                u->destroy();
-                return EXIT_FAILURE;
-            }
+            preprocessor->close();
 
             if (parseStatus == EXIT_FAILURE)
             {
                 status = EXIT_FAILURE;
             }
+            else if (depend || dependXML)
+            {
+                dependencyGenerator.addDependenciesFor(unit);
+                if (depend)
+                {
+                    string target = removeExtension(baseName(fileName)) + ".php";
+                    dependencyGenerator.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                }
+                // Else XML dependencies are handled below after all units have been processed.
+            }
             else
             {
-                string base = icecpp->getBaseName();
-                string::size_type pos = base.find_last_of("/\\");
-                if (pos != string::npos)
-                {
-                    base.erase(0, pos + 1);
-                }
+                string base = removeExtension(baseName(fileName));
 
                 string file = base + ".php";
                 if (!output.empty())
@@ -1345,44 +1299,36 @@ compile(const vector<string>& argv)
                     file = output + '/' + file;
                 }
 
-                try
+                IceInternal::Output out;
+                out.open(file.c_str());
+                if (!out)
                 {
-                    IceInternal::Output out;
-                    out.open(file.c_str());
-                    if (!out)
-                    {
-                        ostringstream os;
-                        os << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
-                        throw FileException(os.str());
-                    }
-                    FileTracker::instance()->addFile(file);
+                    ostringstream os;
+                    os << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
+                    throw FileException(os.str());
+                }
+                FileTracker::instance()->addFile(file);
 
-                    out << "<?php\n";
-                    printHeader(out);
-                    printGeneratedHeader(out, base + ".ice");
+                out << "<?php\n";
+                printHeader(out);
+                printGeneratedHeader(out, base + ".ice");
 
-                    // Generate the PHP mapping.
-                    generate(u, all, includePaths, out);
-                    out.close();
-                }
-                catch (const Slice::FileException& ex)
-                {
-                    // If a file could not be created, then cleanup any  created files.
-                    FileTracker::instance()->cleanup();
-                    u->destroy();
-                    consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                    return EXIT_FAILURE;
-                }
-                catch (const exception& ex)
-                {
-                    FileTracker::instance()->cleanup();
-                    consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                    status = EXIT_FAILURE;
-                }
+                // Generate the PHP mapping.
+                generate(unit, all, includePaths, out);
+                out.close();
+
+                status |= unit->getStatus();
             }
-
-            status |= u->getStatus();
-            u->destroy();
+            unit->destroy();
+        }
+        catch (...)
+        {
+            FileTracker::instance()->cleanup();
+            if (unit)
+            {
+                unit->destroy();
+            }
+            throw;
         }
 
         {
@@ -1395,14 +1341,16 @@ compile(const vector<string>& argv)
         }
     }
 
-    if (dependxml)
+    if (status == EXIT_FAILURE)
     {
-        os << "</dependencies>\n";
+        // If the compilation failed, clean up any created files.
+        FileTracker::instance()->cleanup();
+        return status;
     }
 
-    if (depend || dependxml)
+    if (dependXML)
     {
-        writeDependencies(os.str(), dependFile);
+        dependencyGenerator.writeXMLDependencies(dependFile);
     }
 
     return status;
@@ -1428,8 +1376,7 @@ main(int argc, char* argv[])
     }
     catch (...)
     {
-        consoleErr << args[0] << ": error:"
-                   << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

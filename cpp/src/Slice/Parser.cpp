@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Parser.h"
+#include "../Ice/FileUtil.h"
 #include "DeprecationReporter.h"
 #include "DocCommentParser.h"
 #include "Ice/StringUtil.h"
@@ -162,6 +163,12 @@ Slice::DefinitionContext::filename() const
     return _filename;
 }
 
+const string&
+Slice::DefinitionContext::resolvedFilename() const
+{
+    return _resolvedFilename;
+}
+
 int
 Slice::DefinitionContext::includeLevel() const
 {
@@ -175,9 +182,10 @@ Slice::DefinitionContext::seenDefinition() const
 }
 
 void
-Slice::DefinitionContext::setFilename(string filename)
+Slice::DefinitionContext::setFilename(string filename, string resolvedFilename)
 {
     _filename = std::move(filename);
+    _resolvedFilename = std::move(resolvedFilename);
 }
 
 void
@@ -4835,9 +4843,64 @@ Slice::Unit::currentLine() const
 }
 
 int
-Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
+Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
 {
     assert(!currentFile.empty());
+
+    // `currentFile` is the file being parsed, as reported by the MCPP preprocessor.
+    // It may be an absolute or relative path.
+    //
+    // `resolvedFilename` is always an absolute path, computed from `currentFile` and the current definition context.
+    string resolvedFilename;
+    if (IceInternal::isAbsolutePath(currentFile))
+    {
+        resolvedFilename = currentFile;
+        if (!IceInternal::fileExists(resolvedFilename))
+        {
+            // MCPP may report incorrect absolute paths when files are included using relative paths.
+            // See: https://github.com/zeroc-ice/ice/issues/4253
+
+            // If the path is absolute but the file doesn't exist, treat it as relative to the current definition
+            // context.
+            DefinitionContextPtr dc = currentDefinitionContext();
+            assert(dc);
+            string previousDir = dirName(dc->resolvedFilename());
+
+            vector<string> tokens1;
+            vector<string> tokens2;
+
+            IceInternal::splitString(previousDir, "/\\", tokens1);
+            IceInternal::splitString(resolvedFilename, "/\\", tokens2);
+
+            auto i1 = tokens1.begin();
+            auto i2 = tokens2.begin();
+
+            // Skip the common path elements.
+            while (i1 != tokens1.end() && i2 != tokens2.end() && *i1 == *i2)
+            {
+                i1++;
+                i2++;
+            }
+
+            // The remaining elements represent the path relative the current definition context.
+            resolvedFilename = "";
+            for (; i2 != tokens2.end(); ++i2)
+            {
+                resolvedFilename += "/" + *i2;
+            }
+
+            resolvedFilename = normalizePath(previousDir + resolvedFilename);
+            currentFile = resolvedFilename;
+        }
+    }
+    else
+    {
+        // Relative paths are interpreted relative to the current definition context, which corresponds to the file
+        // currently being parsed.
+        DefinitionContextPtr dc = currentDefinitionContext();
+        assert(dc);
+        resolvedFilename = normalizePath(Slice::dirName(dc->resolvedFilename()) + "/" + currentFile);
+    }
 
     enum LineType
     {
@@ -4892,10 +4955,20 @@ Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
         }
     }
 
-    DefinitionContextPtr dc = currentDefinitionContext();
-    assert(dc);
-    dc->setFilename(currentFile);
-    _definitionContextMap.insert(make_pair(currentFile, dc));
+    if ((type == File && _allFiles.empty()) || type == Push)
+    {
+        // Either this is the first file being parsed, or we are pushing a new file onto the stack.
+
+        DefinitionContextPtr dc = currentDefinitionContext();
+        assert(dc);
+        dc->setFilename(currentFile, resolvedFilename);
+        _definitionContextMap.insert(make_pair(currentFile, dc));
+
+        if (find(_allFiles.begin(), _allFiles.end(), resolvedFilename) == _allFiles.end())
+        {
+            _allFiles.push_back(resolvedFilename);
+        }
+    }
 
     return static_cast<int>(type);
 }
@@ -5075,12 +5148,7 @@ Slice::Unit::includeFiles() const
 StringList
 Slice::Unit::allFiles() const
 {
-    StringList result;
-    for (const auto& [key, value] : _definitionContextMap)
-    {
-        result.push_back(key);
-    }
-    return result;
+    return _allFiles;
 }
 
 int
