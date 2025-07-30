@@ -177,7 +177,7 @@ compile(const vector<string>& argv)
             {
                 status = EXIT_FAILURE;
             }
-            else if (depend | dependXML)
+            else if (depend || dependXML)
             {
                 unit->visit(&dependencyVisitor);
                 if (depend)
