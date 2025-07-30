@@ -157,7 +157,7 @@ compile(const vector<string>& argv)
     for (const auto& fileName : sliceFiles)
     {
         PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
-        FILE* preprocessedHandle = preprocessor->preprocess(true, "-D__SLICE2CS__");
+        FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2CS__");
 
         if (preprocessedHandle == nullptr)
         {

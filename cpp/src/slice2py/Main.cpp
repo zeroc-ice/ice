@@ -227,7 +227,7 @@ main(int argc, char* argv[])
         for (const auto& fileName : sliceFiles)
         {
             PreprocessorPtr preprocessor = Preprocessor::create(args[0], fileName, preprocessorArgs);
-            FILE* preprocessedHandle = preprocessor->preprocess(true, "-D__SLICE2PY__");
+            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
 
             if (preprocessedHandle == nullptr)
             {

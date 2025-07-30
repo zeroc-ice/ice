@@ -149,7 +149,7 @@ compile(const vector<string>& argv)
     {
         FileTracker::instance()->setSource(fileName);
         PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
-        FILE* preprocessedHandle = preprocessor->preprocess(true, "-D__SLICE2JAVA__");
+        FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2JAVA__");
 
         if (preprocessedHandle == nullptr)
         {

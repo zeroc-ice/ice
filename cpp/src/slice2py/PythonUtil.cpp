@@ -2728,7 +2728,7 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
     for (const auto& fileName : files)
     {
         PreprocessorPtr preprocessor = Preprocessor::create("IcePy", fileName, preprocessorArgs);
-        FILE* cppHandle = preprocessor->preprocess(true, "-D__SLICE2PY__");
+        FILE* cppHandle = preprocessor->preprocess("-D__SLICE2PY__");
 
         if (cppHandle == nullptr)
         {

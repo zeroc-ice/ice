@@ -126,19 +126,17 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
 
 namespace
 {
-    vector<string> baseArgs(vector<string> args, bool keepComments, const string& languageArg, const string& fileName)
+    vector<string> baseArgs(vector<string> args, const string& languageArg, const string& fileName)
     {
-        if (keepComments)
-        {
-            args.emplace_back("-C");
-        }
+        // -C keep comments
+        args.emplace_back("-C");
+
+        // UTF-8 encoding
         args.emplace_back("-e");
         args.emplace_back("en_us.utf8");
 
-        //
-        // Define version macros __ICE_VERSION__ is preferred. We keep
-        // ICE_VERSION for backward compatibility with 3.5.0.
-        //
+        // Define version macros __ICE_VERSION__ is preferred. We keep ICE_VERSION for backward compatibility 
+        // with 3.5.0.
         const string version[2] = {"ICE_VERSION", "__ICE_VERSION__"};
         for (const auto& i : version)
         {
@@ -154,7 +152,7 @@ namespace
 }
 
 FILE*
-Slice::Preprocessor::preprocess(bool keepComments, const string& languageArg)
+Slice::Preprocessor::preprocess(const string& languageArg)
 {
     if (!checkInputFile())
     {
@@ -164,7 +162,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& languageArg)
     //
     // Build arguments list.
     //
-    vector<string> args = baseArgs(_args, keepComments, languageArg, _fileName);
+    vector<string> args = baseArgs(_args, languageArg, _fileName);
     const char** argv = new const char*[args.size() + 1];
     argv[0] = "mcpp";
     for (unsigned int i = 0; i < args.size(); ++i)

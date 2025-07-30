@@ -21,7 +21,7 @@ namespace Slice
         Preprocessor(std::string path, const std::string& fileName, const std::vector<std::string>& args);
         ~Preprocessor();
 
-        FILE* preprocess(bool keepComments, const std::string& languageArg = "");
+        FILE* preprocess(const std::string& languageArg = "");
         bool close();
 
         std::string getFileName();
