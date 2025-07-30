@@ -15,7 +15,7 @@ class Value(object):
         str
             The type ID.
         """
-        # Call ice_staticId() on self get the value from the most-derived class.
+        # Call ice_staticId() on self to get the value from the most-derived class.
         return self.ice_staticId()
 
     @staticmethod
