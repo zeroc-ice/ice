@@ -117,7 +117,9 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
             UnitPtr u = Unit::createUnit("ruby", all);
             int parseStatus = u->parse(file, cppHandle, debug);
 
-            if (!icecpp->close() || parseStatus == EXIT_FAILURE)
+            icecpp->close();
+
+            if (parseStatus == EXIT_FAILURE)
             {
                 u->destroy();
                 throw RubyException(rb_eArgError, "Slice parsing failed for `%s'", cmd.c_str());
