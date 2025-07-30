@@ -103,8 +103,8 @@ namespace Slice
         void
         writeMakefileDependencies(const std::string& dependFile, const std::string& source, const std::string& target);
 
-        /// Writes the dependencies in XML format to the specified file. If the file is empty, it writes the
-        /// dependencies to the standard output.
+        /// Writes the dependencies in XML format to the specified file. If 'dependFile' is empty, it writes the
+        /// dependencies to standard output instead.
         ///
         /// This method write the dependencies for all visited units in a single XML document.
         ///
