@@ -1205,55 +1205,62 @@ Slice::Container::destroyContents()
 ModulePtr
 Slice::Container::createModule(const string& name, bool nestedSyntax)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    matches.sort(containedCompare); // Modules can occur many times...
-    matches.unique(containedEqual); // ... but we only want one instance of each.
+    ModulePtr q = make_shared<Module>(shared_from_this(), name, nestedSyntax);
+    _contents.push_back(q);
 
-    if (thisScope() == "::")
+    if (!name.empty())
     {
-        unit()->addTopLevelModule(unit()->currentFile(), name);
-    }
-
-    for (const auto& p : matches)
-    {
-        bool differsOnlyInCase = matches.front()->name() != name;
-        ModulePtr module = dynamic_pointer_cast<Module>(p);
-        if (module)
+        if (thisScope() == "::")
         {
-            if (differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
+            unit()->addTopLevelModule(unit()->currentFile(), name);
+        }
+
+        bool hasValidIdentifier = true;
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        matches.sort(containedCompare); // Modules can occur many times...
+        matches.unique(containedEqual); // ... but we only want one instance of each.
+        for (const auto& p : matches)
+        {
+            bool differsOnlyInCase = matches.front()->name() != name;
+            if (ModulePtr module = dynamic_pointer_cast<Module>(p))
             {
+                // Modules can be reopened only if they are capitalized correctly.
+                if (!differsOnlyInCase)
+                {
+                    continue;
+                }
+
                 ostringstream os;
                 os << "module '" << name << "' is capitalized inconsistently with its previous name: '"
-                   << module->name() << "'";
+                << module->name() << "'";
                 unit()->error(os.str());
-                return nullptr;
             }
+            else if (!differsOnlyInCase)
+            {
+                ostringstream os;
+                os << "redefinition of " << matches.front()->kindOf() << " '" << matches.front()->name() << "' as module";
+                unit()->error(os.str());
+            }
+            else
+            {
+                ostringstream os;
+                os << "module '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                << " name '" << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
+            hasValidIdentifier = false;
         }
-        else if (!differsOnlyInCase)
+
+        if (hasValidIdentifier)
         {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << matches.front()->name() << "' as module";
-            unit()->error(os.str());
-            return nullptr;
+            // If this module has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(q);
         }
-        else
-        {
-            ostringstream os;
-            os << "module '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " name '" << matches.front()->name() << "'";
-            unit()->error(os.str());
-            return nullptr;
-        }
+
+        checkIdentifier(name);
     }
 
-    if (!checkIdentifier(name))
-    {
-        return nullptr;
-    }
-
-    ModulePtr q = make_shared<Module>(shared_from_this(), name, nestedSyntax);
-    unit()->addContent(q);
-    _contents.push_back(q);
     return q;
 }
 
@@ -1394,203 +1401,206 @@ Slice::Container::createClassDecl(const string& name)
 InterfaceDefPtr
 Slice::Container::createInterfaceDef(const string& name, const InterfaceList& bases)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    for (const auto& p : matches)
-    {
-        InterfaceDeclPtr decl = dynamic_pointer_cast<InterfaceDecl>(p);
-        if (decl)
-        {
-            continue; // all good
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        InterfaceDefPtr def = dynamic_pointer_cast<InterfaceDef>(p);
-        if (def)
-        {
-            if (differsOnlyInCase)
-            {
-                ostringstream os;
-                os << "interface definition '" << name << "' is capitalized inconsistently with its previous name: '"
-                   << def->name() + "'";
-                unit()->error(os.str());
-            }
-            else
-            {
-                ostringstream os;
-                os << "redefinition of interface '" << name << "'";
-                unit()->error(os.str());
-            }
-        }
-        else if (differsOnlyInCase)
-        {
-            ostringstream os;
-            os << "interface definition '" << name << "' differs only in capitalization from "
-               << matches.front()->kindOf() << " name '" << matches.front()->name() << "'";
-            unit()->error(os.str());
-        }
-        else
-        {
-            const string kindOf = matches.front()->kindOf();
-            ostringstream os;
-            os << "interface '" << name << "' was previously defined as " << getArticleFor(kindOf) << " " << kindOf;
-            unit()->error(os.str());
-        }
-        return nullptr;
-    }
-
-    if (!checkIdentifier(name) || !checkForGlobalDefinition("interfaces"))
-    {
-        return nullptr;
-    }
-
-    InterfaceDecl::checkBasesAreLegal(name, bases, unit());
-
     // Implicitly create an interface declaration for each interface definition.
     // This way the code generator can rely on always having an interface declaration available for lookup.
     InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
     InterfaceDeclPtr decl = createInterfaceDecl(name);
     def->_declaration = decl;
     decl->_definition = def;
+    _contents.push_back(def);
 
-    // Patch forward declarations which may of been created in other openings of this interface's module.
-    for (const auto& q : matches)
+    checkForGlobalDefinition("interfaces");
+    InterfaceDecl::checkBasesAreLegal(name, bases, unit());
+
+    if (!name.empty())
     {
-        dynamic_pointer_cast<InterfaceDecl>(q)->_definition = def;
+        ContainedList matches = unit()->findContents(thisScope() + name);
+
+        // Patch forward declarations which may of been created in other openings of this interface's module.
+        for (const auto& p : matches)
+        {
+            if (auto otherDecl = dynamic_pointer_cast<InterfaceDecl>(p))
+            {
+                otherDecl->_definition = def;
+            }
+        }
+
+        // Interface definitions are allowed to have the same name as interface forward declarations.
+        matches.remove_if([](const ContainedPtr& p){ return dynamic_pointer_cast<InterfaceDecl>(p); });
+        if (!matches.empty())
+        {
+            if (dynamic_pointer_cast<InterfaceDef>(matches.front()))
+            {
+                ostringstream os;
+                os << "redefinition of interface '" << name << "'";
+                unit()->error(os.str());
+            }
+            else if (matches.front()->name() != name)
+            {
+                ostringstream os;
+                os << "interface definition '" << name << "' differs only in capitalization from "
+                << matches.front()->kindOf() << " name '" << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
+            else
+            {
+                const string kindOf = matches.front()->kindOf();
+                ostringstream os;
+                os << "interface '" << name << "' was previously defined as " << getArticleFor(kindOf) << " " << kindOf;
+                unit()->error(os.str());
+            }
+        }
+        else
+        {
+            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(def);
+        }
+
+        checkIdentifier(name);
     }
 
-    unit()->addContent(def);
-    _contents.push_back(def);
     return def;
 }
 
 InterfaceDeclPtr
 Slice::Container::createInterfaceDecl(const string& name)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    for (const auto& p : matches)
+    checkForGlobalDefinition("interfaces");
+
+    bool hasValidName = false;
+    if (!name.empty())
     {
-        InterfaceDefPtr interfaceDef = dynamic_pointer_cast<InterfaceDef>(p);
-        if (interfaceDef)
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        // Interface forward declarations can have the same name as other interface definitions/declarations.
+        matches.remove_if([](const ContainedPtr& p){ return dynamic_pointer_cast<InterfaceDef>(p) || dynamic_pointer_cast<InterfaceDecl>(p); });
+        if (!matches.empty())
         {
-            continue;
-        }
-
-        InterfaceDeclPtr interfaceDecl = dynamic_pointer_cast<InterfaceDecl>(p);
-        if (interfaceDecl)
-        {
-            continue;
-        }
-
-        bool differsOnlyInCase = matches.front()->name() != name;
-        if (differsOnlyInCase)
-        {
-            ostringstream os;
-            os << "interface declaration '" << name << "' differs only in capitalization from "
-               << matches.front()->kindOf() << " name '" << matches.front()->name() << "'";
-            unit()->error(os.str());
+            if (matches.front()->name() != name)
+            {
+                ostringstream os;
+                os << "interface declaration '" << name << "' differs only in capitalization from "
+                << matches.front()->kindOf() << " name '" << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
+            else
+            {
+                const string kindOf = matches.front()->kindOf();
+                ostringstream os;
+                os << "interface '" << name << "' was previously defined as " << getArticleFor(kindOf) << " " << kindOf;
+                unit()->error(os.str());
+            }
         }
         else
         {
-            const string kindOf = matches.front()->kindOf();
-            ostringstream os;
-            os << "interface '" << name << "' was previously defined as " << getArticleFor(kindOf) << " " << kindOf;
-            unit()->error(os.str());
+            hasValidName = true;
         }
-        return nullptr;
-    }
 
-    if (!checkIdentifier(name) || !checkForGlobalDefinition("interfaces"))
-    {
-        return nullptr;
-    }
+        checkIdentifier(name);
 
-    // Multiple declarations are permissible. But if we do already have a declaration for the interface in this
-    // container, we don't create another one.
-    for (const auto& q : _contents)
-    {
-        if (q->name() == name)
+        // Multiple declarations are permissible.
+        // But if we do already have a declaration for the interface in this container, we don't create another one.
+        for (const auto& q : _contents)
         {
-            InterfaceDeclPtr decl = dynamic_pointer_cast<InterfaceDecl>(q);
-            if (decl)
+            if (q->name() == name)
             {
-                return decl;
+                if (InterfaceDeclPtr decl = dynamic_pointer_cast<InterfaceDecl>(q))
+                {
+                    return decl;
+                }
             }
         }
     }
 
     InterfaceDeclPtr decl = make_shared<InterfaceDecl>(shared_from_this(), name);
-    unit()->addContent(decl);
     _contents.push_back(decl);
+    if (hasValidName)
+    {
+        // If this definition has a valid identifier and doesn't conflict with another definition,
+        // add it to the unit's contentMap so it can be looked up later.
+        unit()->addContent(decl);
+    }
+
     return decl;
 }
 
 ExceptionPtr
-Slice::Container::createException(const string& name, const ExceptionPtr& base, NodeType nodeType)
+Slice::Container::createException(const string& name, const ExceptionPtr& base)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    ExceptionPtr p = make_shared<Exception>(shared_from_this(), name, base);
+    _contents.push_back(p);
+
+    checkForGlobalDefinition("exceptions");
+
+    if (!name.empty())
     {
-        if (matches.front()->name() == name)
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        if (!matches.empty())
         {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as exception";
-            unit()->error(os.str());
+            if (matches.front()->name() == name)
+            {
+                ostringstream os;
+                os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as exception";
+                unit()->error(os.str());
+            }
+            else
+            {
+                ostringstream os;
+                os << "exception '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
+                << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
         }
         else
         {
-            ostringstream os;
-            os << "exception '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-               << matches.front()->name() << "'";
-            unit()->error(os.str());
+            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(p);
         }
-        return nullptr;
+
+        checkIdentifier(name);
     }
 
-    checkIdentifier(name); // Don't return here -- we create the exception anyway
-
-    if (nodeType == Real)
-    {
-        checkForGlobalDefinition("exceptions"); // Don't return here -- we create the exception anyway
-    }
-
-    ExceptionPtr p = make_shared<Exception>(shared_from_this(), name, base);
-    unit()->addContent(p);
-    _contents.push_back(p);
     return p;
 }
 
 StructPtr
-Slice::Container::createStruct(const string& name, NodeType nodeType)
+Slice::Container::createStruct(const string& name)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    StructPtr p = make_shared<Struct>(shared_from_this(), name);
+    _contents.push_back(p);
+
+    checkForGlobalDefinition("structs");
+
+    if (!name.empty())
     {
-        if (matches.front()->name() == name)
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        if (!matches.empty())
         {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as struct";
-            unit()->error(os.str());
+            if (matches.front()->name() == name)
+            {
+                ostringstream os;
+                os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as struct";
+                unit()->error(os.str());
+            }
+            else
+            {
+                ostringstream os;
+                os << "struct '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
+                << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
         }
         else
         {
-            ostringstream os;
-            os << "struct '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-               << matches.front()->name() << "'";
-            unit()->error(os.str());
+            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(p);
         }
-        return nullptr;
+
+        checkIdentifier(name);
     }
 
-    checkIdentifier(name); // Don't return here -- we create the struct anyway.
-
-    if (nodeType == Real)
-    {
-        checkForGlobalDefinition("structs"); // Don't return here -- we create the struct anyway.
-    }
-
-    StructPtr p = make_shared<Struct>(shared_from_this(), name);
-    unit()->addContent(p);
-    _contents.push_back(p);
     return p;
 }
 
