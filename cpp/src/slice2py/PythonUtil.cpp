@@ -597,15 +597,15 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     addTypingImport("Ice.ObjectPrx", "ObjectPrx", p);
     addTypingImport("Ice.Current", "Current", p);
 
+    // Required by the core operations, ice_isA, ice_ids, ice_id, and ice_ping.
+    addTypingImport("collections.abc", "Awaitable", p);
+    addTypingImport("collections.abc", "Sequence", p);
+
     // Add imports required for operation parameters and return types.
     const OperationList& operations = p->allOperations();
     if (!operations.empty())
     {
         addRuntimeImport("abc", "abstractmethod", p);
-        // If the interface has no operations, we still need to import the Ice.ObjectPrx type.
-        addTypingImport("collections.abc", "Awaitable", p);
-        addTypingImport("collections.abc", "Sequence", p);
-
         addRuntimeImport("Ice.OperationMode", "OperationMode", p);
     }
 
@@ -1526,28 +1526,22 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out.inc();
 
     out << sp;
+    // Declare _ice_ids class variable to hold the ice_ids.
+    out << nl << "_ice_ids: Sequence[str] = (";
+    auto ids = p->ids();
+    for (const auto& id : ids)
+    {
+        out << "\"" << id << "\", ";
+    }
+    out << ")";
+
     // Pre-declare the _op_ methods
     for (const auto& operation : operations)
     {
         out << nl << "_op_" << operation->name() << ": IcePy.Operation";
     }
 
-    // ice_ids
-    StringList ids = p->ids();
-    out << sp;
-    out << nl << "def ice_ids(self, current: " << currentAlias << ") -> Sequence[str] | Awaitable[Sequence[str]]:";
-    out.inc();
-    out << nl << "return (";
-    for (auto q = ids.begin(); q != ids.end(); ++q)
-    {
-        if (q != ids.begin())
-        {
-            out << ", ";
-        }
-        out << "\"" << *q << "\"";
-    }
-    out << ')';
-    out.dec();
+    // ice_ids is implemented by the base Ice.Object class using the `_ice_ids` class variable.
 
     // ice_staticId
     out << sp;

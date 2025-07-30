@@ -21,6 +21,8 @@ class Object:
     The base class for servants.
     """
 
+    _ice_ids: Sequence[str] = ("::Ice::Object",)
+
     _op_ice_isA = IcePy.Operation(
         "ice_isA",
         "ice_isA",
@@ -85,16 +87,7 @@ class Object:
         bool
             True if the target object supports the interface, False otherwise.
         """
-        ret = self.ice_ids(current)
-        if isinstance(ret, Awaitable):
-            # wrap and do the check
-            async def wrapper():
-                ids = await ret
-                return id in ids
-
-            return wrapper()
-        else:
-            return id in ret
+        return id in self._ice_ids
 
     def ice_ping(self, current: Current) -> None | Awaitable[None]:
         """
@@ -121,7 +114,7 @@ class Object:
         Sequence[str]
             A list of type IDs.
         """
-        return [Object.ice_staticId()]
+        return self._ice_ids
 
     def ice_id(self, current: Current) -> str | Awaitable[str]:
         """
