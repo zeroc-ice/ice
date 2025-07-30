@@ -146,9 +146,10 @@ Slice::Ruby::compile(const vector<string>& argv)
     for (const auto& fileName : sliceFiles)
     {
         UnitPtr unit;
+        PreprocessorPtr preprocessor;
         try
         {
-            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2RB__");
             assert(preprocessedHandle);
 
@@ -207,6 +208,12 @@ Slice::Ruby::compile(const vector<string>& argv)
         catch (...)
         {
             FileTracker::instance()->cleanup();
+
+            if (preprocessor)
+            {
+                preprocessor->close();
+            }
+
             if (unit)
             {
                 unit->destroy();
@@ -218,8 +225,8 @@ Slice::Ruby::compile(const vector<string>& argv)
             lock_guard lock(globalMutex);
             if (interrupted)
             {
-                FileTracker::instance()->cleanup();
-                return EXIT_FAILURE;
+                status = EXIT_FAILURE;
+                break;
             }
         }
     }

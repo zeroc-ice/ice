@@ -227,10 +227,11 @@ main(int argc, char* argv[])
 
         for (const auto& fileName : sliceFiles)
         {
+            PreprocessorPtr preprocessor;
             UnitPtr unit;
             try
             {
-                PreprocessorPtr preprocessor = Preprocessor::create(args[0], fileName, preprocessorArgs);
+                preprocessor = Preprocessor::create(args[0], fileName, preprocessorArgs);
                 FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
                 assert(preprocessedHandle);
 
@@ -265,6 +266,12 @@ main(int argc, char* argv[])
             catch (...)
             {
                 FileTracker::instance()->cleanup();
+
+                if (preprocessor)
+                {
+                    preprocessor->close();
+                }
+
                 if (unit)
                 {
                     unit->destroy();

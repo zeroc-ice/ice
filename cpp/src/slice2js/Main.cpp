@@ -188,10 +188,11 @@ compile(const vector<string>& argv)
 
     for (const auto& fileName : sliceFiles)
     {
+        PreprocessorPtr preprocessor;
         UnitPtr unit;
         try
         {
-            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2JS__");
             assert(preprocessedHandle);
 
@@ -236,6 +237,12 @@ compile(const vector<string>& argv)
         catch (...)
         {
             FileTracker::instance()->cleanup();
+
+            if (preprocessor)
+            {
+                preprocessor->close();
+            }
+
             if (unit)
             {
                 unit->destroy();
@@ -247,8 +254,8 @@ compile(const vector<string>& argv)
             lock_guard lock(globalMutex);
             if (interrupted)
             {
-                FileTracker::instance()->cleanup();
-                return EXIT_FAILURE;
+                status = EXIT_FAILURE;
+                break;
             }
         }
     }

@@ -105,46 +105,63 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
 
         for (vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
         {
-            string file = *p;
-            PreprocessorPtr icecpp = Preprocessor::create("icecpp", file, cppArgs);
-            FILE* cppHandle = icecpp->preprocess("-D__SLICE2RB__");
-
-            if (cppHandle == 0)
+            PreprocessorPtr preprocessor;
+            UnitPtr unit;
+            try
             {
-                throw RubyException(rb_eArgError, "Slice preprocessing failed for `%s'", cmd.c_str());
+                string file = *p;
+                preprocessor = Preprocessor::create("preprocessor", file, cppArgs);
+                FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2RB__");
+
+                if (preprocessedHandle == 0)
+                {
+                    throw RubyException(rb_eArgError, "Slice preprocessing failed for `%s'", cmd.c_str());
+                }
+
+                unit = Unit::createUnit("ruby", all);
+                int parseStatus = unit->parse(file, preprocessedHandle, debug);
+
+                preprocessor->close();
+
+                if (parseStatus == EXIT_FAILURE)
+                {
+                    unit->destroy();
+                    throw RubyException(rb_eArgError, "Slice parsing failed for `%s'", cmd.c_str());
+                }
+
+                //
+                // Generate the Ruby code into a string stream.
+                //
+                ostringstream codeStream;
+                IceInternal::Output out(codeStream);
+                out.setUseTab(false);
+                //
+                // Ruby magic comment to set the file encoding, it must be first or second line
+                //
+                out << "# encoding: utf-8\n";
+                Slice::Ruby::generate(unit, all, includePaths, out);
+                if (unit->getStatus() == EXIT_FAILURE)
+                {
+                    throw RubyException(rb_eArgError, "Slice validation failed for `%s'", cmd.c_str());
+                }
+                unit->destroy();
+
+                string code = codeStream.str();
+                callRuby(rb_eval_string, code.c_str());
             }
-
-            UnitPtr u = Unit::createUnit("ruby", all);
-            int parseStatus = u->parse(file, cppHandle, debug);
-
-            icecpp->close();
-
-            if (parseStatus == EXIT_FAILURE)
+            catch (...)
             {
-                u->destroy();
-                throw RubyException(rb_eArgError, "Slice parsing failed for `%s'", cmd.c_str());
-            }
+                if (preprocessor)
+                {
+                    preprocessor->close();
+                }
 
-            //
-            // Generate the Ruby code into a string stream.
-            //
-            ostringstream codeStream;
-            IceInternal::Output out(codeStream);
-            out.setUseTab(false);
-            //
-            // Ruby magic comment to set the file encoding, it must be first or second line
-            //
-            out << "# encoding: utf-8\n";
-            Slice::Ruby::generate(u, all, includePaths, out);
-            if (u->getStatus() == EXIT_FAILURE)
-            {
-                u->destroy();
-                throw RubyException(rb_eArgError, "Slice validation failed for `%s'", cmd.c_str());
+                if (unit)
+                {
+                    unit->destroy();
+                }
+                throw;
             }
-            u->destroy();
-
-            string code = codeStream.str();
-            callRuby(rb_eval_string, code.c_str());
         }
     }
     ICE_RUBY_CATCH
