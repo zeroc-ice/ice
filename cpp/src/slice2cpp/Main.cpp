@@ -176,7 +176,7 @@ compile(const vector<string>& argv)
 
     std::map<string, StringList> dependencyMap;
 
-    DependencyVisitor dependencyVisitor;
+    DependencyGenerator dependencyGenerator;
 
     for (const auto& fileName : sliceFiles)
     {
@@ -198,14 +198,14 @@ compile(const vector<string>& argv)
             }
             else if (depend || dependXML)
             {
-                unit->visit(&dependencyVisitor);
+                dependencyGenerator.addDependenciesFor(unit);
                 if (depend)
                 {
                     DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
                     assert(dc);
                     string target = removeExtension(baseName(fileName)) + "." +
                                     dc->getMetadataArgs("cpp:header-ext").value_or(headerExtension);
-                    dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                    dependencyGenerator.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
                 }
                 // else XML dependencies are written below after all units have been processed.
             }
@@ -257,7 +257,7 @@ compile(const vector<string>& argv)
 
     if (dependXML)
     {
-        dependencyVisitor.writeXMLDependencies(dependFile);
+        dependencyGenerator.writeXMLDependencies(dependFile);
     }
 
     return status;

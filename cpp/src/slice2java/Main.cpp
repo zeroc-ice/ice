@@ -144,7 +144,7 @@ compile(const vector<string>& argv)
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;
-    DependencyVisitor dependencyVisitor;
+    DependencyGenerator dependencyGenerator;
 
     for (const auto& fileName : sliceFiles)
     {
@@ -167,7 +167,7 @@ compile(const vector<string>& argv)
             }
             else if (dependXML)
             {
-                unit->visit(&dependencyVisitor);
+                dependencyGenerator.addDependenciesFor(unit);
             }
             else
             {
@@ -209,7 +209,7 @@ compile(const vector<string>& argv)
 
     if (dependXML)
     {
-        dependencyVisitor.writeXMLDependencies(dependFile);
+        dependencyGenerator.writeXMLDependencies(dependFile);
     }
 
     if (listGenerated)

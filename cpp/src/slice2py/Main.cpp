@@ -220,7 +220,7 @@ main(int argc, char* argv[])
         Ice::CtrlCHandler ctrlCHandler;
         ctrlCHandler.setCallback(interruptedCallback);
 
-        DependencyVisitor dependencyVisitor;
+        DependencyGenerator dependencyGenerator;
         PackageVisitor packageVisitor;
 
         std::map<string, StringList> dependencyMap;
@@ -246,7 +246,7 @@ main(int argc, char* argv[])
                 else
                 {
                     // Collect the dependencies of the unit.
-                    unit->visit(&dependencyVisitor);
+                    dependencyGenerator.addDependenciesFor(unit);
 
                     // Collect the package imports and generated files.
                     unit->visit(&packageVisitor);
@@ -286,13 +286,13 @@ main(int argc, char* argv[])
             {
                 for (const auto& file : files)
                 {
-                    dependencyVisitor.writeMakefileDependencies(dependFile, source, file);
+                    dependencyGenerator.writeMakefileDependencies(dependFile, source, file);
                 }
             }
         }
         else if (dependXML)
         {
-            dependencyVisitor.writeXMLDependencies(dependFile);
+            dependencyGenerator.writeXMLDependencies(dependFile);
         }
         else if (!listArg.empty())
         {

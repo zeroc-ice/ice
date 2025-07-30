@@ -682,13 +682,13 @@ Slice::relativePath(const string& path1, const string& path2)
 }
 
 void
-Slice::DependencyVisitor::visitUnitEnd(const UnitPtr& unit)
+Slice::DependencyGenerator::addDependenciesFor(const UnitPtr& unit)
 {
     _dependencyMap[unit->topLevelFile()] = unit->allFiles();
 }
 
 void
-Slice::DependencyVisitor::writeMakefileDependencies(
+Slice::DependencyGenerator::writeMakefileDependencies(
     const string& dependFile,
     const string& source,
     const string& target)
@@ -717,7 +717,7 @@ Slice::DependencyVisitor::writeMakefileDependencies(
 }
 
 void
-Slice::DependencyVisitor::writeXMLDependencies(const std::string& dependFile)
+Slice::DependencyGenerator::writeXMLDependencies(const std::string& dependFile)
 {
     ostringstream os;
     os << R"(<?xml version="1.0" encoding="UTF-8"?>)";
@@ -739,7 +739,7 @@ Slice::DependencyVisitor::writeXMLDependencies(const std::string& dependFile)
 }
 
 void
-Slice::DependencyVisitor::writeJSONDependencies(const std::string& dependFile)
+Slice::DependencyGenerator::writeJSONDependencies(const std::string& dependFile)
 {
     ostringstream os;
     os << "{";

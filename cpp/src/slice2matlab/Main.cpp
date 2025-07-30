@@ -185,7 +185,7 @@ namespace
         Ice::CtrlCHandler ctrlCHandler;
         ctrlCHandler.setCallback(interruptedCallback);
 
-        DependencyVisitor dependencyVisitor;
+        DependencyGenerator dependencyGenerator;
 
         for (const auto& fileName : sliceFiles)
         {
@@ -207,7 +207,7 @@ namespace
                 }
                 else if (dependXML)
                 {
-                    unit->visit(&dependencyVisitor);
+                    dependencyGenerator.addDependenciesFor(unit);
                 }
                 else
                 {
@@ -253,7 +253,7 @@ namespace
 
         if (dependXML)
         {
-            dependencyVisitor.writeXMLDependencies(dependFile);
+            dependencyGenerator.writeXMLDependencies(dependFile);
         }
 
         if (listGenerated)

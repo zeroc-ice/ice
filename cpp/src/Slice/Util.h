@@ -88,11 +88,11 @@ namespace Slice
 
     [[nodiscard]] std::string relativePath(const std::string& path1, const std::string& path2);
 
-    /// The DependencyVisitor class is used to collect dependencies of Slice units.
-    class DependencyVisitor : public ParserVisitor
+    /// The DependencyGenerator class is used to collect dependencies of Slice units.
+    class DependencyGenerator final
     {
     public:
-        void visitUnitEnd(const UnitPtr& unit) final;
+        void addDependenciesFor(const UnitPtr& unit);
 
         /// Writes the dependencies in Makefile format to the specified file. If 'dependFile' is empty, it writes the
         /// dependencies to standard output instead.

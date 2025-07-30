@@ -226,7 +226,6 @@ namespace Slice
         ///
         /// @return A reference to the resolved file name.
         [[nodiscard]] const std::string& resolvedFilename() const;
-        [[nodiscard]] int line() const;
         [[nodiscard]] int includeLevel() const;
         [[nodiscard]] bool seenDefinition() const;
 

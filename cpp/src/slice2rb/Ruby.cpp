@@ -141,7 +141,7 @@ Slice::Ruby::compile(const vector<string>& argv)
     Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    DependencyVisitor dependencyVisitor;
+    DependencyGenerator dependencyGenerator;
 
     for (const auto& fileName : sliceFiles)
     {
@@ -163,11 +163,11 @@ Slice::Ruby::compile(const vector<string>& argv)
             }
             else if (depend || dependXML)
             {
-                unit->visit(&dependencyVisitor);
+                dependencyGenerator.addDependenciesFor(unit);
                 if (depend)
                 {
                     string target = removeExtension(baseName(fileName)) + ".rb";
-                    dependencyVisitor.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
+                    dependencyGenerator.writeMakefileDependencies(dependFile, unit->topLevelFile(), target);
                 }
                 // Else XML dependencies are written below after all units have been processed.
             }
@@ -233,7 +233,7 @@ Slice::Ruby::compile(const vector<string>& argv)
 
     if (dependXML)
     {
-        dependencyVisitor.writeXMLDependencies(dependFile);
+        dependencyGenerator.writeXMLDependencies(dependFile);
     }
 
     return status;
