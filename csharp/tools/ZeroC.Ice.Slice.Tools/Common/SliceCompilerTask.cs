@@ -114,9 +114,8 @@ public abstract class SliceCompilerTask : ToolTask
                 foreach (ITaskItem source in Sources)
                 {
                     var inputs = new List<string>();
-                    var depends = dependsDoc.DocumentElement.SelectNodes(
-                        string.Format("/dependencies/source[@name='{0}']/dependsOn",
-                                        source.GetMetadata("FullPath")));
+                    XmlNode? sourceNode = DependUtil.FindSourceNode(dependsDoc, source.GetMetadata("FullPath"));
+                    XmlNodeList? depends = sourceNode?.SelectNodes("dependsOn");
                     if (depends != null)
                     {
                         foreach (XmlNode depend in depends)
