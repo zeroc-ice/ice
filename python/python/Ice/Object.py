@@ -137,12 +137,13 @@ class Object:
         str
             The type ID.
         """
-        return Object.ice_staticId()
+        # Call ice_staticId() on self get the value from the most-derived class.
+        return self.ice_staticId()
 
     @staticmethod
     def ice_staticId() -> str:
         """
-        Obtain the type ID of this Slice class or interface.
+        Obtain the type ID of the Slice interface.
 
         Returns
         -------
