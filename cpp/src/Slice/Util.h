@@ -92,7 +92,6 @@ namespace Slice
     class DependencyVisitor : public ParserVisitor
     {
     public:
-
         void visitUnitEnd(const UnitPtr& unit) final;
 
         /// Writes the dependencies in Makefile format to the specified file. If the file is empty, it writes the
@@ -101,10 +100,8 @@ namespace Slice
         /// @param dependFile The file to write the dependencies to or empty to write to standard output.
         /// @param source The source file for which dependencies are being written.
         /// @param target The target file that is generated from the source. This is used as the Makefile target.
-        void writeMakefileDependencies(
-            const std::string& dependFile,
-            const std::string& source,
-            const std::string& target);
+        void
+        writeMakefileDependencies(const std::string& dependFile, const std::string& source, const std::string& target);
 
         /// Writes the dependencies in XML format to the specified file. If the file is empty, it writes the
         /// dependencies to the standard output.
@@ -123,7 +120,6 @@ namespace Slice
         void writeJSONDependencies(const std::string& dependFile);
 
     private:
-
         std::map<std::string, StringList> _dependencyMap;
     };
 }

@@ -18,61 +18,62 @@ using namespace std;
 using namespace Slice;
 using namespace IceInternal;
 
-    string Slice::normalizePath(const string& path)
-    {
-        string result = path;
+string
+Slice::normalizePath(const string& path)
+{
+    string result = path;
 
-        replace(result.begin(), result.end(), '\\', '/');
+    replace(result.begin(), result.end(), '\\', '/');
 
-        string::size_type startReplace = 0;
+    string::size_type startReplace = 0;
 #ifdef _WIN32
-        //
-        // For UNC paths we need to ensure they are in the format that is
-        // returned by MCPP. IE. "//MACHINE/PATH"
-        //
-        if (result.find("//") == 0)
-        {
-            startReplace = 2;
-        }
-#endif
-        string::size_type pos;
-        while ((pos = result.find("//", startReplace)) != string::npos)
-        {
-            result.replace(pos, 2, "/");
-        }
-        pos = 0;
-        while ((pos = result.find("/./", pos)) != string::npos)
-        {
-            result.erase(pos, 2);
-        }
-        pos = 0;
-        while ((pos = result.find("/..", pos)) != string::npos)
-        {
-            string::size_type last = result.find_last_of('/', pos - 1);
-            if (last != string::npos && result.substr(last, 4) != "/../")
-            {
-                result.erase(last, pos - last + 3);
-                pos = last;
-            }
-            else
-            {
-                ++pos;
-            }
-        }
-
-        if (result.size() > 1) // Remove trailing "/" or "/."
-        {
-            if (result[result.size() - 1] == '/')
-            {
-                result.erase(result.size() - 1);
-            }
-            else if (result[result.size() - 2] == '/' && result[result.size() - 1] == '.')
-            {
-                result.erase(result.size() - (result.size() == 2 ? 1 : 2));
-            }
-        }
-        return result;
+    //
+    // For UNC paths we need to ensure they are in the format that is
+    // returned by MCPP. IE. "//MACHINE/PATH"
+    //
+    if (result.find("//") == 0)
+    {
+        startReplace = 2;
     }
+#endif
+    string::size_type pos;
+    while ((pos = result.find("//", startReplace)) != string::npos)
+    {
+        result.replace(pos, 2, "/");
+    }
+    pos = 0;
+    while ((pos = result.find("/./", pos)) != string::npos)
+    {
+        result.erase(pos, 2);
+    }
+    pos = 0;
+    while ((pos = result.find("/..", pos)) != string::npos)
+    {
+        string::size_type last = result.find_last_of('/', pos - 1);
+        if (last != string::npos && result.substr(last, 4) != "/../")
+        {
+            result.erase(last, pos - last + 3);
+            pos = last;
+        }
+        else
+        {
+            ++pos;
+        }
+    }
+
+    if (result.size() > 1) // Remove trailing "/" or "/."
+    {
+        if (result[result.size() - 1] == '/')
+        {
+            result.erase(result.size() - 1);
+        }
+        else if (result[result.size() - 2] == '/' && result[result.size() - 1] == '.')
+        {
+            result.erase(result.size() - (result.size() == 2 ? 1 : 2));
+        }
+    }
+    return result;
+}
 
 string
 Slice::fullPath(const string& path)
@@ -687,7 +688,10 @@ Slice::DependencyVisitor::visitUnitEnd(const UnitPtr& unit)
 }
 
 void
-Slice::DependencyVisitor::writeMakefileDependencies(const string& dependFile, const string& source, const std::string& target)
+Slice::DependencyVisitor::writeMakefileDependencies(
+    const string& dependFile,
+    const string& source,
+    const std::string& target)
 {
     ostringstream os;
     StringList dependencies = _dependencyMap[source];
