@@ -107,7 +107,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
         {
             string file = *p;
             PreprocessorPtr icecpp = Preprocessor::create("icecpp", file, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2RB__");
+            FILE* cppHandle = icecpp->preprocess("-D__SLICE2RB__");
 
             if (cppHandle == 0)
             {
@@ -117,7 +117,9 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
             UnitPtr u = Unit::createUnit("ruby", all);
             int parseStatus = u->parse(file, cppHandle, debug);
 
-            if (!icecpp->close() || parseStatus == EXIT_FAILURE)
+            icecpp->close();
+
+            if (parseStatus == EXIT_FAILURE)
             {
                 u->destroy();
                 throw RubyException(rb_eArgError, "Slice parsing failed for `%s'", cmd.c_str());
@@ -180,8 +182,7 @@ IceRuby_compile(int argc, VALUE* argv, VALUE /*self*/)
         }
         catch (...)
         {
-            cerr << argSeq[0] << ": error:"
-                 << "unknown exception" << endl;
+            cerr << argSeq[0] << ": error:unknown exception" << endl;
             rc = EXIT_FAILURE;
         }
         return INT2FIX(rc);

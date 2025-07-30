@@ -230,8 +230,7 @@ namespace Slice::Python
         {
             return _imports;
         }
-        [[nodiscard]] const std::set<std::string>& generatedModules() const { return _generatedModules; }
-        [[nodiscard]] const std::set<std::string>& packageIndexFiles() const { return _packageIndexFiles; }
+        [[nodiscard]] const std::map<std::string, std::set<std::string>>& generated() { return _generated; }
 
     private:
         void addRuntimeImport(const ContainedPtr& definition, const std::string& prefix = "");
@@ -245,11 +244,7 @@ namespace Slice::Python
         //   "__Foo_Bar_t", corresponding to the class itself and its associated meta-type.
         std::map<std::string, std::map<std::string, std::set<std::string>>> _imports;
 
-        // The set of generated Python modules.
-        std::set<std::string> _generatedModules;
-
-        // The se of generated package index files.
-        std::set<std::string> _packageIndexFiles;
+        std::map<std::string, std::set<std::string>> _generated;
     };
 
     // Collect the import statements required by each generated Python module.

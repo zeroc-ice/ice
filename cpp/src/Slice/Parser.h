@@ -217,10 +217,12 @@ namespace Slice
         DefinitionContext(int includeLevel);
 
         [[nodiscard]] const std::string& filename() const;
+        [[nodiscard]] const std::string& resolvedFilename() const;
+        [[nodiscard]] int line() const;
         [[nodiscard]] int includeLevel() const;
         [[nodiscard]] bool seenDefinition() const;
 
-        void setFilename(std::string filename);
+        void setFilename(std::string filename, std::string resolvedFilename);
         void setSeenDefinition();
 
         [[nodiscard]] const MetadataList& getMetadata() const;
@@ -237,6 +239,7 @@ namespace Slice
         int _includeLevel;
         MetadataList _metadata;
         std::string _filename;
+        std::string _resolvedFilename;
         bool _seenDefinition{false};
         std::set<WarningCategory> _suppressedWarnings;
     };
@@ -1095,7 +1098,7 @@ namespace Slice
         [[nodiscard]] const std::string& topLevelFile() const;
         [[nodiscard]] int currentLine() const;
 
-        int setCurrentFile(const std::string& currentFile, int lineNumber);
+        int setCurrentFile(std::string currentFile, int lineNumber);
         [[nodiscard]] int currentIncludeLevel() const;
 
         void addFileMetadata(MetadataList metadata);
@@ -1159,6 +1162,7 @@ namespace Slice
         std::map<std::string, DefinitionContextPtr, std::less<>> _definitionContextMap;
         std::map<std::int32_t, std::string> _typeIds;
         std::map<std::string, std::set<std::string>> _fileTopLevelModules;
+        StringList _allFiles;
     };
 
     extern Unit* currentUnit; // The current parser for bison/flex

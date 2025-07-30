@@ -61,10 +61,10 @@ compile(const vector<string>& argv)
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
-    vector<string> args;
+    vector<string> sliceFiles;
     try
     {
-        args = opts.parse(argv);
+        sliceFiles = opts.parse(argv);
     }
     catch (const IceInternal::BadOptException& e)
     {
@@ -88,24 +88,24 @@ compile(const vector<string>& argv)
         return EXIT_SUCCESS;
     }
 
-    vector<string> cppArgs;
+    vector<string> preprocessorArgs;
     vector<string> optargs = opts.argVec("D");
-    cppArgs.reserve(optargs.size()); // not quite sufficient but keeps clang-tidy happy
+    preprocessorArgs.reserve(optargs.size()); // not quite sufficient but keeps clang-tidy happy
     for (const auto& optarg : optargs)
     {
-        cppArgs.push_back("-D" + optarg);
+        preprocessorArgs.push_back("-D" + optarg);
     }
 
     optargs = opts.argVec("U");
     for (const auto& optarg : optargs)
     {
-        cppArgs.push_back("-U" + optarg);
+        preprocessorArgs.push_back("-U" + optarg);
     }
 
     vector<string> includePaths = opts.argVec("I");
     for (const auto& includePath : includePaths)
     {
-        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
+        preprocessorArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
 
     string outputDir = opts.optArg("output-dir");
@@ -116,7 +116,7 @@ compile(const vector<string>& argv)
 
     bool debug = opts.isSet("debug");
 
-    if (args.empty())
+    if (sliceFiles.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
         if (!validate)
@@ -138,75 +138,55 @@ compile(const vector<string>& argv)
 
     ostringstream os;
 
-    // Create a copy of args without the duplicates.
-    vector<string> sources;
-    for (const auto& arg : args)
+    for (const auto& fileName : sliceFiles)
     {
-        auto p = find(sources.begin(), sources.end(), arg);
-        if (p == sources.end())
+        UnitPtr unit;
+        try
         {
-            sources.push_back(arg);
-        }
-    }
+            PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor->preprocess("-D__ICE2SLICE__");
+            assert(preprocessedHandle);
 
-    for (auto i = sources.begin(); i != sources.end();)
-    {
-        PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-        FILE* cppHandle = icecpp->preprocess(true, "-D__ICE2SLICE__");
+            unit = Unit::createUnit("", false);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
 
-        if (cppHandle == nullptr)
-        {
-            return EXIT_FAILURE;
-        }
+            preprocessor->close();
 
-        UnitPtr p = Unit::createUnit("", false);
-        int parseStatus = p->parse(*i, cppHandle, debug);
-
-        if (!icecpp->close())
-        {
-            p->destroy();
-            return EXIT_FAILURE;
-        }
-
-        if (parseStatus == EXIT_FAILURE)
-        {
-            status = EXIT_FAILURE;
-        }
-        else
-        {
-            parseAllDocComments(p, Slice::slice2LinkFormatter);
-
-            DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
-            assert(dc);
-
-            string baseName = icecpp->getBaseName();
-            // Remove any directory components from the base name.
-            string::size_type pos = baseName.find_last_of("/\\");
-            if (pos != string::npos)
+            if (parseStatus == EXIT_FAILURE)
             {
-                baseName = baseName.substr(pos);
+                status = EXIT_FAILURE;
             }
-
-            try
+            else
             {
+                parseAllDocComments(unit, Slice::slice2LinkFormatter);
+
+                DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
+                assert(dc);
+
+                string baseName = preprocessor->getBaseName();
+                // Remove any directory components from the base name.
+                string::size_type pos = baseName.find_last_of("/\\");
+                if (pos != string::npos)
+                {
+                    baseName = baseName.substr(pos);
+                }
+
                 Gen gen(outputDir + baseName);
-                gen.generate(p);
+                gen.generate(unit);
             }
-            catch (const Slice::FileException& ex)
-            {
-                //
-                // If a file could not be created, then clean up any created files.
-                //
-                FileTracker::instance()->cleanup();
-                p->destroy();
-                consoleErr << argv[0] << ": error: " << ex.what() << endl;
-                return EXIT_FAILURE;
-            }
-        }
 
-        status |= p->getStatus();
-        p->destroy();
-        ++i;
+            status |= unit->getStatus();
+            unit->destroy();
+        }
+        catch (...)
+        {
+            FileTracker::instance()->cleanup();
+            if (unit)
+            {
+                unit->destroy();
+            }
+            throw;
+        }
 
         {
             lock_guard lock(globalMutex);
@@ -241,8 +221,7 @@ main(int argc, char* argv[])
     }
     catch (...)
     {
-        consoleErr << args[0] << ": error:"
-                   << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

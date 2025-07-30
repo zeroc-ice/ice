@@ -929,7 +929,7 @@ Slice::Python::PackageVisitor::visitModuleStart(const ModulePtr& p)
             string currentPath = current;
             replace(currentPath.begin(), currentPath.end(), '.', '/');
             currentPath += "__init__.py";
-            _packageIndexFiles.insert(currentPath);
+            _generated[p->unit()->topLevelFile()].insert(currentPath);
         }
     }
     return true;
@@ -1007,7 +1007,8 @@ Slice::Python::PackageVisitor::addRuntimeImport(const ContainedPtr& definition, 
     // Add the definition to the list of generated Python modules.
     string modulePath = packageName;
     replace(modulePath.begin(), modulePath.end(), '.', '/');
-    _generatedModules.insert(modulePath + moduleName + ".py");
+
+    _generated[definition->unit()->topLevelFile()].insert(modulePath + moduleName + ".py");
 }
 
 void
@@ -1028,7 +1029,7 @@ Slice::Python::PackageVisitor::addRuntimeImportForMetaType(const ContainedPtr& d
 
     // Add the definition to the list of generated Python modules.
     replace(packageName.begin(), packageName.end(), '.', '/');
-    _generatedModules.insert(packageName + moduleName + ".py");
+    _generated[definition->unit()->topLevelFile()].insert(packageName + moduleName + ".py");
 }
 
 // CodeVisitor implementation.
@@ -2588,15 +2589,12 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
     for (const auto& fileName : files)
     {
         PreprocessorPtr preprocessor = Preprocessor::create("IcePy", fileName, preprocessorArgs);
-        FILE* cppHandle = preprocessor->preprocess(true, "-D__SLICE2PY__");
-
-        if (cppHandle == nullptr)
-        {
-            throw runtime_error("Failed to preprocess Slice file: " + fileName);
-        }
+        FILE* cppHandle = preprocessor->preprocess("-D__SLICE2PY__");
 
         UnitPtr unit = Unit::createUnit("python", debug);
         int parseStatus = unit->parse(fileName, cppHandle, false);
+
+        preprocessor->close();
 
         if (parseStatus == EXIT_FAILURE)
         {

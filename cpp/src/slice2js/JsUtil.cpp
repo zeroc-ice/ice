@@ -22,64 +22,6 @@ using namespace Slice;
 using namespace IceInternal;
 
 string
-Slice::JavaScript::relativePath(const string& path1, const string& path2)
-{
-    vector<string> tokens1;
-    vector<string> tokens2;
-
-    splitString(path1, "/\\", tokens1);
-    splitString(path2, "/\\", tokens2);
-
-    string f1 = tokens1.back();
-    string f2 = tokens2.back();
-
-    tokens1.pop_back();
-    tokens2.pop_back();
-
-    auto i1 = tokens1.begin();
-    auto i2 = tokens2.begin();
-
-    while (i1 != tokens1.end() && i2 != tokens2.end() && *i1 == *i2)
-    {
-        i1++;
-        i2++;
-    }
-
-    //
-    // Different volumes, relative path not possible.
-    //
-    if (i1 == tokens1.begin() && i2 == tokens2.begin())
-    {
-        return path1;
-    }
-
-    string newPath;
-    if (i2 == tokens2.end())
-    {
-        newPath += "./";
-        for (; i1 != tokens1.end(); ++i1)
-        {
-            newPath += *i1 + "/";
-        }
-    }
-    else
-    {
-        for (vector<string>::difference_type i = tokens2.end() - i2; i > 0; i--)
-        {
-            newPath += "../";
-        }
-
-        for (; i1 != tokens1.end(); ++i1)
-        {
-            newPath += *i1 + "/";
-        }
-    }
-    newPath += f1;
-
-    return newPath;
-}
-
-string
 Slice::JavaScript::getJavaScriptModule(const DefinitionContextPtr& dc)
 {
     // Check if the file contains the 'js:module' file metadata.
