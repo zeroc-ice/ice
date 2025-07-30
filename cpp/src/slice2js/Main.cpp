@@ -220,7 +220,7 @@ compile(const vector<string>& argv)
             // Else JSON and XML dependencies are written below after all units have been processed.
         }
         else
-        {            
+        {
             parseAllDocComments(unit, Slice::JavaScript::jsLinkFormatter);
             try
             {

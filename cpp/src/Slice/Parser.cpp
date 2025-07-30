@@ -1,11 +1,11 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Parser.h"
+#include "../Ice/FileUtil.h"
 #include "DeprecationReporter.h"
 #include "DocCommentParser.h"
 #include "Ice/StringUtil.h"
 #include "Util.h"
-#include "../Ice/FileUtil.h"
 
 #include <algorithm>
 #include <cassert>

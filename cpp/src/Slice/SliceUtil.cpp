@@ -220,8 +220,7 @@ Slice::baseName(const string& path)
 string
 Slice::dirName(const string& path)
 {
-    string dirName = path;
-    string::size_type pos = dirName.find_last_of("/\\");
+    string::size_type pos = path.find_last_of("/\\");
     if (pos == string::npos)
     {
         // If there is no slash, return the current directory.
@@ -235,7 +234,7 @@ Slice::dirName(const string& path)
     else
     {
         // Otherwise, return the directory part of the path.
-        return dirName.substr(0, pos);
+        return path.substr(0, pos);
     }
 }
 

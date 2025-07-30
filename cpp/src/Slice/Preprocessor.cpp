@@ -135,7 +135,7 @@ namespace
         args.emplace_back("-e");
         args.emplace_back("en_us.utf8");
 
-        // Define version macros __ICE_VERSION__ is preferred. We keep ICE_VERSION for backward compatibility 
+        // Define version macros __ICE_VERSION__ is preferred. We keep ICE_VERSION for backward compatibility
         // with 3.5.0.
         const string version[2] = {"ICE_VERSION", "__ICE_VERSION__"};
         for (const auto& i : version)

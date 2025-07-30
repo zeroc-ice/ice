@@ -262,7 +262,7 @@ main(int argc, char* argv[])
 
                 try
                 {
-                     generate(unit, outputDir);
+                    generate(unit, outputDir);
                 }
                 catch (...)
                 {
@@ -288,10 +288,7 @@ main(int argc, char* argv[])
             {
                 for (const auto& file : files)
                 {
-                    dependencyVisitor.writeMakefileDependencies(
-                        dependFile,
-                        source,
-                        file);
+                    dependencyVisitor.writeMakefileDependencies(dependFile, source, file);
                 }
             }
         }

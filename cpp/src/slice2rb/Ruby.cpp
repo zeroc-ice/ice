@@ -236,7 +236,7 @@ Slice::Ruby::compile(const vector<string>& argv)
 
     if (dependXML)
     {
-       dependencyVisitor.writeXMLDependencies(dependFile);
+        dependencyVisitor.writeXMLDependencies(dependFile);
     }
 
     return status;
