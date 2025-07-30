@@ -204,7 +204,7 @@ compile(const vector<string>& argv)
             {
                 status = EXIT_FAILURE;
             }
-            else if (depend | dependJSON | dependXML)
+            else if (depend || dependJSON || dependXML)
             {
                 unit->visit(&dependencyVisitor);
                 if (depend)
