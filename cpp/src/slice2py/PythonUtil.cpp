@@ -7,7 +7,6 @@
 #include "../Slice/MetadataValidation.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
-#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
@@ -2689,7 +2688,6 @@ Slice::Python::sortCodeFragments(vector<PythonCodeFragment> fragments, ImportsMa
 
             if (!unseenDependencies)
             {
-                processedFragments.push_back(*it);
                 it = fragments.erase(it);
             }
             else

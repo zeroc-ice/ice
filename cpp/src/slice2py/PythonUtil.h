@@ -5,7 +5,7 @@
 
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
-#include "../Slice/Util.h"
+#include "Ice/StringUtil.h"
 
 #include <map>
 #include <set>
