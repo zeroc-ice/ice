@@ -818,35 +818,19 @@ Slice::JavaOutput::JavaOutput() : Output(false, false) {}
 void
 Slice::JavaOutput::openClass(const string& cls, const string& prefix, const string& sliceFile)
 {
-    string package;
-    string file;
-    string path;
-
     string::size_type pos = cls.rfind('.');
-    if (pos != string::npos)
-    {
-        package = cls.substr(0, pos);
-        file = cls.substr(pos + 1);
+    // The generate classes are always in a package corresponding to the Slice module.
+    assert(pos != string::npos);
+    string package = cls.substr(0, pos);
+    string file = cls.substr(pos + 1) + ".java";
 
-        createPackagePath(package, prefix);
-        path = package;
-        std::replace(path.begin(), path.end(), '.', '/');
-    }
-    else
-    {
-        file = cls;
-    }
-    file += ".java";
+    createPackagePath(package, prefix);
+    string packagePath = package;
+    std::replace(packagePath.begin(), packagePath.end(), '.', '/');
 
-    //
+    string path = (prefix.empty() ? "" : prefix + "/") + packagePath + '/' + file;
+
     // Open class file.
-    //
-    if (!prefix.empty())
-    {
-        path = prefix + "/" + path + "/";
-    }
-    path += file;
-
     open(path.c_str());
     if (isOpen())
     {
@@ -866,7 +850,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     else
     {
         ostringstream os;
-        os << "cannot open file '" << path << "': " << IceInternal::errorToString(errno);
+        os << "cannot open file '" << path << "': " << IceInternal::lastErrorToString();
         throw FileException(os.str());
     }
 }

@@ -2722,36 +2722,28 @@ CodeVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-CodeVisitor::openClass(const string& abs, const string& dir)
+CodeVisitor::openClass(const string& cls, const string& prefix)
 {
-    string package;
-    string file;
-    string path;
+    string::size_type pos = cls.rfind('.');
+    // The generate classes are always in a package corresponding to the Slice module.
+    assert(pos != string::npos);
+    string package = cls.substr(0, pos);
+    string file = cls.substr(pos + 1) + ".java";
 
-    string::size_type pos = abs.rfind('.');
-    if (pos != string::npos)
-    {
-        package = abs.substr(0, pos);
-        file = abs.substr(pos + 1);
+    createPackagePath(package, prefix);
+    string packagePath = package;
+    std::replace(packagePath.begin(), packagePath.end(), '.', '/');
 
-        createPackagePath(package, dir);
-        path = package;
-        std::replace(path.begin(), path.end(), '.', '/');
-    }
-    else
-    {
-        file = abs;
-    }
-    file += ".m";
-
-    if (!dir.empty())
-    {
-        path = dir + '/' + path + '/';
-    }
-    path += file;
+    string path = (prefix.empty() ? "" : prefix + "/") + packagePath + '/' + file;
 
     _out = make_unique<IceInternal::Output>();
     _out->open(path);
+    if (!_out->isOpen())
+    {
+        ostringstream os;
+        os << "cannot open file '" << path << "': " << IceInternal::lastErrorToString();
+        throw FileException(os.str());
+    }
     FileTracker::instance()->addFile(path);
 }
 
