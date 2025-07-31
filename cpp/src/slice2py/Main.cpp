@@ -282,7 +282,6 @@ main(int argc, char* argv[])
                 Output out{outputPath.c_str()};
                 if (out.isOpen())
                 {
-                    writeHeader(out);
                     out << fragment.code;
                 }
                 else
