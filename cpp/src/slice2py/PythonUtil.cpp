@@ -2568,35 +2568,54 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
 
     for (const auto& fileName : files)
     {
-        PreprocessorPtr preprocessor = Preprocessor::create("IcePy", fileName, preprocessorArgs);
-        FILE* cppHandle = preprocessor->preprocess("-D__SLICE2PY__");
+        PreprocessorPtr preprocessor;
+        UnitPtr unit;
 
-        UnitPtr unit = Unit::createUnit("python", debug);
-        int parseStatus = unit->parse(fileName, cppHandle, false);
-
-        preprocessor->close();
-
-        if (parseStatus == EXIT_FAILURE)
+        try
         {
+            preprocessor = Preprocessor::create("IcePy", fileName, preprocessorArgs);
+            FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
+
+            unit = Unit::createUnit("python", debug);
+            int parseStatus = unit->parse(fileName, preprocessedHandle, false);
+
+            preprocessor->close();
+
+            if (parseStatus == EXIT_FAILURE)
+            {
+                unit->destroy();
+                throw runtime_error("Failed to parse Slice file: " + fileName);
+            }
+
+            parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
+            validatePythonMetadata(unit);
+
+            unit->visit(&packageVisitor);
+            unit->visit(&importVisitor);
+
+            CodeVisitor codeVisitor{
+                importVisitor.getRuntimeImports(),
+                importVisitor.getTypingImports(),
+                importVisitor.getAllImportNames()};
+            unit->visit(&codeVisitor);
+
+            const vector<PythonCodeFragment>& newFragments = codeVisitor.codeFragments();
+            fragments.insert(fragments.end(), newFragments.begin(), newFragments.end());
             unit->destroy();
-            throw runtime_error("Failed to parse Slice file: " + fileName);
         }
+        catch (...)
+        {
+            if (preprocessor)
+            {
+                preprocessor->close();
+            }
 
-        parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
-        validatePythonMetadata(unit);
-
-        unit->visit(&packageVisitor);
-        unit->visit(&importVisitor);
-
-        CodeVisitor codeVisitor{
-            importVisitor.getRuntimeImports(),
-            importVisitor.getTypingImports(),
-            importVisitor.getAllImportNames()};
-        unit->visit(&codeVisitor);
-
-        const vector<PythonCodeFragment>& newFragments = codeVisitor.codeFragments();
-        fragments.insert(fragments.end(), newFragments.begin(), newFragments.end());
-        unit->destroy();
+            if (unit)
+            {
+                unit->destroy();
+            }
+            throw;
+        }
     }
 
     vector<string> generatedModules;
