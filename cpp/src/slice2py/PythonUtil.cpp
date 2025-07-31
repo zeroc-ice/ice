@@ -186,9 +186,6 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         }
     }
 
-    static constexpr string_view builtinTable[] =
-        {"int", "bool", "int", "int", "int", "float", "float", "str", "Ice.ObjectPrx | None", "Ice.Value | None"};
-
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
         if (builtin->kind() == Builtin::KindObjectProxy)
@@ -201,6 +198,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         }
         else
         {
+            static constexpr string_view builtinTable[] = {"int", "bool", "int", "int", "int", "float", "float", "str"};
             return string{builtinTable[builtin->kind()]};
         }
     }
@@ -224,17 +222,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         {
             ostringstream os;
             // Map Slice built-in numeric types to NumPy types.
-            static const char* numpyBuiltinTable[] = {
-                "numpy.int8",
-                "numpy.bool",
-                "numpy.int16",
-                "numpy.int32",
-                "numpy.int64",
-                "numpy.float32",
-                "numpy.float64",
-                "",
-                "",
-                ""};
+            static const char* numpyBuiltinTable[] = {"int8", "bool", "int16", "int32", "int64", "float32", "float64"};
 
             auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
             bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
@@ -250,8 +238,8 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                 }
                 if (seq->hasMetadata("python:numpy.ndarray"))
                 {
-                    assert(elementType);
-                    os << " | numpy.typing.NDArray[" << numpyBuiltinTable[elementType->kind()] << "]";
+                    assert(elementType && elementType->kind() <= Builtin::KindDouble);
+                    os << " | numpy.typing.NDArray[numpy." << numpyBuiltinTable[elementType->kind()] << "]";
                 }
             }
             else if (seq->hasMetadata("python:list"))
@@ -264,11 +252,12 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
             }
             else if (seq->hasMetadata("python:numpy.ndarray"))
             {
-                assert(elementType);
-                os << "numpy.typing.NDArray[" << numpyBuiltinTable[elementType->kind()] << "]";
+                assert(elementType && elementType->kind() <= Builtin::KindDouble);
+                os << "numpy.typing.NDArray[numpy." << numpyBuiltinTable[elementType->kind()] << "]";
             }
             else if (seq->hasMetadata("python:array.array"))
             {
+                assert(elementType && elementType->kind() <= Builtin::KindDouble);
                 os << "array.array[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
             }
             else if (isByteSequence)
@@ -379,13 +368,6 @@ Slice::Python::formatFields(const DataMemberList& members)
     }
     os << ")}";
     return os.str();
-}
-
-bool
-Slice::Python::canBeUsedAsDefaultValue(const TypePtr& type)
-{
-    return !dynamic_pointer_cast<Struct>(type) && !dynamic_pointer_cast<Sequence>(type) &&
-           !dynamic_pointer_cast<Dictionary>(type);
 }
 
 Python::PythonCodeFragment
@@ -534,9 +516,10 @@ Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
     auto parent = dynamic_pointer_cast<Contained>(p->container());
     auto type = p->type();
 
-    // Import field if we have at least one data member that cannot be used as a default value.
-    // This is required to use the `dataclasses.field` function to initialize the field.
-    if (!canBeUsedAsDefaultValue(type))
+    // Import 'field' from dataclasses to initialize non-optional Struct, Dictionary, and Sequence members.
+    // These types cannot use direct field initializers.
+    if (!p->optional() && (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
+                           dynamic_pointer_cast<Dictionary>(type)))
     {
         addRuntimeImport("dataclasses", "field", parent);
     }
@@ -546,7 +529,11 @@ Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
     // For fields with a type that is a Struct, we need to import it as a RuntimeImport, to
     // initialize the field in the constructor. For other contained types, we only need the
     // import for type hints.
-    if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
+    if (auto sequence = dynamic_pointer_cast<Sequence>(type))
+    {
+        addRuntimeImportForSequence(sequence, parent);
+    }
+    else if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
     {
         addRuntimeImport(type, parent);
     }
@@ -616,6 +603,10 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         auto ret = op->returnType();
         if (ret)
         {
+            if (auto sequence = dynamic_pointer_cast<Sequence>(ret))
+            {
+                addRuntimeImportForSequence(sequence, p);
+            }
             addTypingImport(ret, p, false);
             addTypingImport(ret, p, true);
 
@@ -624,6 +615,10 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         for (const auto& param : op->parameters())
         {
+            if (auto sequence = dynamic_pointer_cast<Sequence>(param->type()))
+            {
+                addRuntimeImportForSequence(sequence, p);
+            }
             addTypingImport(param->type(), p, false);
             addTypingImport(param->type(), p, true);
 
@@ -673,6 +668,30 @@ Slice::Python::ImportVisitor::visitConst(const ConstPtr& p)
     if (dynamic_pointer_cast<Enum>(p->type()))
     {
         addRuntimeImport(p->type(), p);
+    }
+}
+
+void
+Slice::Python::ImportVisitor::addRuntimeImportForSequence(const SequencePtr& sequence, const ContainedPtr& source)
+{
+    if (sequence->hasMetadata("python:numpy.ndarray"))
+    {
+        // Import numpy for using it in the field factory.
+        addRuntimeImport("numpy", "", source);
+    }
+    else if (sequence->hasMetadata("python:array.array"))
+    {
+        // Import array for using it in the field factory.
+        addRuntimeImport("array", "", source);
+    }
+    else if (sequence->hasMetadata("python:memoryview"))
+    {
+        // TODO
+    }
+    else
+    {
+        // This is required to import the sequence element type in case it is not a built-in type.
+        addTypingImport(sequence, source, true);
     }
 }
 
@@ -756,6 +775,16 @@ Slice::Python::ImportVisitor::addRuntimeImport(
     }
 
     auto& sourceModuleImports = _runtimeImports[sourceModule];
+    if (definition.empty())
+    {
+        if (sourceModuleImports.find(definitionModule) == sourceModuleImports.end())
+        {
+            // If the package does not exist, we create an empty map for it.
+            sourceModuleImports[definitionModule] = {};
+        }
+        return;
+    }
+
     auto& definitionImports = sourceModuleImports[definitionModule];
 
     auto& imports = _allImports[sourceModule];
@@ -822,23 +851,6 @@ Slice::Python::ImportVisitor::addTypingImport(
     }
     else if (auto sequence = dynamic_pointer_cast<Sequence>(definition))
     {
-        if (sequence->hasMetadata("python:numpy.ndarray"))
-        {
-            // We need both numpy and numpy.typing imports to generate:
-            // numpy.typing.NDArray[numpy.int8]
-            addTypingImport("numpy", source);
-            addTypingImport("numpy.typing", source);
-        }
-
-        if (forMarshaling)
-        {
-            // For marshaling we just require a generic Sequence
-            addTypingImport("collections.abc", "Sequence", source);
-        }
-        else if (sequence->hasMetadata("python:memoryview") || sequence->hasMetadata("python:array.array"))
-        {
-            addTypingImport("collections.abc", "MutableSequence", source);
-        }
         addTypingImport(sequence->type(), source, forMarshaling);
     }
     else if (auto dictionary = dynamic_pointer_cast<Dictionary>(definition))
@@ -1313,9 +1325,69 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
     {
         out << " = None";
     }
+    else if (auto builtin = dynamic_pointer_cast<Builtin>(p->type()))
+    {
+        static constexpr string_view builtinTable[] = {
+            "0",     // Builtin::KindByte
+            "False", // Builtin::KindBool
+            "0",     // Builtin::KindShort
+            "0",     // Builtin::KindInt
+            "0",     // Builtin::KindLong
+            "0.0",   // Builtin::KindFloat
+            "0.0",   // Builtin::KindDouble
+            R"("")", // Builtin::KindString
+            "None",  // Builtin::KindObjectProxy.
+            "None"}; // Builtin::KindValue.
+        out << " = " << builtinTable[builtin->kind()];
+    }
+    else if (p->type()->isClassType() || isProxyType(p->type()))
+    {
+        out << " = None";
+    }
+    else if (auto enumeration = dynamic_pointer_cast<Enum>(p->type()))
+    {
+        out << " = " << getImportAlias(parent, enumeration) << "." + enumeration->enumerators().front()->mappedName();
+    }
+    else if (auto seq = dynamic_pointer_cast<Sequence>(p->type()))
+    {
+        auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
+        bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
+
+        out << " = field(default_factory=";
+        if (seq->hasMetadata("python:list"))
+        {
+            out << "list";
+        }
+        else if (seq->hasMetadata("python:tuple"))
+        {
+            out << "tuple";
+        }
+        else if (seq->hasMetadata("python:numpy.ndarray"))
+        {
+            assert(elementType && elementType->kind() <= Builtin::KindDouble);
+            static const char* builtinTable[] = {"int8", "bool", "int16", "int32", "int64", "float32", "float64"};
+            out << "lambda: numpy.empty(0, numpy." << builtinTable[elementType->kind()] << ")";
+        }
+        else if (seq->hasMetadata("python:array.array"))
+        {
+            assert(elementType && elementType->kind() <= Builtin::KindDouble);
+            static const char* builtinTable[] = {"b", "b", "h", "i", "q", "f", "d"};
+            out << "lambda: array.array('" << builtinTable[elementType->kind()] << "')";
+        }
+        else if (isByteSequence)
+        {
+            out << "bytes";
+        }
+        else
+        {
+            out << "list";
+        }
+        out << ")";
+    }
     else
     {
-        out << " = " << getTypeInitializer(parent, p, false);
+        assert(dynamic_pointer_cast<Dictionary>(p->type()));
+        out << " = field(default_factory=dict)";
     }
 }
 
@@ -1807,61 +1879,6 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
     out << nl << "__all__ = [\"" << name << "\"]";
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
-}
-
-string
-Slice::Python::CodeVisitor::getTypeInitializer(const ContainedPtr& source, const DataMemberPtr& field, bool constructor)
-{
-    static constexpr string_view builtinTable[] = {
-        "0",     // Builtin::KindByte
-        "False", // Builtin::KindBool
-        "0",     // Builtin::KindShort
-        "0",     // Builtin::KindInt
-        "0",     // Builtin::KindLong
-        "0.0",   // Builtin::KindFloat
-        "0.0",   // Builtin::KindDouble
-        R"("")", // Builtin::KindString
-        "None",  // Builtin::KindObjectProxy.
-        "None"}; // Builtin::KindValue.
-
-    if (auto builtin = dynamic_pointer_cast<Builtin>(field->type()))
-    {
-        return string{builtinTable[builtin->kind()]};
-    }
-    else if (auto enumeration = dynamic_pointer_cast<Enum>(field->type()))
-    {
-        return getImportAlias(source, enumeration) + "." + enumeration->enumerators().front()->mappedName();
-    }
-    else if (!constructor && !canBeUsedAsDefaultValue(field->type()))
-    {
-        string factory;
-        if (auto st = dynamic_pointer_cast<Struct>(field->type()))
-        {
-            factory = getImportAlias(source, st);
-        }
-        else if (auto seq = dynamic_pointer_cast<Sequence>(field->type()))
-        {
-            // TODO: handle metadata for sequences.
-            auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
-            bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
-            if (isByteSequence)
-            {
-                factory = "bytes";
-            }
-            else
-            {
-                factory = "list";
-            }
-        }
-        else if (auto dict = dynamic_pointer_cast<Dictionary>(field->type()))
-        {
-            factory = "dict"; // Dictionaries are initialized with an empty dictionary.
-        }
-
-        return "field(default_factory=" + factory + ")";
-    }
-
-    return "None";
 }
 
 void
@@ -2489,18 +2506,27 @@ namespace
         for (const auto& [moduleName, definitions] : runtimeImports)
         {
             out << sp;
-            for (const auto& [name, alias] : definitions)
+            if (!definitions.empty())
             {
-                out << nl << "from " << moduleName << " import " << name;
-                if (!alias.empty())
+                for (const auto& [name, alias] : definitions)
                 {
-                    out << " as " << alias;
-                    allImports.insert(alias);
+                    out << nl << "from " << moduleName << " import " << name;
+                    if (!alias.empty())
+                    {
+                        out << " as " << alias;
+                        allImports.insert(alias);
+                    }
+                    else
+                    {
+                        allImports.insert(name);
+                    }
                 }
-                else
-                {
-                    allImports.insert(name);
-                }
+            }
+            else
+            {
+                // If there are no definitions, we just import the module.
+                out << nl << "import " << moduleName;
+                allImports.insert(moduleName);
             }
         }
 

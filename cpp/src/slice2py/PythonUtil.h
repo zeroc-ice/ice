@@ -139,11 +139,6 @@ namespace Slice::Python
     /// Helper method to emit the generated code that format the fields of a type in __repr__ implementation.
     std::string formatFields(const DataMemberList& members);
 
-    /// Checks if the given Slice type corresponds to non-optional type which can be used as default value in Python.
-    /// This is really anything that is not a Python dataclass, sequence, or dictionary type. Slice classes and
-    /// interfaces are always mapped as optional.
-    bool canBeUsedAsDefaultValue(const TypePtr& type);
-
     PythonCodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
 
     // Get a list of all definitions exported for the Python module corresponding to the given Slice definition.
@@ -273,7 +268,10 @@ namespace Slice::Python
         }
 
     private:
-        void visitDataMembers(const ContainedPtr&, const std::list<DataMemberPtr>&);
+        /// Add the runtime imports for the given Sequence definition.
+        /// @param definition is the Sequence definition being imported.
+        /// @param source is the Slice definition that requires the import.
+        void addRuntimeImportForSequence(const SequencePtr& definition, const ContainedPtr& source);
 
         /// Adds a runtime import for the given Slice definition if it comes from a different module.
         /// @param definition is the Slice definition to import.
@@ -391,13 +389,6 @@ namespace Slice::Python
 
         // Emit Python code for operations
         void writeOperations(const InterfaceDefPtr&, IceInternal::Output&);
-
-        /// Get the default value for initializing a given type.
-        /// @param source The Slice definition that is initializing the type.
-        /// @param member The data member to initialize.
-        /// @param forConstructor If true, the initialization is for a constructor parameter, otherwise it is for a
-        /// dataclass field.
-        std::string getTypeInitializer(const ContainedPtr& source, const DataMemberPtr& member, bool forConstructor);
 
         // Write Python metadata as a tuple.
         void writeMetadata(const MetadataList&, IceInternal::Output&);
