@@ -7,6 +7,7 @@
 #include "../Slice/MetadataValidation.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
+#include "Ice/StringUtil.h"
 
 #include <algorithm>
 #include <cassert>
