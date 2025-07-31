@@ -3,6 +3,7 @@
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/Options.h"
+#include "../Ice/StringUtil.h"
 #include "../Slice/DocCommentParser.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
@@ -31,31 +32,6 @@ namespace
         lock_guard lock(globalMutex);
 
         interrupted = true;
-    }
-
-    string getPackageInitPath(const string& packageName, const string& outputDir)
-    {
-        // Create a new output file for this package.
-        string fileName = packageName;
-        replace(fileName.begin(), fileName.end(), '.', '/');
-        fileName += "/__init__.py";
-
-        string outputPath;
-        if (!outputDir.empty())
-        {
-            outputPath = outputDir + "/";
-        }
-        else
-        {
-            outputPath = "./";
-        }
-
-        createPackagePath(packageName, outputPath);
-        outputPath += fileName;
-
-        FileTracker::instance()->addFile(outputPath);
-
-        return outputPath;
     }
 
     void usage(const string& n)
@@ -220,70 +196,39 @@ main(int argc, char* argv[])
         Ice::CtrlCHandler ctrlCHandler;
         ctrlCHandler.setCallback(interruptedCallback);
 
-        DependencyGenerator dependencyGenerator;
+        auto dependencyGenerator = make_unique<DependencyGenerator>();
         PackageVisitor packageVisitor;
 
-        std::map<string, StringList> dependencyMap;
-
-        for (const auto& fileName : sliceFiles)
+        PythonCompilationKind compilationKind;
+        if (!listArg.empty() || depend || dependXML)
         {
-            PreprocessorPtr preprocessor;
-            UnitPtr unit;
-            try
-            {
-                preprocessor = Preprocessor::create(args[0], fileName, preprocessorArgs);
-                FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
-                assert(preprocessedHandle);
-
-                unit = Unit::createUnit("python", false);
-                int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
-
-                preprocessor->close();
-
-                if (parseStatus == EXIT_FAILURE)
-                {
-                    status = EXIT_FAILURE;
-                }
-                else
-                {
-                    // Collect the dependencies of the unit.
-                    dependencyGenerator.addDependenciesFor(unit);
-
-                    // Collect the package imports and generated files.
-                    unit->visit(&packageVisitor);
-
-                    if (buildArg == "modules" || buildArg == "all")
-                    {
-                        parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
-
-                        generate(unit, outputDir);
-                    }
-
-                    status |= unit->getStatus();
-                }
-                unit->destroy();
-            }
-            catch (...)
-            {
-                FileTracker::instance()->cleanup();
-
-                if (preprocessor)
-                {
-                    preprocessor->close();
-                }
-
-                if (unit)
-                {
-                    unit->destroy();
-                }
-                throw;
-            }
+            // If we are listing generated files or generating dependencies, we do not generate any Python code.
+            compilationKind = PythonCompilationKind::None;
+        }
+        else if (buildArg == "modules")
+        {
+            compilationKind = PythonCompilationKind::Module;
+        }
+        else if (buildArg == "index")
+        {
+            compilationKind = PythonCompilationKind::Index;
+        }
+        else
+        {
+            compilationKind = PythonCompilationKind::All;
         }
 
-        if (status == EXIT_FAILURE)
+        PythonCompilationResult compilationResult = Slice::Python::compile(
+            argv[0],
+            dependencyGenerator,
+            packageVisitor,
+            sliceFiles,
+            preprocessorArgs,
+            debug,
+            compilationKind);
+
+        if (compilationResult.status == EXIT_FAILURE)
         {
-            // If the compilation failed, clean up any created files.
-            FileTracker::instance()->cleanup();
             return status;
         }
 
@@ -293,13 +238,13 @@ main(int argc, char* argv[])
             {
                 for (const auto& file : files)
                 {
-                    dependencyGenerator.writeMakefileDependencies(dependFile, source, file);
+                    dependencyGenerator->writeMakefileDependencies(dependFile, source, file);
                 }
             }
         }
         else if (dependXML)
         {
-            dependencyGenerator.writeXMLDependencies(dependFile);
+            dependencyGenerator->writeXMLDependencies(dependFile);
         }
         else if (!listArg.empty())
         {
@@ -325,13 +270,27 @@ main(int argc, char* argv[])
                 cout << file << endl;
             }
         }
-        else if (buildArg == "index" || buildArg == "all")
+        else
         {
-            // Emit the package index files.
-            for (const auto& [packageName, imports] : packageVisitor.imports())
+            // Emit the Python code fragments.
+            for (const auto& fragment : compilationResult.fragments)
             {
-                Output out{getPackageInitPath(packageName, outputDir).c_str()};
-                writePackageIndex(imports, out);
+                createPackagePath(fragment.packageName, outputDir);
+
+                string outputPath = outputDir.empty() ? fragment.fileName : outputDir + "/" + fragment.fileName;
+
+                Output out{outputPath.c_str()};
+                if (out.isOpen())
+                {
+                    writeHeader(out);
+                    out << fragment.code;
+                }
+                else
+                {
+                    ostringstream os;
+                    os << "cannot open file '" << outputPath << "': " << IceInternal::lastErrorToString();
+                    throw FileException(os.str());
+                }
             }
         }
 

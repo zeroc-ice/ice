@@ -5,6 +5,7 @@
 
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
+#include "../Slice/Util.h"
 
 #include <map>
 #include <set>
@@ -64,6 +65,9 @@ namespace Slice::Python
         /// The Slice file name from which this code fragment was generated.
         std::string sliceFileName;
 
+        /// The package name for the generated code.
+        std::string packageName;
+
         /// The Python module for the generated code.
         std::string moduleName;
 
@@ -75,6 +79,27 @@ namespace Slice::Python
 
         /// The generated code.
         std::string code;
+    };
+
+    struct PythonCompilationResult
+    {
+        /// The status of the compilation.
+        int status = EXIT_SUCCESS;
+
+        /// The generated Python code fragments.
+        std::vector<PythonCodeFragment> fragments;
+    };
+
+    enum PythonCompilationKind
+    {
+        // Don't generate any Python code.
+        None,
+        // Generate Python code for Slice definitions.
+        Module,
+        // Generate Python package index files (__init__.py).
+        Index,
+        // Generate both modules and package index files.
+        All
     };
 
     /// Returns the fully qualified name of the Python module that corresponds to the given Slice definition.
@@ -189,20 +214,6 @@ namespace Slice::Python
     /// @param out The output stream to write the package index to.
     void writePackageIndex(const std::map<std::string, std::set<std::string>>& imports, IceInternal::Output& out);
 
-    /// Generates the Python modules and packages for the given Slice files. The code is returned as a vector of
-    /// PythonCodeFragment objects, sorted in the order required for evaluation by the Python interpreter.
-    /// @param files The list of Slice files to process.
-    /// @param preprocessorArgs The arguments to pass to the preprocessor.
-    /// @param debug Whether to enable debug output.
-    /// @return A vector of PythonCodeFragment objects representing the generated code.
-    std::vector<PythonCodeFragment>
-    dynamicCompile(const std::vector<std::string>& files, const std::vector<std::string>& preprocessorArgs, bool debug);
-
-    /// Generate Python code for a translation unit.
-    /// @param unit is the Slice unit to generate code for.
-    /// @param outputDir The base-directory to write the generated Python files to.
-    void generate(const Slice::UnitPtr& unit, const std::string& outputDir);
-
     /// Returns a DocString formatted link to the provided Slice identifier.
     std::string
     pyLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
@@ -273,8 +284,6 @@ namespace Slice::Python
         }
 
     private:
-        void visitDataMembers(const ContainedPtr&, const std::list<DataMemberPtr>&);
-
         /// Adds a runtime import for the given Slice definition if it comes from a different module.
         /// @param definition is the Slice definition to import.
         /// @param source is the Slice definition that requires the import.
@@ -443,6 +452,24 @@ namespace Slice::Python
 
         std::unique_ptr<BufferedOutput> _out;
     };
+
+    /// Generates the Python modules and packages for the given Slice files. The code is returned as a vector of
+    /// PythonCodeFragment objects, sorted in the order required for evaluation by the Python interpreter.
+    /// @param files The list of Slice files to process.
+    /// @param preprocessorArgs The arguments to pass to the preprocessor.
+    /// @param debug Whether to enable debug output.
+    /// @return A vector of PythonCodeFragment objects representing the generated code.
+    PythonCompilationResult compile(
+        const std::string& programName,
+        const std::unique_ptr<DependencyGenerator>& dependencyGenerator,
+        PackageVisitor& packageVisitor,
+        const std::vector<std::string>& files,
+        const std::vector<std::string>& preprocessorArgs,
+        bool debug,
+        PythonCompilationKind kind);
+
+    std::vector<PythonCodeFragment>
+    sortCodeFragments(std::vector<PythonCodeFragment> fragments, ImportsMap runtimeImports);
 }
 
 #endif
