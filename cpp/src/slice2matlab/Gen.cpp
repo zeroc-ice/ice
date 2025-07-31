@@ -2728,7 +2728,7 @@ CodeVisitor::openClass(const string& cls, const string& prefix)
     // The generate classes are always in a package corresponding to the Slice module.
     assert(pos != string::npos);
     string package = cls.substr(0, pos);
-    string file = cls.substr(pos + 1) + ".java";
+    string file = cls.substr(pos + 1) + ".m";
 
     createPackagePath(package, prefix);
     string packagePath = package;
