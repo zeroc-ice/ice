@@ -843,7 +843,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     //
     if (!prefix.empty())
     {
-        path = prefix + "/" + path;
+        path = prefix + "/" + path + "/";
     }
     path += file;
 

@@ -2746,9 +2746,9 @@ CodeVisitor::openClass(const string& abs, const string& dir)
 
     if (!dir.empty())
     {
-        path = dir + '/' + path;
+        path = dir + '/' + path + '/';
     }
-    path += '/' + file;
+    path += file;
 
     _out = make_unique<IceInternal::Output>();
     _out->open(path);
