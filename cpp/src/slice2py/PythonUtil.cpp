@@ -1340,13 +1340,13 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
             "None"}; // Builtin::KindValue.
         out << " = " << builtinTable[builtin->kind()];
     }
-    else if (p->type()->isClassType() || isProxyType(p->type()))
-    {
-        out << " = None";
-    }
     else if (auto enumeration = dynamic_pointer_cast<Enum>(p->type()))
     {
         out << " = " << getImportAlias(parent, enumeration) << "." + enumeration->enumerators().front()->mappedName();
+    }
+    else if (dynamic_pointer_cast<Struct>(p->type()))
+    {
+        out << " = field(default_factory=" << getImportAlias(parent, p->type()) << ")";
     }
     else if (auto seq = dynamic_pointer_cast<Sequence>(p->type()))
     {
@@ -1384,10 +1384,13 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
         }
         out << ")";
     }
+    else if (dynamic_pointer_cast<Dictionary>(p->type()))
+    {
+        out << " = field(default_factory=dict)";
+    }
     else
     {
-        assert(dynamic_pointer_cast<Dictionary>(p->type()));
-        out << " = field(default_factory=dict)";
+        out << " = None";
     }
 }
 
