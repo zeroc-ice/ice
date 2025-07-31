@@ -124,7 +124,7 @@ CodeVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!_parentNamespaces.empty())
     {
-        // End previous namespace since PHP does't support nested namespaces.
+        // End previous namespace since PHP doesn't support nested namespaces.
         _out << eb;
     }
 
