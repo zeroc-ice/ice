@@ -122,5 +122,12 @@ namespace Slice
     private:
         std::map<std::string, StringList> _dependencyMap;
     };
+
+    /// Helper method to create a package path for the given package name.
+    ///
+    /// @param packageName The name of the package to create the path for, The package name uses '.' as a separator.
+    /// @param outputPath The base path where the package should be created. That is the path of the output directory
+    /// it should be an existing directory.
+    void createPackagePath(const std::string& packageName, const std::string& outputPath);
 }
 #endif

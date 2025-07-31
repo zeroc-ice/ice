@@ -820,64 +820,17 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
 {
     string package;
     string file;
-    string path = prefix;
+    string path;
 
     string::size_type pos = cls.rfind('.');
     if (pos != string::npos)
     {
         package = cls.substr(0, pos);
         file = cls.substr(pos + 1);
-        string dir = package;
 
-        //
-        // Create package directories if necessary.
-        //
-        string::size_type start = 0;
-        do
-        {
-            if (!path.empty())
-            {
-                path += "/";
-            }
-            pos = dir.find('.', start);
-            if (pos != string::npos)
-            {
-                path += dir.substr(start, pos - start);
-                start = pos + 1;
-            }
-            else
-            {
-                path += dir.substr(start);
-            }
-
-            IceInternal::structstat st;
-            if (!IceInternal::stat(path, &st))
-            {
-                if (!(st.st_mode & S_IFDIR))
-                {
-                    ostringstream os;
-                    os << "failed to create package directory '" << path
-                       << "': file already exists and is not a directory";
-                    throw FileException(os.str());
-                }
-                continue;
-            }
-
-            int err = IceInternal::mkdir(path, 0777);
-            // If slice2java is run concurrently, it's possible that another instance of slice2java has already
-            // created the directory.
-            if (err == 0 || (errno == EEXIST && IceInternal::directoryExists(path)))
-            {
-                // Directory successfully created or already exists.
-            }
-            else
-            {
-                ostringstream os;
-                os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);
-                throw FileException(os.str());
-            }
-            FileTracker::instance()->addDirectory(path);
-        } while (pos != string::npos);
+        createPackagePath(package, prefix);
+        path = package;
+        std::replace(path.begin(), path.end(), '.', '/');
     }
     else
     {
@@ -888,9 +841,9 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     //
     // Open class file.
     //
-    if (!path.empty())
+    if (!prefix.empty())
     {
-        path += "/";
+        path = prefix + "/" + path;
     }
     path += file;
 
