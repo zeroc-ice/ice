@@ -2689,6 +2689,7 @@ Slice::Python::sortCodeFragments(vector<PythonCodeFragment> fragments, ImportsMa
 
             if (!unseenDependencies)
             {
+                processedFragments.push_back(fragment);
                 it = fragments.erase(it);
             }
             else
