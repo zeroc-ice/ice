@@ -1390,41 +1390,44 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
-    vector<string> baseParamNames;
-    DataMemberList baseDataMembers;
-
-    if (base)
-    {
-        baseDataMembers = base->allDataMembers();
-        for (const auto& baseDataMember : baseDataMembers)
-        {
-            baseParamNames.push_back(baseDataMember->mappedName());
-        }
-    }
-
     _out << sp;
     writeDocCommentFor(p, false);
     _out << nl << scopedName << " = class extends " << baseRef;
     _out << sb;
 
-    _out << nl << "constructor" << spar;
-
-    for (const auto& baseDataMember : baseDataMembers)
+    if (!p->allDataMembers().empty())
     {
-        _out << baseDataMember->mappedName();
-    }
+        vector<string> baseParamNames;
+        DataMemberList baseDataMembers;
 
-    writeOneShotConstructorArguments(dataMembers);
+        if (base)
+        {
+            baseDataMembers = base->allDataMembers();
+            for (const auto& baseDataMember : baseDataMembers)
+            {
+                baseParamNames.push_back(baseDataMember->mappedName());
+            }
+        }
 
-    _out << epar;
-    _out << sb;
-    _out << nl << "super" << spar << baseParamNames << epar << ';';
-    for (const auto& member : dataMembers)
-    {
-        const string memberName = member->mappedName();
-        _out << nl << "this." << memberName << " = " << memberName << ';';
+        _out << nl << "constructor" << spar;
+
+        for (const auto& baseDataMember : baseDataMembers)
+        {
+            _out << baseDataMember->mappedName();
+        }
+
+        writeOneShotConstructorArguments(dataMembers);
+
+        _out << epar;
+        _out << sb;
+        _out << nl << "super" << spar << baseParamNames << epar << ';';
+        for (const auto& member : dataMembers)
+        {
+            const string memberName = member->mappedName();
+            _out << nl << "this." << memberName << " = " << memberName << ';';
+        }
+        _out << eb;
     }
-    _out << eb;
 
     _out << sp;
     _out << nl << "static get _parent()";
