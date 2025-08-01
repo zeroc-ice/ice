@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <cassert>
 #include <climits>
-#include <iostream>
 #include <iterator>
 #include <sstream>
 #include <string>
@@ -428,36 +427,6 @@ Slice::Python::writePackageIndex(const std::map<std::string, std::set<std::strin
         out.dec();
         out << nl << "]";
         out << nl;
-    }
-}
-
-void
-Slice::Python::createPackagePath(const string& moduleName, const string& outputPath)
-{
-    vector<string> packageParts;
-    IceInternal::splitString(string_view{moduleName}, ".", packageParts);
-    assert(!packageParts.empty());
-    packageParts.pop_back(); // Remove the last part, which is the module name.
-    string packagePath = outputPath;
-    for (const auto& part : packageParts)
-    {
-        packagePath += "/" + part;
-        int err = IceInternal::mkdir(packagePath, 0777);
-        if (err == 0)
-        {
-            FileTracker::instance()->addDirectory(packagePath);
-        }
-        else if (errno == EEXIST && IceInternal::directoryExists(packagePath))
-        {
-            // If the Slice compiler is run concurrently, it's possible that another instance of it has already
-            // created the directory.
-        }
-        else
-        {
-            ostringstream os;
-            os << "cannot create directory '" << packagePath << "': " << IceInternal::errorToString(errno);
-            throw FileException(os.str());
-        }
     }
 }
 
@@ -2467,27 +2436,26 @@ namespace
             return *it->second;
         }
 
-        // Create a new output file for this module.
-        string fileName = moduleName;
-        replace(fileName.begin(), fileName.end(), '.', '/');
-        fileName += ".py";
+        auto pos = moduleName.rfind('.');
+        // Generated Python modules are always in a package corresponding to the Slice module name.
+        assert(pos != string::npos);
+        string fileName = moduleName.substr(pos + 1) + ".py";
+        string packagePath = moduleName.substr(0, pos);
+        std::replace(packagePath.begin(), packagePath.end(), '.', '/');
+        createPackagePath(packagePath, outputDir);
 
-        string outputPath;
-        if (!outputDir.empty())
-        {
-            outputPath = outputDir + "/";
-        }
-        else
-        {
-            outputPath = "./";
-        }
-
-        Python::createPackagePath(moduleName, outputPath);
-        outputPath += fileName;
+        string outputPath = (outputDir.empty() ? "" : outputDir + "/") + packagePath + "/" + fileName;
 
         FileTracker::instance()->addFile(outputPath);
 
-        auto output = make_unique<Output>(outputPath.c_str());
+        auto output = make_unique<Output>();
+        output->open(outputPath);
+        if (!output->isOpen())
+        {
+            ostringstream os;
+            os << "cannot open file '" << outputPath << "': " << IceInternal::lastErrorToString();
+            throw FileException(os.str());
+        }
         Output& out = *output;
         Python::writeHeader(out);
         outputFiles[moduleName] = std::move(output);

@@ -36,25 +36,12 @@ namespace
     string getPackageInitPath(const string& packageName, const string& outputDir)
     {
         // Create a new output file for this package.
-        string fileName = packageName;
-        replace(fileName.begin(), fileName.end(), '.', '/');
-        fileName += "/__init__.py";
+        string packagePath = packageName;
+        replace(packagePath.begin(), packagePath.end(), '.', '/');
+        createPackagePath(packagePath, outputDir);
 
-        string outputPath;
-        if (!outputDir.empty())
-        {
-            outputPath = outputDir + "/";
-        }
-        else
-        {
-            outputPath = "./";
-        }
-
-        createPackagePath(packageName, outputPath);
-        outputPath += fileName;
-
+        string outputPath = (outputDir.empty() ? "" : outputDir + '/') + packagePath + "/__init__.py";
         FileTracker::instance()->addFile(outputPath);
-
         return outputPath;
     }
 
