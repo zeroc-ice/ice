@@ -446,7 +446,8 @@ namespace Slice::Python
         std::unique_ptr<BufferedOutput> _out;
     };
 
-    /// Generates Python modules and packages from the specified Slice files.
+    /// Generates Python modules and packages from the specified Slice files. Returns the generated code
+    /// fragments and the compilation status as a CompilationResult.
     ///
     /// @param programName The name of the caller program (typically "slice2py" or "Ice.loadSlice"), used for
     /// parser errors.
@@ -468,6 +469,21 @@ namespace Slice::Python
         bool sortFragments,
         CompilationKind compilationKind,
         bool debug);
+
+    /// Generates Python modules and packages from the specified Slice files,
+    /// writing the generated code to the output directory specified in the arguments.
+    /// This method accepts the same arguments as the `slice2py` compiler.
+    ///
+    /// This overload is used by both the command-line `slice2py` compiler and the
+    /// Python `IcePy.compileSlice` function, which is invoked by the `slice2py` script
+    /// distributed with the Ice for Python PIP packages.
+    ///
+    /// Internally, this method parses the arguments and delegates to the main compile overload,
+    /// returning the compilation status.
+    ///
+    /// @param args The command-line arguments passed to the Slice to Python compiler.
+    /// @return The status code representing the result of the compilation.
+    int compile(const std::vector<std::string>& args);
 }
 
 #endif
