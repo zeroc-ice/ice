@@ -2725,7 +2725,7 @@ void
 CodeVisitor::openClass(const string& cls, const string& prefix)
 {
     string::size_type pos = cls.rfind('.');
-    // The generate classes are always in a package corresponding to the Slice module.
+    // The generated classes are always in a package corresponding to the Slice module.
     assert(pos != string::npos);
     string package = cls.substr(0, pos);
     string file = cls.substr(pos + 1) + ".m";
