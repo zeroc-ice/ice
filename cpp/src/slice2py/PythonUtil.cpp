@@ -2422,17 +2422,8 @@ namespace
         replace(fileName.begin(), fileName.end(), '.', '/');
         fileName += ".py";
 
-        string outputPath;
-        if (!outputDir.empty())
-        {
-            outputPath = outputDir + "/";
-        }
-        else
-        {
-            outputPath = "./";
-        }
-
-        auto pos = moduleName.rfind(".");
+        string outputPath = outputDir.empty() ? "./" : outputDir + '/';
+        auto pos = moduleName.rfind('.');
         assert(pos != string::npos);
         string packageName = moduleName.substr(0, pos);
         createPackagePath(packageName, outputPath);

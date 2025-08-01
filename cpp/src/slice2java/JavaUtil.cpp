@@ -828,7 +828,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     string packagePath = package;
     std::replace(packagePath.begin(), packagePath.end(), '.', '/');
 
-    string path = (prefix.empty() ? "" : prefix + "/") + packagePath + '/' + file;
+    string path = (prefix.empty() ? "" : prefix + '/') + packagePath + '/' + file;
 
     // Open class file.
     open(path.c_str());

@@ -53,6 +53,7 @@ namespace
                       "-IDIR                    Put DIR in the include file search path.\n"
                       "--output-dir DIR         Create files in the directory DIR.\n"
                       "-d, --debug              Print debug messages.\n"
+                      "--depend                 Generate Makefile dependencies.\n"
                       "--depend-xml             Generate dependencies in XML format.\n"
                       "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
                       "--validate               Validate command line options.\n"
@@ -98,6 +99,7 @@ namespace
         opts.addOpt("U", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
         opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
         opts.addOpt("", "output-dir", IceInternal::Options::NeedArg);
+        opts.addOpt("", "depend");
         opts.addOpt("", "depend-xml");
         opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
         opts.addOpt("", "list-generated");
@@ -155,6 +157,8 @@ namespace
 
         string output = opts.optArg("output-dir");
 
+        bool depend = opts.isSet("depend");
+
         bool dependXML = opts.isSet("depend-xml");
 
         string dependFile = opts.optArg("depend-file");
@@ -168,6 +172,16 @@ namespace
         if (sliceFiles.empty())
         {
             consoleErr << argv[0] << ": error: no input file" << endl;
+            if (!validate)
+            {
+                usage(argv[0]);
+            }
+            return EXIT_FAILURE;
+        }
+
+        if (depend && dependXML)
+        {
+            consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
             if (!validate)
             {
                 usage(argv[0]);
@@ -206,9 +220,19 @@ namespace
                 {
                     status = EXIT_FAILURE;
                 }
-                else if (dependXML)
+                else if (depend || dependXML)
                 {
                     dependencyGenerator.addDependenciesFor(unit);
+                    if (depend)
+                    {
+                        // TODO Matlab Linux builds use Makefile style dependencies. But the generated
+                        // dependencies are not correct for MATLAB because they doesn't match the dependencies.
+                        // For example we don't generate a .m per .ice.
+                        dependencyGenerator.writeMakefileDependencies(
+                            dependFile,
+                            fileName,
+                            removeExtension(fileName) + ".m");
+                    }
                 }
                 else
                 {
