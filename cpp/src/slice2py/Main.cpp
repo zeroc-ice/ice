@@ -219,7 +219,7 @@ main(int argc, char* argv[])
         }
 
         PythonCompilationResult compilationResult = Slice::Python::compile(
-            argv[0],
+            args[0],
             dependencyGenerator,
             packageVisitor,
             sliceFiles,
