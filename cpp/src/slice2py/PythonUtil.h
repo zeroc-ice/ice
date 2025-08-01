@@ -269,13 +269,13 @@ namespace Slice::Python
 
     private:
         /// Add the runtime imports for the given Sequence definition.
-        /// @param definition is the Sequence definition being imported.
-        /// @param source is the Slice definition that requires the import.
-        void addRuntimeImportForSequence(const SequencePtr& definition, const ContainedPtr& source);
+        /// @param sequence The Sequence definition being imported.
+        /// @param source The Slice definition that requires the import.
+        void addRuntimeImportForSequence(const SequencePtr& sequence, const ContainedPtr& source);
 
         /// Adds a runtime import for the given Slice definition if it comes from a different module.
-        /// @param definition is the Slice definition to import.
-        /// @param source is the Slice definition that requires the import.
+        /// @param definition The Slice definition to import.
+        /// @param source The Slice definition that requires the import.
         void addRuntimeImport(
             const SyntaxTreeBasePtr& definition,
             const ContainedPtr& source,
