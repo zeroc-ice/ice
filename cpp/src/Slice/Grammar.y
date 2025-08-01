@@ -194,6 +194,16 @@ namespace
 
 %token BAD_TOKEN "invalid character"
 
+// Precedence rule used to inform the parser when matching '%empty' is preferred over matching a token.
+%token EMPTY_PREC
+%precedence EMPTY_PREC
+
+// Special handling for when a user makes the following syntax error: '(interface|exception|class) extends...'
+// This could be resolved to either a 'bad-identifier' or a 'missing-identifier' depending on context.
+// We tell the parser to prefer the 'bad-identifier' case when it lacks enough context to figure out on its own.
+// This leads to less confusing syntax errors.
+%precedence ICE_EXTENDS
+
 %%
 
 // ----------------------------------------------------------------------
@@ -321,11 +331,11 @@ definition
 }
 | interface_decl ';'
 {
-    assert($1 == nullptr || dynamic_pointer_cast<InterfaceDecl>($1));
+    assert(dynamic_pointer_cast<InterfaceDecl>($1));
 }
 | interface_def opt_semicolon
 {
-    assert($1 == nullptr || dynamic_pointer_cast<InterfaceDef>($1));
+    assert(dynamic_pointer_cast<InterfaceDef>($1));
 }
 | exception_decl ';'
 {
@@ -333,7 +343,7 @@ definition
 }
 | exception_def opt_semicolon
 {
-    assert($1 == nullptr || dynamic_pointer_cast<Exception>($1));
+    assert(dynamic_pointer_cast<Exception>($1));
 }
 | struct_decl ';'
 {
@@ -341,7 +351,7 @@ definition
 }
 | struct_def opt_semicolon
 {
-    assert($1 == nullptr || dynamic_pointer_cast<Struct>($1));
+    assert(dynamic_pointer_cast<Struct>($1));
 }
 | sequence_def ';'
 {
@@ -368,35 +378,22 @@ definition
 // ----------------------------------------------------------------------
 module_def
 // ----------------------------------------------------------------------
-: ICE_MODULE ICE_IDENTIFIER
+: ICE_MODULE definition_name
 {
     currentUnit->setSeenDefinition();
 
     auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
+
     ModulePtr module = cont->createModule(ident->v, false);
-    if (module)
-    {
-        cont->checkIntroduced(ident->v, module);
-        currentUnit->pushContainer(module);
-        $$ = module;
-    }
-    else
-    {
-        $$ = nullptr;
-    }
+    cont->checkIntroduced(ident->v, module);
+    currentUnit->pushContainer(module);
+    $$ = module;
 }
 '{' definitions '}'
 {
-    if ($3)
-    {
-        currentUnit->popContainer();
-        $$ = $3;
-    }
-    else
-    {
-        $$ = nullptr;
-    }
+    currentUnit->popContainer();
+    $$ = $3;
 }
 | ICE_MODULE ICE_SCOPED_IDENTIFIER
 {
@@ -480,24 +477,9 @@ module_def
 ;
 
 // ----------------------------------------------------------------------
-exception_id
-// ----------------------------------------------------------------------
-: ICE_EXCEPTION ICE_IDENTIFIER
-{
-    $$ = $2;
-}
-| ICE_EXCEPTION keyword
-{
-    auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as exception name");
-    $$ = $2; // Dummy
-}
-;
-
-// ----------------------------------------------------------------------
 exception_decl
 // ----------------------------------------------------------------------
-: exception_id
+: ICE_EXCEPTION definition_name
 {
     currentUnit->error("exceptions cannot be forward declared");
     $$ = nullptr;
@@ -507,26 +489,21 @@ exception_decl
 // ----------------------------------------------------------------------
 exception_def
 // ----------------------------------------------------------------------
-: exception_id exception_extends
+: ICE_EXCEPTION definition_name exception_extends
 {
-    auto ident = dynamic_pointer_cast<StringTok>($1);
-    auto base = dynamic_pointer_cast<Exception>($2);
+    auto ident = dynamic_pointer_cast<StringTok>($2);
+    auto base = dynamic_pointer_cast<Exception>($3);
     ContainerPtr cont = currentUnit->currentContainer();
+
     ExceptionPtr ex = cont->createException(ident->v, base);
-    if (ex)
-    {
-        cont->checkIntroduced(ident->v, ex);
-        currentUnit->pushContainer(ex);
-    }
+    cont->checkIntroduced(ident->v, ex);
+    currentUnit->pushContainer(ex);
     $$ = ex;
 }
 '{' data_members '}'
 {
-    if ($3)
-    {
-        currentUnit->popContainer();
-    }
-    $$ = $3;
+    currentUnit->popContainer();
+    $$ = $4;
 }
 ;
 
@@ -619,24 +596,9 @@ optional_type_id
 ;
 
 // ----------------------------------------------------------------------
-struct_id
-// ----------------------------------------------------------------------
-: ICE_STRUCT ICE_IDENTIFIER
-{
-    $$ = $2;
-}
-| ICE_STRUCT keyword
-{
-    auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as struct name");
-    $$ = $2; // Dummy
-}
-;
-
-// ----------------------------------------------------------------------
 struct_decl
 // ----------------------------------------------------------------------
-: struct_id
+: ICE_STRUCT definition_name
 {
     currentUnit->error("structs cannot be forward declared");
     $$ = nullptr; // Dummy
@@ -646,39 +608,27 @@ struct_decl
 // ----------------------------------------------------------------------
 struct_def
 // ----------------------------------------------------------------------
-: struct_id
+: ICE_STRUCT definition_name
 {
-    auto ident = dynamic_pointer_cast<StringTok>($1);
+    auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
     StructPtr st = cont->createStruct(ident->v);
-    if (st)
-    {
-        cont->checkIntroduced(ident->v, st);
-        currentUnit->pushContainer(st);
-    }
-    else
-    {
-        st = cont->createStruct(Ice::generateUUID()); // Dummy
-        assert(st);
-        currentUnit->pushContainer(st);
-    }
+
+    cont->checkIntroduced(ident->v, st);
+    currentUnit->pushContainer(st);
     $$ = st;
 }
 '{' data_members '}'
 {
-    if ($2)
-    {
-        currentUnit->popContainer();
-    }
-    $$ = $2;
+    currentUnit->popContainer();
 
     // Empty structures are not allowed
-    auto st = dynamic_pointer_cast<Struct>($$);
-    assert(st);
+    auto st = dynamic_pointer_cast<Struct>($3);
     if (st->dataMembers().empty())
     {
-        currentUnit->error("struct '" + st->name() + "' must have at least one member"); // $$ is a dummy
+        currentUnit->error("struct '" + st->name() + "' must have at least one member");
     }
+    $$ = st;
 }
 ;
 
@@ -1114,26 +1064,11 @@ throws
 ;
 
 // ----------------------------------------------------------------------
-interface_id
-// ----------------------------------------------------------------------
-: ICE_INTERFACE ICE_IDENTIFIER
-{
-    $$ = $2;
-}
-| ICE_INTERFACE keyword
-{
-    auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as interface name");
-    $$ = $2; // Dummy
-}
-;
-
-// ----------------------------------------------------------------------
 interface_decl
 // ----------------------------------------------------------------------
-: interface_id
+: ICE_INTERFACE definition_name
 {
-    auto ident = dynamic_pointer_cast<StringTok>($1);
+    auto ident = dynamic_pointer_cast<StringTok>($2);
     auto cont = currentUnit->currentContainer();
     InterfaceDeclPtr cl = cont->createInterfaceDecl(ident->v);
     cont->checkIntroduced(ident->v, cl);
@@ -1144,34 +1079,21 @@ interface_decl
 // ----------------------------------------------------------------------
 interface_def
 // ----------------------------------------------------------------------
-: interface_id interface_extends
+: ICE_INTERFACE definition_name interface_extends
 {
-    auto ident = dynamic_pointer_cast<StringTok>($1);
+    auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
-    auto bases = dynamic_pointer_cast<InterfaceListTok>($2);
+    auto bases = dynamic_pointer_cast<InterfaceListTok>($3);
+
     InterfaceDefPtr interface = cont->createInterfaceDef(ident->v, bases->v);
-    if (interface)
-    {
-        cont->checkIntroduced(ident->v, interface);
-        currentUnit->pushContainer(interface);
-        $$ = interface;
-    }
-    else
-    {
-        $$ = nullptr;
-    }
+    cont->checkIntroduced(ident->v, interface);
+    currentUnit->pushContainer(interface);
+    $$ = interface;
 }
 '{' operations '}'
 {
-    if ($3)
-    {
-        currentUnit->popContainer();
-        $$ = $3;
-    }
-    else
-    {
-        $$ = nullptr;
-    }
+    currentUnit->popContainer();
+    $$ = $4;
 }
 ;
 
@@ -1276,7 +1198,7 @@ exception
     ExceptionPtr exception = cont->lookupException(scoped->v, true);
     if (!exception)
     {
-        exception = cont->createException(Ice::generateUUID(), 0, Dummy); // Dummy
+        exception = cont->createException(Ice::generateUUID(), 0); // Dummy
     }
     cont->checkIntroduced(scoped->v, exception);
     $$ = exception;
@@ -1285,7 +1207,7 @@ exception
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     currentUnit->error("keyword '" + ident->v + "' cannot be used as exception name");
-    $$ = currentUnit->currentContainer()->createException(Ice::generateUUID(), 0, Dummy); // Dummy
+    $$ = currentUnit->currentContainer()->createException(Ice::generateUUID(), 0); // Dummy
 }
 ;
 
@@ -1794,7 +1716,7 @@ definition_name
     currentUnit->error("keyword '" + ident->v + "' cannot be used as a name");
     $$ = ident;
 }
-| %empty
+| %empty %prec EMPTY_PREC
 {
     // If the user forgot to give a name to a Slice definition, we emit an error,
     // but continue along, returning an empty string instead of an identifier.
