@@ -1416,9 +1416,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     writeOneShotConstructorArguments(dataMembers);
 
-    _out << "_cause = \"\"" << epar;
+    _out << epar;
     _out << sb;
-    _out << nl << "super" << spar << baseParamNames << "_cause" << epar << ';';
+    _out << nl << "super" << spar << baseParamNames << epar << ';';
     for (const auto& member : dataMembers)
     {
         const string memberName = member->mappedName();
