@@ -757,3 +757,34 @@ Slice::DependencyGenerator::writeJSONDependencies(const std::string& dependFile)
     os << endl << "}";
     writeDependencies(os.str(), dependFile);
 }
+
+void
+Slice::createPackagePath(const string& packagePath, const string& outputPath)
+{
+    vector<string> packageParts;
+    IceInternal::splitString(string_view{packagePath}, "/", packageParts);
+    assert(!packageParts.empty());
+
+    string newPackagePath = (outputPath.empty() ? "" : outputPath + "/");
+    for (const auto& part : packageParts)
+    {
+        newPackagePath += part;
+        int err = IceInternal::mkdir(newPackagePath, 0777);
+        if (err == 0)
+        {
+            FileTracker::instance()->addDirectory(newPackagePath);
+        }
+        else if (errno == EEXIST && IceInternal::directoryExists(newPackagePath))
+        {
+            // If the Slice compiler is run concurrently, it's possible that another instance of it has already
+            // created the directory.
+        }
+        else
+        {
+            ostringstream os;
+            os << "cannot create directory '" << newPackagePath << "': " << IceInternal::lastErrorToString();
+            throw FileException(os.str());
+        }
+        newPackagePath += "/";
+    }
+}

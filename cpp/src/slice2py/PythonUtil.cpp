@@ -441,35 +441,6 @@ Slice::Python::writePackageIndex(const std::map<std::string, std::set<std::strin
     }
 }
 
-void
-Slice::Python::createPackagePath(const string& packageName, const string& outputPath)
-{
-    vector<string> packageParts;
-    IceInternal::splitString(string_view{packageName}, ".", packageParts);
-    assert(!packageParts.empty());
-    string packagePath = outputPath;
-    for (const auto& part : packageParts)
-    {
-        packagePath += "/" + part;
-        int err = IceInternal::mkdir(packagePath, 0777);
-        if (err == 0)
-        {
-            FileTracker::instance()->addDirectory(packagePath);
-        }
-        else if (errno == EEXIST && IceInternal::directoryExists(packagePath))
-        {
-            // If the Slice compiler is run concurrently, it's possible that another instance of it has already
-            // created the directory.
-        }
-        else
-        {
-            ostringstream os;
-            os << "cannot create directory '" << packagePath << "': " << IceInternal::errorToString(errno);
-            throw FileException(os.str());
-        }
-    }
-}
-
 bool
 Slice::Python::ImportVisitor::visitStructStart(const StructPtr& p)
 {
@@ -3135,7 +3106,9 @@ Slice::Python::compile(const std::vector<std::string>& args)
         // Emit the Python code fragments.
         for (const auto& fragment : compilationResult.fragments)
         {
-            createPackagePath(fragment.packageName, outputDir);
+            string packagePath = fragment.packageName;
+            replace(packagePath.begin(), packagePath.end(), '.', '/');
+            createPackagePath(packagePath, outputDir);
 
             string outputPath = outputDir.empty() ? fragment.fileName : outputDir + "/" + fragment.fileName;
 
