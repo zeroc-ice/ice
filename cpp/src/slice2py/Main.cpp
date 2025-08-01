@@ -8,6 +8,7 @@
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
 #include "Ice/CtrlCHandler.h"
+#include "Ice/StringUtil.h"
 #include "PythonUtil.h"
 
 #include <algorithm>
@@ -31,31 +32,6 @@ namespace
         lock_guard lock(globalMutex);
 
         interrupted = true;
-    }
-
-    string getPackageInitPath(const string& packageName, const string& outputDir)
-    {
-        // Create a new output file for this package.
-        string fileName = packageName;
-        replace(fileName.begin(), fileName.end(), '.', '/');
-        fileName += "/__init__.py";
-
-        string outputPath;
-        if (!outputDir.empty())
-        {
-            outputPath = outputDir + "/";
-        }
-        else
-        {
-            outputPath = "./";
-        }
-
-        createPackagePath(packageName, outputPath);
-        outputPath += fileName;
-
-        FileTracker::instance()->addFile(outputPath);
-
-        return outputPath;
     }
 
     void usage(const string& n)
@@ -106,6 +82,7 @@ main(int argc, char* argv[])
 #endif
 {
     vector<string> args = Slice::argvToArgs(argc, argv);
+    const string programName = args[0];
     try
     {
         IceInternal::Options opts;
@@ -130,14 +107,14 @@ main(int argc, char* argv[])
         }
         catch (const IceInternal::BadOptException& e)
         {
-            consoleErr << args[0] << ": error: " << e.what() << endl;
-            usage(args[0]);
+            consoleErr << programName << ": error: " << e.what() << endl;
+            usage(programName);
             return EXIT_FAILURE;
         }
 
         if (opts.isSet("help"))
         {
-            usage(args[0]);
+            usage(programName);
             return EXIT_SUCCESS;
         }
 
@@ -183,108 +160,77 @@ main(int argc, char* argv[])
 
         if (sliceFiles.empty())
         {
-            consoleErr << args[0] << ": error: no input file" << endl;
-            usage(args[0]);
+            consoleErr << programName << ": error: no input file" << endl;
+            usage(programName);
             return EXIT_FAILURE;
         }
 
         if (depend && dependXML)
         {
-            consoleErr << args[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
-            usage(args[0]);
+            consoleErr << programName << ": error: cannot specify both --depend and --depend-xml" << endl;
+            usage(programName);
             return EXIT_FAILURE;
         }
 
         if (buildArg != "modules" && buildArg != "index" && buildArg != "all")
         {
-            consoleErr << args[0] << ": error: invalid argument for --build: " << buildArg << endl;
-            usage(args[0]);
+            consoleErr << programName << ": error: invalid argument for --build: " << buildArg << endl;
+            usage(programName);
             return EXIT_FAILURE;
         }
 
         if (listArg != "modules" && listArg != "index" && listArg != "all" && !listArg.empty())
         {
-            consoleErr << args[0] << ": error: invalid argument for --list-generated: " << listArg << endl;
-            usage(args[0]);
+            consoleErr << programName << ": error: invalid argument for --list-generated: " << listArg << endl;
+            usage(programName);
             return EXIT_FAILURE;
         }
 
         if (!outputDir.empty() && !IceInternal::directoryExists(outputDir))
         {
-            consoleErr << args[0] << ": error: argument for --output-dir does not exist or is not a directory" << endl;
+            consoleErr << programName << ": error: argument for --output-dir does not exist or is not a directory"
+                       << endl;
             return EXIT_FAILURE;
         }
-
-        int status = EXIT_SUCCESS;
 
         Ice::CtrlCHandler ctrlCHandler;
         ctrlCHandler.setCallback(interruptedCallback);
 
-        DependencyGenerator dependencyGenerator;
+        auto dependencyGenerator = make_unique<DependencyGenerator>();
         PackageVisitor packageVisitor;
 
-        std::map<string, StringList> dependencyMap;
-
-        for (const auto& fileName : sliceFiles)
+        CompilationKind compilationKind;
+        if (!listArg.empty() || depend || dependXML)
         {
-            PreprocessorPtr preprocessor;
-            UnitPtr unit;
-            try
-            {
-                preprocessor = Preprocessor::create(args[0], fileName, preprocessorArgs);
-                FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
-                assert(preprocessedHandle);
-
-                unit = Unit::createUnit("python", false);
-                int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
-
-                preprocessor->close();
-
-                if (parseStatus == EXIT_FAILURE)
-                {
-                    status = EXIT_FAILURE;
-                }
-                else
-                {
-                    // Collect the dependencies of the unit.
-                    dependencyGenerator.addDependenciesFor(unit);
-
-                    // Collect the package imports and generated files.
-                    unit->visit(&packageVisitor);
-
-                    if (buildArg == "modules" || buildArg == "all")
-                    {
-                        parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
-
-                        generate(unit, outputDir);
-                    }
-
-                    status |= unit->getStatus();
-                }
-                unit->destroy();
-            }
-            catch (...)
-            {
-                FileTracker::instance()->cleanup();
-
-                if (preprocessor)
-                {
-                    preprocessor->close();
-                }
-
-                if (unit)
-                {
-                    unit->destroy();
-                }
-                throw;
-            }
+            // If we are listing generated files or generating dependencies, we do not generate any Python code.
+            compilationKind = CompilationKind::None;
+        }
+        else if (buildArg == "modules")
+        {
+            compilationKind = CompilationKind::Module;
+        }
+        else if (buildArg == "index")
+        {
+            compilationKind = CompilationKind::Index;
+        }
+        else
+        {
+            compilationKind = CompilationKind::All;
         }
 
-        if (status == EXIT_FAILURE)
+        CompilationResult compilationResult = Slice::Python::compile(
+            programName,
+            dependencyGenerator,
+            packageVisitor,
+            sliceFiles,
+            preprocessorArgs,
+            false, // Don't need to sort fragments when generating code with slice2py.
+            compilationKind,
+            debug);
+
+        if (compilationResult.status == EXIT_FAILURE)
         {
-            // If the compilation failed, clean up any created files.
-            FileTracker::instance()->cleanup();
-            return status;
+            return compilationResult.status;
         }
 
         if (depend)
@@ -293,13 +239,13 @@ main(int argc, char* argv[])
             {
                 for (const auto& file : files)
                 {
-                    dependencyGenerator.writeMakefileDependencies(dependFile, source, file);
+                    dependencyGenerator->writeMakefileDependencies(dependFile, source, file);
                 }
             }
         }
         else if (dependXML)
         {
-            dependencyGenerator.writeXMLDependencies(dependFile);
+            dependencyGenerator->writeXMLDependencies(dependFile);
         }
         else if (!listArg.empty())
         {
@@ -325,13 +271,26 @@ main(int argc, char* argv[])
                 cout << file << endl;
             }
         }
-        else if (buildArg == "index" || buildArg == "all")
+        else
         {
-            // Emit the package index files.
-            for (const auto& [packageName, imports] : packageVisitor.imports())
+            // Emit the Python code fragments.
+            for (const auto& fragment : compilationResult.fragments)
             {
-                Output out{getPackageInitPath(packageName, outputDir).c_str()};
-                writePackageIndex(imports, out);
+                createPackagePath(fragment.packageName, outputDir);
+
+                string outputPath = outputDir.empty() ? fragment.fileName : outputDir + "/" + fragment.fileName;
+
+                Output out{outputPath.c_str()};
+                if (out.isOpen())
+                {
+                    out << fragment.code;
+                }
+                else
+                {
+                    ostringstream os;
+                    os << "cannot open file '" << outputPath << "': " << IceInternal::lastErrorToString();
+                    throw FileException(os.str());
+                }
             }
         }
 
@@ -344,16 +303,16 @@ main(int argc, char* argv[])
             }
         }
 
-        return status;
+        return compilationResult.status;
     }
     catch (const std::exception& ex)
     {
-        consoleErr << args[0] << ": error:" << ex.what() << endl;
+        consoleErr << programName << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch (...)
     {
-        consoleErr << args[0] << ": error:unknown exception" << endl;
+        consoleErr << programName << ": error:unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }
