@@ -996,7 +996,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << " extends " << baseRef;
 
     _out << sb;
-    if (!allParamNames.empty())
+    if (!dataMembers.empty())
     {
         _out << nl << "constructor" << spar;
         for (const auto& baseDataMember : baseDataMembers)
@@ -1014,30 +1014,30 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "this." << memberName << " = " << memberName << ';';
         }
         _out << eb;
+    }
 
-        if (p->compactId() != -1)
-        {
-            _out << sp;
-            _out << nl << "static get _iceCompactId()";
-            _out << sb;
-            _out << nl << "return " << p->compactId() << ";";
-            _out << eb;
-        }
+    if (p->compactId() != -1)
+    {
+        _out << sp;
+        _out << nl << "static get _iceCompactId()";
+        _out << sb;
+        _out << nl << "return " << p->compactId() << ";";
+        _out << eb;
+    }
 
-        if (!dataMembers.empty())
-        {
-            _out << sp;
-            _out << nl << "_iceWriteMemberImpl(ostr)";
-            _out << sb;
-            writeMarshalDataMembers(dataMembers, optionalMembers);
-            _out << eb;
+    if (!dataMembers.empty())
+    {
+        _out << sp;
+        _out << nl << "_iceWriteMemberImpl(ostr)";
+        _out << sb;
+        writeMarshalDataMembers(dataMembers, optionalMembers);
+        _out << eb;
 
-            _out << sp;
-            _out << nl << "_iceReadMemberImpl(istr)";
-            _out << sb;
-            writeUnmarshalDataMembers(dataMembers, optionalMembers);
-            _out << eb;
-        }
+        _out << sp;
+        _out << nl << "_iceReadMemberImpl(istr)";
+        _out << sb;
+        writeUnmarshalDataMembers(dataMembers, optionalMembers);
+        _out << eb;
     }
     _out << eb << ";";
 
@@ -1390,41 +1390,45 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
-    vector<string> baseParamNames;
-    DataMemberList baseDataMembers;
-
-    if (base)
-    {
-        baseDataMembers = base->allDataMembers();
-        for (const auto& baseDataMember : baseDataMembers)
-        {
-            baseParamNames.push_back(baseDataMember->mappedName());
-        }
-    }
-
     _out << sp;
     writeDocCommentFor(p, false);
     _out << nl << scopedName << " = class extends " << baseRef;
     _out << sb;
 
-    _out << nl << "constructor" << spar;
-
-    for (const auto& baseDataMember : baseDataMembers)
+    if (!dataMembers.empty())
     {
-        _out << baseDataMember->mappedName();
-    }
+        vector<string> baseParamNames;
+        DataMemberList baseDataMembers;
 
-    writeOneShotConstructorArguments(dataMembers);
+        if (base)
+        {
+            baseDataMembers = base->allDataMembers();
+            for (const auto& baseDataMember : baseDataMembers)
+            {
+                baseParamNames.push_back(baseDataMember->mappedName());
+            }
+        }
 
-    _out << "_cause = \"\"" << epar;
-    _out << sb;
-    _out << nl << "super" << spar << baseParamNames << "_cause" << epar << ';';
-    for (const auto& member : dataMembers)
-    {
-        const string memberName = member->mappedName();
-        _out << nl << "this." << memberName << " = " << memberName << ';';
+        _out << nl << "constructor" << spar;
+
+        for (const auto& baseDataMember : baseDataMembers)
+        {
+            _out << baseDataMember->mappedName();
+        }
+
+        writeOneShotConstructorArguments(dataMembers);
+
+        _out << epar;
+        _out << sb;
+        _out << nl << "super" << spar << baseParamNames << epar << ';';
+        for (const auto& member : dataMembers)
+        {
+            const string memberName = member->mappedName();
+            _out << nl << "this." << memberName << " = " << memberName << ';';
+        }
+        _out << eb;
     }
-    _out << eb;
+    // else inherit base constructor
 
     _out << sp;
     _out << nl << "static get _parent()";
@@ -2138,30 +2142,36 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << _iceImportPrefix << "Ice.Value";
     }
     _out << sb;
-    _out << nl << "/**";
-    _out << nl << " * One-shot constructor to initialize all data members.";
-    for (const auto& dataMember : allDataMembers)
+
+    if (!dataMembers.empty())
     {
-        if (const auto& comment = dataMember->docComment())
+        _out << nl << "/**";
+        _out << nl << " * One-shot constructor to initialize all data members.";
+        for (const auto& dataMember : allDataMembers)
         {
-            _out << nl << " * @param " << dataMember->mappedName() << " " << getFirstSentence(comment->overview());
+            if (const auto& comment = dataMember->docComment())
+            {
+                _out << nl << " * @param " << dataMember->mappedName() << " " << getFirstSentence(comment->overview());
+            }
+        }
+        _out << nl << " */";
+        _out << nl << "constructor" << spar;
+        for (const auto& dataMember : allDataMembers)
+        {
+            _out << (dataMember->mappedName() + "?: " + typeToTsString(dataMember->type()));
+        }
+        _out << epar << ";";
+        for (const auto& dataMember : dataMembers)
+        {
+            _out << sp;
+            writeDocCommentFor(dataMember);
+            const string optionalModifier = dataMember->optional() ? "?" : "";
+            _out << nl << dataMember->mappedName() << optionalModifier << ": "
+                 << typeToTsString(dataMember->type(), true) << ";";
         }
     }
-    _out << nl << " */";
-    _out << nl << "constructor" << spar;
-    for (const auto& dataMember : allDataMembers)
-    {
-        _out << (dataMember->mappedName() + "?: " + typeToTsString(dataMember->type()));
-    }
-    _out << epar << ";";
-    for (const auto& dataMember : dataMembers)
-    {
-        _out << sp;
-        writeDocCommentFor(dataMember);
-        const string optionalModifier = dataMember->optional() ? "?" : "";
-        _out << nl << dataMember->mappedName() << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
-             << ";";
-    }
+    // else use inherited constructor
+
     _out << eb;
 
     return false;
@@ -2512,7 +2522,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << sp;
     writeDocCommentFor(p);
     _out << nl << "export class " << p->mappedName() << " extends " << baseRef << sb;
-    if (!allDataMembers.empty())
+    if (!dataMembers.empty())
     {
         _out << nl << "/**";
         _out << nl << " * One-shot constructor to initialize all data members.";
@@ -2530,18 +2540,19 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
             _out << (dataMember->mappedName() + "?: " + typeToTsString(dataMember->type()));
         }
         _out << epar << ";";
-    }
 
-    for (const auto& dataMember : dataMembers)
-    {
-        _out << sp;
-        writeDocCommentFor(dataMember);
-        const string optionalModifier = dataMember->optional() ? "?" : "";
-        _out << nl << dataMember->mappedName() << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
-             << ";";
+        for (const auto& dataMember : dataMembers)
+        {
+            _out << sp;
+            writeDocCommentFor(dataMember);
+            const string optionalModifier = dataMember->optional() ? "?" : "";
+            _out << nl << dataMember->mappedName() << optionalModifier << ": "
+                 << typeToTsString(dataMember->type(), true) << ";";
+        }
     }
+    // else inherit base constructor
+
     _out << eb;
-
     return false;
 }
 
