@@ -2166,8 +2166,8 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sp;
             writeDocCommentFor(dataMember);
             const string optionalModifier = dataMember->optional() ? "?" : "";
-            _out << nl << dataMember->mappedName() << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
-                << ";";
+            _out << nl << dataMember->mappedName() << optionalModifier << ": "
+                 << typeToTsString(dataMember->type(), true) << ";";
         }
     }
     // else use inherited constructor
@@ -2546,8 +2546,8 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
             _out << sp;
             writeDocCommentFor(dataMember);
             const string optionalModifier = dataMember->optional() ? "?" : "";
-            _out << nl << dataMember->mappedName() << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
-                << ";";
+            _out << nl << dataMember->mappedName() << optionalModifier << ": "
+                 << typeToTsString(dataMember->type(), true) << ";";
         }
     }
     // else inherit base constructor
