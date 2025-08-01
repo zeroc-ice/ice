@@ -192,8 +192,6 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
 
-        int status = EXIT_SUCCESS;
-
         Ice::CtrlCHandler ctrlCHandler;
         ctrlCHandler.setCallback(interruptedCallback);
 
@@ -231,7 +229,7 @@ main(int argc, char* argv[])
 
         if (compilationResult.status == EXIT_FAILURE)
         {
-            return status;
+            return compilationResult.status;
         }
 
         if (depend)
@@ -304,7 +302,7 @@ main(int argc, char* argv[])
             }
         }
 
-        return status;
+        return compilationResult.status;
     }
     catch (const std::exception& ex)
     {
