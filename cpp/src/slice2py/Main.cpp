@@ -199,33 +199,34 @@ main(int argc, char* argv[])
         auto dependencyGenerator = make_unique<DependencyGenerator>();
         PackageVisitor packageVisitor;
 
-        PythonCompilationKind compilationKind;
+        CompilationKind compilationKind;
         if (!listArg.empty() || depend || dependXML)
         {
             // If we are listing generated files or generating dependencies, we do not generate any Python code.
-            compilationKind = PythonCompilationKind::None;
+            compilationKind = CompilationKind::None;
         }
         else if (buildArg == "modules")
         {
-            compilationKind = PythonCompilationKind::Module;
+            compilationKind = CompilationKind::Module;
         }
         else if (buildArg == "index")
         {
-            compilationKind = PythonCompilationKind::Index;
+            compilationKind = CompilationKind::Index;
         }
         else
         {
-            compilationKind = PythonCompilationKind::All;
+            compilationKind = CompilationKind::All;
         }
 
-        PythonCompilationResult compilationResult = Slice::Python::compile(
+        CompilationResult compilationResult = Slice::Python::compile(
             args[0],
             dependencyGenerator,
             packageVisitor,
             sliceFiles,
             preprocessorArgs,
-            debug,
-            compilationKind);
+            false, // Don't need to sort fragments when generating code with slice2py.
+            compilationKind,
+            debug);
 
         if (compilationResult.status == EXIT_FAILURE)
         {

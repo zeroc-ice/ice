@@ -63,6 +63,17 @@ module Test
         optional(7) DoubleSeq1 doubleSeq;
     }
 
+    class E
+    {
+        BoolSeq1 boolSeq;
+        ByteSeq1 byteSeq;
+        ShortSeq1 shortSeq;
+        IntSeq1 intSeq;
+        LongSeq1 longSeq;
+        FloatSeq1 floatSeq;
+        DoubleSeq1 doubleSeq;
+    }
+
     interface Custom
     {
         ByteString opByteString1(ByteString b1, out ByteString b2);

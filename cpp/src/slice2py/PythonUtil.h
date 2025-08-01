@@ -14,7 +14,7 @@
 namespace Slice::Python
 {
     // The kind of method being documented or generated.
-    enum MethodKind
+    enum class MethodKind
     {
         SyncInvocation,
         AsyncInvocation,
@@ -22,7 +22,7 @@ namespace Slice::Python
     };
 
     /// Represents the scope of an import statement—either required at runtime or only used for type hints.
-    enum ImportScope
+    enum class ImportScope
     {
         /// The import is required at runtime by the generated Python code.
         RuntimeImport,
@@ -32,7 +32,7 @@ namespace Slice::Python
     };
 
     // The context a type will be used in.
-    enum TypeContext
+    enum class TypeContext
     {
         // If the type is an interface, it is used as a servant (base type).
         Servant,
@@ -60,7 +60,7 @@ namespace Slice::Python
     using ImportsMap = std::map<std::string, ModuleImportsMap>;
 
     /// Represents a Python code fragment generated for a Slice definition.
-    struct PythonCodeFragment
+    struct CodeFragment
     {
         /// The Slice file name from which this code fragment was generated.
         std::string sliceFileName;
@@ -81,16 +81,16 @@ namespace Slice::Python
         std::string code;
     };
 
-    struct PythonCompilationResult
+    struct CompilationResult
     {
         /// The status of the compilation.
         int status = EXIT_SUCCESS;
 
         /// The generated Python code fragments.
-        std::vector<PythonCodeFragment> fragments;
+        std::vector<CodeFragment> fragments;
     };
 
-    enum PythonCompilationKind
+    enum class CompilationKind
     {
         // Don't generate any Python code.
         None,
@@ -164,12 +164,7 @@ namespace Slice::Python
     /// Helper method to emit the generated code that format the fields of a type in __repr__ implementation.
     std::string formatFields(const DataMemberList& members);
 
-    /// Checks if the given Slice type corresponds to non-optional type which can be used as default value in Python.
-    /// This is really anything that is not a Python dataclass, sequence, or dictionary type. Slice classes and
-    /// interfaces are always mapped as optional.
-    bool canBeUsedAsDefaultValue(const TypePtr& type);
-
-    PythonCodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
+    CodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
 
     // Get a list of all definitions exported for the Python module corresponding to the given Slice definition.
     std::vector<std::string> getAll(const ContainedPtr& definition);
@@ -284,13 +279,18 @@ namespace Slice::Python
         }
 
     private:
+        /// Add the runtime imports for the given Sequence definition.
+        /// @param sequence The Sequence definition being imported.
+        /// @param source The Slice definition that requires the import.
+        void addRuntimeImportForSequence(const SequencePtr& sequence, const ContainedPtr& source);
+
         /// Adds a runtime import for the given Slice definition if it comes from a different module.
-        /// @param definition is the Slice definition to import.
-        /// @param source is the Slice definition that requires the import.
+        /// @param definition The Slice definition to import.
+        /// @param source The Slice definition that requires the import.
         void addRuntimeImport(
             const SyntaxTreeBasePtr& definition,
             const ContainedPtr& source,
-            TypeContext typeContext = Proxy);
+            TypeContext typeContext = TypeContext::Proxy);
 
         /// Adds a runtime import for the given definition from the specified Python module.
         ///
@@ -372,7 +372,7 @@ namespace Slice::Python
         void visitEnum(const EnumPtr&) final;
         void visitConst(const ConstPtr&) final;
 
-        [[nodiscard]] const std::vector<PythonCodeFragment>& codeFragments() const { return _codeFragments; }
+        [[nodiscard]] const std::vector<CodeFragment>& codeFragments() const { return _codeFragments; }
 
     private:
         /// Returns a string representation of the type hint for the given Slice type.
@@ -400,13 +400,6 @@ namespace Slice::Python
 
         // Emit Python code for operations
         void writeOperations(const InterfaceDefPtr&, IceInternal::Output&);
-
-        /// Get the default value for initializing a given type.
-        /// @param source The Slice definition that is initializing the type.
-        /// @param member The data member to initialize.
-        /// @param forConstructor If true, the initialization is for a constructor parameter, otherwise it is for a
-        /// dataclass field.
-        std::string getTypeInitializer(const ContainedPtr& source, const DataMemberPtr& member, bool forConstructor);
 
         // Write Python metadata as a tuple.
         void writeMetadata(const MetadataList&, IceInternal::Output&);
@@ -439,7 +432,7 @@ namespace Slice::Python
 
         // The list of generated Python code fragments in the current translation unit.
         // Each fragment corresponds to a Python module generated from a Slice definition with the same name.
-        std::vector<PythonCodeFragment> _codeFragments;
+        std::vector<CodeFragment> _codeFragments;
 
         ImportsMap _runtimeImports;
         ImportsMap _typingImports;
@@ -454,22 +447,25 @@ namespace Slice::Python
     };
 
     /// Generates the Python modules and packages for the given Slice files. The code is returned as a vector of
-    /// PythonCodeFragment objects, sorted in the order required for evaluation by the Python interpreter.
+    /// CodeFragment objects, sorted in the order required for evaluation by the Python interpreter.
+    /// @param programName The name of the caller program used in parser errors. This is typically slice2py or
+    /// Ice.loadSlice.
     /// @param files The list of Slice files to process.
     /// @param preprocessorArgs The arguments to pass to the preprocessor.
+    /// @param sortFragments Whether to sort the generated code fragments in reverse topological order. This is
+    /// useful if you want to dynamically evaluate the generated code.
+    /// @param compilationKind The kind of Python code to generate (modules, index files, or both).
     /// @param debug Whether to enable debug output.
-    /// @return A vector of PythonCodeFragment objects representing the generated code.
-    PythonCompilationResult compile(
+    /// @return A vector of CodeFragment objects representing the generated code.
+    CompilationResult compile(
         const std::string& programName,
         const std::unique_ptr<DependencyGenerator>& dependencyGenerator,
         PackageVisitor& packageVisitor,
         const std::vector<std::string>& files,
         const std::vector<std::string>& preprocessorArgs,
-        bool debug,
-        PythonCompilationKind kind);
-
-    std::vector<PythonCodeFragment>
-    sortCodeFragments(std::vector<PythonCodeFragment> fragments, ImportsMap runtimeImports);
+        bool sortFragments,
+        CompilationKind compilationKind,
+        bool debug);
 }
 
 #endif

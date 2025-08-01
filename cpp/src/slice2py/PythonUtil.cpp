@@ -186,9 +186,6 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         }
     }
 
-    static constexpr string_view builtinTable[] =
-        {"int", "bool", "int", "int", "int", "float", "float", "str", "Ice.ObjectPrx | None", "Ice.Value | None"};
-
     if (auto builtin = dynamic_pointer_cast<Builtin>(type))
     {
         if (builtin->kind() == Builtin::KindObjectProxy)
@@ -201,6 +198,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         }
         else
         {
+            static constexpr string_view builtinTable[] = {"int", "bool", "int", "int", "int", "float", "float", "str"};
             return string{builtinTable[builtin->kind()]};
         }
     }
@@ -224,17 +222,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         {
             ostringstream os;
             // Map Slice built-in numeric types to NumPy types.
-            static const char* numpyBuiltinTable[] = {
-                "numpy.int8",
-                "numpy.bool",
-                "numpy.int16",
-                "numpy.int32",
-                "numpy.int64",
-                "numpy.float32",
-                "numpy.float64",
-                "",
-                "",
-                ""};
+            static const char* numpyBuiltinTable[] = {"int8", "bool", "int16", "int32", "int64", "float32", "float64"};
 
             auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
             bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
@@ -250,8 +238,8 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                 }
                 if (seq->hasMetadata("python:numpy.ndarray"))
                 {
-                    assert(elementType);
-                    os << " | numpy.typing.NDArray[" << numpyBuiltinTable[elementType->kind()] << "]";
+                    assert(elementType && elementType->kind() <= Builtin::KindDouble);
+                    os << " | numpy.typing.NDArray[numpy." << numpyBuiltinTable[elementType->kind()] << "]";
                 }
             }
             else if (seq->hasMetadata("python:list"))
@@ -264,11 +252,12 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
             }
             else if (seq->hasMetadata("python:numpy.ndarray"))
             {
-                assert(elementType);
-                os << "numpy.typing.NDArray[" << numpyBuiltinTable[elementType->kind()] << "]";
+                assert(elementType && elementType->kind() <= Builtin::KindDouble);
+                os << "numpy.typing.NDArray[numpy." << numpyBuiltinTable[elementType->kind()] << "]";
             }
             else if (seq->hasMetadata("python:array.array"))
             {
+                assert(elementType && elementType->kind() <= Builtin::KindDouble);
                 os << "array.array[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
             }
             else if (isByteSequence)
@@ -302,7 +291,7 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
     auto source = dynamic_pointer_cast<Contained>(operation->container());
     string returnTypeHint;
     ParameterList outParameters = operation->outParameters();
-    bool forMarshaling = methodKind == Dispatch;
+    bool forMarshaling = methodKind == MethodKind::Dispatch;
     if (operation->returnsMultipleValues())
     {
         ostringstream os;
@@ -341,11 +330,11 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
 
     switch (methodKind)
     {
-        case AsyncInvocation:
+        case MethodKind::AsyncInvocation:
             return "Awaitable[" + returnTypeHint + "]";
-        case Dispatch:
+        case MethodKind::Dispatch:
             return returnTypeHint + " | Awaitable[" + returnTypeHint + "]";
-        case SyncInvocation:
+        case MethodKind::SyncInvocation:
         default:
             return returnTypeHint;
     }
@@ -381,17 +370,10 @@ Slice::Python::formatFields(const DataMemberList& members)
     return os.str();
 }
 
-bool
-Slice::Python::canBeUsedAsDefaultValue(const TypePtr& type)
-{
-    return !dynamic_pointer_cast<Struct>(type) && !dynamic_pointer_cast<Sequence>(type) &&
-           !dynamic_pointer_cast<Dictionary>(type);
-}
-
-Python::PythonCodeFragment
+Python::CodeFragment
 Slice::Python::createCodeFragmentForPythonModule(const ContainedPtr& contained, const string& code)
 {
-    Python::PythonCodeFragment fragment;
+    Python::CodeFragment fragment;
     bool isForwardDeclaration =
         dynamic_pointer_cast<InterfaceDecl>(contained) || dynamic_pointer_cast<ClassDecl>(contained);
     fragment.moduleName = isForwardDeclaration ? getPythonModuleForForwardDeclaration(contained)
@@ -539,9 +521,10 @@ Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
     auto parent = dynamic_pointer_cast<Contained>(p->container());
     auto type = p->type();
 
-    // Import field if we have at least one data member that cannot be used as a default value.
-    // This is required to use the `dataclasses.field` function to initialize the field.
-    if (!canBeUsedAsDefaultValue(type))
+    // Import 'field' from dataclasses to initialize non-optional Struct, Dictionary, and Sequence members.
+    // These types cannot use direct field initializers.
+    if (!p->optional() && (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
+                           dynamic_pointer_cast<Dictionary>(type)))
     {
         addRuntimeImport("dataclasses", "field", parent);
     }
@@ -551,7 +534,11 @@ Slice::Python::ImportVisitor::visitDataMember(const DataMemberPtr& p)
     // For fields with a type that is a Struct, we need to import it as a RuntimeImport, to
     // initialize the field in the constructor. For other contained types, we only need the
     // import for type hints.
-    if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
+    if (auto sequence = dynamic_pointer_cast<Sequence>(type))
+    {
+        addRuntimeImportForSequence(sequence, parent);
+    }
+    else if (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Enum>(type))
     {
         addRuntimeImport(type, parent);
     }
@@ -587,8 +574,8 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         for (const auto& base : bases)
         {
-            addRuntimeImport(base, p, Proxy);
-            addRuntimeImport(base, p, Servant);
+            addRuntimeImport(base, p, TypeContext::Proxy);
+            addRuntimeImport(base, p, TypeContext::Servant);
         }
     }
 
@@ -621,6 +608,10 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         auto ret = op->returnType();
         if (ret)
         {
+            if (auto sequence = dynamic_pointer_cast<Sequence>(ret))
+            {
+                addRuntimeImportForSequence(sequence, p);
+            }
             addTypingImport(ret, p, false);
             addTypingImport(ret, p, true);
 
@@ -629,6 +620,10 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         for (const auto& param : op->parameters())
         {
+            if (auto sequence = dynamic_pointer_cast<Sequence>(param->type()))
+            {
+                addRuntimeImportForSequence(sequence, p);
+            }
             addTypingImport(param->type(), p, false);
             addTypingImport(param->type(), p, true);
 
@@ -682,6 +677,30 @@ Slice::Python::ImportVisitor::visitConst(const ConstPtr& p)
 }
 
 void
+Slice::Python::ImportVisitor::addRuntimeImportForSequence(const SequencePtr& sequence, const ContainedPtr& source)
+{
+    if (sequence->hasMetadata("python:numpy.ndarray"))
+    {
+        // Import numpy for using it in the field factory.
+        addRuntimeImport("numpy", "", source);
+    }
+    else if (sequence->hasMetadata("python:array.array"))
+    {
+        // Import array for using it in the field factory.
+        addRuntimeImport("array", "", source);
+    }
+    else if (sequence->hasMetadata("python:memoryview"))
+    {
+        // TODO
+    }
+    else
+    {
+        // This is required to import the sequence element type in case it is not a built-in type.
+        addTypingImport(sequence, source, true);
+    }
+}
+
+void
 Slice::Python::ImportVisitor::addRuntimeImport(
     const SyntaxTreeBasePtr& definition,
     const ContainedPtr& source,
@@ -722,7 +741,7 @@ Slice::Python::ImportVisitor::addRuntimeImport(
 
         name = contained->mappedName();
         if ((dynamic_pointer_cast<InterfaceDef>(definition) || dynamic_pointer_cast<InterfaceDecl>(definition)) &&
-            typeContext == Proxy)
+            typeContext == TypeContext::Proxy)
         {
             name += "Prx";
         }
@@ -761,6 +780,16 @@ Slice::Python::ImportVisitor::addRuntimeImport(
     }
 
     auto& sourceModuleImports = _runtimeImports[sourceModule];
+    if (definition.empty())
+    {
+        if (sourceModuleImports.find(definitionModule) == sourceModuleImports.end())
+        {
+            // If the package does not exist, we create an empty map for it.
+            sourceModuleImports[definitionModule] = {};
+        }
+        return;
+    }
+
     auto& definitionImports = sourceModuleImports[definitionModule];
 
     auto& imports = _allImports[sourceModule];
@@ -827,23 +856,6 @@ Slice::Python::ImportVisitor::addTypingImport(
     }
     else if (auto sequence = dynamic_pointer_cast<Sequence>(definition))
     {
-        if (sequence->hasMetadata("python:numpy.ndarray"))
-        {
-            // We need both numpy and numpy.typing imports to generate:
-            // numpy.typing.NDArray[numpy.int8]
-            addTypingImport("numpy", source);
-            addTypingImport("numpy.typing", source);
-        }
-
-        if (forMarshaling)
-        {
-            // For marshaling we just require a generic Sequence
-            addTypingImport("collections.abc", "Sequence", source);
-        }
-        else if (sequence->hasMetadata("python:memoryview") || sequence->hasMetadata("python:array.array"))
-        {
-            addTypingImport("collections.abc", "MutableSequence", source);
-        }
         addTypingImport(sequence->type(), source, forMarshaling);
     }
     else if (auto dictionary = dynamic_pointer_cast<Dictionary>(definition))
@@ -1085,10 +1097,10 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
 
         const string currentParamName = getEscapedParamName(operation->parameters(), "current");
         out << (currentParamName + ": " + currentAlias);
-        out << epar << operationReturnTypeHint(operation, Dispatch) << ":";
+        out << epar << operationReturnTypeHint(operation, MethodKind::Dispatch) << ":";
         out.inc();
 
-        writeDocstring(operation, Dispatch, out);
+        writeDocstring(operation, MethodKind::Dispatch, out);
 
         out << nl << "pass";
         out.dec();
@@ -1318,9 +1330,72 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
     {
         out << " = None";
     }
+    else if (auto builtin = dynamic_pointer_cast<Builtin>(p->type()))
+    {
+        static constexpr string_view builtinTable[] = {
+            "0",     // Builtin::KindByte
+            "False", // Builtin::KindBool
+            "0",     // Builtin::KindShort
+            "0",     // Builtin::KindInt
+            "0",     // Builtin::KindLong
+            "0.0",   // Builtin::KindFloat
+            "0.0",   // Builtin::KindDouble
+            R"("")", // Builtin::KindString
+            "None",  // Builtin::KindObjectProxy.
+            "None"}; // Builtin::KindValue.
+        out << " = " << builtinTable[builtin->kind()];
+    }
+    else if (auto enumeration = dynamic_pointer_cast<Enum>(p->type()))
+    {
+        out << " = " << getImportAlias(parent, enumeration) << "." + enumeration->enumerators().front()->mappedName();
+    }
+    else if (dynamic_pointer_cast<Struct>(p->type()))
+    {
+        out << " = field(default_factory=" << getImportAlias(parent, p->type()) << ")";
+    }
+    else if (auto seq = dynamic_pointer_cast<Sequence>(p->type()))
+    {
+        auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
+        bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
+
+        out << " = field(default_factory=";
+        if (seq->hasMetadata("python:list"))
+        {
+            out << "list";
+        }
+        else if (seq->hasMetadata("python:tuple"))
+        {
+            out << "tuple";
+        }
+        else if (seq->hasMetadata("python:numpy.ndarray"))
+        {
+            assert(elementType && elementType->kind() <= Builtin::KindDouble);
+            static const char* builtinTable[] = {"int8", "bool", "int16", "int32", "int64", "float32", "float64"};
+            out << "lambda: numpy.empty(0, numpy." << builtinTable[elementType->kind()] << ")";
+        }
+        else if (seq->hasMetadata("python:array.array"))
+        {
+            assert(elementType && elementType->kind() <= Builtin::KindDouble);
+            static const char* builtinTable[] = {"b", "b", "h", "i", "q", "f", "d"};
+            out << "lambda: array.array('" << builtinTable[elementType->kind()] << "')";
+        }
+        else if (isByteSequence)
+        {
+            out << "bytes";
+        }
+        else
+        {
+            out << "list";
+        }
+        out << ")";
+    }
+    else if (dynamic_pointer_cast<Dictionary>(p->type()))
+    {
+        out << " = field(default_factory=dict)";
+    }
     else
     {
-        out << " = " << getTypeInitializer(parent, p, false);
+        out << " = None";
     }
 }
 
@@ -1420,9 +1495,9 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         const string contextParamName = getEscapedParamName(operation->parameters(), "context");
         out << ", " << contextParamName << ": dict[str, str] | None = None)"
-            << operationReturnTypeHint(operation, SyncInvocation) << ":";
+            << operationReturnTypeHint(operation, MethodKind::SyncInvocation) << ":";
         out.inc();
-        writeDocstring(operation, SyncInvocation, out);
+        writeDocstring(operation, MethodKind::SyncInvocation, out);
         out << nl << "return " << className << "._op_" << opName << ".invoke(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
@@ -1439,9 +1514,9 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << ", " << inParamsDecl;
         }
         out << ", " << contextParamName << ": dict[str, str] | None = None)"
-            << operationReturnTypeHint(operation, AsyncInvocation) << ":";
+            << operationReturnTypeHint(operation, MethodKind::AsyncInvocation) << ":";
         out.inc();
-        writeDocstring(operation, AsyncInvocation, out);
+        writeDocstring(operation, MethodKind::AsyncInvocation, out);
         out << nl << "return " << className << "._op_" << opName << ".invokeAsync(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
@@ -1814,61 +1889,6 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
 }
 
-string
-Slice::Python::CodeVisitor::getTypeInitializer(const ContainedPtr& source, const DataMemberPtr& field, bool constructor)
-{
-    static constexpr string_view builtinTable[] = {
-        "0",     // Builtin::KindByte
-        "False", // Builtin::KindBool
-        "0",     // Builtin::KindShort
-        "0",     // Builtin::KindInt
-        "0",     // Builtin::KindLong
-        "0.0",   // Builtin::KindFloat
-        "0.0",   // Builtin::KindDouble
-        R"("")", // Builtin::KindString
-        "None",  // Builtin::KindObjectProxy.
-        "None"}; // Builtin::KindValue.
-
-    if (auto builtin = dynamic_pointer_cast<Builtin>(field->type()))
-    {
-        return string{builtinTable[builtin->kind()]};
-    }
-    else if (auto enumeration = dynamic_pointer_cast<Enum>(field->type()))
-    {
-        return getImportAlias(source, enumeration) + "." + enumeration->enumerators().front()->mappedName();
-    }
-    else if (!constructor && !canBeUsedAsDefaultValue(field->type()))
-    {
-        string factory;
-        if (auto st = dynamic_pointer_cast<Struct>(field->type()))
-        {
-            factory = getImportAlias(source, st);
-        }
-        else if (auto seq = dynamic_pointer_cast<Sequence>(field->type()))
-        {
-            // TODO: handle metadata for sequences.
-            auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
-            bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
-            if (isByteSequence)
-            {
-                factory = "bytes";
-            }
-            else
-            {
-                factory = "list";
-            }
-        }
-        else if (auto dict = dynamic_pointer_cast<Dictionary>(field->type()))
-        {
-            factory = "dict"; // Dictionaries are initialized with an empty dictionary.
-        }
-
-        return "field(default_factory=" + factory + ")";
-    }
-
-    return "None";
-}
-
 void
 Slice::Python::CodeVisitor::writeMetaTypeDataMembers(
     const ContainedPtr& parent,
@@ -2226,16 +2246,16 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
 
     if (overview.empty() && remarks.empty())
     {
-        if ((methodKind == SyncInvocation || methodKind == Dispatch) && parametersDoc.empty() &&
+        if ((methodKind == MethodKind::SyncInvocation || methodKind == MethodKind::Dispatch) && parametersDoc.empty() &&
             exceptionsDoc.empty() && returnsDoc.empty())
         {
             return;
         }
-        else if (methodKind == AsyncInvocation && inParams.empty())
+        else if (methodKind == MethodKind::AsyncInvocation && inParams.empty())
         {
             return;
         }
-        else if (methodKind == Dispatch && inParams.empty() && exceptionsDoc.empty())
+        else if (methodKind == MethodKind::Dispatch && inParams.empty() && exceptionsDoc.empty())
         {
             return;
         }
@@ -2252,9 +2272,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
     bool needArgs = false;
     switch (methodKind)
     {
-        case SyncInvocation:
-        case AsyncInvocation:
-        case Dispatch:
+        case MethodKind::SyncInvocation:
+        case MethodKind::AsyncInvocation:
+        case MethodKind::Dispatch:
             needArgs = true;
             break;
     }
@@ -2271,7 +2291,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
         for (const auto& param : inParams)
         {
             out << nl << param->mappedName() << " : "
-                << typeToTypeHintString(param->type(), param->optional(), p, methodKind != Dispatch);
+                << typeToTypeHintString(param->type(), param->optional(), p, methodKind != MethodKind::Dispatch);
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
@@ -2282,14 +2302,14 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
             }
         }
 
-        if (methodKind == SyncInvocation || methodKind == AsyncInvocation)
+        if (methodKind == MethodKind::SyncInvocation || methodKind == MethodKind::AsyncInvocation)
         {
             const string contextParamName = getEscapedParamName(op->parameters(), "context");
             out << nl << contextParamName << " : dict[str, str]";
             out << nl << "    The request context for the invocation.";
         }
 
-        if (methodKind == Dispatch)
+        if (methodKind == MethodKind::Dispatch)
         {
             const string currentParamName = getEscapedParamName(op->parameters(), "current");
             out << nl << currentParamName << " : Ice.Current";
@@ -2299,7 +2319,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
 
     // Emit return value(s).
     bool hasReturnValue = false;
-    if (!op->returnsAnyValues() && (methodKind == AsyncInvocation || methodKind == Dispatch))
+    if (!op->returnsAnyValues() && (methodKind == MethodKind::AsyncInvocation || methodKind == MethodKind::Dispatch))
     {
         hasReturnValue = true;
         if (!overview.empty() || needArgs)
@@ -2309,11 +2329,11 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
         out << nl << "Returns";
         out << nl << "-------";
         out << nl << returnTypeHint(op, methodKind);
-        if (methodKind == AsyncInvocation)
+        if (methodKind == MethodKind::AsyncInvocation)
         {
             out << nl << "    An awaitable that is completed when the invocation completes.";
         }
-        else if (methodKind == Dispatch)
+        else if (methodKind == MethodKind::Dispatch)
         {
             out << nl << "    None or an awaitable that completes when the dispatch completes.";
         }
@@ -2336,7 +2356,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
             if (returnType)
             {
                 out << nl << "        - "
-                    << typeToTypeHintString(returnType, op->returnIsOptional(), p, methodKind == Dispatch);
+                    << typeToTypeHintString(returnType, op->returnIsOptional(), p, methodKind == MethodKind::Dispatch);
                 bool firstLine = true;
                 for (const string& line : returnsDoc)
                 {
@@ -2355,7 +2375,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
             for (const auto& param : outParams)
             {
                 out << nl << "        - "
-                    << typeToTypeHintString(param->type(), param->optional(), p, methodKind == Dispatch);
+                    << typeToTypeHintString(param->type(), param->optional(), p, methodKind == MethodKind::Dispatch);
                 const auto r = parametersDoc.find(param->name());
                 if (r != parametersDoc.end())
                 {
@@ -2386,7 +2406,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
         {
             assert(outParams.size() == 1);
             const auto& param = outParams.front();
-            out << nl << typeToTypeHintString(param->type(), param->optional(), p, methodKind == Dispatch);
+            out << nl << typeToTypeHintString(param->type(), param->optional(), p, methodKind == MethodKind::Dispatch);
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
@@ -2399,7 +2419,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
     }
 
     // Emit exceptions.
-    if ((methodKind == SyncInvocation || methodKind == Dispatch) && !exceptionsDoc.empty())
+    if ((methodKind == MethodKind::SyncInvocation || methodKind == MethodKind::Dispatch) && !exceptionsDoc.empty())
     {
         if (!overview.empty() || needArgs || hasReturnValue)
         {
@@ -2458,18 +2478,27 @@ namespace
         for (const auto& [moduleName, definitions] : runtimeImports)
         {
             out << sp;
-            for (const auto& [name, alias] : definitions)
+            if (!definitions.empty())
             {
-                out << nl << "from " << moduleName << " import " << name;
-                if (!alias.empty())
+                for (const auto& [name, alias] : definitions)
                 {
-                    out << " as " << alias;
-                    allImports.insert(alias);
+                    out << nl << "from " << moduleName << " import " << name;
+                    if (!alias.empty())
+                    {
+                        out << " as " << alias;
+                        allImports.insert(alias);
+                    }
+                    else
+                    {
+                        allImports.insert(name);
+                    }
                 }
-                else
-                {
-                    allImports.insert(name);
-                }
+            }
+            else
+            {
+                // If there are no definitions, we just import the module.
+                out << nl << "import " << moduleName;
+                allImports.insert(moduleName);
             }
         }
 
@@ -2521,22 +2550,23 @@ namespace
     }
 }
 
-Slice::Python::PythonCompilationResult
+Slice::Python::CompilationResult
 Slice::Python::compile(
-    const string& programName,
-    const unique_ptr<DependencyGenerator>& dependencyGenerator,
+    const std::string& programName,
+    const std::unique_ptr<DependencyGenerator>& dependencyGenerator,
     PackageVisitor& packageVisitor,
-    const std::vector<std::string>& files,
-    const std::vector<std::string>& preprocessorArgs,
-    bool debug,
-    PythonCompilationKind compilationKind)
+    const vector<string>& files,
+    const vector<string>& preprocessorArgs,
+    bool sortFragments,
+    CompilationKind compilationKind,
+    bool debug)
 {
     // The import visitor is reused to collect the imports from all generated Python modules, which are later used to
     // compute the order in which Python modules should be evaluated.
     ImportVisitor importVisitor;
 
     // The list of code fragments generated by the code visitor.
-    vector<PythonCodeFragment> fragments;
+    vector<CodeFragment> fragments;
 
     int status = EXIT_SUCCESS;
 
@@ -2572,7 +2602,7 @@ Slice::Python::compile(
                 unit->visit(&packageVisitor);
                 unit->visit(&importVisitor);
 
-                if (compilationKind == PythonCompilationKind::All || compilationKind == PythonCompilationKind::Module)
+                if (compilationKind == CompilationKind::All || compilationKind == CompilationKind::Module)
                 {
                     CodeVisitor codeVisitor{
                         importVisitor.getRuntimeImports(),
@@ -2580,7 +2610,7 @@ Slice::Python::compile(
                         importVisitor.getAllImportNames()};
                     unit->visit(&codeVisitor);
 
-                    const vector<PythonCodeFragment>& newFragments = codeVisitor.codeFragments();
+                    const vector<CodeFragment>& newFragments = codeVisitor.codeFragments();
                     fragments.insert(fragments.end(), newFragments.begin(), newFragments.end());
                 }
             }
@@ -2601,7 +2631,7 @@ Slice::Python::compile(
         }
     }
 
-    if (compilationKind == PythonCompilationKind::All || compilationKind == PythonCompilationKind::Module)
+    if (compilationKind == CompilationKind::All || compilationKind == CompilationKind::Module)
     {
         // Write the imports for each code fragment.
         ImportsMap runtimeImports = importVisitor.getRuntimeImports();
@@ -2618,10 +2648,70 @@ Slice::Python::compile(
             fragment.code = out.str();
         }
 
-        fragments = sortCodeFragments(fragments, importVisitor.getRuntimeImports());
+        if (sortFragments)
+        {
+            vector<string> generatedModules;
+            generatedModules.reserve(fragments.size());
+            for (const auto& fragment : fragments)
+            {
+                // Collect the names of all generated modules.
+                generatedModules.push_back(fragment.moduleName);
+            }
+
+            // List of generated modules in reverse topological order.
+            // Each module in this list depends only on modules that appear earlier in the list, or modules that are not
+            // part of this compilation.
+            vector<CodeFragment> processedFragments;
+
+            while (!fragments.empty())
+            {
+                size_t fragmentsSize = fragments.size();
+                for (auto it = fragments.begin(); it != fragments.end();)
+                {
+                    CodeFragment fragment = *it;
+                    const auto& moduleImports = runtimeImports[fragment.moduleName];
+
+                    bool unseenDependencies = false;
+                    for (const auto& m : moduleImports)
+                    {
+                        // If the current module depends on a module that is being generated but not yet seen we
+                        // postpone its compilation.
+                        if (find(generatedModules.begin(), generatedModules.end(), m.first) != generatedModules.end() &&
+                            find_if(
+                                processedFragments.begin(),
+                                processedFragments.end(),
+                                [&m](const auto& element)
+                                { return element.moduleName == m.first; }) == processedFragments.end())
+                        {
+                            unseenDependencies = true;
+                            break;
+                        }
+                    }
+
+                    if (!unseenDependencies)
+                    {
+                        processedFragments.push_back(fragment);
+                        it = fragments.erase(it);
+                    }
+                    else
+                    {
+                        it++;
+                    }
+                }
+
+                // If we didn't remove any module from the runtime imports, it means that we have a circular dependency
+                // between Slice files which is not allowed.
+                if (fragments.size() == fragmentsSize)
+                {
+                    assert(false);
+                    throw runtime_error("Circular dependency detected in Slice files.");
+                }
+            }
+            fragments = std::move(processedFragments);
+        }
     }
 
-    if (compilationKind == PythonCompilationKind::All || compilationKind == PythonCompilationKind::Index)
+    if (compilationKind == CompilationKind::All || compilationKind == CompilationKind::Index)
     {
         for (const auto& [name, imports] : packageVisitor.imports())
         {
@@ -2644,70 +2734,6 @@ Slice::Python::compile(
     }
 
     return {status, fragments};
-}
-
-vector<Slice::Python::PythonCodeFragment>
-Slice::Python::sortCodeFragments(vector<PythonCodeFragment> fragments, ImportsMap runtimeImports)
-{
-    vector<string> generatedModules;
-    generatedModules.reserve(fragments.size());
-    for (const auto& fragment : fragments)
-    {
-        // Collect the names of all generated modules.
-        generatedModules.push_back(fragment.moduleName);
-    }
-
-    // List of generated modules in reverse topological order.
-    // Each module in this list depends only on modules that appear earlier in the list, or modules that are not part
-    // of this compilation.
-    vector<PythonCodeFragment> processedFragments;
-
-    while (!fragments.empty())
-    {
-        size_t fragmentsSize = fragments.size();
-        for (auto it = fragments.begin(); it != fragments.end();)
-        {
-            PythonCodeFragment fragment = *it;
-            const auto& moduleImports = runtimeImports[fragment.moduleName];
-
-            bool unseenDependencies = false;
-            for (const auto& [moduleName, _] : moduleImports)
-            {
-                // If the current module depends on a module that is being generated but not yet seen we postpone its
-                // compilation.
-                if (find(generatedModules.begin(), generatedModules.end(), moduleName) != generatedModules.end() &&
-                    find_if(
-                        processedFragments.begin(),
-                        processedFragments.end(),
-                        [&moduleName](const auto& element)
-                        { return element.moduleName == moduleName; }) == processedFragments.end())
-                {
-                    unseenDependencies = true;
-                    break;
-                }
-            }
-
-            if (!unseenDependencies)
-            {
-                processedFragments.push_back(fragment);
-                it = fragments.erase(it);
-            }
-            else
-            {
-                it++;
-            }
-        }
-
-        // If we didn't remove any module from the runtime imports, it means that we have a circular dependency between
-        // Slice files which is not allowed.
-        if (fragments.size() == fragmentsSize)
-        {
-            assert(false);
-            throw runtime_error("Circular dependency detected in Slice files.");
-        }
-    }
-
-    return processedFragments;
 }
 
 string

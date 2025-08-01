@@ -41,6 +41,17 @@ module Test
             optional(7) DoubleSeq1 doubleSeq;
         }
 
+        class E
+        {
+            BoolSeq1 boolSeq;
+            ByteSeq1 byteSeq;
+            ShortSeq1 shortSeq;
+            IntSeq1 intSeq;
+            LongSeq1 longSeq;
+            FloatSeq1 floatSeq;
+            DoubleSeq1 doubleSeq;
+        }
+
         interface Custom
         {
             BoolSeq1 opBoolSeq(BoolSeq1 v1, out BoolSeq2 v2);

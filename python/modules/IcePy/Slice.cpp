@@ -91,7 +91,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 
     debug = opts.isSet("d") || opts.isSet("debug");
 
-    PythonCompilationResult compilationResult;
+    CompilationResult compilationResult;
     try
     {
         PackageVisitor packageVisitor;
@@ -101,8 +101,9 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             packageVisitor,
             sliceFiles,
             preprocessorArgs,
-            debug,
-            PythonCompilationKind::All);
+            true, // Sort fragments to ensure they are evaluated in the correct order.
+            CompilationKind::All,
+            debug);
     }
     catch (const std::exception& ex)
     {
