@@ -188,7 +188,8 @@ main(int argc, char* argv[])
 
         if (!outputDir.empty() && !IceInternal::directoryExists(outputDir))
         {
-            consoleErr << programName << ": error: argument for --output-dir does not exist or is not a directory" << endl;
+            consoleErr << programName << ": error: argument for --output-dir does not exist or is not a directory"
+                       << endl;
             return EXIT_FAILURE;
         }
 
