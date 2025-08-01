@@ -764,11 +764,10 @@ Slice::createPackagePath(const string& packageName, const string& outputPath)
     vector<string> packageParts;
     IceInternal::splitString(string_view{packageName}, ".", packageParts);
     assert(!packageParts.empty());
-    string packagePath = outputPath;
+    string packagePath = (outputPath.empty() ? "" : outputPath + "/");
     for (const auto& part : packageParts)
     {
-        packagePath += "/" + part;
-        packagePath = normalizePath(packagePath);
+        packagePath += part + "/";
         int err = IceInternal::mkdir(packagePath, 0777);
         if (err == 0)
         {
