@@ -5,6 +5,7 @@
 
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
+#include "../Slice/Util.h"
 
 #include <map>
 #include <set>
@@ -13,7 +14,7 @@
 namespace Slice::Python
 {
     // The kind of method being documented or generated.
-    enum MethodKind
+    enum class MethodKind
     {
         SyncInvocation,
         AsyncInvocation,
@@ -21,7 +22,7 @@ namespace Slice::Python
     };
 
     /// Represents the scope of an import statement—either required at runtime or only used for type hints.
-    enum ImportScope
+    enum class ImportScope
     {
         /// The import is required at runtime by the generated Python code.
         RuntimeImport,
@@ -31,7 +32,7 @@ namespace Slice::Python
     };
 
     // The context a type will be used in.
-    enum TypeContext
+    enum class TypeContext
     {
         // If the type is an interface, it is used as a servant (base type).
         Servant,
@@ -59,10 +60,13 @@ namespace Slice::Python
     using ImportsMap = std::map<std::string, ModuleImportsMap>;
 
     /// Represents a Python code fragment generated for a Slice definition.
-    struct PythonCodeFragment
+    struct CodeFragment
     {
         /// The Slice file name from which this code fragment was generated.
         std::string sliceFileName;
+
+        /// The package name for the generated code.
+        std::string packageName;
 
         /// The Python module for the generated code.
         std::string moduleName;
@@ -75,6 +79,27 @@ namespace Slice::Python
 
         /// The generated code.
         std::string code;
+    };
+
+    struct CompilationResult
+    {
+        /// The status of the compilation.
+        int status = EXIT_SUCCESS;
+
+        /// The generated Python code fragments.
+        std::vector<CodeFragment> fragments;
+    };
+
+    enum class CompilationKind
+    {
+        // Don't generate any Python code.
+        None,
+        // Generate Python code for Slice definitions.
+        Module,
+        // Generate Python package index files (__init__.py).
+        Index,
+        // Generate both modules and package index files.
+        All
     };
 
     /// Returns the fully qualified name of the Python module that corresponds to the given Slice definition.
@@ -139,7 +164,7 @@ namespace Slice::Python
     /// Helper method to emit the generated code that format the fields of a type in __repr__ implementation.
     std::string formatFields(const DataMemberList& members);
 
-    PythonCodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
+    CodeFragment createCodeFragmentForPythonModule(const ContainedPtr& contained, const std::string& code);
 
     // Get a list of all definitions exported for the Python module corresponding to the given Slice definition.
     std::vector<std::string> getAll(const ContainedPtr& definition);
@@ -183,20 +208,6 @@ namespace Slice::Python
     /// a set of pairs representing the imported name and its alias.
     /// @param out The output stream to write the package index to.
     void writePackageIndex(const std::map<std::string, std::set<std::string>>& imports, IceInternal::Output& out);
-
-    /// Generates the Python modules and packages for the given Slice files. The code is returned as a vector of
-    /// PythonCodeFragment objects, sorted in the order required for evaluation by the Python interpreter.
-    /// @param files The list of Slice files to process.
-    /// @param preprocessorArgs The arguments to pass to the preprocessor.
-    /// @param debug Whether to enable debug output.
-    /// @return A vector of PythonCodeFragment objects representing the generated code.
-    std::vector<PythonCodeFragment>
-    dynamicCompile(const std::vector<std::string>& files, const std::vector<std::string>& preprocessorArgs, bool debug);
-
-    /// Generate Python code for a translation unit.
-    /// @param unit is the Slice unit to generate code for.
-    /// @param outputDir The base-directory to write the generated Python files to.
-    void generate(const Slice::UnitPtr& unit, const std::string& outputDir);
 
     /// Returns a DocString formatted link to the provided Slice identifier.
     std::string
@@ -279,7 +290,7 @@ namespace Slice::Python
         void addRuntimeImport(
             const SyntaxTreeBasePtr& definition,
             const ContainedPtr& source,
-            TypeContext typeContext = Proxy);
+            TypeContext typeContext = TypeContext::Proxy);
 
         /// Adds a runtime import for the given definition from the specified Python module.
         ///
@@ -361,7 +372,7 @@ namespace Slice::Python
         void visitEnum(const EnumPtr&) final;
         void visitConst(const ConstPtr&) final;
 
-        [[nodiscard]] const std::vector<PythonCodeFragment>& codeFragments() const { return _codeFragments; }
+        [[nodiscard]] const std::vector<CodeFragment>& codeFragments() const { return _codeFragments; }
 
     private:
         /// Returns a string representation of the type hint for the given Slice type.
@@ -421,7 +432,7 @@ namespace Slice::Python
 
         // The list of generated Python code fragments in the current translation unit.
         // Each fragment corresponds to a Python module generated from a Slice definition with the same name.
-        std::vector<PythonCodeFragment> _codeFragments;
+        std::vector<CodeFragment> _codeFragments;
 
         ImportsMap _runtimeImports;
         ImportsMap _typingImports;
@@ -434,6 +445,29 @@ namespace Slice::Python
 
         std::unique_ptr<BufferedOutput> _out;
     };
+
+    /// Generates Python modules and packages from the specified Slice files.
+    ///
+    /// @param programName The name of the caller program (typically "slice2py" or "Ice.loadSlice"), used for
+    /// parser errors.
+    /// @param dependencyGenerator The dependency generator used to collect Slice file dependencies.
+    /// @param packageVisitor The package visitor responsible for collecting package and module information.
+    /// @param files The list of Slice files to process.
+    /// @param preprocessorArgs The arguments to pass to the preprocessor.
+    /// @param sortFragments Whether to sort the generated code fragments in the order required by the Python
+    /// interpreter.
+    /// @param compilationKind The kind of Python code to generate (modules, index files, or both).
+    /// @param debug Whether to enable debug output.
+    /// @return A CompilationResult containing the generated code fragments and the compilation status.
+    CompilationResult compile(
+        const std::string& programName,
+        const std::unique_ptr<DependencyGenerator>& dependencyGenerator,
+        PackageVisitor& packageVisitor,
+        const std::vector<std::string>& files,
+        const std::vector<std::string>& preprocessorArgs,
+        bool sortFragments,
+        CompilationKind compilationKind,
+        bool debug);
 }
 
 #endif

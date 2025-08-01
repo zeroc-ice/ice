@@ -54,12 +54,12 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     opts.addOpt("I", "", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
     opts.addOpt("d", "debug");
 
-    vector<string> files;
+    vector<string> sliceFiles;
     try
     {
         argSeq.insert(argSeq.begin(), ""); // dummy argv[0]
-        files = opts.parse(argSeq);
-        if (files.empty())
+        sliceFiles = opts.parse(argSeq);
+        if (sliceFiles.empty())
         {
             PyErr_Format(PyExc_RuntimeError, "no Slice files specified in `%s'", cmd);
             return nullptr;
@@ -71,30 +71,39 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         return nullptr;
     }
 
-    vector<string> cppArgs;
+    vector<string> preprocessorArgs;
     bool debug = false;
 
     for (const auto& arg : opts.argVec("D"))
     {
-        cppArgs.push_back("-D" + arg);
+        preprocessorArgs.push_back("-D" + arg);
     }
 
     for (const auto& arg : opts.argVec("U"))
     {
-        cppArgs.push_back("-U" + arg);
+        preprocessorArgs.push_back("-U" + arg);
     }
 
     for (const auto& path : opts.argVec("I"))
     {
-        cppArgs.push_back("-I" + path);
+        preprocessorArgs.push_back("-I" + path);
     }
 
     debug = opts.isSet("d") || opts.isSet("debug");
 
-    vector<PythonCodeFragment> fragments;
+    CompilationResult compilationResult;
     try
     {
-        fragments = Python::dynamicCompile(files, cppArgs, debug);
+        PackageVisitor packageVisitor;
+        compilationResult = Slice::Python::compile(
+            "Ice.loadSlice",
+            nullptr, // No dependency generator
+            packageVisitor,
+            sliceFiles,
+            preprocessorArgs,
+            true, // Sort fragments to ensure they are evaluated in the correct order.
+            CompilationKind::All,
+            debug);
     }
     catch (const std::exception& ex)
     {
@@ -102,7 +111,13 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         return nullptr;
     }
 
-    for (const auto& fragment : fragments)
+    if (compilationResult.status == EXIT_FAILURE)
+    {
+        PyErr_Format(PyExc_RuntimeError, "Slice compilation failed");
+        return nullptr;
+    }
+
+    for (const auto& fragment : compilationResult.fragments)
     {
         PyObject* moduleRef = PyImport_AddModule(fragment.moduleName.c_str());
         if (!moduleRef)

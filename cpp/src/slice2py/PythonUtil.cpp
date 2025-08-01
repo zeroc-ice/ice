@@ -291,7 +291,7 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
     auto source = dynamic_pointer_cast<Contained>(operation->container());
     string returnTypeHint;
     ParameterList outParameters = operation->outParameters();
-    bool forMarshaling = methodKind == Dispatch;
+    bool forMarshaling = methodKind == MethodKind::Dispatch;
     if (operation->returnsMultipleValues())
     {
         ostringstream os;
@@ -330,11 +330,11 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
 
     switch (methodKind)
     {
-        case AsyncInvocation:
+        case MethodKind::AsyncInvocation:
             return "Awaitable[" + returnTypeHint + "]";
-        case Dispatch:
+        case MethodKind::Dispatch:
             return returnTypeHint + " | Awaitable[" + returnTypeHint + "]";
-        case SyncInvocation:
+        case MethodKind::SyncInvocation:
         default:
             return returnTypeHint;
     }
@@ -370,15 +370,21 @@ Slice::Python::formatFields(const DataMemberList& members)
     return os.str();
 }
 
-Python::PythonCodeFragment
+Python::CodeFragment
 Slice::Python::createCodeFragmentForPythonModule(const ContainedPtr& contained, const string& code)
 {
-    Python::PythonCodeFragment fragment;
+    Python::CodeFragment fragment;
     bool isForwardDeclaration =
         dynamic_pointer_cast<InterfaceDecl>(contained) || dynamic_pointer_cast<ClassDecl>(contained);
     fragment.moduleName = isForwardDeclaration ? getPythonModuleForForwardDeclaration(contained)
                                                : getPythonModuleForDefinition(contained);
     fragment.code = code;
+    fragment.packageName = fragment.moduleName;
+
+    auto pos = fragment.packageName.rfind('.');
+    assert(pos != string::npos);
+    fragment.packageName = fragment.packageName.substr(0, pos);
+
     fragment.sliceFileName = contained->file();
     string fileName = fragment.moduleName;
     replace(fileName.begin(), fileName.end(), '.', '/');
@@ -432,12 +438,11 @@ Slice::Python::writePackageIndex(const std::map<std::string, std::set<std::strin
 }
 
 void
-Slice::Python::createPackagePath(const string& moduleName, const string& outputPath)
+Slice::Python::createPackagePath(const string& packageName, const string& outputPath)
 {
     vector<string> packageParts;
-    IceInternal::splitString(string_view{moduleName}, ".", packageParts);
+    IceInternal::splitString(string_view{packageName}, ".", packageParts);
     assert(!packageParts.empty());
-    packageParts.pop_back(); // Remove the last part, which is the module name.
     string packagePath = outputPath;
     for (const auto& part : packageParts)
     {
@@ -569,8 +574,8 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         for (const auto& base : bases)
         {
-            addRuntimeImport(base, p, Proxy);
-            addRuntimeImport(base, p, Servant);
+            addRuntimeImport(base, p, TypeContext::Proxy);
+            addRuntimeImport(base, p, TypeContext::Servant);
         }
     }
 
@@ -736,7 +741,7 @@ Slice::Python::ImportVisitor::addRuntimeImport(
 
         name = contained->mappedName();
         if ((dynamic_pointer_cast<InterfaceDef>(definition) || dynamic_pointer_cast<InterfaceDecl>(definition)) &&
-            typeContext == Proxy)
+            typeContext == TypeContext::Proxy)
         {
             name += "Prx";
         }
@@ -1092,10 +1097,10 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
 
         const string currentParamName = getEscapedParamName(operation->parameters(), "current");
         out << (currentParamName + ": " + currentAlias);
-        out << epar << operationReturnTypeHint(operation, Dispatch) << ":";
+        out << epar << operationReturnTypeHint(operation, MethodKind::Dispatch) << ":";
         out.inc();
 
-        writeDocstring(operation, Dispatch, out);
+        writeDocstring(operation, MethodKind::Dispatch, out);
 
         out << nl << "pass";
         out.dec();
@@ -1490,9 +1495,9 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         const string contextParamName = getEscapedParamName(operation->parameters(), "context");
         out << ", " << contextParamName << ": dict[str, str] | None = None)"
-            << operationReturnTypeHint(operation, SyncInvocation) << ":";
+            << operationReturnTypeHint(operation, MethodKind::SyncInvocation) << ":";
         out.inc();
-        writeDocstring(operation, SyncInvocation, out);
+        writeDocstring(operation, MethodKind::SyncInvocation, out);
         out << nl << "return " << className << "._op_" << opName << ".invoke(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
@@ -1509,9 +1514,9 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << ", " << inParamsDecl;
         }
         out << ", " << contextParamName << ": dict[str, str] | None = None)"
-            << operationReturnTypeHint(operation, AsyncInvocation) << ":";
+            << operationReturnTypeHint(operation, MethodKind::AsyncInvocation) << ":";
         out.inc();
-        writeDocstring(operation, AsyncInvocation, out);
+        writeDocstring(operation, MethodKind::AsyncInvocation, out);
         out << nl << "return " << className << "._op_" << opName << ".invokeAsync(self, ((" << inParams;
         if (!inParams.empty() && inParams.find(',') == string::npos)
         {
@@ -2241,16 +2246,16 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
 
     if (overview.empty() && remarks.empty())
     {
-        if ((methodKind == SyncInvocation || methodKind == Dispatch) && parametersDoc.empty() &&
+        if ((methodKind == MethodKind::SyncInvocation || methodKind == MethodKind::Dispatch) && parametersDoc.empty() &&
             exceptionsDoc.empty() && returnsDoc.empty())
         {
             return;
         }
-        else if (methodKind == AsyncInvocation && inParams.empty())
+        else if (methodKind == MethodKind::AsyncInvocation && inParams.empty())
         {
             return;
         }
-        else if (methodKind == Dispatch && inParams.empty() && exceptionsDoc.empty())
+        else if (methodKind == MethodKind::Dispatch && inParams.empty() && exceptionsDoc.empty())
         {
             return;
         }
@@ -2267,9 +2272,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
     bool needArgs = false;
     switch (methodKind)
     {
-        case SyncInvocation:
-        case AsyncInvocation:
-        case Dispatch:
+        case MethodKind::SyncInvocation:
+        case MethodKind::AsyncInvocation:
+        case MethodKind::Dispatch:
             needArgs = true;
             break;
     }
@@ -2286,7 +2291,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
         for (const auto& param : inParams)
         {
             out << nl << param->mappedName() << " : "
-                << typeToTypeHintString(param->type(), param->optional(), p, methodKind != Dispatch);
+                << typeToTypeHintString(param->type(), param->optional(), p, methodKind != MethodKind::Dispatch);
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
@@ -2297,14 +2302,14 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
             }
         }
 
-        if (methodKind == SyncInvocation || methodKind == AsyncInvocation)
+        if (methodKind == MethodKind::SyncInvocation || methodKind == MethodKind::AsyncInvocation)
         {
             const string contextParamName = getEscapedParamName(op->parameters(), "context");
             out << nl << contextParamName << " : dict[str, str]";
             out << nl << "    The request context for the invocation.";
         }
 
-        if (methodKind == Dispatch)
+        if (methodKind == MethodKind::Dispatch)
         {
             const string currentParamName = getEscapedParamName(op->parameters(), "current");
             out << nl << currentParamName << " : Ice.Current";
@@ -2314,7 +2319,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
 
     // Emit return value(s).
     bool hasReturnValue = false;
-    if (!op->returnsAnyValues() && (methodKind == AsyncInvocation || methodKind == Dispatch))
+    if (!op->returnsAnyValues() && (methodKind == MethodKind::AsyncInvocation || methodKind == MethodKind::Dispatch))
     {
         hasReturnValue = true;
         if (!overview.empty() || needArgs)
@@ -2324,11 +2329,11 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
         out << nl << "Returns";
         out << nl << "-------";
         out << nl << returnTypeHint(op, methodKind);
-        if (methodKind == AsyncInvocation)
+        if (methodKind == MethodKind::AsyncInvocation)
         {
             out << nl << "    An awaitable that is completed when the invocation completes.";
         }
-        else if (methodKind == Dispatch)
+        else if (methodKind == MethodKind::Dispatch)
         {
             out << nl << "    None or an awaitable that completes when the dispatch completes.";
         }
@@ -2351,7 +2356,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
             if (returnType)
             {
                 out << nl << "        - "
-                    << typeToTypeHintString(returnType, op->returnIsOptional(), p, methodKind == Dispatch);
+                    << typeToTypeHintString(returnType, op->returnIsOptional(), p, methodKind == MethodKind::Dispatch);
                 bool firstLine = true;
                 for (const string& line : returnsDoc)
                 {
@@ -2370,7 +2375,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
             for (const auto& param : outParams)
             {
                 out << nl << "        - "
-                    << typeToTypeHintString(param->type(), param->optional(), p, methodKind == Dispatch);
+                    << typeToTypeHintString(param->type(), param->optional(), p, methodKind == MethodKind::Dispatch);
                 const auto r = parametersDoc.find(param->name());
                 if (r != parametersDoc.end())
                 {
@@ -2401,7 +2406,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
         {
             assert(outParams.size() == 1);
             const auto& param = outParams.front();
-            out << nl << typeToTypeHintString(param->type(), param->optional(), p, methodKind == Dispatch);
+            out << nl << typeToTypeHintString(param->type(), param->optional(), p, methodKind == MethodKind::Dispatch);
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
             {
@@ -2414,7 +2419,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, MethodKind me
     }
 
     // Emit exceptions.
-    if ((methodKind == SyncInvocation || methodKind == Dispatch) && !exceptionsDoc.empty())
+    if ((methodKind == MethodKind::SyncInvocation || methodKind == MethodKind::Dispatch) && !exceptionsDoc.empty())
     {
         if (!overview.empty() || needArgs || hasReturnValue)
         {
@@ -2458,42 +2463,6 @@ Slice::Python::CodeVisitor::getImportAlias(
 
 namespace
 {
-    Output&
-    getModuleOutputFile(const string& moduleName, map<string, unique_ptr<Output>>& outputFiles, const string& outputDir)
-    {
-        auto it = outputFiles.find(moduleName);
-        if (it != outputFiles.end())
-        {
-            return *it->second;
-        }
-
-        // Create a new output file for this module.
-        string fileName = moduleName;
-        replace(fileName.begin(), fileName.end(), '.', '/');
-        fileName += ".py";
-
-        string outputPath;
-        if (!outputDir.empty())
-        {
-            outputPath = outputDir + "/";
-        }
-        else
-        {
-            outputPath = "./";
-        }
-
-        Python::createPackagePath(moduleName, outputPath);
-        outputPath += fileName;
-
-        FileTracker::instance()->addFile(outputPath);
-
-        auto output = make_unique<Output>(outputPath.c_str());
-        Output& out = *output;
-        Python::writeHeader(out);
-        outputFiles[moduleName] = std::move(output);
-        return out;
-    }
-
     void writeImports(
         const Python::ModuleImportsMap& runtimeImports,
         const Python::ModuleImportsMap& typingImports,
@@ -2581,28 +2550,33 @@ namespace
     }
 }
 
-vector<Slice::Python::PythonCodeFragment>
-Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>& preprocessorArgs, bool debug)
+Slice::Python::CompilationResult
+Slice::Python::compile(
+    const std::string& programName,
+    const std::unique_ptr<DependencyGenerator>& dependencyGenerator,
+    PackageVisitor& packageVisitor,
+    const vector<string>& files,
+    const vector<string>& preprocessorArgs,
+    bool sortFragments,
+    CompilationKind compilationKind,
+    bool debug)
 {
-    // The package visitor is reused to compile all Slice files so that it collects the definitions for all Slice files
-    // contributing to a given package.
-    PackageVisitor packageVisitor;
-
     // The import visitor is reused to collect the imports from all generated Python modules, which are later used to
     // compute the order in which Python modules should be evaluated.
     ImportVisitor importVisitor;
 
     // The list of code fragments generated by the code visitor.
-    vector<PythonCodeFragment> fragments;
+    vector<CodeFragment> fragments;
+
+    int status = EXIT_SUCCESS;
 
     for (const auto& fileName : files)
     {
         PreprocessorPtr preprocessor;
         UnitPtr unit;
-
         try
         {
-            preprocessor = Preprocessor::create("IcePy", fileName, preprocessorArgs);
+            preprocessor = Preprocessor::create(programName, fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
 
             unit = Unit::createUnit("python", debug);
@@ -2612,24 +2586,34 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
 
             if (parseStatus == EXIT_FAILURE)
             {
-                unit->destroy();
-                throw runtime_error("Failed to parse Slice file: " + fileName);
+                status = EXIT_FAILURE;
             }
+            else
+            {
+                if (dependencyGenerator)
+                {
+                    // Collect the dependencies of the unit.
+                    dependencyGenerator->addDependenciesFor(unit);
+                }
 
-            parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
-            validatePythonMetadata(unit);
+                parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
+                validatePythonMetadata(unit);
 
-            unit->visit(&packageVisitor);
-            unit->visit(&importVisitor);
+                unit->visit(&packageVisitor);
+                unit->visit(&importVisitor);
 
-            CodeVisitor codeVisitor{
-                importVisitor.getRuntimeImports(),
-                importVisitor.getTypingImports(),
-                importVisitor.getAllImportNames()};
-            unit->visit(&codeVisitor);
+                if (compilationKind == CompilationKind::All || compilationKind == CompilationKind::Module)
+                {
+                    CodeVisitor codeVisitor{
+                        importVisitor.getRuntimeImports(),
+                        importVisitor.getTypingImports(),
+                        importVisitor.getAllImportNames()};
+                    unit->visit(&codeVisitor);
 
-            const vector<PythonCodeFragment>& newFragments = codeVisitor.codeFragments();
-            fragments.insert(fragments.end(), newFragments.begin(), newFragments.end());
+                    const vector<CodeFragment>& newFragments = codeVisitor.codeFragments();
+                    fragments.insert(fragments.end(), newFragments.begin(), newFragments.end());
+                }
+            }
             unit->destroy();
         }
         catch (...)
@@ -2647,147 +2631,109 @@ Slice::Python::dynamicCompile(const vector<string>& files, const vector<string>&
         }
     }
 
-    vector<string> generatedModules;
-    generatedModules.reserve(fragments.size());
-    for (const auto& fragment : fragments)
+    if (compilationKind == CompilationKind::All || compilationKind == CompilationKind::Module)
     {
-        // Collect the names of all generated modules.
-        generatedModules.push_back(fragment.moduleName);
-    }
+        // Write the imports for each code fragment.
+        ImportsMap runtimeImports = importVisitor.getRuntimeImports();
+        ImportsMap typingImports = importVisitor.getTypingImports();
 
-    // The list of non generated modules that are imported by the generated modules.
-    vector<string> builtinModules{
-        "Ice.FormatType",
-        "Ice.Object",
-        "Ice.ObjectPrx",
-        "Ice.ObjectPrx_forward",
-        "Ice.OperationMode",
-        "Ice.StringUtil",
-        "Ice.UserException",
-        "Ice.Value",
-        "Ice.Value_forward",
-        "abc",
-        "dataclasses",
-        "enum",
-        "typing"};
-
-    // List of generated modules in reverse topological order.
-    // Each module in this list depends only on modules that appear earlier in the list, modules in the built-in
-    // modules, or modules that are not part of this compilation.
-    vector<PythonCodeFragment> processedFragments;
-
-    ImportsMap runtimeImports = importVisitor.getRuntimeImports();
-    ImportsMap typingImports = importVisitor.getTypingImports();
-    while (!fragments.empty())
-    {
-        size_t fragmentsSize = fragments.size();
-        for (auto it = fragments.begin(); it != fragments.end();)
+        for (auto& fragment : fragments)
         {
-            PythonCodeFragment fragment = *it;
-            const auto& moduleImports = runtimeImports[fragment.moduleName];
+            Python::BufferedOutput out;
+            writeHeader(out);
+            writeImports(runtimeImports[fragment.moduleName], typingImports[fragment.moduleName], out);
+            out << sp;
+            out << fragment.code;
 
-            bool unseenDependencies = false;
-            for (const auto& [moduleName, _] : moduleImports)
+            fragment.code = out.str();
+        }
+
+        if (sortFragments)
+        {
+            vector<string> generatedModules;
+            generatedModules.reserve(fragments.size());
+            for (const auto& fragment : fragments)
             {
-                // If the current module depends on a module that is being generated but not yet seen we postpone its
-                // compilation.
-                if (find(generatedModules.begin(), generatedModules.end(), moduleName) != generatedModules.end() &&
-                    find_if(
-                        processedFragments.begin(),
-                        processedFragments.end(),
-                        [&moduleName](const auto& element)
-                        { return element.moduleName == moduleName; }) == processedFragments.end() &&
-                    find(builtinModules.begin(), builtinModules.end(), moduleName) == builtinModules.end())
+                // Collect the names of all generated modules.
+                generatedModules.push_back(fragment.moduleName);
+            }
+
+            // List of generated modules in reverse topological order.
+            // Each module in this list depends only on modules that appear earlier in the list, or modules that are not
+            // part of this compilation.
+            vector<CodeFragment> processedFragments;
+
+            while (!fragments.empty())
+            {
+                size_t fragmentsSize = fragments.size();
+                for (auto it = fragments.begin(); it != fragments.end();)
                 {
-                    unseenDependencies = true;
-                    break;
+                    CodeFragment fragment = *it;
+                    const auto& moduleImports = runtimeImports[fragment.moduleName];
+
+                    bool unseenDependencies = false;
+                    for (const auto& m : moduleImports)
+                    {
+                        // If the current module depends on a module that is being generated but not yet seen we
+                        // postpone its compilation.
+                        if (find(generatedModules.begin(), generatedModules.end(), m.first) != generatedModules.end() &&
+                            find_if(
+                                processedFragments.begin(),
+                                processedFragments.end(),
+                                [&m](const auto& element)
+                                { return element.moduleName == m.first; }) == processedFragments.end())
+                        {
+                            unseenDependencies = true;
+                            break;
+                        }
+                    }
+
+                    if (!unseenDependencies)
+                    {
+                        processedFragments.push_back(fragment);
+                        it = fragments.erase(it);
+                    }
+                    else
+                    {
+                        it++;
+                    }
+                }
+
+                // If we didn't remove any module from the runtime imports, it means that we have a circular dependency
+                // between Slice files which is not allowed.
+                if (fragments.size() == fragmentsSize)
+                {
+                    assert(false);
+                    throw runtime_error("Circular dependency detected in Slice files.");
                 }
             }
-
-            if (!unseenDependencies)
-            {
-                // If we have already processed all the dependencies we can remove it from the runtime imports.
-                // add add it to the list of seen modules.
-                Python::BufferedOutput out;
-                writeImports(runtimeImports[fragment.moduleName], typingImports[fragment.moduleName], out);
-                out << sp;
-                out << fragment.code;
-                processedFragments.push_back(
-                    {.sliceFileName = fragment.sliceFileName,
-                     .moduleName = fragment.moduleName,
-                     .fileName = fragment.fileName,
-                     .isPackageIndex = false,
-                     .code = out.str()});
-                it = fragments.erase(it);
-            }
-            else
-            {
-                it++;
-            }
+            fragments = std::move(processedFragments);
         }
+    }
 
-        // If we didn't remove any module from the runtime imports, it means that we have a circular dependency between
-        // Slice files which is not allowed.
-        if (fragments.size() == fragmentsSize)
+    if (compilationKind == CompilationKind::All || compilationKind == CompilationKind::Index)
+    {
+        for (const auto& [name, imports] : packageVisitor.imports())
         {
-            assert(false);
-            throw runtime_error("Circular dependency detected in Slice files.");
+            string packageName = name;
+            // The pop_back call removes the last dot from the package name.
+            packageName.pop_back();
+            BufferedOutput out;
+            writePackageIndex(imports, out);
+            string fileName = name;
+            replace(fileName.begin(), fileName.end(), '.', '/');
+            fileName += "/__init__.py";
+            fragments.push_back(
+                {.sliceFileName = "",
+                 .packageName = packageName,
+                 .moduleName = packageName,
+                 .fileName = fileName,
+                 .isPackageIndex = true,
+                 .code = out.str()});
         }
     }
 
-    // Add fragments for the package-index files.
-    for (const auto& [name, imports] : packageVisitor.imports())
-    {
-        string packageName = name;
-        // The pop_back call removes the last dot from the package name.
-        packageName.pop_back();
-        BufferedOutput out;
-        writePackageIndex(imports, out);
-        string fileName = name;
-        replace(fileName.begin(), fileName.end(), '.', '/');
-        fileName += "/__init__.py";
-        processedFragments.push_back(
-            {.sliceFileName = "",
-             .moduleName = packageName,
-             .fileName = fileName,
-             .isPackageIndex = true,
-             .code = out.str()});
-    }
-
-    return processedFragments;
-}
-
-void
-Slice::Python::generate(const UnitPtr& unit, const std::string& outputDir)
-{
-    validatePythonMetadata(unit);
-
-    ImportVisitor importVisitor;
-    unit->visit(&importVisitor);
-
-    CodeVisitor codeVisitor{
-        importVisitor.getRuntimeImports(),
-        importVisitor.getTypingImports(),
-        importVisitor.getAllImportNames()};
-    unit->visit(&codeVisitor);
-
-    const string fileBaseName = baseName(removeExtension(unit->topLevelFile()));
-
-    // A map from python module names to output files.
-    map<string, unique_ptr<Output>> outputFiles;
-
-    ImportsMap runtimeImports = importVisitor.getRuntimeImports();
-    ImportsMap typingImports = importVisitor.getTypingImports();
-
-    // Emit the code fragments for the unit.
-    for (auto& fragment : codeVisitor.codeFragments())
-    {
-        Output& out = getModuleOutputFile(fragment.moduleName, outputFiles, outputDir);
-        writeImports(runtimeImports[fragment.moduleName], typingImports[fragment.moduleName], out);
-        out << sp;
-        out << fragment.code;
-        out << nl;
-    }
+    return {status, fragments};
 }
 
 string
