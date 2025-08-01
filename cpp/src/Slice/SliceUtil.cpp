@@ -772,7 +772,7 @@ Slice::createPackagePath(const string& packagePath, const string& outputPath)
         int err = IceInternal::mkdir(newPackagePath, 0777);
         if (err == 0)
         {
-            FileTracker::instance()->addDirectory(packagePath);
+            FileTracker::instance()->addDirectory(newPackagePath);
         }
         else if (errno == EEXIST && IceInternal::directoryExists(newPackagePath))
         {
