@@ -175,3 +175,37 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 
     return Py_None;
 }
+
+extern "C" PyObject*
+IcePy_compileSlice(PyObject* /*self*/, PyObject* args)
+{
+    PyObject* list{nullptr};
+    if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &list))
+    {
+        return nullptr;
+    }
+
+    vector<string> argSeq;
+    if (list && !listToStringSeq(list, argSeq))
+    {
+        return nullptr;
+    }
+
+    int rc;
+    try
+    {
+        rc = Slice::Python::compile(argSeq);
+    }
+    catch (const std::exception& ex)
+    {
+        consoleErr << argSeq[0] << ": error:" << ex.what() << endl;
+        rc = EXIT_FAILURE;
+    }
+    catch (...)
+    {
+        consoleErr << argSeq[0] << ": error:unknown exception" << endl;
+        rc = EXIT_FAILURE;
+    }
+
+    return PyLong_FromLong(rc);
+}

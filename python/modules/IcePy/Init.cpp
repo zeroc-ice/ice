@@ -96,6 +96,10 @@ static PyMethodDef methods[] = {
      METH_VARARGS,
      PyDoc_STR("internal function")},
     {"loadSlice", reinterpret_cast<PyCFunction>(IcePy_loadSlice), METH_VARARGS, PyDoc_STR("loadSlice(cmd) -> None")},
+    {"compileSlice",
+     reinterpret_cast<PyCFunction>(IcePy_compileSlice),
+     METH_VARARGS,
+     PyDoc_STR("compileSlice(args) -> int")},
     {} /* sentinel */
 };
 
