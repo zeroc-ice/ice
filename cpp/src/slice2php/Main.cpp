@@ -16,6 +16,7 @@
 #include <climits>
 #include <cstring>
 #include <mutex>
+#include <stack>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -78,6 +79,9 @@ class CodeVisitor final : public ParserVisitor
 public:
     CodeVisitor(IceInternal::Output&);
 
+    bool visitModuleStart(const ModulePtr&) final;
+    void visitModuleEnd(const ModulePtr&) final;
+
     void visitClassDecl(const ClassDeclPtr&) final;
     bool visitClassDefStart(const ClassDefPtr&) final;
     void visitInterfaceDecl(const InterfaceDeclPtr&) final;
@@ -90,9 +94,6 @@ public:
     void visitConst(const ConstPtr&) final;
 
 private:
-    void startNamespace(const ContainedPtr&);
-    void endNamespace();
-
     // Return the PHP variable for the given object's type.
     string getTypeVar(const ContainedPtr&);
 
@@ -112,10 +113,41 @@ private:
 
     Output& _out;
     set<string> _classHistory;
+    std::stack<string> _parentNamespaces;
 };
 
 // CodeVisitor implementation.
 CodeVisitor::CodeVisitor(Output& out) : _out(out) {}
+
+bool
+CodeVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (!_parentNamespaces.empty())
+    {
+        // End previous namespace since PHP doesn't support nested namespaces.
+        _out << eb;
+    }
+
+    string name = p->mappedScoped("\\");
+
+    _out << sp << nl << "namespace " << name;
+    _out << sb;
+    _parentNamespaces.push(name);
+    return true;
+}
+
+void
+CodeVisitor::visitModuleEnd(const ModulePtr&)
+{
+    _out << eb;
+    _parentNamespaces.pop();
+    if (!_parentNamespaces.empty())
+    {
+        // Resume previous namespace.
+        _out << sp << nl << "namespace " << _parentNamespaces.top();
+        _out << sb;
+    }
+}
 
 void
 CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
@@ -124,13 +156,9 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     const string scoped = p->scoped();
     if (_classHistory.count(scoped) == 0)
     {
-        startNamespace(p);
-
         const string type = getTypeVar(p);
         _out << sp << nl << "global " << type << ';';
         _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-
-        endNamespace();
 
         _classHistory.insert(scoped); // Avoid redundant declarations.
     }
@@ -143,14 +171,10 @@ CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     const string scoped = p->scoped();
     if (_classHistory.count(scoped) == 0)
     {
-        startNamespace(p);
-
         const string type = getTypeVar(p);
         _out << sp << nl << "global " << type << ';';
         _out << nl << "global " << type << "Prx;";
         _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
-
-        endNamespace();
 
         _classHistory.insert(scoped); // Avoid redundant declarations.
     }
@@ -164,8 +188,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string type = getTypeVar(p);
     const ClassDefPtr base = p->base();
     const DataMemberList members = p->dataMembers();
-
-    startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
 
@@ -310,8 +332,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << ");";
 
-    endNamespace();
-
     return false;
 }
 
@@ -323,8 +343,6 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string prxName = p->mappedName() + "Prx";
     const string prxType = type + "Prx";
     const OperationList ops = p->operations();
-
-    startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
     _out << nl << "global " << prxType << ';';
@@ -529,8 +547,6 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
     }
 
-    endNamespace();
-
     return false;
 }
 
@@ -541,8 +557,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = p->mappedName();
     const string type = getTypeVar(p);
     const ExceptionPtr base = p->base();
-
-    startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
     _out << nl << "class " << name << " extends ";
@@ -635,8 +649,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     _out << ");";
 
-    endNamespace();
-
     return false;
 }
 
@@ -647,8 +659,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     const string name = p->mappedName();
     const string type = getTypeVar(p);
     const DataMemberList members = p->dataMembers();
-
-    startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
 
@@ -716,8 +726,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     }
     _out << "));";
 
-    endNamespace();
-
     return false;
 }
 
@@ -726,8 +734,6 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 {
     const string type = getTypeVar(p);
     const TypePtr content = p->type();
-
-    startNamespace(p);
 
     // Emit the type information.
     _out << sp << nl << "global " << type << ';';
@@ -738,8 +744,6 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     _out << getType(content);
     _out << ");";
     _out << eb;
-
-    endNamespace();
 }
 
 void
@@ -755,8 +759,6 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
         p->unit()->warning(p->file(), p->line(), All, "dictionary key type not supported in PHP");
     }
 
-    startNamespace(p);
-
     // Emit the type information.
     _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!isset(" << type << "))";
@@ -769,8 +771,6 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     _out << getType(valueType);
     _out << ");";
     _out << eb;
-
-    endNamespace();
 }
 
 void
@@ -778,8 +778,6 @@ CodeVisitor::visitEnum(const EnumPtr& p)
 {
     const string type = getTypeVar(p);
     const EnumeratorList enumerators = p->enumerators();
-
-    startNamespace(p);
 
     _out << sp << nl << "global " << type << ';';
     _out << nl << "class " << p->mappedName();
@@ -800,39 +798,17 @@ CodeVisitor::visitEnum(const EnumPtr& p)
         _out << (*q)->value();
     }
     _out << epar << ");";
-
-    endNamespace();
 }
 
 void
 CodeVisitor::visitConst(const ConstPtr& p)
 {
-    startNamespace(p);
-
     _out << sp << nl << "if(!defined('" << p->mappedScoped("\\\\", true) << "'))";
     _out << sb;
     _out << sp << nl << "define(__NAMESPACE__ . '\\\\" << p->mappedName() << "', ";
     writeConstantValue(p->type(), p->valueType(), p->value());
 
     _out << ");";
-    _out << eb;
-
-    endNamespace();
-}
-
-void
-CodeVisitor::startNamespace(const ContainedPtr& p)
-{
-    // This function should only be called on module level elements.
-    ModulePtr container = dynamic_pointer_cast<Module>(p->container());
-    assert(container);
-    _out << sp << nl << "namespace " << container->mappedScoped("\\");
-    _out << sb;
-}
-
-void
-CodeVisitor::endNamespace()
-{
     _out << eb;
 }
 
