@@ -84,7 +84,7 @@ namespace Slice::Python
     struct CompilationResult
     {
         /// The status of the compilation.
-        int status = EXIT_SUCCESS;
+        int status{EXIT_SUCCESS};
 
         /// The generated Python code fragments.
         std::vector<CodeFragment> fragments;
