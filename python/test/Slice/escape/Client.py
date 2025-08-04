@@ -9,9 +9,7 @@ from TestHelper import TestHelper
 if "--load-slice" in sys.argv:
     TestHelper.loadSlice("Key.ice Clash.ice")
 
-from generated.test.Slice.escape.Test import escaped_and
-from generated.test.Slice.escape.Test import Sequence, SequencePrx
-from collections.abc import Sequence as SequenceABC
+from generated.test.Slice.escape.Test import Sequence, SequencePrx, escaped_and
 
 import Ice
 
