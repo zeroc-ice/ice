@@ -45,7 +45,7 @@ def initialize(  # type: ignore
     args: list[str] | None = None,
     initData: Ice.InitializationData | None = None,
     configFile: str | None = None,
-    eventLoop: Ice.EventLoopAdapter | None = None,
+    eventLoop: asyncio.AbstractEventLoop | None = None,
 ) -> Ice.Communicator:
     """
     Creates a new communicator.
