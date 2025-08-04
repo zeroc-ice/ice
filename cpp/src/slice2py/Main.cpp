@@ -15,7 +15,7 @@ main(int argc, char* argv[])
 #endif
 {
     vector<string> args = Slice::argvToArgs(argc, argv);
-    const string programName = args[0];
+    const string programName = args[0]; // NOLINT(performance-unnecessary-copy-initialization)
     try
     {
         return Slice::Python::compile(args);
