@@ -80,7 +80,7 @@ namespace
     /// Reports any naming conflicts between @p name and @p definitions.
     /// This should only be called for Slice elements that are _not_ defined at module scope.
     /// For example, this is fine to use for operations, enumerators, data members, and parameters.
-    /// For elements that are defined at global scope, `findContents` must be used instead.
+    /// For elements that are defined within directly within modules, `findContents` must be used instead.
     /// @param name The name to check for conflicts.
     /// @param kind The kind of element that we're checking (only used for error messages).
     /// @param definitions A list of definitions check @p name against.
@@ -92,24 +92,25 @@ namespace
             definitions.begin(),
             definitions.end(),
             [&](const auto& p) { return lowerName == IceInternal::toLower(p->name()); });
-        if (match != definitions.end())
+        if (match == definitions.end())
         {
-            if ((*match)->name() != name)
-            {
-                ostringstream os;
-                os << kind << " '" << name << "' differs only in capitalization from " << (*match)->kindOf() << " '"
-                   << (*match)->name() << "'";
-                currentUnit->error(os.str());
-            }
-            else
-            {
-                ostringstream os;
-                os << "redefinition of " << (*match)->kindOf() << " '" << name << "'";
-                currentUnit->error(os.str());
-            }
-            return true;
+            return false;
         }
-        return false;
+
+        if ((*match)->name() != name)
+        {
+            ostringstream os;
+            os << kind << " '" << name << "' differs only in capitalization from " << (*match)->kindOf() << " '"
+               << (*match)->name() << "'";
+            currentUnit->error(os.str());
+        }
+        else
+        {
+            ostringstream os;
+            os << "redefinition of " << (*match)->kindOf() << " '" << name << "'";
+            currentUnit->error(os.str());
+        }
+        return true;
     }
 }
 
@@ -2273,6 +2274,9 @@ Slice::Container::checkHasChangedMeaning(const string& name, ContainedPtr namedT
         // We've previously introduced the first component to the current scope, check that it has not changed meaning.
         if (it->second->scoped() != namedThing->scoped())
         {
+            // We don't want to issue errors for data-members or parameters.
+            // Since they can only exist within a self-contained scope, the only way for them to "change meaning"
+            // is to be redefined, which we already emit an error for elsewhere (see doesNameConflict).
             auto isInSelfContainedScope = [](const ContainedPtr& p)
             { return dynamic_pointer_cast<DataMember>(p) || dynamic_pointer_cast<Parameter>(p); };
 
