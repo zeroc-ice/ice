@@ -77,7 +77,7 @@ namespace
         return false;
     }
 
-    /// Reports any any naming conflicts between @p name and @p definitions.
+    /// Reports any naming conflicts between @p name and @p definitions.
     /// This should only be called for Slice elements that are _not_ defined at module scope.
     /// For example, this is fine to use for operations, enumerators, data members, and parameters.
     /// For elements that are defined at global scope, `findContents` must be used instead.
