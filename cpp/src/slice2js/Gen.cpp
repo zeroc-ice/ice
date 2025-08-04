@@ -2482,6 +2482,18 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp;
     _out << nl << "/**";
+    _out << nl << " * Dispatches an incoming request to one of the methods of this generated class, based on the "
+         << "operation name carried by the request.";
+    _out << nl << " *";
+    _out << nl << " * @param request The incoming request.";
+    _out << nl << " * @returns The outgoing response or a promise that is resolved with the outgoing response.";
+    _out << nl << " * @remarks Ice marshals any exception thrown by this method into the response.";
+    _out << nl << " */";
+    _out << nl << "dispatch(request: " << _iceImportPrefix << "Ice.IncomingRequest): " << _iceImportPrefix
+         << "Ice.OutgoingResponse | PromiseLike<" << _iceImportPrefix << "Ice.OutgoingResponse>;";
+
+    _out << sp;
+    _out << nl << "/**";
     _out << nl << " * Obtains the Slice type ID of this type.";
     _out << nl << " * @returns The return value is always \"" + p->scoped() + "\".";
     _out << nl << " */";
