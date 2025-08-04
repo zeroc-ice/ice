@@ -2722,70 +2722,36 @@ CodeVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-CodeVisitor::openClass(const string& abs, const string& dir)
+CodeVisitor::openClass(const string& cls, const string& prefix)
 {
-    // Split the absolute name into individual components.
-    vector<string> v;
-    string::size_type start = 0;
-    string::size_type pos;
-    while ((pos = abs.find('.', start)) != string::npos)
-    {
-        assert(pos > start);
-        v.push_back(abs.substr(start, pos - start));
-        start = pos + 1;
-    }
-    if (start != abs.size())
-    {
-        v.push_back(abs.substr(start));
-    }
-    assert(v.size() > 1);
+    string::size_type pos = cls.rfind('.');
+    // The generated classes are always in a package corresponding to the Slice module.
+    assert(pos != string::npos);
+    string package = cls.substr(0, pos);
+    string file = cls.substr(pos + 1) + ".m";
 
-    string path;
-    if (!dir.empty())
-    {
-        path = dir + "/";
-    }
+    vector<string> packageParts;
+    IceInternal::splitString(string_view{package}, ".", packageParts);
 
-    //
-    // Create a package directory corresponding to each component.
-    //
-    for (vector<string>::size_type i = 0; i < v.size() - 1; i++)
+    // The package path is of the form "+part1/+part2/+part3/..." where each part is a package name
+    // corresponding to a Slice module.
+    string packagePath;
+    for (const auto& part : packageParts)
     {
-        path += "+" + v[i];
-        if (!IceInternal::directoryExists(path))
-        {
-            int err = IceInternal::mkdir(path, 0777);
-            // If slice2matlab is run concurrently, it's possible that another instance of slice2matlab has already
-            // created the directory.
-            if (err == 0 || (errno == EEXIST && IceInternal::directoryExists(path)))
-            {
-                // Directory successfully created or already exists.
-            }
-            else
-            {
-                ostringstream os;
-                os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);
-                throw FileException(os.str());
-            }
-            FileTracker::instance()->addDirectory(path);
-        }
-        path += "/";
+        packagePath += '+' + part + '/';
     }
+    createPackagePath(packagePath, prefix);
 
-    //
-    // There are two options:
-    //
-    // 1) Create a subdirectory named "@ClassName" containing a file "ClassName.m".
-    // 2) Create a file named "ClassName.m".
-    //
-    // The class directory is useful if you want to add additional supporting files for the class. We only
-    // generate a single file for a class so we use option 2.
-    //
-    const string cls = v[v.size() - 1];
-    path += cls + ".m";
+    string path = (prefix.empty() ? "" : prefix + "/") + packagePath + '/' + file;
 
     _out = make_unique<IceInternal::Output>();
     _out->open(path);
+    if (!_out->isOpen())
+    {
+        ostringstream os;
+        os << "cannot open file '" << path << "': " << IceInternal::lastErrorToString();
+        throw FileException(os.str());
+    }
     FileTracker::instance()->addFile(path);
 }
 

@@ -188,15 +188,6 @@ namespace Slice::Python
         std::string str() const { return _outBuffer.str(); }
     };
 
-    /// Creates the package directory structure for a given Python module name.
-    ///
-    /// For example, if the module name is "Foo.Bar.Baz", this function creates the directories "Foo/Bar" under the
-    /// specified output path.
-    ///
-    /// @param moduleName The name of the Python module (e.g., "Foo.Bar.Baz").
-    /// @param outputPath The base directory in which to create the package directories. Must already exist.
-    void createPackagePath(const std::string& moduleName, const std::string& outputPath);
-
     /// Writes the standard header comment to a generated Python source file.
     ///
     /// @param out The output stream to write the header to.
