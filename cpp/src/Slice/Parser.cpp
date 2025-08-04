@@ -88,9 +88,10 @@ namespace
     bool doesNameConflict(string_view name, string_view kind, const ContainedList& definitions)
     {
         const string lowerName = IceInternal::toLower(name);
-        const auto match = std::find_if(definitions.begin(), definitions.end(), [&](const auto& p) {
-            return lowerName == IceInternal::toLower(p->name());
-        });
+        const auto match = std::find_if(
+            definitions.begin(),
+            definitions.end(),
+            [&](const auto& p) { return lowerName == IceInternal::toLower(p->name()); });
         if (match != definitions.end())
         {
             if ((*match)->name() != name)
@@ -2272,9 +2273,8 @@ Slice::Container::checkHasChangedMeaning(const string& name, ContainedPtr namedT
         // We've previously introduced the first component to the current scope, check that it has not changed meaning.
         if (it->second->scoped() != namedThing->scoped())
         {
-            auto isInSelfContainedScope = [](const ContainedPtr& p) {
-                return dynamic_pointer_cast<DataMember>(p) || dynamic_pointer_cast<Parameter>(p);
-            };
+            auto isInSelfContainedScope = [](const ContainedPtr& p)
+            { return dynamic_pointer_cast<DataMember>(p) || dynamic_pointer_cast<Parameter>(p); };
 
             if (!isInSelfContainedScope(it->second) && !isInSelfContainedScope(namedThing))
             {
@@ -3777,8 +3777,8 @@ Slice::Exception::createDataMember(
             if (baseName == newName) // TODO use ciCompare
             {
                 ostringstream os;
-                os << "data member '" << name << "' differs only in capitalization from data member '"
-                   << member->name() << "', which is defined in a base exception";
+                os << "data member '" << name << "' differs only in capitalization from data member '" << member->name()
+                   << "', which is defined in a base exception";
                 unit()->error(os.str());
             }
         }
@@ -4329,7 +4329,7 @@ Slice::Enum::createEnumerator(const string& name, optional<int32_t> explicitValu
 {
     // Validate the enumerator's name.
     doesNameConflict(name, "enumerator", _contents); // Ignore return value.
-    checkIdentifier(name); // Ignore return value.
+    checkIdentifier(name);                           // Ignore return value.
 
     // Determine the enumerator's value, and check that it's valid.
     int32_t nextValue;
