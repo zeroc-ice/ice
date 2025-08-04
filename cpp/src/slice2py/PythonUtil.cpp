@@ -2943,7 +2943,7 @@ namespace
 int
 Slice::Python::compile(const std::vector<std::string>& args)
 {
-    const string& programName = args[0];
+    const string programName = args[0]; // NOLINT(performance-unnecessary-copy-initialization)
 
     IceInternal::Options opts;
     opts.addOpt("h", "help");
