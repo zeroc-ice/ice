@@ -515,7 +515,20 @@ namespace Slice
         [[nodiscard]] ContainedList contents() const;
         void visitContents(ParserVisitor* visitor);
 
-        void checkIntroduced(const std::string& name, ContainedPtr namedThing = nullptr);
+        /// Reports an error when a Slice definition would retroactively change the meaning of an identifier.
+        /// For example:
+        /// ```
+        /// module Outer {
+        ///     const int H = 12;
+        ///     module Inner {
+        ///         const int G = H;
+        ///         class H {}       // error: retroactively changes the meaning of 'H'
+        ///     }
+        /// }
+        /// ```
+        /// Because the parser parses in order, the meaning of 'H' in 'Inner' is ordering dependent, which is not good.
+        /// The user should disambiguate by qualifying the type-reference as 'Outer::H'.
+        void checkHasChangedMeaning(const std::string& name, ContainedPtr namedThing = nullptr);
 
         /// Returns `true` if this container is the global scope (i.e. it's of type `Unit`), and `false` otherwise.
         /// If false, we emit an error message. So this function should only be called for types which cannot appear at
