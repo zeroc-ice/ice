@@ -9,7 +9,7 @@ from TestHelper import TestHelper
 if "--load-slice" in sys.argv:
     TestHelper.loadSlice("Key.ice Clash.ice")
 
-from generated.test.Slice.escape.Test import escaped_and
+from generated.test.Slice.escape.Test import Sequence, SequencePrx, escaped_and
 
 import Ice
 
@@ -32,6 +32,14 @@ class ifI(escaped_and._if):
         pass
 
     def _raise(self, _else, _return, _while, _yield, _or, _global):
+        pass
+
+
+class SequenceI(Sequence):
+    def sendIntSeq(self, seq: list[int], current: Ice.Current):
+        pass
+
+    def abstractmethod(self, current: Ice.Current):
         pass
 
 
@@ -77,12 +85,16 @@ class Client(TestHelper):
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(execI(), Ice.stringToIdentity("test"))
+            adapter.add(SequenceI(), Ice.stringToIdentity("sequence"))
             adapter.activate()
 
             sys.stdout.write("Testing operation name... ")
             sys.stdout.flush()
             p = escaped_and._execPrx.uncheckedCast(adapter.createProxy(Ice.stringToIdentity("test")))
             p._finally()
+
+            p = SequencePrx.uncheckedCast(adapter.createProxy(Ice.stringToIdentity("sequence")))
+            p.abstractmethod()
             print("ok")
 
             testtypes()
