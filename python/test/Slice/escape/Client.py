@@ -34,8 +34,8 @@ class ifI(escaped_and._if):
     def _raise(self, _else, _return, _while, _yield, _or, _global):
         pass
 
-class SequenceI(Sequence):
 
+class SequenceI(Sequence):
     def sendIntSeq(self, seq: list[int], current: Ice.Current):
         pass
 
