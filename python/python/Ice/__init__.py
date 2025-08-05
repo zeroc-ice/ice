@@ -31,6 +31,8 @@ from IcePy import (
     stringVersion,
 )
 
+from . import asyncio
+
 #
 # Import the generated code for the Ice module.
 #

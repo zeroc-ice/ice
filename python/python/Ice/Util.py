@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import os
 import sys
-import threading
 from typing import TYPE_CHECKING, overload
 
 import IcePy
@@ -17,36 +16,37 @@ from .LocalExceptions import InitializationException
 from .Properties import Properties
 
 if TYPE_CHECKING:
-    import Ice
+    import asyncio
+
+    from Ice import Communicator, Identity, InitializationData, Properties, ToStringMode
 
 __name__ = "Ice"
 
 
 @overload
-def initialize() -> Ice.Communicator: ...
+def initialize() -> Communicator: ...
 
 
 @overload
-def initialize(args: list[str]) -> Ice.Communicator: ...
+def initialize(args: list[str]) -> Communicator: ...
 
 
 @overload
-def initialize(args: list[str], initData: Ice.InitializationData) -> Ice.Communicator: ...
+def initialize(args: list[str], initData: InitializationData) -> Communicator: ...
 
 
 @overload
 def initialize(
-    args: list[str], configFile: str | None = None, eventLoop: Ice.EventLoopAdapter | None = None
-) -> Ice.Communicator: ...
+    args: list[str], initData: None, configFile: str | None = None, eventLoop: asyncio.AbstractEventLoop | None = None
+) -> Communicator: ...
 
 
-# TODO: pyright type hint fixes
-def initialize(  # type: ignore
+def initialize(
     args: list[str] | None = None,
-    initData: Ice.InitializationData | None = None,
+    initData: InitializationData | None = None,
     configFile: str | None = None,
     eventLoop: asyncio.AbstractEventLoop | None = None,
-) -> Ice.Communicator:
+) -> Communicator:
     """
     Creates a new communicator.
 
@@ -105,7 +105,7 @@ def initialize(  # type: ignore
     return Communicator(communicator, eventLoopAdapter)
 
 
-def identityToString(identity: Ice.Identity, toStringMode: Ice.ToStringMode | None = None) -> str:
+def identityToString(identity: Identity, toStringMode: ToStringMode | None = None) -> str:
     """
     Convert an object identity to a string.
 
@@ -124,7 +124,7 @@ def identityToString(identity: Ice.Identity, toStringMode: Ice.ToStringMode | No
     return IcePy.identityToString(identity, toStringMode)
 
 
-def stringToIdentity(str: str) -> Ice.Identity:
+def stringToIdentity(str: str) -> Identity:
     """
     Convert a string to an object identity.
 
@@ -135,7 +135,7 @@ def stringToIdentity(str: str) -> Ice.Identity:
 
     Returns
     -------
-    Ice.Identity
+    Identity
         The converted object identity.
 
     Raises
@@ -146,7 +146,7 @@ def stringToIdentity(str: str) -> Ice.Identity:
     return IcePy.stringToIdentity(str)
 
 
-def createProperties(args: list[str] | None = None, defaults: Ice.Properties | None = None) -> Ice.Properties:
+def createProperties(args: list[str] | None = None, defaults: Properties | None = None) -> Properties:
     """
     Creates a new property set.
 
