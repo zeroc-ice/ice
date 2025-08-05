@@ -52,5 +52,5 @@ jobs:
       - name: Pyright check
         run: |-
           pyright python/python
-          pyright python/tests/Glacier2
+          pyright python/test/Glacier2
           pyright python/test/Ice/adapterDeactivation
