@@ -391,7 +391,7 @@ module_def
 
     auto ident = dynamic_pointer_cast<StringTok>($2);
 
-    // Reject scoped identifiers starting with "::". This is generally indicates global scope, but is invalid here.
+    // Reject scoped identifiers starting with "::". This generally indicates global scope, but is invalid here.
     size_t startPos = 0;
     if (ident->v.find("::") == 0)
     {
@@ -427,6 +427,13 @@ module_def
     // Where `N` is the number of scope separators ("::").
     size_t startPos = 0;
     auto ident = dynamic_pointer_cast<StringTok>($2);
+
+    // Skip over any leading "::". This is invalid syntax of course, but the parser still needs to properly handle it.
+    if (ident->v.find("::") == 0)
+    {
+        startPos += 2; // Skip the leading "::".
+    }
+
     while ((startPos = ident->v.find("::", startPos)) != string::npos)
     {
         currentUnit->popContainer();
