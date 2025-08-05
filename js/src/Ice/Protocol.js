@@ -167,7 +167,7 @@ Protocol.isSupported = function (version, supported) {
  * @param version The string to convert.
  *
  * @return The converted protocol version.
- **/
+ */
 export function stringToProtocolVersion(version) {
     return new ProtocolVersion(stringToMajor(version), stringToMinor(version));
 }
@@ -178,7 +178,7 @@ export function stringToProtocolVersion(version) {
  * @param version The string to convert.
  *
  * @return The converted object identity.
- **/
+ */
 export function stringToEncodingVersion(version) {
     return new EncodingVersion(stringToMajor(version), stringToMinor(version));
 }
@@ -189,7 +189,7 @@ export function stringToEncodingVersion(version) {
  * @param v The protocol version to convert.
  *
  * @return The converted string.
- **/
+ */
 export function protocolVersionToString(v) {
     return majorMinorToString(v.major, v.minor);
 }
@@ -200,7 +200,7 @@ export function protocolVersionToString(v) {
  * @param v The encoding version to convert.
  *
  * @return The converted string.
- **/
+ */
 export function encodingVersionToString(v) {
     return majorMinorToString(v.major, v.minor);
 }

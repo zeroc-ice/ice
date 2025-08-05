@@ -10,14 +10,14 @@ declare module "@zeroc/ice" {
              * Returns the type id of this exception.
              *
              * @returns The type id of this exception.
-             **/
+             */
             ice_id(): string;
 
             /**
              * Returns a string representation of this exception.
              *
              * @returns A string representation of this exception.
-             **/
+             */
             toString(): string;
         }
     }

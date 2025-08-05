@@ -2,7 +2,7 @@
 
 /**
  *  Base class providing access to the connection details.
- **/
+ */
 export class ConnectionInfo {
     constructor(underlying, adapterName, connectionId) {
         if (underlying === null) {
@@ -31,7 +31,7 @@ export class ConnectionInfo {
 
 /**
  *  Provides access to the connection details of an IP connection
- **/
+ */
 export class IPConnectionInfo extends ConnectionInfo {
     constructor(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort) {
         super(null, adapterName, connectionId);
@@ -60,7 +60,7 @@ export class IPConnectionInfo extends ConnectionInfo {
 
 /**
  *  Provides access to the connection details of a TCP connection
- **/
+ */
 export class TCPConnectionInfo extends IPConnectionInfo {
     constructor(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort, sndSize) {
         super(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
@@ -74,5 +74,5 @@ export class TCPConnectionInfo extends IPConnectionInfo {
 
 /**
  *  Provides access to the connection details of a WebSocket connection
- **/
+ */
 export class WSConnectionInfo extends ConnectionInfo {}

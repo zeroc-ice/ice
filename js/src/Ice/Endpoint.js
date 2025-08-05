@@ -2,7 +2,7 @@
 
 /**
  *  Base class providing access to the endpoint details.
- **/
+ */
 export class EndpointInfo {
     constructor(underlying, timeout, compress) {
         if (underlying === null) {
@@ -45,7 +45,7 @@ export class EndpointInfo {
 /**
  *  Provides access to the address details of a IP endpoint.
  *  @see {@link Endpoint}
- **/
+ */
 export class IPEndpointInfo extends EndpointInfo {
     constructor(timeout, compress, host, port, sourceAddress) {
         super(null, timeout, compress);
@@ -70,7 +70,7 @@ export class IPEndpointInfo extends EndpointInfo {
 /**
  *  Provides access to a TCP endpoint information.
  *  @see {@link Endpoint}
- **/
+ */
 export class TCPEndpointInfo extends IPEndpointInfo {
     constructor(timeout, compress, host, port, sourceAddress, type, secure) {
         super(timeout, compress, host, port, sourceAddress);
@@ -89,7 +89,7 @@ export class TCPEndpointInfo extends IPEndpointInfo {
 
 /**
  *  Provides access to a WebSocket endpoint information.
- **/
+ */
 export class WSEndpointInfo extends EndpointInfo {
     constructor(underlying, resource) {
         super(underlying);
@@ -104,7 +104,7 @@ export class WSEndpointInfo extends EndpointInfo {
 /**
  *  Provides access to the details of an opaque endpoint.
  *  @see {@link Endpoint}
- **/
+ */
 export class OpaqueEndpointInfo extends EndpointInfo {
     constructor(type, rawEncoding, rawBytes) {
         super(null, -1, false);

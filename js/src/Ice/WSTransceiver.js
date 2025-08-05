@@ -149,7 +149,7 @@ class WSTransceiver {
      *
      * @param byteBuffer the byte buffer to write.
      * @returns Whether or not the write completed synchronously.
-     **/
+     */
     write(byteBuffer) {
         if (this._exception) {
             throw this._exception;
