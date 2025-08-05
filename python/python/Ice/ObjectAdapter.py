@@ -588,7 +588,7 @@ class ObjectAdapter:
 
         Parameters
         ----------
-        newEndpoints : tuple[IcePy.Endpoint, ...]
+        newEndpoints : tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]
             The new set of endpoints that the object adapter will embed in proxies.
         """
         self._impl.setPublishedEndpoints(newEndpoints)

@@ -477,7 +477,7 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
 
         Parameters
         ----------
-        newEndpoints : list of Endpoint
+        newEndpoints : tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]
             The endpoints for the new proxy.
 
         Returns
