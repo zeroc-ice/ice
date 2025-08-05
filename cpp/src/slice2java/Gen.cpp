@@ -971,7 +971,7 @@ Slice::JavaVisitor::writeResultType(
                 out << nl << "/**";
                 out << nl << " * ";
                 writeDocCommentLines(out, returns);
-                out << nl << " **/";
+                out << nl << " */";
             }
         }
         out << nl << "public "
@@ -991,7 +991,7 @@ Slice::JavaVisitor::writeResultType(
                 out << nl << "/**";
                 out << nl << " * ";
                 writeDocCommentLines(out, q->second);
-                out << nl << " **/";
+                out << nl << " */";
             }
         }
         out << nl << "public "
