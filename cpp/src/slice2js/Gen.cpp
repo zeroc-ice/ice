@@ -2486,7 +2486,8 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
          << "operation name carried by the request.";
     _out << nl << " *";
     _out << nl << " * @param request The incoming request.";
-    _out << nl << " * @returns The outgoing response or a promise that is resolved with the outgoing response.";
+    _out << nl << " * @returns The outgoing response (when the selected method returns a value),";
+    _out << nl << " * or a promise with the outgoing response (when the selected method returns a promise).";
     _out << nl << " * @remarks Ice marshals any exception thrown by this method into the response.";
     _out << nl << " */";
     _out << nl << "dispatch(request: " << _iceImportPrefix << "Ice.IncomingRequest): " << _iceImportPrefix
