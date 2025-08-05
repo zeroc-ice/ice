@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-from collections.abc import Sequence
 import time
+from collections.abc import Sequence
 from typing import Any, override
 
 from generated.test.Ice.adapterDeactivation import Test
@@ -32,11 +32,13 @@ class RouterI(Ice.Router):
         return (None, False)
 
     @override
-    def getServerProxy(self, current: Ice.Current) -> Ice.ObjectPrx | None:
+    def getServerProxy(self, current: Ice.Current) -> Ice.ObjectPrx:
         return Ice.ObjectPrx(current.adapter.getCommunicator(), "dummy:tcp -h localhost -p 23456 -t 30000")
 
     @override
-    def addProxies(self, proxies: Sequence[Ice.ObjectPrx | None], current: Ice.Current):
+    def addProxies(
+        self, proxies: Sequence[Ice.ObjectPrx | None], current: Ice.Current
+    ) -> Sequence[Ice.ObjectPrx | None]:
         return []
 
 
