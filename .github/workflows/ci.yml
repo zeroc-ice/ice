@@ -203,7 +203,7 @@ jobs:
         timeout-minutes: 45
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
-          flags: "${{ matrix.test_flags }} --load-slice"
+          flags: "${{ matrix.test_flags }} --load-slice --language=python"
         if: matrix.python_tests == true
 
       - name: Generate API Reference

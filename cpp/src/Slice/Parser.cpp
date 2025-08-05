@@ -76,6 +76,42 @@ namespace
 
         return false;
     }
+
+    /// Reports any naming conflicts between @p name and @p definitions.
+    /// This should only be called for Slice elements that are _not_ defined at module scope.
+    /// For example, this is fine to use for operations, enumerators, data members, and parameters.
+    /// For elements that are defined within directly within modules, `findContents` must be used instead.
+    /// @param name The name to check for conflicts.
+    /// @param kind The kind of element that we're checking (only used for error messages).
+    /// @param definitions A list of definitions check @p name against.
+    /// @return @c false if there are no name conflicts, @c true otherwise.
+    bool doesNameConflict(string_view name, string_view kind, const ContainedList& definitions)
+    {
+        const string lowerName = IceInternal::toLower(name);
+        const auto match = std::find_if(
+            definitions.begin(),
+            definitions.end(),
+            [&](const auto& p) { return lowerName == IceInternal::toLower(p->name()); });
+        if (match == definitions.end())
+        {
+            return false;
+        }
+
+        if ((*match)->name() != name)
+        {
+            ostringstream os;
+            os << kind << " '" << name << "' differs only in capitalization from " << (*match)->kindOf() << " '"
+               << (*match)->name() << "'";
+            currentUnit->error(os.str());
+        }
+        else
+        {
+            ostringstream os;
+            os << "redefinition of " << (*match)->kindOf() << " '" << name << "'";
+            currentUnit->error(os.str());
+        }
+        return true;
+    }
 }
 
 namespace Slice
@@ -2171,9 +2207,10 @@ Slice::Container::visitContents(ParserVisitor* visitor)
 }
 
 void
-Slice::Container::checkIntroduced(const string& name, ContainedPtr namedThing)
+Slice::Container::checkHasChangedMeaning(const string& name, ContainedPtr namedThing)
 {
-    if (name.empty() || name[0] == ':') // Only unscoped names introduce anything.
+    // If 'name' is empty or fully qualified, there's no risk of ambiguity, and so no need to check it.
+    if (name.empty() || name[0] == ':')
     {
         return;
     }
@@ -2237,17 +2274,13 @@ Slice::Container::checkIntroduced(const string& name, ContainedPtr namedThing)
         // We've previously introduced the first component to the current scope, check that it has not changed meaning.
         if (it->second->scoped() != namedThing->scoped())
         {
-            // Parameters and data members are in their own scopes. So they can't conflict with other elements.
-            const bool isFirstAParameter = static_cast<bool>(dynamic_pointer_cast<Parameter>(it->second));
-            const bool isSecondAParameter = static_cast<bool>(dynamic_pointer_cast<Parameter>(namedThing));
-            const bool isFirstADataMember = static_cast<bool>(dynamic_pointer_cast<DataMember>(it->second));
-            const bool isSecondADataMember = static_cast<bool>(dynamic_pointer_cast<DataMember>(namedThing));
+            // We don't want to issue errors for data-members or parameters.
+            // Since they can only exist within a self-contained scope, the only way for them to "change meaning"
+            // is to be redefined, which we already emit an error for elsewhere (see doesNameConflict).
+            auto isInSelfContainedScope = [](const ContainedPtr& p)
+            { return dynamic_pointer_cast<DataMember>(p) || dynamic_pointer_cast<Parameter>(p); };
 
-            // We don't want to emit an error if one of them is a parameter/member, but the other isn't.
-            // For example, if one is a parameter and the other is a class, they're logically in different scopes.
-            // But, if both of them _are_ a parameter, or both of them _are not_ a parameter, then they're in the same
-            // scope, and we should report an error. The same applies for data members.
-            if ((isFirstAParameter == isSecondAParameter) && (isFirstADataMember == isSecondADataMember))
+            if (!isInSelfContainedScope(it->second) && !isInSelfContainedScope(namedThing))
             {
                 unit()->error("'" + firstComponent + "' has changed meaning");
             }
@@ -2620,24 +2653,9 @@ Slice::ClassDef::createDataMember(
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (doesNameConflict(name, "data member", _contents))
     {
-        if (matches.front()->name() != name)
-        {
-            ostringstream os;
-            os << "data member '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " '" << matches.front()->name() << "'";
-            unit()->error(os.str());
-        }
-        else
-        {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as data member '" << name
-               << "'";
-            unit()->error(os.str());
-            return nullptr;
-        }
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the data member anyway.
@@ -3088,20 +3106,8 @@ Slice::InterfaceDef::createOperation(
     int32_t tag,
     Operation::Mode mode)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (doesNameConflict(name, "operation", _contents))
     {
-        if (matches.front()->name() != name)
-        {
-            ostringstream os;
-            os << "operation '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-               << matches.front()->name() << "'";
-            unit()->error(os.str());
-        }
-        ostringstream os;
-        os << "redefinition of " << matches.front()->kindOf() << " '" << matches.front()->name() << "' as operation '"
-           << name << "'";
-        unit()->error(os.str());
         return nullptr;
     }
 
@@ -3366,23 +3372,9 @@ Slice::Operation::hasMarshaledResult() const
 ParameterPtr
 Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOptional, int32_t tag)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (doesNameConflict(name, "parameter", _contents))
     {
-        if (matches.front()->name() != name)
-        {
-            ostringstream os;
-            os << "parameter '" << name << "' differs only in capitalization from parameter '"
-               << matches.front()->name() << "'";
-            unit()->error(os.str());
-        }
-        else
-        {
-            ostringstream os;
-            os << "redefinition of parameter '" << name << "'";
-            unit()->error(os.str());
-            return nullptr;
-        }
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the parameter anyway.
@@ -3764,23 +3756,9 @@ Slice::Exception::createDataMember(
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (doesNameConflict(name, "data member", _contents))
     {
-        if (matches.front()->name() != name)
-        {
-            ostringstream os;
-            os << "exception member '" << name << "' differs only in capitalization from exception member '"
-               << matches.front()->name() << "'";
-            unit()->error(os.str());
-        }
-        else
-        {
-            ostringstream os;
-            os << "redefinition of exception member '" << name << "'";
-            unit()->error(os.str());
-            return nullptr;
-        }
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the data member anyway.
@@ -3793,7 +3771,7 @@ Slice::Exception::createDataMember(
             if (member->name() == name)
             {
                 ostringstream os;
-                os << "exception member '" << name << "' is already defined in a base exception";
+                os << "data member '" << name << "' is already defined in a base exception";
                 unit()->error(os.str());
                 return nullptr;
             }
@@ -3803,8 +3781,8 @@ Slice::Exception::createDataMember(
             if (baseName == newName) // TODO use ciCompare
             {
                 ostringstream os;
-                os << "exception member '" << name << "' differs only in capitalization from exception member '"
-                   << member->name() << "', which is defined in a base exception";
+                os << "data member '" << name << "' differs only in capitalization from data member '" << member->name()
+                   << "', which is defined in a base exception";
                 unit()->error(os.str());
             }
         }
@@ -3995,23 +3973,9 @@ Slice::Struct::createDataMember(
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    if (doesNameConflict(name, "data member", _contents))
     {
-        if (matches.front()->name() != name)
-        {
-            ostringstream os;
-            os << "member '" << name << "' differs only in capitalization from member '" << matches.front()->name()
-               << "'";
-            unit()->error(os.str());
-        }
-        else
-        {
-            ostringstream os;
-            os << "redefinition of struct member '" << name << "'";
-            unit()->error(os.str());
-            return nullptr;
-        }
+        return nullptr;
     }
 
     checkIdentifier(name); // Don't return here -- we create the data member anyway.
@@ -4368,24 +4332,8 @@ EnumeratorPtr
 Slice::Enum::createEnumerator(const string& name, optional<int32_t> explicitValue)
 {
     // Validate the enumerator's name.
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
-    {
-        EnumeratorPtr p = dynamic_pointer_cast<Enumerator>(matches.front());
-        if (matches.front()->name() == name)
-        {
-            ostringstream os;
-            os << "redefinition of enumerator '" << name << "'";
-            unit()->error(os.str());
-        }
-        else
-        {
-            ostringstream os;
-            os << "enumerator '" << name << "' differs only in capitalization from '" << matches.front()->name() << "'";
-            unit()->error(os.str());
-        }
-    }
-    checkIdentifier(name); // Ignore return value.
+    doesNameConflict(name, "enumerator", _contents); // Ignore return value.
+    checkIdentifier(name);                           // Ignore return value.
 
     // Determine the enumerator's value, and check that it's valid.
     int32_t nextValue;
@@ -4646,7 +4594,7 @@ Slice::Parameter::tag() const
 string
 Slice::Parameter::kindOf() const
 {
-    return "parameter declaration";
+    return "parameter";
 }
 
 void
