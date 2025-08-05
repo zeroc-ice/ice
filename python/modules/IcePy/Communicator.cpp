@@ -41,8 +41,6 @@ using namespace IcePy;
 
 namespace
 {
-    unsigned long mainThreadId;
-
     using CommunicatorMap = map<Ice::CommunicatorPtr, PyObject*>;
     CommunicatorMap communicatorMap;
 
@@ -442,7 +440,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
     // Do not call waitForShutdown from the main thread, because it prevents
     // signals (such as keyboard interrupts) from being delivered to Python.
     //
-    if (PyThread_get_thread_ident() == mainThreadId)
+    if (isMainThread())
     {
         if (!self->shutdown)
         {
@@ -1537,8 +1535,6 @@ namespace IcePy
 bool
 IcePy::initCommunicator(PyObject* module)
 {
-    mainThreadId = PyThread_get_thread_ident();
-
     if (PyType_Ready(&CommunicatorType) < 0)
     {
         return false;

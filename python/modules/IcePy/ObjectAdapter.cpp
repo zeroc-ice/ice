@@ -24,8 +24,6 @@
 using namespace std;
 using namespace IcePy;
 
-static unsigned long mainThreadId;
-
 namespace IcePy
 {
     struct ObjectAdapterObject
@@ -371,7 +369,7 @@ adapterWaitForHold(ObjectAdapterObject* self, PyObject* args)
     // Do not call waitForHold from the main thread, because it prevents
     // signals (such as keyboard interrupts) from being delivered to Python.
     //
-    if (PyThread_get_thread_ident() == mainThreadId)
+    if (isMainThread())
     {
         std::lock_guard lock(*self->holdMutex);
 
@@ -462,7 +460,7 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
     // Do not call waitForDeactivate from the main thread, because it prevents
     // signals (such as keyboard interrupts) from being delivered to Python.
     //
-    if (PyThread_get_thread_ident() == mainThreadId)
+    if (isMainThread())
     {
         if (!self->deactivated)
         {
@@ -1566,8 +1564,6 @@ namespace IcePy
 bool
 IcePy::initObjectAdapter(PyObject* module)
 {
-    mainThreadId = PyThread_get_thread_ident();
-
     if (PyType_Ready(&ObjectAdapterType) < 0)
     {
         return false;

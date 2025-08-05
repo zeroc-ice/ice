@@ -191,6 +191,11 @@ namespace IcePy
     //
     PyObject* callMethod(PyObject*, const std::string&, PyObject* = nullptr, PyObject* = nullptr);
     PyObject* callMethod(PyObject*, PyObject* = nullptr, PyObject* = nullptr);
+
+    /// Returns true if the current thread is the main thread.
+    ///
+    /// @return True if the current thread is the main thread, false otherwise.
+    bool isMainThread();
 }
 
 extern "C" PyObject* IcePy_stringVersion(PyObject*, PyObject*);
