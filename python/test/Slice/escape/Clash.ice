@@ -3,6 +3,8 @@
 ["python:identifier:generated.test.Slice.escape.Test"]
 module Test
 {
+    class field;
+
     interface Intf
     {
         void context();
@@ -21,6 +23,7 @@ module Test
         void opOut(out string context, out string current, out string response, out string ex,
             out string sent, out string cookie, out string sync, out string result, out string istr,
             out string ostr, out optional(1) string proxy);
+        void opField(field name, field value);
     }
 
     class Cls
@@ -55,5 +58,24 @@ module Test
     {
         short istr;
         int ostr;
+    }
+
+    class field
+    {
+        St name;
+        St value;
+    }
+
+    sequence<int> IntSeq;
+
+    interface Sequence
+    {
+        void sendIntSeq(IntSeq seq);
+        void abstractmethod();
+    }
+
+    interface Awaitable
+    {
+        void op();
     }
 }

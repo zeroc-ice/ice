@@ -32,26 +32,41 @@ namespace Slice::Python
     };
 
     // The context a type will be used in.
-    enum class TypeContext
+    enum class InterfaceTypeContext
     {
         // If the type is an interface, it is used as a servant (base type).
         Servant,
         // If the type is an interface, it is used as a proxy (base type or parameter).
         Proxy,
-        // A field of a class or struct
-        Field,
-        // A parameter
-        Parameter,
-        // A return type or out parameter
-        Return
+    };
+
+    /// Represents the set of symbols imported from a given Python module.
+    ///
+    /// This includes whether the module itself is imported (possibly with an alias)
+    /// and the set of specific definitions (with optional aliases) imported from that module.
+    struct ModuleImports
+    {
+        /// The name of the module being imported.
+        std::string moduleName;
+
+        /// The alias used for the module import if not empty and `imported` is true.
+        /// For example, for `import Foo as _m_Bar_Foo`, the alias is "_m_Bar_Foo".
+        std::string moduleAlias;
+
+        /// Indicates whether the module itself must be imported.
+        /// If true, the module will be imported as `import <moduleName>` or
+        /// `import <moduleName> as <moduleAlias>`, depending on whether `moduleAlias` is empty.
+        bool imported = false;
+
+        /// The set of definitions (with optional aliases) imported from the module.
+        /// Each pair consists of the definition name and its alias (the alias may be empty).
+        std::set<std::pair<std::string, std::string>> definitions;
     };
 
     /// A map with the import statements for a generated Python module.
     /// - Key: the imported module name, e.g., "Ice.Communicator".
-    /// - Value: a set of pairs representing the imported name and its alias. The first element of the pair is the
-    ///   imported name, and the second element is the alias used in the generated code. When the alias is empty,
-    ///   the imported name is used directly.
-    using ModuleImportsMap = std::map<std::string, std::set<std::pair<std::string, std::string>>>;
+    /// - Value: the module imports object, representing the definitions imported from the module.
+    using ModuleImportsMap = std::map<std::string, ModuleImports>;
 
     // Maps import statements per generated Python module.
     // - Key: the generated module name, e.g., "Ice.Locator_ice" (we generate one Python module per each unique Slice
@@ -188,15 +203,6 @@ namespace Slice::Python
         std::string str() const { return _outBuffer.str(); }
     };
 
-    /// Creates the package directory structure for a given Python module name.
-    ///
-    /// For example, if the module name is "Foo.Bar.Baz", this function creates the directories "Foo/Bar" under the
-    /// specified output path.
-    ///
-    /// @param moduleName The name of the Python module (e.g., "Foo.Bar.Baz").
-    /// @param outputPath The base directory in which to create the package directories. Must already exist.
-    void createPackagePath(const std::string& moduleName, const std::string& outputPath);
-
     /// Writes the standard header comment to a generated Python source file.
     ///
     /// @param out The output stream to write the header to.
@@ -290,13 +296,12 @@ namespace Slice::Python
         void addRuntimeImport(
             const SyntaxTreeBasePtr& definition,
             const ContainedPtr& source,
-            TypeContext typeContext = TypeContext::Proxy);
+            InterfaceTypeContext typeContext = InterfaceTypeContext::Proxy);
 
         /// Adds a runtime import for the given definition from the specified Python module.
         ///
         /// @param moduleName The fully qualified name of the Python module to import from.
-        /// @param definition A pair consisting of the name and alias to use for the imported symbol.
-        ///                   If the alias is empty, the name is used as the alias.
+        /// @param definition The definition to import.
         /// @param source The Slice definition that requires this import.
         void addRuntimeImport(const std::string& moduleName, const std::string& definition, const ContainedPtr& source);
 
@@ -428,7 +433,8 @@ namespace Slice::Python
         void writeDocstring(const OperationPtr&, MethodKind, IceInternal::Output&);
 
         std::string getImportAlias(const ContainedPtr& source, const SyntaxTreeBasePtr& definition);
-        std::string getImportAlias(const ContainedPtr& source, const std::string& moduleName, const std::string& name);
+        std::string
+        getImportAlias(const ContainedPtr& source, const std::string& moduleName, const std::string& name = "");
 
         // The list of generated Python code fragments in the current translation unit.
         // Each fragment corresponds to a Python module generated from a Slice definition with the same name.

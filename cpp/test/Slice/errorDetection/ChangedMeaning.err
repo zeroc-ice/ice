@@ -12,10 +12,6 @@ ChangedMeaning.ice:123: 'E' has changed meaning
 ChangedMeaning.ice:130: 'E' has changed meaning
 ChangedMeaning.ice:136: 'E' has changed meaning
 ChangedMeaning.ice:171: data member 'X' differs only in capitalization from data member 'x'
-ChangedMeaning.ice:171: 'X' has changed meaning
-ChangedMeaning.ice:177: member 'X' differs only in capitalization from member 'x'
-ChangedMeaning.ice:177: 'X' has changed meaning
+ChangedMeaning.ice:177: data member 'X' differs only in capitalization from data member 'x'
 ChangedMeaning.ice:182: parameter 'A' differs only in capitalization from parameter 'a'
-ChangedMeaning.ice:182: 'A' has changed meaning
-ChangedMeaning.ice:190: exception member 'X' differs only in capitalization from exception member 'x'
-ChangedMeaning.ice:190: 'X' has changed meaning
+ChangedMeaning.ice:190: data member 'X' differs only in capitalization from data member 'x'

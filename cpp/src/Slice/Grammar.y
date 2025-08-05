@@ -377,7 +377,7 @@ module_def
     ModulePtr module = cont->createModule(ident->v, false);
     if (module)
     {
-        cont->checkIntroduced(ident->v, module);
+        cont->checkHasChangedMeaning(ident->v, module);
         currentUnit->pushContainer(module);
         $$ = module;
     }
@@ -430,7 +430,7 @@ module_def
         ModulePtr module = cont->createModule(currentModuleName, true);
         if (module)
         {
-            cont->checkIntroduced(currentModuleName, module);
+            cont->checkHasChangedMeaning(currentModuleName, module);
             currentUnit->pushContainer(module);
             $$ = cont = module;
         }
@@ -515,7 +515,7 @@ exception_def
     ExceptionPtr ex = cont->createException(ident->v, base);
     if (ex)
     {
-        cont->checkIntroduced(ident->v, ex);
+        cont->checkHasChangedMeaning(ident->v, ex);
         currentUnit->pushContainer(ex);
     }
     $$ = ex;
@@ -538,7 +538,7 @@ exception_extends
     auto scoped = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
     ContainedPtr contained = cont->lookupException(scoped->v, true);
-    cont->checkIntroduced(scoped->v);
+    cont->checkHasChangedMeaning(scoped->v);
     $$ = contained;
 }
 | %empty
@@ -653,7 +653,7 @@ struct_def
     StructPtr st = cont->createStruct(ident->v);
     if (st)
     {
-        cont->checkIntroduced(ident->v, st);
+        cont->checkHasChangedMeaning(ident->v, st);
         currentUnit->pushContainer(st);
     }
     else
@@ -752,7 +752,7 @@ class_def
     ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, base);
     if (cl)
     {
-        cont->checkIntroduced(ident->v, cl);
+        cont->checkHasChangedMeaning(ident->v, cl);
         currentUnit->pushContainer(cl);
         $$ = cl;
     }
@@ -800,7 +800,7 @@ class_extends
             }
             else
             {
-                cont->checkIntroduced(scoped->v);
+                cont->checkHasChangedMeaning(scoped->v);
                 $$ = def;
             }
         }
@@ -877,7 +877,7 @@ data_member
     {
         dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, nullptr, std::nullopt);
     }
-    currentUnit->currentContainer()->checkIntroduced(def->name, dm);
+    currentUnit->currentContainer()->checkHasChangedMeaning(def->name, dm);
     $$ = dm;
 }
 | optional_type_id '=' const_initializer
@@ -908,7 +908,7 @@ data_member
     {
         dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v, value->valueAsString);
     }
-    currentUnit->currentContainer()->checkIntroduced(def->name, dm);
+    currentUnit->currentContainer()->checkHasChangedMeaning(def->name, dm);
     $$ = dm;
 }
 | type keyword
@@ -1020,7 +1020,7 @@ operation_preamble
 
         if (op)
         {
-            interface->checkIntroduced(name, op);
+            interface->checkHasChangedMeaning(name, op);
             currentUnit->pushContainer(op);
         }
         $$ = op;
@@ -1136,7 +1136,7 @@ interface_decl
     auto ident = dynamic_pointer_cast<StringTok>($1);
     auto cont = currentUnit->currentContainer();
     InterfaceDeclPtr cl = cont->createInterfaceDecl(ident->v);
-    cont->checkIntroduced(ident->v, cl);
+    cont->checkHasChangedMeaning(ident->v, cl);
     $$ = cl;
 }
 ;
@@ -1152,7 +1152,7 @@ interface_def
     InterfaceDefPtr interface = cont->createInterfaceDef(ident->v, bases->v);
     if (interface)
     {
-        cont->checkIntroduced(ident->v, interface);
+        cont->checkHasChangedMeaning(ident->v, interface);
         currentUnit->pushContainer(interface);
         $$ = interface;
     }
@@ -1278,7 +1278,7 @@ exception
     {
         exception = cont->createException(Ice::generateUUID(), 0, Dummy); // Dummy
     }
-    cont->checkIntroduced(scoped->v, exception);
+    cont->checkHasChangedMeaning(scoped->v, exception);
     $$ = exception;
 }
 | keyword
@@ -1325,7 +1325,7 @@ enum_def
     auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
     EnumPtr en = cont->createEnum(ident->v);
-    cont->checkIntroduced(ident->v, en);
+    cont->checkHasChangedMeaning(ident->v, en);
     currentUnit->pushContainer(en);
     $$ = en;
 }
@@ -1431,7 +1431,7 @@ parameter
     if (op)
     {
         param = op->createParameter(tsp->name, tsp->type, tsp->isOptional, tsp->tag);
-        currentUnit->currentContainer()->checkIntroduced(tsp->name, param);
+        currentUnit->currentContainer()->checkHasChangedMeaning(tsp->name, param);
     }
     $$ = param;
 }
@@ -1610,7 +1610,7 @@ integer_constant
     }
     else
     {
-        cont->checkIntroduced(scoped->v);
+        cont->checkHasChangedMeaning(scoped->v);
         if (auto constant = dynamic_pointer_cast<Const>(cl.front()))
         {
             auto b = dynamic_pointer_cast<Builtin>(constant->type());
@@ -1722,12 +1722,12 @@ const_initializer
         auto constant = dynamic_pointer_cast<Const>(cl.front());
         if (enumerator)
         {
-            currentUnit->currentContainer()->checkIntroduced(scoped->v, enumerator);
+            currentUnit->currentContainer()->checkHasChangedMeaning(scoped->v, enumerator);
             def = make_shared<ConstDefTok>(enumerator, scoped->v);
         }
         else if (constant)
         {
-            currentUnit->currentContainer()->checkIntroduced(scoped->v, constant);
+            currentUnit->currentContainer()->checkHasChangedMeaning(scoped->v, constant);
             def = make_shared<ConstDefTok>(constant, constant->value());
         }
         else
@@ -1863,7 +1863,7 @@ namespace
             currentUnit->error(msg);
         }
 
-        cont->checkIntroduced(name);
+        cont->checkHasChangedMeaning(name);
         return firstType;
     }
 
@@ -1873,7 +1873,7 @@ namespace
         InterfaceDefPtr interfaceDef = cont->lookupInterfaceDef(name, true);
         if (interfaceDef)
         {
-            cont->checkIntroduced(name);
+            cont->checkHasChangedMeaning(name);
         }
         return interfaceDef;
     }

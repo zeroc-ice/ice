@@ -99,13 +99,29 @@ Slice::Python::getImportAlias(
     // Whether we need to use an alias for the import.
     bool useAlias = false;
 
+    string importName;
+    if (name.empty())
+    {
+        /// If `name` is empty, compute the import name as the last component of the module name.
+        /// For example:
+        ///   - If `moduleName` is "numpy", the import name is "numpy".
+        ///   - If `moduleName` is "numpy.typing", the import name is "typing".
+        auto pos = moduleName.rfind('.');
+        importName = pos == string::npos ? moduleName : moduleName.substr(pos + 1);
+    }
+    else
+    {
+        // Otherwise, we use the name as the import name.
+        importName = name;
+    }
+
     if (moduleName == source->mappedScoped("."))
     {
         // If the source module is the same as the module name being imported. We are using a
         // definition from the current module and we don't need an alias.
         useAlias = false;
     }
-    else if (find(all.begin(), all.end(), name) != all.end())
+    else if (find(all.begin(), all.end(), importName) != all.end())
     {
         // The name being bound comes from a different module and conflicts with one of the names
         // exported by the source module. We need to use an alias.
@@ -114,22 +130,23 @@ Slice::Python::getImportAlias(
     else
     {
         // If the name being bound is already imported from a different module, we need to use an alias.
-        auto p = allImports.find(name);
-        if (p != allImports.end())
-        {
-            useAlias = p->second != moduleName;
-        }
+        auto p = allImports.find(importName);
+        useAlias = p != allImports.end() && p->second != moduleName;
     }
 
     if (useAlias)
     {
-        string alias = "_m_" + moduleName + "_" + name;
+        string alias = "_m_" + moduleName;
+        if (!name.empty())
+        {
+            alias += "_" + name;
+        }
         std::replace(alias.begin(), alias.end(), '.', '_');
         return alias;
     }
     else
     {
-        return name;
+        return importName;
     }
 }
 
@@ -232,10 +249,11 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
             bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
             if (forMarshaling)
             {
+                const string sequenceAlias = getImportAlias(source, "collections.abc", "Sequence");
                 // For marshaling, we use a generic Sequence type hint, additionally we accept a bytes object for byte
                 // sequences, and for sequences with NumPy metadata we use the NumPy NDArray type hint because it
                 // doesn't conform to the generic sequence type.
-                os << "Sequence[" + typeToTypeHintString(seq->type(), false, source, forMarshaling) + "]";
+                os << sequenceAlias << "[" + typeToTypeHintString(seq->type(), false, source, forMarshaling) + "]";
                 if (isByteSequence)
                 {
                     os << " | bytes";
@@ -243,7 +261,9 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                 if (seq->hasMetadata("python:numpy.ndarray"))
                 {
                     assert(elementType && elementType->kind() <= Builtin::KindDouble);
-                    os << " | numpy.typing.NDArray[numpy." << numpyBuiltinTable[elementType->kind()] << "]";
+                    const string numpyAlias = getImportAlias(source, "numpy");
+                    os << " | " << numpyAlias << ".typing.NDArray[" << numpyAlias << "."
+                       << numpyBuiltinTable[elementType->kind()] << "]";
                 }
             }
             else if (seq->hasMetadata("python:list"))
@@ -257,12 +277,15 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
             else if (seq->hasMetadata("python:numpy.ndarray"))
             {
                 assert(elementType && elementType->kind() <= Builtin::KindDouble);
-                os << "numpy.typing.NDArray[numpy." << numpyBuiltinTable[elementType->kind()] << "]";
+                const string numpyAlias = getImportAlias(source, "numpy");
+                os << numpyAlias << ".typing.NDArray[" << numpyAlias << "." << numpyBuiltinTable[elementType->kind()]
+                   << "]";
             }
             else if (seq->hasMetadata("python:array.array"))
             {
                 assert(elementType && elementType->kind() <= Builtin::KindDouble);
-                os << "array.array[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
+                const string arrayAlias = getImportAlias(source, "array");
+                os << arrayAlias << ".array[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
             }
             else if (isByteSequence)
             {
@@ -332,12 +355,14 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
         returnTypeHint = "None";
     }
 
+    const string awaitableAlias = getImportAlias(source, "collections.abc", "Awaitable");
+
     switch (methodKind)
     {
         case MethodKind::AsyncInvocation:
-            return "Awaitable[" + returnTypeHint + "]";
+            return awaitableAlias + "[" + returnTypeHint + "]";
         case MethodKind::Dispatch:
-            return returnTypeHint + " | Awaitable[" + returnTypeHint + "]";
+            return returnTypeHint + " | " + awaitableAlias + "[" + returnTypeHint + "]";
         case MethodKind::SyncInvocation:
         default:
             return returnTypeHint;
@@ -438,35 +463,6 @@ Slice::Python::writePackageIndex(const std::map<std::string, std::set<std::strin
         out.dec();
         out << nl << "]";
         out << nl;
-    }
-}
-
-void
-Slice::Python::createPackagePath(const string& packageName, const string& outputPath)
-{
-    vector<string> packageParts;
-    IceInternal::splitString(string_view{packageName}, ".", packageParts);
-    assert(!packageParts.empty());
-    string packagePath = outputPath;
-    for (const auto& part : packageParts)
-    {
-        packagePath += "/" + part;
-        int err = IceInternal::mkdir(packagePath, 0777);
-        if (err == 0)
-        {
-            FileTracker::instance()->addDirectory(packagePath);
-        }
-        else if (errno == EEXIST && IceInternal::directoryExists(packagePath))
-        {
-            // If the Slice compiler is run concurrently, it's possible that another instance of it has already
-            // created the directory.
-        }
-        else
-        {
-            ostringstream os;
-            os << "cannot create directory '" << packagePath << "': " << IceInternal::errorToString(errno);
-            throw FileException(os.str());
-        }
     }
 }
 
@@ -578,8 +574,8 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         for (const auto& base : bases)
         {
-            addRuntimeImport(base, p, TypeContext::Proxy);
-            addRuntimeImport(base, p, TypeContext::Servant);
+            addRuntimeImport(base, p, InterfaceTypeContext::Proxy);
+            addRuntimeImport(base, p, InterfaceTypeContext::Servant);
         }
     }
 
@@ -708,7 +704,7 @@ void
 Slice::Python::ImportVisitor::addRuntimeImport(
     const SyntaxTreeBasePtr& definition,
     const ContainedPtr& source,
-    TypeContext typeContext)
+    InterfaceTypeContext typeContext)
 {
     // The module containing the definition we want to import.
     auto definitionModule = getPythonModuleForDefinition(definition);
@@ -745,7 +741,7 @@ Slice::Python::ImportVisitor::addRuntimeImport(
 
         name = contained->mappedName();
         if ((dynamic_pointer_cast<InterfaceDef>(definition) || dynamic_pointer_cast<InterfaceDecl>(definition)) &&
-            typeContext == TypeContext::Proxy)
+            typeContext == InterfaceTypeContext::Proxy)
         {
             name += "Prx";
         }
@@ -758,12 +754,12 @@ Slice::Python::ImportVisitor::addRuntimeImport(
 
     if (name == alias)
     {
-        definitionImports.insert({name, ""});
+        definitionImports.definitions.insert({name, ""});
         allImports[name] = definitionModule;
     }
     else
     {
-        definitionImports.insert({name, alias});
+        definitionImports.definitions.insert({name, alias});
         allImports[alias] = definitionModule;
     }
 }
@@ -784,30 +780,51 @@ Slice::Python::ImportVisitor::addRuntimeImport(
     }
 
     auto& sourceModuleImports = _runtimeImports[sourceModule];
-    if (definition.empty())
+
+    auto& allImports = _allImports[sourceModule];
+    string alias = getImportAlias(source, allImports, definitionModule, definition);
+
+    auto it = sourceModuleImports.find(definitionModule);
+    ModuleImports& definitionImports =
+        it == sourceModuleImports.end() ? sourceModuleImports[definitionModule] : it->second;
+    if (it == sourceModuleImports.end())
     {
-        if (sourceModuleImports.find(definitionModule) == sourceModuleImports.end())
-        {
-            // If the package does not exist, we create an empty map for it.
-            sourceModuleImports[definitionModule] = {};
-        }
-        return;
-    }
-
-    auto& definitionImports = sourceModuleImports[definitionModule];
-
-    auto& imports = _allImports[sourceModule];
-    string alias = getImportAlias(source, imports, definitionModule, definition);
-
-    if (definition == alias)
-    {
-        definitionImports.insert({definition, ""});
-        imports[definition] = definitionModule;
+        // If the module does not exist, we create an empty map for it.
+        definitionImports = sourceModuleImports[definitionModule];
+        definitionImports.moduleName = definitionModule;
+        definitionImports.moduleAlias = "";
+        definitionImports.imported = false;
     }
     else
     {
-        definitionImports.insert({definition, alias});
-        imports[alias] = definitionModule;
+        definitionImports = it->second;
+    }
+
+    if (definition.empty())
+    {
+        definitionImports.imported = true;
+        definitionImports.moduleName = definitionModule;
+        if (alias == definitionModule)
+        {
+            auto pos = definitionModule.rfind('.');
+            const string importName = pos == string::npos ? definitionModule : definitionModule.substr(pos + 1);
+            allImports[importName] = definitionModule;
+        }
+        else
+        {
+            definitionImports.moduleAlias = alias;
+            allImports[alias] = definitionModule;
+        }
+    }
+    else if (definition == alias)
+    {
+        definitionImports.definitions.insert({definition, ""});
+        allImports[definition] = definitionModule;
+    }
+    else
+    {
+        definitionImports.definitions.insert({definition, alias});
+        allImports[alias] = definitionModule;
     }
 }
 
@@ -827,12 +844,12 @@ Slice::Python::ImportVisitor::addTypingImport(
 
     if (definition == alias)
     {
-        definitionImports.insert({definition, ""});
+        definitionImports.definitions.insert({definition, ""});
         imports[definition] = moduleName;
     }
     else
     {
-        definitionImports.insert({definition, alias});
+        definitionImports.definitions.insert({definition, alias});
         imports[alias] = moduleName;
     }
 
@@ -926,8 +943,21 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
     }
 
     auto& sourceModuleImports = _runtimeImports[sourceModule];
-    auto& definitionImports = sourceModuleImports[definitionModule];
-    definitionImports.insert({getMetaType(definition), ""});
+
+    auto it = sourceModuleImports.find(definitionModule);
+    if (it == sourceModuleImports.end())
+    {
+        sourceModuleImports[definitionModule] = ModuleImports{
+            .moduleName = definitionModule,
+            .moduleAlias = "",
+            .imported = false,
+            .definitions = {{getMetaType(definition), ""}},
+        };
+    }
+    else
+    {
+        it->second.definitions.insert({getMetaType(definition), ""});
+    }
 }
 
 bool
@@ -1090,8 +1120,9 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
             out.dec();
         }
 
+        const string abstractMethodAlias = getImportAlias(p, "abc", "abstractmethod");
         out << sp;
-        out << nl << "@abstractmethod";
+        out << nl << "@" << abstractMethodAlias;
         out << nl << "def " << mappedName << spar << "self";
 
         for (const auto& param : operation->inParameters())
@@ -1121,7 +1152,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     auto& out = *_out;
 
     out << sp;
-    out << nl << "@dataclass";
+    out << nl << "@" << getImportAlias(p, "dataclasses", "dataclass");
     if (Dictionary::isLegalKeyType(p))
     {
         out << "(order=True, unsafe_hash=True)";
@@ -1162,6 +1193,7 @@ Slice::Python::CodeVisitor::visitStructEnd(const StructPtr& p)
 
     out << sp;
     out << nl << "__all__ = [\"" << name << "\", \"" << metaTypeName << "\"]";
+    out << nl;
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
     _out.reset();
@@ -1190,7 +1222,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     auto& out = *_out;
 
     // Equality for Slice classes is reference equality, so we disable the dataclass eq.
-    out << nl << "@dataclass(eq=False)";
+    out << nl << "@" << getImportAlias(p, "dataclasses", "dataclass") << "(eq=False)";
     out << nl << "class " << valueName << '('
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.Value", "Value")) << "):";
     out.inc();
@@ -1244,6 +1276,7 @@ Slice::Python::CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     out << sp;
     out << nl << "__all__ = [\"" << valueName << "\", \"" << metaType << "\"]";
+    out << nl;
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
     _out.reset();
@@ -1262,7 +1295,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList members = p->dataMembers();
 
     out << sp;
-    out << nl << "@dataclass";
+    out << nl << "@" << getImportAlias(p, "dataclasses", "dataclass");
     out << nl << "class " << name << '('
         << (base ? getImportAlias(p, base) : getImportAlias(p, "Ice.UserException", "UserException")) << "):";
     out.inc();
@@ -1311,6 +1344,7 @@ Slice::Python::CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     out << sp;
     out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
+    out << nl;
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
     _out.reset();
@@ -1322,6 +1356,8 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
     assert(_out);
     auto& out = *_out;
     auto parent = dynamic_pointer_cast<Contained>(p->container());
+
+    const string fieldAlias = getImportAlias(parent, "dataclasses", "field");
 
     out << nl << p->mappedName() << ": " << typeToTypeHintString(p->type(), p->optional(), parent, false);
 
@@ -1355,14 +1391,14 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
     }
     else if (dynamic_pointer_cast<Struct>(p->type()))
     {
-        out << " = field(default_factory=" << getImportAlias(parent, p->type()) << ")";
+        out << " = " << fieldAlias << "(default_factory=" << getImportAlias(parent, p->type()) << ")";
     }
     else if (auto seq = dynamic_pointer_cast<Sequence>(p->type()))
     {
         auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
         bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
 
-        out << " = field(default_factory=";
+        out << " = " << fieldAlias << "(default_factory=";
         if (seq->hasMetadata("python:list"))
         {
             out << "list";
@@ -1375,13 +1411,16 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
         {
             assert(elementType && elementType->kind() <= Builtin::KindDouble);
             static const char* builtinTable[] = {"int8", "bool", "int16", "int32", "int64", "float32", "float64"};
-            out << "lambda: numpy.empty(0, numpy." << builtinTable[elementType->kind()] << ")";
+            const string numpyAlias = getImportAlias(parent, "numpy");
+            out << "lambda: " << numpyAlias << ".empty(0, " << numpyAlias << "." << builtinTable[elementType->kind()]
+                << ")";
         }
         else if (seq->hasMetadata("python:array.array"))
         {
             assert(elementType && elementType->kind() <= Builtin::KindDouble);
             static const char* builtinTable[] = {"b", "b", "h", "i", "q", "f", "d"};
-            out << "lambda: array.array('" << builtinTable[elementType->kind()] << "')";
+            const string arrayAlias = getImportAlias(parent, "array");
+            out << "lambda: " << arrayAlias << ".array('" << builtinTable[elementType->kind()] << "')";
         }
         else if (isByteSequence)
         {
@@ -1395,7 +1434,7 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
     }
     else if (dynamic_pointer_cast<Dictionary>(p->type()))
     {
-        out << " = field(default_factory=dict)";
+        out << " = " << fieldAlias << "(default_factory=dict)";
     }
     else
     {
@@ -1545,6 +1584,8 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "return checkedCast(" << prxName << ", proxy, facet, context)";
     out.dec();
 
+    const string awaitableAlias = getImportAlias(p, "collections.abc", "Awaitable");
+
     out << sp;
     out << nl << "@staticmethod";
     out << nl << "def checkedCastAsync(";
@@ -1553,19 +1594,20 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "facet: str | None = None,";
     out << nl << "context: dict[str, str] | None = None";
     out.dec();
-    out << nl << ") -> Awaitable[" << prxName << " | None ]:";
+    out << nl << ") -> " << awaitableAlias << "[" << prxName << " | None ]:";
     out.inc();
     out << nl << "return checkedCastAsync(" << prxName << ", proxy, facet, context)";
     out.dec();
 
-    out << sp << nl << "@overload";
+    const string overloadAlias = getImportAlias(p, "typing", "overload");
+    out << sp << nl << "@" << overloadAlias;
     out << nl << "@staticmethod";
     out << nl << "def uncheckedCast(proxy: " << objectPrxAlias << ", facet: str | None = None) -> " << prxName << ":";
     out.inc();
     out << nl << "...";
     out.dec();
 
-    out << sp << nl << "@overload";
+    out << sp << nl << "@" << overloadAlias;
     out << nl << "@staticmethod";
     out << nl << "def uncheckedCast(proxy: None, facet: str | None = None) -> None:";
     out.inc();
@@ -1607,12 +1649,13 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << getImportAlias(p, base);
         }
     }
-    out << "ABC" << epar << ':';
+    out << getImportAlias(p, "abc", "ABC") << epar << ':';
     out.inc();
 
     out << sp;
     // Declare _ice_ids class variable to hold the ice_ids.
-    out << nl << "_ice_ids: Sequence[str] = (";
+    const string sequenceAlias = getImportAlias(p, "collections.abc", "Sequence");
+    out << nl << "_ice_ids: " << sequenceAlias << "[str] = (";
     auto ids = p->ids();
     for (const auto& id : ids)
     {
@@ -1793,6 +1836,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << sp;
     out << nl << "__all__ = [\"" << className << "\", \"" << prxName << "\", \"" << metaType << "\"]";
+    out << nl;
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
     return false;
@@ -1811,6 +1855,7 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
 
     out << sp;
     out << nl << "__all__ = [\"" << metaType << "\"]";
+    out << nl;
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
 }
@@ -1826,6 +1871,7 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << sp;
     out << nl << "__all__ = [\"" << metaType << "\"]";
+    out << nl;
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
 }
@@ -1839,7 +1885,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     EnumeratorList enumerators = p->enumerators();
 
     BufferedOutput out;
-    out << nl << "class " << name << "(Enum):";
+    out << nl << "class " << name << "(" << getImportAlias(p, "enum", "Enum") << "):";
     out.inc();
 
     writeDocstring(p->docComment(), p, out);
@@ -1874,6 +1920,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
     out << nl << "__all__ = [\"" << name << "\", \"" << metaType << "\"]";
+    out << nl;
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
 }
@@ -1889,6 +1936,7 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
 
     out << sp;
     out << nl << "__all__ = [\"" << name << "\"]";
+    out << nl;
 
     _codeFragments.push_back(createCodeFragmentForPythonModule(p, out.str()));
 }
@@ -2479,12 +2527,26 @@ namespace
         set<string> allImports;
 
         // Write the runtime imports.
-        for (const auto& [moduleName, definitions] : runtimeImports)
+        for (const auto& [moduleName, moduleImports] : runtimeImports)
         {
             out << sp;
-            if (!definitions.empty())
+            if (moduleImports.imported)
             {
-                for (const auto& [name, alias] : definitions)
+                out << nl << "import " << moduleName;
+                if (moduleImports.moduleAlias.empty())
+                {
+                    allImports.insert(moduleName);
+                }
+                else
+                {
+                    out << " as " << moduleImports.moduleAlias;
+                    allImports.insert(moduleImports.moduleAlias);
+                }
+            }
+
+            if (!moduleImports.definitions.empty())
+            {
+                for (const auto& [name, alias] : moduleImports.definitions)
                 {
                     out << nl << "from " << moduleName << " import " << name;
                     if (!alias.empty())
@@ -2498,12 +2560,6 @@ namespace
                     }
                 }
             }
-            else
-            {
-                // If there are no definitions, we just import the module.
-                out << nl << "import " << moduleName;
-                allImports.insert(moduleName);
-            }
         }
 
         // Write typing imports
@@ -2514,11 +2570,26 @@ namespace
             outT << nl << "if TYPE_CHECKING:";
             outT.inc();
             bool hasTypingImports = false;
-            for (const auto& [moduleName, definitions] : typingImports)
+            for (const auto& [moduleName, moduleImports] : typingImports)
             {
-                if (!definitions.empty())
+                if (moduleImports.imported)
                 {
-                    for (const auto& [name, alias] : definitions)
+                    out << nl << "import " << moduleName;
+                    if (moduleImports.moduleAlias.empty())
+                    {
+                        allImports.insert(moduleName);
+                    }
+                    else
+                    {
+                        out << " as " << moduleImports.moduleAlias;
+                        allImports.insert(moduleImports.moduleAlias);
+                    }
+                    hasTypingImports = true;
+                }
+
+                if (!moduleImports.definitions.empty())
+                {
+                    for (const auto& [name, alias] : moduleImports.definitions)
                     {
                         bool allreadyImported = !allImports.insert(alias.empty() ? name : alias).second;
 
@@ -2534,14 +2605,6 @@ namespace
                         }
                         hasTypingImports = true;
                     }
-                }
-                else
-                {
-                    // If there are no definitions, we still need to import the module to ensure that the type hints
-                    // are available.
-                    outT << nl << "import " << moduleName;
-                    allImports.insert(moduleName);
-                    hasTypingImports = true;
                 }
             }
             outT.dec();
@@ -2943,7 +3006,7 @@ namespace
 int
 Slice::Python::compile(const std::vector<std::string>& args)
 {
-    const string programName = args[0];
+    const string programName = args[0]; // NOLINT(performance-unnecessary-copy-initialization)
 
     IceInternal::Options opts;
     opts.addOpt("h", "help");
@@ -3135,7 +3198,9 @@ Slice::Python::compile(const std::vector<std::string>& args)
         // Emit the Python code fragments.
         for (const auto& fragment : compilationResult.fragments)
         {
-            createPackagePath(fragment.packageName, outputDir);
+            string packagePath = fragment.packageName;
+            replace(packagePath.begin(), packagePath.end(), '.', '/');
+            createPackagePath(packagePath, outputDir);
 
             string outputPath = outputDir.empty() ? fragment.fileName : outputDir + "/" + fragment.fileName;
 

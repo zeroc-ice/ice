@@ -2185,7 +2185,7 @@ yyreduce:
     ModulePtr module = cont->createModule(ident->v, false);
     if (module)
     {
-        cont->checkIntroduced(ident->v, module);
+        cont->checkHasChangedMeaning(ident->v, module);
         currentUnit->pushContainer(module);
         yyval = module;
     }
@@ -2246,7 +2246,7 @@ yyreduce:
         ModulePtr module = cont->createModule(currentModuleName, true);
         if (module)
         {
-            cont->checkIntroduced(currentModuleName, module);
+            cont->checkHasChangedMeaning(currentModuleName, module);
             currentUnit->pushContainer(module);
             yyval = cont = module;
         }
@@ -2336,7 +2336,7 @@ yyreduce:
     ExceptionPtr ex = cont->createException(ident->v, base);
     if (ex)
     {
-        cont->checkIntroduced(ident->v, ex);
+        cont->checkHasChangedMeaning(ident->v, ex);
         currentUnit->pushContainer(ex);
     }
     yyval = ex;
@@ -2362,7 +2362,7 @@ yyreduce:
     auto scoped = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
     ContainedPtr contained = cont->lookupException(scoped->v, true);
-    cont->checkIntroduced(scoped->v);
+    cont->checkHasChangedMeaning(scoped->v);
     yyval = contained;
 }
 #line 2369 "src/Slice/Grammar.cpp"
@@ -2491,7 +2491,7 @@ yyreduce:
     StructPtr st = cont->createStruct(ident->v);
     if (st)
     {
-        cont->checkIntroduced(ident->v, st);
+        cont->checkHasChangedMeaning(ident->v, st);
         currentUnit->pushContainer(st);
     }
     else
@@ -2598,7 +2598,7 @@ yyreduce:
     ClassDefPtr cl = cont->createClassDef(ident->v, ident->t, base);
     if (cl)
     {
-        cont->checkIntroduced(ident->v, cl);
+        cont->checkHasChangedMeaning(ident->v, cl);
         currentUnit->pushContainer(cl);
         yyval = cl;
     }
@@ -2649,7 +2649,7 @@ yyreduce:
             }
             else
             {
-                cont->checkIntroduced(scoped->v);
+                cont->checkHasChangedMeaning(scoped->v);
                 yyval = def;
             }
         }
@@ -2743,7 +2743,7 @@ yyreduce:
     {
         dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, nullptr, std::nullopt);
     }
-    currentUnit->currentContainer()->checkIntroduced(def->name, dm);
+    currentUnit->currentContainer()->checkHasChangedMeaning(def->name, dm);
     yyval = dm;
 }
 #line 2750 "src/Slice/Grammar.cpp"
@@ -2778,7 +2778,7 @@ yyreduce:
     {
         dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v, value->valueAsString);
     }
-    currentUnit->currentContainer()->checkIntroduced(def->name, dm);
+    currentUnit->currentContainer()->checkHasChangedMeaning(def->name, dm);
     yyval = dm;
 }
 #line 2785 "src/Slice/Grammar.cpp"
@@ -2907,7 +2907,7 @@ yyreduce:
 
         if (op)
         {
-            interface->checkIntroduced(name, op);
+            interface->checkHasChangedMeaning(name, op);
             currentUnit->pushContainer(op);
         }
         yyval = op;
@@ -3040,7 +3040,7 @@ yyreduce:
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     auto cont = currentUnit->currentContainer();
     InterfaceDeclPtr cl = cont->createInterfaceDecl(ident->v);
-    cont->checkIntroduced(ident->v, cl);
+    cont->checkHasChangedMeaning(ident->v, cl);
     yyval = cl;
 }
 #line 3047 "src/Slice/Grammar.cpp"
@@ -3055,7 +3055,7 @@ yyreduce:
     InterfaceDefPtr interface = cont->createInterfaceDef(ident->v, bases->v);
     if (interface)
     {
-        cont->checkIntroduced(ident->v, interface);
+        cont->checkHasChangedMeaning(ident->v, interface);
         currentUnit->pushContainer(interface);
         yyval = interface;
     }
@@ -3212,7 +3212,7 @@ yyreduce:
     {
         exception = cont->createException(Ice::generateUUID(), 0, Dummy); // Dummy
     }
-    cont->checkIntroduced(scoped->v, exception);
+    cont->checkHasChangedMeaning(scoped->v, exception);
     yyval = exception;
 }
 #line 3219 "src/Slice/Grammar.cpp"
@@ -3260,7 +3260,7 @@ yyreduce:
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     ContainerPtr cont = currentUnit->currentContainer();
     EnumPtr en = cont->createEnum(ident->v);
-    cont->checkIntroduced(ident->v, en);
+    cont->checkHasChangedMeaning(ident->v, en);
     currentUnit->pushContainer(en);
     yyval = en;
 }
@@ -3381,7 +3381,7 @@ yyreduce:
     if (op)
     {
         param = op->createParameter(tsp->name, tsp->type, tsp->isOptional, tsp->tag);
-        currentUnit->currentContainer()->checkIntroduced(tsp->name, param);
+        currentUnit->currentContainer()->checkHasChangedMeaning(tsp->name, param);
     }
     yyval = param;
 }
@@ -3628,7 +3628,7 @@ yyreduce:
     }
     else
     {
-        cont->checkIntroduced(scoped->v);
+        cont->checkHasChangedMeaning(scoped->v);
         if (auto constant = dynamic_pointer_cast<Const>(cl.front()))
         {
             auto b = dynamic_pointer_cast<Builtin>(constant->type());
@@ -3753,12 +3753,12 @@ yyreduce:
         auto constant = dynamic_pointer_cast<Const>(cl.front());
         if (enumerator)
         {
-            currentUnit->currentContainer()->checkIntroduced(scoped->v, enumerator);
+            currentUnit->currentContainer()->checkHasChangedMeaning(scoped->v, enumerator);
             def = make_shared<ConstDefTok>(enumerator, scoped->v);
         }
         else if (constant)
         {
-            currentUnit->currentContainer()->checkIntroduced(scoped->v, constant);
+            currentUnit->currentContainer()->checkHasChangedMeaning(scoped->v, constant);
             def = make_shared<ConstDefTok>(constant, constant->value());
         }
         else
@@ -4274,7 +4274,7 @@ namespace
             currentUnit->error(msg);
         }
 
-        cont->checkIntroduced(name);
+        cont->checkHasChangedMeaning(name);
         return firstType;
     }
 
@@ -4284,7 +4284,7 @@ namespace
         InterfaceDefPtr interfaceDef = cont->lookupInterfaceDef(name, true);
         if (interfaceDef)
         {
-            cont->checkIntroduced(name);
+            cont->checkHasChangedMeaning(name);
         }
         return interfaceDef;
     }

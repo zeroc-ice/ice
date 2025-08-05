@@ -21,13 +21,13 @@ def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: list[Any]):
     This function is called by IcePy from an Ice server thread pool thread to dispatch a request to a servant method
     with the given arguments. The method's result is then sent back to IcePy using the provided callback.
 
-    The method can return:
-    - A direct result, which is immediately sent back.
+    The method parameter can return:
+    - A direct result, which is immediately sent back via the callback.
     - A coroutine.
     - A future.
 
-    If the result is a coroutine and the Ice communicator has a custom coroutine executor, the executor is used to
-    execute the coroutine, and the resulting future is used to wait for the dispatch completion.
+    If the result is a coroutine and the Ice communicator has a custom coroutine executor, dispatch uses the executor to
+    execute the coroutine, and uses the resulting future to wait for dispatch completion.
 
     Parameters
     ----------
