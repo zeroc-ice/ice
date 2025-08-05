@@ -4,6 +4,7 @@ IceStorm/*
 IceBox/*
 Glacier2/*
 IcePy.*
+!IcePy.pyi
 
 # Generated files for Python Ice package
 Ice/AdapterAlreadyActiveException.py

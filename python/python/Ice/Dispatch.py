@@ -1,7 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
 import inspect
-import sys
 from collections.abc import Callable, Coroutine
 from typing import Any, cast
 
@@ -62,8 +61,8 @@ def dispatch(cb: IcePy.DispatchCallback, method: Callable, args: list[Any]):
         def handle_future_result(future: FutureLike):
             try:
                 cb.response(future.result())
-            except Exception:
-                cb.exception(sys.exc_info()[1])
+            except BaseException as ex:
+                cb.exception(ex)
 
         result.add_done_callback(handle_future_result)
 
@@ -108,8 +107,8 @@ def run_coroutine(
             def handle_future_result(future: FutureLike):
                 try:
                     run_coroutine(cb, coroutine, value=future.result())
-                except BaseException:
-                    run_coroutine(cb, coroutine, exception=sys.exc_info()[1])
+                except BaseException as ex:
+                    run_coroutine(cb, coroutine, exception=ex)
 
             # There is a potential recursive call here if the future is already completed.
             # However, synchronous completion of AMI calls is rare, and this executor is specifically
@@ -119,5 +118,5 @@ def run_coroutine(
             raise RuntimeError(f"unexpected value of type {type(result)} returned by coroutine.send()")
     except StopIteration as ex:
         cb.response(ex.value)
-    except BaseException:
-        cb.exception(sys.exc_info()[1])
+    except BaseException as ex:
+        cb.exception(ex)

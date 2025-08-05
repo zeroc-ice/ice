@@ -1,18 +1,20 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from typing import Any
 
 from generated.test.Ice.adapterDeactivation import Test
+from TestHelper import TestHelper
 
 import Ice
 
 
-def test(b):
+def test(b: Any) -> None:
     if not b:
         raise RuntimeError("test assertion failed")
 
 
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestIntfPrx:
     obj = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint()}")
 
     sys.stdout.write("creating/destroying/recreating object adapter... ")
@@ -39,8 +41,10 @@ def allTests(helper, communicator):
     for x in range(10):
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
-        comm = Ice.initialize(initData=initData)
-        comm.stringToProxy("test:{0}".format(helper.getTestEndpoint())).ice_pingAsync()
+        comm = Ice.initialize([], initData=initData)
+        prx = comm.stringToProxy("test:{0}".format(helper.getTestEndpoint()))
+        assert prx is not None
+        prx.ice_pingAsync()
         comm.destroy()
     print("ok")
 
@@ -53,6 +57,7 @@ def allTests(helper, communicator):
     endpt = adapter.getPublishedEndpoints()[0]
     test(str(endpt) == "tcp -h localhost -p 12345 -t 30000")
     prx = communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000")
+    assert prx is not None
     adapter.setPublishedEndpoints(prx.ice_getEndpoints())
     test(len(adapter.getPublishedEndpoints()) == 2)
     ident = Ice.Identity()
@@ -69,7 +74,9 @@ def allTests(helper, communicator):
         sys.stdout.flush()
 
         test(communicator.getDefaultObjectAdapter() is None)
-        test(obj.ice_getCachedConnection().getAdapter() is None)
+        cachedConnection = obj.ice_getCachedConnection()
+        assert cachedConnection is not None
+        assert cachedConnection.getAdapter() is None
 
         adapter = communicator.createObjectAdapter("")
 
@@ -78,22 +85,32 @@ def allTests(helper, communicator):
         test(communicator.getDefaultObjectAdapter() is not None)
 
         # create new connection
-        obj.ice_getCachedConnection().close().result()
+        cachedConnection = obj.ice_getCachedConnection()
+        assert cachedConnection is not None
+        cachedConnection.close().result()
         obj.ice_ping()
 
         # TODO: compare underlying object adapter objects
-        test(obj.ice_getCachedConnection().getAdapter() is not None)
+        cachedConnection = obj.ice_getCachedConnection()
+        assert cachedConnection is not None
+        assert cachedConnection.getAdapter() is not None
         communicator.setDefaultObjectAdapter(None)
 
         # create new connection
-        obj.ice_getCachedConnection().close().result()
+        cachedConnection = obj.ice_getCachedConnection()
+        assert cachedConnection is not None
+        cachedConnection.close().result()
         obj.ice_ping()
 
-        test(obj.ice_getCachedConnection().getAdapter() is None)
-        obj.ice_getCachedConnection().setAdapter(adapter)
+        cachedConnection = obj.ice_getCachedConnection()
+        assert cachedConnection is not None
+        assert cachedConnection.getAdapter() is None
+        cachedConnection.setAdapter(adapter)
         # TODO: compare underlying object adapter objects
-        test(obj.ice_getCachedConnection().getAdapter() is not None)
-        obj.ice_getCachedConnection().setAdapter(None)
+        cachedConnection = obj.ice_getCachedConnection()
+        assert cachedConnection is not None
+        assert cachedConnection.getAdapter() is not None
+        cachedConnection.setAdapter(None)
 
         adapter.destroy()
         try:
