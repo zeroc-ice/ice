@@ -460,18 +460,18 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
         """
         return super().ice_adapterId(newAdapterId)
 
-    def ice_getEndpoints(self) -> list[IcePy.Endpoint]:
+    def ice_getEndpoints(self) -> tuple[IcePy.Endpoint, ...]:
         """
         Returns the endpoints used by this proxy.
 
         Returns
         -------
-        list of Endpoint
+        tuple[IcePy.Endpoint, ...]
             The endpoints used by this proxy.
         """
         return super().ice_getEndpoints()
 
-    def ice_endpoints(self, newEndpoints: list[IcePy.Endpoint]) -> Self:
+    def ice_endpoints(self, newEndpoints: tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the endpoints.
 

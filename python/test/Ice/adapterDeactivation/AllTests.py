@@ -38,7 +38,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestInt
 
     sys.stdout.write("testing connection closure... ")
     sys.stdout.flush()
-    for x in range(10):
+    for _ in range(10):
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
         comm = Ice.initialize([], initData=initData)

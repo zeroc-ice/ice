@@ -43,7 +43,7 @@ class RouterI(Ice.Router):
 
 
 class Cookie:
-    def message(self):
+    def message(self) -> str:
         return "blahblah"
 
 
@@ -74,8 +74,8 @@ class ServantLocatorI(Ice.ServantLocator):
         if current.id.name == "router":
             return
 
-        test(isinstance(cookie, Cookie))
-        test(cookie.message() == "blahblah")
+        assert isinstance(cookie, Cookie)
+        assert cookie.message() == "blahblah"
 
     @override
     def deactivate(self, category: str) -> None:
