@@ -53,12 +53,8 @@ public final class InitializationData implements Cloneable {
     public Runnable threadStop;
 
     /** The custom class loader for the communicator.
-     * An application can supply a custom class loader that the Ice communicator will use when it:
-     * <ul>
-     *  <li>unmarshals class instances and user exceptions</li>
-     *  <li>loads Ice plug-ins</li>
-     *  <li>loads IceSSL certificate verifiers and password callbacks</li>
-     * </ul>
+     * An application can supply a custom class loader that the Ice communicator will use when it unmarshals class
+     * instances and user exceptions, and when loads Ice plug-ins.
      *
      * <p>If an application does not supply a class loader (or if the application-supplied class loader fails to locate
      * a class), the Ice communicator attempts to load the class using class loaders in the following order:
