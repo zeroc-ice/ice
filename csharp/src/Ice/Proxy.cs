@@ -1861,7 +1861,7 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
     /// </summary>
     /// <param name="proxy">The source proxy.</param>
     /// <param name="facet">A facet name.</param>
-    /// <returns>A proxy with the requested type and facet.</returns>
+    /// <returns>A proxy with the requested type and facet, or null if the source proxy is null.</returns>
     [return: NotNullIfNotNull(nameof(proxy))]
     public static ObjectPrx? uncheckedCast(ObjectPrx? proxy, string facet) => proxy?.ice_facet(facet);
 
