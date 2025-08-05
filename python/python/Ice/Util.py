@@ -37,7 +37,10 @@ def initialize(args: list[str], initData: InitializationData) -> Communicator: .
 
 @overload
 def initialize(
-    args: list[str], initData: None, configFile: str | None = None, eventLoop: asyncio.AbstractEventLoop | None = None
+    args: list[str],
+    initData: None = None,
+    configFile: str | None = None,
+    eventLoop: asyncio.AbstractEventLoop | None = None,
 ) -> Communicator: ...
 
 
