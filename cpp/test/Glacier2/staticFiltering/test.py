@@ -105,6 +105,8 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
         hostname = socket.gethostname().lower()
         fqdn = socket.getfqdn().lower()
 
+        limitedTests = False
+
         #
         # Try and figure out what tests are reasonable with this host's
         # configuration.
@@ -287,123 +289,137 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
                 ],
                 [],
             ),
-            (
-                "testing reject all",
-                ("", "*", "", "", "", ""),
-                [
-                    (False, "helloA:tcp -h %s -p 12010" % fqdn),
-                    (False, "helloB:tcp -h %s -p 12010" % hostname),
-                    (False, "helloC:tcp -h 127.0.0.1 -p 12010"),
-                    (True, "bar @ foo"),
-                ],
-                [],
-            ),
-            (
-                "testing loopback only rule",
-                ("127.0.0.1 localhost", "", "", "", "", ""),
-                [
-                    (False, "hello:tcp -h %s -p 12010" % fqdn),
-                    (False, "hello:tcp -h %s -p 12010" % hostname),
-                    (False, "127.0.0.1:tcp -h %s -p 12010" % hostname),
-                    (False, "localhost:tcp -h %s -p 12010" % hostname),
-                    (
-                        False,
-                        "localhost/127.0.0.1:tcp -h %s -p 12010" % hostname,
-                    ),
-                    (True, "localhost:tcp -h 127.0.0.1 -p 12010"),
-                    (True, "localhost/127.0.0.1:tcp -h localhost -p 12010"),
-                    (True, "hello:tcp -h 127.0.0.1 -p 12010"),
-                    (True, "hello/somecat:tcp -h localhost -p 12010"),
-                ],
-                [],
-            ),
-            (
-                "testing port filter rule",
-                ("127.0.0.1:12010 localhost:12010", "", "", "", "", ""),
-                [
-                    (False, "hello1:tcp -h 127.0.0.1 -p 12011"),
-                    (False, "hello2:tcp -h localhost -p 12011"),
-                    (False, "hello5:tcp -h %s -p 12010" % hostname),
-                    (True, "hello3:tcp -h 127.0.0.1 -p 12010"),
-                    (True, "hello4:tcp -h localhost -p 12010"),
-                ],
-                [],
-            ),
-            (
-                "testing reject port filter rule",
-                (
-                    "",
-                    "127.0.0.1:[0-12009,12011-65535] localhost:[0-12009,12011-65535]",
-                    "",
-                    "",
-                    "",
-                    "",
-                ),
-                [
-                    (False, "hello1:tcp -h 127.0.0.1 -p 12011"),
-                    (False, "hello2:tcp -h localhost -p 12011"),
-                    (True, "hello5:tcp -h %s -p 12010" % hostname),
-                    (True, "hello3:tcp -h 127.0.0.1 -p 12010"),
-                    (True, "hello4:tcp -h localhost -p 12010"),
-                ],
-                [],
-            ),
-            (
-                "testing port filter rule with wildcard address rule",
-                ("*:12010", "", "", "", "", ""),
-                [
-                    (False, "hello1:tcp -h 127.0.0.1 -p 12011"),
-                    (False, "hello2:tcp -h localhost -p 12011"),
-                    (True, "hello5:tcp -h %s -p 12010" % hostname),
-                    (True, "hello3:tcp -h 127.0.0.1 -p 12010"),
-                    (True, "hello4:tcp -h localhost -p 12010"),
-                ],
-                [],
-            ),
-            (
-                "testing domain filter rule (accept)",
-                ("*" + domainname, "", "", "", "", ""),
-                [
-                    (True, "hello:tcp -h %s -p 12010" % fqdn),
-                    (False, "hello:tcp -h %s -p 12010" % hostname),
-                ],
-                [],
-            ),
-            (
-                "testing domain filter rule (reject)",
-                ("", "*" + domainname, "", "", "", ""),
-                [
-                    (False, "hello:tcp -h %s -p 12010" % fqdn),
-                    (True, "hello:tcp -h %s -p 12010" % hostname),
-                    (True, "bar:tcp -h 127.0.0.1 -p 12010"),
-                ],
-                [],
-            ),
-            (
-                "testing domain filter rule (mixed)",
-                ("127.0.0.1", fqdn, "", "", "", ""),
-                [
-                    (
-                        False,
-                        "hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010" % fqdn,
-                    ),
-                    (True, "bar:tcp -h 127.0.0.1 -p 12010"),
-                ],
-                [],
-            ),
-            (
-                "testing maximum proxy length rule",
-                ("", "", "53", "", "", ""),
-                [
-                    (True, "hello:tcp -h 127.0.0.1 -p 12010 -t infinite"),
-                    (
-                        False,
-                        "012345678901234567890123456789012345678901234567890123456789:tcp -h 127.0.0.1 -p 12010",
-                    ),
-                ],
-                [],
-            ),
         ]
+
+        if "GITHUB_ACTIONS" in os.environ and platform.system() in ["Windows"]:
+            # On GitHub Actions Windows the FQDN does not always resolve to an IP address
+            # assigned to a local interface. This breaks tests that use the FQDN in a proxy endpoint.
+            # See:
+            # - https://github.com/zeroc-ice/ice/issues/4169
+            # - https://github.com/actions/runner-images/issues/12560#issuecomment-3102873314
+            limitedTests = True
+
+        if not limitedTests:
+            testcases.extend(
+                [
+                    (
+                        "testing reject all",
+                        ("", "*", "", "", "", ""),
+                        [
+                            (False, "helloA:tcp -h %s -p 12010" % fqdn),
+                            (False, "helloB:tcp -h %s -p 12010" % hostname),
+                            (False, "helloC:tcp -h 127.0.0.1 -p 12010"),
+                            (True, "bar @ foo"),
+                        ],
+                        [],
+                    ),
+                    (
+                        "testing loopback only rule",
+                        ("127.0.0.1 localhost", "", "", "", "", ""),
+                        [
+                            (False, "hello:tcp -h %s -p 12010" % fqdn),
+                            (False, "hello:tcp -h %s -p 12010" % hostname),
+                            (False, "127.0.0.1:tcp -h %s -p 12010" % hostname),
+                            (False, "localhost:tcp -h %s -p 12010" % hostname),
+                            (
+                                False,
+                                "localhost/127.0.0.1:tcp -h %s -p 12010" % hostname,
+                            ),
+                            (True, "localhost:tcp -h 127.0.0.1 -p 12010"),
+                            (True, "localhost/127.0.0.1:tcp -h localhost -p 12010"),
+                            (True, "hello:tcp -h 127.0.0.1 -p 12010"),
+                            (True, "hello/somecat:tcp -h localhost -p 12010"),
+                        ],
+                        [],
+                    ),
+                    (
+                        "testing port filter rule",
+                        ("127.0.0.1:12010 localhost:12010", "", "", "", "", ""),
+                        [
+                            (False, "hello1:tcp -h 127.0.0.1 -p 12011"),
+                            (False, "hello2:tcp -h localhost -p 12011"),
+                            (False, "hello5:tcp -h %s -p 12010" % hostname),
+                            (True, "hello3:tcp -h 127.0.0.1 -p 12010"),
+                            (True, "hello4:tcp -h localhost -p 12010"),
+                        ],
+                        [],
+                    ),
+                    (
+                        "testing reject port filter rule",
+                        (
+                            "",
+                            "127.0.0.1:[0-12009,12011-65535] localhost:[0-12009,12011-65535]",
+                            "",
+                            "",
+                            "",
+                            "",
+                        ),
+                        [
+                            (False, "hello1:tcp -h 127.0.0.1 -p 12011"),
+                            (False, "hello2:tcp -h localhost -p 12011"),
+                            (True, "hello5:tcp -h %s -p 12010" % hostname),
+                            (True, "hello3:tcp -h 127.0.0.1 -p 12010"),
+                            (True, "hello4:tcp -h localhost -p 12010"),
+                        ],
+                        [],
+                    ),
+                    (
+                        "testing port filter rule with wildcard address rule",
+                        ("*:12010", "", "", "", "", ""),
+                        [
+                            (False, "hello1:tcp -h 127.0.0.1 -p 12011"),
+                            (False, "hello2:tcp -h localhost -p 12011"),
+                            (True, "hello5:tcp -h %s -p 12010" % hostname),
+                            (True, "hello3:tcp -h 127.0.0.1 -p 12010"),
+                            (True, "hello4:tcp -h localhost -p 12010"),
+                        ],
+                        [],
+                    ),
+                    (
+                        "testing domain filter rule (accept)",
+                        ("*" + domainname, "", "", "", "", ""),
+                        [
+                            (True, "hello:tcp -h %s -p 12010" % fqdn),
+                            (False, "hello:tcp -h %s -p 12010" % hostname),
+                        ],
+                        [],
+                    ),
+                    (
+                        "testing domain filter rule (reject)",
+                        ("", "*" + domainname, "", "", "", ""),
+                        [
+                            (False, "hello:tcp -h %s -p 12010" % fqdn),
+                            (True, "hello:tcp -h %s -p 12010" % hostname),
+                            (True, "bar:tcp -h 127.0.0.1 -p 12010"),
+                        ],
+                        [],
+                    ),
+                    (
+                        "testing domain filter rule (mixed)",
+                        ("127.0.0.1", fqdn, "", "", "", ""),
+                        [
+                            (
+                                False,
+                                "hello:tcp -h %s -p 12010:tcp -h 127.0.0.1 -p 12010" % fqdn,
+                            ),
+                            (True, "bar:tcp -h 127.0.0.1 -p 12010"),
+                        ],
+                        [],
+                    ),
+                    (
+                        "testing maximum proxy length rule",
+                        ("", "", "53", "", "", ""),
+                        [
+                            (True, "hello:tcp -h 127.0.0.1 -p 12010 -t infinite"),
+                            (
+                                False,
+                                "012345678901234567890123456789012345678901234567890123456789:tcp -h 127.0.0.1 -p 12010",
+                            ),
+                        ],
+                        [],
+                    ),
+                ]
+            )
 
         if len(testcases) == 0:
             current.writeln("WARNING: You are running this test with SSL disabled and the network ")
