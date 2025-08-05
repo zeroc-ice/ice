@@ -17,6 +17,7 @@
 #include "Proxy.h"
 #include "Slice.h"
 #include "Types.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IcePy;
@@ -114,6 +115,11 @@ static struct PyModuleDef iceModule = {
     nullptr,
     IcePy_cleanup};
 
+namespace
+{
+    unsigned long mainThreadId;
+}
+
 #if defined(__GNUC__)
 extern "C" __attribute__((visibility("default"))) PyObject*
 #elif defined(_WIN32) // On Windows, PyMoDINIT_FUNC already defines dllexport
@@ -134,7 +140,14 @@ PyInit_IcePy(void)
     {
         return nullptr;
     }
+    mainThreadId = PyThread_get_thread_ident();
     return module;
+}
+
+bool
+IcePy::isMainThread()
+{
+    return PyThread_get_thread_ident() == mainThreadId;
 }
 
 extern "C" void
