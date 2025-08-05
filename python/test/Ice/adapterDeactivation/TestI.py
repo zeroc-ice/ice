@@ -76,7 +76,7 @@ class ServantLocatorI(Ice.ServantLocator):
         test(cookie.message() == "blahblah")
 
     @override
-    def deactivate(self, category: str):
+    def deactivate(self, category: str) -> None:
         test(not self._deactivated)
 
         self._deactivated = True
