@@ -2300,9 +2300,7 @@ Slice::Container::checkHasChangedMeaning(const string& name, ContainedPtr namedT
         // These elements always exist within a self-contained scope, the only way for them to "change meaning"
         // is to be redefined, which we already emit an error for elsewhere (see doesNameConflict).
         auto isInSelfContainedScope = [](const ContainedPtr& p)
-        {
-            return dynamic_pointer_cast<DataMember>(p) || dynamic_pointer_cast<Parameter>(p);
-        };
+        { return dynamic_pointer_cast<DataMember>(p) || dynamic_pointer_cast<Parameter>(p); };
 
         if (!isInSelfContainedScope(it->second) && !isInSelfContainedScope(namedThing))
         {
