@@ -34,6 +34,9 @@ def initialize(args: list[str]) -> Communicator: ...
 @overload
 def initialize(args: list[str], initData: InitializationData) -> Communicator: ...
 
+@overload
+def initialize(args: None = None,  initData: InitializationData = InitializationData()) -> Communicator: ...
+
 
 @overload
 def initialize(
