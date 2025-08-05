@@ -3,6 +3,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from typing import override
 
 from TestHelper import TestHelper
 
@@ -15,18 +16,23 @@ import Ice
 
 
 class CallbackI(Test.Callback):
-    def initiateCallback(self, proxy, current):
+    @override
+    def initiateCallback(self, proxy: Test.CallbackReceiverPrx | None, current: Ice.Current) -> None:
+        assert proxy is not None
         proxy.callback(current.ctx)
 
-    def initiateCallbackEx(self, proxy, current):
+    @override
+    def initiateCallbackEx(self, proxy: Test.CallbackReceiverPrx | None, current: Ice.Current) -> None:
+        assert proxy is not None
         proxy.callbackEx(current.ctx)
 
-    def shutdown(self, current):
+    @override
+    def shutdown(self, current: Ice.Current) -> None:
         current.adapter.getCommunicator().shutdown()
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]) -> None:
         with self.initialize(args=args) as communicator:
             communicator.getProperties().setProperty("CallbackAdapter.Endpoints", self.getTestEndpoint(num=0))
             adapter = communicator.createObjectAdapter("CallbackAdapter")
