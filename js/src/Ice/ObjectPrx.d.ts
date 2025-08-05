@@ -430,8 +430,17 @@ declare module "@zeroc/ice" {
              * Downcasts a proxy without confirming the target object's type via a remote invocation.
              *
              * @param prx - The target proxy to be downcast.
-             * @param facet - An optional facet to specify a part of the target proxy.
-             * @returns A proxy with the requested type.
+             * @param facet - An optional facet name.
+             * @returns A proxy with the requested type and facet, or null if the source proxy is null.
+             */
+            static uncheckedCast(prx: null, facet?: string): null;
+
+            /**
+             * Downcasts a proxy without confirming the target object's type via a remote invocation.
+             *
+             * @param prx - The target proxy to be downcast.
+             * @param facet - An optional facet name.
+             * @returns A proxy with the requested type and facet, or null if the source proxy is null.
              */
             static uncheckedCast(prx: ObjectPrx, facet?: string): ObjectPrx;
 
@@ -439,12 +448,16 @@ declare module "@zeroc/ice" {
              * Downcasts a proxy after confirming the target object's type via a remote invocation.
              *
              * @param prx - The target proxy to be downcast.
-             * @param facet - An optional facet name specifying a part of the target proxy.
+             * @param facet - An optional facet name
              * @param context - An optional context map for the invocation.
              * @returns An asynchronous result resolving to a proxy with the requested type and facet, or `null` if the
              *          target object does not support the requested type.
              */
-            static checkedCast(prx: ObjectPrx, facet?: string, context?: Map<string, string>): AsyncResult<ObjectPrx>;
+            static checkedCast(
+                prx: ObjectPrx,
+                facet?: string,
+                context?: Map<string, string>,
+            ): AsyncResult<ObjectPrx | null>;
         }
     }
 }
