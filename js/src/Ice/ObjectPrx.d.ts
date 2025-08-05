@@ -448,7 +448,7 @@ declare module "@zeroc/ice" {
              * Downcasts a proxy after confirming the target object's type via a remote invocation.
              *
              * @param prx - The target proxy to be downcast.
-             * @param facet - An optional facet name
+             * @param facet - An optional facet name.
              * @param context - An optional context map for the invocation.
              * @returns An asynchronous result resolving to a proxy with the requested type and facet, or `null` if the
              *          target object does not support the requested type.
