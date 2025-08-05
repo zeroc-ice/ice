@@ -1101,7 +1101,7 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
             capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
             out << sp;
             out << nl << "@staticmethod";
-            out << nl << "def " << capName << "MarshaledResult(result, current: " << currentAlias << "):";
+            out << nl << "def " << capName << "MarshaledResult(result: object, current: " << currentAlias << "):";
             out.inc();
             out << nl << tripleQuotes;
             out << nl << "Immediately marshals the result of an invocation of " << sliceName;

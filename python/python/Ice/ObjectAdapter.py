@@ -212,7 +212,7 @@ class ObjectAdapter:
         ObjectPrx
             A proxy that matches the generated UUID identity, facet, and this object adapter.
         """
-        return self._impl.addFacetWIthUUID(servant, facet)
+        return self._impl.addFacetWithUUID(servant, facet)
 
     def addDefaultServant(self, servant: Object, category: str) -> None:
         """
@@ -582,13 +582,13 @@ class ObjectAdapter:
         """
         return self._impl.getPublishedEndpoints()
 
-    def setPublishedEndpoints(self, newEndpoints: tuple[IcePy.Endpoint, ...]) -> None:
+    def setPublishedEndpoints(self, newEndpoints: tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]) -> None:
         """
         Set the endpoints that proxies created by this object adapter will contain.
 
         Parameters
         ----------
-        newEndpoints : tuple[IcePy.Endpoint, ...]
+        newEndpoints : tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]
             The new set of endpoints that the object adapter will embed in proxies.
         """
         self._impl.setPublishedEndpoints(newEndpoints)
