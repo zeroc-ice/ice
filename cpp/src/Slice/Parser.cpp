@@ -1249,54 +1249,60 @@ Slice::Container::destroyContents()
 ModulePtr
 Slice::Container::createModule(const string& name, bool nestedSyntax)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    matches.sort(containedCompare); // Modules can occur many times...
-    matches.unique(containedEqual); // ... but we only want one instance of each.
+    ModulePtr q = make_shared<Module>(shared_from_this(), name, nestedSyntax);
 
-    if (thisScope() == "::")
+    if (!name.empty())
     {
-        unit()->addTopLevelModule(unit()->currentFile(), name);
-    }
-
-    for (const auto& p : matches)
-    {
-        bool differsOnlyInCase = matches.front()->name() != name;
-        ModulePtr module = dynamic_pointer_cast<Module>(p);
-        if (module)
+        if (thisScope() == "::")
         {
-            if (differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
+            unit()->addTopLevelModule(unit()->currentFile(), name);
+        }
+
+        bool hasValidIdentifier = true;
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        matches.sort(containedCompare); // Modules can occur many times...
+        matches.unique(containedEqual); // ... but we only want one instance of each.
+        for (const auto& p : matches)
+        {
+            bool differsOnlyInCase = matches.front()->name() != name;
+            if (ModulePtr module = dynamic_pointer_cast<Module>(p))
+            {
+                if (differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
+                {
+                    ostringstream os;
+                    os << "module '" << name << "' is capitalized inconsistently with its previous name: '"
+                       << module->name() << "'";
+                    unit()->error(os.str());
+                    hasValidIdentifier = false;
+                }
+            }
+            else if (!differsOnlyInCase)
             {
                 ostringstream os;
-                os << "module '" << name << "' is capitalized inconsistently with its previous name: '"
-                   << module->name() << "'";
+                os << "redefinition of " << matches.front()->kindOf() << " '" << matches.front()->name()
+                   << "' as module";
                 unit()->error(os.str());
-                return nullptr;
+                hasValidIdentifier = false;
+            }
+            else
+            {
+                ostringstream os;
+                os << "module '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                   << " name '" << matches.front()->name() << "'";
+                unit()->error(os.str());
+                hasValidIdentifier = false;
             }
         }
-        else if (!differsOnlyInCase)
+        if (hasValidIdentifier)
         {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << matches.front()->name() << "' as module";
-            unit()->error(os.str());
-            return nullptr;
+            // If this module has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(q);
         }
-        else
-        {
-            ostringstream os;
-            os << "module '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " name '" << matches.front()->name() << "'";
-            unit()->error(os.str());
-            return nullptr;
-        }
+
+        checkIdentifier(name);
     }
 
-    if (!checkIdentifier(name))
-    {
-        return nullptr;
-    }
-
-    ModulePtr q = make_shared<Module>(shared_from_this(), name, nestedSyntax);
-    unit()->addContent(q);
     _contents.push_back(q);
     return q;
 }
@@ -1604,36 +1610,41 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 }
 
 StructPtr
-Slice::Container::createStruct(const string& name, NodeType nodeType)
+Slice::Container::createStruct(const string& name)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    StructPtr p = make_shared<Struct>(shared_from_this(), name);
+
+    checkForGlobalDefinition("structs");
+
+    if (!name.empty())
     {
-        if (matches.front()->name() == name)
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        if (!matches.empty())
         {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as struct";
-            unit()->error(os.str());
+            if (matches.front()->name() == name)
+            {
+                ostringstream os;
+                os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as struct";
+                unit()->error(os.str());
+            }
+            else
+            {
+                ostringstream os;
+                os << "struct '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                   << " '" << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
         }
         else
         {
-            ostringstream os;
-            os << "struct '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-               << matches.front()->name() << "'";
-            unit()->error(os.str());
+            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(p);
         }
-        return nullptr;
+
+        checkIdentifier(name);
     }
 
-    checkIdentifier(name); // Don't return here -- we create the struct anyway.
-
-    if (nodeType == Real)
-    {
-        checkForGlobalDefinition("structs"); // Don't return here -- we create the struct anyway.
-    }
-
-    StructPtr p = make_shared<Struct>(shared_from_this(), name);
-    unit()->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -1642,7 +1653,6 @@ SequencePtr
 Slice::Container::createSequence(const string& name, const TypePtr& type, MetadataList metadata)
 {
     SequencePtr p = make_shared<Sequence>(shared_from_this(), name, type, std::move(metadata));
-    _contents.push_back(p);
 
     checkForGlobalDefinition("sequences");
 
@@ -1675,6 +1685,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, Metada
         checkIdentifier(name);
     }
 
+    _contents.push_back(p);
     return p;
 }
 
@@ -1693,7 +1704,6 @@ Slice::Container::createDictionary(
         std::move(keyMetadata),
         valueType,
         std::move(valueMetadata));
-    _contents.push_back(p);
 
     checkForGlobalDefinition("dictionaries");
     if (keyType && !Dictionary::isLegalKeyType(keyType))
@@ -1730,6 +1740,7 @@ Slice::Container::createDictionary(
         checkIdentifier(name);
     }
 
+    _contents.push_back(p);
     return p;
 }
 
@@ -1737,7 +1748,6 @@ EnumPtr
 Slice::Container::createEnum(const string& name)
 {
     EnumPtr p = make_shared<Enum>(shared_from_this(), name);
-    _contents.push_back(p);
 
     checkForGlobalDefinition("enums");
 
@@ -1770,6 +1780,7 @@ Slice::Container::createEnum(const string& name)
         checkIdentifier(name);
     }
 
+    _contents.push_back(p);
     return p;
 }
 
@@ -1785,7 +1796,6 @@ Slice::Container::createConst(
     validateConstant(name, type, resolvedValueType, valueString, true);
     ConstPtr p =
         make_shared<Const>(shared_from_this(), name, type, std::move(metadata), resolvedValueType, valueString);
-    _contents.push_back(p);
 
     checkForGlobalDefinition("constants");
 
@@ -1818,6 +1828,7 @@ Slice::Container::createConst(
         checkIdentifier(name);
     }
 
+    _contents.push_back(p);
     return p;
 }
 
@@ -2271,19 +2282,31 @@ Slice::Container::checkHasChangedMeaning(const string& name, ContainedPtr namedT
     }
     else
     {
-        // We've previously introduced the first component to the current scope, check that it has not changed meaning.
-        if (it->second->scoped() != namedThing->scoped())
+        // If both identifiers resolve to the exact same element, then their meaning didn't change.
+        if (it->second->scoped() == namedThing->scoped())
         {
-            // We don't want to issue errors for data-members or parameters.
-            // Since they can only exist within a self-contained scope, the only way for them to "change meaning"
-            // is to be redefined, which we already emit an error for elsewhere (see doesNameConflict).
-            auto isInSelfContainedScope = [](const ContainedPtr& p)
-            { return dynamic_pointer_cast<DataMember>(p) || dynamic_pointer_cast<Parameter>(p); };
+            return;
+        }
 
-            if (!isInSelfContainedScope(it->second) && !isInSelfContainedScope(namedThing))
-            {
-                unit()->error("'" + firstComponent + "' has changed meaning");
-            }
+        // If the two identifiers resolve to different elements, but those elements are in the same container,
+        // then the 'real' error is that the user redefined an element, not that an element changed meaning.
+        // This error is reported elsewhere in the code, so nothing to do here.
+        if (it->second->container() == namedThing->container())
+        {
+            return;
+        }
+
+        // We don't want to issue errors for data-members or parameters.
+        // These elements always exist within a self-contained scope, the only way for them to "change meaning"
+        // is to be redefined, which we already emit an error for elsewhere (see doesNameConflict).
+        auto isInSelfContainedScope = [](const ContainedPtr& p)
+        {
+            return dynamic_pointer_cast<DataMember>(p) || dynamic_pointer_cast<Parameter>(p);
+        };
+
+        if (!isInSelfContainedScope(it->second) && !isInSelfContainedScope(namedThing))
+        {
+            unit()->error("'" + firstComponent + "' has changed meaning");
         }
     }
 }
@@ -3106,53 +3129,57 @@ Slice::InterfaceDef::createOperation(
     int32_t tag,
     Operation::Mode mode)
 {
-    if (doesNameConflict(name, "operation", _contents))
-    {
-        return nullptr;
-    }
-
-    // Check whether enclosing interface has the same name.
-    if (name == this->name())
-    {
-        ostringstream os;
-        os << "interface name '" << name << "' cannot be used as operation name";
-        unit()->error(os.str());
-        return nullptr;
-    }
-
-    string newName = IceInternal::toLower(name);
-    string thisName = IceInternal::toLower(this->name());
-    if (newName == thisName)
-    {
-        ostringstream os;
-        os << "operation '" << name << "' differs only in capitalization from enclosing interface name '"
-           << this->name() << "'";
-        unit()->error(os.str());
-        return nullptr;
-    }
-
-    // Check whether any base has an operation with the same name already
-    for (const auto& baseInterface : _bases)
-    {
-        vector<string> baseNames;
-        for (const auto& op : baseInterface->allOperations())
-        {
-            baseNames.push_back(op->name());
-        }
-        if (!checkBaseOperationNames(name, baseNames))
-        {
-            return nullptr;
-        }
-    }
-
-    // Check the operations of the Object pseudo-interface.
-    if (!checkBaseOperationNames(name, {"ice_id", "ice_ids", "ice_ping", "ice_isA"}))
-    {
-        return nullptr;
-    }
-
     OperationPtr op = make_shared<Operation>(shared_from_this(), name, returnType, isOptional, tag, mode);
-    unit()->addContent(op);
+
+    if (!name.empty())
+    {
+        bool hasValidIdentifier = !doesNameConflict(name, "operation", _contents);
+
+        // Check whether enclosing interface has the same name.
+        if (name == this->name())
+        {
+            ostringstream os;
+            os << "interface name '" << name << "' cannot be used as operation name";
+            unit()->error(os.str());
+            hasValidIdentifier = false;
+        }
+        else if (IceInternal::toLower(name) == IceInternal::toLower(this->name()))
+        {
+            ostringstream os;
+            os << "operation '" << name << "' differs only in capitalization from enclosing interface name '"
+               << this->name() << "'";
+            unit()->error(os.str());
+            hasValidIdentifier = false;
+        }
+
+        // Check whether any base has an operation with the same name already
+        for (const auto& baseInterface : _bases)
+        {
+            vector<string> baseNames;
+            for (const auto& baseOp : baseInterface->allOperations())
+            {
+                baseNames.push_back(baseOp->name());
+            }
+            if (!checkBaseOperationNames(name, baseNames))
+            {
+                hasValidIdentifier = false;
+                break;
+            }
+        }
+        // Check the operations of the Object pseudo-interface.
+        if (!checkBaseOperationNames(name, {"ice_id", "ice_ids", "ice_ping", "ice_isA"}))
+        {
+            hasValidIdentifier = false;
+        }
+
+        if (hasValidIdentifier)
+        {
+            // If this operation has a valid identifier and doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(op);
+        }
+    }
+
     _contents.push_back(op);
     return op;
 }
