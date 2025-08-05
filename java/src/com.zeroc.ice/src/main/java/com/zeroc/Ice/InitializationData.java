@@ -41,7 +41,7 @@ public final class InitializationData implements Cloneable {
     /** The logger for the communicator. */
     public Logger logger;
 
-    /** The communicator observer used by the Ice run-time. */
+    /** The communicator observer used by the communicator. */
     public CommunicatorObserver observer;
 
     /** threadStart is called whenever the communicator starts a new thread. */
@@ -52,7 +52,22 @@ public final class InitializationData implements Cloneable {
      */
     public Runnable threadStop;
 
-    /** The custom class loader for the communicator. */
+    /** The custom class loader for the communicator.
+     * An application can supply a custom class loader that the Ice communicator will use when it:
+     * <ul>
+     *  <li>unmarshals class instances and user exceptions</li>
+     *  <li>loads Ice plug-ins</li>
+     *  <li>loads IceSSL certificate verifiers and password callbacks</li>
+     * </ul>
+     *
+     * <p>If an application does not supply a class loader (or if the application-supplied class loader fails to locate
+     * a class), the Ice communicator attempts to load the class using class loaders in the following order:
+     * <ul>
+     *  <li>the current thread's class loader</li>
+     *  <li>the default class loader (that is, by calling Class.forName)</li>
+     *  <li>the system class loader</li>
+     * </ul>
+     */
     public ClassLoader classLoader;
 
     /**
@@ -72,7 +87,7 @@ public final class InitializationData implements Cloneable {
 
     /**
      * The SSL engine factory used to configure the client-side ssl transport. If non-null all the
-     * Ice.SSL configuration properties are ignored, and any SSL configuration must be done through
+     * IceSSL configuration properties are ignored, and any SSL configuration must be done through
      * the SSLEngineFactory.
      */
     public SSLEngineFactory clientSSLEngineFactory;
