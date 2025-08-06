@@ -8,5 +8,8 @@
     "reportUntypedFunctionDecorator": "error",
     "reportUntypedClassDecorator": "error",
     "reportUntypedBaseClass": "error",
-    "reportUnnecessaryComparison": "warning",
+    "reportUnnecessaryComparison": "error",
+    "reportUnusedClass": "error",
+    "reportUnusedFunction": "error",
+    "reportUnusedVariable": "error",
 }

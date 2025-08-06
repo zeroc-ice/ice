@@ -5,8 +5,14 @@ import os
 import sys
 import traceback
 from abc import ABC, abstractmethod
+from typing import Any
 
 import Ice
+
+
+def test(b: Any):
+    if not b:
+        raise RuntimeError("test assertion failed")
 
 
 class TestHelper(ABC):

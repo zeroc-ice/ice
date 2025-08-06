@@ -13,7 +13,7 @@ import AllTests
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         #
         # In this test, we need at least two threads in the
         # client side thread pool for nested AMI.

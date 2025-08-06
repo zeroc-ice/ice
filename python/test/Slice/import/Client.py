@@ -22,7 +22,7 @@ def test(b):
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         sys.stdout.write("testing imports... ")
         sys.stdout.flush()
         test(Test_SubA_SubSubA1_Value1 == 10)

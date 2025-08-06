@@ -16,7 +16,7 @@ import Ice
 
 
 class Collocated(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         with self.initialize(args=args) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")

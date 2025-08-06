@@ -14,7 +14,7 @@ import Ice
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         initData = Ice.InitializationData()
         initData.properties = self.createTestProperties(args)
         initData.sliceLoader = AllTests.customSliceLoader

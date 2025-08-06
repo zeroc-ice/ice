@@ -13,6 +13,6 @@ import AllTests
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         with self.initialize(args=args) as communicator:
             AllTests.allTests(self, communicator, False)

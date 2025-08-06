@@ -15,20 +15,20 @@ import Ice
 
 
 class delI(escaped_and._del):
-    def _elif(self, _else, current):
+    def _elif(self, _else, current: Ice.Current):
         pass
 
 
 class execI(escaped_and._exec):
-    def _finally(self, current):
+    def _finally(self, current: Ice.Current):
         assert current.operation == "finally"
 
 
 class ifI(escaped_and._if):
-    def _elif(self, _else, current):
+    def _elif(self, _else, current: Ice.Current):
         pass
 
-    def _finally(self, current):
+    def _finally(self, current: Ice.Current):
         pass
 
     def _raise(self, _else, _return, _while, _yield, _or, _global):
@@ -73,7 +73,7 @@ def testtypes():
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         #
         # Its possible to have batch oneway requests dispatched after the

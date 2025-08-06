@@ -15,36 +15,36 @@ import Ice
 
 
 class TestIntfI(Test.TestIntf):
-    def opByte(self, b1, current):
+    def opByte(self, b1, current: Ice.Current):
         return (b1, b1)
 
-    def opShort(self, s1, current):
+    def opShort(self, s1, current: Ice.Current):
         return (s1, s1)
 
-    def opInt(self, i1, current):
+    def opInt(self, i1, current: Ice.Current):
         return (i1, i1)
 
-    def opSimple(self, s1, current):
+    def opSimple(self, s1, current: Ice.Current):
         return (s1, s1)
 
-    def opByteSeq(self, b1, current):
+    def opByteSeq(self, b1, current: Ice.Current):
         return (b1, b1)
 
-    def opShortSeq(self, s1, current):
+    def opShortSeq(self, s1, current: Ice.Current):
         return (s1, s1)
 
-    def opIntSeq(self, i1, current):
+    def opIntSeq(self, i1, current: Ice.Current):
         return (i1, i1)
 
-    def opSimpleSeq(self, s1, current):
+    def opSimpleSeq(self, s1, current: Ice.Current):
         return (s1, s1)
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         with self.initialize(args=args) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")

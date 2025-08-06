@@ -13,5 +13,5 @@ import AllTests
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         AllTests.allTests()

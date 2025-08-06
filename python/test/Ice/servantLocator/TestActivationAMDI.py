@@ -3,9 +3,11 @@
 import TestAMDI
 from generated.test.Ice.servantLocator import Test
 
+import Ice
+
 
 class TestActivationAMDI(Test.TestActivation):
-    def activateServantLocator(self, activate, current):
+    def activateServantLocator(self, activate, current: Ice.Current):
         if activate:
             current.adapter.addServantLocator(TestAMDI.ServantLocatorI(""), "")
             current.adapter.addServantLocator(TestAMDI.ServantLocatorI("category"), "category")

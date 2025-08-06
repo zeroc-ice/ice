@@ -15,7 +15,7 @@ import Ice
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         async def runAsync():
             initData = Ice.InitializationData()
             initData.properties = self.createTestProperties(args)

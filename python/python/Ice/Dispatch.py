@@ -93,7 +93,7 @@ def run_coroutine(
 
     .. code-block:: python
 
-        async def op(self, current):
+        async def op(self, current: Ice.Current):
             await self.prox.ice_pingAsync()
     """
     try:

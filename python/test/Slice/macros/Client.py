@@ -20,7 +20,7 @@ def test(b):
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         sys.stdout.write("testing Slice predefined macros... ")
         sys.stdout.flush()
 

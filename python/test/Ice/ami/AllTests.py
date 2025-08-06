@@ -4,23 +4,20 @@ import random
 import sys
 import threading
 import time
+from typing import Any, Type, cast, override
 
 from generated.test.Ice.ami import Test
+from TestHelper import TestHelper, test
 
 import Ice
 import IcePy
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
 
 
 class PingReplyI(Test.PingReply):
     def __init__(self):
         self._received = False
 
-    def reply(self, current):
+    def reply(self, current: Ice.Current):
         self._received = True
 
     def checkReceived(self):
@@ -43,260 +40,38 @@ class CallbackBase:
             self._called = True
             self._cond.notify()
 
-    def exception(self, ex):
-        test(False)
-
-
-class ResponseCallback(CallbackBase):
-    def isA(self, r):
-        test(r)
-        self.called()
-
-    def ping(self):
-        self.called()
-
-    def id(self, id):
-        test(id == "::Test::TestIntf")
-        self.called()
-
-    def ids(self, ids):
-        test(len(ids) == 2)
-        self.called()
-
-    def connection(self, conn):
-        test(conn is not None)
-        test(type(conn) is IcePy.Connection)
-        self.called()
-
-    def op(self):
-        self.called()
-
-    def opWithResult(self, r):
-        test(r == 15)
-        self.called()
-
-    def opWithUE(self, ex):
-        try:
-            raise ex
-        except Test.TestIntfException:
-            self.called()
-        except Exception:
-            test(False)
-
-    def ex(self, ex):
-        pass
-
-
-class ResponseCallbackWC(CallbackBase):
-    def __init__(self, cookie):
-        CallbackBase.__init__(self)
-        self._cookie = cookie
-
-    def isA(self, r, cookie):
-        test(cookie == self._cookie)
-        test(r)
-        self.called()
-
-    def ping(self, cookie):
-        test(cookie == self._cookie)
-        self.called()
-
-    def id(self, id, cookie):
-        test(cookie == self._cookie)
-        test(id == "::Test::TestIntf")
-        self.called()
-
-    def ids(self, ids, cookie):
-        test(cookie == self._cookie)
-        test(len(ids) == 2)
-        self.called()
-
-    def connection(self, conn, cookie):
-        test(cookie == self._cookie)
-        test(conn is not None)
-        self.called()
-
-    def op(self, cookie):
-        test(cookie == self._cookie)
-        self.called()
-
-    def opWithResult(self, r, cookie):
-        test(cookie == self._cookie)
-        test(r == 15)
-        self.called()
-
-    def opWithUE(self, ex, cookie):
-        test(cookie == self._cookie)
-        try:
-            raise ex
-        except Test.TestIntfException:
-            self.called()
-        except Exception:
-            test(False)
-
-    def ex(self, ex, cookie):
-        pass
-
-
-class ExceptionCallback(CallbackBase):
-    def response(self, *args):
-        test(False)
-
-    def nullResponse(self, *args):
-        pass
-
-    def opWithUE(self, ex):
-        test(isinstance(ex, Test.TestIntfException))
-        self.called()
-
-    def ex(self, ex):
-        test(isinstance(ex, Ice.NoEndpointException))
-        self.called()
-
-    def noEx(self, ex):
-        test(False)
-
-
-class ExceptionCallbackWC(CallbackBase):
-    def __init__(self, cookie):
-        CallbackBase.__init__(self)
-        self._cookie = cookie
-
-    def response(self, *args):
-        test(False)
-
-    def nullResponse(self, *args):
-        pass
-
-    def opWithUE(self, ex, cookie):
-        test(cookie == self._cookie)
-        test(isinstance(ex, Test.TestIntfException))
-        self.called()
-
-    def ex(self, ex, cookie):
-        test(cookie == self._cookie)
-        test(isinstance(ex, Ice.NoEndpointException))
-        self.called()
-
-    def noEx(self, ex, cookie):
-        test(False)
-
-
-class SentCallback(CallbackBase):
-    def __init__(self):
-        CallbackBase.__init__(self)
-        self._thread = threading.current_thread()
-
-    def response(self, *args):
-        pass
-
-    def ex(self, ex):
-        pass
-
-    def sent(self, sentSynchronously):
-        test(
-            (sentSynchronously and self._thread == threading.current_thread())
-            or (not sentSynchronously and self._thread != threading.current_thread())
-        )
-        self.called()
-
-
-class SentCallbackWC(CallbackBase):
-    def __init__(self, cookie):
-        CallbackBase.__init__(self)
-        self._thread = threading.current_thread()
-        self._cookie = cookie
-
-    def response(self, *args):
-        pass
-
-    def ex(self, ex, cookie):
-        pass
-
-    def sent(self, sentSynchronously, cookie):
-        test(cookie == self._cookie)
-        test(
-            (sentSynchronously and self._thread == threading.current_thread())
-            or (not sentSynchronously and self._thread != threading.current_thread())
-        )
-        self.called()
-
-
-class FlushCallback(CallbackBase):
-    def __init__(self, cookie=None):
-        CallbackBase.__init__(self)
-        self._thread = threading.current_thread()
-        self._cookie = cookie
-
-    def exception(self, ex):
-        test(False)
-
-    def exceptionWC(self, ex, cookie):
-        test(False)
-
-    def sent(self, sentSynchronously):
-        test(
-            (sentSynchronously and self._thread == threading.current_thread())
-            or (not sentSynchronously and self._thread != threading.current_thread())
-        )
-        self.called()
-
-    def sentWC(self, sentSynchronously, cookie):
-        test(
-            (sentSynchronously and self._thread == threading.current_thread())
-            or (not sentSynchronously and self._thread != threading.current_thread())
-        )
-        test(cookie == self._cookie)
-        self.called()
-
-
-class FlushExCallback(CallbackBase):
-    def __init__(self, cookie=None):
-        CallbackBase.__init__(self)
-        self._cookie = cookie
-
-    def exception(self, ex):
-        self.called()
-
-    def exceptionWC(self, ex, cookie):
-        test(cookie == self._cookie)
-        self.called()
-
-    def sent(self, sentSynchronously):
-        test(False)
-
-    def sentWC(self, sentSynchronously, cookie):
+    def exception(self, ex: BaseException):
         test(False)
 
 
 class FutureDoneCallback(CallbackBase):
-    def isA(self, f):
+    def isA(self, f: Ice.Future[bool]):
         test(f.result())
         self.called()
 
-    def ping(self, f):
+    def ping(self, f: Ice.Future):
         self.called()
 
-    def id(self, f):
+    def id(self, f: Ice.Future[str]):
         test(f.result() == "::Test::TestIntf")
         self.called()
 
-    def ids(self, f):
+    def ids(self, f: Ice.Future[list[str]]):
         test(len(f.result()) == 2)
         self.called()
 
-    def connection(self, f):
-        test(f.result() is not None)
+    def connection(self, f: Ice.Future[Ice.Connection]):
+        assert isinstance(f.result(), Ice.Connection)
         self.called()
 
-    def op(self, f):
+    def op(self, f: Ice.Future[None]):
         self.called()
 
-    def opWithResult(self, f):
+    def opWithResult(self, f: Ice.Future[int]):
         test(f.result() == 15)
         self.called()
 
-    def opWithUE(self, f):
+    def opWithUE(self, f: Ice.Future[None]):
         try:
             f.result()
             test(False)
@@ -307,15 +82,15 @@ class FutureDoneCallback(CallbackBase):
 
 
 class FutureExceptionCallback(CallbackBase):
-    def opWithUE(self, f):
+    def opWithUE(self, f: Ice.Future):
         test(isinstance(f.exception(), Test.TestIntfException))
         self.called()
 
-    def ex(self, f):
+    def ex(self, f: Ice.Future):
         test(isinstance(f.exception(), Ice.NoEndpointException))
         self.called()
 
-    def noEx(self, f):
+    def noEx(self, f: Ice.Future):
         test(f.exception() is None)
 
 
@@ -324,37 +99,38 @@ class FutureSentCallback(CallbackBase):
         CallbackBase.__init__(self)
         self._thread = threading.current_thread()
 
-    def sent(self, f, sentSynchronously):
+    def sent(self, f: Ice.InvocationFuture, sentSynchronously: bool):
         self.called()
 
-    def sentAsync(self, f, sentSynchronously):
+    def sentAsync(self, f: Ice.InvocationFuture, sentSynchronously: bool):
         test(self._thread != threading.current_thread())
         self.called()
 
 
 class FutureFlushCallback(CallbackBase):
-    def __init__(self, cookie=None):
+    def __init__(self, cookie: Any = None):
         CallbackBase.__init__(self)
         self._thread = threading.current_thread()
         self._cookie = cookie
 
-    def sent(self, f, sentSynchronously):
+    def sent(self, f: Ice.InvocationFuture, sentSynchronously: bool):
         self.called()
 
-    def sentAsync(self, f, sentSynchronously):
+    def sentAsync(self, f: Ice.InvocationFuture, sentSynchronously: bool):
         test(self._thread != threading.current_thread())
         self.called()
 
 
 class FutureFlushExCallback(CallbackBase):
-    def __init__(self, cookie=None):
+    def __init__(self, cookie: Any = None):
         CallbackBase.__init__(self)
         self._cookie = cookie
 
-    def exception(self, f):
+    @override
+    def exception(self, ex: BaseException):
         self.called()
 
-    def sent(self, f, sentSynchronously):
+    def sent(self, f: Ice.InvocationFuture, sentSynchronously: bool):
         test(False)
 
 
@@ -363,60 +139,7 @@ UserException = 1
 OtherException = 2
 
 
-def throwEx(t):
-    if t == LocalException:
-        raise Ice.ObjectNotExistException()
-    elif t == UserException:
-        raise Test.TestIntfException()
-    elif t == OtherException:
-        raise RuntimeError()
-    else:
-        test(False)
-
-
-class Thrower(CallbackBase):
-    def __init__(self, t):
-        CallbackBase.__init__(self)
-        self._t = t
-
-    def op(self):
-        self.called()
-        throwEx(self._t)
-
-    def opWC(self, cookie):
-        self.called()
-        throwEx(self._t)
-
-    def noOp(self):
-        pass
-
-    def noOpWC(self, cookie):
-        pass
-
-    def ex(self, ex):
-        self.called()
-        throwEx(self._t)
-
-    def exWC(self, ex, cookie):
-        self.called()
-        throwEx(self._t)
-
-    def noEx(self, ex):
-        test(False)
-
-    def noExWC(self, ex, cookie):
-        test(False)
-
-    def sent(self, ss):
-        self.called()
-        throwEx(self._t)
-
-    def sentWC(self, ss, cookie):
-        self.called()
-        throwEx(self._t)
-
-
-def allTests(helper, communicator, collocated):
+def allTests(helper: TestHelper, communicator: Ice.Communicator, collocated: bool):
     p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint(num=0)}")
 
     if p.ice_getConnection():
@@ -429,9 +152,11 @@ def allTests(helper, communicator, collocated):
         #
         p = p.ice_connectionId("CloseGracefully")  # Start with a new connection.
         con = p.ice_getConnection()
+        assert con is not None
         cb = CallbackBase()
         con.setCloseCallback(lambda c: cb.called())
         f = p.startDispatchAsync()
+        assert isinstance(f, Ice.InvocationFuture)
         f.sent()  # Ensure the request was sent before we close the connection.
         closeConnectionFuture = con.close()
 
@@ -446,6 +171,7 @@ def allTests(helper, communicator, collocated):
         # will not be closed until all pending dispatched requests have completed.
         #
         f = p.sleepAsync(100)
+        assert isinstance(f, Ice.InvocationFuture)
         p.closeConnection()  # Close is delayed until sleep completes.
         try:
             f.result()
@@ -453,7 +179,9 @@ def allTests(helper, communicator, collocated):
             test(False)
 
         # Wait until the connection is gracefully closed.
-        p.ice_getCachedConnection().close().result()
+        con = p.ice_getCachedConnection()
+        assert con is not None
+        con.close().result()
         test(closeConnectionFuture.done())
 
         print("ok")
@@ -467,7 +195,9 @@ def allTests(helper, communicator, collocated):
         #
         p.ice_ping()
         con = p.ice_getConnection()
+        assert con is not None
         f = p.startDispatchAsync()
+        assert isinstance(f, Ice.InvocationFuture)
         f.sent()  # Ensure the request was sent before we close the connection.
         con.abort()
         try:
@@ -492,7 +222,7 @@ def allTests(helper, communicator, collocated):
         print("ok")
 
 
-def allTestsFuture(helper, communicator, collocated):
+def allTestsFuture(helper: TestHelper, communicator: Ice.Communicator, collocated: bool):
     p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint(num=0)}")
     testController = Test.TestIntfControllerPrx(communicator, f"testController:{helper.getTestEndpoint(num=1)}")
 
@@ -500,34 +230,35 @@ def allTestsFuture(helper, communicator, collocated):
     sys.stdout.flush()
     ctx = {}
 
-    test(p.ice_isAAsync("::Test::TestIntf").result())
-    test(p.ice_isAAsync("::Test::TestIntf", ctx).result())
+    test(cast(Ice.Future, p.ice_isAAsync("::Test::TestIntf")).result())
+    test(cast(Ice.Future, p.ice_isAAsync("::Test::TestIntf", ctx)).result())
 
-    p.ice_pingAsync().result()
-    p.ice_pingAsync(ctx).result()
+    test(cast(Ice.Future, p.ice_pingAsync()).result() == None)
+    test(cast(Ice.Future, p.ice_pingAsync(ctx)).result() == None)
 
-    test(p.ice_idAsync().result() == "::Test::TestIntf")
-    test(p.ice_idAsync(ctx).result() == "::Test::TestIntf")
+    test(cast(Ice.Future, p.ice_idAsync()).result() == "::Test::TestIntf")
+    test(cast(Ice.Future, p.ice_idAsync(ctx)).result() == "::Test::TestIntf")
 
-    test(len(p.ice_idsAsync().result()) == 2)
-    test(len(p.ice_idsAsync(ctx).result()) == 2)
+    test(len(cast(Ice.Future, p.ice_idsAsync()).result()) == 2)
+    test(len(cast(Ice.Future, p.ice_idsAsync(ctx)).result()) == 2)
 
     if not collocated:
-        test(type(p.ice_getConnectionAsync().result()) is IcePy.Connection)
+        con = cast(Ice.Future, p.ice_getConnectionAsync()).result()
+        assert type(con) is IcePy.Connection
 
-    p.opAsync().result()
-    p.opAsync(ctx).result()
+    cast(Ice.Future, p.opAsync()).result()
+    cast(Ice.Future, p.opAsync(ctx)).result()
 
-    test(p.opWithResultAsync().result() == 15)
-    test(p.opWithResultAsync(ctx).result() == 15)
+    test(cast(Ice.Future, p.opWithResultAsync()).result() == 15)
+    test(cast(Ice.Future, p.opWithResultAsync(ctx)).result() == 15)
 
     try:
-        p.opWithUEAsync().result()
+        cast(Ice.Future, p.opWithUEAsync()).result()
         test(False)
     except Test.TestIntfException:
         pass
     try:
-        p.opWithUEAsync(ctx).result()
+        cast(Ice.Future, p.opWithUEAsync(ctx)).result()
         test(False)
     except Test.TestIntfException:
         pass
@@ -540,43 +271,43 @@ def allTestsFuture(helper, communicator, collocated):
     ctx = {}
     cb = FutureDoneCallback()
 
-    p.ice_isAAsync(Test.TestIntf.ice_staticId()).add_done_callback(cb.isA)
+    cast(Ice.InvocationFuture, p.ice_isAAsync(Test.TestIntf.ice_staticId())).add_done_callback(cb.isA)
     cb.check()
-    p.ice_isAAsync(Test.TestIntf.ice_staticId(), ctx).add_done_callback(cb.isA)
-    cb.check()
-
-    p.ice_pingAsync().add_done_callback(cb.ping)
-    cb.check()
-    p.ice_pingAsync(ctx).add_done_callback(cb.ping)
+    cast(Ice.InvocationFuture, p.ice_isAAsync(Test.TestIntf.ice_staticId(), ctx)).add_done_callback(cb.isA)
     cb.check()
 
-    p.ice_idAsync().add_done_callback(cb.id)
+    cast(Ice.InvocationFuture, p.ice_pingAsync()).add_done_callback(cb.ping)
     cb.check()
-    p.ice_idAsync(ctx).add_done_callback(cb.id)
+    cast(Ice.InvocationFuture, p.ice_pingAsync(ctx)).add_done_callback(cb.ping)
     cb.check()
 
-    p.ice_idsAsync().add_done_callback(cb.ids)
+    cast(Ice.InvocationFuture, p.ice_idAsync()).add_done_callback(cb.id)
     cb.check()
-    p.ice_idsAsync(ctx).add_done_callback(cb.ids)
+    cast(Ice.InvocationFuture, p.ice_idAsync(ctx)).add_done_callback(cb.id)
+    cb.check()
+
+    cast(Ice.InvocationFuture, p.ice_idsAsync()).add_done_callback(cb.ids)
+    cb.check()
+    cast(Ice.InvocationFuture, p.ice_idsAsync(ctx)).add_done_callback(cb.ids)
     cb.check()
 
     if not collocated:
-        p.ice_getConnectionAsync().add_done_callback(cb.connection)
+        cast(Ice.InvocationFuture, p.ice_getConnectionAsync()).add_done_callback(cb.connection)
         cb.check()
 
-    p.opAsync().add_done_callback(cb.op)
+    cast(Ice.InvocationFuture, p.opAsync()).add_done_callback(cb.op)
     cb.check()
-    p.opAsync(ctx).add_done_callback(cb.op)
-    cb.check()
-
-    p.opWithResultAsync().add_done_callback(cb.opWithResult)
-    cb.check()
-    p.opWithResultAsync(ctx).add_done_callback(cb.opWithResult)
+    cast(Ice.InvocationFuture, p.opAsync(ctx)).add_done_callback(cb.op)
     cb.check()
 
-    p.opWithUEAsync().add_done_callback(cb.opWithUE)
+    cast(Ice.InvocationFuture, p.opWithResultAsync()).add_done_callback(cb.opWithResult)
     cb.check()
-    p.opWithUEAsync(ctx).add_done_callback(cb.opWithUE)
+    cast(Ice.InvocationFuture, p.opWithResultAsync(ctx)).add_done_callback(cb.opWithResult)
+    cb.check()
+
+    cast(Ice.InvocationFuture, p.opWithUEAsync()).add_done_callback(cb.opWithUE)
+    cb.check()
+    cast(Ice.InvocationFuture, p.opWithUEAsync(ctx)).add_done_callback(cb.opWithUE)
     cb.check()
 
     print("ok")
@@ -591,7 +322,9 @@ def allTestsFuture(helper, communicator, collocated):
         context = {"ONE": ""}
         p.pingBiDir(reply, context)
 
-        p.ice_getConnection().setAdapter(adapter)
+        con = p.ice_getConnection()
+        assert con is not None
+        con.setAdapter(adapter)
         p.pingBiDir(reply)
         test(replyI.checkReceived())
         adapter.destroy()
@@ -604,13 +337,13 @@ def allTestsFuture(helper, communicator, collocated):
     indirect = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"))
 
     try:
-        indirect.opAsync().result()
+        cast(Ice.InvocationFuture, indirect.opAsync()).result()
         test(False)
     except Ice.NoEndpointException:
         pass
 
     try:
-        p.ice_oneway().opWithResultAsync().result()
+        cast(Ice.InvocationFuture, p.ice_oneway().opWithResultAsync()).result()
         test(False)
     except Ice.TwowayOnlyException:
         pass
@@ -624,6 +357,7 @@ def allTestsFuture(helper, communicator, collocated):
         ic = Ice.initialize(initData=initData)
         obj = ic.stringToProxy(p.ice_toString())
         p2 = Test.TestIntfPrx.checkedCast(obj)
+        assert p2 is not None
         ic.destroy()
 
         try:
@@ -640,23 +374,23 @@ def allTestsFuture(helper, communicator, collocated):
     i = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"))
     cb = FutureExceptionCallback()
 
-    i.ice_isAAsync(Test.TestIntf.ice_staticId()).add_done_callback(cb.ex)
+    cast(Ice.InvocationFuture, i.ice_isAAsync(Test.TestIntf.ice_staticId())).add_done_callback(cb.ex)
     cb.check()
 
-    i.ice_pingAsync().add_done_callback(cb.ex)
+    cast(Ice.InvocationFuture, i.ice_pingAsync()).add_done_callback(cb.ex)
     cb.check()
 
-    i.ice_idAsync().add_done_callback(cb.ex)
+    cast(Ice.InvocationFuture, i.ice_idAsync()).add_done_callback(cb.ex)
     cb.check()
 
-    i.ice_idsAsync().add_done_callback(cb.ex)
+    cast(Ice.InvocationFuture, i.ice_idsAsync()).add_done_callback(cb.ex)
     cb.check()
 
     if not collocated:
-        i.ice_getConnectionAsync().add_done_callback(cb.ex)
+        cast(Ice.InvocationFuture, i.ice_getConnectionAsync()).add_done_callback(cb.ex)
         cb.check()
 
-    i.opAsync().add_done_callback(cb.ex)
+    cast(Ice.InvocationFuture, i.opAsync()).add_done_callback(cb.ex)
     cb.check()
 
     print("ok")
@@ -667,11 +401,11 @@ def allTestsFuture(helper, communicator, collocated):
     cb = FutureExceptionCallback()
 
     # Ensures no exception is set when response is received.
-    p.ice_isAAsync(Test.TestIntf.ice_staticId()).add_done_callback(cb.noEx)
-    p.opAsync().add_done_callback(cb.noEx)
+    cast(Ice.InvocationFuture, p.ice_isAAsync(Test.TestIntf.ice_staticId())).add_done_callback(cb.noEx)
+    cast(Ice.InvocationFuture, p.opAsync()).add_done_callback(cb.noEx)
 
     # If response is a user exception, it should be received.
-    p.opWithUEAsync().add_done_callback(cb.opWithUE)
+    cast(Ice.InvocationFuture, p.opWithUEAsync()).add_done_callback(cb.opWithUE)
     cb.check()
 
     print("ok")
@@ -681,29 +415,30 @@ def allTestsFuture(helper, communicator, collocated):
 
     cb = FutureSentCallback()
 
-    p.ice_isAAsync("").add_sent_callback(cb.sent)
+    cast(Ice.InvocationFuture, p.ice_isAAsync("")).add_sent_callback(cb.sent)
     cb.check()
 
-    p.ice_pingAsync().add_sent_callback(cb.sent)
+    cast(Ice.InvocationFuture, p.ice_pingAsync()).add_sent_callback(cb.sent)
     cb.check()
 
-    p.ice_idAsync().add_sent_callback(cb.sent)
+    cast(Ice.InvocationFuture, p.ice_idAsync()).add_sent_callback(cb.sent)
     cb.check()
 
-    p.ice_idsAsync().add_sent_callback(cb.sent)
+    cast(Ice.InvocationFuture, p.ice_idsAsync()).add_sent_callback(cb.sent)
     cb.check()
 
-    p.opAsync().add_sent_callback(cb.sent)
+    cast(Ice.InvocationFuture, p.opAsync()).add_sent_callback(cb.sent)
     cb.check()
 
     cbs = []
-    b = [random.randint(0, 255) for x in range(0, 1024)]
+    b = [random.randint(0, 255) for _ in range(0, 1024)]
     seq = bytes(b)
     testController.holdAdapter()
     try:
         cb = FutureSentCallback()
         while True:
             f = p.opWithPayloadAsync(seq)
+            assert isinstance(f, Ice.InvocationFuture)
             f.add_sent_callback(cb.sent)
             cbs.append(cb)
             if not f.is_sent_synchronously():
@@ -727,6 +462,7 @@ def allTestsFuture(helper, communicator, collocated):
     b1.opBatch()
     cb = FutureFlushCallback()
     f = b1.ice_flushBatchRequestsAsync()
+    assert isinstance(f, Ice.InvocationFuture)
     f.add_sent_callback(cb.sent)
     cb.check()
     test(f.is_sent())
@@ -738,9 +474,12 @@ def allTestsFuture(helper, communicator, collocated):
         b1 = p.ice_batchOneway()
         b1.opBatch()
         # Wait until the connection is gracefully closed.
-        b1.ice_getConnection().close().result()
+        con = b1.ice_getConnection()
+        assert con is not None
+        con.close().result()
         cb = FutureFlushCallback()
         f = b1.ice_flushBatchRequestsAsync()
+        assert isinstance(f, Ice.InvocationFuture)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result()  # Wait until finished.
@@ -755,11 +494,14 @@ def allTestsFuture(helper, communicator, collocated):
         sys.stdout.flush()
 
         test(p.opBatchCount() == 0)
-        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
+        b1 = Test.TestIntfPrx.uncheckedCast(
+            cast(Ice.Connection, p.ice_getConnection()).createProxy(p.ice_getIdentity()).ice_batchOneway()
+        )
         b1.opBatch()
         b1.opBatch()
         cb = FutureFlushCallback()
-        f = b1.ice_getConnection().flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+        f = cast(Ice.Connection, b1.ice_getConnection()).flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+        assert isinstance(f, Ice.InvocationFuture)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result()  # Wait until finished.
@@ -768,12 +510,17 @@ def allTestsFuture(helper, communicator, collocated):
         test(p.waitForBatch(2))
 
         test(p.opBatchCount() == 0)
-        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
+        b1 = Test.TestIntfPrx.uncheckedCast(
+            cast(Ice.Connection, p.ice_getConnection()).createProxy(p.ice_getIdentity()).ice_batchOneway()
+        )
         b1.opBatch()
         # Wait until the connection is gracefully closed.
-        b1.ice_getConnection().close().result()
+        con = b1.ice_getConnection()
+        assert con is not None
+        con.close().result()
         cb = FutureFlushExCallback()
-        f = b1.ice_getConnection().flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+        f = con.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+        assert isinstance(f, Ice.InvocationFuture)
         f.add_done_callback(cb.exception)
         f.add_sent_callback(cb.sent)
         cb.check()
@@ -790,11 +537,14 @@ def allTestsFuture(helper, communicator, collocated):
         # 1 connection.
         #
         test(p.opBatchCount() == 0)
-        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
+        con = p.ice_getConnection()
+        assert con is not None
+        b1 = Test.TestIntfPrx.uncheckedCast(con.createProxy(p.ice_getIdentity()).ice_batchOneway())
         b1.opBatch()
         b1.opBatch()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+        assert isinstance(f, Ice.InvocationFuture)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result()  # Wait until finished.
@@ -806,12 +556,17 @@ def allTestsFuture(helper, communicator, collocated):
         # 1 connection.
         #
         test(p.opBatchCount() == 0)
-        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
+        con = p.ice_getConnection()
+        assert con is not None
+        b1 = Test.TestIntfPrx.uncheckedCast(con.createProxy(p.ice_getIdentity()).ice_batchOneway())
         b1.opBatch()
         # Wait until the connection is gracefully closed.
-        b1.ice_getConnection().close().result()
+        con = b1.ice_getConnection()
+        assert con is not None
+        con.close().result()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+        assert isinstance(f, Ice.InvocationFuture)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result()  # Wait until finished.
@@ -823,9 +578,13 @@ def allTestsFuture(helper, communicator, collocated):
         # 2 connections.
         #
         test(p.opBatchCount() == 0)
-        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
+        b1 = Test.TestIntfPrx.uncheckedCast(
+            cast(Ice.Connection, p.ice_getConnection()).createProxy(p.ice_getIdentity()).ice_batchOneway()
+        )
         b2 = Test.TestIntfPrx.uncheckedCast(
-            p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway()
+            cast(Ice.Connection, p.ice_connectionId("2").ice_getConnection())
+            .createProxy(p.ice_getIdentity())
+            .ice_batchOneway()
         )
         b2.ice_getConnection()  # Ensure connection is established.
         b1.opBatch()
@@ -834,6 +593,7 @@ def allTestsFuture(helper, communicator, collocated):
         b2.opBatch()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+        assert isinstance(f, Ice.InvocationFuture)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result()  # Wait until finished.
@@ -848,17 +608,22 @@ def allTestsFuture(helper, communicator, collocated):
         # Exceptions should not be reported.
         #
         test(p.opBatchCount() == 0)
-        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
+        b1 = Test.TestIntfPrx.uncheckedCast(
+            cast(Ice.Connection, p.ice_getConnection()).createProxy(p.ice_getIdentity()).ice_batchOneway()
+        )
         b2 = Test.TestIntfPrx.uncheckedCast(
-            p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway()
+            cast(Ice.Connection, p.ice_connectionId("2").ice_getConnection())
+            .createProxy(p.ice_getIdentity())
+            .ice_batchOneway()
         )
         b2.ice_getConnection()  # Ensure connection is established.
         b1.opBatch()
         b2.opBatch()
         # Wait until the connection is gracefully closed.
-        b1.ice_getConnection().close().result()
+        cast(Ice.Connection, b1.ice_getConnection()).close().result()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+        assert isinstance(f, Ice.InvocationFuture)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result()  # Wait until finished.
@@ -872,18 +637,23 @@ def allTestsFuture(helper, communicator, collocated):
         # The sent callback should be invoked even if all connections fail.
         #
         test(p.opBatchCount() == 0)
-        b1 = Test.TestIntfPrx.uncheckedCast(p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway())
+        b1 = Test.TestIntfPrx.uncheckedCast(
+            cast(Ice.Connection, p.ice_getConnection()).createProxy(p.ice_getIdentity()).ice_batchOneway()
+        )
         b2 = Test.TestIntfPrx.uncheckedCast(
-            p.ice_connectionId("2").ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway()
+            cast(Ice.Connection, p.ice_connectionId("2").ice_getConnection())
+            .createProxy(p.ice_getIdentity())
+            .ice_batchOneway()
         )
         b2.ice_getConnection()  # Ensure connection is established.
         b1.opBatch()
         b2.opBatch()
         # Wait until the connections are gracefully closed.
-        b1.ice_getConnection().close().result()
-        b2.ice_getConnection().close().result()
+        cast(Ice.Connection, b1.ice_getConnection()).close().result()
+        cast(Ice.Connection, b2.ice_getConnection()).close().result()
         cb = FutureFlushCallback()
         f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+        assert isinstance(f, Ice.InvocationFuture)
         f.add_sent_callback(cb.sent)
         cb.check()
         f.result()  # Wait until finished.
@@ -898,6 +668,7 @@ def allTestsFuture(helper, communicator, collocated):
 
     indirect = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"))
     f = indirect.opAsync()
+    assert isinstance(f, Ice.InvocationFuture)
     try:
         f.result()
         test(False)
@@ -909,10 +680,12 @@ def allTestsFuture(helper, communicator, collocated):
     f2 = None
     try:
         f1 = p.opAsync()
-        b = [random.randint(0, 255) for x in range(0, 1024)]
+        assert isinstance(f1, Ice.InvocationFuture)
+        b = [random.randint(0, 255) for _ in range(0, 1024)]
         seq = bytes(b)
         while True:
             f2 = p.opWithPayloadAsync(seq)
+            assert isinstance(f2, Ice.InvocationFuture)
             if not f2.is_sent_synchronously():
                 break
 
@@ -947,6 +720,7 @@ def allTestsFuture(helper, communicator, collocated):
     # Twoway
     #
     f = p.ice_pingAsync()
+    assert isinstance(f, Ice.InvocationFuture)
     f.result()
 
     #
@@ -961,6 +735,7 @@ def allTestsFuture(helper, communicator, collocated):
     p2 = p.ice_batchOneway()
     p2.ice_ping()
     f = p2.ice_flushBatchRequestsAsync()
+    assert isinstance(f, Ice.InvocationFuture)
     f.result()
 
     if p.ice_getConnection():
@@ -968,9 +743,11 @@ def allTestsFuture(helper, communicator, collocated):
         # Batch request via connection
         #
         con = p.ice_getConnection()
+        assert con is not None
         p2 = p.ice_batchOneway()
         p2.ice_ping()
         f = con.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+        assert isinstance(f, Ice.InvocationFuture)
         f.result()
 
     #
@@ -979,24 +756,30 @@ def allTestsFuture(helper, communicator, collocated):
     p2 = p.ice_batchOneway()
     p2.ice_ping()
     f = communicator.flushBatchRequestsAsync(Ice.CompressBatch.BasedOnProxy)
+    assert isinstance(f, Ice.InvocationFuture)
     f.result()
 
     if p.ice_getConnection():
         f1 = None
         f2 = None
 
-        b = [random.randint(0, 255) for x in range(0, 10024)]
+        b = [random.randint(0, 255) for _ in range(0, 10024)]
         seq = bytes(b)
 
         testController.holdAdapter()
 
-        for x in range(0, 200):  # 2MB
+        for _ in range(0, 200):  # 2MB
             f = p.opWithPayloadAsync(seq)
 
+        assert isinstance(f, Ice.InvocationFuture)
         test(not f.is_sent())
 
         f1 = p.ice_pingAsync()
         f2 = p.ice_idAsync()
+
+        assert isinstance(f1, Ice.InvocationFuture)
+        assert isinstance(f2, Ice.InvocationFuture)
+
         f1.cancel()
         f2.cancel()
         try:
@@ -1020,6 +803,10 @@ def allTestsFuture(helper, communicator, collocated):
 
         f1 = p.opAsync()
         f2 = p.ice_idAsync()
+
+        assert isinstance(f1, Ice.InvocationFuture)
+        assert isinstance(f2, Ice.InvocationFuture)
+
         f1.sent()
         f2.sent()
         f1.cancel()

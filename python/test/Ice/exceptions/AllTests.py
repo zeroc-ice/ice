@@ -19,7 +19,7 @@ class EmptyI(Test.Empty):
 
 
 class ServantLocatorI(Ice.ServantLocator):
-    def locate(self, current):
+    def locate(self, current: Ice.Current):
         return None
 
     def finished(self, current, servant, cookie):

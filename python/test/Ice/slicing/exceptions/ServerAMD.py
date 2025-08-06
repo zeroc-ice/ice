@@ -21,17 +21,17 @@ def test(b):
 
 
 class TestI(Test.TestIntf):
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
-    def baseAsBase(self, current):
+    def baseAsBase(self, current: Ice.Current):
         b = Test.Base()
         b.b = "Base.b"
         f = Ice.Future()
         f.set_exception(b)
         return f
 
-    def unknownDerivedAsBase(self, current):
+    def unknownDerivedAsBase(self, current: Ice.Current):
         d = ServerPrivateTest.UnknownDerived()
         d.b = "UnknownDerived.b"
         d.ud = "UnknownDerived.ud"
@@ -39,7 +39,7 @@ class TestI(Test.TestIntf):
         f.set_exception(d)
         return f
 
-    def knownDerivedAsBase(self, current):
+    def knownDerivedAsBase(self, current: Ice.Current):
         d = Test.KnownDerived()
         d.b = "KnownDerived.b"
         d.kd = "KnownDerived.kd"
@@ -47,7 +47,7 @@ class TestI(Test.TestIntf):
         f.set_exception(d)
         return f
 
-    def knownDerivedAsKnownDerived(self, current):
+    def knownDerivedAsKnownDerived(self, current: Ice.Current):
         d = Test.KnownDerived()
         d.b = "KnownDerived.b"
         d.kd = "KnownDerived.kd"
@@ -55,7 +55,7 @@ class TestI(Test.TestIntf):
         f.set_exception(d)
         return f
 
-    def unknownIntermediateAsBase(self, current):
+    def unknownIntermediateAsBase(self, current: Ice.Current):
         ui = ServerPrivateTest.UnknownIntermediate()
         ui.b = "UnknownIntermediate.b"
         ui.ui = "UnknownIntermediate.ui"
@@ -63,7 +63,7 @@ class TestI(Test.TestIntf):
         f.set_exception(ui)
         return f
 
-    def knownIntermediateAsBase(self, current):
+    def knownIntermediateAsBase(self, current: Ice.Current):
         ki = Test.KnownIntermediate()
         ki.b = "KnownIntermediate.b"
         ki.ki = "KnownIntermediate.ki"
@@ -71,7 +71,7 @@ class TestI(Test.TestIntf):
         f.set_exception(ki)
         return f
 
-    def knownMostDerivedAsBase(self, current):
+    def knownMostDerivedAsBase(self, current: Ice.Current):
         kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
@@ -80,7 +80,7 @@ class TestI(Test.TestIntf):
         f.set_exception(kmd)
         return f
 
-    def knownIntermediateAsKnownIntermediate(self, current):
+    def knownIntermediateAsKnownIntermediate(self, current: Ice.Current):
         ki = Test.KnownIntermediate()
         ki.b = "KnownIntermediate.b"
         ki.ki = "KnownIntermediate.ki"
@@ -88,7 +88,7 @@ class TestI(Test.TestIntf):
         f.set_exception(ki)
         return f
 
-    def knownMostDerivedAsKnownIntermediate(self, current):
+    def knownMostDerivedAsKnownIntermediate(self, current: Ice.Current):
         kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
@@ -97,7 +97,7 @@ class TestI(Test.TestIntf):
         f.set_exception(kmd)
         return f
 
-    def knownMostDerivedAsKnownMostDerived(self, current):
+    def knownMostDerivedAsKnownMostDerived(self, current: Ice.Current):
         kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
@@ -106,7 +106,7 @@ class TestI(Test.TestIntf):
         f.set_exception(kmd)
         return f
 
-    def unknownMostDerived1AsBase(self, current):
+    def unknownMostDerived1AsBase(self, current: Ice.Current):
         umd1 = ServerPrivateTest.UnknownMostDerived1()
         umd1.b = "UnknownMostDerived1.b"
         umd1.ki = "UnknownMostDerived1.ki"
@@ -115,7 +115,7 @@ class TestI(Test.TestIntf):
         f.set_exception(umd1)
         return f
 
-    def unknownMostDerived1AsKnownIntermediate(self, current):
+    def unknownMostDerived1AsKnownIntermediate(self, current: Ice.Current):
         umd1 = ServerPrivateTest.UnknownMostDerived1()
         umd1.b = "UnknownMostDerived1.b"
         umd1.ki = "UnknownMostDerived1.ki"
@@ -124,7 +124,7 @@ class TestI(Test.TestIntf):
         f.set_exception(umd1)
         return f
 
-    def unknownMostDerived2AsBase(self, current):
+    def unknownMostDerived2AsBase(self, current: Ice.Current):
         umd2 = ServerPrivateTest.UnknownMostDerived2()
         umd2.b = "UnknownMostDerived2.b"
         umd2.ui = "UnknownMostDerived2.ui"
@@ -135,7 +135,7 @@ class TestI(Test.TestIntf):
 
 
 class ServerAMD(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "0")
         with self.initialize(properties=properties) as communicator:

@@ -15,7 +15,7 @@ import Ice
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         with self.initialize(args=args) as communicator:
             communicator.getProperties().setProperty(
                 "TestAdapter.Endpoints", "{0} -t 10000".format(self.getTestEndpoint())

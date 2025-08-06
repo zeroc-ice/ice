@@ -11,31 +11,31 @@ def test(b):
 
 
 class TestI(Test.TestIntf):
-    def requestFailedException(self, current):
+    def requestFailedException(self, current: Ice.Current):
         pass
 
-    def unknownUserException(self, current):
+    def unknownUserException(self, current: Ice.Current):
         pass
 
-    def unknownLocalException(self, current):
+    def unknownLocalException(self, current: Ice.Current):
         pass
 
-    def unknownException(self, current):
+    def unknownException(self, current: Ice.Current):
         pass
 
-    def localException(self, current):
+    def localException(self, current: Ice.Current):
         pass
 
-    def userException(self, current):
+    def userException(self, current: Ice.Current):
         pass
 
-    def pythonException(self, current):
+    def pythonException(self, current: Ice.Current):
         pass
 
-    def unknownExceptionWithServantException(self, current):
+    def unknownExceptionWithServantException(self, current: Ice.Current):
         raise Ice.ObjectNotExistException()
 
-    def impossibleException(self, shouldThrow, current):
+    def impossibleException(self, shouldThrow, current: Ice.Current):
         if shouldThrow:
             raise Test.TestImpossibleException()
         #
@@ -44,7 +44,7 @@ class TestI(Test.TestIntf):
         #
         return "Hello"
 
-    def intfUserException(self, shouldThrow, current):
+    def intfUserException(self, shouldThrow, current: Ice.Current):
         if shouldThrow:
             raise Test.TestIntfUserException()
         #
@@ -53,19 +53,19 @@ class TestI(Test.TestIntf):
         #
         return "Hello"
 
-    def asyncResponse(self, current):
+    def asyncResponse(self, current: Ice.Current):
         #
         # Only relevant for AMD.
         #
         pass
 
-    def asyncException(self, current):
+    def asyncException(self, current: Ice.Current):
         #
         # Only relevant for AMD.
         #
         pass
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.deactivate()
 
 
@@ -83,7 +83,7 @@ class ServantLocatorI(Ice.ServantLocator):
     def __del__(self):
         test(self._deactivated)
 
-    def locate(self, current):
+    def locate(self, current: Ice.Current):
         test(not self._deactivated)
 
         test(current.id.category == self._category or self._category == "")
@@ -132,7 +132,7 @@ class ServantLocatorI(Ice.ServantLocator):
 
         self._deactivated = True
 
-    def exception(self, current):
+    def exception(self, current: Ice.Current):
         if current.operation == "ice_ids":
             raise Test.TestIntfUserException()
         elif current.operation == "requestFailedException":

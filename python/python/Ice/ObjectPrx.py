@@ -123,8 +123,7 @@ async def checkedCastAsync(
     return IcePy.ObjectPrx.newProxy(type, proxy) if b else None
 
 
-# TODO: fix type hinting for IcePy.ObjectPrx
-class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
+class ObjectPrx(IcePy.ObjectPrx):
     """
     The base class for all proxies.
     """
@@ -951,15 +950,15 @@ class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
         """
         return super().ice_isFixed()
 
-    def ice_getConnection(self) -> IcePy.Connection:
+    def ice_getConnection(self) -> IcePy.Connection | None:
         """
         Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         it first attempts to create a connection.
 
         Returns
         -------
-        Connection
-            The Connection for this proxy.
+        Connection | None
+            The Connection for this proxy, or null when the target object is collocated.
         """
         return super().ice_getConnection()
 

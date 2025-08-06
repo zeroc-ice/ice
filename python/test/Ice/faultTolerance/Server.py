@@ -16,22 +16,22 @@ import Ice
 
 
 class TestI(Test.TestIntf):
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
-    def abort(self, current):
+    def abort(self, current: Ice.Current):
         print("aborting...")
         os._exit(0)
 
-    def idempotentAbort(self, current):
+    def idempotentAbort(self, current: Ice.Current):
         os._exit(0)
 
-    def pid(self, current):
+    def pid(self, current: Ice.Current):
         return os.getpid()
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         port = 0
         for arg in args:

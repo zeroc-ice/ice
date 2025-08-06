@@ -15,23 +15,23 @@ import Ice
 
 
 class ThrowerI(Test.Thrower):
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
-    def supportsUndeclaredExceptions(self, current):
+    def supportsUndeclaredExceptions(self, current: Ice.Current):
         return True
 
-    def supportsAssertException(self, current):
+    def supportsAssertException(self, current: Ice.Current):
         return False
 
-    def throwAasA(self, a, current):
+    def throwAasA(self, a, current: Ice.Current):
         ex = Test.A()
         ex.aMem = a
         f = Ice.Future()
         f.set_exception(ex)
         return f
 
-    def throwAorDasAorD(self, a, current):
+    def throwAorDasAorD(self, a, current: Ice.Current):
         f = Ice.Future()
         if a > 0:
             ex = Test.A()
@@ -43,13 +43,13 @@ class ThrowerI(Test.Thrower):
             f.set_exception(ex)
         return f
 
-    def throwBasA(self, a, b, current):
+    def throwBasA(self, a, b, current: Ice.Current):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
 
-    def throwCasA(self, a, b, c, current):
+    def throwCasA(self, a, b, c, current: Ice.Current):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
@@ -58,13 +58,13 @@ class ThrowerI(Test.Thrower):
         f.set_exception(ex)
         return f
 
-    def throwBasB(self, a, b, current):
+    def throwBasB(self, a, b, current: Ice.Current):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
 
-    def throwCasB(self, a, b, c, current):
+    def throwCasB(self, a, b, c, current: Ice.Current):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
@@ -73,7 +73,7 @@ class ThrowerI(Test.Thrower):
         f.set_exception(ex)
         return f
 
-    def throwCasC(self, a, b, c, current):
+    def throwCasC(self, a, b, c, current: Ice.Current):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
@@ -82,26 +82,26 @@ class ThrowerI(Test.Thrower):
         f.set_exception(ex)
         return f
 
-    def throwModA(self, a, a2, current):
+    def throwModA(self, a, a2, current: Ice.Current):
         ex = Test.Mod.A()
         ex.aMem = a
         ex.a2Mem = a2
         raise ex
 
-    def throwUndeclaredA(self, a, current):
+    def throwUndeclaredA(self, a, current: Ice.Current):
         ex = Test.A()
         ex.aMem = a
         f = Ice.Future()
         f.set_exception(ex)
         return f
 
-    def throwUndeclaredB(self, a, b, current):
+    def throwUndeclaredB(self, a, b, current: Ice.Current):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
 
-    def throwUndeclaredC(self, a, b, c, current):
+    def throwUndeclaredC(self, a, b, c, current: Ice.Current):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
@@ -110,50 +110,50 @@ class ThrowerI(Test.Thrower):
         f.set_exception(ex)
         return f
 
-    def throwLocalException(self, current):
+    def throwLocalException(self, current: Ice.Current):
         f = Ice.Future()
         f.set_exception(Ice.TimeoutException())
         return f
 
-    def throwNonIceException(self, current):
+    def throwNonIceException(self, current: Ice.Current):
         f = Ice.Future()
         f.set_exception(RuntimeError("12345"))
         return f
 
-    def throwAssertException(self, current):
+    def throwAssertException(self, current: Ice.Current):
         raise RuntimeError("operation `throwAssertException' not supported")
 
-    def throwMemoryLimitException(self, seq, current):
+    def throwMemoryLimitException(self, seq, current: Ice.Current):
         return Ice.Future.completed(bytearray(20 * 1024))
 
-    def throwLocalExceptionIdempotent(self, current):
+    def throwLocalExceptionIdempotent(self, current: Ice.Current):
         f = Ice.Future()
         f.set_exception(Ice.TimeoutException())
         return f
 
-    def throwDispatchException(self, replyStatus, current):
+    def throwDispatchException(self, replyStatus, current: Ice.Current):
         f = Ice.Future()
         f.set_exception(Ice.DispatchException(replyStatus))
         return f
 
-    def throwAfterResponse(self, current):
+    def throwAfterResponse(self, current: Ice.Current):
         # Cannot be implemented with Futures
         return None
 
-    def throwAfterException(self, current):
+    def throwAfterException(self, current: Ice.Current):
         # Cannot be implemented with Futures
         f = Ice.Future()
         f.set_exception(Test.A())
         return f
 
-    def throwMarshalException(self, current):
+    def throwMarshalException(self, current: Ice.Current):
         if "return" in current.ctx:
             return Ice.Future.completed(("", 0))
         if "param" in current.ctx:
             return Ice.Future.completed((0, ""))
         return Ice.Future.completed(None)
 
-    def throwRequestFailedException(self, typeName, id, facet, operation, current):
+    def throwRequestFailedException(self, typeName, id, facet, operation, current: Ice.Current):
         if typeName == "Ice.ObjectNotExistException":
             raise Ice.ObjectNotExistException(id, facet, operation)
         elif typeName == "Ice.FacetNotExistException":
@@ -163,7 +163,7 @@ class ThrowerI(Test.Thrower):
 
 
 class ServerAMD(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "0")
         properties.setProperty("Ice.Warn.Connections", "0")

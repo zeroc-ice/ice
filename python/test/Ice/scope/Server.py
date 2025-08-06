@@ -18,108 +18,108 @@ import Ice
 
 
 class MyInterface1(Test.MyInterface):
-    def opMyStruct(self, s1, current):
+    def opMyStruct(self, s1, current: Ice.Current):
         return (s1, s1)
 
-    def opMyStructSeq(self, sseq1, current):
+    def opMyStructSeq(self, sseq1, current: Ice.Current):
         return (sseq1, sseq1)
 
-    def opMyStructMap(self, smap1, current):
+    def opMyStructMap(self, smap1, current: Ice.Current):
         return (smap1, smap1)
 
-    def opMyClass(self, c1, current):
+    def opMyClass(self, c1, current: Ice.Current):
         return (c1, c1)
 
-    def opMyClassSeq(self, cseq1, current):
+    def opMyClassSeq(self, cseq1, current: Ice.Current):
         return (cseq1, cseq1)
 
-    def opMyClassMap(self, cmap1, current):
+    def opMyClassMap(self, cmap1, current: Ice.Current):
         return (cmap1, cmap1)
 
-    def opMyEnum(self, e1, current):
+    def opMyEnum(self, e1, current: Ice.Current):
         return e1
 
-    def opMyOtherStruct(self, s1, current):
+    def opMyOtherStruct(self, s1, current: Ice.Current):
         return s1
 
-    def opMyOtherClass(self, c1, current):
+    def opMyOtherClass(self, c1, current: Ice.Current):
         return c1
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
 
 class MyInterface2(Test_Inner_Inner2_MyInterface):
-    def opMyStruct(self, s1, current):
+    def opMyStruct(self, s1, current: Ice.Current):
         return (s1, s1)
 
-    def opMyStructSeq(self, sseq1, current):
+    def opMyStructSeq(self, sseq1, current: Ice.Current):
         return (sseq1, sseq1)
 
-    def opMyStructMap(self, smap1, current):
+    def opMyStructMap(self, smap1, current: Ice.Current):
         return (smap1, smap1)
 
-    def opMyClass(self, c1, current):
+    def opMyClass(self, c1, current: Ice.Current):
         return (c1, c1)
 
-    def opMyClassSeq(self, cseq1, current):
+    def opMyClassSeq(self, cseq1, current: Ice.Current):
         return (cseq1, cseq1)
 
-    def opMyClassMap(self, cmap1, current):
+    def opMyClassMap(self, cmap1, current: Ice.Current):
         return (cmap1, cmap1)
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
 
 class MyInterface3(Test_Inner_MyInterface):
-    def opMyStruct(self, s1, current):
+    def opMyStruct(self, s1, current: Ice.Current):
         return (s1, s1)
 
-    def opMyStructSeq(self, sseq1, current):
+    def opMyStructSeq(self, sseq1, current: Ice.Current):
         return (sseq1, sseq1)
 
-    def opMyStructMap(self, smap1, current):
+    def opMyStructMap(self, smap1, current: Ice.Current):
         return (smap1, smap1)
 
-    def opMyClass(self, c1, current):
+    def opMyClass(self, c1, current: Ice.Current):
         return (c1, c1)
 
-    def opMyClassSeq(self, cseq1, current):
+    def opMyClassSeq(self, cseq1, current: Ice.Current):
         return (cseq1, cseq1)
 
-    def opMyClassMap(self, cmap1, current):
+    def opMyClassMap(self, cmap1, current: Ice.Current):
         return (cmap1, cmap1)
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
 
 class MyInterface4(Inner_Test_Inner2_MyInterface):
-    def opMyStruct(self, s1, current):
+    def opMyStruct(self, s1, current: Ice.Current):
         return (s1, s1)
 
-    def opMyStructSeq(self, sseq1, current):
+    def opMyStructSeq(self, sseq1, current: Ice.Current):
         return (sseq1, sseq1)
 
-    def opMyStructMap(self, smap1, current):
+    def opMyStructMap(self, smap1, current: Ice.Current):
         return (smap1, smap1)
 
-    def opMyClass(self, c1, current):
+    def opMyClass(self, c1, current: Ice.Current):
         return (c1, c1)
 
-    def opMyClassSeq(self, cseq1, current):
+    def opMyClassSeq(self, cseq1, current: Ice.Current):
         return (cseq1, cseq1)
 
-    def opMyClassMap(self, cmap1, current):
+    def opMyClassMap(self, cmap1, current: Ice.Current):
         return (cmap1, cmap1)
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         with self.initialize(args=args) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")

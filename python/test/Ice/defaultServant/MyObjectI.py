@@ -6,7 +6,7 @@ import Ice
 
 
 class MyObjectI(Test.MyObject):
-    def ice_ping(self, current):
+    def ice_ping(self, current: Ice.Current):
         name = current.id.name
 
         if name == "ObjectNotExist":
@@ -14,7 +14,7 @@ class MyObjectI(Test.MyObject):
         elif name == "FacetNotExist":
             raise Ice.FacetNotExistException()
 
-    def getName(self, current):
+    def getName(self, current: Ice.Current):
         name = current.id.name
 
         if name == "ObjectNotExist":

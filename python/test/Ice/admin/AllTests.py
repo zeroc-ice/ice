@@ -1,19 +1,21 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from typing import Any
 
 import TestI
 from generated.test.Ice.admin import Test
+from TestHelper import TestHelper
 
 import Ice
 
 
-def test(b):
+def test(b: Any) -> None:
     if not b:
         raise RuntimeError("test assertion failed")
 
 
-def testFacets(com, builtInFacets=True):
+def testFacets(com: Ice.Communicator, builtInFacets: bool = True) -> None:
     if builtInFacets:
         test(com.findAdminFacet("Properties") is not None)
         test(com.findAdminFacet("Process") is not None)
@@ -71,7 +73,7 @@ def testFacets(com, builtInFacets=True):
         pass  # Expected
 
 
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: "Ice.Communicator") -> None:
     sys.stdout.write("testing communicator operations... ")
     sys.stdout.flush()
 
@@ -123,7 +125,7 @@ def allTests(helper, communicator):
         pass
 
     adapter = com.createObjectAdapter("")
-    test(com.createAdmin(adapter, identity) is not None)
+    com.createAdmin(adapter, identity)
     test(com.getAdmin() is not None)
 
     testFacets(com)
@@ -156,8 +158,10 @@ def allTests(helper, communicator):
     props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1"
     props["Ice.Admin.InstanceName"] = "Test"
     com = factory.createCommunicator(props)
+    assert com is not None
     obj = com.getAdmin()
     proc = Ice.ProcessPrx.checkedCast(obj, "Process")
+    assert proc is not None
     proc.shutdown()
     com.waitForShutdown()
     com.destroy()
@@ -174,8 +178,10 @@ def allTests(helper, communicator):
     props["Prop2"] = "2"
     props["Prop3"] = "3"
     com = factory.createCommunicator(props)
+    assert com is not None
     obj = com.getAdmin()
     pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
+    assert pa is not None
 
     #
     # Test: PropertiesAdmin::getProperty()
@@ -238,8 +244,10 @@ def allTests(helper, communicator):
     props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1"
     props["Ice.Admin.InstanceName"] = "Test"
     com = factory.createCommunicator(props)
+    assert com is not None
     obj = com.getAdmin()
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
+    assert tf is not None
     tf.op()
     com.destroy()
 
@@ -257,6 +265,7 @@ def allTests(helper, communicator):
     props["Ice.Admin.InstanceName"] = "Test"
     props["Ice.Admin.Facets"] = "Properties"
     com = factory.createCommunicator(props)
+    assert com is not None
     obj = com.getAdmin()
 
     try:
@@ -282,6 +291,7 @@ def allTests(helper, communicator):
     props["Ice.Admin.InstanceName"] = "Test"
     props["Ice.Admin.Facets"] = "Process"
     com = factory.createCommunicator(props)
+    assert com is not None
     obj = com.getAdmin()
 
     try:
@@ -307,6 +317,7 @@ def allTests(helper, communicator):
     props["Ice.Admin.InstanceName"] = "Test"
     props["Ice.Admin.Facets"] = "TestFacet"
     com = factory.createCommunicator(props)
+    assert com is not None
     obj = com.getAdmin()
 
     try:
@@ -332,10 +343,13 @@ def allTests(helper, communicator):
     props["Ice.Admin.InstanceName"] = "Test"
     props["Ice.Admin.Facets"] = "Properties TestFacet"
     com = factory.createCommunicator(props)
+    assert com is not None
     obj = com.getAdmin()
     pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
+    assert pa is not None
     test(pa.getProperty("Ice.Admin.InstanceName") == "Test")
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
+    assert tf is not None
     tf.op()
 
     try:
@@ -355,6 +369,7 @@ def allTests(helper, communicator):
     props["Ice.Admin.InstanceName"] = "Test"
     props["Ice.Admin.Facets"] = "TestFacet, Process"
     com = factory.createCommunicator(props)
+    assert com is not None
     obj = com.getAdmin()
 
     try:
@@ -364,8 +379,10 @@ def allTests(helper, communicator):
         pass
 
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
+    assert tf is not None
     tf.op()
     proc = Ice.ProcessPrx.checkedCast(obj, "Process")
+    assert proc is not None
     proc.shutdown()
     com.waitForShutdown()
     com.destroy()

@@ -15,7 +15,7 @@ import Ice
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]) -> None:
         with self.initialize(args=args) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")

@@ -15,7 +15,7 @@ import Ice
 
 
 class ServerAMD(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         #
         # Its possible to have batch oneway requests dispatched after the

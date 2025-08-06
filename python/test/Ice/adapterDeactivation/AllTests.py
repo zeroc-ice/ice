@@ -41,7 +41,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestInt
     for _ in range(10):
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
-        comm = Ice.initialize([], initData=initData)
+        comm = Ice.initialize(initData=initData)
         prx = comm.stringToProxy("test:{0}".format(helper.getTestEndpoint()))
         assert prx is not None
         prx.ice_pingAsync()
@@ -114,7 +114,9 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestInt
 
         adapter.destroy()
         try:
-            obj.ice_getConnection().setAdapter(adapter)
+            con = obj.ice_getConnection()
+            assert con is not None
+            con.setAdapter(adapter)
             test(False)
         except Ice.ObjectAdapterDestroyedException:
             pass

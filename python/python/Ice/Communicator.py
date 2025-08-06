@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 
     import IcePy
 
+    from .CompressBatch import CompressBatch
     from .EventLoopAdapter import EventLoopAdapter
     from .Identity import Identity
     from .Locator import LocatorPrx
@@ -431,7 +432,7 @@ class Communicator:
         """
         self._impl.setDefaultLocator(locator)
 
-    def flushBatchRequests(self, compress: bool):
+    def flushBatchRequests(self, compress: CompressBatch):
         """
         Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
         for all connections associated with the communicator. Any errors that occur while flushing a connection are
@@ -439,12 +440,12 @@ class Communicator:
 
         Parameters
         ----------
-        compress : bool
+        compress : CompressBatch
             Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
         """
         self._impl.flushBatchRequests(compress)
 
-    def flushBatchRequestsAsync(self, compress: bool) -> Awaitable[None]:
+    def flushBatchRequestsAsync(self, compress: CompressBatch) -> Awaitable[None]:
         """
         Flush any pending batch requests for this communicator asynchronously. This means all batch requests invoked on fixed proxies
         for all connections associated with the communicator. Any errors that occur while flushing a connection are
@@ -452,7 +453,7 @@ class Communicator:
 
         Parameters
         ----------
-        compress : bool
+        compress : CompressBatch
             Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
         """
         return self._impl.flushBatchRequestsAsync(compress)

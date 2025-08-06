@@ -3,9 +3,11 @@
 import TestI
 from generated.test.Ice.servantLocator import Test
 
+import Ice
+
 
 class TestActivationI(Test.TestActivation):
-    def activateServantLocator(self, activate, current):
+    def activateServantLocator(self, activate, current: Ice.Current):
         if activate:
             current.adapter.addServantLocator(TestI.ServantLocatorI(""), "")
             current.adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
