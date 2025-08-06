@@ -957,8 +957,8 @@ class ObjectPrx(IcePy.ObjectPrx):
 
         Returns
         -------
-        Connection
-            The Connection for this proxy.
+        Connection | None
+            The Connection for this proxy, or null when the target object is colocated.
         """
         return super().ice_getConnection()
 
