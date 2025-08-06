@@ -2,6 +2,7 @@
 
 # Copyright (c) ZeroC, Inc.
 
+import concurrent.futures
 import threading
 import time
 
@@ -22,7 +23,7 @@ class FutureThread(threading.Thread):
         self.result = r
 
     def run(self):
-        time.sleep(0.01)
+        time.sleep(0.05)
         self.future.set_result(self.result)
 
 
@@ -42,7 +43,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         current.adapter.getCommunicator().shutdown()
 
     def supportsCompress(self, current: Ice.Current):
-        return Ice.Future.completed(True)
+        return True
 
     def opVoid(self, current: Ice.Current):
         test(current.mode == Ice.OperationMode.Normal)
@@ -57,13 +58,27 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return f
 
     def opByte(self, p1, p2, current: Ice.Current):
-        return Ice.Future.completed((p1, p1 ^ p2))
+        # Test the ability to use another Future type
+        f = concurrent.futures.Future()
+        with self.threadLock:
+            thread = FutureThread(f, (p1, p1 ^ p2))
+            self.threads.append(thread)
+            thread.start()
+        return f
 
     def opBool(self, p1, p2, current: Ice.Current):
         return Ice.Future.completed((p2, p1))
 
-    def opShortIntLong(self, p1, p2, p3, current: Ice.Current):
-        return Ice.Future.completed((p3, p1, p2, p3))
+    # Test the ability to define a servant method as a coroutine
+    async def opShortIntLong(self, p1, p2, p3, current: Ice.Current):
+        f = Ice.Future()
+
+        with self.threadLock:
+            thread = FutureThread(f, (p3, p1, p2, p3))
+            self.threads.append(thread)
+            thread.start()
+
+        return await f
 
     def opFloatDouble(self, p1, p2, current: Ice.Current):
         return Ice.Future.completed((p2, p1, p2))

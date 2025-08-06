@@ -24,7 +24,7 @@ module Test
         string testReference;
     }
 
-    /**
+    /*
     *
     * The test controller interface permits coordination between the test
     * server and the test client. Prior to each call the client makes on
@@ -32,7 +32,7 @@ module Test
     * controller will manage the configuration of the system and return a
     * flag indicating whether the next call is meant to succeed or not.
     *
-    **/
+    */
     interface TestController
     {
         void step(Glacier2::Session* currentSession, TestToken currentState, out TestToken newState);

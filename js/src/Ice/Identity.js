@@ -8,7 +8,7 @@ export const Ice = {};
  *  with an empty name to the Active Servant Map.
  *  @see ServantLocator
  *  @see ObjectAdapter#addServantLocator
- **/
+ */
 Ice.Identity = class {
     constructor(name = "", category = "") {
         this.name = name;

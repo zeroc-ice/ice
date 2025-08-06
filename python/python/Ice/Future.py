@@ -277,11 +277,7 @@ class Future(Awaitable[_T]):
             try:
                 callback(self)
             except Exception:
-                self._warn("done callback raised exception")
-
-    def _warn(self, msg: str):
-        # TODO why are we not using the Ice logger?
-        logging.getLogger("Ice.Future").exception(msg)
+                logging.getLogger("Ice.Future").exception("done callback raised exception")
 
     StateRunning = "running"
     StateCancelled = "cancelled"

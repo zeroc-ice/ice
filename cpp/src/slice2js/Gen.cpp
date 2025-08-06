@@ -403,7 +403,7 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeRemarks,
         writeRemarks(_out, *comment);
     }
 
-    _out << nl << " **/";
+    _out << nl << " */";
 }
 
 Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool typeScript)

@@ -91,7 +91,7 @@ declare module "@zeroc/ice" {
          * @param version The string to convert.
          *
          * @returns The converted protocol version.
-         **/
+         */
         function stringToProtocolVersion(version: string): ProtocolVersion;
 
         /**
@@ -100,7 +100,7 @@ declare module "@zeroc/ice" {
          * @param version The string to convert.
          *
          * @returns The converted object identity.
-         **/
+         */
         function stringToEncodingVersion(version: string): EncodingVersion;
 
         /**
@@ -109,7 +109,7 @@ declare module "@zeroc/ice" {
          * @param version The protocol version to convert.
          *
          * @returns The converted string.
-         **/
+         */
         function protocolVersionToString(version: ProtocolVersion): string;
 
         /**
@@ -118,7 +118,7 @@ declare module "@zeroc/ice" {
          * @param version The encoding version to convert.
          *
          * @returns The converted string.
-         **/
+         */
         function encodingVersionToString(version: EncodingVersion): string;
     }
 }
