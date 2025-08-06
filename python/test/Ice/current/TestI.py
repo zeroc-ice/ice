@@ -2,6 +2,8 @@
 
 from generated.test.Ice.current import Test
 
+import Ice
+
 
 class MyClassI(Test.TestIntf):
     def getAdapterName(self, current: Ice.Current):

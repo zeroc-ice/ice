@@ -2,6 +2,8 @@
 
 from generated.test.Ice.facets import Test
 
+import Ice
+
 
 class AI(Test.A):
     def callA(self, current: Ice.Current):

@@ -5,6 +5,8 @@ import time
 import Executor
 from generated.test.Ice.executor import Test
 
+import Ice
+
 
 def test(b):
     if not b:
