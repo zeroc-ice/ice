@@ -2,6 +2,8 @@
 
 from generated.test.Ice.proxy import Test
 
+import Ice
+
 
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
