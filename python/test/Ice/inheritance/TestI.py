@@ -2,6 +2,8 @@
 
 from generated.test.Ice.inheritance import Test
 
+import Ice
+
 
 class IAI(Test.MA.IA):
     def iaop(self, p, current: Ice.Current):
