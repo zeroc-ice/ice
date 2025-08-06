@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final
 
-from Ice.CompressBatch import CompressBatch
-
 from ._LoggerI import LoggerI
 from .Future import Future
 from .ImplicitContext import ImplicitContext
@@ -18,6 +16,7 @@ if TYPE_CHECKING:
 
     import IcePy
 
+    from .CompressBatch import CompressBatch
     from .EventLoopAdapter import EventLoopAdapter
     from .Identity import Identity
     from .Locator import LocatorPrx
