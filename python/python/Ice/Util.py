@@ -22,21 +22,8 @@ if TYPE_CHECKING:
 
 __name__ = "Ice"
 
-
 @overload
-def initialize() -> Communicator: ...
-
-
-@overload
-def initialize(args: list[str]) -> Communicator: ...
-
-
-@overload
-def initialize(args: list[str], initData: InitializationData) -> Communicator: ...
-
-@overload
-def initialize(args: None = None,  initData: InitializationData = InitializationData()) -> Communicator: ...
-
+def initialize(args: list[str] | None = None, initData: InitializationData | None = None) -> Communicator: ...
 
 @overload
 def initialize(
