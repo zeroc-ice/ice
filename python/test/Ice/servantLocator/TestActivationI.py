@@ -3,6 +3,8 @@
 import TestI
 from generated.test.Ice.servantLocator import Test
 
+import Ice
+
 
 class TestActivationI(Test.TestActivation):
     def activateServantLocator(self, activate, current: Ice.Current):
