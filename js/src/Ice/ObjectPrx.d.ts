@@ -292,14 +292,14 @@ declare module "@zeroc/ice" {
              * @param router - The router to be used by the new proxy.
              * @returns A new proxy configured with the specified router.
              */
-            ice_router(router: RouterPrx): this;
+            ice_router(router: RouterPrx | null): this;
 
             /**
              * Retrieves the router used by this proxy.
              *
              * @returns The router currently used by this proxy. If no router is configured, `null` is returned.
              */
-            ice_getRouter(): RouterPrx;
+            ice_getRouter(): RouterPrx | null;
 
             /**
              * Creates a new proxy identical to this one, but with a different locator.
@@ -307,14 +307,14 @@ declare module "@zeroc/ice" {
              * @param locator - The locator to be used by the new proxy.
              * @returns A new proxy configured with the specified locator.
              */
-            ice_locator(locator: LocatorPrx): this;
+            ice_locator(locator: LocatorPrx | null): this;
 
             /**
              * Retrieves the locator used by this proxy.
              *
              * @returns The locator currently used by this proxy. If no locator is configured, `null` is returned.
              */
-            ice_getLocator(): LocatorPrx;
+            ice_getLocator(): LocatorPrx | null;
 
             /**
              * Creates a new proxy identical to this one, but with a different locator cache timeout.

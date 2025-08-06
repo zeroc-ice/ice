@@ -29,7 +29,7 @@ declare module "@zeroc/ice" {
              *
              * @param newContext - The new context.
              */
-            setContext(newContext: Context): void;
+            setContext(newContext: Context | null): void;
 
             /**
              * Checks if this key has an associated value in the underlying context.
