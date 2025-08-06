@@ -6,31 +6,31 @@ import { Test } from "./Test.js";
 import { Test as Test_Forward } from "./Forward.js";
 
 class BI extends Test.B {
-    ice_preMarshal() {
+    override ice_preMarshal() {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal() {
+    override ice_postUnmarshal() {
         this.postUnmarshalInvoked = true;
     }
 }
 
 class CI extends Test.C {
-    ice_preMarshal() {
+    override ice_preMarshal() {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal() {
+    override ice_postUnmarshal() {
         this.postUnmarshalInvoked = true;
     }
 }
 
 class DI extends Test.D {
-    ice_preMarshal() {
+    override ice_preMarshal() {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal() {
+    override ice_postUnmarshal() {
         this.postUnmarshalInvoked = true;
     }
 }

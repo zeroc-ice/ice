@@ -40,15 +40,7 @@ export class Client extends TestHelper {
         const out = this.getWriter();
         const communicator = this.communicator();
 
-        out.write("testing stringToProxy for router... ");
-        const routerBase = communicator.stringToProxy("Glacier2/router:" + this.getTestEndpoint(50));
-        test(routerBase !== null);
-        out.writeLine("ok");
-
-        out.write("testing checked cast for router... ");
-        const router = await Glacier2.RouterPrx.checkedCast(routerBase);
-        test(router !== null);
-        out.writeLine("ok");
+        const router = new Glacier2.RouterPrx(communicator, `Glacier2/router:${this.getTestEndpoint(50)}`);
 
         out.write("installing router with communicator... ");
         communicator.setDefaultRouter(router);
@@ -68,7 +60,7 @@ export class Client extends TestHelper {
             await base.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ConnectionLostException, ex);
+            test(ex instanceof Ice.ConnectionLostException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -77,7 +69,7 @@ export class Client extends TestHelper {
             await router.createSession("userid", "xxx");
             test(false);
         } catch (ex) {
-            test(ex instanceof Glacier2.PermissionDeniedException, ex);
+            test(ex instanceof Glacier2.PermissionDeniedException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -86,7 +78,7 @@ export class Client extends TestHelper {
             await router.destroySession();
             test(false);
         } catch (ex) {
-            test(ex instanceof Glacier2.SessionNotExistException, ex);
+            test(ex instanceof Glacier2.SessionNotExistException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -99,7 +91,7 @@ export class Client extends TestHelper {
             await router.createSession("userid", "abc123");
             test(false);
         } catch (ex) {
-            test(ex instanceof Glacier2.CannotCreateSessionException, ex);
+            test(ex instanceof Glacier2.CannotCreateSessionException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -114,13 +106,13 @@ export class Client extends TestHelper {
                 await baseC.ice_ping();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.ObjectNotExistException, ex);
+                test(ex instanceof Ice.ObjectNotExistException, ex as Error);
             }
             out.writeLine("ok");
         }
 
         out.write("testing checked cast for server object... ");
-        const twoway = await Test.CallbackPrx.checkedCast(base);
+        const twoway = (await Test.CallbackPrx.checkedCast(base)) as Test.CallbackPrx;
         test(twoway !== null);
         out.writeLine("ok");
 
@@ -170,9 +162,12 @@ export class Client extends TestHelper {
             await twoway.initiateCallbackEx(twowayR, context);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.CallbackException, ex);
-            test(ex.someValue == 3.14);
-            test(ex.someString == "3.14");
+            if (ex instanceof Test.CallbackException) {
+                test(ex.someValue == 3.14);
+                test(ex.someString == "3.14");
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         await callbackReceiverImpl.callbackOK();
@@ -185,7 +180,7 @@ export class Client extends TestHelper {
             await twoway.initiateCallback(fakeTwowayR, context);
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
+            test(ex instanceof Ice.ObjectNotExistException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -205,7 +200,7 @@ export class Client extends TestHelper {
             await otherCategoryTwoway.initiateCallback(twowayR, context);
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
+            test(ex instanceof Ice.ObjectNotExistException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -234,7 +229,7 @@ export class Client extends TestHelper {
             await base.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ConnectionLostException, ex);
+            test(ex instanceof Ice.ConnectionLostException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -253,12 +248,12 @@ export class Client extends TestHelper {
             out.writeLine("ok");
 
             out.write("testing Glacier2 shutdown... ");
-            await processPrx.shutdown();
+            await processPrx!.shutdown();
             try {
-                await processPrx.ice_invocationTimeout(500).ice_ping();
+                await processPrx!.ice_invocationTimeout(500).ice_ping();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.LocalException, ex);
+                test(ex instanceof Ice.LocalException, ex as Error);
             }
             out.writeLine("ok");
         }

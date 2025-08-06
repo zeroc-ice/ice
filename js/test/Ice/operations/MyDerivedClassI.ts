@@ -93,10 +93,10 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
     }
 
     opLongFloatD(
-        p1: Ice.HashMap<BigInt, number>,
-        p2: Ice.HashMap<BigInt, number>,
+        p1: Ice.HashMap<bigint, number>,
+        p2: Ice.HashMap<bigint, number>,
         current: Ice.Current,
-    ): [Ice.HashMap<BigInt, number>, Ice.HashMap<BigInt, number>] {
+    ): [Ice.HashMap<bigint, number>, Ice.HashMap<bigint, number>] {
         const r = new Ice.HashMap(p1);
         p2.forEach((value, key) => r.set(key, value));
         return [r, p1];
@@ -123,25 +123,25 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
         return [r, p1];
     }
 
-    opShortIntLong(p1: number, p2: number, p3: BigInt, current: Ice.Current): [BigInt, number, number, BigInt] {
+    opShortIntLong(p1: number, p2: number, p3: bigint, current: Ice.Current): [bigint, number, number, bigint] {
         return [p3, p1, p2, p3];
     }
 
     opShortIntLongS(
         p1: number[],
         p2: number[],
-        p3: BigInt[],
+        p3: bigint[],
         current: Ice.Current,
-    ): [BigInt[], number[], number[], BigInt[]] {
+    ): [bigint[], number[], number[], bigint[]] {
         return [p3, p1, p2.reverse(), p3.concat(p3)];
     }
 
     opShortIntLongSS(
         p1: number[][],
         p2: number[][],
-        p3: BigInt[][],
+        p3: bigint[][],
         current: Ice.Current,
-    ): [BigInt[][], number[][], number[][], BigInt[][]] {
+    ): [bigint[][], number[][], number[][], bigint[][]] {
         return [p3, p1, p2.reverse(), p3.concat(p3)];
     }
 
@@ -200,10 +200,10 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
     }
 
     opLongFloatDS(
-        p1: Ice.HashMap<BigInt, number>[],
-        p2: Ice.HashMap<BigInt, number>[],
+        p1: Ice.HashMap<bigint, number>[],
+        p2: Ice.HashMap<bigint, number>[],
         current: Ice.Current,
-    ): [Ice.HashMap<BigInt, number>[], Ice.HashMap<BigInt, number>[]] {
+    ): [Ice.HashMap<bigint, number>[], Ice.HashMap<bigint, number>[]] {
         const p3 = p2.concat(p1);
         const r = p1.reverse();
         return [r, p3];
@@ -294,10 +294,10 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
     }
 
     opLongLongSD(
-        p1: Ice.HashMap<BigInt, BigInt[]>,
-        p2: Ice.HashMap<BigInt, BigInt[]>,
+        p1: Ice.HashMap<bigint, bigint[]>,
+        p2: Ice.HashMap<bigint, bigint[]>,
         current: Ice.Current,
-    ): [Ice.HashMap<BigInt, BigInt[]>, Ice.HashMap<BigInt, BigInt[]>] {
+    ): [Ice.HashMap<bigint, bigint[]>, Ice.HashMap<bigint, bigint[]>] {
         const r = new Ice.HashMap(p1);
         p2.forEach((value, key) => r.set(key, value));
         const p3 = new Ice.HashMap(p2);
@@ -425,7 +425,7 @@ export class MyDerivedClassI extends Test.MyDerivedClass {
         return value;
     }
 
-    opLong1(value: BigInt, current: Ice.Current): BigInt {
+    opLong1(value: bigint, current: Ice.Current): bigint {
         return value;
     }
 

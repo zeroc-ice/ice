@@ -18,7 +18,7 @@ export class Server extends TestHelper {
             properties.setProperty("Ice.Warn.Connections", "0");
             [communicator] = this.initialize(properties);
 
-            echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
+            echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
             const adapter = await communicator.createObjectAdapter("");
             adapter.addServantLocator(new ServantLocatorI("category"), "category");
             adapter.addServantLocator(new ServantLocatorI(""), "");

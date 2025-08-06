@@ -28,7 +28,7 @@ export class Server extends TestHelper {
         let communicator: Ice.Communicator | null = null;
         let echo: Test_Test.EchoPrx | null = null;
         try {
-            let initData = new Ice.InitializationData();
+            const initData = new Ice.InitializationData();
             [initData.properties] = this.createTestProperties(args);
             initData.properties.setProperty("Ice.Warn.Dispatch", "0");
             initData.properties.setProperty("Ice.Warn.Connections", "0");

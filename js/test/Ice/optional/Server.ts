@@ -11,7 +11,7 @@ export class Server extends TestHelper {
         let echo: Test.EchoPrx | null = null;
         try {
             [communicator] = this.initialize(args);
-            echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
+            echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
             const adapter = await communicator.createObjectAdapter("");
             adapter.add(new InitialI(), Ice.stringToIdentity("initial"));
             await echo.setConnection();

@@ -73,7 +73,7 @@ export class AMDInitialI extends Test.Initial {
         return [p1, p1];
     }
 
-    opLong(p1: BigInt | number | undefined, current: Ice.Current): [BigInt | undefined, BigInt | undefined] {
+    opLong(p1: bigint | number | undefined, current: Ice.Current): [bigint | undefined, bigint | undefined] {
         return [typeof p1 == "number" ? BigInt(p1) : p1, typeof p1 == "number" ? BigInt(p1) : p1];
     }
 
@@ -144,7 +144,7 @@ export class AMDInitialI extends Test.Initial {
         return [p1, p1];
     }
 
-    opLongSeq(p1: BigInt[] | undefined, current: Ice.Current): [BigInt[] | undefined, BigInt[] | undefined] {
+    opLongSeq(p1: bigint[] | undefined, current: Ice.Current): [bigint[] | undefined, bigint[] | undefined] {
         return [p1, p1];
     }
 

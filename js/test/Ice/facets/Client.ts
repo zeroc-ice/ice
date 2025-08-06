@@ -33,26 +33,26 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
-        prx = await Ice.ObjectPrx.checkedCast(db);
+        prx = (await Ice.ObjectPrx.checkedCast(db)) as Ice.ObjectPrx;
         test(prx.ice_getFacet().length === 0);
-        prx = await Ice.ObjectPrx.checkedCast(db, "facetABCD");
+        prx = (await Ice.ObjectPrx.checkedCast(db, "facetABCD")) as Ice.ObjectPrx;
         test(prx.ice_getFacet() == "facetABCD");
-        prx2 = await Ice.ObjectPrx.checkedCast(prx);
+        prx2 = (await Ice.ObjectPrx.checkedCast(prx)) as Ice.ObjectPrx;
         test(prx2.ice_getFacet() == "facetABCD");
-        prx3 = await Ice.ObjectPrx.checkedCast(prx, "");
+        prx3 = (await Ice.ObjectPrx.checkedCast(prx, "")) as Ice.ObjectPrx;
         test(prx3.ice_getFacet().length === 0);
-        d = await Test.DPrx.checkedCast(db);
+        d = (await Test.DPrx.checkedCast(db)) as Test.DPrx;
         test(d.ice_getFacet().length === 0);
-        df = await Test.DPrx.checkedCast(db, "facetABCD");
+        df = (await Test.DPrx.checkedCast(db, "facetABCD")) as Test.DPrx;
         test(df.ice_getFacet() == "facetABCD");
-        df2 = await Test.DPrx.checkedCast(df);
+        df2 = (await Test.DPrx.checkedCast(df)) as Test.DPrx;
         test(df2.ice_getFacet() == "facetABCD");
-        df3 = await Test.DPrx.checkedCast(df, "");
+        df3 = (await Test.DPrx.checkedCast(df, "")) as Test.DPrx;
         test(df3.ice_getFacet().length === 0);
         out.writeLine("ok");
 
         out.write("testing non-facets A, B, C, and D... ");
-        d = await Test.DPrx.checkedCast(db);
+        d = (await Test.DPrx.checkedCast(db)) as Test.DPrx;
         test(d !== null);
         test(d.equals(db));
         test((await d.callA()) == "A");
@@ -62,7 +62,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing facets A, B, C, and D... ");
-        df = await Test.DPrx.checkedCast(d, "facetABCD");
+        df = (await Test.DPrx.checkedCast(d, "facetABCD")) as Test.DPrx;
         test(df !== null);
         test((await df.callA()) == "A");
         test((await df.callB()) == "B");
@@ -71,19 +71,19 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing facets E and F... ");
-        const ff = await Test.FPrx.checkedCast(d, "facetEF");
+        const ff = (await Test.FPrx.checkedCast(d, "facetEF")) as Test.FPrx;
         test((await ff.callE()) == "E");
         test((await ff.callF()) == "F");
         out.writeLine("ok");
 
         out.write("testing facet G... ");
-        const gf = await Test.GPrx.checkedCast(ff, "facetGH");
+        const gf = (await Test.GPrx.checkedCast(ff, "facetGH")) as Test.GPrx;
         test(gf !== null);
         test((await gf.callG()) == "G");
         out.writeLine("ok");
 
         out.write("testing whether casting preserves the facet... ");
-        const hf = await Test.HPrx.checkedCast(gf);
+        const hf = (await Test.HPrx.checkedCast(gf)) as Test.HPrx;
         test(hf !== null);
         test((await hf.callG()) == "G");
         test((await hf.callH()) == "H");

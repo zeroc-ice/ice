@@ -4,25 +4,25 @@ import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 
 export class TestI extends Test.TestIntf {
-    requestFailedException(current: Ice.Current) {}
+    override requestFailedException(current: Ice.Current) {}
 
-    unknownUserException(current: Ice.Current) {}
+    override unknownUserException(current: Ice.Current) {}
 
-    unknownLocalException(current: Ice.Current) {}
+    override unknownLocalException(current: Ice.Current) {}
 
-    unknownException(current: Ice.Current) {}
+    override unknownException(current: Ice.Current) {}
 
-    localException(current: Ice.Current) {}
+    override localException(current: Ice.Current) {}
 
-    userException(current: Ice.Current) {}
+    override userException(current: Ice.Current) {}
 
-    jsException(current: Ice.Current) {}
+    override jsException(current: Ice.Current) {}
 
-    unknownExceptionWithServantException(current: Ice.Current) {
+    override unknownExceptionWithServantException(current: Ice.Current) {
         throw new Ice.ObjectNotExistException();
     }
 
-    impossibleException(shouldThrow: boolean, current: Ice.Current): string {
+    override impossibleException(shouldThrow: boolean, current: Ice.Current): string {
         if (shouldThrow) {
             throw new Test.TestImpossibleException();
         }
@@ -34,7 +34,7 @@ export class TestI extends Test.TestIntf {
         return "Hello";
     }
 
-    intfUserException(shouldThrow: boolean, current: Ice.Current): string {
+    override intfUserException(shouldThrow: boolean, current: Ice.Current): string {
         if (shouldThrow) {
             throw new Test.TestIntfUserException();
         }
@@ -46,7 +46,7 @@ export class TestI extends Test.TestIntf {
         return "Hello";
     }
 
-    asyncResponse(current: Ice.Current) {
+    override asyncResponse(current: Ice.Current) {
         throw new Ice.ObjectNotExistException();
     }
 
@@ -54,7 +54,7 @@ export class TestI extends Test.TestIntf {
         throw new Ice.ObjectNotExistException();
     }
 
-    shutdown(current: Ice.Current) {
+    override shutdown(current: Ice.Current) {
         current.adapter.getCommunicator().shutdown();
     }
 }

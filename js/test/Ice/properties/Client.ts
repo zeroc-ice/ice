@@ -33,7 +33,7 @@ export class Client extends TestHelper {
         props.set("BServer", "\\server\\dir");
 
         const properties = Ice.createProperties();
-        /* eslint-disable no-sync */
+
         if (!TestHelper.isBrowser()) {
             const fs = await import("fs");
             const path = await import("path");

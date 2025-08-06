@@ -7,7 +7,7 @@ import { TestHelper } from "../../Common/TestHelper.js";
 const test = TestHelper.test;
 
 class Middleware extends Ice.Object {
-    async dispatch(request: Ice.IncomingRequest): Promise<Ice.OutgoingResponse> {
+    override async dispatch(request: Ice.IncomingRequest): Promise<Ice.OutgoingResponse> {
         if (request.current.operation === "shutdown") {
             return this._next.dispatch(request);
         } else {
@@ -56,7 +56,7 @@ export class Server extends TestHelper {
             [communicator] = this.initialize(args);
             echo = new Test.EchoPrx(communicator, "__echo:" + this.getTestEndpoint());
 
-            let adapter = await communicator.createObjectAdapter("");
+            const adapter = await communicator.createObjectAdapter("");
 
             await echo.setConnection();
             echo.ice_getCachedConnection().setAdapter(adapter);

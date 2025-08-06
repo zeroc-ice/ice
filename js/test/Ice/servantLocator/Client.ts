@@ -13,34 +13,46 @@ export class Client extends TestHelper {
                 await obj.requestFailedException();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.ObjectNotExistException, ex);
-                test(ex.id.equals(obj.ice_getIdentity()));
-                test(ex.facet == obj.ice_getFacet());
-                test(ex.operation == "requestFailedException");
+                if (ex instanceof Ice.ObjectNotExistException) {
+                    test(ex.id.equals(obj.ice_getIdentity()));
+                    test(ex.facet == obj.ice_getFacet());
+                    test(ex.operation == "requestFailedException");
+                } else {
+                    test(false, ex as Error);
+                }
             }
 
             try {
                 await obj.unknownUserException();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownUserException, ex);
-                test(ex.unknown == "reason");
+                if (ex instanceof Ice.UnknownUserException) {
+                    test(ex.unknown == "reason");
+                } else {
+                    test(false, ex as Error);
+                }
             }
 
             try {
                 await obj.unknownLocalException();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownLocalException, ex);
-                test(ex.unknown == "reason");
+                if (ex instanceof Ice.UnknownLocalException) {
+                    test(ex.unknown == "reason");
+                } else {
+                    test(false, ex as Error);
+                }
             }
 
             try {
                 await obj.unknownException();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownException, ex);
-                test(ex.unknown == "reason");
+                if (ex instanceof Ice.UnknownException) {
+                    test(ex.unknown == "reason");
+                } else {
+                    test(false, ex as Error);
+                }
             }
 
             try {
@@ -51,7 +63,7 @@ export class Client extends TestHelper {
                     ex instanceof Ice.OperationNotExistException ||
                         (ex instanceof Ice.UnknownUserException &&
                             ex.message.includes("::Test::TestIntfUserException")),
-                    ex,
+                    ex as Error,
                 );
             }
 
@@ -59,8 +71,11 @@ export class Client extends TestHelper {
                 await obj.localException();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownLocalException, ex);
-                test(ex.message.includes("Ice::SocketException") || ex.message.includes("Ice.SocketException"));
+                if (ex instanceof Ice.UnknownLocalException) {
+                    test(ex.message.includes("Ice::SocketException") || ex.message.includes("Ice.SocketException"));
+                } else {
+                    test(false, ex as Error);
+                }
             }
 
             try {
@@ -69,9 +84,8 @@ export class Client extends TestHelper {
             } catch (ex) {
                 test(
                     ex instanceof Ice.OperationNotExistException ||
-                        ex instanceof Ice.UnknownException ||
-                        ex.unknown.indexOf("") >= 0,
-                    ex,
+                        (ex instanceof Ice.UnknownException && ex.unknown.indexOf("") >= 0),
+                    ex as Error,
                 );
             }
 
@@ -79,36 +93,39 @@ export class Client extends TestHelper {
                 await obj.unknownExceptionWithServantException();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownException, ex);
-                test(ex.unknown == "reason");
+                if (ex instanceof Ice.UnknownException) {
+                    test(ex.unknown == "reason");
+                } else {
+                    test(false, ex as Error);
+                }
             }
 
             try {
                 await obj.impossibleException(false);
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownUserException, ex);
+                test(ex instanceof Ice.UnknownUserException, ex as Error);
             }
 
             try {
                 await obj.impossibleException(true);
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownUserException, ex);
+                test(ex instanceof Ice.UnknownUserException, ex as Error);
             }
 
             try {
                 await obj.intfUserException(false);
                 test(false);
             } catch (ex) {
-                test(ex instanceof Test.TestImpossibleException, ex);
+                test(ex instanceof Test.TestImpossibleException, ex as Error);
             }
 
             try {
                 await obj.intfUserException(true);
                 test(false);
             } catch (ex) {
-                test(ex instanceof Test.TestImpossibleException, ex);
+                test(ex instanceof Test.TestImpossibleException, ex as Error);
             }
         }
 
@@ -123,7 +140,7 @@ export class Client extends TestHelper {
             await o.ice_ids();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex);
+            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex as Error);
         }
 
         try {
@@ -131,7 +148,7 @@ export class Client extends TestHelper {
             await o.ice_ids();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex);
+            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex as Error);
         }
         out.writeLine("ok");
 
@@ -144,7 +161,7 @@ export class Client extends TestHelper {
             await obj.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
+            test(ex instanceof Ice.ObjectNotExistException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -158,7 +175,7 @@ export class Client extends TestHelper {
             await obj.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
+            test(ex instanceof Ice.ObjectNotExistException, ex as Error);
         }
 
         try {
@@ -166,7 +183,7 @@ export class Client extends TestHelper {
             await obj.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
+            test(ex instanceof Ice.ObjectNotExistException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -186,14 +203,14 @@ export class Client extends TestHelper {
             await obj.asyncResponse();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.TestImpossibleException, ex); // Called by finished().
+            test(ex instanceof Test.TestImpossibleException, ex as Error); // Called by finished().
         }
 
         try {
             await obj.asyncException();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.TestImpossibleException, ex); // Called by finished().
+            test(ex instanceof Test.TestImpossibleException, ex as Error); // Called by finished().
         }
         out.writeLine("ok");
 
@@ -204,7 +221,7 @@ export class Client extends TestHelper {
             await obj.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
+            test(ex instanceof Ice.ObjectNotExistException, ex as Error);
         }
         out.writeLine("ok");
 

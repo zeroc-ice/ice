@@ -7,20 +7,24 @@ import { TestHelper } from "../../Common/TestHelper.js";
 const test = TestHelper.test;
 
 function getTCPEndpointInfo(info: Ice.EndpointInfo): Ice.TCPEndpointInfo | null {
-    for (let p = info; p; p = p.underlying) {
+    let p: Ice.EndpointInfo | null = info;
+    do {
         if (p instanceof Ice.TCPEndpointInfo) {
             return p;
         }
-    }
+        p = p.underlying;
+    } while (p !== null);
     return null;
 }
 
 function getTCPConnectionInfo(info: Ice.ConnectionInfo): Ice.TCPConnectionInfo | null {
-    for (let p = info; p; p = p.underlying) {
+    let p: Ice.ConnectionInfo | null = info;
+    do {
         if (p instanceof Ice.TCPConnectionInfo) {
             return p;
         }
-    }
+        p = p.underlying;
+    } while (p !== null);
     return null;
 }
 
@@ -35,9 +39,9 @@ export class Client extends TestHelper {
             "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:opaque -e 1.8 -t 100 -v ABCD";
         const p1 = new Ice.ObjectPrx(communicator, ref);
 
-        let endpoints = p1.ice_getEndpoints();
-        let endpoint = endpoints[0].getInfo();
-        let ipEndpoint = getTCPEndpointInfo(endpoint);
+        const endpoints = p1.ice_getEndpoints();
+        const endpoint = endpoints[0].getInfo();
+        const ipEndpoint = getTCPEndpointInfo(endpoint);
         test(ipEndpoint != null);
         test(ipEndpoint!.host == "tcphost");
         test(ipEndpoint!.port == 10000);
@@ -65,7 +69,7 @@ export class Client extends TestHelper {
         const testIntf = new Test.TestIntfPrx(communicator, `test:${this.getTestEndpoint()}`);
         const endpointPort = this.getTestPort(0);
         let conn = await testIntf.ice_getConnection();
-        let ipinfo = getTCPEndpointInfo(conn.getEndpoint().getInfo());
+        const ipinfo = getTCPEndpointInfo(conn.getEndpoint().getInfo());
         test(ipinfo != null);
         test(ipinfo!.port == endpointPort);
         test(!ipinfo!.compress);
@@ -74,7 +78,7 @@ export class Client extends TestHelper {
         let ctx = await testIntf.getEndpointInfoAsContext();
         test(ctx.get("host") == ipinfo!.host);
         test(ctx.get("compress") == "false");
-        let port = ctx.get("port");
+        const port = ctx.get("port");
         test(port !== undefined);
         test(parseInt(port as string) > 0);
         out.writeLine("ok");
@@ -85,7 +89,7 @@ export class Client extends TestHelper {
         conn.setBufferSize(1024, 2048);
 
         const info = conn.getInfo();
-        let ipConnectionInfo: Ice.TCPConnectionInfo | null = getTCPConnectionInfo(info);
+        const ipConnectionInfo: Ice.TCPConnectionInfo | null = getTCPConnectionInfo(info);
         test(ipConnectionInfo != null);
         test(info.adapterName.length === 0);
         if (conn.type() != "ws" && conn.type() != "wss") {

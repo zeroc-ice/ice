@@ -15,7 +15,7 @@ export async function oneways(prx: Test.MyClassPrx) {
         test(false);
     } catch (ex) {
         // Expected: twoway proxy required
-        test(ex instanceof Ice.TwowayOnlyException, ex);
+        test(ex instanceof Ice.TwowayOnlyException, ex as Error);
     }
 
     try {
@@ -23,7 +23,7 @@ export async function oneways(prx: Test.MyClassPrx) {
         test(false);
     } catch (ex) {
         // Expected: twoway proxy required
-        test(ex instanceof Ice.TwowayOnlyException, ex);
+        test(ex instanceof Ice.TwowayOnlyException, ex as Error);
     }
 
     try {
@@ -31,7 +31,7 @@ export async function oneways(prx: Test.MyClassPrx) {
         test(false);
     } catch (ex) {
         // Expected: twoway proxy required
-        test(ex instanceof Ice.TwowayOnlyException, ex);
+        test(ex instanceof Ice.TwowayOnlyException, ex as Error);
     }
 
     await prx.opVoid();
@@ -42,6 +42,6 @@ export async function oneways(prx: Test.MyClassPrx) {
         test(false);
     } catch (ex) {
         // Expected: twoway proxy required
-        test(ex instanceof Ice.TwowayOnlyException, ex);
+        test(ex instanceof Ice.TwowayOnlyException, ex as Error);
     }
 }

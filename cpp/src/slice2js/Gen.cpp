@@ -1936,7 +1936,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
         "boolean", // bool
         "number",  // short
         "number",  // int
-        "BigInt",  // long
+        "bigint",  // long
         "number",  // float
         "number",  // double
         "string",
@@ -1951,7 +1951,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
             case Builtin::KindLong:
             {
                 t = typeScriptBuiltinTable[builtin->kind()];
-                // For Slice long parameters we accept both number and BigInt.
+                // For Slice long parameters we accept both number and bigint.
                 if (forParameter)
                 {
                     t += " | number";
@@ -2413,6 +2413,17 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "static uncheckedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx"
          << ", "
          << "facet?: string): " << prxName << ";";
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
+    _out << nl << " * @param prx The target proxy.";
+    _out << nl << " * @param facet An optional facet name.";
+    _out << nl << " * @returns A proxy with the requested type and facet, or null if the target proxy is null.";
+    _out << nl << " */";
+    _out << nl << "static uncheckedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx | null"
+         << ", "
+         << "facet?: string): " << prxName << " | null;";
 
     _out << sp;
     _out << nl << "/**";

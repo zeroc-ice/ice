@@ -35,7 +35,7 @@ export class Client extends TestHelper {
         out.write("testing batch requests with connection... ");
         {
             test((await p.opBatchCount()) === 0);
-            let connection = await p.ice_getConnection();
+            const connection = await p.ice_getConnection();
             const b1 = Test.TestIntfPrx.uncheckedCast(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
             await b1.opBatch();
@@ -199,7 +199,7 @@ export class Client extends TestHelper {
             }
 
             {
-                let r: Ice.AsyncResult<void> = p.ice_ping();
+                const r: Ice.AsyncResult<void> = p.ice_ping();
                 test(r.operation === "ice_ping");
                 test(r.communicator == communicator);
                 test(r.proxy == p);
@@ -211,7 +211,7 @@ export class Client extends TestHelper {
             //
             {
                 let p2 = p.ice_oneway();
-                let r: Ice.AsyncResult<void> = p2.ice_ping();
+                const r: Ice.AsyncResult<void> = p2.ice_ping();
                 test(r.operation === "ice_ping");
                 test(r.communicator == communicator);
                 test(r.proxy == p2);
@@ -243,7 +243,7 @@ export class Client extends TestHelper {
             await testController.holdAdapter();
             const seq = new Uint8Array(new Array(100000));
             let r;
-            let requests: Ice.AsyncResult<void>[] = [];
+            const requests: Ice.AsyncResult<void>[] = [];
             while (true) {
                 r = p.opWithPayload(seq);
                 requests.push(r);

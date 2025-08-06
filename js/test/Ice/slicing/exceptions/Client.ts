@@ -18,9 +18,12 @@ export class Client extends TestHelper {
             await prx.baseAsBase();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.Base, ex);
-            test(ex.b == "Base.b");
-            test(ex.ice_id() == "::Test::Base");
+            if (ex instanceof Test.Base) {
+                test(ex.b == "Base.b");
+                test(ex.ice_id() == "::Test::Base");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -29,9 +32,12 @@ export class Client extends TestHelper {
             await prx.unknownDerivedAsBase();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.Base, ex);
-            test(ex.b == "UnknownDerived.b");
-            test(ex.ice_id() == "::Test::Base");
+            if (ex instanceof Test.Base) {
+                test(ex.b == "UnknownDerived.b");
+                test(ex.ice_id() == "::Test::Base");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -40,10 +46,13 @@ export class Client extends TestHelper {
             await prx.knownDerivedAsBase();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.KnownDerived, ex);
-            test(ex.b == "KnownDerived.b");
-            test(ex.kd == "KnownDerived.kd");
-            test(ex.ice_id() == "::Test::KnownDerived");
+            if (ex instanceof Test.KnownDerived) {
+                test(ex.b == "KnownDerived.b");
+                test(ex.kd == "KnownDerived.kd");
+                test(ex.ice_id() == "::Test::KnownDerived");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -52,10 +61,13 @@ export class Client extends TestHelper {
             await prx.knownDerivedAsKnownDerived();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.KnownDerived, ex);
-            test(ex.b == "KnownDerived.b");
-            test(ex.kd == "KnownDerived.kd");
-            test(ex.ice_id() == "::Test::KnownDerived");
+            if (ex instanceof Test.KnownDerived) {
+                test(ex.b == "KnownDerived.b");
+                test(ex.kd == "KnownDerived.kd");
+                test(ex.ice_id() == "::Test::KnownDerived");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -64,9 +76,12 @@ export class Client extends TestHelper {
             await prx.unknownIntermediateAsBase();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.Base, ex);
-            test(ex.b == "UnknownIntermediate.b");
-            test(ex.ice_id() == "::Test::Base");
+            if (ex instanceof Test.Base) {
+                test(ex.b == "UnknownIntermediate.b");
+                test(ex.ice_id() == "::Test::Base");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -75,10 +90,13 @@ export class Client extends TestHelper {
             await prx.knownIntermediateAsBase();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.KnownIntermediate, ex);
-            test(ex.b == "KnownIntermediate.b");
-            test(ex.ki == "KnownIntermediate.ki");
-            test(ex.ice_id() == "::Test::KnownIntermediate");
+            if (ex instanceof Test.KnownIntermediate) {
+                test(ex.b == "KnownIntermediate.b");
+                test(ex.ki == "KnownIntermediate.ki");
+                test(ex.ice_id() == "::Test::KnownIntermediate");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -87,11 +105,14 @@ export class Client extends TestHelper {
             await prx.knownMostDerivedAsBase();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.KnownMostDerived, ex);
-            test(ex.b == "KnownMostDerived.b");
-            test(ex.ki == "KnownMostDerived.ki");
-            test(ex.kmd == "KnownMostDerived.kmd");
-            test(ex.ice_id() == "::Test::KnownMostDerived");
+            if (ex instanceof Test.KnownMostDerived) {
+                test(ex.b == "KnownMostDerived.b");
+                test(ex.ki == "KnownMostDerived.ki");
+                test(ex.kmd == "KnownMostDerived.kmd");
+                test(ex.ice_id() == "::Test::KnownMostDerived");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -100,10 +121,13 @@ export class Client extends TestHelper {
             await prx.knownIntermediateAsKnownIntermediate();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.KnownIntermediate, ex);
-            test(ex.b == "KnownIntermediate.b");
-            test(ex.ki == "KnownIntermediate.ki");
-            test(ex.ice_id() == "::Test::KnownIntermediate");
+            if (ex instanceof Test.KnownIntermediate) {
+                test(ex.b == "KnownIntermediate.b");
+                test(ex.ki == "KnownIntermediate.ki");
+                test(ex.ice_id() == "::Test::KnownIntermediate");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -112,11 +136,14 @@ export class Client extends TestHelper {
             await prx.knownMostDerivedAsKnownIntermediate();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.KnownMostDerived, ex);
-            test(ex.b == "KnownMostDerived.b");
-            test(ex.ki == "KnownMostDerived.ki");
-            test(ex.kmd == "KnownMostDerived.kmd");
-            test(ex.ice_id() == "::Test::KnownMostDerived");
+            if (ex instanceof Test.KnownMostDerived) {
+                test(ex.b == "KnownMostDerived.b");
+                test(ex.ki == "KnownMostDerived.ki");
+                test(ex.kmd == "KnownMostDerived.kmd");
+                test(ex.ice_id() == "::Test::KnownMostDerived");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -125,11 +152,14 @@ export class Client extends TestHelper {
             await prx.knownMostDerivedAsKnownMostDerived();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.KnownMostDerived, ex);
-            test(ex.b == "KnownMostDerived.b");
-            test(ex.ki == "KnownMostDerived.ki");
-            test(ex.kmd == "KnownMostDerived.kmd");
-            test(ex.ice_id() == "::Test::KnownMostDerived");
+            if (ex instanceof Test.KnownMostDerived) {
+                test(ex.b == "KnownMostDerived.b");
+                test(ex.ki == "KnownMostDerived.ki");
+                test(ex.kmd == "KnownMostDerived.kmd");
+                test(ex.ice_id() == "::Test::KnownMostDerived");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 

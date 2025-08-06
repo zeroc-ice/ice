@@ -30,18 +30,18 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing ice_locator and ice_getLocator... ");
-        test(proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()));
+        test(proxyIdentityCompare(base.ice_getLocator()!, communicator.getDefaultLocator()));
         const anotherLocator = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("anotherLocator"));
         base = base.ice_locator(anotherLocator);
-        test(proxyIdentityCompare(base.ice_getLocator(), anotherLocator));
+        test(proxyIdentityCompare(base.ice_getLocator()!, anotherLocator));
         communicator.setDefaultLocator(null);
         base = communicator.stringToProxy("test @ TestAdapter");
         test(base.ice_getLocator() === null);
         base = base.ice_locator(anotherLocator);
-        test(proxyIdentityCompare(base.ice_getLocator(), anotherLocator));
+        test(proxyIdentityCompare(base.ice_getLocator()!, anotherLocator));
         communicator.setDefaultLocator(locator);
         base = communicator.stringToProxy("test @ TestAdapter");
-        test(proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()));
+        test(proxyIdentityCompare(base.ice_getLocator()!, communicator.getDefaultLocator()));
 
         //
         // We also test ice_router/ice_getRouter (perhaps we should add a
@@ -50,11 +50,11 @@ export class Client extends TestHelper {
         test(base.ice_getRouter() === null);
         const anotherRouter = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("anotherRouter"));
         base = base.ice_router(anotherRouter);
-        test(proxyIdentityCompare(base.ice_getRouter(), anotherRouter));
+        test(proxyIdentityCompare(base.ice_getRouter()!, anotherRouter));
         const router = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("dummyrouter"));
         communicator.setDefaultRouter(router);
         base = communicator.stringToProxy("test @ TestAdapter");
-        test(proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()));
+        test(proxyIdentityCompare(base.ice_getRouter()!, communicator.getDefaultRouter()));
         communicator.setDefaultRouter(null);
         base = communicator.stringToProxy("test @ TestAdapter");
         test(base.ice_getRouter() === null);
@@ -125,9 +125,12 @@ export class Client extends TestHelper {
             await base.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.NotRegisteredException, ex);
-            test(ex.kindOfObject == "object");
-            test(ex.id == "unknown/unknown");
+            if (ex instanceof Ice.NotRegisteredException) {
+                test(ex.kindOfObject == "object");
+                test(ex.id == "unknown/unknown");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -136,9 +139,12 @@ export class Client extends TestHelper {
         try {
             await base.ice_ping();
         } catch (ex) {
-            test(ex instanceof Ice.NotRegisteredException, ex);
-            test(ex.kindOfObject == "object adapter");
-            test(ex.id == "TestAdapterUnknown");
+            if (ex instanceof Ice.NotRegisteredException) {
+                test(ex.kindOfObject == "object adapter");
+                test(ex.id == "TestAdapterUnknown");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -239,9 +245,12 @@ export class Client extends TestHelper {
             await communicator.stringToProxy("test@TestAdapter3").ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.NotRegisteredException, ex);
-            test(ex.kindOfObject == "object adapter");
-            test(ex.id == "TestAdapter3");
+            if (ex instanceof Ice.NotRegisteredException) {
+                test(ex.kindOfObject == "object adapter");
+                test(ex.id == "TestAdapter3");
+            } else {
+                test(false, ex as Error);
+            }
         }
         await registry.setAdapterDirectProxy("TestAdapter3", await locator.findAdapterById("TestAdapter"));
         try {
@@ -249,26 +258,26 @@ export class Client extends TestHelper {
             await registry.setAdapterDirectProxy("TestAdapter3", communicator.stringToProxy("dummy:default"));
             await communicator.stringToProxy("test@TestAdapter3").ice_ping();
         } catch (ex) {
-            test(false, ex);
+            test(false, ex as Error);
         }
 
         try {
             await communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.LocalException, ex);
+            test(ex instanceof Ice.LocalException, ex as Error);
         }
         try {
             await communicator.stringToProxy("test@TestAdapter3").ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.LocalException, ex);
+            test(ex instanceof Ice.LocalException, ex as Error);
         }
         await registry.setAdapterDirectProxy("TestAdapter3", await locator.findAdapterById("TestAdapter"));
         try {
             await communicator.stringToProxy("test@TestAdapter3").ice_ping();
         } catch (ex) {
-            test(false, ex);
+            test(false, ex as Error);
         }
 
         out.writeLine("ok");
@@ -279,9 +288,12 @@ export class Client extends TestHelper {
             await communicator.stringToProxy("test3").ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.NotRegisteredException, ex);
-            test(ex.kindOfObject == "object adapter");
-            test(ex.id == "TestUnknown");
+            if (ex instanceof Ice.NotRegisteredException) {
+                test(ex.kindOfObject == "object adapter");
+                test(ex.id == "TestUnknown");
+            } else {
+                test(false, ex as Error);
+            }
         }
         await registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
         await registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
@@ -289,49 +301,49 @@ export class Client extends TestHelper {
             await communicator.stringToProxy("test3").ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.LocalException, ex);
+            test(ex instanceof Ice.LocalException, ex as Error);
         }
 
         await registry.setAdapterDirectProxy("TestAdapter4", await locator.findAdapterById("TestAdapter"));
         try {
             await communicator.stringToProxy("test3").ice_ping();
         } catch (ex) {
-            test(false, ex);
+            test(false, ex as Error);
         }
 
         await registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
         try {
             await communicator.stringToProxy("test3").ice_ping();
         } catch (ex) {
-            test(false, ex);
+            test(false, ex as Error);
         }
 
         try {
             await communicator.stringToProxy("test@TestAdapter4").ice_locatorCacheTimeout(0).ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.LocalException, ex);
+            test(ex instanceof Ice.LocalException, ex as Error);
         }
 
         try {
             await communicator.stringToProxy("test@TestAdapter4").ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.LocalException);
+            test(ex instanceof Ice.LocalException, ex as Error);
         }
 
         try {
             await communicator.stringToProxy("test3").ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.LocalException, ex);
+            test(ex instanceof Ice.LocalException, ex as Error);
         }
 
         await registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
         try {
             await communicator.stringToProxy("test3").ice_ping();
         } catch (ex) {
-            test(false, ex);
+            test(false, ex as Error);
         }
 
         await registry.addObject(communicator.stringToProxy("test4"));
@@ -339,7 +351,7 @@ export class Client extends TestHelper {
             await communicator.stringToProxy("test4").ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.NoEndpointException, ex);
+            test(ex instanceof Ice.NoEndpointException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -378,7 +390,7 @@ export class Client extends TestHelper {
                 }
             } catch (ex) {
                 // Expected to fail once they endpoints have been updated in the background.
-                test(ex instanceof Ice.LocalException, ex);
+                test(ex instanceof Ice.LocalException, ex as Error);
             }
             try {
                 while (true) {
@@ -387,7 +399,7 @@ export class Client extends TestHelper {
                 }
             } catch (ex) {
                 // Expected to fail once they endpoints have been updated in the background.
-                test(ex instanceof Ice.LocalException, ex);
+                test(ex instanceof Ice.LocalException, ex as Error);
             }
             await ic.destroy();
         }

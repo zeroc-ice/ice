@@ -25,7 +25,7 @@ export class ServantLocatorI implements Ice.ServantLocator {
         this._requestId = -1;
     }
 
-    locate(current: Ice.Current, cookie: Ice.Holder<Object>): Ice.Object | null {
+    locate(current: Ice.Current, cookie: Ice.Holder<object>): Ice.Object | null {
         test(!this._deactivated);
 
         test(current.id.category == this._category || this._category.length == 0);
@@ -52,7 +52,7 @@ export class ServantLocatorI implements Ice.ServantLocator {
         return new TestI();
     }
 
-    finished(current: Ice.Current, servant: Ice.Object, cookie: Object) {
+    finished(current: Ice.Current, servant: Ice.Object, cookie: object) {
         test(!this._deactivated);
 
         //
