@@ -441,7 +441,7 @@ class Communicator:
 
         Parameters
         ----------
-        compress : bool
+        compress : CompressBatch
             Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
         """
         self._impl.flushBatchRequests(compress)
@@ -454,7 +454,7 @@ class Communicator:
 
         Parameters
         ----------
-        compress : bool
+        compress : CompressBatch
             Specifies whether or not the queued batch requests should be compressed before being sent over the wire.
         """
         return self._impl.flushBatchRequestsAsync(compress)
