@@ -22,8 +22,10 @@ if TYPE_CHECKING:
 
 __name__ = "Ice"
 
+
 @overload
 def initialize(args: list[str] | None = None, initData: InitializationData | None = None) -> Communicator: ...
+
 
 @overload
 def initialize(
