@@ -73,16 +73,12 @@ class ObjectAdapter:
         """
         Wait until the object adapter holds requests.
 
-        Calling `hold` initiates holding of requests, and `waitForHold` only returns when holding of requests has been completed.
+        Calling `hold` initiates holding of requests, and `waitForHold` only returns when holding of requests has been
+        completed.
         """
-        #
-        # TODO should be part of the documented behavior above. Should we add a timeout parameter with a default value?
-        #
-        # If invoked by the main thread, waitForHold only blocks for
-        # the specified timeout in order to give us a chance to handle
-        # signals.
-        #
-        while not self._impl.waitForHold(1000):
+        # If invoked by the main thread, waitForHold only blocks for the specified timeout in order to give us a chance
+        # to handle signals.
+        while not self._impl.waitForHold(500):
             pass
 
     def deactivate(self) -> None:
@@ -104,14 +100,9 @@ class ObjectAdapter:
 
         A connection is closed only after all outstanding dispatches on this connection have completed.
         """
-        #
-        # TODO should be part of the documented behavior above. Should we add a timeout parameter with a default value?
-        #
-        # If invoked by the main thread, waitForDeactivate only blocks for
-        # the specified timeout in order to give us a chance to handle
-        # signals.
-        #
-        while not self._impl.waitForDeactivate(1000):
+        # If invoked by the main thread, waitForDeactivate only blocks for the specified timeout in order to give us a
+        # chance to handle signals.
+        while not self._impl.waitForDeactivate(500):
             pass
 
     def isDeactivated(self) -> bool:
@@ -212,7 +203,7 @@ class ObjectAdapter:
         ObjectPrx
             A proxy that matches the generated UUID identity, facet, and this object adapter.
         """
-        return self._impl.addFacetWIthUUID(servant, facet)
+        return self._impl.addFacetWithUUID(servant, facet)
 
     def addDefaultServant(self, servant: Object, category: str) -> None:
         """
@@ -582,13 +573,13 @@ class ObjectAdapter:
         """
         return self._impl.getPublishedEndpoints()
 
-    def setPublishedEndpoints(self, newEndpoints: tuple[IcePy.Endpoint, ...]) -> None:
+    def setPublishedEndpoints(self, newEndpoints: tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]) -> None:
         """
         Set the endpoints that proxies created by this object adapter will contain.
 
         Parameters
         ----------
-        newEndpoints : tuple[IcePy.Endpoint, ...]
+        newEndpoints : tuple[IcePy.Endpoint, ...] | list[IcePy.Endpoint]
             The new set of endpoints that the object adapter will embed in proxies.
         """
         self._impl.setPublishedEndpoints(newEndpoints)

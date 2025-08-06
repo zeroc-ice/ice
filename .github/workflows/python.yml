@@ -50,4 +50,7 @@ jobs:
           make -C python
 
       - name: Pyright check
-        run: pyright python/python
+        run: |-
+          pyright python/python
+          pyright python/test/Glacier2
+          pyright python/test/Ice/adapterDeactivation

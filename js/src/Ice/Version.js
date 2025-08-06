@@ -4,7 +4,7 @@ export const Ice = {};
 
 /**
  *  A version structure for the protocol version.
- **/
+ */
 Ice.ProtocolVersion = class {
     constructor(major = 0, minor = 0) {
         this.major = major;
@@ -31,7 +31,7 @@ Ice.ProtocolVersion = class {
 
 /**
  *  A version structure for the encoding version.
- **/
+ */
 Ice.EncodingVersion = class {
     constructor(major = 0, minor = 0) {
         this.major = major;

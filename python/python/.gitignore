@@ -3,7 +3,12 @@ IceMX/*
 IceStorm/*
 IceBox/*
 Glacier2/*
+
+# Ignore IcePy library
 IcePy.*
+
+# Do not ignore IcePy.pyi, it is used for type checking
+!IcePy.pyi
 
 # Generated files for Python Ice package
 Ice/AdapterAlreadyActiveException.py

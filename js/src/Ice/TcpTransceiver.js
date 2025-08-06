@@ -135,7 +135,7 @@ class TcpTransceiver {
      *
      * @param byteBuffer the byte buffer to write.
      * @returns Whether or not the write operation completed synchronously.
-     **/
+     */
     write(byteBuffer) {
         if (this._exception) {
             throw this._exception;

@@ -291,12 +291,6 @@ class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
             ),
         ]
 
-        if "GITHUB_ACTIONS" in os.environ and platform.system() in ["Windows", "Darwin"]:
-            # On GitHub Actions Windows and macOS runners, the FQDN does not always resolve to an IP address
-            # assigned to a local interface. This breaks tests that use the FQDN in a proxy endpoint.
-            # See: https://github.com/zeroc-ice/ice/issues/4169
-            limitedTests = True
-
         if not limitedTests:
             testcases.extend(
                 [

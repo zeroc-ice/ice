@@ -11,7 +11,7 @@ import { StringUtil } from "./StringUtil.js";
  * @param toStringMode Specifies if and how non-printable ASCII characters are escaped in the result.
  *
  * @return The string representation of the object identity.
- **/
+ */
 export function identityToString(ident, toStringMode = ToStringMode.Unicode) {
     if (ident.category === null || ident.category.length === 0) {
         return StringUtil.escapeString(ident.name, "/", toStringMode);

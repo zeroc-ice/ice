@@ -403,7 +403,7 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeRemarks,
         writeRemarks(_out, *comment);
     }
 
-    _out << nl << " **/";
+    _out << nl << " */";
 }
 
 Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool typeScript)
@@ -2396,7 +2396,19 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "/**";
     _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
     _out << nl << " * @param prx The target proxy.";
-    _out << nl << " * @returns A proxy with the requested type.";
+    _out << nl << " * @param facet An optional facet name.";
+    _out << nl << " * @returns A proxy with the requested type and facet, or null if the target proxy is null.";
+    _out << nl << " */";
+    _out << nl << "static uncheckedCast(prx: null"
+         << ", "
+         << "facet?: string): null;";
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
+    _out << nl << " * @param prx The target proxy.";
+    _out << nl << " * @param facet An optional facet name.";
+    _out << nl << " * @returns A proxy with the requested type and facet, or null if the target proxy is null.";
     _out << nl << " */";
     _out << nl << "static uncheckedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx"
          << ", "
@@ -2406,13 +2418,13 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "/**";
     _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
     _out << nl << " * @param prx The target proxy.";
-    _out << nl << " * @param facet A facet name.";
+    _out << nl << " * @param facet An optional facet name.";
     _out << nl << " * @param context The request context.";
     _out << nl
-         << " * @returns A proxy with the requested type and facet, or nil if the target proxy is nil or the target";
+         << " * @returns A proxy with the requested type and facet, or null if the target proxy is null or the target";
     _out << nl << " * object does not support the requested type.";
     _out << nl << " */";
-    _out << nl << "static checkedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx"
+    _out << nl << "static checkedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx | null"
          << ", "
          << "facet?: string, context?: Map<string, string>): " << _iceImportPrefix << "Ice.AsyncResult"
          << "<" << prxName << " | null>;";
@@ -2461,13 +2473,13 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         if (!ret && outParams.empty())
         {
-            _out << "PromiseLike<void>|void";
+            _out << "PromiseLike<void> | void";
         }
         else if ((ret && outParams.empty()) || (!ret && outParams.size() == 1))
         {
             TypePtr t = ret ? ret : outParams.front()->type();
             string returnType = typeToTsString(t, true, false, op->returnIsOptional());
-            _out << "PromiseLike<" << returnType << ">|" << returnType;
+            _out << "PromiseLike<" << returnType << "> | " << returnType;
         }
         else
         {
@@ -2485,10 +2497,23 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     os << ", ";
                 }
             }
-            _out << "PromiseLike<[" << os.str() << "]>|[" << os.str() << "]";
+            _out << "PromiseLike<[" << os.str() << "]> | [" << os.str() << "]";
         }
         _out << ";";
     }
+
+    _out << sp;
+    _out << nl << "/**";
+    _out << nl << " * Dispatches an incoming request to one of the methods of this generated class, based on the "
+         << "operation name carried by the request.";
+    _out << nl << " *";
+    _out << nl << " * @param request The incoming request.";
+    _out << nl << " * @returns The outgoing response (when the selected method returns a value),";
+    _out << nl << " * or a promise with the outgoing response (when the selected method returns a promise).";
+    _out << nl << " * @remarks Ice marshals any exception thrown by this method into the response.";
+    _out << nl << " */";
+    _out << nl << "dispatch(request: " << _iceImportPrefix << "Ice.IncomingRequest): " << _iceImportPrefix
+         << "Ice.OutgoingResponse | PromiseLike<" << _iceImportPrefix << "Ice.OutgoingResponse>;";
 
     _out << sp;
     _out << nl << "/**";

@@ -1,12 +1,12 @@
 {
     "include": ["python"],
     "extraPaths": ["python/python"],
-    // "stubPath": "python/stubs",
     "typeCheckingMode": "standard",
     "reportMissingTypeAnnotation": "error",
     "reportMissingParameterType": "error",
     "reportMissingReturnType": "error",
     "reportUntypedFunctionDecorator": "error",
     "reportUntypedClassDecorator": "error",
-    "reportUntypedBaseClass": "error"
+    "reportUntypedBaseClass": "error",
+    "reportUnnecessaryComparison": "warning",
 }
