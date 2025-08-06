@@ -2207,7 +2207,7 @@ namespace
         {
             for (const auto& op : interface->operations())
             {
-                if (op->returnsMultipleValues())
+                if (op->returnsMultipleValues() || op->hasMarshaledResult())
                 {
                     return true;
                 }
