@@ -114,7 +114,9 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestInt
 
         adapter.destroy()
         try:
-            obj.ice_getConnection().setAdapter(adapter)
+            con = obj.ice_getConnection()
+            assert con is not None
+            con.setAdapter(adapter)
             test(False)
         except Ice.ObjectAdapterDestroyedException:
             pass

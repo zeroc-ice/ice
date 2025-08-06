@@ -950,7 +950,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_isFixed()
 
-    def ice_getConnection(self) -> IcePy.Connection:
+    def ice_getConnection(self) -> IcePy.Connection | None:
         """
         Returns the Connection for this proxy. If the proxy does not yet have an established connection,
         it first attempts to create a connection.
