@@ -21,46 +21,46 @@ def test(b):
 
 
 class TestI(Test.TestIntf):
-    def SBaseAsObject(self, current):
+    def SBaseAsObject(self, current: Ice.Current):
         sb = Test.SBase()
         sb.sb = "SBase.sb"
         return Ice.Future.completed(sb)
 
-    def SBaseAsSBase(self, current):
+    def SBaseAsSBase(self, current: Ice.Current):
         sb = Test.SBase()
         sb.sb = "SBase.sb"
         return Ice.Future.completed(sb)
 
-    def SBSKnownDerivedAsSBase(self, current):
+    def SBSKnownDerivedAsSBase(self, current: Ice.Current):
         sbskd = Test.SBSKnownDerived()
         sbskd.sb = "SBSKnownDerived.sb"
         sbskd.sbskd = "SBSKnownDerived.sbskd"
         return Ice.Future.completed(sbskd)
 
-    def SBSKnownDerivedAsSBSKnownDerived(self, current):
+    def SBSKnownDerivedAsSBSKnownDerived(self, current: Ice.Current):
         sbskd = Test.SBSKnownDerived()
         sbskd.sb = "SBSKnownDerived.sb"
         sbskd.sbskd = "SBSKnownDerived.sbskd"
         return Ice.Future.completed(sbskd)
 
-    def SBSUnknownDerivedAsSBase(self, current):
+    def SBSUnknownDerivedAsSBase(self, current: Ice.Current):
         sbsud = ServerPrivateTest.SBSUnknownDerived()
         sbsud.sb = "SBSUnknownDerived.sb"
         sbsud.sbsud = "SBSUnknownDerived.sbsud"
         return Ice.Future.completed(sbsud)
 
-    def SBSUnknownDerivedAsSBaseCompact(self, current):
+    def SBSUnknownDerivedAsSBaseCompact(self, current: Ice.Current):
         sbsud = ServerPrivateTest.SBSUnknownDerived()
         sbsud.sb = "SBSUnknownDerived.sb"
         sbsud.sbsud = "SBSUnknownDerived.sbsud"
         return Ice.Future.completed(sbsud)
 
-    def SUnknownAsObject(self, current):
+    def SUnknownAsObject(self, current: Ice.Current):
         su = ServerPrivateTest.SUnknown()
         su.su = "SUnknown.su"
         return Ice.Future.completed(su)
 
-    def checkSUnknown(self, obj, current):
+    def checkSUnknown(self, obj, current: Ice.Current):
         if current.encoding == Ice.Encoding_1_0:
             test(not isinstance(obj, ServerPrivateTest.SUnknown))
         else:
@@ -68,13 +68,13 @@ class TestI(Test.TestIntf):
             test(obj.su == "SUnknown.su")
         return Ice.Future.completed(None)
 
-    def oneElementCycle(self, current):
+    def oneElementCycle(self, current: Ice.Current):
         b = Test.B()
         b.sb = "B1.sb"
         b.pb = b
         return Ice.Future.completed(b)
 
-    def twoElementCycle(self, current):
+    def twoElementCycle(self, current: Ice.Current):
         b1 = Test.B()
         b1.sb = "B1.sb"
         b2 = Test.B()
@@ -83,7 +83,7 @@ class TestI(Test.TestIntf):
         b1.pb = b2
         return Ice.Future.completed(b1)
 
-    def D1AsB(self, current):
+    def D1AsB(self, current: Ice.Current):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -96,7 +96,7 @@ class TestI(Test.TestIntf):
         d1.pd1 = d2
         return Ice.Future.completed(d1)
 
-    def D1AsD1(self, current):
+    def D1AsD1(self, current: Ice.Current):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -109,7 +109,7 @@ class TestI(Test.TestIntf):
         d1.pd1 = d2
         return Ice.Future.completed(d1)
 
-    def D2AsB(self, current):
+    def D2AsB(self, current: Ice.Current):
         d2 = Test.D2()
         d2.sb = "D2.sb"
         d2.sd2 = "D2.sd2"
@@ -122,7 +122,7 @@ class TestI(Test.TestIntf):
         d2.pd2 = d1
         return Ice.Future.completed(d2)
 
-    def paramTest1(self, current):
+    def paramTest1(self, current: Ice.Current):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -135,7 +135,7 @@ class TestI(Test.TestIntf):
         d1.pd1 = d2
         return Ice.Future.completed((d1, d2))
 
-    def paramTest2(self, current):
+    def paramTest2(self, current: Ice.Current):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -148,7 +148,7 @@ class TestI(Test.TestIntf):
         d1.pd1 = d2
         return Ice.Future.completed((d2, d1))
 
-    def paramTest3(self, current):
+    def paramTest3(self, current: Ice.Current):
         d2 = Test.D2()
         d2.sb = "D2.sb (p1 1)"
         d2.pb = None
@@ -175,7 +175,7 @@ class TestI(Test.TestIntf):
 
         return Ice.Future.completed((d3, d2, d4))
 
-    def paramTest4(self, current):
+    def paramTest4(self, current: Ice.Current):
         d4 = ServerPrivateTest.D4()
         d4.sb = "D4.sb (1)"
         d4.pb = None
@@ -187,7 +187,7 @@ class TestI(Test.TestIntf):
         d4.p2.pb = None
         return Ice.Future.completed((d4.p2, d4))
 
-    def returnTest1(self, current):
+    def returnTest1(self, current: Ice.Current):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -200,7 +200,7 @@ class TestI(Test.TestIntf):
         d1.pd1 = d2
         return Ice.Future.completed((d2, d2, d1))
 
-    def returnTest2(self, current):
+    def returnTest2(self, current: Ice.Current):
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -213,16 +213,16 @@ class TestI(Test.TestIntf):
         d1.pd1 = d2
         return Ice.Future.completed((d1, d1, d2))
 
-    def returnTest3(self, p1, p2, current):
+    def returnTest3(self, p1, p2, current: Ice.Current):
         return Ice.Future.completed(p1)
 
-    def sequenceTest(self, p1, p2, current):
+    def sequenceTest(self, p1, p2, current: Ice.Current):
         ss = Test.SS3()
         ss.c1 = p1
         ss.c2 = p2
         return Ice.Future.completed(ss)
 
-    def dictionaryTest(self, bin, current):
+    def dictionaryTest(self, bin, current: Ice.Current):
         bout = {}
         for i in range(0, 10):
             b = bin[i]
@@ -248,10 +248,10 @@ class TestI(Test.TestIntf):
 
         return Ice.Future.completed((r, bout))
 
-    def exchangePBase(self, pb, current):
+    def exchangePBase(self, pb, current: Ice.Current):
         return Ice.Future.completed(pb)
 
-    def PBSUnknownAsPreserved(self, current):
+    def PBSUnknownAsPreserved(self, current: Ice.Current):
         r = ServerPrivateTest.PSUnknown()
         r.pi = 5
         r.ps = "preserved"
@@ -259,7 +259,7 @@ class TestI(Test.TestIntf):
         r.graph = None
         return Ice.Future.completed(r)
 
-    def checkPBSUnknown(self, p, current):
+    def checkPBSUnknown(self, p, current: Ice.Current):
         if current.encoding == Ice.Encoding_1_0:
             test(not isinstance(p, ServerPrivateTest.PSUnknown))
             test(p.pi == 5)
@@ -272,7 +272,7 @@ class TestI(Test.TestIntf):
             test(not p.graph)
         return Ice.Future.completed(None)
 
-    def PBSUnknownAsPreservedWithGraph(self, current):
+    def PBSUnknownAsPreservedWithGraph(self, current: Ice.Current):
         r = ServerPrivateTest.PSUnknown()
         r.pi = 5
         r.ps = "preserved"
@@ -284,7 +284,7 @@ class TestI(Test.TestIntf):
         return Ice.Future.completed(r)
         # r.graph.next.next.next = None   # Break the cycle.
 
-    def checkPBSUnknownWithGraph(self, p, current):
+    def checkPBSUnknownWithGraph(self, p, current: Ice.Current):
         if current.encoding == Ice.Encoding_1_0:
             test(not isinstance(p, ServerPrivateTest.PSUnknown))
             test(p.pi == 5)
@@ -300,7 +300,7 @@ class TestI(Test.TestIntf):
             p.graph.next.next.next = None  # Break the cycle.
         return Ice.Future.completed(None)
 
-    def PBSUnknown2AsPreservedWithGraph(self, current):
+    def PBSUnknown2AsPreservedWithGraph(self, current: Ice.Current):
         r = ServerPrivateTest.PSUnknown2()
         r.pi = 5
         r.ps = "preserved"
@@ -308,7 +308,7 @@ class TestI(Test.TestIntf):
         return Ice.Future.completed(r)
         # r.pb = None         # Break the cycle.
 
-    def checkPBSUnknown2WithGraph(self, p, current):
+    def checkPBSUnknown2WithGraph(self, p, current: Ice.Current):
         if current.encoding == Ice.Encoding_1_0:
             test(not isinstance(p, ServerPrivateTest.PSUnknown2))
             test(p.pi == 5)
@@ -321,10 +321,10 @@ class TestI(Test.TestIntf):
             p.pb = None  # Break the cycle.
         return Ice.Future.completed(None)
 
-    def exchangePNode(self, pn, current):
+    def exchangePNode(self, pn, current: Ice.Current):
         return Ice.Future.completed(pn)
 
-    def throwBaseAsBase(self, current):
+    def throwBaseAsBase(self, current: Ice.Current):
         be = Test.BaseException()
         be.sbe = "sbe"
         be.pb = Test.B()
@@ -334,7 +334,7 @@ class TestI(Test.TestIntf):
         f.set_exception(be)
         return f
 
-    def throwDerivedAsBase(self, current):
+    def throwDerivedAsBase(self, current: Ice.Current):
         de = Test.DerivedException()
         de.sbe = "sbe"
         de.pb = Test.B()
@@ -350,7 +350,7 @@ class TestI(Test.TestIntf):
         f.set_exception(de)
         return f
 
-    def throwDerivedAsDerived(self, current):
+    def throwDerivedAsDerived(self, current: Ice.Current):
         de = Test.DerivedException()
         de.sbe = "sbe"
         de.pb = Test.B()
@@ -366,7 +366,7 @@ class TestI(Test.TestIntf):
         f.set_exception(de)
         return f
 
-    def throwUnknownDerivedAsBase(self, current):
+    def throwUnknownDerivedAsBase(self, current: Ice.Current):
         d2 = Test.D2()
         d2.sb = "sb d2"
         d2.pb = d2
@@ -382,18 +382,18 @@ class TestI(Test.TestIntf):
         f.set_exception(ude)
         return f
 
-    def useForward(self, current):
+    def useForward(self, current: Ice.Current):
         fwd = Test.Forward()
         fwd.h = Test.Hidden()
         fwd.h.f = fwd
         return Ice.Future.completed(fwd)
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
 
 class ServerAMD(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "0")
         with self.initialize(properties=properties) as communicator:

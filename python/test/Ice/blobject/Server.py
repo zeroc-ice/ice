@@ -16,22 +16,22 @@ import Ice
 
 
 class TestI(Test.Hello):
-    def sayHello(self, delay, current):
+    def sayHello(self, delay, current: Ice.Current):
         if delay != 0:
             time.sleep(delay / 1000.0)
 
-    def raiseUE(self, current):
+    def raiseUE(self, current: Ice.Current):
         raise Test.UE()
 
-    def add(self, s1, s2, current):
+    def add(self, s1, s2, current: Ice.Current):
         return s1 + s2
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         #
         # Its possible to have batch oneway requests dispatched after the

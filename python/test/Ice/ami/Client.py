@@ -13,7 +13,7 @@ import AllTests
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.AMICallback", "0")
         properties.setProperty("Ice.Warn.Connections", "0")

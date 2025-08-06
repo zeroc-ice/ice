@@ -16,7 +16,7 @@ import Ice
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         initData = Ice.InitializationData()
         initData.properties = self.createTestProperties(args)
 

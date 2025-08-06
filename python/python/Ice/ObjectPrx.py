@@ -123,8 +123,7 @@ async def checkedCastAsync(
     return IcePy.ObjectPrx.newProxy(type, proxy) if b else None
 
 
-# TODO: fix type hinting for IcePy.ObjectPrx
-class ObjectPrx(IcePy.ObjectPrx):  # type: ignore
+class ObjectPrx(IcePy.ObjectPrx):
     """
     The base class for all proxies.
     """

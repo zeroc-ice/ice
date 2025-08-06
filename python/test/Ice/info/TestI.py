@@ -23,10 +23,10 @@ class MyDerivedClassI(Test.TestIntf):
     def __init__(self):
         self.ctx = None
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
-    def getEndpointInfoAsContext(self, current):
+    def getEndpointInfoAsContext(self, current: Ice.Current):
         ctx = {}
         info = getIPEndpointInfo(current.con.getEndpoint().getInfo())
         if info.compress:
@@ -56,7 +56,7 @@ class MyDerivedClassI(Test.TestIntf):
 
         return ctx
 
-    def getConnectionInfoAsContext(self, current):
+    def getConnectionInfoAsContext(self, current: Ice.Current):
         ctx = {}
         info = current.con.getInfo()
         ipinfo = getIPConnectionInfo(info)

@@ -19,14 +19,14 @@ class ServerLocatorRegistry(Test.TestLocatorRegistry):
         self._adapters = {}
         self._objects = {}
 
-    def setAdapterDirectProxy(self, adapter, obj, current):
+    def setAdapterDirectProxy(self, adapter, obj, current: Ice.Current):
         if obj:
             self._adapters[adapter] = obj
         else:
             self._adapters.pop(adapter)
         return None
 
-    def setReplicatedAdapterDirectProxy(self, adapter, replica, obj, current):
+    def setReplicatedAdapterDirectProxy(self, adapter, replica, obj, current: Ice.Current):
         if obj:
             self._adapters[adapter] = obj
             self._adapters[replica] = obj
@@ -35,10 +35,10 @@ class ServerLocatorRegistry(Test.TestLocatorRegistry):
             self._adapters.pop(replica)
         return None
 
-    def setServerProcessProxy(self, id, proxy, current):
+    def setServerProcessProxy(self, id, proxy, current: Ice.Current):
         return None
 
-    def addObject(self, obj, current):
+    def addObject(self, obj, current: Ice.Current):
         self._addObject(obj)
 
     def _addObject(self, obj):
@@ -61,18 +61,18 @@ class ServerLocator(Test.TestLocator):
         self._registryPrx = registryPrx
         self._requestCount = 0
 
-    def findObjectById(self, id, current):
+    def findObjectById(self, id, current: Ice.Current):
         self._requestCount += 1
         return Ice.Future.completed(self._registry.getObject(id))
 
-    def findAdapterById(self, id, current):
+    def findAdapterById(self, id, current: Ice.Current):
         self._requestCount += 1
         return Ice.Future.completed(self._registry.getAdapter(id))
 
-    def getRegistry(self, current):
+    def getRegistry(self, current: Ice.Current):
         return self._registryPrx
 
-    def getRequestCount(self, current):
+    def getRequestCount(self, current: Ice.Current):
         return self._requestCount
 
 
@@ -87,7 +87,7 @@ class ServerManagerI(Test.ServerManager):
         self._initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter")
         self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
 
-    def startServer(self, current):
+    def startServer(self, current: Ice.Current):
         #
         # Simulate a server: create a new communicator and object
         # adapter. The object adapter is started on a system allocated
@@ -141,14 +141,14 @@ class ServerManagerI(Test.ServerManager):
                 if adapter2:
                     adapter2.destroy()
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         for i in self._communicators:
             i.destroy()
         current.adapter.getCommunicator().shutdown()
 
 
 class HelloI(Test.Hello):
-    def sayHello(self, current):
+    def sayHello(self, current: Ice.Current):
         pass
 
 
@@ -159,16 +159,16 @@ class TestI(Test.TestIntf):
         self._registry = registry
         self._registry._addObject(self._adapter1.add(HelloI(), Ice.stringToIdentity("hello")))
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         self._adapter1.getCommunicator().shutdown()
 
-    def getHello(self, current):
+    def getHello(self, current: Ice.Current):
         return Test.HelloPrx.uncheckedCast(self._adapter1.createIndirectProxy(Ice.stringToIdentity("hello")))
 
-    def getReplicatedHello(self, current):
+    def getReplicatedHello(self, current: Ice.Current):
         return Test.HelloPrx.uncheckedCast(self._adapter1.createProxy(Ice.stringToIdentity("hello")))
 
-    def migrateHello(self, current):
+    def migrateHello(self, current: Ice.Current):
         id = Ice.stringToIdentity("hello")
         try:
             self._registry._addObject(self._adapter2.add(self._adapter1.remove(id), id))
@@ -177,7 +177,7 @@ class TestI(Test.TestIntf):
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         initData = Ice.InitializationData()
         initData.properties = self.createTestProperties(args)
 

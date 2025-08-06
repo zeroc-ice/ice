@@ -35,39 +35,39 @@ def test(b):
 
 
 class CustomI(Test.Custom):
-    def opByteString1(self, b1, current):
+    def opByteString1(self, b1, current: Ice.Current):
         test(isinstance(b1, bytes))
         return (b1, b1)
 
-    def opByteString2(self, b1, current):
+    def opByteString2(self, b1, current: Ice.Current):
         test(isinstance(b1, list))
         return (b1, b1)
 
-    def opByteList1(self, b1, current):
+    def opByteList1(self, b1, current: Ice.Current):
         test(isinstance(b1, list))
         return (b1, b1)
 
-    def opByteList2(self, b1, current):
+    def opByteList2(self, b1, current: Ice.Current):
         test(isinstance(b1, tuple))
         return (b1, b1)
 
-    def opStringList1(self, s1, current):
+    def opStringList1(self, s1, current: Ice.Current):
         test(isinstance(s1, list))
         return (s1, s1)
 
-    def opStringList2(self, s1, current):
+    def opStringList2(self, s1, current: Ice.Current):
         test(isinstance(s1, tuple))
         return (s1, s1)
 
-    def opStringTuple1(self, s1, current):
+    def opStringTuple1(self, s1, current: Ice.Current):
         test(isinstance(s1, tuple))
         return (s1, s1)
 
-    def opStringTuple2(self, s1, current):
+    def opStringTuple2(self, s1, current: Ice.Current):
         test(isinstance(s1, list))
         return (s1, s1)
 
-    def sendS(self, val, current):
+    def sendS(self, val, current: Ice.Current):
         test(isinstance(val.b1, bytes))
         test(isinstance(val.b2, list))
         test(isinstance(val.b4, list))
@@ -75,7 +75,7 @@ class CustomI(Test.Custom):
         test(isinstance(val.s2, tuple))
         test(isinstance(val.s3, tuple))
 
-    def sendC(self, val, current):
+    def sendC(self, val, current: Ice.Current):
         test(isinstance(val.b1, bytes))
         test(isinstance(val.b2, list))
         test(isinstance(val.b4, list))
@@ -83,130 +83,130 @@ class CustomI(Test.Custom):
         test(isinstance(val.s2, tuple))
         test(isinstance(val.s3, tuple))
 
-    def opBoolSeq(self, v1, current):
+    def opBoolSeq(self, v1, current: Ice.Current):
         test(isinstance(v1, array.array))
         return v1, v1
 
-    def opByteSeq(self, v1, current):
+    def opByteSeq(self, v1, current: Ice.Current):
         test(isinstance(v1, array.array))
         return v1, v1
 
-    def opShortSeq(self, v1, current):
+    def opShortSeq(self, v1, current: Ice.Current):
         test(isinstance(v1, array.array))
         return v1, v1
 
-    def opIntSeq(self, v1, current):
+    def opIntSeq(self, v1, current: Ice.Current):
         test(isinstance(v1, array.array))
         return v1, v1
 
-    def opLongSeq(self, v1, current):
+    def opLongSeq(self, v1, current: Ice.Current):
         test(isinstance(v1, array.array))
         return v1, v1
 
-    def opFloatSeq(self, v1, current):
+    def opFloatSeq(self, v1, current: Ice.Current):
         test(isinstance(v1, array.array))
         return v1, v1
 
-    def opDoubleSeq(self, v1, current):
+    def opDoubleSeq(self, v1, current: Ice.Current):
         test(isinstance(v1, array.array))
         return v1, v1
 
-    def opBogusArrayNotExistsFactory(self, current):
+    def opBogusArrayNotExistsFactory(self, current: Ice.Current):
         return [True, False, True, False]
 
-    def opBogusArrayThrowFactory(self, current):
+    def opBogusArrayThrowFactory(self, current: Ice.Current):
         return [True, False, True, False]
 
-    def opBogusArrayType(self, current):
+    def opBogusArrayType(self, current: Ice.Current):
         return [True, False, True, False]
 
-    def opBogusArrayNoneFactory(self, current):
+    def opBogusArrayNoneFactory(self, current: Ice.Current):
         return [True, False, True, False]
 
-    def opBogusArraySignatureFactory(self, current):
+    def opBogusArraySignatureFactory(self, current: Ice.Current):
         return [True, False, True, False]
 
-    def opBogusArrayNoCallableFactory(self, current):
+    def opBogusArrayNoCallableFactory(self, current: Ice.Current):
         return [True, False, True, False]
 
-    def opD(self, d, current):
+    def opD(self, d, current: Ice.Current):
         return d
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
 
 if hasNumPy:
 
     class NumPyCustomI(NumPy.Custom):
-        def opBoolSeq(self, v1, current):
+        def opBoolSeq(self, v1, current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
-        def opByteSeq(self, v1, current):
+        def opByteSeq(self, v1, current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
-        def opShortSeq(self, v1, current):
+        def opShortSeq(self, v1, current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
-        def opIntSeq(self, v1, current):
+        def opIntSeq(self, v1, current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
-        def opLongSeq(self, v1, current):
+        def opLongSeq(self, v1, current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
-        def opFloatSeq(self, v1, current):
+        def opFloatSeq(self, v1, current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
-        def opDoubleSeq(self, v1, current):
+        def opDoubleSeq(self, v1, current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
-        def opComplex128Seq(self, v1, current):
+        def opComplex128Seq(self, v1, current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1
 
-        def opBoolMatrix(self, current):
+        def opBoolMatrix(self, current: Ice.Current):
             return numpy.array(
                 [[True, False, True], [True, False, True], [True, False, True]],
                 numpy.bool_,
             )
 
-        def opByteMatrix(self, current):
+        def opByteMatrix(self, current: Ice.Current):
             return numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int8)
 
-        def opShortMatrix(self, current):
+        def opShortMatrix(self, current: Ice.Current):
             return numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int16)
 
-        def opIntMatrix(self, current):
+        def opIntMatrix(self, current: Ice.Current):
             return numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int32)
 
-        def opLongMatrix(self, current):
+        def opLongMatrix(self, current: Ice.Current):
             return numpy.array([[1, 0, 1], [1, 0, 1], [1, 0, 1]], numpy.int64)
 
-        def opFloatMatrix(self, current):
+        def opFloatMatrix(self, current: Ice.Current):
             return numpy.array([[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float32)
 
-        def opDoubleMatrix(self, current):
+        def opDoubleMatrix(self, current: Ice.Current):
             return numpy.array([[1.1, 0.1, 1.1], [1.1, 0.1, 1.1], [1.1, 0.1, 1.1]], numpy.float64)
 
-        def opBogusNumpyArrayType(self, current):
+        def opBogusNumpyArrayType(self, current: Ice.Current):
             return [True, False, True, False]
 
-        def opD(self, d, current):
+        def opD(self, d, current: Ice.Current):
             return d
 
-        def shutdown(self, current):
+        def shutdown(self, current: Ice.Current):
             current.adapter.getCommunicator().shutdown()
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         with self.initialize(args=args) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")

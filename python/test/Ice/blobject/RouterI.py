@@ -127,7 +127,7 @@ class ServantLocatorI(Ice.ServantLocator):
     def __init__(self, blobject):
         self._blobject = blobject
 
-    def locate(self, current):
+    def locate(self, current: Ice.Current):
         return self._blobject  # and the cookie
 
     def finished(self, current, object, cookie):
@@ -153,13 +153,13 @@ class RouterI(Ice.Router):
     def useSync(self, sync):
         self._locator.useSync(sync)
 
-    def getClientProxy(self, current):
+    def getClientProxy(self, current: Ice.Current):
         return (self._blobjectProxy, True)
 
-    def getServerProxy(self, current):
+    def getServerProxy(self, current: Ice.Current):
         assert False
 
-    def addProxies(self, proxies, current):
+    def addProxies(self, proxies, current: Ice.Current):
         for p in proxies:
             self._blobject.add(p)
 

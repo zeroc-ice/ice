@@ -11,33 +11,33 @@ def test(b):
 
 
 class TestI(Test.TestIntf):
-    def requestFailedException(self, current):
+    def requestFailedException(self, current: Ice.Current):
         return None
 
-    def unknownUserException(self, current):
+    def unknownUserException(self, current: Ice.Current):
         return None
 
-    def unknownLocalException(self, current):
+    def unknownLocalException(self, current: Ice.Current):
         return None
 
-    def unknownException(self, current):
+    def unknownException(self, current: Ice.Current):
         return None
 
-    def localException(self, current):
+    def localException(self, current: Ice.Current):
         return None
 
-    def userException(self, current):
+    def userException(self, current: Ice.Current):
         return None
 
-    def pythonException(self, current):
+    def pythonException(self, current: Ice.Current):
         return None
 
-    def unknownExceptionWithServantException(self, current):
+    def unknownExceptionWithServantException(self, current: Ice.Current):
         f = Ice.Future()
         f.set_exception(Ice.ObjectNotExistException())
         return f
 
-    def impossibleException(self, shouldThrow, current):
+    def impossibleException(self, shouldThrow, current: Ice.Current):
         f = Ice.Future()
         if shouldThrow:
             f.set_exception(Test.TestImpossibleException())
@@ -49,7 +49,7 @@ class TestI(Test.TestIntf):
             f.set_result("Hello")
         return f
 
-    def intfUserException(self, shouldThrow, current):
+    def intfUserException(self, shouldThrow, current: Ice.Current):
         f = Ice.Future()
         if shouldThrow:
             f.set_exception(Test.TestIntfUserException())
@@ -61,14 +61,14 @@ class TestI(Test.TestIntf):
             f.set_result("Hello")
         return f
 
-    def asyncResponse(self, current):
+    def asyncResponse(self, current: Ice.Current):
         #
         # We can't do this with futures.
         #
         # return Ice.Future.completed(None)
         raise Ice.ObjectNotExistException()
 
-    def asyncException(self, current):
+    def asyncException(self, current: Ice.Current):
         #
         # We can't do this with futures.
         #
@@ -77,7 +77,7 @@ class TestI(Test.TestIntf):
         # return f
         raise Ice.ObjectNotExistException()
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.deactivate()
 
 
@@ -95,7 +95,7 @@ class ServantLocatorI(Ice.ServantLocator):
     def __del__(self):
         test(self._deactivated)
 
-    def locate(self, current):
+    def locate(self, current: Ice.Current):
         test(not self._deactivated)
 
         test(current.id.category == self._category or self._category == "")
@@ -144,7 +144,7 @@ class ServantLocatorI(Ice.ServantLocator):
 
         self._deactivated = True
 
-    def exception(self, current):
+    def exception(self, current: Ice.Current):
         if current.operation == "ice_ids":
             raise Test.TestIntfUserException()
         elif current.operation == "requestFailedException":

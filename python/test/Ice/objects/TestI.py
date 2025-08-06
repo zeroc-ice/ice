@@ -29,111 +29,111 @@ class InitialI(Test.Initial):
         self._d.theB = self._b2  # Reference to a B.
         self._d.theC = None  # Reference to a C.
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         self._shutdown()
 
     def _shutdown(self):
         self._adapter.getCommunicator().shutdown()
 
-    def getB1(self, current):
+    def getB1(self, current: Ice.Current):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False
         self._c.preMarshalInvoked = False
         return self._b1
 
-    def getB2(self, current):
+    def getB2(self, current: Ice.Current):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False
         self._c.preMarshalInvoked = False
         return self._b2
 
-    def getC(self, current):
+    def getC(self, current: Ice.Current):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False
         self._c.preMarshalInvoked = False
         return self._c
 
-    def getD(self, current):
+    def getD(self, current: Ice.Current):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False
         self._c.preMarshalInvoked = False
         self._d.preMarshalInvoked = False
         return self._d
 
-    def setRecursive(self, r, current):
+    def setRecursive(self, r, current: Ice.Current):
         pass
 
-    def setCycle(self, r, current):
+    def setCycle(self, r, current: Ice.Current):
         pass
 
-    def acceptsClassCycles(self, current):
+    def acceptsClassCycles(self, current: Ice.Current):
         return True
 
-    def getMB(self, current):
+    def getMB(self, current: Ice.Current):
         return Test.Initial.GetMBMarshaledResult(self._b1, current)
 
-    def getAMDMB(self, current):
+    def getAMDMB(self, current: Ice.Current):
         return Ice.Future.completed(Test.Initial.GetAMDMBMarshaledResult(self._b1, current))
 
-    def getAll(self, current):
+    def getAll(self, current: Ice.Current):
         self._b1.preMarshalInvoked = False
         self._b2.preMarshalInvoked = False
         self._c.preMarshalInvoked = False
         self._d.preMarshalInvoked = False
         return (self._b1, self._b2, self._c, self._d)
 
-    def getK(self, current):
+    def getK(self, current: Ice.Current):
         return Test.K(Test.L("l"))
 
-    def opValue(self, v1, current):
+    def opValue(self, v1, current: Ice.Current):
         return v1, v1
 
-    def opValueSeq(self, v1, current):
+    def opValueSeq(self, v1, current: Ice.Current):
         return v1, v1
 
-    def opValueMap(self, v1, current):
+    def opValueMap(self, v1, current: Ice.Current):
         return v1, v1
 
-    def getD1(self, d1, current):
+    def getD1(self, d1, current: Ice.Current):
         return d1
 
-    def throwEDerived(self, current):
+    def throwEDerived(self, current: Ice.Current):
         raise Test.EDerived(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4"))
 
-    def setG(self, g, current):
+    def setG(self, g, current: Ice.Current):
         pass
 
-    def opBaseSeq(self, inSeq, current):
+    def opBaseSeq(self, inSeq, current: Ice.Current):
         return (inSeq, inSeq)
 
-    def getCompact(self, current):
+    def getCompact(self, current: Ice.Current):
         return Test.CompactExt()
 
-    def getInnerA(self, current):
+    def getInnerA(self, current: Ice.Current):
         return Test.Inner.A(self._b1)
 
-    def getInnerSubA(self, current):
+    def getInnerSubA(self, current: Ice.Current):
         return Test.Inner.Sub.A(Test.Inner.A(self._b1))
 
-    def throwInnerEx(self, current):
+    def throwInnerEx(self, current: Ice.Current):
         raise Test.Inner.Ex("Inner::Ex")
 
-    def throwInnerSubEx(self, current):
+    def throwInnerSubEx(self, current: Ice.Current):
         raise Test.Inner.Sub.Ex("Inner::Sub::Ex")
 
-    def opM(self, m, current):
+    def opM(self, m, current: Ice.Current):
         return (m, m)
 
-    def opF1(self, f11, current):
+    def opF1(self, f11, current: Ice.Current):
         return (f11, Test.F1("F12"))
 
-    def opF2(self, f21, current):
+    def opF2(self, f21, current: Ice.Current):
         return (
             f21,
             Test.F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")),
         )
 
-    def opF3(self, f31, current):
+    def opF3(self, f31, current: Ice.Current):
         return (
             f31,
             Test.F3(
@@ -142,15 +142,15 @@ class InitialI(Test.Initial):
             ),
         )
 
-    def hasF3(self, current):
+    def hasF3(self, current: Ice.Current):
         return True
 
 
 class UnexpectedObjectExceptionTestI(UnexpectedObjectExceptionTest):
-    def op(self, current):
+    def op(self, current: Ice.Current):
         return Test.AlsoEmpty()
 
 
 class F2I(Test.F2):
-    def op(self, current):
+    def op(self, current: Ice.Current):
         pass

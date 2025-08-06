@@ -32,7 +32,7 @@ class ThreadHook:
 
 
 class TestIntfI(Test.TestIntf):
-    def sleep(self, ms, current):
+    def sleep(self, ms, current: Ice.Current):
         time.sleep(ms / 1000.0)
 
 
@@ -44,21 +44,21 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
         self.obj = Test.TestIntfPrx.uncheckedCast(oa.addWithUUID(TestIntfI()))
         oa.activate()
 
-    def getObject(self, current):
+    def getObject(self, current: Ice.Current):
         return self.obj
 
-    def getThreadStartCount(self, current):
+    def getThreadStartCount(self, current: Ice.Current):
         return self.hook.getThreadStartCount()
 
-    def getThreadStopCount(self, current):
+    def getThreadStopCount(self, current: Ice.Current):
         return self.hook.getThreadStopCount()
 
-    def destroy(self, current):
+    def destroy(self, current: Ice.Current):
         self.communicator.destroy()
 
 
 class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
-    def createCommunicator(self, props, current):
+    def createCommunicator(self, props, current: Ice.Current):
         #
         # Prepare the property set using the given properties.
         #
@@ -80,5 +80,5 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         proxy = current.adapter.addWithUUID(RemoteCommunicatorI(communicator, threadHook))
         return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)
 
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()

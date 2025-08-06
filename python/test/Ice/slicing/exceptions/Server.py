@@ -16,86 +16,86 @@ import Ice
 
 
 class TestI(Test.TestIntf):
-    def shutdown(self, current):
+    def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
-    def baseAsBase(self, current):
+    def baseAsBase(self, current: Ice.Current):
         b = Test.Base()
         b.b = "Base.b"
         raise b
 
-    def unknownDerivedAsBase(self, current):
+    def unknownDerivedAsBase(self, current: Ice.Current):
         d = ServerPrivateTest.UnknownDerived()
         d.b = "UnknownDerived.b"
         d.ud = "UnknownDerived.ud"
         raise d
 
-    def knownDerivedAsBase(self, current):
+    def knownDerivedAsBase(self, current: Ice.Current):
         d = Test.KnownDerived()
         d.b = "KnownDerived.b"
         d.kd = "KnownDerived.kd"
         raise d
 
-    def knownDerivedAsKnownDerived(self, current):
+    def knownDerivedAsKnownDerived(self, current: Ice.Current):
         d = Test.KnownDerived()
         d.b = "KnownDerived.b"
         d.kd = "KnownDerived.kd"
         raise d
 
-    def unknownIntermediateAsBase(self, current):
+    def unknownIntermediateAsBase(self, current: Ice.Current):
         ui = ServerPrivateTest.UnknownIntermediate()
         ui.b = "UnknownIntermediate.b"
         ui.ui = "UnknownIntermediate.ui"
         raise ui
 
-    def knownIntermediateAsBase(self, current):
+    def knownIntermediateAsBase(self, current: Ice.Current):
         ki = Test.KnownIntermediate()
         ki.b = "KnownIntermediate.b"
         ki.ki = "KnownIntermediate.ki"
         raise ki
 
-    def knownMostDerivedAsBase(self, current):
+    def knownMostDerivedAsBase(self, current: Ice.Current):
         kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
         kmd.kmd = "KnownMostDerived.kmd"
         raise kmd
 
-    def knownIntermediateAsKnownIntermediate(self, current):
+    def knownIntermediateAsKnownIntermediate(self, current: Ice.Current):
         ki = Test.KnownIntermediate()
         ki.b = "KnownIntermediate.b"
         ki.ki = "KnownIntermediate.ki"
         raise ki
 
-    def knownMostDerivedAsKnownIntermediate(self, current):
+    def knownMostDerivedAsKnownIntermediate(self, current: Ice.Current):
         kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
         kmd.kmd = "KnownMostDerived.kmd"
         raise kmd
 
-    def knownMostDerivedAsKnownMostDerived(self, current):
+    def knownMostDerivedAsKnownMostDerived(self, current: Ice.Current):
         kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
         kmd.kmd = "KnownMostDerived.kmd"
         raise kmd
 
-    def unknownMostDerived1AsBase(self, current):
+    def unknownMostDerived1AsBase(self, current: Ice.Current):
         umd1 = ServerPrivateTest.UnknownMostDerived1()
         umd1.b = "UnknownMostDerived1.b"
         umd1.ki = "UnknownMostDerived1.ki"
         umd1.umd1 = "UnknownMostDerived1.umd1"
         raise umd1
 
-    def unknownMostDerived1AsKnownIntermediate(self, current):
+    def unknownMostDerived1AsKnownIntermediate(self, current: Ice.Current):
         umd1 = ServerPrivateTest.UnknownMostDerived1()
         umd1.b = "UnknownMostDerived1.b"
         umd1.ki = "UnknownMostDerived1.ki"
         umd1.umd1 = "UnknownMostDerived1.umd1"
         raise umd1
 
-    def unknownMostDerived2AsBase(self, current):
+    def unknownMostDerived2AsBase(self, current: Ice.Current):
         umd2 = ServerPrivateTest.UnknownMostDerived2()
         umd2.b = "UnknownMostDerived2.b"
         umd2.ui = "UnknownMostDerived2.ui"
@@ -104,7 +104,7 @@ class TestI(Test.TestIntf):
 
 
 class Server(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "0")
         with self.initialize(properties=properties) as communicator:

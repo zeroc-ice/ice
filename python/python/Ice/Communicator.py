@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Self, final
 
+from Ice.CompressBatch import CompressBatch
+
 from ._LoggerI import LoggerI
 from .Future import Future
 from .ImplicitContext import ImplicitContext
@@ -431,7 +433,7 @@ class Communicator:
         """
         self._impl.setDefaultLocator(locator)
 
-    def flushBatchRequests(self, compress: bool):
+    def flushBatchRequests(self, compress: CompressBatch):
         """
         Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
         for all connections associated with the communicator. Any errors that occur while flushing a connection are
@@ -444,7 +446,7 @@ class Communicator:
         """
         self._impl.flushBatchRequests(compress)
 
-    def flushBatchRequestsAsync(self, compress: bool) -> Awaitable[None]:
+    def flushBatchRequestsAsync(self, compress: CompressBatch) -> Awaitable[None]:
         """
         Flush any pending batch requests for this communicator asynchronously. This means all batch requests invoked on fixed proxies
         for all connections associated with the communicator. Any errors that occur while flushing a connection are

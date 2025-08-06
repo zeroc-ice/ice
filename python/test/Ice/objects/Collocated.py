@@ -17,7 +17,7 @@ import Ice
 
 
 class Collocated(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         initData = Ice.InitializationData()
         initData.properties = self.createTestProperties(args)
         initData.properties.setProperty("Ice.Warn.Dispatch", "0")

@@ -13,7 +13,7 @@ import AllTests
 
 
 class Client(TestHelper):
-    def run(self, args):
+    def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.ThreadPool.Client.Size", "2")
         properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0")

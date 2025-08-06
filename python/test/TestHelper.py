@@ -5,8 +5,14 @@ import os
 import sys
 import traceback
 from abc import ABC, abstractmethod
+from typing import Any
 
 import Ice
+
+
+def test(b: Any):
+    if not b:
+        raise RuntimeError("test assertion failed")
 
 
 class TestHelper(ABC):
@@ -70,7 +76,7 @@ class TestHelper(ABC):
             else:
                 initData.properties = self.createTestProperties(args)
 
-        communicator = Ice.initialize(initData=initData)
+        communicator = Ice.initialize([], initData=initData)
 
         if self._communicator is None:
             self._communicator = communicator

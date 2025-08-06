@@ -5,6 +5,7 @@ Ice module
 """
 
 from IcePy import (
+    Connection,
     ConnectionInfo,
     EndpointInfo,
     IPConnectionInfo,
@@ -187,6 +188,7 @@ __all__ = [
     "CloseTimeoutException",
     "Communicator",
     "CommunicatorDestroyedException",
+    "Connection",
     "CompressBatch",
     "ConnectFailedException",
     "ConnectTimeoutException",
