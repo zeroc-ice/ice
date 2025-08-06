@@ -1258,7 +1258,7 @@ Slice::Container::createModule(const string& name, bool nestedSyntax)
             unit()->addTopLevelModule(unit()->currentFile(), name);
         }
 
-        bool hasValidIdentifier = true;
+        bool hasConflictingIdentifier = false;
         ContainedList matches = unit()->findContents(thisScope() + name);
         matches.sort(containedCompare); // Modules can occur many times...
         matches.unique(containedEqual); // ... but we only want one instance of each.
@@ -1273,7 +1273,8 @@ Slice::Container::createModule(const string& name, bool nestedSyntax)
                     os << "module '" << name << "' is capitalized inconsistently with its previous name: '"
                        << module->name() << "'";
                     unit()->error(os.str());
-                    hasValidIdentifier = false;
+                    hasConflictingIdentifier = true;
+                    break;
                 }
             }
             else if (!differsOnlyInCase)
@@ -1282,7 +1283,8 @@ Slice::Container::createModule(const string& name, bool nestedSyntax)
                 os << "redefinition of " << matches.front()->kindOf() << " '" << matches.front()->name()
                    << "' as module";
                 unit()->error(os.str());
-                hasValidIdentifier = false;
+                hasConflictingIdentifier = true;
+                break;
             }
             else
             {
@@ -1290,17 +1292,18 @@ Slice::Container::createModule(const string& name, bool nestedSyntax)
                 os << "module '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
                    << " name '" << matches.front()->name() << "'";
                 unit()->error(os.str());
-                hasValidIdentifier = false;
+                hasConflictingIdentifier = true;
+                break;
             }
         }
-        if (hasValidIdentifier)
+        if (!hasConflictingIdentifier)
         {
             // If this module has a valid identifier and doesn't conflict with another definition,
             // add it to the unit's contentMap so it can be looked up later.
             unit()->addContent(q);
         }
 
-        checkIdentifier(name);
+        reportIllegalSuffixOrUnderscore(name);
     }
 
     _contents.push_back(q);
@@ -1354,7 +1357,7 @@ Slice::Container::createClassDef(const string& name, int32_t id, const ClassDefP
         return nullptr;
     }
 
-    if (!checkIdentifier(name) || !checkForGlobalDefinition("classes"))
+    if (!reportIllegalSuffixOrUnderscore(name) || !checkForGlobalDefinition("classes"))
     {
         return nullptr;
     }
@@ -1413,7 +1416,7 @@ Slice::Container::createClassDecl(const string& name)
         return nullptr;
     }
 
-    if (!checkIdentifier(name) || !checkForGlobalDefinition("classes"))
+    if (!reportIllegalSuffixOrUnderscore(name) || !checkForGlobalDefinition("classes"))
     {
         return nullptr;
     }
@@ -1488,7 +1491,7 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         return nullptr;
     }
 
-    if (!checkIdentifier(name) || !checkForGlobalDefinition("interfaces"))
+    if (!reportIllegalSuffixOrUnderscore(name) || !checkForGlobalDefinition("interfaces"))
     {
         return nullptr;
     }
@@ -1549,7 +1552,7 @@ Slice::Container::createInterfaceDecl(const string& name)
         return nullptr;
     }
 
-    if (!checkIdentifier(name) || !checkForGlobalDefinition("interfaces"))
+    if (!reportIllegalSuffixOrUnderscore(name) || !checkForGlobalDefinition("interfaces"))
     {
         return nullptr;
     }
@@ -1596,7 +1599,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
         return nullptr;
     }
 
-    checkIdentifier(name); // Don't return here -- we create the exception anyway
+    reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the exception anyway
 
     if (nodeType == Real)
     {
@@ -1642,7 +1645,7 @@ Slice::Container::createStruct(const string& name)
             unit()->addContent(p);
         }
 
-        checkIdentifier(name);
+        reportIllegalSuffixOrUnderscore(name);
     }
 
     _contents.push_back(p);
@@ -1682,7 +1685,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, Metada
             unit()->addContent(p);
         }
 
-        checkIdentifier(name);
+        reportIllegalSuffixOrUnderscore(name);
     }
 
     _contents.push_back(p);
@@ -1737,7 +1740,7 @@ Slice::Container::createDictionary(
             unit()->addContent(p);
         }
 
-        checkIdentifier(name);
+        reportIllegalSuffixOrUnderscore(name);
     }
 
     _contents.push_back(p);
@@ -1777,7 +1780,7 @@ Slice::Container::createEnum(const string& name)
             unit()->addContent(p);
         }
 
-        checkIdentifier(name);
+        reportIllegalSuffixOrUnderscore(name);
     }
 
     _contents.push_back(p);
@@ -1825,7 +1828,7 @@ Slice::Container::createConst(
             unit()->addContent(p);
         }
 
-        checkIdentifier(name);
+        reportIllegalSuffixOrUnderscore(name);
     }
 
     _contents.push_back(p);
@@ -2679,7 +2682,7 @@ Slice::ClassDef::createDataMember(
         return nullptr;
     }
 
-    checkIdentifier(name); // Don't return here -- we create the data member anyway.
+    reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the data member anyway.
 
     //
     // Check whether any bases have defined something with the same name already.
@@ -3131,7 +3134,7 @@ Slice::InterfaceDef::createOperation(
 
     if (!name.empty())
     {
-        bool hasValidIdentifier = !doesNameConflict(name, "operation", _contents);
+        bool hasConflictingIdentifier = doesNameConflict(name, "operation", _contents);
 
         // Check whether enclosing interface has the same name.
         if (name == this->name())
@@ -3139,7 +3142,7 @@ Slice::InterfaceDef::createOperation(
             ostringstream os;
             os << "interface name '" << name << "' cannot be used as operation name";
             unit()->error(os.str());
-            hasValidIdentifier = false;
+            hasConflictingIdentifier = true;
         }
         else if (IceInternal::toLower(name) == IceInternal::toLower(this->name()))
         {
@@ -3147,7 +3150,7 @@ Slice::InterfaceDef::createOperation(
             os << "operation '" << name << "' differs only in capitalization from enclosing interface name '"
                << this->name() << "'";
             unit()->error(os.str());
-            hasValidIdentifier = false;
+            hasConflictingIdentifier = true;
         }
 
         // Check whether any base has an operation with the same name already
@@ -3160,17 +3163,17 @@ Slice::InterfaceDef::createOperation(
             }
             if (!checkBaseOperationNames(name, baseNames))
             {
-                hasValidIdentifier = false;
+                hasConflictingIdentifier = true;
                 break;
             }
         }
         // Check the operations of the Object pseudo-interface.
         if (!checkBaseOperationNames(name, {"ice_id", "ice_ids", "ice_ping", "ice_isA"}))
         {
-            hasValidIdentifier = false;
+            hasConflictingIdentifier = true;
         }
 
-        if (hasValidIdentifier)
+        if (!hasConflictingIdentifier)
         {
             // If this operation has a valid identifier and doesn't conflict with another definition,
             // add it to the unit's contentMap so it can be looked up later.
@@ -3402,7 +3405,7 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
         return nullptr;
     }
 
-    checkIdentifier(name); // Don't return here -- we create the parameter anyway.
+    reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the parameter anyway.
 
     if (isOptional)
     {
@@ -3786,7 +3789,7 @@ Slice::Exception::createDataMember(
         return nullptr;
     }
 
-    checkIdentifier(name); // Don't return here -- we create the data member anyway.
+    reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the data member anyway.
 
     // Check whether any bases have defined a member with the same name already.
     for (const auto& q : allBases())
@@ -4003,7 +4006,7 @@ Slice::Struct::createDataMember(
         return nullptr;
     }
 
-    checkIdentifier(name); // Don't return here -- we create the data member anyway.
+    reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the data member anyway.
 
     // Structures cannot contain themselves.
     if (type && type.get() == this)
@@ -4358,7 +4361,7 @@ Slice::Enum::createEnumerator(const string& name, optional<int32_t> explicitValu
 {
     // Validate the enumerator's name.
     doesNameConflict(name, "enumerator", _contents); // Ignore return value.
-    checkIdentifier(name);                           // Ignore return value.
+    reportIllegalSuffixOrUnderscore(name);           // Ignore return value.
 
     // Determine the enumerator's value, and check that it's valid.
     int32_t nextValue;
