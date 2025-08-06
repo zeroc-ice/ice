@@ -309,7 +309,7 @@ definition
 // ----------------------------------------------------------------------
 : module_def opt_semicolon
 {
-    assert($1 == nullptr || dynamic_pointer_cast<Module>($1));
+    assert(dynamic_pointer_cast<Module>($1));
 }
 | class_decl ';'
 {
@@ -341,7 +341,7 @@ definition
 }
 | struct_def opt_semicolon
 {
-    assert($1 == nullptr || dynamic_pointer_cast<Struct>($1));
+    assert(dynamic_pointer_cast<Struct>($1));
 }
 | sequence_def ';'
 {
@@ -368,35 +368,22 @@ definition
 // ----------------------------------------------------------------------
 module_def
 // ----------------------------------------------------------------------
-: ICE_MODULE ICE_IDENTIFIER
+: ICE_MODULE definition_name
 {
     currentUnit->setSeenDefinition();
 
     auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
     ModulePtr module = cont->createModule(ident->v, false);
-    if (module)
-    {
-        cont->checkHasChangedMeaning(ident->v, module);
-        currentUnit->pushContainer(module);
-        $$ = module;
-    }
-    else
-    {
-        $$ = nullptr;
-    }
+
+    cont->checkHasChangedMeaning(ident->v, module);
+    currentUnit->pushContainer(module);
+    $$ = module;
 }
 '{' definitions '}'
 {
-    if ($3)
-    {
-        currentUnit->popContainer();
-        $$ = $3;
-    }
-    else
-    {
-        $$ = nullptr;
-    }
+    currentUnit->popContainer();
+    $$ = $3;
 }
 | ICE_MODULE ICE_SCOPED_IDENTIFIER
 {
@@ -404,7 +391,7 @@ module_def
 
     auto ident = dynamic_pointer_cast<StringTok>($2);
 
-    // Reject scoped identifiers starting with "::". This is generally indicates global scope, but is invalid here.
+    // Reject scoped identifiers starting with "::". This generally indicates global scope, but is invalid here.
     size_t startPos = 0;
     if (ident->v.find("::") == 0)
     {
@@ -428,54 +415,35 @@ module_def
     {
         const auto currentModuleName = modules[i];
         ModulePtr module = cont->createModule(currentModuleName, true);
-        if (module)
-        {
-            cont->checkHasChangedMeaning(currentModuleName, module);
-            currentUnit->pushContainer(module);
-            $$ = cont = module;
-        }
-        else
-        {
-            // If an error occurs while creating one of the modules, we have to stop. But, to eagerly report as many
-            // errors as possible, we still 'create' any remaining modules, which will run _some_ validation on them.
-            for (size_t j = (i + 1); j < modules.size(); j++)
-            {
-                cont->createModule(modules[j], true); // Dummy
-            }
 
-            // Then we roll back the chain, i.e. pop the successfully-created-modules off the container stack.
-            for (; i > 0; i--)
-            {
-                currentUnit->popContainer();
-            }
-            $$ = nullptr;
-            break;
-        }
+        cont->checkHasChangedMeaning(currentModuleName, module);
+        currentUnit->pushContainer(module);
+        $$ = cont = module;
     }
 }
 '{' definitions '}'
 {
-    if ($3)
-    {
-        // We need to pop '(N+1)' modules off the container stack, to navigate out of the nested module.
-        // Where `N` is the number of scope separators ("::").
-        size_t startPos = 0;
-        auto ident = dynamic_pointer_cast<StringTok>($2);
-        while ((startPos = ident->v.find("::", startPos)) != string::npos)
-        {
-            currentUnit->popContainer();
-            startPos += 2; // Skip the "::" separator.
-        }
+    // We need to pop '(N+1)' modules off the container stack, to navigate out of the nested module.
+    // Where `N` is the number of scope separators ("::").
+    size_t startPos = 0;
+    auto ident = dynamic_pointer_cast<StringTok>($2);
 
-        // Set the 'return value' to the outer-most module, before we pop it off the stack.
-        // Whichever module we return, is the one that metadata will be applied to.
-        $$ = currentUnit->currentContainer();
-        currentUnit->popContainer();
-    }
-    else
+    // Skip over any leading "::". This is invalid syntax of course, but the parser still needs to properly handle it.
+    if (ident->v.find("::") == 0)
     {
-        $$ = nullptr;
+        startPos += 2; // Skip the leading "::".
     }
+
+    while ((startPos = ident->v.find("::", startPos)) != string::npos)
+    {
+        currentUnit->popContainer();
+        startPos += 2; // Skip the "::" separator.
+    }
+
+    // Set the 'return value' to the outer-most module, before we pop it off the stack.
+    // Whichever module we return, is the one that metadata will be applied to.
+    $$ = currentUnit->currentContainer();
+    currentUnit->popContainer();
 }
 ;
 
@@ -619,24 +587,9 @@ optional_type_id
 ;
 
 // ----------------------------------------------------------------------
-struct_id
-// ----------------------------------------------------------------------
-: ICE_STRUCT ICE_IDENTIFIER
-{
-    $$ = $2;
-}
-| ICE_STRUCT keyword
-{
-    auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as struct name");
-    $$ = $2; // Dummy
-}
-;
-
-// ----------------------------------------------------------------------
 struct_decl
 // ----------------------------------------------------------------------
-: struct_id
+: ICE_STRUCT definition_name
 {
     currentUnit->error("structs cannot be forward declared");
     $$ = nullptr; // Dummy
@@ -646,39 +599,27 @@ struct_decl
 // ----------------------------------------------------------------------
 struct_def
 // ----------------------------------------------------------------------
-: struct_id
+: ICE_STRUCT definition_name
 {
-    auto ident = dynamic_pointer_cast<StringTok>($1);
+    auto ident = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
     StructPtr st = cont->createStruct(ident->v);
-    if (st)
-    {
-        cont->checkHasChangedMeaning(ident->v, st);
-        currentUnit->pushContainer(st);
-    }
-    else
-    {
-        st = cont->createStruct(Ice::generateUUID()); // Dummy
-        assert(st);
-        currentUnit->pushContainer(st);
-    }
+
+    cont->checkHasChangedMeaning(ident->v, st);
+    currentUnit->pushContainer(st);
     $$ = st;
 }
 '{' data_members '}'
 {
-    if ($2)
-    {
-        currentUnit->popContainer();
-    }
-    $$ = $2;
+    currentUnit->popContainer();
 
     // Empty structures are not allowed
-    auto st = dynamic_pointer_cast<Struct>($$);
-    assert(st);
+    auto st = dynamic_pointer_cast<Struct>($3);
     if (st->dataMembers().empty())
     {
-        currentUnit->error("struct '" + st->name() + "' must have at least one member"); // $$ is a dummy
+        currentUnit->error("struct '" + st->name() + "' must have at least one member");
     }
+    $$ = st;
 }
 ;
 
@@ -700,7 +641,7 @@ class_name
 // ----------------------------------------------------------------------
 class_id
 // ----------------------------------------------------------------------
-: ICE_CLASS ICE_IDENT_OPEN integer_constant ')'
+: ICE_CLASS definition_name_open integer_constant ')'
 {
     auto integer = dynamic_pointer_cast<IntegerTok>($3);
     int32_t id = -1;
@@ -1003,7 +944,7 @@ idempotent_modifier
 // ----------------------------------------------------------------------
 operation_preamble
 // ----------------------------------------------------------------------
-: idempotent_modifier return_type ICE_IDENT_OPEN
+: idempotent_modifier return_type definition_name_open
 {
     bool isIdempotent = dynamic_pointer_cast<BoolTok>($1)->v;
     auto returnType = dynamic_pointer_cast<OptionalDefTok>($2);
@@ -1018,39 +959,9 @@ operation_preamble
             returnType->tag,
             isIdempotent ? Operation::Idempotent : Operation::Normal);
 
-        if (op)
-        {
-            interface->checkHasChangedMeaning(name, op);
-            currentUnit->pushContainer(op);
-        }
+        interface->checkHasChangedMeaning(name, op);
+        currentUnit->pushContainer(op);
         $$ = op;
-    }
-    else
-    {
-        $$ = nullptr;
-    }
-}
-| idempotent_modifier return_type ICE_KEYWORD_OPEN
-{
-    bool isIdempotent = dynamic_pointer_cast<BoolTok>($1)->v;
-    auto returnType = dynamic_pointer_cast<OptionalDefTok>($2);
-    string name = dynamic_pointer_cast<StringTok>($3)->v;
-    auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
-    if (interface)
-    {
-        OperationPtr op = interface->createOperation(
-            name,
-            returnType->type,
-            returnType->isOptional,
-            returnType->tag,
-            isIdempotent ? Operation::Idempotent : Operation::Normal);
-
-        if (op)
-        {
-            currentUnit->pushContainer(op);
-            currentUnit->error("keyword '" + name + "' cannot be used as operation name");
-        }
-        $$ = op; // Dummy
     }
     else
     {
@@ -1800,6 +1711,24 @@ definition_name
     // but continue along, returning an empty string instead of an identifier.
     currentUnit->error("missing name");
     $$ = make_shared<StringTok>();
+}
+;
+
+// ----------------------------------------------------------------------
+definition_name_open
+// ----------------------------------------------------------------------
+: ICE_IDENT_OPEN
+{
+    // All good, this is a valid identifier.
+    $$ = $1;
+}
+| ICE_KEYWORD_OPEN
+{
+    // If an un-escaped keyword was used as an identifier, we emit an error,
+    // but continue along, pretending like the user escaped the keyword.
+    auto ident = dynamic_pointer_cast<StringTok>($1);
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as a name");
+    $$ = ident;
 }
 ;
 

@@ -1,14 +1,14 @@
 IllegalUseOfKeyword.ice:5: keyword 'module' cannot be used as exception name
 IllegalUseOfKeyword.ice:5: exceptions cannot be forward declared
 IllegalUseOfKeyword.ice:6: keyword 'void' cannot be used as exception name
-IllegalUseOfKeyword.ice:11: keyword 'exception' cannot be used as struct name
+IllegalUseOfKeyword.ice:11: keyword 'exception' cannot be used as a name
 IllegalUseOfKeyword.ice:11: structs cannot be forward declared
-IllegalUseOfKeyword.ice:12: keyword 'class' cannot be used as struct name
+IllegalUseOfKeyword.ice:12: keyword 'class' cannot be used as a name
 IllegalUseOfKeyword.ice:17: keyword 'idempotent' cannot be used as class name
 IllegalUseOfKeyword.ice:18: keyword 'struct' cannot be used as class name
 IllegalUseOfKeyword.ice:23: keyword 'interface' cannot be used as interface name
 IllegalUseOfKeyword.ice:24: keyword 'extends' cannot be used as interface name
-IllegalUseOfKeyword.ice:31: keyword 'module' cannot be used as operation name
+IllegalUseOfKeyword.ice:31: keyword 'module' cannot be used as a name
 IllegalUseOfKeyword.ice:33: keyword 'throws' cannot be used as parameter name
 IllegalUseOfKeyword.ice:33: keyword 'void' cannot be used as parameter name
 IllegalUseOfKeyword.ice:35: keyword 'byte' cannot be used as parameter name

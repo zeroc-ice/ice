@@ -1,5 +1,6 @@
 DerivedRedefinition.ice:9: operation 'ice_ping' is already defined as an operation in a base interface
 DerivedRedefinition.ice:14: operation 'op' is already defined as an operation in a base interface
+DerivedRedefinition.ice:15: redefinition of operation 'op'
 DerivedRedefinition.ice:15: operation 'op' is already defined as an operation in a base interface
 DerivedRedefinition.ice:31: operation 'op' is already defined as an operation in a base interface
 DerivedRedefinition.ice:35: ambiguous multiple inheritance: 'D3' inherits operation 'op' from two or more unrelated base interfaces

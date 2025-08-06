@@ -120,7 +120,7 @@ module Test
     {
         void op1() throws ::Test::E::ee1;   // Nothing introduced
         void E();                           // OK
-        void op2() throws E;                // Changed meaning
+        void op2() throws E;                // Not an exception
     }
 
     interface Blah2

@@ -481,7 +481,7 @@ namespace Slice
         [[nodiscard]] InterfaceDeclPtr createInterfaceDecl(const std::string& name);
         [[nodiscard]] ExceptionPtr
         createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
-        [[nodiscard]] StructPtr createStruct(const std::string& name, NodeType nodeType = Real);
+        [[nodiscard]] StructPtr createStruct(const std::string& name);
         [[nodiscard]] SequencePtr createSequence(const std::string& name, const TypePtr& type, MetadataList metadata);
         [[nodiscard]] DictionaryPtr createDictionary(
             const std::string& name,
