@@ -278,13 +278,6 @@ namespace Slice
         /// If the provided string is empty or only contains whitespace, this returns 'nullopt' instead.
         [[nodiscard]] static std::optional<DocComment> createUnparsed(const std::string& rawDocComment);
 
-        /// Parses this doc-comment in-place, using the provided formatter to map language-specific elements.
-        /// @param p The Slice element that this doc-comment is applied to.
-        /// @param linkFormatter This function is used to replace '{@link ...}' tags with their corresponding
-        ///                      representation in a target language.
-        /// @remark This function must be called on a doc-comment before it's usable for code-gen purposes.
-        void parse(const ContainedPtr& p, const DocLinkFormatter& linkFormatter);
-
         [[nodiscard]] bool isDeprecated() const;
         [[nodiscard]] const StringList& deprecated() const;
 
@@ -303,6 +296,8 @@ namespace Slice
         [[nodiscard]] const std::map<std::string, StringList>& exceptions() const;
 
     private:
+        friend class DocCommentParser;
+
         StringList _rawDocCommentLines;
 
         bool _isDeprecated{false};
