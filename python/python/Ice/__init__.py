@@ -32,6 +32,8 @@ from IcePy import (
     stringVersion,
 )
 
+from . import asyncio
+
 #
 # Import the generated code for the Ice module.
 #
@@ -335,6 +337,7 @@ __all__ = [
     "_Ice_ShortSeq_t",
     "_Ice_SliceChecksumDict_t",
     "_Ice_StringSeq_t",
+    "asyncio",
     "createProperties",
     "currentEncoding",
     "currentProtocol",
