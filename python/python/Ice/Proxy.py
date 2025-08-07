@@ -42,7 +42,7 @@ def proxyIdentityAndFacetCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectP
     """Compares the identities and facets of two proxies."""
     if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
         raise ValueError("argument is not a proxy")
-    if lhs is not None and rhs is not None:
+    if lhs is None and rhs is None:
         return 0
     elif lhs is None and rhs is not None:
         return -1
