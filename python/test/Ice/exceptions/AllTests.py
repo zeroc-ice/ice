@@ -17,7 +17,7 @@ class EmptyI(Test.Empty):
 
 class ServantLocatorI(Ice.ServantLocator):
     @override
-    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object]:
+    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object | None]:
         return (None, None)
 
     @override

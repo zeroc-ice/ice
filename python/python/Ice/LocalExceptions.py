@@ -297,7 +297,7 @@ class AlreadyRegisteredException(LocalException):
     same ID.
     """
 
-    def __init__(self, kindOfObject: str, id: Identity | None, msg: str):
+    def __init__(self, kindOfObject: str, id: str, msg: str):
         LocalException.__init__(self, msg)
         self.__kindOfObject = kindOfObject
         self.__id = id
@@ -424,7 +424,7 @@ class NotRegisteredException(LocalException):
     when resolving an indirect proxy or when an object adapter is activated.
     """
 
-    def __init__(self, kindOfObject: str, id: Identity | None, msg: str):
+    def __init__(self, kindOfObject: str, id: str, msg: str):
         LocalException.__init__(self, msg)
         self.__kindOfObject = kindOfObject
         self.__id = id

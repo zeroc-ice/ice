@@ -52,12 +52,12 @@ class ServerLocatorRegistry(Test.TestLocatorRegistry):
     def _addObject(self, obj: Ice.ObjectPrx):
         self._objects[obj.ice_getIdentity()] = obj
 
-    def getAdapter(self, adapter: str):
+    def getAdapter(self, adapter: str) -> Ice.ObjectAdapter:
         if adapter not in self._adapters:
             raise Ice.AdapterNotFoundException()
         return self._adapters[adapter]
 
-    def getObject(self, id: Ice.Identity):
+    def getObject(self, id: Ice.Identity) -> Ice.ObjectPrx:
         if id not in self._objects:
             raise Ice.ObjectNotFoundException()
         return self._objects[id]

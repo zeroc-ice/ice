@@ -1,8 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
-from typing import cast
 import uuid
+from typing import cast
 
 from generated.test.Ice.location import Test
 from TestHelper import TestHelper, test
@@ -18,7 +18,6 @@ class HelloI(Test.Hello):
 def allTests(helper: TestHelper, communicator: Ice.Communicator):
     manager = Test.ServerManagerPrx(communicator, f"ServerManager:{helper.getTestEndpoint()}")
     locator = communicator.getDefaultLocator()
-    assert manager is not None
     assert locator is not None
 
     registry = Test.TestLocatorRegistryPrx.checkedCast(locator.getRegistry())
@@ -177,8 +176,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
         test(False)
     except Ice.NotRegisteredException as ex:
         test(ex.kindOfObject == "object")
-        assert ex.id is not None
-        test(str(ex.id) == "unknown/unknown")
+        test(ex.id == "unknown/unknown")
 
     print("ok")
 
@@ -190,7 +188,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
         test(False)
     except Ice.NotRegisteredException as ex:
         test(ex.kindOfObject == "object adapter")
-        test(str(ex.id) == "TestAdapterUnknown")
+        test(ex.id == "TestAdapterUnknown")
     print("ok")
 
     sys.stdout.write("testing object reference from server... ")

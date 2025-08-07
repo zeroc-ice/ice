@@ -133,11 +133,11 @@ class ServantLocatorI(Ice.ServantLocator):
         self._blobject = blobject
 
     @override
-    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object]:
+    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object | None]:
         return self._blobject, None  # and the cookie
 
     @override
-    def finished(self, current: Ice.Current, servant: Ice.Object, cookie: object):
+    def finished(self, current: Ice.Current, servant: Ice.Object, cookie: object | None):
         pass
 
     @override
@@ -159,11 +159,11 @@ class RouterI(Ice.Router):
         self._adapter.activate()
 
     @override
-    def getClientProxy(self, current: Ice.Current):
+    def getClientProxy(self, current: Ice.Current) -> tuple[Ice.ObjectPrx | None, bool | None]:
         return (self._blobjectProxy, True)
 
     @override
-    def getServerProxy(self, current: Ice.Current):
+    def getServerProxy(self, current: Ice.Current) -> Ice.ObjectPrx | None:
         assert False
 
     @override

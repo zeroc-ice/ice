@@ -12,7 +12,7 @@ class ServantLocator(ABC):
     """
 
     @abstractmethod
-    def locate(self, current: Current) -> tuple[Object | None, object]:
+    def locate(self, current: Current) -> tuple[Object | None, object | None]:
         """
         Called before a request is dispatched if a servant cannot be found in the object adapter's active servant map.
 
@@ -33,12 +33,12 @@ class ServantLocator(ABC):
 
         Returns
         -------
-        tuple[Object | None, object]
+        tuple[Object | None, object | None]
 
             A tuple containing the following:
                 - retval : Object or None
                     The located servant, or None if no suitable servant has been found.
-                - cookie : object
+                - cookie : object | None
                     A "cookie" that will be passed to `finished`.
 
         Raises
@@ -49,7 +49,7 @@ class ServantLocator(ABC):
         pass
 
     @abstractmethod
-    def finished(self, current: Current, servant: Object, cookie: object):
+    def finished(self, current: Current, servant: Object, cookie: object | None):
         """
         Called by the object adapter after a request has been made.
 
@@ -67,7 +67,7 @@ class ServantLocator(ABC):
             Information about the current operation call for which a servant was located by `locate`.
         servant : Object
             The servant that was returned by `locate`.
-        cookie : object
+        cookie : object | None
             The cookie that was returned by `locate`.
 
         Raises
