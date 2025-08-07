@@ -59,7 +59,7 @@ async def allTestsAsync(helper: TestHelper, communicator: Ice.Communicator):
     sys.stdout.flush()
 
     future = p.sleepAsync(500)
-    assert isinstance(future, Ice.InvocationFuture)
+    assert isinstance(future, asyncio.Future)
     future.cancel()
     try:
         await future
@@ -68,7 +68,7 @@ async def allTestsAsync(helper: TestHelper, communicator: Ice.Communicator):
         test(future.cancelled() and future.cancelled())
 
     future = p.sleepAsync(500)
-    assert isinstance(future, Ice.InvocationFuture)
+    assert isinstance(future, asyncio.Future)
     future.cancel()
     try:
         await future
@@ -80,7 +80,7 @@ async def allTestsAsync(helper: TestHelper, communicator: Ice.Communicator):
 
     # Try to cancel a done future
     future = p.opAsync()
-    assert isinstance(future, Ice.InvocationFuture)
+    assert isinstance(future, asyncio.Future)
     while not future.done():
         await asyncio.sleep(0.01)
     future.cancel()
@@ -92,7 +92,7 @@ async def allTestsAsync(helper: TestHelper, communicator: Ice.Communicator):
 
     testCommunicator = Ice.initialize(eventLoop=asyncio.get_running_loop())
     shutdownCompletedFuture = testCommunicator.shutdownCompleted()
-    assert isinstance(shutdownCompletedFuture, Ice.InvocationFuture)
+    assert isinstance(shutdownCompletedFuture, asyncio.Future)
     test(not shutdownCompletedFuture.done())
     test(not testCommunicator.isShutdown())
 
