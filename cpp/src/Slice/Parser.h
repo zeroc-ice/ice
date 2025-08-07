@@ -25,9 +25,7 @@ namespace Slice
         Real
     };
 
-    //
     // Format to use when marshaling a class instance.
-    //
     enum FormatType
     {
         CompactFormat, // Minimal format.
@@ -606,13 +604,9 @@ namespace Slice
     // ClassDef
     // ----------------------------------------------------------------------
 
-    //
-    // Note: For the purpose of this parser, a class definition is not
-    // considered to be a type, but a class declaration is. And each class
-    // definition has at least one class declaration (but not vice versa),
-    // so if you need the class as a "type", use the
-    // declaration() operation to navigate to the class declaration.
-    //
+    // Note: For the purpose of this parser, a class definition is not considered to be a type, but a class declaration
+    // is. And each class definition has at least one class declaration (but not vice versa), so if you need the class
+    // as a "type", use the declaration() operation to navigate to the class declaration.
     class ClassDef final : public Container, public Contained
     {
     public:
@@ -697,10 +691,8 @@ namespace Slice
     class Operation final : public Container, public Contained
     {
     public:
-        //
-        // Note: The values of enumerators here *must* match the values for
-        // enumerators of Ice::OperationMode in slice/Ice/OperationMode.ice!
-        //
+        // Note: The values of enumerators here *must* match the values for enumerators of Ice::OperationMode in
+        // slice/Ice/OperationMode.ice!
         enum Mode
         {
             Normal = 0,
@@ -783,13 +775,9 @@ namespace Slice
     // InterfaceDef
     // ----------------------------------------------------------------------
 
-    //
-    // Note: For the purpose of this parser, an interface definition is not
-    // considered to be a type, but an interface declaration is. And each interface
-    // definition has at least one interface declaration (but not vice versa),
-    // so if you need the interface as a "type", use the
-    // declaration() function to navigate to the interface declaration.
-    //
+    // Note: For the purpose of this parser, an interface definition is not considered to be a type, but an interface
+    // declaration is. And each interface definition has at least one interface declaration (but not vice versa), so if
+    // you need the interface as a "type", use the declaration() function to navigate to the interface declaration.
     class InterfaceDef final : public Container, public Contained
     {
     public:

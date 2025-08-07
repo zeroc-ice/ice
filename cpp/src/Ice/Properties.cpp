@@ -99,11 +99,8 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
     {
         if (q != args.end())
         {
-            //
-            // Use the first argument as the value for Ice.ProgramName. Replace
-            // any backslashes in this value with forward slashes, in case this
-            // value is used by the event logger.
-            //
+            // Use the first argument as the value for Ice.ProgramName. Replace any backslashes in this value with
+            // forward slashes, in case this value is used by the event logger.
             string name = *q;
             replace(name.begin(), name.end(), '\\', '/');
 
@@ -145,9 +142,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
 
     if (!loadConfigFiles)
     {
-        //
         // If Ice.Config is not set, load from ICE_CONFIG (if set)
-        //
         loadConfigFiles = (_properties.find("Ice.Config") == _properties.end());
     }
 
@@ -308,9 +303,7 @@ Ice::Properties::getPropertiesForPrefix(string_view prefix)
 void
 Ice::Properties::setProperty(string_view key, string_view value)
 {
-    //
     // Trim whitespace
-    //
     string currentKey = IceInternal::trim(string{key});
     if (currentKey.empty())
     {
@@ -344,9 +337,7 @@ Ice::Properties::setProperty(string_view key, string_view value)
 
     lock_guard lock(_mutex);
 
-    //
     // Set or clear the property.
-    //
     if (!value.empty())
     {
         PropertyValue pv{string{value}, false};
@@ -535,9 +526,7 @@ Ice::Properties::load(string_view file)
         bool firstLine = true;
         while (getline(in, line))
         {
-            //
             // Skip UTF8 BOM if present.
-            //
             if (firstLine)
             {
                 const unsigned char UTF8_BOM[3] = {0xEF, 0xBB, 0xBF};

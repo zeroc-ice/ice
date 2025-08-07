@@ -158,10 +158,7 @@ IceGrid::escapeProperty(const string& s, bool escapeEqual)
         {
             case ' ':
             {
-                //
-                // We only escape the space character when it's at the beginning
-                // or at the end of the string
-                //
+                // We only escape the space character when it's at the beginning or at the end of the string
                 if (i < firstChar || i > lastChar)
                 {
                     if (previousCharIsEscape)
@@ -186,11 +183,8 @@ IceGrid::escapeProperty(const string& s, bool escapeEqual)
                 }
                 else
                 {
-                    //
-                    // We only escape the \ character when it is followed by a
-                    // character that we escape, e.g. \# is encoded as \\\#, not \#
-                    // and \\server is encoded as \\\server.
-                    //
+                    // We only escape the \ character when it is followed by a character that we escape, e.g. \# is
+                    // encoded as \\\#, not \# and \\server is encoded as \\\server.
                     if (previousCharIsEscape)
                     {
                         result.push_back('\\'); // escape the previous char, by adding another escape.
@@ -289,9 +283,7 @@ IceGrid::setupThreadPool(
 int
 IceGrid::getMMVersion(const string& o)
 {
-    //
     // Strip the version
-    //
     string::size_type beg = o.find_first_not_of(' ');
     string::size_type end = o.find_last_not_of(' ');
     string version = o.substr(beg == string::npos ? 0 : beg, end == string::npos ? o.length() - 1 : end - beg + 1);
@@ -340,20 +332,9 @@ IceGrid::getMMVersion(const string& o)
     ver += v;
     ver *= 100;
 
-    //
-    // No need to get the patch number, we're only interested in
-    // MAJOR.MINOR
-    //
-    //     if(patchPos != string::npos)
-    //     {
-    //      istringstream patch(version.substr(patchPos + 1));
-    //      patch >> v;
-    //      if(patch.fail() || v > 99 || v < 0)
-    //      {
-    //          return -1;
-    //      }
-    //      ver += v;
-    //     }
+    // No need to get the patch number, we're only interested in MAJOR.MINOR if(patchPos != string::npos) {
+    // istringstream patch(version.substr(patchPos + 1)); patch >> v; if(patch.fail() || v > 99 || v < 0) { return -1; }
+    // ver += v; }
 
     return ver;
 }
@@ -385,10 +366,8 @@ IceGrid::readDirectory(const string& pa)
 
 #ifdef _WIN32
 
-    //
-    // IceGrid doesn't support to use string converters, so don't need to use
-    // any string converter in stringToWstring or wstringToString conversions.
-    //
+    // IceGrid doesn't support to use string converters, so don't need to use any string converter in stringToWstring
+    // or wstringToString conversions.
     StringSeq result;
     const wstring fs = Ice::stringToWstring(simplify(path + "/*"));
 

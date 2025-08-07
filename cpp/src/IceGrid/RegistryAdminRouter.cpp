@@ -29,9 +29,7 @@ namespace
 
         void synchronized() override
         {
-            //
             // Retry to forward the call.
-            //
             _adminRouter->ice_invokeAsync(
                 {&_inParams[0], &_inParams[0] + _inParams.size()},
                 std::move(_response),

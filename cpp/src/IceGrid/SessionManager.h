@@ -60,9 +60,7 @@ namespace IceGrid
                             break;
                         }
 
-                        //
                         // Update the current state.
-                        //
                         assert(_state == InProgress);
                         _state = session ? Connected : Disconnected;
                         _session = session;
@@ -150,9 +148,7 @@ namespace IceGrid
                     }
                 }
 
-                //
                 // Destroy the session.
-                //
                 if (_nextAction == Disconnect && session)
                 {
                     destroySession(*session);

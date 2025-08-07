@@ -189,16 +189,10 @@ namespace IceInternal
         std::list<std::function<void(ThreadPoolCurrent&)>> _workItems;
     };
 
-//
-// The ThreadPoolMessage class below hides the IOCP implementation details from
-// the event handler implementations. Only event handler implementation that
-// require IO need to use this class.
-//
-// An instance of the IOScope subclass must be created within the synchronization
-// of the event handler. It takes care of calling startMessage/finishMessage for
-// the IOCP implementation and ensures that finishMessage isn't called multiple
-// times.
-//
+// The ThreadPoolMessage class below hides the IOCP implementation details from the event handler implementations. Only
+// event handler implementation that require IO need to use this class. An instance of the IOScope subclass must be
+// created within the synchronization of the event handler. It takes care of calling startMessage/finishMessage for the
+// IOCP implementation and ensures that finishMessage isn't called multiple times.
 #if !defined(ICE_USE_IOCP)
     template<class T> class ThreadPoolMessage
     {
@@ -253,11 +247,9 @@ namespace IceInternal
 
             void completed()
             {
-                //
-                // Call finishMessage once IO is completed only if serialization is not enabled.
-                // Otherwise, finishMessage will be called when the event handler is done with
-                // the message (it will be called from ~ThreadPoolMessage below).
-                //
+                // Call finishMessage once IO is completed only if serialization is not enabled. Otherwise,
+                // finishMessage will be called when the event handler is done with the message (it will be called from
+                // ~ThreadPoolMessage below).
                 assert(_finish);
                 if (_message._current.ioCompleted())
                 {
@@ -283,11 +275,8 @@ namespace IceInternal
         {
             if (_finish)
             {
-                //
-                // A ThreadPoolMessage instance must be created outside the synchronization
-                // of the event handler. We need to lock the event handler here to call
-                // finishMessage.
-                //
+                // A ThreadPoolMessage instance must be created outside the synchronization of the event handler. We
+                // need to lock the event handler here to call finishMessage.
                 std::lock_guard lock(_eventHandler._mutex);
                 _current.finishMessage();
             }

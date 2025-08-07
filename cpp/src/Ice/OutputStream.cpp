@@ -31,21 +31,14 @@ namespace
 
             if (firstUnused)
             {
-                //
                 // Return unused bytes
-                //
                 _stream.resize(static_cast<size_t>(firstUnused - _stream.b.begin()));
             }
 
-            //
             // Index of first unused byte
-            //
             Buffer::Container::size_type pos = _stream.b.size();
 
-            //
-            // Since resize may reallocate the buffer, when firstUnused != 0, the
-            // return value can be != firstUnused
-            //
+            // Since resize may reallocate the buffer, when firstUnused != 0, the return value can be != firstUnused
             _stream.resize(pos + howMany);
 
             return &_stream.b[pos];
@@ -188,11 +181,8 @@ Ice::OutputStream::swap(OutputStream& other) noexcept
     std::swap(_encoding, other._encoding);
     std::swap(_format, other._format);
 
-    //
-    // Swap is never called for streams that have encapsulations being written. However,
-    // encapsulations might still be set in case marshaling failed. We just
-    // reset the encapsulations if there are still some set.
-    //
+    // Swap is never called for streams that have encapsulations being written. However, encapsulations might still be
+    // set in case marshaling failed. We just reset the encapsulations if there are still some set.
     resetEncapsulation();
     other.resetEncapsulation();
 }
@@ -213,11 +203,8 @@ Ice::OutputStream::resetEncapsulation()
 void
 Ice::OutputStream::startEncapsulation()
 {
-    //
-    // If no encoding version is specified, use the current write
-    // encapsulation encoding version if there's a current write
-    // encapsulation, otherwise, use the stream encoding version.
-    //
+    // If no encoding version is specified, use the current write encapsulation encoding version if there's a current
+    // write encapsulation, otherwise, use the stream encoding version.
 
     if (_currentEncaps)
     {
@@ -306,15 +293,9 @@ Ice::OutputStream::writePendingValues()
     }
     else if (getEncoding() == Ice::Encoding_1_0)
     {
-        //
-        // If using the 1.0 encoding and no instances were written, we
-        // still write an empty sequence for pending instances if
-        // requested (i.e.: if this is called).
-        //
-        // This is required by the 1.0 encoding, even if no instances
-        // are written we do marshal an empty sequence if marshaled
-        // data types use classes.
-        //
+        // If using the 1.0 encoding and no instances were written, we still write an empty sequence for pending
+        // instances if requested (i.e.: if this is called). This is required by the 1.0 encoding, even if no instances
+        // are written we do marshal an empty sequence if marshaled data types use classes.
         writeSize(0);
     }
 }
@@ -686,13 +667,9 @@ Ice::OutputStream::write(const double* begin, const double* end)
     }
 }
 
-//
-// NOTE: This member function is intentionally omitted in order to
-// cause a link error if it is used. This is for efficiency reasons:
-// writing a const char * requires a traversal of the string to get
-// the string length first, which takes O(n) time, whereas getting the
-// string length from a std::string takes constant time.
-//
+// NOTE: This member function is intentionally omitted in order to cause a link error if it is used. This is for
+// efficiency reasons: writing a const char * requires a traversal of the string to get the string length first, which
+// takes O(n) time, whereas getting the string length from a std::string takes constant time.
 /*
 void
 Ice::OutputStream::write(const char*)
@@ -703,11 +680,8 @@ Ice::OutputStream::write(const char*)
 void
 Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
 {
-    //
-    // What is the size of the resulting UTF-8 encoded string?
-    // Impossible to tell, so we guess. If we don't guess correctly,
-    // we'll have to fix the mistake afterwards
-    //
+    // What is the size of the resulting UTF-8 encoded string? Impossible to tell, so we guess. If we don't guess
+    // correctly, we'll have to fix the mistake afterwards
     try
     {
         auto guessedSize = static_cast<int32_t>(vsize);
@@ -746,25 +720,19 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
 
         auto actualSize = static_cast<int32_t>(lastIndex - firstIndex);
 
-        //
         // Check against the guess
-        //
         if (guessedSize != actualSize)
         {
             if (guessedSize <= 254 && actualSize > 254)
             {
-                //
-                // Move the UTF-8 sequence 4 bytes further
-                // Use memmove instead of memcpy since the source and destination typically overlap.
-                //
+                // Move the UTF-8 sequence 4 bytes further Use memmove instead of memcpy since the source and
+                // destination typically overlap.
                 resize(b.size() + 4);
                 memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
             }
             else if (guessedSize > 254 && actualSize <= 254)
             {
-                //
                 // Move the UTF-8 sequence 4 bytes back
-                //
                 memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
                 resize(b.size() - 4);
             }
@@ -808,11 +776,8 @@ Ice::OutputStream::write(wstring_view v)
         return;
     }
 
-    //
-    // What is the size of the resulting UTF-8 encoded string?
-    // Impossible to tell, so we guess. If we don't guess correctly,
-    // we'll have to fix the mistake afterwards
-    //
+    // What is the size of the resulting UTF-8 encoded string? Impossible to tell, so we guess. If we don't guess
+    // correctly, we'll have to fix the mistake afterwards
     try
     {
         auto guessedSize = static_cast<int32_t>(v.size());
@@ -839,25 +804,19 @@ Ice::OutputStream::write(wstring_view v)
 
         auto actualSize = static_cast<int32_t>(lastIndex - firstIndex);
 
-        //
         // Check against the guess
-        //
         if (guessedSize != actualSize)
         {
             if (guessedSize <= 254 && actualSize > 254)
             {
-                //
-                // Move the UTF-8 sequence 4 bytes further
-                // Use memmove instead of memcpy since the source and destination typically overlap.
-                //
+                // Move the UTF-8 sequence 4 bytes further Use memmove instead of memcpy since the source and
+                // destination typically overlap.
                 resize(b.size() + 4);
                 memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
             }
             else if (guessedSize > 254 && actualSize <= 254)
             {
-                //
                 // Move the UTF-8 sequence 4 bytes back
-                //
                 memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, static_cast<size_t>(actualSize));
                 resize(b.size() - 4);
             }
@@ -1024,9 +983,7 @@ Ice::OutputStream::EncapsEncoder::registerTypeId(string_view typeId)
 void
 Ice::OutputStream::EncapsEncoder10::write(const shared_ptr<Value>& v)
 {
-    //
     // Object references are encoded as a negative integer in 1.0.
-    //
     if (v)
     {
         _stream->write(-registerValue(v));
@@ -1040,14 +997,8 @@ Ice::OutputStream::EncapsEncoder10::write(const shared_ptr<Value>& v)
 void
 Ice::OutputStream::EncapsEncoder10::write(const UserException& v)
 {
-    //
-    // User exception with the 1.0 encoding start with a boolean
-    // flag that indicates whether or not the exception uses
-    // classes.
-    //
-    // This allows reading the pending instances even if some part of
-    // the exception was sliced.
-    //
+    // User exception with the 1.0 encoding start with a boolean flag that indicates whether or not the exception uses
+    // classes. This allows reading the pending instances even if some part of the exception was sliced.
     bool usesClasses = v._usesClasses();
     _stream->write(usesClasses);
     v._write(_stream);
@@ -1068,9 +1019,7 @@ Ice::OutputStream::EncapsEncoder10::endInstance()
 {
     if (_sliceType == ValueSlice)
     {
-        //
         // Write the Object slice.
-        //
         startSlice(Value::ice_staticId(), -1, true);
         _stream->writeSize(0); // For compatibility with the old AFM.
         endSlice();
@@ -1081,11 +1030,8 @@ Ice::OutputStream::EncapsEncoder10::endInstance()
 void
 Ice::OutputStream::EncapsEncoder10::startSlice(string_view typeId, int, bool /*last*/)
 {
-    //
-    // For instance slices, encode a boolean to indicate how the type ID
-    // is encoded and the type ID either as a string or index. For
-    // exception slices, always encode the type ID as a string.
-    //
+    // For instance slices, encode a boolean to indicate how the type ID is encoded and the type ID either as a string
+    // or index. For exception slices, always encode the type ID as a string.
     if (_sliceType == ValueSlice)
     {
         int32_t index = registerTypeId(typeId);
@@ -1113,9 +1059,7 @@ Ice::OutputStream::EncapsEncoder10::startSlice(string_view typeId, int, bool /*l
 void
 Ice::OutputStream::EncapsEncoder10::endSlice()
 {
-    //
     // Write the slice length.
-    //
     auto sz = static_cast<int32_t>(_stream->b.size() - _writeSlice + sizeof(int32_t));
     byte* dest = &(*(_stream->b.begin() + _writeSlice - sizeof(int32_t)));
     _stream->write(sz, dest);
@@ -1126,12 +1070,8 @@ Ice::OutputStream::EncapsEncoder10::writePendingValues()
 {
     while (!_toBeMarshaledMap.empty())
     {
-        //
-        // Consider the to be marshaled instances as marshaled now,
-        // this is necessary to avoid adding again the "to be
-        // marshaled instances" into _toBeMarshaledMap while writing
-        // instances.
-        //
+        // Consider the to be marshaled instances as marshaled now, this is necessary to avoid adding again the "to be
+        // marshaled instances" into _toBeMarshaledMap while writing instances.
         _marshaledMap.insert(_toBeMarshaledMap.begin(), _toBeMarshaledMap.end());
 
         PtrToIndexMap savedMap;
@@ -1156,28 +1096,21 @@ Ice::OutputStream::EncapsEncoder10::registerValue(const shared_ptr<Value>& v)
 {
     assert(v);
 
-    //
     // Look for this instance in the to-be-marshaled map.
-    //
     auto p = _toBeMarshaledMap.find(v);
     if (p != _toBeMarshaledMap.end())
     {
         return p->second;
     }
 
-    //
     // Didn't find it, try the marshaled map next.
-    //
     auto q = _marshaledMap.find(v);
     if (q != _marshaledMap.end())
     {
         return q->second;
     }
 
-    //
-    // We haven't seen this instance previously, create a new
-    // index, and insert it into the to-be-marshaled map.
-    //
+    // We haven't seen this instance previously, create a new index, and insert it into the to-be-marshaled map.
     _toBeMarshaledMap.insert(make_pair(v, ++_valueIdIndex));
     return _valueIdIndex;
 }
@@ -1191,13 +1124,9 @@ Ice::OutputStream::EncapsEncoder11::write(const shared_ptr<Value>& v)
     }
     else if (_current && _encaps->format == FormatType::SlicedFormat)
     {
-        //
-        // If writing an instance within a slice and using the sliced
-        // format, write an index from the instance indirection
-        // table. The indirect instance table is encoded at the end of
-        // each slice and is always read (even if the Slice is
-        // unknown).
-        //
+        // If writing an instance within a slice and using the sliced format, write an index from the instance
+        // indirection table. The indirect instance table is encoded at the end of each slice and is always read (even
+        // if the Slice is unknown).
         auto p = _current->indirectionMap.find(v);
         if (p == _current->indirectionMap.end())
         {
@@ -1268,17 +1197,11 @@ Ice::OutputStream::EncapsEncoder11::startSlice(string_view typeId, int compactId
 
     _stream->write(std::uint8_t(0)); // Placeholder for the slice flags
 
-    //
-    // For instance slices, encode the flag and the type ID either as a
-    // string or index. For exception slices, always encode the type
-    // ID a string.
-    //
+    // For instance slices, encode the flag and the type ID either as a string or index. For exception slices, always
+    // encode the type ID a string.
     if (_current->sliceType == ValueSlice)
     {
-        //
-        // Encode the type ID (only in the first slice for the compact
-        // encoding).
-        //
+        // Encode the type ID (only in the first slice for the compact encoding).
         if (_encaps->format == FormatType::SlicedFormat || _current->firstSlice)
         {
             if (compactId != -1)
@@ -1319,19 +1242,14 @@ Ice::OutputStream::EncapsEncoder11::startSlice(string_view typeId, int compactId
 void
 Ice::OutputStream::EncapsEncoder11::endSlice()
 {
-    //
-    // Write the optional member end marker if some optional members
-    // were encoded. Note that the optional members are encoded before
-    // the indirection table and are included in the slice size.
-    //
+    // Write the optional member end marker if some optional members were encoded. Note that the optional members are
+    // encoded before the indirection table and are included in the slice size.
     if (_current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
     {
         _stream->write(OPTIONAL_END_MARKER);
     }
 
-    //
     // Write the slice length if necessary.
-    //
     if (_current->sliceFlags & FLAG_HAS_SLICE_SIZE)
     {
         auto sz = static_cast<int32_t>(_stream->b.size() - _current->writeSlice + sizeof(int32_t));
@@ -1339,17 +1257,13 @@ Ice::OutputStream::EncapsEncoder11::endSlice()
         _stream->write(sz, dest);
     }
 
-    //
     // Only write the indirection table if it contains entries.
-    //
     if (!_current->indirectionTable.empty())
     {
         assert(_encaps->format == FormatType::SlicedFormat);
         _current->sliceFlags |= FLAG_HAS_INDIRECTION_TABLE;
 
-        //
         // Write the indirect instance table.
-        //
         _stream->writeSize(static_cast<int32_t>(_current->indirectionTable.size()));
         ValueList::const_iterator p;
         for (p = _current->indirectionTable.begin(); p != _current->indirectionTable.end(); ++p)
@@ -1360,9 +1274,7 @@ Ice::OutputStream::EncapsEncoder11::endSlice()
         _current->indirectionMap.clear();
     }
 
-    //
     // Finally, update the slice flags.
-    //
     byte* dest = &(*(_stream->b.begin() + _current->sliceFlagsPos));
     *dest = byte{_current->sliceFlags};
 }
@@ -1393,12 +1305,8 @@ Ice::OutputStream::EncapsEncoder11::writeSlicedData(const SlicedDataPtr& slicedD
 {
     assert(slicedData);
 
-    //
-    // We only remarshal preserved slices if we are using the sliced
-    // format. Otherwise, we ignore the preserved slices, which
-    // essentially "slices" the instance into the most-derived type
-    // known by the sender.
-    //
+    // We only remarshal preserved slices if we are using the sliced format. Otherwise, we ignore the preserved slices,
+    // which essentially "slices" the instance into the most-derived type known by the sender.
     if (_encaps->format != FormatType::SlicedFormat)
     {
         return;
@@ -1408,9 +1316,7 @@ Ice::OutputStream::EncapsEncoder11::writeSlicedData(const SlicedDataPtr& slicedD
     {
         startSlice(slice->typeId, slice->compactId, slice->isLastSlice);
 
-        //
         // Write the bytes associated with this slice.
-        //
         _stream->writeBlob(slice->bytes);
 
         if (slice->hasOptionalMembers)
@@ -1418,9 +1324,7 @@ Ice::OutputStream::EncapsEncoder11::writeSlicedData(const SlicedDataPtr& slicedD
             _current->sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
         }
 
-        //
         // Make sure to also re-write the instance indirection table.
-        //
         _current->indirectionTable = slice->instances;
 
         endSlice();
@@ -1432,9 +1336,7 @@ Ice::OutputStream::EncapsEncoder11::writeInstance(const shared_ptr<Value>& v)
 {
     assert(v);
 
-    //
     // If the instance was already marshaled, just write it's ID.
-    //
     auto q = _marshaledMap.find(v);
     if (q != _marshaledMap.end())
     {
@@ -1442,10 +1344,8 @@ Ice::OutputStream::EncapsEncoder11::writeInstance(const shared_ptr<Value>& v)
         return;
     }
 
-    //
-    // We haven't seen this instance previously, create a new ID,
-    // insert it into the marshaled map, and write the instance.
-    //
+    // We haven't seen this instance previously, create a new ID, insert it into the marshaled map, and write the
+    // instance.
     _marshaledMap.insert(make_pair(v, ++_valueIdIndex));
 
     v->ice_preMarshal();

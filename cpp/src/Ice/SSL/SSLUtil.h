@@ -13,9 +13,7 @@
 namespace Ice::SSL
 {
 #if defined(__APPLE__)
-    //
     // Helper functions to use by Secure Transport.
-    //
     std::string fromCFString(CFStringRef);
 
     inline CFStringRef toCFString(const std::string& s)

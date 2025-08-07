@@ -44,9 +44,7 @@ typedef struct __CFSocket* CFSocketRef;
 
 namespace IceInternal
 {
-    //
     // Exception raised if select times out.
-    //
     class SelectorTimeoutException
     {
     };

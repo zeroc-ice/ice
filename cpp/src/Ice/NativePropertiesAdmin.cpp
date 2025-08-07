@@ -44,16 +44,10 @@ Ice::NativePropertiesAdmin::setProperties(PropertyDict props, const Current&)
     PropertyDict::const_iterator p;
     const int traceLevel = _properties->getIcePropertyAsInt("Ice.Trace.Admin.Properties");
 
-    //
-    // Compute the difference between the new property set and the existing property set:
-    //
-    // 1) Any properties in the new set that were not defined in the existing set.
-    //
-    // 2) Any properties that appear in both sets but with different values.
-    //
-    // 3) Any properties not present in the new set but present in the existing set.
-    //    In other words, the property has been removed.
-    //
+    // Compute the difference between the new property set and the existing property set: 1) Any properties in the new
+    // set that were not defined in the existing set. 2) Any properties that appear in both sets but with different
+    // values. 3) Any properties not present in the new set but present in the existing set. In other words, the
+    // property has been removed.
     PropertyDict added, changed, removed;
     for (p = props.begin(); p != props.end(); ++p)
     {
@@ -62,9 +56,7 @@ Ice::NativePropertiesAdmin::setProperties(PropertyDict props, const Current&)
         {
             if (!p->second.empty())
             {
-                //
                 // This property is new.
-                //
                 added.insert(*p);
             }
         }
@@ -74,16 +66,12 @@ Ice::NativePropertiesAdmin::setProperties(PropertyDict props, const Current&)
             {
                 if (p->second.empty())
                 {
-                    //
                     // This property was removed.
-                    //
                     removed.insert(*p);
                 }
                 else
                 {
-                    //
                     // This property has changed.
-                    //
                     changed.insert(*p);
                 }
             }
@@ -132,9 +120,7 @@ Ice::NativePropertiesAdmin::setProperties(PropertyDict props, const Current&)
         }
     }
 
-    //
     // Update the property set.
-    //
 
     for (p = added.begin(); p != added.end(); ++p)
     {

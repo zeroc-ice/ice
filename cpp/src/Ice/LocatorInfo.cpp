@@ -100,9 +100,7 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
 {
     LocatorPrx locator = loc->ice_locator(nullopt); // The locator can't be located.
 
-    //
     // TODO: reap unused locator info objects?
-    //
 
     lock_guard lock(_mutex);
 
@@ -123,11 +121,8 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
 
     if (p == _table.end())
     {
-        //
-        // Rely on locator identity for the adapter table. We want to
-        // have only one table per locator (not one per locator
-        // proxy).
-        //
+        // Rely on locator identity for the adapter table. We want to have only one table per locator (not one per
+        // locator proxy).
         pair<Identity, EncodingVersion> locatorKey(locator->ice_getIdentity(), locator->ice_getEncodingVersion());
         auto t = _locatorTables.find(locatorKey);
         if (t == _locatorTables.end())
@@ -293,11 +288,8 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
         ReferencePtr r = proxy->_getReference();
         if (_reference->isWellKnown() && !isSupported(_reference->getEncoding(), r->getEncoding()))
         {
-            //
-            // If a well-known proxy and the returned proxy encoding
-            // isn't supported, we're done: there's no compatible
+            // If a well-known proxy and the returned proxy encoding isn't supported, we're done: there's no compatible
             // endpoint we can use.
-            //
         }
         else if (!r->isIndirect())
         {
@@ -305,11 +297,8 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
         }
         else if (_reference->isWellKnown() && !r->isWellKnown())
         {
-            //
-            // We're resolving the endpoints of a well-known object and the proxy returned
-            // by the locator is an indirect proxy. We now need to resolve the endpoints
-            // of this indirect proxy.
-            //
+            // We're resolving the endpoints of a well-known object and the proxy returned by the locator is an
+            // indirect proxy. We now need to resolve the endpoints of this indirect proxy.
             if (_reference->getInstance()->traceLevels()->location >= 1)
             {
                 locatorInfo->trace(
@@ -488,9 +477,7 @@ IceInternal::LocatorInfo::getLocatorRegistry()
         }
     }
 
-    //
     // Do not make locator calls from within sync.
-    //
     optional<LocatorRegistryPrx> locatorRegistry = _locator->getRegistry();
     if (!locatorRegistry)
     {
@@ -500,11 +487,8 @@ IceInternal::LocatorInfo::getLocatorRegistry()
     {
         lock_guard lock(_mutex);
 
-        //
-        // The locator registry can't be located. We use ordered
-        // endpoint selection in case the locator returned a proxy
-        // with some endpoints which are preferred to be tried first.
-        //
+        // The locator registry can't be located. We use ordered endpoint selection in case the locator returned a
+        // proxy with some endpoints which are preferred to be tried first.
         _locatorRegistry =
             locatorRegistry->ice_locator(nullopt)->ice_endpointSelection(Ice::EndpointSelectionType::Ordered);
         return _locatorRegistry;
@@ -808,10 +792,8 @@ IceInternal::LocatorInfo::finishRequest(
 {
     if (!proxy || proxy->_getReference()->isIndirect())
     {
-        //
-        // Remove the cached references of well-known objects for which we tried
-        // to resolved the endpoints if these endpoints are empty.
-        //
+        // Remove the cached references of well-known objects for which we tried to resolved the endpoints if these
+        // endpoints are empty.
         for (const auto& wellKnownRef : wellKnownRefs)
         {
             _table->removeObjectReference(wellKnownRef->getIdentity());

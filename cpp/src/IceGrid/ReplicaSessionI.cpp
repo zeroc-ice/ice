@@ -206,12 +206,9 @@ ReplicaSessionI::registerWellKnownObjects(ObjectInfoSeq objects, const Ice::Curr
         serial = _database->addOrUpdateRegistryWellKnownObjects(objects);
     }
 
-    //
-    // We wait for the replica to receive the database replication
-    // updates. This is to ensure that the replica well-known objects
-    // are correctly setup when the replica starts accepting requests
-    // from clients (if the replica is being started).
-    //
+    // We wait for the replica to receive the database replication updates. This is to ensure that the replica
+    // well-known objects are correctly setup when the replica starts accepting requests from clients (if the replica is
+    // being started).
     _database->getObserverTopic(TopicName::ObjectObserver)->waitForSyncedSubscribers(serial, _info->name);
 }
 
@@ -343,17 +340,12 @@ ReplicaSessionI::destroyImpl(bool shutdown)
         _wellKnownObjects->updateReplicatedWellKnownObjects(); // No need to update these if we're shutting down.
     }
 
-    //
     // Notify the observer that the registry is down.
-    //
     auto obsv = _database->getObserverTopic(TopicName::RegistryObserver);
     static_pointer_cast<RegistryObserverTopic>(obsv)->registryDown(_info->name);
 
-    //
-    // Remove the replica from the cache. This must be done last. As
-    // soon as the replica is removed another session might be
-    // created.
-    //
+    // Remove the replica from the cache. This must be done last. As soon as the replica is removed another session
+    // might be created.
     _database->getReplicaCache().remove(_info->name, shutdown);
 
     if (!shutdown)

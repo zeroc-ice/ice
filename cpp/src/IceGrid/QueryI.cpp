@@ -53,11 +53,8 @@ QueryI::findAllReplicas(optional<Ice::ObjectPrx> proxy, const Ice::Current& curr
         return {};
     }
 
-    //
-    // If the given proxy has an empty adapter id, we check if it's a
-    // well-known object. If it's a well-known object we use the
-    // registered proxy instead.
-    //
+    // If the given proxy has an empty adapter id, we check if it's a well-known object. If it's a well-known object we
+    // use the registered proxy instead.
     if (proxy->ice_getAdapterId().empty())
     {
         try

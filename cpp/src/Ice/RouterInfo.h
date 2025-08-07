@@ -27,10 +27,7 @@ namespace IceInternal
 
         void destroy();
 
-        //
-        // Returns router info for a given router. Automatically creates
-        // the router info if it doesn't exist yet.
-        //
+        // Returns router info for a given router. Automatically creates the router info if it doesn't exist yet.
         RouterInfoPtr get(const Ice::RouterPrx&);
         void erase(const Ice::RouterPrx&);
 
@@ -54,9 +51,7 @@ namespace IceInternal
 
         [[nodiscard]] Ice::RouterPrx getRouter() const
         {
-            //
             // No mutex lock necessary, _router is immutable.
-            //
             return _router;
         }
 

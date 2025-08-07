@@ -69,11 +69,8 @@ namespace IceInternal
         [[nodiscard]] virtual std::chrono::milliseconds getLocatorCacheTimeout() const noexcept = 0;
         [[nodiscard]] virtual std::string getConnectionId() const = 0;
 
-        //
-        // The change* methods (here and in derived classes) create
-        // a new reference based on the existing one, with the
+        // The change* methods (here and in derived classes) create a new reference based on the existing one, with the
         // corresponding value changed.
-        //
         [[nodiscard]] ReferencePtr changeContext(Ice::Context) const;
         [[nodiscard]] ReferencePtr changeSecure(bool) const;
         [[nodiscard]] ReferencePtr changeIdentity(Ice::Identity) const;
@@ -101,35 +98,23 @@ namespace IceInternal
         // Gets the effective compression setting, taking into account the override.
         [[nodiscard]] std::optional<bool> getCompressOverride() const noexcept;
 
-        //
         // Utility methods.
-        //
         [[nodiscard]] virtual bool isIndirect() const noexcept = 0;
         [[nodiscard]] virtual bool isWellKnown() const noexcept = 0;
 
-        //
         // Marshal the reference.
-        //
         virtual void streamWrite(Ice::OutputStream*) const;
 
-        //
         // Convert the reference to its string form.
-        //
         [[nodiscard]] virtual std::string toString() const;
 
-        //
         // Convert the reference to its property form.
-        //
         [[nodiscard]] virtual Ice::PropertyDict toProperty(std::string) const = 0;
 
-        //
         // Get a suitable connection for this reference.
-        //
         [[nodiscard]] virtual RequestHandlerPtr getRequestHandler() const = 0;
 
-        //
         // Get batch request queue.
-        //
         [[nodiscard]] virtual const BatchRequestQueuePtr& getBatchRequestQueue() const noexcept = 0;
 
         virtual bool operator==(const Reference&) const noexcept;

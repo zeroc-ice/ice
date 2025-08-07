@@ -378,19 +378,13 @@ OpenSSL::SSLEngine::initialize()
         // Store a pointer to ourself for use in OpenSSL callbacks.
         SSL_CTX_set_ex_data(_ctx, 0, this);
 
-        //
-        // This is necessary for successful interop with Java. Without it, a Java
-        // client would fail to reestablish a connection: the server gets the
-        // error "session id context uninitialized" and the client receives
+        // This is necessary for successful interop with Java. Without it, a Java client would fail to reestablish a
+        // connection: the server gets the error "session id context uninitialized" and the client receives
         // "SSLHandshakeException: Remote host closed connection during handshake".
-        //
         SSL_CTX_set_session_cache_mode(_ctx, SSL_SESS_CACHE_OFF);
 
-        //
-        // Although we disable session caching, we still need to set a session ID
-        // context (ICE-5103). The value can be anything; here we just use the
-        // pointer to this object.
-        //
+        // Although we disable session caching, we still need to set a session ID context (ICE-5103). The value can be
+        // anything; here we just use the pointer to this object.
         SSL_CTX_set_session_id_context(
             _ctx,
             reinterpret_cast<unsigned char*>(this),

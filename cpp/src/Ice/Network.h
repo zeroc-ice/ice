@@ -105,10 +105,7 @@ namespace IceInternal
 #endif
     };
 
-//
-// AsyncInfo struct for Windows IOCP holds the result of
-// asynchronous operations after it completed.
-//
+// AsyncInfo struct for Windows IOCP holds the result of asynchronous operations after it completed.
 #if defined(ICE_USE_IOCP)
     struct ICE_API AsyncInfo : WSAOVERLAPPED
     {
@@ -155,9 +152,7 @@ namespace IceInternal
             _readyCallback->ready(operation, value);
         }
 
-        //
         // This is implemented by transceiver and acceptor implementations.
-        //
 #if defined(ICE_USE_IOCP)
         virtual AsyncInfo* getAsyncInfo(SocketOperation) = 0;
         void initialize(HANDLE, ULONG_PTR);

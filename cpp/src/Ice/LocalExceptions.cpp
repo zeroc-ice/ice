@@ -10,10 +10,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-//
-// The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
-// reply message. Other local exceptions can't be marshaled.
-//
+// The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
+// message. Other local exceptions can't be marshaled.
 
 namespace
 {
@@ -220,9 +218,7 @@ Ice::UnknownUserException::ice_id() const noexcept
     return "::Ice::UnknownUserException";
 }
 
-//
 // Protocol exceptions
-//
 
 const char*
 Ice::ProtocolException::ice_id() const noexcept
@@ -248,9 +244,7 @@ Ice::MarshalException::ice_id() const noexcept
     return "::Ice::MarshalException";
 }
 
-//
 // Timeout exceptions
-//
 
 const char*
 Ice::TimeoutException::ice_id() const noexcept
@@ -276,9 +270,7 @@ Ice::InvocationTimeoutException::ice_id() const noexcept
     return "::Ice::InvocationTimeoutException";
 }
 
-//
 // Syscall exceptions
-//
 
 Ice::SyscallException::SyscallException(
     const char* file,
@@ -343,9 +335,7 @@ Ice::FileException::ice_id() const noexcept
     return "::Ice::FileException";
 }
 
-//
 // Socket exceptions
-//
 
 namespace
 {
@@ -407,9 +397,7 @@ Ice::ConnectionRefusedException::ice_id() const noexcept
     return "::Ice::ConnectionRefusedException";
 }
 
-//
 // Other leaf local exceptions
-//
 
 Ice::AlreadyRegisteredException::AlreadyRegisteredException(const char* file, int line, string kindOfObject, string id)
     : LocalException(file, line, "another " + kindOfObject + " is already registered with ID '" + id + "'"),

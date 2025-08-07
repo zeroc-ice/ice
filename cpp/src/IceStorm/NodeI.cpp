@@ -133,25 +133,13 @@ NodeI::start()
 {
     // As an optimization we want the initial election to occur as
     // soon as possible.
-    //
-    // However, if we have the node trigger the election immediately
-    // upon startup then we'll have a clash with lower priority nodes
-    // starting an election denying a higher priority node the
-    // opportunity to start the election that results in it becoming
-    // the leader. Of course, things will eventually reach a stable
-    // state but it will take longer.
-    //
-    // As such as we schedule the initial election check inversely
-    // proportional to our priority.
-    //
-    // By setting _checkTask first we stop recovery() from setting it
-    // to the regular election interval.
-    //
+    // However, if we have the node trigger the election immediately upon startup then we'll have a clash with lower
+    // priority nodes starting an election denying a higher priority node the opportunity to start the election that
+    // results in it becoming the leader. Of course, things will eventually reach a stable state but it will take
+    // longer. As such as we schedule the initial election check inversely proportional to our priority. By setting
+    // _checkTask first we stop recovery() from setting it to the regular election interval.
 
-    //
-    // We use this lock to ensure that recovery is called before CheckTask
-    // is scheduled, even if timeout is 0
-    //
+    // We use this lock to ensure that recovery is called before CheckTask is scheduled, even if timeout is 0
     lock_guard lock(_mutex);
 
     _checkTask = make_shared<CheckTask>(shared_from_this());
@@ -693,10 +681,7 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
             return;
         }
 
-        //
-        // Upon receipt of an invitation we cancel any pending merge
-        // task.
-        //
+        // Upon receipt of an invitation we cancel any pending merge task.
         if (_mergeTask)
         {
             // If the timer doesn't cancel it means that the timer has

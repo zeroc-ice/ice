@@ -481,10 +481,8 @@ namespace
         const EndpointPtr& _endpoint;
 
     protected:
-        //
-        // COMPILERFIX: Clang 4.2 reports unused-private-field for the _requestId
-        // field that is only used in the nested Attributes class.
-        //
+        // COMPILERFIX: Clang 4.2 reports unused-private-field for the _requestId field that is only used in the nested
+        // Attributes class.
         const int _requestId;
 
     private:
@@ -526,10 +524,8 @@ namespace
         [[nodiscard]] string getParent() const { return "Communicator"; }
 
     protected:
-        //
-        // COMPILERFIX: Clang 4.2 reports unused-private-field for the _requestId
-        // field that is only used in the nested Attributes class.
-        //
+        // COMPILERFIX: Clang 4.2 reports unused-private-field for the _requestId field that is only used in the nested
+        // Attributes class.
         const int _requestId;
 
     private:

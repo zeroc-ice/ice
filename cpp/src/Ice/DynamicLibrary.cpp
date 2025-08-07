@@ -29,10 +29,8 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     if (colon == 1 && driveLetters.find(entryPoint[0]) != string::npos &&
         (entryPoint[2] == '\\' || entryPoint[2] == '/'))
     {
-        //
-        // The only colon we found is in the drive specification, as in "C:\MyDir".
-        // This means the function name is missing.
-        //
+        // The only colon we found is in the drive specification, as in "C:\MyDir". This means the function name is
+        // missing.
         colon = string::npos;
     }
 #endif
@@ -121,10 +119,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 #endif
 
 #ifdef __APPLE__
-    //
-    // On macOS fallback to .so and .bundle extensions, if the default
-    // .dylib fails.
-    //
+    // On macOS fallback to .so and .bundle extensions, if the default .dylib fails.
     if (!load(lib + ".dylib"))
     {
         string errMsg = _err;
@@ -152,10 +147,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 bool
 IceInternal::DynamicLibrary::load(const string& lib)
 {
-    //
-    // Don't need to use a wide string converter as the wide string is passed
-    // to Windows API.
-    //
+    // Don't need to use a wide string converter as the wide string is passed to Windows API.
 #if defined(_WIN32)
     _hnd = LoadLibraryW(stringToWstring(lib, getProcessStringConverter()).c_str());
 #else
@@ -164,9 +156,7 @@ IceInternal::DynamicLibrary::load(const string& lib)
 #endif
     if (_hnd == nullptr)
     {
-        //
         // Remember the most recent error in _err.
-        //
 #if defined(_WIN32)
         _err = "LoadLibraryW on '" + lib + "' failed with '" + IceInternal::lastErrorToString() + "'";
 #else
@@ -193,9 +183,7 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
 
     if (result == nullptr)
     {
-        //
         // Remember the most recent error in _err.
-        //
 #ifdef _WIN32
         _err = "GetProcAddress for '" + name + "' failed with '" + IceInternal::lastErrorToString() + "'";
 #else

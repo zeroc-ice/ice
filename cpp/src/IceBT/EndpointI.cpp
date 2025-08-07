@@ -62,9 +62,7 @@ IceBT::EndpointI::EndpointI(InstancePtr instance, InputStream* s)
       _timeout(-1),
       _compress(false)
 {
-    //
     // _name and _channel are not marshaled.
-    //
     s->read(const_cast<string&>(_addr), false);
     s->read(const_cast<string&>(_uuid), false);
     s->read(const_cast<int32_t&>(_timeout));
@@ -74,9 +72,7 @@ IceBT::EndpointI::EndpointI(InstancePtr instance, InputStream* s)
 void
 IceBT::EndpointI::streamWriteImpl(OutputStream* s) const
 {
-    //
     // _name and _channel are not marshaled.
-    //
     s->write(_addr, false);
     s->write(_uuid, false);
     s->write(_timeout);
@@ -357,13 +353,9 @@ IceBT::EndpointI::operator<(const Ice::Endpoint& r) const
 string
 IceBT::EndpointI::options() const
 {
-    //
-    // WARNING: Certain features, such as proxy validation in Glacier2,
-    // depend on the format of proxy strings. Changes to toString() and
-    // methods called to generate parts of the reference string could break
-    // these features. Please review for all features that depend on the
-    // format of proxyToString() before changing this and related code.
-    //
+    // WARNING: Certain features, such as proxy validation in Glacier2, depend on the format of proxy strings. Changes
+    // to toString() and methods called to generate parts of the reference string could break these features. Please
+    // review for all features that depend on the format of proxyToString() before changing this and related code.
     ostringstream s;
     if (!_addr.empty())
     {
@@ -458,9 +450,7 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
     {
         if (oaEndpoint)
         {
-            //
             // Generate a UUID for object adapters that don't specify one.
-            //
             const_cast<string&>(_uuid) = generateUUID();
         }
         else

@@ -188,10 +188,8 @@ AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const shared_ptr<S
         auto repEntry = dynamic_pointer_cast<ReplicaGroupEntry>(getImpl(desc.replicaGroupId));
         if (!repEntry)
         {
-            //
-            // Add an un-assigned replica group, the replica group will in theory be added
-            // shortly after when its application is loaded.
-            //
+            // Add an un-assigned replica group, the replica group will in theory be added shortly after when its
+            // application is loaded.
             repEntry = make_shared<ReplicaGroupEntry>(
                 *this,
                 desc.replicaGroupId,
@@ -211,10 +209,8 @@ AdapterCache::addReplicaGroup(const ReplicaGroupDescriptor& desc, const string& 
     auto repEntry = dynamic_pointer_cast<ReplicaGroupEntry>(getImpl(desc.id));
     if (repEntry)
     {
-        //
-        // If the replica group isn't assigned to an application,
-        // assign it. Otherwise, it's a duplicate so we log an error.
-        //
+        // If the replica group isn't assigned to an application, assign it. Otherwise, it's a duplicate so we log an
+        // error.
         if (repEntry->getApplication().empty())
         {
             repEntry->update(app, desc.loadBalancing, desc.filter);
@@ -267,9 +263,7 @@ AdapterCache::removeServerAdapter(const string& id)
         }
         else
         {
-            //
             // If the replica group is empty and it's not assigned, remove it.
-            //
             if (repEntry->removeReplica(id))
             {
                 removeImpl(replicaGroupId);
@@ -673,13 +667,9 @@ ReplicaGroupEntry::getLocatorAdapterInfo(
     {
         if (adaptive)
         {
-            //
-            // This must be done outside the synchronization block since
-            // the transform() might call and lock each server adapter
-            // entry. We also can't sort directly as the load of each
-            // server adapter is not stable so we first take a snapshot of
-            // each adapter and sort the snapshot.
-            //
+            // This must be done outside the synchronization block since the transform() might call and lock each
+            // server adapter entry. We also can't sort directly as the load of each server adapter is not stable so we
+            // first take a snapshot of each adapter and sort the snapshot.
             vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
             transform(
                 replicas.begin(),
@@ -692,11 +682,8 @@ ReplicaGroupEntry::getLocatorAdapterInfo(
             transform(rl.begin(), rl.end(), back_inserter(replicas), [](const auto& value) { return value.second; });
         }
 
-        //
-        // Retrieve the proxy of each adapter from the server. The adapter
-        // might not exist anymore at this time or the node might not be
-        // reachable.
-        //
+        // Retrieve the proxy of each adapter from the server. The adapter might not exist anymore at this time or the
+        // node might not be reachable.
         set<string> emptyExcludes;
         bool firstUnreachable = true;
         for (const auto& replica : replicas)
@@ -787,10 +774,8 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
 AdapterInfoSeq
 ReplicaGroupEntry::getAdapterInfoNoEndpoints() const
 {
-    //
-    // This method is called with the database locked so we're sure
-    // that no new adapters will be added or removed concurrently.
-    //
+    // This method is called with the database locked so we're sure that no new adapters will be added or removed
+    // concurrently.
     vector<shared_ptr<ServerAdapterEntry>> replicas;
     {
         lock_guard lock(_mutex);

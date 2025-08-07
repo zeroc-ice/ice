@@ -44,9 +44,7 @@ namespace Slice::Csharp
     /// string fields are not included since they have a "" default.
     [[nodiscard]] bool isMappedToRequiredField(const DataMemberPtr& p);
 
-    //
     // Generate code to marshal or unmarshal a type
-    //
     void writeMarshalUnmarshalCode(
         ::IceInternal::Output& out,
         const TypePtr& type,

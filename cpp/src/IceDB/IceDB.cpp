@@ -324,13 +324,9 @@ CursorBase::find(MDB_val* key, MDB_val* data)
     return get(key, data, MDB_SET);
 }
 
-//
-// On Windows, we use a default LMDB map size of 10MB, whereas on other platforms
-// (Linux, macOS), we use a default of 100MB.
-//
-// On Windows, LMDB does not use sparse files and allocates immediately the file
-// with the given (max) size. This is why we need a fairly small default map size
-// on Windows, and a larger value on other platforms.
+// On Windows, we use a default LMDB map size of 10MB, whereas on other platforms (Linux, macOS), we use a default of
+// 100MB. On Windows, LMDB does not use sparse files and allocates immediately the file with the given (max) size. This
+// is why we need a fairly small default map size on Windows, and a larger value on other platforms.
 
 size_t
 IceDB::getMapSize(int configValue)

@@ -3,10 +3,7 @@
 #ifndef FILTER_MANAGER_H
 #define FILTER_MANAGER_H
 
-//
-// It'd be better if we didn't have to include this everywhere, but
-// this is the most expeditious approach for now.
-//
+// It'd be better if we didn't have to include this everywhere, but this is the most expeditious approach for now.
 #include "FilterT.h"
 #include "Ice/ObjectAdapter.h"
 #include "Instance.h"

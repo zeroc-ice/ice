@@ -75,9 +75,7 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& communicator, int16_t ty
 {
     const Ice::PropertiesPtr properties = communicator->getProperties();
 
-    //
     // Proxy settings
-    //
     _proxyHost = properties->getIceProperty("Ice.SOCKSProxyHost");
     if (!_proxyHost.empty())
     {
@@ -302,13 +300,9 @@ IceObjC::StreamEndpointI::endpoint(const StreamAcceptorPtr& a) const
 string
 IceObjC::StreamEndpointI::options() const
 {
-    //
-    // WARNING: Certain features, such as proxy validation in Glacier2,
-    // depend on the format of proxy strings. Changes to toString() and
-    // methods called to generate parts of the reference string could break
-    // these features. Please review for all features that depend on the
-    // format of proxyToString() before changing this and related code.
-    //
+    // WARNING: Certain features, such as proxy validation in Glacier2, depend on the format of proxy strings. Changes
+    // to toString() and methods called to generate parts of the reference string could break these features. Please
+    // review for all features that depend on the format of proxyToString() before changing this and related code.
     ostringstream s;
 
     s << IPEndpointI::options();

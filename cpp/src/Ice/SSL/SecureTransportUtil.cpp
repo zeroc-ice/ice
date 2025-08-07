@@ -240,9 +240,7 @@ Ice::SSL::SecureTransport::getCertificateProperty(SecCertificateRef cert, CFType
 
 namespace
 {
-    //
     // Check the certificate basic constraints to check if the certificate is marked as a CA.
-    //
     bool isCA(SecCertificateRef cert)
     {
         UniqueRef<CFDictionaryRef> property(getCertificateProperty(cert, kSecOIDBasicConstraints));
@@ -264,10 +262,8 @@ namespace
         return false;
     }
 
-    //
-    // Load keychain items (Certificates or Private Keys) from a file. On return items param contain
-    // the list of items, the caller must release it.
-    //
+    // Load keychain items (Certificates or Private Keys) from a file. On return items param contain the list of items,
+    // the caller must release it.
     CFArrayRef
     loadKeychainItems(const string& file, SecExternalItemType type, SecKeychainRef keychain, const string& passphrase)
     {
@@ -326,9 +322,7 @@ namespace
         }
         else
         {
-            //
             // KeyChain path is relative to the current working directory.
-            //
             if (!IceInternal::isAbsolutePath(keychainPath))
             {
                 string cwd;
@@ -390,9 +384,7 @@ namespace
                 "SSL transport: unable to open keychain:\n" + sslErrorToString(err));
         }
 
-        //
         // Set keychain settings to avoid keychain lock.
-        //
         SecKeychainSettings settings;
         settings.version = SEC_KEYCHAIN_SETTINGS_VERS1;
         settings.lockOnSleep = FALSE;
@@ -409,15 +401,11 @@ namespace
         return keychain.release();
     }
 
-    //
     // Imports a certificate private key and optionally add it to a keychain.
-    //
     SecIdentityRef
     loadPrivateKey(const string& file, SecCertificateRef cert, SecKeychainRef keychain, const string& password)
     {
-        //
         // Check if we already imported the certificate
-        //
         UniqueRef<CFDataRef> hash;
         UniqueRef<CFDictionaryRef> subjectKeyProperty(getCertificateProperty(cert, kSecOIDSubjectKeyIdentifier));
         if (subjectKeyProperty)
@@ -451,10 +439,8 @@ namespace
         UniqueRef<SecCertificateRef> item(static_cast<SecCertificateRef>(const_cast<void*>(value.release())));
         if (err == noErr)
         {
-            //
-            // If the certificate has already been imported, create the
-            // identity. The key should also have been imported.
-            //
+            // If the certificate has already been imported, create the identity. The key should also have been
+            // imported.
             UniqueRef<SecIdentityRef> identity;
             err = SecIdentityCreateWithCertificate(keychain, item.get(), &identity.get());
             if (err != noErr)
@@ -472,10 +458,8 @@ namespace
             throw CertificateReadException(__FILE__, __LINE__, os.str());
         }
 
-        //
-        // If the certificate isn't already in the keychain, load the
-        // private key into the keychain and add the certificate.
-        //
+        // If the certificate isn't already in the keychain, load the private key into the keychain and add the
+        // certificate.
         UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypePrivateKey, keychain, password));
         CFIndex count = CFArrayGetCount(items.get());
         UniqueRef<SecKeyRef> key;
@@ -493,9 +477,7 @@ namespace
             throw CertificateReadException(__FILE__, __LINE__, "SSL transport: no key in file '" + file + "'");
         }
 
-        //
         // Add the certificate to the keychain
-        //
         query.reset(CFDictionaryCreateMutable(
             kCFAllocatorDefault,
             0,
@@ -518,10 +500,8 @@ namespace
         }
         item.retain(static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(added.get(), 0))));
 
-        //
-        // Create the association between the private key and the certificate,
-        // kSecKeyLabel attribute should match the subject key identifier.
-        //
+        // Create the association between the private key and the certificate, kSecKeyLabel attribute should match the
+        // subject key identifier.
         vector<SecKeychainAttribute> attributes;
         if (hash)
         {
@@ -532,10 +512,7 @@ namespace
             attributes.push_back(attr);
         }
 
-        //
-        // kSecKeyPrintName attribute correspond to the keychain display
-        // name.
-        //
+        // kSecKeyPrintName attribute correspond to the keychain display name.
         string label;
         UniqueRef<CFStringRef> commonName(0);
         if (SecCertificateCopyCommonName(item.get(), &commonName.get()) == noErr)
@@ -643,9 +620,7 @@ namespace
 
 #endif
 
-//
 // Imports a certificate (it might contain an identity or certificate depending on the format).
-//
 CFArrayRef
 Ice::SSL::SecureTransport::loadCertificateChain(
     const string& file,
@@ -715,11 +690,8 @@ Ice::SSL::SecureTransport::loadCertificateChain(
             throw CertificateReadException(__FILE__, __LINE__, os.str());
         }
 
-        //
-        // Load the private key for the given certificate. This will
-        // add the certificate/key to the keychain if they aren't
-        // already present in the keychain.
-        //
+        // Load the private key for the given certificate. This will add the certificate/key to the keychain if they
+        // aren't already present in the keychain.
         UniqueRef<SecIdentityRef> identity(loadPrivateKey(keyFile, cert, keychain.get(), password));
         chain.reset(CFArrayCreateMutableCopy(kCFAllocatorDefault, 0, items.get()));
         CFArraySetValueAtIndex(const_cast<CFMutableArrayRef>(chain.get()), 0, identity.get());
@@ -775,16 +747,8 @@ Ice::SSL::SecureTransport::findCertificateChain(
     const string& value)
 #endif
 {
-    //
-    //  Search the keychain using key:value pairs. The following keys are supported:
-    //
-    //   Label
-    //   Serial
-    //   Subject
-    //   SubjectKeyId
-    //
-    //   A value must be enclosed in single or double quotes if it contains whitespace.
-    //
+    // Search the keychain using key:value pairs. The following keys are supported: Label Serial Subject SubjectKeyId A
+    // value must be enclosed in single or double quotes if it contains whitespace.
     UniqueRef<CFMutableDictionaryRef> query(
         CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
 
@@ -894,9 +858,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
             "SSL transport: find certificate '" + value + "' failed:\n" + sslErrorToString(err));
     }
 
-    //
     // Retrieve the certificate chain
-    //
     UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, nullptr));
     UniqueRef<SecTrustRef> trust;
     err = SecTrustCreateWithCertificates(reinterpret_cast<CFArrayRef>(cert.get()), policy.get(), &trust.get());
@@ -924,18 +886,12 @@ Ice::SSL::SecureTransport::findCertificateChain(
         CFArrayAppendValue(const_cast<CFMutableArrayRef>(items.get()), SecTrustGetCertificateAtIndex(trust.get(), i));
     }
 
-    //
-    // Replace the first certificate in the chain with the
-    // identity.
-    //
+    // Replace the first certificate in the chain with the identity.
     UniqueRef<SecIdentityRef> identity;
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS)
 
-    //
-    // SecIdentityCreateWithCertificate isn't supported on iOS so we lookup the identity
-    // using the certificate label. If the user added the identity with SecItemAdd the
-    // identity has the same label as the certificate.
-    //
+    // SecIdentityCreateWithCertificate isn't supported on iOS so we lookup the identity using the certificate label.
+    // If the user added the identity with SecItemAdd the identity has the same label as the certificate.
     query.reset(CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
     CFDictionarySetValue(query.get(), kSecClass, kSecClassCertificate);
     CFDictionarySetValue(query.get(), kSecValueRef, cert.get());

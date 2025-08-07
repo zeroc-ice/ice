@@ -33,9 +33,7 @@ namespace IceInternal
         }
     }
 
-    //
     // Class for handling the proxy's flushBatchRequest request.
-    //
     class ProxyFlushBatchAsync : public ProxyOutgoingAsyncBase
     {
     public:
@@ -50,9 +48,7 @@ namespace IceInternal
         int _batchRequestNum;
     };
 
-    //
     // Class for handling the proxy's begin_ice_getConnection request.
-    //
     class ProxyGetConnection : public ProxyOutgoingAsyncBase
     {
     public:

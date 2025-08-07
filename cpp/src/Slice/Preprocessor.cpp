@@ -24,9 +24,7 @@ using namespace std;
 using namespace Slice;
 using namespace IceInternal;
 
-//
 // mcpp defines
-//
 namespace Slice
 {
     enum Outdest
@@ -83,9 +81,7 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
     string result = path;
 
 #ifdef _WIN32
-    //
     // MCPP does not handle "-IC:/" well as an include path.
-    //
     if (path.size() != 3 || !(path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z') ||
         path[1] != ':' || path[2] != '\\')
 #endif
@@ -95,10 +91,7 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
 
     string::size_type startReplace = 0;
 #ifdef _WIN32
-    //
-    // For UNC paths we need to ensure they are in the format that is
-    // used by MCPP. IE. "//MACHINE/PATH"
-    //
+    // For UNC paths we need to ensure they are in the format that is used by MCPP. IE. "//MACHINE/PATH"
     if (result.find("//") == 0)
     {
         startReplace = 2;
@@ -179,9 +172,7 @@ Slice::Preprocessor::preprocess(const string& languageArg)
         {
             emitRaw(message.c_str());
 
-            //
             // MCPP FIX: mcpp does not always return non-zero exit status when there is an error.
-            //
             if (message.find("error:") != string::npos)
             {
                 status = 1;
@@ -191,22 +182,14 @@ Slice::Preprocessor::preprocess(const string& languageArg)
 
     if (status == 0)
     {
-        //
         // Write output to temporary file.
-        //
         char* buf = mcpp_get_mem_buffer(Out);
 
-        //
         // First try to open temporay file in tmp directory.
-        //
 #ifdef _WIN32
-        //
-        // We use an unique id as the tmp file name prefix to avoid
-        // problems with this code being called concurrently from
-        // several processes, otherwise there is a change that two
-        // process call _tempnam before any of them call fopen and
-        // they will end up using the same tmp file.
-        //
+        // We use an unique id as the tmp file name prefix to avoid problems with this code being called concurrently
+        // from several processes, otherwise there is a change that two process call _tempnam before any of them call
+        // fopen and they will end up using the same tmp file.
         wchar_t* name = _wtempnam(0, Ice::stringToWstring("slice-" + Ice::generateUUID()).c_str());
         if (name)
         {

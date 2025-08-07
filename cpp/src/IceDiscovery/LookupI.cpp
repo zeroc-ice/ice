@@ -260,9 +260,7 @@ LookupI::findAdapterById(string domainId, string adapterId, optional<LookupReply
     optional<Ice::ObjectPrx> proxy = _registry->findAdapter(adapterId, isReplicaGroup);
     if (proxy)
     {
-        //
         // Reply to the multicast request using the given proxy.
-        //
         try
         {
             reply->foundAdapterByIdAsync(adapterId, proxy, isReplicaGroup, nullptr); // ignore response

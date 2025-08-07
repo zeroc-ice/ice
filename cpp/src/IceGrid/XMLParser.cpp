@@ -10,9 +10,7 @@
 using namespace std;
 using namespace IceGrid;
 
-//
 // ParserException
-//
 
 const char*
 IceGrid::XMLParserException::ice_id() const noexcept
@@ -20,14 +18,10 @@ IceGrid::XMLParserException::ice_id() const noexcept
     return "::IceGrid::XMLParserException";
 }
 
-//
 // XMLHandler
-//
 IceGrid::XMLHandler::~XMLHandler() = default;
 
-//
 // expat callbacks
-//
 struct CallbackData
 {
     XML_Parser parser;
@@ -70,9 +64,7 @@ extern "C"
     }
 }
 
-//
 // XMLParser
-//
 void
 IceGrid::XMLParser::parse(const string& file, XMLHandler& handler) // The given filename must be UTF-8 encoded
 {

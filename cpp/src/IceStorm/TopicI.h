@@ -66,9 +66,7 @@ namespace IceStorm
         IceStormElection::LogUpdate destroyInternal(const IceStormElection::LogUpdate&, bool);
         void removeSubscribers(const Ice::IdentitySeq&);
 
-        //
         // Immutable members.
-        //
         const std::shared_ptr<PersistentInstance> _instance;
         const std::string _name; // The topic name
         const Ice::Identity _id; // The topic identity
@@ -83,13 +81,9 @@ namespace IceStorm
         // Mutex protecting the subscribers.
         mutable std::mutex _subscribersMutex;
 
-        //
-        // We keep a vector of subscribers since the optimized behaviour
-        // should be publishing events, not searching through the list of
-        // subscribers for a particular subscriber. I tested
-        // vector/list/map and although there was little difference vector
-        // was the fastest of the three.
-        //
+        // We keep a vector of subscribers since the optimized behaviour should be publishing events, not searching
+        // through the list of subscribers for a particular subscriber. I tested vector/list/map and although there was
+        // little difference vector was the fastest of the three.
         std::vector<std::shared_ptr<Subscriber>> _subscribers;
 
         bool _destroyed{false}; // Has this Topic been destroyed?

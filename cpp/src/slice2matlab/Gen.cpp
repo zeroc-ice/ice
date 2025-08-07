@@ -295,9 +295,7 @@ namespace
             return;
         }
 
-        //
         // All references must be on one line.
-        //
         out << nl << "%";
         out << nl << "%   See also ";
         for (auto p = seeAlso.begin(); p != seeAlso.end(); ++p)
@@ -912,9 +910,7 @@ namespace
     }
 }
 
-//
 // CodeVisitor implementation.
-//
 CodeVisitor::CodeVisitor(string dir) : _dir(std::move(dir)) {}
 
 bool
@@ -969,9 +965,7 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << nl << "methods";
     out.inc();
 
-    //
     // Constructor
-    //
     if (!members.empty()) // else no need to define a constructor: we inherit the base class constructor
     {
         const auto firstMember = *allMembers.begin();
@@ -1183,9 +1177,7 @@ CodeVisitor::visitClassDefEnd(const ClassDefPtr& p)
 bool
 CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    //
     // Generate proxy class.
-    //
 
     const InterfaceList bases = p->bases();
     const string prxName = p->mappedName() + "Prx";
@@ -1253,9 +1245,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
         out << sp;
     }
 
-    //
     // Synchronous method.
-    //
     out << nl << "function ";
     if (returnsMultipleValues)
     {
@@ -1327,13 +1317,8 @@ CodeVisitor::visitOperation(const OperationPtr& op)
     if (twowayOnly && returnsAnyValues)
     {
         out << nl << "is_.startEncapsulation();";
-        //
-        // To unmarshal results:
-        //
-        // * unmarshal all required out parameters
-        // * unmarshal the required return value (if any)
+        // To unmarshal results: * unmarshal all required out parameters * unmarshal the required return value (if any)
         // * unmarshal all optional out parameters (this includes an optional return value)
-        //
         ParameterList classParams;
         ParameterList convertParams;
         for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
@@ -1382,9 +1367,7 @@ CodeVisitor::visitOperation(const OperationPtr& op)
     out.dec();
     out << nl << "end";
 
-    //
     // Asynchronous method.
-    //
     out << sp;
     out << nl << "function future = " << op->mappedName() << "Async" << spar;
     out << self;
@@ -1425,13 +1408,8 @@ CodeVisitor::visitOperation(const OperationPtr& op)
         out << nl << "function varargout = unmarshal(is_)";
         out.inc();
         out << nl << "is_.startEncapsulation();";
-        //
-        // To unmarshal results:
-        //
-        // * unmarshal all required out parameters
-        // * unmarshal the required return value (if any)
+        // To unmarshal results: * unmarshal all required out parameters * unmarshal the required return value (if any)
         // * unmarshal all optional out parameters (this includes an optional return value)
-        //
         for (const auto& param : op->sortedReturnAndOutParameters(returnValueName))
         {
             const TypePtr paramType = param->type();
@@ -1597,10 +1575,8 @@ CodeVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     if (hasExceptions)
     {
-        //
-        // Generate a constant property for each operation that throws user exceptions. The property is
-        // a cell array containing the class names of the exceptions.
-        //
+        // Generate a constant property for each operation that throws user exceptions. The property is a cell array
+        // containing the class names of the exceptions.
         out << sp;
         out << nl << "properties (Constant, Access = private)";
         out.inc();
@@ -1703,16 +1679,12 @@ CodeVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     const string self = "obj";
 
-    //
     // Constructor
-    //
     out << nl << "function " << self << " = " << name << spar << "errID" << "msg" << epar;
     out.inc();
     string errID = abs;
     const string& msg = abs;
-    //
     // The ID argument must use colon separators.
-    //
     string::size_type pos = errID.find('.');
     assert(pos != string::npos);
     while (pos != string::npos)
@@ -2048,10 +2020,9 @@ CodeVisitor::visitDataMember(const DataMemberPtr& p)
     // We can't specify a type for optional fields because we can't represent "not set" with the same MATLAB type.
     // For some types, we could use an empty array, but this does not work for sequences mapped to arrays or cells,
     // nor does it work for dictionaries.
-    //
-    // We also can't specify a type for class fields (in structs and exceptions, because we convert them in place;
-    // we do the same for class fields in classes for consistency). Likewise, we can't specify a type for fields
-    // that use classes (but are not classes), since we convert them in place.
+    // We also can't specify a type for class fields (in structs and exceptions, because we convert them in place; we
+    // do the same for class fields in classes for consistency). Likewise, we can't specify a type for fields that use
+    // classes (but are not classes), since we convert them in place.
     if (!p->optional() && !type->usesClasses())
     {
         if (auto seq = dynamic_pointer_cast<Sequence>(type))
@@ -2141,10 +2112,8 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out << nl << "os.writeSize(sz);";
     out << nl << "for i = 1:sz";
     out.inc();
-    //
-    // Aside from the primitive types, only enum and struct sequences are mapped to arrays. The rest are mapped
-    // to cell arrays. We can't use the same subscript syntax for both.
-    //
+    // Aside from the primitive types, only enum and struct sequences are mapped to arrays. The rest are mapped to cell
+    // arrays. We can't use the same subscript syntax for both.
     if (enumContent || structContent)
     {
         marshal(out, "os", "seq(i)", content, false, 0);
@@ -2163,10 +2132,8 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out << nl << "sz = is.readSize();";
     if (cls)
     {
-        //
-        // For a sequence<class>, read() returns an instance of IceInternal.CellArrayHandle that we later replace
-        // with the cell array. See convert().
-        //
+        // For a sequence<class>, read() returns an instance of IceInternal.CellArrayHandle that we later replace with
+        // the cell array. See convert().
         out << nl << "if sz == 0";
         out.inc();
         out << nl << "r = {};";
@@ -2177,9 +2144,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         out << nl << "r.array = cell(1, sz);";
         out << nl << "for i = 1:sz";
         out.inc();
-        //
         // Ice.CellArrayHandle defines a set() method that we call from the lambda.
-        //
         unmarshal(out, "is", "@(v) r.set(i, v)", content, false, 0);
         out.dec();
         out << nl << "end";
@@ -2188,9 +2153,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     }
     else if (dictContent || seqContent || proxy)
     {
-        //
         // These types require a cell array.
-        //
         out << nl << "if sz == 0";
         out.inc();
         out << nl << "r = {};";
@@ -2223,11 +2186,8 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     }
     else if (structContent)
     {
-        //
-        // The most efficient way to build a sequence of structs is to pre-allocate the array using the
-        // syntax "arr(1, sz) = Type()". Additionally, we also have to inline the unmarshaling code for
-        // the struct members.
-        //
+        // The most efficient way to build a sequence of structs is to pre-allocate the array using the syntax "arr(1,
+        // sz) = Type()". Additionally, we also have to inline the unmarshaling code for the struct members.
         out << nl << "r = " << structContent->mappedScoped(".") << ".empty();";
         out << nl << "if sz > 0";
         out.inc();
@@ -2261,9 +2221,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         }
         else
         {
-            //
             // The element is a fixed-size type. If the element type is bool or byte, we do NOT write an extra size.
-            //
             const size_t sz = p->type()->minWireSize();
             if (sz > 1)
             {
@@ -2329,9 +2287,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
             assert(structContent || seqContent || dictContent);
             if (structContent)
             {
-                //
                 // Inline the conversion.
-                //
                 out << nl << "r = seq;";
                 out << nl << "for i = 1:length(seq)";
                 out.inc();
@@ -2395,9 +2351,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     writeGeneratedFrom(out, p->file());
     out << nl << "methods (Access = private)";
     out.inc();
-    //
     // Declare a private constructor so that programs can't instantiate this type. They need to use new().
-    //
     out << nl << "function " << self << " = " << name << "()";
     out.inc();
     out.dec();

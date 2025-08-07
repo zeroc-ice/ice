@@ -130,14 +130,9 @@ Reference::hash() const noexcept
 void
 IceInternal::Reference::streamWrite(OutputStream* s) const
 {
-    //
-    // Don't write the identity here. Operations calling streamWrite
-    // write the identity.
-    //
+    // Don't write the identity here. Operations calling streamWrite write the identity.
 
-    //
     // For compatibility with the old FacetPath.
-    //
     if (_facet.empty())
     {
         s->write(static_cast<string*>(nullptr), static_cast<string*>(nullptr));
@@ -163,13 +158,9 @@ IceInternal::Reference::streamWrite(OutputStream* s) const
 string
 IceInternal::Reference::toString() const
 {
-    //
-    // WARNING: Certain features, such as proxy validation in Glacier2,
-    // depend on the format of proxy strings. Changes to toString() and
-    // methods called to generate parts of the reference string could break
-    // these features. Please review for all features that depend on the
-    // format of proxyToString() before changing this and related code.
-    //
+    // WARNING: Certain features, such as proxy validation in Glacier2, depend on the format of proxy strings. Changes
+    // to toString() and methods called to generate parts of the reference string could break these features. Please
+    // review for all features that depend on the format of proxyToString() before changing this and related code.
     ostringstream s;
 
     ToStringMode toStringMode = _instance->toStringMode();
@@ -177,11 +168,8 @@ IceInternal::Reference::toString() const
 
     string id = Ice::identityToString(_identity, toStringMode);
 
-    //
-    // If the encoded identity string contains characters which
-    // the reference parser uses as separators, then we enclose
-    // the identity string in quotes.
-    //
+    // If the encoded identity string contains characters which the reference parser uses as separators, then we
+    // enclose the identity string in quotes.
 
     if (id.find_first_of(separators) != string::npos)
     {
@@ -197,11 +185,8 @@ IceInternal::Reference::toString() const
         s << " -f ";
 
         string fs = escapeString(_facet, "", toStringMode);
-        //
-        // If the encoded facet string contains characters which
-        // the reference parser uses as separators, then we enclose
-        // the facet string in quotes.
-        //
+        // If the encoded facet string contains characters which the reference parser uses as separators, then we
+        // enclose the facet string in quotes.
         if (fs.find_first_of(separators) != string::npos)
         {
             s << '"' << fs << '"';
@@ -270,9 +255,7 @@ IceInternal::Reference::toString() const
 bool
 IceInternal::Reference::operator==(const Reference& r) const noexcept
 {
-    //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
-    //
 
     if (_mode != r._mode)
     {
@@ -324,9 +307,7 @@ IceInternal::Reference::operator==(const Reference& r) const noexcept
 bool
 IceInternal::Reference::operator<(const Reference& r) const noexcept
 {
-    //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
-    //
 
     if (_mode < r._mode)
     {
@@ -659,10 +640,7 @@ IceInternal::FixedReference::getRequestHandler() const
         }
     }
 
-    //
-    // If a secure connection is requested or secure overrides is set,
-    // check if the connection is secure.
-    //
+    // If a secure connection is requested or secure overrides is set, check if the connection is secure.
     bool secure;
     DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
     if (defaultsAndOverrides->overrideSecure.has_value())
@@ -1040,13 +1018,9 @@ IceInternal::RoutableReference::streamWrite(OutputStream* s) const
 string
 IceInternal::RoutableReference::toString() const
 {
-    //
-    // WARNING: Certain features, such as proxy validation in Glacier2,
-    // depend on the format of proxy strings. Changes to toString() and
-    // methods called to generate parts of the reference string could break
-    // these features. Please review for all features that depend on the
-    // format of proxyToString() before changing this and related code.
-    //
+    // WARNING: Certain features, such as proxy validation in Glacier2, depend on the format of proxy strings. Changes
+    // to toString() and methods called to generate parts of the reference string could break these features. Please
+    // review for all features that depend on the format of proxyToString() before changing this and related code.
     string result = Reference::toString();
 
     if (!_endpoints.empty())
@@ -1065,11 +1039,8 @@ IceInternal::RoutableReference::toString() const
     {
         result.append(" @ ");
 
-        //
-        // If the encoded adapter id string contains characters which the
-        // reference parser uses as separators, then we enclose the
-        // adapter id string in quotes.
-        //
+        // If the encoded adapter id string contains characters which the reference parser uses as separators, then we
+        // enclose the adapter id string in quotes.
         string a = escapeString(_adapterId, "", getInstance()->toStringMode());
         if (a.find_first_of(" :@") != string::npos)
         {
@@ -1138,9 +1109,7 @@ IceInternal::RoutableReference::hash() const noexcept
 bool
 IceInternal::RoutableReference::operator==(const Reference& r) const noexcept
 {
-    //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
-    //
     if (this == &r)
     {
         return true;
@@ -1650,9 +1619,7 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         }
     }
 
-    //
     // Sort the endpoints according to the endpoint selection type.
-    //
     switch (getEndpointSelection())
     {
         case EndpointSelectionType::Random:
@@ -1672,12 +1639,9 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         }
     }
 
-    //
-    // If a secure connection is requested or secure overrides is set,
-    // remove all non-secure endpoints. Otherwise if preferSecure is set
-    // make secure endpoints preferred. By default make non-secure
-    // endpoints preferred over secure endpoints.
-    //
+    // If a secure connection is requested or secure overrides is set, remove all non-secure endpoints. Otherwise if
+    // preferSecure is set make secure endpoints preferred. By default make non-secure endpoints preferred over secure
+    // endpoints.
     DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
     if (overrides->overrideSecure.has_value() ? *overrides->overrideSecure : getSecure())
     {
@@ -1687,20 +1651,14 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     }
     else if (getPreferSecure())
     {
-        //
-        // We must use stable_partition() instead of just simply
-        // partition(), because otherwise some STL implementations
-        // order our now randomized endpoints.
-        //
+        // We must use stable_partition() instead of just simply partition(), because otherwise some STL
+        // implementations order our now randomized endpoints.
         stable_partition(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return p->secure(); });
     }
     else
     {
-        //
-        // We must use stable_partition() instead of just simply
-        // partition(), because otherwise some STL implementations
-        // order our now randomized endpoints.
-        //
+        // We must use stable_partition() instead of just simply partition(), because otherwise some STL
+        // implementations order our now randomized endpoints.
         stable_partition(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return !p->secure(); });
     }
 

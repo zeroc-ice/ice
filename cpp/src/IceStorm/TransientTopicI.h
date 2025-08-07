@@ -41,9 +41,7 @@ namespace IceStorm
     private:
         TransientTopicImpl(std::shared_ptr<Instance>, std::string, Ice::Identity);
 
-        //
         // Immutable members.
-        //
         const std::shared_ptr<Instance> _instance;
         const std::string _name; // The topic name
         const Ice::Identity _id; // The topic identity
@@ -51,13 +49,9 @@ namespace IceStorm
         std::optional<Ice::ObjectPrx> _publisherPrx;
         std::optional<TopicLinkPrx> _linkPrx;
 
-        //
-        // We keep a vector of subscribers since the optimized behaviour
-        // should be publishing events, not searching through the list of
-        // subscribers for a particular subscriber. I tested
-        // vector/list/map and although there was little difference vector
-        // was the fastest of the three.
-        //
+        // We keep a vector of subscribers since the optimized behaviour should be publishing events, not searching
+        // through the list of subscribers for a particular subscriber. I tested vector/list/map and although there was
+        // little difference vector was the fastest of the three.
         std::vector<std::shared_ptr<Subscriber>> _subscribers;
 
         bool _destroyed{false}; // Has this Topic been destroyed?

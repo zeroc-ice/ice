@@ -55,16 +55,11 @@ namespace
 namespace IceGrid
 {
 #ifndef _WIN32
-    //
     // Helper function for async-signal safe error reporting
-    //
     void
     reportChildError(int err, int fd, const char* cannot, const char* name, const shared_ptr<TraceLevels>& traceLevels)
     {
-        //
-        // Send any errors to the parent process, using the write
-        // end of the pipe.
-        //
+        // Send any errors to the parent process, using the write end of the pipe.
         ostringstream os;
         os << cannot << " '" << name << "'";
         if (err)
@@ -80,10 +75,7 @@ namespace IceGrid
         }
         close(fd);
 
-        //
-        // _exit instead of exit to avoid interferences with the parent
-        // process.
-        //
+        // _exit instead of exit to avoid interferences with the parent process.
         _exit(EXIT_FAILURE);
     }
 
@@ -358,17 +350,13 @@ Activator::activate(
     {
         if (path.find('/') == string::npos)
         {
-            //
             // Get the absolute pathname of the executable.
-            //
             wchar_t absbuf[_MAX_PATH];
             wchar_t* fPart;
             wstring ext = path.size() <= 4 || path[path.size() - 4] != '.' ? L".exe" : L"";
 
-            //
-            // IceGrid doesn't support to use string converters, so don't need to use
-            // any string converter in wstringToString conversions.
-            //
+            // IceGrid doesn't support to use string converters, so don't need to use any string converter in
+            // wstringToString conversions.
             if (SearchPathW(nullptr, stringToWstring(path).c_str(), ext.c_str(), _MAX_PATH, absbuf, &fPart) == 0)
             {
                 if (_traceLevels->activator > 0)
@@ -386,13 +374,8 @@ Activator::activate(
         }
     }
 
-    //
-    // Get the absolute pathname of the working directory.
-    //
-    // IceGrid doesn't support to use string converters, so
-    // don't need to use any string converter in stringToWstring
-    // conversions.
-    //
+    // Get the absolute pathname of the working directory. IceGrid doesn't support to use string converters, so don't
+    // need to use any string converter in stringToWstring conversions.
     if (!pwd.empty())
     {
         wchar_t absbuf[_MAX_PATH];
@@ -410,9 +393,7 @@ Activator::activate(
     }
 #endif
 
-    //
     // Setup arguments.
-    //
     StringSeq args;
     args.push_back(path);
     args.insert(args.end(), options.begin(), options.end());
@@ -451,14 +432,10 @@ Activator::activate(
         }
     }
 
-    //
     // Activate and create.
-    //
 #ifdef _WIN32
 
-    //
     // Compose command line.
-    //
     string cmd;
     for (StringSeq::const_iterator p = args.begin(); p != args.end(); ++p)
     {
@@ -466,9 +443,7 @@ Activator::activate(
         {
             cmd.push_back(' ');
         }
-        //
         // Enclose arguments containing spaces in double quotes.
-        //
         if ((*p).find(' ') != string::npos)
         {
             cmd.push_back('"');
@@ -481,24 +456,17 @@ Activator::activate(
         }
     }
 
-    //
-    // IceGrid doesn't support to use string converters, so don't need to use
-    // any string converter in stringToWstring conversions.
-    //
+    // IceGrid doesn't support to use string converters, so don't need to use any string converter in stringToWstring
+    // conversions.
     wstring wpwd = stringToWstring(pwd);
     const wchar_t* dir = !wpwd.empty() ? wpwd.c_str() : nullptr;
 
-    //
     // Make a copy of the command line.
-    //
     wchar_t* cmdbuf = _wcsdup(stringToWstring(cmd).c_str());
 
-    //
-    // Create the environment block for the child process. We start with the environment
-    // of this process, and then merge environment variables from the server description.
-    // Since Windows is case insensitive wrt environment variables we convert the keys to
-    // uppercase to ensure matches are found.
-    //
+    // Create the environment block for the child process. We start with the environment of this process, and then
+    // merge environment variables from the server description. Since Windows is case insensitive wrt environment
+    // variables we convert the keys to uppercase to ensure matches are found.
     const wchar_t* env = nullptr;
     wstring envbuf;
     if (!envs.empty())
@@ -508,11 +476,8 @@ Activator::activate(
         const wchar_t* var = reinterpret_cast<const wchar_t*>(parentEnv);
         if (*var == L'=')
         {
-            //
-            // The environment block may start with some information about the
-            // current drive and working directory. This is indicated by a leading
-            // '=' character, so we skip to the first '\0' byte.
-            //
+            // The environment block may start with some information about the current drive and working directory.
+            // This is indicated by a leading '=' character, so we skip to the first '\0' byte.
             while (*var != L'\0')
                 var++;
             var++;
@@ -531,10 +496,8 @@ Activator::activate(
         FreeEnvironmentStringsW(static_cast<wchar_t*>(parentEnv));
         for (StringSeq::const_iterator p = envs.begin(); p != envs.end(); ++p)
         {
-            //
-            // IceGrid doesn't support to use string converters, so don't need to use
-            // any string converter in stringToWstring conversions.
-            //
+            // IceGrid doesn't support to use string converters, so don't need to use any string converter in
+            // stringToWstring conversions.
             wstring s = stringToWstring(*p);
             wstring::size_type pos = s.find(L'=');
             if (pos != wstring::npos)
@@ -587,10 +550,8 @@ Activator::activate(
         throw runtime_error(message);
     }
 
-    //
-    // Caller is responsible for closing handles in PROCESS_INFORMATION. We don't need to
-    // keep the thread handle, so we close it now. The process handle will be closed later.
-    //
+    // Caller is responsible for closing handles in PROCESS_INFORMATION. We don't need to keep the thread handle, so we
+    // close it now. The process handle will be closed later.
     CloseHandle(pi.hThread);
     process.activator = this;
     process.pid = pi.dwProcessId;
@@ -617,15 +578,9 @@ Activator::activate(
         throw runtime_error(message);
     }
 
-    //
-    // Don't print the following trace, this might interfer with the
-    // output of the started process if it fails with an error message.
-    //
-    //     if(_traceLevels->activator > 0)
-    //     {
-    //         Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-    //         out << "activated server '" << name << "' (pid = " << pi.dwProcessId << ")";
-    //     }
+    // Don't print the following trace, this might interfer with the output of the started process if it fails with an
+    // error message. if(_traceLevels->activator > 0) { Ice::Trace out(_traceLevels->logger,
+    // _traceLevels->activatorCat); out << "activated server '" << name << "' (pid = " << pi.dwProcessId << ")"; }
 
     return static_cast<int32_t>(process.pid);
 #else
@@ -689,15 +644,11 @@ Activator::activate(
         throw SyscallException{__FILE__, __LINE__, "pipe failed", errno};
     }
 
-    //
     // Convert to standard argc/argv.
-    //
     IceInternal::ArgVector av(args);
     IceInternal::ArgVector env(envs);
 
-    //
     // Current directory
-    //
     const char* pwdCStr = pwd.c_str();
 
     pid_t pid = fork();
@@ -708,13 +659,9 @@ Activator::activate(
 
     if (pid == 0) // Child process.
     {
-        //
         // Until exec, we can only use async-signal safe functions
-        //
 
-        //
         // Unblock signals blocked by Ice::CtrlCHandler.
-        //
         sigset_t sigs;
         sigemptyset(&sigs);
         sigaddset(&sigs, SIGHUP);
@@ -722,9 +669,7 @@ Activator::activate(
         sigaddset(&sigs, SIGTERM);
         sigprocmask(SIG_UNBLOCK, &sigs, nullptr);
 
-        //
         // Change the uid/gid under which the process will run.
-        //
         if (setgid(gid) == -1)
         {
             ostringstream os;
@@ -737,9 +682,7 @@ Activator::activate(
                 _traceLevels);
         }
 
-        //
         // Don't initialize supplementary groups if we are not running as root.
-        //
         if (getuid() == 0 && setgroups(static_cast<int>(groups.size()), &groups[0]) == -1)
         {
             ostringstream os;
@@ -771,16 +714,11 @@ Activator::activate(
                 _traceLevels);
         }
 
-        //
         // Assign a new process group for this process.
-        //
         setpgid(0, 0);
 
-        //
-        // Close all file descriptors, except for standard input,
-        // standard output, standard error, and the write side
+        // Close all file descriptors, except for standard input, standard output, standard error, and the write side
         // of the newly created pipe.
-        //
         int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
         if (maxFd <= 0)
         {
@@ -797,18 +735,14 @@ Activator::activate(
 
         for (int i = 0; i < env.argc; i++) // NOLINT(clang-analyzer-unix.Malloc)
         {
-            //
             // Each env is leaked on purpose ... see man putenv().
-            //
             if (putenv(strdup(env.argv[i])) != 0)
             {
                 reportChildError(errno, errorFds[1], "cannot set environment variable", env.argv[i], _traceLevels);
             }
         }
 
-        //
         // Change working directory.
-        //
         if (strlen(pwdCStr) != 0)
         {
             if (chdir(pwdCStr) == -1)
@@ -817,9 +751,7 @@ Activator::activate(
             }
         }
 
-        //
         // Close on exec the error message file descriptor.
-        //
         int flags = fcntl(errorFds[1], F_GETFD);
         flags |= 1; // FD_CLOEXEC
         if (fcntl(errorFds[1], F_SETFD, flags) == -1)
@@ -845,9 +777,7 @@ Activator::activate(
         close(fds[1]);
         close(errorFds[1]);
 
-        //
         // Read a potential error message over the error message pipe.
-        //
         char s[16];
         ssize_t rs;
         string message;
@@ -858,9 +788,7 @@ Activator::activate(
             message.append(s, static_cast<size_t>(rs));
         }
 
-        //
         // If an error occurred before the exec() we do some cleanup and throw.
-        //
         if (!message.empty())
         {
             Ice::Warning out(_traceLevels->logger);
@@ -872,10 +800,7 @@ Activator::activate(
             throw runtime_error(message);
         }
 
-        //
-        // Otherwise, the exec() was successful and we don't need the error message
-        // pipe anymore.
-        //
+        // Otherwise, the exec() was successful and we don't need the error message pipe anymore.
         close(errorFds[0]);
 
         Process process;
@@ -890,15 +815,9 @@ Activator::activate(
 
         setInterrupt();
 
-        //
-        // Don't print the following trace, this might interfere with the
-        // output of the started process if it fails with an error message.
-        //
-        //      if(_traceLevels->activator > 0)
-        //      {
-        //          Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-        //          out << "activated server '" << name << "' (pid = " << pid << ")";
-        //      }
+        // Don't print the following trace, this might interfere with the output of the started process if it fails
+        // with an error message. if(_traceLevels->activator > 0) { Ice::Trace out(_traceLevels->logger,
+        // _traceLevels->activatorCat); out << "activated server '" << name << "' (pid = " << pid << ")"; }
     }
 
     return pid;
@@ -912,16 +831,12 @@ Activator::deactivate(const string& name, const optional<Ice::ProcessPrx>& proce
     int32_t pid = getServerPid(name);
     if (pid == 0)
     {
-        //
         // Server is already deactivated.
-        //
         return;
     }
 #endif
 
-    //
     // Try to shut down the server gracefully using the process proxy.
-    //
     if (process)
     {
         if (_traceLevels->activator > 1)
@@ -944,9 +859,7 @@ Activator::deactivate(const string& name, const optional<Ice::ProcessPrx>& proce
                     out << "exception occurred while deactivating '" << name << "' using process proxy:\n" << e;
                 }
 
-                //
                 // Send a SIGTERM to the process.
-                //
                 self->sendSignal(name, SIGTERM);
             });
         return;
@@ -958,9 +871,7 @@ Activator::deactivate(const string& name, const optional<Ice::ProcessPrx>& proce
         out << "no process proxy, deactivating '" << name << "' using signal";
     }
 
-    //
     // Send a SIGTERM to the process.
-    //
     sendSignal(name, SIGTERM);
 }
 
@@ -982,18 +893,14 @@ Activator::sendSignal(const string& name, int signal)
     int32_t pid = getServerPid(name);
     if (pid == 0)
     {
-        //
         // Server is already deactivated.
-        //
         return;
     }
 
 #ifdef _WIN32
     if (signal == SIGTERM)
     {
-        //
         // Generate a Ctrl+Break event on the child.
-        //
         if (GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid))
         {
             if (_traceLevels->activator > 1)
@@ -1065,9 +972,7 @@ Activator::getServerPid(const string& name)
 void
 Activator::start()
 {
-    //
     // Create and start the termination listener thread.
-    //
     _thread = thread([this] { runTerminationListener(); });
 }
 
@@ -1087,12 +992,8 @@ Activator::shutdown()
         return;
     }
 
-    //
-    // Deactivation has been initiated. Set _deactivating to true to
-    // prevent activation of new processes. This will also cause the
-    // termination listener thread to stop when there are no more
-    // active processes.
-    //
+    // Deactivation has been initiated. Set _deactivating to true to prevent activation of new processes. This will
+    // also cause the termination listener thread to stop when there are no more active processes.
     _deactivating = true;
     setInterrupt();
     _condVar.notify_all();
@@ -1108,16 +1009,11 @@ Activator::destroy()
         processes = _processes;
     }
 
-    //
     // Stop all active processes.
-    //
     for (const auto& [name, proc] : processes)
     {
-        //
-        // Stop the server. The listener thread should detect the
-        // process deactivation and remove it from the activator's
-        // list of active processes.
-        //
+        // Stop the server. The listener thread should detect the process deactivation and remove it from the
+        // activator's list of active processes.
         try
         {
             proc.server->stopAsync(nullptr, nullptr);
@@ -1128,9 +1024,7 @@ Activator::destroy()
         }
         catch (const ObjectNotExistException&)
         {
-            //
             // Expected if the server was in the process of being destroyed.
-            //
         }
         catch (const Ice::LocalException& ex)
         {
@@ -1139,11 +1033,8 @@ Activator::destroy()
         }
     }
 
-    //
-    // Join the termination listener thread. This thread terminates
-    // when there's no more processes and when _deactivating is set to
-    // true.
-    //
+    // Join the termination listener thread. This thread terminates when there's no more processes and when
+    // _deactivating is set to true.
     if (_thread.joinable())
     {
         _thread.join();
@@ -1187,9 +1078,7 @@ Activator::terminationListener()
 #ifdef _WIN32
     while (true)
     {
-        //
         // Wait for the interrupt event to be signaled.
-        //
         DWORD ret = WaitForSingleObject(_hIntr, INFINITE);
         if (ret == WAIT_FAILED)
         {
@@ -1197,9 +1086,7 @@ Activator::terminationListener()
         }
         clearInterrupt();
 
-        //
         // Collect terminated processes
-        //
         vector<Process> terminated;
         bool deactivated = false;
         {
@@ -1328,17 +1215,13 @@ Activator::terminationListener()
                 ssize_t rs;
                 string message;
 
-                //
                 // Read the message over the pipe.
-                //
                 while ((rs = read(fd, &s, 16)) > 0) // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
                 {
                     message.append(s, static_cast<size_t>(rs));
                 }
 
-                //
                 // Keep the received message.
-                //
                 if (!message.empty())
                 {
                     p->second.msg += message;
@@ -1355,9 +1238,7 @@ Activator::terminationListener()
                 }
                 else if (rs == 0)
                 {
-                    //
                     // If the pipe was closed, the process has terminated.
-                    //
 
                     terminated.push_back(p->second);
 
@@ -1366,9 +1247,7 @@ Activator::terminationListener()
                 }
             }
 
-            //
             // We are deactivating and there's no more active processes.
-            //
             deactivated = _deactivating && _processes.empty();
         }
 
@@ -1453,12 +1332,10 @@ Activator::waitPid(pid_t processPid)
             pid_t pid = waitpid(processPid, &status, 0);
             if (pid < 0)
             {
-                //
-                // Some Linux distribution have a bogus waitpid() (e.g.: CentOS 4.x). It doesn't
-                // block and reports an incorrect ECHILD error on the first call. We sleep a
-                // little and retry to work around this issue (it appears from testing that a
-                // single retry is enough but to make sure we retry up to 10 times before to throw.)
-                //
+                // Some Linux distribution have a bogus waitpid() (e.g.: CentOS 4.x). It doesn't block and reports an
+                // incorrect ECHILD error on the first call. We sleep a little and retry to work around this issue (it
+                // appears from testing that a single retry is enough but to make sure we retry up to 10 times before to
+                // throw.)
                 if (errno == ECHILD && nRetry < 10)
                 {
                     // Wait 1ms, 11ms, 21ms, etc.

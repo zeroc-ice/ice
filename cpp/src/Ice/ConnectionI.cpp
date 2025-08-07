@@ -88,9 +88,7 @@ namespace
         const weak_ptr<Ice::ConnectionI> _connection;
     };
 
-    //
     // Class for handling Ice::Connection::begin_flushBatchRequests
-    //
     class ConnectionFlushBatchAsync : public OutgoingAsyncBase
     {
     public:
@@ -381,9 +379,7 @@ Ice::ConnectionI::startAsync(
                 return;
             }
 
-            //
             // Wait for the connection to be validated.
-            //
             _conditionVariable.wait(lock, [this] { return _state > StateNotValidated; });
 
             if (_state >= StateClosing)
@@ -393,9 +389,7 @@ Ice::ConnectionI::startAsync(
             }
         }
 
-        //
         // We start out in holding state.
-        //
         setState(StateHolding);
     }
     catch (const Ice::LocalException&)
@@ -574,11 +568,8 @@ Ice::ConnectionI::isActiveOrHolding() const
 bool
 Ice::ConnectionI::isFinished() const
 {
-    //
-    // We can use trylock here, because as long as there are still
-    // threads operating in this connection object, connection
-    // destruction is considered as not yet finished.
-    //
+    // We can use trylock here, because as long as there are still threads operating in this connection object,
+    // connection destruction is considered as not yet finished.
     std::unique_lock<std::mutex> lock(_mutex, std::try_to_lock);
 
     if (!lock.owns_lock())
@@ -619,19 +610,13 @@ Ice::ConnectionI::waitUntilFinished()
 {
     std::unique_lock lock(_mutex);
 
-    //
-    // We wait indefinitely until the connection is finished and all
-    // outstanding requests are completed. Otherwise we couldn't
-    // guarantee that there are no outstanding calls when deactivate()
-    // is called on the servant locators.
-    //
+    // We wait indefinitely until the connection is finished and all outstanding requests are completed. Otherwise we
+    // couldn't guarantee that there are no outstanding calls when deactivate() is called on the servant locators.
     _conditionVariable.wait(lock, [this] { return _state >= StateFinished && _upcallCount == 0; });
 
     assert(_state == StateFinished);
 
-    //
     // Clear the OA. See bug 1673 for the details of why this is necessary.
-    //
     _adapter = nullptr;
 }
 
@@ -660,11 +645,8 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     OutputStream* os = out->getOs();
 
     std::lock_guard lock(_mutex);
-    //
-    // If the exception is closed before we even have a chance
-    // to send our request, we always try to send the request
+    // If the exception is closed before we even have a chance to send our request, we always try to send the request
     // again.
-    //
     if (_exception)
     {
         throw RetryException(_exception);
@@ -672,23 +654,15 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     assert(_state > StateNotValidated);
     assert(_state < StateClosing);
 
-    //
-    // Ensure the message isn't bigger than what we can send with the
-    // transport.
-    //
+    // Ensure the message isn't bigger than what we can send with the transport.
     _transceiver->checkSendSize(*os);
 
-    //
-    // Notify the request that it's cancelable with this connection.
-    // This will throw if the request is canceled.
-    //
+    // Notify the request that it's cancelable with this connection. This will throw if the request is canceled.
     out->cancelable(shared_from_this());
     int32_t requestId = 0;
     if (response)
     {
-        //
         // Create a new unique request ID.
-        //
         requestId = _nextRequestId++;
         if (requestId <= 0)
         {
@@ -696,9 +670,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
             requestId = _nextRequestId++;
         }
 
-        //
         // Fill in the request ID.
-        //
         const byte* p = reinterpret_cast<const byte*>(&requestId);
         if constexpr (endian::native == endian::big)
         {
@@ -819,9 +791,7 @@ Ice::ConnectionI::closeCallback(const CloseCallback& callback)
 void
 Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exception_ptr ex)
 {
-    //
     // NOTE: This isn't called from a thread pool thread.
-    //
 
     std::lock_guard lock(_mutex);
     if (_state >= StateClosed)
@@ -857,10 +827,8 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
             }
             catch (const std::exception&)
             {
-                //
-                // If the request is being sent, don't remove it from the send streams,
-                // it will be removed once the sending is finished.
-                //
+                // If the request is being sent, don't remove it from the send streams, it will be removed once the
+                // sending is finished.
                 if (o == _sendStreams.begin())
                 {
                     o->canceled(true); // true = adopt the stream
@@ -1017,10 +985,8 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
         _adapter = nullptr;
     }
 
-    //
-    // We never change the thread pool with which we were initially
-    // registered, even if we add or remove an object adapter.
-    //
+    // We never change the thread pool with which we were initially registered, even if we add or remove an object
+    // adapter.
 }
 
 ObjectAdapterPtr
@@ -1242,13 +1208,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                             _observer->receivedBytes(static_cast<int>(headerSize));
                         }
 
-                        //
-                        // Connection is validated on first message. This is only used by
-                        // setState() to check whether or not we can print a connection
-                        // warning (a client might close the connection forcefully if the
-                        // connection isn't validated, we don't want to print a warning
-                        // in this case).
-                        //
+                        // Connection is validated on first message. This is only used by setState() to check whether
+                        // or not we can print a connection warning (a client might close the connection forcefully if
+                        // the connection isn't validated, we don't want to print a warning in this case).
                         _validated = true;
 
                         // Full header should be read because the size of _readStream is always headerSize (14) when
@@ -1256,9 +1218,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         ptrdiff_t pos = _readStream.i - _readStream.b.begin();
                         if (pos < headerSize)
                         {
-                            //
                             // This situation is possible for small UDP packets.
-                            //
                             throw MarshalException{
                                 __FILE__,
                                 __LINE__,
@@ -1383,10 +1343,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             {
                 assert(_state <= StateClosingPending);
 
-                //
-                // We parse messages first, if we receive a close
-                // connection message we won't send more messages.
-                //
+                // We parse messages first, if we receive a close connection message we won't send more messages.
                 if (readyOp & SocketOperationRead)
                 {
                     // At this point, the protocol message is fully read and can therefore be decoded by parseMessage.
@@ -1492,19 +1449,14 @@ ConnectionI::upcall(
 {
     int completedUpcallCount = 0;
 
-    //
-    // Notify the factory that the connection establishment and
-    // validation has completed.
-    //
+    // Notify the factory that the connection establishment and validation has completed.
     if (connectionStartCompleted)
     {
         connectionStartCompleted(shared_from_this());
         ++completedUpcallCount;
     }
 
-    //
     // Notify AMI calls that the message was sent.
-    //
     if (!sentCBs.empty())
     {
         for (const auto& sentCB : sentCBs)
@@ -1534,9 +1486,7 @@ ConnectionI::upcall(
         ++completedUpcallCount;
     }
 
-    //
     // Decrease the upcall count.
-    //
     bool finished = false;
     if (completedUpcallCount > 0)
     {
@@ -1692,19 +1642,15 @@ Ice::ConnectionI::finish(bool close)
     {
         if (!_writeStream.b.empty())
         {
-            //
-            // Return the stream to the outgoing call. This is important for
-            // retriable AMI calls which are not marshaled again.
-            //
+            // Return the stream to the outgoing call. This is important for retriable AMI calls which are not
+            // marshaled again.
             OutgoingMessage* message = &_sendStreams.front();
             _writeStream.swap(*message->stream);
 
 #if defined(ICE_USE_IOCP)
-            //
-            // The current message might be sent but not yet removed from _sendStreams. If
-            // the response has been received in the meantime, we remove the message from
-            // _sendStreams to not call finished on a message which is already done.
-            //
+            // The current message might be sent but not yet removed from _sendStreams. If the response has been
+            // received in the meantime, we remove the message from _sendStreams to not call finished on a message which
+            // is already done.
             if (message->isSent || message->receivedReply)
             {
                 if (message->sent() && message->invokeSent)
@@ -1746,9 +1692,7 @@ Ice::ConnectionI::finish(bool close)
 
     _asyncRequests.clear();
 
-    //
     // Don't wait to be reaped to reclaim memory allocated by read/write streams.
-    //
     _writeStream.clear();
     _writeStream.b.clear();
     _readStream.clear();
@@ -1997,10 +1941,7 @@ Ice::ConnectionI::~ConnectionI()
 void
 Ice::ConnectionI::setState(State state, exception_ptr ex)
 {
-    //
-    // If setState() is called with an exception, then only closed and
-    // closing states are permissible.
-    //
+    // If setState() is called with an exception, then only closed and closing states are permissible.
     assert(state >= StateClosing);
 
     if (_state == state) // Don't switch twice.
@@ -2010,19 +1951,13 @@ Ice::ConnectionI::setState(State state, exception_ptr ex)
 
     if (!_exception)
     {
-        //
         // If we are in closed state, an exception must be set.
-        //
         assert(_state != StateClosed);
         _exception = ex;
-        //
         // We don't warn if we are not validated.
-        //
         if (_warn && _validated)
         {
-            //
             // Don't warn about certain expected exceptions.
-            //
             try
             {
                 rethrow_exception(ex);
@@ -2061,29 +1996,22 @@ Ice::ConnectionI::setState(State state, exception_ptr ex)
         }
     }
 
-    //
-    // We must set the new state before we notify requests of any
-    // exceptions. Otherwise new requests may retry on a connection
-    // that is not yet marked as closed or closing.
-    //
+    // We must set the new state before we notify requests of any exceptions. Otherwise new requests may retry on a
+    // connection that is not yet marked as closed or closing.
     setState(state);
 }
 
 void
 Ice::ConnectionI::setState(State state)
 {
-    //
-    // We don't want to send close connection messages if the endpoint
-    // only supports oneway transmission from client to server.
-    //
+    // We don't want to send close connection messages if the endpoint only supports oneway transmission from client to
+    // server.
     if (_endpoint->datagram() && state == StateClosing)
     {
         state = StateClosed;
     }
 
-    //
     // Skip graceful shutdown if we are destroyed before validation.
-    //
     if (_state <= StateNotValidated && state == StateClosing)
     {
         state = StateClosed;
@@ -2163,9 +2091,7 @@ Ice::ConnectionI::setState(State state)
             case StateClosing:
             case StateClosingPending:
             {
-                //
                 // Can't change back from closing pending.
-                //
                 if (_state >= StateClosingPending)
                 {
                     return;
@@ -2182,10 +2108,7 @@ Ice::ConnectionI::setState(State state)
 
                 _batchRequestQueue->destroy(_exception);
 
-                //
-                // Don't need to close now for connections so only close the transceiver
-                // if the selector request it.
-                //
+                // Don't need to close now for connections so only close the transceiver if the selector request it.
                 if (_threadPool->finish(shared_from_this(), false))
                 {
                     _transceiver->close();
@@ -2287,9 +2210,7 @@ Ice::ConnectionI::initiateShutdown()
 
     if (!_endpoint->datagram())
     {
-        //
         // Before we shut down, we send a close connection message.
-        //
         OutputStream os{Ice::currentProtocolEncoding};
         os.writeBlob(magic, sizeof(magic));
         os.write(currentProtocol);
@@ -2305,9 +2226,7 @@ Ice::ConnectionI::initiateShutdown()
         {
             setState(StateClosingPending);
 
-            //
             // Notify the transceiver of the graceful connection closure.
-            //
             SocketOperation op = _transceiver->closing(true, _exception);
             if (op)
             {
@@ -2538,9 +2457,7 @@ Ice::ConnectionI::initialize(SocketOperation operation)
         return false;
     }
 
-    //
     // Update the connection description once the transceiver is initialized.
-    //
     const_cast<string&>(_desc) = _transceiver->toString();
     _initialized = true;
     setState(StateNotValidated);
@@ -2723,10 +2640,8 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
     {
         while (true)
         {
-            //
-            // The message that was being sent is sent. We can swap back the write stream buffer to the outgoing message
-            // (required for retry) and queue its sent callback (if any).
-            //
+            // The message that was being sent is sent. We can swap back the write stream buffer to the outgoing
+            // message (required for retry) and queue its sent callback (if any).
             OutgoingMessage* message = &_sendStreams.front();
             if (message->stream)
             {
@@ -2738,40 +2653,29 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
             }
             _sendStreams.pop_front();
 
-            //
             // If there's nothing left to send, we're done.
-            //
             if (_sendStreams.empty())
             {
                 break;
             }
 
-            //
-            // If we are in the closed state or if the close is pending, don't continue sending.
-            //
-            // This can occur if parseMessage (called before sendNextMessages by message()) closes the connection.
-            //
+            // If we are in the closed state or if the close is pending, don't continue sending. This can occur if
+            // parseMessage (called before sendNextMessages by message()) closes the connection.
             if (_state >= StateClosingPending)
             {
                 return SocketOperationNone;
             }
 
-            //
             // Otherwise, prepare the next message.
-            //
             message = &_sendStreams.front();
             assert(!message->stream->i);
 #ifdef ICE_HAS_BZIP2
             if (message->compress && message->stream->b.size() >= 100) // Only compress messages > 100 bytes.
             {
-                //
                 // Message compressed. Request compressed response, if any.
-                //
                 message->stream->b[9] = byte{2};
 
-                //
                 // Do compression.
-                //
                 OutputStream stream{currentProtocolEncoding};
                 doCompress(*message->stream, stream);
 
@@ -2785,15 +2689,11 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
 #endif
                 if (message->compress)
                 {
-                    //
                     // Message not compressed. Request compressed response, if any.
-                    //
                     message->stream->b[9] = byte{1};
                 }
 
-                //
                 // No compression, just fill in the message size.
-                //
                 auto sz = static_cast<int32_t>(message->stream->b.size());
                 const byte* p = reinterpret_cast<const byte*>(&sz);
                 if constexpr (endian::native == endian::big)
@@ -2811,9 +2711,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
             }
 #endif
 
-            //
             // Send the message.
-            //
             _writeStream.swap(*message->stream);
             if (_observer)
             {
@@ -2877,14 +2775,10 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 #ifdef ICE_HAS_BZIP2
     if (message.compress && message.stream->b.size() >= 100) // Only compress messages larger than 100 bytes.
     {
-        //
         // Message compressed. Request compressed response, if any.
-        //
         message.stream->b[9] = byte{2};
 
-        //
         // Do compression.
-        //
         OutputStream stream{currentProtocolEncoding};
         doCompress(*message.stream, stream);
         stream.i = stream.b.begin();
@@ -2919,15 +2813,11 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 #endif
         if (message.compress)
         {
-            //
             // Message not compressed. Request compressed response, if any.
-            //
             message.stream->b[9] = byte{1};
         }
 
-        //
         // No compression, just fill in the message size.
-        //
         auto sz = static_cast<int32_t>(message.stream->b.size());
         const byte* p = reinterpret_cast<const byte*>(&sz);
         if constexpr (endian::native == endian::big)
@@ -3044,9 +2934,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
 {
     const byte* p;
 
-    //
     // Compress the message body, but not the header.
-    //
     auto uncompressedLen = static_cast<unsigned int>(uncompressed.b.size() - headerSize);
     auto compressedLen = static_cast<unsigned int>(uncompressedLen * 1.01 + 600);
     compressed.b.resize(headerSize + sizeof(int32_t) + compressedLen);
@@ -3067,11 +2955,8 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     }
     compressed.b.resize(headerSize + sizeof(int32_t) + compressedLen);
 
-    //
-    // Write the size of the compressed stream into the header of the
-    // uncompressed stream. Since the header will be copied, this size
-    // will also be in the header of the compressed stream.
-    //
+    // Write the size of the compressed stream into the header of the uncompressed stream. Since the header will be
+    // copied, this size will also be in the header of the compressed stream.
     auto compressedSize = static_cast<int32_t>(compressed.b.size());
     p = reinterpret_cast<const byte*>(&compressedSize);
     if constexpr (endian::native == endian::big)
@@ -3083,10 +2968,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
         copy(p, p + sizeof(int32_t), uncompressed.b.begin() + 10);
     }
 
-    //
-    // Add the size of the uncompressed stream before the message body
-    // of the compressed stream.
-    //
+    // Add the size of the uncompressed stream before the message body of the compressed stream.
     auto uncompressedSize = static_cast<int32_t>(uncompressed.b.size());
     p = reinterpret_cast<const byte*>(&uncompressedSize);
     if constexpr (endian::native == endian::big)
@@ -3098,9 +2980,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
         copy(p, p + sizeof(int32_t), compressed.b.begin() + headerSize);
     }
 
-    //
     // Copy the header from the uncompressed stream to the compressed one.
-    //
     copy(uncompressed.b.begin(), uncompressed.b.begin() + headerSize, compressed.b.begin());
 }
 
@@ -3159,11 +3039,8 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
 
     try
     {
-        //
-        // We don't need to check magic and version here. This has
-        // already been done by the ThreadPool, which provides us
-        // with the stream.
-        //
+        // We don't need to check magic and version here. This has already been done by the ThreadPool, which provides
+        // us with the stream.
         assert(stream.i == stream.b.end());
         stream.i = stream.b.begin() + 8;
         uint8_t messageType;
@@ -3200,9 +3077,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                 {
                     setState(StateClosingPending, make_exception_ptr(CloseConnectionException(__FILE__, __LINE__)));
 
-                    //
                     // Notify the transceiver of the graceful connection closure.
-                    //
                     SocketOperation op = _transceiver->closing(false, _exception);
                     if (op)
                     {
@@ -3330,11 +3205,9 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     *outAsync->getIs() = std::move(stream);
 
 #if defined(ICE_USE_IOCP)
-                    //
-                    // If we just received the reply of a request which isn't acknowledge as
-                    // sent yet, we queue the reply instead of processing it right away. It
-                    // will be processed once the write callback is invoked for the message.
-                    //
+                    // If we just received the reply of a request which isn't acknowledge as sent yet, we queue the
+                    // reply instead of processing it right away. It will be processed once the write callback is
+                    // invoked for the message.
                     OutgoingMessage* message = _sendStreams.empty() ? 0 : &_sendStreams.front();
                     if (message && message->outAsync.get() == outAsync.get())
                     {
@@ -3430,9 +3303,7 @@ Ice::ConnectionI::dispatchAll(
     {
         while (requestCount > 0)
         {
-            //
             // Start of the dispatch pipeline.
-            //
 
             IncomingRequest request{requestId, shared_from_this(), adapter, stream, requestCount};
 

@@ -38,11 +38,7 @@ extern FILE* slice_in;
 extern int slice_debug;
 extern int slice__flex_debug; // NOLINT(cert-dcl37-c,cert-dcl51-cpp)
 
-//
-// Operation attributes
-//
-// read + supports must be 0 (the default)
-//
+// Operation attributes read + supports must be 0 (the default)
 
 namespace
 {
@@ -1000,11 +996,8 @@ Slice::Container::createClassDecl(const string& name)
         return nullptr;
     }
 
-    //
-    // Multiple declarations are permissible. But if we do already
-    // have a declaration for the class in this container, we don't
-    // create another one.
-    //
+    // Multiple declarations are permissible. But if we do already have a declaration for the class in this container,
+    // we don't create another one.
     for (const auto& q : _contents)
     {
         if (q->name() == name)
@@ -2263,9 +2256,7 @@ Slice::ClassDef::createDataMember(
 
     reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the data member anyway.
 
-    //
     // Check whether any bases have defined something with the same name already.
-    //
     if (_base)
     {
         for (const auto& dataMember : _base->allDataMembers())
@@ -2531,11 +2522,8 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
     // Check whether, for multiple inheritance, any of the bases define the same operations.
     if (bases.size() > 1)
     {
-        //
-        // We have multiple inheritance. Build a list of paths through the
-        // inheritance graph, such that multiple inheritance is legal if
-        // the union of the names defined in classes on each path are disjoint.
-        //
+        // We have multiple inheritance. Build a list of paths through the inheritance graph, such that multiple
+        // inheritance is legal if the union of the names defined in classes on each path are disjoint.
         GraphPartitionList gpl;
         for (const auto& base : bases)
         {
@@ -2544,20 +2532,13 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
             addPartition(gpl, gpl.rbegin(), base);
         }
 
-        //
-        // We now have a list of partitions, with each partition containing
-        // a list of class definitions. Turn the list of partitions of class
-        // definitions into a list of sets of strings, with each
-        // set containing the names of operations and data members defined in
-        // the classes in each partition.
-        //
+        // We now have a list of partitions, with each partition containing a list of class definitions. Turn the list
+        // of partitions of class definitions into a list of sets of strings, with each set containing the names of
+        // operations and data members defined in the classes in each partition.
         StringPartitionList spl = toStringPartitionList(gpl);
 
-        //
-        // Multiple inheritance is legal if no two partitions contain a common
-        // name (that is, if the union of the intersections of all possible pairs
-        // of partitions is empty).
-        //
+        // Multiple inheritance is legal if no two partitions contain a common name (that is, if the union of the
+        // intersections of all possible pairs of partitions is empty).
         checkPairIntersections(spl, name, unit);
     }
 }
@@ -2618,11 +2599,8 @@ Slice::InterfaceDecl::addPartition(
     }
 }
 
-//
-// Convert the list of partitions of interface definitions into a
-// list of lists, with each member list containing the operation
-// names defined by the interfaces in each partition.
-//
+// Convert the list of partitions of interface definitions into a list of lists, with each member list containing the
+// operation names defined by the interfaces in each partition.
 Slice::InterfaceDecl::StringPartitionList
 Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& partitions)
 {
@@ -2642,10 +2620,8 @@ Slice::InterfaceDecl::toStringPartitionList(const GraphPartitionList& partitions
     return spl;
 }
 
-//
-// For all (unique) pairs of string lists, check whether an identifier in one list occurs
-// in the other and, if so, complain.
-//
+// For all (unique) pairs of string lists, check whether an identifier in one list occurs in the other and, if so,
+// complain.
 void
 Slice::InterfaceDecl::checkPairIntersections(
     const StringPartitionList& stringPartitions,
@@ -4404,7 +4380,6 @@ Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
 
     // `currentFile` is the file being parsed, as reported by the MCPP preprocessor.
     // It may be an absolute or relative path.
-    //
     // `resolvedFilename` is always an absolute path, computed from `currentFile` and the current definition context.
     string resolvedFilename;
     if (IceInternal::isAbsolutePath(currentFile))

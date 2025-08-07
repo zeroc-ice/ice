@@ -27,16 +27,12 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal
 
     if (_exception)
     {
-        //
         // Raise the stored exception from a failed connection attempt.
-        //
         rethrow_exception(_exception);
     }
     else if (_needConnect)
     {
-        //
         // We need to initiate a connection attempt.
-        //
         _needConnect = false;
         _instance->engine()->connect(_addr, _uuid, make_shared<ConnectCallbackI>(shared_from_this()));
         return IceInternal::SocketOperationConnect;
@@ -48,10 +44,8 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal
 IceInternal::SocketOperation
 IceBT::TransceiverI::closing(bool initiator, exception_ptr)
 {
-    //
-    // If we are initiating the connection closure, wait for the peer
-    // to close the TCP/IP connection. Otherwise, close immediately.
-    //
+    // If we are initiating the connection closure, wait for the peer to close the TCP/IP connection. Otherwise, close
+    // immediately.
     return initiator ? IceInternal::SocketOperationRead : IceInternal::SocketOperationNone;
 }
 
@@ -70,9 +64,7 @@ IceBT::TransceiverI::write(IceInternal::Buffer& buf)
 {
     if (_stream->fd() == INVALID_SOCKET)
     {
-        //
         // This can happen if the connection failed. We return None here and let initialize() handle the rest.
-        //
         return IceInternal::SocketOperationNone;
     }
 
@@ -84,9 +76,7 @@ IceBT::TransceiverI::read(IceInternal::Buffer& buf)
 {
     if (_stream->fd() == INVALID_SOCKET)
     {
-        //
         // This can happen if we connected successfully but the selector has not updated our FD yet.
-        //
         return IceInternal::SocketOperationRead;
     }
 
@@ -177,9 +167,7 @@ IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
     lock_guard lock(_mutex);
     _connection = conn;
     _stream->setFd(fd);
-    //
     // Triggers a call to write() from a different thread.
-    //
     _stream->ready(IceInternal::SocketOperationConnect, true);
 }
 
@@ -187,12 +175,8 @@ void
 IceBT::TransceiverI::connectFailed(std::exception_ptr ex)
 {
     lock_guard lock(_mutex);
-    //
     // Save the exception - it will be raised in initialize().
-    //
     _exception = ex;
-    //
     // Triggers a call to write() from a different thread.
-    //
     _stream->ready(IceInternal::SocketOperationConnect, true);
 }

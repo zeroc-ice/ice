@@ -1445,9 +1445,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     H << sp;
 
-    //
     // Synchronous operation
-    //
     if (comment)
     {
         StringList postParams;
@@ -1504,9 +1502,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     C << eb;
 
-    //
     // Promise-based asynchronous operation
-    //
     H << sp;
     if (comment)
     {
@@ -1542,9 +1538,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << "context" << epar << ";";
     C << eb;
 
-    //
     // Lambda based asynchronous operation
-    //
     const string responseParam = escapeParam(inParams, "response");
     const string exceptionParam = escapeParam(inParams, "exception");
     const string sentParam = escapeParam(inParams, "sent");

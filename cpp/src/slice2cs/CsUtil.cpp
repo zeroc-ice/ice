@@ -938,10 +938,8 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
                     {
                         if (isStack)
                         {
-                            //
-                            // If the collection is a stack, write in top-to-bottom order. Stacks
-                            // cannot contain Ice.Value.
-                            //
+                            // If the collection is a stack, write in top-to-bottom order. Stacks cannot contain
+                            // Ice.Value.
                             out << nl << "Ice.ObjectPrx?[] " << param << "_tmp = " << param << ".ToArray();";
                             out << nl << "for (int ix = 0; ix < " << param << "_tmp.Length; ++ix)";
                             out << sb;
@@ -1118,10 +1116,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
             out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
             if (isGeneric && !isList)
             {
-                //
-                // Stacks cannot contain class instances, so there is no need to marshal a
-                // stack bottom-up here.
-                //
+                // Stacks cannot contain class instances, so there is no need to marshal a stack bottom-up here.
                 out << nl << "global::System.Collections.Generic.IEnumerator<" << typeS << "> e = " << param
                     << ".GetEnumerator();";
                 out << nl << "while (e.MoveNext())";
@@ -1186,9 +1181,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
             out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
             if (isGeneric && !isList)
             {
-                //
                 // Stacks are marshaled top-down.
-                //
                 if (isStack)
                 {
                     out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
@@ -1291,9 +1284,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
             out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
             if (isGeneric && !isList)
             {
-                //
                 // Stacks are marshaled top-down.
-                //
                 if (isStack)
                 {
                     out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
@@ -1395,9 +1386,7 @@ Slice::Csharp::writeSequenceMarshalUnmarshalCode(
         out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
         if (isGeneric && !isList)
         {
-            //
             // Stacks are marshaled top-down.
-            //
             if (isStack)
             {
                 out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
@@ -1640,9 +1629,7 @@ Slice::Csharp::writeOptionalSequenceMarshalUnmarshalCode(
         return;
     }
 
-    //
     // At this point, all remaining element types have variable size.
-    //
     if (marshal)
     {
         out << nl << "if (" << param << " is not null && " << stream << ".writeOptional(" << tag << ", "

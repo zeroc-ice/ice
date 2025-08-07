@@ -56,9 +56,7 @@ namespace Ice::SSL
         bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
     private:
-        //
         // All members are const, because endpoints are immutable.
-        //
         const InstancePtr _instance;
         const IceInternal::EndpointIPtr _delegate;
     };

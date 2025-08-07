@@ -1683,13 +1683,9 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out.dec();
 
-    //
-    // Define each operation. The arguments to the IcePy.Operation constructor are:
-    //
-    // "sliceOpName", "mappedOpName", Mode, AMD, Format, Metadata, (InParams), (OutParams), ReturnParam, (Exceptions)
-    //
-    // where InParams and OutParams are tuples of type descriptions, and Exceptions
-    // is a tuple of exception type ids.
+    // Define each operation. The arguments to the IcePy.Operation constructor are: "sliceOpName", "mappedOpName",
+    // Mode, AMD, Format, Metadata, (InParams), (OutParams), ReturnParam, (Exceptions) where InParams and OutParams are
+    // tuples of type descriptions, and Exceptions is a tuple of exception type ids.
 
     for (const auto& operation : operations)
     {
@@ -1790,7 +1786,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         if (returnType)
         {
             // The return type has the same format as an in/out parameter:
-            //
             // Metadata, Type, Optional?, OptionalTag
             out << "((), " << getMetaType(returnType) << ", ";
             if (operation->returnIsOptional())

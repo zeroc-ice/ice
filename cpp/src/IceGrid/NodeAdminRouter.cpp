@@ -22,9 +22,7 @@ NodeServerAdminRouter::ice_invokeAsync(
     function<void(exception_ptr)> exception,
     const Ice::Current& current)
 {
-    //
     // First, get the ServerI servant
-    //
     Identity serverId = _node->createServerIdentity(current.id.name);
     auto server = dynamic_pointer_cast<ServerI>(_node->getAdapter()->find(serverId));
     if (server == nullptr)
@@ -38,9 +36,7 @@ NodeServerAdminRouter::ice_invokeAsync(
         throw ObjectNotExistException{__FILE__, __LINE__};
     }
 
-    //
     // Then get a proxy to the Process facet of the real admin object
-    //
     auto target = server->getProcess();
 
     if (target == nullopt)
@@ -54,14 +50,10 @@ NodeServerAdminRouter::ice_invokeAsync(
         throw ObjectNotExistException{__FILE__, __LINE__};
     }
 
-    //
     // If this is a legacy Process proxy with no facet, we keep target as is
-    //
     if (current.facet != "Process")
     {
-        //
         // Set the facet
-        //
         target = target->ice_facet(current.facet);
     }
 

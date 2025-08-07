@@ -126,9 +126,7 @@ RouterService::start(int argc, char* argv[], int& status)
 
     auto properties = communicator()->getProperties();
 
-    //
     // Initialize the client object adapter.
-    //
     const string clientEndpointsProperty = "Glacier2.Client.Endpoints";
     if (properties->getIceProperty(clientEndpointsProperty).empty())
     {
@@ -138,10 +136,7 @@ RouterService::start(int argc, char* argv[], int& status)
 
     auto clientAdapter = communicator()->createObjectAdapter("Glacier2.Client");
 
-    //
-    // Initialize the server object adapter only if server endpoints
-    // are defined.
-    //
+    // Initialize the server object adapter only if server endpoints are defined.
     const string serverEndpointsProperty = "Glacier2.Server.Endpoints";
     ObjectAdapterPtr serverAdapter;
     if (!properties->getIceProperty(serverEndpointsProperty).empty())
@@ -189,9 +184,7 @@ RouterService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    //
     // Get the session manager if specified.
-    //
     const string sessionManagerProperty = "Glacier2.SessionManager";
     optional<SessionManagerPrx> sessionManager;
     try
@@ -217,9 +210,7 @@ RouterService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    //
     // Check for an SSL permissions verifier.
-    //
     const string sslVerifierProperty = verifierProperties[1];
     optional<SSLPermissionsVerifierPrx> sslVerifier;
     try
@@ -252,9 +243,7 @@ RouterService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    //
     // Get the SSL session manager if specified.
-    //
     const string sslSessionManagerProperty = "Glacier2.SSLSessionManager";
     optional<SSLSessionManagerPrx> sslSessionManager;
     try
@@ -282,9 +271,7 @@ RouterService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    //
     // Create the instance object.
-    //
     try
     {
         _instance = make_shared<Glacier2::Instance>(communicator(), clientAdapter, serverAdapter);
@@ -302,22 +289,15 @@ RouterService::start(int argc, char* argv[], int& status)
         std::move(sslVerifier),
         std::move(sslSessionManager));
 
-    //
     // Registers session router and all required servant locators
-    //
     try
     {
-        //
-        // All other calls on the client object adapter are dispatched to
-        // a router servant based on connection information.
-        //
+        // All other calls on the client object adapter are dispatched to a router servant based on connection
+        // information.
         _instance->clientObjectAdapter()->addServantLocator(make_shared<ClientLocator>(_sessionRouter), "");
 
-        //
-        // If there is a server object adapter, all calls on this adapter
-        // are dispatched to a router servant based on the category field
-        // of the identity.
-        //
+        // If there is a server object adapter, all calls on this adapter are dispatched to a router servant based on
+        // the category field of the identity.
         if (_instance->serverObjectAdapter())
         {
             _instance->serverObjectAdapter()->addServantLocator(make_shared<ServerLocator>(_sessionRouter), "");
@@ -330,16 +310,11 @@ RouterService::start(int argc, char* argv[], int& status)
 
     _instance->setSessionRouter(_sessionRouter);
 
-    //
-    // The session router is used directly as a servant for the main
-    // Glacier2 router Ice object.
-    //
+    // The session router is used directly as a servant for the main Glacier2 router Ice object.
     auto routerPrx = clientAdapter->add<Glacier2::RouterPrx>(_sessionRouter, {"router", instanceName});
 
-    //
-    // Add the Ice router finder object to allow retrieving the router
-    // proxy with just the endpoint information of the router.
-    //
+    // Add the Ice router finder object to allow retrieving the router proxy with just the endpoint information of the
+    // router.
     clientAdapter->add(make_shared<FinderI>(routerPrx), {"RouterFinder", "Ice"});
 
     if (_instance->getObserver())
@@ -347,9 +322,7 @@ RouterService::start(int argc, char* argv[], int& status)
         _instance->getObserver()->setObserverUpdater(_sessionRouter);
     }
 
-    //
     // Everything ok, let's go.
-    //
     try
     {
         clientAdapter->activate();
@@ -398,9 +371,7 @@ RouterService::initializeCommunicator(int& argc, char* argv[], InitializationDat
 {
     initData.properties = createProperties(argc, argv, initData.properties);
 
-    //
     // Make sure that Glacier2 doesn't use a router.
-    //
     initData.properties->setProperty("Ice.Default.Router", "");
 
     // Turn-off the inactivity timeout for the Glacier2.Client object adapter unless the application sets this property.
@@ -409,10 +380,8 @@ RouterService::initializeCommunicator(int& argc, char* argv[], InitializationDat
         initData.properties->setProperty("Glacier2.Client.Connection.InactivityTimeout", "0");
     }
 
-    //
-    // If Glacier2.PermissionsVerifier is not set and Glacier2.CryptPasswords is set,
-    // load the Glacier2CryptPermissionsVerifier plug-in
-    //
+    // If Glacier2.PermissionsVerifier is not set and Glacier2.CryptPasswords is set, load the
+    // Glacier2CryptPermissionsVerifier plug-in
     if (initData.properties->getIceProperty("Glacier2.PermissionsVerifier").empty())
     {
         string cryptPasswords = initData.properties->getIceProperty("Glacier2.CryptPasswords");

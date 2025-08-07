@@ -313,9 +313,7 @@ namespace IceInternal
 
         EntryTPtr getMatching(const IceMX::MetricsHelperT<T>& helper, const EntryTPtr& previous = EntryTPtr())
         {
-            //
             // Check the accept and reject filters.
-            //
             for (const auto& filter : _accept)
             {
                 if (!filter->match(helper, false))
@@ -332,9 +330,7 @@ namespace IceInternal
                 }
             }
 
-            //
             // Compute the key from the GroupBy property.
-            //
             std::string key;
             try
             {
@@ -362,9 +358,7 @@ namespace IceInternal
                 return nullptr;
             }
 
-            //
             // Lookup the metrics object.
-            //
             std::lock_guard lock(_mutex);
             if (_destroyed)
             {

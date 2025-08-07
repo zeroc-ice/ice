@@ -484,10 +484,7 @@ ServerEntry::getId() const
 ServerPrx
 ServerEntry::getProxy(bool upToDate, chrono::seconds timeout)
 {
-    //
-    // NOTE: this might throw ServerNotExistException, NodeUnreachableException
-    // or DeploymentException.
-    //
+    // NOTE: this might throw ServerNotExistException, NodeUnreachableException or DeploymentException.
 
     chrono::seconds actTimeout, deactTimeout;
     string node;
@@ -502,10 +499,7 @@ ServerEntry::getProxy(
     bool upToDate,
     chrono::seconds timeout)
 {
-    //
-    // NOTE: this might throw ServerNotExistException, NodeUnreachableException
-    // or DeploymentException.
-    //
+    // NOTE: this might throw ServerNotExistException, NodeUnreachableException or DeploymentException.
     while (true)
     {
         {
@@ -533,19 +527,14 @@ ServerEntry::getProxy(
 Ice::ObjectPrx
 ServerEntry::getAdminProxy()
 {
-    //
     // The category must match the server admin category used by nodes
-    //
     return getProxy(true)->ice_identity({_id, _cache.getInstanceName() + "-NodeServerAdminRouter"});
 }
 
 AdapterPrx
 ServerEntry::getAdapter(const string& id, bool upToDate)
 {
-    //
-    // NOTE: this might throw AdapterNotExistException, NodeUnreachableException
-    // or DeploymentException.
-    //
+    // NOTE: this might throw AdapterNotExistException, NodeUnreachableException or DeploymentException.
 
     chrono::seconds activationTimeout, deactivationTimeout;
     return getAdapter(activationTimeout, deactivationTimeout, id, upToDate);
@@ -558,10 +547,7 @@ ServerEntry::getAdapter(
     const string& id,
     bool upToDate)
 {
-    //
-    // NOTE: this might throw AdapterNotExistException, NodeUnreachableException
-    // or DeploymentException.
-    //
+    // NOTE: this might throw AdapterNotExistException, NodeUnreachableException or DeploymentException.
     while (true)
     {
         {
@@ -1100,12 +1086,8 @@ ServerEntry::allocated(const shared_ptr<SessionI>& session)
 
     auto desc = _loaded.get() ? _loaded->descriptor : _load->descriptor;
 
-    //
-    // If the server has the session activation mode, we re-load the
-    // server on the node as its deployment might have changed (it's
-    // possible to use ${session.*} variable with server with the
-    // session activation mode.
-    //
+    // If the server has the session activation mode, we re-load the server on the node as its deployment might have
+    // changed (it's possible to use ${session.*} variable with server with the session activation mode.
     if (desc->activation == "session")
     {
         _updated = true;
@@ -1169,13 +1151,9 @@ ServerEntry::released(const shared_ptr<SessionI>& session)
 
     auto desc = _loaded.get() ? _loaded->descriptor : _load->descriptor;
 
-    //
-    // If the server has the session activation mode, we re-load the
-    // server on the node as its deployment might have changed (it's
-    // possible to use ${session.*} variable with server with the
-    // session activation mode. Synchronizing the server will also
-    // shutdown the server on the node.
-    //
+    // If the server has the session activation mode, we re-load the server on the node as its deployment might have
+    // changed (it's possible to use ${session.*} variable with server with the session activation mode. Synchronizing
+    // the server will also shutdown the server on the node.
     if (desc->activation == "session")
     {
         _updated = true;

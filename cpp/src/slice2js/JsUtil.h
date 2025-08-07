@@ -14,9 +14,7 @@ namespace Slice::JavaScript
 
     [[nodiscard]] std::string getHelper(const TypePtr& type);
 
-    //
     // Generate code to marshal or unmarshal a type
-    //
     void
     writeMarshalUnmarshalCode(IceInternal::Output& out, const TypePtr& type, const std::string& param, bool marshal);
     void writeOptionalMarshalUnmarshalCode(

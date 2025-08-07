@@ -61,9 +61,7 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
         {
             try
             {
-                //
                 // Remove the session control object.
-                //
                 _instance->serverObjectAdapter()->remove(_controlId);
             }
             catch (const NotRegisteredException&)
@@ -71,9 +69,7 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
             }
             catch (const ObjectAdapterDeactivatedException&)
             {
-                //
                 // Expected if the router has been shutdown.
-                //
             }
         }
 

@@ -54,9 +54,7 @@ namespace IceInternal
         bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
     private:
-        //
         // All members are const, because endpoints are immutable.
-        //
         std::int16_t _type;
         Ice::EncodingVersion _rawEncoding; // The encoding used for _rawBytes
         const std::vector<std::byte> _rawBytes;

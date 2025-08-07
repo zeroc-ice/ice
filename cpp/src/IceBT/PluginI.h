@@ -14,15 +14,11 @@ namespace IceBT
     public:
         PluginI(const Ice::CommunicatorPtr&);
 
-        //
         // From Ice::Plugin.
-        //
         void initialize() override;
         void destroy() override;
 
-        //
         // From IceBT::Plugin.
-        //
         void startDiscovery(
             const std::string& address,
             std::function<void(const std::string& addr, const PropertyMap& props)>) override;

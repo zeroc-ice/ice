@@ -79,10 +79,8 @@ BatchRequestQueue::prepareBatchRequest(OutputStream* os)
 void
 BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrx& proxy, string_view operation)
 {
-    //
-    // No need for synchronization, no other threads are supposed
-    // to modify the queue since we set _batchStreamInUse to true.
-    //
+    // No need for synchronization, no other threads are supposed to modify the queue since we set _batchStreamInUse to
+    // true.
     assert(_batchStreamInUse);
     _batchStream.swap(*os);
 
@@ -164,9 +162,7 @@ BatchRequestQueue::swap(OutputStream* os, bool& compress) noexcept
     _batchStream.swap(*os);
     compress = _batchCompress;
 
-    //
     // Reset the batch.
-    //
     _batchRequestNum = 0;
     _batchCompress = false;
     _batchStream.writeBlob(requestBatchHdr, sizeof(requestBatchHdr));

@@ -63,9 +63,7 @@ namespace IceInternal
         [[nodiscard]] IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const final;
 
     private:
-        //
         // All members are const, because endpoints are immutable.
-        //
         const std::int32_t _mcastTtl;
         const std::string _mcastInterface;
         const bool _compress;

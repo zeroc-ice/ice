@@ -289,14 +289,10 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
         }
     }
 
-    //
     // Sort optional parameters by tag.
-    //
     optionals.sort(Slice::compareTag<ParameterPtr>);
 
-    //
     // Handle optional parameters.
-    //
     bool checkReturnType = op && op->returnIsOptional();
     for (const auto& optional : optionals)
     {
@@ -415,9 +411,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     string ns = getNamespace(p);
     ClassDefPtr base = p->base();
 
-    //
     // Marshaling support
-    //
     DataMemberList members = p->dataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
@@ -1826,9 +1820,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
              << cancel << "false" << epar << ";";
         _out << eb;
 
-        //
         // Write the Async method implementation.
-        //
         _out << sp;
         _out << nl << "private global::System.Threading.Tasks.Task";
         if (!returnTypeS.empty())
@@ -1868,9 +1860,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
         _out << sp << nl << "private const string " << flatName << " = \"" << op->name() << "\";";
 
-        //
         // Write the common invoke method
-        //
         _out << sp << nl;
         _out << "private void _iceI_" << removeEscapePrefix(opName);
         _out.spar("(", true);
@@ -2158,9 +2148,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
 
     {
-        //
         // Write the synchronous version of the operation.
-        //
         string context = getEscapedParamName(p->parameters(), "context");
         _out << sp;
         writeOpDocComment(p, {"<param name=\"" + context + "\">The request context.</param>"}, false);
@@ -2173,9 +2161,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     }
 
     {
-        //
         // Write the async version of the operation (using Async Task API)
-        //
         string context = getEscapedParamName(p->parameters(), "context");
         string cancel = getEscapedParamName(p->parameters(), "cancel");
         string progress = getEscapedParamName(p->parameters(), "progress");
@@ -2290,9 +2276,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "public readonly record struct " << name << " : Ice.MarshaledResult";
         _out << sb;
 
-        //
         // Marshaling constructor
-        //
         _out << nl << "public " << name << spar << getOutParams(p, ns, true, false) << "Ice.Current current" << epar;
         _out << sb;
         _out << nl << "_ostr = Ice.CurrentExtensions.startReplyStream(current);";

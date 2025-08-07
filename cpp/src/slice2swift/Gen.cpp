@@ -1162,9 +1162,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << eb;
 
-    //
     // makeProxy
-    //
     out << sp;
     out << nl << "/// Makes a new proxy from a communicator and a proxy string.";
     out << nl << "///";
@@ -1182,9 +1180,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "try communicator.makeProxyImpl(proxyString) as " << prxI;
     out << eb;
 
-    //
     // checkedCast
-    //
     out << sp;
     out << nl << "/// Casts a proxy to the requested type. This call contacts the server and verifies that the object";
     out << nl << "/// implements this type.";
@@ -1210,9 +1206,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         << "?";
     out << eb;
 
-    //
     // uncheckedCast
-    //
     out << sp;
     out << nl << "/// Downcasts the given proxy to this type without contacting the remote server.";
     out << nl << "///";
@@ -1228,9 +1222,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "return " << prxI << ".uncheckedCast(prx: prx, facet: facet) as " << prxI;
     out << eb;
 
-    //
     // ice_staticId
-    //
     out << sp;
     out << nl << "/// Returns the Slice type id of the interface associated with this proxy type.";
     out << nl << "///";
@@ -1242,9 +1234,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "return " << traits << ".staticId";
     out << eb;
 
-    //
     // InputStream extension
-    //
     out << sp;
     out << nl << "/// Extension to `Ice.InputStream` class to support reading proxies of type";
     out << nl << "/// `" << prx << "`.";
@@ -1317,9 +1307,7 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
 
     out << sb;
 
-    //
     // Invoke
-    //
     out << sp;
     out << nl << "return try await _impl._invoke(";
 
@@ -1371,9 +1359,7 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string swiftModule = getSwiftModule(p->getTopLevelModule());
     const string servant = getRelativeTypeString(p, swiftModule);
 
-    //
     // Protocol
-    //
     InterfaceList bases = p->bases();
     StringList baseNames;
     for (const auto& base : bases)

@@ -162,12 +162,8 @@ namespace IceInternal
             }
         }
 
-        //
-        // Cancel a task. Returns true if the task has not yet run or if
-        // it's a task scheduled for repeated execution. Returns false if
-        // the task has already run, was already cancelled or was never
-        // scheduled.
-        //
+        // Cancel a task. Returns true if the task has not yet run or if it's a task scheduled for repeated execution.
+        // Returns false if the task has already run, was already cancelled or was never scheduled.
         bool cancel(const TimerTaskPtr&);
 
         // Checks if this timer task is scheduled.

@@ -15,9 +15,7 @@ using namespace Ice;
 
 namespace
 {
-    //
     // Replace "/" by "\"
-    //
     inline string fixDirSeparator(const string& path)
     {
         string result = path;
@@ -42,9 +40,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
 {
     _serviceProperties->load(_configFile);
 
-    //
     // Compute _serviceName
-    //
 
     if (_serviceType == icegridregistry)
     {
@@ -235,9 +231,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     deps += '\0'; // must be double-null terminated
 
     string command = "\"" + imagePath + "\" --service " + _serviceName + " --Ice.Config=\"";
-    //
     // Get the full path of config file.
-    //
     if (!_configFile.find("HKLM\\") == 0)
     {
         char fullPath[MAX_PATH];
@@ -258,10 +252,8 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
 
     string password = properties->getProperty("Password");
 
-    //
-    // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to stringToWstring.
-    //
+    // We don't support to use a string converter with this tool, so don't need to use string converters in calls to
+    // stringToWstring.
     SC_HANDLE service = CreateServiceW(
         scm,
         stringToWstring(_serviceName).c_str(),
@@ -284,9 +276,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         throw runtime_error("Cannot create service" + _serviceName + ": " + IceInternal::errorToString(res));
     }
 
-    //
     // Set description
-    //
     wstring uDescription = stringToWstring(description);
     SERVICE_DESCRIPTIONW sd = {const_cast<wchar_t*>(uDescription.c_str())};
 
@@ -299,9 +289,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
             "Cannot set description for service" + _serviceName + ": " + IceInternal::errorToString(res));
     }
 
-    //
     // Set delayed auto-start
-    //
     if (delayedAutoStart)
     {
         SERVICE_DELAYED_AUTO_START_INFO info = {true};
@@ -330,10 +318,8 @@ IceServiceInstaller::uninstall()
         throw runtime_error("Cannot open SCM: " + IceInternal::errorToString(res));
     }
 
-    //
-    // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to stringToWstring.
-    //
+    // We don't support to use a string converter with this tool, so don't need to use string converters in calls to
+    // stringToWstring.
     SC_HANDLE service = OpenServiceW(scm, stringToWstring(_serviceName).c_str(), SERVICE_ALL_ACCESS);
     if (service == 0)
     {
@@ -342,9 +328,7 @@ IceServiceInstaller::uninstall()
         throw runtime_error("Cannot open service '" + _serviceName + "': " + IceInternal::errorToString(res));
     }
 
-    //
     // Stop service first
-    //
     SERVICE_STATUS serviceStatus;
     if (!ControlService(service, SERVICE_CONTROL_STOP, &serviceStatus))
     {
@@ -454,10 +438,8 @@ IceServiceInstaller::initializeSid(const string& name)
         DWORD domainNameSize = 32;
         wstring domainName(domainNameSize, wchar_t());
 
-        //
-        // We don't support to use a string converter with this tool, so don't need to
-        // use string converters in calls to stringToWstring.
-        //
+        // We don't support to use a string converter with this tool, so don't need to use string converters in calls
+        // to stringToWstring.
         SID_NAME_USE nameUse;
         while (LookupAccountNameW(
                    0,
@@ -481,18 +463,12 @@ IceServiceInstaller::initializeSid(const string& name)
         _sid = reinterpret_cast<SID*>(_sidBuffer.data());
     }
 
-    //
     // Now store in _sidName a 'normalized' name (for the CreateService call)
-    //
 
     if (name.find('\\') != string::npos)
     {
-        //
-        // Keep this name; otherwise on XP, the localized name
-        // ("NT AUTHORITY\LOCAL SERVICE" in English) shows up in the Services
-        // snap-in instead of 'Local Service' (which is also a localized name,
-        // but looks nicer).
-        //
+        // Keep this name; otherwise on XP, the localized name ("NT AUTHORITY\LOCAL SERVICE" in English) shows up in
+        // the Services snap-in instead of 'Local Service' (which is also a localized name, but looks nicer).
         _sidName = name;
     }
     else
@@ -534,9 +510,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         trace << "Granting access on " << path << " to " << _sidName;
     }
 
-    //
     // First retrieve the ACL for our file/directory/key
-    //
     PACL acl = 0; // will point to memory in sd
     PACL newAcl = 0;
     PSECURITY_DESCRIPTOR sd = 0;
@@ -553,9 +527,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         throw runtime_error("Could not retrieve securify info for " + path + ": " + IceInternal::errorToString(res));
     }
 
-    //
     // Now check if _sid can access this file/dir/key
-    //
     try
     {
         if (!AuthzInitializeResourceManager(AUTHZ_RM_FLAG_NO_AUDIT, 0, 0, 0, 0, &manager))
@@ -635,9 +607,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             BuildTrusteeWithSidW(&trustee, _sid);
             ea.Trustee = trustee;
 
-            //
             // Create new ACL
-            //
             res = SetEntriesInAclW(1, &ea, acl, &newAcl);
             if (res != ERROR_SUCCESS)
             {
@@ -683,10 +653,8 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
 bool
 IceServiceInstaller::mkdir(const string& path) const
 {
-    //
-    // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to stringToWstring.
-    //
+    // We don't support to use a string converter with this tool, so don't need to use string converters in calls to
+    // stringToWstring.
     if (CreateDirectoryW(stringToWstring(path).c_str(), 0) == 0)
     {
         DWORD res = GetLastError();
@@ -716,16 +684,12 @@ IceServiceInstaller::mkdir(const string& path) const
 void
 IceServiceInstaller::addLog(const string& log) const
 {
-    //
     // Create or open the corresponding registry key
-    //
 
     HKEY key = 0;
     DWORD disposition = 0;
-    //
-    // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to stringToWstring.
-    //
+    // We don't support to use a string converter with this tool, so don't need to use string converters in calls to
+    // stringToWstring.
     LONG res = RegCreateKeyExW(
         HKEY_LOCAL_MACHINE,
         stringToWstring(createLog(log)).c_str(),
@@ -752,15 +716,11 @@ IceServiceInstaller::addLog(const string& log) const
 void
 IceServiceInstaller::removeLog(const string& log) const
 {
-    //
-    // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to stringToWstring.
-    //
+    // We don't support to use a string converter with this tool, so don't need to use string converters in calls to
+    // stringToWstring.
     LONG res = RegDeleteKeyW(HKEY_LOCAL_MACHINE, stringToWstring(createLog(log)).c_str());
 
-    //
     // We get ERROR_ACCESS_DENIED when the log is shared by several sources
-    //
     if (res != ERROR_SUCCESS && res != ERROR_ACCESS_DENIED)
     {
         throw runtime_error(
@@ -771,10 +731,8 @@ IceServiceInstaller::removeLog(const string& log) const
 void
 IceServiceInstaller::addSource(const string& source, const string& log, const string& resourceFile) const
 {
-    //
-    // We don't support to use a string converter with this tool, so don't need to
-    // use string converters in calls to stringToWstring.
-    //
+    // We don't support to use a string converter with this tool, so don't need to use string converters in calls to
+    // stringToWstring.
     HKEY key = 0;
     DWORD disposition = 0;
     LONG res = RegCreateKeyExW(
@@ -792,11 +750,8 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
         throw runtime_error("Could not create Event Log source in registry: " + IceInternal::errorToString(res));
     }
 
-    //
-    // The event resources are bundled into this DLL, therefore
-    // the "EventMessageFile" key should contain the path to this
-    // DLL.
-    //
+    // The event resources are bundled into this DLL, therefore the "EventMessageFile" key should contain the path to
+    // this DLL.
     res = RegSetValueExW(
         key,
         L"EventMessageFile",
@@ -807,10 +762,7 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
 
     if (res == ERROR_SUCCESS)
     {
-        //
-        // The "TypesSupported" key indicates the supported event
-        // types.
-        //
+        // The "TypesSupported" key indicates the supported event types.
         DWORD typesSupported = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
         res = RegSetValueExW(
             key,
@@ -837,9 +789,7 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
 string
 IceServiceInstaller::removeSource(const string& source) const
 {
-    //
     // Find the source and return the log
-    //
 
     HKEY key = 0;
 
@@ -865,12 +815,8 @@ IceServiceInstaller::removeSource(const string& source) const
 
         if (res == ERROR_SUCCESS)
         {
-            //
-            // Check if we can delete the source sub-key
-            //
-            // We don't support to use a string converter with this tool, so don't need to
-            // use string converters in calls to stringToWstring.
-            //
+            // Check if we can delete the source sub-key We don't support to use a string converter with this tool, so
+            // don't need to use string converters in calls to stringToWstring.
             LONG delRes = RegDeleteKeyW(
                 HKEY_LOCAL_MACHINE,
                 stringToWstring(createSource(source, wstringToString(subkey))).c_str());
@@ -905,9 +851,7 @@ string
 IceServiceInstaller::mangleSource(const string& name) const
 {
     string result = name;
-    //
     // The source cannot contain backslashes.
-    //
     string::size_type pos = 0;
     while ((pos = result.find('\\', pos)) != string::npos)
     {
@@ -919,11 +863,7 @@ IceServiceInstaller::mangleSource(const string& name) const
 string
 IceServiceInstaller::createLog(const string& log) const
 {
-    //
-    // The registry key is:
-    //
-    // HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\<log>.
-    //
+    // The registry key is: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\<log>.
     return "SYSTEM\\CurrentControlSet\\Services\\EventLog\\" + log;
 }
 
@@ -939,9 +879,7 @@ IceServiceInstaller::getIceDLLPath(const string& imagePath) const
     string imagePathDir = imagePath;
     imagePathDir.erase(imagePathDir.rfind('\\'));
 
-    //
     // Get current 'DLL' version
-    //
     int majorVersion = (ICE_INT_VERSION / 10000);
     int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
     int patchVersion = ICE_INT_VERSION % 100;

@@ -142,9 +142,7 @@ namespace
         string salt;
         if (i == string::npos)
         {
-            //
             // Crypt DES
-            //
             if (p->second.size() != 13) // DES passwords are 13 characters long.
             {
                 return false;
@@ -168,18 +166,11 @@ namespace
         return p->second == crypt(password.c_str(), salt.c_str());
 #    endif
 #elif defined(__APPLE__) || defined(_WIN32)
-        //
-        // Pbkdf2 string format:
-        //
-        // $pbkdf2-digest$rounds$salt$checksum
-        // $pbkdf2$rounds$salt$checksum (SHA1 digest)
-        //
+        // Pbkdf2 string format: $pbkdf2-digest$rounds$salt$checksum $pbkdf2$rounds$salt$checksum (SHA1 digest)
         size_t beg = 0;
         size_t end = 0;
 
-        //
         // Determine the digest algorithm
-        //
 #    if defined(__APPLE__)
         CCPseudoRandomAlgorithm algorithmId = 0;
 #    else
@@ -201,11 +192,7 @@ namespace
         }
         else
         {
-            //
-            // Pbkdf2 string format:
-            //
-            // $pbkdf2-digest$rounds$salt$checksum
-            //
+            // Pbkdf2 string format: $pbkdf2-digest$rounds$salt$checksum
             const string pbkdf2Token = "$pbkdf2-";
             if (p->second.find(pbkdf2Token) != 0)
             {
@@ -243,9 +230,7 @@ namespace
             }
             beg = end + 1;
         }
-        //
         // Determine the number of rounds
-        //
         end = p->second.find('$', beg);
         if (end == string::npos)
         {
@@ -262,9 +247,7 @@ namespace
             return false; // Invalid rounds value
         }
 
-        //
         // Determine salt and checksum
-        //
         beg = end + 1;
         end = p->second.find('$', beg);
         if (end == string::npos)
@@ -279,10 +262,8 @@ namespace
             return false;
         }
 
-        //
-        // passlib encoding is identical to base64 except that it uses . instead of +,
-        // and omits trailing padding = and whitepsace.
-        //
+        // passlib encoding is identical to base64 except that it uses . instead of +, and omits trailing padding = and
+        // whitepsace.
         std::replace(salt.begin(), salt.end(), '.', '+');
         salt += paddingBytes(salt.size());
 

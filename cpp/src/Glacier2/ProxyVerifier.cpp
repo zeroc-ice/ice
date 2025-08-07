@@ -11,21 +11,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-//
-// TODO: Some of the address matching helper classes can probably be
-// refactored out. It's a question of whether to keep really simple
-// differences refactored into separate classes or go to fewer but
-// slightly smarter classes.
-//
+// TODO: Some of the address matching helper classes can probably be refactored out. It's a question of whether to keep
+// really simple differences refactored into separate classes or go to fewer but slightly smarter classes.
 
-//
 // Proxy rule implementations.
-//
 namespace Glacier2
 {
-    //
     // A numeric range that can be encoded in a filter.
-    //
     struct Range
     {
         long start;
@@ -91,9 +83,7 @@ namespace Glacier2
         }
     }
 
-    //
     // Base class for address matching operations.
-    //
     class AddressMatcher
     {
     public:
@@ -111,11 +101,8 @@ namespace Glacier2
         [[nodiscard]] const char* toString() const override { return "(ANY)"; }
     };
 
-    //
-    // Match the start of a string (i.e. position == 0). Occurs when filter
-    // string starts with a set of characters followed by a wildcard or
-    // numeric range.
-    //
+    // Match the start of a string (i.e. position == 0). Occurs when filter string starts with a set of characters
+    // followed by a wildcard or numeric range.
     class StartsWithString final : public AddressMatcher
     {
     public:
@@ -139,10 +126,8 @@ namespace Glacier2
         string _description;
     };
 
-    //
-    // Match the end portion of a string. Occurs when a filter string starts
-    // with a wildcard or numeric range, but ends with a string.
-    //
+    // Match the end portion of a string. Occurs when a filter string starts with a wildcard or numeric range, but ends
+    // with a string.
     class EndsWithString final : public AddressMatcher
     {
     public:
@@ -196,10 +181,8 @@ namespace Glacier2
         string _description;
     };
 
-    //
-    // Match against somewhere within a string. Occurs when a filter
-    // contains a string bounded by wildcards, or numeric ranges. e.g. *bar*.com.
-    //
+    // Match against somewhere within a string. Occurs when a filter contains a string bounded by wildcards, or numeric
+    // ranges. e.g. *bar*.com.
     class ContainsString final : public AddressMatcher
     {
     public:
@@ -223,11 +206,8 @@ namespace Glacier2
         string _description;
     };
 
-    //
-    // Match a number against a range of values. This occurs when the filter
-    // contains a numeric range or group of numeric values. e.g. foo[1-3,
-    // 10].bar.com. Also used to match port numbers and ranges.
-    //
+    // Match a number against a range of values. This occurs when the filter contains a numeric range or group of
+    // numeric values. e.g. foo[1-3, 10].bar.com. Also used to match port numbers and ranges.
     class MatchesNumber : public AddressMatcher
     {
     public:
@@ -321,9 +301,7 @@ namespace Glacier2
         string _description;
     };
 
-    //
     // Occurs when a numeric range is preceded by a wildcard.
-    //
     class ContainsNumberMatch final : public MatchesNumber
     {
     public:
@@ -371,14 +349,10 @@ namespace Glacier2
         }
     };
 
-    //
-    // AddressMatcher factories abstract away the logic of which matching
-    // objects need to be created depending on the state of the filter
-    // string parsing. Similar to changing a tool that produces the right
-    // result depending on how far along you are in the job, the factories
-    // are selected according to what transition has occurred while parsing
+    // AddressMatcher factories abstract away the logic of which matching objects need to be created depending on the
+    // state of the filter string parsing. Similar to changing a tool that produces the right result depending on how
+    // far along you are in the job, the factories are selected according to what transition has occurred while parsing
     // the filter string.
-    //
     class AddressMatcherFactory
     {
     public:
@@ -431,9 +405,7 @@ namespace Glacier2
         }
     };
 
-    //
     // A proxy validation rule encapsulating an address filter.
-    //
     class AddressRule final : public Glacier2::ProxyRule
     {
     public:
@@ -607,10 +579,7 @@ namespace Glacier2
                     addr = parameter;
                 }
 
-                //
-                // The addr portion can contain alphanumerics, * and
-                // ranges.
-                //
+                // The addr portion can contain alphanumerics, * and ranges.
                 string::size_type current = 0;
 
                 if (current == addr.size())
@@ -618,10 +587,7 @@ namespace Glacier2
                     throw invalid_argument("expected address information before ':'");
                 }
 
-                //
-                // TODO: assuming that there is no leading or trailing whitespace. This
-                // should probably be confirmed.
-                //
+                // TODO: assuming that there is no leading or trailing whitespace. This should probably be confirmed.
                 assert(!isspace(static_cast<unsigned char>(parameter[current])));
                 assert(!isspace(static_cast<unsigned char>(addr[addr.size() - 1])));
 
@@ -636,9 +602,7 @@ namespace Glacier2
 
                 if (addr == "*")
                 {
-                    //
                     // Special case. Match everything.
-                    //
                     currentRuleSet.push_back(new MatchesAny);
                 }
                 else
@@ -651,10 +615,7 @@ namespace Glacier2
                             {
                                 throw invalid_argument("wildcards not permitted in groups");
                             }
-                            //
-                            // current == mark when the wildcard is at the head of a
-                            // string or directly after a group.
-                            //
+                            // current == mark when the wildcard is at the head of a string or directly after a group.
                             if (current != mark)
                             {
                                 currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current - mark)));
@@ -718,9 +679,7 @@ namespace Glacier2
         rules = allRules;
     }
 
-    //
     // Helper function for checking a rule set.
-    //
     static bool match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
     {
         for (auto rule : rules)
@@ -733,10 +692,7 @@ namespace Glacier2
         return false;
     }
 
-    //
-    // ProxyLengthRule returns 'true' if the string form of the proxy exceeds the configured
-    // length.
-    //
+    // ProxyLengthRule returns 'true' if the string form of the proxy exceeds the configured length.
     class ProxyLengthRule : public ProxyRule
     {
     public:
@@ -779,10 +735,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
     : _communicator(std::move(communicator)),
       _traceLevel(_communicator->getProperties()->getIcePropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
-    //
-    // Evaluation order is dependant on how the rules are stored to the
-    // rules vectors.
-    //
+    // Evaluation order is dependant on how the rules are stored to the rules vectors.
     string s = _communicator->getProperties()->getIceProperty("Glacier2.Filter.Address.Accept");
     if (s != "")
     {
@@ -844,9 +797,7 @@ Glacier2::ProxyVerifier::~ProxyVerifier()
 bool
 Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 {
-    //
     // No rules have been defined so we accept all.
-    //
     if (_acceptRules.size() == 0 && _rejectRules.size() == 0)
     {
         return true;
@@ -856,16 +807,12 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
 
     if (_rejectRules.size() == 0)
     {
-        //
         // If there are no reject rules, we assume "reject all".
-        //
         result = match(_acceptRules, proxy);
     }
     else if (_acceptRules.size() == 0)
     {
-        //
         // If no accept rules are defined we assume accept all.
-        //
         result = !match(_rejectRules, proxy);
     }
     else
@@ -876,9 +823,7 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
         }
     }
 
-    //
     // The proxy rules take care of the tracing for higher trace levels.
-    //
     if (_traceLevel > 0)
     {
         Trace out(_communicator->getLogger(), "Glacier2");

@@ -428,9 +428,7 @@ ServerInstanceDescriptorBuilder::createPropertySet(const XmlAttributesHelper& at
 void
 ServerInstanceDescriptorBuilder::addPropertySet(const string& service, const PropertySetDescriptor& desc)
 {
-    //
     // Allow re-opening of unamed property sets.
-    //
     PropertySetDescriptor& p = service.empty() ? _descriptor.propertySet : _descriptor.servicePropertySets[service];
     p.references.insert(p.references.end(), desc.references.begin(), desc.references.end());
     p.properties.insert(p.properties.end(), desc.properties.begin(), desc.properties.end());
@@ -591,12 +589,8 @@ CommunicatorDescriptorBuilder::init(const shared_ptr<CommunicatorDescriptor>& de
 void
 CommunicatorDescriptorBuilder::finish()
 {
-    //
-    // Add the hidden properties at the beginning of the communicator
-    // properties. These properties are not added directly to the
-    // property set because it's not allowed to define properties
-    // before references to property sets.
-    //
+    // Add the hidden properties at the beginning of the communicator properties. These properties are not added
+    // directly to the property set because it's not allowed to define properties before references to property sets.
     _descriptor->propertySet.properties.insert(
         _descriptor->propertySet.properties.begin(),
         _hiddenProperties.begin(),
@@ -624,9 +618,7 @@ CommunicatorDescriptorBuilder::createPropertySet() const
 void
 CommunicatorDescriptorBuilder::addPropertySet(const PropertySetDescriptor& desc)
 {
-    //
     // Allow re-opening of unamed property sets.
-    //
     PropertySetDescriptor& p = _descriptor->propertySet;
     p.references.insert(p.references.end(), desc.references.begin(), desc.references.end());
     p.properties.insert(p.properties.end(), desc.properties.begin(), desc.properties.end());
@@ -736,9 +728,7 @@ ServiceInstanceDescriptorBuilder::createPropertySet() const
 void
 ServiceInstanceDescriptorBuilder::addPropertySet(const PropertySetDescriptor& desc)
 {
-    //
     // Allow re-opening of unamed property sets.
-    //
     PropertySetDescriptor& p = _descriptor.propertySet;
     p.references.insert(p.references.end(), desc.references.begin(), desc.references.end());
     p.properties.insert(p.properties.end(), desc.properties.begin(), desc.properties.end());

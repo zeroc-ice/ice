@@ -120,12 +120,9 @@ TopicFactoryI::createTopicWriter(
             catch (const SessionCreationException&)
             {
                 // Session creation failed upon receiving a writer announcement. This can happen if:
-                //
-                // - The session is already connected.
-                // - The node that sent the announcement is shutting down.
-                // - This node is shutting down.
-                //
-                // In all cases, no further action is required, and the exception can safely be ignored.
+                // - The session is already connected. - The node that sent the announcement is shutting down. - This
+                // node is shutting down. In all cases, no further action is required, and the exception can safely be
+                // ignored.
             }
         }
         node->getPublisherForwarder()->announceTopics({TopicInfo{.name = name, .ids = {writer->getId()}}}, false);
@@ -221,12 +218,8 @@ TopicFactoryI::createPublisherSession(
         catch (const SessionCreationException&)
         {
             // Session creation failed upon receiving a writer announcement. This can happen if:
-            //
-            // - The session is already connected.
-            // - The node that sent the announcement is shutting down.
-            // - This node is shutting down.
-            //
-            // In all cases, no further action is required, and the exception can safely be ignored.
+            // - The session is already connected. - The node that sent the announcement is shutting down. - This node
+            // is shutting down. In all cases, no further action is required, and the exception can safely be ignored.
         }
         catch (const CommunicatorDestroyedException&)
         {

@@ -14,9 +14,7 @@ namespace
     const char* const discoveryPluginName = "IceDiscovery";
 }
 
-//
 // Plugin factory function.
-//
 extern "C" ICE_DISCOVERY_API Ice::Plugin*
 createIceDiscovery(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq&)
 {
@@ -77,10 +75,8 @@ PluginI::initialize()
     string lookupEndpoints = properties->getIceProperty("IceDiscovery.Lookup");
     if (lookupEndpoints.empty())
     {
-        //
-        // If no lookup endpoints are specified, we get all the network interfaces and create
-        // an endpoint for each of them. We'll send UDP multicast packages on each interface.
-        //
+        // If no lookup endpoints are specified, we get all the network interfaces and create an endpoint for each of
+        // them. We'll send UDP multicast packages on each interface.
         IceInternal::ProtocolSupport protocol = ipv4 && !preferIPv6 ? IceInternal::EnableIPv4 : IceInternal::EnableIPv6;
         vector<string> interfaces = IceInternal::getInterfacesForMulticast(intf, protocol);
         ostringstream lookup;
@@ -109,9 +105,7 @@ PluginI::initialize()
     _replyAdapter = _communicator->createObjectAdapter("IceDiscovery.Reply");
     _locatorAdapter = _communicator->createObjectAdapter("IceDiscovery.Locator");
 
-    //
     // Setup locator registry.
-    //
     auto locatorRegistry = make_shared<LocatorRegistryI>(_communicator);
     auto locatorRegistryPrx = _locatorAdapter->addWithUUID<Ice::LocatorRegistryPrx>(locatorRegistry);
 
@@ -119,9 +113,7 @@ PluginI::initialize()
     // No collocation optimization for the multicast proxy!
     lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(nullopt);
 
-    //
     // Add lookup and lookup reply Ice objects
-    //
     _lookup = make_shared<LookupI>(locatorRegistry, lookupPrx, properties);
     _multicastAdapter->add(_lookup, Ice::stringToIdentity("IceDiscovery/Lookup"));
 
@@ -129,9 +121,7 @@ PluginI::initialize()
 
     _lookup->setLookupReply(_replyAdapter->createProxy<LookupReplyPrx>(Ice::Identity{"dummy", ""})->ice_datagram());
 
-    //
     // Setup locator on the communicator.
-    //
     _locator = _locatorAdapter->addWithUUID<Ice::LocatorPrx>(make_shared<LocatorI>(_lookup, locatorRegistryPrx));
     _defaultLocator = _communicator->getDefaultLocator();
     _communicator->setDefaultLocator(_locator);

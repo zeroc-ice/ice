@@ -16,12 +16,9 @@ namespace IceInternal
     // OutputBase
     // ----------------------------------------------------------------------
 
-    //
-    // Technically it's not necessary to have print() & newline() as virtual
-    // since the operator<< functions are specific to each OutputBase
-    // derivative. However, since it's possible to call print() & newline()
-    // manually I've decided to leave them as virtual.
-    //
+    // Technically it's not necessary to have print() & newline() as virtual since the operator<< functions are
+    // specific to each OutputBase derivative. However, since it's possible to call print() & newline() manually I've
+    // decided to leave them as virtual.
 
     class ICE_API OutputBase
     {

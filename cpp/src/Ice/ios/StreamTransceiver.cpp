@@ -168,14 +168,10 @@ IceObjC::StreamTransceiver::unregisterFromRunLoop(SocketOperation op, bool error
             _writeStreamRegistered = false;
         }
 
-        //
-        // We don't wait for the stream to be ready for read (even if
-        // it's a client connection) because there's no guarantees that
-        // the server might actually send data right away. If we use
-        // the WebSocket transport, the server actually waits for the
-        // client to write the HTTP upgrade request.
-        //
-        // if(op & SocketOperationRead && (_fd != INVALID_SOCKET || !(op & SocketOperationConnect)))
+        // We don't wait for the stream to be ready for read (even if it's a client connection) because there's no
+        // guarantees that the server might actually send data right away. If we use the WebSocket transport, the server
+        // actually waits for the client to write the HTTP upgrade request. if(op & SocketOperationRead && (_fd !=
+        // INVALID_SOCKET || !(op & SocketOperationConnect)))
         if (op & (SocketOperationRead | SocketOperationConnect))
         {
             _readStreamRegistered = false;

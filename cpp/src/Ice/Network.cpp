@@ -239,12 +239,9 @@ namespace
             int numaddrs = 10;
             int old_ifc_len = 0;
 
-            //
-            // Need to call ioctl multiple times since we do not know up front
-            // how many addresses there will be, and thus how large a buffer we need.
-            // We keep increasing the buffer size until subsequent calls return
-            // the same length, meaning we have all the addresses.
-            //
+            // Need to call ioctl multiple times since we do not know up front how many addresses there will be, and
+            // thus how large a buffer we need. We keep increasing the buffer size until subsequent calls return the
+            // same length, meaning we have all the addresses.
             while (true)
             {
                 int bufsize = numaddrs * static_cast<int>(sizeof(struct ifreq));
@@ -260,9 +257,7 @@ namespace
                 }
                 else if (ifc.ifc_len == old_ifc_len)
                 {
-                    //
                     // Returned same length twice in a row, finished.
-                    //
                     break;
                 }
                 else
@@ -282,11 +277,8 @@ namespace
             {
                 if (!(ifr[j].ifr_flags & IFF_LOOPBACK)) // Don't include loopback interface addresses
                 {
-                    //
-                    // On Solaris the above Loopback check does not always work so we double
-                    // check the address below. Solaris also returns duplicate entries that need
-                    // to be filtered out.
-                    //
+                    // On Solaris the above Loopback check does not always work so we double check the address below.
+                    // Solaris also returns duplicate entries that need to be filtered out.
                     if (ifr[j].ifr_addr.sa_family == AF_INET && protocol != EnableIPv6)
                     {
                         Address addr;
@@ -321,9 +313,7 @@ namespace
         }
 #endif
 
-        //
         // Remove potential duplicates from the result.
-        //
         set<Address, AddressCompare> seen;
         vector<Address> tmp;
         tmp.swap(result);
@@ -373,25 +363,18 @@ namespace
         string::size_type pos = intf.find('%');
         if (pos != string::npos)
         {
-            //
             // If it's a link-local address, use the zone indice.
-            //
             isAddr = false;
             name = intf.substr(pos + 1);
         }
         else
         {
-            //
-            // Then check if it's an IPv6 address. If it's an address we'll
-            // look for the interface index by address.
-            //
+            // Then check if it's an IPv6 address. If it's an address we'll look for the interface index by address.
             isAddr = inet_pton(AF_INET6, intf.c_str(), &addr) > 0;
             name = intf;
         }
 
-        //
         // Check if index
-        //
         int index = -1;
         istringstream p(name);
         if ((p >> index) && p.eof())
@@ -435,10 +418,7 @@ namespace
                     }
                     else
                     {
-                        //
-                        // Don't need to pass a wide string converter as the wide string
-                        // come from Windows API.
-                        //
+                        // Don't need to pass a wide string converter as the wide string come from Windows API.
                         if (wstringToString(paddrs->FriendlyName, getProcessStringConverter()) == name)
                         {
                             index = paddrs->Ipv6IfIndex;
@@ -456,9 +436,7 @@ namespace
         }
 #else
 
-        //
         // Look for an interface with a matching IP address
-        //
         if (isAddr)
         {
 #    if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
@@ -488,12 +466,9 @@ namespace
             int numaddrs = 10;
             int old_ifc_len = 0;
 
-            //
-            // Need to call ioctl multiple times since we do not know up front
-            // how many addresses there will be, and thus how large a buffer we need.
-            // We keep increasing the buffer size until subsequent calls return
-            // the same length, meaning we have all the addresses.
-            //
+            // Need to call ioctl multiple times since we do not know up front how many addresses there will be, and
+            // thus how large a buffer we need. We keep increasing the buffer size until subsequent calls return the
+            // same length, meaning we have all the addresses.
             while (true)
             {
                 int bufsize = numaddrs * static_cast<int>(sizeof(struct ifreq));
@@ -509,9 +484,7 @@ namespace
                 }
                 else if (ifc.ifc_len == old_ifc_len)
                 {
-                    //
                     // Returned same length twice in a row, finished.
-                    //
                     break;
                 }
                 else
@@ -583,10 +556,7 @@ namespace
             {
                 while (paddrs)
                 {
-                    //
-                    // Don't need to pass a wide string converter as the wide string come
-                    // from Windows API.
-                    //
+                    // Don't need to pass a wide string converter as the wide string come from Windows API.
                     if (wstringToString(paddrs->FriendlyName, getProcessStringConverter()) == name)
                     {
                         struct sockaddr_in addrin;
@@ -640,10 +610,7 @@ namespace
         Address addr;
         memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
-        //
-        // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
-        // versions don't support it).
-        //
+        // We don't use getaddrinfo when host is empty as it's not portable (some old Linux versions don't support it).
         if (protocol != EnableIPv4)
         {
             addr.saIn6.sin6_family = AF_INET6;
@@ -744,10 +711,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
 {
     vector<Address> result;
 
-    //
-    // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
-    // versions don't support it).
-    //
+    // We don't use getaddrinfo when host is empty as it's not portable (some old Linux versions don't support it).
     if (host.empty())
     {
         result = getLoopbackAddresses(protocol, port);
@@ -849,10 +813,7 @@ IceInternal::getProtocolSupport(const Address& addr)
 Address
 IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol, bool preferIPv6, bool canBlock)
 {
-    //
-    // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
-    // versions don't support it).
-    //
+    // We don't use getaddrinfo when host is empty as it's not portable (some old Linux versions don't support it).
     if (host.empty())
     {
         Address addr;
@@ -999,11 +960,8 @@ IceInternal::closeSocket(SOCKET fd)
     int error = errno;
 
 #    if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
-    //
-    // FreeBSD returns ECONNRESET if the underlying object was
-    // a stream socket that was shut down by the peer before all
-    // pending data was delivered.
-    //
+    // FreeBSD returns ECONNRESET if the underlying object was a stream socket that was shut down by the peer before
+    // all pending data was delivered.
     if (close(fd) == SOCKET_ERROR && getSocketErrno() != ECONNRESET)
 #    else
     if (close(fd) == SOCKET_ERROR)
@@ -1067,9 +1025,7 @@ IceInternal::fdToString(SOCKET fd, const NetworkProxyPtr& proxy, const Address& 
 #ifdef _WIN32
     if (!peerConnected)
     {
-        //
         // The local address is only accessible with connected sockets on Windows.
-        //
         s << "local address = <not available>";
     }
     else
@@ -1267,10 +1223,7 @@ IceInternal::setTcpBufSize(SOCKET fd, const ProtocolInstancePtr& instance)
 {
     assert(fd != INVALID_SOCKET);
 
-    //
-    // By default, on Windows we use a 128KB buffer size. On Unix
-    // platforms, we use the system defaults.
-    //
+    // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
 #ifdef _WIN32
     const int dfltBufSize = 128 * 1024;
 #else
@@ -1289,11 +1242,8 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
 
     if (rcvSize > 0)
     {
-        //
-        // Try to set the buffer size. The kernel will silently adjust
-        // the size to an acceptable value. Then read the size back to
-        // get the size that was actually set.
-        //
+        // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then read the
+        // size back to get the size that was actually set.
         setRecvBufferSize(fd, rcvSize);
         int size = getRecvBufferSize(fd);
         if (size > 0 && size < rcvSize)
@@ -1312,11 +1262,8 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
 
     if (sndSize > 0)
     {
-        //
-        // Try to set the buffer size. The kernel will silently adjust
-        // the size to an acceptable value. Then read the size back to
-        // get the size that was actually set.
-        //
+        // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then read the
+        // size back to get the size that was actually set.
         setSendBufferSize(fd, sndSize);
         int size = getSendBufferSize(fd);
         if (size > 0 && size < sndSize)
@@ -1762,11 +1709,8 @@ repeatConnect:
     }
 
 #if defined(__linux__)
-    //
-    // Prevent self connect (self connect happens on Linux when a client tries to connect to
-    // a server which was just deactivated if the client socket re-uses the same ephemeral
-    // port as the server).
-    //
+    // Prevent self connect (self connect happens on Linux when a client tries to connect to a server which was just
+    // deactivated if the client socket re-uses the same ephemeral port as the server).
     Address localAddr;
     try
     {
@@ -1788,16 +1732,10 @@ repeatConnect:
 void
 IceInternal::doFinishConnect(SOCKET fd)
 {
-    //
-    // Note: we don't close the socket if there's an exception. It's the responsibility
-    // of the caller to do so.
-    //
+    // Note: we don't close the socket if there's an exception. It's the responsibility of the caller to do so.
 
-    //
-    // Strange windows bug: The following call to Sleep() is
-    // necessary, otherwise no error is reported through
+    // Strange windows bug: The following call to Sleep() is necessary, otherwise no error is reported through
     // getsockopt.
-    //
 #if defined(_WIN32)
     Sleep(0);
 #endif
@@ -1831,11 +1769,8 @@ IceInternal::doFinishConnect(SOCKET fd)
     }
 
 #if defined(__linux__)
-    //
-    // Prevent self connect (self connect happens on Linux when a client tries to connect to
-    // a server which was just deactivated if the client socket re-uses the same ephemeral
-    // port as the server).
-    //
+    // Prevent self connect (self connect happens on Linux when a client tries to connect to a server which was just
+    // deactivated if the client socket re-uses the same ephemeral port as the server).
     Address localAddr;
     fdToLocalAddress(fd, localAddr);
     Address remoteAddr;
@@ -1972,10 +1907,8 @@ IceInternal::createPipe(SOCKET fds[2])
 void
 IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourceAddr, AsyncInfo& info)
 {
-    //
-    // NOTE: It's the caller's responsability to close the socket upon
-    // failure to connect. The socket isn't closed by this method.
-    //
+    // NOTE: It's the caller's responsability to close the socket upon failure to connect. The socket isn't closed by
+    // this method.
     Address bindAddr;
     if (isAddressValid(sourceAddr))
     {
@@ -2046,10 +1979,8 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
 void
 IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
 {
-    //
-    // NOTE: It's the caller's responsability to close the socket upon
-    // failure to connect. The socket isn't closed by this method.
-    //
+    // NOTE: It's the caller's responsability to close the socket upon failure to connect. The socket isn't closed by
+    // this method.
 
     if (info.error != ERROR_SUCCESS)
     {

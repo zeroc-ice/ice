@@ -58,9 +58,7 @@ namespace IceInternal
         bool checkOption(const std::string&, const std::string&, const std::string&) override;
 
     private:
-        //
         // All members are const, because endpoints are immutable.
-        //
         const ProtocolInstancePtr _instance;
         const EndpointIPtr _delegate;
         const std::string _resource;

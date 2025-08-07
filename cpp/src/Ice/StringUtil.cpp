@@ -49,9 +49,7 @@ namespace
         return (codePoint << 6) + (b & 0x3F);
     }
 
-    //
     // Appends a 2 to 4 bytes UTF-8 sequence as a universal character name
-    //
     void appendUniversalName(char c, string::iterator& p, string::iterator end, string& result)
     {
         unsigned int codePoint;
@@ -104,9 +102,7 @@ namespace
     }
 }
 
-//
 // Add escape sequences. Any characters that appear in special are prefixed with a backslash in the returned string.
-//
 string
 IceInternal::escapeString(string_view s, string_view special, ToStringMode toStringMode)
 {
@@ -118,9 +114,7 @@ IceInternal::escapeString(string_view s, string_view special, ToStringMode toStr
         }
     }
 
-    //
     // First convert to UTF-8
-    //
     string u8s = nativeToUTF8(s, getProcessStringConverter());
 
     string::iterator p = u8s.begin();
@@ -258,9 +252,7 @@ IceInternal::escapeString(string_view s, string_view special, ToStringMode toStr
 
     if (toStringMode == ToStringMode::Unicode)
     {
-        //
         // Convert back to Native
-        //
         result = UTF8ToNative(result, getProcessStringConverter());
     }
     // else it's a pure ASCII string
@@ -290,9 +282,7 @@ namespace
         return static_cast<char>(c);
     }
 
-    //
     // Append codePoint as a UTF-8 sequence
-    //
     void appendUTF8(unsigned int codePoint, string& result)
     {
         if (codePoint >= 0xD800 && codePoint <= 0xDFFF)
@@ -332,12 +322,9 @@ namespace
         }
     }
 
-    //
-    // Decode the character or escape sequence starting at start and appends it to result;
-    // end marks the one-past-the-end position of the substring to be scanned.
-    // nextStart is set to the index of the first character following the decoded
-    // character or escape sequence.
-    //
+    // Decode the character or escape sequence starting at start and appends it to result; end marks the
+    // one-past-the-end position of the substring to be scanned. nextStart is set to the index of the first character
+    // following the decoded character or escape sequence.
     bool decodeChar(
         const string& s,
         string::size_type start,
@@ -553,9 +540,7 @@ namespace
     }
 }
 
-//
 // Remove escape sequences added by escapeString.
-//
 string
 IceInternal::unescapeString(
     string_view sv,
@@ -709,9 +694,7 @@ IceInternal::joinString(const std::vector<std::string>& values, string_view deli
     return out.str();
 }
 
-//
 // Trim white space (" \t\r\n")
-//
 string
 IceInternal::trim(string_view s)
 {
@@ -727,12 +710,9 @@ IceInternal::trim(string_view s)
     }
 }
 
-//
-// If a single or double quotation mark is found at the start position,
-// then the position of the matching closing quote is returned. If no
-// quotation mark is found at the start position, then 0 is returned.
-// If no matching closing quote is found, then -1 is returned.
-//
+// If a single or double quotation mark is found at the start position, then the position of the matching closing quote
+// is returned. If no quotation mark is found at the start position, then 0 is returned. If no matching closing quote is
+// found, then -1 is returned.
 string::size_type
 IceInternal::checkQuote(const string& s, string::size_type start)
 {
@@ -754,39 +734,30 @@ IceInternal::checkQuote(const string& s, string::size_type start)
     return 0; // Not quoted.
 }
 
-//
-// Match `s' against the pattern `pat'. A * in the pattern acts
-// as a wildcard: it matches any non-empty sequence of characters.
-// We match by hand here because it's portable across platforms
-// (whereas regex() isn't). Only one * per pattern is supported.
-//
+// Match `s' against the pattern `pat'. A * in the pattern acts as a wildcard: it matches any non-empty sequence of
+// characters. We match by hand here because it's portable across platforms (whereas regex() isn't). Only one * per
+// pattern is supported.
 bool
 IceInternal::match(const string& s, const string& pat, bool emptyMatch)
 {
     assert(!s.empty());
     assert(!pat.empty());
 
-    //
     // If pattern does not contain a wildcard just compare strings.
-    //
     string::size_type beginIndex = pat.find('*');
     if (beginIndex == string::npos)
     {
         return s == pat;
     }
 
-    //
     // Make sure start of the strings match
-    //
     if (beginIndex > s.length() || s.substr(0, beginIndex) != pat.substr(0, beginIndex))
     {
         return false;
     }
 
-    //
-    // Make sure there is something present in the middle to match the
-    // wildcard. If emptyMatch is true, allow a match of "".
-    //
+    // Make sure there is something present in the middle to match the wildcard. If emptyMatch is true, allow a match
+    // of "".
     string::size_type endLength = pat.length() - beginIndex - 1;
     if (endLength > s.length())
     {
@@ -798,9 +769,7 @@ IceInternal::match(const string& s, const string& pat, bool emptyMatch)
         return false;
     }
 
-    //
     // Make sure end of the strings match
-    //
     if (s.substr(endIndex, s.length()) != pat.substr(beginIndex + 1, pat.length()))
     {
         return false;
@@ -1029,18 +998,14 @@ IceInternal::errorToString(int error)
     while (true)
     {
 #    if !defined(__GLIBC__) || ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE)
-        //
         // Use the XSI-compliant version of strerror_r
-        //
         int err = strerror_r(error, &buffer[0], buffer.size());
         if (err == 0)
         {
             return {&buffer[0]};
         }
 #    else
-        //
         // Use the GNU-specific version of strerror_r
-        //
         int oerrno = errno;
         errno = 0;
         const char* msg = strerror_r(error, &buffer[0], buffer.size());

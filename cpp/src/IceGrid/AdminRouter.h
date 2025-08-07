@@ -8,9 +8,7 @@
 
 namespace IceGrid
 {
-    //
     // An Admin Router routes requests to an admin object
-    //
     class AdminRouter : public Ice::BlobjectArrayAsync
     {
     protected:

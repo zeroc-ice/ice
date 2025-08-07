@@ -94,9 +94,7 @@ RegistryService::start(int argc, char* argv[], int& status)
 
     auto properties = communicator()->getProperties();
 
-    //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
-    //
     if (!properties->getProperty("Ice.ThreadPool.Server.Size").empty())
     {
         Warning out(communicator()->getLogger());
@@ -118,10 +116,7 @@ RegistryService::start(int argc, char* argv[], int& status)
 void
 RegistryService::waitForShutdown()
 {
-    //
-    // Wait for the activator shutdown. Once the run method returns
-    // all the servers have been deactivated.
-    //
+    // Wait for the activator shutdown. Once the run method returns all the servers have been deactivated.
     enableInterrupt();
     _registry->waitForShutdown();
     disableInterrupt();
@@ -166,14 +161,10 @@ RegistryService::initializeCommunicator(int& argc, char* argv[], InitializationD
         }
     }
 
-    //
     // Never create Admin object in Ice.Admin adapter
-    //
     initData.properties->setProperty("Ice.Admin.Endpoints", "");
 
-    //
     // Enable Admin unless explicitly disabled (or enabled) in configuration
-    //
     if (initData.properties->getIceProperty("Ice.Admin.Enabled").empty())
     {
         initData.properties->setProperty("Ice.Admin.Enabled", "1");
@@ -187,9 +178,7 @@ RegistryService::initializeCommunicator(int& argc, char* argv[], InitializationD
         initData.properties->setProperty("IceGrid.Registry.Client.Connection.InactivityTimeout", "0");
     }
 
-    //
     // Setup the client thread pool size.
-    //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
 
     return Service::initializeCommunicator(argc, argv, std::move(initData));

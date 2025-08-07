@@ -11,18 +11,14 @@
 using namespace std;
 using namespace Ice;
 
-//
 // Parse a space delimited string into a sequence of strings.
-//
 
 static void
 stringToSeq(const string& str, vector<string>& seq)
 {
     IceInternal::splitString(str, " \t", seq);
 
-    //
     // TODO: do something about unmatched quotes
-    //
 }
 
 static void
@@ -30,9 +26,7 @@ stringToSeq(const string& str, vector<Identity>& seq)
 {
     string const ws = " \t";
 
-    //
     // Eat white space.
-    //
     string::size_type current = str.find_first_not_of(ws, 0);
     string::size_type end = 0;
     while (current != string::npos)
@@ -50,9 +44,7 @@ stringToSeq(const string& str, vector<Identity>& seq)
 
                     if (end == string::npos)
                     {
-                        //
                         // TODO: should this be an unmatched quote error?
-                        //
                         seq.push_back(stringToIdentity(str.substr(current)));
                         break;
                     }
@@ -62,9 +54,7 @@ stringToSeq(const string& str, vector<Identity>& seq)
                     {
                         markString = !markString;
                     }
-                    //
                     // We don't want the quote so we skip that.
-                    //
                     if (markString)
                     {
                         ++current;
@@ -190,16 +180,12 @@ Glacier2::FilterManager::create(shared_ptr<Instance> instance, const string& use
 
     auto categoryFilter = make_shared<Glacier2::StringSetI>(allowSeq);
 
-    //
     // TODO: refactor initialization of filters.
-    //
     allow = props->getIceProperty("Glacier2.Filter.AdapterId.Accept");
     stringToSeq(allow, allowSeq);
     auto adapterIdFilter = make_shared<Glacier2::StringSetI>(allowSeq);
 
-    //
     // TODO: Object id's from configurations?
-    //
     IdentitySeq allowIdSeq;
     allow = props->getIceProperty("Glacier2.Filter.Identity.Accept");
     stringToSeq(allow, allowIdSeq);

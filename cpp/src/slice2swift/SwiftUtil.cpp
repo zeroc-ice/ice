@@ -1332,12 +1332,7 @@ Slice::Swift::writeUnmarshalOutParams(::IceInternal::Output& out, const Operatio
     const ParameterList outParams = op->outParameters();
     const bool returnsMultipleValues = op->returnsMultipleValues();
 
-    //
-    // Unmarshal parameters
-    // 1. required
-    // 2. non-optional return
-    // 3. optional (including optional return)
-    //
+    // Unmarshal parameters 1. required 2. non-optional return 3. optional (including optional return)
 
     for (const auto& param : op->sortedReturnAndOutParameters(getEscapedParamName(op->outParameters(), "returnValue")))
     {

@@ -46,10 +46,7 @@ IceInternal::EndpointFactoryWithUnderlying::EndpointFactoryWithUnderlying(Protoc
 void
 IceInternal::EndpointFactoryWithUnderlying::initialize()
 {
-    //
-    // Get the endpoint factory for the underlying type and clone it with
-    // our protocol instance.
-    //
+    // Get the endpoint factory for the underlying type and clone it with our protocol instance.
     EndpointFactoryPtr factory = _instance->getEndpointFactory(_type);
     if (factory)
     {
@@ -109,11 +106,8 @@ IceInternal::UnderlyingEndpointFactory::UnderlyingEndpointFactory(
 void
 IceInternal::UnderlyingEndpointFactory::initialize()
 {
-    //
-    // Get the endpoint factory of the given endpoint type. If it's a factory that
-    // delegates to an underlying endpoint, clone it and instruct it to delegate to
-    // our underlying factory.
-    //
+    // Get the endpoint factory of the given endpoint type. If it's a factory that delegates to an underlying endpoint,
+    // clone it and instruct it to delegate to our underlying factory.
     EndpointFactoryPtr factory = _instance->getEndpointFactory(_type);
     if (factory)
     {

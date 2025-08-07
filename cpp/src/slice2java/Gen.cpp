@@ -432,9 +432,8 @@ Slice::JavaVisitor::writeDictionaryMarshalUnmarshalCode(
     // We have to determine whether it's possible to use the type's generated helper class for this marshal/unmarshal
     // task. Since the user may have specified a custom type in metadata, it's possible that the helper class is not
     // compatible and therefore we'll need to generate the code in-line instead.
-    //
-    // Specifically, there may be "local" metadata (i.e., from a data member or parameter definition) that overrides the
-    // original type. We'll compare the mapped types with and without local metadata to determine whether we can use
+    // Specifically, there may be "local" metadata (i.e., from a data member or parameter definition) that overrides
+    // the original type. We'll compare the mapped types with and without local metadata to determine whether we can use
     // the helper.
     string instanceType, formalType, origInstanceType, origFormalType;
     getDictionaryTypes(dict, "", metadata, instanceType, formalType);
@@ -654,28 +653,17 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
         return;
     }
 
-    //
-    // We have to determine whether it's possible to use the
-    // type's generated helper class for this marshal/unmarshal
-    // task. Since the user may have specified a custom type in
-    // metadata, it's possible that the helper class is not
-    // compatible and therefore we'll need to generate the code
-    // in-line instead.
-    //
-    // Specifically, there may be "local" metadata (i.e., from
-    // a data member or parameter definition) that overrides the
-    // original type. We'll compare the mapped types with and
-    // without local metadata to determine whether we can use
-    // the helper.
-    //
+    // We have to determine whether it's possible to use the type's generated helper class for this marshal/unmarshal
+    // task. Since the user may have specified a custom type in metadata, it's possible that the helper class is not
+    // compatible and therefore we'll need to generate the code in-line instead. Specifically, there may be "local"
+    // metadata (i.e., from a data member or parameter definition) that overrides the original type. We'll compare the
+    // mapped types with and without local metadata to determine whether we can use the helper.
     string instanceType, formalType, origInstanceType, origFormalType;
     bool customType = getSequenceTypes(seq, "", metadata, instanceType, formalType);
     getSequenceTypes(seq, "", MetadataList(), origInstanceType, origFormalType);
     if (useHelper && formalType == origFormalType && (marshal || instanceType == origInstanceType))
     {
-        //
         // If we can use the helper, it's easy.
-        //
         string helper = getUnqualified(seq, package) + "Helper";
         if (marshal)
         {
@@ -688,17 +676,13 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
         return;
     }
 
-    //
     // Determine sequence depth.
-    //
     int depth = 0;
     TypePtr origContent = seq->type();
     SequencePtr s = dynamic_pointer_cast<Sequence>(origContent);
     while (s)
     {
-        //
         // Stop if the inner sequence type has a custom, or serializable type.
-        //
         if (hasTypeMetadata(s))
         {
             break;
@@ -713,9 +697,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
 
     if (customType)
     {
-        //
         // Marshal/unmarshal a custom sequence type.
-        //
         BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
         typeS = getUnqualified(seq, package);
         ostringstream o;
@@ -750,9 +732,7 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
             out << sb;
             if (type->isClassType())
             {
-                //
                 // Add a null value to the list as a placeholder for the element.
-                //
                 out << nl << param << ".add(null);";
                 ostringstream patchParams;
                 out << nl << "final int fi" << iter << " = i" << iter << ";";
@@ -827,25 +807,12 @@ Slice::JavaVisitor::writeSequenceMarshalUnmarshalCode(
                 }
                 out << nl << "final int len" << iter << " = " << stream << ".readAndCheckSeqSize("
                     << type->minWireSize() << ");";
-                //
-                // We cannot allocate an array of a generic type, such as
-                //
-                // arr = new Map<String, String>[sz];
-                //
-                // Attempting to compile this code results in a "generic array creation" error
-                // message. This problem can occur when the sequence's element type is a
-                // dictionary, or when the element type is a nested sequence that uses a custom
-                // mapping.
-                //
-                // The solution is to rewrite the code as follows:
-                //
-                // arr = (Map<String, String>[])new Map[sz];
-                //
-                // Unfortunately, this produces an unchecked warning during compilation.
-                //
-                // A simple test is to look for a "<" character in the content type, which
-                // indicates the use of a generic type.
-                //
+                // We cannot allocate an array of a generic type, such as arr = new Map<String, String>[sz]; Attempting
+                // to compile this code results in a "generic array creation" error message. This problem can occur when
+                // the sequence's element type is a dictionary, or when the element type is a nested sequence that uses
+                // a custom mapping. The solution is to rewrite the code as follows: arr = (Map<String, String>[])new
+                // Map[sz]; Unfortunately, this produces an unchecked warning during compilation. A simple test is to
+                // look for a "<" character in the content type, which indicates the use of a generic type.
                 string::size_type pos = origContentS.find('<');
                 if (pos != string::npos)
                 {
@@ -958,9 +925,7 @@ Slice::JavaVisitor::writeResultType(
     const ParameterList outParams = op->outParameters();
     const TypePtr ret = op->returnType();
 
-    //
     // Fields.
-    //
     if (ret)
     {
         if (comment)
@@ -1000,17 +965,13 @@ Slice::JavaVisitor::writeResultType(
         out << sp;
     }
 
-    //
     // Default constructor.
-    //
     writeDocComment(out, "Default constructor.");
     out << nl << "public " << opName << "Result()";
     out << sb;
     out << eb;
 
-    //
     // One-shot constructor.
-    //
 
     bool needMandatoryOnly = false;
     bool generateMandatoryOnly = false;
@@ -1027,9 +988,7 @@ Slice::JavaVisitor::writeResultType(
 
         if (comment)
         {
-            //
             // Emit a doc comment for the constructor if necessary.
-            //
             out << nl << "/**";
             out << nl << " * This constructor makes shallow copies of the results for operation " << op->mappedName();
             if (generateMandatoryOnly)
@@ -1162,9 +1121,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
 
     out << sp;
 
-    //
     // Emit a doc comment for the constructor if necessary.
-    //
     if (comment)
     {
         out << nl << "/**";
@@ -1231,9 +1188,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     {
         out << sp;
 
-        //
         // Emit a doc comment for the constructor if necessary.
-        //
         if (comment)
         {
             out << nl << "/**";
@@ -1982,11 +1937,8 @@ Slice::JavaVisitor::writeHiddenDocComment(Output& out)
 void
 Slice::JavaVisitor::writeDocCommentLines(Output& out, const StringList& lines)
 {
-    //
-    // This method emits a block of text, prepending a leading " * " to the second and
-    // subsequent lines. We assume the caller prepended a leading " * " for the first
-    // line if necessary.
-    //
+    // This method emits a block of text, prepending a leading " * " to the second and subsequent lines. We assume the
+    // caller prepended a leading " * " for the first line if necessary.
     assert(!lines.empty());
     StringList l = lines;
     out << l.front();
@@ -2004,11 +1956,8 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const StringList& lines)
 void
 Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
 {
-    //
-    // This method emits a block of text, prepending a leading " * " to the second and
-    // subsequent lines. We assume the caller prepended a leading " * " for the first
-    // line if necessary.
-    //
+    // This method emits a block of text, prepending a leading " * " to the second and subsequent lines. We assume the
+    // caller prepended a leading " * " for the first line if necessary.
     string::size_type start = 0;
     string::size_type pos;
     const string ws = "\n";
@@ -2127,9 +2076,7 @@ Slice::JavaVisitor::writeProxyOpDocComment(
     }
     writeRemarksDocComment(out, *dc);
 
-    //
     // Show in-params in order of declaration, but only those with docs.
-    //
     const ParameterList paramList = p->inParameters();
     const map<string, StringList>& paramDocs = dc->parameters();
     for (const auto& param : paramList)
@@ -2146,9 +2093,7 @@ Slice::JavaVisitor::writeProxyOpDocComment(
         out << nl << " * " << contextParam;
     }
 
-    //
     // Handle the return value (if any).
-    //
     if (p->returnsMultipleValues())
     {
         const string r = getResultType(p, package, true, false);
@@ -2191,15 +2136,11 @@ Slice::JavaVisitor::writeProxyOpDocComment(
     }
     else if (async)
     {
-        //
         // No results but an async proxy operation still returns a future.
-        //
         out << nl << " * @return A future that will be completed when the invocation completes.";
     }
 
-    //
     // Async proxy methods don't declare user exceptions.
-    //
     if (!async)
     {
         writeExceptionDocComment(out, p, *dc);
@@ -2309,9 +2250,7 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
     }
     else if (async)
     {
-        //
         // No results but an async operation still returns a completion stage.
-        //
         out << nl << " * @return A completion stage that the servant will complete when the invocation completes.";
     }
 
@@ -2336,9 +2275,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
 {
     assert(!ref.empty());
 
-    //
     // Try to look up the referenced type. If we find it, we translate it into a fully-scoped Java type.
-    //
 
     string s = ref;
     string::size_type pos = s.find('#');
@@ -2355,9 +2292,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
         s.replace(pos, 1, "::");
     }
 
-    //
     // We assume a scoped name should be an absolute name.
-    //
     if (s.find(':') != string::npos && s[0] != ':')
     {
         s.insert(0, "::");
@@ -2500,9 +2435,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if (!allDataMembers.empty())
     {
-        //
         // Default constructor.
-        //
         out << sp;
         writeDocComment(out, "Constructs a {@code " + name + "}.");
         out << nl << "public " << name << "()";
@@ -2514,9 +2447,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         writeDataMemberInitializers(out, members, package);
         out << eb;
 
-        //
         // Generate constructor if the parameter list is not too large.
-        //
         if (isValidMethodParameterList(allDataMembers))
         {
             DataMemberList baseDataMembers;
@@ -2527,9 +2458,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
             if (!requiredMembers.empty() && !optionalMembers.empty())
             {
-                //
                 // Generate a constructor accepting parameters for just the required members.
-                //
                 out << sp;
                 out << nl << "/**";
                 out << nl << " * Constructs a {@code " << name
@@ -2586,9 +2515,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 out << eb;
             }
 
-            //
             // Generate a constructor accepting parameters for all members.
-            //
             out << sp;
             out << nl << "/**";
             out << nl << " * Constructs a {@code " << name << "} with values for all its fields.";
@@ -2866,9 +2793,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 out << eb;
             }
 
-            //
             // Primary constructor which takes all data members.
-            //
             out << sp;
             out << nl << "/**";
             out << nl << " * Constructs a {@code " << name << "} with values for all its fields.";
@@ -3043,9 +2968,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     writeDataMemberInitializers(out, members, package);
     out << eb;
 
-    //
     // Generate constructor if the parameter list is not too large.
-    //
     if (isValidMethodParameterList(members))
     {
         vector<string> parameters;
@@ -3132,14 +3055,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         else
         {
-            //
-            // We treat sequences differently because the native equals() method for
-            // a Java array does not perform a deep comparison. If the mapped type
-            // is not overridden via metadata, we use the helper method
-            // java.util.Arrays.equals() to compare native arrays.
-            //
-            // For all other types, we can use the native equals() method.
-            //
+            // We treat sequences differently because the native equals() method for a Java array does not perform a
+            // deep comparison. If the mapped type is not overridden via metadata, we use the helper method
+            // java.util.Arrays.equals() to compare native arrays. For all other types, we can use the native equals()
+            // method.
             SequencePtr seq = dynamic_pointer_cast<Sequence>(member->type());
             if (seq)
             {
@@ -3156,9 +3075,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 }
                 else
                 {
-                    //
                     // Arrays.equals() handles null values.
-                    //
                     out << nl << "if (!java.util.Arrays.equals(this." << memberName << ", r." << memberName << "))";
                     out << sb;
                     out << nl << "return false;";
@@ -3394,17 +3311,13 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << nl << "private boolean _" << name << ';';
     }
 
-    //
     // Getter/Setter.
-    //
     if (getSet || isOptional)
     {
         string capName = name;
         capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
 
-        //
         // Getter.
-        //
         out << sp;
         writeDocComment(out, p->unit(), dc);
         if (dc && dc->isDeprecated())
@@ -3423,9 +3336,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << nl << "return " << name << ';';
         out << eb;
 
-        //
         // Setter.
-        //
         out << sp;
         writeDocComment(out, p->unit(), dc);
         if (dc && dc->isDeprecated())
@@ -3441,9 +3352,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << nl << "this." << name << " = " << name << ';';
         out << eb;
 
-        //
         // Generate hasFoo and clearFoo for optional member.
-        //
         if (isOptional)
         {
             out << sp;
@@ -3555,9 +3464,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << eb;
         }
 
-        //
         // Check for bool type.
-        //
         if (b && b->kind() == Builtin::KindBool)
         {
             out << sp;
@@ -3578,9 +3485,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << eb;
         }
 
-        //
         // Check for unmodified sequence type and emit indexing methods.
-        //
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
         if (seq)
         {
@@ -3589,9 +3494,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 string elem =
                     typeToString(seq->type(), TypeModeMember, getPackage(contained), MetadataList(), true, false);
 
-                //
                 // Indexed getter.
-                //
                 out << sp;
                 if (dc && dc->isDeprecated())
                 {
@@ -3609,9 +3512,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 out << nl << "return this." << name << "[index];";
                 out << eb;
 
-                //
                 // Indexed setter.
-                //
                 out << sp;
                 if (dc && dc->isDeprecated())
                 {
@@ -3839,26 +3740,12 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     string package = getPackage(p);
     string typeS = typeToString(p, TypeModeIn, package);
 
-    //
-    // We cannot allocate an array of a generic type, such as
-    //
-    // arr = new Map<String, String>[sz];
-    //
-    // Attempting to compile this code results in a "generic array creation" error
-    // message. This problem can occur when the sequence's element type is a
-    // dictionary, or when the element type is a nested sequence that uses a custom
-    // mapping.
-    //
-    // The solution is to rewrite the code as follows:
-    //
-    // arr = (Map<String, String>[])new Map[sz];
-    //
-    // Unfortunately, this produces an unchecked warning during compilation, so we
-    // annotate the read() method to suppress the warning.
-    //
-    // A simple test is to look for a "<" character in the content type, which
-    // indicates the use of a generic type.
-    //
+    // We cannot allocate an array of a generic type, such as arr = new Map<String, String>[sz]; Attempting to compile
+    // this code results in a "generic array creation" error message. This problem can occur when the sequence's element
+    // type is a dictionary, or when the element type is a nested sequence that uses a custom mapping. The solution is
+    // to rewrite the code as follows: arr = (Map<String, String>[])new Map[sz]; Unfortunately, this produces an
+    // unchecked warning during compilation, so we annotate the read() method to suppress the warning. A simple test is
+    // to look for a "<" character in the content type, which indicates the use of a generic type.
     bool suppressUnchecked = false;
 
     string instanceType, formalType;
@@ -3866,16 +3753,12 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     if (!customType)
     {
-        //
         // Determine sequence depth.
-        //
         TypePtr origContent = p->type();
         SequencePtr s = dynamic_pointer_cast<Sequence>(origContent);
         while (s)
         {
-            //
             // Stop if the inner sequence type has a custom or serializable type.
-            //
             if (hasTypeMetadata(s))
             {
                 break;
@@ -4497,9 +4380,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     Output& out = output();
 
-    //
     // Generate the dispatch code.
-    //
 
     const string name = p->mappedName();
     const string package = getPackage(p);
@@ -4590,9 +4471,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         {
             ParameterList values;
 
-            //
             // Declare 'in' parameters.
-            //
             out << nl << "com.zeroc.Ice.InputStream istr = request.inputStream;";
             out << nl << "istr.startEncapsulation();";
             for (const auto& param : inParams)
@@ -4612,9 +4491,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
                 }
             }
 
-            //
             // Unmarshal 'in' parameters.
-            //
             int iter = 0;
             for (const auto& param : op->sortedInParameters())
             {
@@ -4769,9 +4646,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 void
 Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& p)
 {
-    //
     // Generate the operation signature for a servant.
-    //
 
     InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(p->container());
     assert(interface);

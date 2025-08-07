@@ -49,11 +49,9 @@ namespace DataStormI
         std::mutex _mutex;
 
         // A proxy to the target node.
-        //
-        // - If the target node has a public endpoint or an adapter ID, this proxy is identical to the `_node` proxy.
-        // - Otherwise, it is a proxy to a `NodeForwarder` object, which forwards calls to the target node over the
-        //   incoming connection used to create the session.
-        // It is only set after `init` is called.
+        // - If the target node has a public endpoint or an adapter ID, this proxy is identical to the `_node` proxy. -
+        // Otherwise, it is a proxy to a `NodeForwarder` object, which forwards calls to the target node over the
+        // incoming connection used to create the session. It is only set after `init` is called.
         std::optional<DataStormContract::NodePrx> _publicNode;
 
         // A proxy for forwarding announcements to the target node when announce forwarding is enabled.
@@ -62,7 +60,6 @@ namespace DataStormI
 
         // A map containing all publisher and subscriber sessions established with the session's target node via a
         // node forwarder.
-        //
         // The key is the session identity, and the value is the session proxy.
         std::map<Ice::Identity, DataStormContract::SessionPrx> _sessions;
     };

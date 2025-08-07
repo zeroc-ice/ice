@@ -21,11 +21,8 @@
 #    define SECURITY_FLAG_IGNORE_CERT_CN_INVALID 0x00001000
 #endif
 
-//
 // CALG_ECDH_EPHEM algorithm constant is not defined in older version of the SDK headers
-//
 // https://msdn.microsoft.com/en-us/library/windows/desktop/aa375549(v=vs.85).aspx
-//
 
 const int ICESSL_CALG_ECDH_EPHEM = 0x0000AE06;
 
@@ -337,22 +334,10 @@ namespace
                     IceInternal::lastErrorToString());
         }
 
-        //
-        // Start with all of the certificates in the collection and filter as necessary.
-        //
-        // - If the value is "*", return all certificates.
-        // - Otherwise, search using key:value pairs. The following keys are supported:
-        //
-        //   Issuer
-        //   IssuerDN
-        //   Serial
-        //   Subject
-        //   SubjectDN
-        //   SubjectKeyId
-        //   Thumbprint
-        //
-        //   A value must be enclosed in single or double quotes if it contains whitespace.
-        //
+        // Start with all of the certificates in the collection and filter as necessary. - If the value is "*", return
+        // all certificates. - Otherwise, search using key:value pairs. The following keys are supported: Issuer
+        // IssuerDN Serial Subject SubjectDN SubjectKeyId Thumbprint A value must be enclosed in single or double quotes
+        // if it contains whitespace.
         HCERTSTORE tmpStore = 0;
         try
         {
@@ -735,11 +720,8 @@ Schannel::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
 void
 Schannel::SSLEngine::initialize()
 {
-    //
-    // BUGFIX: we use a global mutex for the initialization of Schannel to
-    // avoid crashes occurring with last Schannel updates see:
-    // https://github.com/zeroc-ice/ice/issues/242
-    //
+    // BUGFIX: we use a global mutex for the initialization of Schannel to avoid crashes occurring with last Schannel
+    // updates see: https://github.com/zeroc-ice/ice/issues/242
     lock_guard globalLock(globalMutex);
 
     Ice::SSL::SSLEngine::initialize();
@@ -757,9 +739,7 @@ Schannel::SSLEngine::initialize()
         certStoreLocation = "CurrentUser";
     }
 
-    //
     // Create trusted CA store with contents of IceSSL.CAs
-    //
     string caFile = properties->getIceProperty("IceSSL.CAs");
     if (!caFile.empty() || properties->getIcePropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
     {
@@ -788,18 +768,13 @@ Schannel::SSLEngine::initialize()
 
     if (_rootStore)
     {
-        //
         // Create a chain engine that uses our Trusted Root Store
-        //
         CERT_CHAIN_ENGINE_CONFIG config;
         memset(&config, 0, sizeof(CERT_CHAIN_ENGINE_CONFIG));
         config.cbSize = sizeof(CERT_CHAIN_ENGINE_CONFIG);
         config.hExclusiveRoot = _rootStore;
 
-        //
-        // Build the chain using the LocalMachine registry location as opposed
-        // to the CurrentUser location.
-        //
+        // Build the chain using the LocalMachine registry location as opposed to the CurrentUser location.
         if (certStoreLocation == "LocalMachine")
         {
             config.dwFlags = CERT_CHAIN_USE_LOCAL_MACHINE_STORE;

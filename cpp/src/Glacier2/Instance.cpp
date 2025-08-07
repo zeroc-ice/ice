@@ -19,9 +19,7 @@ Glacier2::Instance::Instance(
       _serverAdapter(std::move(serverAdapter)),
       _proxyVerifier(make_shared<ProxyVerifier>(_communicator))
 {
-    //
     // If an Ice metrics observer is setup on the communicator, also enable metrics for Glacier2.
-    //
     auto o = dynamic_pointer_cast<IceInternal::CommunicatorObserverI>(_communicator->getObserver());
     if (o)
     {

@@ -18,22 +18,16 @@ namespace Glacier2
     public:
         FilterT(const std::vector<T>&);
 
-        //
         // Slice to C++ mapping.
-        //
         void add(std::vector<T>, const Ice::Current&) override;
         void remove(std::vector<T>, const Ice::Current&) override;
         std::vector<T> get(const Ice::Current&) override;
 
-        //
         // Internal functions.
-        //
         bool match(const T& candidate) const
         {
             std::lock_guard<std::mutex> lg(_mutex);
-            //
             // Empty vectors mean no filtering, so all matches will succeed.
-            //
             if (_items.size() == 0)
             {
                 return true;
@@ -62,10 +56,8 @@ namespace Glacier2
 
     template<class T, class P> void FilterT<T, P>::add(std::vector<T> additions, const Ice::Current&)
     {
-        //
-        // Sort the filter elements first, erasing duplicates. Then we can
-        // simply use the STL merge algorithm to add to our list of filters.
-        //
+        // Sort the filter elements first, erasing duplicates. Then we can simply use the STL merge algorithm to add to
+        // our list of filters.
         std::vector<T> newItems(additions);
         sort(newItems.begin(), newItems.end());
         newItems.erase(unique(newItems.begin(), newItems.end()), newItems.end());
@@ -79,23 +71,17 @@ namespace Glacier2
 
     template<class T, class P> void FilterT<T, P>::remove(std::vector<T> deletions, const Ice::Current&)
     {
-        //
-        // Our removal algorithm depends on the filter elements to be
-        // removed to be sorted in the same order as our current elements.
-        //
+        // Our removal algorithm depends on the filter elements to be removed to be sorted in the same order as our
+        // current elements.
         std::vector<T> toRemove(deletions);
         sort(toRemove.begin(), toRemove.end());
         toRemove.erase(unique(toRemove.begin(), toRemove.end()), toRemove.end());
 
         std::lock_guard<std::mutex> lg(_mutex);
 
-        //
-        // Our vectors are both sorted, so if we keep track of our first
-        // match between the current set and the set of items to be removed,
-        // we do not need to traverse the whole of the current set each
-        // time. We also use a list of deletions instead of erasing things
-        // itemwise.
-        //
+        // Our vectors are both sorted, so if we keep track of our first match between the current set and the set of
+        // items to be removed, we do not need to traverse the whole of the current set each time. We also use a list of
+        // deletions instead of erasing things itemwise.
 
         auto r = toRemove.begin();
         auto mark = _items.begin();
@@ -108,10 +94,7 @@ namespace Glacier2
             {
                 if (*r == *i)
                 {
-                    //
-                    // We want this list to be in LIFO order because we are
-                    // going to erase things from the tail forward.
-                    //
+                    // We want this list to be in LIFO order because we are going to erase things from the tail forward.
                     deleteList.push_front(i);
                     ++i;
                     ++r;

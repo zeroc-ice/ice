@@ -10,10 +10,8 @@
 
 namespace IceInternal
 {
-    //
-    // An exception wrapper, which is used to notify that the request
-    // handler should be cleared and the invocation retried.
-    //
+    // An exception wrapper, which is used to notify that the request handler should be cleared and the invocation
+    // retried.
     class RetryException
     {
     public:

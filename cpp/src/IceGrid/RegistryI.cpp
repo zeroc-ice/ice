@@ -174,9 +174,7 @@ RegistryI::startImpl()
     assert(_communicator);
     auto properties = _communicator->getProperties();
 
-    //
     // Check that required properties are set and valid.
-    //
     if (properties->getIceProperty("IceGrid.Registry.Client.Endpoints").empty())
     {
         Error out(_communicator->getLogger());
@@ -262,9 +260,7 @@ RegistryI::startImpl()
         _communicator->setDefaultLocator(nullopt); // Clear the default locator in case it's set.
     }
 
-    //
     // Get the instance name
-    //
     _instanceName = properties->getIceProperty("IceGrid.InstanceName");
     if (_instanceName.empty()) // not set explicitly
     {
@@ -279,14 +275,10 @@ RegistryI::startImpl()
         _instanceName = "IceGrid";
     }
 
-    //
     // Create the replica session manager
-    //
     _session = make_unique<ReplicaSessionManager>(_communicator, _instanceName);
 
-    //
     // Create the registry database.
-    //
     string dbPath = _communicator->getProperties()->getIceProperty("IceGrid.Registry.LMDB.Path");
     if (dbPath.empty())
     {
@@ -304,12 +296,9 @@ RegistryI::startImpl()
         }
     }
 
-    //
-    // Ensure that nothing is running on this port. This is also
-    // useful to ensure that we don't run twice the same instance of
-    // the service too (which would cause the database environment of
-    // the already running instance to be "corrupted".)
-    //
+    // Ensure that nothing is running on this port. This is also useful to ensure that we don't run twice the same
+    // instance of the service too (which would cause the database environment of the already running instance to be
+    // "corrupted".)
     try
     {
         string endpoints = properties->getIceProperty("IceGrid.Registry.Client.Endpoints");
@@ -324,20 +313,14 @@ RegistryI::startImpl()
     {
     }
 
-    //
     // Create the reaper thread.
-    //
     _reaper = make_shared<ReapThread>();
 
-    //
     // Create the internal registry object adapter.
-    //
     _registryAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Internal");
     _registryAdapter->activate();
 
-    //
     // Create the internal IceStorm service.
-    //
     Identity registryTopicManagerId;
     registryTopicManagerId.category = _instanceName;
     registryTopicManagerId.name = "RegistryTopicManager";
@@ -443,10 +426,7 @@ RegistryI::startImpl()
         }
     }
 
-    //
-    // Get proxies for nodes that we were connected with on last
-    // shutdown.
-    //
+    // Get proxies for nodes that we were connected with on last shutdown.
     NodePrxSeq nodes;
     for (const auto& proxy : _database->getInternalObjectsByType(string{Node::ice_staticId()}))
     {
@@ -454,12 +434,8 @@ RegistryI::startImpl()
         nodes.push_back(uncheckedCast<NodePrx>(proxy));
     }
 
-    //
-    // NOTE: The internal registry object must be added only once the
-    // node/replica proxies are retrieved. Otherwise, if some
-    // replica/node register as soon as the internal registry is setup
-    // we might clear valid proxies.
-    //
+    // NOTE: The internal registry object must be added only once the node/replica proxies are retrieved. Otherwise, if
+    // some replica/node register as soon as the internal registry is setup we might clear valid proxies.
     InternalRegistryPrx internalRegistry = setupInternalRegistry();
     if (_master)
     {
@@ -480,9 +456,7 @@ RegistryI::startImpl()
     _wellKnownObjects->addEndpoint("Server", _serverAdapter->createDirectProxy(dummy));
     _wellKnownObjects->addEndpoint("Internal", _registryAdapter->createDirectProxy(dummy));
 
-    //
     // Setup file user account mapper object if the property is set.
-    //
     string userAccountFileProperty = properties->getIceProperty("IceGrid.Registry.UserAccounts");
     if (!userAccountFileProperty.empty())
     {
@@ -505,12 +479,9 @@ RegistryI::startImpl()
     setupLocatorRegistry();
     LocatorPrx internalLocator = setupLocator(setupRegistry(), setupQuery());
 
-    //
-    // Create the session servant manager. The session servant manager is responsible
-    // for managing sessions servants and to ensure that session servants are only
-    // accessed by the connection that created the session. The session servant manager
-    // also takes care of providing router servants for admin objects.
-    //
+    // Create the session servant manager. The session servant manager is responsible for managing sessions servants
+    // and to ensure that session servants are only accessed by the connection that created the session. The session
+    // servant manager also takes care of providing router servants for admin objects.
     auto serverAdminRouter = make_shared<RegistryServerAdminRouter>(_database);
     auto nodeAdminRouter = make_shared<RegistryNodeAdminRouter>(_collocatedNodeName, _database);
     auto replicaAdminRouter = make_shared<RegistryReplicaAdminRouter>(_replicaName, _database);
@@ -562,15 +533,10 @@ RegistryI::startImpl()
         _session->registerAllWellKnownObjects();
     }
 
-    //
     // Add the locator finder object to the client adapter.
-    //
     _clientAdapter->add(make_shared<FinderI>(_wellKnownObjects), stringToIdentity("Ice/LocatorFinder"));
 
-    //
-    // Setup the discovery object adapter and also add it the lookup
-    // servant to receive multicast lookup queries.
-    //
+    // Setup the discovery object adapter and also add it the lookup servant to receive multicast lookup queries.
     ObjectAdapterPtr discoveryAdapter;
     if (properties->getIcePropertyAsInt("IceGrid.Registry.Discovery.Enabled") > 0)
     {
@@ -609,9 +575,7 @@ RegistryI::startImpl()
         }
     }
 
-    //
     // We are ready to go!
-    //
     _serverAdapter->activate();
     _clientAdapter->activate();
     if (discoveryAdapter)
@@ -682,9 +646,7 @@ RegistryI::setupInternalRegistry()
 
     _wellKnownObjects->add(registry, string{InternalRegistry::ice_staticId()});
 
-    //
     // Create Admin
-    //
     if (_communicator->getProperties()->getIcePropertyAsInt("Ice.Admin.Enabled") > 0)
     {
         // Replace Admin facet
@@ -810,11 +772,8 @@ RegistryI::stop()
         _session->destroy();
     }
 
-    //
-    // We destroy the topics before to shutdown the communicator to
-    // ensure that there will be no more invocations on IceStorm once
-    // it's shutdown.
-    //
+    // We destroy the topics before to shutdown the communicator to ensure that there will be no more invocations on
+    // IceStorm once it's shutdown.
     if (_database)
     {
         _database->destroy();
@@ -1043,9 +1002,7 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
         throw PermissionDeniedException("internal server error");
     }
 
-    //
     // We let the connection access the administrative interface.
-    //
     auto session = _adminSessionFactory->createSessionServant(userDN);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(make_shared<SessionReapable<AdminSessionI>>(_traceLevels->logger, session), 0s, current.con);
@@ -1202,15 +1159,10 @@ NodePrxSeq
 RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const NodePrxSeq& dbNodes)
 {
     // Get proxies for slaves that we we connected with on last  shutdown.
-    //
-    // We first get the internal registry proxies and then also check
-    // the public registry proxies. If we find public registry
-    // proxies, we use indirect proxies setup with a locator using the
-    // public proxy in preference over the internal proxy which might
-    // contain stale endpoints if the slave was restarted. IceGrid
-    // version <= 3.5.0 also kept the internal proxy in the database
-    // instead of the public proxy.
-    //
+    // We first get the internal registry proxies and then also check the public registry proxies. If we find public
+    // registry proxies, we use indirect proxies setup with a locator using the public proxy in preference over the
+    // internal proxy which might contain stale endpoints if the slave was restarted. IceGrid version <= 3.5.0 also kept
+    // the internal proxy in the database instead of the public proxy.
     map<InternalRegistryPrx, optional<RegistryPrx>> replicas;
 
     for (const auto& p : _database->getObjectsByType(string{InternalRegistry::ice_staticId()}))

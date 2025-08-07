@@ -20,9 +20,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-//
 // WebSocket opcodes
-//
 #define OP_CONT 0x0      // Continuation frame
 #define OP_TEXT 0x1      // Text frame
 #define OP_DATA 0x2      // Data frame
@@ -51,14 +49,10 @@ namespace
     const string _iceProtocol = "ice.zeroc.com";                   // NOLINT(cert-err58-cpp)
     const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT(cert-err58-cpp)
 
-    //
     // Rename to avoid conflict with OS 10.10 htonll
-    //
     void ice_htonll(int64_t v, byte* dest)
     {
-        //
         // Transfer a 64-bit integer in network (big-endian) order.
-        //
         if constexpr (endian::native == endian::big)
         {
             const byte* src = reinterpret_cast<const byte*>(&v);
@@ -85,16 +79,12 @@ namespace
         }
     }
 
-    //
     // Rename to avoid conflict with OS 10.10 nlltoh
-    //
     int64_t ice_nlltoh(const byte* src)
     {
         int64_t v;
 
-        //
         // Extract a 64-bit integer in network (big-endian) order.
-        //
         if constexpr (endian::native == endian::big)
         {
             byte* dest = reinterpret_cast<byte*>(&v);
@@ -141,9 +131,7 @@ IceInternal::WSTransceiver::getAsyncInfo(SocketOperation status)
 SocketOperation
 IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 {
-    //
     // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
-    //
     if (_state == StateInitializeDelegate)
     {
         SocketOperation op = _delegate->initialize(readBuffer, writeBuffer);
@@ -158,22 +146,15 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
     {
         if (_state == StateConnected)
         {
-            //
             // We don't know how much we'll need to read.
-            //
             _readBuffer.b.resize(_readBufferSize);
             _readI = _readBuffer.i = _readBuffer.b.begin();
 
-            //
-            // The server waits for the client's upgrade request, the
-            // client sends the upgrade request.
-            //
+            // The server waits for the client's upgrade request, the client sends the upgrade request.
             _state = StateUpgradeRequestPending;
             if (!_incoming)
             {
-                //
                 // Compose the upgrade request.
-                //
                 ostringstream out;
                 out << "GET " << _resource << " HTTP/1.1\r\n"
                     << "Host: " << _host << "\r\n"
@@ -183,10 +164,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                     << "Sec-WebSocket-Version: 13\r\n"
                     << "Sec-WebSocket-Key: ";
 
-                //
-                // The value for Sec-WebSocket-Key is a 16-byte random number,
-                // encoded with Base64.
-                //
+                // The value for Sec-WebSocket-Key is a 16-byte random number, encoded with Base64.
                 vector<byte> key(16);
                 IceInternal::generateRandom(reinterpret_cast<char*>(&key[0]), key.size());
                 _key = IceInternal::Base64::encode(key);
@@ -199,9 +177,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
             }
         }
 
-        //
         // Try to write the client's upgrade request.
-        //
         if (_state == StateUpgradeRequestPending && !_incoming)
         {
             if (_writeBuffer.i < _writeBuffer.b.end())
@@ -233,15 +209,11 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                 }
             }
 
-            //
             // Try to read the client's upgrade request or the server's response.
-            //
             if ((_state == StateUpgradeRequestPending && _incoming) ||
                 (_state == StateUpgradeResponsePending && !_incoming))
             {
-                //
                 // Check if we have enough data for a complete message.
-                //
                 const byte* p = _parser->isCompleteMessage(&_readBuffer.b[0], _readBuffer.i);
                 if (!p)
                 {
@@ -250,9 +222,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                         return SocketOperationRead;
                     }
 
-                    //
                     // Enlarge the buffer and try to read more.
-                    //
                     const auto oldSize = static_cast<size_t>(_readBuffer.i - _readBuffer.b.begin());
                     if (oldSize + 1024 > static_cast<size_t>(_instance->messageSizeMax()))
                     {
@@ -263,23 +233,17 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                     continue; // Try again to read the response/request
                 }
 
-                //
                 // Set _readI at the end of the response/request message.
-                //
                 _readI = _readBuffer.b.begin() + (p - &_readBuffer.b[0]);
             }
 
-            //
             // We're done, the client's upgrade request or server's response is read.
-            //
             break;
         }
 
         try
         {
-            //
             // Parse the client's upgrade request.
-            //
             if (_state == StateUpgradeRequestPending && _incoming)
             {
                 if (_parser->parse(&_readBuffer.b[0], _readI))
@@ -308,9 +272,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                 }
                 else
                 {
-                    //
                     // Parse the server's response
-                    //
                     if (_parser->parse(&_readBuffer.b[0], _readI))
                     {
                         handleResponse();
@@ -374,14 +336,9 @@ IceInternal::WSTransceiver::closing(bool initiator, exception_ptr reason)
 
     if (s == StateClosingRequestPending && _closingInitiator)
     {
-        //
-        // If we initiated a close connection but also received a
-        // close connection, we assume we didn't initiated the
-        // connection and we send the close frame now. This is to
-        // ensure that if both peers close the connection at the same
-        // time we don't hang having both peer waiting for the close
-        // frame of the other.
-        //
+        // If we initiated a close connection but also received a close connection, we assume we didn't initiated the
+        // connection and we send the close frame now. This is to ensure that if both peers close the connection at the
+        // same time we don't hang having both peer waiting for the close frame of the other.
         assert(!initiator);
         _closingInitiator = false;
         return SocketOperationWrite;
@@ -440,9 +397,7 @@ IceInternal::WSTransceiver::close()
     _delegate->close();
     _state = StateClosed;
 
-    //
     // Clear the buffers now instead of waiting for destruction.
-    //
     if (!_writePending)
     {
         _writeBuffer.b.clear();
@@ -530,10 +485,7 @@ IceInternal::WSTransceiver::read(Buffer& buf)
         }
     }
 
-    //
-    // If we read the full Ice message, handle it before trying
-    // reading anymore data from the WS connection.
-    //
+    // If we read the full Ice message, handle it before trying reading anymore data from the WS connection.
     if (buf.i == buf.b.end())
     {
         if (_readI < _readBuffer.i)
@@ -550,11 +502,8 @@ IceInternal::WSTransceiver::read(Buffer& buf)
         {
             if (_readState == ReadStatePayload)
             {
-                //
-                // If the payload length is smaller than what remains to be read, we read
-                // no more than the payload length. The remaining of the buffer will be
-                // sent over in another frame.
-                //
+                // If the payload length is smaller than what remains to be read, we read no more than the payload
+                // length. The remaining of the buffer will be sent over in another frame.
                 size_t readSz = _readPayloadLength - static_cast<size_t>(buf.i - _readStart); // Already read
                 if (static_cast<size_t>(buf.b.end() - buf.i) > readSz)
                 {
@@ -704,11 +653,8 @@ IceInternal::WSTransceiver::startRead(Buffer& buf)
     {
         if (_readState == ReadStatePayload)
         {
-            //
-            // If the payload length is smaller than what remains to be read, we read
-            // no more than the payload length. The remaining of the buffer will be
-            // sent over in another frame.
-            //
+            // If the payload length is smaller than what remains to be read, we read no more than the payload length.
+            // The remaining of the buffer will be sent over in another frame.
             size_t readSz = _readPayloadLength - (buf.i - _readStart);
             if (static_cast<size_t>(buf.b.end() - buf.i) > readSz)
             {
@@ -836,13 +782,9 @@ IceInternal::WSTransceiver::WSTransceiver(
       _closingInitiator(false),
       _closingReason(CLOSURE_NORMAL)
 {
-    //
-    // Use 1KB read and 16KB write buffer sizes. We use 16KB for the
-    // write buffer size because all the data needs to be copied to
-    // the write buffer for the purpose of masking. A 16KB buffer
-    // appears to be a good compromise to reduce the number of socket
-    // write calls and not consume too much memory.
-    //
+    // Use 1KB read and 16KB write buffer sizes. We use 16KB for the write buffer size because all the data needs to be
+    // copied to the write buffer for the purpose of masking. A 16KB buffer appears to be a good compromise to reduce
+    // the number of socket write calls and not consume too much memory.
 }
 
 IceInternal::WSTransceiver::WSTransceiver(ProtocolInstancePtr instance, TransceiverPtr del)
@@ -864,9 +806,7 @@ IceInternal::WSTransceiver::WSTransceiver(ProtocolInstancePtr instance, Transcei
       _closingInitiator(false),
       _closingReason(CLOSURE_NORMAL)
 {
-    //
     // Use 1KB read and write buffer sizes.
-    //
 }
 
 IceInternal::WSTransceiver::~WSTransceiver() = default;
@@ -876,18 +816,13 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
 {
     string val;
 
-    //
     // HTTP/1.1
-    //
     if (_parser->versionMajor() != 1 || _parser->versionMinor() != 1)
     {
         throw WebSocketException("unsupported HTTP version");
     }
 
-    //
-    // "An |Upgrade| header field containing the value 'websocket',
-    //  treated as an ASCII case-insensitive value."
-    //
+    // "An |Upgrade| header field containing the value 'websocket', treated as an ASCII case-insensitive value."
     if (!_parser->getHeader("Upgrade", val, true))
     {
         throw WebSocketException("missing value for Upgrade field");
@@ -897,10 +832,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         throw WebSocketException("invalid value '" + val + "' for Upgrade field");
     }
 
-    //
-    // "A |Connection| header field that includes the token 'Upgrade',
-    //  treated as an ASCII case-insensitive value.
-    //
+    // "A |Connection| header field that includes the token 'Upgrade', treated as an ASCII case-insensitive value.
     if (!_parser->getHeader("Connection", val, true))
     {
         throw WebSocketException("missing value for Connection field");
@@ -910,9 +842,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         throw WebSocketException("invalid value '" + val + "' for Connection field");
     }
 
-    //
     // "A |Sec-WebSocket-Version| header field, with a value of 13."
-    //
     if (!_parser->getHeader("Sec-WebSocket-Version", val, false))
     {
         throw WebSocketException("missing value for WebSocket version");
@@ -922,11 +852,8 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         throw WebSocketException("unsupported WebSocket version '" + val + "'");
     }
 
-    //
-    // "Optionally, a |Sec-WebSocket-Protocol| header field, with a list
-    //  of values indicating which protocols the client would like to
-    //  speak, ordered by preference."
-    //
+    // "Optionally, a |Sec-WebSocket-Protocol| header field, with a list of values indicating which protocols the
+    // client would like to speak, ordered by preference."
     bool addProtocol = false;
     if (_parser->getHeader("Sec-WebSocket-Protocol", val, true))
     {
@@ -945,10 +872,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         }
     }
 
-    //
-    // "A |Sec-WebSocket-Key| header field with a base64-encoded
-    //  value that, when decoded, is 16 bytes in length."
-    //
+    // "A |Sec-WebSocket-Key| header field with a base64-encoded value that, when decoded, is 16 bytes in length."
     string key;
     if (!_parser->getHeader("Sec-WebSocket-Key", key, false))
     {
@@ -961,14 +885,10 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         throw WebSocketException("invalid value '" + key + "' for WebSocket key");
     }
 
-    //
     // Retain the target resource.
-    //
     const_cast<string&>(_resource) = _parser->uri();
 
-    //
     // Compose the response.
-    //
     ostringstream out;
     out << "HTTP/1.1 101 Switching Protocols\r\n"
         << "Upgrade: websocket\r\n"
@@ -978,16 +898,10 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         out << "Sec-WebSocket-Protocol: " << _iceProtocol << "\r\n";
     }
 
-    //
-    // The response includes:
-    //
-    // "A |Sec-WebSocket-Accept| header field.  The value of this
-    //  header field is constructed by concatenating /key/, defined
-    //  above in step 4 in Section 4.2.2, with the string "258EAFA5-
-    //  E914-47DA-95CA-C5AB0DC85B11", taking the SHA-1 hash of this
-    //  concatenated value to obtain a 20-byte value and base64-
-    //  encoding (see Section 4 of [RFC4648]) this 20-byte hash.
-    //
+    // The response includes: "A |Sec-WebSocket-Accept| header field. The value of this header field is constructed by
+    // concatenating /key/, defined above in step 4 in Section 4.2.2, with the string "258EAFA5-
+    // E914-47DA-95CA-C5AB0DC85B11", taking the SHA-1 hash of this concatenated value to obtain a 20-byte value and
+    // base64- encoding (see Section 4 of [RFC4648]) this 20-byte hash.
     out << "Sec-WebSocket-Accept: ";
     string input = key + _wsUUID;
     vector<byte> hash;
@@ -1006,22 +920,15 @@ IceInternal::WSTransceiver::handleResponse()
 {
     string val;
 
-    //
     // HTTP/1.1
-    //
     if (_parser->versionMajor() != 1 || _parser->versionMinor() != 1)
     {
         throw WebSocketException("unsupported HTTP version");
     }
 
-    //
-    // "If the status code received from the server is not 101, the
-    //  client handles the response per HTTP [RFC2616] procedures.  In
-    //  particular, the client might perform authentication if it
-    //  receives a 401 status code; the server might redirect the client
-    //  using a 3xx status code (but clients are not required to follow
-    //  them), etc."
-    //
+    // "If the status code received from the server is not 101, the client handles the response per HTTP [RFC2616]
+    // procedures. In particular, the client might perform authentication if it receives a 401 status code; the server
+    // might redirect the client using a 3xx status code (but clients are not required to follow them), etc."
     if (_parser->status() != 101)
     {
         ostringstream out;
@@ -1033,12 +940,8 @@ IceInternal::WSTransceiver::handleResponse()
         throw WebSocketException(out.str());
     }
 
-    //
-    // "If the response lacks an |Upgrade| header field or the |Upgrade|
-    //  header field contains a value that is not an ASCII case-
-    //  insensitive match for the value "websocket", the client MUST
-    //  _Fail the WebSocket Connection_."
-    //
+    // "If the response lacks an |Upgrade| header field or the |Upgrade| header field contains a value that is not an
+    // ASCII case- insensitive match for the value "websocket", the client MUST _Fail the WebSocket Connection_."
     if (!_parser->getHeader("Upgrade", val, true))
     {
         throw WebSocketException("missing value for Upgrade field");
@@ -1048,12 +951,8 @@ IceInternal::WSTransceiver::handleResponse()
         throw WebSocketException("invalid value '" + val + "' for Upgrade field");
     }
 
-    //
-    // "If the response lacks a |Connection| header field or the
-    //  |Connection| header field doesn't contain a token that is an
-    //  ASCII case-insensitive match for the value "Upgrade", the client
-    //  MUST _Fail the WebSocket Connection_."
-    //
+    // "If the response lacks a |Connection| header field or the |Connection| header field doesn't contain a token that
+    // is an ASCII case-insensitive match for the value "Upgrade", the client MUST _Fail the WebSocket Connection_."
     if (!_parser->getHeader("Connection", val, true))
     {
         throw WebSocketException("missing value for Connection field");
@@ -1063,27 +962,18 @@ IceInternal::WSTransceiver::handleResponse()
         throw WebSocketException("invalid value '" + val + "' for Connection field");
     }
 
-    //
-    // "If the response includes a |Sec-WebSocket-Protocol| header field
-    //  and this header field indicates the use of a subprotocol that was
-    //  not present in the client's handshake (the server has indicated a
-    //  subprotocol not requested by the client), the client MUST _Fail
-    //  the WebSocket Connection_."
-    //
+    // "If the response includes a |Sec-WebSocket-Protocol| header field and this header field indicates the use of a
+    // subprotocol that was not present in the client's handshake (the server has indicated a subprotocol not requested
+    // by the client), the client MUST _Fail the WebSocket Connection_."
     if (_parser->getHeader("Sec-WebSocket-Protocol", val, true) && val != _iceProtocol)
     {
         throw WebSocketException("invalid value '" + val + "' for WebSocket protocol");
     }
 
-    //
-    // "If the response lacks a |Sec-WebSocket-Accept| header field or
-    //  the |Sec-WebSocket-Accept| contains a value other than the
-    //  base64-encoded SHA-1 of the concatenation of the |Sec-WebSocket-
-    //  Key| (as a string, not base64-decoded) with the string "258EAFA5-
-    //  E914-47DA-95CA-C5AB0DC85B11" but ignoring any leading and
-    //  trailing whitespace, the client MUST _Fail the WebSocket
-    //  Connection_."
-    //
+    // "If the response lacks a |Sec-WebSocket-Accept| header field or the |Sec-WebSocket-Accept| contains a value
+    // other than the base64-encoded SHA-1 of the concatenation of the |Sec-WebSocket- Key| (as a string, not
+    // base64-decoded) with the string "258EAFA5- E914-47DA-95CA-C5AB0DC85B11" but ignoring any leading and trailing
+    // whitespace, the client MUST _Fail the WebSocket Connection_."
     if (!_parser->getHeader("Sec-WebSocket-Accept", val, false))
     {
         throw WebSocketException("missing value for Sec-WebSocket-Accept");
@@ -1104,27 +994,19 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
     {
         if (_readState == ReadStateOpcode)
         {
-            //
             // Is there enough data available to read the opcode?
-            //
             if (!readBuffered(2))
             {
                 return true;
             }
 
-            //
-            // Most-significant bit indicates whether this is the
-            // last frame. Least-significant four bits hold the
+            // Most-significant bit indicates whether this is the last frame. Least-significant four bits hold the
             // opcode.
-            //
             byte ch = *_readI++;
             _readOpCode = static_cast<int>(ch & byte{0xf});
 
-            //
-            // Remember if last frame if we're going to read a data or
-            // continuation frame, this is only for protocol
+            // Remember if last frame if we're going to read a data or continuation frame, this is only for protocol
             // correctness checking purpose.
-            //
             if (_readOpCode == OP_DATA)
             {
                 if (!_readLastFrame)
@@ -1144,23 +1026,17 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
 
             ch = *_readI++;
 
-            //
-            // Check the MASK bit. Messages sent by a client must be masked;
-            // messages sent by a server must not be masked.
-            //
+            // Check the MASK bit. Messages sent by a client must be masked; messages sent by a server must not be
+            // masked.
             const bool masked = (ch & byte{FLAG_MASKED}) == byte{FLAG_MASKED};
             if (masked != _incoming)
             {
                 throw ProtocolException(__FILE__, __LINE__, "invalid masking");
             }
 
-            //
-            // Extract the payload length, which can have the following values:
-            //
-            // 0-125: The payload length
-            // 126:   The subsequent two bytes contain the payload length
-            // 127:   The subsequent eight bytes contain the payload length
-            //
+            // Extract the payload length, which can have the following values: 0-125: The payload length 126: The
+            // subsequent two bytes contain the payload length 127: The subsequent eight bytes contain the payload
+            // length
             _readPayloadLength = static_cast<size_t>((ch & byte{0x7f}));
             if (_readPayloadLength < 126)
             {
@@ -1184,9 +1060,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
 
         if (_readState == ReadStateHeader)
         {
-            //
             // Is there enough data available to read the header?
-            //
             if (_readHeaderLength > 0 && !readBuffered(_readHeaderLength))
             {
                 return true;
@@ -1211,9 +1085,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 _readPayloadLength = static_cast<size_t>(l);
             }
 
-            //
             // Read the mask if this is an incoming connection.
-            //
             if (_incoming)
             {
                 assert(_readBuffer.i - _readI >= 4); // We must have needed to read the mask.
@@ -1258,11 +1130,8 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                     State s = _nextState == StateOpened ? _state : _nextState;
                     if (s == StateClosingRequestPending)
                     {
-                        //
-                        // If we receive a close frame while we were actually
-                        // waiting to send one, change the role and send a
-                        // close frame response.
-                        //
+                        // If we receive a close frame while we were actually waiting to send one, change the role and
+                        // send a close frame response.
                         if (!_closingInitiator)
                         {
                             _closingInitiator = true;
@@ -1340,19 +1209,14 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 }
             }
 
-            //
-            // We've read the payload of the PING/PONG frame, we're ready
-            // to read a new frame.
-            //
+            // We've read the payload of the PING/PONG frame, we're ready to read a new frame.
             _readState = ReadStateOpcode;
         }
 
         if (_readState == ReadStatePayload)
         {
-            //
-            // This must be assigned before the check for the buffer. If the buffer is empty
-            // or already read, postRead will return false.
-            //
+            // This must be assigned before the check for the buffer. If the buffer is empty or already read, postRead
+            // will return false.
             _readStart = buf.i;
 
             if (buf.b.empty() || buf.i == buf.b.end())
@@ -1372,10 +1236,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 buf.i += n;
                 _readI += n;
             }
-            //
-            // Continue reading if we didn't read the full message, otherwise give back
-            // the control to the connection
-            //
+            // Continue reading if we didn't read the full message, otherwise give back the control to the connection
             return buf.i < buf.b.end() && n < _readPayloadLength;
         }
     }
@@ -1397,9 +1258,7 @@ IceInternal::WSTransceiver::postRead(Buffer& buf)
 
     if (_incoming)
     {
-        //
         // Unmask the data we just read.
-        //
         IceInternal::Buffer::Container::iterator p = _readStart;
         for (auto n = static_cast<size_t>(_readStart - _readFrameStart); p < buf.i; ++p, ++n)
         {
@@ -1411,9 +1270,7 @@ IceInternal::WSTransceiver::postRead(Buffer& buf)
     _readStart = buf.i;
     if (_readPayloadLength == 0)
     {
-        //
         // We've read the complete payload, we're ready to read a new frame.
-        //
         _readState = ReadStateOpcode;
     }
     return buf.i != buf.b.end();
@@ -1494,14 +1351,10 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
 
     if (_writeState == WriteStatePayload)
     {
-        //
-        // For an outgoing connection, each message must be masked with a random
-        // 32-bit value, so we copy the entire message into the internal buffer
-        // for writing. For incoming connections, we just copy the start of the
-        // message in the internal buffer after the header. If the message is
-        // larger, the reminder is sent directly from the message buffer to avoid
-        // copying.
-        //
+        // For an outgoing connection, each message must be masked with a random 32-bit value, so we copy the entire
+        // message into the internal buffer for writing. For incoming connections, we just copy the start of the message
+        // in the internal buffer after the header. If the message is larger, the reminder is sent directly from the
+        // message buffer to avoid copying.
 
         if (!_incoming && (_writePayloadLength == 0 || _writeBuffer.i == _writeBuffer.b.end()))
         {
@@ -1664,38 +1517,28 @@ IceInternal::WSTransceiver::readBuffered(IceInternal::Buffer::Container::size_ty
 void
 IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buffer::Container::size_type payloadLength)
 {
-    //
     // We need to prepare the frame header.
-    //
     _writeBuffer.b.resize(_writeBufferSize);
     _writeBuffer.i = _writeBuffer.b.begin();
 
-    //
     // Set the opcode - this is the one and only data frame.
-    //
     *_writeBuffer.i++ = static_cast<byte>(opCode | FLAG_FINAL);
 
-    //
     // Set the payload length.
-    //
     if (payloadLength <= 125)
     {
         *_writeBuffer.i++ = static_cast<byte>(payloadLength);
     }
     else if (payloadLength > 125 && payloadLength <= USHRT_MAX)
     {
-        //
         // Use an extra 16 bits to encode the payload length.
-        //
         *_writeBuffer.i++ = byte{126};
         *reinterpret_cast<uint16_t*>(_writeBuffer.i) = htons(static_cast<uint16_t>(payloadLength));
         _writeBuffer.i += 2;
     }
     else if (payloadLength > USHRT_MAX)
     {
-        //
         // Use an extra 64 bits to encode the payload length.
-        //
         *_writeBuffer.i++ = byte{127};
         ice_htonll(static_cast<int64_t>(payloadLength), _writeBuffer.i);
         _writeBuffer.i += 8;
@@ -1703,10 +1546,7 @@ IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buff
 
     if (!_incoming)
     {
-        //
-        // Add a random 32-bit mask to every outgoing frame, copy the payload data,
-        // and apply the mask.
-        //
+        // Add a random 32-bit mask to every outgoing frame, copy the payload data, and apply the mask.
         _writeBuffer.b[1] |= byte{FLAG_MASKED};
         IceInternal::generateRandom(reinterpret_cast<char*>(_writeMask), sizeof(_writeMask));
         memcpy(_writeBuffer.i, _writeMask, sizeof(_writeMask));

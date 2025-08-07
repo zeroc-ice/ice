@@ -26,9 +26,7 @@ Ice::PluginManagerI::initializePlugins()
         throw InitializationException(__FILE__, __LINE__, "plug-ins already initialized");
     }
 
-    //
     // Invoke initialize() on the plug-ins, in the order they were loaded.
-    //
     vector<PluginPtr> initializedPlugins;
     try
     {
@@ -59,10 +57,7 @@ Ice::PluginManagerI::initializePlugins()
     }
     catch (...)
     {
-        //
-        // Destroy the plug-ins that have been successfully initialized, in the
-        // reverse order.
-        //
+        // Destroy the plug-ins that have been successfully initialized, in the reverse order.
         for (auto p = initializedPlugins.rbegin(); p != initializedPlugins.rend(); ++p)
         {
             try
@@ -142,10 +137,7 @@ Ice::PluginManagerI::destroy() noexcept
     {
         if (_initialized)
         {
-            //
-            // Destroy the plug-ins that have been successfully initialized, in the
-            // reverse order.
-            //
+            // Destroy the plug-ins that have been successfully initialized, in the reverse order.
             for (auto p = _plugins.rbegin(); p != _plugins.rend(); ++p)
             {
                 try
@@ -204,17 +196,9 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         }
     }
 
-    //
-    // Next, load and initialize the plug-ins defined in the property
-    // set with the prefix "Ice.Plugin.". These properties should have
-    // the following format:
-    //
-    // Ice.Plugin.<name>=entry_point [args]
-    //
-    // If the Ice.PluginLoadOrder property is defined, load the
-    // specified plug-ins in the specified order, then load any
-    // remaining plug-ins.
-    //
+    // Next, load and initialize the plug-ins defined in the property set with the prefix "Ice.Plugin.". These
+    // properties should have the following format: Ice.Plugin.<name>=entry_point [args] If the Ice.PluginLoadOrder
+    // property is defined, load the specified plug-ins in the specified order, then load any remaining plug-ins.
     StringSeq loadOrder = properties->getIcePropertyAsList("Ice.PluginLoadOrder");
     for (const auto& name : loadOrder)
     {
@@ -236,9 +220,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         }
     }
 
-    //
     // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
-    //
 
     for (const auto& [key, value] : plugins)
     {
@@ -271,10 +253,7 @@ Ice::PluginManagerI::loadPlugin(
     StringSeq args;
     if (!pluginSpec.empty())
     {
-        //
-        // Split the entire property value into arguments. An entry point containing spaces
-        // must be enclosed in quotes.
-        //
+        // Split the entire property value into arguments. An entry point containing spaces must be enclosed in quotes.
         try
         {
             args = IceInternal::Options::split(pluginSpec);
@@ -289,17 +268,12 @@ Ice::PluginManagerI::loadPlugin(
 
         assert(!args.empty());
 
-        //
         // Shift the arguments.
-        //
         entryPoint = args[0];
         args.erase(args.begin());
 
-        //
-        // Convert command-line options into properties. First we
-        // convert the options from the plug-in configuration, then
-        // we convert the options from the application command-line.
-        //
+        // Convert command-line options into properties. First we convert the options from the plug-in configuration,
+        // then we convert the options from the application command-line.
         PropertiesPtr properties = _communicator->getProperties();
         args = properties->parseCommandLineOptions(name, args);
         cmdArgs = properties->parseCommandLineOptions(name, cmdArgs);
@@ -326,10 +300,8 @@ Ice::PluginManagerI::loadPlugin(
         factoryFunc = reinterpret_cast<PluginFactoryFunc>(sym);
     }
 
-    //
-    // Invoke the factory function. No exceptions can be raised
-    // by the factory function because it's declared extern "C".
-    //
+    // Invoke the factory function. No exceptions can be raised by the factory function because it's declared extern
+    // "C".
     PluginPtr plugin{factoryFunc(_communicator, name, args)};
     if (!plugin)
     {

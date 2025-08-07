@@ -65,9 +65,7 @@ namespace IceObjC
     private:
         bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
-        //
         // All members are const, because endpoints are immutable.
-        //
         const IceInternal::ProtocolInstancePtr _instance;
         const std::string _manufacturer;
         const std::string _modelNumber;

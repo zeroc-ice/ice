@@ -62,9 +62,7 @@ AllocationRequest::allocate(const shared_ptr<Allocatable>&, const shared_ptr<Ses
             break;
     }
 
-    //
     // Check if the allocatable is already allocated by the session.
-    //
     if (_session == session)
     {
         _state = Canceled;
@@ -248,11 +246,8 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
                     }
                 }
 
-                //
-                // Try to allocate the allocatable with the request or if
-                // there's no request, just notify the allocatable that it can
-                // be allocated again.
-                //
+                // Try to allocate the allocatable with the request or if there's no request, just notify the
+                // allocatable that it can be allocated again.
                 try
                 {
                     if ((request && allocatable->allocate(request, true)) ||
@@ -267,10 +262,8 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
                                 allocatable = nullptr;
                                 request = nullptr;
 
-                                //
-                                // Check if there's other requests from the session
-                                // waiting to allocate this allocatable.
-                                //
+                                // Check if there's other requests from the session waiting to allocate this
+                                // allocatable.
                                 auto p = _requests.begin();
                                 while (p != _requests.end())
                                 {

@@ -399,11 +399,8 @@ Selector::finish(EventHandler* handler, bool closeNow)
 #    if defined(ICE_USE_KQUEUE)
     if (closeNow && !_changes.empty())
     {
-        //
-        // Update selector now to remove the FD from the kqueue if
-        // we're going to close it now. This isn't necessary for
-        // epoll since we always update the epoll FD immediately.
-        //
+        // Update selector now to remove the FD from the kqueue if we're going to close it now. This isn't necessary
+        // for epoll since we always update the epoll FD immediately.
         updateSelector();
     }
 #    elif !defined(ICE_USE_EPOLL)
@@ -498,10 +495,8 @@ Selector::startSelect()
 #    endif
     _selecting = true;
 
-    //
-    // If there are ready handlers, don't block in select, just do a non-blocking
-    // select to retrieve new ready handlers from the Java selector.
-    //
+    // If there are ready handlers, don't block in select, just do a non-blocking select to retrieve new ready handlers
+    // from the Java selector.
     _selectNow = !_readyHandlers.empty();
 }
 
@@ -591,10 +586,8 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
             handlers.push_back(p);
         }
 
-        //
-        // Reset the operation, it's only used by this method to temporarily store the socket status
-        // return by the select operation above.
-        //
+        // Reset the operation, it's only used by this method to temporarily store the socket status return by the
+        // select operation above.
         readyHandler.second = SocketOperationNone;
     }
 }
@@ -707,10 +700,8 @@ Selector::updateSelector()
     {
         for (int i = 0; i < rs; ++i)
         {
-            //
-            // Check for errors, we ignore EINPROGRESS that started showing up with macOS Sierra
-            // and which occurs when another thread removes the FD from the kqueue (see ICE-7419).
-            //
+            // Check for errors, we ignore EINPROGRESS that started showing up with macOS Sierra and which occurs when
+            // another thread removes the FD from the kqueue (see ICE-7419).
             if (_changes[static_cast<size_t>(i)].flags & EV_ERROR &&
                 _changes[static_cast<size_t>(i)].data != EINPROGRESS)
             {
@@ -1026,12 +1017,9 @@ EventHandlerWrapper::ready(SocketOperation op, int error)
 {
     if (!_socket)
     {
-        //
-        // Unregister the stream from the runloop as soon as we got the callback. This is
-        // required to allow thread pool thread to perform read/write operations on the
-        // stream (which can't be used from another thread than the run loop thread if
-        // it's registered with a run loop).
-        //
+        // Unregister the stream from the runloop as soon as we got the callback. This is required to allow thread pool
+        // thread to perform read/write operations on the stream (which can't be used from another thread than the run
+        // loop thread if it's registered with a run loop).
         op = _streamNativeInfo->unregisterFromRunLoop(op, error != 0);
     }
 
@@ -1116,12 +1104,9 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroye
             run();
 
 #    if TARGET_IPHONE_SIMULATOR != 0
-            //
-            // Workaround for CFSocket bug where the CFSocketManager thread crashes if an
-            // invalidated socket is being processed for reads/writes. We add this sleep
-            // mostly to prevent spurious crashes with testing. This bug is very unlikely
-            // to be hit otherwise.
-            //
+            // Workaround for CFSocket bug where the CFSocketManager thread crashes if an invalidated socket is being
+            // processed for reads/writes. We add this sleep mostly to prevent spurious crashes with testing. This bug
+            // is very unlikely to be hit otherwise.
             this_thread::sleep_for(100ms);
 #    endif
         });
@@ -1137,10 +1122,7 @@ Selector::destroy()
     {
         unique_lock lock(_mutex);
 
-        //
-        // Make sure any pending changes are processed to ensure remaining
-        // streams/sockets are closed.
-        //
+        // Make sure any pending changes are processed to ensure remaining streams/sockets are closed.
         _destroyed = true;
         CFRunLoopSourceSignal(_source.get());
         CFRunLoopWakeUp(_runLoop);
@@ -1257,9 +1239,7 @@ Selector::startSelect()
 {
     lock_guard lock(_mutex);
 
-    //
     // Re-enable callbacks for previously selected handlers.
-    //
     vector<pair<EventHandlerWrapperPtr, SocketOperation>>::const_iterator p;
     for (p = _selectedHandlers.begin(); p != _selectedHandlers.end(); ++p)
     {
@@ -1291,9 +1271,7 @@ Selector::finishSelect(std::vector<std::pair<EventHandler*, SocketOperation>>& h
 void
 Selector::select(int timeout)
 {
-    //
     // Wait for handlers to be ready.
-    //
     unique_lock lock(_mutex);
     while (!_destroyed)
     {

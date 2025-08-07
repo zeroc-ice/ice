@@ -44,9 +44,7 @@ AdminCallbackRouter::ice_invokeAsync(
 
     auto target = con->createProxy(current.id)->ice_facet(current.facet);
 
-    //
     // Call with AMI
-    //
     target->ice_invokeAsync(
         current.operation,
         current.mode,

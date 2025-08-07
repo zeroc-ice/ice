@@ -32,10 +32,8 @@ namespace IceInternal
         [[nodiscard]] virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const = 0;
     };
 
-    //
-    // The endpoint factory with underlying create endpoints that delegate to an underlying
-    // endpoint (e.g.: the SSL/WS endpoints are endpoints with underlying endpoints).
-    //
+    // The endpoint factory with underlying create endpoints that delegate to an underlying endpoint (e.g.: the SSL/WS
+    // endpoints are endpoints with underlying endpoints).
     class ICE_API EndpointFactoryWithUnderlying : public EndpointFactory
     {
     public:
@@ -61,12 +59,9 @@ namespace IceInternal
         EndpointFactoryPtr _underlying;
     };
 
-    //
-    // The underlying endpoint factory creates endpoints with a factory of the given
-    // type. If this factory is of the EndpointFactoryWithUnderlying type, it will
-    // delegate to the given underlying factory (this is used by IceIAP/IceBT plugins
-    // for the BTS/iAPS endpoint factories).
-    //
+    // The underlying endpoint factory creates endpoints with a factory of the given type. If this factory is of the
+    // EndpointFactoryWithUnderlying type, it will delegate to the given underlying factory (this is used by
+    // IceIAP/IceBT plugins for the BTS/iAPS endpoint factories).
     class ICE_API UnderlyingEndpointFactory : public EndpointFactory
     {
     public:

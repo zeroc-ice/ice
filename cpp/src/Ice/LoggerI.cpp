@@ -128,10 +128,8 @@ Ice::LoggerI::write(const string& message, bool indent)
     {
         if (_sizeMax > 0)
         {
-            //
-            // If file size + message size exceeds max size we archive the log file,
-            // but we do not archive empty files or truncate messages.
-            //
+            // If file size + message size exceeds max size we archive the log file, but we do not archive empty files
+            // or truncate messages.
             size_t sz = static_cast<size_t>(_out.tellp());
             if (sz > 0 && sz + message.size() >= _sizeMax && _nextRetry <= chrono::steady_clock::now())
             {
@@ -178,10 +176,8 @@ Ice::LoggerI::write(const string& message, bool indent)
                 {
                     _nextRetry = chrono::steady_clock::now() + retryTimeout;
 
-                    //
-                    // We temporarily set the maximum size to 0 to ensure there isn't more rename attempts
-                    // in the nested error call.
-                    //
+                    // We temporarily set the maximum size to 0 to ensure there isn't more rename attempts in the
+                    // nested error call.
                     size_t sizeMax = _sizeMax;
                     _sizeMax = 0;
                     lock.unlock();
@@ -208,18 +204,12 @@ Ice::LoggerI::write(const string& message, bool indent)
     else
     {
 #if defined(_WIN32)
-        //
-        // Convert the message from the native narrow string encoding to the console
-        // code page encoding for printing. If the _convert member is set to false
-        // we don't do any conversion.
-        //
+        // Convert the message from the native narrow string encoding to the console code page encoding for printing.
+        // If the _convert member is set to false we don't do any conversion.
         if (!_convert)
         {
-            //
-            // Use fprintf_s to avoid encoding conversion when stderr is connected
-            // to Windows console. When _convert is set to false we always output
-            // UTF-8 encoded messages.
-            //
+            // Use fprintf_s to avoid encoding conversion when stderr is connected to Windows console. When _convert is
+            // set to false we always output UTF-8 encoded messages.
             fprintf_s(stderr, "%s\n", nativeToUTF8(s, _converter).c_str());
             fflush(stderr);
         }

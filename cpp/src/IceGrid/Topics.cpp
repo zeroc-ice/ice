@@ -9,11 +9,8 @@ using namespace IceGrid;
 
 namespace
 {
-    //
-    // Encodings supported by the observers. We create one topic per
-    // encoding version and subscribe the observer to the appropriate
-    // topic depending on its encoding.
-    //
+    // Encodings supported by the observers. We create one topic per encoding version and subscribe the observer to the
+    // appropriate topic depending on its encoding.
     Ice::EncodingVersion encodings[] = {{1, 0}, {1, 1}};
 }
 
@@ -41,11 +38,8 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
             throw Ice::MarshalException(__FILE__, __LINE__, "failed to create or retrieve topic '" + os.str() + "'");
         }
 
-        //
-        // NOTE: collocation optimization needs to be turned on for the
-        // topic because the subscribe() method is given a fixed proxy
-        // which can't be marshaled.
-        //
+        // NOTE: collocation optimization needs to be turned on for the topic because the subscribe() method is given a
+        // fixed proxy which can't be marshaled.
         _topics.insert({encoding, *topic});
 
         optional<Ice::ObjectPrx> publisher = topic->getPublisher();
@@ -199,9 +193,7 @@ ObserverTopic::waitForSyncedSubscribers(int serial, const string& name)
         return;
     }
 
-    //
     // Wait until all the updates are received or the service shutdown.
-    //
     while (!_topics.empty())
     {
         auto p = _waitForUpdates.find(serial);
@@ -429,9 +421,7 @@ NodeObserverTopic::updateServer(string node, ServerDynamicInfo server, const Ice
 
     if (_nodes.find(node) == _nodes.end())
     {
-        //
         // If the node isn't known anymore, we ignore the update.
-        //
         return;
     }
 
@@ -495,9 +485,7 @@ NodeObserverTopic::updateAdapter(string node, AdapterDynamicInfo adapter, const 
 
     if (_nodes.find(node) == _nodes.end())
     {
-        //
         // If the node isn't known anymore, we ignore the update.
-        //
         return;
     }
 
@@ -1065,10 +1053,7 @@ ObjectObserverTopic::wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq& infos)
         }
     }
 
-    //
-    // We don't wait for the update to be received by the replicas
-    // here. This operation is called by ReplicaSessionI.
-    //
+    // We don't wait for the update to be received by the replicas here. This operation is called by ReplicaSessionI.
     addExpectedUpdate(_serial);
     return _serial;
 }
@@ -1100,11 +1085,8 @@ ObjectObserverTopic::wellKnownObjectsRemoved(const ObjectInfoSeq& infos)
         }
     }
 
-    //
-    // We don't need to wait for the update to be received by the
-    // replicas here. This operation is only called internally by
-    // IceGrid.
-    //
+    // We don't need to wait for the update to be received by the replicas here. This operation is only called
+    // internally by IceGrid.
     addExpectedUpdate(_serial);
     return _serial;
 }

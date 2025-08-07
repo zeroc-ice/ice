@@ -59,10 +59,8 @@ ConsoleUtil::toConsoleEncoding(const string& message) const
     }
     catch (const Ice::IllegalConversionException&)
     {
-        //
-        // If there is a problem with the encoding conversions we just
-        // return the original message without encoding conversions.
-        //
+        // If there is a problem with the encoding conversions we just return the original message without encoding
+        // conversions.
         return message;
     }
 }
@@ -70,20 +68,14 @@ ConsoleUtil::toConsoleEncoding(const string& message) const
 void
 ConsoleUtil::output(const string& message) const
 {
-    //
-    // Use fprintf_s to avoid encoding conversion when stderr is connected
-    // to Windows console.
-    //
+    // Use fprintf_s to avoid encoding conversion when stderr is connected to Windows console.
     fprintf_s(stdout, "%s", toConsoleEncoding(message).c_str());
 }
 
 void
 ConsoleUtil::error(const string& message) const
 {
-    //
-    // Use fprintf_s to avoid encoding conversion when stderr is connected
-    // to Windows console.
-    //
+    // Use fprintf_s to avoid encoding conversion when stderr is connected to Windows console.
     fprintf_s(stderr, "%s", toConsoleEncoding(message).c_str());
 }
 

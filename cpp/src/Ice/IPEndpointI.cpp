@@ -130,13 +130,9 @@ IceInternal::IPEndpointI::hash() const noexcept
 string
 IceInternal::IPEndpointI::options() const
 {
-    //
-    // WARNING: Certain features, such as proxy validation in Glacier2,
-    // depend on the format of proxy strings. Changes to toString() and
-    // methods called to generate parts of the reference string could break
-    // these features. Please review for all features that depend on the
-    // format of proxyToString() before changing this and related code.
-    //
+    // WARNING: Certain features, such as proxy validation in Glacier2, depend on the format of proxy strings. Changes
+    // to toString() and methods called to generate parts of the reference string could break these features. Please
+    // review for all features that depend on the format of proxyToString() before changing this and related code.
     ostringstream s;
 
     if (!_host.empty())
@@ -437,10 +433,8 @@ IceInternal::EndpointHostResolver::resolve(
     function<void(vector<ConnectorPtr>)> response,
     function<void(exception_ptr)> exception)
 {
-    //
-    // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
-    // entry and the thread will take care of getting the endpoint addresses.
-    //
+    // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve entry and the thread will
+    // take care of getting the endpoint addresses.
     NetworkProxyPtr networkProxy = _instance->networkProxy();
     if (!networkProxy)
     {

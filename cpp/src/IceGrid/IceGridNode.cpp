@@ -140,11 +140,8 @@ NodeService::shutdown()
     assert(_activator && _sessions.get());
     _activator->shutdown();
 
-    //
-    // If the session manager waits for session creation with the master, we interrupt
-    // the session creation. This is necessary to unblock the main thread which might
-    // be waiting for waitForCreate to return.
-    //
+    // If the session manager waits for session creation with the master, we interrupt the session creation. This is
+    // necessary to unblock the main thread which might be waiting for waitForCreate to return.
     if (_sessions->isWaitingForCreate())
     {
         _sessions->terminate();
@@ -242,20 +239,12 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         return false;
     }
 
-    //
-    // Disable server idle time. Otherwise, the adapter would be
-    // shutdown prematurely and the deactivation would fail.
-    // Deactivation of the node relies on the object adapter
-    // to be active since it needs to terminate servers.
-    //
-    // TODO: implement Ice.ServerIdleTime in the activator
-    // termination listener instead?
-    //
+    // Disable server idle time. Otherwise, the adapter would be shutdown prematurely and the deactivation would fail.
+    // Deactivation of the node relies on the object adapter to be active since it needs to terminate servers. TODO:
+    // implement Ice.ServerIdleTime in the activator termination listener instead?
     properties->setProperty("Ice.ServerIdleTime", "0");
 
-    //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
-    //
     if (!properties->getProperty("Ice.ThreadPool.Server.Size").empty())
     {
         Warning out(communicator()->getLogger());
@@ -265,15 +254,11 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
     setupThreadPool(properties, "IceGrid.Node.ThreadPool", 1, 100);
 
-    //
     // Create the activator.
-    //
     auto traceLevels = make_shared<TraceLevels>(communicator(), "IceGrid.Node");
     _activator = make_shared<Activator>(traceLevels);
 
-    //
     // Collocate the IceGrid registry if we need to.
-    //
     if (properties->getIcePropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
     {
         _registry = make_shared<CollocatedRegistry>(communicator(), _activator, readonly, initFromReplica, name);
@@ -284,12 +269,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
         communicator()->setDefaultLocator(_registry->getLocator());
 
-        //
-        // Set the default locator property to point to the collocated
-        // locator (this property is passed by the activator to each
-        // activated server). The default locator is also needed by
-        // the node session manager.
-        //
+        // Set the default locator property to point to the collocated locator (this property is passed by the
+        // activator to each activated server). The default locator is also needed by the node session manager.
         if (properties->getIceProperty("Ice.Default.Locator").empty())
         {
             properties->setProperty("Ice.Default.Locator", communicator()->getDefaultLocator()->ice_toString());
@@ -301,9 +282,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         return false;
     }
 
-    //
     // Initialize the database environment (first setup the directory structure if needed).
-    //
     string dataPath = properties->getIceProperty("IceGrid.Node.Data");
     if (dataPath.empty())
     {
@@ -320,9 +299,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             return false;
         }
 
-        //
         // Creates subdirectories.
-        //
         if (dataPath[dataPath.length() - 1] != '/')
         {
             dataPath += "/";
@@ -332,12 +309,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         createDirectory(dataPath + "tmp");
 
 #ifdef _WIN32
-        //
-        // Make sure these directories are not indexed by the Windows
-        // indexing service (which can cause random "Access Denied"
-        // errors if indexing runs at the same time as the node is
-        // creating/deleting files).
-        //
+        // Make sure these directories are not indexed by the Windows indexing service (which can cause random "Access
+        // Denied" errors if indexing runs at the same time as the node is creating/deleting files).
         try
         {
             setNoIndexingAttribute(dataPath + "servers");
@@ -351,23 +324,17 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 #endif
     }
 
-    //
     // Check that required properties are set and valid.
-    //
     if (properties->getIceProperty("IceGrid.Node.Endpoints").empty())
     {
         error("property `IceGrid.Node.Endpoints' is not set");
         return false;
     }
 
-    //
     // Create the node object adapter.
-    //
     _adapter = communicator()->createObjectAdapter("IceGrid.Node");
 
-    //
     // Setup the user account mapper if configured.
-    //
     string mapperProperty = "IceGrid.Node.UserAccountMapper";
     string mapperPropertyValue = properties->getIceProperty(mapperProperty);
     optional<UserAccountMapperPrx> mapper;
@@ -402,9 +369,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         }
     }
 
-    //
     // Create a new timer to handle server activation/deactivation timeouts.
-    //
     _timer = make_shared<IceInternal::Timer>();
 
     string instanceName = properties->getIceProperty("IceGrid.InstanceName");
@@ -437,9 +402,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     // backward compatibility with 3.5 registries.
     _adapter->addDefaultServant(make_shared<NodeServerAdminRouter>(_node), instanceName + "-NodeRouter");
 
-    //
     // Start the platform info thread if needed.
-    //
     _node->getPlatformInfo().start();
 
     // Ensures that the IceGrid registry is reachable.
@@ -458,14 +421,10 @@ NodeService::startImpl(int argc, char* argv[], int& status)
                "value of the Ice.Default.Locator property in the config file of this IceGrid node.";
     }
 
-    //
     // Create the node sessions with the registries.
-    //
     _sessions->create(_node);
 
-    //
     // Create Admin unless there is a collocated registry with its own Admin
-    //
     if (!_registry && properties->getIcePropertyAsInt("Ice.Admin.Enabled") > 0)
     {
         // Replace Admin facet
@@ -474,20 +433,13 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         communicator()->createAdmin(_adapter, {"NodeAdmin-" + name, instanceName});
     }
 
-    //
     // Start the activator.
-    //
     _activator->start();
 
-    //
     // Activate the adapter.
-    //
     _adapter->activate();
 
-    //
-    // Notify the node session manager that the node can start
-    // accepting incoming connections.
-    //
+    // Notify the node session manager that the node can start accepting incoming connections.
     _sessions->activate();
 
     string bundleName = properties->getIceProperty("IceGrid.Node.PrintServersReady");
@@ -496,18 +448,14 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         enableInterrupt();
         if (!_sessions->waitForCreate())
         {
-            //
-            // Create was interrupted, return true as if the service was
-            // correctly initiliazed to make sure it's properly stopped.
-            //
+            // Create was interrupted, return true as if the service was correctly initiliazed to make sure it's
+            // properly stopped.
             return true;
         }
         disableInterrupt();
     }
 
-    //
     // Deploy application if a descriptor is passed as a command-line option.
-    //
     if (!desc.empty())
     {
         try
@@ -592,10 +540,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 void
 NodeService::waitForShutdown()
 {
-    //
-    // Wait for the activator shutdown. Once the run method returns
-    // all the servers have been deactivated.
-    //
+    // Wait for the activator shutdown. Once the run method returns all the servers have been deactivated.
     enableInterrupt();
     _activator->waitForShutdown();
     disableInterrupt();
@@ -619,10 +564,7 @@ NodeService::stop()
 
     if (_timer)
     {
-        //
-        // The timer must be destroyed after the activator and before the
-        // communicator is shutdown.
-        //
+        // The timer must be destroyed after the activator and before the communicator is shutdown.
         try
         {
             _timer->destroy();
@@ -634,9 +576,7 @@ NodeService::stop()
         _timer = nullptr;
     }
 
-    //
     // Deactivate the node object adapter.
-    //
     if (_adapter)
     {
         try
@@ -651,25 +591,19 @@ NodeService::stop()
         }
     }
 
-    //
     // Terminate the node sessions with the registries.
-    //
     if (_sessions.get())
     {
         _sessions->destroy();
     }
 
-    //
     // Stop the platform info thread.
-    //
     if (_node)
     {
         _node->getPlatformInfo().stop();
     }
 
-    //
     // We can now safely shutdown the communicator.
-    //
     try
     {
         communicator()->shutdown();
@@ -681,18 +615,14 @@ NodeService::stop()
         warn << "unexpected exception while shutting down node:\n" << ex;
     }
 
-    //
     // Break cylic reference counts.
-    //
     if (_node)
     {
         _node->shutdown();
         _node = nullptr;
     }
 
-    //
     // And shutdown the collocated registry.
-    //
     if (_registry)
     {
         _registry->stop();
@@ -734,22 +664,16 @@ NodeService::initializeCommunicator(int& argc, char* argv[], InitializationData 
         }
     }
 
-    //
     // Never create Admin object in Ice.Admin adapter
-    //
     initData.properties->setProperty("Ice.Admin.Endpoints", "");
 
-    //
     // Enable Admin unless explicitly disabled (or enabled) in configuration
-    //
     if (initData.properties->getIceProperty("Ice.Admin.Enabled").empty())
     {
         initData.properties->setProperty("Ice.Admin.Enabled", "1");
     }
 
-    //
     // Setup the client thread pool size.
-    //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
 
     return Service::initializeCommunicator(argc, argv, std::move(initData));
