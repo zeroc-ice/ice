@@ -30,9 +30,6 @@ class ICI(MA.IC, IB1I, IB2I):
     @override
     def icop(self, p: MA.ICPrx | None, current: Ice.Current) -> MA.ICPrx | None:
         return p
-        return p
-
-
 class InitialI(Test.Initial):
     def __init__(self, adapter: Ice.ObjectAdapter):
         self._ia = MA.IAPrx.uncheckedCast(adapter.addWithUUID(IAI()))
