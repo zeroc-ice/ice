@@ -32,9 +32,9 @@ export class Reference {
         //
         // Validate string arguments.
         //
-        DEV: console.assert(identity === undefined || identity.name !== null);
-        DEV: console.assert(identity === undefined || identity.category !== null);
-        DEV: console.assert(facet === undefined || facet !== null);
+        console.assert(identity === undefined || identity.name !== null);
+        console.assert(identity === undefined || identity.category !== null);
+        console.assert(facet === undefined || facet !== null);
 
         this._instance = instance;
         this._communicator = communicator;
@@ -281,7 +281,7 @@ export class Reference {
             }
 
             default: {
-                DEV: console.assert(false);
+                console.assert(false);
                 break;
             }
         }
@@ -512,7 +512,7 @@ export class FixedReference extends Reference {
             }
 
             default: {
-                DEV: console.assert(false);
+                console.assert(false);
                 break;
             }
         }
@@ -591,7 +591,7 @@ export class RoutableReference extends Reference {
         }
         this._connectionId = "";
         this.setBatchRequestQueue();
-        DEV: console.assert(this._adapterId.length === 0 || this._endpoints.length === 0);
+        console.assert(this._adapterId.length === 0 || this._endpoints.length === 0);
     }
 
     getEndpoints() {
@@ -749,7 +749,7 @@ export class RoutableReference extends Reference {
 
         s.writeSize(this._endpoints.length);
         if (this._endpoints.length > 0) {
-            DEV: console.assert(this._adapterId.length === 0);
+            console.assert(this._adapterId.length === 0);
             this._endpoints.forEach(endpoint => {
                 s.writeShort(endpoint.type());
                 endpoint.streamWrite(s);
@@ -946,7 +946,7 @@ export class RoutableReference extends Reference {
                             //
                             p.reject(ex);
                         } else {
-                            DEV: console.assert(this._locatorInfo !== null);
+                            console.assert(this._locatorInfo !== null);
                             this.getLocatorInfo().clearCache(this);
                             if (cached) {
                                 const traceLevels = this.getInstance().traceLevels();
@@ -1044,7 +1044,7 @@ export class RoutableReference extends Reference {
             }
 
             default: {
-                DEV: console.assert(false);
+                console.assert(false);
                 break;
             }
         }
@@ -1070,7 +1070,7 @@ export class RoutableReference extends Reference {
                 break;
             }
             default: {
-                DEV: console.assert(false);
+                console.assert(false);
                 break;
             }
         }

@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 function proxyIdentityCompare(p1: Ice.ObjectPrx, p2: Ice.ObjectPrx): boolean {
     return p1.ice_getIdentity().equals(p2.ice_getIdentity());
@@ -203,7 +201,7 @@ export class Client extends TestHelper {
         let results: Promise<void>[] = [];
         for (let i = 0; i < 1000; i++) {
             results.push(
-                hello.sayHello().catch((ex) => {
+                hello.sayHello().catch(() => {
                     test(false);
                 }),
             );

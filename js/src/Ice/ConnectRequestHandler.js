@@ -34,7 +34,7 @@ export class ConnectRequestHandler {
         if (!this.initialized()) {
             const i = this._requests.indexOf(out);
             // The request has to be queued if it timed out and we're not initialized yet.
-            DEV: console.assert(i != -1);
+            console.assert(i != -1);
             out.completedEx(ex);
             this._requests.splice(i, 1);
         } else {
@@ -58,7 +58,7 @@ export class ConnectRequestHandler {
     // Implementation of Reference_GetConnectionCallback
     //
     async setConnection(connection) {
-        DEV: console.assert(this._exception === null && this._connection === null);
+        console.assert(this._exception === null && this._connection === null);
 
         this._connection = connection;
 
@@ -80,7 +80,7 @@ export class ConnectRequestHandler {
     }
 
     setException(ex) {
-        DEV: console.assert(!this._initialized && this._exception === null);
+        console.assert(!this._initialized && this._exception === null);
 
         this._exception = ex;
 
@@ -92,7 +92,7 @@ export class ConnectRequestHandler {
 
     initialized() {
         if (this._initialized) {
-            DEV: console.assert(this._connection !== null);
+            console.assert(this._connection !== null);
             return true;
         } else {
             if (this._exception !== null) {
@@ -110,7 +110,7 @@ export class ConnectRequestHandler {
     }
 
     flushRequests() {
-        DEV: console.assert(this._connection !== null && !this._initialized);
+        console.assert(this._connection !== null && !this._initialized);
         let exception = null;
         for (const request of this._requests) {
             try {
@@ -120,7 +120,7 @@ export class ConnectRequestHandler {
                     exception = ex.inner;
                     request.retryException();
                 } else {
-                    DEV: console.assert(ex instanceof LocalException, ex);
+                    console.assert(ex instanceof LocalException, ex);
                     exception = ex;
                     request.out.completedEx(ex);
                 }
@@ -128,7 +128,7 @@ export class ConnectRequestHandler {
         }
         this._requests.length = 0;
 
-        DEV: console.assert(!this._initialized);
+        console.assert(!this._initialized);
         this._exception = exception;
         this._initialized = this._exception === null;
     }

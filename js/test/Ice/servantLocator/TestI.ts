@@ -4,25 +4,25 @@ import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 
 export class TestI extends Test.TestIntf {
-    override requestFailedException(current: Ice.Current) {}
+    override requestFailedException(_: Ice.Current) {}
 
-    override unknownUserException(current: Ice.Current) {}
+    override unknownUserException(_: Ice.Current) {}
 
-    override unknownLocalException(current: Ice.Current) {}
+    override unknownLocalException(_: Ice.Current) {}
 
-    override unknownException(current: Ice.Current) {}
+    override unknownException(_: Ice.Current) {}
 
-    override localException(current: Ice.Current) {}
+    override localException(_: Ice.Current) {}
 
-    override userException(current: Ice.Current) {}
+    override userException(_: Ice.Current) {}
 
-    override jsException(current: Ice.Current) {}
+    override jsException(_: Ice.Current) {}
 
-    override unknownExceptionWithServantException(current: Ice.Current) {
+    override unknownExceptionWithServantException(_: Ice.Current) {
         throw new Ice.ObjectNotExistException();
     }
 
-    override impossibleException(shouldThrow: boolean, current: Ice.Current): string {
+    override impossibleException(shouldThrow: boolean, _: Ice.Current): string {
         if (shouldThrow) {
             throw new Test.TestImpossibleException();
         }
@@ -34,7 +34,7 @@ export class TestI extends Test.TestIntf {
         return "Hello";
     }
 
-    override intfUserException(shouldThrow: boolean, current: Ice.Current): string {
+    override intfUserException(shouldThrow: boolean, _: Ice.Current): string {
         if (shouldThrow) {
             throw new Test.TestIntfUserException();
         }
@@ -46,11 +46,11 @@ export class TestI extends Test.TestIntf {
         return "Hello";
     }
 
-    override asyncResponse(current: Ice.Current) {
+    override asyncResponse(_: Ice.Current) {
         throw new Ice.ObjectNotExistException();
     }
 
-    asyncException(current: Ice.Current) {
+    asyncException(_: Ice.Current) {
         throw new Ice.ObjectNotExistException();
     }
 

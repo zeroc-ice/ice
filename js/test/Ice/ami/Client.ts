@@ -2,10 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
-
+import { TestHelper, test } from "../../Common/TestHelper.js";
 export class Client extends TestHelper {
     async allTests() {
         const communicator = this.communicator();
@@ -151,8 +148,8 @@ export class Client extends TestHelper {
 
         out.write("testing AsyncResult operations... ");
         {
-            let r1;
-            let r2;
+            let r1: Ice.AsyncResult<void>;
+            let r2: Ice.AsyncResult<void>;
             if (!TestHelper.isSafari()) {
                 // Safari WebSocket implementation accepts lots of data before apply back-pressure
                 // making this test very slow.
@@ -338,7 +335,7 @@ export class Client extends TestHelper {
 class PingReplyI extends Test.PingReply {
     _received: boolean = false;
 
-    reply(current: Ice.Current) {
+    reply(_: Ice.Current) {
         this._received = true;
     }
 

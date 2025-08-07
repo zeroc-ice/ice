@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 function getTCPEndpointInfo(info: Ice.EndpointInfo): Ice.TCPEndpointInfo | null {
     let p: Ice.EndpointInfo | null = info;

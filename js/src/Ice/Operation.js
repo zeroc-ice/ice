@@ -244,7 +244,7 @@ function dispatchImpl(servant, op, request) {
     // Check to make sure the servant implements the operation.
     //
     const method = servant[op.servantMethod];
-    DEV: console.assert(typeof method === "function");
+    console.assert(typeof method === "function");
 
     if (op.mode === OperationMode.Normal) {
         checkNonIdempotent(request.current);
@@ -400,7 +400,7 @@ function getServantMethod(servantType, name) {
                     return result;
                 } catch (ex) {
                     const communicator = request.current.adapter.getCommunicator();
-                    DEV: console.assert(communicator !== null);
+                    console.assert(communicator !== null);
                     return request.current.createOutgoingResponseWithException(ex, communicator);
                 }
             };

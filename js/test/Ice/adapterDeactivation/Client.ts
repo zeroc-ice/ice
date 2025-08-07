@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests() {
@@ -35,7 +33,7 @@ export class Client extends TestHelper {
             const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             const comm = Ice.initialize(initData);
-            await comm.stringToProxy("test:" + this.getTestEndpoint()).ice_ping();
+            await comm.stringToProxy(`test:${this.getTestEndpoint()}`).ice_ping();
             await comm.destroy();
         }
         out.writeLine("ok");
@@ -48,7 +46,7 @@ export class Client extends TestHelper {
             const adapter = await communicator.createObjectAdapter("PAdapter");
             test(adapter.getPublishedEndpoints().length === 1);
             const endpt = adapter.getPublishedEndpoints()[0];
-            test(endpt.toString() == "tcp -h localhost -p 12345 -t 30000");
+            test(endpt?.toString() == "tcp -h localhost -p 12345 -t 30000");
             const prx = communicator.stringToProxy(
                 "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000",
             );
@@ -63,10 +61,8 @@ export class Client extends TestHelper {
         }
         out.writeLine("ok");
 
-        test(obj!.ice_getConnection() !== null);
+        out.write("testing object adapter with bi-dir connection... ");
         {
-            out.write("testing object adapter with bi-dir connection... ");
-
             test(communicator.getDefaultObjectAdapter() === null);
             test(obj.ice_getCachedConnection().getAdapter() === null);
 
@@ -105,8 +101,8 @@ export class Client extends TestHelper {
             } catch (ex) {
                 test(ex instanceof Ice.ObjectAdapterDestroyedException);
             }
-            out.writeLine("ok");
         }
+        out.writeLine("ok");
 
         out.write("testing object adapter with router... ");
         {
@@ -115,7 +111,7 @@ export class Client extends TestHelper {
             let router = Ice.RouterPrx.uncheckedCast(obj.ice_identity(routerId).ice_connectionId("rc"));
             const adapter = await communicator.createObjectAdapterWithRouter("", router);
             test(adapter.getPublishedEndpoints().length == 1);
-            test(adapter.getPublishedEndpoints()[0].toString() == "tcp -h localhost -p 23456 -t 30000");
+            test(adapter.getPublishedEndpoints()[0]?.toString() == "tcp -h localhost -p 23456 -t 30000");
             try {
                 adapter.setPublishedEndpoints(router.ice_getEndpoints());
                 test(false);
@@ -152,11 +148,11 @@ export class Client extends TestHelper {
         out.write("testing whether server is gone... ");
         try {
             await obj!.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
-            throw new Error();
+            test(false);
         } catch (ex) {
             test(ex instanceof Ice.LocalException);
-            out.writeLine("ok");
         }
+        out.writeLine("ok");
     }
 
     async run(args: string[]) {

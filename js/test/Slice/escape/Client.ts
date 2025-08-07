@@ -1,11 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 import { Ice } from "@zeroc/ice";
-import { TestHelper } from "../../Common/TestHelper.js";
+import { TestHelper, test } from "../../Common/TestHelper.js";
 import { escapedAwait } from "./Key.js";
-
-const test = TestHelper.test;
-
 export class Client extends TestHelper {
     async allTests() {
         const communicator = this.communicator();

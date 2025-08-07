@@ -10,9 +10,7 @@ const Test = {
 };
 Test.Inner = Test_Test.Inner;
 
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 // TODO: it would be nice to avoid the duplication with InitialI.
 class BI extends Test.B {

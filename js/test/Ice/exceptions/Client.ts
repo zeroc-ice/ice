@@ -2,22 +2,20 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests() {
         class EmptyI extends Test.Empty {}
 
         class ServantLocatorI implements Ice.ServantLocator {
-            locate(current: Ice.Current, cookie: Ice.Holder<object>): Ice.Object {
-                return null!;
+            locate(): Ice.Object | null {
+                return null;
             }
 
-            finished(current: Ice.Current, servant: Ice.Object, cookie: object) {}
+            finished() {}
 
-            deactivate(category: string) {}
+            deactivate() {}
         }
 
         const out = this.getWriter();

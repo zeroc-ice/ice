@@ -63,7 +63,7 @@ export class LoggerMiddleware {
         this._warningLevel = warningLevel;
         this._toStringMode = toStringMode;
 
-        DEV: console.assert(traceLevel > 0 || warningLevel > 0);
+        console.assert(traceLevel > 0 || warningLevel > 0);
     }
 
     logDispatch(replyStatus, current) {
@@ -103,7 +103,7 @@ function printTarget(output, toStringMode, current) {
     }
     output.push(" over ");
 
-    DEV: console.assert(current.con !== null, "current.con is null"); // no colloc in JS
+    console.assert(current.con !== null, "current.con is null"); // no colloc in JS
 
     let connInfo = null;
     try {

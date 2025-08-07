@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 class Middleware extends Ice.Object {
     override async dispatch(request: Ice.IncomingRequest): Promise<Ice.OutgoingResponse> {
@@ -37,7 +35,7 @@ class MyObjectI extends Test.MyObject {
         super();
     }
 
-    getName(current: Ice.Current): string {
+    getName(): string {
         return "Foo";
     }
 

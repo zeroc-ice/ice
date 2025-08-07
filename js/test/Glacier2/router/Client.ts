@@ -2,9 +2,7 @@
 
 import { Ice, Glacier2 } from "@zeroc/ice";
 import { Test } from "./Callback.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 const { CallbackPrx, CallbackReceiverPrx } = Test;
 
@@ -17,7 +15,7 @@ class CallbackReceiverI extends Test.CallbackReceiver {
         this._p = new Ice.Promise();
     }
 
-    callback(current: Ice.Current) {
+    callback(_: Ice.Current) {
         test(!this._callback);
         this._p.resolve();
     }

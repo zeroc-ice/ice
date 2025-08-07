@@ -209,7 +209,7 @@ declare module "@zeroc/ice" {
              *
              * @returns The long read from the stream.
              */
-            readLong(): BigInt;
+            readLong(): bigint;
 
             /**
              * Reads a float from the stream.

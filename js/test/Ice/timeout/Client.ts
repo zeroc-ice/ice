@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests() {
@@ -76,7 +74,7 @@ export class Client extends TestHelper {
             try {
                 await to.sleep(100);
             } catch (ex) {
-                test(false);
+                test(false, ex as Error);
             }
         }
         out.writeLine("ok");

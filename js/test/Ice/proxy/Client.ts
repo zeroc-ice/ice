@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests() {
@@ -780,7 +778,7 @@ export class Client extends TestHelper {
                 try {
                     cl!.ice_fixed(connection);
                     test(false);
-                } catch (ex) {
+                } catch {
                     // Expected with null connection.
                 }
             }
@@ -1058,7 +1056,7 @@ export class Client extends TestHelper {
             try {
                 await invalid.ice_ping();
                 test(false);
-            } catch (ex) {
+            } catch {
                 // expected
             } finally {
                 await communicator2.destroy();

@@ -14,7 +14,7 @@ export class EndpointFactoryManager {
     }
 
     add(factory) {
-        DEV: console.assert(this._factories.find(f => factory.type() == f.type()) === undefined);
+        console.assert(this._factories.find(f => factory.type() == f.type()) === undefined);
         this._factories.push(factory);
     }
 

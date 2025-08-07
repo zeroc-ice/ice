@@ -20,7 +20,7 @@ export class ServerAMD extends TestHelper {
             adapter.add(new AMDThrowerI(), Ice.stringToIdentity("thrower"));
             await echo.setConnection();
             const connection = echo.ice_getCachedConnection();
-            connection.setCloseCallback((con) => {
+            connection.setCloseCallback(() => {
                 // Re-establish connection if it fails (necessary for MemoryLimitException test)
                 echo!.setConnection().then(() => echo!.ice_getCachedConnection().setAdapter(adapter));
             });

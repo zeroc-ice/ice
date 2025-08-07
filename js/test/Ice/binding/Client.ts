@@ -2,10 +2,9 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 const ArrayUtil = Ice.ArrayUtil;
-const test = TestHelper.test;
 
 const isConnectionFailed = (defaultProtocol: string, ex: Ice.Exception) =>
     (defaultProtocol === "tcp" && ex instanceof Ice.ConnectionRefusedException) ||
@@ -98,7 +97,7 @@ export class Client extends TestHelper {
             //
             let names = ["Adapter11", "Adapter12", "Adapter13"];
             while (names.length > 0) {
-                const adpts = ArrayUtil.clone(adapters);
+                const adpts: Test.RemoteObjectAdapterPrx[] = ArrayUtil.clone(adapters);
                 const test1 = await createTestIntfPrx(adpts);
                 shuffle(adpts);
                 const test2 = await createTestIntfPrx(adpts);
@@ -147,6 +146,7 @@ export class Client extends TestHelper {
             // Deactivate a remote adapter and ensure that we can still
             // establish the connection to the remaining adapters.
             //
+            test(adapters[0] !== undefined);
             await com.deactivateObjectAdapter(adapters[0]);
             names = ["Adapter12", "Adapter13"];
             while (names.length > 0) {
@@ -173,6 +173,7 @@ export class Client extends TestHelper {
             // Deactivate an adapter and ensure that we can still
             // establish the connection to the remaining adapter.
             //
+            test(adapters[2] !== undefined);
             await com.deactivateObjectAdapter(adapters[2]);
             const obj = await createTestIntfPrx(adapters);
             test((await obj.getAdapterName()) == "Adapter12");
@@ -203,6 +204,7 @@ export class Client extends TestHelper {
             while (--count > 0) {
                 const proxies: Test.TestIntfPrx[] = [];
                 if (count == 1) {
+                    test(adapters[4] !== undefined);
                     await com.deactivateObjectAdapter(adapters[4]);
                     --adapterCount;
                 }
@@ -218,7 +220,8 @@ export class Client extends TestHelper {
                     proxies[i] = await createTestIntfPrx(ArrayUtil.clone(adpts));
                 }
                 for (let i = 0; i < proxies.length; i++) {
-                    proxies[i].getAdapterName().catch((ex) => {
+                    test(proxies[i] !== undefined);
+                    proxies[i].getAdapterName().catch(() => {
                         // ignore exception
                     });
                 }

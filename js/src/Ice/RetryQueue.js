@@ -23,13 +23,17 @@ class RetryTask {
     }
 
     asyncRequestCanceled(outAsync, ex) {
+        console.assert(
+            outAsync === this._outAsync,
+            "RetryTask.asyncRequestCanceled: outAsync does not match this._outAsync"
+        );
         if (this._queue.cancel(this)) {
             if (this._instance.traceLevels().retry >= 1) {
                 this._instance
                     .initializationData()
                     .logger.trace(this._instance.traceLevels().retryCat, "operation retry canceled\n" + ex.toString());
             }
-            this._outAsync.completedEx(ex);
+            outAsync.completedEx(ex);
         }
     }
 }

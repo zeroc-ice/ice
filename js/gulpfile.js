@@ -153,7 +153,7 @@ gulp.task("ice:bundle", async () => {
     if (optimize) {
         plugins.push(
             strip({
-                labels: ["DEV"],
+                functions: ["console.assert"],
             }),
         );
     }
@@ -225,10 +225,14 @@ for (const name of tests) {
                     lib: ["dom", "es2020"],
                     target: "es2020",
                     module: "es2020",
-                    noImplicitAny: true,
                     moduleResolution: "bundler",
                     strict: true,
+                    noImplicitAny: true,
                     noImplicitOverride: true,
+                    noFallthroughCasesInSwitch: true,
+                    noImplicitReturns: true,
+                    noUnusedLocals: true,
+                    noUnusedParameters: true,
                 }),
                 gulp.dest(`${root}/${name}`),
             ],

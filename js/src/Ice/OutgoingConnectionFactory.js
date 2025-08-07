@@ -48,7 +48,7 @@ export class OutgoingConnectionFactory {
     // Returns a promise, success callback receives the connection
     //
     create(endpoints, hasMore) {
-        DEV: console.assert(endpoints.length > 0);
+        console.assert(endpoints.length > 0);
 
         //
         // Try to find a connection to one of the given endpoints.
@@ -145,7 +145,7 @@ export class OutgoingConnectionFactory {
             throw new CommunicatorDestroyedException();
         }
 
-        DEV: console.assert(endpoints.length > 0);
+        console.assert(endpoints.length > 0);
 
         for (const endpoint of endpoints) {
             const proxyEndpoint = endpoint.changeTimeout(-1);
@@ -187,7 +187,7 @@ export class OutgoingConnectionFactory {
 
     decPendingConnectCount() {
         --this._pendingConnectCount;
-        DEV: console.assert(this._pendingConnectCount >= 0);
+        console.assert(this._pendingConnectCount >= 0);
         if (this._destroyed && this._pendingConnectCount === 0) {
             this.checkFinished();
         }
@@ -214,7 +214,7 @@ export class OutgoingConnectionFactory {
     }
 
     createConnection(transceiver, endpoint) {
-        DEV: console.assert(this._pending.has(endpoint) && transceiver !== null);
+        console.assert(this._pending.has(endpoint) && transceiver !== null);
 
         //
         // Create and add the connection to the connection map. Adding the connection to the map
@@ -237,7 +237,7 @@ export class OutgoingConnectionFactory {
                 this._connectionOptions,
             );
         } catch (ex) {
-            DEV: console.assert(ex instanceof LocalException);
+            console.assert(ex instanceof LocalException);
             transceiver.close();
             throw ex;
         }
@@ -319,7 +319,7 @@ export class OutgoingConnectionFactory {
         });
 
         callbacks.forEach(cc => {
-            DEV: console.assert(failedCallbacks.indexOf(cc) === -1);
+            console.assert(failedCallbacks.indexOf(cc) === -1);
             cc.removeFromPending();
         });
         this.checkFinished();
@@ -328,7 +328,7 @@ export class OutgoingConnectionFactory {
     }
 
     addToPending(cb, endpoints) {
-        DEV: console.assert(cb !== null);
+        console.assert(cb !== null);
 
         // Add the callback to each pending list.
         let found = false;
@@ -400,12 +400,12 @@ export class OutgoingConnectionFactory {
                 try {
                     await connection.waitUntilFinished();
                 } catch (ex) {
-                    DEV: console.assert(false, ex);
+                    console.assert(false, ex);
                 }
             }),
         );
 
-        DEV: console.assert(this._waitPromise !== null);
+        console.assert(this._waitPromise !== null);
         this._waitPromise.resolve();
     }
 }
@@ -424,16 +424,16 @@ class ConnectionListMap extends HashMap {
             list = [];
             super.set(key, list);
         }
-        DEV: console.assert(value instanceof ConnectionI);
+        console.assert(value instanceof ConnectionI);
         list.push(value);
         return undefined;
     }
 
     removeConnection(key, conn) {
         const list = this.get(key);
-        DEV: console.assert(list !== null);
+        console.assert(list !== null);
         const idx = list.indexOf(conn);
-        DEV: console.assert(idx !== -1);
+        console.assert(idx !== -1);
         list.splice(idx, 1);
         if (list.length === 0) {
             this.delete(key);
@@ -471,8 +471,8 @@ class ConnectCallback {
         this._factory.finishGetConnection(this._endpoints, this._current, connection, this);
     }
 
-    connectionStartFailed(connection, ex) {
-        DEV: console.assert(this._current !== null);
+    connectionStartFailed(ex) {
+        console.assert(this._current !== null);
         if (this.connectionStartFailedImpl(ex)) {
             this.nextEndpoint();
         }
@@ -559,7 +559,7 @@ class ConnectCallback {
                     this.connectionStartCompleted(connection);
                 },
                 ex => {
-                    this.connectionStartFailed(connection, ex);
+                    this.connectionStartFailed(ex);
                 },
             );
         };
@@ -567,7 +567,7 @@ class ConnectCallback {
         while (true) {
             const traceLevels = this._factory._instance.traceLevels();
             try {
-                DEV: console.assert(this._index < this._endpoints.length);
+                console.assert(this._index < this._endpoints.length);
                 this._current = this._endpoints[this._index++];
 
                 if (traceLevels.network >= 2) {

@@ -210,7 +210,7 @@ function printMessage(s, inputStream, connection) {
         }
     }
 
-    DEV: console.assert(connection !== null);
+    console.assert(connection !== null);
 
     s.push(`\ntransport = ${connection.type()}\n`);
     let connectionId = connection.endpoint().connectionId();

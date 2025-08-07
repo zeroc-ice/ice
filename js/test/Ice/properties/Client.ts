@@ -1,9 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 import { Ice } from "@zeroc/ice";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests(args: string[]) {

@@ -21,6 +21,7 @@ declare module "@zeroc/ice" {
              * comparison is done using the elements default equal comparator.
              * @returns True if the arrays are equal, false otherwise.
              */
+            /* eslint @typescript-eslint/no-explicit-any: "off" */
             static equals(
                 lhs: any[] | Uint8Array,
                 rhs: any[] | Uint8Array,

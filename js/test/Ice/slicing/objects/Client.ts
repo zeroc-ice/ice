@@ -2,9 +2,8 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../../Common/TestHelper.js";
+import { TestHelper, test } from "../../../Common/TestHelper.js";
 
-const test = TestHelper.test;
 export class Client extends TestHelper {
     async allTests() {
         const out = this.getWriter();
