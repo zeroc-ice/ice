@@ -1,18 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from typing import cast
 
 from generated.test.Ice.current import Test
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator, collocated):
+def allTests(helper: TestHelper, communicator: Ice.Communicator, collocated: bool):
     proxy = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint()}")
 
     sys.stdout.write("testing current.adapter... ")
@@ -59,7 +56,7 @@ def allTests(helper, communicator, collocated):
     if collocated:
         test(7 == proxy.getRequestId())
     else:
-        proxy.ice_getConnection().close().result()
+        cast(Ice.Connection, proxy.ice_getConnection()).close().result()
         test(1 == proxy.getRequestId())
     print("ok")
 

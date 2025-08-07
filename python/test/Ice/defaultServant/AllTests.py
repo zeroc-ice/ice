@@ -4,16 +4,12 @@ import sys
 
 import MyObjectI
 from generated.test.Ice.defaultServant import Test
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost")
     oa.activate()
 

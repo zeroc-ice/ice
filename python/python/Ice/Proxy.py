@@ -11,12 +11,12 @@ __name__ = "Ice"
 #
 
 
-def proxyIdentityEqual(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> bool:
+def proxyIdentityEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> bool:
     """Determines whether the identities of two proxies are equal."""
     return proxyIdentityCompare(lhs, rhs) == 0
 
 
-def proxyIdentityCompare(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> int:
+def proxyIdentityCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> int:
     """Compares the identities of two proxies."""
     if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
         raise ValueError("argument is not a proxy")
@@ -27,6 +27,7 @@ def proxyIdentityCompare(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> int:
     elif lhs and not rhs:
         return 1
     else:
+        assert lhs is not None and rhs is not None
         lid = lhs.ice_getIdentity()
         rid = rhs.ice_getIdentity()
         return (lid > rid) - (lid < rid)

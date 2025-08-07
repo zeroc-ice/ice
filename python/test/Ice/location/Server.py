@@ -3,6 +3,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from typing import override
 
 from TestHelper import TestHelper
 
@@ -19,53 +20,61 @@ class ServerLocatorRegistry(Test.TestLocatorRegistry):
         self._adapters = {}
         self._objects = {}
 
-    def setAdapterDirectProxy(self, adapter, obj, current: Ice.Current):
-        if obj:
-            self._adapters[adapter] = obj
+    @override
+    def setAdapterDirectProxy(self, id: str, proxy: Ice.ObjectPrx | None, current: Ice.Current):
+        if proxy:
+            self._adapters[id] = proxy
         else:
-            self._adapters.pop(adapter)
+            self._adapters.pop(id)
         return None
 
-    def setReplicatedAdapterDirectProxy(self, adapter, replica, obj, current: Ice.Current):
-        if obj:
-            self._adapters[adapter] = obj
-            self._adapters[replica] = obj
+    @override
+    def setReplicatedAdapterDirectProxy(
+        self, adapterId: str, replicaGroupId: str, proxy: Ice.ObjectPrx | None, current: Ice.Current
+    ):
+        if proxy:
+            self._adapters[adapterId] = proxy
+            self._adapters[replicaGroupId] = proxy
         else:
-            self._adapters.pop(adapter)
-            self._adapters.pop(replica)
+            self._adapters.pop(adapterId)
+            self._adapters.pop(replicaGroupId)
         return None
 
-    def setServerProcessProxy(self, id, proxy, current: Ice.Current):
+    @override
+    def setServerProcessProxy(self, id: str, proxy: Ice.ObjectPrx | None, current: Ice.Current):
         return None
 
-    def addObject(self, obj, current: Ice.Current):
+    @override
+    def addObject(self, obj: Ice.ObjectPrx | None, current: Ice.Current):
+        assert obj is not None
         self._addObject(obj)
 
-    def _addObject(self, obj):
+    def _addObject(self, obj: Ice.ObjectPrx):
         self._objects[obj.ice_getIdentity()] = obj
 
-    def getAdapter(self, adapter):
+    def getAdapter(self, adapter: str):
         if adapter not in self._adapters:
             raise Ice.AdapterNotFoundException()
         return self._adapters[adapter]
 
-    def getObject(self, id):
+    def getObject(self, id: Ice.Identity):
         if id not in self._objects:
             raise Ice.ObjectNotFoundException()
         return self._objects[id]
 
 
 class ServerLocator(Test.TestLocator):
-    def __init__(self, registry, registryPrx):
+    def __init__(self, registry: ServerLocatorRegistry, registryPrx: Ice.LocatorRegistryPrx):
         self._registry = registry
         self._registryPrx = registryPrx
         self._requestCount = 0
 
-    def findObjectById(self, id, current: Ice.Current):
+    @override
+    def findObjectById(self, id: Ice.Identity, current: Ice.Current):
         self._requestCount += 1
         return Ice.Future.completed(self._registry.getObject(id))
 
-    def findAdapterById(self, id, current: Ice.Current):
+    def findAdapterById(self, id: str, current: Ice.Current):
         self._requestCount += 1
         return Ice.Future.completed(self._registry.getAdapter(id))
 
@@ -77,16 +86,18 @@ class ServerLocator(Test.TestLocator):
 
 
 class ServerManagerI(Test.ServerManager):
-    def __init__(self, registry, initData, helper):
+    def __init__(self, registry: ServerLocatorRegistry, initData: Ice.InitializationData, helper: TestHelper):
         self._registry = registry
         self._communicators = []
         self._initData = initData
         self._nextPort = 1
         self._helper = helper
+        assert self._initData.properties is not None
         self._initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter")
         self._initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter")
         self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
 
+    @override
     def startServer(self, current: Ice.Current):
         #
         # Simulate a server: create a new communicator and object
@@ -100,7 +111,8 @@ class ServerManagerI(Test.ServerManager):
         self._communicators.append(serverCommunicator)
 
         nRetry = 10
-        while --nRetry > 0:
+        while nRetry > 0:
+            nRetry -= 1
             adapter = None
             adapter2 = None
             try:
@@ -119,6 +131,7 @@ class ServerManagerI(Test.ServerManager):
                 adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2")
 
                 locator = serverCommunicator.stringToProxy("locator:{0}".format(self._helper.getTestEndpoint()))
+                assert locator is not None
                 adapter.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
                 adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
 
@@ -141,6 +154,7 @@ class ServerManagerI(Test.ServerManager):
                 if adapter2:
                     adapter2.destroy()
 
+    @override
     def shutdown(self, current: Ice.Current):
         for i in self._communicators:
             i.destroy()
@@ -148,26 +162,31 @@ class ServerManagerI(Test.ServerManager):
 
 
 class HelloI(Test.Hello):
+    @override
     def sayHello(self, current: Ice.Current):
         pass
 
 
 class TestI(Test.TestIntf):
-    def __init__(self, adapter, adapter2, registry):
+    def __init__(self, adapter: Ice.ObjectAdapter, adapter2: Ice.ObjectAdapter, registry: ServerLocatorRegistry):
         self._adapter1 = adapter
         self._adapter2 = adapter2
         self._registry = registry
         self._registry._addObject(self._adapter1.add(HelloI(), Ice.stringToIdentity("hello")))
 
+    @override
     def shutdown(self, current: Ice.Current):
         self._adapter1.getCommunicator().shutdown()
 
+    @override
     def getHello(self, current: Ice.Current):
         return Test.HelloPrx.uncheckedCast(self._adapter1.createIndirectProxy(Ice.stringToIdentity("hello")))
 
+    @override
     def getReplicatedHello(self, current: Ice.Current):
         return Test.HelloPrx.uncheckedCast(self._adapter1.createProxy(Ice.stringToIdentity("hello")))
 
+    @override
     def migrateHello(self, current: Ice.Current):
         id = Ice.stringToIdentity("hello")
         try:

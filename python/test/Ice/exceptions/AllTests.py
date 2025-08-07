@@ -2,16 +2,13 @@
 
 import array
 import sys
-import threading
+from typing import cast, override
 
 from generated.test.Ice.exceptions import Test
+from generated.test.Ice.exceptions.Test import Mod
+from TestHelper import TestHelper, test
 
 import Ice
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
 
 
 class EmptyI(Test.Empty):
@@ -19,202 +16,20 @@ class EmptyI(Test.Empty):
 
 
 class ServantLocatorI(Ice.ServantLocator):
-    def locate(self, current: Ice.Current):
-        return None
+    @override
+    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object]:
+        return (None, None)
 
-    def finished(self, current, servant, cookie):
+    @override
+    def finished(self, current: Ice.Current, servant: Ice.Object, cookie: object):
         pass
 
-    def deactivate(self, category):
+    @override
+    def deactivate(self, category: str):
         pass
 
 
-class CallbackBase:
-    def __init__(self):
-        self._called = False
-        self._cond = threading.Condition()
-
-    def check(self):
-        with self._cond:
-            while not self._called:
-                self._cond.wait()
-            self._called = False
-
-    def called(self):
-        with self._cond:
-            self._called = True
-            self._cond.notify()
-
-
-class Callback(CallbackBase):
-    def __init__(self, communicator=None):
-        CallbackBase.__init__(self)
-        self._communicator = communicator
-
-    def response(self):
-        test(False)
-
-    def exception_AasA(self, ex):
-        test(isinstance(ex, Test.A))
-        test(ex.aMem == 1)
-        self.called()
-
-    def exception_AorDasAorD(self, ex):
-        try:
-            raise ex
-        except Test.A as ex:
-            test(ex.aMem == 1)
-        except Test.D as ex:
-            test(ex.dMem == -1)
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_BasB(self, ex):
-        try:
-            raise ex
-        except Test.B as ex:
-            test(ex.aMem == 1)
-            test(ex.bMem == 2)
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_CasC(self, ex):
-        try:
-            raise ex
-        except Test.C as ex:
-            test(ex.aMem == 1)
-            test(ex.bMem == 2)
-            test(ex.cMem == 3)
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_ModA(self, ex):
-        try:
-            raise ex
-        except Test.Mod.A as ex:
-            test(ex.aMem == 1)
-            test(ex.a2Mem == 2)
-        except Ice.OperationNotExistException:
-            #
-            # This operation is not supported in Java.
-            #
-            pass
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_BasA(self, ex):
-        try:
-            raise ex
-        except Test.B as ex:
-            test(ex.aMem == 1)
-            test(ex.bMem == 2)
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_CasA(self, ex):
-        try:
-            raise ex
-        except Test.C as ex:
-            test(ex.aMem == 1)
-            test(ex.bMem == 2)
-            test(ex.cMem == 3)
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_CasB(self, ex):
-        try:
-            raise ex
-        except Test.C as ex:
-            test(ex.aMem == 1)
-            test(ex.bMem == 2)
-            test(ex.cMem == 3)
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_UndeclaredA(self, ex):
-        try:
-            raise ex
-        except Ice.UnknownUserException:
-            pass
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_UndeclaredB(self, ex):
-        try:
-            raise ex
-        except Ice.UnknownUserException:
-            pass
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_UndeclaredC(self, ex):
-        try:
-            raise ex
-        except Ice.UnknownUserException:
-            pass
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_AasAObjectNotExist(self, ex):
-        try:
-            raise ex
-        except Ice.ObjectNotExistException as ex:
-            id = Ice.stringToIdentity("does not exist")
-            test(ex.id == id)
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_AasAFacetNotExist(self, ex):
-        try:
-            raise ex
-        except Ice.FacetNotExistException as ex:
-            test(ex.facet == "no such facet")
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_noSuchOperation(self, ex):
-        try:
-            raise ex
-        except Ice.OperationNotExistException as ex:
-            test(ex.operation == "noSuchOperation")
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_LocalException(self, ex):
-        try:
-            raise ex
-        except Ice.UnknownLocalException:
-            pass
-        except Ice.OperationNotExistException:
-            pass
-        except Exception:
-            test(False)
-        self.called()
-
-    def exception_NonIceException(self, ex):
-        try:
-            raise ex
-        except Ice.UnknownException:
-            pass
-        except Exception:
-            test(False)
-        self.called()
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.ThrowerPrx:
     sys.stdout.write("testing servant registration exceptions... ")
     sys.stdout.flush()
     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *")
@@ -234,7 +49,7 @@ def allTests(helper, communicator):
         pass
 
     try:
-        adapter.add(None, Ice.stringToIdentity("x"))
+        adapter.add(None, Ice.stringToIdentity("x"))  # type: ignore
         test(False)
     except Ice.LocalException:
         pass
@@ -320,7 +135,7 @@ def allTests(helper, communicator):
     try:
         thrower.throwModA(1, 2)
         test(False)
-    except Test.Mod.A as ex:
+    except Mod.A as ex:
         test(ex.aMem == 1)
         test(ex.a2Mem == 2)
     except Ice.OperationNotExistException:
@@ -620,7 +435,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
 
     try:
-        thrower.throwAasAAsync(1).result()
+        cast(Ice.Future, thrower.throwAasAAsync(1)).result()
         test(False)
     except Test.A as ex:
         test(ex.aMem == 1)
@@ -629,7 +444,7 @@ def allTests(helper, communicator):
         test(False)
 
     try:
-        thrower.throwAorDasAorDAsync(1).result()
+        cast(Ice.Future, thrower.throwAorDasAorDAsync(1)).result()
         test(False)
     except Test.A as ex:
         test(ex.aMem == 1)
@@ -638,7 +453,7 @@ def allTests(helper, communicator):
         test(False)
 
     try:
-        thrower.throwAorDasAorDAsync(-1).result()
+        cast(Ice.Future, thrower.throwAorDasAorDAsync(-1)).result()
         test(False)
     except Test.D as ex:
         test(ex.dMem == -1)
@@ -647,7 +462,7 @@ def allTests(helper, communicator):
         test(False)
 
     try:
-        thrower.throwBasBAsync(1, 2).result()
+        cast(Ice.Future, thrower.throwBasBAsync(1, 2)).result()
         test(False)
     except Test.B as ex:
         test(ex.aMem == 1)
@@ -657,7 +472,7 @@ def allTests(helper, communicator):
         test(False)
 
     try:
-        thrower.throwCasCAsync(1, 2, 3).result()
+        cast(Ice.Future, thrower.throwCasCAsync(1, 2, 3)).result()
         test(False)
     except Test.C as ex:
         test(ex.aMem == 1)
@@ -668,9 +483,9 @@ def allTests(helper, communicator):
         test(False)
 
     try:
-        thrower.throwModAAsync(1, 2).result()
+        cast(Ice.Future, thrower.throwModAAsync(1, 2)).result()
         test(False)
-    except Test.Mod.A as ex:
+    except Mod.A as ex:
         test(ex.aMem == 1)
         test(ex.a2Mem == 2)
     except Ice.OperationNotExistException:
@@ -688,7 +503,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
 
     try:
-        thrower.throwBasAAsync(1, 2).result()
+        cast(Ice.Future, thrower.throwBasAAsync(1, 2)).result()
         test(False)
     except Test.B as ex:
         test(ex.aMem == 1)
@@ -698,7 +513,7 @@ def allTests(helper, communicator):
         test(False)
 
     try:
-        thrower.throwCasAAsync(1, 2, 3).result()
+        cast(Ice.Future, thrower.throwCasAAsync(1, 2, 3)).result()
         test(False)
     except Test.C as ex:
         test(ex.aMem == 1)
@@ -709,7 +524,7 @@ def allTests(helper, communicator):
         test(False)
 
     try:
-        thrower.throwCasBAsync(1, 2, 3).result()
+        cast(Ice.Future, thrower.throwCasBAsync(1, 2, 3)).result()
         test(False)
     except Test.C as ex:
         test(ex.aMem == 1)
@@ -726,7 +541,7 @@ def allTests(helper, communicator):
         sys.stdout.flush()
 
         try:
-            thrower.throwUndeclaredAAsync(1).result()
+            cast(Ice.Future, thrower.throwUndeclaredAAsync(1)).result()
             test(False)
         except Ice.UnknownUserException:
             pass
@@ -735,7 +550,7 @@ def allTests(helper, communicator):
             test(False)
 
         try:
-            thrower.throwUndeclaredBAsync(1, 2).result()
+            cast(Ice.Future, thrower.throwUndeclaredBAsync(1, 2)).result()
             test(False)
         except Ice.UnknownUserException:
             pass
@@ -744,7 +559,7 @@ def allTests(helper, communicator):
             test(False)
 
         try:
-            thrower.throwUndeclaredCAsync(1, 2, 3).result()
+            cast(Ice.Future, thrower.throwUndeclaredCAsync(1, 2, 3)).result()
             test(False)
         except Ice.UnknownUserException:
             pass
@@ -760,7 +575,7 @@ def allTests(helper, communicator):
     id = Ice.stringToIdentity("does not exist")
     try:
         thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
-        thrower2.throwAasAAsync(1).result()
+        cast(Ice.Future, thrower2.throwAasAAsync(1)).result()
         #        thrower2.ice_ping()
         test(False)
     except Ice.ObjectNotExistException as ex:
@@ -777,7 +592,7 @@ def allTests(helper, communicator):
     try:
         thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
         try:
-            thrower2.ice_pingAsync().result()
+            cast(Ice.Future, thrower2.ice_pingAsync()).result()
             test(False)
         except Ice.FacetNotExistException as ex:
             test(ex.facet == "no such facet")
@@ -792,7 +607,7 @@ def allTests(helper, communicator):
 
     try:
         thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower)
-        thrower2.noSuchOperationAsync().result()
+        cast(Ice.Future, thrower2.noSuchOperationAsync()).result()
         test(False)
     except Ice.OperationNotExistException as ex:
         test(ex.operation == "noSuchOperation")
@@ -806,7 +621,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
 
     try:
-        thrower.throwLocalExceptionAsync().result()
+        cast(Ice.Future, thrower.throwLocalExceptionAsync()).result()
         test(False)
     except Ice.UnknownLocalException:
         pass
@@ -814,7 +629,7 @@ def allTests(helper, communicator):
         print(sys.exc_info())
         test(False)
     try:
-        thrower.throwLocalExceptionIdempotentAsync().result()
+        cast(Ice.Future, thrower.throwLocalExceptionIdempotentAsync()).result()
         test(False)
     except Ice.UnknownLocalException:
         pass
@@ -830,7 +645,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
 
     try:
-        thrower.throwNonIceExceptionAsync().result()
+        cast(Ice.Future, thrower.throwNonIceExceptionAsync()).result()
         test(False)
     except Ice.UnknownException:
         pass

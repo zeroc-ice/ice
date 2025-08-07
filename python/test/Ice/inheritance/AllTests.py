@@ -3,14 +3,12 @@
 import sys
 
 from generated.test.Ice.inheritance import Test
+from TestHelper import TestHelper, test
+
+import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     initial = Test.InitialPrx(communicator, f"initial:{helper.getTestEndpoint()}")
 
     sys.stdout.write("getting proxies for interface hierarchy... ")
@@ -25,6 +23,11 @@ def allTests(helper, communicator):
     test(ib1 != ic)
     test(ib2 != ic)
     print("ok")
+
+    assert ia is not None
+    assert ib1 is not None
+    assert ib2 is not None
+    assert ic is not None
 
     sys.stdout.write("invoking proxy operations on interface hierarchy... ")
     sys.stdout.flush()

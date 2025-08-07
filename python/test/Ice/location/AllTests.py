@@ -1,9 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from typing import cast
 import uuid
 
 from generated.test.Ice.location import Test
+from TestHelper import TestHelper, test
 
 import Ice
 
@@ -13,15 +15,11 @@ class HelloI(Test.Hello):
         pass
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     manager = Test.ServerManagerPrx(communicator, f"ServerManager:{helper.getTestEndpoint()}")
     locator = communicator.getDefaultLocator()
-    test(manager)
+    assert manager is not None
+    assert locator is not None
 
     registry = Test.TestLocatorRegistryPrx.checkedCast(locator.getRegistry())
     test(registry)
@@ -78,15 +76,15 @@ def allTests(helper, communicator):
     obj = Test.TestIntfPrx.checkedCast(Ice.ObjectPrx(communicator, "test@TestAdapter"))
     obj = Test.TestIntfPrx.checkedCast(Ice.ObjectPrx(communicator, "test   @TestAdapter"))
     obj = Test.TestIntfPrx.checkedCast(Ice.ObjectPrx(communicator, "test@   TestAdapter"))
-    test(obj)
+    assert obj is not None
     obj2 = Test.TestIntfPrx.checkedCast(base2)
-    test(obj2)
+    assert obj2 is not None
     obj3 = Test.TestIntfPrx.checkedCast(base3)
-    test(obj3)
+    assert obj3 is not None
     obj4 = Test.ServerManagerPrx.checkedCast(base4)
-    test(obj4)
+    assert obj4 is not None
     obj5 = Test.TestIntfPrx.checkedCast(base5)
-    test(obj5)
+    assert obj5 is not None
     print("ok")
 
     sys.stdout.write("testing id@AdapterId indirect proxy... ")
@@ -95,6 +93,7 @@ def allTests(helper, communicator):
     manager.startServer()
     try:
         obj2 = Test.TestIntfPrx.checkedCast(base2)
+        assert obj2 is not None
         obj2.ice_ping()
     except Ice.LocalException:
         test(False)
@@ -106,12 +105,14 @@ def allTests(helper, communicator):
     manager.startServer()
     try:
         obj3 = Test.TestIntfPrx.checkedCast(base3)
+        assert obj3 is not None
         obj3.ice_ping()
     except Ice.LocalException as ex:
         print(ex)
         test(False)
     try:
         obj2 = Test.TestIntfPrx.checkedCast(base2)
+        assert obj2 is not None
         obj2.ice_ping()
     except Ice.LocalException as ex:
         print(ex)
@@ -120,12 +121,14 @@ def allTests(helper, communicator):
     manager.startServer()
     try:
         obj2 = Test.TestIntfPrx.checkedCast(base2)
+        assert obj2 is not None
         obj2.ice_ping()
     except Ice.LocalException as ex:
         print(ex)
         test(False)
     try:
         obj3 = Test.TestIntfPrx.checkedCast(base3)
+        assert obj3 is not None
         obj3.ice_ping()
     except Ice.LocalException as ex:
         print(ex)
@@ -135,6 +138,7 @@ def allTests(helper, communicator):
 
     try:
         obj2 = Test.TestIntfPrx.checkedCast(base2)
+        assert obj2 is not None
         obj2.ice_ping()
     except Ice.LocalException:
         test(False)
@@ -142,6 +146,7 @@ def allTests(helper, communicator):
     manager.startServer()
     try:
         obj3 = Test.TestIntfPrx.checkedCast(base3)
+        assert obj3 is not None
         obj3.ice_ping()
     except Ice.LocalException:
         test(False)
@@ -149,6 +154,7 @@ def allTests(helper, communicator):
     manager.startServer()
     try:
         obj2 = Test.TestIntfPrx.checkedCast(base2)
+        assert obj2 is not None
         obj2.ice_ping()
     except Ice.LocalException:
         test(False)
@@ -157,6 +163,7 @@ def allTests(helper, communicator):
 
     try:
         obj5 = Test.TestIntfPrx.checkedCast(base5)
+        assert obj5 is not None
         obj5.ice_ping()
     except Ice.LocalException:
         test(False)
@@ -170,7 +177,9 @@ def allTests(helper, communicator):
         test(False)
     except Ice.NotRegisteredException as ex:
         test(ex.kindOfObject == "object")
-        test(ex.id == "unknown/unknown")
+        assert ex.id is not None
+        test(str(ex.id) == "unknown/unknown")
+
     print("ok")
 
     sys.stdout.write("testing reference with unknown adapter... ")
@@ -181,12 +190,13 @@ def allTests(helper, communicator):
         test(False)
     except Ice.NotRegisteredException as ex:
         test(ex.kindOfObject == "object adapter")
-        test(ex.id == "TestAdapterUnknown")
+        test(str(ex.id) == "TestAdapterUnknown")
     print("ok")
 
     sys.stdout.write("testing object reference from server... ")
     sys.stdout.flush()
     hello = obj.getHello()
+    assert hello is not None
     hello.sayHello()
     print("ok")
 
@@ -201,7 +211,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     hello = Test.HelloPrx(communicator, "hello")
     obj.migrateHello()
-    hello.ice_getConnection().close().result()
+    cast(Ice.Connection, hello.ice_getConnection()).close().result()
     hello.sayHello()
     obj.migrateHello()
     hello.sayHello()
@@ -216,17 +226,21 @@ def allTests(helper, communicator):
 
     sys.stdout.write("testing whether server is gone... ")
     sys.stdout.flush()
+
     try:
+        assert obj2 is not None
         obj2.ice_ping()
         test(False)
     except Ice.LocalException:
         pass
     try:
+        assert obj3 is not None
         obj3.ice_ping()
         test(False)
     except Ice.LocalException:
         pass
     try:
+        assert obj5 is not None
         obj5.ice_ping()
         test(False)
     except Ice.LocalException:
@@ -243,13 +257,15 @@ def allTests(helper, communicator):
     adapter.add(HelloI(), id)
 
     helloPrx = Test.HelloPrx(communicator, Ice.identityToString(id))
-    test(not helloPrx.ice_getConnection())
+    assert helloPrx.ice_getConnection() is None
 
     helloPrx = Test.HelloPrx.checkedCast(adapter.createIndirectProxy(id))
-    test(not helloPrx.ice_getConnection())
+    assert helloPrx is not None
+    assert helloPrx.ice_getConnection() is None
 
     helloPrx = Test.HelloPrx.checkedCast(adapter.createDirectProxy(id))
-    test(not helloPrx.ice_getConnection())
+    assert helloPrx is not None
+    assert helloPrx.ice_getConnection() is None
 
     print("ok")
 

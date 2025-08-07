@@ -11,17 +11,13 @@ if "--load-slice" in sys.argv:
 
 import RouterI
 from generated.test.Ice.blobject import Test
+from TestHelper import test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
 class Client(TestHelper):
-    def allTests(self, communicator, sync):
+    def allTests(self, communicator: Ice.Communicator, sync: bool):
         hello = Test.HelloPrx(communicator, f"test:{self.getTestEndpoint()}")
         hello.sayHello(False)
         hello.sayHello(False, {"_fwd": "o"})

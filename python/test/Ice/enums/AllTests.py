@@ -3,14 +3,12 @@
 import sys
 
 from generated.test.Ice.enums import Test
+from TestHelper import TestHelper, test
+
+import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     proxy = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint()}")
     test(proxy)
 

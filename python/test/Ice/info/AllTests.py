@@ -3,13 +3,9 @@
 import sys
 
 from generated.test.Ice.info import Test
+from TestHelper import TestHelper, test
 
 import Ice
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
 
 
 def getTCPEndpointInfo(info):
