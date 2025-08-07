@@ -683,8 +683,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// The exception that is thrown when you attempt to find or deregister something that is not registered with the
-    /// Ice runtime or Ice locator.
+    /// An attempt was made to find or deregister something that is not registered with Ice.
     /// @headerfile Ice/Ice.h
     class ICE_API NotRegisteredException final : public LocalException
     {
@@ -692,16 +691,14 @@ namespace Ice
         /// Constructs a NotRegisteredException.
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
-        /// @param kindOfObject The kind of object that could not be removed: "servant", "facet", "object", "default
-        /// servant", "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
-        /// @param id The ID (or name) of the object that could not be removed.
+        /// @param kindOfObject The kind of object that is not registered.
+        /// @param id The ID (or name) of the object that is not registered.
         NotRegisteredException(const char* file, int line, std::string kindOfObject, std::string id);
 
-        /// Gets the kind of object that could not be removed: "servant", "facet", "object", "default servant",
-        /// "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
+        /// Gets the kind of object that is not registered.
         [[nodiscard]] const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
 
-        /// Gets the ID (or name) of the object that could not be removed.
+        /// Gets the ID (or name) of the object that is not registered.
         [[nodiscard]] const std::string& id() const noexcept { return *_id; };
 
         [[nodiscard]] const char* ice_id() const noexcept final;

@@ -382,17 +382,12 @@ public final class NoEndpointException: LocalException, @unchecked Sendable {
     }
 }
 
-/// An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
-/// This exception is raised if an attempt is made to remove a servant, servant locator, facet, plug-in, or
-/// object adapter that is not currently registered. It's also raised if the Ice
-/// locator can't find an object or object adapter when resolving an indirect proxy or when an object adapter is
-/// activated.
+/// An attempt was made to find or deregister something that is not registered with Ice.
 public final class NotRegisteredException: LocalException, @unchecked Sendable {
-    /// The kind of object that could not be removed: "servant", "facet", "object", "default servant",
-    /// "servant locator", "plugin", "object adapter", "object adapter with router", "replica group".
+    /// The kind of object that is not registered.
     public let kindOfObject: String
 
-    /// The ID (or name) of the object that could not be removed.
+    /// The ID (or name) of the object that is not registered.
     public let id: String
 
     /// Creates a NotRegisteredException.

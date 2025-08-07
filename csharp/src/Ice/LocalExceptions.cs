@@ -771,28 +771,25 @@ public sealed class NoEndpointException : LocalException
 }
 
 /// <summary>
-/// An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
-/// This exception is raised if an attempt is made to remove a servant, servant locator, facet, plug-in,
-/// object adapter (etc.) that is not currently registered. It's also raised if the Ice locator can't find an object or
-/// object adapter when resolving an indirect proxy or when an object adapter is activated.
+/// An attempt was made to find or deregister something that is not registered with Ice.
 /// </summary>
 public sealed class NotRegisteredException : LocalException
 {
     /// <summary>
-    /// Gets the kind of object that was not registered.
+    /// Gets the kind of object that is not registered.
     /// </summary>
     public string kindOfObject { get; }
 
     /// <summary>
-    /// Gets the ID or name of the object that was not registered.
+    /// Gets the ID or name of the object that is not registered.
     /// </summary>
     public string id { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="NotRegisteredException" /> class.
     /// </summary>
-    /// <param name="kindOfObject">The kind of object that was not registered.</param>
-    /// <param name="id">The ID or name of the object that was not registered.</param>
+    /// <param name="kindOfObject">The kind of object that is not registered.</param>
+    /// <param name="id">The ID or name of the object that is not registered.</param>
     public NotRegisteredException(string kindOfObject, string id)
        : base($"No {kindOfObject} is registered with ID '{id}'.")
     {
