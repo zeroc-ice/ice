@@ -32,7 +32,7 @@ export class BatchRequestQueue {
                 proxy.ice_flushBatchRequests(); // Auto flush
             }
 
-            DEV: console.assert(this._batchMarker < this._batchStream.size);
+            console.assert(this._batchMarker < this._batchStream.size);
             this._batchMarker = this._batchStream.size;
             ++this._batchRequestNum;
         } finally {

@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-/* global self */
-
 import { ControllerHelper } from "./ControllerHelper.js";
 
 class Output {

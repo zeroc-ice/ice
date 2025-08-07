@@ -83,7 +83,7 @@ class TcpTransceiver {
             throw this._exception;
         }
 
-        DEV: console.assert(this._state === StateConnected);
+        console.assert(this._state === StateConnected);
         return SocketOperation.None;
     }
 
@@ -97,7 +97,7 @@ class TcpTransceiver {
 
     unregister() {
         if (this._fd === null) {
-            DEV: console.assert(this._exception); // Socket creation failed.
+            console.assert(this._exception); // Socket creation failed.
             return;
         }
         this._registered = false;
@@ -142,7 +142,7 @@ class TcpTransceiver {
         }
 
         let packetSize = byteBuffer.remaining;
-        DEV: console.assert(packetSize > 0);
+        console.assert(packetSize > 0);
 
         if (this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize) {
             packetSize = this._maxSendPacketSize;
@@ -184,7 +184,7 @@ class TcpTransceiver {
         }
 
         let avail = this._readBuffers[0].length - this._readPosition;
-        DEV: console.assert(avail > 0);
+        console.assert(avail > 0);
 
         while (byteBuffer.remaining > 0) {
             if (avail > byteBuffer.remaining) {
@@ -223,7 +223,7 @@ class TcpTransceiver {
     }
 
     getInfo(adapterName, connectionId) {
-        DEV: console.assert(this._fd !== null);
+        console.assert(this._fd !== null);
         return new TCPConnectionInfo(
             adapterName,
             connectionId,
@@ -235,7 +235,7 @@ class TcpTransceiver {
         );
     }
 
-    setBufferSize(rcvSize, sndSize) {
+    setBufferSize(_, sndSize) {
         this._maxSendPacketSize = sndSize;
     }
 
@@ -244,12 +244,12 @@ class TcpTransceiver {
     }
 
     socketConnected() {
-        DEV: console.assert(this._connectedCallback !== null);
+        console.assert(this._connectedCallback !== null);
         this._connectedCallback();
     }
 
     socketBytesAvailable(buf) {
-        DEV: console.assert(this._bytesAvailableCallback !== null);
+        console.assert(this._bytesAvailableCallback !== null);
 
         //
         // TODO: Should we set a limit on how much data we can read?

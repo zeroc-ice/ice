@@ -8,8 +8,6 @@ import { twoways } from "./Twoways.js";
 import { oneways } from "./Oneways.js";
 import { batchOneways } from "./BatchOneways.js";
 
-const test = TestHelper.test;
-
 export class Client extends TestHelper {
     async allTests(bidir: boolean) {
         const out = this.getWriter();

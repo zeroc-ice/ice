@@ -3,7 +3,7 @@ IdentAsKeyword.ice:7: exceptions can only be defined within a module
 IdentAsKeyword.ice:8: keyword 'int' cannot be used as exception name
 IdentAsKeyword.ice:8: exceptions can only be defined within a module
 IdentAsKeyword.ice:10: structs can only be defined within a module
-IdentAsKeyword.ice:11: keyword 'double' cannot be used as struct name
+IdentAsKeyword.ice:11: keyword 'double' cannot be used as a name
 IdentAsKeyword.ice:11: structs can only be defined within a module
 IdentAsKeyword.ice:13: structs can only be defined within a module
 IdentAsKeyword.ice:14: structs can only be defined within a module
@@ -56,14 +56,15 @@ IdentAsKeyword.ice:54: keyword 'idempotent' cannot be used as a name
 IdentAsKeyword.ice:54: enums can only be defined within a module
 IdentAsKeyword.ice:55: enums can only be defined within a module
 IdentAsKeyword.ice:55: enumeration 'IDEMPOTENT' differs only in capitalization from enumeration 'idempotent'
-IdentAsKeyword.ice:55: 'IDEMPOTENT' has changed meaning
 IdentAsKeyword.ice:57: enums can only be defined within a module
 IdentAsKeyword.ice:57: keyword 'long' cannot be used as enumerator
 IdentAsKeyword.ice:57: keyword 'byte' cannot be used as enumerator
 IdentAsKeyword.ice:58: enums can only be defined within a module
 IdentAsKeyword.ice:60: interfaces can only be defined within a module
+IdentAsKeyword.ice:60: keyword 'module' cannot be used as a name
 IdentAsKeyword.ice:61: interfaces can only be defined within a module
 IdentAsKeyword.ice:63: interfaces can only be defined within a module
+IdentAsKeyword.ice:63: keyword 'exception' cannot be used as a name
 IdentAsKeyword.ice:64: interfaces can only be defined within a module
 IdentAsKeyword.ice:66: interfaces can only be defined within a module
 IdentAsKeyword.ice:66: syntax error, unexpected out keyword

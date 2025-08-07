@@ -122,16 +122,6 @@ export class TestHelper {
         this.controllerHelper.serverReady();
     }
 
-    static test(value, ex) {
-        if (!value) {
-            let message = "test failed";
-            if (ex) {
-                message += "\n" + ex.toString();
-            }
-            throw new Error(message);
-        }
-    }
-
     static isSafari() {
         return typeof navigator !== "undefined" && /^((?!chrome).)*safari/i.test(navigator.userAgent);
     }
@@ -142,5 +132,15 @@ export class TestHelper {
 
     static isWorker() {
         return typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope;
+    }
+}
+
+export function test(value, error) {
+    if (!value) {
+        let message = "test failed";
+        if (error) {
+            message += `\n${error}`;
+        }
+        throw new Error(message);
     }
 }

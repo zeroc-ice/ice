@@ -87,7 +87,7 @@ class WSTransceiver {
             throw this._exception;
         }
 
-        DEV: console.assert(this._state === StateConnected);
+        console.assert(this._state === StateConnected);
         return SocketOperation.None;
     }
 
@@ -156,7 +156,7 @@ class WSTransceiver {
         } else if (byteBuffer.remaining === 0) {
             return true;
         }
-        DEV: console.assert(this._fd);
+        console.assert(this._fd);
 
         const cb = () => {
             if (this._fd) {
@@ -180,7 +180,7 @@ class WSTransceiver {
             if (byteBuffer.remaining === 0) {
                 break;
             }
-            DEV: console.assert(packetSize > 0);
+            console.assert(packetSize > 0);
             if (this._fd.bufferedAmount + packetSize > this._maxSendPacketSize) {
                 Timer.setTimeout(cb, this.writeReadyTimeout());
                 return false;
@@ -213,7 +213,7 @@ class WSTransceiver {
         }
 
         let avail = this._readBuffers[0].byteLength - this._readPosition;
-        DEV: console.assert(avail > 0);
+        console.assert(avail > 0);
 
         while (byteBuffer.remaining > 0) {
             if (avail > byteBuffer.remaining) {
@@ -251,7 +251,7 @@ class WSTransceiver {
     }
 
     getInfo(adapterName, connectionId) {
-        DEV: console.assert(this._fd !== null);
+        console.assert(this._fd !== null);
 
         let info = new TCPConnectionInfo(
             adapterName,
@@ -270,7 +270,7 @@ class WSTransceiver {
         return new WSConnectionInfo(info);
     }
 
-    setBufferSize(rcvSize, sndSize) {
+    setBufferSize(_, sndSize) {
         this._maxSendPacketSize = sndSize;
     }
 
@@ -284,12 +284,12 @@ class WSTransceiver {
             return;
         }
 
-        DEV: console.assert(this._connectedCallback !== null);
+        console.assert(this._connectedCallback !== null);
         this._connectedCallback();
     }
 
     socketBytesAvailable(buf) {
-        DEV: console.assert(this._bytesAvailableCallback !== null);
+        console.assert(this._bytesAvailableCallback !== null);
         if (buf.byteLength > 0) {
             this._readBuffers.push(buf);
             if (this._registered) {

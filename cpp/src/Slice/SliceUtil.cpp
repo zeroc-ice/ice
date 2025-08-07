@@ -470,7 +470,7 @@ Slice::pluralKindOf(const ContainedPtr& p)
 }
 
 bool
-Slice::checkIdentifier(const string& identifier)
+Slice::reportIllegalSuffixOrUnderscore(const string& identifier)
 {
     // check whether the identifier is scoped
     size_t scopeIndex = identifier.rfind("::");

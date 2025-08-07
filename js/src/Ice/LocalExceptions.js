@@ -24,7 +24,7 @@ export class DispatchException extends LocalException {
         super(DispatchException.createDispatchFailedMessage(replyStatus, message));
         this._replyStatus = replyStatus;
 
-        DEV: console.assert(
+        console.assert(
             replyStatus.value > ReplyStatus.UserException.value && replyStatus.value <= 255,
             "The reply status must fit in a byte and have a value greater than UserException",
         );

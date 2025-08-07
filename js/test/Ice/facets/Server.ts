@@ -2,10 +2,8 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
+import { TestHelper, test } from "../../Common/TestHelper.js";
 import { DI, FI, HI, EmptyI } from "./TestI.js";
-
-const test = TestHelper.test;
 
 export class Server extends TestHelper {
     async run(args: string[]) {
@@ -14,7 +12,7 @@ export class Server extends TestHelper {
         try {
             [communicator] = this.initialize(args);
             const out = this.getWriter();
-            echo = new Test.EchoPrx(communicator, "__echo:" + this.getTestEndpoint());
+            echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
 
             out.write("testing facet registration exceptions... ");
             let adapter = await communicator.createObjectAdapter("");

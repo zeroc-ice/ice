@@ -3380,7 +3380,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << nl << "@Deprecated";
     }
 
-    if (isOptional)
+    if (getSet || isOptional)
     {
         out << nl << "private " << s << ' ' << name << ';';
     }

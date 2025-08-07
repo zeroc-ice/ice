@@ -294,7 +294,7 @@ export class OpaqueEndpointI extends EndpointI {
 
     initWithOptions(args) {
         super.initWithOptions(args);
-        DEV: console.assert(this._rawEncoding);
+        console.assert(this._rawEncoding);
 
         if (this._type < 0) {
             throw new ParseException(`no -t option in endpoint '${this}'`);

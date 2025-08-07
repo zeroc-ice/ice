@@ -3,7 +3,7 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         type HashMapKey =
-            | BigInt
+            | bigint
             | number
             | string
             | boolean
@@ -25,7 +25,7 @@ declare module "@zeroc/ice" {
             has(key: Key): boolean;
             delete(key: Key): Value | undefined;
             clear(): void;
-            forEach(fn: (value: Value, key: Key) => void, thisArg?: Object): void;
+            forEach(fn: (value: Value, key: Key) => void, thisArg?: object): void;
 
             entries(): IterableIterator<[Key, Value]>;
             keys(): IterableIterator<Key>;

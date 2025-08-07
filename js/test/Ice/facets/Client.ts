@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests() {
@@ -13,83 +11,95 @@ export class Client extends TestHelper {
 
         const db = new Ice.ObjectPrx(communicator, `d:${this.getTestEndpoint()}`);
 
-        out.write("testing unchecked cast... ");
-        let prx = Ice.ObjectPrx.uncheckedCast(db);
-        test(prx.ice_getFacet().length === 0);
-        prx = Ice.ObjectPrx.uncheckedCast(db, "facetABCD");
-        test(prx.ice_getFacet() == "facetABCD");
-        let prx2 = Ice.ObjectPrx.uncheckedCast(prx);
-        test(prx2.ice_getFacet() == "facetABCD");
-        let prx3 = Ice.ObjectPrx.uncheckedCast(prx, "");
-        test(prx3.ice_getFacet().length === 0);
-        let d = Test.DPrx.uncheckedCast(db);
-        test(d.ice_getFacet().length === 0);
-        let df = Test.DPrx.uncheckedCast(db, "facetABCD");
-        test(df.ice_getFacet() == "facetABCD");
-        let df2 = Test.DPrx.uncheckedCast(df);
-        test(df2.ice_getFacet() == "facetABCD");
-        let df3 = Test.DPrx.uncheckedCast(df, "");
-        test(df3.ice_getFacet().length === 0);
-        out.writeLine("ok");
+        {
+            out.write("testing unchecked cast... ");
+            let prx = Ice.ObjectPrx.uncheckedCast(db);
+            test(prx.ice_getFacet().length === 0);
+            prx = Ice.ObjectPrx.uncheckedCast(db, "facetABCD");
+            test(prx.ice_getFacet() == "facetABCD");
+            const prx2 = Ice.ObjectPrx.uncheckedCast(prx);
+            test(prx2.ice_getFacet() == "facetABCD");
+            const prx3 = Ice.ObjectPrx.uncheckedCast(prx, "");
+            test(prx3.ice_getFacet().length === 0);
+            const d = Test.DPrx.uncheckedCast(db);
+            test(d.ice_getFacet().length === 0);
+            const df = Test.DPrx.uncheckedCast(db, "facetABCD");
+            test(df.ice_getFacet() == "facetABCD");
+            const df2 = Test.DPrx.uncheckedCast(df);
+            test(df2.ice_getFacet() == "facetABCD");
+            const df3 = Test.DPrx.uncheckedCast(df, "");
+            test(df3.ice_getFacet().length === 0);
+            out.writeLine("ok");
+        }
 
-        out.write("testing checked cast... ");
-        prx = await Ice.ObjectPrx.checkedCast(db);
-        test(prx.ice_getFacet().length === 0);
-        prx = await Ice.ObjectPrx.checkedCast(db, "facetABCD");
-        test(prx.ice_getFacet() == "facetABCD");
-        prx2 = await Ice.ObjectPrx.checkedCast(prx);
-        test(prx2.ice_getFacet() == "facetABCD");
-        prx3 = await Ice.ObjectPrx.checkedCast(prx, "");
-        test(prx3.ice_getFacet().length === 0);
-        d = await Test.DPrx.checkedCast(db);
-        test(d.ice_getFacet().length === 0);
-        df = await Test.DPrx.checkedCast(db, "facetABCD");
-        test(df.ice_getFacet() == "facetABCD");
-        df2 = await Test.DPrx.checkedCast(df);
-        test(df2.ice_getFacet() == "facetABCD");
-        df3 = await Test.DPrx.checkedCast(df, "");
-        test(df3.ice_getFacet().length === 0);
-        out.writeLine("ok");
+        {
+            out.write("testing checked cast... ");
+            let prx = await Ice.ObjectPrx.checkedCast(db);
+            test(prx!.ice_getFacet().length === 0);
 
-        out.write("testing non-facets A, B, C, and D... ");
-        d = await Test.DPrx.checkedCast(db);
-        test(d !== null);
-        test(d.equals(db));
-        test((await d.callA()) == "A");
-        test((await d.callB()) == "B");
-        test((await d.callC()) == "C");
-        test((await d.callD()) == "D");
-        out.writeLine("ok");
+            prx = await Ice.ObjectPrx.checkedCast(db, "facetABCD");
+            test(prx!.ice_getFacet() == "facetABCD");
 
-        out.write("testing facets A, B, C, and D... ");
-        df = await Test.DPrx.checkedCast(d, "facetABCD");
-        test(df !== null);
-        test((await df.callA()) == "A");
-        test((await df.callB()) == "B");
-        test((await df.callC()) == "C");
-        test((await df.callD()) == "D");
-        out.writeLine("ok");
+            const prx2 = await Ice.ObjectPrx.checkedCast(prx);
+            test(prx2!.ice_getFacet() == "facetABCD");
 
-        out.write("testing facets E and F... ");
-        const ff = await Test.FPrx.checkedCast(d, "facetEF");
-        test((await ff.callE()) == "E");
-        test((await ff.callF()) == "F");
-        out.writeLine("ok");
+            const prx3 = await Ice.ObjectPrx.checkedCast(prx, "");
+            test(prx3!.ice_getFacet().length === 0);
 
-        out.write("testing facet G... ");
-        const gf = await Test.GPrx.checkedCast(ff, "facetGH");
-        test(gf !== null);
-        test((await gf.callG()) == "G");
-        out.writeLine("ok");
+            let d = await Test.DPrx.checkedCast(db);
+            test(d!.ice_getFacet().length === 0);
 
-        out.write("testing whether casting preserves the facet... ");
-        const hf = await Test.HPrx.checkedCast(gf);
-        test(hf !== null);
-        test((await hf.callG()) == "G");
-        test((await hf.callH()) == "H");
-        out.writeLine("ok");
+            let df = await Test.DPrx.checkedCast(db, "facetABCD");
+            test(df!.ice_getFacet() == "facetABCD");
 
-        await gf.shutdown();
+            const df2 = await Test.DPrx.checkedCast(df);
+            test(df2!.ice_getFacet() == "facetABCD");
+
+            const df3 = await Test.DPrx.checkedCast(df, "");
+            test(df3!.ice_getFacet().length === 0);
+            out.writeLine("ok");
+
+            out.write("testing non-facets A, B, C, and D... ");
+            d = await Test.DPrx.checkedCast(db);
+            test(d !== null);
+            test(d.equals(db));
+            test((await d.callA()) == "A");
+            test((await d.callB()) == "B");
+            test((await d.callC()) == "C");
+            test((await d.callD()) == "D");
+            out.writeLine("ok");
+
+            out.write("testing facets A, B, C, and D... ");
+            df = await Test.DPrx.checkedCast(d, "facetABCD");
+            test(df !== null);
+            test((await df.callA()) == "A");
+            test((await df.callB()) == "B");
+            test((await df.callC()) == "C");
+            test((await df.callD()) == "D");
+            out.writeLine("ok");
+
+            out.write("testing facets E and F... ");
+            const ff = await Test.FPrx.checkedCast(d, "facetEF");
+            test(ff !== null);
+            test((await ff.callE()) == "E");
+            test((await ff.callF()) == "F");
+            out.writeLine("ok");
+
+            out.write("testing facet G... ");
+            const gf = await Test.GPrx.checkedCast(ff, "facetGH");
+            test(gf !== null);
+            test((await gf.callG()) == "G");
+            out.writeLine("ok");
+
+            out.write("testing whether casting preserves the facet... ");
+            const hf = await Test.HPrx.checkedCast(gf);
+            test(hf !== null);
+            test((await hf.callG()) == "G");
+            test((await hf.callH()) == "H");
+            out.writeLine("ok");
+
+            await gf.shutdown();
+        }
     }
 
     async run(args: string[]) {

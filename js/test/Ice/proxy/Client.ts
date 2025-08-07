@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests() {
@@ -54,7 +52,7 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("\"test -f facet'");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         b1 = communicator.stringToProxy('"test -f facet"');
@@ -80,7 +78,7 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("test test");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         b1 = communicator.stringToProxy("test\\040test");
@@ -90,7 +88,7 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("test\\777");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         b1 = communicator.stringToProxy("test\\40test");
@@ -127,14 +125,14 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy('"" test'); // Invalid trailing characters.
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
             b1 = communicator.stringToProxy("test:"); // Missing endpoint.
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         b1 = communicator.stringToProxy("test@adapter");
@@ -147,7 +145,7 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("id@adapter test");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         b1 = communicator.stringToProxy("category/test@adapter");
@@ -216,14 +214,14 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy('id -f "facet x');
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
             b1 = communicator.stringToProxy("id -f 'facet x");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         b1 = communicator.stringToProxy("test -f facet:" + defaultProtocol);
@@ -266,7 +264,7 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("test -f facet@test @test");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
         b1 = communicator.stringToProxy("test");
         test(b1.ice_isTwoway());
@@ -303,14 +301,14 @@ export class Client extends TestHelper {
             b1 = communicator.stringToProxy("test:" + defaultProtocol + "@adapterId");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
             b1 = communicator.stringToProxy("test::" + defaultProtocol);
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         //
@@ -340,7 +338,7 @@ export class Client extends TestHelper {
             id = Ice.stringToIdentity("xx\x01FooBar");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -348,7 +346,7 @@ export class Client extends TestHelper {
             id = Ice.stringToIdentity("xx\\ud911");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         // Testing bytes 127 (\x7F) and €
@@ -397,7 +395,7 @@ export class Client extends TestHelper {
         out.write("testing propertyToProxy... ");
         const prop = communicator.getProperties();
         const propertyPrefix = "Foo.Proxy";
-        prop.setProperty(propertyPrefix, "test:" + this.getTestEndpoint());
+        prop.setProperty(propertyPrefix, `test:${this.getTestEndpoint()}`);
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(
             b1.ice_getIdentity().name === "test" &&
@@ -410,7 +408,7 @@ export class Client extends TestHelper {
         test(b1.ice_getLocator() === null);
         prop.setProperty(property, "locator:default -p 10000");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getLocator() !== null && b1.ice_getLocator().ice_getIdentity().name === "locator");
+        test(b1.ice_getLocator()?.ice_getIdentity().name === "locator");
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".LocatorCacheTimeout";
@@ -425,7 +423,7 @@ export class Client extends TestHelper {
         property = propertyPrefix + ".Locator";
         prop.setProperty(property, "locator:default -p 10000");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getLocator() !== null && b1.ice_getLocator().ice_getIdentity().name === "locator");
+        test(b1.ice_getLocator()?.ice_getIdentity().name === "locator");
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".LocatorCacheTimeout";
@@ -435,13 +433,13 @@ export class Client extends TestHelper {
         test(b1.ice_getLocatorCacheTimeout() === 1);
         prop.setProperty(property, "");
 
-        prop.setProperty(propertyPrefix, "test:" + this.getTestEndpoint());
+        prop.setProperty(propertyPrefix, `test:${this.getTestEndpoint()}`);
 
         property = propertyPrefix + ".Router";
         test(b1.ice_getRouter() === null);
         prop.setProperty(property, "router:default -p 10000");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getRouter() !== null && b1.ice_getRouter().ice_getIdentity().name === "router");
+        test(b1.ice_getRouter()?.ice_getIdentity().name === "router");
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".PreferSecure";
@@ -573,39 +571,39 @@ export class Client extends TestHelper {
             base.ice_invocationTimeout(0);
             test(false);
         } catch (ex) {
-            test(!(ex instanceof TestError), ex);
+            test(!(ex instanceof TestError), ex as Error);
         }
 
         try {
             base.ice_invocationTimeout(-1);
         } catch (ex) {
-            test(false);
+            test(false, ex as Error);
         }
 
         try {
             base.ice_invocationTimeout(-2);
             test(false);
         } catch (ex) {
-            test(!(ex instanceof TestError), ex);
+            test(!(ex instanceof TestError), ex as Error);
         }
 
         try {
             base.ice_locatorCacheTimeout(0);
         } catch (ex) {
-            test(false, ex);
+            test(false, ex as Error);
         }
 
         try {
             base.ice_locatorCacheTimeout(-1);
         } catch (ex) {
-            test(false, ex);
+            test(false, ex as Error);
         }
 
         try {
             base.ice_locatorCacheTimeout(-2);
             test(false);
         } catch (ex) {
-            test(!(ex instanceof TestError), ex);
+            test(!(ex instanceof TestError), ex as Error);
         }
 
         out.writeLine("ok");
@@ -666,10 +664,10 @@ export class Client extends TestHelper {
         ctx1.set("ctx1", "v1");
         const ctx2 = new Map();
         ctx2.set("ctx2", "v2");
-        test(compObj.ice_context(null).equals(compObj.ice_context(null)));
+        test(compObj.ice_context(null!).equals(compObj.ice_context(null!)));
         test(compObj.ice_context(ctx1).equals(compObj.ice_context(ctx1)));
-        test(!compObj.ice_context(ctx1).equals(compObj.ice_context(null)));
-        test(!compObj.ice_context(null).equals(compObj.ice_context(ctx2)));
+        test(!compObj.ice_context(ctx1).equals(compObj.ice_context(null!)));
+        test(!compObj.ice_context(null!).equals(compObj.ice_context(ctx2)));
         test(!compObj.ice_context(ctx1).equals(compObj.ice_context(ctx2)));
 
         test(compObj.ice_preferSecure(true).equals(compObj.ice_preferSecure(true)));
@@ -739,7 +737,7 @@ export class Client extends TestHelper {
         c.set("one", "hello");
         c.set("two", "world");
         const clc = await Test.MyClassPrx.checkedCast(base, undefined, c);
-        const c2 = await clc.getContext();
+        const c2 = await clc!.getContext();
         test(Ice.MapUtil.equals(c, c2));
         out.writeLine("ok");
 
@@ -780,7 +778,7 @@ export class Client extends TestHelper {
                 try {
                     cl.ice_fixed(connection);
                     test(false);
-                } catch (ex) {
+                } catch {
                     // Expected with null connection.
                 }
             }
@@ -789,16 +787,16 @@ export class Client extends TestHelper {
 
         out.write("testing encoding versioning... ");
 
-        let ref20 = "test -e 2.0:" + this.getTestEndpoint();
+        let ref20 = `test -e 2.0:${this.getTestEndpoint()}`;
         let cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
         try {
             await cl20.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.MarshalException, ex);
+            test(ex instanceof Ice.MarshalException, ex as Error);
         }
 
-        let ref10 = "test -e 1.0:" + this.getTestEndpoint();
+        let ref10 = `test -e 1.0:${this.getTestEndpoint()}`;
         let cl10 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10));
 
         await cl10.ice_ping();
@@ -807,29 +805,29 @@ export class Client extends TestHelper {
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
-        let ref13 = "test -e 1.3:" + this.getTestEndpoint();
+        let ref13 = `test -e 1.3:${this.getTestEndpoint()}`;
         let cl13 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13));
         await cl13.ice_ping();
         out.writeLine("ok");
 
         out.write("testing protocol versioning... ");
-        ref20 = "test -p 2.0:" + this.getTestEndpoint();
+        ref20 = `test -p 2.0:${this.getTestEndpoint()}`;
         cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
         try {
             await cl20.ice_ping();
             test(false);
         } catch (ex) {
             // Server 2.0 proxy doesn't support 1.0 version.
-            test(ex instanceof Ice.FeatureNotSupportedException, ex);
+            test(ex instanceof Ice.FeatureNotSupportedException, ex as Error);
         }
 
-        ref10 = "test -p 1.0:" + this.getTestEndpoint();
+        ref10 = `test -p 1.0:${this.getTestEndpoint()}`;
         cl10 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10));
         await cl10.ice_ping();
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 protocol
-        ref13 = "test -p 1.3:" + this.getTestEndpoint();
+        ref13 = `test -p 1.3:${this.getTestEndpoint()}`;
         cl13 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13));
         await cl13.ice_ping();
         out.writeLine("ok");
@@ -841,7 +839,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -849,7 +847,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -857,7 +855,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -865,7 +863,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -873,7 +871,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -881,7 +879,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 1");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -889,7 +887,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -897,7 +895,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 1 -v");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -905,7 +903,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t x -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -913,7 +911,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t -1 -v abc");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         try {
@@ -921,7 +919,7 @@ export class Client extends TestHelper {
             communicator.stringToProxy("id:opaque -t 99 -v x?c");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ParseException, ex);
+            test(ex instanceof Ice.ParseException, ex as Error);
         }
 
         // Legal TCP endpoint expressed as opaque endpoint
@@ -942,7 +940,7 @@ export class Client extends TestHelper {
         p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 4 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
         test(communicator.proxyToString(p2) === "test:ws -h 127.0.0.1 -p 12010 -t 10000");
 
-        const ref = "test:" + this.getTestEndpoint();
+        const ref = `test:${this.getTestEndpoint()}`;
 
         const ssl = communicator.getProperties().getIceProperty("Ice.Default.Protocol") === "ssl";
         // TODO: p1 contains 127.0.0.1 - OK to invoke?
@@ -998,14 +996,14 @@ export class Client extends TestHelper {
         // losing the opaque endpoints.
         //
         derived = Test.MyDerivedClassPrx.uncheckedCast(
-            communicator.stringToProxy("test -e 1.0:" + this.getTestEndpoint()),
+            communicator.stringToProxy(`test -e 1.0:${this.getTestEndpoint()}`),
         );
-        p2 = await derived.echo(p1);
+        p2 = (await derived.echo(p1)) as Ice.ObjectPrx;
 
         pstr = communicator.proxyToString(p2);
         test(pstr === "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
 
-        let p = communicator.stringToProxy("test:" + this.getTestEndpoint());
+        let p = communicator.stringToProxy(`test:${this.getTestEndpoint()}`);
         if (defaultProtocol === "tcp") {
             test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.TCPEndpointInfo);
         } else if (defaultProtocol === "ws" || defaultProtocol === "wss") {
@@ -1021,8 +1019,8 @@ export class Client extends TestHelper {
 
         // The first endpoint is a non connectable and should be automatically skipped.
         p = TestHelper.isBrowser()
-            ? communicator.stringToProxy("test:" + this.getTestEndpoint("tcp") + ":" + this.getTestEndpoint())
-            : communicator.stringToProxy("test:" + this.getTestEndpoint("ws") + ":" + this.getTestEndpoint());
+            ? communicator.stringToProxy(`test:${this.getTestEndpoint("tcp")}:${this.getTestEndpoint()}`)
+            : communicator.stringToProxy(`test:${this.getTestEndpoint("ws")}:${this.getTestEndpoint()}`);
 
         p = p.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
         await p.ice_ping();
@@ -1054,11 +1052,11 @@ export class Client extends TestHelper {
             // will fail creating the WebSocket object.
             //
             const communicator2 = Ice.initialize();
-            const invalid = communicator2.stringToProxy("test:" + this.getTestEndpoint());
+            const invalid = communicator2.stringToProxy(`test:${this.getTestEndpoint()}`);
             try {
                 await invalid.ice_ping();
                 test(false);
-            } catch (ex) {
+            } catch {
                 // expected
             } finally {
                 await communicator2.destroy();
@@ -1084,21 +1082,24 @@ export class Client extends TestHelper {
 
         let cPrx = new Test.CPrx(communicator, `c:${this.getTestEndpoint()}`);
 
-        let aPrx = await cPrx.opA(cPrx);
-        test(aPrx!.equals(cPrx));
+        const aPrx = await cPrx.opA(cPrx);
+        test(cPrx.equals(aPrx));
 
-        let bPrx = await cPrx.opB(cPrx);
-        test(bPrx!.equals(cPrx));
+        const bPrx = await cPrx.opB(cPrx);
+        test(cPrx.equals(bPrx));
 
-        cPrx = await cPrx.opC(cPrx);
+        cPrx = (await cPrx.opC(cPrx)) as Test.CPrx;
 
         let s = new Test.S();
         s.a = cPrx;
         s.b = cPrx;
 
         s = await cPrx.opS(s);
-        test(s.a!.equals(cPrx));
-        test(s.b!.equals(cPrx));
+        test(s.a !== null);
+        test(s.a.equals(cPrx));
+
+        test(s.b !== null);
+        test(s.b.equals(cPrx));
         out.writeLine("ok");
 
         derived = new Test.MyDerivedClassPrx(communicator, `test:${this.getTestEndpoint()}`);

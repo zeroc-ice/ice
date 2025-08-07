@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 const int64MaxValue = 9223372036854775807n;
 const int64MinValue = -9223372036854775808n;
@@ -122,70 +120,70 @@ export async function twoways(
         await prx.opByte(0xffff, 0xff0f);
         test(false);
     } catch (ex) {
-        test(ex instanceof Ice.MarshalException, ex);
+        test(ex instanceof Ice.MarshalException, ex as Error);
     }
 
     try {
         await prx.opShortIntLong(-32768 - 1, 0, 0);
         test(false);
     } catch (ex) {
-        test(ex instanceof Ice.MarshalException, ex);
+        test(ex instanceof Ice.MarshalException, ex as Error);
     }
 
     try {
         await prx.opShortIntLong(32767 + 1, 0, 0);
         test(false);
     } catch (ex) {
-        test(ex instanceof Ice.MarshalException, ex);
+        test(ex instanceof Ice.MarshalException, ex as Error);
     }
 
     try {
         await prx.opShortIntLong(0, -2147483648 - 1, 0);
         test(false);
     } catch (ex) {
-        test(ex instanceof Ice.MarshalException, ex);
+        test(ex instanceof Ice.MarshalException, ex as Error);
     }
 
     try {
         await prx.opShortIntLong(0, 2147483647 + 1, 0);
         test(false);
     } catch (ex) {
-        test(ex instanceof Ice.MarshalException, ex);
+        test(ex instanceof Ice.MarshalException, ex as Error);
     }
 
     try {
         await prx.opShortIntLong(0, 0, int64MaxValue + 1n);
         test(false);
     } catch (ex) {
-        test(ex instanceof Ice.MarshalException, ex);
+        test(ex instanceof Ice.MarshalException, ex as Error);
     }
 
     try {
         await prx.opShortIntLong(0, 0, int64MinValue - 1n);
         test(false);
     } catch (ex) {
-        test(ex instanceof Ice.MarshalException, ex);
+        test(ex instanceof Ice.MarshalException, ex as Error);
     }
 
     try {
         await prx.opShortIntLong(Number.NaN, 0, 0n);
         test(false);
     } catch (ex) {
-        test(ex instanceof Ice.MarshalException, ex);
+        test(ex instanceof Ice.MarshalException, ex as Error);
     }
 
     try {
         await prx.opFloatDouble(Number.MAX_VALUE, 0);
         test(false);
     } catch (ex) {
-        test(ex instanceof Ice.MarshalException, ex);
+        test(ex instanceof Ice.MarshalException, ex as Error);
     }
 
     try {
         await prx.opFloatDouble(-Number.MAX_VALUE, 0);
         test(false);
     } catch (ex) {
-        test(ex instanceof Ice.MarshalException, ex);
+        test(ex instanceof Ice.MarshalException, ex as Error);
     }
 
     await prx.opFloatDouble(Number.NaN, Number.NaN);
@@ -215,8 +213,13 @@ export async function twoways(
     {
         const [retval, p2, p3] = await prx.opMyClass(prx);
 
+        test(p2 !== null);
         test(p2.ice_getIdentity().equals(Ice.stringToIdentity("test")));
+
+        test(p3 !== null);
         test(p3.ice_getIdentity().equals(Ice.stringToIdentity("noSuchIdentity")));
+
+        test(retval !== null);
         test(retval.ice_getIdentity().equals(Ice.stringToIdentity("test")));
     }
 
@@ -600,10 +603,10 @@ export async function twoways(
 
         test(p3.equals(di1, (v1, v2) => Math.abs(v1) - Math.abs(v2) <= 0.01));
         test(retval.size === 4);
-        test(Math.abs(retval.get(999999110n)) - Math.abs(-1.1) <= 0.01);
-        test(Math.abs(retval.get(999999120n)) - Math.abs(-100.4) <= 0.01);
-        test(retval.get(999999111n) - 123123.2 <= 0.01);
-        test(retval.get(999999130n) - 0.5 <= 0.01);
+        test(Math.abs(retval.get(999999110n) || 0) - Math.abs(-1.1) <= 0.01);
+        test(Math.abs(retval.get(999999120n) || 0) - Math.abs(-100.4) <= 0.01);
+        test((retval.get(999999111n) || 0) - 123123.2 <= 0.01);
+        test((retval.get(999999130n) || 0) - 0.5 <= 0.01);
     }
 
     {
@@ -766,23 +769,23 @@ export async function twoways(
         const [retval, p3] = await prx.opLongFloatDS([di1, di2], [di3]);
         test(retval.length == 2);
         test(retval[0].size == 3);
-        test(retval[0].get(999999110n) - Math.abs(-1.1) <= 0.1);
-        test(retval[0].get(999999120n) - Math.abs(-100.4) <= 0.1);
-        test(retval[0].get(999999130n) - 0.5 <= 0.1);
+        test((retval[0].get(999999110n) || 0) - Math.abs(-1.1) <= 0.1);
+        test((retval[0].get(999999120n) || 0) - Math.abs(-100.4) <= 0.1);
+        test((retval[0].get(999999130n) || 0) - 0.5 <= 0.1);
         test(retval[1].size == 2);
-        test(retval[1].get(999999110n) - Math.abs(-1.1) <= 0.1);
-        test(retval[1].get(999999111n) - 123123.2 <= 0.1);
+        test((retval[1].get(999999110n) || 0) - Math.abs(-1.1) <= 0.1);
+        test((retval[1].get(999999111n) || 0) - 123123.2 <= 0.1);
 
         test(p3.length == 3);
         test(p3[0].size == 1);
-        test(p3[0].get(999999140n) - 3.14 <= 0.1);
+        test((p3[0].get(999999140n) || 0) - 3.14 <= 0.1);
         test(p3[1].size == 2);
-        test(p3[1].get(999999110n) - Math.abs(-1.1) <= 0.1);
-        test(p3[1].get(999999111n) - 123123.2 <= 0.1);
+        test((p3[1].get(999999110n) || 0) - Math.abs(-1.1) <= 0.1);
+        test((p3[1].get(999999111n) || 0) - 123123.2 <= 0.1);
         test(p3[2].size == 3);
-        test(p3[2].get(999999110n) - Math.abs(-1.1) <= 0.1);
-        test(p3[2].get(999999120n) - Math.abs(-100.4) <= 0.1);
-        test(p3[2].get(999999130n) - 0.5 <= 0.1);
+        test((p3[2].get(999999110n) || 0) - Math.abs(-1.1) <= 0.1);
+        test((p3[2].get(999999120n) || 0) - Math.abs(-100.4) <= 0.1);
+        test((p3[2].get(999999130n) || 0) - 0.5 <= 0.1);
     }
 
     {
@@ -927,18 +930,22 @@ export async function twoways(
 
         const [retval, p3] = await prx.opByteByteSD(sdi1, sdi2);
         test(p3.size == 1);
-        test(p3.get(0xf1).length === 2);
-        test(p3.get(0xf1)[0] === 0xf2);
-        test(p3.get(0xf1)[1] === 0xf3);
+        let value: Uint8Array | undefined = p3.get(0xf1);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 0xf2);
+        test(value !== undefined && value[1] === 0xf3);
         test(retval.size === 3);
-        test(retval.get(0x01).length === 2);
-        test(retval.get(0x01)[0] === 0x01);
-        test(retval.get(0x01)[1] === 0x11);
-        test(retval.get(0x22).length === 1);
-        test(retval.get(0x22)[0] === 0x12);
-        test(retval.get(0xf1).length === 2);
-        test(retval.get(0xf1)[0] === 0xf2);
-        test(retval.get(0xf1)[1] === 0xf3);
+        value = retval.get(0x01);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 0x01);
+        test(value !== undefined && value[1] === 0x11);
+        value = retval.get(0x22);
+        test(value !== undefined && value.length === 1);
+        test(value !== undefined && value[0] === 0x12);
+        value = retval.get(0xf1);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 0xf2);
+        test(value !== undefined && value[1] === 0xf3);
     }
 
     {
@@ -952,17 +959,23 @@ export async function twoways(
 
         const [retval, p3] = await prx.opBoolBoolSD(sdi1, sdi2);
         test(p3.size === 1);
-        test(p3.get(false).length === 2);
-        test(p3.get(false)[0] === true);
-        test(p3.get(false)[1] === false);
+
+        let value = p3.get(false);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === true);
+        test(value !== undefined && value[1] === false);
         test(retval.size === 2);
-        test(retval.get(false).length === 2);
-        test(retval.get(false)[0] === true);
-        test(retval.get(false)[1] === false);
-        test(retval.get(true).length === 3);
-        test(retval.get(true)[0] === false);
-        test(retval.get(true)[1] === true);
-        test(retval.get(true)[2] === true);
+
+        value = retval.get(false);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === true);
+        test(value !== undefined && value[1] === false);
+
+        value = retval.get(true);
+        test(value !== undefined && value.length === 3);
+        test(value !== undefined && value[0] === false);
+        test(value !== undefined && value[1] === true);
+        test(value !== undefined && value[2] === true);
     }
 
     {
@@ -979,20 +992,28 @@ export async function twoways(
 
         const [retval, p3] = await prx.opShortShortSD(sdi1, sdi2);
         test(p3.size === 1);
-        test(p3.get(4).length === 2);
-        test(p3.get(4)[0] === 6);
-        test(p3.get(4)[1] === 7);
+        let value = p3.get(4);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 6);
+        test(value !== undefined && value[1] === 7);
+
         test(retval.size === 3);
-        test(retval.get(1).length === 3);
-        test(retval.get(1)[0] === 1);
-        test(retval.get(1)[1] === 2);
-        test(retval.get(1)[2] === 3);
-        test(retval.get(2).length === 2);
-        test(retval.get(2)[0] === 4);
-        test(retval.get(2)[1] === 5);
-        test(retval.get(4).length === 2);
-        test(retval.get(4)[0] === 6);
-        test(retval.get(4)[1] === 7);
+
+        value = retval.get(1);
+        test(value !== undefined && value.length === 3);
+        test(value !== undefined && value[0] === 1);
+        test(value !== undefined && value[1] === 2);
+        test(value !== undefined && value[2] === 3);
+
+        value = retval.get(2);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 4);
+        test(value !== undefined && value[1] === 5);
+
+        value = retval.get(4);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 6);
+        test(value !== undefined && value[1] === 7);
     }
 
     {
@@ -1009,20 +1030,28 @@ export async function twoways(
 
         const [retval, p3] = await prx.opIntIntSD(sdi1, sdi2);
         test(p3.size === 1);
-        test(p3.get(400).length === 2);
-        test(p3.get(400)[0] === 600);
-        test(p3.get(400)[1] === 700);
+        let value = p3.get(400);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 600);
+        test(value !== undefined && value[1] === 700);
+
         test(retval.size === 3);
-        test(retval.get(100).length === 3);
-        test(retval.get(100)[0] === 100);
-        test(retval.get(100)[1] === 200);
-        test(retval.get(100)[2] === 300);
-        test(retval.get(200).length === 2);
-        test(retval.get(200)[0] === 400);
-        test(retval.get(200)[1] === 500);
-        test(retval.get(400).length === 2);
-        test(retval.get(400)[0] === 600);
-        test(retval.get(400)[1] === 700);
+
+        value = retval.get(100);
+        test(value !== undefined && value.length === 3);
+        test(value !== undefined && value[0] === 100);
+        test(value !== undefined && value[1] === 200);
+        test(value !== undefined && value[2] === 300);
+
+        value = retval.get(200);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 400);
+        test(value !== undefined && value[1] === 500);
+
+        value = retval.get(400);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 600);
+        test(value !== undefined && value[1] === 700);
     }
 
     {
@@ -1039,20 +1068,28 @@ export async function twoways(
 
         const [retval, p3] = await prx.opLongLongSD(sdi1, sdi2);
         test(p3.size == 1);
-        test(p3.get(999999992n).length === 2);
-        test(p3.get(999999992n)[0] === 999999110n);
-        test(p3.get(999999992n)[1] === 999999120n);
+
+        let value = p3.get(999999992n);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 999999110n);
+        test(value !== undefined && value[1] === 999999120n);
+
         test(retval.size == 3);
-        test(retval.get(999999990n).length === 3);
-        test(retval.get(999999990n)[0] === 999999110n);
-        test(retval.get(999999990n)[1] === 999999111n);
-        test(retval.get(999999990n)[2] === 999999110n);
-        test(retval.get(999999991n).length === 2);
-        test(retval.get(999999991n)[0] === 999999120n);
-        test(retval.get(999999991n)[1] === 999999130n);
-        test(retval.get(999999992n).length === 2);
-        test(retval.get(999999992n)[0] === 999999110n);
-        test(retval.get(999999992n)[1] === 999999120n);
+        value = retval.get(999999990n);
+        test(value !== undefined && value.length === 3);
+        test(value !== undefined && value[0] === 999999110n);
+        test(value !== undefined && value[1] === 999999111n);
+        test(value !== undefined && value[2] === 999999110n);
+
+        value = retval.get(999999991n);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 999999120n);
+        test(value !== undefined && value[1] === 999999130n);
+
+        value = retval.get(999999992n);
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 999999110n);
+        test(value !== undefined && value[1] === 999999120n);
     }
 
     {
@@ -1070,20 +1107,28 @@ export async function twoways(
         const [retval, p3] = await prx.opStringFloatSD(sdi1, sdi2);
 
         test(p3.size === 1);
-        test(p3.get("aBc").length === 2);
-        test(p3.get("aBc")[0] - Math.abs(3.14) <= 0.1);
-        test(p3.get("aBc")[1] - 3.14 <= 0.1);
+        let value = p3.get("aBc");
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] - Math.abs(3.14) <= 0.1);
+        test(value !== undefined && value[1] - 3.14 <= 0.1);
+
         test(retval.size === 3);
-        test(retval.get("abc").length === 3);
-        test(retval.get("abc")[0] - Math.abs(1.1) <= 0.1);
-        test(retval.get("abc")[1] - 123123.2 <= 0.1);
-        test(retval.get("abc")[2] - 100.0 <= 0.1);
-        test(retval.get("ABC").length === 2);
-        test(retval.get("ABC")[0] - 42.24 <= 0.1);
-        test(retval.get("ABC")[1] - Math.abs(1.61) <= 0.1);
-        test(retval.get("aBc").length === 2);
-        test(retval.get("aBc")[0] - Math.abs(3.14) <= 0.1);
-        test(retval.get("aBc")[1] - 3.14 <= 0.1);
+
+        value = retval.get("abc");
+        test(value !== undefined && value.length === 3);
+        test(value !== undefined && value[0] - Math.abs(1.1) <= 0.1);
+        test(value !== undefined && value[1] - 123123.2 <= 0.1);
+        test(value !== undefined && value[2] - 100.0 <= 0.1);
+
+        value = retval.get("ABC");
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] - 42.24 <= 0.1);
+        test(value !== undefined && value[1] - Math.abs(1.61) <= 0.1);
+
+        value = retval.get("aBc");
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] - Math.abs(3.14) <= 0.1);
+        test(value !== undefined && value[1] - 3.14 <= 0.1);
     }
 
     {
@@ -1101,20 +1146,27 @@ export async function twoways(
         const [retval, p3] = await prx.opStringDoubleSD(sdi1, sdi2);
 
         test(p3.size === 1);
-        test(p3.get("").length === 2);
-        test(p3.get("")[0] === 1.6e10);
-        test(p3.get("")[1] === 1.7e10);
+        let value = p3.get("");
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 1.6e10);
+        test(value !== undefined && value[1] === 1.7e10);
+
         test(retval.size === 3);
-        test(retval.get("Hello!!").length === 3);
-        test(retval.get("Hello!!")[0] === 1.1e10);
-        test(retval.get("Hello!!")[1] === 1.2e10);
-        test(retval.get("Hello!!")[2] === 1.3e10);
-        test(retval.get("Goodbye").length === 2);
-        test(retval.get("Goodbye")[0] === 1.4e10);
-        test(retval.get("Goodbye")[1] === 1.5e10);
-        test(retval.get("").length === 2);
-        test(retval.get("")[0] === 1.6e10);
-        test(retval.get("")[1] === 1.7e10);
+        value = retval.get("Hello!!");
+        test(value !== undefined && value.length === 3);
+        test(value !== undefined && value[0] === 1.1e10);
+        test(value !== undefined && value[1] === 1.2e10);
+        test(value !== undefined && value[2] === 1.3e10);
+
+        value = retval.get("Goodbye");
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 1.4e10);
+        test(value !== undefined && value[1] === 1.5e10);
+
+        value = retval.get("");
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === 1.6e10);
+        test(value !== undefined && value[1] === 1.7e10);
     }
 
     {
@@ -1132,20 +1184,28 @@ export async function twoways(
         const [retval, p3] = await prx.opStringStringSD(sdi1, sdi2);
 
         test(p3.size === 1);
-        test(p3.get("ghi").length === 2);
-        test(p3.get("ghi")[0] === "and");
-        test(p3.get("ghi")[1] === "xor");
+        let value = p3.get("ghi");
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === "and");
+        test(value !== undefined && value[1] === "xor");
+
         test(retval.size === 3);
-        test(retval.get("abc").length === 3);
-        test(retval.get("abc")[0] === "abc");
-        test(retval.get("abc")[1] === "de");
-        test(retval.get("abc")[2] === "fghi");
-        test(retval.get("def").length === 2);
-        test(retval.get("def")[0] === "xyz");
-        test(retval.get("def")[1] === "or");
-        test(retval.get("ghi").length === 2);
-        test(retval.get("ghi")[0] === "and");
-        test(retval.get("ghi")[1] === "xor");
+
+        value = retval.get("abc");
+        test(value !== undefined && value.length === 3);
+        test(value !== undefined && value[0] === "abc");
+        test(value !== undefined && value[1] === "de");
+        test(value !== undefined && value[2] === "fghi");
+
+        value = retval.get("def");
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === "xyz");
+        test(value !== undefined && value[1] === "or");
+
+        value = retval.get("ghi");
+        test(value !== undefined && value.length === 2);
+        test(value !== undefined && value[0] === "and");
+        test(value !== undefined && value[1] === "xor");
     }
 
     {
@@ -1162,20 +1222,28 @@ export async function twoways(
 
         const [retval, p3] = await prx.opMyEnumMyEnumSD(sdi1, sdi2);
         test(p3.size == 1);
-        test(p3.get(Test.MyEnum.enum1).length == 2);
-        test(p3.get(Test.MyEnum.enum1)[0] == Test.MyEnum.enum3);
-        test(p3.get(Test.MyEnum.enum1)[1] == Test.MyEnum.enum3);
+        let value = p3.get(Test.MyEnum.enum1);
+        test(value !== undefined && value.length == 2);
+        test(value !== undefined && value[0] == Test.MyEnum.enum3);
+        test(value !== undefined && value[1] == Test.MyEnum.enum3);
+
         test(retval.size === 3);
-        test(retval.get(Test.MyEnum.enum3).length == 3);
-        test(retval.get(Test.MyEnum.enum3)[0] == Test.MyEnum.enum1);
-        test(retval.get(Test.MyEnum.enum3)[1] == Test.MyEnum.enum1);
-        test(retval.get(Test.MyEnum.enum3)[2] == Test.MyEnum.enum2);
-        test(retval.get(Test.MyEnum.enum2).length == 2);
-        test(retval.get(Test.MyEnum.enum2)[0] == Test.MyEnum.enum1);
-        test(retval.get(Test.MyEnum.enum2)[1] == Test.MyEnum.enum2);
-        test(retval.get(Test.MyEnum.enum1).length == 2);
-        test(retval.get(Test.MyEnum.enum1)[0] == Test.MyEnum.enum3);
-        test(retval.get(Test.MyEnum.enum1)[1] == Test.MyEnum.enum3);
+
+        value = retval.get(Test.MyEnum.enum3);
+        test(value !== undefined && value.length == 3);
+        test(value !== undefined && value[0] == Test.MyEnum.enum1);
+        test(value !== undefined && value[1] == Test.MyEnum.enum1);
+        test(value !== undefined && value[2] == Test.MyEnum.enum2);
+
+        value = retval.get(Test.MyEnum.enum2);
+        test(value !== undefined && value.length == 2);
+        test(value !== undefined && value[0] == Test.MyEnum.enum1);
+        test(value !== undefined && value[1] == Test.MyEnum.enum2);
+
+        value = retval.get(Test.MyEnum.enum1);
+        test(value !== undefined && value.length == 2);
+        test(value !== undefined && value[0] == Test.MyEnum.enum3);
+        test(value !== undefined && value[1] == Test.MyEnum.enum3);
     }
 
     {
@@ -1214,6 +1282,7 @@ export async function twoways(
 
         {
             const p2 = await Test.MyClassPrx.checkedCast(prx.ice_context(ctx));
+            test(p2 !== null);
             test(Ice.MapUtil.equals(p2.ice_getContext(), ctx));
             let r = await p2.opContext();
             test(Ice.MapUtil.equals(r, ctx));
@@ -1266,7 +1335,7 @@ export async function twoways(
 
         p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext));
 
-        ic.getImplicitContext().setContext(null);
+        ic.getImplicitContext().setContext(null!);
         test(Ice.MapUtil.equals(await p3.opContext(), prxContext));
 
         ic.getImplicitContext().setContext(ctx);
@@ -1279,7 +1348,7 @@ export async function twoways(
 
     {
         const d = 1278312346.0 / 13.0;
-        const ds = [];
+        const ds: number[] = [];
         for (let i = 0; i < 5; i++) {
             ds[i] = d;
         }
@@ -1296,10 +1365,10 @@ export async function twoways(
         test((await prx.opFloat1(1.0)) == 1.0);
         test((await prx.opDouble1(1.0)) == 1.0);
         test((await prx.opString1("opString1")) == "opString1");
-        test((await prx.opStringS1(null)).length === 0);
-        test((await prx.opByteBoolD1(null)).size === 0);
-        test((await prx.opStringS2(null)).length === 0);
-        test((await prx.opByteBoolD2(null)).size === 0);
+        test((await prx.opStringS1([])).length === 0);
+        test((await prx.opByteBoolD1(new Map())).size === 0);
+        test((await prx.opStringS2([])).length === 0);
+        test((await prx.opByteBoolD2(new Map())).size === 0);
 
         const d = Test.MyDerivedClassPrx.uncheckedCast(prx);
         let s = new Test.MyStruct1();
@@ -1314,7 +1383,7 @@ export async function twoways(
         c.tesT = "Test.MyClass1.testT";
         c.myClass = null;
         c.myClass1 = "Test.MyClass1.myClass1";
-        c = await d.opMyClass1(c);
+        c = (await d.opMyClass1(c)) as Test.MyClass1;
         test(c.tesT == "Test.MyClass1.testT");
         test(c.myClass === null);
         test(c.myClass1 == "Test.MyClass1.myClass1");
@@ -1343,7 +1412,7 @@ export async function twoways(
     }
 
     {
-        const ds = [];
+        const ds: number[] = [];
         for (let i = 0; i < 5; i++) {
             ds[i] = 1278312346.0 / 13.0;
         }

@@ -1,13 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
 import { Ice } from "@zeroc/ice";
-import { TestHelper } from "../../Common/TestHelper.js";
+import { TestHelper, test } from "../../Common/TestHelper.js";
 import { Test } from "./Test.js";
 import { MyObjectI } from "./MyObjectI.js";
-const test = TestHelper.test;
 
 export class Client extends TestHelper {
-    async allTests(args: string[], echo: Test.EchoPrx) {
+    async allTests(echo: Test.EchoPrx) {
         const communicator = this.communicator();
 
         const adapter = await communicator.createObjectAdapter("");
@@ -109,12 +108,14 @@ export class Client extends TestHelper {
         try {
             [communicator, args] = this.initialize(args);
             echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
-            await this.allTests(args, echo);
+            await this.allTests(echo);
         } finally {
             if (echo) {
                 try {
                     await echo.shutdown();
-                } catch (ex) {}
+                } catch {
+                    // Ignore shutdown exceptions
+                }
             }
             if (communicator) {
                 await communicator.destroy();

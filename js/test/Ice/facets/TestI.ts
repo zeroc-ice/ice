@@ -4,19 +4,19 @@ import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 
 export class DI extends Test.D {
-    callA(current: Ice.Current) {
+    callA(_: Ice.Current) {
         return "A";
     }
 
-    callB(current: Ice.Current) {
+    callB(_: Ice.Current) {
         return "B";
     }
 
-    callC(current: Ice.Current) {
+    callC(_: Ice.Current) {
         return "C";
     }
 
-    callD(current: Ice.Current) {
+    callD(_: Ice.Current) {
         return "D";
     }
 }
@@ -24,21 +24,21 @@ export class DI extends Test.D {
 export class EmptyI extends Test.Empty {}
 
 export class FI extends Test.F {
-    callE(current: Ice.Current) {
+    callE(_: Ice.Current) {
         return "E";
     }
 
-    callF(current: Ice.Current) {
+    callF(_: Ice.Current) {
         return "F";
     }
 }
 
 export class HI extends Test.H {
-    callG(current: Ice.Current) {
+    callG(_: Ice.Current) {
         return "G";
     }
 
-    callH(current: Ice.Current) {
+    callH(_: Ice.Current) {
         return "H";
     }
 

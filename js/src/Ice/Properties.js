@@ -350,7 +350,7 @@ export class Properties {
                 }
 
                 default: {
-                    DEV: console.assert(false);
+                    console.assert(false);
                     break;
                 }
             }

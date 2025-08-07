@@ -1,11 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 import { Ice } from "@zeroc/ice";
-import { TestHelper } from "../../Common/TestHelper.js";
+import { TestHelper, test } from "../../Common/TestHelper.js";
 import { escapedAwait } from "./Key.js";
-
-const test = TestHelper.test;
-
 export class Client extends TestHelper {
     async allTests() {
         const communicator = this.communicator();
@@ -46,11 +43,11 @@ export class Client extends TestHelper {
 
         out.write("testing classes... ");
 
-        const d = new escapedAwait._delete(null, 10);
+        const d = new escapedAwait._delete(null!, 10);
         test(d._else === null);
         test(d._export === 10);
 
-        let p = new escapedAwait._package(
+        const p = new escapedAwait._package(
             new escapedAwait._break(100),
             escapedAwait._var.base,
             escapedAwait.explicitPrx.uncheckedCast(communicator.stringToProxy("hello")),
@@ -58,7 +55,7 @@ export class Client extends TestHelper {
             "",
         );
 
-        test(p._for._while === 100);
+        test(p._for!._while === 100);
         test(p.goto === escapedAwait._var.base);
         test(p.internal instanceof Map);
         test(p._debugger === "");
