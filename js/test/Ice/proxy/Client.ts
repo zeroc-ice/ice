@@ -395,7 +395,7 @@ export class Client extends TestHelper {
         out.write("testing propertyToProxy... ");
         const prop = communicator.getProperties();
         const propertyPrefix = "Foo.Proxy";
-        prop.setProperty(propertyPrefix, "test:" + this.getTestEndpoint());
+        prop.setProperty(propertyPrefix, `test:${this.getTestEndpoint()}`);
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(
             b1.ice_getIdentity().name === "test" &&
@@ -433,7 +433,7 @@ export class Client extends TestHelper {
         test(b1.ice_getLocatorCacheTimeout() === 1);
         prop.setProperty(property, "");
 
-        prop.setProperty(propertyPrefix, "test:" + this.getTestEndpoint());
+        prop.setProperty(propertyPrefix, `test:${this.getTestEndpoint()}`);
 
         property = propertyPrefix + ".Router";
         test(b1.ice_getRouter() === null);
@@ -787,7 +787,7 @@ export class Client extends TestHelper {
 
         out.write("testing encoding versioning... ");
 
-        let ref20 = "test -e 2.0:" + this.getTestEndpoint();
+        let ref20 = `test -e 2.0:${this.getTestEndpoint()}`;
         let cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
         try {
             await cl20.ice_ping();
@@ -796,7 +796,7 @@ export class Client extends TestHelper {
             test(ex instanceof Ice.MarshalException, ex as Error);
         }
 
-        let ref10 = "test -e 1.0:" + this.getTestEndpoint();
+        let ref10 = `test -e 1.0:${this.getTestEndpoint()}`;
         let cl10 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10));
 
         await cl10.ice_ping();
@@ -805,13 +805,13 @@ export class Client extends TestHelper {
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
-        let ref13 = "test -e 1.3:" + this.getTestEndpoint();
+        let ref13 = `test -e 1.3:${this.getTestEndpoint()}`;
         let cl13 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13));
         await cl13.ice_ping();
         out.writeLine("ok");
 
         out.write("testing protocol versioning... ");
-        ref20 = "test -p 2.0:" + this.getTestEndpoint();
+        ref20 = `test -p 2.0:${this.getTestEndpoint()}`;
         cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
         try {
             await cl20.ice_ping();
@@ -821,13 +821,13 @@ export class Client extends TestHelper {
             test(ex instanceof Ice.FeatureNotSupportedException, ex as Error);
         }
 
-        ref10 = "test -p 1.0:" + this.getTestEndpoint();
+        ref10 = `test -p 1.0:${this.getTestEndpoint()}`;
         cl10 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10));
         await cl10.ice_ping();
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 protocol
-        ref13 = "test -p 1.3:" + this.getTestEndpoint();
+        ref13 = `test -p 1.3:${this.getTestEndpoint()}`;
         cl13 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13));
         await cl13.ice_ping();
         out.writeLine("ok");
@@ -940,7 +940,7 @@ export class Client extends TestHelper {
         p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 4 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
         test(communicator.proxyToString(p2) === "test:ws -h 127.0.0.1 -p 12010 -t 10000");
 
-        const ref = "test:" + this.getTestEndpoint();
+        const ref = `test:${this.getTestEndpoint()}`;
 
         const ssl = communicator.getProperties().getIceProperty("Ice.Default.Protocol") === "ssl";
         // TODO: p1 contains 127.0.0.1 - OK to invoke?
@@ -996,14 +996,14 @@ export class Client extends TestHelper {
         // losing the opaque endpoints.
         //
         derived = Test.MyDerivedClassPrx.uncheckedCast(
-            communicator.stringToProxy("test -e 1.0:" + this.getTestEndpoint()),
+            communicator.stringToProxy(`test -e 1.0:${this.getTestEndpoint()}`),
         );
         p2 = (await derived.echo(p1)) as Ice.ObjectPrx;
 
         pstr = communicator.proxyToString(p2);
         test(pstr === "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
 
-        let p = communicator.stringToProxy("test:" + this.getTestEndpoint());
+        let p = communicator.stringToProxy(`test:${this.getTestEndpoint()}`);
         if (defaultProtocol === "tcp") {
             test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.TCPEndpointInfo);
         } else if (defaultProtocol === "ws" || defaultProtocol === "wss") {
@@ -1019,8 +1019,8 @@ export class Client extends TestHelper {
 
         // The first endpoint is a non connectable and should be automatically skipped.
         p = TestHelper.isBrowser()
-            ? communicator.stringToProxy("test:" + this.getTestEndpoint("tcp") + ":" + this.getTestEndpoint())
-            : communicator.stringToProxy("test:" + this.getTestEndpoint("ws") + ":" + this.getTestEndpoint());
+            ? communicator.stringToProxy(`test:${this.getTestEndpoint("tcp")}:${this.getTestEndpoint()}`)
+            : communicator.stringToProxy(`test:${this.getTestEndpoint("ws")}:${this.getTestEndpoint()}`);
 
         p = p.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
         await p.ice_ping();
@@ -1052,7 +1052,7 @@ export class Client extends TestHelper {
             // will fail creating the WebSocket object.
             //
             const communicator2 = Ice.initialize();
-            const invalid = communicator2.stringToProxy("test:" + this.getTestEndpoint());
+            const invalid = communicator2.stringToProxy(`test:${this.getTestEndpoint()}`);
             try {
                 await invalid.ice_ping();
                 test(false);

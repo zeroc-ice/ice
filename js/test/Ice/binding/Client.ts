@@ -561,7 +561,7 @@ export class Client extends TestHelper {
                 // web socket send() method never returns for the sending of close connection message.
                 //
                 out.writeLine("Test not supported with Safari web workers.");
-                const obj = communicator.stringToProxy("communicator:" + this.getTestEndpoint());
+                const obj = communicator.stringToProxy(`communicator:${this.getTestEndpoint()}`);
                 const prx = Test.RemoteCommunicatorPrx.uncheckedCast(obj);
                 await prx.shutdown();
             } else {

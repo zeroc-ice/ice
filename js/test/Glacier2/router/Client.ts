@@ -49,7 +49,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing stringToProxy for server object... ");
-        const base = communicator.stringToProxy("c1/callback:" + this.getTestEndpoint());
+        const base = communicator.stringToProxy(`c1/callback:${this.getTestEndpoint()}`);
         out.writeLine("ok");
 
         out.write("trying to ping server before session creation... ");
@@ -98,7 +98,7 @@ export class Client extends TestHelper {
 
         {
             out.write("pinging object with client endpoint... ");
-            const baseC = communicator.stringToProxy("collocated:" + this.getTestEndpoint(50));
+            const baseC = communicator.stringToProxy(`collocated:${this.getTestEndpoint(50)}`);
             try {
                 await baseC.ice_ping();
                 test(false);
@@ -236,7 +236,7 @@ export class Client extends TestHelper {
             out.writeLine("ok");
 
             out.write("testing stringToProxy for process object... ");
-            const processBase = communicator.stringToProxy("Glacier2/admin -f Process:" + this.getTestEndpoint(51));
+            const processBase = communicator.stringToProxy(`Glacier2/admin -f Process:${this.getTestEndpoint(51)}`);
             out.writeLine("ok");
 
             out.write("testing checked cast for admin object... ");

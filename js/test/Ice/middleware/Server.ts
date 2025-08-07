@@ -52,7 +52,7 @@ export class Server extends TestHelper {
         const outLog: string[] = [];
         try {
             [communicator] = this.initialize(args);
-            echo = new Test.EchoPrx(communicator, "__echo:" + this.getTestEndpoint());
+            echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
 
             const adapter = await communicator.createObjectAdapter("");
 

@@ -444,7 +444,7 @@ export class Client extends TestHelper {
         let communicator: Ice.Communicator | null = null;
         try {
             const [properties] = this.createTestProperties(args);
-            properties.setProperty("Ice.Default.Locator", "locator:" + this.getTestEndpoint(properties));
+            properties.setProperty("Ice.Default.Locator", `locator:${this.getTestEndpoint(properties)}`);
             [communicator] = this.initialize(properties);
             await this.allTests();
         } finally {
