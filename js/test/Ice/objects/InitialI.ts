@@ -6,31 +6,31 @@ import { Test } from "./Test.js";
 import { Test as Test_Forward } from "./Forward.js";
 
 class BI extends Test.B {
-    ice_preMarshal() {
+    override ice_preMarshal() {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal() {
+    override ice_postUnmarshal() {
         this.postUnmarshalInvoked = true;
     }
 }
 
 class CI extends Test.C {
-    ice_preMarshal() {
+    override ice_preMarshal() {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal() {
+    override ice_postUnmarshal() {
         this.postUnmarshalInvoked = true;
     }
 }
 
 class DI extends Test.D {
-    ice_preMarshal() {
+    override ice_preMarshal() {
         this.preMarshalInvoked = true;
     }
 
-    ice_postUnmarshal() {
+    override ice_postUnmarshal() {
         this.postUnmarshalInvoked = true;
     }
 }
@@ -86,7 +86,7 @@ export class InitialI extends Test.Initial {
     _e: EI;
     _f: FI;
 
-    constructor(communicator: Ice.Communicator) {
+    constructor() {
         super();
         this._b1 = new BI();
         this._b2 = new BI();
@@ -110,7 +110,7 @@ export class InitialI extends Test.Initial {
         this._d.theC = null; // Reference to a C.
     }
 
-    getAll(current: Ice.Current): [Test.B | null, Test.B | null, Test.C | null, Test.D | null] {
+    getAll(_: Ice.Current): [Test.B | null, Test.B | null, Test.C | null, Test.D | null] {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;
         this._c.preMarshalInvoked = false;
@@ -118,28 +118,28 @@ export class InitialI extends Test.Initial {
         return [this._b1, this._b2, this._c, this._d];
     }
 
-    getB1(current: Ice.Current) {
+    getB1(_: Ice.Current) {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;
         this._c.preMarshalInvoked = false;
         return this._b1;
     }
 
-    getB2(current: Ice.Current) {
+    getB2(_: Ice.Current) {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;
         this._c.preMarshalInvoked = false;
         return this._b2;
     }
 
-    getC(current: Ice.Current) {
+    getC(_: Ice.Current) {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;
         this._c.preMarshalInvoked = false;
         return this._c;
     }
 
-    getD(current: Ice.Current) {
+    getD(_: Ice.Current) {
         this._b1.preMarshalInvoked = false;
         this._b2.preMarshalInvoked = false;
         this._c.preMarshalInvoked = false;
@@ -147,87 +147,87 @@ export class InitialI extends Test.Initial {
         return this._d;
     }
 
-    getE(current: Ice.Current) {
+    getE(_: Ice.Current) {
         return this._e;
     }
 
-    getF(current: Ice.Current) {
+    getF(_: Ice.Current) {
         return this._f;
     }
 
-    setRecursive(r: Test.Recursive, current: Ice.Current) {}
+    setRecursive(_r: Test.Recursive, _: Ice.Current) {}
 
-    setCycle(r: Test.Recursive, current: Ice.Current) {}
+    setCycle(_r: Test.Recursive, _: Ice.Current) {}
 
-    acceptsClassCycles(current: Ice.Current) {
+    acceptsClassCycles(_: Ice.Current) {
         return true;
     }
 
-    getMB(current: Ice.Current) {
+    getMB(_: Ice.Current) {
         return this._b1;
     }
 
-    getAMDMB(current: Ice.Current) {
+    getAMDMB(_: Ice.Current) {
         return Ice.Promise.resolve(this._b1);
     }
 
-    getK(current: Ice.Current) {
+    getK(_: Ice.Current) {
         return new Test.K(new Test.L("l"));
     }
-    opValue(v1: Ice.Value | null, current: Ice.Current): [Ice.Value | null, Ice.Value | null] {
+    opValue(v1: Ice.Value | null, _: Ice.Current): [Ice.Value | null, Ice.Value | null] {
         return [v1, v1];
     }
 
-    opValueSeq(v1: (Ice.Value | null)[], current: Ice.Current): [(Ice.Value | null)[], (Ice.Value | null)[]] {
+    opValueSeq(v1: (Ice.Value | null)[], _: Ice.Current): [(Ice.Value | null)[], (Ice.Value | null)[]] {
         return [v1, v1];
     }
 
     opValueMap(
         v1: Map<string, Ice.Value | null>,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Map<string, Ice.Value | null>, Map<string, Ice.Value | null>] {
         return [v1, v1];
     }
 
-    getD1(d1: Test.D1 | null, current: Ice.Current): Test.D1 | null {
+    getD1(d1: Test.D1 | null, _: Ice.Current): Test.D1 | null {
         return d1;
     }
 
-    throwEDerived(current: Ice.Current) {
+    throwEDerived(_: Ice.Current) {
         throw new Test.EDerived(new Test.A1("a1"), new Test.A1("a2"), new Test.A1("a3"), new Test.A1("a4"));
     }
 
-    setG(theG: Test.G, current: Ice.Current) {}
+    setG(_theG: Test.G, _: Ice.Current) {}
 
-    opBaseSeq(inS: (Test.Base | null)[], current: Ice.Current): [(Test.Base | null)[], (Test.Base | null)[]] {
+    opBaseSeq(inS: (Test.Base | null)[], _: Ice.Current): [(Test.Base | null)[], (Test.Base | null)[]] {
         return [inS, inS];
     }
 
-    getCompact(current: Ice.Current) {
+    getCompact(_: Ice.Current) {
         return new Test.CompactExt();
     }
 
-    getInnerA(current: Ice.Current) {
+    getInnerA(_: Ice.Current) {
         return new Test.Inner.A(this._b1);
     }
 
-    getInnerSubA(current: Ice.Current) {
+    getInnerSubA(_: Ice.Current) {
         return new Test.Inner.Sub.A(new Test.Inner.A(this._b1));
     }
 
-    throwInnerEx(current: Ice.Current) {
+    throwInnerEx(_: Ice.Current) {
         throw new Test.Inner.Ex("Inner::Ex");
     }
 
-    throwInnerSubEx(current: Ice.Current) {
+    throwInnerSubEx(_: Ice.Current) {
         throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
     }
 
-    opM(v1: Test.M | null, current: Ice.Current): [Test.M | null, Test.M | null] {
+    opM(v1: Test.M | null, _: Ice.Current): [Test.M | null, Test.M | null] {
         return [v1, v1];
     }
 
-    opF1(f11: Test_Forward.F1 | null, current: Ice.Current): [Test_Forward.F1 | null, Test_Forward.F1 | null] {
+    opF1(f11: Test_Forward.F1 | null, _: Ice.Current): [Test_Forward.F1 | null, Test_Forward.F1 | null] {
         return [f11, new Test_Forward.F1("F12")];
     }
 
@@ -245,7 +245,7 @@ export class InitialI extends Test.Initial {
         ];
     }
 
-    hasF3(current: Ice.Current) {
+    hasF3(_: Ice.Current) {
         return true;
     }
 

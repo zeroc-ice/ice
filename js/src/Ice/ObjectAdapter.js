@@ -121,7 +121,7 @@ export class ObjectAdapter {
             let p;
             if (router !== null) {
                 this._routerInfo = this._instance.routerManager().find(router);
-                DEV: console.assert(this._routerInfo !== null);
+                console.assert(this._routerInfo !== null);
 
                 //
                 // Make sure this router is not already registered with another adapter.

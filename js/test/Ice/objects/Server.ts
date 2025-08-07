@@ -14,13 +14,13 @@ import { TestHelper } from "../../Common/TestHelper.js";
 import { InitialI, CustomSliceLoader } from "./InitialI.js";
 
 class UnexpectedObjectExceptionTestI extends Test.UnexpectedObjectExceptionTest {
-    op(current: Ice.Current) {
+    op(_: Ice.Current) {
         return new Test.AlsoEmpty();
     }
 }
 
 class F2I extends Test.F2 {
-    op(current: Ice.Current) {}
+    op(_: Ice.Current) {}
 }
 
 export class Server extends TestHelper {
@@ -28,7 +28,7 @@ export class Server extends TestHelper {
         let communicator: Ice.Communicator | null = null;
         let echo: Test_Test.EchoPrx | null = null;
         try {
-            let initData = new Ice.InitializationData();
+            const initData = new Ice.InitializationData();
             [initData.properties] = this.createTestProperties(args);
             initData.properties.setProperty("Ice.Warn.Dispatch", "0");
             initData.properties.setProperty("Ice.Warn.Connections", "0");
@@ -37,7 +37,7 @@ export class Server extends TestHelper {
             [communicator] = this.initialize(initData);
             echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
             const adapter = await communicator.createObjectAdapter("");
-            adapter.add(new InitialI(communicator), Ice.stringToIdentity("initial"));
+            adapter.add(new InitialI(), Ice.stringToIdentity("initial"));
             adapter.add(new F2I(), Ice.stringToIdentity("F21"));
             adapter.add(new UnexpectedObjectExceptionTestI(), Ice.stringToIdentity("uoet"));
             await echo.setConnection();

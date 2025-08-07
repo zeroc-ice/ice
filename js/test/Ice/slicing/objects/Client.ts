@@ -2,9 +2,8 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../../Common/TestHelper.js";
+import { TestHelper, test } from "../../../Common/TestHelper.js";
 
-const test = TestHelper.test;
 export class Client extends TestHelper {
     async allTests() {
         const out = this.getWriter();
@@ -24,6 +23,7 @@ export class Client extends TestHelper {
         out.write("base as base... ");
         {
             const sb = await prx.SBaseAsSBase();
+            test(sb !== null);
             test(sb.sb == "SBase.sb");
         }
         out.writeLine("ok");
@@ -40,6 +40,7 @@ export class Client extends TestHelper {
         out.write("base with known derived as known derived... ");
         {
             const sb = await prx.SBSKnownDerivedAsSBSKnownDerived();
+            test(sb !== null);
             test(sb.sbskd == "SBSKnownDerived.sbskd");
         }
         out.writeLine("ok");
@@ -47,18 +48,20 @@ export class Client extends TestHelper {
         out.write("base with unknown derived as base... ");
         {
             const sb = await prx.SBSUnknownDerivedAsSBase();
+            test(sb !== null);
             test(sb.sb == "SBSUnknownDerived.sb");
         }
 
         if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
             const sb = await prx.SBSUnknownDerivedAsSBaseCompact();
+            test(sb !== null);
             test(sb.sb == "SBSUnknownDerived.sb");
         } else {
             try {
                 await prx.SBSUnknownDerivedAsSBaseCompact();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.MarshalException, ex);
+                test(ex instanceof Ice.MarshalException, ex as Error);
             }
         }
         out.writeLine("ok");
@@ -72,8 +75,11 @@ export class Client extends TestHelper {
             test(obj.ice_getSlicedData() !== null);
             await prx.checkSUnknown(obj);
         } catch (ex) {
-            test(ex instanceof Ice.MarshalException, ex);
-            test(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
+            if (ex instanceof Ice.MarshalException) {
+                test(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -122,7 +128,7 @@ export class Client extends TestHelper {
 
         out.write("unknown derived pointer slicing as base... ");
         {
-            const b2: Test.B = await prx.D2AsB();
+            const b2: Test.B = (await prx.D2AsB()) as Test.B;
 
             test(b2 !== null);
             test(b2.ice_id() == "::Test::B");
@@ -143,7 +149,7 @@ export class Client extends TestHelper {
 
         out.write("param ptr slicing with known first... ");
         {
-            const [b1, b2]: [Test.B, Test.B] = await prx.paramTest1();
+            const [b1, b2]: [Test.B, Test.B] = (await prx.paramTest1()) as [Test.B, Test.B];
             test(b1 !== null);
             test(b1.ice_id() == "::Test::D1");
             test(b1.sb == "D1.sb");
@@ -162,7 +168,7 @@ export class Client extends TestHelper {
 
         out.write("param ptr slicing with unknown first... ");
         {
-            const [b2, b1]: [Test.B, Test.B] = await prx.paramTest2();
+            const [b2, b1]: [Test.B, Test.B] = (await prx.paramTest2()) as [Test.B, Test.B];
             test(b1 !== null);
             test(b1.ice_id() == "::Test::D1");
             test(b1.sb == "D1.sb");
@@ -195,7 +201,7 @@ export class Client extends TestHelper {
 
         out.write("return value identity for input params known first... ");
         {
-            let d1 = new Test.D1();
+            const d1 = new Test.D1();
             d1.sb = "D1.sb";
             d1.sd1 = "D1.sd1";
             const d3 = new Test.D3();
@@ -344,9 +350,9 @@ export class Client extends TestHelper {
                 const p3 = ret as Test.D3;
                 test(p3 !== null);
                 test(p3.sd3 == "D3.sd3");
-                test(p3.pd3.ice_id() == "::Test::B");
-                test(p3.pd3.sb == "B.sb(1)");
-                test(p3.pd3.pb === p3.pd3);
+                test(p3.pd3!.ice_id() == "::Test::B");
+                test(p3.pd3!.sb == "B.sb(1)");
+                test(p3.pd3!.pb === p3.pd3);
             }
         }
         out.writeLine("ok");
@@ -429,13 +435,13 @@ export class Client extends TestHelper {
             const ss = await prx.sequenceTest(ss1, ss2);
 
             test(ss.c1 !== null);
-            ss1b = ss.c1.s[0];
+            ss1b = ss.c1.s[0] as Test.B;
             ss1d1 = ss.c1.s[1] as Test.D1;
             test(ss.c2 !== null);
             ss1d3 = ss.c1.s[2] as Test.D3;
 
             test(ss.c2 !== null);
-            ss2b = ss.c2.s[0];
+            ss2b = ss.c2.s[0] as Test.B;
             ss2d1 = ss.c2.s[1] as Test.D1;
             ss2d3 = ss.c2.s[2] as Test.D3;
 
@@ -479,7 +485,7 @@ export class Client extends TestHelper {
             test(boutH.size === 10);
             for (let i = 0; i < 10; ++i) {
                 const b = boutH.get(i * 10);
-                test(b !== null);
+                test(b instanceof Test.B);
                 const s = `D1.${i}`;
                 test(b.sb == s);
                 test(b.pb !== null);
@@ -491,7 +497,7 @@ export class Client extends TestHelper {
             test(ret.size === 10);
             for (let i = 0; i < 10; ++i) {
                 const b = ret.get(i * 20);
-                test(b !== null);
+                test(b instanceof Test.B);
                 const s = "D1." + i * 20;
                 test(b.sb == s);
                 test(b.pb === (i === 0 ? null : ret.get((i - 1) * 20)));
@@ -507,12 +513,15 @@ export class Client extends TestHelper {
             await prx.throwBaseAsBase();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.BaseException, ex);
-            test(ex.ice_id() == "::Test::BaseException");
-            test(ex.sbe == "sbe");
-            test(ex.pb !== null);
-            test(ex.pb.sb == "sb");
-            test(ex.pb.pb == ex.pb);
+            if (ex instanceof Test.BaseException) {
+                test(ex.ice_id() == "::Test::BaseException");
+                test(ex.sbe == "sbe");
+                test(ex.pb !== null);
+                test(ex.pb.sb == "sb");
+                test(ex.pb.pb == ex.pb);
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -521,18 +530,21 @@ export class Client extends TestHelper {
             await prx.throwDerivedAsBase();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.DerivedException, ex);
-            test(ex.ice_id() == "::Test::DerivedException");
-            test(ex.sbe == "sbe");
-            test(ex.pb !== null);
-            test(ex.pb.sb == "sb1");
-            test(ex.pb.pb === ex.pb);
-            test(ex.sde == "sde1");
-            test(ex.pd1 !== null);
-            test(ex.pd1.sb == "sb2");
-            test(ex.pd1.pb === ex.pd1);
-            test(ex.pd1.sd1 == "sd2");
-            test(ex.pd1.pd1 === ex.pd1);
+            if (ex instanceof Test.DerivedException) {
+                test(ex.ice_id() == "::Test::DerivedException");
+                test(ex.sbe == "sbe");
+                test(ex.pb !== null);
+                test(ex.pb.sb == "sb1");
+                test(ex.pb.pb === ex.pb);
+                test(ex.sde == "sde1");
+                test(ex.pd1 !== null);
+                test(ex.pd1.sb == "sb2");
+                test(ex.pd1.pb === ex.pd1);
+                test(ex.pd1.sd1 == "sd2");
+                test(ex.pd1.pd1 === ex.pd1);
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -541,18 +553,21 @@ export class Client extends TestHelper {
             await prx.throwDerivedAsDerived();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.DerivedException, ex);
-            test(ex.ice_id() == "::Test::DerivedException");
-            test(ex.sbe == "sbe");
-            test(ex.pb !== null);
-            test(ex.pb.sb == "sb1");
-            test(ex.pb.pb == ex.pb);
-            test(ex.sde == "sde1");
-            test(ex.pd1 !== null);
-            test(ex.pd1.sb == "sb2");
-            test(ex.pd1.pb === ex.pd1);
-            test(ex.pd1.sd1 == "sd2");
-            test(ex.pd1.pd1 === ex.pd1);
+            if (ex instanceof Test.DerivedException) {
+                test(ex.ice_id() == "::Test::DerivedException");
+                test(ex.sbe == "sbe");
+                test(ex.pb !== null);
+                test(ex.pb.sb == "sb1");
+                test(ex.pb.pb == ex.pb);
+                test(ex.sde == "sde1");
+                test(ex.pd1 !== null);
+                test(ex.pd1.sb == "sb2");
+                test(ex.pd1.pb === ex.pd1);
+                test(ex.pd1.sd1 == "sd2");
+                test(ex.pd1.pd1 === ex.pd1);
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -561,12 +576,15 @@ export class Client extends TestHelper {
             await prx.throwUnknownDerivedAsBase();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.BaseException, ex);
-            test(ex.ice_id() == "::Test::BaseException");
-            test(ex.sbe == "sbe");
-            test(ex.pb !== null);
-            test(ex.pb.sb == "sb d2");
-            test(ex.pb.pb == ex.pb);
+            if (ex instanceof Test.BaseException) {
+                test(ex.ice_id() == "::Test::BaseException");
+                test(ex.sbe == "sbe");
+                test(ex.pb !== null);
+                test(ex.pb.sb == "sb d2");
+                test(ex.pb.pb == ex.pb);
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -603,7 +621,7 @@ export class Client extends TestHelper {
             pu.pu = "preserved";
 
             const r = await prx.exchangePBase(pu);
-
+            test(r !== null);
             test(r.pi == 3);
 
             if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
@@ -626,6 +644,7 @@ export class Client extends TestHelper {
 
             const r = await prx.exchangePBase(pcd);
             if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
+                test(r !== null);
                 test(!(r instanceof Test.PCDerived));
                 test(r.pi === 3);
             } else {
@@ -646,6 +665,7 @@ export class Client extends TestHelper {
 
             const r = await prx.exchangePBase(pcd);
             if (prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {
+                test(r !== null);
                 test(!(r instanceof Test.CompactPCDerived));
                 test(r.pi === 3);
             } else {
@@ -704,6 +724,7 @@ export class Client extends TestHelper {
             // they should be included.
             //
             const p = await prx.PBSUnknownAsPreserved();
+            test(p !== null);
             await prx.checkPBSUnknown(p);
 
             if (!prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0)) {

@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 // Verify that the client idle check does not abort the connection while dispatching a request.
 // The server idle timeout is set to 1 second, and the server idle check is disabled.
@@ -22,7 +20,7 @@ async function testConnectionNotAbortedByIdleCheck(properties: Ice.Properties, h
     const completedPromise = new Ice.Promise<void>();
 
     const TestI = class extends Test.DelayedTestIntf {
-        async sleep(msecs: number, current: Ice.Current): Promise<void> {
+        async sleep(msecs: number, _: Ice.Current): Promise<void> {
             await Ice.Promise.delay(msecs);
             completedPromise.resolve();
         }
@@ -70,7 +68,7 @@ async function testConnectionAbortedByIdleCheck(properties: Ice.Properties, help
     const completedPromise = new Ice.Promise<void>();
 
     const TestI = class extends Test.DelayedTestIntf {
-        async sleep(msecs: number, current: Ice.Current): Promise<void> {
+        async sleep(msecs: number, _: Ice.Current): Promise<void> {
             await Ice.Promise.delay(msecs);
             completedPromise.resolve();
         }

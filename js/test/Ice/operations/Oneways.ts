@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { test } from "../../Common/TestHelper.js";
 
 export async function oneways(prx: Test.MyClassPrx) {
     prx = prx.ice_oneway();
@@ -15,7 +13,7 @@ export async function oneways(prx: Test.MyClassPrx) {
         test(false);
     } catch (ex) {
         // Expected: twoway proxy required
-        test(ex instanceof Ice.TwowayOnlyException, ex);
+        test(ex instanceof Ice.TwowayOnlyException, ex as Error);
     }
 
     try {
@@ -23,7 +21,7 @@ export async function oneways(prx: Test.MyClassPrx) {
         test(false);
     } catch (ex) {
         // Expected: twoway proxy required
-        test(ex instanceof Ice.TwowayOnlyException, ex);
+        test(ex instanceof Ice.TwowayOnlyException, ex as Error);
     }
 
     try {
@@ -31,7 +29,7 @@ export async function oneways(prx: Test.MyClassPrx) {
         test(false);
     } catch (ex) {
         // Expected: twoway proxy required
-        test(ex instanceof Ice.TwowayOnlyException, ex);
+        test(ex instanceof Ice.TwowayOnlyException, ex as Error);
     }
 
     await prx.opVoid();
@@ -42,6 +40,6 @@ export async function oneways(prx: Test.MyClassPrx) {
         test(false);
     } catch (ex) {
         // Expected: twoway proxy required
-        test(ex instanceof Ice.TwowayOnlyException, ex);
+        test(ex instanceof Ice.TwowayOnlyException, ex as Error);
     }
 }

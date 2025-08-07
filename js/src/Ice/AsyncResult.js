@@ -40,7 +40,7 @@ export class AsyncResult extends Promise {
     }
 
     markSent(done) {
-        DEV: console.assert((this._state & AsyncResult.Done) === 0);
+        console.assert((this._state & AsyncResult.Done) === 0);
         this._state |= AsyncResult.Sent;
         if (done) {
             this._state |= AsyncResult.Done | AsyncResult.Ok;
@@ -50,7 +50,7 @@ export class AsyncResult extends Promise {
     }
 
     markFinished(ok, completed) {
-        DEV: console.assert((this._state & AsyncResult.Done) === 0);
+        console.assert((this._state & AsyncResult.Done) === 0);
         this._state |= AsyncResult.Done;
         if (ok) {
             this._state |= AsyncResult.Ok;
@@ -64,7 +64,7 @@ export class AsyncResult extends Promise {
     }
 
     markFinishedEx(ex) {
-        DEV: console.assert((this._state & AsyncResult.Done) === 0);
+        console.assert((this._state & AsyncResult.Done) === 0);
         this._exception = ex;
         this._state |= AsyncResult.Done;
         this._cancellationHandler = null;

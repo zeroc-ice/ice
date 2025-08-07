@@ -269,7 +269,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
         }
 
         ++this._cnt;
-        DEV: console.assert(this._cnt > 0);
+        console.assert(this._cnt > 0);
 
         const retryIntervals = instance._retryIntervals;
 
@@ -311,7 +311,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
         }
     }
 
-    prepare(op, mode, ctx) {
+    prepare(mode, ctx) {
         const protocol = this._proxy._getReference().getProtocol();
         if (protocol.major != Protocol.currentProtocol.major) {
             throw new FeatureNotSupportedException(
@@ -404,7 +404,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
     }
 
     completed(istr) {
-        DEV: console.assert(this._proxy.ice_isTwoway()); // Can only be called for twoways.
+        console.assert(this._proxy.ice_isTwoway()); // Can only be called for twoways.
 
         try {
             if (this._is === null) {
@@ -504,7 +504,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
     }
 
     throwUserException() {
-        DEV: console.assert((this._state & AsyncResult.Done) !== 0);
+        console.assert((this._state & AsyncResult.Done) !== 0);
         if ((this._state & AsyncResult.Ok) === 0) {
             try {
                 this._is.startEncapsulation();

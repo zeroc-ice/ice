@@ -2,22 +2,20 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests() {
         class EmptyI extends Test.Empty {}
 
         class ServantLocatorI implements Ice.ServantLocator {
-            locate(current: Ice.Current, cookie: Ice.Holder<Object>): Ice.Object {
-                return null!;
+            locate(_current: Ice.Current, _cookie: Ice.Holder<object>): Ice.Object | null {
+                return null;
             }
 
-            finished(current: Ice.Current, servant: Ice.Object, cookie: Object) {}
+            finished(_current: Ice.Current, _servant: Ice.Object, _cookie: object) {}
 
-            deactivate(category: string) {}
+            deactivate(_category: string) {}
         }
 
         const out = this.getWriter();
@@ -27,7 +25,7 @@ export class Client extends TestHelper {
             await communicator.createObjectAdapter("TestAdapter0");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.InitializationException, ex); // Expected
+            test(ex instanceof Ice.InitializationException, ex as Error); // Expected
         }
 
         communicator.getProperties().setProperty("TestAdapter0.Endpoints", "default");
@@ -35,7 +33,7 @@ export class Client extends TestHelper {
             await communicator.createObjectAdapter("TestAdapter0");
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.PropertyException, ex); // Expected
+            test(ex instanceof Ice.PropertyException, ex as Error); // Expected
         }
         out.writeLine("ok");
 
@@ -47,21 +45,21 @@ export class Client extends TestHelper {
                 adapter.add(new EmptyI(), Ice.stringToIdentity("x"));
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.AlreadyRegisteredException, ex);
+                test(ex instanceof Ice.AlreadyRegisteredException, ex as Error);
             }
 
             try {
                 adapter.add(new EmptyI(), Ice.stringToIdentity(""));
                 test(false);
             } catch (ex) {
-                test(ex instanceof TypeError, ex);
+                test(ex instanceof TypeError, ex as Error);
             }
 
             try {
                 adapter.add(null!, Ice.stringToIdentity("x"));
                 test(false);
             } catch (ex) {
-                test(ex instanceof TypeError, ex);
+                test(ex instanceof TypeError, ex as Error);
             }
 
             adapter.remove(Ice.stringToIdentity("x"));
@@ -69,7 +67,7 @@ export class Client extends TestHelper {
                 adapter.remove(Ice.stringToIdentity("x"));
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.NotRegisteredException, ex);
+                test(ex instanceof Ice.NotRegisteredException, ex as Error);
             }
             adapter.destroy();
         }
@@ -83,7 +81,7 @@ export class Client extends TestHelper {
                 adapter.addServantLocator(new ServantLocatorI(), "x");
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.AlreadyRegisteredException, ex);
+                test(ex instanceof Ice.AlreadyRegisteredException, ex as Error);
             }
             adapter.destroy();
             out.writeLine("ok");
@@ -97,43 +95,58 @@ export class Client extends TestHelper {
             await thrower.throwAasA(1);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.A, ex);
-            test(ex.aMem === 1);
+            if (ex instanceof Test.A) {
+                test(ex.aMem === 1);
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         try {
             await thrower.throwAorDasAorD(1);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.A, ex);
-            test(ex.aMem === 1);
+            if (ex instanceof Test.A) {
+                test(ex.aMem === 1);
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         try {
             await thrower.throwAorDasAorD(-1);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.D, ex);
-            test(ex.dMem === -1);
+            if (ex instanceof Test.D) {
+                test(ex.dMem === -1);
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         try {
             await thrower.throwBasB(1, 2);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.B, ex);
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
+            if (ex instanceof Test.B) {
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         try {
             await thrower.throwCasC(1, 2, 3);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.C, ex);
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
-            test(ex.cMem == 3);
+            if (ex instanceof Test.C) {
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+                test(ex.cMem == 3);
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -142,17 +155,23 @@ export class Client extends TestHelper {
             await thrower.throwBasB(1, 2);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.A, ex);
-            test(ex.aMem == 1);
+            if (ex instanceof Test.A) {
+                test(ex.aMem == 1);
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         try {
             await thrower.throwCasC(1, 2, 3);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.B, ex);
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
+            if (ex instanceof Test.B) {
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -161,29 +180,41 @@ export class Client extends TestHelper {
             await thrower.throwBasA(1, 2);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.B, ex);
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
+            if (ex instanceof Test.B) {
+                test(ex instanceof Test.B, ex);
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         try {
             await thrower.throwCasA(1, 2, 3);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.C, ex);
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
-            test(ex.cMem == 3);
+            if (ex instanceof Test.C) {
+                test(ex instanceof Test.C, ex);
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+                test(ex.cMem == 3);
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         try {
             await thrower.throwCasB(1, 2, 3);
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.C, ex);
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
-            test(ex.cMem == 3);
+            if (ex instanceof Test.C) {
+                test(ex instanceof Test.C, ex);
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+                test(ex.cMem == 3);
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -193,21 +224,21 @@ export class Client extends TestHelper {
                 await thrower.throwUndeclaredA(1);
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownUserException, ex);
+                test(ex instanceof Ice.UnknownUserException, ex as Error);
             }
 
             try {
                 await thrower.throwUndeclaredB(1, 2);
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownUserException, ex);
+                test(ex instanceof Ice.UnknownUserException, ex as Error);
             }
 
             try {
                 await thrower.throwUndeclaredC(1, 2, 3);
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.UnknownUserException, ex);
+                test(ex instanceof Ice.UnknownUserException, ex as Error);
             }
             out.writeLine("ok");
         }
@@ -218,24 +249,25 @@ export class Client extends TestHelper {
                 await thrower.throwAssertException();
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.ConnectionLostException || ex instanceof Ice.UnknownException, ex);
+                test(ex instanceof Ice.ConnectionLostException || ex instanceof Ice.UnknownException, ex as Error);
             }
             out.writeLine("ok");
         }
 
         out.write("testing memory limit marshal exception...");
         try {
-            await thrower.throwMemoryLimitException(null);
+            await thrower.throwMemoryLimitException(new Uint8Array(0));
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.MarshalException, ex);
+            test(ex instanceof Ice.MarshalException, ex as Error);
         }
 
         try {
             await thrower.throwMemoryLimitException(new Uint8Array(20 * 1024));
             test(false);
         } catch (ex) {
-            test(ex.toString().indexOf("ConnectionLostException") > 0, ex);
+            const err = ex as Error;
+            test(err.toString().indexOf("ConnectionLostException") > 0, err);
         }
         out.writeLine("ok");
 
@@ -265,8 +297,11 @@ export class Client extends TestHelper {
             await thrower2.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
-            test(ex.id.equals(Ice.stringToIdentity("does not exist")));
+            if (ex instanceof Ice.ObjectNotExistException) {
+                test(ex.id.equals(Ice.stringToIdentity("does not exist")));
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -276,8 +311,11 @@ export class Client extends TestHelper {
             await thrower2.ice_ping();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.FacetNotExistException, ex);
-            test(ex.facet == "no such facet");
+            if (ex instanceof Ice.FacetNotExistException) {
+                test(ex.facet == "no such facet");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -287,8 +325,11 @@ export class Client extends TestHelper {
             await thrower2.noSuchOperation();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.OperationNotExistException, ex);
-            test(ex.operation == "noSuchOperation");
+            if (ex instanceof Ice.OperationNotExistException) {
+                test(ex.operation == "noSuchOperation");
+            } else {
+                test(false, ex as Error);
+            }
         }
         out.writeLine("ok");
 
@@ -297,14 +338,14 @@ export class Client extends TestHelper {
             await thrower.throwLocalException();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.UnknownLocalException, ex);
+            test(ex instanceof Ice.UnknownLocalException, ex as Error);
         }
 
         try {
             await thrower.throwLocalExceptionIdempotent();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.UnknownLocalException || ex instanceof Ice.OperationNotExistException, ex);
+            test(ex instanceof Ice.UnknownLocalException || ex instanceof Ice.OperationNotExistException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -313,7 +354,7 @@ export class Client extends TestHelper {
             await thrower.throwNonIceException();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.UnknownException, ex);
+            test(ex instanceof Ice.UnknownException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -323,30 +364,41 @@ export class Client extends TestHelper {
             await thrower.throwDispatchException(Ice.ReplyStatus.OperationNotExist.value);
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.OperationNotExistException, ex);
-            test(
-                ex.message ===
-                    "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }",
-            );
+            if (ex instanceof Ice.OperationNotExistException) {
+                test(
+                    ex.message ===
+                        "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }",
+                );
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         try {
             await thrower.throwDispatchException(Ice.ReplyStatus.Unauthorized.value);
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.DispatchException && ex.replyStatus == Ice.ReplyStatus.Unauthorized, ex);
-            test(
-                ex.message === "The dispatch failed with reply status Unauthorized." ||
-                    ex.message === "The dispatch failed with reply status unauthorized.",
-            ); // for Swift
+            if (ex instanceof Ice.DispatchException) {
+                test(ex.replyStatus == Ice.ReplyStatus.Unauthorized);
+                test(
+                    ex.message === "The dispatch failed with reply status Unauthorized." ||
+                        ex.message === "The dispatch failed with reply status unauthorized.",
+                );
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         try {
             await thrower.throwDispatchException(212);
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.DispatchException && ex.replyStatus.value === 212, ex);
-            test(ex.message === "The dispatch failed with reply status 212.");
+            if (ex instanceof Ice.DispatchException) {
+                test(ex.replyStatus.value === 212);
+                test(ex.message === "The dispatch failed with reply status 212.");
+            } else {
+                test(false, ex as Error);
+            }
         }
 
         out.writeLine("ok");
@@ -357,7 +409,7 @@ export class Client extends TestHelper {
             await thrower.throwAfterException();
             test(false);
         } catch (ex) {
-            test(ex instanceof Test.A, ex);
+            test(ex instanceof Test.A, ex as Error);
         }
         out.writeLine("ok");
 

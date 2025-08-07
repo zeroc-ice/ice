@@ -1,9 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 import { Ice } from "@zeroc/ice";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests(args: string[]) {
@@ -33,7 +31,7 @@ export class Client extends TestHelper {
         props.set("BServer", "\\server\\dir");
 
         const properties = Ice.createProperties();
-        /* eslint-disable no-sync */
+
         if (!TestHelper.isBrowser()) {
             const fs = await import("fs");
             const path = await import("path");

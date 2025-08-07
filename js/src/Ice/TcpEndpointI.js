@@ -129,7 +129,7 @@ export class TcpEndpointI extends IPEndpointI {
     }
 
     connect() {
-        DEV: console.assert(!this.secure());
+        console.assert(!this.secure());
         return new TcpTransceiver(this._instance, this.getAddress(), this._sourceAddr);
     }
 

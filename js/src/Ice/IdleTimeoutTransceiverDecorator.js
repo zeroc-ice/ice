@@ -2,7 +2,7 @@
 
 export class IdleTimeoutTransceiverDecorator {
     constructor(decoratee, connection, timer, idleTimeout, enableIdleCheck) {
-        DEV: console.assert(idleTimeout > 0);
+        console.assert(idleTimeout > 0);
 
         this._decoratee = decoratee;
         this._idleTimeout = idleTimeout * 1000; // Convert seconds to milliseconds

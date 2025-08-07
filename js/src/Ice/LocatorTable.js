@@ -80,7 +80,7 @@ export class LocatorTable {
     }
 
     checkTTL(time, ttl) {
-        DEV: console.assert(ttl !== 0);
+        console.assert(ttl !== 0);
         if (ttl < 0) {
             // TTL = infinite
             return true;

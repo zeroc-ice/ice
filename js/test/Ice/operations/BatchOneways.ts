@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { test } from "../../Common/TestHelper.js";
 
 export async function batchOneways(prx: Test.MyClassPrx) {
     const bs1 = new Uint8Array(10 * 1024);

@@ -4,45 +4,45 @@ import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 
 export class IAI extends Test.MA.IA {
-    iaop(p: Test.MA.IAPrx, current: Ice.Current) {
+    iaop(p: Test.MA.IAPrx, _: Ice.Current) {
         return p;
     }
 }
 
 export class IB1I extends Test.MB.IB1 {
-    iaop(p: Test.MA.IAPrx, current: Ice.Current) {
+    iaop(p: Test.MA.IAPrx, _: Ice.Current) {
         return p;
     }
 
-    ib1op(p: Test.MB.IB1Prx, current: Ice.Current) {
+    ib1op(p: Test.MB.IB1Prx, _: Ice.Current) {
         return p;
     }
 }
 
 export class IB2I extends Test.MB.IB2 {
-    iaop(p: Test.MA.IAPrx, current: Ice.Current) {
+    iaop(p: Test.MA.IAPrx, _: Ice.Current) {
         return p;
     }
 
-    ib2op(p: Test.MB.IB2Prx, current: Ice.Current) {
+    ib2op(p: Test.MB.IB2Prx, _: Ice.Current) {
         return p;
     }
 }
 
 export class ICI extends Test.MA.IC {
-    iaop(p: Test.MA.IAPrx, current: Ice.Current) {
+    iaop(p: Test.MA.IAPrx, _: Ice.Current) {
         return p;
     }
 
-    icop(p: Test.MA.ICPrx, current: Ice.Current) {
+    icop(p: Test.MA.ICPrx, _: Ice.Current) {
         return p;
     }
 
-    ib1op(p: Test.MB.IB1Prx, current: Ice.Current) {
+    ib1op(p: Test.MB.IB1Prx, _: Ice.Current) {
         return p;
     }
 
-    ib2op(p: Test.MB.IB2Prx, current: Ice.Current) {
+    ib2op(p: Test.MB.IB2Prx, _: Ice.Current) {
         return p;
     }
 }
@@ -61,19 +61,19 @@ export class InitialI extends Test.Initial {
         this._ic = Test.MA.ICPrx.uncheckedCast(adapter.addWithUUID(new ICI()).ice_endpoints(endpoints));
     }
 
-    iaop(current: Ice.Current) {
+    iaop(_: Ice.Current) {
         return this._ia;
     }
 
-    ib1op(current: Ice.Current) {
+    ib1op(_: Ice.Current) {
         return this._ib1;
     }
 
-    ib2op(current: Ice.Current) {
+    ib2op(_: Ice.Current) {
         return this._ib2;
     }
 
-    icop(current: Ice.Current) {
+    icop(_: Ice.Current) {
         return this._ic;
     }
 

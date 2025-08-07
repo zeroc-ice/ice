@@ -671,8 +671,8 @@ initialization. See `InitializationData.pluginFactories`.
   await using communicator = Ice.initialize(process.argv);
   ```
 
-- Ice for JavaScript now uses `console.assert` with the label `DEV`. You must configure your build to strip out these
-  `DEV` assertions in release builds.
+- Ice for JavaScript now uses `console.assert`. You can configure your build to strip out these assertions in release
+  builds.
 
 - Fixed a bug where a reply could be processed before the corresponding request was marked as sent. This could break
   at-most-once semantics.

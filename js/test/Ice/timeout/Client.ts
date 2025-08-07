@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests() {
@@ -33,7 +31,7 @@ export class Client extends TestHelper {
                 await timeout.op(); // Expect ConnectTimeoutException.
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.ConnectTimeoutException, ex);
+                test(ex instanceof Ice.ConnectTimeoutException, ex as Error);
             }
             controller.resumeAdapter();
             await timeout.op(); // Ensure adapter is active.
@@ -49,7 +47,7 @@ export class Client extends TestHelper {
             try {
                 await to.op(); // Expect success.
             } catch (ex) {
-                test(false, ex);
+                test(false, ex as Error);
             } finally {
                 await controller.resumeAdapter();
                 await communicator2.destroy();
@@ -67,7 +65,7 @@ export class Client extends TestHelper {
                 await to.sleep(1000);
                 test(false);
             } catch (ex) {
-                test(ex instanceof Ice.InvocationTimeoutException, ex);
+                test(ex instanceof Ice.InvocationTimeoutException, ex as Error);
             }
             await timeout.ice_ping();
             to = timeout.ice_invocationTimeout(1000);
@@ -76,7 +74,7 @@ export class Client extends TestHelper {
             try {
                 await to.sleep(100);
             } catch (ex) {
-                test(false);
+                test(false, ex as Error);
             }
         }
         out.writeLine("ok");
@@ -91,20 +89,20 @@ export class Client extends TestHelper {
                 try {
                     connection.getInfo(); // getInfo() doesn't throw in the closing state
                 } catch (ex) {
-                    test(false, ex);
+                    test(false, ex as Error);
                 }
 
                 try {
                     await closed;
                     test(false);
                 } catch (ex) {
-                    test(ex instanceof Ice.CloseTimeoutException, ex);
+                    test(ex instanceof Ice.CloseTimeoutException, ex as Error);
                 }
 
                 try {
                     connection.getInfo();
                 } catch (ex) {
-                    test(ex instanceof Ice.CloseTimeoutException, ex);
+                    test(ex instanceof Ice.CloseTimeoutException, ex as Error);
                 }
             } finally {
                 await controller.resumeAdapter();

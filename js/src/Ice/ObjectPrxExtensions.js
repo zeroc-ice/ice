@@ -360,7 +360,7 @@ ObjectPrx.prototype._checkAsyncTwowayOnly = function (name) {
 // Only for use by ObjectPrx constructor
 //
 ObjectPrx.prototype._setup = function (arg0, proxyString = "") {
-    DEV: console.assert(this._reference === undefined);
+    console.assert(this._reference === undefined);
     if (arg0 instanceof Communicator) {
         this._reference = arg0.instance.referenceFactory().createFromString(proxyString, "");
         if (this._reference === null) {
@@ -405,7 +405,7 @@ ObjectPrx._invoke = function (p, name, mode, fmt, ctx, marshalFn, unmarshalFn, u
     });
 
     try {
-        r.prepare(name, mode, ctx);
+        r.prepare(mode, ctx);
         if (marshalFn === null) {
             r.writeEmptyParams();
         } else {

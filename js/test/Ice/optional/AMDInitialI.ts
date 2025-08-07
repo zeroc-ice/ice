@@ -8,11 +8,11 @@ export class AMDInitialI extends Test.Initial {
         current.adapter.getCommunicator().shutdown();
     }
 
-    pingPong(obj: Ice.Value | null, current: Ice.Current): Ice.Value | null {
+    pingPong(obj: Ice.Value | null, _: Ice.Current): Ice.Value | null {
         return obj;
     }
 
-    opOptionalException(a: number | undefined, b: string | undefined, current: Ice.Current): void {
+    opOptionalException(a: number | undefined, b: string | undefined, _: Ice.Current): void {
         const ex = new Test.OptionalException();
         if (a !== undefined) {
             ex.a = a;
@@ -25,7 +25,7 @@ export class AMDInitialI extends Test.Initial {
         throw ex;
     }
 
-    opDerivedException(a: number | undefined, b: string | undefined, current: Ice.Current) {
+    opDerivedException(a: number | undefined, b: string | undefined, _: Ice.Current) {
         const ex = new Test.DerivedException();
         if (a !== undefined) {
             ex.a = a;
@@ -43,7 +43,7 @@ export class AMDInitialI extends Test.Initial {
         throw ex;
     }
 
-    opRequiredException(a: number | undefined, b: string | undefined, current: Ice.Current) {
+    opRequiredException(a: number | undefined, b: string | undefined, _: Ice.Current) {
         const ex = new Test.RequiredException();
         if (a !== undefined) {
             ex.a = a;
@@ -57,204 +57,201 @@ export class AMDInitialI extends Test.Initial {
         throw ex;
     }
 
-    opByte(p1: number | undefined, current: Ice.Current): [number | undefined, number | undefined] {
+    opByte(p1: number | undefined, _: Ice.Current): [number | undefined, number | undefined] {
         return [p1, p1];
     }
 
-    opBool(p1: boolean | undefined, current: Ice.Current): [boolean | undefined, boolean | undefined] {
+    opBool(p1: boolean | undefined, _: Ice.Current): [boolean | undefined, boolean | undefined] {
         return [p1, p1];
     }
 
-    opShort(p1: number | undefined, current: Ice.Current): [number | undefined, number | undefined] {
+    opShort(p1: number | undefined, _: Ice.Current): [number | undefined, number | undefined] {
         return [p1, p1];
     }
 
-    opInt(p1: number | undefined, current: Ice.Current): [number | undefined, number | undefined] {
+    opInt(p1: number | undefined, _: Ice.Current): [number | undefined, number | undefined] {
         return [p1, p1];
     }
 
-    opLong(p1: BigInt | number | undefined, current: Ice.Current): [BigInt | undefined, BigInt | undefined] {
+    opLong(p1: bigint | number | undefined, _: Ice.Current): [bigint | undefined, bigint | undefined] {
         return [typeof p1 == "number" ? BigInt(p1) : p1, typeof p1 == "number" ? BigInt(p1) : p1];
     }
 
-    opFloat(p1: number | undefined, current: Ice.Current): [number | undefined, number | undefined] {
+    opFloat(p1: number | undefined, _: Ice.Current): [number | undefined, number | undefined] {
         return [p1, p1];
     }
 
-    opDouble(p1: number | undefined, current: Ice.Current): [number | undefined, number | undefined] {
+    opDouble(p1: number | undefined, _: Ice.Current): [number | undefined, number | undefined] {
         return [p1, p1];
     }
 
-    opString(p1: string | undefined, current: Ice.Current): [string | undefined, string | undefined] {
+    opString(p1: string | undefined, _: Ice.Current): [string | undefined, string | undefined] {
         return [p1, p1];
     }
 
-    opMyEnum(p1: Test.MyEnum | undefined, current: Ice.Current): [Test.MyEnum | undefined, Test.MyEnum | undefined] {
+    opMyEnum(p1: Test.MyEnum | undefined, _: Ice.Current): [Test.MyEnum | undefined, Test.MyEnum | undefined] {
         return [p1, p1];
     }
 
     opSmallStruct(
         p1: Test.SmallStruct | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.SmallStruct | undefined, Test.SmallStruct | undefined] {
         return [p1, p1];
     }
 
     opFixedStruct(
         p1: Test.FixedStruct | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.FixedStruct | undefined, Test.FixedStruct | undefined] {
         return [p1, p1];
     }
 
     opVarStruct(
         p1: Test.VarStruct | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.VarStruct | undefined, Test.VarStruct | undefined] {
         return [p1, p1];
     }
 
-    opOneOptional(
-        p1: Test.OneOptional | null,
-        current: Ice.Current,
-    ): [Test.OneOptional | null, Test.OneOptional | null] {
+    opOneOptional(p1: Test.OneOptional | null, _: Ice.Current): [Test.OneOptional | null, Test.OneOptional | null] {
         return [p1, p1];
     }
 
     opMyInterfaceProxy(
         p1: Test.MyInterfacePrx | null | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.MyInterfacePrx | null | undefined, Test.MyInterfacePrx | null | undefined] {
         return [p1, p1];
     }
 
-    opByteSeq(p1: Uint8Array | undefined, current: Ice.Current): [Uint8Array | undefined, Uint8Array | undefined] {
+    opByteSeq(p1: Uint8Array | undefined, _: Ice.Current): [Uint8Array | undefined, Uint8Array | undefined] {
         return [p1, p1];
     }
 
-    opBoolSeq(p1: boolean[] | undefined, current: Ice.Current): [boolean[] | undefined, boolean[] | undefined] {
+    opBoolSeq(p1: boolean[] | undefined, _: Ice.Current): [boolean[] | undefined, boolean[] | undefined] {
         return [p1, p1];
     }
 
-    opShortSeq(p1: number[] | undefined, current: Ice.Current): [number[] | undefined, number[] | undefined] {
+    opShortSeq(p1: number[] | undefined, _: Ice.Current): [number[] | undefined, number[] | undefined] {
         return [p1, p1];
     }
 
-    opIntSeq(p1: number[] | undefined, current: Ice.Current): [number[] | undefined, number[] | undefined] {
+    opIntSeq(p1: number[] | undefined, _: Ice.Current): [number[] | undefined, number[] | undefined] {
         return [p1, p1];
     }
 
-    opLongSeq(p1: BigInt[] | undefined, current: Ice.Current): [BigInt[] | undefined, BigInt[] | undefined] {
+    opLongSeq(p1: bigint[] | undefined, _: Ice.Current): [bigint[] | undefined, bigint[] | undefined] {
         return [p1, p1];
     }
 
-    opFloatSeq(p1: number[] | undefined, current: Ice.Current): [number[] | undefined, number[] | undefined] {
+    opFloatSeq(p1: number[] | undefined, _: Ice.Current): [number[] | undefined, number[] | undefined] {
         return [p1, p1];
     }
 
-    opDoubleSeq(p1: number[] | undefined, current: Ice.Current): [number[] | undefined, number[] | undefined] {
+    opDoubleSeq(p1: number[] | undefined, _: Ice.Current): [number[] | undefined, number[] | undefined] {
         return [p1, p1];
     }
 
-    opStringSeq(p1: string[] | undefined, current: Ice.Current): [string[] | undefined, string[] | undefined] {
+    opStringSeq(p1: string[] | undefined, _: Ice.Current): [string[] | undefined, string[] | undefined] {
         return [p1, p1];
     }
 
     opSmallStructSeq(
         p1: Test.SmallStruct[] | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.SmallStruct[] | undefined, Test.SmallStruct[] | undefined] {
         return [p1, p1];
     }
 
     opSmallStructList(
         p1: Test.SmallStruct[] | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.SmallStruct[] | undefined, Test.SmallStruct[] | undefined] {
         return [p1, p1];
     }
 
     opFixedStructSeq(
         p1: Test.FixedStruct[] | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.FixedStruct[] | undefined, Test.FixedStruct[] | undefined] {
         return [p1, p1];
     }
 
     opFixedStructList(
         p1: Test.FixedStruct[] | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.FixedStruct[] | undefined, Test.FixedStruct[] | undefined] {
         return [p1, p1];
     }
 
     opVarStructSeq(
         p1: Test.VarStruct[] | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.VarStruct[] | undefined, Test.VarStruct[] | undefined] {
         return [p1, p1];
     }
 
     opSerializable(
         p1: Test.Serializable | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.Serializable | undefined, Test.Serializable | undefined] {
         return [p1, p1];
     }
 
     opIntIntDict(
         p1: Map<number, number> | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Map<number, number> | undefined, Map<number, number> | undefined] {
         return [p1, p1];
     }
 
     opStringIntDict(
         p1: Map<string, number> | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Map<string, number> | undefined, Map<string, number> | undefined] {
         return [p1, p1];
     }
 
-    opClassAndUnknownOptional(p: Test.A | null, current: Ice.Current) {}
+    opClassAndUnknownOptional(_p: Test.A | null, _: Ice.Current) {}
 
-    opG(g: Test.G | null, current: Ice.Current): Test.G | null {
+    opG(g: Test.G | null, _: Ice.Current): Test.G | null {
         return g;
     }
 
-    opVoid(current: Ice.Current): void {}
+    opVoid(_: Ice.Current): void {}
 
-    opMStruct1(current: Ice.Current): Test.SmallStruct | undefined {
+    opMStruct1(_: Ice.Current): Test.SmallStruct | undefined {
         return new Test.SmallStruct();
     }
 
     opMStruct2(
         p1: Test.SmallStruct | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Test.SmallStruct | undefined, Test.SmallStruct | undefined] {
         return [p1, p1];
     }
 
-    opMSeq1(current: Ice.Current): string[] | undefined {
+    opMSeq1(_: Ice.Current): string[] | undefined {
         return [];
     }
 
-    opMSeq2(p1: string[] | undefined, current: Ice.Current): [string[] | undefined, string[] | undefined] {
+    opMSeq2(p1: string[] | undefined, _: Ice.Current): [string[] | undefined, string[] | undefined] {
         return [p1, p1];
     }
 
-    opMDict1(current: Ice.Current): Map<string, number> | undefined {
+    opMDict1(_: Ice.Current): Map<string, number> | undefined {
         return new Map();
     }
 
     opMDict2(
         p1: Map<string, number> | undefined,
-        current: Ice.Current,
+        _: Ice.Current,
     ): [Map<string, number> | undefined, Map<string, number> | undefined] {
         return [p1, p1];
     }
 
-    supportsJavaSerializable(current: Ice.Current) {
+    supportsJavaSerializable(_: Ice.Current) {
         return false;
     }
 }

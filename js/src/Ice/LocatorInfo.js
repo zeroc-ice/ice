@@ -49,7 +49,7 @@ export class LocatorInfo {
     getEndpoints(ref, wellKnownRef, ttl, p) {
         const promise = p || new Promise(); // success callback receives (endpoints, cached)
 
-        DEV: console.assert(ref.isIndirect());
+        console.assert(ref.isIndirect());
         let endpoints = null;
         const cached = { value: false };
         if (!ref.isWellKnown()) {
@@ -84,7 +84,7 @@ export class LocatorInfo {
             }
         }
 
-        DEV: console.assert(endpoints !== null);
+        console.assert(endpoints !== null);
         if (ref.getInstance().traceLevels().location >= 1) {
             this.getEndpointsTrace(ref, endpoints, true);
         }
@@ -94,7 +94,7 @@ export class LocatorInfo {
     }
 
     clearCache(ref) {
-        DEV: console.assert(ref.isIndirect());
+        console.assert(ref.isIndirect());
 
         if (!ref.isWellKnown()) {
             const endpoints = this._table.removeAdapterEndpoints(ref.getAdapterId());
@@ -120,7 +120,7 @@ export class LocatorInfo {
     }
 
     trace(msg, ref, endpoints) {
-        DEV: console.assert(ref.isIndirect());
+        console.assert(ref.isIndirect());
 
         const s = [];
         s.push(msg);
@@ -141,7 +141,7 @@ export class LocatorInfo {
     }
 
     traceWellKnown(msg, ref, resolved) {
-        DEV: console.assert(ref.isWellKnown());
+        console.assert(ref.isWellKnown());
 
         const s = [];
         s.push(msg);
@@ -156,7 +156,7 @@ export class LocatorInfo {
     }
 
     getEndpointsException(ref, exc) {
-        DEV: console.assert(ref.isIndirect());
+        console.assert(ref.isIndirect());
 
         const instance = ref.getInstance();
         try {
@@ -204,7 +204,7 @@ export class LocatorInfo {
                 }
                 throw ex;
             } else {
-                DEV: console.assert(false);
+                console.assert(false);
             }
         }
     }
@@ -303,7 +303,7 @@ export class LocatorInfo {
                 this._table.removeAdapterEndpoints(ref.getAdapterId());
             }
 
-            DEV: console.assert(this._adapterRequests.has(ref.getAdapterId()));
+            console.assert(this._adapterRequests.has(ref.getAdapterId()));
             this._adapterRequests.delete(ref.getAdapterId());
         } else {
             if (proxy !== null && !proxy._getReference().isWellKnown()) {
@@ -314,7 +314,7 @@ export class LocatorInfo {
                 this._table.removeObjectReference(ref.getIdentity());
             }
 
-            DEV: console.assert(this._objectRequests.has(ref.getIdentity()));
+            console.assert(this._objectRequests.has(ref.getIdentity()));
             this._objectRequests.delete(ref.getIdentity());
         }
     }
@@ -425,7 +425,7 @@ class Request {
 class ObjectRequest extends Request {
     constructor(locatorInfo, reference) {
         super(locatorInfo, reference);
-        DEV: console.assert(reference.isWellKnown());
+        console.assert(reference.isWellKnown());
     }
 
     async send() {
@@ -441,7 +441,7 @@ class ObjectRequest extends Request {
 class AdapterRequest extends Request {
     constructor(locatorInfo, reference) {
         super(locatorInfo, reference);
-        DEV: console.assert(reference.isIndirect());
+        console.assert(reference.isIndirect());
     }
 
     async send() {

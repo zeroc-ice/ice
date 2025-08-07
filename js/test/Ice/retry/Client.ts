@@ -2,9 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
     async allTests(communicator: Ice.Communicator, communicator2: Ice.Communicator) {
@@ -23,10 +21,10 @@ export class Client extends TestHelper {
             test(false);
         } catch (ex) {
             if (TestHelper.isBrowser()) {
-                test(ex instanceof Ice.SocketException, ex);
+                test(ex instanceof Ice.SocketException, ex as Error);
             } else {
                 // Nodejs
-                test(ex instanceof Ice.ConnectionLostException, ex);
+                test(ex instanceof Ice.ConnectionLostException, ex as Error);
             }
             out.writeLine("ok");
         }
@@ -45,7 +43,7 @@ export class Client extends TestHelper {
             await retry1.opNotIdempotent();
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.LocalException, ex);
+            test(ex instanceof Ice.LocalException, ex as Error);
         }
         out.writeLine("ok");
 
@@ -56,7 +54,7 @@ export class Client extends TestHelper {
             await retry2.ice_invocationTimeout(500).opIdempotent(4);
             test(false);
         } catch (ex) {
-            test(ex instanceof Ice.InvocationTimeoutException, ex);
+            test(ex instanceof Ice.InvocationTimeoutException, ex as Error);
         }
 
         await retry2.opIdempotent(-1);

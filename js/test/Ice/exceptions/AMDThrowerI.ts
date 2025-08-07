@@ -2,28 +2,26 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
+import { test } from "../../Common/TestHelper.js";
 
 export class AMDThrowerI extends Test.Thrower {
     shutdown(current: Ice.Current) {
         current.adapter.getCommunicator().shutdown();
     }
 
-    supportsUndeclaredExceptions(current: Ice.Current) {
+    supportsUndeclaredExceptions(_: Ice.Current) {
         return true;
     }
 
-    supportsAssertException(current: Ice.Current) {
+    supportsAssertException(_: Ice.Current) {
         return false;
     }
 
-    throwAasA(a: number, current: Ice.Current) {
+    throwAasA(a: number, _: Ice.Current) {
         throw new Test.A(a);
     }
 
-    throwAorDasAorD(a: number, current: Ice.Current) {
+    throwAorDasAorD(a: number, _: Ice.Current) {
         if (a > 0) {
             throw new Test.A(a);
         } else {
@@ -35,7 +33,7 @@ export class AMDThrowerI extends Test.Thrower {
         return this.throwBasB(a, b, current);
     }
 
-    throwBasB(a: number, b: number, current: Ice.Current) {
+    throwBasB(a: number, b: number, _: Ice.Current) {
         throw new Test.B(a, b);
     }
 
@@ -47,50 +45,50 @@ export class AMDThrowerI extends Test.Thrower {
         return this.throwCasC(a, b, c, current);
     }
 
-    throwCasC(a: number, b: number, c: number, current: Ice.Current) {
+    throwCasC(a: number, b: number, c: number, _: Ice.Current) {
         throw new Test.C(a, b, c);
     }
 
-    throwUndeclaredA(a: number, current: Ice.Current) {
+    throwUndeclaredA(a: number, _: Ice.Current) {
         throw new Test.A(a);
     }
 
-    throwUndeclaredB(a: number, b: number, current: Ice.Current) {
+    throwUndeclaredB(a: number, b: number, _: Ice.Current) {
         throw new Test.B(a, b);
     }
 
-    throwUndeclaredC(a: number, b: number, c: number, current: Ice.Current) {
+    throwUndeclaredC(a: number, b: number, c: number, _: Ice.Current) {
         throw new Test.C(a, b, c);
     }
 
-    throwLocalException(current: Ice.Current) {
+    throwLocalException(_: Ice.Current) {
         throw new Ice.TimeoutException();
     }
 
-    throwLocalExceptionIdempotent(current: Ice.Current) {
+    throwLocalExceptionIdempotent(_: Ice.Current) {
         throw new Ice.TimeoutException();
     }
 
-    throwNonIceException(current: Ice.Current) {
+    throwNonIceException(_: Ice.Current) {
         throw new Error();
     }
 
-    throwAssertException(current: Ice.Current) {
+    throwAssertException(_: Ice.Current) {
         test(false);
     }
 
-    throwMemoryLimitException(seq: Uint8Array, current: Ice.Current) {
+    throwMemoryLimitException(_seq: Uint8Array, _: Ice.Current) {
         return new Uint8Array(1024 * 20); // 20KB is over the configured 10KB message size max.
     }
 
-    throwDispatchException(replyStatus: number, current: Ice.Current) {
+    throwDispatchException(replyStatus: number, _: Ice.Current) {
         // valueOf creates a new ReplyStatus enumerator if one doesn't exist already.
         throw new Ice.DispatchException(Ice.ReplyStatus.valueOf(replyStatus));
     }
 
-    throwAfterResponse(current: Ice.Current) {}
+    throwAfterResponse(_: Ice.Current) {}
 
-    throwAfterException(current: Ice.Current) {
+    throwAfterException(_: Ice.Current) {
         throw new Test.A();
     }
 }

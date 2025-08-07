@@ -15,12 +15,12 @@ export class ServerAMD extends TestHelper {
             properties.setProperty("Ice.Warn.Dispatch", "0");
             properties.setProperty("Ice.Warn.Connections", "0");
             [communicator] = this.initialize(properties);
-            echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
+            echo = new Test.EchoPrx(communicator, `__echo:${this.getTestEndpoint()}`);
             const adapter = await communicator.createObjectAdapter("");
             adapter.add(new AMDThrowerI(), Ice.stringToIdentity("thrower"));
             await echo.setConnection();
             const connection = echo.ice_getCachedConnection();
-            connection.setCloseCallback((con) => {
+            connection.setCloseCallback(() => {
                 // Re-establish connection if it fails (necessary for MemoryLimitException test)
                 echo!.setConnection().then(() => echo!.ice_getCachedConnection().setAdapter(adapter));
             });

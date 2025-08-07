@@ -8,7 +8,7 @@ export class RetryException extends Error {
         if (ex instanceof LocalException) {
             this._ex = ex;
         } else {
-            DEV: console.assert(ex instanceof RetryException);
+            console.assert(ex instanceof RetryException);
             this._ex = ex._ex;
         }
     }

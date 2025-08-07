@@ -32,7 +32,7 @@ declare module "@zeroc/ice" {
              * @param other - The object to compare with.
              * @returns `true` if the specified object is equal to the this object, `false` otherwise.
              */
-            equals(other: any): boolean;
+            equals(other: Identity): boolean;
 
             /**
              * Returns the hash code of the object.

@@ -2,10 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
-import { TestHelper } from "../../Common/TestHelper.js";
-
-const test = TestHelper.test;
-
+import { TestHelper, test } from "../../Common/TestHelper.js";
 export class Client extends TestHelper {
     async allTests() {
         const communicator = this.communicator();
@@ -35,7 +32,7 @@ export class Client extends TestHelper {
         out.write("testing batch requests with connection... ");
         {
             test((await p.opBatchCount()) === 0);
-            let connection = await p.ice_getConnection();
+            const connection = await p.ice_getConnection();
             const b1 = Test.TestIntfPrx.uncheckedCast(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
             await b1.opBatch();
@@ -151,8 +148,8 @@ export class Client extends TestHelper {
 
         out.write("testing AsyncResult operations... ");
         {
-            let r1;
-            let r2;
+            let r1: Ice.AsyncResult<void>;
+            let r2: Ice.AsyncResult<void>;
             if (!TestHelper.isSafari()) {
                 // Safari WebSocket implementation accepts lots of data before apply back-pressure
                 // making this test very slow.
@@ -199,7 +196,7 @@ export class Client extends TestHelper {
             }
 
             {
-                let r: Ice.AsyncResult<void> = p.ice_ping();
+                const r: Ice.AsyncResult<void> = p.ice_ping();
                 test(r.operation === "ice_ping");
                 test(r.communicator == communicator);
                 test(r.proxy == p);
@@ -211,7 +208,7 @@ export class Client extends TestHelper {
             //
             {
                 let p2 = p.ice_oneway();
-                let r: Ice.AsyncResult<void> = p2.ice_ping();
+                const r: Ice.AsyncResult<void> = p2.ice_ping();
                 test(r.operation === "ice_ping");
                 test(r.communicator == communicator);
                 test(r.proxy == p2);
@@ -243,7 +240,7 @@ export class Client extends TestHelper {
             await testController.holdAdapter();
             const seq = new Uint8Array(new Array(100000));
             let r;
-            let requests: Ice.AsyncResult<void>[] = [];
+            const requests: Ice.AsyncResult<void>[] = [];
             while (true) {
                 r = p.opWithPayload(seq);
                 requests.push(r);
@@ -338,7 +335,7 @@ export class Client extends TestHelper {
 class PingReplyI extends Test.PingReply {
     _received: boolean = false;
 
-    reply(current: Ice.Current) {
+    reply(_: Ice.Current) {
         this._received = true;
     }
 
