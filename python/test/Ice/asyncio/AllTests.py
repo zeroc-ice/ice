@@ -4,17 +4,13 @@ import asyncio
 import sys
 
 from generated.test.Ice.asyncio import Test
+from TestHelper import TestHelper, test
 
 import Ice
 import Ice.asyncio
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-async def allTestsAsync(helper, communicator):
+async def allTestsAsync(helper: TestHelper, communicator: Ice.Communicator):
     p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint(num=0)}")
 
     sys.stdout.write("testing invocation... ")
@@ -63,6 +59,7 @@ async def allTestsAsync(helper, communicator):
     sys.stdout.flush()
 
     future = p.sleepAsync(500)
+    assert isinstance(future, asyncio.Future)
     future.cancel()
     try:
         await future
@@ -71,6 +68,7 @@ async def allTestsAsync(helper, communicator):
         test(future.cancelled() and future.cancelled())
 
     future = p.sleepAsync(500)
+    assert isinstance(future, asyncio.Future)
     future.cancel()
     try:
         await future
@@ -82,6 +80,7 @@ async def allTestsAsync(helper, communicator):
 
     # Try to cancel a done future
     future = p.opAsync()
+    assert isinstance(future, asyncio.Future)
     while not future.done():
         await asyncio.sleep(0.01)
     future.cancel()
@@ -93,6 +92,7 @@ async def allTestsAsync(helper, communicator):
 
     testCommunicator = Ice.initialize(eventLoop=asyncio.get_running_loop())
     shutdownCompletedFuture = testCommunicator.shutdownCompleted()
+    assert isinstance(shutdownCompletedFuture, asyncio.Future)
     test(not shutdownCompletedFuture.done())
     test(not testCommunicator.isShutdown())
 

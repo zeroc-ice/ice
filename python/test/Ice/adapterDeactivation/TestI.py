@@ -56,7 +56,7 @@ class ServantLocatorI(Ice.ServantLocator):
         test(self._deactivated)
 
     @override
-    def locate(self, current: Ice.Current) -> tuple[Ice.Object, Any]:
+    def locate(self, current: Ice.Current) -> tuple[Ice.Object, object | None]:
         test(not self._deactivated)
 
         if current.id.name == "router":
@@ -68,7 +68,7 @@ class ServantLocatorI(Ice.ServantLocator):
         return (TestI(), Cookie())
 
     @override
-    def finished(self, current: Ice.Current, servant: Ice.Object, cookie: Any):
+    def finished(self, current: Ice.Current, servant: Ice.Object, cookie: object | None):
         test(not self._deactivated)
 
         if current.id.name == "router":

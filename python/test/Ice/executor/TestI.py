@@ -1,35 +1,36 @@
 # Copyright (c) ZeroC, Inc.
 
 import time
+from typing import override
 
 import Executor
 from generated.test.Ice.executor import Test
+from TestHelper import test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
 class TestIntfI(Test.TestIntf):
+    @override
     def op(self, current: Ice.Current):
         test(Executor.Executor.isExecutorThread())
 
-    def sleep(self, ms, current: Ice.Current):
-        time.sleep(ms / 1000.0)
+    @override
+    def sleep(self, to: int, current: Ice.Current):
+        time.sleep(to / 1000.0)
 
-    def opWithPayload(self, bytes, current: Ice.Current):
+    @override
+    def opWithPayload(self, seq: bytes, current: Ice.Current):
         test(Executor.Executor.isExecutorThread())
 
+    @override
     def shutdown(self, current: Ice.Current):
         test(Executor.Executor.isExecutorThread())
         current.adapter.getCommunicator().shutdown()
 
 
 class TestIntfControllerI(Test.TestIntfController):
-    def __init__(self, adapter):
+    def __init__(self, adapter: Ice.ObjectAdapter):
         self._adapter = adapter
 
     def holdAdapter(self, current: Ice.Current):

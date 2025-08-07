@@ -11,12 +11,12 @@ __name__ = "Ice"
 #
 
 
-def proxyIdentityEqual(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> bool:
+def proxyIdentityEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> bool:
     """Determines whether the identities of two proxies are equal."""
     return proxyIdentityCompare(lhs, rhs) == 0
 
 
-def proxyIdentityCompare(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> int:
+def proxyIdentityCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> int:
     """Compares the identities of two proxies."""
     if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
         raise ValueError("argument is not a proxy")
@@ -27,34 +27,37 @@ def proxyIdentityCompare(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> int:
     elif lhs and not rhs:
         return 1
     else:
+        assert lhs is not None and rhs is not None
         lid = lhs.ice_getIdentity()
         rid = rhs.ice_getIdentity()
         return (lid > rid) - (lid < rid)
 
 
-def proxyIdentityAndFacetEqual(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> bool:
+def proxyIdentityAndFacetEqual(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> bool:
     """Determines whether the identities and facets of two proxies are equal."""
     return proxyIdentityAndFacetCompare(lhs, rhs) == 0
 
 
-def proxyIdentityAndFacetCompare(lhs: IcePy.ObjectPrx, rhs: IcePy.ObjectPrx) -> int:
+def proxyIdentityAndFacetCompare(lhs: IcePy.ObjectPrx | None, rhs: IcePy.ObjectPrx | None) -> int:
     """Compares the identities and facets of two proxies."""
     if (lhs and not isinstance(lhs, IcePy.ObjectPrx)) or (rhs and not isinstance(rhs, IcePy.ObjectPrx)):
         raise ValueError("argument is not a proxy")
-    if not lhs and not rhs:
+    if lhs is None and rhs is None:
         return 0
-    elif not lhs and rhs:
+    elif lhs is None and rhs is not None:
         return -1
-    elif lhs and not rhs:
+    elif lhs is not None and rhs is None:
         return 1
-    elif lhs.ice_getIdentity() != rhs.ice_getIdentity():
-        lid = lhs.ice_getIdentity()
-        rid = rhs.ice_getIdentity()
-        return (lid > rid) - (lid < rid)
     else:
-        lf = lhs.ice_getFacet()
-        rf = rhs.ice_getFacet()
-        return (lf > rf) - (lf < rf)
+        assert lhs is not None and rhs is not None
+        if lhs.ice_getIdentity() != rhs.ice_getIdentity():
+            lid = lhs.ice_getIdentity()
+            rid = rhs.ice_getIdentity()
+            return (lid > rid) - (lid < rid)
+        else:
+            lf = lhs.ice_getFacet()
+            rf = rhs.ice_getFacet()
+            return (lf > rf) - (lf < rf)
 
 
 __all__ = ["proxyIdentityEqual", "proxyIdentityCompare", "proxyIdentityAndFacetEqual", "proxyIdentityAndFacetCompare"]

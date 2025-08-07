@@ -1,40 +1,14 @@
 # Copyright (c) ZeroC, Inc.
 
 import threading
+from collections.abc import Awaitable, Callable, Sequence
+from typing import override
 
 import Ice
 
 
-class CallQueue(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
-        self._condVar = threading.Condition()
-        self._queue = []
-        self._destroy = False
-
-    def add(self, call):
-        with self._condVar:
-            self._queue.append(call)
-            self._condVar.notify()
-
-    def destroy(self):
-        with self._condVar:
-            self._destroy = True
-            self._condVar.notify()
-
-    def run(self):
-        while True:
-            with self._condVar:
-                while len(self._queue) == 0 and not self._destroy:
-                    self._condVar.wait()
-                if self._destroy:
-                    break
-                call = self._queue.pop()
-            call.execute()
-
-
 class BlobjectCall(object):
-    def __init__(self, proxy, future, inParams, curr):
+    def __init__(self, proxy: Ice.ObjectPrx, future: Ice.Future, inParams: bytes, curr: Ice.Current):
         self._proxy = proxy
         self._future = future
         self._inParams = inParams
@@ -59,14 +33,43 @@ class BlobjectCall(object):
                 self._future.set_exception(e)
         else:
             f = proxy.ice_invokeAsync(self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx)
+            assert isinstance(f, Ice.Future)
             f.add_done_callback(self.done)
 
-    def done(self, future):
+    def done(self, future: Ice.Future):
         try:
             (ok, bytes) = future.result()
             self._future.set_result((ok, bytes))
         except Exception as ex:
             self._future.set_exception(ex)
+
+
+class CallQueue(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self._condVar = threading.Condition()
+        self._queue = []
+        self._destroy = False
+
+    def add(self, call: BlobjectCall):
+        with self._condVar:
+            self._queue.append(call)
+            self._condVar.notify()
+
+    def destroy(self):
+        with self._condVar:
+            self._destroy = True
+            self._condVar.notify()
+
+    def run(self):
+        while True:
+            with self._condVar:
+                while len(self._queue) == 0 and not self._destroy:
+                    self._condVar.wait()
+                if self._destroy:
+                    break
+                call = self._queue.pop()
+            call.execute()
 
 
 class BlobjectAsyncI(Ice.Blobject):
@@ -76,15 +79,16 @@ class BlobjectAsyncI(Ice.Blobject):
         self._objects = {}
         self._lock = threading.Lock()
 
-    def ice_invoke(self, inParams, curr):
+    @override
+    def ice_invoke(self, bytes: bytes, current: Ice.Current) -> Awaitable[tuple[bool, bytes]]:
         f = Ice.Future()
         with self._lock:
-            proxy = self._objects[curr.id]
-            assert proxy
-            self._queue.add(BlobjectCall(proxy, f, inParams, curr))
+            proxy = self._objects[current.id]
+            assert proxy is not None
+            self._queue.add(BlobjectCall(proxy, f, bytes, current))
         return f
 
-    def add(self, proxy):
+    def add(self, proxy: Ice.ObjectPrx):
         with self._lock:
             self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
 
@@ -99,23 +103,24 @@ class BlobjectI(Ice.Blobject):
         self._objects = {}
         self._lock = threading.Lock()
 
-    def ice_invoke(self, inParams, curr):
+    @override
+    def ice_invoke(self, bytes: bytes, current: Ice.Current) -> tuple[bool, bytes]:
         with self._lock:
-            proxy = self._objects[curr.id]
+            proxy = self._objects[current.id]
 
-        if len(curr.facet) > 0:
-            proxy = proxy.ice_facet(curr.facet)
+        if len(current.facet) > 0:
+            proxy = proxy.ice_facet(current.facet)
 
         try:
-            if "_fwd" in curr.ctx and curr.ctx["_fwd"] == "o":
+            if "_fwd" in current.ctx and current.ctx["_fwd"] == "o":
                 proxy = proxy.ice_oneway()
-                return proxy.ice_invoke(curr.operation, curr.mode, inParams, curr.ctx)
+                return proxy.ice_invoke(current.operation, current.mode, bytes, current.ctx)
             else:
-                return proxy.ice_invoke(curr.operation, curr.mode, inParams, curr.ctx)
+                return proxy.ice_invoke(current.operation, current.mode, bytes, current.ctx)
         except Ice.Exception:
             raise
 
-    def add(self, proxy):
+    def add(self, proxy: Ice.ObjectPrx):
         with self._lock:
             self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
 
@@ -124,21 +129,24 @@ class BlobjectI(Ice.Blobject):
 
 
 class ServantLocatorI(Ice.ServantLocator):
-    def __init__(self, blobject):
+    def __init__(self, blobject: Ice.Blobject):
         self._blobject = blobject
 
-    def locate(self, current: Ice.Current):
-        return self._blobject  # and the cookie
+    @override
+    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object | None]:
+        return self._blobject, None  # and the cookie
 
-    def finished(self, current, object, cookie):
+    @override
+    def finished(self, current: Ice.Current, servant: Ice.Object, cookie: object | None):
         pass
 
-    def deactivate(self, s):
+    @override
+    def deactivate(self, category: str):
         pass
 
 
 class RouterI(Ice.Router):
-    def __init__(self, communicator, sync):
+    def __init__(self, communicator: Ice.Communicator, sync: bool):
         self._adapter = communicator.createObjectAdapterWithEndpoints("forward", "default -h 127.0.0.1")
         if sync:
             self._blobject = BlobjectI()
@@ -150,18 +158,20 @@ class RouterI(Ice.Router):
         communicator.setDefaultRouter(proxy)
         self._adapter.activate()
 
-    def useSync(self, sync):
-        self._locator.useSync(sync)
-
-    def getClientProxy(self, current: Ice.Current):
+    @override
+    def getClientProxy(self, current: Ice.Current) -> tuple[Ice.ObjectPrx | None, bool | None]:
         return (self._blobjectProxy, True)
 
-    def getServerProxy(self, current: Ice.Current):
+    @override
+    def getServerProxy(self, current: Ice.Current) -> Ice.ObjectPrx | None:
         assert False
 
-    def addProxies(self, proxies, current: Ice.Current):
+    @override
+    def addProxies(self, proxies: list[Ice.ObjectPrx | None], current: Ice.Current) -> Sequence[Ice.ObjectPrx | None]:
         for p in proxies:
+            assert p is not None
             self._blobject.add(p)
+        return []
 
     def destroy(self):
         self._blobject.destroy()

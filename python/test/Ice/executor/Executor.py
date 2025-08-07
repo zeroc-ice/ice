@@ -3,11 +3,11 @@
 # Copyright (c) ZeroC, Inc.
 
 import threading
+from collections.abc import Callable
 
+from TestHelper import test
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
+import Ice
 
 
 class Executor:
@@ -19,7 +19,7 @@ class Executor:
         self._thread.start()
         Executor._instance = self
 
-    def execute(self, call, con):
+    def execute(self, call: Callable[[], None], connection: Ice.Connection):
         with self._cond:
             self._calls.append(call)
             if len(self._calls) == 1:

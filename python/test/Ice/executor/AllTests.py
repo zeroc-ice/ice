@@ -3,16 +3,13 @@
 import random
 import sys
 import threading
+from typing import cast
 
 import Executor
 from generated.test.Ice.executor import Test
+from TestHelper import TestHelper, test
 
 import Ice
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
 
 
 class Callback:
@@ -32,29 +29,29 @@ class Callback:
             self._called = True
             self._cond.notify()
 
-    def response(self, f):
+    def response(self, f: Ice.Future):
         test(f.exception() is None)
         test(Executor.Executor.isExecutorThread())
         self.called()
 
-    def exception(self, f):
+    def exception(self, f: Ice.Future):
         test(isinstance(f.exception(), Ice.NoEndpointException))
         test(Executor.Executor.isExecutorThread())
         self.called()
 
-    def exceptionEx(self, f):
+    def exceptionEx(self, f: Ice.Future):
         test(isinstance(f.exception(), Ice.InvocationTimeoutException))
         test(Executor.Executor.isExecutorThread())
         self.called()
 
-    def payload(self, f):
+    def payload(self, f: Ice.Future):
         if f.exception():
             test(isinstance(f.exception(), Ice.CommunicatorDestroyedException))
         else:
             test(Executor.Executor.isExecutorThread())
 
 
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint()}")
     testController = Test.TestIntfControllerPrx(communicator, f"testController:{helper.getTestEndpoint(num=1)}")
 
@@ -68,7 +65,7 @@ def allTests(helper, communicator):
     # Hold adapter to make sure invocations don't _complete_ synchronously. If add_done_callback is called on
     # a completed future, the callback is called immediately in the calling thread.
     testController.holdAdapter()
-    p.opAsync().add_done_callback(cb.response)
+    cast(Ice.Future, p.opAsync()).add_done_callback(cb.response)
     testController.resumeAdapter()
     cb.check()
 
@@ -76,26 +73,27 @@ def allTests(helper, communicator):
     # Expect NoEndpointException.
     #
     i = p.ice_adapterId("dummy")
-    i.opAsync().add_done_callback(cb.exception)
+    cast(Ice.Future, i.opAsync()).add_done_callback(cb.exception)
     cb.check()
 
     #
     # Expect InvocationTimeoutException.
     #
     to = p.ice_invocationTimeout(10)
-    to.sleepAsync(500).add_done_callback(cb.exceptionEx)
+    cast(Ice.Future, to.sleepAsync(500)).add_done_callback(cb.exceptionEx)
     cb.check()
 
     #
     # Hold adapter to make sure invocations don't _complete_ synchronously
     #
     testController.holdAdapter()
-    b = [random.randint(0, 255) for x in range(0, 1024)]
+    b = [random.randint(0, 255) for _ in range(0, 1024)]
     seq = bytes(b)
 
     f = None
     while True:
         f = p.opWithPayloadAsync(seq)
+        assert isinstance(f, Ice.InvocationFuture)
         f.add_done_callback(cb.payload)
         if not f.is_sent_synchronously():
             break

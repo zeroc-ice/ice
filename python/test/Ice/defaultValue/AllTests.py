@@ -3,11 +3,8 @@
 import sys
 
 from generated.test.Ice.defaultValue import Test
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
+from generated.test.Ice.defaultValue.Test import Nested
+from TestHelper import test
 
 
 def allTests():
@@ -27,9 +24,9 @@ def allTests():
     test(v.c1 == Test.Color.red)
     test(v.c2 == Test.Color.green)
     test(v.c3 == Test.Color.blue)
-    test(v.nc1 == Test.Nested.Color.red)
-    test(v.nc2 == Test.Nested.Color.green)
-    test(v.nc3 == Test.Nested.Color.blue)
+    test(v.nc1 == Nested.Color.red)
+    test(v.nc2 == Nested.Color.green)
+    test(v.nc3 == Nested.Color.blue)
     test(v.noDefault == "")
     test(v.zeroI == 0)
     test(v.zeroL == 0)
@@ -91,9 +88,9 @@ def allTests():
     test(v.c1 == Test.Color.red)
     test(v.c2 == Test.Color.green)
     test(v.c3 == Test.Color.blue)
-    test(v.nc1 == Test.Nested.Color.red)
-    test(v.nc2 == Test.Nested.Color.green)
-    test(v.nc3 == Test.Nested.Color.blue)
+    test(v.nc1 == Nested.Color.red)
+    test(v.nc2 == Nested.Color.green)
+    test(v.nc3 == Nested.Color.blue)
     test(v.noDefault == "")
     test(v.zeroI == 0)
     test(v.zeroL == 0)
@@ -134,9 +131,9 @@ def allTests():
     test(v.c1 == Test.Color.red)
     test(v.c2 == Test.Color.green)
     test(v.c3 == Test.Color.blue)
-    test(v.nc1 == Test.Nested.Color.red)
-    test(v.nc2 == Test.Nested.Color.green)
-    test(v.nc3 == Test.Nested.Color.blue)
+    test(v.nc1 == Nested.Color.red)
+    test(v.nc2 == Nested.Color.green)
+    test(v.nc3 == Nested.Color.blue)
     test(v.zeroI == 0)
     test(v.zeroL == 0)
     test(v.zeroF == 0)

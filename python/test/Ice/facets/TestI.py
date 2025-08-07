@@ -1,54 +1,65 @@
 # Copyright (c) ZeroC, Inc.
 
+from typing import override
+
 from generated.test.Ice.facets import Test
 
 import Ice
 
 
 class AI(Test.A):
-    def callA(self, current: Ice.Current):
+    @override
+    def callA(self, current: Ice.Current) -> str:
         return "A"
 
 
 class BI(Test.B, AI):
-    def callB(self, current: Ice.Current):
+    @override
+    def callB(self, current: Ice.Current) -> str:
         return "B"
 
 
 class CI(Test.C, AI):
-    def callC(self, current: Ice.Current):
+    @override
+    def callC(self, current: Ice.Current) -> str:
         return "C"
 
 
 class DI(Test.D, BI, CI):
-    def callD(self, current: Ice.Current):
+    @override
+    def callD(self, current: Ice.Current) -> str:
         return "D"
 
 
 class EI(Test.E):
-    def callE(self, current: Ice.Current):
+    @override
+    def callE(self, current: Ice.Current) -> str:
         return "E"
 
 
 class FI(Test.F, EI):
-    def callF(self, current: Ice.Current):
+    @override
+    def callF(self, current: Ice.Current) -> str:
         return "F"
 
 
 class GI(Test.G):
-    def __init__(self, communicator):
+    def __init__(self, communicator: Ice.Communicator):
         self._communicator = communicator
 
+    @override
     def shutdown(self, current: Ice.Current):
         self._communicator.shutdown()
 
-    def callG(self, current: Ice.Current):
+    @override
+    def callG(self, current: Ice.Current) -> str:
         return "G"
 
 
 class HI(Test.H, GI):
-    def __init__(self, communicator):
+    def __init__(self, communicator: Ice.Communicator):
         GI.__init__(self, communicator)
 
-    def callH(self, current: Ice.Current):
+    @override
+    def callH(self, current: Ice.Current) -> str:
         return "H"

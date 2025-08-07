@@ -4,6 +4,7 @@
 
 import sys
 import time
+from typing import override
 
 from TestHelper import TestHelper
 
@@ -16,16 +17,20 @@ import Ice
 
 
 class TestI(Test.Hello):
-    def sayHello(self, delay, current: Ice.Current):
+    @override
+    def sayHello(self, delay: int, current: Ice.Current):
         if delay != 0:
             time.sleep(delay / 1000.0)
 
+    @override
     def raiseUE(self, current: Ice.Current):
         raise Test.UE()
 
-    def add(self, s1, s2, current: Ice.Current):
+    @override
+    def add(self, s1: int, s2: int, current: Ice.Current):
         return s1 + s2
 
+    @override
     def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 

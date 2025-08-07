@@ -3,20 +3,16 @@
 import sys
 
 from generated.test.Ice.facets import Test
+from TestHelper import TestHelper, test
 
 import Ice
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
 
 
 class EmptyI(Test.Empty):
     pass
 
 
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     sys.stdout.write("testing Ice.Admin.Facets property... ")
     sys.stdout.flush()
     test(len(communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets")) == 0)
@@ -93,12 +89,16 @@ def allTests(helper, communicator):
     sys.stdout.write("testing unchecked cast... ")
     sys.stdout.flush()
     obj = Ice.ObjectPrx.uncheckedCast(db)
+    assert obj is not None
     test(obj.ice_getFacet() == "")
     obj = Ice.ObjectPrx.uncheckedCast(db, "facetABCD")
+    assert obj is not None
     test(obj.ice_getFacet() == "facetABCD")
     obj2 = Ice.ObjectPrx.uncheckedCast(obj)
+    assert obj2 is not None
     test(obj2.ice_getFacet() == "facetABCD")
     obj3 = Ice.ObjectPrx.uncheckedCast(obj, "")
+    assert obj3 is not None
     test(obj3.ice_getFacet() == "")
     d = Test.DPrx.uncheckedCast(db)
     test(d.ice_getFacet() == "")
@@ -113,20 +113,28 @@ def allTests(helper, communicator):
     sys.stdout.write("testing checked cast... ")
     sys.stdout.flush()
     obj = Ice.ObjectPrx.checkedCast(db)
+    assert obj is not None
     test(obj.ice_getFacet() == "")
     obj = Ice.ObjectPrx.checkedCast(db, "facetABCD")
+    assert obj is not None
     test(obj.ice_getFacet() == "facetABCD")
     obj2 = Ice.ObjectPrx.checkedCast(obj)
+    assert obj2 is not None
     test(obj2.ice_getFacet() == "facetABCD")
     obj3 = Ice.ObjectPrx.checkedCast(obj, "")
+    assert obj3 is not None
     test(obj3.ice_getFacet() == "")
     d = Test.DPrx.checkedCast(db)
+    assert d is not None
     test(d.ice_getFacet() == "")
     df = Test.DPrx.checkedCast(db, "facetABCD")
+    assert df is not None
     test(df.ice_getFacet() == "facetABCD")
     df2 = Test.DPrx.checkedCast(df)
+    assert df2 is not None
     test(df2.ice_getFacet() == "facetABCD")
     df3 = Test.DPrx.checkedCast(df, "")
+    assert df3 is not None
     test(df3.ice_getFacet() == "")
     try:
         Test.DPrx.checkedCast(df, "bogus")
@@ -138,7 +146,7 @@ def allTests(helper, communicator):
     sys.stdout.write("testing non-facets A, B, C, and D... ")
     sys.stdout.flush()
     d = Test.DPrx.checkedCast(db)
-    test(d)
+    assert d is not None
     test(d == db)
     test(d.callA() == "A")
     test(d.callB() == "B")
@@ -149,6 +157,7 @@ def allTests(helper, communicator):
     sys.stdout.write("testing facets A, B, C, and D... ")
     sys.stdout.flush()
     df = Test.DPrx.checkedCast(d, "facetABCD")
+    assert df is not None
     test(df)
     test(df.callA() == "A")
     test(df.callB() == "B")
@@ -159,7 +168,7 @@ def allTests(helper, communicator):
     sys.stdout.write("testing facets E and F... ")
     sys.stdout.flush()
     ff = Test.FPrx.checkedCast(d, "facetEF")
-    test(ff)
+    assert ff is not None
     test(ff.callE() == "E")
     test(ff.callF() == "F")
     print("ok")
@@ -167,14 +176,14 @@ def allTests(helper, communicator):
     sys.stdout.write("testing facet G... ")
     sys.stdout.flush()
     gf = Test.GPrx.checkedCast(ff, "facetGH")
-    test(gf)
+    assert gf is not None
     test(gf.callG() == "G")
     print("ok")
 
     sys.stdout.write("testing whether casting preserves the facet... ")
     sys.stdout.flush()
     hf = Test.HPrx.checkedCast(gf)
-    test(hf)
+    assert hf is not None
     test(hf.callG() == "G")
     test(hf.callH() == "H")
     print("ok")

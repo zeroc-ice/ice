@@ -2,15 +2,12 @@
 
 import sys
 import threading
+from typing import cast
 
 from generated.test.Ice.faultTolerance import Test
+from TestHelper import TestHelper, test
 
 import Ice
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
 
 
 class CallbackBase:
@@ -31,18 +28,18 @@ class CallbackBase:
 
 
 class Callback(CallbackBase):
-    def opPidI(self, f):
+    def opPidI(self, f: Ice.Future):
         try:
             self._pid = f.result()
             self.called()
         except Exception:
             test(False)
 
-    def opShutdownI(self, f):
+    def opShutdownI(self, f: Ice.Future):
         test(f.exception() is None)
         self.called()
 
-    def exceptAbortI(self, f):
+    def exceptAbortI(self, f: Ice.Future):
         test(f.exception() is not None)
         try:
             f.result()
@@ -59,7 +56,7 @@ class Callback(CallbackBase):
         return self._pid
 
 
-def allTests(helper, communicator, ports):
+def allTests(helper: TestHelper, communicator: Ice.Communicator, ports: list[int]):
     ref = "test"
     for i in range(len(ports)):
         ref += ":{0}".format(helper.getTestEndpoint(num=i))
@@ -85,7 +82,7 @@ def allTests(helper, communicator, ports):
             sys.stdout.write("testing server #%d with AMI... " % i)
             sys.stdout.flush()
             cb = Callback()
-            obj.pidAsync().add_done_callback(cb.opPidI)
+            cast(Ice.Future, obj.pidAsync()).add_done_callback(cb.opPidI)
             cb.check()
             pid = cb.pid()
             test(pid != oldPid)
@@ -102,7 +99,7 @@ def allTests(helper, communicator, ports):
                 sys.stdout.write("shutting down server #%d with AMI... " % i)
                 sys.stdout.flush()
                 cb = Callback()
-                obj.shutdownAsync().add_done_callback(cb.opShutdownI)
+                cast(Ice.Future, obj.shutdownAsync()).add_done_callback(cb.opShutdownI)
                 cb.check()
                 print("ok")
         elif j == 1 or i + 1 > len(ports):
@@ -120,7 +117,7 @@ def allTests(helper, communicator, ports):
                 sys.stdout.write("aborting server #%d with AMI... " % i)
                 sys.stdout.flush()
                 cb = Callback()
-                obj.abortAsync().add_done_callback(cb.exceptAbortI)
+                cast(Ice.Future, obj.abortAsync()).add_done_callback(cb.exceptAbortI)
                 cb.check()
                 print("ok")
         elif j == 2 or j == 3:
@@ -138,7 +135,7 @@ def allTests(helper, communicator, ports):
                 sys.stdout.write("aborting server #%d and #%d with idempotent AMI call... " % (i, i + 1))
                 sys.stdout.flush()
                 cb = Callback()
-                obj.idempotentAbortAsync().add_done_callback(cb.exceptAbortI)
+                cast(Ice.Future, obj.idempotentAbortAsync()).add_done_callback(cb.exceptAbortI)
                 cb.check()
                 print("ok")
 

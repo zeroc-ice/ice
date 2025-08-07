@@ -3,7 +3,9 @@
 import array
 import sys
 
-from TestHelper import TestHelper
+from TestHelper import TestHelper, test
+
+import Ice
 
 if "--load-slice" in sys.argv:
     TestHelper.loadSlice("Test.ice")
@@ -25,12 +27,7 @@ if hasNumPy:
     from generated.test.Ice.custom.Test import NumPy
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     custom = Test.CustomPrx(communicator, f"test:{helper.getTestEndpoint()}")
     test(custom)
 
