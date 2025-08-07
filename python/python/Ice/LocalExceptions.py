@@ -419,12 +419,9 @@ class NoEndpointException(LocalException):
 class NotRegisteredException(LocalException):
     """
     An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
-    This exception is raised if an attempt is made to remove a servant, servant locator, facet, plug-in, or object
-    adapter that is not currently registered. It's also raised if the Ice locator can't find an object or object adapter
-    when resolving an indirect proxy or when an object adapter is activated.
     """
 
-    def __init__(self, kindOfObject: str, id: Identity | None, msg: str):
+    def __init__(self, kindOfObject: str, id: str, msg: str):
         LocalException.__init__(self, msg)
         self.__kindOfObject = kindOfObject
         self.__id = id
@@ -432,36 +429,24 @@ class NotRegisteredException(LocalException):
     @property
     def kindOfObject(self):
         """
-        The kind of object that could not be removed.
-
-        This property can have one of the following values:
-
-        - "servant"
-        - "facet"
-        - "object"
-        - "default servant"
-        - "servant locator"
-        - "plugin"
-        - "object adapter"
-        - "object adapter with router"
-        - "replica group"
+        The kind of object that is not registered.
 
         Returns
         -------
         str
-            The kind of object that could not be removed.
+            The kind of object that is not registered.
         """
         return self.__kindOfObject
 
     @property
     def id(self):
         """
-        The ID (or name) of the object that could not be removed.
+        The ID (or name) of the object that is not registered.
 
         Returns
         -------
         str
-            The ID of the object that could not be removed.
+            The ID of the object that is not registered.
         """
         return self.__id
 

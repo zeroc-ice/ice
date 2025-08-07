@@ -25,7 +25,6 @@ class EventLoopAdapter(Ice_EventLoopAdapter):
         self._eventLoop = eventLoop
 
     def runCoroutine(self, coroutine: Coroutine) -> Ice.FutureLike:
-        # Convert the concurrent.futures.Future to an awaitable by wrapping it with asyncio.wrap_future
         return asyncio.run_coroutine_threadsafe(coroutine, self._eventLoop)
 
     def wrapFuture(self, future: Ice.Future) -> Awaitable:

@@ -233,13 +233,24 @@ declare module "@zeroc/ice" {
 
         /**
          * An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
-         * This exception is raised if an attempt is made to remove a servant, servant locator, facet, plug-in,
-         * object adapter (etc.) that is not currently registered. It's also raised if the Ice locator can't find an object or
-         * object adapter when resolving an indirect proxy or when an object adapter is activated.
          */
         class NotRegisteredException extends LocalException {
+            /**
+             * Constructs a NotRegisteredException with the object kind and ID.
+             *
+             * @param kindOfObject the kind of object that is not registered
+             * @param id           the ID of the object that is not registered
+             */
             constructor(kindOfObject?: string, id?: string);
+
+            /**
+             * The kind of object that is not registered.
+             */
             readonly kindOfObject: string;
+
+            /**
+             * The ID (or name) of the object that is not registered.
+             */
             readonly id: string;
         }
 
