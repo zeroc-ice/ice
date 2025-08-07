@@ -4,8 +4,12 @@
 
 import sys
 
-import TestAMDI
 from TestHelper import TestHelper
+
+if "--load-slice" in sys.argv:
+    TestHelper.loadSlice("Test.ice")
+
+import TestAMDI
 
 import Ice
 
