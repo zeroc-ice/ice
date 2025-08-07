@@ -9,13 +9,13 @@ export class Client extends TestHelper {
         class EmptyI extends Test.Empty {}
 
         class ServantLocatorI implements Ice.ServantLocator {
-            locate(): Ice.Object | null {
+            locate(_current: Ice.Current, _cookie: Ice.Holder<object>): Ice.Object | null {
                 return null;
             }
 
-            finished() {}
+            finished(_current: Ice.Current, _servant: Ice.Object, _cookie: object) {}
 
-            deactivate() {}
+            deactivate(_category: string) {}
         }
 
         const out = this.getWriter();

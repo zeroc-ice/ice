@@ -46,7 +46,7 @@ export class Client extends TestHelper {
             const adapter = await communicator.createObjectAdapter("PAdapter");
             test(adapter.getPublishedEndpoints().length === 1);
             const endpt = adapter.getPublishedEndpoints()[0];
-            test(endpt?.toString() == "tcp -h localhost -p 12345 -t 30000");
+            test(endpt!.toString() == "tcp -h localhost -p 12345 -t 30000");
             const prx = communicator.stringToProxy(
                 "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000",
             );
@@ -111,7 +111,7 @@ export class Client extends TestHelper {
             let router = Ice.RouterPrx.uncheckedCast(obj.ice_identity(routerId).ice_connectionId("rc"));
             const adapter = await communicator.createObjectAdapterWithRouter("", router);
             test(adapter.getPublishedEndpoints().length == 1);
-            test(adapter.getPublishedEndpoints()[0]?.toString() == "tcp -h localhost -p 23456 -t 30000");
+            test(adapter.getPublishedEndpoints()[0]!.toString() == "tcp -h localhost -p 23456 -t 30000");
             try {
                 adapter.setPublishedEndpoints(router.ice_getEndpoints());
                 test(false);

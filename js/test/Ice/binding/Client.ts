@@ -100,7 +100,7 @@ export class Client extends TestHelper {
             //
             let names = ["Adapter11", "Adapter12", "Adapter13"];
             while (names.length > 0) {
-                const adpts: Test.RemoteObjectAdapterPrx[] = ArrayUtil.clone(adapters);
+                const adpts = ArrayUtil.clone(adapters);
                 const test1 = await createTestIntfPrx(adpts);
                 shuffle(adpts);
                 const test2 = await createTestIntfPrx(adpts);
@@ -126,8 +126,7 @@ export class Client extends TestHelper {
             {
                 for (const adpt of adapters) {
                     const prx = await adpt.getTestIntf();
-                    test(prx !== null);
-                    await prx.ice_ping();
+                    await prx!.ice_ping();
                 }
 
                 const t = await createTestIntfPrx(adapters);
@@ -142,16 +141,14 @@ export class Client extends TestHelper {
 
                 for (const adpt of adapters) {
                     const prx = await adpt.getTestIntf();
-                    test(prx !== null);
-                    const conn = await prx.ice_getConnection();
+                    const conn = await prx!.ice_getConnection();
                     await conn.close();
                 }
             }
 
             // Deactivate a remote adapter and ensure that we can still establish the connection to the remaining
             // adapters.
-            test(adapters[0] !== undefined);
-            await com.deactivateObjectAdapter(adapters[0]);
+            await com.deactivateObjectAdapter(adapters[0]!);
             names = ["Adapter12", "Adapter13"];
             while (names.length > 0) {
                 const adpts = ArrayUtil.clone(adapters);
@@ -173,12 +170,8 @@ export class Client extends TestHelper {
                 const conn = await test1.ice_getConnection();
                 await conn.close();
             }
-            //
-            // Deactivate an adapter and ensure that we can still
-            // establish the connection to the remaining adapter.
-            //
-            test(adapters[2] !== undefined);
-            await com.deactivateObjectAdapter(adapters[2]);
+            // Deactivate an adapter and ensure that we can still establish the connection to the remaining adapter.
+            await com.deactivateObjectAdapter(adapters[2]!);
             const obj = await createTestIntfPrx(adapters);
             test((await obj.getAdapterName()) == "Adapter12");
 
@@ -208,8 +201,7 @@ export class Client extends TestHelper {
             while (--count > 0) {
                 const proxies: Test.TestIntfPrx[] = [];
                 if (count == 1) {
-                    test(adapters[4] !== undefined);
-                    await com.deactivateObjectAdapter(adapters[4]);
+                    await com.deactivateObjectAdapter(adapters[4]!);
                     --adapterCount;
                 }
 
@@ -224,8 +216,7 @@ export class Client extends TestHelper {
                     proxies[i] = await createTestIntfPrx(ArrayUtil.clone(adpts));
                 }
                 for (let i = 0; i < proxies.length; i++) {
-                    test(proxies[i] !== undefined);
-                    proxies[i].getAdapterName().catch(() => {
+                    proxies[i]!.getAdapterName().catch(() => {
                         // ignore exception
                     });
                 }
@@ -249,8 +240,7 @@ export class Client extends TestHelper {
                 for (const a of adapters) {
                     try {
                         const prx = await a.getTestIntf();
-                        test(prx !== null);
-                        const conn = await prx.ice_getConnection();
+                        const conn = await prx!.ice_getConnection();
                         await conn.close();
                     } catch (ex) {
                         // Expected if adapter is down.
@@ -350,28 +340,24 @@ export class Client extends TestHelper {
 
             adapters = [];
 
-            //
-            // Now, re-activate the adapters with the same endpoints in the opposite
-            // order.
-            //
+            // Now, re-activate the adapters with the same endpoints in the opposite order.
 
-            adapters.push(
-                (await com.createObjectAdapter("Adapter36", endpoints[2].toString())) as Test.RemoteObjectAdapterPrx,
-            );
+            let adapter = await com.createObjectAdapter("Adapter36", endpoints[2].toString());
+            adapters.push(adapter!);
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter36"; i++);
             test(i == nRetry);
             let conn = await obj.ice_getConnection();
             await conn.close();
-            adapters.push(
-                (await com.createObjectAdapter("Adapter35", endpoints[1].toString())) as Test.RemoteObjectAdapterPrx,
-            );
+
+            adapter = await com.createObjectAdapter("Adapter35", endpoints[1].toString());
+            adapters.push(adapter!);
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter35"; i++);
             test(i == nRetry);
             conn = await obj.ice_getConnection();
             await conn.close();
-            adapters.push(
-                (await com.createObjectAdapter("Adapter34", endpoints[0].toString())) as Test.RemoteObjectAdapterPrx,
-            );
+
+            adapter = await com.createObjectAdapter("Adapter34", endpoints[0].toString());
+            adapters.push(adapter!);
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter34"; i++);
             test(i == nRetry);
 
@@ -385,7 +371,8 @@ export class Client extends TestHelper {
 
         out.write("testing per request binding with single endpoint... ");
         {
-            const adapter = (await com.createObjectAdapter("Adapter41", "default")) as Test.RemoteObjectAdapterPrx;
+            const adapter = await com.createObjectAdapter("Adapter41", "default");
+            test(adapter !== null);
 
             let test1 = await adapter.getTestIntf();
             test(test1 !== null);
@@ -491,17 +478,15 @@ export class Client extends TestHelper {
             const nRetry = 3;
             let i: number;
 
-            //
-            // Ensure that endpoints are tried in order by deactivating the adapters
-            // one after the other.
-            //
-
+            // Ensure that endpoints are tried in order by deactivating the adapters one after the other.
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter61"; i++);
             test(i == nRetry);
             await com.deactivateObjectAdapter(adapters[0]);
+
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter62"; i++);
             test(i == nRetry);
             await com.deactivateObjectAdapter(adapters[1]);
+
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter63"; i++);
             test(i == nRetry);
             com.deactivateObjectAdapter(adapters[2]);
@@ -520,24 +505,19 @@ export class Client extends TestHelper {
 
             adapters = [];
 
-            //
-            // Now, re-activate the adapters with the same endpoints in the opposite
-            // order.
-            //
-
-            adapters.push(
-                (await com.createObjectAdapter("Adapter66", endpoints[2].toString())) as Test.RemoteObjectAdapterPrx,
-            );
+            // Now, re-activate the adapters with the same endpoints in the opposite order.
+            let adapter = await com.createObjectAdapter("Adapter66", endpoints[2].toString()); 
+            adapters.push(adapter!);
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter66"; i++);
             test(i == nRetry);
-            adapters.push(
-                (await com.createObjectAdapter("Adapter65", endpoints[1].toString())) as Test.RemoteObjectAdapterPrx,
-            );
+
+            adapter = await com.createObjectAdapter("Adapter65", endpoints[1].toString());
+            adapters.push(adapter!);
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter65"; i++);
             test(i == nRetry);
-            adapters.push(
-                (await com.createObjectAdapter("Adapter64", endpoints[0].toString())) as Test.RemoteObjectAdapterPrx,
-            );
+
+            adapter = await com.createObjectAdapter("Adapter64", endpoints[0].toString());
+            adapters.push(adapter!);
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter64"; i++);
             test(i == nRetry);
 

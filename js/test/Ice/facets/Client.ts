@@ -35,36 +35,28 @@ export class Client extends TestHelper {
         {
             out.write("testing checked cast... ");
             let prx = await Ice.ObjectPrx.checkedCast(db);
-            test(prx !== null);
-            test(prx.ice_getFacet().length === 0);
+            test(prx!.ice_getFacet().length === 0);
 
             prx = await Ice.ObjectPrx.checkedCast(db, "facetABCD");
-            test(prx !== null);
-            test(prx.ice_getFacet() == "facetABCD");
+            test(prx!.ice_getFacet() == "facetABCD");
 
             const prx2 = await Ice.ObjectPrx.checkedCast(prx);
-            test(prx2 !== null);
-            test(prx2.ice_getFacet() == "facetABCD");
+            test(prx2!.ice_getFacet() == "facetABCD");
 
             const prx3 = await Ice.ObjectPrx.checkedCast(prx, "");
-            test(prx3 !== null);
-            test(prx3.ice_getFacet().length === 0);
+            test(prx3!.ice_getFacet().length === 0);
 
             let d = await Test.DPrx.checkedCast(db);
-            test(d !== null);
-            test(d.ice_getFacet().length === 0);
+            test(d!.ice_getFacet().length === 0);
 
             let df = await Test.DPrx.checkedCast(db, "facetABCD");
-            test(df !== null);
-            test(df.ice_getFacet() == "facetABCD");
+            test(df!.ice_getFacet() == "facetABCD");
 
             const df2 = await Test.DPrx.checkedCast(df);
-            test(df2 !== null);
-            test(df2.ice_getFacet() == "facetABCD");
+            test(df2!.ice_getFacet() == "facetABCD");
 
             const df3 = await Test.DPrx.checkedCast(df, "");
-            test(df3 !== null);
-            test(df3.ice_getFacet().length === 0);
+            test(df3!.ice_getFacet().length === 0);
             out.writeLine("ok");
 
             out.write("testing non-facets A, B, C, and D... ");

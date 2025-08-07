@@ -135,11 +135,11 @@ export class TestHelper {
     }
 }
 
-export function test(value, ex) {
+export function test(value, error) {
     if (!value) {
         let message = "test failed";
-        if (ex) {
-            message += "\n" + ex.toString();
+        if (error) {
+            message += `\n${error}`;
         }
         throw new Error(message);
     }
