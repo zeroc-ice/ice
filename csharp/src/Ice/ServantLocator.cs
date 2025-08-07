@@ -21,7 +21,7 @@ public interface ServantLocator
     /// <returns>The located servant, or null if no suitable servant has been found.</returns>
     /// <exception name="UserException">The implementation can raise a UserException and the run time will marshal it as the
     /// result of the invocation.</exception>
-    Object locate(Current curr, out object cookie);
+    Object? locate(Current curr, out object? cookie);
 
     /// <summary>
     /// Called by the object adapter after a request has been made.
@@ -39,7 +39,7 @@ public interface ServantLocator
     /// <param name="cookie">The cookie that was returned by locate.</param>
     /// <exception name="UserException">The implementation can raise a UserException and the run time will marshal it as the
     /// result of the invocation.</exception>
-    void finished(Current curr, Object servant, object cookie);
+    void finished(Current curr, Object servant, object? cookie);
 
     /// <summary>
     /// Called when the object adapter in which this servant locator is installed is destroyed.
