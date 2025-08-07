@@ -382,7 +382,7 @@ public final class NoEndpointException: LocalException, @unchecked Sendable {
     }
 }
 
-/// An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
+/// An attempt was made to find or deregister something that is not registered with Ice.
 public final class NotRegisteredException: LocalException, @unchecked Sendable {
     /// The kind of object that is not registered.
     public let kindOfObject: String

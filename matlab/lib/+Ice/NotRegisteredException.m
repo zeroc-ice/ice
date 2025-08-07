@@ -1,19 +1,18 @@
 classdef NotRegisteredException < Ice.LocalException
-    %NOTREGISTEREDEXCEPTION The exception that is thrown when you attempt to find or deregister something that is
-    %   not registered with the Ice runtime or Ice locator.
+    %NOTREGISTEREDEXCEPTION An attempt was made to find or deregister something that is not registered with Ice.
     %
     %   NotRegisteredException Properties:
-    %     kindOfObject - The kind of object that could not be removed.
-    %     id - The ID (or name) of the object that could not be removed.
+    %     kindOfObject - The kind of object that is not registered.
+    %     id - The ID (or name) of the object that is not registered.
 
     % Copyright (c) ZeroC, Inc.
 
     properties
-        %KINDOFOBJECT The kind of object that could not be removed.
+        %KINDOFOBJECT The kind of object that is not registered.
         %   character vector
         kindOfObject (1, :) char = ''
 
-        %ID The ID (or name) of the object that could not be removed.
+        %ID The ID (or name) of the object that is not registered.
         %   character vector
         id (1, :) char = ''
     end

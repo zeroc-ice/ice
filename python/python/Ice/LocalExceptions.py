@@ -418,7 +418,7 @@ class NoEndpointException(LocalException):
 @final
 class NotRegisteredException(LocalException):
     """
-    An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
+    An attempt was made to find or deregister something that is not registered with Ice.
     """
 
     def __init__(self, kindOfObject: str, id: str, msg: str):

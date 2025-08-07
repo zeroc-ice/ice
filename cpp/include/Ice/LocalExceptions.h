@@ -683,8 +683,7 @@ namespace Ice
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    /// An attempt was made to find or deregister something that is not registered with the Ice run time or Ice
-    /// locator.
+    /// An attempt was made to find or deregister something that is not registered with Ice.
     /// @headerfile Ice/Ice.h
     class ICE_API NotRegisteredException final : public LocalException
     {

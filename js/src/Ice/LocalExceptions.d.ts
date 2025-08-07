@@ -232,7 +232,7 @@ declare module "@zeroc/ice" {
         }
 
         /**
-         * An attempt was made to find or deregister something that is not registered with the Ice run time or Ice locator.
+         * An attempt was made to find or deregister something that is not registered with Ice.
          */
         class NotRegisteredException extends LocalException {
             /**
