@@ -53,21 +53,24 @@ export class Client extends TestHelper {
         out.write("testing binding with single endpoint... ");
         {
             const adapter = await com.createObjectAdapter("Adapter", "default");
-            const test1 = await adapter!.getTestIntf();
-            const test2 = await adapter!.getTestIntf();
-            test((await test1!.ice_getConnection()) === (await test2!.ice_getConnection()));
+            test(adapter !== null);
+            const test1 = await adapter.getTestIntf();
+            test(test1 !== null);
+            const test2 = await adapter.getTestIntf();
+            test(test2 !== null);
+            test((await test1.ice_getConnection()) === (await test2.ice_getConnection()));
 
-            await test1!.ice_ping();
-            await test2!.ice_ping();
+            await test1.ice_ping();
+            await test2.ice_ping();
 
             await com.deactivateObjectAdapter(adapter);
 
             const test3 = Test.TestIntfPrx.uncheckedCast(test1);
-            test((await test3!.ice_getConnection()) === (await test1!.ice_getConnection()));
-            test((await test3!.ice_getConnection()) === (await test2!.ice_getConnection()));
+            test((await test3.ice_getConnection()) === (await test1.ice_getConnection()));
+            test((await test3.ice_getConnection()) === (await test2.ice_getConnection()));
 
             try {
-                await test3!.ice_ping();
+                await test3.ice_ping();
                 test(false);
             } catch (ex) {
                 if (ex instanceof Ice.Exception) {
@@ -123,7 +126,8 @@ export class Client extends TestHelper {
             {
                 for (const adpt of adapters) {
                     const prx = await adpt.getTestIntf();
-                    await prx!.ice_ping();
+                    test(prx !== null);
+                    await prx.ice_ping();
                 }
 
                 const t = await createTestIntfPrx(adapters);
@@ -138,14 +142,14 @@ export class Client extends TestHelper {
 
                 for (const adpt of adapters) {
                     const prx = await adpt.getTestIntf();
-                    const conn = await prx!.ice_getConnection();
+                    test(prx !== null);
+                    const conn = await prx.ice_getConnection();
                     await conn.close();
                 }
             }
-            //
-            // Deactivate a remote adapter and ensure that we can still
-            // establish the connection to the remaining adapters.
-            //
+
+            // Deactivate a remote adapter and ensure that we can still establish the connection to the remaining
+            // adapters.
             test(adapters[0] !== undefined);
             await com.deactivateObjectAdapter(adapters[0]);
             names = ["Adapter12", "Adapter13"];
@@ -245,7 +249,8 @@ export class Client extends TestHelper {
                 for (const a of adapters) {
                     try {
                         const prx = await a.getTestIntf();
-                        const conn = await prx!.ice_getConnection();
+                        test(prx !== null);
+                        const conn = await prx.ice_getConnection();
                         await conn.close();
                     } catch (ex) {
                         // Expected if adapter is down.
@@ -382,12 +387,20 @@ export class Client extends TestHelper {
         {
             const adapter = (await com.createObjectAdapter("Adapter41", "default")) as Test.RemoteObjectAdapterPrx;
 
-            const test1 = (await adapter.getTestIntf())!.ice_connectionCached(false);
-            const test2 = (await adapter.getTestIntf())!.ice_connectionCached(false);
+            let test1 = await adapter.getTestIntf();
+            test(test1 !== null);
+            test1 = test1.ice_connectionCached(false);
+
+            let test2 = await adapter.getTestIntf();
+            test(test2 !== null);
+            test2 = test2.ice_connectionCached(false);
+
             test(!test1.ice_isConnectionCached());
             test(!test2.ice_isConnectionCached());
-            test((await test1.ice_getConnection()) !== null && (await test2.ice_getConnection()) !== null);
-            test((await test1.ice_getConnection()) == (await test2.ice_getConnection()));
+
+            const connection1 = await test1.ice_getConnection();
+            const connection2 = await test2.ice_getConnection();
+            test(connection1 == connection2);
 
             await test1.ice_ping();
 

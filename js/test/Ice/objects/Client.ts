@@ -93,51 +93,50 @@ export class Client extends TestHelper {
         const initial = new Test.InitialPrx(communicator, `initial:${this.getTestEndpoint()}`);
 
         out.write("getting B1... ");
-        let b1 = await initial!.getB1();
+        let b1 = await initial.getB1();
         test(b1 !== null);
         out.writeLine("ok");
 
         out.write("getting B2... ");
-        let b2 = await initial!.getB2();
+        let b2 = await initial.getB2();
         test(b2 !== null);
         out.writeLine("ok");
 
         out.write("getting C... ");
-        let c = await initial!.getC();
+        let c = await initial.getC();
         test(c !== null);
         out.writeLine("ok");
 
         out.write("getting D... ");
-        let d = await initial!.getD();
+        let d = await initial.getD();
         test(d !== null);
         out.writeLine("ok");
 
         out.write("checking consistency... ");
         test(b1 !== b2);
 
-        test(b1!.theB === b1);
-        test(b1!.theC === null);
-        test(b1!.theA instanceof Test_Test.B);
-        test((b1!.theA as Test_Test.B).theA === b1!.theA);
-        test(b1!.theA!.theB === b1);
-        test(b1!.theA!.theC instanceof Test.C);
-        test(b1!.theA!.theC!.theB === b1!.theA);
+        test(b1.theB === b1);
+        test(b1.theC === null);
+        test(b1.theA instanceof Test_Test.B);
+        test((b1.theA as Test_Test.B).theA === b1.theA);
+        test(b1.theA?.theB === b1);
+        test(b1.theA?.theC instanceof Test.C);
+        test(b1.theA?.theC.theB === b1.theA);
 
-        test(b1!.preMarshalInvoked);
-        test(b1!.postUnmarshalInvoked);
-        test(b1!.theA!.preMarshalInvoked);
-        test(b1!.theA!.postUnmarshalInvoked);
-        test(b1!.theA!.theC!.preMarshalInvoked);
-        test(b1!.theA!.theC!.postUnmarshalInvoked);
+        test(b1.preMarshalInvoked);
+        test(b1.postUnmarshalInvoked);
+        test(b1.theA?.preMarshalInvoked);
+        test(b1.theA?.postUnmarshalInvoked);
+        test(b1.theA?.theC?.preMarshalInvoked);
+        test(b1.theA?.theC?.postUnmarshalInvoked);
 
-        // More tests possible for b2 and d, but I think this is already
-        // sufficient.
-        test(b2!.theA === b2);
-        test(d!.theC === null);
+        // More tests possible for b2 and d, but I think this is already sufficient.
+        test(b2.theA === b2);
+        test(d.theC === null);
         out.writeLine("ok");
-        out.write("getting B1, B2, C, and D all at once... ");
 
-        [b1, b2, c, d] = await initial!.getAll();
+        out.write("getting B1, B2, C, and D all at once... ");
+        [b1, b2, c, d] = await initial.getAll();
 
         test(b1 !== null);
         test(b2 !== null);
@@ -147,69 +146,70 @@ export class Client extends TestHelper {
 
         out.write("checking consistency... ");
         test(b1 !== b2);
-        test(b1!.theA === b2);
-        test(b1!.theB === b1);
-        test(b1!.theC === null);
-        test(b2!.theA === b2);
-        test(b2!.theB === b1);
-        test(b2!.theC === c);
-        test(c!.theB === b2);
-        test(d!.theA === b1);
-        test(d!.theB === b2);
-        test(d!.theC === null);
-        test(d!.preMarshalInvoked);
-        test(d!.postUnmarshalInvoked);
-        test(d!.theA!.preMarshalInvoked);
-        test(d!.theA!.postUnmarshalInvoked);
-        test(d!.theB!.preMarshalInvoked);
-        test(d!.theB!.postUnmarshalInvoked);
-        test(d!.theB!.theC!.preMarshalInvoked);
-        test(d!.theB!.theC!.postUnmarshalInvoked);
+        test(b1.theA === b2);
+        test(b1.theB === b1);
+        test(b1.theC === null);
+        test(b2.theA === b2);
+        test(b2.theB === b1);
+        test(b2.theC === c);
+        test(c.theB === b2);
+        test(d.theA === b1);
+        test(d.theB === b2);
+        test(d.theC === null);
+        test(d.preMarshalInvoked);
+        test(d.postUnmarshalInvoked);
+        test(d.theA.preMarshalInvoked);
+        test(d.theA.postUnmarshalInvoked);
+        test(d.theB.preMarshalInvoked);
+        test(d.theB.postUnmarshalInvoked);
+        test(d.theB.theC?.preMarshalInvoked === true);
+        test(d.theB.theC?.postUnmarshalInvoked === true);
         out.writeLine("ok");
 
         out.write("getting K...");
-        const k = await initial!.getK();
+        const k = await initial.getK();
         test(k !== null);
-        test((k!.value as Test_Test.L).data == "l");
+        test((k.value as Test_Test.L).data == "l");
         out.writeLine("ok");
 
         out.write("test Value as parameter...");
         {
-            const [v1, v2]: [Ice.Value | null, Ice.Value | null] = await initial!.opValue(new Test.L("l"));
+            const [v1, v2]: [Ice.Value | null, Ice.Value | null] = await initial.opValue(new Test.L("l"));
             test((v1 as Test_Test.L).data == "l");
             test((v2 as Test_Test.L).data == "l");
 
-            const [seq1, seq2] = await initial!.opValueSeq([new Test.L("l")]);
+            const [seq1, seq2] = await initial.opValueSeq([new Test.L("l")]);
             test((seq1[0] as Test_Test.L).data == "l");
             test((seq2[0] as Test_Test.L).data == "l");
 
-            const [map1, map2] = await initial!.opValueMap(new Map([["l", new Test.L("l")]]));
+            const [map1, map2] = await initial.opValueMap(new Map([["l", new Test.L("l")]]));
             test((map1.get("l") as Test_Test.L).data == "l");
             test((map2.get("l") as Test_Test.L).data == "l");
         }
         out.writeLine("ok");
 
         out.write("getting D1... ");
-        const d1 = await initial!.getD1(
+        const d1 = await initial.getD1(
             new Test.D1(new Test.A1("a1"), new Test.A1("a2"), new Test.A1("a3"), new Test.A1("a4")),
         );
+        test(d1 !== null);
 
-        test(d1!.a1!.name == "a1");
-        test(d1!.a2!.name == "a2");
-        test(d1!.a3!.name == "a3");
-        test(d1!.a4!.name == "a4");
+        test(d1.a1?.name == "a1");
+        test(d1.a2?.name == "a2");
+        test(d1.a3?.name == "a3");
+        test(d1.a4?.name == "a4");
         out.writeLine("ok");
 
         out.write("throw EDerived... ");
         try {
-            await initial!.throwEDerived();
+            await initial.throwEDerived();
             test(false);
         } catch (ex) {
             if (ex instanceof Test.EDerived) {
-                test(ex.a1!.name == "a1");
-                test(ex.a2!.name == "a2");
-                test(ex.a3!.name == "a3");
-                test(ex.a4!.name == "a4");
+                test(ex.a1?.name == "a1");
+                test(ex.a2?.name == "a2");
+                test(ex.a3?.name == "a3");
+                test(ex.a4?.name == "a4");
             } else {
                 test(false, ex as Error);
             }
@@ -218,20 +218,19 @@ export class Client extends TestHelper {
 
         out.write("setting G... ");
         try {
-            await initial!.setG(new Test.G(new Test.S("hello"), "g"));
+            await initial.setG(new Test.G(new Test.S("hello"), "g"));
         } catch (ex) {
             test(ex instanceof Ice.OperationNotExistException, ex as Error);
         }
         out.writeLine("ok");
 
         out.write("testing sequences... ");
-        let [retS, outS] = await initial!.opBaseSeq([]);
-        [retS, outS] = await initial!.opBaseSeq([new Test.Base(new Test.S(), "")]);
+        let [retS, outS] = await initial.opBaseSeq([]);
+        [retS, outS] = await initial.opBaseSeq([new Test.Base(new Test.S(), "")]);
         test(retS.length === 1 && outS.length === 1);
         out.writeLine("ok");
 
         out.write("testing recursive types... ");
-
         const top = new Test.Recursive();
         let p = top;
         const maxDepth = 100;
@@ -241,28 +240,30 @@ export class Client extends TestHelper {
                 p.v = new Test.Recursive();
                 p = p.v;
             }
-            await initial!.setRecursive(top);
+            await initial.setRecursive(top);
             test(false);
         } catch (ex) {
             // Ice.UnknownLocalException: Expected marshal exception from the server (max class graph depth reached)
             test(ex instanceof Ice.UnknownLocalException, ex as Error);
         }
-        await initial!.setRecursive(new Test.Recursive());
+        await initial.setRecursive(new Test.Recursive());
         out.writeLine("ok");
 
         out.write("testing compact ID... ");
-        test((await initial!.getCompact()) !== null);
+        test((await initial.getCompact()) !== null);
         out.writeLine("ok");
 
         out.write("testing marshaled results...");
-        b1 = await initial!.getMB();
-        test(b1 !== null && b1!.theB === b1);
-        b1 = await initial!.getAMDMB();
-        test(b1 !== null && b1!.theB === b1);
+        b1 = await initial.getMB();
+        test(b1 !== null);
+        test(b1.theB === b1);
+        b1 = await initial.getAMDMB();
+        test(b1 !== null);
+        test(b1.theB === b1);
         out.writeLine("ok");
 
         out.write("testing UnexpectedObjectException... ");
-        const uoet = new Test.UnexpectedObjectExceptionTestPrx(communicator, "uoet:" + this.getTestEndpoint());
+        const uoet = new Test.UnexpectedObjectExceptionTestPrx(communicator, `uoet:${this.getTestEndpoint()}`);
         try {
             await uoet.op();
             test(false);
@@ -277,15 +278,15 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing inner modules... ");
-        const innerA = await initial!.getInnerA();
+        const innerA = await initial.getInnerA();
         test(innerA instanceof Test.Inner.A);
-        test(innerA!.theA instanceof Test.B);
-        const innerSubA = await initial!.getInnerSubA();
+        test(innerA.theA instanceof Test.B);
+        const innerSubA = await initial.getInnerSubA();
         test(innerSubA instanceof Test.Inner.Sub.A);
-        test(innerSubA!.theA instanceof Test.Inner.A);
+        test(innerSubA.theA instanceof Test.Inner.A);
 
         try {
-            await initial!.throwInnerEx();
+            await initial.throwInnerEx();
             test(false);
         } catch (ex) {
             if (ex instanceof Test.Inner.Ex) {
@@ -296,7 +297,7 @@ export class Client extends TestHelper {
         }
 
         try {
-            await initial!.throwInnerSubEx();
+            await initial.throwInnerSubEx();
             test(false);
         } catch (ex) {
             if (ex instanceof Test.Inner.Sub.Ex) {
@@ -316,40 +317,40 @@ export class Client extends TestHelper {
             const k2 = new Test.StructKey(2, "2");
             m.v.set(k2, new Test.L("two"));
 
-            const [m1, m2] = await initial!.opM(m);
+            const [m1, m2] = await initial.opM(m);
 
-            test(m1!.v.size == 2);
-            test(m2!.v.size == 2);
+            test(m1?.v.size == 2);
+            test(m2?.v.size == 2);
 
-            test(m1!.v!.get(k1)!.data == "one");
-            test(m2!.v!.get(k1)!.data == "one");
+            test(m1?.v.get(k1)?.data == "one");
+            test(m2?.v.get(k1)?.data == "one");
 
-            test(m1!.v!.get(k2)!.data == "two");
-            test(m2!.v!.get(k2)!.data == "two");
+            test(m1?.v.get(k2)?.data == "two");
+            test(m2?.v.get(k2)?.data == "two");
         }
         out.writeLine("ok");
 
         out.write("testing forward declarations... ");
         {
-            const [f11, f12] = await initial!.opF1(new Test.F1("F11"));
-            test(f11!.name == "F11");
-            test(f12!.name == "F12");
+            const [f11, f12] = await initial.opF1(new Test.F1("F11"));
+            test(f11?.name == "F11");
+            test(f12?.name == "F12");
 
-            const [f21, f22] = await initial!.opF2(new Test.F2Prx(communicator, `F21:${this.getTestEndpoint()}`));
-            test(f21!.ice_getIdentity().name == "F21");
-            await f21!.op();
-            test(f22!.ice_getIdentity().name == "F22");
+            const [f21, f22] = await initial.opF2(new Test.F2Prx(communicator, `F21:${this.getTestEndpoint()}`));
+            test(f21?.ice_getIdentity().name == "F21");
+            await f21?.op();
+            test(f22?.ice_getIdentity().name == "F22");
 
-            const hasF3 = await initial!.hasF3();
+            const hasF3 = await initial.hasF3();
             if (hasF3) {
-                const [f31, f32] = await initial!.opF3(
+                const [f31, f32] = await initial.opF3(
                     new Test.F3(new Test.F1("F11"), new Test.F2Prx(communicator, `F21:${this.getTestEndpoint()}`)),
                 );
-                test(f31!.f1!.name == "F11");
-                test(f31!.f2!.ice_getIdentity().name == "F21");
+                test(f31?.f1?.name == "F11");
+                test(f31?.f2?.ice_getIdentity().name == "F21");
 
-                test(f32!.f1!.name == "F12");
-                test(f32!.f2!.ice_getIdentity().name == "F22");
+                test(f32?.f1?.name == "F12");
+                test(f32?.f2?.ice_getIdentity().name == "F22");
             }
         }
         out.writeLine("ok");
@@ -378,7 +379,7 @@ export class Client extends TestHelper {
         }
         out.writeLine("ok");
 
-        await initial!.shutdown();
+        await initial.shutdown();
     }
 
     async run(args: string[]) {

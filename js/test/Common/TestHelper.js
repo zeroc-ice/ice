@@ -144,7 +144,3 @@ export function test(value, ex) {
         throw new Error(message);
     }
 }
-
-export function testNonNull(value) {
-    if (value === null || value === undefined) throw new Error("Value is null or undefined");
-}

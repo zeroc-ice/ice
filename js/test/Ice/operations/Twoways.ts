@@ -213,9 +213,14 @@ export async function twoways(
     {
         const [retval, p2, p3] = await prx.opMyClass(prx);
 
-        test(p2!.ice_getIdentity().equals(Ice.stringToIdentity("test")));
-        test(p3!.ice_getIdentity().equals(Ice.stringToIdentity("noSuchIdentity")));
-        test(retval!.ice_getIdentity().equals(Ice.stringToIdentity("test")));
+        test(p2 !== null);
+        test(p2.ice_getIdentity().equals(Ice.stringToIdentity("test")));
+
+        test(p3 !== null);
+        test(p3.ice_getIdentity().equals(Ice.stringToIdentity("noSuchIdentity")));
+
+        test(retval !== null);
+        test(retval.ice_getIdentity().equals(Ice.stringToIdentity("test")));
     }
 
     {
@@ -1277,10 +1282,11 @@ export async function twoways(
 
         {
             const p2 = await Test.MyClassPrx.checkedCast(prx.ice_context(ctx));
-            test(Ice.MapUtil.equals(p2!.ice_getContext(), ctx));
-            let r = await p2!.opContext();
+            test(p2 !== null);
+            test(Ice.MapUtil.equals(p2.ice_getContext(), ctx));
+            let r = await p2.opContext();
             test(Ice.MapUtil.equals(r, ctx));
-            r = await p2!.opContext(ctx);
+            r = await p2.opContext(ctx);
             test(Ice.MapUtil.equals(r, ctx));
         }
     }
@@ -1329,7 +1335,7 @@ export async function twoways(
 
         p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext));
 
-        ic.getImplicitContext().setContext(null);
+        ic.getImplicitContext().setContext(null!);
         test(Ice.MapUtil.equals(await p3.opContext(), prxContext));
 
         ic.getImplicitContext().setContext(ctx);

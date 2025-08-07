@@ -96,7 +96,7 @@ export class Client extends TestHelper {
 
             adapter.destroy();
             try {
-                (await obj!.ice_getConnection()).setAdapter(adapter);
+                (await obj.ice_getConnection()).setAdapter(adapter);
                 test(false);
             } catch (ex) {
                 test(ex instanceof Ice.ObjectAdapterDestroyedException);
@@ -142,12 +142,12 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("deactivating object adapter in the server... ");
-        await obj!.deactivate();
+        await obj.deactivate();
         out.writeLine("ok");
 
         out.write("testing whether server is gone... ");
         try {
-            await obj!.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+            await obj.ice_invocationTimeout(100).ice_ping(); // Use timeout to speed up testing on Windows
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.LocalException);

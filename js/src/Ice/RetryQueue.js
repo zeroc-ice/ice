@@ -25,7 +25,7 @@ class RetryTask {
     asyncRequestCanceled(outAsync, ex) {
         console.assert(
             outAsync === this._outAsync,
-            "RetryTask.asyncRequestCanceled: outAsync does not match this._outAsync"
+            "RetryTask.asyncRequestCanceled: outAsync does not match this._outAsync",
         );
         if (this._queue.cancel(this)) {
             if (this._instance.traceLevels().retry >= 1) {

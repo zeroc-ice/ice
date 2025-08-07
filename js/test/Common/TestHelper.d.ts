@@ -31,4 +31,3 @@ export class TestHelper {
 }
 
 export function test(value: boolean, ex?: Error): asserts value;
-export function testIsNotNull<T>(value: T): asserts value is NonNullable<T>;

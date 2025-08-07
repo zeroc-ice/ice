@@ -40,23 +40,23 @@ export class Client extends TestHelper {
         const endpoints = p1.ice_getEndpoints();
         const endpoint = endpoints[0].getInfo();
         const ipEndpoint = getTCPEndpointInfo(endpoint);
-        test(ipEndpoint != null);
-        test(ipEndpoint!.host == "tcphost");
-        test(ipEndpoint!.port == 10000);
-        test(ipEndpoint!.timeout == 1200);
-        test(ipEndpoint!.sourceAddress == "10.10.10.10");
-        test(ipEndpoint!.compress);
-        test(!ipEndpoint!.datagram());
+        test(ipEndpoint !== null);
+        test(ipEndpoint.host == "tcphost");
+        test(ipEndpoint.port == 10000);
+        test(ipEndpoint.timeout == 1200);
+        test(ipEndpoint.sourceAddress == "10.10.10.10");
+        test(ipEndpoint.compress);
+        test(!ipEndpoint.datagram());
         test(
-            (ipEndpoint!.type() == Ice.TCPEndpointType && !ipEndpoint!.secure()) ||
-                (ipEndpoint!.type() == Ice.WSEndpointType && !ipEndpoint!.secure()) ||
-                (ipEndpoint!.type() == Ice.WSSEndpointType && ipEndpoint!.secure()),
+            (ipEndpoint.type() == Ice.TCPEndpointType && !ipEndpoint.secure()) ||
+                (ipEndpoint.type() == Ice.WSEndpointType && !ipEndpoint.secure()) ||
+                (ipEndpoint.type() == Ice.WSSEndpointType && ipEndpoint.secure()),
         );
 
         test(
-            (ipEndpoint!.type() == Ice.TCPEndpointType && endpoint instanceof Ice.TCPEndpointInfo) ||
-                (ipEndpoint!.type() == Ice.WSEndpointType && endpoint instanceof Ice.WSEndpointInfo) ||
-                (ipEndpoint!.type() == Ice.WSSEndpointType && endpoint instanceof Ice.WSEndpointInfo),
+            (ipEndpoint.type() == Ice.TCPEndpointType && endpoint instanceof Ice.TCPEndpointInfo) ||
+                (ipEndpoint.type() == Ice.WSEndpointType && endpoint instanceof Ice.WSEndpointInfo) ||
+                (ipEndpoint.type() == Ice.WSSEndpointType && endpoint instanceof Ice.WSEndpointInfo),
         );
 
         const opaqueEndpoint = endpoints[1].getInfo() as Ice.OpaqueEndpointInfo;
@@ -68,13 +68,13 @@ export class Client extends TestHelper {
         const endpointPort = this.getTestPort(0);
         let conn = await testIntf.ice_getConnection();
         const ipinfo = getTCPEndpointInfo(conn.getEndpoint().getInfo());
-        test(ipinfo != null);
-        test(ipinfo!.port == endpointPort);
-        test(!ipinfo!.compress);
-        test(ipinfo!.host == defaultHost);
+        test(ipinfo !== null);
+        test(ipinfo.port == endpointPort);
+        test(!ipinfo.compress);
+        test(ipinfo.host == defaultHost);
 
         let ctx = await testIntf.getEndpointInfoAsContext();
-        test(ctx.get("host") == ipinfo!.host);
+        test(ctx.get("host") == ipinfo.host);
         test(ctx.get("compress") == "false");
         const port = ctx.get("port");
         test(port !== undefined);
@@ -91,25 +91,25 @@ export class Client extends TestHelper {
         test(ipConnectionInfo != null);
         test(info.adapterName.length === 0);
         if (conn.type() != "ws" && conn.type() != "wss") {
-            test(ipConnectionInfo!.localPort > 0);
+            test(ipConnectionInfo.localPort > 0);
         }
-        test(ipConnectionInfo!.remotePort == endpointPort);
+        test(ipConnectionInfo.remotePort == endpointPort);
         if (defaultHost == "127.0.0.1") {
-            test(ipConnectionInfo!.remoteAddress == defaultHost);
+            test(ipConnectionInfo.remoteAddress == defaultHost);
             if (conn.type() != "ws" && conn.type() != "wss") {
-                test(ipConnectionInfo!.localAddress == defaultHost);
+                test(ipConnectionInfo.localAddress == defaultHost);
             }
         }
-        test(ipConnectionInfo!.sndSize >= 2048);
+        test(ipConnectionInfo.sndSize >= 2048);
         ctx = await testIntf.getConnectionInfoAsContext();
 
         test(ctx.get("incoming") == "true");
         test(ctx.get("adapterName") == "TestAdapter");
         if (conn.type() != "ws" && conn.type() != "wss") {
-            test(ctx.get("remoteAddress") == ipConnectionInfo!.localAddress);
-            test(ctx.get("localAddress") == ipConnectionInfo!.remoteAddress);
-            test(parseInt(ctx.get("remotePort")!) === ipConnectionInfo!.localPort);
-            test(parseInt(ctx.get("localPort")!) === ipConnectionInfo!.remotePort);
+            test(ctx.get("remoteAddress") == ipConnectionInfo.localAddress);
+            test(ctx.get("localAddress") == ipConnectionInfo.remoteAddress);
+            test(parseInt(ctx.get("remotePort")!) === ipConnectionInfo.localPort);
+            test(parseInt(ctx.get("localPort")!) === ipConnectionInfo.remotePort);
         }
 
         function getHeader(ctx: Map<string, string>, key: string): string | undefined {

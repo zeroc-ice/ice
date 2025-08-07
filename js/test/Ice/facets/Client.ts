@@ -4,10 +4,6 @@ import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 import { TestHelper, test } from "../../Common/TestHelper.js";
 
-function testNonNull<T>(value: T): asserts value is NonNullable<T> {
-    if (value == null) throw new Error("Value is null or undefined");
-}
-
 export class Client extends TestHelper {
     async allTests() {
         const communicator = this.communicator();
@@ -39,59 +35,75 @@ export class Client extends TestHelper {
         {
             out.write("testing checked cast... ");
             let prx = await Ice.ObjectPrx.checkedCast(db);
-            test(prx!.ice_getFacet().length === 0);
+            test(prx !== null);
+            test(prx.ice_getFacet().length === 0);
+
             prx = await Ice.ObjectPrx.checkedCast(db, "facetABCD");
-            test(prx!.ice_getFacet() == "facetABCD");
+            test(prx !== null);
+            test(prx.ice_getFacet() == "facetABCD");
+
             const prx2 = await Ice.ObjectPrx.checkedCast(prx);
-            test(prx2!.ice_getFacet() == "facetABCD");
+            test(prx2 !== null);
+            test(prx2.ice_getFacet() == "facetABCD");
+
             const prx3 = await Ice.ObjectPrx.checkedCast(prx, "");
-            test(prx3!.ice_getFacet().length === 0);
+            test(prx3 !== null);
+            test(prx3.ice_getFacet().length === 0);
+
             let d = await Test.DPrx.checkedCast(db);
-            test(d!.ice_getFacet().length === 0);
+            test(d !== null);
+            test(d.ice_getFacet().length === 0);
+
             let df = await Test.DPrx.checkedCast(db, "facetABCD");
-            test(df!.ice_getFacet() == "facetABCD");
+            test(df !== null);
+            test(df.ice_getFacet() == "facetABCD");
+
             const df2 = await Test.DPrx.checkedCast(df);
-            test(df2!.ice_getFacet() == "facetABCD");
+            test(df2 !== null);
+            test(df2.ice_getFacet() == "facetABCD");
+
             const df3 = await Test.DPrx.checkedCast(df, "");
-            test(df3!.ice_getFacet().length === 0);
+            test(df3 !== null);
+            test(df3.ice_getFacet().length === 0);
             out.writeLine("ok");
 
             out.write("testing non-facets A, B, C, and D... ");
             d = await Test.DPrx.checkedCast(db);
             test(d !== null);
-            test(d!.equals(db));
-            test((await d!.callA()) == "A");
-            test((await d!.callB()) == "B");
-            test((await d!.callC()) == "C");
-            test((await d!.callD()) == "D");
+            test(d.equals(db));
+            test((await d.callA()) == "A");
+            test((await d.callB()) == "B");
+            test((await d.callC()) == "C");
+            test((await d.callD()) == "D");
             out.writeLine("ok");
 
             out.write("testing facets A, B, C, and D... ");
             df = await Test.DPrx.checkedCast(d, "facetABCD");
             test(df !== null);
-            test((await df!.callA()) == "A");
-            test((await df!.callB()) == "B");
-            test((await df!.callC()) == "C");
-            test((await df!.callD()) == "D");
+            test((await df.callA()) == "A");
+            test((await df.callB()) == "B");
+            test((await df.callC()) == "C");
+            test((await df.callD()) == "D");
             out.writeLine("ok");
 
             out.write("testing facets E and F... ");
             const ff = await Test.FPrx.checkedCast(d, "facetEF");
-            testNonNull(ff);
+            test(ff !== null);
             test((await ff.callE()) == "E");
             test((await ff.callF()) == "F");
             out.writeLine("ok");
 
             out.write("testing facet G... ");
             const gf = await Test.GPrx.checkedCast(ff, "facetGH");
-            testNonNull(gf);
+            test(gf !== null);
             test((await gf.callG()) == "G");
             out.writeLine("ok");
 
             out.write("testing whether casting preserves the facet... ");
             const hf = await Test.HPrx.checkedCast(gf);
-            test((await hf!.callG()) == "G");
-            test((await hf!.callH()) == "H");
+            test(hf !== null);
+            test((await hf.callG()) == "G");
+            test((await hf.callH()) == "H");
             out.writeLine("ok");
 
             await gf.shutdown();

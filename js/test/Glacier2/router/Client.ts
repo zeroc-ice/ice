@@ -25,11 +25,10 @@ class CallbackReceiverI extends Test.CallbackReceiver {
         throw new Test.CallbackException(3.14, "3.14");
     }
 
-    callbackOK() {
-        return this._p.then(() => {
-            this._callback = false;
-            this._p = new Ice.Promise();
-        });
+    async callbackOK() {
+        await this._p;
+        this._callback = false;
+        this._p = new Ice.Promise();
     }
 }
 

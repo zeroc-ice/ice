@@ -25,23 +25,23 @@ export class Client extends TestHelper {
 
             const smap1 = new Map([["a", s1]]);
             const [smap2, smap3] = await i1.opMyStructMap(smap1);
-            test(smap2.get("a")!.equals(s1));
-            test(smap3.get("a")!.equals(s1));
+            test(smap2.get("a")?.equals(s1) ?? false);
+            test(smap3.get("a")?.equals(s1) ?? false);
 
             const c1 = new Test.MyClass(s1);
 
             const [c2, c3] = await i1.opMyClass(c1);
-            test(c2!.s.equals(s1));
-            test(c3!.s.equals(s1));
+            test(c2?.s.equals(s1) ?? false);
+            test(c3?.s.equals(s1) ?? false);
 
             const [cseq2, cseq3] = await i1.opMyClassSeq([c1]);
-            test(cseq2[0]!.s.equals(s1));
-            test(cseq3[0]!.s.equals(s1));
+            test(cseq2[0]?.s.equals(s1) ?? false);
+            test(cseq3[0]?.s.equals(s1) ?? false);
 
             const cmap1 = new Map([["a", c1]]);
             const [cmap2, cmap3] = await i1.opMyClassMap(cmap1);
-            test(cmap2.get("a")!.s.equals(s1));
-            test(cmap3.get("a")!.s.equals(s1));
+            test(cmap2.get("a")?.s.equals(s1) ?? false);
+            test(cmap3.get("a")?.s.equals(s1) ?? false);
 
             const e = await i1.opMyEnum(Test.MyEnum.v1);
             test(e == Test.MyEnum.v1);
@@ -50,7 +50,7 @@ export class Client extends TestHelper {
             test(s.s == "MyOtherStruct");
 
             const c = await i1.opMyOtherClass(new Test.MyOtherClass("MyOtherClass"));
-            test(c!.s == "MyOtherClass");
+            test(c?.s == "MyOtherClass");
         }
 
         {
@@ -67,23 +67,23 @@ export class Client extends TestHelper {
 
             const smap1 = new Map([["a", s1]]);
             const [smap2, smap3] = await i2.opMyStructMap(smap1);
-            test(smap2.get("a")!.equals(s1));
-            test(smap3.get("a")!.equals(s1));
+            test(smap2.get("a")?.equals(s1) ?? false);
+            test(smap3.get("a")?.equals(s1) ?? false);
 
             const c1 = new Test.Inner.Inner2.MyClass(s1);
 
             const [c2, c3] = await i2.opMyClass(c1);
-            test(c2!.s.equals(s1));
-            test(c3!.s.equals(s1));
+            test(c2?.s.equals(s1) ?? false);
+            test(c3?.s.equals(s1) ?? false);
 
             const [cseq2, cseq3] = await i2.opMyClassSeq([c1]);
-            test(cseq2[0]!.s.equals(s1));
-            test(cseq3[0]!.s.equals(s1));
+            test(cseq2[0]?.s.equals(s1) ?? false);
+            test(cseq3[0]?.s.equals(s1) ?? false);
 
             const cmap1 = new Map([["a", c1]]);
             const [cmap2, cmap3] = await i2.opMyClassMap(cmap1);
-            test(cmap2.get("a")!.s.equals(s1));
-            test(cmap3.get("a")!.s.equals(s1));
+            test(cmap2.get("a")?.s.equals(s1) ?? false);
+            test(cmap3.get("a")?.s.equals(s1) ?? false);
         }
 
         {
@@ -100,23 +100,23 @@ export class Client extends TestHelper {
 
             const smap1 = new Map([["a", s1]]);
             const [smap2, smap3] = await i3.opMyStructMap(smap1);
-            test(smap2.get("a")!.equals(s1));
-            test(smap3.get("a")!.equals(s1));
+            test(smap2.get("a")?.equals(s1) ?? false);
+            test(smap3.get("a")?.equals(s1) ?? false);
 
             const c1 = new Test.Inner.Inner2.MyClass(s1);
 
             const [c2, c3] = await i3.opMyClass(c1);
-            test(c2!.s.equals(s1));
-            test(c3!.s.equals(s1));
+            test(c2?.s.equals(s1) ?? false);
+            test(c3?.s.equals(s1) ?? false);
 
             const [cseq2, cseq3] = await i3.opMyClassSeq([c1]);
-            test(cseq2[0]!.s.equals(s1));
-            test(cseq3[0]!.s.equals(s1));
+            test(cseq2[0]?.s.equals(s1) ?? false);
+            test(cseq3[0]?.s.equals(s1) ?? false);
 
             const cmap1 = new Map([["a", c1]]);
             const [cmap2, cmap3] = await i3.opMyClassMap(cmap1);
-            test(cmap2.get("a")!.s.equals(s1));
-            test(cmap3.get("a")!.s.equals(s1));
+            test(cmap2.get("a")?.s.equals(s1) ?? false);
+            test(cmap3.get("a")?.s.equals(s1) ?? false);
         }
 
         {
@@ -133,23 +133,23 @@ export class Client extends TestHelper {
 
             const smap1 = new Map([["a", s1]]);
             const [smap2, smap3] = await i4.opMyStructMap(smap1);
-            test(smap2.get("a")!.equals(s1));
-            test(smap3.get("a")!.equals(s1));
+            test(smap2.get("a")?.equals(s1) ?? false);
+            test(smap3.get("a")?.equals(s1) ?? false);
 
             const c1 = new Test.MyClass(s1);
 
             const [c2, c3] = await i4.opMyClass(c1);
-            test(c2!.s.equals(s1));
-            test(c3!.s.equals(s1));
+            test(c2?.s.equals(s1) ?? false);
+            test(c3?.s.equals(s1) ?? false);
 
             const [cseq2, cseq3] = await i4.opMyClassSeq([c1]);
-            test(cseq2[0]!.s.equals(s1));
-            test(cseq3[0]!.s.equals(s1));
+            test(cseq2[0]?.s.equals(s1) ?? false);
+            test(cseq3[0]?.s.equals(s1) ?? false);
 
             const cmap1 = new Map([["a", c1]]);
             const [cmap2, cmap3] = await i4.opMyClassMap(cmap1);
-            test(cmap2.get("a")!.s.equals(s1));
-            test(cmap3.get("a")!.s.equals(s1));
+            test(cmap2.get("a")?.s.equals(s1) ?? false);
+            test(cmap3.get("a")?.s.equals(s1) ?? false);
         }
 
         {
