@@ -74,13 +74,16 @@ class ServerLocator(Test.TestLocator):
         self._requestCount += 1
         return Ice.Future.completed(self._registry.getObject(id))
 
+    @override
     def findAdapterById(self, id: str, current: Ice.Current):
         self._requestCount += 1
         return Ice.Future.completed(self._registry.getAdapter(id))
 
+    @override
     def getRegistry(self, current: Ice.Current):
         return self._registryPrx
 
+    @override
     def getRequestCount(self, current: Ice.Current):
         return self._requestCount
 
