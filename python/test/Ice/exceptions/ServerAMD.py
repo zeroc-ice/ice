@@ -4,7 +4,7 @@
 
 import sys
 
-import TestI
+import TestAMDI
 from TestHelper import TestHelper
 
 import Ice
@@ -29,7 +29,7 @@ class ServerAMD(TestHelper):
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter2 = communicator.createObjectAdapter("TestAdapter2")
             adapter3 = communicator.createObjectAdapter("TestAdapter3")
-            object = TestI.ThrowerI()
+            object = TestAMDI.ThrowerI()
             adapter.add(object, Ice.stringToIdentity("thrower"))
             adapter2.add(object, Ice.stringToIdentity("thrower"))
             adapter3.add(object, Ice.stringToIdentity("thrower"))

@@ -25,41 +25,27 @@ class ThrowerI(Test.Thrower):
     def throwAasA(self, a: int, current: Ice.Current):
         ex = Test.A()
         ex.aMem = a
-        f = Ice.Future()
-        f.set_exception(ex)
-        return f
-
-    @override
-    def throwAorDasAorD(self, a: int, current: Ice.Current):
-        f = Ice.Future()
-        if a > 0:
-            ex = Test.A()
-            ex.aMem = a
-            f.set_exception(ex)
-        else:
-            ex = Test.D()
-            ex.dMem = a
-            f.set_exception(ex)
-        return f
-
-    @override
-    def throwBasA(self, a: int, b: int, current: Ice.Current):
-        ex = Test.B()
-        ex.aMem = a
-        ex.bMem = b
         raise ex
 
     @override
-    def throwCasA(self, a: int, b: int, c: int, current: Ice.Current):
-        ex = Test.C()
-        ex.aMem = a
-        ex.bMem = b
-        ex.cMem = c
-        f = Ice.Future()
-        f.set_exception(ex)
-        return f
+    def throwAorDasAorD(self, a: int, current: Ice.Current):
+        if a > 0:
+            ex = Test.A()
+            ex.aMem = a
+            raise ex
+        else:
+            ex = Test.D()
+            ex.dMem = a
+            raise ex
 
     @override
+    def throwBasA(self, a: int, b: int, current: Ice.Current):
+        self.throwBasB(a, b, current)
+
+    @override
+    def throwCasA(self, a: int, b: int, c: int, current: Ice.Current):
+        self.throwCasC(a, b, c, current)
+
     def throwBasB(self, a: int, b: int, current: Ice.Current):
         ex = Test.B()
         ex.aMem = a
@@ -68,13 +54,7 @@ class ThrowerI(Test.Thrower):
 
     @override
     def throwCasB(self, a: int, b: int, c: int, current: Ice.Current):
-        ex = Test.C()
-        ex.aMem = a
-        ex.bMem = b
-        ex.cMem = c
-        f = Ice.Future()
-        f.set_exception(ex)
-        return f
+        self.throwCasC(a, b, c, current)
 
     @override
     def throwCasC(self, a: int, b: int, c: int, current: Ice.Current):
@@ -82,9 +62,7 @@ class ThrowerI(Test.Thrower):
         ex.aMem = a
         ex.bMem = b
         ex.cMem = c
-        f = Ice.Future()
-        f.set_exception(ex)
-        return f
+        raise ex
 
     @override
     def throwModA(self, a: int, a2: int, current: Ice.Current):
@@ -97,9 +75,7 @@ class ThrowerI(Test.Thrower):
     def throwUndeclaredA(self, a: int, current: Ice.Current):
         ex = Test.A()
         ex.aMem = a
-        f = Ice.Future()
-        f.set_exception(ex)
-        return f
+        raise ex
 
     @override
     def throwUndeclaredB(self, a: int, b: int, current: Ice.Current):
@@ -114,61 +90,54 @@ class ThrowerI(Test.Thrower):
         ex.aMem = a
         ex.bMem = b
         ex.cMem = c
-        f = Ice.Future()
-        f.set_exception(ex)
-        return f
+        raise ex
 
     @override
     def throwLocalException(self, current: Ice.Current):
-        f = Ice.Future()
-        f.set_exception(Ice.TimeoutException())
-        return f
+        raise Ice.TimeoutException()
 
     @override
     def throwNonIceException(self, current: Ice.Current):
-        f = Ice.Future()
-        f.set_exception(RuntimeError("12345"))
-        return f
+        raise RuntimeError("12345")
 
     @override
     def throwAssertException(self, current: Ice.Current):
-        raise RuntimeError("operation `throwAssertException' not supported")
+        raise RuntimeError("operation 'throwAssertException' not supported")
 
     @override
     def throwMemoryLimitException(self, seq: bytes, current: Ice.Current):
-        return Ice.Future.completed(bytearray(20 * 1024))
+        return bytearray(20 * 1024)
 
     @override
     def throwLocalExceptionIdempotent(self, current: Ice.Current):
-        f = Ice.Future()
-        f.set_exception(Ice.TimeoutException())
-        return f
+        raise Ice.TimeoutException()
 
     @override
     def throwDispatchException(self, replyStatus: int, current: Ice.Current):
-        f = Ice.Future()
-        f.set_exception(Ice.DispatchException(replyStatus))
-        return f
+        raise Ice.DispatchException(replyStatus)
 
     @override
     def throwAfterResponse(self, current: Ice.Current):
-        # Cannot be implemented with Futures
-        return None
+        #
+        # Only relevant for AMD.
+        #
+        pass
 
     @override
     def throwAfterException(self, current: Ice.Current):
-        # Cannot be implemented with Futures
-        f = Ice.Future()
-        f.set_exception(Test.A())
-        return f
+        #
+        # Only relevant for AMD.
+        #
+        raise Test.A()
 
     @override
-    def throwMarshalException(self, current: Ice.Current):
+    def throwMarshalException(self, current: Ice.Current) -> tuple[int, int]:
+        # We return the wrong type on purpose to test that we throw MarshalException.
         if "return" in current.ctx:
-            return Ice.Future.completed(("", 0))
+            return ("", 0)  # type: ignore
         if "param" in current.ctx:
-            return Ice.Future.completed((0, ""))
-        return Ice.Future.completed(None)
+            return (0, "")  # type: ignore
+        return None  # type: ignore
 
     @override
     def throwRequestFailedException(
