@@ -506,7 +506,7 @@ export class Client extends TestHelper {
             adapters = [];
 
             // Now, re-activate the adapters with the same endpoints in the opposite order.
-            let adapter = await com.createObjectAdapter("Adapter66", endpoints[2].toString()); 
+            let adapter = await com.createObjectAdapter("Adapter66", endpoints[2].toString());
             adapters.push(adapter!);
             for (i = 0; i < nRetry && (await obj.getAdapterName()) == "Adapter66"; i++);
             test(i == nRetry);
