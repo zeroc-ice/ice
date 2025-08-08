@@ -51,18 +51,18 @@ allTests(Test::TestHelper* helper, int num)
     {
         try
         {
-            ObjectPrx(communicator, "object @ oa1")->ice_ping();
+            ObjectPrx(communicator, "object @ oa10")->ice_ping();
             test(false);
         }
         catch (const Ice::NoEndpointException&)
         {
         }
 
-        proxies[0]->activateObjectAdapter("oa", "oa1", "");
+        proxies[0]->activateObjectAdapter("oa", "oa10", "");
 
         try
         {
-            ObjectPrx(communicator, "object @ oa1")->ice_ping();
+            ObjectPrx(communicator, "object @ oa10")->ice_ping();
             test(false);
         }
         catch (const Ice::ObjectNotExistException&)
@@ -73,7 +73,7 @@ allTests(Test::TestHelper* helper, int num)
 
         try
         {
-            ObjectPrx(communicator, "object @ oa1")->ice_ping();
+            ObjectPrx(communicator, "object @ oa10")->ice_ping();
             test(false);
         }
         catch (const Ice::NoEndpointException&)
@@ -84,15 +84,15 @@ allTests(Test::TestHelper* helper, int num)
 
     cout << "testing object adapter migration..." << flush;
     {
-        proxies[0]->activateObjectAdapter("oa", "oa1", "");
+        proxies[0]->activateObjectAdapter("oa", "oa20", "");
         proxies[0]->addObject("oa", "object");
-        ObjectPrx(communicator, "object @ oa1")->ice_ping();
+        ObjectPrx(communicator, "object @ oa20")->ice_ping();
         proxies[0]->removeObject("oa", "object");
         proxies[0]->deactivateObjectAdapter("oa");
 
-        proxies[1]->activateObjectAdapter("oa", "oa1", "");
+        proxies[1]->activateObjectAdapter("oa", "oa20", "");
         proxies[1]->addObject("oa", "object");
-        ObjectPrx(communicator, "object @ oa1")->ice_ping();
+        ObjectPrx(communicator, "object @ oa20")->ice_ping();
         proxies[1]->removeObject("oa", "object");
         proxies[1]->deactivateObjectAdapter("oa");
     }
@@ -100,29 +100,29 @@ allTests(Test::TestHelper* helper, int num)
 
     cout << "testing object migration..." << flush;
     {
-        proxies[0]->activateObjectAdapter("oa", "oa1", "");
-        proxies[1]->activateObjectAdapter("oa", "oa2", "");
+        proxies[0]->activateObjectAdapter("oa", "oa31", "");
+        proxies[1]->activateObjectAdapter("oa", "oa32", "");
 
         proxies[0]->addObject("oa", "object");
-        ObjectPrx(communicator, "object @ oa1")->ice_ping();
+        ObjectPrx(communicator, "object @ oa31")->ice_ping();
         ObjectPrx(communicator, "object")->ice_ping();
         proxies[0]->removeObject("oa", "object");
 
         proxies[1]->addObject("oa", "object");
-        ObjectPrx(communicator, "object @ oa2")->ice_ping();
+        ObjectPrx(communicator, "object @ oa32")->ice_ping();
         ObjectPrx(communicator, "object")->ice_ping();
         proxies[1]->removeObject("oa", "object");
 
         try
         {
-            ObjectPrx(communicator, "object @ oa1")->ice_ping();
+            ObjectPrx(communicator, "object @ oa31")->ice_ping();
         }
         catch (const Ice::ObjectNotExistException&)
         {
         }
         try
         {
-            ObjectPrx(communicator, "object @ oa2")->ice_ping();
+            ObjectPrx(communicator, "object @ oa32")->ice_ping();
         }
         catch (const Ice::ObjectNotExistException&)
         {
@@ -135,24 +135,24 @@ allTests(Test::TestHelper* helper, int num)
 
     cout << "testing replica groups..." << flush;
     {
-        proxies[0]->activateObjectAdapter("oa", "oa1", "rg");
-        proxies[1]->activateObjectAdapter("oa", "oa2", "rg");
-        proxies[2]->activateObjectAdapter("oa", "oa3", "rg");
+        proxies[0]->activateObjectAdapter("oa", "oa41", "rg");
+        proxies[1]->activateObjectAdapter("oa", "oa42", "rg");
+        proxies[2]->activateObjectAdapter("oa", "oa43", "rg");
 
         proxies[0]->addObject("oa", "object");
         proxies[1]->addObject("oa", "object");
         proxies[2]->addObject("oa", "object");
 
-        ObjectPrx(communicator, "object @ oa1")->ice_ping();
-        ObjectPrx(communicator, "object @ oa2")->ice_ping();
-        ObjectPrx(communicator, "object @ oa3")->ice_ping();
+        ObjectPrx(communicator, "object @ oa41")->ice_ping();
+        ObjectPrx(communicator, "object @ oa42")->ice_ping();
+        ObjectPrx(communicator, "object @ oa43")->ice_ping();
 
         ObjectPrx(communicator, "object @ rg")->ice_ping();
 
         set<string> adapterIds;
-        adapterIds.insert("oa1");
-        adapterIds.insert("oa2");
-        adapterIds.insert("oa3");
+        adapterIds.insert("oa41");
+        adapterIds.insert("oa42");
+        adapterIds.insert("oa43");
         TestIntfPrx intf(communicator, "object");
         intf = intf->ice_connectionCached(false)->ice_locatorCacheTimeout(0);
         while (!adapterIds.empty())
@@ -162,9 +162,9 @@ allTests(Test::TestHelper* helper, int num)
 
         while (true)
         {
-            adapterIds.insert("oa1");
-            adapterIds.insert("oa2");
-            adapterIds.insert("oa3");
+            adapterIds.insert("oa41");
+            adapterIds.insert("oa42");
+            adapterIds.insert("oa43");
             intf = TestIntfPrx(communicator, "object @ rg")->ice_connectionCached(false);
             int nRetry = 100;
             while (!adapterIds.empty() && --nRetry > 0)
@@ -182,12 +182,12 @@ allTests(Test::TestHelper* helper, int num)
 
         proxies[0]->deactivateObjectAdapter("oa");
         proxies[1]->deactivateObjectAdapter("oa");
-        test(TestIntfPrx(communicator, "object @ rg")->getAdapterId() == "oa3");
+        test(TestIntfPrx(communicator, "object @ rg")->getAdapterId() == "oa43");
         proxies[2]->deactivateObjectAdapter("oa");
 
-        proxies[0]->activateObjectAdapter("oa", "oa1", "rg");
+        proxies[0]->activateObjectAdapter("oa", "oa41", "rg");
         proxies[0]->addObject("oa", "object");
-        test(TestIntfPrx(communicator, "object @ rg")->getAdapterId() == "oa1");
+        test(TestIntfPrx(communicator, "object @ rg")->getAdapterId() == "oa41");
         proxies[0]->deactivateObjectAdapter("oa");
     }
     cout << "ok" << endl;
