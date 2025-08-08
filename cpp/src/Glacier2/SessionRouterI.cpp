@@ -339,15 +339,11 @@ CreateSession::addPendingCallback(shared_ptr<CreateSession> callback)
 void
 CreateSession::authorized(bool createSession)
 {
-    //
     // Create the filter manager now as it's required for the session control object.
-    //
     _filterManager = createFilterManager();
 
-    //
-    // If we have a session manager configured, we create a client-visible session object,
-    // otherwise, we return a null session proxy.
-    //
+    // If we have a session manager configured, we create a client-visible session object, otherwise, we return a null
+    // session proxy.
     if (createSession)
     {
         if (_instance->serverObjectAdapter())
@@ -402,9 +398,7 @@ CreateSession::createException(exception_ptr ex)
 void
 CreateSession::sessionCreated(optional<SessionPrx> session)
 {
-    //
     // Create the session router object.
-    //
     shared_ptr<RouterI> router;
     try
     {
@@ -434,9 +428,7 @@ CreateSession::sessionCreated(optional<SessionPrx> session)
         return;
     }
 
-    //
     // Notify the router that the creation is finished.
-    //
     try
     {
         _sessionRouter->finishCreateSession(_current.con, router);
@@ -546,10 +538,7 @@ SessionRouterI::destroy()
         _routersByCategoryHint = _routersByCategory.cend();
     }
 
-    //
-    // We destroy the routers outside the thread synchronization to
-    // avoid deadlocks.
-    //
+    // We destroy the routers outside the thread synchronization to avoid deadlocks.
     for (const auto& router : routers)
     {
         router.second->destroy([self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); });
@@ -572,9 +561,7 @@ SessionRouterI::getServerProxy(const Current& current) const
 ObjectProxySeq
 SessionRouterI::addProxies(ObjectProxySeq proxies, const Current& current)
 {
-    //
     // Forward to the per-client router.
-    //
     return getRouter(current.con, current.id)->addProxies(std::move(proxies), current);
 }
 
@@ -631,9 +618,7 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
     string userDN;
     SSLInfo sslinfo;
 
-    //
     // Populate the SSL context information.
-    //
     try
     {
         auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(current.con->getInfo());
@@ -725,10 +710,7 @@ SessionRouterI::destroySession(const ConnectionPtr& connection)
         }
     }
 
-    //
-    // We destroy the router outside the thread synchronization, to
-    // avoid deadlocks.
-    //
+    // We destroy the router outside the thread synchronization, to avoid deadlocks.
     if (_sessionTraceLevel >= 1)
     {
         Trace out(_instance->logger(), "Glacier2");
@@ -809,11 +791,8 @@ SessionRouterI::getServerBlobject(const string& category) const
 shared_ptr<RouterI>
 SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identity& id, bool close) const
 {
-    //
-    // The connection can be null if the client tries to forward requests to
-    // a proxy which points to the client endpoints (in which case the request
-    // is forwarded with collocation optimization).
-    //
+    // The connection can be null if the client tries to forward requests to a proxy which points to the client
+    // endpoints (in which case the request is forwarded with collocation optimization).
     if (_destroy || !connection)
     {
         throw ObjectNotExistException{__FILE__, __LINE__};
@@ -872,9 +851,7 @@ SessionRouterI::startCreateSession(const shared_ptr<CreateSession>& cb, const Co
         throw CannotCreateSessionException("router is shutting down");
     }
 
-    //
     // Check whether a session already exists for the connection.
-    //
     {
         map<ConnectionPtr, shared_ptr<RouterI>>::const_iterator p;
         if (_routersByConnectionHint != _routersByConnection.cend() && _routersByConnectionHint->first == connection)
@@ -895,20 +872,14 @@ SessionRouterI::startCreateSession(const shared_ptr<CreateSession>& cb, const Co
     auto p = _pending.find(connection);
     if (p != _pending.end())
     {
-        //
-        // If some other thread is currently trying to create a
-        // session, we wait until this thread is finished.
-        //
+        // If some other thread is currently trying to create a session, we wait until this thread is finished.
         p->second->addPendingCallback(cb);
         return false;
     }
     else
     {
-        //
-        // No session exists yet, so we will try to create one. To
-        // avoid that other threads try to create sessions for the
-        // same connection, we add our endpoints to _pending.
-        //
+        // No session exists yet, so we will try to create one. To avoid that other threads try to create sessions for
+        // the same connection, we add our endpoints to _pending.
         _pending.insert(make_pair(connection, cb));
         return true;
     }
@@ -919,10 +890,7 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const share
 {
     lock_guard<mutex> lg(_mutex);
 
-    //
-    // Signal other threads that we are done with trying to
-    // establish a session for our connection;
-    //
+    // Signal other threads that we are done with trying to establish a session for our connection;
     _pending.erase(connection);
 
     if (!router)

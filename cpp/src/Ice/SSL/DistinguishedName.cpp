@@ -57,10 +57,7 @@ DistinguishedName::match(const string& other) const
     return match(DistinguishedName(other));
 }
 
-//
-// This always produces the same output as the input DN -- the type of
-// escaping is not changed.
-//
+// This always produces the same output as the input DN -- the type of escaping is not changed.
 std::string
 DistinguishedName::toString() const
 {

@@ -324,9 +324,7 @@ AdminI::stopServerAsync(string id, function<void()> response, function<void(exce
     auto proxy = ServerProxyWrapper::create(_database, std::move(id));
     proxy.useDeactivationTimeout();
 
-    //
     // Since the server might take a while to be deactivated, we use AMI.
-    //
     proxy.invokeAsync(
         [](const auto& prx, auto&&... args) { prx->stopAsync(std::forward<decltype(args)>(args)...); },
         response,
@@ -499,9 +497,7 @@ AdminI::getNodeInfo(string name, const Ice::Current&) const
 optional<ObjectPrx>
 AdminI::getNodeAdmin(string name, const Current& current) const
 {
-    //
     // Check if the node exists
-    //
     auto ignored = _database->getNode(name);
 
     return current.adapter->createProxy({name, _registry->getNodeAdminCategory()});
@@ -635,9 +631,7 @@ AdminI::getRegistryAdmin(string name, const Current& current) const
 {
     if (name != _registry->getName())
     {
-        //
         // Check if the replica exists
-        //
         auto ignored = _database->getReplica(name);
     }
 

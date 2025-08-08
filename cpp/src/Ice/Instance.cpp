@@ -88,9 +88,7 @@ namespace
     bool printProcessIdDone = false;
     string identForOpenlog;
 
-    //
     // Should be called with staticMutex locked
-    //
     size_t instanceCount()
     {
         if (instanceList == nullptr)
@@ -188,9 +186,7 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
         const InstancePtr _instance;
     };
 
-    //
     // Timer specialization which supports the thread observer
-    //
     class ThreadObserverTimer final : public IceInternal::Timer
     {
     public:
@@ -582,11 +578,8 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
         }
         catch (...)
         {
-            //
-            // We clean it up, even through this error is not recoverable
-            // (can't call again createAdmin after fixing the problem since all the facets
-            // in the adapter are lost)
-            //
+            // We clean it up, even through this error is not recoverable (can't call again createAdmin after fixing
+            // the problem since all the facets in the adapter are lost)
             adapter->destroy();
             lock.lock();
             _adminAdapter = nullptr;
@@ -641,11 +634,8 @@ IceInternal::Instance::getAdmin()
         }
         catch (...)
         {
-            //
-            // We clean it up, even through this error is not recoverable
-            // (can't call again createAdmin after fixing the problem since all the facets
-            // in the adapter are lost)
-            //
+            // We clean it up, even through this error is not recoverable (can't call again createAdmin after fixing
+            // the problem since all the facets in the adapter are lost)
             adapter->destroy();
             lock.lock();
             _adminAdapter = nullptr;
@@ -666,9 +656,7 @@ IceInternal::Instance::addAllAdminFacets()
 {
     // must be called with this locked
 
-    //
     // Add all facets to OA
-    //
     FacetMap filteredFacets;
 
     for (const auto& adminFacet : _adminFacets)
@@ -696,10 +684,8 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
         auto process = admin->ice_facet<ProcessPrx>("Process");
         try
         {
-            //
-            // Note that as soon as the process proxy is registered, the communicator might be
-            // shutdown by a remote client and admin facets might start receiving calls.
-            //
+            // Note that as soon as the process proxy is registered, the communicator might be shutdown by a remote
+            // client and admin facets might start receiving calls.
             locator->getRegistry()->setServerProcessProxy(serverId, process);
         }
         catch (const ServerNotFoundException&)
@@ -804,9 +790,7 @@ IceInternal::Instance::findAdminFacet(string_view facet)
 
     ObjectPtr result;
 
-    //
     // If the _adminAdapter was not yet created, or this facet is filtered out, we check _adminFacets
-    //
     if (!_adminAdapter || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
         auto p = _adminFacets.find(facet);
@@ -879,9 +863,7 @@ IceInternal::Instance::setDefaultRouter(const optional<RouterPrx>& defaultRouter
 void
 IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
 {
-    //
     // No locking, as it can only be called during plug-in loading
-    //
     _initData.logger = logger;
 }
 
@@ -939,9 +921,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
             if (!oneOffDone)
             {
-                //
                 // StdOut and StdErr redirection
-                //
                 string stdOutFilename = _initData.properties->getIceProperty("Ice.StdOut");
                 string stdErrFilename = _initData.properties->getIceProperty("Ice.StdErr");
 
@@ -1229,9 +1209,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     v = 0;
                 }
 
-                //
                 // If -1 is the first value, no retry and wait intervals.
-                //
                 if (v == -1 && _retryIntervals.empty())
                 {
                     break;
@@ -1368,24 +1346,16 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         checkPrintStackTraces(_initData);
     }
 
-    //
-    // Initialize the endpoint factories once all the plugins are loaded. This gives
-    // the opportunity for the endpoint factories to find underlying factories.
-    //
+    // Initialize the endpoint factories once all the plugins are loaded. This gives the opportunity for the endpoint
+    // factories to find underlying factories.
     _endpointFactoryManager->initialize();
 
-    //
     // Reset _stringConverter and _wstringConverter, in case a plugin changed them
-    //
     _stringConverter = Ice::getProcessStringConverter();
     _wstringConverter = Ice::getProcessWstringConverter();
 
-    //
-    // Create Admin facets, if enabled.
-    //
-    // Note that any logger-dependent admin facet must be created after we load all plugins,
-    // since one of these plugins can be a Logger plugin that sets a new logger during loading
-    //
+    // Create Admin facets, if enabled. Note that any logger-dependent admin facet must be created after we load all
+    // plugins, since one of these plugins can be a Logger plugin that sets a new logger during loading
 
     if (_initData.properties->getIceProperty("Ice.Admin.Enabled") == "")
     {
@@ -1404,18 +1374,14 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     if (_adminEnabled)
     {
-        //
         // Process facet
-        //
         const string processFacetName = "Process";
         if (_adminFacetFilter.empty() || _adminFacetFilter.find(processFacetName) != _adminFacetFilter.end())
         {
             _adminFacets.insert(make_pair(processFacetName, make_shared<ProcessI>(communicator)));
         }
 
-        //
         // Logger facet
-        //
         const string loggerFacetName = "Logger";
         if (_adminFacetFilter.empty() || _adminFacetFilter.find(loggerFacetName) != _adminFacetFilter.end())
         {
@@ -1424,9 +1390,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
             _adminFacets.insert(make_pair(loggerFacetName, logger->getFacet()));
         }
 
-        //
         // Properties facet
-        //
         const string propertiesFacetName = "Properties";
         NativePropertiesAdminPtr propsAdmin;
         if (_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
@@ -1435,9 +1399,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
         }
 
-        //
         // Metrics facet
-        //
         const string metricsFacetName = "Metrics";
         if (_adminFacetFilter.empty() || _adminFacetFilter.find(metricsFacetName) != _adminFacetFilter.end())
         {
@@ -1445,9 +1407,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
             _initData.observer = observer;
             _adminFacets.insert(make_pair(metricsFacetName, observer->getFacet()));
 
-            //
             // Make sure the metrics admin facet receives property updates.
-            //
             if (propsAdmin)
             {
                 auto metricsAdmin = observer->getFacet();
@@ -1457,17 +1417,13 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         }
     }
 
-    //
     // Set observer updater
-    //
     if (_initData.observer)
     {
         _initData.observer->setObserverUpdater(make_shared<ObserverUpdaterI>(shared_from_this()));
     }
 
-    //
     // Create threads.
-    //
     try
     {
         _timer = make_shared<ThreadObserverTimer>();
@@ -1493,10 +1449,8 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     _clientThreadPool = ThreadPool::create(shared_from_this(), "Ice.ThreadPool.Client", 0);
 
-    //
-    // The default router/locator may have been set during the loading of plugins.
-    // Therefore we make sure it is not already set before checking the property.
-    //
+    // The default router/locator may have been set during the loading of plugins. Therefore we make sure it is not
+    // already set before checking the property.
     if (!_referenceFactory->getDefaultRouter())
     {
         auto router = communicator->propertyToProxy<RouterPrx>("Ice.Default.Router");
@@ -1515,21 +1469,15 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         }
     }
 
-    //
     // Show process id if requested (but only once).
-    //
     bool printProcessId = false;
     if (!printProcessIdDone && _initData.properties->getIcePropertyAsInt("Ice.PrintProcessId") > 0)
     {
-        //
         // Safe double-check locking (no dependent variable!)
-        //
         lock_guard lock(staticMutex);
         printProcessId = !printProcessIdDone;
 
-        //
         // We anticipate: we want to print it once, and we don't care when.
-        //
         printProcessIdDone = true;
     }
 
@@ -1542,29 +1490,19 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 #endif
     }
 
-    //
     // Server thread pool initialization is lazy in serverThreadPool().
-    //
 
-    //
-    // An application can set Ice.InitPlugins=0 if it wants to postpone
-    // initialization until after it has interacted directly with the
-    // plug-ins.
-    //
+    // An application can set Ice.InitPlugins=0 if it wants to postpone initialization until after it has interacted
+    // directly with the plug-ins.
     if (_initData.properties->getIcePropertyAsInt("Ice.InitPlugins") > 0)
     {
         pluginManagerImpl->initializePlugins();
     }
 
-    //
-    // This must be done last as this call creates the Ice.Admin object adapter
-    // and eventually register a process proxy with the Ice locator (allowing
-    // remote clients to invoke Admin facets as soon as it's registered).
-    //
-    // Note: getAdmin here can return 0 and do nothing in the event the
-    // application set Ice.Admin.Enabled but did not set Ice.Admin.Endpoints
-    // and one or more of the properties required to create the Admin object.
-    //
+    // This must be done last as this call creates the Ice.Admin object adapter and eventually register a process proxy
+    // with the Ice locator (allowing remote clients to invoke Admin facets as soon as it's registered). Note: getAdmin
+    // here can return 0 and do nothing in the event the application set Ice.Admin.Enabled but did not set
+    // Ice.Admin.Endpoints and one or more of the properties required to create the Admin object.
     if (_adminEnabled && _initData.properties->getIcePropertyAsInt("Ice.Admin.DelayCreation") <= 0)
     {
         getAdmin();
@@ -1577,11 +1515,8 @@ IceInternal::Instance::destroy() noexcept
     {
         unique_lock lock(_mutex);
 
-        //
-        // If destroy is in progress, wait for it to be done. This is
-        // necessary in case destroy() is called concurrently by
-        // multiple threads.
-        //
+        // If destroy is in progress, wait for it to be done. This is necessary in case destroy() is called
+        // concurrently by multiple threads.
         _conditionVariable.wait(lock, [this] { return _state != StateDestroyInProgress; });
 
         if (_state == StateDestroyed)
@@ -1591,10 +1526,7 @@ IceInternal::Instance::destroy() noexcept
         _state = StateDestroyInProgress;
     }
 
-    //
-    // Shutdown and destroy all the incoming and outgoing Ice
-    // connections and wait for the connections to be finished.
-    //
+    // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the connections to be finished.
     if (_objectAdapterFactory)
     {
         _objectAdapterFactory->shutdown();
@@ -1647,17 +1579,12 @@ IceInternal::Instance::destroy() noexcept
     LoggerAdminLoggerPtr logger = dynamic_pointer_cast<LoggerAdminLogger>(_initData.logger);
     if (logger)
     {
-        //
         // This only disables the remote logging; we don't set or reset _initData.logger
-        //
         logger->destroy();
     }
 
-    //
-    // Now, destroy the thread pools. This must be done *only* after
-    // all the connections are finished (the connections destruction
-    // can require invoking callbacks with the thread pools).
-    //
+    // Now, destroy the thread pools. This must be done *only* after all the connections are finished (the connections
+    // destruction can require invoking callbacks with the thread pools).
     if (_serverThreadPool)
     {
         _serverThreadPool->destroy();
@@ -1675,9 +1602,7 @@ IceInternal::Instance::destroy() noexcept
         _timer->destroy();
     }
 
-    //
     // Wait for all the threads to be finished.
-    //
     if (_clientThreadPool)
     {
         _clientThreadPool->joinWithAllThreads();
@@ -1715,9 +1640,7 @@ IceInternal::Instance::destroy() noexcept
         }
     }
 
-    //
     // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
-    //
     if (_pluginManager)
     {
         _pluginManager->destroy();

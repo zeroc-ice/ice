@@ -19,10 +19,7 @@ IceInternal::ObjectAdapterFactory::shutdown() noexcept
     {
         lock_guard lock(_mutex);
 
-        //
-        // Ignore shutdown requests if the object adapter factory has
-        // already been shut down.
-        //
+        // Ignore shutdown requests if the object adapter factory has already been shut down.
         if (!_instance)
         {
             return;
@@ -125,9 +122,7 @@ IceInternal::ObjectAdapterFactory::isShutdown() const noexcept
 void
 IceInternal::ObjectAdapterFactory::destroy() noexcept
 {
-    //
     // First wait for shutdown to finish.
-    //
     waitForShutdown();
 
     list<shared_ptr<ObjectAdapterI>> adapters;
@@ -224,10 +219,8 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(
         }
     }
 
-    //
-    // Must be called outside the synchronization since initialize can make client invocations
-    // on the router if it's set.
-    //
+    // Must be called outside the synchronization since initialize can make client invocations on the router if it's
+    // set.
     bool initialized = false;
     try
     {

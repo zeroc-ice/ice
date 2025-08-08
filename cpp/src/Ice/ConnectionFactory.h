@@ -185,9 +185,7 @@ namespace IceInternal
 
         void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
 
-        //
         // Operations from EventHandler
-        //
 
 #if defined(ICE_USE_IOCP)
         virtual bool startAsync(SocketOperation);

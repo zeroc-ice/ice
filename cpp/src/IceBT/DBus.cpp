@@ -131,9 +131,7 @@ namespace
         {
             assert(isError());
 
-            //
             // Format the error name and any arguments into a string.
-            //
             ostringstream ostr;
             ostr << getErrorName();
             ValuePtr v = read();
@@ -216,9 +214,7 @@ namespace
 
         ValuePtr read() override
         {
-            //
             // Read a single value.
-            //
 
             TypePtr type = buildType(); // Build a type from the message's signature.
             if (!type)
@@ -691,9 +687,7 @@ namespace
                 case Type::KindVariant:
                 {
                     pushIter();
-                    //
                     // Get the type signature of this variant's value.
-                    //
                     string sig = ::dbus_message_iter_get_signature(_iter);
                     string::iterator p = sig.begin();
                     TypePtr vt = buildType(p);
@@ -772,12 +766,9 @@ namespace
                 throw ExceptionI("dbus_pending_call_set_notify failed");
             }
 
-            //
-            // There's a potential race condition with dbus_pending_call_set_notify. If the
-            // pending call is already completed when we call dbus_pending_call_set_notify,
-            // our callback will NOT be invoked. We manually check the completion status
-            // here and handle the reply if necessary.
-            //
+            // There's a potential race condition with dbus_pending_call_set_notify. If the pending call is already
+            // completed when we call dbus_pending_call_set_notify, our callback will NOT be invoked. We manually check
+            // the completion status here and handle the reply if necessary.
             bool complete;
             {
                 lock_guard lock(_mutex);
@@ -851,9 +842,7 @@ namespace
             {
                 lock_guard lock(_mutex);
 
-                //
                 // Make sure we haven't already handled the reply (see constructor).
-                //
                 if (_status == StatusPending)
                 {
                     DBusMessage* m = ::dbus_pending_call_steal_reply(_call);
@@ -991,9 +980,7 @@ namespace
             auto mi = dynamic_pointer_cast<MessageI>(m);
             assert(mi);
 
-            //
             // D-Bus queues the message without blocking.
-            //
             dbus_uint32_t serial;
             if (!::dbus_connection_send(_connection, mi->message(), &serial))
             {
@@ -1005,9 +992,7 @@ namespace
         {
             ::dbus_connection_close(_connection);
 
-            //
             // Send the "close" message.
-            //
             while (::dbus_connection_dispatch(_connection) == DBUS_DISPATCH_DATA_REMAINS)
                 ;
 
@@ -1042,9 +1027,7 @@ namespace
                 throw ExceptionI("out of memory calling dbus_connection_add_filter");
             }
 
-            //
             // The filter function will only see the message types that we add below.
-            //
             ::dbus_bus_add_match(_connection, "type='signal'", nullptr);
             //::dbus_bus_add_match(_connection, "type='method_call'", 0);
 

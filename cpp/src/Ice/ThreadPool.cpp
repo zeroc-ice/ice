@@ -22,10 +22,7 @@ using namespace IceInternal;
 
 namespace
 {
-    //
-    // Exception raised by the thread pool work queue when the thread pool
-    // is destroyed.
-    //
+    // Exception raised by the thread pool work queue when the thread pool is destroyed.
     class ThreadPoolDestroyedException
     {
     };
@@ -186,11 +183,8 @@ IceInternal::ThreadPool::initialize()
     }
 #endif
 
-    //
-    // We use just one thread as the default. This is the fastest
-    // possible setting, still allows one level of nesting, and
-    // doesn't require to make the servants thread safe.
-    //
+    // We use just one thread as the default. This is the fastest possible setting, still allows one level of nesting,
+    // and doesn't require to make the servants thread safe.
     int size = properties->getPropertyAsIntWithDefault(_prefix + ".Size", 1);
     if (size < 1)
     {
@@ -357,9 +351,7 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
         {
             handler->finished(current, !closeNow);
 
-            //
             // Break cyclic reference count.
-            //
             if (handler->getNativeInfo())
             {
                 handler->getNativeInfo()->setReadyCallback(nullptr);
@@ -377,9 +369,7 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
             {
                 handler->finished(current, false);
 
-                //
                 // Break cyclic reference count.
-                //
                 if (handler->getNativeInfo())
                 {
                     handler->getNativeInfo()->setReadyCallback(nullptr);
@@ -460,12 +450,8 @@ IceInternal::ThreadPool::joinWithAllThreads()
 {
     assert(_destroyed);
 
-    //
-    // _threads is immutable after destroy() has been called,
-    // therefore no synchronization is needed. (Synchronization
-    // wouldn't be possible here anyway, because otherwise the other
-    // threads would never terminate.)
-    //
+    // _threads is immutable after destroy() has been called, therefore no synchronization is needed. (Synchronization
+    // wouldn't be possible here anyway, because otherwise the other threads would never terminate.)
     for (const auto& thread : _threads)
     {
         thread->join();
@@ -549,18 +535,13 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             {
                 if (!current._ioCompleted)
                 {
-                    //
-                    // The handler didn't call ioCompleted() so we take care of decreasing
-                    // the IO thread count now.
-                    //
+                    // The handler didn't call ioCompleted() so we take care of decreasing the IO thread count now.
                     --_inUseIO;
                 }
                 else
                 {
-                    //
-                    // If the handler called ioCompleted(), we re-enable the handler in
-                    // case it was disabled and we decrease the number of thread in use.
-                    //
+                    // If the handler called ioCompleted(), we re-enable the handler in case it was disabled and we
+                    // decrease the number of thread in use.
                     if (_serialize && current._handler.get() != _workQueue.get())
                     {
                         _selector.enable(current._handler.get(), current.operation);
@@ -575,9 +556,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 }
             }
 
-            //
             // Get the next ready handler.
-            //
             while (_nextHandler != _handlers.end() &&
                    !(_nextHandler->second & ~_nextHandler->first->_disabled & _nextHandler->first->_registered))
             {
@@ -598,12 +577,9 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 
             if (!current._handler)
             {
-                //
-                // If there are no more ready handlers and there are still threads busy performing
-                // IO, we give up leadership and promote another follower (which will perform the
-                // select() only once all the IOs are completed). Otherwise, if there are no more
-                // threads performing IOs, it's time to do another select().
-                //
+                // If there are no more ready handlers and there are still threads busy performing IO, we give up
+                // leadership and promote another follower (which will perform the select() only once all the IOs are
+                // completed). Otherwise, if there are no more threads performing IOs, it's time to do another select().
                 if (_inUseIO > 0)
                 {
                     promoteFollower(current);
@@ -618,10 +594,8 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             }
             else if (_sizeMax > 1)
             {
-                //
-                // Increment the IO thread count and if there are still threads available
-                // to perform IO and more handlers ready, we promote a follower.
-                //
+                // Increment the IO thread count and if there are still threads available to perform IO and more
+                // handlers ready, we promote a follower.
                 ++_inUseIO;
                 if (_nextHandler != _handlers.end() && _inUseIO < _sizeIO)
                 {
@@ -671,11 +645,9 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 }
                 else if (_inUse > 0)
                 {
-                    //
-                    // If this is the last idle thread but there are still other threads
-                    // busy dispatching, we go back waiting with _threadIdleTime. We only
-                    // wait with _serverIdleTime when there's only one thread left.
-                    //
+                    // If this is the last idle thread but there are still other threads busy dispatching, we go back
+                    // waiting with _threadIdleTime. We only wait with _serverIdleTime when there's only one thread
+                    // left.
                     continue;
                 }
                 assert(_threads.size() == 1);
@@ -761,9 +733,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 
         if (current._leader)
         {
-            //
             // If this thread is still the leader, it's time to promote a new leader.
-            //
             promoteFollower(current);
         }
         else if (_promote && (_nextHandler != _handlers.end() || _inUseIO == 0))
@@ -929,15 +899,11 @@ IceInternal::ThreadPool::followerWait(ThreadPoolCurrent& current, unique_lock<mu
 
     current._thread->setState(ThreadState::ThreadStateIdle);
 
-    //
-    // It's important to clear the handler before waiting to make sure that
-    // resources for the handler are released now if it's finished.
-    //
+    // It's important to clear the handler before waiting to make sure that resources for the handler are released now
+    // if it's finished.
     current._handler = nullptr;
 
-    //
     // Wait to be promoted and for all the IO threads to be done.
-    //
     while (!_promote || _inUseIO == _sizeIO || (_nextHandler == _handlers.end() && _inUseIO > 0))
     {
         if (_threadIdleTime)

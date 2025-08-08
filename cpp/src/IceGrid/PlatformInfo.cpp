@@ -141,9 +141,7 @@ PlatformInfo::PlatformInfo(
     const shared_ptr<TraceLevels>& traceLevels)
     : _traceLevels(traceLevels)
 {
-    //
     // Initialization of the necessary data structures to get the load average.
-    //
 #if defined(_WIN32)
     _terminated = false;
     _usages1.insert(_usages1.end(), 1 * 60 / 5, 0);    // 1 sample every 5 seconds during 1 minutes.
@@ -154,9 +152,7 @@ PlatformInfo::PlatformInfo(
     _last15Total = 0;
 #endif
 
-    //
     // Get the number of cores/threads. E.g. a quad-core CPU with 2 threads per core will return 8.
-    //
 #if defined(_WIN32)
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
@@ -172,9 +168,7 @@ PlatformInfo::PlatformInfo(
     _nProcessorThreads = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
 #endif
 
-    //
     // Get the rest of the node information.
-    //
 #ifdef _WIN32
     _os = "Windows";
     char hostname[MAX_COMPUTERNAME_LENGTH + 1];
@@ -186,16 +180,11 @@ PlatformInfo::PlatformInfo(
     OSVERSIONINFO osInfo;
     osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
-//
-// GetVersionEx will return the Windows 8 OS version value (6.2) for applications
-// not manifested for Windows 8.1 or Windows 10. We read the OS version info from
-// a system file resource and if that fail we just return whatever GetVersionEx
-// returns.
-//
+// GetVersionEx will return the Windows 8 OS version value (6.2) for applications not manifested for Windows 8.1 or
+// Windows 10. We read the OS version info from a system file resource and if that fail we just return whatever
+// GetVersionEx returns.
 
-//
 // GetVersionEx deprecated in Windows 8.1
-//
 #    if defined(_MSC_VER)
 #        pragma warning(disable : 4996)
 #    endif
@@ -268,9 +257,7 @@ PlatformInfo::PlatformInfo(
 
     auto properties = communicator->getProperties();
 
-    //
     // Try to obtain the number of processor sockets.
-    //
     _nProcessorSockets = properties->getIcePropertyAsInt("IceGrid.Node.ProcessorSocketCount");
     if (_nProcessorSockets == 0)
     {
@@ -408,11 +395,8 @@ PlatformInfo::getLoadInfo() const
     info.avg5 = static_cast<float>(_last5Total) / _usages5.size() / 100.0f;
     info.avg15 = static_cast<float>(_last15Total) / _usages15.size() / 100.0f;
 #elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
-    //
-    // We use the load average divided by the number of
-    // processors to figure out if the machine is busy or
-    // not. The result is capped at 1.0f.
-    //
+    // We use the load average divided by the number of processors to figure out if the machine is busy or not. The
+    // result is capped at 1.0f.
     double loadAvg[3];
     if (getloadavg(loadAvg, 3) != -1)
     {
@@ -452,19 +436,12 @@ PlatformInfo::getCwd() const
 void
 PlatformInfo::runUpdateLoadInfo()
 {
-    //
-    // NOTE: We shouldn't initialize the performance counter from the
-    // PlatformInfo constructor because it might be called when
-    // IceGrid is started on boot as a Windows service with the
-    // Windows service control manager (SCM) locked. The query
-    // initialization would fail (hang) because it requires to start
-    // the "WMI Windows Adapter" service (which can't be started
-    // because the SCM is locked...).
-    //
+    // NOTE: We shouldn't initialize the performance counter from the PlatformInfo constructor because it might be
+    // called when IceGrid is started on boot as a Windows service with the Windows service control manager (SCM)
+    // locked. The query initialization would fail (hang) because it requires to start the "WMI Windows Adapter" service
+    // (which can't be started because the SCM is locked...).
 
-    //
     // Open the query.
-    //
     HQUERY query;
     PDH_STATUS err = PdhOpenQuery(0, 0, &query);
     if (err != ERROR_SUCCESS)
@@ -474,14 +451,9 @@ PlatformInfo::runUpdateLoadInfo()
         return;
     }
 
-    //
-    // Add the counter for \\Processor(_Total)\\"%Processor Time".
-    //
-    // We have to look up the localized names for these.  "Processor"
-    // is index 238 and "%Processor Time" is index 6.
-    //
-    // If either lookup fails, close the query system, and we're done.
-    //
+    // Add the counter for \\Processor(_Total)\\"%Processor Time". We have to look up the localized names for these.
+    // "Processor" is index 238 and "%Processor Time" is index 6. If either lookup fails, close the query system, and
+    // we're done.
 
     string processor;
     string percentProcessorTime;

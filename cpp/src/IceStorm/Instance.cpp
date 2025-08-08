@@ -111,10 +111,7 @@ Instance::Instance(
             warn << "invalid value '" << policy << "' for '" << serviceName << ".Send.QueueSizeMaxPolicy'";
         }
 
-        //
-        // If an Ice metrics observer is setup on the communicator, also
-        // enable metrics for IceStorm.
-        //
+        // If an Ice metrics observer is setup on the communicator, also enable metrics for IceStorm.
         auto o = dynamic_pointer_cast<IceInternal::CommunicatorObserverI>(_communicator->getObserver());
         if (o)
         {
@@ -295,11 +292,8 @@ Instance::destroy() noexcept
     // replica (TopicManager) which holds the instance causing a
     // cyclic reference.
     _node = nullptr;
-    //
-    // The observer instance must be cleared as it holds the
-    // TopicManagerImpl which holds the instance causing a
-    // cyclic reference.
-    //
+    // The observer instance must be cleared as it holds the TopicManagerImpl which holds the instance causing a cyclic
+    // reference.
     _observer = nullptr;
 }
 

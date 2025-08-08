@@ -41,10 +41,7 @@ Ice::argsToStringSeq(int argc, const char* const argv[])
 StringSeq
 Ice::argsToStringSeq(int /*argc*/, const wchar_t* const argv[])
 {
-    //
-    // Don't need to use a wide string converter argv is expected to
-    // come from Windows API.
-    //
+    // Don't need to use a wide string converter argv is expected to come from Windows API.
     const StringConverterPtr converter = getProcessStringConverter();
     StringSeq args;
     for (int i = 0; argv[i] != 0; i++)
@@ -59,11 +56,8 @@ Ice::argsToStringSeq(int /*argc*/, const wchar_t* const argv[])
 void
 Ice::stringSeqToArgs(const StringSeq& args, int& argc, const char* argv[])
 {
-    //
-    // Shift all elements in argv which are present in args to the
-    // beginning of argv. We record the original value of argc so
-    // that we can know later if we've shifted the array.
-    //
+    // Shift all elements in argv which are present in args to the beginning of argv. We record the original value of
+    // argc so that we can know later if we've shifted the array.
     const int argcOrig = argc;
     int i = 0;
     while (i < argc)
@@ -82,11 +76,8 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const char* argv[])
         }
     }
 
-    //
-    // Make sure that argv[argc] == 0, the ISO C++ standard requires this.
-    // We can only do this if we've shifted the array, otherwise argv[argc]
-    // may point to an invalid address.
-    //
+    // Make sure that argv[argc] == 0, the ISO C++ standard requires this. We can only do this if we've shifted the
+    // array, otherwise argv[argc] may point to an invalid address.
     if (argv && argcOrig != argc)
     {
         argv[argc] = nullptr;
@@ -97,17 +88,11 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const char* argv[])
 void
 Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
 {
-    //
-    // Don't need to use a wide string converter argv is expected to
-    // come from Windows API.
-    //
+    // Don't need to use a wide string converter argv is expected to come from Windows API.
     const StringConverterPtr converter = getProcessStringConverter();
 
-    //
-    // Shift all elements in argv which are present in args to the
-    // beginning of argv. We record the original value of argc so
-    // that we can know later if we've shifted the array.
-    //
+    // Shift all elements in argv which are present in args to the beginning of argv. We record the original value of
+    // argc so that we can know later if we've shifted the array.
     const int argcOrig = argc;
     int i = 0;
     while (i < argc)
@@ -126,11 +111,8 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
         }
     }
 
-    //
-    // Make sure that argv[argc] == 0, the ISO C++ standard requires this.
-    // We can only do this if we've shifted the array, otherwise argv[argc]
-    // may point to an invalid address.
-    //
+    // Make sure that argv[argc] == 0, the ISO C++ standard requires this. We can only do this if we've shifted the
+    // array, otherwise argv[argc] may point to an invalid address.
     if (argv && argcOrig != argc)
     {
         argv[argc] = 0;
@@ -224,9 +206,7 @@ Ice::getProcessLogger()
 
     if (processLogger == nullptr)
     {
-        //
         // TODO: Would be nice to be able to use process name as prefix by default.
-        //
         processLogger = make_shared<LoggerI>("", "", true);
     }
     return processLogger;
@@ -256,10 +236,7 @@ Ice::stringToIdentity(string_view s)
 {
     Identity ident;
 
-    //
-    // Find unescaped separator; note that the string may contain an escaped
-    // backslash before the separator.
-    //
+    // Find unescaped separator; note that the string may contain an escaped backslash before the separator.
     string::size_type slash = string::npos;
     string::size_type pos = 0;
     while ((pos = s.find('/', pos)) != string::npos)
@@ -270,9 +247,7 @@ Ice::stringToIdentity(string_view s)
             escapes++;
         }
 
-        //
         // We ignore escaped escapes
-        //
         if (escapes % 2 == 0)
         {
             if (slash == string::npos)
@@ -281,9 +256,7 @@ Ice::stringToIdentity(string_view s)
             }
             else
             {
-                //
                 // Extra unescaped slash found.
-                //
                 throw ParseException(__FILE__, __LINE__, "unescaped '/' in identity '" + string{s} + "'");
             }
         }

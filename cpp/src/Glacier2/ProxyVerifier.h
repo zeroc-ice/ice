@@ -8,18 +8,14 @@
 
 namespace Glacier2
 {
-    //
     // Base class for proxy rule implementations.
-    //
 
     class ProxyRule
     {
     public:
         virtual ~ProxyRule() = default;
 
-        //
         // Checks to see if the proxy passes.
-        //
         [[nodiscard]] virtual bool check(const Ice::ObjectPrx&) const = 0;
     };
 
@@ -29,10 +25,7 @@ namespace Glacier2
         ProxyVerifier(Ice::CommunicatorPtr);
         ~ProxyVerifier();
 
-        //
-        // Verifies that the proxy is permissible under the configured
-        // rules.
-        //
+        // Verifies that the proxy is permissible under the configured rules.
         bool verify(const Ice::ObjectPrx&);
 
     private:

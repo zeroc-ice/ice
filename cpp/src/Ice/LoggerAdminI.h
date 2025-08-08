@@ -11,23 +11,16 @@
 
 namespace IceInternal
 {
-    //
     // A logger that works in tandem with a "Logger" admin facet.
-    //
     class LoggerAdminLogger : public Ice::Logger
     {
     public:
         ~LoggerAdminLogger() override;
 
-        //
         // Return the associated Admin facet
-        //
         [[nodiscard]] virtual Ice::ObjectPtr getFacet() const = 0;
 
-        //
-        // Destroy this logger, in particular join any thread
-        // that this logger may have started
-        //
+        // Destroy this logger, in particular join any thread that this logger may have started
         virtual void destroy() = 0;
     };
     using LoggerAdminLoggerPtr = std::shared_ptr<LoggerAdminLogger>;

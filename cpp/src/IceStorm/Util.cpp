@@ -15,11 +15,8 @@ namespace IceStormInternal
 string
 IceStormInternal::identityToTopicName(const Ice::Identity& id)
 {
-    //
-    // Work out the topic name. If the category is empty then we're in
-    // backwards compatibility mode and the name is just
-    // identity.name. Otherwise identity.name is topic.<topicname>.
-    //
+    // Work out the topic name. If the category is empty then we're in backwards compatibility mode and the name is
+    // just identity.name. Otherwise identity.name is topic.<topicname>.
     if (id.category.empty())
     {
         return id.name;

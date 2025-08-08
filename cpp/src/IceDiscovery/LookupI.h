@@ -98,11 +98,8 @@ namespace IceDiscovery
         void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&) final;
         void runTimerTask() final;
 
-        //
-        // We use a set because the same IceDiscovery plugin might return multiple times
-        // the same proxy if it's accessible through multiple network interfaces and if we
-        // also sent the request to multiple interfaces.
-        //
+        // We use a set because the same IceDiscovery plugin might return multiple times the same proxy if it's
+        // accessible through multiple network interfaces and if we also sent the request to multiple interfaces.
         std::set<Ice::ObjectPrx> _proxies;
         std::chrono::steady_clock::time_point _start;
         std::chrono::nanoseconds _latency;

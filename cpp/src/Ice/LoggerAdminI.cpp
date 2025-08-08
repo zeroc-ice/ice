@@ -132,13 +132,9 @@ namespace
     };
     using LoggerAdminLoggerIPtr = std::shared_ptr<LoggerAdminLoggerI>;
 
-    //
     // Helper functions
-    //
 
-    //
     // Filter out messages from in/out logMessages list
-    //
     void filterLogMessages(
         LogMessageSeq& logMessages,
         const set<LogMessageType>& messageTypes,
@@ -147,10 +143,8 @@ namespace
     {
         assert(!logMessages.empty() && messageMax != 0);
 
-        //
-        // Filter only if one of the 3 filters is set; messageMax < 0 means "give me all"
-        // that match the other filters, if any.
-        //
+        // Filter only if one of the 3 filters is set; messageMax < 0 means "give me all" that match the other filters,
+        // if any.
         if (!messageTypes.empty() || !traceCategories.empty() || messageMax > 0)
         {
             int count = 0;
@@ -173,9 +167,7 @@ namespace
                     ++count;
                     if (messageMax > 0 && count >= messageMax)
                     {
-                        //
                         // p.base() points to p "+1"; note that this invalidates p.
-                        //
                         logMessages.erase(logMessages.begin(), p.base());
                         break; // while
                     }
@@ -183,10 +175,7 @@ namespace
                 else
                 {
                     ++p;
-                    //
-                    // p.base() points to p "+1"; the erase invalidates p so we
-                    // need to rebuild it
-                    //
+                    // p.base() points to p "+1"; the erase invalidates p so we need to rebuild it
                     p = LogMessageSeq::reverse_iterator(logMessages.erase(p.base()));
                 }
             }
@@ -194,18 +183,14 @@ namespace
         // else, don't need any filtering
     }
 
-    //
     // Change this proxy's communicator, while keeping its invocation timeout
-    //
     RemoteLoggerPrx changeCommunicator(const RemoteLoggerPrx& prx, const CommunicatorPtr& communicator)
     {
         RemoteLoggerPrx result{communicator, prx->ice_toString()};
         return result->ice_invocationTimeout(prx->ice_getInvocationTimeout());
     }
 
-    //
     // Copies a set of properties
-    //
     void copyProperties(const string& prefix, const PropertiesPtr& from, const PropertiesPtr& to)
     {
         PropertyDict dict = from->getPropertiesForPrefix(prefix);
@@ -215,9 +200,7 @@ namespace
         }
     }
 
-    //
     // Create communicator used to send logs
-    //
     CommunicatorPtr createSendLogCommunicator(const CommunicatorPtr& communicator, const LoggerPtr& logger)
     {
         InitializationData initData;
@@ -246,9 +229,7 @@ namespace
         return initialize(std::move(initData));
     }
 
-    //
     // LoggerAdminI
-    //
 
     LoggerAdminI::LoggerAdminI(const PropertiesPtr& props)
         : _maxLogCount(props->getIcePropertyAsInt("Ice.Admin.Logger.KeepLogs")),
@@ -272,10 +253,8 @@ namespace
             return; // can't send this null RemoteLogger anything!
         }
 
-        //
-        // In C++, LoggerAdminI does not keep a "logger" data member to avoid a hard-to-break circular
-        // reference, so we retrieve the logger from Current
-        //
+        // In C++, LoggerAdminI does not keep a "logger" data member to avoid a hard-to-break circular reference, so we
+        // retrieve the logger from Current
         LoggerAdminLoggerIPtr logger =
             dynamic_pointer_cast<LoggerAdminLoggerI>(current.adapter->getCommunicator()->getLogger());
         assert(logger);
@@ -358,9 +337,7 @@ namespace
             return false;
         }
 
-        //
         // No need to convert the proxy as we only use its identity
-        //
         bool found = removeRemoteLogger(remoteLogger.value());
 
         if (_traceLevel > 0)
@@ -421,10 +398,7 @@ namespace
             }
         }
 
-        //
-        // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to
-        // remote loggers
-        //
+        // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to remote loggers
         if (sendLogCommunicator)
         {
             sendLogCommunicator->destroy();
@@ -437,9 +411,7 @@ namespace
 
         lock_guard lock(_mutex);
 
-        //
         // Put message in _queue
-        //
         if ((logMessage.type != LogMessageType::TraceMessage && _maxLogCount > 0) ||
             (logMessage.type == LogMessageType::TraceMessage && _maxTraceCount > 0))
         {
@@ -450,9 +422,7 @@ namespace
                 assert(_maxLogCount > 0);
                 if (_logCount == _maxLogCount)
                 {
-                    //
                     // Need to remove the oldest log from the queue
-                    //
                     assert(_oldestLog != _queue.end());
                     _oldestLog = _queue.erase(_oldestLog);
                     while (_oldestLog != _queue.end() && _oldestLog->type == LogMessageType::TraceMessage)
@@ -476,9 +446,7 @@ namespace
                 assert(_maxTraceCount > 0);
                 if (_traceCount == _maxTraceCount)
                 {
-                    //
                     // Need to remove the oldest trace from the queue
-                    //
                     assert(_oldestTrace != _queue.end());
                     _oldestTrace = _queue.erase(_oldestTrace);
                     while (_oldestTrace != _queue.end() && _oldestTrace->type != LogMessageType::TraceMessage)
@@ -498,9 +466,7 @@ namespace
                 }
             }
 
-            //
             // Queue updated, now find which remote loggers want this message
-            //
             for (const auto& q : _remoteLoggerMap)
             {
                 const Filters& filters = q.second;
@@ -524,9 +490,7 @@ namespace
         std::exception_ptr ex,
         string_view operation)
     {
-        //
         // No need to convert remoteLogger as we only use its identity
-        //
         if (removeRemoteLogger(remoteLogger))
         {
             if (_traceLevel > 0)
@@ -550,17 +514,13 @@ namespace
         return _remoteLoggerMap.erase(remoteLogger) > 0;
     }
 
-    //
     // LoggerAdminLoggerI
-    //
 
     LoggerAdminLoggerI::LoggerAdminLoggerI(const PropertiesPtr& props, const LoggerPtr& localLogger)
         : _loggerAdmin(new LoggerAdminI(props))
 
     {
-        //
         // There is currently no way to have a null local logger
-        //
         assert(localLogger);
 
         auto wrapper = dynamic_pointer_cast<LoggerAdminLoggerI>(localLogger);

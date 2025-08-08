@@ -8,10 +8,8 @@
 
 namespace IceInternal
 {
-    //
-    // Class for handling Ice::Communicator::flushBatchRequests
-    // This class needs to be in a public header as it's used by several other classes.
-    //
+    // Class for handling Ice::Communicator::flushBatchRequests This class needs to be in a public header as it's used
+    // by several other classes.
     class CommunicatorFlushBatchAsync : public OutgoingAsyncBase
     {
     public:

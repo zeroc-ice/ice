@@ -52,10 +52,7 @@ IceInternal::WSAcceptor::finishAccept()
 IceInternal::TransceiverPtr
 IceInternal::WSAcceptor::accept()
 {
-    //
-    // WebSocket handshaking is performed in TransceiverI::initialize, since
-    // accept must not block.
-    //
+    // WebSocket handshaking is performed in TransceiverI::initialize, since accept must not block.
     return make_shared<WSTransceiver>(_instance, _delegate->accept());
 }
 

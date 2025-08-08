@@ -12,9 +12,7 @@ using namespace IceBT;
 bool
 IceBT::isValidDeviceAddress(const string& str)
 {
-    //
     // Format is 01:23:45:67:89:0A
-    //
 
     if (str.size() != 17 || str[2] != ':' || str[5] != ':' || str[8] != ':' || str[11] != ':' || str[14] != ':')
     {

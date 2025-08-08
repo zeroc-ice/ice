@@ -37,18 +37,13 @@ ServerAdapterI::activateAsync(
         lock_guard lock(_mutex);
         if (_enabled && _proxy)
         {
-            //
             // Return the adapter direct proxy.
-            //
             response(_proxy);
             return;
         }
         else if (_activateCB.empty())
         {
-            //
-            // Nothing else waits for this adapter so we must make sure that this
-            // adapter if still activatable.
-            //
+            // Nothing else waits for this adapter so we must make sure that this adapter if still activatable.
             if (!_enabled || !_server->isAdapterActivatable(_id))
             {
                 response(nullopt);
@@ -71,11 +66,8 @@ ServerAdapterI::activateAsync(
             _server->getState() >= ServerState::Deactivating && _server->getState() < ServerState::Destroying;
     }
 
-    //
-    // Try to start the server. Note that we start the server outside
-    // the synchronization block since start() can block and callback
-    // on this adapter (when the server is deactivating for example).
-    //
+    // Try to start the server. Note that we start the server outside the synchronization block since start() can block
+    // and callback on this adapter (when the server is deactivating for example).
     try
     {
         _server->start(ServerI::ServerActivation::OnDemand);
@@ -87,10 +79,8 @@ ServerAdapterI::activateAsync(
     }
     catch (const Ice::ObjectNotExistException&)
     {
-        //
-        // The server associated to this adapter doesn't exist anymore. Somehow the database is
-        // inconsistent if this happens. The best thing to do is to destroy the adapter.
-        //
+        // The server associated to this adapter doesn't exist anymore. Somehow the database is inconsistent if this
+        // happens. The best thing to do is to destroy the adapter.
         destroy();
     }
     catch (const Ice::Exception& ex)
@@ -106,10 +96,8 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
 {
     lock_guard lock(_mutex);
 
-    //
-    // Return the adapter direct proxy if it's set. Otherwise, throw. The caller can eventually
-    // activate the adapter if it's activatable.
-    //
+    // Return the adapter direct proxy if it's set. Otherwise, throw. The caller can eventually activate the adapter if
+    // it's activatable.
     if (_proxy && _enabled)
     {
         return _proxy;
@@ -125,10 +113,7 @@ ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy)
 {
     lock_guard lock(_mutex);
 
-    //
-    // We don't allow to override an existing proxy by another non
-    // null proxy if the server is not inactive.
-    //
+    // We don't allow to override an existing proxy by another non null proxy if the server is not inactive.
     if (!_node->allowEndpointsOverride())
     {
         if (proxy && _proxy)
@@ -143,12 +128,8 @@ ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy)
     bool updated = _proxy != proxy;
     _proxy = std::move(proxy);
 
-    //
-    // If the server is being deactivated and the activation callback
-    // was added during the deactivation, we don't send the response
-    // now. The server is going to be activated again and the adapter
-    // activated.
-    //
+    // If the server is being deactivated and the activation callback was added during the deactivation, we don't send
+    // the response now. The server is going to be activated again and the adapter activated.
     if (_server->getState() < ServerState::Deactivating || _server->getState() >= ServerState::Destroying ||
         !_activateAfterDeactivating)
     {
@@ -222,9 +203,7 @@ ServerAdapterI::clear()
 void
 ServerAdapterI::activationFailed(const std::string& reason)
 {
-    //
     // The server couldn't be activated, trace and return the current adapter proxy.
-    //
     if (_node->getTraceLevels()->adapter > 1)
     {
         Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
@@ -245,9 +224,7 @@ ServerAdapterI::activationCompleted()
     lock_guard lock(_mutex);
     if (!_proxy)
     {
-        //
         // The server activation completed, but the adapter hasn't been activated.
-        //
         if (_node->getTraceLevels()->adapter > 1)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);

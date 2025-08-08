@@ -302,12 +302,8 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << ", ";
     // Members
-    //
-    // Data members are represented as an array:
-    //
-    //   ('MemberName', MemberType, Optional, Tag)
-    //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
+    // Data members are represented as an array: ('MemberName', MemberType, Optional, Tag) where MemberType is either a
+    // primitive type constant (T_INT, etc.) or the id of a user-defined type.
     if (!members.empty())
     {
         _out << "array(";
@@ -395,9 +391,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << ");";
 
     // Define each operation. The arguments to IcePHP_defineOperation are:
-    //
     // $ClassType, 'sliceOpName', 'mappedOpName', Mode, FormatType, (InParams), (OutParams), ReturnParam, (Exceptions)
-    //
     // where InParams and OutParams are arrays of type descriptions, and Exceptions is an array of exception type ids.
 
     if (!ops.empty())
@@ -509,7 +503,6 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (returnType)
             {
                 // The return type has the same format as an in/out parameter:
-                //
                 // Type, Optional?, OptionalTag
                 _out << "array(";
                 _out << getType(returnType);
@@ -621,10 +614,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     _out << ", ";
     // Data members are represented as an array:
-    //
-    //   ('MemberName', MemberType, Optional, Tag)
-    //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
+    // ('MemberName', MemberType, Optional, Tag) where MemberType is either a primitive type constant (T_INT, etc.) or
+    // the id of a user-defined type.
     if (!members.empty())
     {
         _out << "array(";
@@ -710,10 +701,8 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << type << " = IcePHP_defineStruct('" << scoped << "', '" << abs << "', array(";
 
     // Data members are represented as an array:
-    //
-    //   ('MemberName', MemberType)
-    //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
+    // ('MemberName', MemberType) where MemberType is either a primitive type constant (T_INT, etc.) or the id of a
+    // user-defined type.
     for (auto r = members.begin(); r != members.end(); ++r)
     {
         if (r != members.begin())
@@ -932,10 +921,8 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
     }
 
     // PHP does not allow the following construct:
-    //
-    // function foo($theStruct=new MyStructType)
-    //
-    // Instead we use null as the default value and allocate an instance in the constructor.
+    // function foo($theStruct=new MyStructType) Instead we use null as the default value and allocate an instance in
+    // the constructor.
     if (dynamic_pointer_cast<Struct>(p))
     {
         _out << "null";

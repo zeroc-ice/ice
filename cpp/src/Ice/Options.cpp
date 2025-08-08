@@ -98,21 +98,15 @@ IceInternal::Options::addOpt(
     addValidOpt(shortOpt, longOpt, at, dflt, rt);
 }
 
-//
-// Split a command line into argv-style arguments, applying
-// bash quoting rules. The return value is the arguments
-// in the command line, with all shell escapes applied, and
-// quotes removed.
-//
+// Split a command line into argv-style arguments, applying bash quoting rules. The return value is the arguments in
+// the command line, with all shell escapes applied, and quotes removed.
 
 IceInternal::Options::StringVector
 IceInternal::Options::split(const string& line)
 {
     const string IFS = " \t\n"; // Internal Field Separator.
 
-    //
     // Strip leading and trailing whitespace.
-    //
     string::size_type start = line.find_first_not_of(IFS);
     if (start == string::npos)
     {
@@ -147,18 +141,11 @@ IceInternal::Options::split(const string& line)
                 {
                     case '\\':
                     {
-                        //
-                        // Ignore a backslash at the end of the string,
-                        // and strip backslash-newline pairs. If a
-                        // backslash is followed by a space, single quote,
-                        // double quote, or dollar sign, we drop the backslash
-                        // and write the space, single quote, double quote,
-                        // or dollar sign. This is necessary to allow quotes
-                        // to be escaped. Dropping the backslash preceding a
-                        // space deviates from bash quoting rules, but is
-                        // necessary so we don't drop backslashes from Windows
-                        // path names.)
-                        //
+                        // Ignore a backslash at the end of the string, and strip backslash-newline pairs. If a
+                        // backslash is followed by a space, single quote, double quote, or dollar sign, we drop the
+                        // backslash and write the space, single quote, double quote, or dollar sign. This is necessary
+                        // to allow quotes to be escaped. Dropping the backslash preceding a space deviates from bash
+                        // quoting rules, but is necessary so we don't drop backslashes from Windows path names.)
                         if (i < l.size() - 1 && l[++i] != '\n')
                         {
                             switch (l[i])
@@ -211,9 +198,7 @@ IceInternal::Options::split(const string& line)
                             vec.push_back(arg);
                             arg.clear();
 
-                            //
                             // Move to start of next argument.
-                            //
                             while (++i < l.size() && IFS.find(l[i]) != string::npos)
                             {
                                 ;
@@ -231,12 +216,9 @@ IceInternal::Options::split(const string& line)
             }
             case DoubleQuote:
             {
-                //
-                // Within double quotes, only backslash retains its special
-                // meaning, and only if followed by double quote, backslash,
-                // or newline. If not followed by one of these characters,
-                // both the backslash and the character are preserved.
-                //
+                // Within double quotes, only backslash retains its special meaning, and only if followed by double
+                // quote, backslash, or newline. If not followed by one of these characters, both the backslash and the
+                // character are preserved.
                 if (c == '\\' && i < l.size() - 1)
                 {
                     switch (c = l[++i])
@@ -290,9 +272,7 @@ IceInternal::Options::split(const string& line)
                         }
                         switch (c = l[++i])
                         {
-                            //
                             // Single-letter escape sequences.
-                            //
                             case 'a':
                             {
                                 arg.push_back('\a');
@@ -344,9 +324,7 @@ IceInternal::Options::split(const string& line)
                                 break;
                             }
 
-                            //
                             // Process up to three octal digits.
-                            //
                             case '0':
                             case '1':
                             case '2':
@@ -370,9 +348,7 @@ IceInternal::Options::split(const string& line)
                                 break;
                             }
 
-                            //
                             // Process up to two hex digits.
-                            //
                             case 'x':
                             {
                                 if (i < l.size() - 1 && !isxdigit(static_cast<unsigned char>(l[i + 1])))
@@ -407,9 +383,7 @@ IceInternal::Options::split(const string& line)
                                 break;
                             }
 
-                            //
                             // Process control-chars.
-                            //
                             case 'c':
                             {
                                 c = l[++i];
@@ -419,13 +393,9 @@ IceInternal::Options::split(const string& line)
                                 }
                                 else
                                 {
-                                    //
-                                    // Bash does not define what should happen if a \c
-                                    // is not followed by a recognized control character.
-                                    // We simply treat this case like other unrecognized
-                                    // escape sequences, that is, we preserve the escape
-                                    // sequence unchanged.
-                                    //
+                                    // Bash does not define what should happen if a \c is not followed by a recognized
+                                    // control character. We simply treat this case like other unrecognized escape
+                                    // sequences, that is, we preserve the escape sequence unchanged.
                                     arg.push_back('\\');
                                     arg.push_back('c');
                                     arg.push_back(c);
@@ -433,11 +403,8 @@ IceInternal::Options::split(const string& line)
                                 break;
                             }
 
-                            //
-                            // If inside an ANSI-quoted string, a backslash isn't followed by
-                            // one of the recognized characters, both the backslash and the
-                            // character are preserved.
-                            //
+                            // If inside an ANSI-quoted string, a backslash isn't followed by one of the recognized
+                            // characters, both the backslash and the character are preserved.
                             default:
                             {
                                 arg.push_back('\\');
@@ -500,13 +467,8 @@ IceInternal::Options::split(const string& line)
     return vec;
 }
 
-//
-// Parse a vector of arguments and return the non-option
-// arguments as the return value. Throw BadOptException if any of the
-// options are invalid.
-// Note that args[0] is ignored because that is the name
-// of the executable.
-//
+// Parse a vector of arguments and return the non-option arguments as the return value. Throw BadOptException if any of
+// the options are invalid. Note that args[0] is ignored because that is the name of the executable.
 
 IceInternal::Options::StringVector
 IceInternal::Options::parse(const StringVector& args)
@@ -536,11 +498,8 @@ IceInternal::Options::parse(const StringVector& args)
 
         if (args[i].compare(0, 2, "--") == 0)
         {
-            //
-            // Long option. If the option has an argument, it can either be separated by '='
-            // or appear as a separate argument. For example, "--name value" is the same
-            // as "--name=value".
-            //
+            // Long option. If the option has an argument, it can either be separated by '=' or appear as a separate
+            // argument. For example, "--name value" is the same as "--name=value".
             string::size_type p = args[i].find('=', 2);
             if (p != string::npos)
             {
@@ -592,9 +551,7 @@ IceInternal::Options::parse(const StringVector& args)
         }
         else if (!args[i].empty() && args[i][0] == '-')
         {
-            //
             // int16_t option.
-            //
             for (string::size_type p = 1; p < args[i].size(); ++p)
             {
                 opt.clear();
@@ -637,9 +594,7 @@ IceInternal::Options::parse(const StringVector& args)
         }
         else
         {
-            //
             // Not an option or option argument.
-            //
             result.push_back(args[i]);
             argDone = true;
         }
@@ -678,10 +633,7 @@ IceInternal::Options::parse(const StringVector& args)
     return result;
 }
 
-//
-// Parse a normal argc/argv pair and return the non-option
-// arguments as the return value.
-//
+// Parse a normal argc/argv pair and return the non-option arguments as the return value.
 
 IceInternal::Options::StringVector
 IceInternal::Options::parse(int argc, const char* const argv[])
@@ -829,9 +781,7 @@ IceInternal::Options::checkOpt(const string& opt, LengthType lt)
 void
 IceInternal::Options::setOpt(const string& opt1, const string& opt2, const string& val, RepeatType rt)
 {
-    //
     // opt1 and opt2 (short and long opt) can't both be empty.
-    //
     assert(!(opt1.empty() && opt2.empty()));
 
     if (rt == NoRepeat)
@@ -854,10 +804,7 @@ IceInternal::Options::setNonRepeatingOpt(const string& opt, const string& val)
         return;
     }
 
-    //
-    // The option must not have been set before or, if it was set, it must have
-    // been because of a default value.
-    //
+    // The option must not have been set before or, if it was set, it must have been because of a default value.
     assert(_opts.find(opt) == _opts.end() || _validOpts.find(opt)->second->hasDefault);
 
     OValPtr ovp = make_shared<OptionValue>();

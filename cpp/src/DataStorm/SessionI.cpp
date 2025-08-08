@@ -1149,11 +1149,9 @@ SessionI::subscriberInitialized(
     // If the samples collection is empty, the element subscriber's lastId remains unchanged:
     // - If no samples have been received, lastId is 0.
     // - If the element subscriber has been initialized before, lastId represents the ID of the latest received sample.
-    //
-    // If the samples collection is not empty:
-    // - It contains samples queued in the peer writer for the element that are valid according to the element's
-    //   configuration.
-    // - These samples have not yet been processed by the element subscriber, according to the subscriber's lastId.
+    // If the samples collection is not empty: - It contains samples queued in the peer writer for the element that are
+    // valid according to the element's configuration. - These samples have not yet been processed by the element
+    // subscriber, according to the subscriber's lastId.
     if (samples.empty())
     {
         return {};

@@ -38,18 +38,13 @@ Glacier2::Blobject::invoke(
     function<void(exception_ptr)> exception, // NOLINT(performance-unnecessary-value-param)
     const Current& current)
 {
-    //
     // Set the correct facet on the proxy.
-    //
     if (!current.facet.empty())
     {
         proxy = proxy->ice_facet(current.facet);
     }
 
-    //
-    // Modify the proxy according to the request id. This can
-    // be overridden by the _fwd context.
-    //
+    // Modify the proxy according to the request id. This can be overridden by the _fwd context.
     if (current.requestId == 0)
     {
         proxy = proxy->ice_oneway();
@@ -59,9 +54,7 @@ Glacier2::Blobject::invoke(
         proxy = proxy->ice_twoway();
     }
 
-    //
     // Modify the proxy according to the _fwd context field.
-    //
     auto p = current.ctx.find("_fwd");
     if (p != current.ctx.end())
     {

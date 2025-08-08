@@ -62,11 +62,9 @@ Ice::ConnectionIPtr
 ConnectRequestHandler::getConnection()
 {
     lock_guard lock(_mutex);
-    //
-    // First check for the connection, it's important otherwise the user could first get a connection
-    // and then the exception if he tries to obtain the proxy cached connection mutiple times (the
-    // exception can be set after the connection is set if the flush of pending requests fails).
-    //
+    // First check for the connection, it's important otherwise the user could first get a connection and then the
+    // exception if he tries to obtain the proxy cached connection mutiple times (the exception can be set after the
+    // connection is set if the flush of pending requests fails).
     if (_connection)
     {
         return _connection;
@@ -88,9 +86,7 @@ ConnectRequestHandler::setConnection(Ice::ConnectionIPtr connection, bool compre
         _compress = compress;
     }
 
-    //
     // If we are using a router, add this proxy to the router info object.
-    //
     RouterInfoPtr ri = _reference->getRouterInfo();
 
     if (ri)
@@ -105,9 +101,7 @@ ConnectRequestHandler::setConnection(Ice::ConnectionIPtr connection, bool compre
         }
     }
 
-    //
     // We can now send the queued requests.
-    //
     flushRequests();
 }
 
@@ -156,12 +150,9 @@ ConnectRequestHandler::initialized(unique_lock<mutex>& lock)
         {
             if (_connection)
             {
-                //
-                // Only throw if the connection didn't get established. If
-                // it died after being established, we allow the caller to
-                // retry the connection establishment by not throwing here
-                // (the connection will throw RetryException).
-                //
+                // Only throw if the connection didn't get established. If it died after being established, we allow
+                // the caller to retry the connection establishment by not throwing here (the connection will throw
+                // RetryException).
                 return true;
             }
             rethrow_exception(_exception);
@@ -180,11 +171,8 @@ ConnectRequestHandler::flushRequests()
         lock_guard lock(_mutex);
         assert(_connection && !_initialized);
 
-        //
-        // We set the _flushing flag to true to prevent any additional queuing. Callers
-        // might block for a little while as the queued requests are being sent but this
-        // shouldn't be an issue as the request sends are non-blocking.
-        //
+        // We set the _flushing flag to true to prevent any additional queuing. Callers might block for a little while
+        // as the queued requests are being sent but this shouldn't be an issue as the request sends are non-blocking.
         _flushing = true;
     }
 

@@ -56,9 +56,7 @@ namespace
           _hexChars("01234567890ABCDEFabcdef")
 
     {
-        //
         // Double quotes don't need to be escaped in Matlab because the string delimiter is a single quote.
-        //
         if (_escapeMode != Matlab)
         {
             const_cast<string&>(_printableEscaped) += '"';
@@ -142,32 +140,24 @@ namespace
         }
         else if (_escapeMode == Matlab && c == '\'')
         {
-            //
-            // Matlab strings are converted by sprintf(), and sprintf() requires a single quote to be escaped
-            // with another single quote.
-            //
+            // Matlab strings are converted by sprintf(), and sprintf() requires a single quote to be escaped with
+            // another single quote.
             result = "''";
         }
         else if (_escapeMode == Matlab && c == '%')
         {
-            //
-            // Matlab strings are converted by sprintf(), and sprintf() requires a percent to be escaped
-            // with another percent.
-            //
+            // Matlab strings are converted by sprintf(), and sprintf() requires a percent to be escaped with another
+            // percent.
             result = "%%";
         }
         else if (c >= 32 && c <= 126)
         {
-            //
             // Other printable ASCII.
-            //
             if (_escapeMode == Matlab)
             {
-                //
-                // While interpreting an octal or hex escape, the Matlab parser will continue to consume adjacent
-                // legal characters. If the trailing character after an escaped value could be consumed, we escape it
-                // as well to terminate the original escape.
-                //
+                // While interpreting an octal or hex escape, the Matlab parser will continue to consume adjacent legal
+                // characters. If the trailing character after an escaped value could be consumed, we escape it as well
+                // to terminate the original escape.
                 if ((lastFormat == OctalFormat && _octalChars.find(c) != string::npos) ||
                     (lastFormat == HexFormat && _hexChars.find(c) != string::npos))
                 {
@@ -239,9 +229,7 @@ namespace
             }
             else if (codePoint < _cutOff)
             {
-                //
                 // Output octal escape
-                //
                 os << "\\" << setfill('0') << setw(3) << oct << codePoint;
                 _format = OctalFormat;
             }
@@ -252,9 +240,7 @@ namespace
             }
             else if (_escapeMode == ShortUCN || _escapeMode == Matlab)
             {
-                //
                 // Convert to surrogate pair
-                //
                 unsigned int highSurrogate = ((codePoint - 0x10000) / 0x400) + 0xD800;
                 unsigned int lowSurrogate = ((codePoint - 0x10000) % 0x400) + 0xDC00;
                 os << _shortUCNPrefix << setfill('0') << setw(4) << hex << highSurrogate;
@@ -319,9 +305,7 @@ Slice::toStringLiteral(
             }
             else
             {
-                //
                 // First write any outstanding UTF-8 -encoded characters
-                //
                 os << generator.flushU8Buffer(u8buffer);
 
                 if (c == '\\')
@@ -384,9 +368,7 @@ Slice::toStringLiteral(
             }
         }
 
-        //
         // Write any outstanding UTF-8 -encoded characters
-        //
         os << generator.flushU8Buffer(u8buffer);
     }
     else
@@ -419,9 +401,7 @@ Slice::toStringLiteral(
                     }
                     else if (c == 'u' || c == 'U')
                     {
-                        //
                         // Convert code point to UTF-8 bytes and write the escaped bytes
-                        //
                         size_t sz = c == 'U' ? 8 : 4;
                         string codePointStr = value.substr(i + 1, sz);
                         assert(codePointStr.size() == sz);

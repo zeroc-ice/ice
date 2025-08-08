@@ -287,10 +287,7 @@ namespace IceGrid
                 }
             }
 
-            //
-            // Increment the iterator *before* invoking setProperties_async to avoid a
-            // race condition.
-            //
+            // Increment the iterator *before* invoking setProperties_async to avoid a race condition.
             ++_p;
 
             auto propertiesAdmin = _admin->ice_facet<Ice::PropertiesAdminPrx>(facet);
@@ -1019,9 +1016,7 @@ ServerI::start(ServerActivation activation, function<void()> response, function<
         lock_guard lock(_mutex);
         checkDestroyed();
 
-        //
         // Eventually re-enable the server if it's disabled because of a failure.
-        //
         if (_disableOnFailure > 0s && _failureTime != nullopt)
         {
             if (activation == Manual || (*_failureTime + _disableOnFailure < chrono::steady_clock::now()))
@@ -1031,9 +1026,7 @@ ServerI::start(ServerActivation activation, function<void()> response, function<
             }
         }
 
-        //
         // Check the current activation mode and the requested activation.
-        //
         if (_activation == Disabled)
         {
             throw ServerStartException(_id, "The server is disabled.");
@@ -1052,9 +1045,7 @@ ServerI::start(ServerActivation activation, function<void()> response, function<
             throw ServerStartException(_id, "The server is not owned by a session.");
         }
 
-        //
         // Check the current state.
-        //
         if (_state == ActivationTimeout)
         {
             throw ServerStartException(_id, "The server activation timed out.");
@@ -1109,16 +1100,9 @@ ServerI::load(
     checkDestroyed();
     checkRevision(replicaName, desc->uuid, desc->revision);
 
-    //
-    // Otherwise, if the following conditions are met:
-    //
-    // - the server is already loaded.
-    // - the descriptor is from the master and the session id didn't change or it's coming from a slave.
-    // - the descriptor is the same as the one loaded.
-    //
-    // we don't re-load the server. We just return the server
-    // proxy and the proxies of its adapters.
-    //
+    // Otherwise, if the following conditions are met: - the server is already loaded. - the descriptor is from the
+    // master and the session id didn't change or it's coming from a slave. - the descriptor is the same as the one
+    // loaded. we don't re-load the server. We just return the server proxy and the proxies of its adapters.
     auto d = _load ? _load->getInternalServerDescriptor() : _desc;
     if (d && (replicaName != "Master" || d->sessionId == desc->sessionId) && !descriptorUpdated(d, desc))
     {
@@ -1129,10 +1113,8 @@ ServerI::load(
 
         if (!_desc || (_load && descriptorUpdated(_load->getInternalServerDescriptor(), _desc)))
         {
-            //
-            // If the server initial loading didn't complete yet or there's a new updated descriptor
-            // waiting to be loaded, we wait for the loading to complete before replying.
-            //
+            // If the server initial loading didn't complete yet or there's a new updated descriptor waiting to be
+            // loaded, we wait for the loading to complete before replying.
             _load->addCallback(response, exception);
             return nullptr;
         }
@@ -1154,11 +1136,8 @@ ServerI::load(
         assert(_desc);
         if (noRestart)
         {
-            //
-            // If the server is not inactive, we have to make sure the update doesn't require
-            // a restart. If it requires a restart, we throw. Otherwise we update its properties
-            // now.
-            //
+            // If the server is not inactive, we have to make sure the update doesn't require a restart. If it requires
+            // a restart, we throw. Otherwise we update its properties now.
             checkNoRestart(desc);
         }
         else
@@ -1186,13 +1165,9 @@ ServerI::load(
     {
         if (_state >= InternalServerState::Activating && _state < InternalServerState::Active)
         {
-            //
-            // If the server is being activated, return the response
-            // now. We can't wait for runtime properties to be updated
-            // as this could cause a deadlock if the registry needs
-            // the server proxy to register the server process proxy
-            // with the node.
-            //
+            // If the server is being activated, return the response now. We can't wait for runtime properties to be
+            // updated as this could cause a deadlock if the registry needs the server proxy to register the server
+            // process proxy with the node.
             AdapterPrxDict adapters;
             for (const auto& adapter : _adapters)
             {
@@ -1295,10 +1270,8 @@ ServerI::destroy(const string& uuid, int revision, const string& replicaName, bo
 
     if (!_destroy)
     {
-        //
-        // If uuid is empty, the destroy call comes from the consistency check. In
-        // this case, we clear the server directory only if it contains non-user data.
-        //
+        // If uuid is empty, the destroy call comes from the consistency check. In this case, we clear the server
+        // directory only if it contains non-user data.
         _destroy = make_shared<DestroyCommand>(shared_from_this(), false, !uuid.empty());
     }
     if (response)
@@ -1381,19 +1354,14 @@ ServerI::checkDestroyed() const
 void
 ServerI::disableOnFailure()
 {
-    //
     // If the server is already disabled, nothing to do.
-    //
     if (_activation == Disabled)
     {
         return;
     }
 
-    //
-    // If disable on failure is configured or if the activation mode
-    // is always and the server wasn't active at the time of the
-    // failure we disable the server.
-    //
+    // If disable on failure is configured or if the activation mode is always and the server wasn't active at the time
+    // of the failure we disable the server.
     if (_disableOnFailure != 0s || (_activation == Always && (_state == Activating || _state == WaitForActivation)))
     {
         _previousActivation = _activation;
@@ -1467,12 +1435,9 @@ ServerI::activate()
                 throw runtime_error("The server is disabled.");
             }
 
-            //
-            // The first time the server is started, we ensure that the
-            // replication of its descriptor is completed. This is to make
-            // sure all the replicas are up to date when the server
-            // starts for the first time with a given descriptor.
-            //
+            // The first time the server is started, we ensure that the replication of its descriptor is completed.
+            // This is to make sure all the replicas are up to date when the server starts for the first time with a
+            // given descriptor.
             waitForReplication = _waitForReplication;
             _waitForReplication = false;
 
@@ -1484,11 +1449,8 @@ ServerI::activate()
 #endif
         }
 
-        //
-        // We first ensure that the application is replicated on all the
-        // registries before to start the server. We only do this each
-        // time the server is updated or initialy loaded on the node.
-        //
+        // We first ensure that the application is replicated on all the registries before to start the server. We only
+        // do this each time the server is updated or initialy loaded on the node.
         if (waitForReplication)
         {
             auto session = _node->getMasterNodeSession();
@@ -1503,9 +1465,7 @@ ServerI::activate()
             }
         }
 
-        //
         // Compute the server command line options.
-        //
         Ice::StringSeq options;
         for (const auto& opt : desc->options)
         {
@@ -1519,10 +1479,7 @@ ServerI::activate()
         Ice::StringSeq envs;
         transform(desc->envs.begin(), desc->envs.end(), back_inserter(envs), environmentEval);
 
-        //
-        // Clear the adapters direct proxy (this is usefull if the server
-        // was manually activated).
-        //
+        // Clear the adapters direct proxy (this is usefull if the server was manually activated).
         for (const auto& adpt : adpts)
         {
             try
@@ -1652,9 +1609,7 @@ ServerI::deactivate()
 
     try
     {
-        //
         // Deactivate the server and for the termination of the server.
-        //
         _node->getActivator()->deactivate(_id, process);
         return;
     }
@@ -1667,9 +1622,7 @@ ServerI::deactivate()
 
     try
     {
-        //
         // If we couldn't deactivate it we kill it.
-        //
         _node->getActivator()->kill(_id);
         return;
     }
@@ -1695,11 +1648,8 @@ ServerI::destroy()
 
     _node->removeServer(shared_from_this(), _desc->application);
 
-    //
-    // Remove the server directory only if the clear dir flag is set (user
-    // explicitly destroyed the server) or if the server directory doesn't
-    // contain user data).
-    //
+    // Remove the server directory only if the clear dir flag is set (user explicitly destroyed the server) or if the
+    // server directory doesn't contain user data).
     if (_destroy->clearDir() || _node->canRemoveServerDirectory(_id))
     {
         try
@@ -1716,9 +1666,7 @@ ServerI::destroy()
         }
     }
 
-    //
     // Destroy the object adapters.
-    //
     for (const auto& adpt : adpts)
     {
         try
@@ -1785,11 +1733,8 @@ ServerI::terminated(const string& msg, int status)
         }
     }
 
-    //
-    // The server has terminated, set its adapter direct proxies to
-    // null to cause the server re-activation if one of its adapter
-    // direct proxy is requested.
-    //
+    // The server has terminated, set its adapter direct proxies to null to cause the server re-activation if one of
+    // its adapter direct proxy is requested.
     for (const auto& adpt : adpts)
     {
         try
@@ -1854,11 +1799,8 @@ ServerI::update()
         {
             if (_load->clearDir())
             {
-                //
-                // The server was explicitly destroyed then updated,
-                // we first need to cleanup the directory to remove
+                // The server was explicitly destroyed then updated, we first need to cleanup the directory to remove
                 // any user created files.
-                //
                 try
                 {
                     removeRecursive(_serverDir);
@@ -1906,9 +1848,7 @@ ServerI::update()
         }
         catch (const DeploymentException& ex)
         {
-            //
             // Rollback old descriptor.
-            //
             if (oldDescriptor)
             {
                 try
@@ -2023,13 +1963,9 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
         }
     }
 
-    //
-    // If the server was disabled because it failed (or because it's
-    // the first time it's being updated). Set the activation mode
-    // based on the descriptor activation. Otherwise, if the server is
-    // disabled and failure time isn't set, we don't change the
-    // activation since the user explicitly disabled the server.
-    //
+    // If the server was disabled because it failed (or because it's the first time it's being updated). Set the
+    // activation mode based on the descriptor activation. Otherwise, if the server is disabled and failure time isn't
+    // set, we don't change the activation since the user explicitly disabled the server.
     if (_activation != Disabled || _failureTime != nullopt)
     {
         _activation = toServerActivation(_desc->activation);
@@ -2072,10 +2008,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
         _deactivationTimeout = _waitTime;
     }
 
-    //
-    // Simplify the log paths and transform relative paths into
-    // absolute paths, also make sure the logs are sorted.
-    //
+    // Simplify the log paths and transform relative paths into absolute paths, also make sure the logs are sorted.
     for (const auto& log : _desc->logs)
     {
         string path = simplify(log);
@@ -2095,36 +2028,24 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     _stdErrFile = getProperty(props, "Ice.StdErr");
     _stdOutFile = getProperty(props, "Ice.StdOut");
 
-    //
-    // If the server is a session server and it wasn't updated but
-    // just released by a session, we don't update the configuration,
-    // it will be done when the server is re-allocated.
-    //
+    // If the server is a session server and it wasn't updated but just released by a session, we don't update the
+    // configuration, it will be done when the server is re-allocated.
     if (serverSessionReleased)
     {
         return;
     }
 
-    //
     // Update the revision file.
-    //
     updateRevision(_desc->uuid, _desc->revision);
 
-    //
     // Create or update the server directories.
-    //
     createDirectory(_serverDir);
     createDirectory(_serverDir + "/config");
     createDirectory(_serverDir + "/data");
 
-    //
     // Create the configuration files, remove the old ones.
-    //
     {
-        //
-        // We do not want to escape the properties if the Ice version is
-        // previous to Ice 3.3.
-        //
+        // We do not want to escape the properties if the Ice version is previous to Ice 3.3.
         Ice::StringSeq knownFiles;
         for (const auto& prop : properties)
         {
@@ -2155,9 +2076,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
         }
         sort(knownFiles.begin(), knownFiles.end());
 
-        //
         // Remove old configuration files.
-        //
         Ice::StringSeq files = readDirectory(_serverDir + "/config");
         Ice::StringSeq toDel;
         std::set_difference(files.begin(), files.end(), knownFiles.begin(), knownFiles.end(), back_inserter(toDel));
@@ -2178,9 +2097,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
         }
     }
 
-    //
     // Update the service data directories if necessary and remove the old ones.
-    //
     if (_desc->services)
     {
         Ice::StringSeq knownDirs;
@@ -2191,9 +2108,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
         }
         sort(knownDirs.begin(), knownDirs.end());
 
-        //
         // Remove old directories
-        //
         Ice::StringSeq dirs = readDirectory(_serverDir);
         Ice::StringSeq svcDirs;
         for (const auto& dir : dirs)
@@ -2305,26 +2220,17 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
     uid_t gid = getgid();
 #endif
 
-    //
-    // Don't change the user if the server has the session activation
-    // mode and if it's not currently owned by a session.
-    //
+    // Don't change the user if the server has the session activation mode and if it's not currently owned by a session.
     string user;
     if (desc->activation != "session" || !desc->sessionId.empty())
     {
         user = desc->user;
 #ifndef _WIN32
-        //
-        // Check if the node is running as root, if that's the case we
-        // make sure that a user is set for the process.
-        //
+        // Check if the node is running as root, if that's the case we make sure that a user is set for the process.
         if (uid == 0 && user.empty())
         {
-            //
-            // If no user is configured and if this server is owned by
-            // a session we set the user to the session id, otherwise
-            // we set it to "nobody".
-            //
+            // If no user is configured and if this server is owned by a session we set the user to the session id,
+            // otherwise we set it to "nobody".
             user = !desc->sessionId.empty() ? desc->sessionId : "nobody";
         }
 #endif
@@ -2352,13 +2258,9 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         }
 
 #ifdef _WIN32
-        //
-        // Windows doesn't support running processes under another
-        // account (at least not easily, see the CreateProcessAsUser
-        // documentation). So if a user is specified, we just check
-        // that the node is running under the same user account as the
-        // one which is specified.
-        //
+        // Windows doesn't support running processes under another account (at least not easily, see the
+        // CreateProcessAsUser documentation). So if a user is specified, we just check that the node is running under
+        // the same user account as the one which is specified.
         vector<char> buf(256);
         buf.resize(256);
         DWORD size = static_cast<DWORD>(buf.size());
@@ -2379,9 +2281,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         }
     }
 #else
-        //
         // Get the uid/gid associated with the given user.
-        //
         struct passwd pwbuf;
         long sz = sysconf(_SC_GETPW_R_SIZE_MAX);
         if (sz == -1)
@@ -2406,12 +2306,8 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
             throw runtime_error("unknown user account '" + user + "'");
         }
 
-        //
-        // If the node isn't running as root and if the uid of the
-        // configured user is different from the uid of the userr
-        // running the node we throw, a regular user can't run a
-        // process as another user.
-        //
+        // If the node isn't running as root and if the uid of the configured user is different from the uid of the
+        // userr running the node we throw, a regular user can't run a process as another user.
         if (uid != 0 && pw->pw_uid != uid)
         {
             throw runtime_error("node has insufficient privileges to load server under user account '" + user + "'");
@@ -2505,10 +2401,8 @@ ServerI::checkActivation()
     // assert(locked());
     if (_state == InternalServerState::WaitForActivation || _state == InternalServerState::ActivationTimeout)
     {
-        //
-        // Mark the server as active if the server process proxy is registered (or it's not expecting
-        // one to be registered) and if all the server lifetime adapters have been activated.
-        //
+        // Mark the server as active if the server process proxy is registered (or it's not expecting one to be
+        // registered) and if all the server lifetime adapters have been activated.
         if ((!_desc->processRegistered || _process) && includes(
                                                            _activatedAdapters.begin(),
                                                            _activatedAdapters.end(),
@@ -2567,9 +2461,7 @@ ServerI::nextCommand()
 void
 ServerI::setStateNoSync(InternalServerState st, const string& reason)
 {
-    //
     // Ensure that the given state can be switched to.
-    //
     switch (st)
     {
         case Inactive:
@@ -2603,15 +2495,11 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             break;
     }
 
-    //
     // Change the current state.
-    //
     InternalServerState previous = _state;
     _state = st;
 
-    //
     // Check if some commands are done.
-    //
     bool loadFailure = false;
     switch (_state)
     {
@@ -2715,13 +2603,9 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
         }
         else if (_activation == Disabled && _disableOnFailure > 0s && _failureTime != nullopt)
         {
-            //
-            // If the server was disabled because it failed, we
-            // schedule a callback to re-enable it. We add 500ms to
-            // the disable on failure duration to make sure that the
-            // server will be ready to be reactivated when the
+            // If the server was disabled because it failed, we schedule a callback to re-enable it. We add 500ms to
+            // the disable on failure duration to make sure that the server will be ready to be reactivated when the
             // callback is executed.
-            //
             assert(!_timerTask);
             _timerTask = make_shared<DelayedStart>(shared_from_this(), _node->getTraceLevels());
             try
@@ -2752,13 +2636,9 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
         _load->startRuntimePropertiesUpdate(*_process);
     }
 
-    //
-    // Don't send the server update if the state didn't change or if
-    // the server couldn't be forked. If the server is destroyed, we
-    // also check if it's the result of a load failure. If that's the
-    // case we don't send an update because the server was never
-    // actually loaded.
-    //
+    // Don't send the server update if the state didn't change or if the server couldn't be forked. If the server is
+    // destroyed, we also check if it's the result of a load failure. If that's the case we don't send an update because
+    // the server was never actually loaded.
     if (toServerState(previous) != toServerState(_state) && !(previous == Inactive && _state == Deactivating) &&
         !loadFailure)
     {
@@ -2883,11 +2763,8 @@ ServerI::getDynamicInfo() const
     descriptor.id = _id;
     descriptor.state = toServerState(_state);
 
-    //
-    // NOTE: this must be done only for the active state. Otherwise, we could get a
-    // deadlock since getPid() will lock the activator and since this method might
-    // be called from the activator locked.
-    //
+    // NOTE: this must be done only for the active state. Otherwise, we could get a deadlock since getPid() will lock
+    // the activator and since this method might be called from the activator locked.
     descriptor.pid = _pid;
     descriptor.enabled = _activation != Disabled;
     return descriptor;
@@ -2934,18 +2811,12 @@ ServerI::getFilePath(const string& filename) const
 PropertyDescriptorSeqDict
 ServerI::getProperties(const shared_ptr<InternalServerDescriptor>& desc)
 {
-    //
     // Copy the descriptor properties.
-    //
     PropertyDescriptorSeqDict propDict = desc->properties;
     PropertyDescriptorSeq& props = propDict["config"];
 
-    //
-    // Cache the path of the stderr/stdout file, first check if the
-    // node OutputDir property is set and then we check the server
-    // configuration file for the Ice.StdErr and Ice.StdOut
-    // properties.
-    //
+    // Cache the path of the stderr/stdout file, first check if the node OutputDir property is set and then we check
+    // the server configuration file for the Ice.StdErr and Ice.StdOut properties.
     string stdErrFile = getProperty(props, "Ice.StdErr");
     string stdOutFile = getProperty(props, "Ice.StdOut");
     string outputDir = _node->getOutputDir();
@@ -2963,9 +2834,7 @@ ServerI::getProperties(const shared_ptr<InternalServerDescriptor>& desc)
         }
     }
 
-    //
     // Add the locator proxy property and the node properties override
-    //
     {
         const PropertyDescriptorSeq& overrides = _node->getPropertiesOverride();
         for (auto& p : propDict)

@@ -58,10 +58,7 @@ IceInternal::OutputBase::~OutputBase() = default;
 void
 IceInternal::OutputBase::open(const string& s)
 {
-    //
-    // Remove any existing file first. This prevents file name
-    // mismatches on case-insensitive OSs.
-    //
+    // Remove any existing file first. This prevents file name mismatches on case-insensitive OSs.
     IceInternal::unlink(s);
     _fout.open(IceInternal::streamFilename(s).c_str());
 }

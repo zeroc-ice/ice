@@ -14,16 +14,12 @@ using namespace Ice;
 
 namespace
 {
-    //
-    // Holds information about an incoming dispatch that's been queued until an outgoing connection has
-    // been established.
-    //
+    // Holds information about an incoming dispatch that's been queued until an outgoing connection has been
+    // established.
     struct QueuedDispatch final
     {
-        //
-        // The pointers in p refer to the Ice marshaling buffer and won't remain valid after
-        // ice_invokeAsync completes, so we have to make a copy of the in parameters
-        //
+        // The pointers in p refer to the Ice marshaling buffer and won't remain valid after ice_invokeAsync completes,
+        // so we have to make a copy of the in parameters
         QueuedDispatch(
             pair<const byte*, const byte*> p,
             function<void(bool, pair<const byte*, const byte*>)>&& r,
@@ -47,9 +43,7 @@ namespace
         const Current current;
     };
 
-    //
     // Allows the bridge to be used as an Ice router.
-    //
     class RouterI final : public Router
     {
     public:
@@ -61,10 +55,8 @@ namespace
 
         [[nodiscard]] optional<ObjectPrx> getServerProxy(const Current& current) const final
         {
-            //
-            // We return a non-nil dummy proxy here so that a client is able to configure its
-            // callback object adapter with a router proxy.
-            //
+            // We return a non-nil dummy proxy here so that a client is able to configure its callback object adapter
+            // with a router proxy.
             return current.adapter->getCommunicator()->stringToProxy("dummy");
         }
 
@@ -82,9 +74,7 @@ namespace
         const RouterPrx _router;
     };
 
-    //
     // Represents a pair of connections (shared object)
-    //
     class BridgeConnection final
     {
     public:
@@ -116,18 +106,14 @@ namespace
         ConnectionPtr _outgoing;
         exception_ptr _exception;
 
-        //
         // We maintain our own queue for dispatches that arrive on the incoming connection before the outgoing
-        // connection has been established. We don't want to forward these to proxies and let the proxies handle
-        // the queuing because then the invocations could be sent out of order (e.g., when invocations are split
-        // among twoway/oneway/datagram proxies).
-        //
+        // connection has been established. We don't want to forward these to proxies and let the proxies handle the
+        // queuing because then the invocations could be sent out of order (e.g., when invocations are split among
+        // twoway/oneway/datagram proxies).
         vector<QueuedDispatch> _queue;
     };
 
-    //
     // The main bridge servant.
-    //
     class BridgeI final : public Ice::BlobjectArrayAsync, public enable_shared_from_this<BridgeI>
     {
     public:
@@ -177,24 +163,17 @@ BridgeConnection::outgoingSuccess(ConnectionPtr outgoing)
     assert(!_outgoing && outgoing);
     if (_exception)
     {
-        //
-        // The incoming connection is already closed. There's no point in leaving the outgoing
-        // connection open.
-        //
+        // The incoming connection is already closed. There's no point in leaving the outgoing connection open.
         outgoing->close(nullptr, nullptr);
         return;
     }
 
     _outgoing = std::move(outgoing);
 
-    //
     // Configure the outgoing connection for bidirectional requests.
-    //
     _outgoing->setAdapter(_adapter);
 
-    //
     // Flush any queued dispatches
-    //
     for (auto& dispatch : _queue)
     {
         auto inParams = make_pair(dispatch.inParams.data(), dispatch.inParams.data() + dispatch.inParams.size());
@@ -213,19 +192,13 @@ BridgeConnection::outgoingException(exception_ptr ex)
     }
     _exception = ex;
 
-    //
-    // The outgoing connection failed so we close the incoming connection. closed() will eventually
-    // be called for it when the connection's dispatch count reaches zero.
-    //
+    // The outgoing connection failed so we close the incoming connection. closed() will eventually be called for it
+    // when the connection's dispatch count reaches zero.
     _incoming->close(nullptr, nullptr);
 
-    //
-    // Complete the queued incoming dispatch, otherwise the incoming connection will never
-    // complete its graceful closure. This is only necessary on the server side.
-    //
-    // The client will receive an UnknownLocalException whose reason member contains information
-    // about the failure.
-    //
+    // Complete the queued incoming dispatch, otherwise the incoming connection will never complete its graceful
+    // closure. This is only necessary on the server side. The client will receive an UnknownLocalException whose reason
+    // member contains information about the failure.
     for (const auto& p : _queue)
     {
         p.error(ex);
@@ -264,10 +237,8 @@ BridgeConnection::closed(const ConnectionPtr& con)
         }
     }
 
-    //
-    // Even though the connection is already closed, we still need to "complete" the pending dispatches so
-    // that the connection's dispatch count is updated correctly.
-    //
+    // Even though the connection is already closed, we still need to "complete" the pending dispatches so that the
+    // connection's dispatch count is updated correctly.
     for (const auto& p : _queue)
     {
         p.error(_exception);
@@ -282,11 +253,9 @@ BridgeConnection::dispatch(
     function<void(exception_ptr)> error,
     const Current& current)
 {
-    //
-    // We've received an invocation, either from the client via the incoming connection, or from
-    // the server via the outgoing (bidirectional) connection. The current.con member tells us
-    // the connection over which the request arrived.
-    //
+    // We've received an invocation, either from the client via the incoming connection, or from the server via the
+    // outgoing (bidirectional) connection. The current.con member tells us the connection over which the request
+    // arrived.
     lock_guard<mutex> lg(_lock);
     if (_exception)
     {
@@ -294,9 +263,7 @@ BridgeConnection::dispatch(
     }
     else if (!_outgoing)
     {
-        //
         // Queue the invocation until the outgoing connection is established.
-        //
         assert(current.con == _incoming);
         _queue.emplace_back(inParams, std::move(response), std::move(error), current);
     }
@@ -321,9 +288,7 @@ BridgeConnection::send(
 {
     try
     {
-        //
         // Create a proxy having the same identity as the request.
-        //
         auto prx = dest->createProxy(current.id);
 
         if (!current.requestId)
@@ -380,14 +345,10 @@ BridgeI::ice_invokeAsync(
         auto p = _connections.find(current.con);
         if (p == _connections.end())
         {
-            //
             // The connection is unknown to us, it must be a new incoming connection.
-            //
             auto info = current.con->getEndpoint()->getInfo();
 
-            //
             // Create a target proxy that matches the configuration of the incoming connection.
-            //
             ObjectPrx target = _target;
             if (info->datagram())
             {
@@ -398,9 +359,7 @@ BridgeI::ice_invokeAsync(
                 target = target->ice_secure(true);
             }
 
-            //
             // Force the proxy to establish a new connection by using a unique connection ID.
-            //
             target = target->ice_connectionId(Ice::generateUUID());
 
             bc = make_shared<BridgeConnection>(_adapter, target, current.con);
@@ -409,15 +368,11 @@ BridgeI::ice_invokeAsync(
             auto self = shared_from_this();
             current.con->setCloseCallback([self](const auto& con) { self->closed(con); });
 
-            //
             // Try to establish the outgoing connection asynchronously
-            //
             try
             {
-                //
                 // Begin the connection establishment process asynchronously. This can take a while to complete,
                 // especially when using Bluetooth.
-                //
                 target->ice_getConnectionAsync(
                     [self, bc](auto outgoing) { self->outgoingSuccess(bc, std::move(outgoing)); },
                     [self, bc](auto ex) { self->outgoingException(bc, ex); });
@@ -434,18 +389,14 @@ BridgeI::ice_invokeAsync(
         }
     }
 
-    //
     // Delegate the invocation to the BridgeConnection object.
-    //
     bc->dispatch(inParams, std::move(response), std::move(error), current);
 }
 
 void
 BridgeI::closed(const ConnectionPtr& con)
 {
-    //
     // Notify the BridgeConnection that a connection has closed. We also need to remove it from our map.
-    //
     shared_ptr<BridgeConnection> bc;
     {
         lock_guard<mutex> lg(_lock);
@@ -461,9 +412,7 @@ BridgeI::closed(const ConnectionPtr& con)
 void
 BridgeI::outgoingSuccess(const shared_ptr<BridgeConnection>& bc, ConnectionPtr outgoing)
 {
-    //
     // An outgoing connection was established. Notify the BridgeConnection object.
-    //
     {
         lock_guard<mutex> lg(_lock);
         _connections.emplace(outgoing, bc);
@@ -475,9 +424,7 @@ BridgeI::outgoingSuccess(const shared_ptr<BridgeConnection>& bc, ConnectionPtr o
 void
 BridgeI::outgoingException(const shared_ptr<BridgeConnection>& bc, exception_ptr ex)
 {
-    //
     // An outgoing connection attempt failed. Notify the BridgeConnection object.
-    //
     bc->outgoingException(ex);
 }
 
@@ -530,9 +477,7 @@ BridgeService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    //
     // Initialize the object adapter.
-    //
     const string sourceProperty = "IceBridge.Source.Endpoints";
     if (properties->getProperty(sourceProperty).empty())
     {
@@ -587,9 +532,7 @@ BridgeService::initializeCommunicator(int& argc, char* argv[], InitializationDat
 {
     initData.properties = createProperties(argc, argv, initData.properties);
 
-    //
     // Disable automatic retry by default.
-    //
     if (initData.properties->getIceProperty("Ice.RetryIntervals").empty())
     {
         initData.properties->setProperty("Ice.RetryIntervals", "-1");

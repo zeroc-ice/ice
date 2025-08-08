@@ -18,31 +18,21 @@ namespace IceInternal
     {
     public:
 #if defined(ICE_USE_IOCP)
-        //
         // Called to start a new asynchronous read or write operation.
-        //
         virtual bool startAsync(SocketOperation) = 0;
         virtual bool finishAsync(SocketOperation) = 0;
 #endif
 
-        //
         // Called when there's a message ready to be processed.
-        //
         virtual void message(ThreadPoolCurrent&) = 0;
 
-        //
         // Called when the event handler is unregistered.
-        //
         virtual void finished(ThreadPoolCurrent&, bool) = 0;
 
-        //
         // Get a textual representation of the event handler.
-        //
         [[nodiscard]] virtual std::string toString() const = 0;
 
-        //
         // Get the native information of the handler, this is used by the selector.
-        //
         virtual NativeInfoPtr getNativeInfo() = 0;
 
     protected:

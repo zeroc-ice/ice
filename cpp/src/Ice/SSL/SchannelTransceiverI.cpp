@@ -204,9 +204,7 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
                 _sslNewSessionCallback(_ssl, _host);
             }
 
-            //
             // Copy the data to the write buffer
-            //
             _writeBuffer.b.resize(outBuffer.cbBuffer);
             _writeBuffer.i = _writeBuffer.b.begin();
             memcpy(_writeBuffer.i, outBuffer.pvBuffer, outBuffer.cbBuffer);
@@ -342,9 +340,7 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
 
         if (_state == StateHandshakeWriteContinue || _state == StateHandshakeWriteNoContinue)
         {
-            //
             // Write any pending data.
-            //
             if (!writeRaw(_writeBuffer))
             {
                 return IceInternal::SocketOperationWrite;
@@ -357,13 +353,9 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
         }
     }
 
-    //
-    // Check if the requested capabilities are met.
-    //
-    // NOTE: it's important for _ctxFlags to be a data member. The context flags might not be checked immediately
-    // if the last write can't complete without blocking above. In such a case, the context flags are checked here
-    // only once the sslHandshake is called again after the write completes.
-    //
+    // Check if the requested capabilities are met. NOTE: it's important for _ctxFlags to be a data member. The context
+    // flags might not be checked immediately if the last write can't complete without blocking above. In such a case,
+    // the context flags are checked here only once the sslHandshake is called again after the write completes.
     if (flags != _ctxFlags)
     {
         ostringstream os;
@@ -616,22 +608,15 @@ Schannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
     return i - buffer.i;
 }
 
-//
-// Encrypt a message and return the number of bytes that has been encrypted, if the
-// number of bytes is less than the message size, the function must be called again.
-//
+// Encrypt a message and return the number of bytes that has been encrypted, if the number of bytes is less than the
+// message size, the function must be called again.
 size_t
 Schannel::TransceiverI::encryptMessage(IceInternal::Buffer& buffer)
 {
-    //
-    // Limit the message size to cbMaximumMessage which is the maximum size data that can be
-    // embedded in a SSL record.
-    //
+    // Limit the message size to cbMaximumMessage which is the maximum size data that can be embedded in a SSL record.
     DWORD length = std::min(static_cast<DWORD>(buffer.b.end() - buffer.i), _sizes.cbMaximumMessage);
 
-    //
     // Resize the buffer to hold the encrypted data
-    //
     _writeBuffer.b.resize(_sizes.cbHeader + length + _sizes.cbTrailer);
     _writeBuffer.i = _writeBuffer.b.begin();
 

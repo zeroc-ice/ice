@@ -102,9 +102,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         {
             lock_guard<mutex> lock(_mutex);
 
-            //
             // This will throw if the request is canceled
-            //
             outAsync->cancelable(shared_from_this());
 
             if (_response)
@@ -146,11 +144,8 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 
         int dispatchCount = batchRequestCount == 0 ? 1 : batchRequestCount;
 
-        //
-        // Make sure to hold a reference on this handler while the call is being
-        // dispatched. Otherwise, the handler could be deleted during the dispatch
-        // if a retry occurs.
-        //
+        // Make sure to hold a reference on this handler while the call is being dispatched. Otherwise, the handler
+        // could be deleted during the dispatch if a retry occurs.
         auto self = shared_from_this();
 
         if (!synchronous || !_response || _reference->getInvocationTimeout() > 0ms)

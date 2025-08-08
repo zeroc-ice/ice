@@ -287,9 +287,7 @@ OpenSSL::TransceiverI::close()
     {
         int err = SSL_shutdown(_ssl);
 
-        //
         // Call it one more time if it returned 0.
-        //
         if (err == 0)
         {
             SSL_shutdown(_ssl);
@@ -341,9 +339,7 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
         return IceInternal::SocketOperationNone;
     }
 
-    //
     // It's impossible for packetSize to be more than an Int.
-    //
     int packetSize = _memBio ? std::min(static_cast<int>(_maxSendPacketSize), static_cast<int>(buf.b.end() - buf.i))
                              : static_cast<int>(buf.b.end() - buf.i);
 
@@ -467,11 +463,8 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
         }
     }
 
-    //
-    // Note: We assume that OpenSSL doesn't read more SSL records than
-    // necessary to fill the requested data and that the sender sends
-    // Ice messages in individual SSL records.
-    //
+    // Note: We assume that OpenSSL doesn't read more SSL records than necessary to fill the requested data and that
+    // the sender sends Ice messages in individual SSL records.
 
     if (buf.i == buf.b.end())
     {
@@ -480,9 +473,7 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
 
     _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
 
-    //
     // It's impossible for packetSize to be more than an Int.
-    //
     int packetSize = static_cast<int>(buf.b.end() - buf.i);
     while (buf.i != buf.b.end())
     {
@@ -575,9 +566,7 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
         }
     }
 
-    //
     // Check if there's still buffered data to read, set the read ready status.
-    //
     _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, SSL_pending(_ssl) > 0);
 
     return IceInternal::SocketOperationNone;

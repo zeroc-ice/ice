@@ -25,9 +25,7 @@ namespace
 void
 AllocatableObjectCache::TypeEntry::add(const shared_ptr<AllocatableObjectEntry>& obj)
 {
-    //
     // No mutex protection here, this is called with the cache locked.
-    //
     _objects.insert(lower_bound(_objects.begin(), _objects.end(), obj, compareAllocatableObjectEntry), obj);
     if (!_requests.empty())
     {
@@ -38,9 +36,7 @@ AllocatableObjectCache::TypeEntry::add(const shared_ptr<AllocatableObjectEntry>&
 bool
 AllocatableObjectCache::TypeEntry::remove(const shared_ptr<AllocatableObjectEntry>& obj)
 {
-    //
     // No mutex protection here, this is called with the cache locked.
-    //
     vector<shared_ptr<AllocatableObjectEntry>>::iterator q;
     q = lower_bound(_objects.begin(), _objects.end(), obj, compareAllocatableObjectEntry);
     assert(q->get() == obj.get());
@@ -60,9 +56,7 @@ AllocatableObjectCache::TypeEntry::remove(const shared_ptr<AllocatableObjectEntr
 void
 AllocatableObjectCache::TypeEntry::addAllocationRequest(const shared_ptr<ObjectAllocationRequest>& request)
 {
-    //
     // No mutex protection here, this is called with the cache locked.
-    //
     if (request->pending())
     {
         _requests.push_back(request);
@@ -72,9 +66,7 @@ AllocatableObjectCache::TypeEntry::addAllocationRequest(const shared_ptr<ObjectA
 bool
 AllocatableObjectCache::TypeEntry::canTryAllocate(const shared_ptr<AllocatableObjectEntry>& entry, bool fromRelease)
 {
-    //
     // No mutex protection here, this is called with the cache locked.
-    //
     auto p = _requests.begin();
     while (p != _requests.end())
     {
@@ -185,11 +177,8 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         }
     }
 
-    //
-    // This must be done outside the synchronization because destroy
-    // might release the object and release might try to callback on
-    // the cache.
-    //
+    // This must be done outside the synchronization because destroy might release the object and release might try to
+    // callback on the cache.
     assert(entry);
     entry->destroy();
 }
@@ -236,9 +225,7 @@ AllocatableObjectCache::allocateByType(const string& type, const shared_ptr<Obje
 bool
 AllocatableObjectCache::canTryAllocate(const shared_ptr<AllocatableObjectEntry>& entry)
 {
-    //
     // Notify the type entry that an object was released.
-    //
     lock_guard lock(_mutex);
     auto p = _types.find(entry->getType());
     if (p == _types.end())
@@ -288,10 +275,7 @@ AllocatableObjectEntry::isEnabled() const
 void
 AllocatableObjectEntry::allocated(const shared_ptr<SessionI>& session)
 {
-    //
-    // Add the object allocation to the session. The object will be
-    // released once the session is destroyed.
-    //
+    // Add the object allocation to the session. The object will be released once the session is destroyed.
     session->addAllocation(shared_from_this());
 
     auto traceLevels = _cache.getTraceLevels();
@@ -326,9 +310,7 @@ AllocatableObjectEntry::allocated(const shared_ptr<SessionI>& session)
 void
 AllocatableObjectEntry::released(const shared_ptr<SessionI>& session)
 {
-    //
     // Remove the object allocation from the session.
-    //
     session->removeAllocation(shared_from_this());
 
     auto traceLevels = _cache.getTraceLevels();

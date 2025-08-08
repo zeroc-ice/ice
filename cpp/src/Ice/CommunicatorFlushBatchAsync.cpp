@@ -15,11 +15,8 @@ CommunicatorFlushBatchAsync::~CommunicatorFlushBatchAsync() = default; // Out of
 
 CommunicatorFlushBatchAsync::CommunicatorFlushBatchAsync(const InstancePtr& instance) : OutgoingAsyncBase(instance)
 {
-    //
-    // _useCount is initialized to 1 to prevent premature callbacks.
-    // The caller must invoke ready() after all flush requests have
-    // been initiated.
-    //
+    // _useCount is initialized to 1 to prevent premature callbacks. The caller must invoke ready() after all flush
+    // requests have been initiated.
     _useCount = 1;
 }
 

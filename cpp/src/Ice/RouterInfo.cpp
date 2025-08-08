@@ -179,9 +179,7 @@ IceInternal::RouterInfo::addProxyAsync(
         }
         else if (_identities.find(identity) != _identities.end())
         {
-            //
             // Only add the proxy to the router if it's not already in our local map.
-            //
             return true;
         }
     }
@@ -239,10 +237,8 @@ IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice:
 {
     lock_guard lock(_mutex);
 
-    //
-    // Check if the proxy hasn't already been evicted by a concurrent addProxies call.
-    // If it's the case, don't add it to our local map.
-    //
+    // Check if the proxy hasn't already been evicted by a concurrent addProxies call. If it's the case, don't add it
+    // to our local map.
     auto p = _evictedIdentities.find(identity);
     if (p != _evictedIdentities.end())
     {
@@ -250,25 +246,17 @@ IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice:
     }
     else
     {
-        //
-        // If we successfully added the proxy to the router,
-        // we add it to our local map.
-        //
+        // If we successfully added the proxy to the router, we add it to our local map.
         _identities.insert(identity);
     }
 
-    //
     // We also must remove whatever proxies the router evicted.
-    //
     for (const auto& evictedProxy : evictedProxies)
     {
         if (_identities.erase(evictedProxy->ice_getIdentity()) == 0)
         {
-            //
-            // It's possible for the proxy to not have been
-            // added yet in the local map if two threads
-            // concurrently call addProxies.
-            //
+            // It's possible for the proxy to not have been added yet in the local map if two threads concurrently call
+            // addProxies.
             _evictedIdentities.insert(evictedProxy->ice_getIdentity());
         }
     }

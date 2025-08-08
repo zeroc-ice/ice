@@ -359,11 +359,7 @@ Parser::showBanner()
     consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) ZeroC, Inc." << endl;
 }
 
-//
-// With older flex version <= 2.5.35 YY_INPUT second
-// paramenter is of type int&, in newer versions it
-// changes to size_t&
-//
+// With older flex version <= 2.5.35 YY_INPUT second paramenter is of type int&, in newer versions it changes to size_t&
 void
 Parser::getInput(char* buf, int& result, size_t maxSize)
 {

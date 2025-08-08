@@ -8,9 +8,7 @@
 
 namespace Slice
 {
-    //
     // CodeVisitor generates the Matlab mapping for a translation unit.
-    //
     class CodeVisitor final : public ParserVisitor
     {
     public:
@@ -40,9 +38,7 @@ namespace Slice
         void openClass(const std::string& abs, const std::string& dir);
         void closeClass();
 
-        //
         // Convert an operation mode into a string.
-        //
         std::string getOperationMode(Operation::Mode);
 
         std::string getOptionalFormat(const TypePtr&);

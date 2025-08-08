@@ -12,9 +12,7 @@ using namespace Ice::SSL;
 
 namespace
 {
-    //
     // See RFC 2253 and RFC 1779.
-    //
 
     const string special = ",=+<>#;";                 // NOLINT(cert-err58-cpp)
     const string hexvalid = "0123456789abcdefABCDEF"; // NOLINT(cert-err58-cpp)
@@ -110,15 +108,11 @@ RFC2253::unescape(const string& data)
             throw ParseException(__FILE__, __LINE__, "unescape: missing \"");
         }
 
-        //
         // Return the string without quotes.
-        //
         return data.substr(1, data.size() - 2);
     }
 
-    //
     // Unescape the entire string.
-    //
     string result;
     if (data[0] == '#')
     {
@@ -247,24 +241,11 @@ parseAttributeType(const string& data, size_t& pos)
 
     string result;
 
-    //
-    // RFC 1779.
-    // <key> ::= 1*( <keychar> ) | "OID." <oid> | "oid." <oid>
-    // <oid> ::= <digitstring> | <digitstring> "." <oid>
-    // RFC 2253:
-    // attributeType = (ALPHA 1*keychar) | oid
-    // keychar    = ALPHA | DIGIT | "-"
-    // oid        = 1*DIGIT *("." 1*DIGIT)
-    //
-    // In section 4 of RFC 2253 the document says:
-    // Implementations MUST allow an oid in the attribute type to be
-    // prefixed by one of the character strings "oid." or "OID.".
-    //
-    // Here we must also check for "oid." and "OID." before parsing
-    // according to the ALPHA KEYCHAR* rule.
-    //
-    // First the OID case.
-    //
+    // RFC 1779. <key> ::= 1*( <keychar> ) | "OID." <oid> | "oid." <oid> <oid> ::= <digitstring> | <digitstring> "."
+    // <oid> RFC 2253: attributeType = (ALPHA 1*keychar) | oid keychar = ALPHA | DIGIT | "-" oid = 1*DIGIT *("."
+    // 1*DIGIT) In section 4 of RFC 2253 the document says: Implementations MUST allow an oid in the attribute type to
+    // be prefixed by one of the character strings "oid." or "OID.". Here we must also check for "oid." and "OID."
+    // before parsing according to the ALPHA KEYCHAR* rule. First the OID case.
     if (IceInternal::isDigit(data[pos]) ||
         (data.size() - pos >= 4 && (data.substr(pos, 4) == "oid." || data.substr(pos, 4) == "OID.")))
     {
@@ -301,11 +282,8 @@ parseAttributeType(const string& data, size_t& pos)
     }
     else if (IceInternal::isAlpha(data[pos]))
     {
-        //
-        // The grammar is wrong in this case. It should be ALPHA
-        // KEYCHAR* otherwise it will not accept "O" as a valid
+        // The grammar is wrong in this case. It should be ALPHA KEYCHAR* otherwise it will not accept "O" as a valid
         // attribute type.
-        //
         result += data[pos];
         ++pos;
         // 1* KEYCHAR
@@ -333,10 +311,7 @@ parseAttributeValue(const string& data, size_t& pos)
         return result;
     }
 
-    //
-    // RFC 2253
-    // # hexstring
-    //
+    // RFC 2253 # hexstring
     if (data[pos] == '#')
     {
         result += data[pos];
@@ -351,11 +326,8 @@ parseAttributeValue(const string& data, size_t& pos)
             result += h;
         }
     }
-    //
-    // RFC 2253
-    // QUOTATION *( quotechar | pair ) QUOTATION ; only from v2
-    // quotechar     = <any character except "\" or QUOTATION >
-    //
+    // RFC 2253 QUOTATION *( quotechar | pair ) QUOTATION ; only from v2 quotechar = <any character except "\" or
+    // QUOTATION >
     else if (data[pos] == '"')
     {
         result += data[pos];
@@ -386,11 +358,7 @@ parseAttributeValue(const string& data, size_t& pos)
             }
         }
     }
-    //
-    // RFC 2253
-    // * (stringchar | pair)
-    // stringchar = <any character except one of special, "\" or QUOTATION >
-    //
+    // RFC 2253 * (stringchar | pair) stringchar = <any character except one of special, "\" or QUOTATION >
     else
     {
         while (pos < data.size())
@@ -413,10 +381,7 @@ parseAttributeValue(const string& data, size_t& pos)
     return result;
 }
 
-//
-// RFC2253:
-// pair       = "\" ( special | "\" | QUOTATION | hexpair )
-//
+// RFC2253: pair       = "\" ( special | "\" | QUOTATION | hexpair )
 static string
 parsePair(const string& data, size_t& pos)
 {
@@ -440,10 +405,7 @@ parsePair(const string& data, size_t& pos)
     return parseHexPair(data, pos, false);
 }
 
-//
-// RFC 2253
-// hexpair    = hexchar hexchar
-//
+// RFC 2253 hexpair    = hexchar hexchar
 static string
 parseHexPair(const string& data, size_t& pos, bool allowEmpty)
 {
@@ -469,14 +431,9 @@ parseHexPair(const string& data, size_t& pos, bool allowEmpty)
     return result;
 }
 
-//
-// RFC 2253:
-//
-// Implementations MUST allow for space (' ' ASCII 32) characters to be
-// present between name-component and ',', between attributeTypeAndValue
-// and '+', between attributeType and '=', and between '=' and
-// attributeValue.  These space characters are ignored when parsing.
-//
+// RFC 2253: Implementations MUST allow for space (' ' ASCII 32) characters to be present between name-component and
+// ',', between attributeTypeAndValue and '+', between attributeType and '=', and between '=' and attributeValue. These
+// space characters are ignored when parsing.
 static void
 eatWhite(const string& data, size_t& pos)
 {

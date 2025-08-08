@@ -88,9 +88,7 @@ AdminSessionI::_register(
     const shared_ptr<SessionServantManager>& servantManager,
     const shared_ptr<Ice::Connection>& con)
 {
-    //
     // This is supposed to be called after creation only, no need to synchronize.
-    //
     _servantManager = servantManager;
 
     string category;
@@ -427,9 +425,7 @@ AdminSessionI::destroyImpl(bool shutdown)
 
     if (!shutdown)
     {
-        //
         // Unsubscribe from the topics.
-        //
         setupObserverSubscription(TopicName::RegistryObserver, nullopt);
         setupObserverSubscription(TopicName::NodeObserver, nullopt);
         setupObserverSubscription(TopicName::ApplicationObserver, nullopt);

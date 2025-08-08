@@ -8,10 +8,8 @@
 
 namespace IceGrid
 {
-    //
-    // The AdminCallbackRouter routes callbacks from the servers, nodes etc. to the
-    // admin clients using the admin-client => registry connection.
-    //
+    // The AdminCallbackRouter routes callbacks from the servers, nodes etc. to the admin clients using the
+    // admin-client => registry connection.
 
     class AdminCallbackRouter : public Ice::BlobjectArrayAsync
     {

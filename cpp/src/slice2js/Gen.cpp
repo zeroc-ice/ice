@@ -342,9 +342,7 @@ Slice::JsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         EnumPtr ep;
         if (bp && bp->kind() == Builtin::KindString)
         {
-            //
             // For now, we generate strings in ECMAScript 5 format, with two \unnnn for astral characters
-            //
             os << "\"" << toStringLiteral(value, "\b\f\n\r\t\v", "", ShortUCN, 0) << "\"";
         }
         else if (bp && bp->kind() == Builtin::KindLong)
@@ -922,16 +920,9 @@ Slice::Gen::ExportsVisitor::ExportsVisitor(::IceInternal::Output& out, std::set<
 bool
 Slice::Gen::ExportsVisitor::visitModuleStart(const ModulePtr& p)
 {
-    //
-    // For a top-level module we write the following:
-    //
-    // export const Foo = {}; // When Foo is a module not previously imported
-    // export { Foo }; // When Foo is a module previously imported
-    //
-    // For a nested module we write
-    //
-    // Foo.Bar = Foo.Bar || {};
-    //
+    // For a top-level module we write the following: export const Foo = {}; // When Foo is a module not previously
+    // imported export { Foo }; // When Foo is a module previously imported For a nested module we write Foo.Bar =
+    // Foo.Bar || {};
     const string scoped = p->mappedScoped(".");
     if (_exportedModules.insert(scoped).second)
     {
@@ -1082,9 +1073,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.dec();
     _out << nl << "];";
 
-    //
     // Define servant and proxy types
-    //
 
     _out << sp;
     writeDocCommentFor(p, false, false);
@@ -1113,9 +1102,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     _out << eb << ";";
 
-    //
     // Generate a proxy class for interfaces
-    //
     _out << sp;
     writeDocCommentFor(p, false);
     _out << nl << proxyType << " = class extends Ice.ObjectPrx";
@@ -1183,21 +1170,12 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 }
             }
 
-            //
-            // Each operation descriptor is a property. The key is the "on-the-wire"
-            // name, and the value is an array consisting of the following elements:
-            //
-            //  0: servant method name in case of a keyword conflict (e.g., "_while"),
-            //     otherwise an empty string
-            //  1: mode (undefined == Normal or int)
-            //  2: format (undefined == Default or int)
-            //  3: return type (undefined if void, or [type, tag])
-            //  4: in params (undefined if none, or array of [type, tag])
-            //  5: out params (undefined if none, or array of [type, tag])
-            //  6: exceptions (undefined if none, or array of types)
-            //  7: sends classes (true or undefined)
-            //  8: returns classes (true or undefined)
-            //
+            // Each operation descriptor is a property. The key is the "on-the-wire" name, and the value is an array
+            // consisting of the following elements: 0: servant method name in case of a keyword conflict (e.g.,
+            // "_while"), otherwise an empty string 1: mode (undefined == Normal or int) 2: format (undefined == Default
+            // or int) 3: return type (undefined if void, or [type, tag]) 4: in params (undefined if none, or array of
+            // [type, tag]) 5: out params (undefined if none, or array of [type, tag]) 6: exceptions (undefined if none,
+            // or array of types) 7: sends classes (true or undefined) 8: returns classes (true or undefined)
             _out << nl << "\"" << op->name() << "\": ["; // Operation name over-the-wire.
 
             if (opName != op->name())
@@ -1213,9 +1191,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             _out << ", ";
 
-            //
             // Return type.
-            //
             if (ret)
             {
                 _out << '[' << encodeTypeForOperation(ret);
@@ -1236,9 +1212,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             _out << ", ";
 
-            //
             // In params.
-            //
             if (!inParams.empty())
             {
                 _out << '[';
@@ -1269,9 +1243,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             _out << ", ";
 
-            //
             // Out params.
-            //
             if (!outParams.empty())
             {
                 _out << '[';
@@ -1525,9 +1497,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << eb << ";";
 
-    //
     // Only generate hashCode if this structure type is a legal dictionary key type.
-    //
     bool legalKeyType = Dictionary::isLegalKeyType(p);
 
     _out << sp;
@@ -1599,9 +1569,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << "]);";
     _out.dec();
 
-    //
     // EnumBase provides an equals() method
-    //
 }
 
 void
@@ -1881,9 +1849,7 @@ Slice::Gen::TypeScriptImportVisitor::visitSequence(const SequencePtr& seq)
 void
 Slice::Gen::TypeScriptImportVisitor::visitDictionary(const DictionaryPtr& dict)
 {
-    //
     // Add imports required for the dictionary key and value types
-    //
     auto keyType = dynamic_pointer_cast<Contained>(dict->keyType());
     if (keyType)
     {
@@ -2295,9 +2261,7 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
 bool
 Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    //
     // Define servant and proxy types.
-    //
     const string prxName = p->mappedName() + "Prx";
     InterfaceList bases = p->bases();
     _out << sp;

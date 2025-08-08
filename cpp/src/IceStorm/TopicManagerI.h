@@ -14,9 +14,7 @@ namespace IceStorm
     class PersistentInstance;
     class TopicImpl;
 
-    //
     // TopicManager implementation.
-    //
     class TopicManagerImpl final : public IceStormElection::Replica,
                                    public IceStorm::Instrumentation::ObserverUpdater,
                                    public std::enable_shared_from_this<TopicManagerImpl>

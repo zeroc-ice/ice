@@ -8,9 +8,7 @@
 
 namespace IceGrid
 {
-    //
     // Routes requests to a server's admin object through the Node
-    //
     class NodeServerAdminRouter final : public AdminRouter
     {
     public:

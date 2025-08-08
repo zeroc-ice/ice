@@ -30,11 +30,9 @@ namespace Slice
         /// If 'internal' is true, the names will be prefixed with "iceP_".
         [[nodiscard]] std::vector<std::string> getInArgs(const OperationPtr& op, bool internal = false);
 
-        //
-        // These functions should only be called for classes, exceptions, and structs.
-        // Enums automatically implement Serializable (Java just serializes the enumerator's identifier),
-        // and proxies get their implementation from `_ObjectPrxI`.
-        //
+        // These functions should only be called for classes, exceptions, and structs. Enums automatically implement
+        // Serializable (Java just serializes the enumerator's identifier), and proxies get their implementation from
+        // `_ObjectPrxI`.
         [[nodiscard]] std::string getSerialVersionUID(const ContainedPtr& p);
         [[nodiscard]] std::int64_t computeDefaultSerialVersionUID(const ContainedPtr& p);
 
@@ -98,11 +96,8 @@ namespace Slice
         /// definition, as well as any optional metadata that typically represents a data member or parameter.
         [[nodiscard]] bool hasTypeMetadata(const SequencePtr& seq, const MetadataList& localMetadata = MetadataList());
 
-        //
-        // Obtain the concrete and abstract types for a dictionary or sequence type.
-        // The functions return true if a custom type was defined and false to indicate
-        // the default mapping was used.
-        //
+        // Obtain the concrete and abstract types for a dictionary or sequence type. The functions return true if a
+        // custom type was defined and false to indicate the default mapping was used.
         bool getDictionaryTypes(
             const DictionaryPtr& dict,
             const std::string& package,
@@ -128,18 +123,10 @@ namespace Slice
     public:
         JavaOutput();
 
-        //
-        // Open a file to hold the source for a Java class. The first
-        // argument is the class name (including an optional leading
-        // package). Intermediate directories will be created as
-        // necessary to open the file in the package. The second
-        // argument specifies a directory prefix in which to locate
-        // the class.
-        //
-        // After successfully opening the file, the function invokes
-        // printHeader() and then emits a "package" statement if
-        // necessary.
-        //
+        // Open a file to hold the source for a Java class. The first argument is the class name (including an optional
+        // leading package). Intermediate directories will be created as necessary to open the file in the package. The
+        // second argument specifies a directory prefix in which to locate the class. After successfully opening the
+        // file, the function invokes printHeader() and then emits a "package" statement if necessary.
         void openClass(const std::string&, const std::string&, const std::string& = std::string());
 
         void printHeader();

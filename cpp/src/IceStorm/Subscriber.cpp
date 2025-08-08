@@ -15,9 +15,7 @@ using namespace std;
 using namespace IceStorm;
 using namespace IceStormElection;
 
-//
 // Per Subscriber object.
-//
 namespace
 {
     class PerSubscriberPublisherI final : public Ice::BlobjectArray
@@ -131,9 +129,7 @@ SubscriberOneway::flush()
 {
     lock_guard lock(_mutex);
 
-    //
     // If the subscriber isn't online we're done.
-    //
     if (_state != SubscriberStateOnline || _events.empty())
     {
         return;
@@ -142,10 +138,7 @@ SubscriberOneway::flush()
     // Send up to _maxOutstanding pending events.
     while (_outstanding < _maxOutstanding && !_events.empty())
     {
-        //
-        // Dequeue the head event, count one more outstanding AMI
-        // request.
-        //
+        // Dequeue the head event, count one more outstanding AMI request.
         EventData e = std::move(_events.front());
         _events.pop_front();
         if (_observer)
@@ -175,15 +168,11 @@ SubscriberOneway::flush()
                 },
                 e.context);
 
-            //
-            // Check if the request is (or potentially was) sent asynchronously
-            //
-            // If the request was sent synchronously then the isSent promise will have been set during the call
-            // to ice_invokeAsync (sent callback is called immediately after sending from the current thread).
-            //
-            // Otherwise if the request was sent asynchronously but quick enough so that the isSent promise is already
-            // fulfilled, we need to verify the sent callback's sentSynchronously value
-            //
+            // Check if the request is (or potentially was) sent asynchronously If the request was sent synchronously
+            // then the isSent promise will have been set during the call to ice_invokeAsync (sent callback is called
+            // immediately after sending from the current thread). Otherwise if the request was sent asynchronously but
+            // quick enough so that the isSent promise is already fulfilled, we need to verify the sent callback's
+            // sentSynchronously value
             if (future.wait_for(0s) != future_status::ready || future.get() == false)
             {
                 ++_outstanding;
@@ -246,9 +235,7 @@ SubscriberTwoway::flush()
 {
     lock_guard lock(_mutex);
 
-    //
     // If the subscriber isn't online we're done.
-    //
     if (_state != SubscriberStateOnline || _events.empty())
     {
         return;
@@ -257,10 +244,7 @@ SubscriberTwoway::flush()
     // Send up to _maxOutstanding pending events.
     while (_outstanding < _maxOutstanding && !_events.empty())
     {
-        //
-        // Dequeue the head event, count one more outstanding AMI
-        // request.
-        //
+        // Dequeue the head event, count one more outstanding AMI request.
         EventData e = std::move(_events.front());
         _events.pop_front();
 
@@ -526,9 +510,7 @@ Subscriber::queue(bool forwarded, EventDataSeq events)
                 break;
             }
 
-            //
             // State transition to online.
-            //
             setState(SubscriberStateOnline);
         }
             /* FALLTHROUGH */
@@ -604,9 +586,7 @@ Subscriber::errored() const
 void
 Subscriber::destroy()
 {
-    //
     // Clear the per-subscriber object if it exists.
-    //
     if (_proxy)
     {
         try
@@ -640,10 +620,7 @@ Subscriber::completed()
         _observer->delivered(_outstandingCount);
     }
 
-    //
-    // A successful response means we're no longer retrying, we're
-    // back active.
-    //
+    // A successful response means we're no longer retrying, we're back active.
     _currentRetry = 0;
 
     if (_events.empty() && _outstanding == 0 && _shutdown)
@@ -668,10 +645,8 @@ Subscriber::error(bool dec, exception_ptr e)
         assert(_outstanding >= 0 && _outstanding < _maxOutstanding);
     }
 
-    //
-    // It's possible to be already in the error state if the queue maximum size
-    // has been reached or if an ObjectNotExistException occurred before.
-    //
+    // It's possible to be already in the error state if the queue maximum size has been reached or if an
+    // ObjectNotExistException occurred before.
     if (_state >= SubscriberStateError)
     {
         if (_shutdown)
@@ -709,23 +684,16 @@ Subscriber::error(bool dec, exception_ptr e)
         what = ex.what();
     }
 
-    //
-    // A twoway subscriber can queue multiple send events and
-    // therefore its possible to get multiple error'd replies. Ignore
-    // replies if we're retrying and its not yet time to process the
-    // next request.
-    //
+    // A twoway subscriber can queue multiple send events and therefore its possible to get multiple error'd replies.
+    // Ignore replies if we're retrying and its not yet time to process the next request.
     auto now = std::chrono::steady_clock::now();
     if (!hardError && _state == SubscriberStateOffline && now < _next)
     {
         return;
     }
 
-    //
-    // If we're in our retry limits and the error isn't a hard failure
-    // (that is ObjectNotExistException or NotRegisteredException)
-    // then we transition to an offline state.
-    //
+    // If we're in our retry limits and the error isn't a hard failure (that is ObjectNotExistException or
+    // NotRegisteredException) then we transition to an offline state.
     if (!hardError && (_retryCount == -1 || _currentRetry < _retryCount))
     {
         assert(_state < SubscriberStateError);

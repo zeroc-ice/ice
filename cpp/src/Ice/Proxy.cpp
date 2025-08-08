@@ -237,11 +237,8 @@ Ice::ObjectPrx::ice_staticId() noexcept
 string
 Ice::ObjectPrx::ice_toString() const
 {
-    //
-    // Returns the stringified proxy. There's no need to convert the
-    // string to a native string: a stringified proxy only contains
-    // printable ASCII which is a subset of all native character sets.
-    //
+    // Returns the stringified proxy. There's no need to convert the string to a native string: a stringified proxy
+    // only contains printable ASCII which is a subset of all native character sets.
     return _reference->toString();
 }
 

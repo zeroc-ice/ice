@@ -183,9 +183,7 @@ namespace
         // True when unmarshaling a tuple response.
         bool tuple = !marshal && op && (params.size() + (op->returnType() ? 1 : 0)) > 1;
 
-        //
         // Marshal non optional parameters.
-        //
         ParameterList requiredParams;
         ParameterList optionals;
         for (const auto& param : params)
@@ -243,9 +241,7 @@ namespace
 
         if (!optionals.empty() || (op && op->returnType() && op->returnIsOptional()))
         {
-            //
             // Sort optional parameters by tag.
-            //
             optionals.sort(Slice::compareTag<ParameterPtr>);
 
             out << nl;
@@ -260,9 +256,7 @@ namespace
             out << spar;
 
             {
-                //
                 // Tags
-                //
                 ostringstream os;
                 os << '{';
                 bool checkReturnType = op && op->returnIsOptional();
@@ -287,9 +281,7 @@ namespace
             }
 
             {
-                //
                 // Parameters
-                //
                 bool checkReturnType = op && op->returnIsOptional();
                 for (const auto& param : optionals)
                 {

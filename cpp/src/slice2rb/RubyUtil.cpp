@@ -30,9 +30,7 @@ namespace
 
 namespace Slice::Ruby
 {
-    //
     // CodeVisitor generates the Ruby mapping for a translation unit.
-    //
     class CodeVisitor final : public ParserVisitor
     {
     public:
@@ -52,19 +50,13 @@ namespace Slice::Ruby
         void visitConst(const ConstPtr&) final;
 
     private:
-        //
         // Emit the array that describes a Slice type.
-        //
         void writeType(const TypePtr&);
 
-        //
         // Get an initializer value for a given type.
-        //
         string getInitializer(const DataMemberPtr&);
 
-        //
         // Write a constant value.
-        //
         void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
 
         /// Write constructor parameters with default values.
@@ -79,9 +71,7 @@ namespace Slice::Ruby
     };
 }
 
-//
 // CodeVisitor implementation.
-//
 Slice::Ruby::CodeVisitor::CodeVisitor(Output& out) : _out(out) {}
 
 bool
@@ -165,9 +155,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out.inc();
 
-    //
     // initialize
-    //
     if (!allMembers.empty())
     {
         _out << sp << nl << "def initialize(";
@@ -194,9 +182,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "end";
     }
 
-    //
     // read/write accessors for data members.
-    //
     if (!members.empty())
     {
         _out << sp << nl << "attr_accessor ";
@@ -224,15 +210,8 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << getMetaTypeReference(base);
     }
     _out << ", ";
-    //
-    // Members
-    //
-    // Data members are represented as an array:
-    //
-    //   ['MemberName', MemberType, Optional, Tag]
-    //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
-    //
+    // Members Data members are represented as an array: ['MemberName', MemberType, Optional, Tag] where MemberType is
+    // either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     _out << "[";
     if (members.size() > 1)
     {
@@ -273,10 +252,8 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     InterfaceList bases = p->bases();
     OperationList ops = p->operations();
 
-    //
-    // Generate proxy support. This includes a mix-in module for the proxy's
-    // operations and a class for the proxy itself.
-    //
+    // Generate proxy support. This includes a mix-in module for the proxy's operations and a class for the proxy
+    // itself.
 
     _out << nl << "module " << proxyName << "_mixin";
     _out.inc();
@@ -338,9 +315,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << getMetaTypeName(p) << "Prx.defineProxy(" << proxyName << ", ";
     _out << "nil";
 
-    //
     // Interfaces
-    //
     _out << ", [";
     {
         int interfaceCount = 0;
@@ -356,14 +331,9 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     _out << "])";
 
-    //
-    // Define each operation. The arguments to __defineOperation are:
-    //
-    // 'sliceOpName', 'mappedOpName', Mode, FormatType, [InParams], [OutParams], ReturnParam, [Exceptions]
-    //
-    // where InParams and OutParams are arrays of type descriptions, and Exceptions
-    // is an array of exception types.
-    //
+    // Define each operation. The arguments to __defineOperation are: 'sliceOpName', 'mappedOpName', Mode, FormatType,
+    // [InParams], [OutParams], ReturnParam, [Exceptions] where InParams and OutParams are arrays of type descriptions,
+    // and Exceptions is an array of exception types.
     if (!ops.empty())
     {
         _out << sp;
@@ -435,11 +405,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         TypePtr returnType = op->returnType();
         if (returnType)
         {
-            //
-            // The return type has the same format as an in/out parameter:
-            //
-            // Type, Optional?, OptionalTag
-            //
+            // The return type has the same format as an in/out parameter: Type, Optional?, OptionalTag
             _out << '[';
             writeType(returnType);
             _out << ", " << (op->returnIsOptional() ? "true" : "false") << ", "
@@ -493,18 +459,14 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     _out.inc();
 
-    //
     // to_s
-    //
     _out << nl << "def to_s";
     _out.inc();
     _out << nl << "'" << scoped << "'";
     _out.dec();
     _out << nl << "end";
 
-    //
     // read/write accessors for data members.
-    //
     DataMemberList members = p->dataMembers();
     if (!members.empty())
     {
@@ -520,9 +482,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out.dec();
     _out << nl << "end"; // End of exception class.
 
-    //
     // Emit the type information.
-    //
     _out << sp << nl << getMetaTypeName(p) << " = Ice::__defineException('" << scoped << "', " << name << ", ";
     if (!base)
     {
@@ -538,13 +498,8 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out.inc();
         _out << nl;
     }
-    //
-    // Data members are represented as an array:
-    //
-    //   ['MemberName', MemberType, Optional, Tag]
-    //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
-    //
+    // Data members are represented as an array: ['MemberName', MemberType, Optional, Tag] where MemberType is either a
+    // primitive type constant (T_INT, etc.) or the id of a user-defined type.
     for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
     {
         if (dmli != members.begin())
@@ -596,9 +551,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         _out << nl << "end";
     }
 
-    //
     // hash
-    //
     _out << sp << nl << "def hash";
     _out.inc();
     _out << nl << "_h = 0";
@@ -611,9 +564,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.dec();
     _out << nl << "end";
 
-    //
     // ==
-    //
     _out << sp << nl << "def ==(other)";
     _out.inc();
     _out << nl << "return false if";
@@ -629,20 +580,14 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.dec();
     _out << nl << "end";
 
-    //
-    // eql?
-    //
-    // This method is used to determine the equality of keys in a Hash object.
-    //
+    // eql? This method is used to determine the equality of keys in a Hash object.
     _out << sp << nl << "def eql?(other)";
     _out.inc();
     _out << nl << "return other.class == self.class && other == self";
     _out.dec();
     _out << nl << "end";
 
-    //
     // read/write accessors for data members.
-    //
     if (!members.empty())
     {
         _out << sp << nl << "attr_accessor ";
@@ -657,17 +602,10 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.dec();
     _out << nl << "end"; // End of class.
 
-    //
     // Emit the type information.
-    //
     _out << sp << nl << getMetaTypeName(p) << " = Ice::__defineStruct('" << scoped << "', " << name << ", [";
-    //
-    // Data members are represented as an array:
-    //
-    //   ['MemberName', MemberType]
-    //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
-    //
+    // Data members are represented as an array: ['MemberName', MemberType] where MemberType is either a primitive type
+    // constant (T_INT, etc.) or the id of a user-defined type.
     if (members.size() > 1)
     {
         _out.inc();
@@ -744,36 +682,28 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     _out.dec();
     _out << nl << "end";
 
-    //
     // from_int
-    //
     _out << sp << nl << "def " << name << ".from_int(val)";
     _out.inc();
     _out << nl << "@@_enumerators[val]"; // Evaluates to nil if the key is not found
     _out.dec();
     _out << nl << "end";
 
-    //
     // to_s
-    //
     _out << sp << nl << "def to_s";
     _out.inc();
     _out << nl << "@name";
     _out.dec();
     _out << nl << "end";
 
-    //
     // to_i
-    //
     _out << sp << nl << "def to_i";
     _out.inc();
     _out << nl << "@value";
     _out.dec();
     _out << nl << "end";
 
-    //
     // <=>
-    //
     _out << sp << nl << "def <=>(other)";
     _out.inc();
     _out << nl << "other.is_a?(" << name << ") or raise ArgumentError, \"value must be " << getArticleFor(name) << ' '
@@ -782,27 +712,21 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     _out.dec();
     _out << nl << "end";
 
-    //
     // hash
-    //
     _out << sp << nl << "def hash";
     _out.inc();
     _out << nl << "@value.hash";
     _out.dec();
     _out << nl << "end";
 
-    //
     // each
-    //
     _out << sp << nl << "def " << name << ".each(&block)";
     _out.inc();
     _out << nl << "@@_enumerators.each_value(&block)";
     _out.dec();
     _out << nl << "end";
 
-    //
     // Constant for each enumerator.
-    //
     _out << sp;
     EnumeratorList enumerators = p->enumerators();
     for (const auto& enumerator : enumerators)
@@ -829,9 +753,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     _out.dec();
     _out << nl << "end"; // End of class.
 
-    //
     // Emit the type information.
-    //
     _out << sp << nl << getMetaTypeName(p) << " = Ice::__defineEnum('" << p->scoped() << "', " << name << ", " << name
          << "::_enumerators)";
 

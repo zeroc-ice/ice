@@ -189,9 +189,7 @@ namespace Ice
 
         void setAdapterFromAdapter(const ObjectAdapterIPtr&); // From ObjectAdapterI.
 
-        //
         // Operations from EventHandler
-        //
 #if defined(ICE_USE_IOCP)
         bool startAsync(IceInternal::SocketOperation);
         bool finishAsync(IceInternal::SocketOperation);

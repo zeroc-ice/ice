@@ -10,9 +10,7 @@
 
 namespace IceStorm
 {
-    //
     // Forward declarations.
-    //
     class Instance;
 
     using SubscriberMap =

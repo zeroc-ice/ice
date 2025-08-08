@@ -130,9 +130,7 @@ Ice::SSL::resolveFilePath(const string& path, const string& parentDir)
         return std::nullopt;
     }
 
-    //
     // If a parent directory is provided, the given path is relative to the parent directory.
-    //
     string tmp;
     if (!parentDir.empty())
     {
@@ -181,9 +179,7 @@ Ice::SSL::resolveDirPath(const string& path, const string& parentDir)
         return std::nullopt;
     }
 
-    //
     // If a default directory is provided, the given path is relative to the default directory.
-    //
     string tmp;
     if (!parentDir.empty())
     {
@@ -329,9 +325,7 @@ Ice::SSL::getSubjectAltNames(PCCERT_CONTEXT cert)
                 {
                     if (entry->IPAddress.cbData == 4)
                     {
-                        //
                         // IPv4 address
-                        //
                         ostringstream os;
                         uint8_t* src = reinterpret_cast<uint8_t*>(entry->IPAddress.pbData);
                         for (int j = 0; j < 4;)
@@ -347,9 +341,7 @@ Ice::SSL::getSubjectAltNames(PCCERT_CONTEXT cert)
                         }
                         altNames.push_back(make_pair(AltNAmeIP, os.str()));
                     }
-                    //
                     // TODO IPv6 Address support.
-                    //
                     break;
                 }
                 default:
@@ -461,9 +453,7 @@ Ice::SSL::ScopedCertificate::~ScopedCertificate()
 }
 #elif defined(ICE_USE_OPENSSL)
 
-//
 // Avoid old style cast warnings from OpenSSL macros
-//
 #    if defined(__GNUC__)
 #        pragma GCC diagnostic ignored "-Wold-style-cast"
 #    endif
@@ -551,12 +541,8 @@ namespace
                 case GEN_X400:
                 case GEN_RID:
                 {
-                    //
-                    // TODO: These types are not supported. If the user wants
-                    // them, they have to get at the certificate data. Another
-                    // alternative is to DER encode the data (as the Java
-                    // certificate does).
-                    //
+                    // TODO: These types are not supported. If the user wants them, they have to get at the certificate
+                    // data. Another alternative is to DER encode the data (as the Java certificate does).
                     break;
                 }
             }

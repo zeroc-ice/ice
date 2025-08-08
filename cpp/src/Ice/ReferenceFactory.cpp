@@ -109,10 +109,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
         throw ParseException(__FILE__, __LINE__, "no non-whitespace characters found in proxy string '" + s + "'");
     }
 
-    //
-    // Extract the identity, which may be enclosed in single
-    // or double quotation marks.
-    //
+    // Extract the identity, which may be enclosed in single or double quotation marks.
     string idstr;
     end = IceInternal::checkQuote(s, beg);
     if (end == string::npos)
@@ -142,12 +139,8 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
 
     if (idstr.empty())
     {
-        //
-        // Treat a stringified proxy containing two double
-        // quotes ("") the same as an empty string, i.e.,
-        // a null proxy, but only if nothing follows the
-        // quotes.
-        //
+        // Treat a stringified proxy containing two double quotes ("") the same as an empty string, i.e., a null proxy,
+        // but only if nothing follows the quotes.
         if (s.find_first_not_of(delim, end) != string::npos)
         {
             throw ParseException(__FILE__, __LINE__, "invalid characters after identity in proxy string '" + s + "'");
@@ -158,9 +151,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
         }
     }
 
-    //
     // Parsing the identity may raise ParseException.
-    //
     Identity ident = Ice::stringToIdentity(idstr);
 
     string facet;
@@ -203,11 +194,8 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
                 "expected a proxy option but found '" + option + "' in proxy string '" + s + "'");
         }
 
-        //
-        // Check for the presence of an option argument. The
-        // argument may be enclosed in single or double
-        // quotation marks.
-        //
+        // Check for the presence of an option argument. The argument may be enclosed in single or double quotation
+        // marks.
         string argument;
         string::size_type argumentBeg = s.find_first_not_of(delim, end);
         if (argumentBeg != string::npos)
@@ -241,10 +229,8 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             }
         }
 
-        //
-        // If any new options are added here,
-        // IceInternal::Reference::toString() and its derived classes must be updated as well.
-        //
+        // If any new options are added here, IceInternal::Reference::toString() and its derived classes must be
+        // updated as well.
         switch (option[1])
         {
             case 'f':
@@ -567,15 +553,10 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
 ReferencePtr
 IceInternal::ReferenceFactory::create(Identity ident, InputStream* s)
 {
-    //
-    // Don't read the identity here. Operations calling this
-    // constructor read the identity, and pass it as a parameter.
-    //
+    // Don't read the identity here. Operations calling this constructor read the identity, and pass it as a parameter.
     assert(!ident.name.empty());
 
-    //
     // For compatibility with the old FacetPath.
-    //
     vector<string> facetPath;
     s->read(facetPath);
     string facet;
@@ -703,9 +684,7 @@ IceInternal::ReferenceFactory::create(
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
 
-    //
     // Default local proxy options.
-    //
     LocatorInfoPtr locatorInfo;
     if (_defaultLocator)
     {
@@ -727,9 +706,7 @@ IceInternal::ReferenceFactory::create(
     chrono::milliseconds invocationTimeout = defaultsAndOverrides->defaultInvocationTimeout;
     Ice::Context ctx;
 
-    //
     // Override the defaults with the proxy properties if a property prefix is defined.
-    //
     if (!propertyPrefix.empty())
     {
         PropertiesPtr properties = _instance->initializationData().properties;
@@ -816,9 +793,7 @@ IceInternal::ReferenceFactory::create(
         }
     }
 
-    //
     // Create new reference
-    //
     return make_shared<RoutableReference>(
         _instance,
         _communicator,

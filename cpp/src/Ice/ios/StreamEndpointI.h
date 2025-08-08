@@ -118,9 +118,7 @@ namespace IceObjC
     private:
         const InstancePtr _streamInstance;
 
-        //
         // All members are const, because endpoints are immutable.
-        //
         const std::int32_t _timeout;
         const bool _compress;
     };

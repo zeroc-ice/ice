@@ -117,9 +117,7 @@ namespace
         const LocatorIPtr _locator;
     };
 
-    //
     // The void locator implementation below is used when no locator is found.
-    //
     class VoidLocatorI final : public Ice::Locator
     {
     public:
@@ -164,9 +162,7 @@ namespace
     };
 }
 
-//
 // Plugin factory function.
-//
 extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
 createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq&)
 {
@@ -218,10 +214,8 @@ PluginI::initialize()
     string lookupEndpoints = properties->getIceProperty("IceLocatorDiscovery.Lookup");
     if (lookupEndpoints.empty())
     {
-        //
-        // If no lookup endpoints are specified, we get all the network interfaces and create
-        // an endpoint for each of them. We'll send UDP multicast packages on each interface.
-        //
+        // If no lookup endpoints are specified, we get all the network interfaces and create an endpoint for each of
+        // them. We'll send UDP multicast packages on each interface.
         IceInternal::ProtocolSupport protocol = ipv4 && !preferIPv6 ? IceInternal::EnableIPv4 : IceInternal::EnableIPv6;
         vector<string> interfaces = IceInternal::getInterfacesForMulticast(intf, protocol);
         ostringstream lookup;
@@ -466,22 +460,16 @@ LocatorI::ice_invokeAsync(
 vector<Ice::LocatorPrx>
 LocatorI::getLocators(const string& instanceName, const chrono::milliseconds& waitTime)
 {
-    //
     // Clear locators from previous search
-    //
     {
         lock_guard lock(_mutex);
         _locators.clear();
     }
 
-    //
     // Find a locator
-    //
     invoke(nullopt, nullptr);
 
-    //
     // Wait for responses
-    //
     if (instanceName.empty())
     {
         std::this_thread::sleep_for(waitTime);
@@ -498,9 +486,7 @@ LocatorI::getLocators(const string& instanceName, const chrono::milliseconds& wa
         }
     }
 
-    //
     // Return found locators
-    //
     lock_guard lock(_mutex);
     vector<Ice::LocatorPrx> locators;
     locators.reserve(_locators.size());
@@ -696,9 +682,7 @@ LocatorI::exception(std::exception_ptr ex)
     lock_guard lock(_mutex);
     if (++_failureCount == _lookups.size() && _pending)
     {
-        //
         // All the lookup calls failed, cancel the timer and propagate the error to the requests.
-        //
         _timer->cancel(shared_from_this());
         _pendingRetryCount = 0;
         _pending = false;

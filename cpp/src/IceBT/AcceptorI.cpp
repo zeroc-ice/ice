@@ -57,9 +57,7 @@ IceBT::AcceptorI::listen()
 {
     assert(!_uuid.empty());
 
-    //
     // The Bluetooth daemon will select an available channel if _channel == 0.
-    //
 
     try
     {
@@ -80,9 +78,7 @@ IceBT::AcceptorI::listen()
 IceInternal::TransceiverPtr
 IceBT::AcceptorI::accept()
 {
-    //
     // The plug-in may not be initialized.
-    //
     if (!_instance->initialized())
     {
         throw PluginInitializationException(__FILE__, __LINE__, "IceBT: plug-in is not initialized");
@@ -93,17 +89,13 @@ IceBT::AcceptorI::accept()
     {
         lock_guard lock(_mutex);
 
-        //
-        // The thread pool should only call accept() when we've notified it that we have a
-        // new transceiver ready to be accepted.
-        //
+        // The thread pool should only call accept() when we've notified it that we have a new transceiver ready to be
+        // accepted.
         assert(!_transceivers.empty());
         t = _transceivers.top();
         _transceivers.pop();
 
-        //
         // Update our status with the thread pool.
-        //
         ready(IceInternal::SocketOperationRead, !_transceivers.empty());
     }
 
@@ -141,11 +133,9 @@ IceBT::AcceptorI::toDetailedString() const
 int
 IceBT::AcceptorI::effectiveChannel() const
 {
-    //
-    // If no channel was specified in the endpoint (_channel == 0), the Bluetooth daemon will select
-    // an available channel for us. Unfortunately, there's no way to discover what that channel is
-    // (aside from waiting for the first incoming connection and inspecting the socket endpoint).
-    //
+    // If no channel was specified in the endpoint (_channel == 0), the Bluetooth daemon will select an available
+    // channel for us. Unfortunately, there's no way to discover what that channel is (aside from waiting for the first
+    // incoming connection and inspecting the socket endpoint).
 
     return _channel;
 }
@@ -157,10 +147,8 @@ IceBT::AcceptorI::newConnection(int fd)
 
     _transceivers.push(make_shared<TransceiverI>(_instance, make_shared<StreamSocket>(_instance, fd), nullptr, _uuid));
 
-    //
-    // Notify the thread pool that we are ready to "read". The thread pool will invoke accept()
-    // and we can return the new transceiver.
-    //
+    // Notify the thread pool that we are ready to "read". The thread pool will invoke accept() and we can return the
+    // new transceiver.
     ready(IceInternal::SocketOperationRead, true);
 }
 
@@ -183,9 +171,7 @@ IceBT::AcceptorI::AcceptorI(
     string s = IceInternal::trim(_addr);
     if (s.empty())
     {
-        //
         // If no address was specified, we use the first available BT adapter.
-        //
         s = _instance->engine()->getDefaultAdapterAddress();
     }
 

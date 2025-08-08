@@ -84,13 +84,9 @@ IceInternal::UdpTransceiver::bind()
         _mcastAddr = _addr;
 
 #ifdef _WIN32
-        //
-        // Windows does not allow binding to the mcast address itself
-        // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
-        // bi-directional connection won't work because the source
-        // address won't be the multicast address and the client will
-        // therefore reject the datagram.
-        //
+        // Windows does not allow binding to the mcast address itself so we bind to INADDR_ANY (0.0.0.0) instead. As a
+        // result, bi-directional connection won't work because the source address won't be the multicast address and
+        // the client will therefore reject the datagram.
         const_cast<Address&>(_addr) = getAddressForServer("", _port, getProtocolSupport(_addr), false, false);
 #endif
 
@@ -104,18 +100,11 @@ IceInternal::UdpTransceiver::bind()
     else
     {
 #ifndef _WIN32
-        //
-        // Enable SO_REUSEADDR on Unix platforms to allow re-using
-        // the socket even if it's in the TIME_WAIT state. On
-        // Windows, this doesn't appear to be necessary and
-        // enabling SO_REUSEADDR would actually not be a good
-        // thing since it allows a second process to bind to an
-        // address even it's already bound by another process.
-        //
-        // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
-        // probably be better but it's only supported by recent
-        // Windows versions (XP SP2, Windows Server 2003).
-        //
+        // Enable SO_REUSEADDR on Unix platforms to allow re-using the socket even if it's in the TIME_WAIT state. On
+        // Windows, this doesn't appear to be necessary and enabling SO_REUSEADDR would actually not be a good thing
+        // since it allows a second process to bind to an address even it's already bound by another process. TODO:
+        // using SO_EXCLUSIVEADDRUSE on Windows would probably be better but it's only supported by recent Windows
+        // versions (XP SP2, Windows Server 2003).
         setReuseAddress(_fd, true);
 #endif
         const_cast<Address&>(_addr) = doBind(_fd, _addr);
@@ -570,10 +559,8 @@ IceInternal::UdpTransceiver::getInfo(bool incoming, string adapterName, string c
 void
 IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf)
 {
-    //
-    // The maximum packetSize is either the maximum allowable UDP packet size, or
-    // the UDP send buffer size (which ever is smaller).
-    //
+    // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send buffer size (which ever
+    // is smaller).
     const int packetSize = min(_maxPacketSize, _sndSize - _udpOverhead);
     if (packetSize < static_cast<int>(buf.b.size()))
     {
@@ -617,10 +604,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     _mcastAddr.saStorage.ss_family = AF_UNSPEC;
     _peerAddr.saStorage.ss_family = AF_UNSPEC; // Not initialized yet.
 
-    //
-    // NOTE: setting the multicast interface before performing the
-    // connect is important for some OS such as macOS.
-    //
+    // NOTE: setting the multicast interface before performing the connect is important for some OS such as macOS.
     if (isMulticast(_addr))
     {
         if (mcastInterface.length() > 0)
@@ -633,25 +617,19 @@ IceInternal::UdpTransceiver::UdpTransceiver(
         }
     }
 
-    //
-    // In general, connecting a datagram socket should be non-blocking as this just setups
-    // the default destination address for the socket. However, on some OS, connect sometime
-    // returns EWOULDBLOCK. If that's the case, we keep the state as StateNeedConnect. This
-    // will make sure the transceiver is notified when the socket is ready for sending (see
-    // the initialize() implementation).
-    //
+    // In general, connecting a datagram socket should be non-blocking as this just setups the default destination
+    // address for the socket. However, on some OS, connect sometime returns EWOULDBLOCK. If that's the case, we keep
+    // the state as StateNeedConnect. This will make sure the transceiver is notified when the socket is ready for
+    // sending (see the initialize() implementation).
     if (doConnect(_fd, _addr, sourceAddr))
     {
         _state = StateConnected;
     }
 
 #ifdef ICE_USE_IOCP
-    //
-    // On Windows when using IOCP, we must make sure that the socket is connected without
-    // blocking as there's no way to do a non-blocking datagram socket connection (ConnectEx
-    // only supports connection oriented sockets). According to Microsoft documentation of
-    // the connect() call, this should always be the case.
-    //
+    // On Windows when using IOCP, we must make sure that the socket is connected without blocking as there's no way to
+    // do a non-blocking datagram socket connection (ConnectEx only supports connection oriented sockets). According to
+    // Microsoft documentation of the connect() call, this should always be the case.
     assert(_state == StateConnected);
 #endif
 }
@@ -690,9 +668,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(
 
 IceInternal::UdpTransceiver::~UdpTransceiver() { assert(_fd == INVALID_SOCKET); }
 
-//
 // Set UDP receive and send buffer sizes.
-//
 void
 IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
 {
@@ -731,16 +707,12 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
         }
         *addr = dfltSize;
 
-        //
         // Get property for buffer size if size not passed in.
-        //
         if (sizeRequested == -1)
         {
             sizeRequested = _instance->properties()->getPropertyAsIntWithDefault(prop, dfltSize);
         }
-        //
         // Check for sanity.
-        //
         if (sizeRequested < (_udpOverhead + headerSize))
         {
             Warning out(_instance->logger());
@@ -750,11 +722,8 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
 
         if (sizeRequested != dfltSize)
         {
-            //
-            // Try to set the buffer size. The kernel will silently adjust
-            // the size to an acceptable value. Then read the size back to
-            // get the size that was actually set.
-            //
+            // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then read
+            // the size back to get the size that was actually set.
             if (i == 0)
             {
                 setRecvBufferSize(_fd, sizeRequested);
@@ -766,10 +735,7 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
                 *addr = getSendBufferSize(_fd);
             }
 
-            //
-            // Warn if the size that was set is less than the requested size and
-            // we have not already warned.
-            //
+            // Warn if the size that was set is less than the requested size and we have not already warned.
             if (*addr == 0) // set buffer size not supported.
             {
                 *addr = sizeRequested;
@@ -798,9 +764,7 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
     }
 }
 
-//
-// The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header
-// to get the maximum payload.
-//
+// The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header to get the
+// maximum payload.
 const int IceInternal::UdpTransceiver::_udpOverhead = 20 + 8;
 const int IceInternal::UdpTransceiver::_maxPacketSize = 65535 - _udpOverhead;

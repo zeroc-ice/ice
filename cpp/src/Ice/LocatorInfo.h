@@ -22,10 +22,7 @@ namespace IceInternal
 
         void destroy();
 
-        //
-        // Returns locator info for a given locator. Automatically creates
-        // the locator info if it doesn't exist yet.
-        //
+        // Returns locator info for a given locator. Automatically creates the locator info if it doesn't exist yet.
         LocatorInfoPtr get(const Ice::LocatorPrx&);
 
     private:

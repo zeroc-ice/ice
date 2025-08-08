@@ -12,17 +12,13 @@ using namespace IceBT;
 IceInternal::TransceiverPtr
 IceBT::ConnectorI::connect()
 {
-    //
     // The plug-in may not be initialized.
-    //
     if (!_instance->initialized())
     {
         throw PluginInitializationException(__FILE__, __LINE__, "IceBT: plug-in is not initialized");
     }
 
-    //
     // The transceiver handles all connection activity.
-    //
     return make_shared<TransceiverI>(_instance, _addr, _uuid);
 }
 

@@ -49,11 +49,8 @@ OutgoingAsyncBase::response()
 void
 OutgoingAsyncBase::invokeSentAsync()
 {
-    //
-    // This is called when it's not safe to call the sent callback
-    // synchronously from this thread. Instead the exception callback
-    // is called asynchronously from the client thread pool.
-    //
+    // This is called when it's not safe to call the sent callback synchronously from this thread. Instead the
+    // exception callback is called asynchronously from the client thread pool.
     try
     {
         _instance->clientThreadPool()->execute(
@@ -68,9 +65,7 @@ OutgoingAsyncBase::invokeSentAsync()
 void
 OutgoingAsyncBase::invokeExceptionAsync()
 {
-    //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
-    //
     _instance->clientThreadPool()->execute(
         [self = shared_from_this()]() { self->invokeException(); },
         _cachedConnection);
@@ -79,9 +74,7 @@ OutgoingAsyncBase::invokeExceptionAsync()
 void
 OutgoingAsyncBase::invokeResponseAsync()
 {
-    //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
-    //
     _instance->clientThreadPool()->execute(
         [self = shared_from_this()]() { self->invokeResponse(); },
         _cachedConnection);
@@ -321,17 +314,11 @@ ProxyOutgoingAsyncBase::exception(std::exception_ptr exc)
 
     _cachedConnection = nullptr;
 
-    //
-    // NOTE: at this point, synchronization isn't needed, no other threads should be
-    // calling on the callback.
-    //
+    // NOTE: at this point, synchronization isn't needed, no other threads should be calling on the callback.
     try
     {
-        //
-        // It's important to let the retry queue do the retry even if
-        // the retry interval is 0. This method can be called with the
-        // connection locked so we can't just retry here.
-        //
+        // It's important to let the retry queue do the retry even if the retry interval is 0. This method can be
+        // called with the connection locked so we can't just retry here.
         _instance->retryQueue()->add(shared_from_this(), handleRetryAfterException(exc));
 
         return false;
@@ -388,11 +375,8 @@ ProxyOutgoingAsyncBase::abort(std::exception_ptr ex)
         }
         catch (const CommunicatorDestroyedException&)
         {
-            //
-            // If it's a communicator destroyed exception, don't swallow
-            // it but instead notify the user thread. Even if no callback
-            // was provided.
-            //
+            // If it's a communicator destroyed exception, don't swallow it but instead notify the user thread. Even if
+            // no callback was provided.
             throw;
         }
         catch (...)
@@ -543,17 +527,11 @@ ProxyOutgoingAsyncBase::handleRetryAfterException(std::exception_ptr ex)
     _proxy->_getRequestHandlerCache()->clearCachedRequestHandler(_handler);
 
     // We only retry local exceptions, system exceptions aren't retried.
-    //
-    // A CloseConnectionException indicates graceful server shutdown, and is therefore
-    // always repeatable without violating "at-most-once". That's because by sending a
-    // close connection message, the server guarantees that all outstanding requests
-    // can safely be repeated.
-    //
-    // An ObjectNotExistException can always be retried as well without violating
-    // "at-most-once".
-    //
-    // If the request didn't get sent or if it's non-mutating or idempotent it can
-    // also always be retried if the retry count isn't reached.
+    // A CloseConnectionException indicates graceful server shutdown, and is therefore always repeatable without
+    // violating "at-most-once". That's because by sending a close connection message, the server guarantees that all
+    // outstanding requests can safely be repeated. An ObjectNotExistException can always be retried as well without
+    // violating "at-most-once". If the request didn't get sent or if it's non-mutating or idempotent it can also always
+    // be retried if the retry count isn't reached.
     try
     {
         rethrow_exception(ex);
@@ -666,20 +644,13 @@ ProxyOutgoingAsyncBase::checkRetryAfterException(std::exception_ptr ex)
         // if it happened in a server it would result in an
         // UnknownLocalException instead), which means there was a problem
         // in this process that will not change if we try again.
-        //
-        // A likely cause for a MarshalException is exceeding the
-        // maximum message size. For example, a client can attempt to send
-        // a message that exceeds the maximum memory size, or accumulate
-        // enough batch requests without flushing that the maximum size is
-        // reached.
-        //
-        // This latter case is especially problematic, because if we were
-        // to retry a batch request after a MarshalException, we would in
-        // fact silently discard the accumulated requests and allow new
-        // batch requests to accumulate. If the subsequent batched
-        // requests do not exceed the maximum message size, it appears to
-        // the client that all of the batched requests were accepted, when
-        // in reality only the last few are actually sent.
+        // A likely cause for a MarshalException is exceeding the maximum message size. For example, a client can
+        // attempt to send a message that exceeds the maximum memory size, or accumulate enough batch requests without
+        // flushing that the maximum size is reached. This latter case is especially problematic, because if we were to
+        // retry a batch request after a MarshalException, we would in fact silently discard the accumulated requests
+        // and allow new batch requests to accumulate. If the subsequent batched requests do not exceed the maximum
+        // message size, it appears to the client that all of the batched requests were accepted, when in reality only
+        // the last few are actually sent.
         throw;
     }
     catch (const CommunicatorDestroyedException&)
@@ -808,9 +779,7 @@ OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context&
 
     _os.write(ref->getIdentity());
 
-    //
     // For compatibility with the old FacetPath.
-    //
     if (ref->getFacet().empty())
     {
         _os.write(static_cast<string*>(nullptr), static_cast<string*>(nullptr));
@@ -827,16 +796,12 @@ OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context&
 
     if (&context != &noExplicitContext)
     {
-        //
         // Explicit context
-        //
         _os.write(context);
     }
     else
     {
-        //
         // Implicit context
-        //
         const ImplicitContextPtr& implicitContext = ref->getInstance()->getImplicitContext();
         const Context& prxContext = ref->getContext()->getValue();
         if (implicitContext)
@@ -860,11 +825,8 @@ OutgoingAsync::sent()
 bool
 OutgoingAsync::response()
 {
-    //
-    // NOTE: this method is called from ConnectionI.parseMessage
-    // with the connection locked. Therefore, it must not invoke
-    // any user callbacks.
-    //
+    // NOTE: this method is called from ConnectionI.parseMessage with the connection locked. Therefore, it must not
+    // invoke any user callbacks.
     assert(_proxy._getReference()->isTwoway()); // Can only be called for twoways.
 
     if (_childObserver)
@@ -895,9 +857,7 @@ OutgoingAsync::response()
                 Identity ident;
                 _is.read(ident);
 
-                //
                 // For compatibility with the old FacetPath.
-                //
                 vector<string> facetPath;
                 _is.read(facetPath);
                 string facet;
@@ -995,11 +955,8 @@ OutgoingAsync::abort(std::exception_ptr ex)
 {
     if (_proxy._getReference()->isBatch())
     {
-        //
-        // If we didn't finish a batch oneway or datagram request, we
-        // must notify the connection about that we give up ownership
-        // of the batch stream.
-        //
+        // If we didn't finish a batch oneway or datagram request, we must notify the connection about that we give up
+        // ownership of the batch stream.
         _proxy._getReference()->getBatchRequestQueue()->abortBatchRequest(&_os);
     }
 

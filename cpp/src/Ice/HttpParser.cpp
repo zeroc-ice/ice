@@ -30,9 +30,7 @@ IceInternal::HttpParser::isCompleteMessage(const byte* begin, const byte* end) c
 {
     const byte* p = begin;
 
-    //
     // Skip any leading CR-LF characters.
-    //
     while (p < end)
     {
         char ch = static_cast<char>(*p);
@@ -43,9 +41,7 @@ IceInternal::HttpParser::isCompleteMessage(const byte* begin, const byte* end) c
         ++p;
     }
 
-    //
     // Look for adjacent CR-LF/CR-LF or LF/LF.
-    //
     bool seenFirst = false;
     while (p < end)
     {
@@ -109,9 +105,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                 }
                 else if (c == 'H')
                 {
-                    //
                     // Could be the start of "HTTP/1.1" or "HEAD".
-                    //
                     _state = StateTypeCheck;
                     break;
                 }
@@ -202,11 +196,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
             }
             case StateHeaderFieldStart:
             {
-                //
-                // We've already seen a LF to reach this state.
-                //
-                // Another CR or LF indicates the end of the header fields.
-                //
+                // We've already seen a LF to reach this state. Another CR or LF indicates the end of the header fields.
                 if (c == CR)
                 {
                     _state = StateHeaderFieldEndLF;
@@ -219,9 +209,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                 }
                 else if (c == ' ')
                 {
-                    //
                     // Could be a continuation line.
-                    //
                     _state = StateHeaderFieldContStart;
                     break;
                 }
@@ -257,9 +245,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                     }
                     else
                     {
-                        //
                         // Could mark the end of the header fields.
-                        //
                         _state = c == CR ? StateHeaderFieldEndLF : StateComplete;
                     }
                 }
@@ -293,9 +279,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                 {
                     _headerName = IceInternal::toLower(bytesToString(start, p));
                     auto q = _headers.find(_headerName);
-                    //
                     // Add a placeholder entry if necessary.
-                    //
                     if (q == _headers.end())
                     {
                         _headers[_headerName] = make_pair(bytesToString(start, p), "");
@@ -321,9 +305,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                     break;
                 }
 
-                //
                 // Check for "Name:\r\n"
-                //
                 if (c == CR)
                 {
                     _state = StateHeaderFieldLF;
@@ -565,9 +547,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
             }
             case StateResponseReasonStart:
             {
-                //
                 // Skip leading spaces.
-                //
                 if (c == ' ')
                 {
                     break;

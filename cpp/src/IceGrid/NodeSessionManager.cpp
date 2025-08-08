@@ -252,12 +252,8 @@ NodeSessionManager::create(const shared_ptr<NodeI>& node)
         _thread = make_shared<Thread>(*this);
     }
 
-    //
-    // Try to create the session. It's important that we wait for the
-    // creation of the session as this will also try to create sessions
-    // with replicas (see createdSession below) and this must be done
-    // before the node is activated.
-    //
+    // Try to create the session. It's important that we wait for the creation of the session as this will also try to
+    // create sessions with replicas (see createdSession below) and this must be done before the node is activated.
     _thread->tryCreateSession();
     _thread->waitTryCreateSession(3s);
 }
@@ -293,11 +289,8 @@ NodeSessionManager::activate()
         _activated = true;
     }
 
-    //
-    // Get the master session, if it's not created, try to create it
-    // again and make sure that the servers are synchronized and the
-    // replica observer is set on the session.
-    //
+    // Get the master session, if it's not created, try to create it again and make sure that the servers are
+    // synchronized and the replica observer is set on the session.
     optional<NodeSessionPrx> session = _thread->getSession();
     if (session)
     {
@@ -380,9 +373,7 @@ NodeSessionManager::replicaInit(const InternalRegistryPrxSeq& replicas, const Ic
         return;
     }
 
-    //
     // Initialize the set of replicas known by the master.
-    //
     _replicas.clear();
     for (const auto& replica : replicas)
     {
@@ -416,10 +407,7 @@ NodeSessionManager::replicaRemoved(const InternalRegistryPrx& replica)
         _replicas.erase(replica->ice_getIdentity());
     }
 
-    //
-    // We don't remove the session here. It will eventually be reaped
-    // by reapReplicas() if the session is dead.
-    //
+    // We don't remove the session here. It will eventually be reaped by reapReplicas() if the session is dead.
 }
 
 shared_ptr<NodeSessionKeepAliveThread>
@@ -481,17 +469,10 @@ NodeSessionManager::reapReplicas()
 void
 NodeSessionManager::syncServers(const NodeSessionPrx& session)
 {
-    //
-    // Ask the session to load the servers on the node. Once this is
-    // done we check the consistency of the node to make sure old
-    // servers are removed.
-    //
-    // NOTE: it's important for this to be done after trying to
-    // register with the replicas. When the master loads the server
-    // some server might get activated and it's better if at that time
-    // the registry replicas (at least the ones which are up) have all
-    // established their session with the node.
-    //
+    // Ask the session to load the servers on the node. Once this is done we check the consistency of the node to make
+    // sure old servers are removed. NOTE: it's important for this to be done after trying to register with the
+    // replicas. When the master loads the server some server might get activated and it's better if at that time the
+    // registry replicas (at least the ones which are up) have all established their session with the node.
     _node->checkConsistency(session);
     session->loadServers();
 }
@@ -505,14 +486,9 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
         activated = _activated;
     }
 
-    //
-    // Synchronize the servers if the session is active and if the
-    // node adapter has been activated (otherwise, the servers will be
-    // synced after the node adapter activation, see activate()).
-    //
-    // We also set the replica observer to receive notifications of
-    // replica addition/removal.
-    //
+    // Synchronize the servers if the session is active and if the node adapter has been activated (otherwise, the
+    // servers will be synced after the node adapter activation, see activate()). We also set the replica observer to
+    // receive notifications of replica addition/removal.
     if (session && activated)
     {
         try
@@ -528,13 +504,9 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
         return;
     }
 
-    //
-    // If there's no master session or if the node adapter isn't
-    // activated yet, we retrieve a list of the replicas either from
-    // the master or from the known replicas (the ones configured with
-    // Ice.Default.Locator) and we try to establish connections to
-    // each of the replicas.
-    //
+    // If there's no master session or if the node adapter isn't activated yet, we retrieve a list of the replicas
+    // either from the master or from the known replicas (the ones configured with Ice.Default.Locator) and we try to
+    // establish connections to each of the replicas.
 
     InternalRegistryPrxSeq replicas;
     if (session)
@@ -556,16 +528,10 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
         vector<future<Ice::ObjectProxySeq>> results2;
         auto queryObjects = findAllQueryObjects(false);
 
-        //
-        // Below we try to retrieve internal registry proxies either
-        // directly by querying for the internal registry type or
-        // indirectly by querying registry proxies.
-        //
-        // IceGrid registries <= 3.5.0 kept internal registry proxies
-        // while earlier version now keep registry proxies. Registry
-        // proxies have fixed endpoints (no random port) so they are
-        // more reliable.
-        //
+        // Below we try to retrieve internal registry proxies either directly by querying for the internal registry
+        // type or indirectly by querying registry proxies. IceGrid registries <= 3.5.0 kept internal registry proxies
+        // while earlier version now keep registry proxies. Registry proxies have fixed endpoints (no random port) so
+        // they are more reliable.
 
         results1.reserve(queryObjects.size());
         for (const auto& object : queryObjects)
@@ -651,10 +617,8 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
             return;
         }
 
-        //
-        // If the node adapter was activated since we last check, we don't need
-        // to initialize the replicas here, it will be done by replicaInit().
-        //
+        // If the node adapter was activated since we last check, we don't need to initialize the replicas here, it
+        // will be done by replicaInit().
         if (!session || !_activated)
         {
             _replicas.clear();
@@ -680,11 +644,8 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
         }
     }
 
-    //
-    // Wait for the creation. It's important to wait to ensure that
-    // the replica sessions are created before the node adapter is
-    // activated.
-    //
+    // Wait for the creation. It's important to wait to ensure that the replica sessions are created before the node
+    // adapter is activated.
     auto before = chrono::system_clock::now();
     for (const auto& s : sessions)
     {

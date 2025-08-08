@@ -258,11 +258,8 @@ StreamSocket::write(const char* buf, size_t length)
     assert(_fd != INVALID_SOCKET);
 
 #ifdef ICE_USE_IOCP
-    //
-    // On Windows, limiting the buffer size is important to prevent
-    // poor throughput performances when sending large amount of
-    // data. See Microsoft KB article KB823764.
-    //
+    // On Windows, limiting the buffer size is important to prevent poor throughput performances when sending large
+    // amount of data. See Microsoft KB article KB823764.
     size_t packetSize = _maxSendPacketSize > 0 ? std::min(length, _maxSendPacketSize / 2) : length;
 #else
     size_t packetSize = length;
@@ -488,13 +485,9 @@ StreamSocket::init()
     setTcpBufSize(_fd, _instance);
 
 #if defined(ICE_USE_IOCP)
-    //
-    // For timeouts to work properly, we need to receive or send the
-    // data in several chunks when using IOCP WSARecv or WSASend.
-    // Otherwise, we would only be notified when all the data is
-    // received or written.  The connection timeout could easily be
-    // triggered when receiving or sending large messages.
-    //
+    // For timeouts to work properly, we need to receive or send the data in several chunks when using IOCP WSARecv or
+    // WSASend. Otherwise, we would only be notified when all the data is received or written. The connection timeout
+    // could easily be triggered when receiving or sending large messages.
     _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(_fd));
     _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(_fd));
 #endif

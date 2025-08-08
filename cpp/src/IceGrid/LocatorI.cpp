@@ -147,10 +147,8 @@ namespace
 
         void activating(const string&) override
         {
-            //
-            // An adapter is being activated. Don't wait for the activation to complete. Instead,
-            // we query the next adapter which might be already active.
-            //
+            // An adapter is being activated. Don't wait for the activation to complete. Instead, we query the next
+            // adapter which might be already active.
             LocatorAdapterInfo adapter;
             do
             {
@@ -183,10 +181,7 @@ namespace
                 {
                     --_count; // Expect one less adapter proxy if there's no more adapters to query.
 
-                    //
-                    // If we received all the required proxies, it's time to send the
-                    // answer back to the client.
-                    //
+                    // If we received all the required proxies, it's time to send the answer back to the client.
                     if (_count == _proxies.size())
                     {
                         sendResponse();
@@ -493,10 +488,8 @@ namespace
 
                         if (_waitForActivation || (_adapters.empty() && _activatingOrFailed.size() > _failed.size()))
                         {
-                            //
-                            // If there are no more adapters to try and some servers were being activated, we
-                            // try again but this time we wait for the server activation.
-                            //
+                            // If there are no more adapters to try and some servers were being activated, we try again
+                            // but this time we wait for the server activation.
                             _database->getLocatorAdapterInfo(
                                 _id,
                                 _connection,
@@ -674,10 +667,7 @@ LocatorI::LocatorI(
 {
 }
 
-//
-// Find an object by identity. The object is searched in the object
-// registry.
-//
+// Find an object by identity. The object is searched in the object registry.
 void
 LocatorI::findObjectByIdAsync(
     Ice::Identity id,
@@ -695,10 +685,8 @@ LocatorI::findObjectByIdAsync(
     }
 }
 
-//
-// Find an adapter by identity. The object is searched in the adapter
-// registry. If found, we try to get its direct proxy.
-//
+// Find an adapter by identity. The object is searched in the adapter registry. If found, we try to get its direct
+// proxy.
 void
 LocatorI::findAdapterByIdAsync(
     string id,
@@ -711,11 +699,8 @@ LocatorI::findAdapterByIdAsync(
     bool replicaGroup = false;
     try
     {
-        //
-        // NOTE: getProxies() might throw if the adapter is a server
-        // adapter and the node is unreachable (it doesn't throw for
-        // replica groups).
-        //
+        // NOTE: getProxies() might throw if the adapter is a server adapter and the node is unreachable (it doesn't
+        // throw for replica groups).
         int count;
         LocatorAdapterInfoSeq adapters;
         bool roundRobin;

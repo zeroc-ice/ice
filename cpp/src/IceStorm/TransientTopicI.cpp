@@ -15,10 +15,7 @@ using namespace std;
 
 namespace
 {
-    //
-    // The servant has a 1-1 association with a topic. It is used to
-    // receive events from Publishers.
-    //
+    // The servant has a 1-1 association with a topic. It is used to receive events from Publishers.
     class TransientPublisherI : public Ice::BlobjectArray
     {
     public:
@@ -43,10 +40,7 @@ namespace
         const shared_ptr<TransientTopicImpl> _impl;
     };
 
-    //
-    // The servant has a 1-1 association with a topic. It is used to
-    // receive events from linked Topics.
-    //
+    // The servant has a 1-1 association with a topic. It is used to receive events from linked Topics.
     class TransientTopicLinkI : public TopicLink
     {
     public:
@@ -64,16 +58,10 @@ TransientTopicImpl::create(const shared_ptr<Instance>& instance, const std::stri
 {
     shared_ptr<TransientTopicImpl> topicImpl(new TransientTopicImpl(instance, name, id));
 
-    //
-    // Create a servant per topic to receive event data. If the
-    // category is empty then we are in backwards compatibility
-    // mode. In this case the servant's identity is
-    // category=<topicname>, name=publish, otherwise the name is
-    // <instancename>/<topicname>.publish. The same applies to the
-    // link proxy.
-    //
-    // Activate the object and save a reference to give to publishers.
-    //
+    // Create a servant per topic to receive event data. If the category is empty then we are in backwards
+    // compatibility mode. In this case the servant's identity is category=<topicname>, name=publish, otherwise the name
+    // is <instancename>/<topicname>.publish. The same applies to the link proxy. Activate the object and save a
+    // reference to give to publishers.
     Ice::Identity pubid;
     Ice::Identity linkid;
     if (id.category.empty())
@@ -383,20 +371,14 @@ TransientTopicImpl::id() const
 void
 TransientTopicImpl::publish(bool forwarded, const EventDataSeq& events)
 {
-    //
-    // Copy of the subscriber list so that event publishing can occur
-    // in parallel.
-    //
+    // Copy of the subscriber list so that event publishing can occur in parallel.
     vector<shared_ptr<Subscriber>> copy;
     {
         lock_guard lock(_mutex);
         copy = _subscribers;
     }
 
-    //
-    // Queue each event, gathering a list of those subscribers that
-    // must be reaped.
-    //
+    // Queue each event, gathering a list of those subscribers that must be reaped.
     vector<Ice::Identity> ids;
     for (const auto& subscriber : copy)
     {
@@ -406,35 +388,21 @@ TransientTopicImpl::publish(bool forwarded, const EventDataSeq& events)
         }
     }
 
-    //
-    // Run through the error list removing those subscribers that are
-    // in error from the subscriber list.
-    //
+    // Run through the error list removing those subscribers that are in error from the subscriber list.
     if (!ids.empty())
     {
         lock_guard lock(_mutex);
         for (const auto& id : ids)
         {
-            //
-            // Its possible for the subscriber to already have been
-            // removed since the copy is iterated over outside of
-            // mutex protection.
-            //
-            // Note that although this could be quicker if we used a
-            // map, the most optimal case should be pushing around
-            // events not searching for a particular subscriber.
-            //
-            // The subscriber is immediately destroyed & removed from
-            // the _subscribers list. Add the subscriber to a list of
-            // error'd subscribers and remove it from the database on
-            // the next reap.
-            //
+            // Its possible for the subscriber to already have been removed since the copy is iterated over outside of
+            // mutex protection. Note that although this could be quicker if we used a map, the most optimal case should
+            // be pushing around events not searching for a particular subscriber. The subscriber is immediately
+            // destroyed & removed from the _subscribers list. Add the subscriber to a list of error'd subscribers and
+            // remove it from the database on the next reap.
             auto q = find(_subscribers.begin(), _subscribers.end(), id);
             if (q != _subscribers.end())
             {
-                //
                 // Destroy the subscriber.
-                //
                 (*q)->destroy();
                 _subscribers.erase(q);
             }

@@ -197,7 +197,6 @@ NodeI::createSessionAsync(
         {
             // If the request originates from a relay hosting a forwarder for the subscriber node, or directly from the
             // subscriber node itself, use the current connection.
-            //
             // This ensures that the confirmCreateSession request is not sent over a new connection, which in the relay
             // case could lead to sending a confirmation for a session that has already been closed by a close
             // connection callback.

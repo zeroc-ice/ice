@@ -433,9 +433,7 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
             // Note that this destroy should not remove anything from
             // the database since we've already synced up the db
             // state.
-            //
-            // TODO: We could short circuit the database operations in
-            // the topic by calling a third form of destroy.
+            // TODO: We could short circuit the database operations in the topic by calling a third form of destroy.
             p->second->observerDestroyTopic(llu);
             _topics.erase(p++);
         }
@@ -617,16 +615,11 @@ TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& 
     TopicContentSeq content;
 
     // Update the database llu. This prevents the following case:
-    //
-    // Three replicas 1, 2, 3. 3 is the master. It accepts a change
-    // (say A=10, old value 9), writes to disk and then crashes. Now 2
-    // becomes the master. The client can ask this master for A and it
-    // returns 9. Now 3 comes back online, it has the last database
-    // state, so it syncs this state with 1, 2. The client will now
-    // magically get A==10. The solution here is when a new master is
-    // elected and gets the latest database state it immediately
+    // Three replicas 1, 2, 3. 3 is the master. It accepts a change (say A=10, old value 9), writes to disk and then
+    // crashes. Now 2 becomes the master. The client can ask this master for A and it returns 9. Now 3 comes back
+    // online, it has the last database state, so it syncs this state with 1, 2. The client will now magically get
+    // A==10. The solution here is when a new master is elected and gets the latest database state it immediately
     // updates the llu stamp.
-    //
     try
     {
         content.clear();
@@ -668,9 +661,7 @@ TopicManagerImpl::getSync() const
 void
 TopicManagerImpl::reap()
 {
-    //
     // Always called with mutex locked.
-    //
     vector<string> reaped = _instance->topicReaper()->consumeReapedTopics();
     for (const auto& topic : reaped)
     {
@@ -731,9 +722,7 @@ TopicManagerImpl::installTopic(
     bool create,
     const IceStorm::SubscriberRecordSeq& subscribers)
 {
-    //
     // Called by constructor or with 'this' mutex locked.
-    //
     auto traceLevels = _instance->traceLevels();
     if (traceLevels->topicMgr > 0)
     {

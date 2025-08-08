@@ -27,10 +27,7 @@ Slice::normalizePath(const string& path)
 
     string::size_type startReplace = 0;
 #ifdef _WIN32
-    //
-    // For UNC paths we need to ensure they are in the format that is
-    // returned by MCPP. IE. "//MACHINE/PATH"
-    //
+    // For UNC paths we need to ensure they are in the format that is returned by MCPP. IE. "//MACHINE/PATH"
     if (result.find("//") == 0)
     {
         startReplace = 2;
@@ -78,17 +75,10 @@ Slice::normalizePath(const string& path)
 string
 Slice::fullPath(const string& path)
 {
-    //
-    // This function returns the canonicalized absolute pathname of
-    // the given path.
-    //
-    // It is used for instance used to normalize the paths provided
-    // with -I options. Like mcpp, we need to follow the symbolic
-    // links to ensure changeInclude works correctly. For example, it
-    // must be possible to specify -I/opt/Ice-3.6 where Ice-3.6 is
-    // symbolic link to Ice-3.6.0 (if we don't do the same as mcpp,
-    // the generated headers will contain a full path...)
-    //
+    // This function returns the canonicalized absolute pathname of the given path. It is used for instance used to
+    // normalize the paths provided with -I options. Like mcpp, we need to follow the symbolic links to ensure
+    // changeInclude works correctly. For example, it must be possible to specify -I/opt/Ice-3.6 where Ice-3.6 is
+    // symbolic link to Ice-3.6.0 (if we don't do the same as mcpp, the generated headers will contain a full path...)
 
     string result = path;
     if (!IceInternal::isAbsolutePath(result))
@@ -150,17 +140,12 @@ string
 Slice::changeInclude(const string& p, const vector<string>& includePaths)
 {
     string path = normalizePath(p);
-    //
-    // Compare each include path against the included file and select
-    // the path that produces the shortest relative filename.
-    //
+    // Compare each include path against the included file and select the path that produces the shortest relative
+    // filename.
     string result = path;
     vector<string> paths;
     paths.push_back(path);
-    //
-    // if path is not a canonical path we also test with its canonical
-    // path
-    //
+    // if path is not a canonical path we also test with its canonical path
     string canonicalPath = fullPath(path);
     if (canonicalPath != path)
     {
@@ -181,10 +166,7 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
             }
         }
 
-        //
-        // If the path has been already shortened no need to test
-        // with canonical path.
-        //
+        // If the path has been already shortened no need to test with canonical path.
         if (result != path)
         {
             break;
@@ -309,9 +291,7 @@ Slice::filterMcppWarnings(const string& message)
                     // produces the skipped warning
                     i++;
                     skipped = true;
-                    //
                     // Check if next lines are still the same warning
-                    //
                     i++;
                     while (i != in.end())
                     {
@@ -323,9 +303,7 @@ Slice::filterMcppWarnings(const string& message)
                         }
                         if (token.find(fromPrefix) != 0)
                         {
-                            //
                             // First line not of this warning
-                            //
                             i--;
                             break;
                         }
@@ -409,9 +387,7 @@ Slice::argvToArgs(int argc, char* argv[])
 }
 #endif
 
-//
 // Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
-//
 vector<string>
 Slice::splitScopedName(const string& scoped, bool allowEmpty)
 {
@@ -647,9 +623,7 @@ Slice::relativePath(const string& path1, const string& path2)
         i2++;
     }
 
-    //
     // Different volumes, relative path not possible.
-    //
     if (i1 == tokens1.begin() && i2 == tokens2.begin())
     {
         return path1;

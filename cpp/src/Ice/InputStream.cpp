@@ -195,11 +195,8 @@ Ice::InputStream::swap(InputStream& other) noexcept
     std::swap(_startSeq, other._startSeq);
     std::swap(_minSeqSize, other._minSeqSize);
 
-    //
-    // Swap is never called for streams that have encapsulations being read. However,
-    // encapsulations might still be set in case unmarshaling failed. We just
-    // reset the encapsulations if there are still some set.
-    //
+    // Swap is never called for streams that have encapsulations being read. However, encapsulations might still be set
+    // in case unmarshaling failed. We just reset the encapsulations if there are still some set.
     resetEncapsulation();
     other.resetEncapsulation();
 }
@@ -232,13 +229,9 @@ Ice::InputStream::startEncapsulation()
     }
     _currentEncaps->start = static_cast<size_t>(i - b.begin());
 
-    //
-    // I don't use readSize() and writeSize() for encapsulations,
-    // because when creating an encapsulation, I must know in advance
-    // how many bytes the size information will require in the data
-    // stream. If I use an Int, it is always 4 bytes. For
-    // readSize()/writeSize(), it could be 1 or 5 bytes.
-    //
+    // I don't use readSize() and writeSize() for encapsulations, because when creating an encapsulation, I must know
+    // in advance how many bytes the size information will require in the data stream. If I use an Int, it is always 4
+    // bytes. For readSize()/writeSize(), it could be 1 or 5 bytes.
     std::int32_t sz;
     read(sz);
     if (sz < 6)
@@ -277,12 +270,8 @@ Ice::InputStream::endEncapsulation()
             throw MarshalException{__FILE__, __LINE__, "failed to unmarshal encapsulation"};
         }
 
-        //
-        // Ice version < 3.3 had a bug where user exceptions with
-        // class members could be encoded with a trailing byte
-        // when dispatched with AMD. So we tolerate an extra byte
-        // in the encapsulation.
-        //
+        // Ice version < 3.3 had a bug where user exceptions with class members could be encoded with a trailing byte
+        // when dispatched with AMD. So we tolerate an extra byte in the encapsulation.
         ++i;
     }
 
@@ -390,15 +379,9 @@ Ice::InputStream::readPendingValues()
     }
     else if (getEncoding() == Ice::Encoding_1_0)
     {
-        //
-        // If using the 1.0 encoding and no instances were read, we
-        // still read an empty sequence of pending instances if
-        // requested (i.e.: if this is called).
-        //
-        // This is required by the 1.0 encoding, even if no instances
-        // are written we do marshal an empty sequence if marshaled
-        // data types use classes.
-        //
+        // If using the 1.0 encoding and no instances were read, we still read an empty sequence of pending instances
+        // if requested (i.e.: if this is called). This is required by the 1.0 encoding, even if no instances are
+        // written we do marshal an empty sequence if marshaled data types use classes.
         skipSize();
     }
 }
@@ -413,23 +396,13 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
         return sz;
     }
 
-    //
-    // The _startSeq variable points to the start of the sequence for which
-    // we expect to read at least _minSeqSize bytes from the stream.
-    //
-    // If not initialized or if we already read more data than _minSeqSize,
-    // we reset _startSeq and _minSeqSize for this sequence (possibly a
-    // top-level sequence or enclosed sequence it doesn't really matter).
-    //
-    // Otherwise, we are reading an enclosed sequence and we have to bump
-    // _minSeqSize by the minimum size that this sequence will require on
-    // the stream.
-    //
-    // The goal of this check is to ensure that when we start un-marshaling
-    // a new sequence, we check the minimal size of this new sequence against
-    // the estimated remaining buffer size. This estimation is based on
-    // the minimum size of the enclosing sequences, it's _minSeqSize.
-    //
+    // The _startSeq variable points to the start of the sequence for which we expect to read at least _minSeqSize
+    // bytes from the stream. If not initialized or if we already read more data than _minSeqSize, we reset _startSeq
+    // and _minSeqSize for this sequence (possibly a top-level sequence or enclosed sequence it doesn't really matter).
+    // Otherwise, we are reading an enclosed sequence and we have to bump _minSeqSize by the minimum size that this
+    // sequence will require on the stream. The goal of this check is to ensure that when we start un-marshaling a new
+    // sequence, we check the minimal size of this new sequence against the estimated remaining buffer size. This
+    // estimation is based on the minimum size of the enclosing sequences, it's _minSeqSize.
     if (_startSeq == -1 || i > (b.begin() + _startSeq + _minSeqSize))
     {
         _startSeq = static_cast<int>(i - b.begin());
@@ -440,11 +413,8 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
         _minSeqSize += sz * minSize;
     }
 
-    //
-    // If there isn't enough data to read on the stream for the sequence (and
-    // possibly enclosed sequences), something is wrong with the marshaled
-    // data: it's claiming having more data that what is possible to read.
-    //
+    // If there isn't enough data to read on the stream for the sequence (and possibly enclosed sequences), something
+    // is wrong with the marshaled data: it's claiming having more data that what is possible to read.
     if (_startSeq + _minSeqSize > static_cast<int>(b.size()))
     {
         throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
@@ -931,9 +901,7 @@ Ice::InputStream::read(const char*& vdata, size_t& vsize, bool convert)
             {
                 if (converted.size() <= static_cast<size_t>(sz))
                 {
-                    //
                     // Write converted string directly into buffer
-                    //
                     std::memcpy(i, converted.data(), converted.size());
                     vdata = reinterpret_cast<const char*>(&*i);
                     vsize = converted.size();
@@ -1228,9 +1196,7 @@ Ice::InputStream::skipOptional(OptionalFormat type)
 void
 Ice::InputStream::skipOptionals()
 {
-    //
     // Skip remaining un-read optional members.
-    //
     while (true)
     {
         if (i >= b.begin() + _currentEncaps->start + _currentEncaps->sz)
@@ -1333,11 +1299,8 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(int32_t index, const PatchFunc& p
 {
     assert(index > 0);
 
-    //
-    // Check if we already unmarshaled the object. If that's the case, just patch the object smart
-    // pointer and we're done. A null value indicates we've encountered a cycle and Ice.AllowClassCycles
-    // is false.
-    //
+    // Check if we already unmarshaled the object. If that's the case, just patch the object smart pointer and we're
+    // done. A null value indicates we've encountered a cycle and Ice.AllowClassCycles is false.
     auto p = _unmarshaledMap.find(index);
     if (p != _unmarshaledMap.end())
     {
@@ -1350,25 +1313,17 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(int32_t index, const PatchFunc& p
         return;
     }
 
-    //
-    // Add a patch entry if the object isn't unmarshaled yet, the
-    // smart pointer will be patched when the instance is
+    // Add a patch entry if the object isn't unmarshaled yet, the smart pointer will be patched when the instance is
     // unmarshaled.
-    //
 
     auto q = _patchMap.find(index);
     if (q == _patchMap.end())
     {
-        //
-        // We have no outstanding instances to be patched for this
-        // index, so make a new entry in the patch map.
-        //
+        // We have no outstanding instances to be patched for this index, so make a new entry in the patch map.
         q = _patchMap.insert(make_pair(index, PatchList())).first;
     }
 
-    //
     // Append a patch entry for this instance.
-    //
     PatchEntry e;
     e.patchFunc = patchFunc;
     e.patchAddr = patchAddr;
@@ -1379,40 +1334,27 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(int32_t index, const PatchFunc& p
 void
 Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const ValuePtr& v)
 {
-    //
-    // Add the object to the map of unmarshaled instances, this must
-    // be done before reading the instances (for circular references).
-    //
-    // If circular references are not allowed we insert null (for cycle detection) and add
-    // the object to the map once it has been fully unmarshaled.
-    //
+    // Add the object to the map of unmarshaled instances, this must be done before reading the instances (for circular
+    // references). If circular references are not allowed we insert null (for cycle detection) and add the object to
+    // the map once it has been fully unmarshaled.
     _unmarshaledMap.insert(make_pair(index, _stream->_instance->acceptClassCycles() ? v : nullptr));
 
-    //
     // Read the object.
-    //
     v->_iceRead(_stream);
 
-    //
     // Patch all instances now that the object is unmarshaled.
-    //
     auto patchPos = _patchMap.find(index);
     if (patchPos != _patchMap.end())
     {
         assert(patchPos->second.size() > 0);
 
-        //
         // Patch all pointers that refer to the instance.
-        //
         for (const auto& k : patchPos->second)
         {
             k.patchFunc(k.patchAddr, v);
         }
 
-        //
-        // Clear out the patch map for that index -- there is nothing left
-        // to patch for that index for the time being.
-        //
+        // Clear out the patch map for that index -- there is nothing left to patch for that index for the time being.
         _patchMap.erase(patchPos);
     }
 
@@ -1451,9 +1393,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
 {
     assert(patchFunc && patchAddr);
 
-    //
     // Object references are encoded as a negative integer in 1.0.
-    //
     int32_t index;
     _stream->read(index);
     if (index > 0)
@@ -1464,10 +1404,8 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
 
     if (index == 0)
     {
-        //
-        // Calling the patch function for null instances is necessary for correct functioning of Ice for
-        // Python and Ruby.
-        //
+        // Calling the patch function for null instances is necessary for correct functioning of Ice for Python and
+        // Ruby.
         patchFunc(patchAddr, nullptr);
     }
     else
@@ -1481,29 +1419,20 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory exception
 {
     assert(_sliceType == NoSlice);
 
-    //
-    // User exception with the 1.0 encoding start with a boolean flag
-    // that indicates whether or not the exception has classes.
-    //
-    // This allows reading the pending values even if some part of
-    // the exception was sliced.
-    //
+    // User exception with the 1.0 encoding start with a boolean flag that indicates whether or not the exception has
+    // classes. This allows reading the pending values even if some part of the exception was sliced.
     bool usesClasses;
     _stream->read(usesClasses);
 
     _sliceType = ExceptionSlice;
     _skipFirstSlice = false;
 
-    //
     // Read the first slice header.
-    //
     startSlice();
     const string mostDerivedId = _typeId;
     while (true)
     {
-        //
         // Look for a statically-generated factory for this ID.
-        //
         if (!exceptionFactory)
         {
             std::exception_ptr exceptionPtr = _stream->_sliceLoader->newExceptionInstance(_typeId);
@@ -1514,17 +1443,11 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory exception
             }
         }
 
-        //
-        // We found a factory, we get out of this loop.
-        // A factory that doesn't throw is equivalent to a null factory.
-        //
+        // We found a factory, we get out of this loop. A factory that doesn't throw is equivalent to a null factory.
         if (exceptionFactory)
         {
-            //
-            // Got factory -- ask the factory to instantiate the
-            // exception, initialize the exception members, and throw
+            // Got factory -- ask the factory to instantiate the exception, initialize the exception members, and throw
             // the exception.
-            //
             try
             {
                 exceptionFactory(_typeId);
@@ -1540,9 +1463,7 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory exception
             }
         }
 
-        //
         // Slice off what we don't understand.
-        //
         skipSlice();
         try
         {
@@ -1550,11 +1471,9 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory exception
         }
         catch (const MarshalException&)
         {
-            //
-            // An oversight in the 1.0 encoding means there is no marker to indicate
-            // the last slice of an exception. As a result, we just try to read the
-            // next type ID, which raises MarshalException when the
-            // input buffer underflows.
+            // An oversight in the 1.0 encoding means there is no marker to indicate the last slice of an exception. As
+            // a result, we just try to read the next type ID, which raises MarshalException when the input buffer
+            // underflows.
             throw MarshalException{__FILE__, __LINE__, "unknown exception type '" + mostDerivedId + "'"};
         }
     }
@@ -1570,9 +1489,7 @@ Ice::InputStream::EncapsDecoder10::startInstance([[maybe_unused]] SliceType slic
 SlicedDataPtr
 Ice::InputStream::EncapsDecoder10::endInstance()
 {
-    //
     // Read the Ice::Value slice.
-    //
     if (_sliceType == ValueSlice)
     {
         startSlice();
@@ -1590,22 +1507,15 @@ Ice::InputStream::EncapsDecoder10::endInstance()
 void
 Ice::InputStream::EncapsDecoder10::startSlice()
 {
-    //
-    // If first slice, don't read the header, it was already read in
-    // readInstance or throwException to find the factory.
-    //
+    // If first slice, don't read the header, it was already read in readInstance or throwException to find the factory.
     if (_skipFirstSlice)
     {
         _skipFirstSlice = false;
         return;
     }
 
-    //
-    // For values, first read the type ID boolean which indicates
-    // whether or not the type ID is encoded as a string or as an
-    // index. For exceptions, the type ID is always encoded as a
-    // string.
-    //
+    // For values, first read the type ID boolean which indicates whether or not the type ID is encoded as a string or
+    // as an index. For exceptions, the type ID is always encoded as a string.
     if (_sliceType == ValueSlice)
     {
         bool isIndex;
@@ -1652,10 +1562,8 @@ Ice::InputStream::EncapsDecoder10::readPendingValues()
 
     if (!_patchMap.empty())
     {
-        //
-        // If any entries remain in the patch map, the sender has sent an index for an object, but
-        // failed to supply the object.
-        //
+        // If any entries remain in the patch map, the sender has sent an index for an object, but failed to supply the
+        // object.
         throw MarshalException(__FILE__, __LINE__, "index for class received, but no instance");
     }
 }
@@ -1674,9 +1582,7 @@ Ice::InputStream::EncapsDecoder10::readInstance()
     _sliceType = ValueSlice;
     _skipFirstSlice = false;
 
-    //
     // Read the first slice header.
-    //
     startSlice();
     const string mostDerivedId = _typeId;
     shared_ptr<Value> v;
@@ -1693,26 +1599,19 @@ Ice::InputStream::EncapsDecoder10::readInstance()
 
         v = newInstance(_typeId);
 
-        //
         // We found a factory, we get out of this loop.
-        //
         if (v)
         {
             break;
         }
 
-        //
         // Slice off what we don't understand.
-        //
         skipSlice();
         startSlice(); // Read next Slice header for next iteration.
     }
 
-    //
-    // Compute the biggest class graph depth of this object. To compute this,
-    // we get the class graph depth of each ancestor from the patch map and
-    // keep the biggest one.
-    //
+    // Compute the biggest class graph depth of this object. To compute this, we get the class graph depth of each
+    // ancestor from the patch map and keep the biggest one.
     _classGraphDepth = 0;
     auto patchPos = _patchMap.find(index);
     if (patchPos != _patchMap.end())
@@ -1732,9 +1631,7 @@ Ice::InputStream::EncapsDecoder10::readInstance()
         throw MarshalException(__FILE__, __LINE__, "maximum class graph depth reached");
     }
 
-    //
     // Unmarshal the instance and add it to the map of unmarshaled instances.
-    //
     unmarshal(index, v);
 }
 
@@ -1750,25 +1647,16 @@ Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
     }
     else if (index == 0)
     {
-        //
-        // Calling the patch function for null instances is necessary for correct functioning of Ice for
-        // Python and Ruby.
-        //
+        // Calling the patch function for null instances is necessary for correct functioning of Ice for Python and
+        // Ruby.
         patchFunc(patchAddr, nullptr);
     }
     else if (_current && _current->sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
     {
-        //
-        // When reading an object within a slice and there's an
-        // indirect object table, always read an indirect reference
-        // that points to an object from the indirect object table
-        // marshaled at the end of the Slice.
-        //
-        // Maintain a list of indirect references. Note that the
-        // indirect index starts at 1, so we decrement it by one to
-        // derive an index into the indirection table that we'll read
-        // at the end of the slice.
-        //
+        // When reading an object within a slice and there's an indirect object table, always read an indirect
+        // reference that points to an object from the indirect object table marshaled at the end of the Slice. Maintain
+        // a list of indirect references. Note that the indirect index starts at 1, so we decrement it by one to derive
+        // an index into the indirection table that we'll read at the end of the slice.
         IndirectPatchEntry e;
         e.index = index - 1;
         e.patchFunc = patchFunc;
@@ -1788,16 +1676,12 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory exception
 
     push(ExceptionSlice);
 
-    //
     // Read the first slice header.
-    //
     startSlice();
     const string mostDerivedId = _current->typeId;
     while (true)
     {
-        //
         // Look for a statically-generated factory for this ID.
-        //
         if (!exceptionFactory)
         {
             std::exception_ptr exceptionPtr = _stream->_sliceLoader->newExceptionInstance(_current->typeId);
@@ -1808,17 +1692,11 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory exception
             }
         }
 
-        //
-        // We found a factory, we get out of this loop.
-        // A factory that doesn't throw is equivalent to a null factory.
-        //
+        // We found a factory, we get out of this loop. A factory that doesn't throw is equivalent to a null factory.
         if (exceptionFactory)
         {
-            //
-            // Got factory -- ask the factory to instantiate the
-            // exception, initialize the exception members, and throw
+            // Got factory -- ask the factory to instantiate the exception, initialize the exception members, and throw
             // the exception.
-            //
             try
             {
                 exceptionFactory(_current->typeId);
@@ -1830,14 +1708,10 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory exception
             }
         }
 
-        //
         // Slice off what we don't understand.
-        //
         skipSlice();
 
-        //
         // If this is the last slice, raise an exception and stop un-marshaling.
-        //
         if (_current->sliceFlags & FLAG_IS_LAST_SLICE)
         {
             throw MarshalException{
@@ -1870,10 +1744,7 @@ Ice::InputStream::EncapsDecoder11::endInstance()
 void
 Ice::InputStream::EncapsDecoder11::startSlice()
 {
-    //
-    // If first slice, don't read the header, it was already read in
-    // readInstance or throwException to find the factory.
-    //
+    // If first slice, don't read the header, it was already read in readInstance or throwException to find the factory.
     if (_current->skipFirstSlice)
     {
         _current->skipFirstSlice = false;
@@ -1882,11 +1753,8 @@ Ice::InputStream::EncapsDecoder11::startSlice()
 
     _stream->read(_current->sliceFlags);
 
-    //
-    // Read the type ID, for value slices the type ID is encoded as a
-    // string or as an index, for exceptions it's always encoded as a
-    // string.
-    //
+    // Read the type ID, for value slices the type ID is encoded as a string or as an index, for exceptions it's always
+    // encoded as a string.
     if (_current->sliceType == ValueSlice)
     {
         if ((_current->sliceFlags & FLAG_HAS_TYPE_ID_COMPACT) == FLAG_HAS_TYPE_ID_COMPACT) // Must be checked first!
@@ -1912,9 +1780,7 @@ Ice::InputStream::EncapsDecoder11::startSlice()
         _current->compactId = -1;
     }
 
-    //
     // Read the slice size if necessary.
-    //
     if (_current->sliceFlags & FLAG_HAS_SLICE_SIZE)
     {
         _stream->read(_current->sliceSize);
@@ -1937,9 +1803,7 @@ Ice::InputStream::EncapsDecoder11::endSlice()
         _stream->skipOptionals();
     }
 
-    //
     // Read the indirect object table if one is present.
-    //
     if (_current->sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
     {
         IndexList indirectionTable(static_cast<size_t>(_stream->readAndCheckSeqSize(1)));
@@ -1948,11 +1812,8 @@ Ice::InputStream::EncapsDecoder11::endSlice()
             p = readInstance(_stream->readSize(), nullptr, nullptr);
         }
 
-        //
-        // Sanity checks. If there are optional members, it's possible
-        // that not all object references were read if they are from
-        // unknown optional data members.
-        //
+        // Sanity checks. If there are optional members, it's possible that not all object references were read if they
+        // are from unknown optional data members.
         if (indirectionTable.empty())
         {
             throw MarshalException(__FILE__, __LINE__, "empty indirection table");
@@ -1962,9 +1823,7 @@ Ice::InputStream::EncapsDecoder11::endSlice()
             throw MarshalException(__FILE__, __LINE__, "no references to indirection table");
         }
 
-        //
         // Convert indirect references into direct references.
-        //
         IndirectPatchList::iterator p;
         for (p = _current->indirectPatchList.begin(); p != _current->indirectPatchList.end(); ++p)
         {
@@ -2011,19 +1870,15 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         }
     }
 
-    //
     // Preserve this slice if unmarshaling a value in Slice format. Exception slices are not preserved.
-    //
     if (_current->sliceType == ValueSlice)
     {
         bool hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
         vector<byte> bytes;
         if (hasOptionalMembers)
         {
-            //
-            // Don't include the optional member end marker. It will be re-written by
-            // endSlice when the sliced data is re-written.
-            //
+            // Don't include the optional member end marker. It will be re-written by endSlice when the sliced data is
+            // re-written.
             bytes = vector<byte>(start, _stream->i - 1);
         }
         else
@@ -2043,11 +1898,8 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
 
     _current->indirectionTables.emplace_back();
 
-    //
-    // Read the indirect object table. We read the instances or their
-    // IDs if the instance is a reference to an already un-marshaled
-    // object.
-    //
+    // Read the indirect object table. We read the instances or their IDs if the instance is a reference to an already
+    // un-marshaled object.
     if (_current->sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
     {
         IndexList& table = _current->indirectionTables.back();
@@ -2089,16 +1941,11 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, const PatchFunc& 
 
     push(ValueSlice);
 
-    //
-    // Get the object ID before we start reading slices. If some
-    // slices are skiped, the indirect object table are still read and
-    // might read other instances.
-    //
+    // Get the object ID before we start reading slices. If some slices are skiped, the indirect object table are still
+    // read and might read other instances.
     index = ++_valueIdIndex;
 
-    //
     // Read the first slice header.
-    //
     startSlice();
     const string mostDerivedId = _current->typeId;
     shared_ptr<Value> v;
@@ -2108,30 +1955,21 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, const PatchFunc& 
         {
             v = newInstance(_current->typeId);
 
-            //
             // We found a factory, we get out of this loop.
-            //
             if (v)
             {
                 break;
             }
         }
 
-        //
         // Slice off what we don't understand.
-        //
         skipSlice();
 
-        //
         // If this is the last slice, keep the object as an opaque UnknownSlicedValue.
-        //
         if (_current->sliceFlags & FLAG_IS_LAST_SLICE)
         {
-            //
-            // Provide a factory with an opportunity to supply the object.
-            // We pass the "::Ice::Object" ID to indicate that this is the
-            // last chance to preserve the object.
-            //
+            // Provide a factory with an opportunity to supply the object. We pass the "::Ice::Object" ID to indicate
+            // that this is the last chance to preserve the object.
             v = newInstance(Value::ice_staticId());
             if (!v)
             {
@@ -2149,19 +1987,15 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, const PatchFunc& 
         throw MarshalException(__FILE__, __LINE__, "maximum class graph depth reached");
     }
 
-    //
     // Unmarshal the object.
-    //
     unmarshal(index, v);
 
     --_classGraphDepth;
 
     if (!_current && !_patchMap.empty())
     {
-        //
-        // If any entries remain in the patch map, the sender has sent an index for an object, but
-        // failed to supply the object.
-        //
+        // If any entries remain in the patch map, the sender has sent an index for an object, but failed to supply the
+        // object.
         throw MarshalException(__FILE__, __LINE__, "index for class received, but no instance");
     }
 
@@ -2180,19 +2014,12 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
         return nullptr;
     }
 
-    //
-    // The indirectionTables member holds the indirection table for
-    // each slice in slices.
-    //
+    // The indirectionTables member holds the indirection table for each slice in slices.
     assert(_current->slices.size() == _current->indirectionTables.size());
     for (SliceInfoSeq::size_type n = 0; n < _current->slices.size(); ++n)
     {
-        //
-        // We use the "instances" list in SliceInfo to hold references
-        // to the target instances. Note that the instances might not have
-        // been read yet in the case of a circular reference to an
-        // enclosing instance.
-        //
+        // We use the "instances" list in SliceInfo to hold references to the target instances. Note that the instances
+        // might not have been read yet in the case of a circular reference to an enclosing instance.
         const IndexList& table = _current->indirectionTables[n];
         vector<shared_ptr<Value>>& instances = _current->slices[n]->instances;
         instances.resize(table.size());

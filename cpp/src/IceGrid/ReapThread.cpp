@@ -27,9 +27,7 @@ ReapThread::run()
 
             calcWakeInterval();
 
-            //
             // If the wake interval is zero then we wait forever.
-            //
             if (_wakeInterval == 0s)
             {
                 _condVar.wait(lock);
@@ -180,10 +178,8 @@ ReapThread::connectionClosed(const Ice::ConnectionPtr& con)
     }
 }
 
-//
-// Returns true if the calculated wake interval is less than the current wake
-// interval (or if the original wake interval was "forever").
-//
+// Returns true if the calculated wake interval is less than the current wake interval (or if the original wake
+// interval was "forever").
 bool
 ReapThread::calcWakeInterval()
 {

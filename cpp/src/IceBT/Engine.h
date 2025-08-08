@@ -13,9 +13,7 @@
 
 namespace IceBT
 {
-    //
     // Notifies the transport about a new incoming connection.
-    //
     class ProfileCallback
     {
     public:
@@ -23,10 +21,8 @@ namespace IceBT
     };
     using ProfileCallbackPtr = std::shared_ptr<ProfileCallback>;
 
-    //
-    // Represents an outgoing (client) connection. The transport must keep a reference to this object
-    // and call close() when no longer needed.
-    //
+    // Represents an outgoing (client) connection. The transport must keep a reference to this object and call close()
+    // when no longer needed.
     class Connection
     {
     public:
@@ -34,9 +30,7 @@ namespace IceBT
     };
     using ConnectionPtr = std::shared_ptr<Connection>;
 
-    //
     // Callback API for an outgoing connection attempt.
-    //
     class ConnectCallback
     {
     public:
@@ -45,9 +39,7 @@ namespace IceBT
     };
     using ConnectCallbackPtr = std::shared_ptr<ConnectCallback>;
 
-    //
     // Engine encapsulates all Bluetooth activities.
-    //
     class Engine
     {
     public:

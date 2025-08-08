@@ -643,10 +643,8 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
 
     _applicationObserverTopic->waitForSyncedSubscribers(serial); // Wait for replicas to be updated.
 
-    //
-    // Mark the application as updated. All the replicas received the update so it's now safe
-    // for the nodes to start the servers.
-    //
+    // Mark the application as updated. All the replicas received the update so it's now safe for the nodes to start
+    // the servers.
     {
         lock_guard lock(_mutex);
 
@@ -1297,11 +1295,8 @@ Database::addAdapterSyncCallback(
 AdapterInfoSeq
 Database::getAdapterInfo(const string& id)
 {
-    //
-    // First we check if the given adapter id is associated to a
-    // server, if that's the case we get the adapter proxy from the
-    // server.
-    //
+    // First we check if the given adapter id is associated to a server, if that's the case we get the adapter proxy
+    // from the server.
     shared_ptr<GetAdapterInfoResult> result;
     try
     {
@@ -1317,10 +1312,8 @@ Database::getAdapterInfo(const string& id)
         return result->get(); // Don't hold the database lock while waiting for the endpoints
     }
 
-    //
-    // Otherwise, we check the adapter endpoint table -- if there's an
-    // entry the adapter is managed by the registry itself.
-    //
+    // Otherwise, we check the adapter endpoint table -- if there's an entry the adapter is managed by the registry
+    // itself.
     IceDB::ReadOnlyTxn txn(_env);
 
     AdapterInfo info;
@@ -1331,10 +1324,7 @@ Database::getAdapterInfo(const string& id)
     }
     else
     {
-        //
-        // If it's not a regular object adapter, perhaps it's a replica
-        // group...
-        //
+        // If it's not a regular object adapter, perhaps it's a replica group...
         infos = findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, id);
         if (infos.empty())
         {
@@ -1347,11 +1337,8 @@ Database::getAdapterInfo(const string& id)
 AdapterInfoSeq
 Database::getFilteredAdapterInfo(const string& id, const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
 {
-    //
-    // First we check if the given adapter id is associated to a
-    // server, if that's the case we get the adapter proxy from the
-    // server.
-    //
+    // First we check if the given adapter id is associated to a server, if that's the case we get the adapter proxy
+    // from the server.
     try
     {
         AdapterInfoSeq infos;
@@ -1373,10 +1360,8 @@ Database::getFilteredAdapterInfo(const string& id, const shared_ptr<Ice::Connect
     {
     }
 
-    //
-    // Otherwise, we check the adapter endpoint table -- if there's an
-    // entry the adapter is managed by the registry itself.
-    //
+    // Otherwise, we check the adapter endpoint table -- if there's an entry the adapter is managed by the registry
+    // itself.
     IceDB::ReadOnlyTxn txn(_env);
 
     AdapterInfo info;
@@ -1387,10 +1372,7 @@ Database::getFilteredAdapterInfo(const string& id, const shared_ptr<Ice::Connect
     }
     else
     {
-        //
-        // If it's not a regular object adapter, perhaps it's a replica
-        // group...
-        //
+        // If it's not a regular object adapter, perhaps it's a replica group...
         infos = findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, id);
         if (infos.empty())
         {
@@ -1479,10 +1461,8 @@ Database::getAllAdapters(const string& expression)
     }
     cursor.close();
 
-    //
-    // COMPILERFIX: We're not using result.insert() here, this doesn't compile on Sun.
-    //
-    // result.insert(result.end(), groups.begin(), groups.end())
+    // COMPILERFIX: We're not using result.insert() here, this doesn't compile on Sun. result.insert(result.end(),
+    // groups.begin(), groups.end())
     for (const auto& group : groups)
     {
         result.push_back(group);
@@ -2194,11 +2174,8 @@ Database::checkReplicaGroupForRemove(const string& replicaGroup)
 
     if (!entry)
     {
-        //
-        // This would indicate an inconsistency with the cache and
-        // database. We don't print an error, it will be printed
-        // when the application is actually removed.
-        //
+        // This would indicate an inconsistency with the cache and database. We don't print an error, it will be
+        // printed when the application is actually removed.
         return;
     }
 
@@ -2273,9 +2250,7 @@ Database::reload(
 {
     const string application = oldApp.getInstance().name;
 
-    //
     // Remove destroyed servers.
-    //
     auto oldServers = oldApp.getServerInfos(uuid, revision);
     auto newServers = newApp.getServerInfos(uuid, revision);
     vector<pair<bool, ServerInfo>> load;
@@ -2307,9 +2282,7 @@ Database::reload(
         }
     }
 
-    //
     // Remove destroyed replica groups.
-    //
     const ReplicaGroupDescriptorSeq& oldAdpts = oldApp.getInstance().replicaGroups;
     const ReplicaGroupDescriptorSeq& newAdpts = newApp.getInstance().replicaGroups;
     for (const auto& oldAdpt : oldAdpts)
@@ -2332,27 +2305,21 @@ Database::reload(
         }
     }
 
-    //
     // Remove all the node descriptors.
-    //
     const NodeDescriptorDict& oldNodes = oldApp.getInstance().nodes;
     for (const auto& oldNode : oldNodes)
     {
         _nodeCache.get(oldNode.first)->removeDescriptor(application);
     }
 
-    //
     // Add back node descriptors.
-    //
     const NodeDescriptorDict& newNodes = newApp.getInstance().nodes;
     for (const auto& newNode : newNodes)
     {
         _nodeCache.get(newNode.first, true)->addDescriptor(application, newNode.second);
     }
 
-    //
     // Add back replica groups.
-    //
     for (const auto& newAdpt : newAdpts)
     {
         try
@@ -2372,9 +2339,7 @@ Database::reload(
         }
     }
 
-    //
     // Add back servers.
-    //
     for (const auto& q : load)
     {
         if (q.first) // Update
@@ -2461,19 +2426,14 @@ Database::checkUpdate(
             if (noRestart && p->second.node == q->second.node &&
                 isServerUpdated(p->second, q->second, true)) // Ignore properties
             {
-                //
-                // The updates are not only property updates and noRestart is required, no
-                // need to check the server update on the node, we know already it requires
-                // a restart.
-                //
+                // The updates are not only property updates and noRestart is required, no need to check the server
+                // update on the node, we know already it requires a restart.
                 servers.push_back(p->first);
                 reasons.push_back("update requires the server '" + p->first + "' to be stopped");
             }
             else
             {
-                //
                 // Ask the node to check the server update.
-                //
                 try
                 {
                     auto result = _serverCache.get(p->first)->checkUpdate(p->second, noRestart);
@@ -2639,10 +2599,8 @@ Database::finishApplicationUpdate(
 
     _applicationObserverTopic->waitForSyncedSubscribers(serial); // Wait for replicas to be updated.
 
-    //
-    // Mark the application as updated. All the replicas received the update so it's now safe
-    // for the nodes to start servers.
-    //
+    // Mark the application as updated. All the replicas received the update so it's now safe for the nodes to start
+    // servers.
     {
         lock_guard lock(_mutex);
         auto p = find(_updating.begin(), _updating.end(), update.descriptor.name);
@@ -2770,10 +2728,8 @@ Database::updateSerial(const IceDB::ReadWriteTxn& txn, const string& dbName, int
         return -1;
     }
 
-    //
-    // If a serial number is set, just update the serial number from the database,
-    // otherwise if the serial is 0, we increment the serial from the database.
-    //
+    // If a serial number is set, just update the serial number from the database, otherwise if the serial is 0, we
+    // increment the serial from the database.
     if (serial > 0)
     {
         _serials.put(txn, dbName, serial);

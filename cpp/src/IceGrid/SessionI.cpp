@@ -116,9 +116,7 @@ SessionI::SessionI(const string& id, const shared_ptr<Database>& database, IceIn
 Ice::ObjectPrx
 SessionI::_register(const shared_ptr<SessionServantManager>& servantManager, const shared_ptr<Ice::Connection>& con)
 {
-    //
     // This is supposed to be called after creation only, no need to synchronize.
-    //
     _servantManager = servantManager;
     return _servantManager->addSession(shared_from_this(), con, "");
 }
@@ -235,11 +233,8 @@ SessionI::destroyImpl(bool shutdown)
 
     _servantManager->removeSession(shared_from_this());
 
-    //
-    // NOTE: The _requests and _allocations attributes are immutable
-    // once the session is destroyed so we don't need mutex protection
-    // here to access them.
-    //
+    // NOTE: The _requests and _allocations attributes are immutable once the session is destroyed so we don't need
+    // mutex protection here to access them.
     for (const auto& request : _requests)
     {
         request->cancel(make_exception_ptr(AllocationException("session destroyed")));

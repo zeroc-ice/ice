@@ -75,9 +75,7 @@ NodeI::NodeI(
     const_cast<bool&>(_redirectErrToOut) = props->getIcePropertyAsInt("IceGrid.Node.RedirectErrToOut") > 0;
     const_cast<bool&>(_allowEndpointsOverride) = props->getIcePropertyAsInt("IceGrid.Node.AllowEndpointsOverride") > 0;
 
-    //
     // Parse the properties override property.
-    //
     vector<string> overrides = props->getIcePropertyAsList("IceGrid.Node.PropertiesOverride");
     if (!overrides.empty())
     {
@@ -347,26 +345,18 @@ NodeI::registerWithRegistry(const InternalRegistryPrx& registry)
 void
 NodeI::checkConsistency(const NodeSessionPrx& session)
 {
-    //
-    // Only do the consistency check on the startup. This ensures that servers can't
-    // be removed by a bogus master when the master session is re-established.
-    //
+    // Only do the consistency check on the startup. This ensures that servers can't be removed by a bogus master when
+    // the master session is re-established.
     if (_consistencyCheckDone)
     {
         return;
     }
     _consistencyCheckDone = true;
 
-    //
-    // We use a serial number to keep track of the concurrent changes
-    // on the node. When a server is loaded/destroyed the serial is
-    // incremented. This allows to ensure that the list of servers
-    // returned by the registry is consistent with the servers
-    // currently deployed on the node: if the serial didn't change
-    // after getting the list of servers from the registry, we have
-    // the accurate list of servers that should be deployed on the
-    // node.
-    //
+    // We use a serial number to keep track of the concurrent changes on the node. When a server is loaded/destroyed
+    // the serial is incremented. This allows to ensure that the list of servers returned by the registry is consistent
+    // with the servers currently deployed on the node: if the serial didn't change after getting the list of servers
+    // from the registry, we have the accurate list of servers that should be deployed on the node.
     unsigned long serial = 0;
     Ice::StringSeq servers;
     vector<shared_ptr<ServerCommand>> commands;
@@ -453,12 +443,8 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
         _serversDynamicInfo[info.id] = info;
     }
 
-    //
-    // Send the update and make sure we don't send the update twice to
-    // the same observer (it's possible for the observer to be
-    // registered twice if a replica is removed and added right away
-    // after).
-    //
+    // Send the update and make sure we don't send the update twice to the same observer (it's possible for the
+    // observer to be registered twice if a replica is removed and added right away after).
     set<optional<NodeObserverPrx>> sent;
     for (const auto& observer : _observers)
     {
@@ -488,12 +474,8 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
         _adaptersDynamicInfo.erase(info.id);
     }
 
-    //
-    // Send the update and make sure we don't send the update twice to
-    // the same observer (it's possible for the observer to be
-    // registered twice if a replica is removed and added right away
-    // after).
-    //
+    // Send the update and make sure we don't send the update twice to the same observer (it's possible for the
+    // observer to be registered twice if a replica is removed and added right away after).
     set<optional<NodeObserverPrx>> sent;
     for (const auto& observer : _observers)
     {
@@ -594,10 +576,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 {
     vector<shared_ptr<ServerCommand>> commands;
 
-    //
-    // Check if the servers directory doesn't contain more servers
-    // than the registry really knows.
-    //
+    // Check if the servers directory doesn't contain more servers than the registry really knows.
     Ice::StringSeq contents;
     try
     {
@@ -613,9 +592,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     vector<string> remove;
     set_difference(contents.begin(), contents.end(), servers.begin(), servers.end(), back_inserter(remove));
 
-    //
     // Remove the extra servers if possible.
-    //
     try
     {
         auto p = remove.begin();
@@ -624,9 +601,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
             auto server = dynamic_pointer_cast<ServerI>(_adapter->find(createServerIdentity(*p)));
             if (server)
             {
-                //
                 // If the server is loaded, we invoke on it to destroy it.
-                //
                 try
                 {
                     auto command = server->destroy("", 0, "Master", false, nullptr);
@@ -652,10 +627,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
             {
                 if (canRemoveServerDirectory(*p))
                 {
-                    //
-                    // If the server directory can be removed and we
-                    // either remove it or back it up before to remove it.
-                    //
+                    // If the server directory can be removed and we either remove it or back it up before to remove it.
                     removeRecursive(_serversDir + "/" + *p);
                     p = remove.erase(p);
                     continue;
@@ -673,10 +645,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
     {
-        //
-        // Just return the server commands, we'll finish the
-        // consistency check next time the node is started.
-        //
+        // Just return the server commands, we'll finish the consistency check next time the node is started.
         return commands;
     }
 
@@ -698,9 +667,7 @@ NodeI::getMasterNodeSession() const
 bool
 NodeI::canRemoveServerDirectory(const string& name)
 {
-    //
     // Check if there's files which we didn't create.
-    //
     Ice::StringSeq c = readDirectory(_serversDir + "/" + name);
     set<string> contents(c.begin(), c.end());
     contents.erase("config");

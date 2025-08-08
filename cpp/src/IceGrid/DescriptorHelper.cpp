@@ -346,16 +346,11 @@ Resolver::Resolver(
       _reserved(getReserved()),
       _version(0)
 {
-    //
     // Make sure the variables don't override reserved variables.
-    //
     checkReserved("variable", _variables);
     setReserved("application", app.name);
 
-    //
-    // Some reserved variables which are ignored for now and will be
-    // substituted later.
-    //
+    // Some reserved variables which are ignored for now and will be substituted later.
     _ignore.insert("node.os");
     _ignore.insert("node.hostname");
     _ignore.insert("node.release");
@@ -365,9 +360,7 @@ Resolver::Resolver(
     _ignore.insert("node.data");
     _ignore.insert("node.ice.soversion");
 
-    //
     // Deprecated variables
-    //
     _deprecated["node.datadir"] = "node.data";
 
     for (const auto& variable : _variables)
@@ -714,9 +707,7 @@ Resolver::addPropertySets(const PropertySetDescriptorDict& propertySets)
     }
     _propertySets.insert(oldPropertySets.begin(), oldPropertySets.end());
 
-    //
     // Validate the new property set references.
-    //
     for (const auto& propertySet : propertySets)
     {
         [[maybe_unused]] auto _ = getProperties(propertySet.second.references);
@@ -808,13 +799,9 @@ Resolver::hasReplicaGroup(const string& id) const
 {
     if (!_application)
     {
-        //
-        // If we don't know the application descriptor we assume that
-        // the replica group exists (this is possible if the resolver
-        // wasn't built from an application helper, that's the case if
-        // it's built from NodeCache just to resolve ${node.*} and
-        // ${session.*} variables.
-        //
+        // If we don't know the application descriptor we assume that the replica group exists (this is possible if the
+        // resolver wasn't built from an application helper, that's the case if it's built from NodeCache just to
+        // resolve ${node.*} and ${session.*} variables.
         return true;
     }
 
@@ -867,14 +854,9 @@ Resolver::substitute(const string& v, bool useParams, bool useIgnored) const
             throw invalid_argument("malformed variable name '" + value + "'");
         }
 
-        //
-        // Get the name of the variable and get its value if the
-        // variable is not currently ignored (in which case we do
-        // nothing, the variable will be substituted later). If the
-        // name referred to a parameter we don't do any recursive
-        // substitution: the parameter value is computed at the point
-        // of definition.
-        //
+        // Get the name of the variable and get its value if the variable is not currently ignored (in which case we do
+        // nothing, the variable will be substituted later). If the name referred to a parameter we don't do any
+        // recursive substitution: the parameter value is computed at the point of definition.
         string name = value.substr(beg + 2, end - beg - 2);
         if (_ignore.find(name) != _ignore.end())
         {
@@ -905,10 +887,7 @@ Resolver::substitute(const string& v, bool useParams, bool useIgnored) const
 string
 Resolver::getVariable(const string& name, bool checkParams, bool& param) const
 {
-    //
-    // We first check the reserved variables, then the parameters if
-    // necessary and finally the variables.
-    //
+    // We first check the reserved variables, then the parameters if necessary and finally the variables.
     param = false;
     auto p = _reserved.find(name);
     if (p != _reserved.end())
@@ -1122,12 +1101,8 @@ CommunicatorHelper::instantiateImpl(const shared_ptr<CommunicatorDescriptor>& in
         adapter.serverLifetime = p->serverLifetime;
         adapter.replicaGroupId = resolve.asId(p->replicaGroupId, "object adapter replica group id", true);
 
-        //
-        // Don't check for unknown replica groups here. This check is
-        // instead done by the database before the application is
-        // added. It's legal for an OA to refer to a replica group
-        // from another application.
-        //
+        // Don't check for unknown replica groups here. This check is instead done by the database before the
+        // application is added. It's legal for an OA to refer to a replica group from another application.
         // if(!adapter.replicaGroupId.empty() && !resolve.hasReplicaGroup(adapter.replicaGroupId))
         //{
         // resolve.exception("unknown replica group '" + adapter.replicaGroupId + "'");
@@ -1155,9 +1130,7 @@ CommunicatorHelper::instantiateImpl(const shared_ptr<CommunicatorDescriptor>& in
         adapter.allocatables = resolve(p->allocatables, proxyOptions, "allocatable");
         instance->adapters.push_back(adapter);
 
-        //
         // Make sure the endpoints are defined.
-        //
         if (IceGrid::getProperty(instance->propertySet.properties, adapter.name + ".Endpoints").empty())
         {
             resolve.exception("invalid endpoints for adapter '" + adapter.name + "': empty string");
@@ -1722,11 +1695,8 @@ InstanceHelper::instantiateParams(
 
 ServiceInstanceHelper::ServiceInstanceHelper(ServiceInstanceDescriptor desc, bool ignoreProps) : _def(std::move(desc))
 {
-    //
-    // If the service instance is not a template instance, its
-    // descriptor must be set and contain the definition of the
+    // If the service instance is not a template instance, its descriptor must be set and contain the definition of the
     // service.
-    //
     if (_def.templateName.empty() && !_def.descriptor)
     {
         throw DeploymentException("invalid service instance: no template defined");
@@ -1776,27 +1746,18 @@ ServiceInstanceHelper::instantiate(const Resolver& resolve, const PropertySetDes
             tmpl.parameterDefaults);
     }
 
-    //
     // Setup the resolver.
-    //
     Resolver svcResolve(resolve, parameterValues, !_service.getDescriptor());
     svcResolve.setReserved("service", svcResolve(def.getDescriptor()->name, "service name", false));
     svcResolve.setContext("service `${service}' from server `${server}'");
 
-    //
     // Instantiate the service instance.
-    //
     ServiceInstanceDescriptor desc;
     desc.descriptor = def.instantiate(svcResolve, svcResolve(_def.propertySet).properties, serviceProps);
 
-    //
-    // NOTE: We can't keep the following attributes in the service
-    // instance otherwise the instance comparison would be based on
-    // the template + parameters which would be wrong (if the template
-    // changed the instance also changed.)
-    //
-    // desc.templateName = _template;
-    // desc.parameterValues = _parameters;
+    // NOTE: We can't keep the following attributes in the service instance otherwise the instance comparison would be
+    // based on the template + parameters which would be wrong (if the template changed the instance also changed.)
+    // desc.templateName = _template; desc.parameterValues = _parameters;
     return desc;
 }
 
@@ -1856,9 +1817,7 @@ ServerInstanceHelper::ServerInstanceHelper(
 void
 ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const Resolver& resolve, bool instantiate)
 {
-    //
     // Get the server definition if it's not provided.
-    //
     auto def = definition;
     std::map<std::string, std::string> parameterValues;
     if (!def)
@@ -1868,9 +1827,7 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
             resolve.exception("invalid server instance: template is not defined");
         }
 
-        //
         // Get the server definition and the template property sets.
-        //
         TemplateDescriptor tmpl = resolve.getServerTemplate(_def.templateName);
         def = dynamic_pointer_cast<ServerDescriptor>(tmpl.descriptor);
         parameterValues = instantiateParams(
@@ -1882,18 +1839,14 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
     }
     assert(def);
 
-    //
     // Setup the resolver.
-    //
     Resolver svrResolve(resolve, parameterValues, true);
     svrResolve.setReserved("server", svrResolve.asId(def->id, "server id", false));
     svrResolve.setContext("server `${server}'");
     svrResolve.setVersion(def->iceVersion);
     _id = svrResolve("${server}");
 
-    //
     // Set the server definition.
-    //
     _serverDefinition = createHelper(def);
 
     if (!instantiate)
@@ -1901,19 +1854,15 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
         return; // We're done.
     }
 
-    //
-    // Ignore undefined session.id variable if the activation mode is
-    // 'session', it will get defined when the server is allocated.
-    //
+    // Ignore undefined session.id variable if the activation mode is 'session', it will get defined when the server is
+    // allocated.
     if (svrResolve(def->activation, "server activation", true) == "session")
     {
         svrResolve.addIgnored("session.id");
     }
 
-    //
-    // Instantiate the server instance definition (we use the server
-    // resolver above, so using parameters in properties is possible).
-    //
+    // Instantiate the server instance definition (we use the server resolver above, so using parameters in properties
+    // is possible).
     if (!_def.templateName.empty())
     {
         _instance.templateName = _def.templateName;
@@ -1926,9 +1875,7 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
         }
     }
 
-    //
     // Instantiate the server definition.
-    //
     shared_ptr<ServerDescriptor> inst =
         _serverDefinition->instantiate(svrResolve, _instance.propertySet.properties, _instance.servicePropertySets);
     _serverInstance = createHelper(inst);
@@ -2019,19 +1966,14 @@ NodeHelper::NodeHelper(string name, NodeDescriptor descriptor, const Resolver& a
 
     if (instantiate)
     {
-        //
         // Instantiate the node definition.
-        //
         _instance.variables = _def.variables;
         _instance.loadFactor = resolve.asFloat(_def.loadFactor, "load factor");
         _instance.description = resolve(_def.description, "description");
         _instance.propertySets = resolve(_def.propertySets);
 
-        //
-        // Set the named property sets on the resolver. We use the
-        // instantiated named property sets here -- named property sets
-        // must be fully definied at the node level.
-        //
+        // Set the named property sets on the resolver. We use the instantiated named property sets here -- named
+        // property sets must be fully definied at the node level.
         resolve.addPropertySets(_instance.propertySets);
     }
 
@@ -2151,28 +2093,19 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     NodeDescriptor def;
     assert(update.name == _name);
 
-    //
     // Update the variables, property sets, load factor, description.
-    //
     def.variables = updateDictElts(_def.variables, update.variables, update.removeVariables);
     def.propertySets = updateDictElts(_def.propertySets, update.propertySets, update.removePropertySets);
     def.loadFactor = update.loadFactor ? update.loadFactor->value : _def.loadFactor;
     def.description = update.description ? update.description->value : _def.description;
 
-    //
-    // NOTE: It's important to create the resolver *after* updating
-    // the node variables!
-    //
+    // NOTE: It's important to create the resolver *after* updating the node variables!
     Resolver resolve(appResolve, def.variables, false);
     resolve.setReserved("node", _name);
     resolve.setContext("node '" + _name + "'");
 
-    //
-    // Update the node servers and server instances. The update is in 2 steps:
-    //
-    //  * first we instantiate the servers from the update descriptor.
-    //  * then we add the servers from the node which were not updated or removed.
-    //
+    // Update the node servers and server instances. The update is in 2 steps: * first we instantiate the servers from
+    // the update descriptor. * then we add the servers from the node which were not updated or removed.
 
     set<string> added;
     set<string> removed(update.removeServers.begin(), update.removeServers.end());
@@ -2193,11 +2126,8 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
             continue;
         }
 
-        //
-        // Re-instantiate the server. Make sure the server ID didn't
-        // change, if the ID of a server changes the update descriptor
-        // has to remove the server and add an update entry for it.
-        //
+        // Re-instantiate the server. Make sure the server ID didn't change, if the ID of a server changes the update
+        // descriptor has to remove the server and add an update entry for it.
         ServerInstanceHelper helper(serverInstance.second.getDefinition(), resolve, false);
         if (helper.getId() != serverInstance.first)
         {
@@ -2225,11 +2155,8 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
             continue;
         }
 
-        //
-        // Re-instantiate the server. Make sure the server ID didn't
-        // change, if the ID of a server changes the update descriptor
-        // has to remove the server and add an update entry for it.
-        //
+        // Re-instantiate the server. Make sure the server ID didn't change, if the ID of a server changes the update
+        // descriptor has to remove the server and add an update entry for it.
         ServerInstanceHelper helper(server.second.getServerDefinition(), resolve, false);
         if (helper.getId() != server.first)
         {
@@ -2416,9 +2343,7 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
         return;
     }
 
-    //
     // TODO: Show updated variables?
-    //
 
     out << nl << "node '" + _name + "' updated";
     out << sb;
@@ -2485,9 +2410,7 @@ ApplicationHelper::ApplicationHelper(
 
     if (instantiate)
     {
-        //
         // Instantiate the application definition.
-        //
         _instance.name = _def.name;
         _instance.variables = _def.variables;
         _instance.serverTemplates = _def.serverTemplates;
@@ -2531,17 +2454,12 @@ ApplicationHelper::ApplicationHelper(
             _instance.replicaGroups.push_back(desc);
         }
 
-        //
-        // Set the named property sets on the resolver. We use the
-        // instantiated named property sets here -- named property sets
-        // must be fully definied at the application level.
-        //
+        // Set the named property sets on the resolver. We use the instantiated named property sets here -- named
+        // property sets must be fully definied at the application level.
         resolve.addPropertySets(_instance.propertySets);
     }
 
-    //
     // Create the node helpers.
-    //
     NodeHelperDict::const_iterator n;
     for (const auto& node : _def.nodes)
     {
@@ -2552,10 +2470,7 @@ ApplicationHelper::ApplicationHelper(
         }
     }
 
-    //
-    // If the application is instantiated, ensure the unicity of
-    // object ids, adapter ids and server ids.
-    //
+    // If the application is instantiated, ensure the unicity of object ids, adapter ids and server ids.
     if (instantiate)
     {
         multiset<string> serverIds;
@@ -2725,12 +2640,8 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
 ApplicationDescriptor
 ApplicationHelper::instantiateServer(const string& node, const ServerInstanceDescriptor& instance) const
 {
-    //
-    // Copy this application descriptor definition and add a server
-    // instance to the given node. The caller should then construct
-    // an application helper with the new application definition to
-    // ensure it's valid.
-    //
+    // Copy this application descriptor definition and add a server instance to the given node. The caller should then
+    // construct an application helper with the new application definition to ensure it's valid.
     ApplicationDescriptor def = _def;
     auto q = def.nodes.find(node);
     if (q == def.nodes.end())
@@ -2785,10 +2696,7 @@ ApplicationHelper::getReplicaGroups(set<string>& replicaGroups, set<string>& ada
         node.second.getReplicaGroups(allAdapterReplicaGroups);
     }
 
-    //
-    // Only return references to replica groups which don't belong to
-    // this application.
-    //
+    // Only return references to replica groups which don't belong to this application.
     set_difference(
         allAdapterReplicaGroups.begin(),
         allAdapterReplicaGroups.end(),

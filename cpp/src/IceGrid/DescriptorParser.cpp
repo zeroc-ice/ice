@@ -115,10 +115,8 @@ namespace
             }
             else if (!isCurrentTargetDeployable())
             {
-                //
-                // We don't bother to parse the elements if the elements are enclosed in a target element
-                // which won't be deployed.
-                //
+                // We don't bother to parse the elements if the elements are enclosed in a target element which won't
+                // be deployed.
                 attributes.asMap();
                 return;
             }
@@ -155,9 +153,7 @@ namespace
 
                 bool importTemplates = attributes.asBool("import-default-templates", false);
 
-                //
                 // TODO: is ignoring importTemplates the desired behavior when _admin == nullopt?
-                //
                 if (importTemplates && _admin != nullopt)
                 {
                     try
@@ -403,9 +399,7 @@ namespace
             }
             else if (name == "description" || name == "option" || name == "env" || name == "directory")
             {
-                //
                 // Nothing to do.
-                //
             }
             else
             {
@@ -419,10 +413,7 @@ namespace
             error(ex.what());
         }
 
-        //
-        // Check if the previous element value has been consumed and if not make
-        // sure it's "empty".
-        //
+        // Check if the previous element value has been consumed and if not make sure it's "empty".
         string value = elementValue();
         if (!value.empty() && value.find_first_not_of(" \t\r\n") != string::npos)
         {
@@ -449,10 +440,8 @@ namespace
             }
             else if (!isCurrentTargetDeployable())
             {
-                //
-                // We don't bother to parse the elements if the elements are enclosed in a target element
-                // which won't be deployed.
-                //
+                // We don't bother to parse the elements if the elements are enclosed in a target element which won't
+                // be deployed.
                 return;
             }
             else if (name == "node")
@@ -611,10 +600,7 @@ namespace
             error(ex.what());
         }
 
-        //
-        // Check if the element value has been consumed and if not make
-        // sure it's "empty".
-        //
+        // Check if the element value has been consumed and if not make sure it's "empty".
         string value = elementValue();
         if (!value.empty() && value.find_first_not_of(" \t\r\n") != string::npos)
         {
@@ -698,9 +684,7 @@ namespace
         string server = _currentServer.get() ? _currentServer->getDescriptor()->id : string("");
         string service = _currentService.get() ? _currentService->getDescriptor()->name : string("");
 
-        //
         // Compute the current fully qualified name of the communicator.
-        //
         string fqn;
         if (!application.empty())
         {
@@ -719,16 +703,12 @@ namespace
             fqn += (fqn.empty() ? "" : ".") + service;
         }
 
-        //
         // Go through the list of supplied targets and see if we can match one with the current communicator + target.
-        //
         for (const auto& p : _targets)
         {
             if (p == target)
             {
-                //
                 // A supplied target without any communicator prefix is matching the target.
-                //
                 return true;
             }
             else
@@ -737,10 +717,8 @@ namespace
                 string::size_type end = 0;
                 while (end != string::npos)
                 {
-                    //
-                    // Add the first communicator name from the communicator fully qualified name to the
-                    // target and see if matches.
-                    //
+                    // Add the first communicator name from the communicator fully qualified name to the target and see
+                    // if matches.
                     end = fqn.find('.', end);
                     if (end == string::npos)
                     {

@@ -25,9 +25,7 @@ namespace IceBT::DBus
         Exception(std::string s) : reason(std::move(s)) {}
     };
 
-    //
     // Type is the base class for a hierarchy representing DBus data types.
-    //
     class Type;
     using TypePtr = std::shared_ptr<Type>;
 
@@ -116,9 +114,7 @@ namespace IceBT::DBus
     };
     using DictEntryTypePtr = std::shared_ptr<DictEntryType>;
 
-    //
     // Value is the base class of a hierarchy representing DBus data values.
-    //
     class Value;
     using ValuePtr = std::shared_ptr<Value>;
 
@@ -377,9 +373,7 @@ namespace IceBT::DBus
         StructTypePtr _type;
     };
 
-    //
     // Message encapsulates a DBus message. It only provides the functionality required by the IceBT transport.
-    //
     class Message;
     using MessagePtr = std::shared_ptr<Message>;
 
@@ -399,15 +393,11 @@ namespace IceBT::DBus
         [[nodiscard]] virtual std::string getMember() const = 0;
         [[nodiscard]] virtual std::string getDestination() const = 0;
 
-        //
         // Writing arguments.
-        //
         virtual void write(const ValuePtr&) = 0;
         virtual void write(const std::vector<ValuePtr>&) = 0;
 
-        //
         // Reading arguments.
-        //
         [[nodiscard]] virtual bool checkTypes(const std::vector<TypePtr>&) const = 0;
         virtual ValuePtr read() = 0;
         virtual std::vector<ValuePtr> readAll() = 0;
@@ -426,9 +416,7 @@ namespace IceBT::DBus
     };
     using AsyncCallbackPtr = std::shared_ptr<AsyncCallback>;
 
-    //
     // The result of an asynchronous DBus operation.
-    //
     class AsyncResult
     {
     public:
@@ -445,22 +433,16 @@ namespace IceBT::DBus
     class Connection;
     using ConnectionPtr = std::shared_ptr<Connection>;
 
-    //
     // Allows a subclass to intercept DBus messages.
-    //
     class Filter
     {
     public:
-        //
         // Return `true` if message is handled or `false` otherwise.
-        //
         virtual bool handleMessage(const ConnectionPtr&, const MessagePtr&) = 0;
     };
     using FilterPtr = std::shared_ptr<Filter>;
 
-    //
     // Allows a subclass to receive DBus method invocations.
-    //
     class Service
     {
     public:
@@ -468,9 +450,7 @@ namespace IceBT::DBus
     };
     using ServicePtr = std::shared_ptr<Service>;
 
-    //
     // Encapsulates a DBus connection.
-    //
     class Connection
     {
     public:
@@ -483,16 +463,11 @@ namespace IceBT::DBus
         virtual void addService(const std::string&, const ServicePtr&) = 0;
         virtual void removeService(const std::string&) = 0;
 
-        //
-        // Asynchronously invokes a method call. The returned AsyncResult can be used
-        // to determine completion status and obtain the reply, or supply a callback
-        // to be notified when the call completes.
-        //
+        // Asynchronously invokes a method call. The returned AsyncResult can be used to determine completion status
+        // and obtain the reply, or supply a callback to be notified when the call completes.
         virtual AsyncResultPtr callAsync(const MessagePtr&, const AsyncCallbackPtr& = nullptr) = 0;
 
-        //
         // Sends a message without blocking. Use this to send signals and replies.
-        //
         virtual void sendAsync(const MessagePtr&) = 0;
 
         virtual void close() = 0;

@@ -23,14 +23,10 @@ namespace Ice::SSL::Schannel
     public:
         SSLEngine(const IceInternal::InstancePtr&);
 
-        //
         // Setup the engine.
-        //
         void initialize() final;
 
-        //
         // Destroy the engine.
-        //
         void destroy() final;
 
         [[nodiscard]] std::string getCipherName(ALG_ID) const;

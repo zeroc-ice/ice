@@ -483,10 +483,8 @@ Slice::Java::hasMetadata(const string& directive, const MetadataList& metadata)
 bool
 Slice::Java::getTypeMetadata(const MetadataList& metadata, string& instanceType, string& formalType)
 {
-    //
-    // Extract the instance type and an optional formal type.
-    // The correct syntax is "java:type:instance-type[:formal-type]".
-    //
+    // Extract the instance type and an optional formal type. The correct syntax is
+    // "java:type:instance-type[:formal-type]".
     for (const auto& m : metadata)
     {
         if (m->directive() == "java:type")
@@ -532,15 +530,11 @@ Slice::Java::getDictionaryTypes(
     string& instanceType,
     string& formalType)
 {
-    //
     // Get the types of the key and value.
-    //
     string keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package, MetadataList(), true);
     string valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package, MetadataList(), true);
 
-    //
     // Collect metadata for a custom type.
-    //
     if (getTypeMetadata(metadata, instanceType, formalType) ||
         getTypeMetadata(dict->getMetadata(), instanceType, formalType))
     {
@@ -552,9 +546,7 @@ Slice::Java::getDictionaryTypes(
         return true;
     }
 
-    //
     // Return a default type for the platform.
-    //
     instanceType = "java.util.HashMap<" + keyTypeStr + ", " + valueTypeStr + ">";
     formalType = "java.util.Map<" + keyTypeStr + ", " + valueTypeStr + ">";
     return false;

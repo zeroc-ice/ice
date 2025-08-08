@@ -19,9 +19,7 @@ int
 #ifdef _WIN32
 wmain(int argc, wchar_t* argv[])
 {
-    //
     // Enable binary input mode for stdin to avoid automatic conversions.
-    //
     _setmode(_fileno(stdin), _O_BINARY);
 #else
 main(int argc, char* argv[])
@@ -121,9 +119,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     {
         for (const auto& p : props)
         {
-            //
             // Ignore proxy property settings. eg IceStormAdmin.TopicManager.*.LocatorCacheTimeout
-            //
             if (p.first.find('.', strlen("IceStormAdmin.TopicManager.")) == string::npos)
             {
                 try

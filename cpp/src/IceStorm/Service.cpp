@@ -105,9 +105,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
     auto topicAdapter = communicator->createObjectAdapter("IceStorm.TopicManager");
     auto publishAdapter = communicator->createObjectAdapter("IceStorm.Publish");
 
-    //
     // We use the name of the service for the name of the database environment.
-    //
     string instanceName = properties->getIceProperty("IceStorm.InstanceName");
     Identity topicManagerId = {"TopicManager", instanceName};
 
@@ -163,7 +161,6 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
         string topicManagerAdapterId = properties->getIceProperty("IceStorm.TopicManager.AdapterId");
 
         // We support two possible deployments. The first is a manual deployment, the second is IceGrid.
-        //
         // Here we check for the manual deployment
         const string prefix = "IceStorm.Nodes.";
         Ice::PropertyDict props = properties->getPropertiesForPrefix(prefix);
@@ -205,11 +202,8 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
             }
 
             // Determine the set of node id and node proxies.
-            //
             // This is determined by locating all topic manager replicas, and then working out the node for that
-            // replica.
-            //
-            // We work out the node id by removing the instance name. The node id must follow.
+            // replica. We work out the node id by removing the instance name. The node id must follow.
             auto locator = uncheckedCast<IceGrid::LocatorPrx>(communicator->getDefaultLocator().value());
             auto query = locator->getLocalQuery();
             auto replicas = query->findAllReplicas(communicator->stringToProxy(instanceName + "/TopicManager"));
@@ -364,9 +358,7 @@ ServiceI::start(
     const string& serviceName,
     const Identity& id)
 {
-    //
     // This is for IceGrid only and as such we use a transient implementation of IceStorm.
-    //
 
     const string instanceName = "IceStorm";
     _instance = make_shared<Instance>(instanceName, serviceName, communicator, publishAdapter, topicAdapter, nullptr);
@@ -398,9 +390,7 @@ ServiceI::stop()
     // Shutdown the instance. This deactivates all OAs.
     _instance->shutdown();
 
-    //
     // It's necessary to reap all destroyed topics on shutdown.
-    //
     if (_manager)
     {
         _manager->shutdown();
@@ -410,8 +400,6 @@ ServiceI::stop()
         _transientManager->shutdown();
     }
 
-    //
     // Destroy the instance. This step must occur last.
-    //
     _instance->destroy();
 }

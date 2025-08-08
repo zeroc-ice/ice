@@ -1650,9 +1650,7 @@ Parser::propertiesService(const list<string>& args, bool single)
 
     try
     {
-        //
         // First, we ensure that the service exists.
-        //
         ServerInfo info = _admin->getServerInfo(server);
         auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
         if (!iceBox)
@@ -2347,11 +2345,7 @@ Parser::showWarranty()
     consoleOut << "This command is not implemented." << endl;
 }
 
-//
-// With older flex version <= 2.5.35 YY_INPUT second
-// paramenter is of type int&, in newer versions it
-// changes to size_t&
-//
+// With older flex version <= 2.5.35 YY_INPUT second paramenter is of type int&, in newer versions it changes to size_t&
 void
 Parser::getInput(char* buf, int& result, size_t maxSize)
 {

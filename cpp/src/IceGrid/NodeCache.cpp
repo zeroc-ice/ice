@@ -154,11 +154,8 @@ NodeEntry::setSession(const shared_ptr<NodeSessionI>& session)
             }
         }
 
-        //
-        // Clear the saved proxy, the node has established a session
-        // so we won't need anymore to try to register it with this
-        // registry.
-        //
+        // Clear the saved proxy, the node has established a session so we won't need anymore to try to register it
+        // with this registry.
         _proxy = nullopt;
     }
     else
@@ -236,10 +233,7 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
         throw NodeNotExistException(); // The node doesn't exist in the given application.
     }
 
-    //
-    // TODO: Cache the load factors? Parsing the load factor for each
-    // call could be costly.
-    //
+    // TODO: Cache the load factors? Parsing the load factor for each call could be costly.
     loadFactor = -1.0f;
     if (!p->second.loadFactor.empty())
     {
@@ -250,21 +244,14 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
     {
         if (_session->getInfo()->os != "Windows")
         {
-            //
-            // On Unix platforms, we divide the load averages by the
-            // number of processors. A load of 2 on a dual processor
-            // machine is the same as a load of 1 on a single process
-            // machine.
-            //
+            // On Unix platforms, we divide the load averages by the number of processors. A load of 2 on a dual
+            // processor machine is the same as a load of 1 on a single process machine.
             loadFactor = 1.0f / static_cast<float>(_session->getInfo()->nProcessors);
         }
         else
         {
-            //
-            // On Windows, load1, load5 and load15 are the average of
-            // the CPU utilization (all CPUs). We don't need to divide
-            // by the number of CPU.
-            //
+            // On Windows, load1, load5 and load15 are the average of the CPU utilization (all CPUs). We don't need to
+            // divide by the number of CPU.
             loadFactor = 1.0f;
         }
     }
@@ -315,12 +302,8 @@ NodeEntry::loadServer(
             node = _session->getNode();
             sessionTimeout = _session->timeout();
 
-            //
-            // Check if we should use a specific timeout (the load
-            // call can deactivate the server and it can take some
-            // time to deactivate, up to "deactivation-timeout"
-            // seconds).
-            //
+            // Check if we should use a specific timeout (the load call can deactivate the server and it can take some
+            // time to deactivate, up to "deactivation-timeout" seconds).
             if (timeout > 0s)
             {
                 node = node->ice_invocationTimeout(timeout);
@@ -333,12 +316,8 @@ NodeEntry::loadServer(
             }
             catch (const DeploymentException&)
             {
-                //
-                // We ignore the deployment error for now (which can
-                // only be caused in theory by session variables not
-                // being defined because the server isn't
-                // allocated...)
-                //
+                // We ignore the deployment error for now (which can only be caused in theory by session variables not
+                // being defined because the server isn't allocated...)
             }
             desc = getInternalServerDescriptor(info);
         }
@@ -447,12 +426,8 @@ NodeEntry::destroyServer(
             checkSession(lock);
             node = _session->getNode();
 
-            //
-            // Check if we should use a specific timeout (the load
-            // call can deactivate the server and it can take some
-            // time to deactivate, up to "deactivation-timeout"
-            // seconds).
-            //
+            // Check if we should use a specific timeout (the load call can deactivate the server and it can take some
+            // time to deactivate, up to "deactivation-timeout" seconds).
             if (timeout > 0s)
             {
                 node = node->ice_invocationTimeout(timeout);
@@ -556,12 +531,8 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& server, const shared_pt
     }
     catch (const DeploymentException&)
     {
-        //
-        // We ignore the deployment error for now (which can
-        // only be caused in theory by session variables not
-        // being defined because the server isn't
-        // allocated...)
-        //
+        // We ignore the deployment error for now (which can only be caused in theory by session variables not being
+        // defined because the server isn't allocated...)
     }
     return getInternalServerDescriptor(info);
 }
@@ -583,10 +554,7 @@ NodeEntry::checkSession(unique_lock<mutex>& lock) const
     }
     else if (_proxy)
     {
-        //
-        // If the node proxy is set, we attempt to get the node to
-        // register with this registry.
-        //
+        // If the node proxy is set, we attempt to get the node to register with this registry.
         assert(!_registering);
 
         if (_cache.getTraceLevels() && _cache.getTraceLevels()->node > 0)
@@ -595,11 +563,8 @@ NodeEntry::checkSession(unique_lock<mutex>& lock) const
             out << "creating node '" << _name << "' session";
         }
 
-        //
-        // NOTE: setting _registering to true must be done before the
-        // call otherwise if the callback is call immediately we'll
-        // hang in the while loop.
-        //
+        // NOTE: setting _registering to true must be done before the call otherwise if the callback is call
+        // immediately we'll hang in the while loop.
         _registering = true;
 
         // 'this' is only ever accessed though the self removing pointer, ensuring _selfRemovingPtr is always
@@ -712,9 +677,7 @@ NodeEntry::getServerDescriptor(const ServerInfo& server, const shared_ptr<Sessio
 shared_ptr<InternalServerDescriptor>
 NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
 {
-    //
     // Note that at this point all variables in info have been resolved
-    //
     assert(_session);
 
     shared_ptr<InternalServerDescriptor> server = make_shared<InternalServerDescriptor>();
@@ -737,15 +700,11 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     // server->adapters: assigned for each communicator (see below)
     // server->properties: assigned for each communicator (see below)
 
-    //
     // Add server properties.
-    //
     PropertyDescriptorSeq& props = server->properties["config"];
     props.push_back(createProperty("# Server configuration"));
 
-    //
     // For newer versions of Ice, we generate Ice.Admin properties:
-    //
     int iceVersion = 0;
     if (info.descriptor->iceVersion != "")
     {
@@ -778,17 +737,13 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     else
     {
         props.push_back(createProperty("Ice.ServerId", info.descriptor->id));
-        //
-        // Prior to Ice 3.3, use adapter's registerProcess to compute server->processRegistered;
-        // see ToInternalServerDescriptor::operator() above
-        //
+        // Prior to Ice 3.3, use adapter's registerProcess to compute server->processRegistered; see
+        // ToInternalServerDescriptor::operator() above
     }
 
     props.push_back(createProperty("Ice.ProgramName", info.descriptor->id));
 
-    //
     // Add IceBox properties.
-    //
     string servicesStr;
     auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
     if (iceBox)
@@ -798,11 +753,9 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
             const auto& s = serviceInstance.descriptor;
             const string path = _session->getInfo()->dataDir + "/servers/" + server->id + "/config/config_" + s->name;
 
-            //
             // We escape the path here because the command-line option --Ice.Config=xxx will be parsed an encoded
-            // (escaped) property
-            // For example, \\server\dir\file.cfg needs to become \\\server\dir\file.cfg or \\\\server\\dir\\file.cfg.
-            //
+            // (escaped) property For example, \\server\dir\file.cfg needs to become \\\server\dir\file.cfg or
+            // \\\\server\\dir\\file.cfg.
             props.push_back(
                 createProperty("IceBox.Service." + s->name, s->entry + " --Ice.Config='" + escapeProperty(path) + "'"));
 
@@ -819,20 +772,14 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
         props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
     }
 
-    //
-    // Now, for each communicator of the descriptor, add the necessary
-    // logs, adapters and properties to the internal server
-    // descriptor.
-    //
+    // Now, for each communicator of the descriptor, add the necessary logs, adapters and properties to the internal
+    // server descriptor.
     forEachCommunicator(
         info.descriptor,
         [server, node = _session->getInfo(), iceVersion](const auto& desc)
         {
-            //
-            // Figure out the configuration file name for the communicator
-            // (if it's a service, it's "config_<service name>", if it's
-            // the server, it's just "config").
-            //
+            // Figure out the configuration file name for the communicator (if it's a service, it's "config_<service
+            // name>", if it's the server, it's just "config").
             string filename = "config";
             auto svc = dynamic_pointer_cast<ServiceDescriptor>(desc);
             if (svc)
@@ -844,11 +791,8 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
             PropertyDescriptorSeq& serverProps = server->properties[filename];
             PropertyDescriptorSeq communicatorProps = desc->propertySet.properties;
 
-            //
-            // If this is a service communicator and the IceBox server has Admin
-            // enabled or Admin endpoints configured, we ignore the server-lifetime attributes
-            // of the service object adapters and assume it's set to false.
-            //
+            // If this is a service communicator and the IceBox server has Admin enabled or Admin endpoints configured,
+            // we ignore the server-lifetime attributes of the service object adapters and assume it's set to false.
             bool ignoreServerLifetime = false;
             if (svc)
             {
@@ -861,9 +805,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
                     }
                 }
             }
-            //
             // Add the adapters and their configuration.
-            //
             for (const auto& adapter : desc->adapters)
             {
                 server->adapters.push_back(make_shared<InternalAdapterDescriptor>(
@@ -882,9 +824,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
                     serverProps.push_back(createProperty(adapter.name + ".ReplicaGroupId", adapter.replicaGroupId));
                 }
 
-                //
                 // Ignore the register process attribute if the server is using Ice >= 3.3.0
-                //
                 if (iceVersion != 0 && iceVersion < 30300)
                 {
                     if (adapter.registerProcess)
@@ -897,9 +837,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
 
             server->logs.insert(server->logs.end(), desc->logs.begin(), desc->logs.end());
 
-            //
             // Copy the communicator descriptor properties.
-            //
             if (!communicatorProps.empty())
             {
                 if (svc)
@@ -913,9 +851,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
                 copy(communicatorProps.begin(), communicatorProps.end(), back_inserter(serverProps));
             }
 
-            //
             // For Ice servers > 3.3.0 escape the properties.
-            //
             if (iceVersion == 0 || iceVersion >= 30300)
             {
                 for (auto& serverProp : serverProps)

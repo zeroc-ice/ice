@@ -14,9 +14,7 @@
 #include <fstream>
 #include <iostream>
 
-//
 // For getPassword()
-//
 #ifndef _WIN32
 #    include <termios.h>
 #else
@@ -63,9 +61,7 @@ int
 #ifdef _WIN32
 wmain(int argc, wchar_t* argv[])
 {
-    //
     // Enable binary input mode for stdin to avoid automatic conversions.
-    //
     _setmode(_fileno(stdin), _O_BINARY);
 #else
 main(int argc, char* argv[])
@@ -100,9 +96,7 @@ main(int argc, char* argv[])
                 }
                 else
                 {
-                    //
                     // Otherwise, destroy the communicator.
-                    //
                     assert(communicator);
                     communicator->destroy();
                 }
@@ -329,12 +323,9 @@ run(const Ice::StringSeq& args)
             }
             else
             {
-                //
-                // NOTE: we don't configure the plugin with the Ice communicator on initialization
-                // because it would install a default locator. Instead, we create the plugin here
-                // to lookup for locator proxies. We destroy the plugin, once we have selected a
-                // locator.
-                //
+                // NOTE: we don't configure the plugin with the Ice communicator on initialization because it would
+                // install a default locator. Instead, we create the plugin here to lookup for locator proxies. We
+                // destroy the plugin, once we have selected a locator.
                 shared_ptr<Ice::Plugin> pluginObj(
                     createIceLocatorDiscovery(communicator, "IceGridAdmin.Discovery", Ice::StringSeq()));
                 auto plugin = dynamic_pointer_cast<IceLocatorDiscovery::Plugin>(pluginObj);
@@ -383,9 +374,7 @@ run(const Ice::StringSeq& args)
                     communicator->setDefaultLocator(nullopt);
                 }
 
-                //
                 // Destroy the plugin, we no longer need it.
-                //
                 plugin->destroy();
             }
         }
@@ -444,9 +433,7 @@ run(const Ice::StringSeq& args)
         }
         else if (communicator->getDefaultLocator())
         {
-            //
             // Create the identity of the registry to connect to.
-            //
             Ice::Identity registryId;
             registryId.category = communicator->getDefaultLocator()->ice_getIdentity().category;
             registryId.name = "Registry";
@@ -455,11 +442,8 @@ run(const Ice::StringSeq& args)
                 registryId.name += "-" + replica;
             }
 
-            //
-            // First try to contact the locator. If we can't talk to the locator,
-            // no need to go further. Otherwise, we get the proxy of local registry
-            // proxy.
-            //
+            // First try to contact the locator. If we can't talk to the locator, no need to go further. Otherwise, we
+            // get the proxy of local registry proxy.
             auto locator = Ice::uncheckedCast<IceGrid::LocatorPrx>(*communicator->getDefaultLocator());
             optional<IceGrid::RegistryPrx> localRegistry;
             try
@@ -505,9 +489,7 @@ run(const Ice::StringSeq& args)
                     }
                     else
                     {
-                        //
                         // If we can't contact the master, use the local registry.
-                        //
                         registry = localRegistry;
                         string name = registry->ice_getIdentity().name;
                         const string prefix("Registry-");
@@ -523,11 +505,9 @@ run(const Ice::StringSeq& args)
             }
             assert(registry);
 
-            //
-            // If the registry to use is the locator local registry, we install a default router
-            // to ensure we'll use a single connection regardless of the endpoints returned in the
-            // proxies of the various session/admin methods (useful if used over an ssh tunnel).
-            //
+            // If the registry to use is the locator local registry, we install a default router to ensure we'll use a
+            // single connection regardless of the endpoints returned in the proxies of the various session/admin
+            // methods (useful if used over an ssh tunnel).
             if (registry->ice_getIdentity() == localRegistry->ice_getIdentity())
             {
                 auto colloc = communicator->createObjectAdapter(""); // colloc-only adapter

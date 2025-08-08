@@ -84,7 +84,6 @@ Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> 
     // A collocated adapter is used with a unique AdapterId to enable collocation with default servants. Proxies created
     // by this adapter will be indirect, and ObjectAdapter::isLocal will compare the adapter's AdapterId with the
     // reference's AdapterId to determine if a collocated call can be used.
-    //
     // A named adapter is required because we cannot assign an AdapterId to a nameless adapter.
     auto collocated = generateUUID();
     properties->setProperty(collocated + ".AdapterId", collocated);

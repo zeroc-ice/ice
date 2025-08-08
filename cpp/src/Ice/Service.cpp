@@ -30,9 +30,7 @@ namespace
     CtrlCHandler* ctrlCHandler = nullptr;
 }
 
-//
 // Callback for CtrlCHandler.
-//
 static void
 ctrlCHandlerCallback(int sig)
 {
@@ -43,9 +41,7 @@ ctrlCHandlerCallback(int sig)
 
 #ifdef _WIN32
 
-//
 // Main function for Win32 service.
-//
 void WINAPI
 Ice_Service_ServiceMain(DWORD argc, LPWSTR* argv)
 {
@@ -54,9 +50,7 @@ Ice_Service_ServiceMain(DWORD argc, LPWSTR* argv)
     service->serviceMain(argc, argv);
 }
 
-//
 // Win32 service control handler.
-//
 void WINAPI
 Ice_Service_CtrlHandler(DWORD ctrl)
 {
@@ -72,24 +66,16 @@ namespace
     public:
         ServiceStatusManager(SERVICE_STATUS_HANDLE);
 
-        //
         // Start a thread to provide regular status updates to the SCM.
-        //
         void startUpdate(DWORD);
 
-        //
         // Stop the update thread.
-        //
         void stopUpdate();
 
-        //
         // Change the service status and report it (once).
-        //
         void changeStatus(DWORD, DWORD);
 
-        //
         // Report the current status.
-        //
         void reportStatus();
 
     private:
@@ -105,10 +91,7 @@ namespace
 
     static ServiceStatusManager* serviceStatusManager;
 
-    //
-    // Interface implemented by SMEventLoggerI and called from
-    // SMEventLoggerIWrapper.
-    //
+    // Interface implemented by SMEventLoggerI and called from SMEventLoggerIWrapper.
     class SMEventLogger
     {
     public:
@@ -155,10 +138,7 @@ namespace
         SMEventLoggerI(const string& source, const StringConverterPtr& stringConverter)
             : _stringConverter(stringConverter)
         {
-            //
-            // Don't need to use a wide string converter as the wide string is passed
-            // to Windows API.
-            //
+            // Don't need to use a wide string converter as the wide string is passed to Windows API.
             _source = RegisterEventSourceW(0, stringToWstring(mangleSource(source), _stringConverter).c_str());
             if (_source == 0)
             {
@@ -176,10 +156,7 @@ namespace
         {
             HKEY hKey;
             DWORD d;
-            //
-            // Don't need to use a wide string converter as the wide string is passed
-            // to Windows API.
-            //
+            // Don't need to use a wide string converter as the wide string is passed to Windows API.
             LSTATUS err = RegCreateKeyExW(
                 HKEY_LOCAL_MACHINE,
                 stringToWstring(createKey(source), stringConverter).c_str(),
@@ -196,9 +173,7 @@ namespace
                 throw SyscallException{__FILE__, __LINE__, "RegCreateKeyExW failed", static_cast<DWORD>(err)};
             }
 
-            //
             // Get the filename of this DLL.
-            //
             wchar_t path[_MAX_PATH];
             assert(_module != 0);
             if (!GetModuleFileNameW(_module, path, _MAX_PATH))
@@ -208,11 +183,8 @@ namespace
                 throw SyscallException{__FILE__, __LINE__, "GetModuleFileNameW failed", error};
             }
 
-            //
-            // The event resources are bundled into this DLL, therefore
-            // the "EventMessageFile" key should contain the path to this
-            // DLL.
-            //
+            // The event resources are bundled into this DLL, therefore the "EventMessageFile" key should contain the
+            // path to this DLL.
             err = RegSetValueExW(
                 hKey,
                 L"EventMessageFile",
@@ -223,10 +195,7 @@ namespace
 
             if (err == ERROR_SUCCESS)
             {
-                //
-                // The "TypesSupported" key indicates the supported event
-                // types.
-                //
+                // The "TypesSupported" key indicates the supported event types.
                 DWORD typesSupported = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
                 err = RegSetValueExW(
                     hKey,
@@ -247,10 +216,7 @@ namespace
 
         static void removeKeys(const string& source, const StringConverterPtr& stringConverter)
         {
-            //
-            // Don't need to use a wide string converter as the wide string is passed
-            // to Windows API.
-            //
+            // Don't need to use a wide string converter as the wide string is passed to Windows API.
             LSTATUS err =
                 RegDeleteKeyW(HKEY_LOCAL_MACHINE, stringToWstring(createKey(source), stringConverter).c_str());
             if (err != ERROR_SUCCESS)
@@ -273,17 +239,11 @@ namespace
 
         void print(const string& message)
         {
-            //
-            // Don't need to use a wide string converter as the wide string is passed
-            // to Windows API.
-            //
+            // Don't need to use a wide string converter as the wide string is passed to Windows API.
             const wstring msg = stringToWstring(message, _stringConverter);
             const wchar_t* messages[1];
             messages[0] = msg.c_str();
-            //
-            // We ignore any failures from ReportEvent since there isn't
-            // anything we can do about it.
-            //
+            // We ignore any failures from ReportEvent since there isn't anything we can do about it.
             ReportEventW(_source, EVENTLOG_INFORMATION_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, messages, 0);
         }
 
@@ -309,17 +269,11 @@ namespace
             }
             s.append(message);
 
-            //
-            // Don't need to use a wide string converter as the wide string is passed
-            // to Windows API.
-            //
+            // Don't need to use a wide string converter as the wide string is passed to Windows API.
             wstring msg = stringToWstring(s, _stringConverter);
             const wchar_t* messages[1];
             messages[0] = msg.c_str();
-            //
-            // We ignore any failures from ReportEvent since there isn't
-            // anything we can do about it.
-            //
+            // We ignore any failures from ReportEvent since there isn't anything we can do about it.
             ReportEventW(_source, EVENTLOG_INFORMATION_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, messages, 0);
         }
 
@@ -337,17 +291,11 @@ namespace
 
         void warning(const string& message)
         {
-            //
-            // Don't need to use a wide string converter as the wide string is passed
-            // to Windows API.
-            //
+            // Don't need to use a wide string converter as the wide string is passed to Windows API.
             wstring msg = stringToWstring(message, _stringConverter);
             const wchar_t* messages[1];
             messages[0] = msg.c_str();
-            //
-            // We ignore any failures from ReportEvent since there isn't
-            // anything we can do about it.
-            //
+            // We ignore any failures from ReportEvent since there isn't anything we can do about it.
             ReportEventW(_source, EVENTLOG_WARNING_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, messages, 0);
         }
 
@@ -365,17 +313,11 @@ namespace
 
         void error(const string& message)
         {
-            //
-            // Don't need to use a wide string converter as the wide string is passed
-            // to Windows API.
-            //
+            // Don't need to use a wide string converter as the wide string is passed to Windows API.
             wstring msg = stringToWstring(message, _stringConverter);
             const wchar_t* messages[1];
             messages[0] = msg.c_str();
-            //
-            // We ignore any failures from ReportEvent since there isn't
-            // anything we can do about it.
-            //
+            // We ignore any failures from ReportEvent since there isn't anything we can do about it.
             ReportEventW(_source, EVENTLOG_ERROR_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, messages, 0);
         }
 
@@ -384,9 +326,7 @@ namespace
     private:
         static string mangleSource(string name)
         {
-            //
             // The source name cannot contain backslashes.
-            //
             string::size_type pos = 0;
             while ((pos = name.find('\\', pos)) != string::npos)
             {
@@ -397,11 +337,7 @@ namespace
 
         static string createKey(string name)
         {
-            //
-            // The registry key is:
-            //
-            // HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Application.
-            //
+            // The registry key is: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Application.
             return "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + mangleSource(name);
         }
 
@@ -438,9 +374,7 @@ Ice::Service::shutdown()
         }
         catch (const CommunicatorDestroyedException&)
         {
-            //
             // Expected if the service communicator is being destroyed.
-            //
         }
         catch (const Ice::Exception& ex)
         {
@@ -477,10 +411,7 @@ Ice::Service::main(int argc, const char* const argv[], InitializationData initDa
 
     IceInternal::ArgVector av(argc, argv); // copy args
 
-    //
-    // We parse the properties here to extract Ice.ProgramName and
-    // Ice.EventLog.Source on Windows.
-    //
+    // We parse the properties here to extract Ice.ProgramName and Ice.EventLog.Source on Windows.
     try
     {
         initData.properties = createProperties(av.argc, av.argv, initData.properties);
@@ -494,9 +425,7 @@ Ice::Service::main(int argc, const char* const argv[], InitializationData initDa
 
 #ifdef _WIN32
 
-    //
     // First check for the --service option.
-    //
     string name;
     int idx = 1;
     const StringConverterPtr stringConverter = getProcessStringConverter();
@@ -512,10 +441,7 @@ Ice::Service::main(int argc, const char* const argv[], InitializationData initDa
 
             name = av.argv[idx + 1];
 
-            //
-            // If the process logger is the default logger then we use
-            // our own logger.
-            //
+            // If the process logger is the default logger then we use our own logger.
             _logger = getProcessLogger();
             if (dynamic_pointer_cast<LoggerI>(_logger))
             {
@@ -547,9 +473,7 @@ Ice::Service::main(int argc, const char* const argv[], InitializationData initDa
         configureService(name);
     }
 #else
-    //
     // Check for --daemon, --noclose, --nochdir and --pidfile.
-    //
 
     bool daemonize = false;
     bool closeFiles = true;
@@ -642,11 +566,8 @@ Ice::Service::main(int argc, const char* const argv[], InitializationData initDa
     }
 #endif
 
-    //
-    // If no logger has been set yet, we set it to the process logger. If the
-    // process logger is the default logger, we change it to a logger which is
-    // using the program name for the prefix.
-    //
+    // If no logger has been set yet, we set it to the process logger. If the process logger is the default logger, we
+    // change it to a logger which is using the program name for the prefix.
     if (!_logger)
     {
         _logger = getProcessLogger();
@@ -716,57 +637,38 @@ Ice::Service::run(int argc, const char* const argv[], InitializationData initDat
 #endif
     }
 
-    //
     // Run as a foreground process.
-    //
     int status = EXIT_FAILURE;
     try
     {
-        //
-        // Create the CtrlCHandler after any potential forking so that signals
-        // are initialized properly. We do this before initializing the
-        // communicator because we need to ensure that this is done before any
-        // additional threads are created.
-        //
+        // Create the CtrlCHandler after any potential forking so that signals are initialized properly. We do this
+        // before initializing the communicator because we need to ensure that this is done before any additional
+        // threads are created.
         ctrlCHandler = new CtrlCHandler;
 
-        //
         // Initialize the communicator.
-        //
         _communicator = initializeCommunicator(av.argc, av.argv, std::move(initData));
 
-        //
         // Use the configured logger.
-        //
         _logger = _communicator->getLogger();
 
-        //
         // Determines whether we ignore SIGHUP/CTRL_LOGOFF_EVENT.
-        //
         _nohup = _communicator->getProperties()->getIcePropertyAsInt("Ice.Nohup") > 0;
 
-        //
         // Start the service.
-        //
         if (start(av.argc, av.argv, status))
         {
 #ifdef ICE_USE_SYSTEMD
             sd_notify(0, "READY=1");
 #endif
-            //
             // Wait for service shutdown.
-            //
             waitForShutdown();
 
 #ifdef ICE_USE_SYSTEMD
-            //
             // Inform the service manager that the service is beginning its shutdown.
-            //
             sd_notify(0, "STOPPING=1");
 #endif
-            //
             // Stop the service.
-            //
             if (stop())
             {
                 status = EXIT_SUCCESS;
@@ -995,10 +897,8 @@ Ice::Service::runService(int argc, const char* const argv[], InitializationData 
         return EXIT_FAILURE;
     }
 
-    //
-    // Arguments passed to the executable are not passed to the service's main function,
-    // so save them now and serviceMain will merge them later.
-    //
+    // Arguments passed to the executable are not passed to the service's main function, so save them now and
+    // serviceMain will merge them later.
     for (int idx = 1; idx < argc; ++idx)
     {
         _serviceArgs.push_back(argv[idx]);
@@ -1006,19 +906,14 @@ Ice::Service::runService(int argc, const char* const argv[], InitializationData 
 
     _initData = std::move(initData);
 
-    //
-    // Don't need to use a wide string converter as the wide string is passed
-    // to Windows API.
-    //
+    // Don't need to use a wide string converter as the wide string is passed to Windows API.
     const wstring serviceName = stringToWstring(_name, getProcessStringConverter());
     SERVICE_TABLE_ENTRYW ste[] = {
         {const_cast<wchar_t*>(serviceName.c_str()), Ice_Service_ServiceMain},
         {0, 0},
     };
 
-    //
     // Start the service.
-    //
     if (!StartServiceCtrlDispatcherW(ste))
     {
         syserror("unable to start service control dispatcher");
@@ -1063,22 +958,15 @@ Ice::Service::waitForServiceState(SC_HANDLE hService, DWORD pendingState, SERVIC
         return false;
     }
 
-    //
     // Save the tick count and initial checkpoint.
-    //
     DWORD startTickCount = GetTickCount();
     DWORD oldCheckPoint = status.dwCheckPoint;
 
-    //
     // Loop while the service is in the pending state.
-    //
     while (status.dwCurrentState == pendingState)
     {
-        //
-        // Do not wait longer than the wait hint. A good interval is
-        // one tenth the wait hint, but no less than 1 second and no
-        // more than 10 seconds.
-        //
+        // Do not wait longer than the wait hint. A good interval is one tenth the wait hint, but no less than 1 second
+        // and no more than 10 seconds.
 
         DWORD waitTime = status.dwWaitHint / 10;
 
@@ -1093,9 +981,7 @@ Ice::Service::waitForServiceState(SC_HANDLE hService, DWORD pendingState, SERVIC
 
         Sleep(waitTime);
 
-        //
         // Check the status again.
-        //
         if (!QueryServiceStatus(hService, &status))
         {
             return false;
@@ -1103,9 +989,7 @@ Ice::Service::waitForServiceState(SC_HANDLE hService, DWORD pendingState, SERVIC
 
         if (status.dwCheckPoint > oldCheckPoint)
         {
-            //
             // The service is making progress.
-            //
             startTickCount = GetTickCount();
             oldCheckPoint = status.dwCheckPoint;
         }
@@ -1113,9 +997,7 @@ Ice::Service::waitForServiceState(SC_HANDLE hService, DWORD pendingState, SERVIC
         {
             if (GetTickCount() - startTickCount > status.dwWaitHint)
             {
-                //
                 // No progress made within the wait hint.
-                //
                 break;
             }
         }
@@ -1167,9 +1049,7 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
 {
     ctrlCHandler = new CtrlCHandler;
 
-    //
     // Register the control handler function.
-    //
     _statusHandle = RegisterServiceCtrlHandlerW(argv[0], Ice_Service_CtrlHandler);
     if (_statusHandle == 0)
     {
@@ -1177,29 +1057,19 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
         return;
     }
 
-    //
-    // Create the service status manager and start a thread to periodically
-    // update the service's status with the service control manager (SCM).
-    // The SCM must receive periodic updates otherwise it assumes that
-    // initialization failed and terminates the service.
-    //
+    // Create the service status manager and start a thread to periodically update the service's status with the
+    // service control manager (SCM). The SCM must receive periodic updates otherwise it assumes that initialization
+    // failed and terminates the service.
     serviceStatusManager = new ServiceStatusManager(_statusHandle);
     serviceStatusManager->startUpdate(SERVICE_START_PENDING);
 
-    //
-    // Don't need to pass a wide string converter in the argv conversions
-    // as argv come from Windows API.
-    //
+    // Don't need to pass a wide string converter in the argv conversions as argv come from Windows API.
     const Ice::StringConverterPtr converter = Ice::getProcessStringConverter();
 
-    //
     // Merge the executable's arguments with the service's arguments.
-    //
     char** args = new char*[_serviceArgs.size() + argc];
 
-    //
     // First argument is argv[0] the serviceName
-    //
     const string serviceName = wstringToString(argv[0], converter);
     args[0] = const_cast<char*>(serviceName.c_str());
 
@@ -1209,10 +1079,8 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
         args[i++] = const_cast<char*>(p->c_str());
     }
 
-    //
-    // Convert wide string wchar_t** argv to a sequence of narrow strings and merge
-    // the converted sequence into the args array.
-    //
+    // Convert wide string wchar_t** argv to a sequence of narrow strings and merge the converted sequence into the
+    // args array.
     vector<string> executableArgs;
     for (int j = 1; j < argc; ++j)
     {
@@ -1224,9 +1092,7 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
     }
     argc += static_cast<int>(_serviceArgs.size());
 
-    //
     // If we can't initialize a communicator, then stop immediately.
-    //
     try
     {
         _communicator = initializeCommunicator(argc, args, _initData);
@@ -1249,14 +1115,10 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
         return;
     }
 
-    //
     // Use the configured logger.
-    //
     _logger = _communicator->getLogger();
 
-    //
     // Determines whether we ignore SIGHUP/CTRL_LOGOFF_EVENT.
-    //
     _nohup = _communicator->getProperties()->getIcePropertyAsInt("Ice.Nohup") > 0;
 
     DWORD status = EXIT_FAILURE;
@@ -1267,20 +1129,14 @@ Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
         {
             trace("Service started successfully.");
 
-            //
             // Change the current status from START_PENDING to RUNNING.
-            //
             serviceStatusManager->stopUpdate();
             serviceStatusManager->changeStatus(SERVICE_RUNNING, SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
 
-            //
             // Wait for the service to be shut down.
-            //
             waitForShutdown();
 
-            //
             // Give the service a chance to clean up.
-            //
             if (stop())
             {
                 status = EXIT_SUCCESS;
@@ -1430,15 +1286,11 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
 {
     assert(_service);
 
-    //
     // Create a pipe that is used to notify the parent when the child is ready.
-    //
     SOCKET fds[2];
     IceInternal::createPipe(fds);
 
-    //
     // Fork the child.
-    //
     pid_t pid = fork();
     if (pid < 0)
     {
@@ -1452,19 +1304,13 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
 
     if (pid != 0)
     {
-        //
         // Parent process.
-        //
 
-        //
         // Close an unused end of the pipe.
-        //
         close(fds[1]);
 
-        //
-        // Wait for the child to write a byte to the pipe to indicate that it
-        // is ready to receive requests, or that an error occurred.
-        //
+        // Wait for the child to write a byte to the pipe to indicate that it is ready to receive requests, or that an
+        // error occurred.
         char c = 0;
         while (true)
         {
@@ -1487,9 +1333,7 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
 
         if (c != 0)
         {
-            //
             // Read an error message.
-            //
             ssize_t rs;
             char s[16];
             string message;
@@ -1523,31 +1367,22 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
         _exit(EXIT_SUCCESS);
     }
 
-    //
     // Child process.
-    //
 
     string errMsg;
     int status = EXIT_FAILURE;
     try
     {
-        //
         // Become a session and process group leader.
-        //
         if (setsid() == -1)
         {
             throw SyscallException{__FILE__, __LINE__, "setsid failed", errno};
         }
 
-        //
-        // Ignore SIGHUP so that the grandchild process is not sent SIGHUP when this
-        // process exits.
-        //
+        // Ignore SIGHUP so that the grandchild process is not sent SIGHUP when this process exits.
         signal(SIGHUP, SIG_IGN); // NOLINT(cert-err33-c)
 
-        //
         // Fork again to eliminate the possibility of acquiring a controlling terminal.
-        //
         pid = fork();
         if (pid < 0)
         {
@@ -1560,9 +1395,7 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
 
         if (_changeDirectory)
         {
-            //
             // Change the working directory.
-            //
             if (chdir("/") != 0)
             {
                 throw SyscallException{__FILE__, __LINE__, "chdir failed", errno};
@@ -1572,12 +1405,9 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
         vector<int> fdsToClose;
         if (_closeFiles)
         {
-            //
-            // Take a snapshot of the open file descriptors. We don't actually close these
-            // descriptors until after the communicator is initialized, so that plug-ins
-            // have an opportunity to use stdin/stdout/stderr if necessary. This also
-            // conveniently allows the Ice.PrintProcessId property to work as expected.
-            //
+            // Take a snapshot of the open file descriptors. We don't actually close these descriptors until after the
+            // communicator is initialized, so that plug-ins have an opportunity to use stdin/stdout/stderr if
+            // necessary. This also conveniently allows the Ice.PrintProcessId property to work as expected.
             int fdMax = static_cast<int>(sysconf(_SC_OPEN_MAX));
             if (fdMax <= 0)
             {
@@ -1588,9 +1418,7 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
             {
                 if (fcntl(i, F_GETFL) != -1)
                 {
-                    //
                     // Don't close the write end of the pipe.
-                    //
                     if (i != fds[1])
                     {
                         fdsToClose.push_back(i);
@@ -1599,34 +1427,25 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
             }
         }
 
-        //
-        // Create the CtrlCHandler after forking the child so that signals are initialized
-        // properly. We do this before initializing the communicator because we need to
-        // ensure that signals are initialized before additional threads are created. The
-        // communicator thread pools currently use lazy initialization, but a thread can
-        // be created to monitor connections.
-        //
+        // Create the CtrlCHandler after forking the child so that signals are initialized properly. We do this before
+        // initializing the communicator because we need to ensure that signals are initialized before additional
+        // threads are created. The communicator thread pools currently use lazy initialization, but a thread can be
+        // created to monitor connections.
         ctrlCHandler = new CtrlCHandler;
 
-        //
         // Initialize the communicator.
-        //
         _communicator = initializeCommunicator(argc, argv, std::move(initData));
 
         if (_closeFiles)
         {
-            //
             // Close unnecessary file descriptors.
-            //
             PropertiesPtr properties = _communicator->getProperties();
             string stdOut = properties->getIceProperty("Ice.StdOut");
             string stdErr = properties->getIceProperty("Ice.StdErr");
 
             for (int& p : fdsToClose)
             {
-                //
                 // NOTE: Do not close stdout if Ice.StdOut is defined. Likewise for Ice.StdErr.
-                //
                 if ((p == 1 && !stdOut.empty()) || (p == 2 && !stdErr.empty()))
                 {
                     continue;
@@ -1634,9 +1453,7 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
                 close(p);
             }
 
-            //
             // Associate stdin, stdout and stderr with /dev/null.
-            //
             int fd = open("/dev/null", O_RDWR);
             assert(fd == 0);
             if (fd != 0)
@@ -1663,9 +1480,7 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
             }
         }
 
-        //
         // Write PID
-        //
         if (_pidFile.size() > 0)
         {
             ofstream of(_pidFile.c_str());
@@ -1677,19 +1492,13 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
             }
         }
 
-        //
         // Use the configured logger.
-        //
         _logger = _communicator->getLogger();
 
-        //
         // Start the service.
-        //
         if (start(argc, argv, status))
         {
-            //
             // Notify the parent that the child is ready.
-            //
             char c = 0;
             while (true)
             {
@@ -1705,14 +1514,10 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
             close(fds[1]);
             fds[1] = -1;
 
-            //
             // Wait for service shutdown.
-            //
             waitForShutdown();
 
-            //
             // Stop the service.
-            //
             if (stop())
             {
                 status = EXIT_SUCCESS;
@@ -1737,10 +1542,7 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
         error(errMsg);
     }
 
-    //
-    // If the service failed and the pipe to the parent is still open,
-    // then send an error notification to the parent.
-    //
+    // If the service failed and the pipe to the parent is still open, then send an error notification to the parent.
     if (status != EXIT_SUCCESS && fds[1] != -1)
     {
         char c = 1;

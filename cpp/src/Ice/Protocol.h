@@ -9,44 +9,27 @@
 
 namespace IceInternal
 {
-    //
-    // Size of the Ice protocol header
-    //
-    // Magic number (4 Bytes)
-    // Protocol version major (std::uint8_t)
-    // Protocol version minor (std::uint8_t)
-    // Encoding version major (std::uint8_t)
-    // Encoding version minor (std::uint8_t)
-    // Message type (std::uint8_t)
-    // Compression status (std::uint8_t)
-    // Message size (std::int32_t)
-    //
+    // Size of the Ice protocol header Magic number (4 Bytes) Protocol version major (std::uint8_t) Protocol version
+    // minor (std::uint8_t) Encoding version major (std::uint8_t) Encoding version minor (std::uint8_t) Message type
+    // (std::uint8_t) Compression status (std::uint8_t) Message size (std::int32_t)
     const std::int32_t headerSize = 14;
 
-    //
     // The magic number at the front of each message
-    //
     extern const std::byte magic[4];
 
-    //
     // The Ice protocol message types
-    //
     const std::uint8_t requestMsg = 0;
     const std::uint8_t requestBatchMsg = 1;
     const std::uint8_t replyMsg = 2;
     const std::uint8_t validateConnectionMsg = 3;
     const std::uint8_t closeConnectionMsg = 4;
 
-    //
     // The request header, batch request header and reply header.
-    //
     extern const std::byte requestHdr[headerSize + sizeof(std::int32_t)];
     extern const std::byte requestBatchHdr[headerSize + sizeof(std::int32_t)];
     extern const std::byte replyHdr[headerSize];
 
-    //
     // IPv4/IPv6 support enumeration.
-    //
     enum ProtocolSupport
     {
         EnableIPv4,

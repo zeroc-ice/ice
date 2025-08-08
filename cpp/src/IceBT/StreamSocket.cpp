@@ -43,19 +43,13 @@ IceBT::StreamSocket::setBufferSize(SOCKET fd, int rcvSize, int sndSize)
 
     if (rcvSize > 0)
     {
-        //
-        // Try to set the buffer size. The kernel will silently adjust
-        // the size to an acceptable value. Then read the size back to
-        // get the size that was actually set.
-        //
+        // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then read the
+        // size back to get the size that was actually set.
         IceInternal::setRecvBufferSize(fd, rcvSize);
         int size = IceInternal::getRecvBufferSize(fd);
         if (size > 0 && size < rcvSize)
         {
-            //
-            // Warn if the size that was set is less than the requested size and
-            // we have not already warned.
-            //
+            // Warn if the size that was set is less than the requested size and we have not already warned.
             IceInternal::BufSizeWarnInfo winfo = _instance->getBufSizeWarn(BTEndpointType);
             if (!winfo.rcvWarn || rcvSize != winfo.rcvSize)
             {
@@ -68,11 +62,8 @@ IceBT::StreamSocket::setBufferSize(SOCKET fd, int rcvSize, int sndSize)
 
     if (sndSize > 0)
     {
-        //
-        // Try to set the buffer size. The kernel will silently adjust
-        // the size to an acceptable value. Then read the size back to
-        // get the size that was actually set.
-        //
+        // Try to set the buffer size. The kernel will silently adjust the size to an acceptable value. Then read the
+        // size back to get the size that was actually set.
         IceInternal::setSendBufferSize(fd, sndSize);
         int size = IceInternal::getSendBufferSize(fd);
         if (size > 0 && size < sndSize)

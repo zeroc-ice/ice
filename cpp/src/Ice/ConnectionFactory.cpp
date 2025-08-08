@@ -139,17 +139,11 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
     {
         unique_lock lock(_mutex);
 
-        //
-        // First we wait until the factory is destroyed. We also wait
-        // until there are no pending connections anymore. Only then
-        // we can be sure the _connections contains all connections.
-        //
+        // First we wait until the factory is destroyed. We also wait until there are no pending connections anymore.
+        // Only then we can be sure the _connections contains all connections.
         _conditionVariable.wait(lock, [this] { return _destroyed && _pending.empty() && _pendingConnectCount == 0; });
 
-        //
-        // We want to wait until all connections are finished outside the
-        // thread synchronization.
-        //
+        // We want to wait until all connections are finished outside the thread synchronization.
         connections = _connections;
     }
 
@@ -174,9 +168,7 @@ IceInternal::OutgoingConnectionFactory::createAsync(
 {
     assert(!endpoints.empty());
 
-    //
     // Try to find a connection to one of the given endpoints.
-    //
     try
     {
         bool compress;
@@ -217,24 +209,15 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    //
-    // Search for connections to the router's client proxy endpoints,
-    // and update the object adapter for such connections, so that
-    // callbacks from the router can be received over such
-    // connections.
-    //
+    // Search for connections to the router's client proxy endpoints, and update the object adapter for such
+    // connections, so that callbacks from the router can be received over such connections.
     for (auto endpoint : endpoints)
     {
-        //
-        // The Connection object does not take the compression flag of
-        // endpoints into account, but instead gets the information
-        // about whether messages should be compressed or not from
-        // other sources. In order to allow connection sharing for
-        // endpoints that differ in the value of the compression flag
-        // only, we always set the compression flag to false here in
-        // this connection factory. We also clear the timeout as it is
-        // no longer used for Ice 3.8.
-        //
+        // The Connection object does not take the compression flag of endpoints into account, but instead gets the
+        // information about whether messages should be compressed or not from other sources. In order to allow
+        // connection sharing for endpoints that differ in the value of the compression flag only, we always set the
+        // compression flag to false here in this connection factory. We also clear the timeout as it is no longer used
+        // for Ice 3.8.
         endpoint = endpoint->compress(false)->timeout(-1);
 
         for (const auto& [_, connection] : _connections)
@@ -412,13 +395,10 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
 void
 IceInternal::OutgoingConnectionFactory::incPendingConnectCount()
 {
-    //
-    // Keep track of the number of pending connects. The outgoing connection factory
-    // waitUntilFinished() method waits for all the pending connects to terminate before
-    // to return. This ensures that the communicator client thread pool isn't destroyed
-    // too soon and will still be available to execute the ice_exception() callbacks for
-    // the asynchronous requests waiting on a connection to be established.
-    //
+    // Keep track of the number of pending connects. The outgoing connection factory waitUntilFinished() method waits
+    // for all the pending connects to terminate before to return. This ensures that the communicator client thread pool
+    // isn't destroyed too soon and will still be available to execute the ice_exception() callbacks for the
+    // asynchronous requests waiting on a connection to be established.
 
     lock_guard lock(_mutex);
     if (_destroyed)
@@ -461,10 +441,8 @@ IceInternal::OutgoingConnectionFactory::getConnection(
             return connection;
         }
 
-        //
-        // Determine whether another thread/request is currently attempting to connect to
-        // one of our endpoints; if so we wait until it's done.
-        //
+        // Determine whether another thread/request is currently attempting to connect to one of our endpoints; if so
+        // we wait until it's done.
         if (addToPending(cb, connectors))
         {
             // A connection to one of our endpoints is pending. The callback will be notified once the connection
@@ -485,11 +463,8 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
     lock_guard lock(_mutex);
     assert(_pending.find(ci.connector) != _pending.end() && transceiver);
 
-    //
-    // Create and add the connection to the connection map. Adding the connection to the map
-    // is necessary to support the interruption of the connection initialization and validation
-    // in case the communicator is destroyed.
-    //
+    // Create and add the connection to the connection map. Adding the connection to the map is necessary to support
+    // the interruption of the connection initialization and validation in case the communicator is destroyed.
     Ice::ConnectionIPtr connection;
     try
     {
@@ -663,9 +638,7 @@ IceInternal::OutgoingConnectionFactory::addToPending(
     const ConnectCallbackPtr& cb,
     const vector<ConnectorInfo>& connectors)
 {
-    //
     // Add the callback to each connector pending list.
-    //
     bool found = false;
     for (const auto& connector : connectors)
     {
@@ -685,11 +658,8 @@ IceInternal::OutgoingConnectionFactory::addToPending(
         return true;
     }
 
-    //
-    // If there's no pending connection for the given connectors, we're
-    // responsible for its establishment. We add empty pending lists,
-    // other callbacks to the same connectors will be queued.
-    //
+    // If there's no pending connection for the given connectors, we're responsible for its establishment. We add empty
+    // pending lists, other callbacks to the same connectors will be queued.
     for (const auto& connector : connectors)
     {
         if (_pending.find(connector.connector) == _pending.end())
@@ -798,9 +768,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::ConnectCallback(
     _endpointsIter = _endpoints.begin();
 }
 
-//
 // Methods from ConnectionI.StartCallback
-//
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartCompleted(const ConnectionIPtr& connection)
 {
@@ -825,9 +793,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(
     }
 }
 
-//
 // Methods from EndpointI_connectors
-//
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::connectors(const vector<ConnectorPtr>& connectors)
 {
@@ -844,10 +810,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectors(const vector
     {
         assert(!_connectors.empty());
 
-        //
-        // We now have all the connectors for the given endpoints. We can try to obtain the
-        // connection.
-        //
+        // We now have all the connectors for the given endpoints. We can try to obtain the connection.
         _iter = _connectors.begin();
         getConnection();
     }
@@ -863,10 +826,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::exception(exception_ptr
     }
     else if (!_connectors.empty())
     {
-        //
-        // We now have all the connectors for the given endpoints. We can try to obtain the
-        // connection.
-        //
+        // We now have all the connectors for the given endpoints. We can try to obtain the connection.
         _iter = _connectors.begin();
         getConnection();
     }
@@ -882,11 +842,8 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::getConnectors()
 {
     try
     {
-        //
-        // Notify the factory that there's an async connect pending. This is necessary
-        // to prevent the outgoing connection factory to be destroyed before all the
-        // pending asynchronous connects are finished.
-        //
+        // Notify the factory that there's an async connect pending. This is necessary to prevent the outgoing
+        // connection factory to be destroyed before all the pending asynchronous connects are finished.
         _factory->incPendingConnectCount();
     }
     catch (const std::exception&)
@@ -921,20 +878,14 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::getConnection()
 {
     try
     {
-        //
-        // If all the connectors have been created, we ask the factory to get a
-        // connection.
-        //
+        // If all the connectors have been created, we ask the factory to get a connection.
         bool compress;
         Ice::ConnectionIPtr connection = _factory->getConnection(_connectors, shared_from_this(), compress);
         if (!connection)
         {
-            //
-            // A null return value from getConnection indicates that the connection
-            // is being established and that everthing has been done to ensure that
-            // the callback will be notified when the connection establishment is
+            // A null return value from getConnection indicates that the connection is being established and that
+            // everthing has been done to ensure that the callback will be notified when the connection establishment is
             // done or that the callback already obtain the connection.
-            //
             return;
         }
 
@@ -1003,10 +954,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::setConnection(
     const Ice::ConnectionIPtr& connection,
     bool compress)
 {
-    //
-    // Callback from the factory: the connection to one of the callback
-    // connectors has been established.
-    //
+    // Callback from the factory: the connection to one of the callback connectors has been established.
     _createConnectionResponse(connection, compress);
     _factory->decPendingConnectCount(); // Must be called last.
 }
@@ -1014,9 +962,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::setConnection(
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::setException(exception_ptr ex)
 {
-    //
     // Callback from the factory: connection establishment failed.
-    //
     _createConnectionException(ex);
     _factory->decPendingConnectCount(); // Must be called last.
 }
@@ -1030,11 +976,8 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::hasConnector(const Conn
 bool
 IceInternal::OutgoingConnectionFactory::ConnectCallback::removeConnectors(const vector<ConnectorInfo>& connectors)
 {
-    //
-    // Callback from the factory: connecting to the given connectors
-    // failed, we remove the connectors and return true if there's
-    // no more connectors left to try.
-    //
+    // Callback from the factory: connecting to the given connectors failed, we remove the connectors and return true
+    // if there's no more connectors left to try.
     for (const auto& p : connectors)
     {
         _connectors.erase(remove(_connectors.begin(), _connectors.end(), p), _connectors.end());
@@ -1128,22 +1071,14 @@ IceInternal::IncomingConnectionFactory::waitUntilHolding() const
     {
         unique_lock lock(_mutex);
 
-        //
-        // First we wait until the connection factory itself is in holding
-        // state.
-        //
+        // First we wait until the connection factory itself is in holding state.
         _conditionVariable.wait(lock, [this] { return _state >= StateHolding; });
 
-        //
-        // We want to wait until all connections are in holding state
-        // outside the thread synchronization.
-        //
+        // We want to wait until all connections are in holding state outside the thread synchronization.
         connections = _connections;
     }
 
-    //
     // Now we wait until each connection is in holding state.
-    //
     for (const auto& conn : connections)
     {
         conn->waitUntilHolding();
@@ -1157,15 +1092,10 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
     {
         unique_lock lock(_mutex);
 
-        //
-        // First we wait until the factory is destroyed. If we are using
-        // an acceptor, we also wait for it to be closed.
-        //
+        // First we wait until the factory is destroyed. If we are using an acceptor, we also wait for it to be closed.
         _conditionVariable.wait(lock, [this] { return _state == StateFinished; });
 
-        //
         // Clear the OA. See bug 1673 for the details of why this is necessary.
-        //
         _adapter = nullptr;
 
         // We want to wait until all connections are finished outside the
@@ -1199,9 +1129,7 @@ IceInternal::IncomingConnectionFactory::connections() const
 
     list<ConnectionIPtr> result;
 
-    //
     // Only copy connections which have not been destroyed.
-    //
     remove_copy_if(
         _connections.begin(),
         _connections.end(),
@@ -1325,9 +1253,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
             return;
         }
 
-        //
         // Now accept a new connection.
-        //
         TransceiverPtr transceiver;
         try
         {
@@ -1451,10 +1377,8 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
             closeAcceptor();
         }
 
-        //
-        // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
-        // because of an unexpected error), try to restart the acceptor in 1 second.
-        //
+        // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed because of an
+        // unexpected error), try to restart the acceptor in 1 second.
         if (!_acceptorStopped)
         {
             _instance->timer()->schedule(make_shared<StartAcceptor>(shared_from_this(), _instance), chrono::seconds(1));
@@ -1524,10 +1448,7 @@ IceInternal::IncomingConnectionFactory::connectionStartCompleted(const Ice::Conn
 {
     lock_guard lock(_mutex);
 
-    //
-    // Initially, connections are in the holding state. If the factory is active
-    // we activate the connection.
-    //
+    // Initially, connections are in the holding state. If the factory is active we activate the connection.
     if (_state == StateActive)
     {
         connection->activate();
@@ -1540,11 +1461,8 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
     // Do not warn about connection exceptions here. The connection is not yet validated.
 }
 
-//
-// COMPILERFIX: The ConnectionFactory setup is broken out into a separate initialize
-// function because when it was part of the constructor C++Builder 2007 apps would
-// crash if an exception was thrown from any calls within the constructor.
-//
+// COMPILERFIX: The ConnectionFactory setup is broken out into a separate initialize function because when it was part
+// of the constructor C++Builder 2007 apps would crash if an exception was thrown from any calls within the constructor.
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
     const InstancePtr& instance,
     const EndpointIPtr& endpoint,
@@ -1628,10 +1546,7 @@ IceInternal::IncomingConnectionFactory::initialize()
         else
         {
 #if TARGET_OS_IPHONE != 0
-            //
-            // The notification center will call back on the factory to
-            // start the acceptor if necessary.
-            //
+            // The notification center will call back on the factory to start the acceptor if necessary.
             registerForBackgroundNotification(shared_from_this());
 #else
             createAcceptor();
@@ -1723,13 +1638,9 @@ IceInternal::IncomingConnectionFactory::setState(State state)
         {
             if (_acceptorStarted)
             {
-                //
-                // If possible, close the acceptor now to prevent new connections from
-                // being accepted while we are deactivating. This is especially useful
-                // if there are no more threads in the thread pool available to dispatch
-                // the finish() call. Not all selector implementations do support this
-                // however.
-                //
+                // If possible, close the acceptor now to prevent new connections from being accepted while we are
+                // deactivating. This is especially useful if there are no more threads in the thread pool available to
+                // dispatch the finish() call. Not all selector implementations do support this however.
                 _acceptorStarted = false;
                 if (_adapter->getThreadPool()->finish(shared_from_this(), true))
                 {

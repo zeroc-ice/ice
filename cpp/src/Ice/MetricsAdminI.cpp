@@ -379,9 +379,7 @@ MetricsAdminI::updateViews()
                 continue; // The view is disabled
             }
 
-            //
             // Create the view or update it.
-            //
             auto q = _views.find(viewName);
             if (q == _views.end())
             {
@@ -404,9 +402,7 @@ MetricsAdminI::updateViews()
         }
         _views.swap(views);
 
-        //
         // Go through removed views to collect maps to update.
-        //
         for (const auto& view : views)
         {
             if (_views.find(view.first) == _views.end())
@@ -421,9 +417,7 @@ MetricsAdminI::updateViews()
         }
     }
 
-    //
     // Call the updaters to update the maps.
-    //
     for (const auto& updatedMap : updatedMaps)
     {
         updatedMap->update();

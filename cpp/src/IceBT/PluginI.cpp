@@ -18,9 +18,7 @@ namespace
     const char* const btPluginName = "IceBT";
 }
 
-//
 // Plug-in factory function.
-//
 extern "C"
 {
     ICEBT_API Ice::Plugin*
@@ -46,18 +44,13 @@ IceBT::btPluginFactory()
     return {btPluginName, createIceBT};
 }
 
-//
 // Plugin implementation.
-//
 IceBT::PluginI::PluginI(const Ice::CommunicatorPtr& com) : _engine(new Engine(com))
 {
     IceInternal::ProtocolPluginFacade facade{com};
 
-    //
-    // Register the endpoint factory. We have to do this now, rather
-    // than in initialize, because the communicator may need to
-    // interpret proxies before the plug-in is fully initialized.
-    //
+    // Register the endpoint factory. We have to do this now, rather than in initialize, because the communicator may
+    // need to interpret proxies before the plug-in is fully initialized.
     InstancePtr bt = make_shared<Instance>(_engine, BTEndpointType, "bt");
     facade.addEndpointFactory(make_shared<EndpointFactoryI>(bt));
 

@@ -131,17 +131,11 @@ NodeSessionI::getObserver(const Ice::Current&) const
 void
 NodeSessionI::loadServersAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current&) const
 {
-    //
-    // No need to wait for the servers to be loaded. If we were
-    // waiting, we would have to figure out an appropriate timeout for
-    // calling this method since each load() call might take time to
-    // complete.
-    //
+    // No need to wait for the servers to be loaded. If we were waiting, we would have to figure out an appropriate
+    // timeout for calling this method since each load() call might take time to complete.
     response();
 
-    //
     // Get the server proxies to load them on the node.
-    //
     auto servers = _database->getNode(_info->name)->getServers();
     for (const auto& server : servers)
     {
@@ -262,10 +256,7 @@ NodeSessionI::destroyImpl(bool shutdown)
         server->unsync();
     }
 
-    //
-    // If the registry isn't being shutdown we remove the node
-    // internal proxy from the database.
-    //
+    // If the registry isn't being shutdown we remove the node internal proxy from the database.
     if (!shutdown)
     {
         _database->removeInternalObject(_node->ice_getIdentity());
@@ -281,11 +272,8 @@ NodeSessionI::destroyImpl(bool shutdown)
         _replicaObserver = nullopt;
     }
 
-    //
-    // Finally, we clear the session, this must be done last. As soon
-    // as the node entry session is set to 0 another session might be
-    // created.
-    //
+    // Finally, we clear the session, this must be done last. As soon as the node entry session is set to 0 another
+    // session might be created.
     _database->getNode(_info->name)->setSession(nullptr);
 
     if (!shutdown)

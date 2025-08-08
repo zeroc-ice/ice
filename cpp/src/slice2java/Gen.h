@@ -120,9 +120,7 @@ namespace Slice
             const ExceptionList& throws,
             const OperationPtr& op = nullptr);
 
-        //
         // Marshal/unmarshal a data member.
-        //
         static void writeMarshalDataMember(
             IceInternal::Output& out,
             const std::string& package,
@@ -145,9 +143,7 @@ namespace Slice
         /// Generate assignment statements for those data members that have default values.
         static void writeDataMemberInitializers(IceInternal::Output&, const DataMemberList&, const std::string&);
 
-        //
         // Handle doc comments.
-        //
         static void writeExceptionDocComment(IceInternal::Output& out, const OperationPtr& op, const DocComment& dc);
         static void writeRemarksDocComment(IceInternal::Output& out, const DocComment& comment);
         static void writeHiddenDocComment(IceInternal::Output&);

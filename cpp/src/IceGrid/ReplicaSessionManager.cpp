@@ -362,18 +362,11 @@ ReplicaSessionManager::destroy()
 void
 ReplicaSessionManager::registerAllWellKnownObjects()
 {
-    //
-    // Always register first the well-known objects with the
-    // database. Then, if there's a session, we register them with the
-    // session and this will eventually override the ones with just
-    // registered with the ones from the master.
-    //
+    // Always register first the well-known objects with the database. Then, if there's a session, we register them
+    // with the session and this will eventually override the ones with just registered with the ones from the master.
     _wellKnownObjects->registerAll();
 
-    //
-    // If there's an active session, register the well-known objects
-    // with the session.
-    //
+    // If there's an active session, register the well-known objects with the session.
     auto session = _thread->getSession();
     if (session)
     {
@@ -579,11 +572,8 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, ch
             timeout = chrono::seconds(t / 2);
         }
 
-        //
-        // Create a new database observer servant and give its proxy
-        // to the session so that it can subscribe it. This call only
-        // returns once the observer is subscribed and initialized.
-        //
+        // Create a new database observer servant and give its proxy to the session so that it can subscribe it. This
+        // call only returns once the observer is subscribed and initialized.
         auto servant = make_shared<MasterDatabaseObserverI>(_thread, _database, *session);
         _observer = _database->getInternalAdapter()->addWithUUID<DatabaseObserverPrx>(servant);
         StringLongDict serials = _database->getSerials();

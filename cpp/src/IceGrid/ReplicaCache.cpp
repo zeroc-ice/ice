@@ -54,10 +54,7 @@ ReplicaCache::add(const string& name, const shared_ptr<ReplicaSessionI>& session
         }
         else
         {
-            //
-            // Check if the replica is still reachable, if not, we
-            // destroy its session.
-            //
+            // Check if the replica is still reachable, if not, we destroy its session.
             lock.unlock();
             try
             {

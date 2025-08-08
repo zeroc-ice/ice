@@ -42,9 +42,7 @@ namespace
         }
     }
 
-    //
     // Socket write callback
-    //
     OSStatus socketWrite(SSLConnectionRef connection, const void* data, size_t* length)
     {
         const auto* transceiver = static_cast<const TransceiverI*>(connection);
@@ -52,9 +50,7 @@ namespace
         return transceiver->writeRaw(reinterpret_cast<const byte*>(data), length);
     }
 
-    //
     // Socket read callback
-    //
     OSStatus socketRead(SSLConnectionRef connection, void* data, size_t* length)
     {
         const auto* transceiver = static_cast<const TransceiverI*>(connection);
@@ -82,10 +78,7 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
         _connected = true;
     }
 
-    //
-    // Limit the size of packets passed to SSLWrite/SSLRead to avoid
-    // blocking and holding too much memory.
-    //
+    // Limit the size of packets passed to SSLWrite/SSLRead to avoid blocking and holding too much memory.
     if (_delegate->getNativeInfo()->fd() != INVALID_SOCKET)
     {
         _maxSendPacketSize =
@@ -161,9 +154,7 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
     SSLSessionState state;
     SSLGetSessionState(_ssl.get(), &state);
 
-    //
     // SSL Handshake
-    //
     while (state == kSSLHandshake || state == kSSLIdle)
     {
         err = SSLHandshake(_ssl.get());
@@ -334,9 +325,7 @@ Ice::SSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
         return IceInternal::SocketOperationNone;
     }
 
-    //
     // It's impossible for packetSize to be more than an Int.
-    //
     size_t packetSize = std::min(static_cast<size_t>(buf.b.end() - buf.i), _maxSendPacketSize);
     while (buf.i != buf.b.end())
     {
@@ -361,10 +350,7 @@ Ice::SSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
                 throw ConnectionLostException(__FILE__, __LINE__, 0);
             }
 
-            //
-            // SSL protocol errors are defined in SecureTransport.h are in the range
-            // -9800 to -9849
-            //
+            // SSL protocol errors are defined in SecureTransport.h are in the range -9800 to -9849
             if (err <= -9800 && err >= -9849)
             {
                 throw ProtocolException(
@@ -437,10 +423,7 @@ Ice::SSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
                 throw ConnectionLostException(__FILE__, __LINE__, 0);
             }
 
-            //
-            // SSL protocol errors are defined in SecureTransport.h are in the range
-            // -9800 to -9849
-            //
+            // SSL protocol errors are defined in SecureTransport.h are in the range -9800 to -9849
             if (err <= -9800 && err >= -9849)
             {
                 throw ProtocolException(
@@ -468,9 +451,7 @@ Ice::SSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
         }
     }
 
-    //
     // Check if there's still buffered data to read. In this case, set the read ready status.
-    //
     size_t buffered = 0;
     OSStatus err = SSLGetBufferedReadSize(_ssl.get(), &buffered);
     if (err)

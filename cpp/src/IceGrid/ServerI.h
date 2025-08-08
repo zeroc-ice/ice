@@ -105,9 +105,7 @@ namespace IceGrid
         void terminated(const std::string&, int);
         void shutdown();
 
-        //
         // A proxy to the Process facet of the real Admin object; called by the AdminFacade servant implementation
-        //
         [[nodiscard]] std::optional<Ice::ObjectPrx> getProcess() const;
 
         PropertyDescriptorSeqDict getProperties(const std::shared_ptr<InternalServerDescriptor>&);

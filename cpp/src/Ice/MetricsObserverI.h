@@ -140,10 +140,8 @@ namespace IceMX
                     new MemberFunctionResolver<I, O, Y>(name, getFn, memberFn)));
             }
 
-            //
-            // Since C++17 the noexcept-specification is part of the function type and we need a separate
-            // overload to handle memberFn being noexcept
-            //
+            // Since C++17 the noexcept-specification is part of the function type and we need a separate overload to
+            // handle memberFn being noexcept
             template<typename I, typename O, typename Y>
             void add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const noexcept)
             {
@@ -376,10 +374,7 @@ namespace IceMX
             }
 
             _previousDelay = previous->_previousDelay + previous->_watch.delay();
-            //
-            // Detach entries from previous observer which are no longer
-            // attached to this new observer.
-            //
+            // Detach entries from previous observer which are no longer attached to this new observer.
             for (const auto& previousObject : previous->_objects)
             {
                 if (find(_objects.begin(), _objects.end(), previousObject) == _objects.end())

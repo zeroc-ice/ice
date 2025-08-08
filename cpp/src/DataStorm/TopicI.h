@@ -156,9 +156,8 @@ namespace DataStormI
         // A map containing the data readers or data writers for this topic.
         // The map's key is a pointer returned by the topic's key factory, and the value is a set of data elements
         // associated with that key.
-        //
-        // - When this class is an instance of the derived `TopicReaderI` class, the data elements are data readers.
-        // - When this class is an instance of the derived `TopicWriterI` class, the data elements are data writers.
+        // - When this class is an instance of the derived `TopicReaderI` class, the data elements are data readers. -
+        // When this class is an instance of the derived `TopicWriterI` class, the data elements are data writers.
         std::map<std::shared_ptr<Key>, std::set<std::shared_ptr<DataElementI>>> _keyElements;
 
         // A map containing the filtered data readers for this topic.

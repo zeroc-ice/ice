@@ -15,10 +15,7 @@ namespace IceDB
 {
     const size_t maxKeySize = 511;
 
-    //
-    // LMDBException wraps an error condition (and error code)
-    // returned by LMDB
-    //
+    // LMDBException wraps an error condition (and error code) returned by LMDB
     class LMDBException final : public Ice::LocalException
     {
     public:
@@ -27,10 +24,8 @@ namespace IceDB
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    //
-    // KeyTooLongException is thrown if we attempt to marshal a
-    // key with a marshaled representation longer than maxKeySize.
-    //
+    // KeyTooLongException is thrown if we attempt to marshal a key with a marshaled representation longer than
+    // maxKeySize.
     class KeyTooLongException final : public Ice::LocalException
     {
     public:
@@ -39,10 +34,7 @@ namespace IceDB
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    //
-    // The creation of an Env fails with BadEnvException when this
-    // Env's max key size is smaller than maxKeySize.
-    //
+    // The creation of an Env fails with BadEnvException when this Env's max key size is smaller than maxKeySize.
     class BadEnvException final : public Ice::LocalException
     {
     public:
@@ -51,26 +43,12 @@ namespace IceDB
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
-    //
-    // Codec reads and writes T to/from MDB_val
-    //
-    // Partial specializations of this template must provide:
-    //
-    // Read [out] T from [in] MDB_val using [in] context C
-    // static void read(T& , const MDB_val&, const C&);
-    //
-    // Write [in] T into [out] MDB_val
-    // [out] H& holds the memory for MDB_val.mv_data.
-    // static void write(const T&, MDB_val&, H&);
-    //
-    // Write [in] T into [in/out] MDB_val
-    // [in] MDB_val contains the destination array
-    // write returns true on success, and false if the provided
-    // array is too small.
-    // On failure, MDB_val.mv_size contains the marshaled key
-    // size if known, and 0 if not know.
-    // static bool write(const T&, MDB_val&, H&);
-    //
+    // Codec reads and writes T to/from MDB_val Partial specializations of this template must provide: Read [out] T
+    // from [in] MDB_val using [in] context C static void read(T& , const MDB_val&, const C&); Write [in] T into [out]
+    // MDB_val [out] H& holds the memory for MDB_val.mv_data. static void write(const T&, MDB_val&, H&); Write [in] T
+    // into [in/out] MDB_val [in] MDB_val contains the destination array write returns true on success, and false if the
+    // provided array is too small. On failure, MDB_val.mv_size contains the marshaled key size if known, and 0 if not
+    // know. static bool write(const T&, MDB_val&, H&);
     template<typename T, typename C, typename H> struct Codec;
 
     class Env
@@ -331,9 +309,7 @@ namespace IceDB
         ReadOnlyCursor(const Dbi<K, D, C, H>& dbi, const ReadOnlyTxn& txn) : Cursor<K, D, C, H>(dbi, txn) {}
     };
 
-    //
     // Partial specialization of Codec for Ice encoding
-    //
     struct IceContext
     {
         Ice::CommunicatorPtr communicator;
@@ -372,12 +348,8 @@ namespace IceDB
         }
     };
 
-    //
-    // Returns computed mapSize in bytes.
-    // When the input parameter is <= 0, returns a platform-dependent default
-    // (currently 0 on Windows and 100 MB on other platforms).
-    // Otherwise, returns input parameter * 1 MB.
-    //
+    // Returns computed mapSize in bytes. When the input parameter is <= 0, returns a platform-dependent default
+    // (currently 0 on Windows and 100 MB on other platforms). Otherwise, returns input parameter * 1 MB.
 
     size_t getMapSize(int);
 }

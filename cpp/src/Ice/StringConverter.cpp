@@ -48,10 +48,7 @@ namespace
     public:
         byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const final
         {
-            //
-            // Max bytes for a character encoding in UTF-8 is 4,
-            // however MSVC returns 6
-            //
+            // Max bytes for a character encoding in UTF-8 is 4, however MSVC returns 6
 #ifdef _MSC_VER
             assert(_codecvt.max_length() == 4 || _codecvt.max_length() == 6);
 #else
@@ -71,9 +68,7 @@ namespace
 
             bool more = false;
 
-            //
             // The number of bytes we request from buffer for each remaining source character
-            //
             size_t factor = 2;
 
             do
@@ -93,24 +88,18 @@ namespace
                 switch (result)
                 {
                     case codecvt_base::ok:
-                        //
                         // MSVC returns ok when target is exhausted
-                        //
                         more = sourceNext < sourceEnd;
                         break;
 
                     case codecvt_base::partial:
-                        //
                         // clang/libc++ and g++5 return partial when target is exhausted
-                        //
                         more = true;
                         assert(sourceNext < sourceEnd);
                         break;
 
                     case codecvt_base::noconv:
-                        //
                         // Unexpected
-                        //
                         assert(0);
                         throw IllegalConversionException(__FILE__, __LINE__, "codecvt.out noconv");
 
@@ -181,9 +170,7 @@ namespace
     class UTF8BufferI final : public UTF8Buffer
     {
     public:
-        //
         // Returns the first unused byte in the resized buffer
-        //
         byte* getMoreBytes(size_t howMany, byte* firstUnused) final
         {
             size_t bytesUsed = 0;
@@ -263,17 +250,13 @@ Ice::wstringToString(const wstring& v, const StringConverterPtr& converter, cons
     {
         const WstringConverterPtr& wConverterWithDefault = wConverter ? wConverter : getUnicodeWstringConverter();
 
-        //
         // First convert to UTF-8 narrow string.
-        //
         UTF8BufferI buffer;
         byte* last = wConverterWithDefault->toUTF8(v.data(), v.data() + v.size(), buffer);
         buffer.swap(target, last);
 
-        //
-        // If narrow string converter is present convert to the native narrow string encoding, otherwise
-        // native narrow string encoding is UTF8 and we are done.
-        //
+        // If narrow string converter is present convert to the native narrow string encoding, otherwise native narrow
+        // string encoding is UTF8 and we are done.
         if (converter)
         {
             string tmp;
@@ -293,10 +276,8 @@ Ice::stringToWstring(const string& v, const StringConverterPtr& converter, const
     wstring target;
     if (!v.empty())
     {
-        //
-        // If there is a narrow string converter use it to convert to UTF8, otherwise the narrow
-        // string is already UTF8 encoded.
-        //
+        // If there is a narrow string converter use it to convert to UTF8, otherwise the narrow string is already UTF8
+        // encoded.
         string tmp;
         if (converter)
         {
@@ -311,9 +292,7 @@ Ice::stringToWstring(const string& v, const StringConverterPtr& converter, const
 
         const WstringConverterPtr& wConverterWithDefault = wConverter ? wConverter : getUnicodeWstringConverter();
 
-        //
         // Convert from UTF-8 to the wide string encoding
-        //
         wConverterWithDefault->fromUTF8(
             reinterpret_cast<const byte*>(tmp.data()),
             reinterpret_cast<const byte*>(tmp.data() + tmp.size()),
@@ -446,9 +425,7 @@ IceInternal::fromUTF32(const vector<unsigned int>& source)
 
 namespace
 {
-    //
     // Converts to/from UTF-8 using MultiByteToWideChar and WideCharToMultiByte
-    //
     class WindowsStringConverter final : public StringConverter
     {
     public:
@@ -466,9 +443,7 @@ namespace
 
     byte* WindowsStringConverter::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
     {
-        //
         // First convert to UTF-16
-        //
         int sourceSize = static_cast<int>(sourceEnd - sourceStart);
         if (sourceSize == 0)
         {
@@ -478,10 +453,8 @@ namespace
         int writtenWchar = 0;
         wstring wbuffer;
 
-        //
-        // The following code pages doesn't support MB_ERR_INVALID_CHARS flag
-        // see http://msdn.microsoft.com/en-us/library/windows/desktop/dd319072(v=vs.85).aspx
-        //
+        // The following code pages doesn't support MB_ERR_INVALID_CHARS flag see
+        // http://msdn.microsoft.com/en-us/library/windows/desktop/dd319072(v=vs.85).aspx
         DWORD flags = (_cp == 50220 || _cp == 50221 || _cp == 50222 || _cp == 50225 || _cp == 50227 || _cp == 50229 ||
                        _cp == 65000 || _cp == 42 || (_cp >= 57002 && _cp <= 57011))
                           ? 0
@@ -506,9 +479,7 @@ namespace
 
         wbuffer.resize(static_cast<size_t>(writtenWchar));
 
-        //
         // Then convert this UTF-16 wbuffer into UTF-8
-        //
         return getUnicodeWstringConverter()->toUTF8(wbuffer.data(), wbuffer.data() + wbuffer.size(), buffer);
     }
 
@@ -527,21 +498,15 @@ namespace
             return;
         }
 
-        //
         // First convert to wstring (UTF-16)
-        //
         wstring wtarget;
         getUnicodeWstringConverter()->fromUTF8(sourceStart, sourceEnd, wtarget);
 
-        //
-        // WC_ERR_INVALID_CHARS conversion flag is only supported with 65001 (UTF-8) and
-        // 54936 (GB18030 Simplified Chinese)
-        //
+        // WC_ERR_INVALID_CHARS conversion flag is only supported with 65001 (UTF-8) and 54936 (GB18030 Simplified
+        // Chinese)
         DWORD flags = (_cp == 65001 || _cp == 54936) ? WC_ERR_INVALID_CHARS : 0;
 
-        //
         // And then to a multi-byte narrow string
-        //
         int writtenChar = -1;
         do
         {

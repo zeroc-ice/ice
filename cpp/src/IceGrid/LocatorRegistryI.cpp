@@ -222,7 +222,6 @@ LocatorRegistryI::setServerProcessProxyAsync(
         Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
 
         // Get the server from the registry and set its process proxy.
-        //
         // NOTE: We pass false to the getServer call to indicate that we don't necessarily want an up-to-date adapter
         // proxy. This is needed for the session activation mode for cases where the server is released during the
         // server startup.

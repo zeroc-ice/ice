@@ -28,9 +28,7 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
 
     Ice::Identity id = IceStormInternal::nameToIdentity(_instance, name);
 
-    //
     // Called by constructor or with 'this' mutex locked.
-    //
     auto traceLevels = _instance->traceLevels();
     if (traceLevels->topicMgr > 0)
     {
@@ -38,14 +36,10 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
         out << "creating new topic \"" << name << "\". id: " << _instance->communicator()->identityToString(id);
     }
 
-    //
     // Create topic implementation
-    //
     auto topicImpl = TransientTopicImpl::create(_instance, name, id);
 
-    //
     // The identity is the name of the Topic.
-    //
     auto prx = _instance->topicAdapter()->add<TopicPrx>(topicImpl, id);
     _topics.insert({name, topicImpl});
     return prx;
@@ -80,11 +74,8 @@ TransientTopicManagerImpl::retrieveAll(const Ice::Current&)
     TopicDict all;
     for (const auto& topic : _topics)
     {
-        //
-        // Here we cannot just reconstruct the identity since the
-        // identity could be either "<instanceName>/topic.<topicname>"
-        // name, or if created with pre-3.2 IceStorm "/<topicname>".
-        //
+        // Here we cannot just reconstruct the identity since the identity could be either
+        // "<instanceName>/topic.<topicname>" name, or if created with pre-3.2 IceStorm "/<topicname>".
         all.insert({topic.first, _instance->topicAdapter()->createProxy<TopicPrx>(topic.second->id())});
     }
 
@@ -100,9 +91,7 @@ TransientTopicManagerImpl::getReplicaNode(const Ice::Current&) const
 void
 TransientTopicManagerImpl::reap()
 {
-    //
     // Must be called called with mutex locked.
-    //
     for (const string& topic : _instance->topicReaper()->consumeReapedTopics())
     {
         auto i = _topics.find(topic);

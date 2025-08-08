@@ -61,9 +61,7 @@ IceObjC::StreamAcceptor::accept()
     setBlock(fd, false);
     setTcpBufSize(fd, _instance);
 
-    //
     // Create the read/write streams
-    //
     UniqueRef<CFReadStreamRef> readStream;
     UniqueRef<CFWriteStreamRef> writeStream;
     try

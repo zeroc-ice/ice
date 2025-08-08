@@ -70,9 +70,7 @@ SOCKSNetworkProxy::SOCKSNetworkProxy(const Address& addr) : _port(0), _address(a
 void
 SOCKSNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
 {
-    //
     // SOCKS connect request
-    //
     buf.b.resize(9);
     buf.i = buf.b.begin();
     byte* dest = &buf.b[0];
@@ -81,16 +79,12 @@ SOCKSNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
 
     const byte* src;
 
-    //
     // Port (already in big-endian order)
-    //
     src = reinterpret_cast<const byte*>(&addr.saIn.sin_port);
     *dest++ = *src++;
     *dest++ = *src;
 
-    //
     // IPv4 address (already in big-endian order)
-    //
     src = reinterpret_cast<const byte*>(&addr.saIn.sin_addr.s_addr);
     *dest++ = *src++;
     *dest++ = *src++;
@@ -110,9 +104,7 @@ SOCKSNetworkProxy::endWrite(Buffer& buf)
 void
 SOCKSNetworkProxy::beginRead(Buffer& buf)
 {
-    //
     // Read the SOCKS4 response whose size is 8 bytes.
-    //
     buf.b.resize(8);
     buf.i = buf.b.begin();
 }
@@ -187,9 +179,7 @@ HTTPNetworkProxy::HTTPNetworkProxy(const Address& addr, ProtocolSupport protocol
 void
 HTTPNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
 {
-    //
     // HTTP connect request
-    //
     ostringstream out;
     out << "CONNECT " << addrToString(addr) << " HTTP/1.1\r\n"
         << "Host: " << addrToString(addr) << "\r\n\r\n";
@@ -209,9 +199,7 @@ HTTPNetworkProxy::endWrite(Buffer& buf)
 void
 HTTPNetworkProxy::beginRead(Buffer& buf)
 {
-    //
     // Read the Http response
-    //
     buf.b.resize(7); // Enough space for reading at least HTTP1.1
     buf.i = buf.b.begin();
 }
@@ -219,20 +207,13 @@ HTTPNetworkProxy::beginRead(Buffer& buf)
 SocketOperation
 HTTPNetworkProxy::endRead(Buffer& buf)
 {
-    //
-    // Check if we received the full HTTP response, if not, continue
-    // reading otherwise we're done.
-    //
+    // Check if we received the full HTTP response, if not, continue reading otherwise we're done.
     const byte* end = HttpParser().isCompleteMessage(buf.b.begin(), buf.i);
     if (!end && buf.i == buf.b.end())
     {
-        //
-        // Read one more byte, we can't easily read bytes in advance
-        // since the transport implementation might be be able to read
-        // the data from the memory instead of the socket. This is for
-        // instance the case with the OpenSSL transport (or we would
-        // have to use a buffering BIO).
-        //
+        // Read one more byte, we can't easily read bytes in advance since the transport implementation might be be
+        // able to read the data from the memory instead of the socket. This is for instance the case with the OpenSSL
+        // transport (or we would have to use a buffering BIO).
         buf.b.resize(buf.b.size() + 1);
         buf.i = buf.b.begin() + buf.b.size() - 1;
         return SocketOperationRead;

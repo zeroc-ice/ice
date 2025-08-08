@@ -99,10 +99,7 @@ SessionServantManager::addSession(
     lock_guard lock(_mutex);
     _sessions.insert({session, SessionInfo(connection, category)});
 
-    //
-    // Keep track of all the connections which have an admin session to allow access
-    // to server admin objects.
-    //
+    // Keep track of all the connections which have an admin session to allow access to server admin objects.
     if (!category.empty() && connection != nullptr)
     {
         _adminConnections.insert(connection);
@@ -129,9 +126,7 @@ SessionServantManager::setSessionControl(
     p->second.sessionControl = ctl;
     p->second.identitySet = ctl->identities();
 
-    //
     // Allow invocations on the session servants and the given objects.
-    //
     Ice::IdentitySeq allIds = ids;
     copy(p->second.identities.begin(), p->second.identities.end(), back_inserter(allIds));
     p->second.identitySet->add(allIds);
@@ -189,17 +184,13 @@ SessionServantManager::removeSession(const Ice::ObjectPtr& session)
     auto p = _sessions.find(session);
     assert(p != _sessions.end());
 
-    //
     // Remove all the servants associated with the session.
-    //
     for (const auto& identity : p->second.identities)
     {
         _servants.erase(identity);
     }
 
-    //
     // If this is an admin session, remove its connection from the admin connections.
-    //
 
     if (!p->second.category.empty() && p->second.connection)
     {
@@ -229,17 +220,12 @@ SessionServantManager::remove(const Ice::Identity& id)
     auto p = _servants.find(id);
     assert(p != _servants.end());
 
-    //
-    // Find the session associated to the servant and remove the servant identity from the
-    // session identities.
-    //
+    // Find the session associated to the servant and remove the servant identity from the session identities.
     auto q = _sessions.find(p->second.session);
     assert(q != _sessions.end());
     q->second.identities.erase(id);
 
-    //
     // Remove the identity from the Glacier2 identity set.
-    //
     if (q->second.identitySet)
     {
         try
@@ -251,9 +237,7 @@ SessionServantManager::remove(const Ice::Identity& id)
         }
     }
 
-    //
     // Remove the servant from the servant map.
-    //
     _servants.erase(p);
 }
 
@@ -267,14 +251,10 @@ SessionServantManager::addImpl(const Ice::ObjectPtr& servant, const Ice::ObjectP
     id.name = Ice::generateUUID();
     id.category = _instanceName;
 
-    //
     // Add the identity to the session identities.
-    //
     p->second.identities.insert(id);
 
-    //
     // Add the identity to the Glacier2 identity set.
-    //
     if (p->second.identitySet)
     {
         try
@@ -286,9 +266,7 @@ SessionServantManager::addImpl(const Ice::ObjectPtr& servant, const Ice::ObjectP
         }
     }
 
-    //
     // Add the servant to the servant map and return its proxy.
-    //
     _servants.insert(make_pair(id, ServantInfo(servant, p->second.connection, session)));
     return _adapter->createProxy(id);
 }

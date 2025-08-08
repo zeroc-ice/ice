@@ -47,10 +47,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
     {
         lines.clear();
 
-        //
-        // Move the current position of the stream to the new block to
-        // read.
-        //
+        // Move the current position of the stream to the new block to read.
         is.clear();
         if (lastBlockOffset - blockSize > streamoff(0))
         {
@@ -62,11 +59,8 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
             is.seekg(0, ios::beg); // We've reach the beginning of the file.
         }
 
-        //
-        // Read the block and count the number of lines in the block
-        // If we found the "first last N lines", we start throwing out
-        // the lines read at the beginning of the file.
-        //
+        // Read the block and count the number of lines in the block If we found the "first last N lines", we start
+        // throwing out the lines read at the beginning of the file.
         int count = originalCount - totalCount; // Number of lines left to find.
         while (is.good() && is.tellg() <= streamoff(lastBlockOffset))
         {
@@ -92,10 +86,8 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
         }
         else if (totalCount < originalCount)
         {
-            //
-            // Otherwise, it we still didn't find the required number of lines,
-            // read another block of text before this block.
-            //
+            // Otherwise, it we still didn't find the required number of lines, read another block of text before this
+            // block.
             lastBlockOffset -= blockSize; // Position of the block we just read.
             blockSize *= 2;               // Read a bigger block.
         }
@@ -137,11 +129,8 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
         throw FileNotAvailableException("failed to open file '" + file + "'");
     }
 
-    //
-    // Check if the requested offset is past the end of the file, if
-    // that's the case return an empty sequence of lines and indicate
-    // the EOF.
-    //
+    // Check if the requested offset is past the end of the file, if that's the case return an empty sequence of lines
+    // and indicate the EOF.
     is.seekg(0, ios::end);
     if (offset >= is.tellg())
     {
@@ -150,9 +139,7 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
         return true;
     }
 
-    //
     // Read lines from the file until we read enough or reached EOF.
-    //
     newOffset = offset;
     lines = Ice::StringSeq();
     is.seekg(static_cast<streamoff>(offset), ios::beg);
@@ -183,11 +170,8 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
         totalSize += lineSize;
         lines.push_back(line);
 
-        //
-        // If there was a partial read update the offset using the current line size,
-        // otherwise we have read a new complete line and we can use tellg to update
-        // the offset.
-        //
+        // If there was a partial read update the offset using the current line size, otherwise we have read a new
+        // complete line and we can use tellg to update the offset.
         if (!is.good())
         {
             newOffset += line.size();

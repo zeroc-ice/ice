@@ -11,9 +11,7 @@
 
 namespace IceInternal
 {
-    //
     // UniqueRef helper class for CoreFoundation classes, comparable to std::unique_ptr
-    //
     template<typename R> class UniqueRef
     {
     public:
@@ -39,11 +37,8 @@ namespace IceInternal
 
         void reset(R ref = nullptr)
         {
-            //
-            // Support "self-reset" for CF objects. This is useful if CF allocation methods return
-            // the same object with an increased reference count.
-            //
-            // assert(ref == nullptr || ref != _ref);
+            // Support "self-reset" for CF objects. This is useful if CF allocation methods return the same object with
+            // an increased reference count. assert(ref == nullptr || ref != _ref);
 
             if (_ref != nullptr)
             {

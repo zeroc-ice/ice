@@ -24,10 +24,7 @@ namespace
         error << "LMDB error: " << ex;
     }
 
-    //
-    // The servant has a 1-1 association with a topic. It is used to
-    // receive events from Publishers.
-    //
+    // The servant has a 1-1 association with a topic. It is used to receive events from Publishers.
     class PublisherI : public Ice::BlobjectArray
     {
     public:
@@ -57,10 +54,7 @@ namespace
         const shared_ptr<PersistentInstance> _instance;
     };
 
-    //
-    // The servant has a 1-1 association with a topic. It is used to
-    // receive events from linked Topics.
-    //
+    // The servant has a 1-1 association with a topic. It is used to receive events from linked Topics.
     class TopicLinkI : public TopicLink
     {
     public:
@@ -341,16 +335,10 @@ TopicImpl::create(
     shared_ptr<TopicImpl> topicImpl(new TopicImpl(instance, name, id, subscribers));
 
     topicImpl->_servant = make_shared<TopicI>(topicImpl, instance);
-    //
-    // Create a servant per topic to receive event data. If the
-    // category is empty then we are in backwards compatibility
-    // mode. In this case the servant's identity is
-    // category=<topicname>, name=publish, otherwise the name is
-    // <instancename>/<topicname>.publish. The same applies to the
-    // link proxy.
-    //
-    // Activate the object and save a reference to give to publishers.
-    //
+    // Create a servant per topic to receive event data. If the category is empty then we are in backwards
+    // compatibility mode. In this case the servant's identity is category=<topicname>, name=publish, otherwise the name
+    // is <instancename>/<topicname>.publish. The same applies to the link proxy. Activate the object and save a
+    // reference to give to publishers.
     Ice::Identity pubid;
     Ice::Identity linkid;
     if (id.category.empty())
@@ -389,9 +377,7 @@ TopicImpl::TopicImpl(
 {
     try
     {
-        //
         // Re-establish subscribers.
-        //
         for (const auto& subscriber : subscribers)
         {
             Ice::Identity ident = subscriber.obj->ice_getIdentity();
@@ -408,10 +394,7 @@ TopicImpl::TopicImpl(
 
             try
             {
-                //
-                // Create the subscriber object add it to the set of
-                // subscribers.
-                //
+                // Create the subscriber object add it to the set of subscribers.
                 _subscribers.push_back(Subscriber::create(_instance, subscriber));
             }
             catch (const Ice::Exception& ex)
@@ -909,10 +892,7 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
         // Use cached reads.
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
 
-        //
-        // Copy of the subscriber list so that event publishing can occur
-        // in parallel.
-        //
+        // Copy of the subscriber list so that event publishing can occur in parallel.
         vector<shared_ptr<Subscriber>> copy;
         {
             lock_guard lock(_subscribersMutex);
@@ -931,10 +911,7 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
             copy = _subscribers;
         }
 
-        //
-        // Queue each event, gathering a list of those subscribers that
-        // must be reaped.
-        //
+        // Queue each event, gathering a list of those subscribers that must be reaped.
         for (const auto& subscriber : copy)
         {
             if (!subscriber->queue(forwarded, events) && subscriber->reap())
@@ -960,10 +937,9 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
 
     // Tell the master to reap this set of subscribers. This is an AMI invocation so it shouldn't block the caller (in
     // the typical case) we do it outside of the mutex lock for performance reasons.
-    //
     // We must release the cached lock before calling this as the AMI call may raise an exception in the caller (that
-    // is directly call ice_exception) which calls recover() on the node which would result in a deadlock since the
-    // node is locked.
+    // is directly call ice_exception) which calls recover() on the node which would result in a deadlock since the node
+    // is locked.
 
     masterInternal->reapAsync(
         reap,

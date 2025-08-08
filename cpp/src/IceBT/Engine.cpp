@@ -19,10 +19,7 @@ namespace IceBT
     class ConnectionI;
     using ConnectionIPtr = std::shared_ptr<ConnectionI>;
 
-    //
-    // ConnectionI implements IceBT::Connection and encapsulates a DBus connection along with
-    // some additional state.
-    //
+    // ConnectionI implements IceBT::Connection and encapsulates a DBus connection along with some additional state.
     class ConnectionI final : public Connection
     {
     public:
@@ -35,16 +32,12 @@ namespace IceBT
 
         [[nodiscard]] DBus::ConnectionPtr dbusConnection() const { return _connection; }
 
-        //
         // Blocking close.
-        //
         void close() final
         {
             try
             {
-                //
                 // Invoke DisconnectProfile to terminate the client-side connection.
-                //
                 DBus::MessagePtr msg =
                     DBus::Message::createCall("org.bluez", _devicePath, "org.bluez.Device1", "DisconnectProfile");
                 msg->write(make_shared<DBus::StringValue>(_uuid));
@@ -72,11 +65,9 @@ namespace IceBT
         string _uuid;
     };
 
-    //
-    // Profile is an abstract base class representing a Bluetooth "profile". We have to register a DBus
-    // profile object for a UUID in order to receive connection notifications. This is necessary for both
-    // outgoing and incoming connections.
-    //
+    // Profile is an abstract base class representing a Bluetooth "profile". We have to register a DBus profile object
+    // for a UUID in order to receive connection notifications. This is necessary for both outgoing and incoming
+    // connections.
     class Profile : public DBus::Service
     {
     public:
@@ -85,26 +76,20 @@ namespace IceBT
             string member = m->getMember();
             if (member == "Release")
             {
-                //
                 // Ignore - no reply necessary.
-                //
             }
             else if (member == "NewConnection")
             {
                 vector<DBus::ValuePtr> values = m->readAll();
                 assert(values.size() == 3);
 
-                //
                 // This argument is the Unix file descriptor for the new connection.
-                //
                 auto fd = dynamic_pointer_cast<DBus::UnixFDValue>(values[1]);
                 assert(fd);
 
                 try
                 {
-                    //
                     // Send an empty reply.
-                    //
                     DBus::MessagePtr ret = DBus::Message::createReturn(m);
                     conn->sendAsync(ret);
                 }
@@ -126,9 +111,7 @@ namespace IceBT
             {
                 try
                 {
-                    //
                     // Send an empty reply.
-                    //
                     DBus::MessagePtr ret = DBus::Message::createReturn(m);
                     conn->sendAsync(ret);
                 }
@@ -137,9 +120,7 @@ namespace IceBT
                     // Ignore.
                 }
 
-                //
                 // Ignore disconnect requests.
-                //
             }
         }
 
@@ -148,9 +129,7 @@ namespace IceBT
     };
     using ProfilePtr = std::shared_ptr<Profile>;
 
-    //
     // ClientProfile represents an outgoing connection profile.
-    //
     class ClientProfile final : public Profile
     {
     public:
@@ -165,9 +144,7 @@ namespace IceBT
     protected:
         void newConnection(int fd) final
         {
-            //
             // The callback assumes ownership of the file descriptor and connection.
-            //
             _callback->completed(fd, _connection);
             _connection = nullptr; // Remove circular reference.
             _callback = nullptr;
@@ -179,9 +156,7 @@ namespace IceBT
     };
     using ClientProfilePtr = std::shared_ptr<ClientProfile>;
 
-    //
     // ServerProfile represents an incoming connection profile.
-    //
     class ServerProfile final : public Profile
     {
     public:
@@ -195,10 +170,8 @@ namespace IceBT
     };
     using ServerProfilePtr = std::shared_ptr<ServerProfile>;
 
-    //
-    // Engine delegates to BluetoothService. It encapsulates a snapshot of the "objects" managed by the
-    // DBus Bluetooth daemon. These objects include local Bluetooth adapters, paired devices, etc.
-    //
+    // Engine delegates to BluetoothService. It encapsulates a snapshot of the "objects" managed by the DBus Bluetooth
+    // daemon. These objects include local Bluetooth adapters, paired devices, etc.
     class BluetoothService : public DBus::Filter, public std::enable_shared_from_this<BluetoothService>
     {
     public:
@@ -272,10 +245,8 @@ namespace IceBT
 
             try
             {
-                //
-                // Block while we establish a DBus connection and retrieve a snapshot of the managed objects
-                // from the Bluetooth service.
-                //
+                // Block while we establish a DBus connection and retrieve a snapshot of the managed objects from the
+                // Bluetooth service.
                 _dbusConnection = DBus::Connection::getSystemBus();
                 _dbusConnection->addFilter(shared_from_this());
                 getManagedObjects();
@@ -286,9 +257,7 @@ namespace IceBT
             }
         }
 
-        //
         // From DBus::Filter.
-        //
         bool handleMessage(const DBus::ConnectionPtr&, const DBus::MessagePtr& msg) override
         {
             if (!msg->isSignal())
@@ -301,12 +270,8 @@ namespace IceBT
 
             if (intf == "org.freedesktop.DBus.ObjectManager" && member == "InterfacesAdded")
             {
-                //
-                // The InterfacesAdded signal contains two values:
-                //
-                //   OBJPATH obj_path
-                //   DICT<STRING,DICT<STRING,VARIANT>> interfaces_and_properties
-                //
+                // The InterfacesAdded signal contains two values: OBJPATH obj_path DICT<STRING,DICT<STRING,VARIANT>>
+                // interfaces_and_properties
 
                 vector<DBus::ValuePtr> values = msg->readAll();
                 assert(values.size() == 2);
@@ -319,18 +284,14 @@ namespace IceBT
                 auto p = interfaceProps.find("org.bluez.Device1");
                 if (p != interfaceProps.end())
                 {
-                    //
                     // A remote device was added.
-                    //
                     deviceAdded(path->v, p->second);
                 }
 
                 p = interfaceProps.find("org.bluez.Adapter1");
                 if (p != interfaceProps.end())
                 {
-                    //
                     // A local Bluetooth adapter was added.
-                    //
                     adapterAdded(path->v, p->second);
                 }
 
@@ -338,12 +299,7 @@ namespace IceBT
             }
             else if (intf == "org.freedesktop.DBus.ObjectManager" && member == "InterfacesRemoved")
             {
-                //
-                // The InterfacesRemoved signal contains two values:
-                //
-                //   OBJPATH obj_path
-                //   ARRAY<STRING> interfaces
-                //
+                // The InterfacesRemoved signal contains two values: OBJPATH obj_path ARRAY<STRING> interfaces
 
                 vector<DBus::ValuePtr> values = msg->readAll();
                 assert(values.size() == 2);
@@ -357,9 +313,7 @@ namespace IceBT
                     assert(element->getType()->getKind() == DBus::Type::KindString);
                     auto ifaceName = dynamic_pointer_cast<DBus::StringValue>(element);
 
-                    //
                     // A remote device was removed.
-                    //
                     if (ifaceName->v == "org.bluez.Device1")
                     {
                         deviceRemoved(path->v);
@@ -374,13 +328,8 @@ namespace IceBT
             }
             else if (intf == "org.freedesktop.DBus.Properties" && member == "PropertiesChanged")
             {
-                //
-                // The PropertiesChanged signal contains three values:
-                //
-                //   STRING interface_name
-                //   DICT<STRING,VARIANT> changed_properties
-                //   ARRAY<STRING> invalidated_properties
-                //
+                // The PropertiesChanged signal contains three values: STRING interface_name DICT<STRING,VARIANT>
+                // changed_properties ARRAY<STRING> invalidated_properties
 
                 vector<DBus::ValuePtr> values = msg->readAll();
                 assert(values.size() == 3);
@@ -424,11 +373,8 @@ namespace IceBT
         {
             lock_guard lock(_mutex);
 
-            //
-            // Return the device address of the default local adapter.
-            //
-            // TBD: Be smarter about this? E.g., consider the state of the Powered property?
-            //
+            // Return the device address of the default local adapter. TBD: Be smarter about this? E.g., consider the
+            // state of the Powered property?
             if (!_adapters.empty())
             {
                 return _adapters.begin()->second.getAddress();
@@ -441,9 +387,7 @@ namespace IceBT
         {
             lock_guard lock(_mutex);
 
-            //
             // Check if a local adapter exists with the given device address.
-            //
             for (const auto& adapter : _adapters)
             {
                 if (addr == adapter.second.getAddress())
@@ -459,9 +403,7 @@ namespace IceBT
         {
             lock_guard lock(_mutex);
 
-            //
             // Check if a remote device exists with the given device address.
-            //
             for (const auto& remoteDevice : _remoteDevices)
             {
                 if (remoteDevice.second.getAddress() == IceInternal::toUpper(addr))
@@ -473,15 +415,11 @@ namespace IceBT
             return false;
         }
 
-        //
         // Calling registerProfile will advertise a service (SDP) profile with the Bluetooth daemon.
-        //
         string registerProfile(const string& uuid, const string& name, int channel, const ProfileCallbackPtr& cb)
         {
-            //
-            // As a subclass of DBus::Service, the ServerProfile object will receive DBus method
-            // invocations for a given object path.
-            //
+            // As a subclass of DBus::Service, the ServerProfile object will receive DBus method invocations for a
+            // given object path.
             ProfilePtr profile = make_shared<ServerProfile>(cb);
 
             string path = generatePath();
@@ -507,9 +445,7 @@ namespace IceBT
         {
             try
             {
-                //
                 // Block while we unregister the profile.
-                //
                 DBus::AsyncResultPtr ar = unregisterProfileImpl(_dbusConnection, path);
                 ar->waitUntilFinished();
                 DBus::MessagePtr reply = ar->getReply();
@@ -529,9 +465,7 @@ namespace IceBT
         {
             lock_guard lock(_mutex);
 
-            //
             // Start a thread to establish the connection.
-            //
             _connectThreads.emplace_back([self = shared_from_this(), addr, uuid, cb]
                                          { self->runConnectThread(this_thread::get_id(), addr, uuid, cb); });
         }
@@ -558,9 +492,7 @@ namespace IceBT
                 throw BluetoothException{__FILE__, __LINE__, "no Bluetooth adapter found matching address " + addr};
             }
 
-            //
             // Invoke StartDiscovery() on the adapter object.
-            //
             try
             {
                 DBus::MessagePtr msg =
@@ -600,9 +532,7 @@ namespace IceBT
                 throw BluetoothException{__FILE__, __LINE__, "no Bluetooth adapter found matching address " + addr};
             }
 
-            //
             // Invoke StopDiscovery() on the adapter object.
-            //
             try
             {
                 DBus::MessagePtr msg =
@@ -643,9 +573,7 @@ namespace IceBT
 
         void destroy()
         {
-            //
             // Wait for any active connect threads to finish.
-            //
             vector<thread> connectThreads;
 
             {
@@ -674,13 +602,9 @@ namespace IceBT
         {
             try
             {
-                //
-                // Query the Bluetooth service for its managed objects. This is a standard DBus invocation
-                // with the following signature:
-                //
-                // org.freedesktop.DBus.ObjectManager.GetManagedObjects (
-                //     out DICT<OBJPATH,DICT<STRING,DICT<STRING,VARIANT>>> objpath_interfaces_and_properties);
-                //
+                // Query the Bluetooth service for its managed objects. This is a standard DBus invocation with the
+                // following signature: org.freedesktop.DBus.ObjectManager.GetManagedObjects ( out
+                // DICT<OBJPATH,DICT<STRING,DICT<STRING,VARIANT>>> objpath_interfaces_and_properties);
                 DBus::MessagePtr msg = DBus::Message::createCall(
                     "org.bluez",
                     "/",
@@ -699,25 +623,14 @@ namespace IceBT
                 _remoteDevices.clear();
                 _defaultAdapterAddress.clear();
 
-                //
-                // The return value of GetManagedObjects is a dictionary structured like this:
-                //
-                //     Key: Object path (e.g., "/org/bluez")
-                //     Value: Dictionary of interfaces
-                //         Key: Interface name (e.g., "org.bluez.Adapter1")
-                //         Value: Dictionary of properties
-                //             Key: Property name
-                //             Value: Property value (variant)
-                //
+                // The return value of GetManagedObjects is a dictionary structured like this: Key: Object path (e.g.,
+                // "/org/bluez") Value: Dictionary of interfaces Key: Interface name (e.g., "org.bluez.Adapter1") Value:
+                // Dictionary of properties Key: Property name Value: Property value (variant)
 
-                //
                 // Extract the dictionary from the reply message.
-                //
                 DBus::ValuePtr v = reply->read();
 
-                //
                 // Iterate through the dictionary and collect the objects that we need.
-                //
                 assert(v->getType()->getKind() == DBus::Type::KindArray);
                 auto a = dynamic_pointer_cast<DBus::ArrayValue>(v);
                 for (const auto& element : a->elements)
@@ -736,18 +649,14 @@ namespace IceBT
                     q = ipmap.find("org.bluez.Adapter1");
                     if (q != ipmap.end())
                     {
-                        //
                         // org.bluez.Adapter1 is the interface for local Bluetooth adapters.
-                        //
                         _adapters[path->v] = Adapter(q->second);
                     }
 
                     q = ipmap.find("org.bluez.Device1");
                     if (q != ipmap.end())
                     {
-                        //
                         // org.bluez.Device1 is the interface for paired remote devices.
-                        //
                         RemoteDevice d(q->second);
                         if (!d.getAddress().empty())
                         {
@@ -772,9 +681,7 @@ namespace IceBT
         {
             conn->addService(path, profile);
 
-            //
             // Invoke RegisterProfile on the profile manager object.
-            //
             DBus::MessagePtr msg =
                 DBus::Message::createCall("org.bluez", "/org/bluez", "org.bluez.ProfileManager1", "RegisterProfile");
             vector<DBus::ValuePtr> args;
@@ -817,9 +724,7 @@ namespace IceBT
 
         DBus::AsyncResultPtr unregisterProfileImpl(const DBus::ConnectionPtr& conn, const string& path)
         {
-            //
             // Invoke UnregisterProfile on the profile manager object.
-            //
             DBus::MessagePtr msg =
                 DBus::Message::createCall("org.bluez", "/org/bluez", "org.bluez.ProfileManager1", "UnregisterProfile");
             msg->write(make_shared<DBus::ObjectPathValue>(path));
@@ -828,9 +733,7 @@ namespace IceBT
 
         static string generatePath()
         {
-            //
             // Generate a unique object path. Path elements can only contain "[A-Z][a-z][0-9]_".
-            //
             string path = "/com/zeroc/P" + Ice::generateUUID();
             for (char& p : path)
             {
@@ -913,9 +816,7 @@ namespace IceBT
 
                     if (addr.empty())
                     {
-                        //
                         // Remove the device if we don't know its address.
-                        //
                         _remoteDevices.erase(p);
                     }
                     else
@@ -999,14 +900,8 @@ namespace IceBT
 
         void extractInterfaceProperties(const DBus::ValuePtr& v, InterfacePropertiesMap& interfaceProps)
         {
-            //
-            // The given value is a dictionary structured like this:
-            //
-            //   Key: Interface name (e.g., "org.bluez.Adapter1")
-            //   Value: Dictionary of properties
-            //     Key: Property name
-            //     Value: Property value (variant)
-            //
+            // The given value is a dictionary structured like this: Key: Interface name (e.g., "org.bluez.Adapter1")
+            // Value: Dictionary of properties Key: Property name Value: Property value (variant)
 
             auto ifaces = dynamic_pointer_cast<DBus::ArrayValue>(v);
             assert(ifaces);
@@ -1027,12 +922,7 @@ namespace IceBT
 
         void extractProperties(const DBus::ValuePtr& v, VariantMap& vm)
         {
-            //
-            // The given value is a dictionary structured like this:
-            //
-            //   Key: Property name
-            //   Value: Property value (variant)
-            //
+            // The given value is a dictionary structured like this: Key: Property name Value: Property value (variant)
 
             assert(v->getType()->getKind() == DBus::Type::KindArray);
             auto props = dynamic_pointer_cast<DBus::ArrayValue>(v);
@@ -1049,9 +939,7 @@ namespace IceBT
 
         void updateProperties(VariantMap& props, const VariantMap& changed, const vector<string>& removedProps)
         {
-            //
             // Remove properties.
-            //
             for (const auto& removedProp : removedProps)
             {
                 auto r = props.find(removedProp);
@@ -1061,9 +949,7 @@ namespace IceBT
                 }
             }
 
-            //
             // Merge changes.
-            //
             for (const auto& q : changed)
             {
                 props[q.first] = q.second;
@@ -1076,24 +962,14 @@ namespace IceBT
             const string& uuid,
             const ConnectCallbackPtr& cb)
         {
-            //
-            // Establishing a connection is a complicated process.
-            //
-            // 1) Determine whether our local Bluetooth service knows about the target
-            //    remote device denoted by the 'addr' argument. The known remote devices
-            //    are included in the managed objects returned by the GetManagedObjects
-            //    invocation on the Bluetooth service and updated dynamically during
-            //    discovery.
-            //
-            // 2) After we find the remote device, we have to register a client profile
-            //    for the given UUID.
-            //
-            // 3) After registering the profile, we have to invoke ConnectDevice on the
-            //    local device object corresponding to the target address. The Bluetooth
-            //    service will attempt to establish a connection to the remote device.
-            //    If the connection succeeds, our profile object will receive a
-            //    NewConnection invocation that supplies the file descriptor.
-            //
+            // Establishing a connection is a complicated process. 1) Determine whether our local Bluetooth service
+            // knows about the target remote device denoted by the 'addr' argument. The known remote devices are
+            // included in the managed objects returned by the GetManagedObjects invocation on the Bluetooth service and
+            // updated dynamically during discovery. 2) After we find the remote device, we have to register a client
+            // profile for the given UUID. 3) After registering the profile, we have to invoke ConnectDevice on the
+            // local device object corresponding to the target address. The Bluetooth service will attempt to establish
+            // a connection to the remote device. If the connection succeeds, our profile object will receive a
+            // NewConnection invocation that supplies the file descriptor.
 
             ConnectionIPtr conn;
             bool ok = true;
@@ -1102,9 +978,7 @@ namespace IceBT
             {
                 string devicePath;
 
-                //
                 // Search our list of known devices for one that matches the given address.
-                //
                 {
                     lock_guard lock(_mutex);
 
@@ -1118,26 +992,20 @@ namespace IceBT
                     }
                 }
 
-                //
                 // If we don't find a match, we're done.
-                //
                 if (devicePath.empty())
                 {
                     throw BluetoothException{__FILE__, __LINE__, "unknown address '" + addr + "'"};
                 }
 
-                //
                 // We have a matching device, now register a client profile.
-                //
                 DBus::ConnectionPtr dbusConn = DBus::Connection::getSystemBus();
                 conn = make_shared<ConnectionI>(dbusConn, devicePath, uuid);
 
                 ProfilePtr profile = make_shared<ClientProfile>(conn, cb);
                 string path = generatePath();
 
-                //
                 // Register a client profile. Client profiles are not advertised in SDP.
-                //
                 DBus::AsyncResultPtr r = registerProfileImpl(dbusConn, path, uuid, string(), -1, profile);
                 DBus::MessagePtr reply = r->waitUntilFinished();
                 if (reply->isError())
@@ -1145,14 +1013,9 @@ namespace IceBT
                     reply->throwException();
                 }
 
-                //
-                // Invoke ConnectProfile to initiate the client-side connection:
-                //
-                // void ConnectProfile(string uuid)
-                //
-                // We only care about errors from this invocation. If the connection succeeds, our
-                // client profile will receive a separate NewConnection invocation.
-                //
+                // Invoke ConnectProfile to initiate the client-side connection: void ConnectProfile(string uuid) We
+                // only care about errors from this invocation. If the connection succeeds, our client profile will
+                // receive a separate NewConnection invocation.
                 DBus::MessagePtr msg =
                     DBus::Message::createCall("org.bluez", devicePath, "org.bluez.Device1", "ConnectProfile");
                 msg->write(make_shared<DBus::StringValue>(uuid));
@@ -1187,18 +1050,14 @@ namespace IceBT
                 cb->failed(current_exception());
             }
 
-            //
             // Clean up.
-            //
 
             if (!ok && conn)
             {
                 conn->close();
             }
 
-            //
             // Remove the thread from the list.
-            //
             {
                 lock_guard lock(_mutex);
 

@@ -214,13 +214,9 @@ IceInternal::UdpEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint
 string
 IceInternal::UdpEndpointI::options() const
 {
-    //
-    // WARNING: Certain features, such as proxy validation in Glacier2,
-    // depend on the format of proxy strings. Changes to toString() and
-    // methods called to generate parts of the reference string could break
-    // these features. Please review for all features that depend on the
-    // format of proxyToString() before changing this and related code.
-    //
+    // WARNING: Certain features, such as proxy validation in Glacier2, depend on the format of proxy strings. Changes
+    // to toString() and methods called to generate parts of the reference string could break these features. Please
+    // review for all features that depend on the format of proxyToString() before changing this and related code.
     ostringstream s;
     s << IPEndpointI::options();
 

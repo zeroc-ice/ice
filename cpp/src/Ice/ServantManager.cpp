@@ -183,13 +183,9 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string_vie
 {
     lock_guard lock(_mutex);
 
-    //
-    // This assert is not valid if the adapter dispatch incoming
-    // requests from bidir connections. This method might be called if
-    // requests are received over the bidir connection after the
-    // adapter was deactivated.
-    //
-    // assert(_instance); // Must not be called after destruction.
+    // This assert is not valid if the adapter dispatch incoming requests from bidir connections. This method might be
+    // called if requests are received over the bidir connection after the adapter was deactivated. assert(_instance);
+    // // Must not be called after destruction.
 
     auto p = _servantMapMapHint;
     FacetMap::iterator q;
@@ -276,13 +272,9 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 
-    //
-    // This assert is not valid if the adapter dispatch incoming
-    // requests from bidir connections. This method might be called if
-    // requests are received over the bidir connection after the
-    // adapter was deactivated.
-    //
-    // assert(_instance); // Must not be called after destruction.
+    // This assert is not valid if the adapter dispatch incoming requests from bidir connections. This method might be
+    // called if requests are received over the bidir connection after the adapter was deactivated. assert(_instance);
+    // // Must not be called after destruction.
 
     auto p = _servantMapMapHint;
     auto& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
@@ -359,13 +351,9 @@ IceInternal::ServantManager::findServantLocator(const string_view category) cons
 {
     lock_guard lock(_mutex);
 
-    //
-    // This assert is not valid if the adapter dispatch incoming
-    // requests from bidir connections. This method might be called if
-    // requests are received over the bidir connection after the
-    // adapter was deactivated.
-    //
-    // assert(_instance); // Must not be called after destruction.
+    // This assert is not valid if the adapter dispatch incoming requests from bidir connections. This method might be
+    // called if requests are received over the bidir connection after the adapter was deactivated. assert(_instance);
+    // // Must not be called after destruction.
 
     auto& locatorMap = const_cast<map<string, ServantLocatorPtr, std::less<>>&>(_locatorMap);
 
@@ -414,9 +402,7 @@ IceInternal::ServantManager::destroy()
 
     {
         lock_guard lock(_mutex);
-        //
         // If the ServantManager has already been destroyed, we're done.
-        //
         if (!_instance)
         {
             return;
@@ -458,11 +444,8 @@ IceInternal::ServantManager::destroy()
         }
     }
 
-    //
-    // We clear the maps outside the synchronization as we don't want to
-    // hold any internal Ice mutex while running user code (such as servant
-    // or servant locator destructors).
-    //
+    // We clear the maps outside the synchronization as we don't want to hold any internal Ice mutex while running user
+    // code (such as servant or servant locator destructors).
     servantMapMap.clear();
     locatorMap.clear();
     defaultServantMap.clear();

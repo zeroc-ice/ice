@@ -9,9 +9,7 @@
 #    endif
 #endif
 
-//
 // For UINTPTR_MAX on Ubuntu Precise
-//
 #ifndef __STDC_LIMIT_MACROS
 #    define __STDC_LIMIT_MACROS // NOLINT
 #endif
@@ -55,9 +53,7 @@
 #    endif
 #endif
 
-//
 // The Slice compilers don't retrieve the exception stack traces so we don't need the DbgHelp calls.
-//
 #if defined(_WIN32) && !defined(ICE_BUILDING_SLICE_COMPILERS)
 #    define ICE_DBGHELP
 #    define DBGHELP_TRANSLATE_TCHAR
@@ -134,9 +130,7 @@ namespace
         string::size_type openParen = line.find_first_of('(');
         if (openParen != string::npos)
         {
-            //
             // Format: "/opt/Ice/lib/libIceUtil.so.33(_ZN7IceUtil9ExceptionC2EPKci+0x51) [0x73b267]"
-            //
             string::size_type closeParen = line.find_first_of(')', openParen);
             if (closeParen != string::npos)
             {
@@ -151,9 +145,7 @@ namespace
         }
         else
         {
-            //
             // Format: "1    libIce.3.3.1.dylib   0x000933a1 _ZN7IceUtil9ExceptionC2EPKci + 71"
-            //
             string::size_type plus = line.find_last_of('+');
             if (plus != string::npos)
             {
@@ -269,10 +261,8 @@ namespace
 #if defined(ICE_DBGHELP)
 
         stackFrames.resize(61);
-        //
-        // 1: skip the first frame (the call to getStackFrames)
-        // 1 + stackSize < 63 on Windows XP according to the documentation for CaptureStackBackTrace
-        //
+        // 1: skip the first frame (the call to getStackFrames) 1 + stackSize < 63 on Windows XP according to the
+        // documentation for CaptureStackBackTrace
         USHORT frameCount = CaptureStackBackTrace(1, static_cast<DWORD>(stackFrames.size()), &stackFrames.front(), 0);
 
         stackFrames.resize(frameCount);
