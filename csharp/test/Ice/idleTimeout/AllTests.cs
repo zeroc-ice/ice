@@ -25,13 +25,10 @@ internal class AllTests : global::Test.AllTests
         await p.shutdownAsync();
     }
 
-    // The client and server have the same idle timeout (1s) and both side enable the idle check (the default)
-    // We verify that the server's idle check does not abort the connection as long as this connection receives
-    // heartbeats, even when the heartbeats are not read off the connection in a timely manner.
-    // To verify this situation, we use an OA with a MaxDispatches = 1 to back-pressure the connection.
-    private static async Task testIdleCheckDoesNotAbortBackPressuredConnection(
-        Test.TestIntfPrx p,
-        TextWriter output)
+    // The client and server have the same idle timeout (1s) and both side enable the idle check (the default). We
+    // verify that the server's idle check does not abort a back-pressured connection (a connection the server doesn't
+    // read from). We use an OA with a MaxDispatches = 1 and a blocking dispatch to back-pressure the connection.
+    private static async Task testIdleCheckDoesNotAbortBackPressuredConnection(Test.TestIntfPrx p, TextWriter output)
     {
         output.Write("testing that the idle check does not abort a back-pressured connection... ");
         output.Flush();
@@ -39,7 +36,7 @@ internal class AllTests : global::Test.AllTests
         // Establish connection.
         await p.ice_pingAsync();
 
-        await p.sleepAsync(2000); // the implementation in the server sleeps for 2,000ms
+        await p.sleepAsync(2000); // the implementation in the server sleeps synchronously for 2,000ms
 
         // close connection
         await p.ice_getConnection()!.closeAsync();
