@@ -12,15 +12,15 @@ final class PropertyNames {
         false,
         false,
         new Property[] {
-            new Property("EndpointSelection", false, "", false, null),
+            new Property("CollocationOptimized", false, "", false, null),
             new Property("ConnectionCached", false, "", false, null),
-            new Property("PreferSecure", false, "", false, null),
-            new Property("LocatorCacheTimeout", false, "", false, null),
+            new Property("Context\\.[^\\s]+", true, "", false, null),
+            new Property("EndpointSelection", false, "", false, null),
             new Property("InvocationTimeout", false, "", false, null),
             new Property("Locator", false, "", false, PropertyNames.ProxyProps),
-            new Property("Router", false, "", false, PropertyNames.ProxyProps),
-            new Property("CollocationOptimized", false, "", false, null),
-            new Property("Context\\.[^\\s]+", true, "", false, null)
+            new Property("LocatorCacheTimeout", false, "", false, null),
+            new Property("PreferSecure", false, "", false, null),
+            new Property("Router", false, "", false, PropertyNames.ProxyProps)
         });
 
     public static final PropertyArray ConnectionProps = new PropertyArray(
@@ -41,11 +41,11 @@ final class PropertyNames {
         true,
         false,
         new Property[] {
+            new Property("Serialize", false, "0", false, null),
             new Property("Size", false, "1", false, null),
             new Property("SizeMax", false, "", false, null),
             new Property("SizeWarn", false, "0", false, null),
             new Property("StackSize", false, "0", false, null),
-            new Property("Serialize", false, "0", false, null),
             new Property("ThreadIdleTime", false, "60", false, null),
             new Property("ThreadPriority", false, "", false, null)
         });
@@ -59,14 +59,14 @@ final class PropertyNames {
             new Property("Connection", false, "", false, PropertyNames.ConnectionProps),
             new Property("Endpoints", false, "", false, null),
             new Property("Locator", false, "", false, PropertyNames.ProxyProps),
+            new Property("MaxConnections", false, "0", false, null),
+            new Property("MessageSizeMax", false, "", false, null),
+            new Property("ProxyOptions", false, "", false, null),
             new Property("PublishedEndpoints", false, "", false, null),
             new Property("PublishedHost", false, "", false, null),
             new Property("ReplicaGroupId", false, "", false, null),
             new Property("Router", false, "", false, PropertyNames.ProxyProps),
-            new Property("ProxyOptions", false, "", false, null),
-            new Property("ThreadPool", false, "", false, PropertyNames.ThreadPoolProps),
-            new Property("MaxConnections", false, "0", false, null),
-            new Property("MessageSizeMax", false, "", false, null)
+            new Property("ThreadPool", false, "", false, PropertyNames.ThreadPoolProps)
         });
 
     public static final PropertyArray LMDBProps = new PropertyArray(
@@ -93,6 +93,7 @@ final class PropertyNames {
             new Property("Admin.ServerId", false, "", false, null),
             new Property("BackgroundLocatorCacheUpdates", false, "0", false, null),
             new Property("BatchAutoFlushSize", false, "1024", false, null),
+            new Property("CacheMessageBuffers", false, "2", false, null),
             new Property("ClassGraphDepthMax", false, "10", false, null),
             new Property("Compression.Level", false, "1", false, null),
             new Property("Config", false, "", false, null),
@@ -102,9 +103,9 @@ final class PropertyNames {
             new Property("Default.EncodingVersion", false, "1.1", false, null),
             new Property("Default.EndpointSelection", false, "Random", false, null),
             new Property("Default.Host", false, "", false, null),
+            new Property("Default.InvocationTimeout", false, "-1", false, null),
             new Property("Default.Locator", false, "", false, PropertyNames.ProxyProps),
             new Property("Default.LocatorCacheTimeout", false, "-1", false, null),
-            new Property("Default.InvocationTimeout", false, "-1", false, null),
             new Property("Default.Package", false, "", false, null),
             new Property("Default.PreferSecure", false, "0", false, null),
             new Property("Default.Protocol", false, "tcp", false, null),
@@ -137,12 +138,15 @@ final class PropertyNames {
             new Property("SyslogFacility", false, "LOG_USER", false, null),
             new Property("SyslogHost", false, "localhost", false, null),
             new Property("SyslogPort", false, "514", false, null),
+            new Property("TCP.Backlog", false, "511", false, null),
+            new Property("TCP.RcvSize", false, "", false, null),
+            new Property("TCP.SndSize", false, "", false, null),
             new Property("ThreadPool.Client", false, "", false, PropertyNames.ThreadPoolProps),
             new Property("ThreadPool.Server", false, "", false, PropertyNames.ThreadPoolProps),
             new Property("ThreadPriority", false, "", false, null),
             new Property("ToStringMode", false, "Unicode", false, null),
-            new Property("Trace.Admin.Properties", false, "0", false, null),
             new Property("Trace.Admin.Logger", false, "0", false, null),
+            new Property("Trace.Admin.Properties", false, "0", false, null),
             new Property("Trace.Dispatch", false, "0", false, null),
             new Property("Trace.Locator", false, "0", false, null),
             new Property("Trace.Network", false, "0", false, null),
@@ -152,9 +156,6 @@ final class PropertyNames {
             new Property("Trace.ThreadPool", false, "0", false, null),
             new Property("UDP.RcvSize", false, "", false, null),
             new Property("UDP.SndSize", false, "", false, null),
-            new Property("TCP.Backlog", false, "511", false, null),
-            new Property("TCP.RcvSize", false, "", false, null),
-            new Property("TCP.SndSize", false, "", false, null),
             new Property("UseSyslog", false, "0", false, null),
             new Property("Warn.AMICallback", false, "1", false, null),
             new Property("Warn.Connections", false, "0", false, null),
@@ -163,8 +164,7 @@ final class PropertyNames {
             new Property("Warn.Endpoints", false, "1", false, null),
             new Property("Warn.Executor", false, "1", false, null),
             new Property("Warn.SliceLoader", false, "1", false, null),
-            new Property("Warn.UnusedProperties", false, "0", false, null),
-            new Property("CacheMessageBuffers", false, "2", false, null)
+            new Property("Warn.UnusedProperties", false, "0", false, null)
         });
 
     public static final PropertyArray IceMXProps = new PropertyArray(
@@ -172,12 +172,12 @@ final class PropertyNames {
         false,
         false,
         new Property[] {
+            new Property("Metrics\\.[^\\s]+", true, "", false, null),
+            new Property("Metrics\\.[^\\s]+\\.Accept", true, "", false, null),
             new Property("Metrics\\.[^\\s]+\\.GroupBy", true, "", false, null),
             new Property("Metrics\\.[^\\s]+\\.Map", true, "", false, null),
-            new Property("Metrics\\.[^\\s]+\\.RetainDetached", true, "10", false, null),
-            new Property("Metrics\\.[^\\s]+\\.Accept", true, "", false, null),
             new Property("Metrics\\.[^\\s]+\\.Reject", true, "", false, null),
-            new Property("Metrics\\.[^\\s]+", true, "", false, null)
+            new Property("Metrics\\.[^\\s]+\\.RetainDetached", true, "10", false, null)
         });
 
     public static final PropertyArray IceDiscoveryProps = new PropertyArray(
@@ -185,17 +185,17 @@ final class PropertyNames {
         false,
         false,
         new Property[] {
-            new Property("Multicast", false, "", false, PropertyNames.ObjectAdapterProps),
-            new Property("Reply", false, "", false, PropertyNames.ObjectAdapterProps),
+            new Property("Address", false, "", false, null),
+            new Property("DomainId", false, "", false, null),
+            new Property("Interface", false, "", false, null),
+            new Property("LatencyMultiplier", false, "1", false, null),
             new Property("Locator", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Lookup", false, "", false, null),
-            new Property("Timeout", false, "300", false, null),
-            new Property("RetryCount", false, "3", false, null),
-            new Property("LatencyMultiplier", false, "1", false, null),
-            new Property("Address", false, "", false, null),
+            new Property("Multicast", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Port", false, "4061", false, null),
-            new Property("Interface", false, "", false, null),
-            new Property("DomainId", false, "", false, null)
+            new Property("Reply", false, "", false, PropertyNames.ObjectAdapterProps),
+            new Property("RetryCount", false, "3", false, null),
+            new Property("Timeout", false, "300", false, null)
         });
 
     public static final PropertyArray IceLocatorDiscoveryProps = new PropertyArray(
@@ -203,16 +203,16 @@ final class PropertyNames {
         false,
         false,
         new Property[] {
-            new Property("Reply", false, "", false, PropertyNames.ObjectAdapterProps),
+            new Property("Address", false, "", false, null),
+            new Property("InstanceName", false, "", false, null),
+            new Property("Interface", false, "", false, null),
             new Property("Locator", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Lookup", false, "", false, null),
-            new Property("Timeout", false, "300", false, null),
+            new Property("Port", false, "4061", false, null),
+            new Property("Reply", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("RetryCount", false, "3", false, null),
             new Property("RetryDelay", false, "2000", false, null),
-            new Property("Address", false, "", false, null),
-            new Property("Port", false, "4061", false, null),
-            new Property("Interface", false, "", false, null),
-            new Property("InstanceName", false, "", false, null),
+            new Property("Timeout", false, "300", false, null),
             new Property("Trace.Lookup", false, "0", false, null)
         });
 

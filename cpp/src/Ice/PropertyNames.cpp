@@ -11,15 +11,15 @@ using namespace IceInternal;
 
 const Property ProxyPropsData[] =
 {
-    Property{"EndpointSelection", "", false, false, nullptr},
+    Property{"CollocationOptimized", "", false, false, nullptr},
     Property{"ConnectionCached", "", false, false, nullptr},
-    Property{"PreferSecure", "", false, false, nullptr},
-    Property{"LocatorCacheTimeout", "", false, false, nullptr},
+    Property{"Context.*", "", true, false, nullptr},
+    Property{"EndpointSelection", "", false, false, nullptr},
     Property{"InvocationTimeout", "", false, false, nullptr},
     Property{"Locator", "", false, false, &PropertyNames::ProxyProps},
-    Property{"Router", "", false, false, &PropertyNames::ProxyProps},
-    Property{"CollocationOptimized", "", false, false, nullptr},
-    Property{"Context.*", "", true, false, nullptr}
+    Property{"LocatorCacheTimeout", "", false, false, nullptr},
+    Property{"PreferSecure", "", false, false, nullptr},
+    Property{"Router", "", false, false, &PropertyNames::ProxyProps}
 };
 
 const PropertyArray PropertyNames::ProxyProps
@@ -52,10 +52,10 @@ const PropertyArray PropertyNames::ConnectionProps
 
 const Property ThreadPoolPropsData[] =
 {
+    Property{"Serialize", "0", false, false, nullptr},
     Property{"Size", "1", false, false, nullptr},
     Property{"SizeMax", "", false, false, nullptr},
     Property{"SizeWarn", "0", false, false, nullptr},
-    Property{"Serialize", "0", false, false, nullptr},
     Property{"ThreadIdleTime", "60", false, false, nullptr}
 };
 
@@ -74,14 +74,14 @@ const Property ObjectAdapterPropsData[] =
     Property{"Connection", "", false, false, &PropertyNames::ConnectionProps},
     Property{"Endpoints", "", false, false, nullptr},
     Property{"Locator", "", false, false, &PropertyNames::ProxyProps},
+    Property{"MaxConnections", "0", false, false, nullptr},
+    Property{"MessageSizeMax", "", false, false, nullptr},
+    Property{"ProxyOptions", "", false, false, nullptr},
     Property{"PublishedEndpoints", "", false, false, nullptr},
     Property{"PublishedHost", "", false, false, nullptr},
     Property{"ReplicaGroupId", "", false, false, nullptr},
     Property{"Router", "", false, false, &PropertyNames::ProxyProps},
-    Property{"ProxyOptions", "", false, false, nullptr},
-    Property{"ThreadPool", "", false, false, &PropertyNames::ThreadPoolProps},
-    Property{"MaxConnections", "0", false, false, nullptr},
-    Property{"MessageSizeMax", "", false, false, nullptr}
+    Property{"ThreadPool", "", false, false, &PropertyNames::ThreadPoolProps}
 };
 
 const PropertyArray PropertyNames::ObjectAdapterProps
@@ -131,9 +131,9 @@ const Property IcePropsData[] =
     Property{"Default.EncodingVersion", "1.1", false, false, nullptr},
     Property{"Default.EndpointSelection", "Random", false, false, nullptr},
     Property{"Default.Host", "", false, false, nullptr},
+    Property{"Default.InvocationTimeout", "-1", false, false, nullptr},
     Property{"Default.Locator", "", false, false, &PropertyNames::ProxyProps},
     Property{"Default.LocatorCacheTimeout", "-1", false, false, nullptr},
-    Property{"Default.InvocationTimeout", "-1", false, false, nullptr},
     Property{"Default.PreferSecure", "0", false, false, nullptr},
     Property{"Default.Protocol", "tcp", false, false, nullptr},
     Property{"Default.Router", "", false, false, &PropertyNames::ProxyProps},
@@ -168,11 +168,14 @@ const Property IcePropsData[] =
     Property{"StdErr", "", false, false, nullptr},
     Property{"StdOut", "", false, false, nullptr},
     Property{"SyslogFacility", "LOG_USER", false, false, nullptr},
+    Property{"TCP.Backlog", "511", false, false, nullptr},
+    Property{"TCP.RcvSize", "", false, false, nullptr},
+    Property{"TCP.SndSize", "", false, false, nullptr},
     Property{"ThreadPool.Client", "", false, false, &PropertyNames::ThreadPoolProps},
     Property{"ThreadPool.Server", "", false, false, &PropertyNames::ThreadPoolProps},
     Property{"ToStringMode", "Unicode", false, false, nullptr},
-    Property{"Trace.Admin.Properties", "0", false, false, nullptr},
     Property{"Trace.Admin.Logger", "0", false, false, nullptr},
+    Property{"Trace.Admin.Properties", "0", false, false, nullptr},
     Property{"Trace.Dispatch", "0", false, false, nullptr},
     Property{"Trace.Locator", "0", false, false, nullptr},
     Property{"Trace.Network", "0", false, false, nullptr},
@@ -182,9 +185,6 @@ const Property IcePropsData[] =
     Property{"Trace.ThreadPool", "0", false, false, nullptr},
     Property{"UDP.RcvSize", "", false, false, nullptr},
     Property{"UDP.SndSize", "", false, false, nullptr},
-    Property{"TCP.Backlog", "511", false, false, nullptr},
-    Property{"TCP.RcvSize", "", false, false, nullptr},
-    Property{"TCP.SndSize", "", false, false, nullptr},
     Property{"UseOSLog", "0", false, false, nullptr},
     Property{"UseSyslog", "0", false, false, nullptr},
     Property{"UseSystemdJournal", "0", false, false, nullptr},
@@ -209,12 +209,12 @@ const PropertyArray PropertyNames::IceProps
 
 const Property IceMXPropsData[] =
 {
+    Property{"Metrics.*", "", true, false, nullptr},
+    Property{"Metrics.*.Accept", "", true, false, nullptr},
     Property{"Metrics.*.GroupBy", "", true, false, nullptr},
     Property{"Metrics.*.Map", "", true, false, nullptr},
-    Property{"Metrics.*.RetainDetached", "10", true, false, nullptr},
-    Property{"Metrics.*.Accept", "", true, false, nullptr},
     Property{"Metrics.*.Reject", "", true, false, nullptr},
-    Property{"Metrics.*", "", true, false, nullptr}
+    Property{"Metrics.*.RetainDetached", "10", true, false, nullptr}
 };
 
 const PropertyArray PropertyNames::IceMXProps
@@ -228,17 +228,17 @@ const PropertyArray PropertyNames::IceMXProps
 
 const Property IceDiscoveryPropsData[] =
 {
-    Property{"Multicast", "", false, false, &PropertyNames::ObjectAdapterProps},
-    Property{"Reply", "", false, false, &PropertyNames::ObjectAdapterProps},
+    Property{"Address", "", false, false, nullptr},
+    Property{"DomainId", "", false, false, nullptr},
+    Property{"Interface", "", false, false, nullptr},
+    Property{"LatencyMultiplier", "1", false, false, nullptr},
     Property{"Locator", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Lookup", "", false, false, nullptr},
-    Property{"Timeout", "300", false, false, nullptr},
-    Property{"RetryCount", "3", false, false, nullptr},
-    Property{"LatencyMultiplier", "1", false, false, nullptr},
-    Property{"Address", "", false, false, nullptr},
+    Property{"Multicast", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Port", "4061", false, false, nullptr},
-    Property{"Interface", "", false, false, nullptr},
-    Property{"DomainId", "", false, false, nullptr}
+    Property{"Reply", "", false, false, &PropertyNames::ObjectAdapterProps},
+    Property{"RetryCount", "3", false, false, nullptr},
+    Property{"Timeout", "300", false, false, nullptr}
 };
 
 const PropertyArray PropertyNames::IceDiscoveryProps
@@ -252,16 +252,16 @@ const PropertyArray PropertyNames::IceDiscoveryProps
 
 const Property IceLocatorDiscoveryPropsData[] =
 {
-    Property{"Reply", "", false, false, &PropertyNames::ObjectAdapterProps},
+    Property{"Address", "", false, false, nullptr},
+    Property{"InstanceName", "", false, false, nullptr},
+    Property{"Interface", "", false, false, nullptr},
     Property{"Locator", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Lookup", "", false, false, nullptr},
-    Property{"Timeout", "300", false, false, nullptr},
+    Property{"Port", "4061", false, false, nullptr},
+    Property{"Reply", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"RetryCount", "3", false, false, nullptr},
     Property{"RetryDelay", "2000", false, false, nullptr},
-    Property{"Address", "", false, false, nullptr},
-    Property{"Port", "4061", false, false, nullptr},
-    Property{"Interface", "", false, false, nullptr},
-    Property{"InstanceName", "", false, false, nullptr},
+    Property{"Timeout", "300", false, false, nullptr},
     Property{"Trace.Lookup", "0", false, false, nullptr}
 };
 
@@ -326,18 +326,18 @@ const PropertyArray PropertyNames::IceBridgeProps
 const Property IceGridAdminPropsData[] =
 {
     Property{"AuthenticateUsingSSL", "", false, false, nullptr},
-    Property{"Username", "", false, false, nullptr},
-    Property{"Password", "", false, false, nullptr},
-    Property{"Replica", "", false, false, nullptr},
-    Property{"Host", "", false, false, nullptr},
-    Property{"Port", "", false, false, nullptr},
-    Property{"InstanceName", "", false, false, nullptr},
-    Property{"Server", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Discovery.Address", "", false, false, nullptr},
     Property{"Discovery.Interface", "", false, false, nullptr},
+    Property{"Discovery.Locator", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Discovery.Lookup", "", false, false, nullptr},
     Property{"Discovery.Reply", "", false, false, &PropertyNames::ObjectAdapterProps},
-    Property{"Discovery.Locator", "", false, false, &PropertyNames::ObjectAdapterProps}
+    Property{"Host", "", false, false, nullptr},
+    Property{"InstanceName", "", false, false, nullptr},
+    Property{"Password", "", false, false, nullptr},
+    Property{"Port", "", false, false, nullptr},
+    Property{"Replica", "", false, false, nullptr},
+    Property{"Server", "", false, false, &PropertyNames::ObjectAdapterProps},
+    Property{"Username", "", false, false, nullptr}
 };
 
 const PropertyArray PropertyNames::IceGridAdminProps
@@ -354,15 +354,15 @@ const Property IceGridPropsData[] =
     Property{"AdminRouter", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"InstanceName", "", false, false, nullptr},
     Property{"Node", "", false, false, &PropertyNames::ObjectAdapterProps},
-    Property{"Node.AllowRunningServersAsRoot", "", false, false, nullptr},
     Property{"Node.AllowEndpointsOverride", "0", false, false, nullptr},
+    Property{"Node.AllowRunningServersAsRoot", "", false, false, nullptr},
     Property{"Node.CollocateRegistry", "", false, false, nullptr},
     Property{"Node.Data", "", false, false, nullptr},
     Property{"Node.DisableOnFailure", "0", false, false, nullptr},
     Property{"Node.Name", "", false, false, nullptr},
     Property{"Node.Output", "", false, false, nullptr},
-    Property{"Node.ProcessorSocketCount", "", false, false, nullptr},
     Property{"Node.PrintServersReady", "", false, false, nullptr},
+    Property{"Node.ProcessorSocketCount", "", false, false, nullptr},
     Property{"Node.PropertiesOverride", "", false, false, nullptr},
     Property{"Node.RedirectErrToOut", "0", false, false, nullptr},
     Property{"Node.Trace.Activator", "0", false, false, nullptr},
@@ -371,8 +371,8 @@ const Property IceGridPropsData[] =
     Property{"Node.Trace.Patch", "0", false, false, nullptr},
     Property{"Node.Trace.Replica", "0", false, false, nullptr},
     Property{"Node.Trace.Server", "0", false, false, nullptr},
-    Property{"Node.UserAccounts", "", false, false, nullptr},
     Property{"Node.UserAccountMapper", "", false, false, &PropertyNames::ProxyProps},
+    Property{"Node.UserAccounts", "", false, false, nullptr},
     Property{"Node.WaitTime", "60", false, false, nullptr},
     Property{"Registry.AdminCryptPasswords", "", false, false, nullptr},
     Property{"Registry.AdminPermissionsVerifier", "", false, false, &PropertyNames::ProxyProps},
@@ -383,10 +383,10 @@ const Property IceGridPropsData[] =
     Property{"Registry.CryptPasswords", "", false, false, nullptr},
     Property{"Registry.DefaultTemplates", "", false, false, nullptr},
     Property{"Registry.Discovery", "", false, false, &PropertyNames::ObjectAdapterProps},
-    Property{"Registry.Discovery.Enabled", "1", false, false, nullptr},
     Property{"Registry.Discovery.Address", "", false, false, nullptr},
-    Property{"Registry.Discovery.Port", "4061", false, false, nullptr},
+    Property{"Registry.Discovery.Enabled", "1", false, false, nullptr},
     Property{"Registry.Discovery.Interface", "", false, false, nullptr},
+    Property{"Registry.Discovery.Port", "4061", false, false, nullptr},
     Property{"Registry.DynamicRegistration", "", false, false, nullptr},
     Property{"Registry.Internal", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Registry.LMDB", "", false, false, &PropertyNames::LMDBProps},
@@ -398,9 +398,9 @@ const Property IceGridPropsData[] =
     Property{"Registry.SessionFilters", "0", false, false, nullptr},
     Property{"Registry.SessionManager", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Registry.SSLPermissionsVerifier", "", false, false, &PropertyNames::ProxyProps},
+    Property{"Registry.Trace.Adapter", "0", false, false, nullptr},
     Property{"Registry.Trace.Admin", "0", false, false, nullptr},
     Property{"Registry.Trace.Application", "0", false, false, nullptr},
-    Property{"Registry.Trace.Adapter", "0", false, false, nullptr},
     Property{"Registry.Trace.Discovery", "0", false, false, nullptr},
     Property{"Registry.Trace.Locator", "0", false, false, nullptr},
     Property{"Registry.Trace.Node", "0", false, false, nullptr},
@@ -427,16 +427,16 @@ const PropertyArray PropertyNames::IceGridProps
 const Property IceSSLPropsData[] =
 {
     Property{"CAs", "", false, false, nullptr},
+    Property{"CertFile", "", false, false, nullptr},
+    Property{"CertificateRevocationListFiles", "", false, false, nullptr},
     Property{"CertStore", "My", false, false, nullptr},
     Property{"CertStoreLocation", "CurrentUser", false, false, nullptr},
-    Property{"CertFile", "", false, false, nullptr},
     Property{"CheckCertName", "0", false, false, nullptr},
-    Property{"CertificateRevocationListFiles", "", false, false, nullptr},
     Property{"DefaultDir", "", false, false, nullptr},
     Property{"FindCert", "", false, false, nullptr},
-    Property{"KeyFile", "", false, false, nullptr},
     Property{"Keychain", "", false, false, nullptr},
     Property{"KeychainPassword", "", false, false, nullptr},
+    Property{"KeyFile", "", false, false, nullptr},
     Property{"Password", "", false, false, nullptr},
     Property{"RevocationCheck", "0", false, false, nullptr},
     Property{"RevocationCheckCacheOnly", "0", false, false, nullptr},
@@ -476,8 +476,8 @@ const Property IceStormPropsData[] =
     Property{"Send.QueueSizeMax", "-1", false, false, nullptr},
     Property{"Send.QueueSizeMaxPolicy", "", false, false, nullptr},
     Property{"Send.Timeout", "60000", false, false, nullptr},
-    Property{"TopicManager.Proxy", "", false, false, &PropertyNames::ProxyProps},
     Property{"TopicManager", "", false, false, &PropertyNames::ObjectAdapterProps},
+    Property{"TopicManager.Proxy", "", false, false, &PropertyNames::ProxyProps},
     Property{"Trace.Election", "0", false, false, nullptr},
     Property{"Trace.Replication", "0", false, false, nullptr},
     Property{"Trace.Subscriber", "0", false, false, nullptr},
@@ -497,9 +497,9 @@ const PropertyArray PropertyNames::IceStormProps
 
 const Property IceStormAdminPropsData[] =
 {
-    Property{"TopicManager.*", "", true, false, nullptr},
     Property{"Host", "", false, false, nullptr},
-    Property{"Port", "", false, false, nullptr}
+    Property{"Port", "", false, false, nullptr},
+    Property{"TopicManager.*", "", true, false, nullptr}
 };
 
 const PropertyArray PropertyNames::IceStormAdminProps
@@ -534,21 +534,21 @@ const Property Glacier2PropsData[] =
     Property{"Client.Trace.Reject", "0", false, false, nullptr},
     Property{"Client.Trace.Request", "0", false, false, nullptr},
     Property{"CryptPasswords", "", false, false, nullptr},
-    Property{"Filter.Address.Reject", "", false, false, nullptr},
+    Property{"Filter.AdapterId.Accept", "", false, false, nullptr},
     Property{"Filter.Address.Accept", "", false, false, nullptr},
-    Property{"Filter.ProxySizeMax", "", false, false, nullptr},
+    Property{"Filter.Address.Reject", "", false, false, nullptr},
     Property{"Filter.Category.Accept", "", false, false, nullptr},
     Property{"Filter.Category.AcceptUser", "", false, false, nullptr},
-    Property{"Filter.AdapterId.Accept", "", false, false, nullptr},
     Property{"Filter.Identity.Accept", "", false, false, nullptr},
+    Property{"Filter.ProxySizeMax", "", false, false, nullptr},
     Property{"InstanceName", "Glacier2", false, false, nullptr},
     Property{"PermissionsVerifier", "", false, false, &PropertyNames::ProxyProps},
-    Property{"SSLPermissionsVerifier", "", false, false, &PropertyNames::ProxyProps},
     Property{"RoutingTable.MaxSize", "1000", false, false, nullptr},
     Property{"Server", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Server.ForwardContext", "0", false, false, nullptr},
     Property{"Server.Trace.Request", "0", false, false, nullptr},
     Property{"SessionManager", "", false, false, &PropertyNames::ProxyProps},
+    Property{"SSLPermissionsVerifier", "", false, false, &PropertyNames::ProxyProps},
     Property{"SSLSessionManager", "", false, false, &PropertyNames::ProxyProps},
     Property{"Trace.RoutingTable", "0", false, false, nullptr},
     Property{"Trace.Session", "0", false, false, nullptr}
@@ -565,11 +565,11 @@ const PropertyArray PropertyNames::Glacier2Props
 
 const Property DataStormPropsData[] =
 {
-    Property{"Node.Name", "", false, false, nullptr},
     Property{"Node.ConnectTo", "", false, false, nullptr},
     Property{"Node.Multicast", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Node.Multicast.Enabled", "1", false, false, nullptr},
     Property{"Node.Multicast.Proxy", "", false, false, &PropertyNames::ProxyProps},
+    Property{"Node.Name", "", false, false, nullptr},
     Property{"Node.RetryCount", "6", false, false, nullptr},
     Property{"Node.RetryDelay", "500", false, false, nullptr},
     Property{"Node.RetryMultiplier", "2", false, false, nullptr},

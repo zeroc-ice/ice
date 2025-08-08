@@ -10,14 +10,14 @@ export const PropertyNames = {};
 
 PropertyNames.ProxyProps = new PropertyArray("Proxy", false, false);
 PropertyNames.ProxyProps.properties = [
-    new Property("EndpointSelection", false, "", false, null),
     new Property("ConnectionCached", false, "", false, null),
-    new Property("PreferSecure", false, "", false, null),
-    new Property("LocatorCacheTimeout", false, "", false, null),
+    new Property(/^Context\../, true, "", false, null),
+    new Property("EndpointSelection", false, "", false, null),
     new Property("InvocationTimeout", false, "", false, null),
     new Property("Locator", false, "", false, PropertyNames.ProxyProps),
-    new Property("Router", false, "", false, PropertyNames.ProxyProps),
-    new Property(/^Context\../, true, "", false, null)
+    new Property("LocatorCacheTimeout", false, "", false, null),
+    new Property("PreferSecure", false, "", false, null),
+    new Property("Router", false, "", false, PropertyNames.ProxyProps)
 ];
 
 PropertyNames.ConnectionProps = new PropertyArray("Connection", true, false);
@@ -35,10 +35,10 @@ PropertyNames.ThreadPoolProps.properties = [
 
 PropertyNames.ObjectAdapterProps = new PropertyArray("ObjectAdapter", true, false);
 PropertyNames.ObjectAdapterProps.properties = [
-    new Property("PublishedEndpoints", false, "", false, null),
-    new Property("Router", false, "", false, PropertyNames.ProxyProps),
+    new Property("MessageSizeMax", false, "", false, null),
     new Property("ProxyOptions", false, "", false, null),
-    new Property("MessageSizeMax", false, "", false, null)
+    new Property("PublishedEndpoints", false, "", false, null),
+    new Property("Router", false, "", false, PropertyNames.ProxyProps)
 ];
 
 PropertyNames.LMDBProps = new PropertyArray("LMDB", true, false);
@@ -54,9 +54,9 @@ PropertyNames.IceProps.properties = [
     new Property("Default.EncodingVersion", false, "1.1", false, null),
     new Property("Default.EndpointSelection", false, "Random", false, null),
     new Property("Default.Host", false, "", false, null),
+    new Property("Default.InvocationTimeout", false, "-1", false, null),
     new Property("Default.Locator", false, "", false, PropertyNames.ProxyProps),
     new Property("Default.LocatorCacheTimeout", false, "-1", false, null),
-    new Property("Default.InvocationTimeout", false, "-1", false, null),
     new Property("Default.PreferSecure", false, "0", false, null),
     new Property("Default.Protocol", false, "tcp", false, null),
     new Property("Default.Router", false, "", false, PropertyNames.ProxyProps),

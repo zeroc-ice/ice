@@ -5,15 +5,15 @@
 
 <properties>
     <class name="Proxy" prefix-only="false">
-        <property name="EndpointSelection" languages="all" />
+        <property name="CollocationOptimized" languages="cpp,csharp,java" />
         <property name="ConnectionCached" languages="all" />
-        <property name="PreferSecure" languages="all" />
-        <property name="LocatorCacheTimeout" languages="all" />
+        <property name="Context.[any]" languages="all" />
+        <property name="EndpointSelection" languages="all" />
         <property name="InvocationTimeout" languages="all" />
         <property name="Locator" languages="all" class="Proxy"/>
+        <property name="LocatorCacheTimeout" languages="all" />
+        <property name="PreferSecure" languages="all" />
         <property name="Router" languages="all" class="Proxy"/>
-        <property name="CollocationOptimized" languages="cpp,csharp,java" />
-        <property name="Context.[any]" languages="all" />
     </class>
 
     <class name="Connection" prefix-only="true">
@@ -26,11 +26,11 @@
     </class>
 
     <class name="ThreadPool" prefix-only="true">
+        <property name="Serialize" languages="cpp,csharp,java" default="0" />
         <property name="Size" languages="cpp,csharp,java" default="1" />
         <property name="SizeMax" languages="cpp,csharp,java" />
         <property name="SizeWarn" languages="cpp,csharp,java" default="0" />
         <property name="StackSize" languages="csharp,java" default="0" />
-        <property name="Serialize" languages="cpp,csharp,java" default="0" />
         <property name="ThreadIdleTime" languages="cpp,csharp,java" default="60" />
         <property name="ThreadPriority" languages="csharp,java" />
     </class>
@@ -40,14 +40,14 @@
         <property name="Connection" class="Connection" languages="cpp,csharp,java" />
         <property name="Endpoints" languages="cpp,csharp,java" />
         <property name="Locator" class="Proxy" languages="cpp,csharp,java" />
+        <property name="MaxConnections" languages="cpp,csharp,java" default="0" />
+        <property name="MessageSizeMax" languages="all" />
+        <property name="ProxyOptions" languages="all" />
         <property name="PublishedEndpoints" languages="all" />
         <property name="PublishedHost" languages="cpp,csharp,java" />
         <property name="ReplicaGroupId" languages="cpp,csharp,java" />
         <property name="Router" class="Proxy" languages="all" />
-        <property name="ProxyOptions" languages="all" />
         <property name="ThreadPool" class="ThreadPool" languages="cpp,csharp,java" />
-        <property name="MaxConnections" languages="cpp,csharp,java" default="0" />
-        <property name="MessageSizeMax" languages="all" />
     </class>
 
     <class name="LMDB" prefix-only="true">
@@ -57,12 +57,12 @@
 
     <!-- TODO: use this to validate IceMX properties -->
     <!-- <class name="Metrics" prefix-only="true">
+        <property name="Accept.[any]" languages="cpp,csharp,java" />
         <property name="Disabled" languages="cpp,csharp,java" />
         <property name="GroupBy" languages="cpp,csharp,java" />
         <property name="Map.[any]" languages="cpp,csharp,java" />
-        <property name="RetainDetached" languages="cpp,csharp,java" default="10" />
-        <property name="Accept.[any]" languages="cpp,csharp,java" />
         <property name="Reject.[any]" languages="cpp,csharp,java" />
+        <property name="RetainDetached" languages="cpp,csharp,java" default="10" />
     </class> -->
 
     <section name="Ice" opt-in="false">
@@ -78,6 +78,7 @@
         <property name="Admin.ServerId" languages="cpp,csharp,java" />
         <property name="BackgroundLocatorCacheUpdates" languages="all" default="0" />
         <property name="BatchAutoFlushSize" default="1024" languages="all" />
+        <property name="CacheMessageBuffers" languages="csharp,java" default="2" />
         <property name="ClassGraphDepthMax" languages="all" default="10" />
         <property name="Compression.Level" languages="cpp,csharp,java" default="1" />
         <property name="Config" languages="cpp,csharp,java" />
@@ -88,9 +89,9 @@
         <property name="Default.EncodingVersion" languages="all" default="1.1"/>
         <property name="Default.EndpointSelection" languages="all" default="Random" />
         <property name="Default.Host" languages="all" />
+        <property name="Default.InvocationTimeout" languages="all" default="-1" />
         <property name="Default.Locator" languages="all" class="Proxy" />
         <property name="Default.LocatorCacheTimeout" languages="all" default="-1" />
-        <property name="Default.InvocationTimeout" languages="all" default="-1" />
         <property name="Default.Package" languages="java" />
         <property name="Default.PreferSecure" languages="all" default="0" />
         <property name="Default.Protocol" languages="all" default="tcp" />
@@ -131,12 +132,15 @@
         <property name="SyslogFacility" languages="cpp,java" default="LOG_USER" />
         <property name="SyslogHost" languages="java" default="localhost"/>
         <property name="SyslogPort" languages="java" default="514"/>
+        <property name="TCP.Backlog" languages="cpp,csharp,java" default="511" />
+        <property name="TCP.RcvSize" languages="cpp,csharp,java" />
+        <property name="TCP.SndSize" languages="cpp,csharp,java" />
         <property name="ThreadPool.Client" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPool.Server" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPriority" languages="csharp,java" />
         <property name="ToStringMode" languages="all" default="Unicode" />
-        <property name="Trace.Admin.Properties" languages="cpp,csharp,java" default="0" />
         <property name="Trace.Admin.Logger" languages="cpp,csharp,java" default="0" />
+        <property name="Trace.Admin.Properties" languages="cpp,csharp,java" default="0" />
         <property name="Trace.Dispatch" languages="all" default="0" />
         <property name="Trace.Locator" languages="all" default="0" />
         <property name="Trace.Network" languages="all" default="0" />
@@ -146,9 +150,6 @@
         <property name="Trace.ThreadPool" languages="cpp,csharp,java" default="0" />
         <property name="UDP.RcvSize" languages="cpp,csharp,java" />
         <property name="UDP.SndSize" languages="cpp,csharp,java" />
-        <property name="TCP.Backlog" languages="cpp,csharp,java" default="511" />
-        <property name="TCP.RcvSize" languages="cpp,csharp,java" />
-        <property name="TCP.SndSize" languages="cpp,csharp,java" />
         <property name="UseOSLog" languages="cpp" default="0" />
         <property name="UseSyslog" languages="cpp,java" default="0" />
         <property name="UseSystemdJournal" languages="cpp" default="0" />
@@ -161,44 +162,43 @@
         <!-- Warn.SliceLoader: cpp is a stand-in for swift and matlab -->
         <property name="Warn.SliceLoader" languages="cpp,java" default="1" />
         <property name="Warn.UnusedProperties" languages="all" default="0" />
-        <property name="CacheMessageBuffers" languages="csharp,java" default="2" />
     </section>
 
     <section name="IceMX" opt-in="false">
+        <property name="Metrics.[any]" languages="cpp,csharp,java" />
+        <property name="Metrics.[any].Accept" languages="cpp,csharp,java" />
         <property name="Metrics.[any].GroupBy" languages="cpp,csharp,java" />
         <property name="Metrics.[any].Map" languages="cpp,csharp,java" />
-        <property name="Metrics.[any].RetainDetached" default="10" languages="cpp,csharp,java" />
-        <property name="Metrics.[any].Accept" languages="cpp,csharp,java" />
         <property name="Metrics.[any].Reject" languages="cpp,csharp,java" />
-        <property name="Metrics.[any]" languages="cpp,csharp,java" />
+        <property name="Metrics.[any].RetainDetached" default="10" languages="cpp,csharp,java" />
     </section>
 
     <section name="IceDiscovery" opt-in="false">
-        <property name="Multicast" class="ObjectAdapter" languages="cpp,csharp,java" />
-        <property name="Reply" class="ObjectAdapter" languages="cpp,csharp,java"/>
-        <property name="Locator" class="ObjectAdapter" languages="cpp,csharp,java" />
-        <property name="Lookup" languages="cpp,csharp,java" />
-        <property name="Timeout" languages="cpp,csharp,java" default="300" />
-        <property name="RetryCount" languages="cpp,csharp,java" default="3" />
-        <property name="LatencyMultiplier" languages="cpp,csharp,java" default="1" />
         <!-- We don't set a default for Address as it depends on Ice.IPV4 and Ice.PreferIPv6Address -->
         <property name="Address" languages="cpp,csharp,java"/>
-        <property name="Port" languages="cpp,csharp,java" default="4061"/>
-        <property name="Interface" languages="cpp,csharp,java" />
         <property name="DomainId" languages="cpp,csharp,java" />
+        <property name="Interface" languages="cpp,csharp,java" />
+        <property name="LatencyMultiplier" languages="cpp,csharp,java" default="1" />
+        <property name="Locator" class="ObjectAdapter" languages="cpp,csharp,java" />
+        <property name="Lookup" languages="cpp,csharp,java" />
+        <property name="Multicast" class="ObjectAdapter" languages="cpp,csharp,java" />
+        <property name="Port" languages="cpp,csharp,java" default="4061"/>
+        <property name="Reply" class="ObjectAdapter" languages="cpp,csharp,java"/>
+        <property name="RetryCount" languages="cpp,csharp,java" default="3" />
+        <property name="Timeout" languages="cpp,csharp,java" default="300" />
     </section>
 
     <section name="IceLocatorDiscovery" opt-in="false">
-        <property name="Reply" class="ObjectAdapter" languages="cpp,csharp,java" />
+        <property name="Address" languages="cpp,csharp,java"/>
+        <property name="InstanceName" languages="cpp,csharp,java" />
+        <property name="Interface" languages="cpp,csharp,java" />
         <property name="Locator" class="ObjectAdapter" languages="cpp,csharp,java" />
         <property name="Lookup" languages="cpp,csharp,java"/>
-        <property name="Timeout" languages="cpp,csharp,java" default="300" />
+        <property name="Port" languages="cpp,csharp,java" default="4061" />
+        <property name="Reply" class="ObjectAdapter" languages="cpp,csharp,java" />
         <property name="RetryCount" languages="cpp,csharp,java" default="3" />
         <property name="RetryDelay" languages="cpp,csharp,java" default="2000" />
-        <property name="Address" languages="cpp,csharp,java"/>
-        <property name="Port" languages="cpp,csharp,java" default="4061" />
-        <property name="Interface" languages="cpp,csharp,java" />
-        <property name="InstanceName" languages="cpp,csharp,java" />
+        <property name="Timeout" languages="cpp,csharp,java" default="300" />
         <property name="Trace.Lookup" languages="cpp,csharp,java" default="0" />
     </section>
 
@@ -223,21 +223,21 @@
 
     <section name="IceGridAdmin" opt-in="true">
         <property name="AuthenticateUsingSSL" languages="cpp" />
-        <property name="MetricsConfig" languages="java" />
-        <property name="Username" languages="cpp" />
-        <property name="Password" languages="cpp" />
-        <property name="Replica" languages="cpp" />
-        <property name="Host" languages="cpp" />
-        <property name="Port" languages="cpp" />
-        <property name="InstanceName" languages="cpp" />
-        <property name="Server" class="ObjectAdapter" languages="cpp" />
         <property name="Discovery.Address" languages="cpp" />
         <property name="Discovery.Interface" languages="cpp" />
+        <property name="Discovery.Locator" class="ObjectAdapter" languages="cpp" />
         <property name="Discovery.Lookup" languages="cpp" />
         <property name="Discovery.Reply" class="ObjectAdapter" languages="cpp" />
-        <property name="Discovery.Locator" class="ObjectAdapter" languages="cpp" />
+        <property name="Host" languages="cpp" />
+        <property name="InstanceName" languages="cpp" />
+        <property name="MetricsConfig" languages="java" />
+        <property name="Password" languages="cpp" />
+        <property name="Port" languages="cpp" />
+        <property name="Replica" languages="cpp" />
+        <property name="Server" class="ObjectAdapter" languages="cpp" />
         <property name="Trace.Observers" languages="java" />
         <property name="Trace.SaveToRegistry" languages="java" />
+        <property name="Username" languages="cpp" />
     </section>
 
     <section name="IceGrid" opt-in="true">
@@ -245,15 +245,15 @@
         <!-- The default for InstanceName is computed and eventually falls back to 'IceGrid' -->
         <property name="InstanceName" languages="cpp" />
         <property name="Node" class="ObjectAdapter" languages="cpp" />
-        <property name="Node.AllowRunningServersAsRoot" languages="cpp" />
         <property name="Node.AllowEndpointsOverride" languages="cpp" default="0"/>
+        <property name="Node.AllowRunningServersAsRoot" languages="cpp" />
         <property name="Node.CollocateRegistry" languages="cpp" />
         <property name="Node.Data" languages="cpp" />
         <property name="Node.DisableOnFailure" languages="cpp" default="0" />
         <property name="Node.Name" languages="cpp" />
         <property name="Node.Output" languages="cpp" />
-        <property name="Node.ProcessorSocketCount" languages="cpp" />
         <property name="Node.PrintServersReady" languages="cpp" />
+        <property name="Node.ProcessorSocketCount" languages="cpp" />
         <property name="Node.PropertiesOverride" languages="cpp"/>
         <property name="Node.RedirectErrToOut" languages="cpp" default="0" />
         <property name="Node.Trace.Activator" languages="cpp" default="0" />
@@ -262,8 +262,8 @@
         <property name="Node.Trace.Patch" languages="cpp" default="0" />
         <property name="Node.Trace.Replica" languages="cpp" default="0" />
         <property name="Node.Trace.Server" languages="cpp" default="0" />
-        <property name="Node.UserAccounts" languages="cpp" />
         <property name="Node.UserAccountMapper" class="Proxy" languages="cpp" />
+        <property name="Node.UserAccounts" languages="cpp" />
         <property name="Node.WaitTime" languages="cpp" default="60" />
         <property name="Registry.AdminCryptPasswords" languages="cpp" />
         <property name="Registry.AdminPermissionsVerifier" class="Proxy" languages="cpp" />
@@ -274,10 +274,10 @@
         <property name="Registry.CryptPasswords" languages="cpp" />
         <property name="Registry.DefaultTemplates" languages="cpp" />
         <property name="Registry.Discovery" class="ObjectAdapter" languages="cpp" />
-        <property name="Registry.Discovery.Enabled" languages="cpp" default="1" />
         <property name="Registry.Discovery.Address" languages="cpp" />
-        <property name="Registry.Discovery.Port" languages="cpp" default="4061" />
+        <property name="Registry.Discovery.Enabled" languages="cpp" default="1" />
         <property name="Registry.Discovery.Interface" languages="cpp" />
+        <property name="Registry.Discovery.Port" languages="cpp" default="4061" />
         <property name="Registry.DynamicRegistration" languages="cpp" />
         <property name="Registry.Internal" class="ObjectAdapter" languages="cpp" />
         <property name="Registry.LMDB" class="LMDB" languages="cpp"/>
@@ -289,9 +289,9 @@
         <property name="Registry.SessionFilters" languages="cpp" default="0" />
         <property name="Registry.SessionManager" class="ObjectAdapter" languages="cpp" />
         <property name="Registry.SSLPermissionsVerifier" class="Proxy" languages="cpp"/>
+        <property name="Registry.Trace.Adapter" languages="cpp" default="0" />
         <property name="Registry.Trace.Admin" languages="cpp" default="0" />
         <property name="Registry.Trace.Application" languages="cpp" default="0" />
-        <property name="Registry.Trace.Adapter" languages="cpp" default="0" />
         <property name="Registry.Trace.Discovery" languages="cpp" default="0" />
         <property name="Registry.Trace.Locator" languages="cpp" default="0" />
         <property name="Registry.Trace.Node" languages="cpp" default="0" />
@@ -309,17 +309,17 @@
     <section name="IceSSL" opt-in="false">
         <property name="Alias" languages="java" />
         <property name="CAs" languages="cpp,csharp"/>
+        <property name="CertFile" languages="cpp,csharp" />
+        <property name="CertificateRevocationListFiles" languages="cpp" />
         <property name="CertStore" languages="cpp,csharp" default="My" />
         <property name="CertStoreLocation" languages="cpp,csharp" default="CurrentUser" />
-        <property name="CertFile" languages="cpp,csharp" />
         <property name="CheckCertName" languages="cpp,csharp,java" default="0" />
         <property name="CheckCRL" languages="csharp" default="0" />
-        <property name="CertificateRevocationListFiles" languages="cpp" />
         <property name="DefaultDir" languages="cpp,csharp,java" />
         <property name="FindCert" languages="cpp,csharp" />
-        <property name="KeyFile" languages="cpp" />
         <property name="Keychain" languages="cpp" />
         <property name="KeychainPassword" languages="cpp" />
+        <property name="KeyFile" languages="cpp" />
         <property name="Keystore" languages="java" />
         <property name="KeystorePassword" languages="java" />
         <property name="KeystoreType" languages="java" />
@@ -355,8 +355,8 @@
         <property name="Send.QueueSizeMax" languages="cpp" default="-1" />
         <property name="Send.QueueSizeMaxPolicy" languages="cpp" />
         <property name="Send.Timeout" languages="cpp" default="60000" />
-        <property name="TopicManager.Proxy" class="Proxy" languages="cpp" />
         <property name="TopicManager" class="ObjectAdapter" languages="cpp" />
+        <property name="TopicManager.Proxy" class="Proxy" languages="cpp" />
         <property name="Trace.Election" languages="cpp" default="0" />
         <property name="Trace.Replication" languages="cpp" default="0" />
         <property name="Trace.Subscriber" languages="cpp" default="0" />
@@ -366,9 +366,9 @@
     </section>
 
     <section name="IceStormAdmin" opt-in="true">
-        <property name="TopicManager.[any]" languages="cpp" />
         <property name="Host" languages="cpp" />
         <property name="Port" languages="cpp" />
+        <property name="TopicManager.[any]" languages="cpp" />
     </section>
 
     <section name="IceBT" opt-in="false">
@@ -383,32 +383,32 @@
         <property name="Client.Trace.Reject" languages="cpp" default="0" />
         <property name="Client.Trace.Request" languages="cpp" default="0" />
         <property name="CryptPasswords" languages="cpp" />
-        <property name="Filter.Address.Reject" languages="cpp" />
+        <property name="Filter.AdapterId.Accept" languages="cpp" />
         <property name="Filter.Address.Accept" languages="cpp" />
-        <property name="Filter.ProxySizeMax" languages="cpp" />
+        <property name="Filter.Address.Reject" languages="cpp" />
         <property name="Filter.Category.Accept" languages="cpp" />
         <property name="Filter.Category.AcceptUser" languages="cpp" />
-        <property name="Filter.AdapterId.Accept" languages="cpp" />
         <property name="Filter.Identity.Accept" languages="cpp" />
+        <property name="Filter.ProxySizeMax" languages="cpp" />
         <property name="InstanceName" languages="cpp" default="Glacier2" />
         <property name="PermissionsVerifier" class="Proxy" languages="cpp" />
-        <property name="SSLPermissionsVerifier" class="Proxy" languages="cpp" />
         <property name="RoutingTable.MaxSize" languages="cpp" default="1000" />
         <property name="Server" class="ObjectAdapter" languages="cpp" />
         <property name="Server.ForwardContext" languages="cpp" default="0" />
         <property name="Server.Trace.Request" languages="cpp" default="0" />
         <property name="SessionManager" class="Proxy" languages="cpp" />
+        <property name="SSLPermissionsVerifier" class="Proxy" languages="cpp" />
         <property name="SSLSessionManager" class="Proxy" languages="cpp" />
         <property name="Trace.RoutingTable" languages="cpp" default="0" />
         <property name="Trace.Session" languages="cpp" default="0" />
     </section>
 
     <section name="DataStorm" opt-in="true">
-        <property name="Node.Name" languages="cpp" />
         <property name="Node.ConnectTo" languages="cpp" />
         <property name="Node.Multicast" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Multicast.Enabled" default="1" languages="cpp" />
         <property name="Node.Multicast.Proxy" class="Proxy" languages="cpp" />
+        <property name="Node.Name" languages="cpp" />
         <property name="Node.RetryCount" default="6" languages="cpp" />
         <property name="Node.RetryDelay" default="500" languages="cpp" />
         <property name="Node.RetryMultiplier" default="2" languages="cpp" />
