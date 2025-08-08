@@ -58,21 +58,21 @@ public class AllTests {
         System.out.flush();
         {
             try {
-                communicator.stringToProxy("object @ oa1").ice_ping();
+                communicator.stringToProxy("object @ oa10").ice_ping();
                 test(false);
             } catch (NoEndpointException ex) {}
 
-            proxies.get(0).activateObjectAdapter("oa", "oa1", "");
+            proxies.get(0).activateObjectAdapter("oa", "oa10", "");
 
             try {
-                communicator.stringToProxy("object @ oa1").ice_ping();
+                communicator.stringToProxy("object @ oa10").ice_ping();
                 test(false);
             } catch (ObjectNotExistException ex) {}
 
             proxies.get(0).deactivateObjectAdapter("oa");
 
             try {
-                communicator.stringToProxy("object @ oa1").ice_ping();
+                communicator.stringToProxy("object @ oa10").ice_ping();
                 test(false);
             } catch (NoEndpointException ex) {}
         }
@@ -81,15 +81,15 @@ public class AllTests {
         System.out.print("testing object adapter migration...");
         System.out.flush();
         {
-            proxies.get(0).activateObjectAdapter("oa", "oa1", "");
+            proxies.get(0).activateObjectAdapter("oa", "oa21", "");
             proxies.get(0).addObject("oa", "object");
-            communicator.stringToProxy("object @ oa1").ice_ping();
+            communicator.stringToProxy("object @ oa21").ice_ping();
             proxies.get(0).removeObject("oa", "object");
             proxies.get(0).deactivateObjectAdapter("oa");
 
-            proxies.get(1).activateObjectAdapter("oa", "oa1", "");
+            proxies.get(1).activateObjectAdapter("oa", "oa21", "");
             proxies.get(1).addObject("oa", "object");
-            communicator.stringToProxy("object @ oa1").ice_ping();
+            communicator.stringToProxy("object @ oa21").ice_ping();
             proxies.get(1).removeObject("oa", "object");
             proxies.get(1).deactivateObjectAdapter("oa");
         }
@@ -98,24 +98,24 @@ public class AllTests {
         System.out.print("testing object migration...");
         System.out.flush();
         {
-            proxies.get(0).activateObjectAdapter("oa", "oa1", "");
-            proxies.get(1).activateObjectAdapter("oa", "oa2", "");
+            proxies.get(0).activateObjectAdapter("oa", "oa31", "");
+            proxies.get(1).activateObjectAdapter("oa", "oa32", "");
 
             proxies.get(0).addObject("oa", "object");
-            communicator.stringToProxy("object @ oa1").ice_ping();
+            communicator.stringToProxy("object @ oa31").ice_ping();
             communicator.stringToProxy("object").ice_ping();
             proxies.get(0).removeObject("oa", "object");
 
             proxies.get(1).addObject("oa", "object");
-            communicator.stringToProxy("object @ oa2").ice_ping();
+            communicator.stringToProxy("object @ oa32").ice_ping();
             communicator.stringToProxy("object").ice_ping();
             proxies.get(1).removeObject("oa", "object");
 
             try {
-                communicator.stringToProxy("object @ oa1").ice_ping();
+                communicator.stringToProxy("object @ oa31").ice_ping();
             } catch (ObjectNotExistException ex) {}
             try {
-                communicator.stringToProxy("object @ oa2").ice_ping();
+                communicator.stringToProxy("object @ oa32").ice_ping();
             } catch (ObjectNotExistException ex) {}
 
             proxies.get(0).deactivateObjectAdapter("oa");
@@ -126,24 +126,24 @@ public class AllTests {
         System.out.print("testing replica groups...");
         System.out.flush();
         {
-            proxies.get(0).activateObjectAdapter("oa", "oa1", "rg");
-            proxies.get(1).activateObjectAdapter("oa", "oa2", "rg");
-            proxies.get(2).activateObjectAdapter("oa", "oa3", "rg");
+            proxies.get(0).activateObjectAdapter("oa", "oa41", "rg");
+            proxies.get(1).activateObjectAdapter("oa", "oa42", "rg");
+            proxies.get(2).activateObjectAdapter("oa", "oa43", "rg");
 
             proxies.get(0).addObject("oa", "object");
             proxies.get(1).addObject("oa", "object");
             proxies.get(2).addObject("oa", "object");
 
-            communicator.stringToProxy("object @ oa1").ice_ping();
-            communicator.stringToProxy("object @ oa2").ice_ping();
-            communicator.stringToProxy("object @ oa3").ice_ping();
+            communicator.stringToProxy("object @ oa41").ice_ping();
+            communicator.stringToProxy("object @ oa42").ice_ping();
+            communicator.stringToProxy("object @ oa43").ice_ping();
 
             communicator.stringToProxy("object @ rg").ice_ping();
 
             Set<String> adapterIds = new HashSet<>();
-            adapterIds.add("oa1");
-            adapterIds.add("oa2");
-            adapterIds.add("oa3");
+            adapterIds.add("oa41");
+            adapterIds.add("oa42");
+            adapterIds.add("oa43");
             var intf = TestIntfPrx.createProxy(communicator, "object");
             intf = intf.ice_connectionCached(false).ice_locatorCacheTimeout(0);
             while (!adapterIds.isEmpty()) {
@@ -151,9 +151,9 @@ public class AllTests {
             }
 
             while (true) {
-                adapterIds.add("oa1");
-                adapterIds.add("oa2");
-                adapterIds.add("oa3");
+                adapterIds.add("oa41");
+                adapterIds.add("oa42");
+                adapterIds.add("oa43");
                 intf =
                     TestIntfPrx.createProxy(communicator, "object @ rg")
                         .ice_connectionCached(false);
@@ -171,12 +171,12 @@ public class AllTests {
 
             proxies.get(0).deactivateObjectAdapter("oa");
             proxies.get(1).deactivateObjectAdapter("oa");
-            test("oa3".equals(TestIntfPrx.createProxy(communicator, "object @ rg").getAdapterId()));
+            test("oa43".equals(TestIntfPrx.createProxy(communicator, "object @ rg").getAdapterId()));
             proxies.get(2).deactivateObjectAdapter("oa");
 
-            proxies.get(0).activateObjectAdapter("oa", "oa1", "rg");
+            proxies.get(0).activateObjectAdapter("oa", "oa41", "rg");
             proxies.get(0).addObject("oa", "object");
-            test("oa1".equals(TestIntfPrx.createProxy(communicator, "object @ rg").getAdapterId()));
+            test("oa41".equals(TestIntfPrx.createProxy(communicator, "object @ rg").getAdapterId()));
             proxies.get(0).deactivateObjectAdapter("oa");
         }
         System.out.println("ok");
