@@ -523,7 +523,7 @@ extension OutputStream {
     public func write(_ v: UserException) {
         initEncaps()
         // Exceptions are always encoded with the sliced format.
-        encaps.format = FormatType.slicedFormat
+        encaps.format = .slicedFormat
         encaps.encoder.writeException(v: v)
     }
 
@@ -838,7 +838,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             return
         }
 
-        if let current = current, encaps.format == FormatType.slicedFormat {
+        if let current = current, encaps.format == .slicedFormat {
             //
             // If writing an instance within a slice and using the sliced
             // format, write an index from the instance indirection
@@ -893,7 +893,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         current.sliceFlagsPos = Int32(os.getCount())
         current.sliceFlags = []
 
-        if encaps.format == FormatType.slicedFormat {
+        if encaps.format == .slicedFormat {
             // Encode the slice size if using the sliced format.
             current.sliceFlags.insert(.FLAG_HAS_SLICE_SIZE)
         }
@@ -913,7 +913,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             // Encode the type ID (only in the first slice for the compact
             // encoding).
             //
-            if encaps.format == FormatType.slicedFormat || current.firstSlice {
+            if encaps.format == .slicedFormat || current.firstSlice {
                 if compactId != -1 {
                     current.sliceFlags.insert(.FLAG_HAS_TYPE_ID_COMPACT)
                     os.write(size: compactId)
@@ -965,7 +965,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         // Only write the indirection table if it contains entries.
         //
         if !current.indirectionTable.isEmpty {
-            precondition(encaps.format == FormatType.slicedFormat)
+            precondition(encaps.format == .slicedFormat)
             current.sliceFlags.insert(.FLAG_HAS_INDIRECTION_TABLE)
 
             //
