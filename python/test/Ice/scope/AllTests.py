@@ -15,14 +15,12 @@ from generated.test.Ice.scope.Test.Inner.Inner2 import (
 from generated.test.Ice.scope.Test.Inner.Inner2 import (
     MyStruct as Test_Inner_Inner2_MyStruct,
 )
+from TestHelper import TestHelper, test
+
+import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     sys.stdout.write("test using same type name in different Slice modules... ")
     sys.stdout.flush()
     i1 = Test.MyInterfacePrx(communicator, f"i1:{helper.getTestEndpoint()}")
@@ -50,17 +48,23 @@ def allTests(helper, communicator):
 
     c2, c3 = i1.opMyClass(c1)
 
+    assert c2 is not None
+    assert c3 is not None
+
     test(c2.s == s1)
     test(c3.s == s1)
 
     cseq1 = [c1]
     cseq2, cseq3 = i1.opMyClassSeq(cseq1)
-
+    assert cseq2[0] is not None
+    assert cseq3[0] is not None
     test(cseq2[0].s == s1)
     test(cseq3[0].s == s1)
 
     cmap1 = {"a": c1}
     cmap2, cmap3 = i1.opMyClassMap(cmap1)
+    assert cmap2["a"] is not None
+    assert cmap3["a"] is not None
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
@@ -71,6 +75,7 @@ def allTests(helper, communicator):
     test(s.s == "MyOtherStruct")
 
     c = i1.opMyOtherClass(Test.MyOtherClass("MyOtherClass"))
+    assert c is not None
     test(c.s == "MyOtherClass")
 
     i2 = Test_Inner_Inner2_MyInterfacePrx(communicator, f"i2:{helper.getTestEndpoint()}")
@@ -97,18 +102,23 @@ def allTests(helper, communicator):
     c1 = Test_Inner_Inner2_MyClass(s1)
 
     c2, c3 = i2.opMyClass(c1)
-
+    assert c2 is not None
+    assert c3 is not None
     test(c2.s == s1)
     test(c3.s == s1)
 
     cseq1 = [c1]
     cseq2, cseq3 = i2.opMyClassSeq(cseq1)
-
+    assert cseq2[0] is not None
+    assert cseq3[0] is not None
     test(cseq2[0].s == s1)
     test(cseq3[0].s == s1)
 
     cmap1 = {"a": c1}
     cmap2, cmap3 = i2.opMyClassMap(cmap1)
+    assert cmap2["a"] is not None
+    assert cmap3["a"] is not None
+
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
@@ -137,17 +147,25 @@ def allTests(helper, communicator):
 
     c2, c3 = i3.opMyClass(c1)
 
+    assert c2 is not None
+    assert c3 is not None
+
     test(c2.s == s1)
     test(c3.s == s1)
 
     cseq1 = [c1]
     cseq2, cseq3 = i3.opMyClassSeq(cseq1)
-
+    assert cseq2[0] is not None
+    assert cseq3[0] is not None
     test(cseq2[0].s == s1)
     test(cseq3[0].s == s1)
 
     cmap1 = {"a": c1}
     cmap2, cmap3 = i3.opMyClassMap(cmap1)
+
+    assert cmap2["a"] is not None
+    assert cmap3["a"] is not None
+
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
@@ -176,17 +194,24 @@ def allTests(helper, communicator):
 
     c2, c3 = i4.opMyClass(c1)
 
+    assert c2 is not None
+    assert c3 is not None
+
     test(c2.s == s1)
     test(c3.s == s1)
 
     cseq1 = [c1]
     cseq2, cseq3 = i4.opMyClassSeq(cseq1)
 
+    assert cseq2[0] is not None
+    assert cseq3[0] is not None
     test(cseq2[0].s == s1)
     test(cseq3[0].s == s1)
 
     cmap1 = {"a": c1}
     cmap2, cmap3 = i4.opMyClassMap(cmap1)
+    assert cmap2["a"] is not None
+    assert cmap3["a"] is not None
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 

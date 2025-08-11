@@ -1,43 +1,50 @@
 # Copyright (c) ZeroC, Inc.
 
+from typing import Awaitable, override
+
 from generated.test.Ice.servantLocator import Test
+from TestHelper import test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
 class TestI(Test.TestIntf):
+    @override
     def requestFailedException(self, current: Ice.Current):
         return None
 
+    @override
     def unknownUserException(self, current: Ice.Current):
         return None
 
+    @override
     def unknownLocalException(self, current: Ice.Current):
         return None
 
+    @override
     def unknownException(self, current: Ice.Current):
         return None
 
+    @override
     def localException(self, current: Ice.Current):
         return None
 
+    @override
     def userException(self, current: Ice.Current):
         return None
 
+    @override
     def pythonException(self, current: Ice.Current):
         return None
 
-    def unknownExceptionWithServantException(self, current: Ice.Current):
+    @override
+    def unknownExceptionWithServantException(self, current: Ice.Current) -> Awaitable[None]:
         f = Ice.Future()
         f.set_exception(Ice.ObjectNotExistException())
         return f
 
-    def impossibleException(self, shouldThrow, current: Ice.Current):
+    @override
+    def impossibleException(self, shouldThrow: bool, current: Ice.Current) -> Awaitable[str]:
         f = Ice.Future()
         if shouldThrow:
             f.set_exception(Test.TestImpossibleException())
@@ -49,7 +56,8 @@ class TestI(Test.TestIntf):
             f.set_result("Hello")
         return f
 
-    def intfUserException(self, shouldThrow, current: Ice.Current):
+    @override
+    def intfUserException(self, shouldThrow: bool, current: Ice.Current) -> Awaitable[str]:
         f = Ice.Future()
         if shouldThrow:
             f.set_exception(Test.TestIntfUserException())
@@ -61,14 +69,16 @@ class TestI(Test.TestIntf):
             f.set_result("Hello")
         return f
 
-    def asyncResponse(self, current: Ice.Current):
+    @override
+    def asyncResponse(self, current: Ice.Current) -> Awaitable[None]:
         #
         # We can't do this with futures.
         #
         # return Ice.Future.completed(None)
         raise Ice.ObjectNotExistException()
 
-    def asyncException(self, current: Ice.Current):
+    @override
+    def asyncException(self, current: Ice.Current) -> Awaitable[None]:
         #
         # We can't do this with futures.
         #
@@ -77,6 +87,7 @@ class TestI(Test.TestIntf):
         # return f
         raise Ice.ObjectNotExistException()
 
+    @override
     def shutdown(self, current: Ice.Current):
         current.adapter.deactivate()
 
@@ -87,7 +98,7 @@ class Cookie:
 
 
 class ServantLocatorI(Ice.ServantLocator):
-    def __init__(self, category):
+    def __init__(self, category: str):
         self._deactivated = False
         self._category = category
         self._requestId = -1
@@ -95,19 +106,20 @@ class ServantLocatorI(Ice.ServantLocator):
     def __del__(self):
         test(self._deactivated)
 
-    def locate(self, current: Ice.Current):
+    @override
+    def locate(self, current: Ice.Current) -> tuple[Ice.Object | None, object | None]:
         test(not self._deactivated)
 
         test(current.id.category == self._category or self._category == "")
 
         if current.id.name == "unknown":
-            return None
+            return (None, None)
 
         if current.id.name == "invalidReturnValue":
-            return (45, 12)
+            return (45, 12)  # type: ignore
 
         if current.id.name == "invalidReturnType":
-            return "invalid"
+            return "invalid"  # type: ignore
 
         test(current.id.name == "locate" or current.id.name == "finished")
         if current.id.name == "locate":
@@ -121,7 +133,8 @@ class ServantLocatorI(Ice.ServantLocator):
 
         return (TestI(), Cookie())
 
-    def finished(self, current, servant, cookie):
+    @override
+    def finished(self, current: Ice.Current, servant: Ice.Object, cookie: object | None):
         test(not self._deactivated)
 
         #
@@ -136,10 +149,11 @@ class ServantLocatorI(Ice.ServantLocator):
         if current.id.name == "finished":
             self.exception(current)
 
-        test(isinstance(cookie, Cookie))
+        assert isinstance(cookie, Cookie)
         test(cookie.message() == "blahblah")
 
-    def deactivate(self, category):
+    @override
+    def deactivate(self, category: str):
         test(not self._deactivated)
 
         self._deactivated = True

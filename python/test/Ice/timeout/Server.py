@@ -5,6 +5,7 @@
 import sys
 import threading
 import time
+from typing import override
 
 from TestHelper import TestHelper
 
@@ -17,7 +18,7 @@ import Ice
 
 
 class ActivateAdapterThread(threading.Thread):
-    def __init__(self, adapter, timeout):
+    def __init__(self, adapter: Ice.ObjectAdapter, timeout: int):
         threading.Thread.__init__(self)
         self._adapter = adapter
         self._timeout = timeout
@@ -28,30 +29,36 @@ class ActivateAdapterThread(threading.Thread):
 
 
 class TimeoutI(Test.Timeout):
+    @override
     def op(self, current: Ice.Current):
         pass
 
-    def sendData(self, data, current: Ice.Current):
+    @override
+    def sendData(self, seq: bytes, current: Ice.Current):
         pass
 
-    def sleep(self, timeout, current: Ice.Current):
-        if timeout != 0:
-            time.sleep(timeout / 1000.0)
+    @override
+    def sleep(self, to: int, current: Ice.Current):
+        if to != 0:
+            time.sleep(to / 1000.0)
 
 
 class ControllerI(Test.Controller):
-    def __init__(self, adapter):
+    def __init__(self, adapter: Ice.ObjectAdapter):
         self.adapter = adapter
 
-    def holdAdapter(self, to, current: Ice.Current):
+    @override
+    def holdAdapter(self, to: int, current: Ice.Current):
         self.adapter.hold()
         if to >= 0:
             t = ActivateAdapterThread(self.adapter, to)
             t.start()
 
+    @override
     def resumeAdapter(self, current: Ice.Current):
         self.adapter.activate()
 
+    @override
     def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 

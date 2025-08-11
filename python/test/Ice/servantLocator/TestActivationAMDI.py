@@ -7,7 +7,7 @@ import Ice
 
 
 class TestActivationAMDI(Test.TestActivation):
-    def activateServantLocator(self, activate, current: Ice.Current):
+    def activateServantLocator(self, activate: bool, current: Ice.Current):
         if activate:
             current.adapter.addServantLocator(TestAMDI.ServantLocatorI(""), "")
             current.adapter.addServantLocator(TestAMDI.ServantLocatorI("category"), "category")

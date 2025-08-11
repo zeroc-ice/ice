@@ -13,7 +13,6 @@ from .StringSeq import _Ice_StringSeq_t
 
 if TYPE_CHECKING:
     from .Current import Current
-    from .Identity import Identity
 
 
 class Object:
@@ -71,7 +70,7 @@ class Object:
         (),
     )
 
-    def ice_isA(self, id: Identity, current: Current) -> bool | Awaitable[bool]:
+    def ice_isA(self, id: str, current: Current) -> bool | Awaitable[bool]:
         """
         Determine whether the target object supports the interface denoted by the given Slice type ID.
 

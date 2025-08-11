@@ -3,14 +3,12 @@
 import sys
 
 from generated.test.Ice.thread import Test
+from TestHelper import TestHelper, test
+
+import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     factory = Test.RemoteCommunicatorFactoryPrx(communicator, f"factory:{helper.getTestEndpoint()} -t 10000")
 
     sys.stdout.write("testing thread hooks... ")
@@ -22,8 +20,10 @@ def allTests(helper, communicator):
     props = {}
     props["Ice.ThreadPool.Server.SizeMax"] = "5"
     com = factory.createCommunicator(props)
+    assert com is not None
 
     obj = com.getObject()
+    assert obj is not None
 
     startCount = com.getThreadStartCount()
 
@@ -31,7 +31,7 @@ def allTests(helper, communicator):
     # Start 5 async invocations that sleep for a little while to force new threads to be created.
     #
     reqs = []
-    for i in range(0, 5):
+    for _ in range(0, 5):
         reqs.append(obj.sleepAsync(100))
     for f in reqs:
         f.result()

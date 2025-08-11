@@ -2,6 +2,7 @@
 
 import threading
 import time
+from typing import override
 
 from generated.test.Ice.thread import Test
 
@@ -32,12 +33,13 @@ class ThreadHook:
 
 
 class TestIntfI(Test.TestIntf):
-    def sleep(self, ms, current: Ice.Current):
+    @override
+    def sleep(self, ms: int, current: Ice.Current):
         time.sleep(ms / 1000.0)
 
 
 class RemoteCommunicatorI(Test.RemoteCommunicator):
-    def __init__(self, communicator, hook):
+    def __init__(self, communicator: Ice.Communicator, hook: ThreadHook):
         self.communicator = communicator
         self.hook = hook
         oa = communicator.createObjectAdapterWithEndpoints("", "default")
@@ -58,7 +60,7 @@ class RemoteCommunicatorI(Test.RemoteCommunicator):
 
 
 class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
-    def createCommunicator(self, props, current: Ice.Current):
+    def createCommunicator(self, props: dict[str, str], current: Ice.Current):
         #
         # Prepare the property set using the given properties.
         #

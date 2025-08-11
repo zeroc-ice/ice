@@ -3,18 +3,13 @@
 
 import sys
 
-from TestHelper import TestHelper
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
 class Client(TestHelper):
-    def run(sef, args):
+    def run(self, args: list[str]) -> None:
         sys.stdout.write("testing load properties from UTF-8 path... ")
         sys.stdout.flush()
         properties = Ice.createProperties()
