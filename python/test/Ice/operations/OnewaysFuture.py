@@ -1,19 +1,16 @@
 # Copyright (c) ZeroC, Inc.
 
 from generated.test.Ice.operations import Test
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def onewaysFuture(helper, proxy):
+def onewaysFuture(helper: TestHelper, proxy: Test.MyClassPrx) -> None:
     p = Test.MyClassPrx.uncheckedCast(proxy.ice_oneway())
 
     f = p.ice_pingAsync()
+    assert isinstance(f, Ice.InvocationFuture)
     f.sent()
 
     try:
@@ -35,9 +32,11 @@ def onewaysFuture(helper, proxy):
         pass
 
     f = p.opVoidAsync()
+    assert isinstance(f, Ice.InvocationFuture)
     f.sent()
 
     f = p.opIdempotentAsync()
+    assert isinstance(f, Ice.InvocationFuture)
     f.sent()
 
     try:

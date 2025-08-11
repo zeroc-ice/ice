@@ -2,15 +2,12 @@
 
 import threading
 import time
+from typing import cast
 
 from generated.test.Ice.operations import Test
+from TestHelper import test
 
 import Ice
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
 
 
 class Callback:
@@ -30,18 +27,19 @@ class Callback:
             self._cond.notify()
 
 
-def batchOneways(p):
-    bs1 = bytes([0 for x in range(0, 10 * 1024)])
+def batchOneways(p: Test.MyClassPrx):
+    bs1 = bytes([0 for _ in range(0, 10 * 1024)])
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
     f = batch.ice_flushBatchRequestsAsync()  # Empty flush
+    assert isinstance(f, Ice.Future)
     f.result()
 
-    test(batch.ice_flushBatchRequestsAsync().is_sent())  # Empty flush
-    test(batch.ice_flushBatchRequestsAsync().done())  # Empty flush
-    test(batch.ice_flushBatchRequestsAsync().is_sent_synchronously())  # Empty flush
+    test(cast(Ice.InvocationFuture, batch.ice_flushBatchRequestsAsync()).is_sent())  # Empty flush
+    test(cast(Ice.InvocationFuture, batch.ice_flushBatchRequestsAsync()).done())  # Empty flush
+    test(cast(Ice.InvocationFuture, batch.ice_flushBatchRequestsAsync()).is_sent_synchronously())  # Empty flush
 
-    for i in range(30):
+    for _ in range(30):
         batch.opByteSOnewayAsync(bs1)
 
     count = 0
@@ -55,8 +53,8 @@ def batchOneways(p):
 
         batch1.ice_pingAsync()
         batch2.ice_pingAsync()
-        batch1.ice_flushBatchRequestsAsync().result()
-        batch1.ice_getConnection().close().result()
+        cast(Ice.InvocationFuture, batch1.ice_flushBatchRequestsAsync()).result()
+        cast(Ice.Connection, batch1.ice_getConnection()).close().result()
         batch1.ice_pingAsync()
         batch2.ice_pingAsync()
 
@@ -64,19 +62,25 @@ def batchOneways(p):
         batch2.ice_getConnection()
 
         batch1.ice_pingAsync()
-        batch1.ice_getConnection().close().result()
+        cast(Ice.Connection, batch1.ice_getConnection()).close().result()
 
-        test(batch1.ice_pingAsync().done() and not batch1.ice_pingAsync().exception())
-        test(batch2.ice_pingAsync().done() and not batch1.ice_pingAsync().exception())
+        test(
+            cast(Ice.InvocationFuture, batch1.ice_pingAsync()).done()
+            and not cast(Ice.InvocationFuture, batch1.ice_pingAsync()).exception()
+        )
+        test(
+            cast(Ice.InvocationFuture, batch2.ice_pingAsync()).done()
+            and not cast(Ice.InvocationFuture, batch2.ice_pingAsync()).exception()
+        )
 
     identity = Ice.Identity()
     identity.name = "invalid"
     batch3 = batch.ice_identity(identity)
     batch3.ice_ping()
-    batch3.ice_flushBatchRequestsAsync().result()
+    cast(Ice.InvocationFuture, batch3.ice_flushBatchRequestsAsync()).result()
 
     # Make sure that a bogus batch request doesn't cause troubles to other ones.
     batch3.ice_ping()
     batch.ice_ping()
-    batch.ice_flushBatchRequestsAsync().result()
+    cast(Ice.InvocationFuture, batch.ice_flushBatchRequestsAsync()).result()
     batch.ice_ping()

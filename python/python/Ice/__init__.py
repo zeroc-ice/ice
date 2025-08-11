@@ -5,6 +5,7 @@ Ice module
 """
 
 from IcePy import (
+    BatchRequest,
     Connection,
     ConnectionInfo,
     EndpointInfo,
@@ -183,6 +184,7 @@ __all__ = [
     "AdapterAlreadyActiveException",
     "AdapterNotFoundException",
     "AlreadyRegisteredException",
+    "BatchRequest",
     "BTEndpointType",
     "BTSEndpointType",
     "Blobject",
