@@ -5,19 +5,17 @@
 import concurrent.futures
 import threading
 import time
+from collections.abc import Awaitable, Mapping, Sequence
+from typing import Any, override
 
 from generated.test.Ice.operations import Test
+from TestHelper import test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
 class FutureThread(threading.Thread):
-    def __init__(self, f, r):
+    def __init__(self, f: Ice.Future | concurrent.futures.Future, r: Any):
         threading.Thread.__init__(self)
         self.future = f
         self.result = r
@@ -34,18 +32,22 @@ class MyDerivedClassI(Test.MyDerivedClass):
         self.lock = threading.Lock()
         self.opByteSOnewayCount = 0
 
-    def shutdown(self, current: Ice.Current):
+    @override
+    def shutdown(self, current: Ice.Current) -> Awaitable[None]:
         with self.threadLock:
             for thread in self.threads:
                 thread.join()
             self.threads = []
 
         current.adapter.getCommunicator().shutdown()
+        return Ice.Future.completed(None)
 
-    def supportsCompress(self, current: Ice.Current):
-        return True
+    @override
+    def supportsCompress(self, current: Ice.Current) -> Awaitable[bool]:
+        return Ice.Future.completed(True)
 
-    def opVoid(self, current: Ice.Current):
+    @override
+    def opVoid(self, current: Ice.Current) -> Awaitable[None]:
         test(current.mode == Ice.OperationMode.Normal)
 
         f = Ice.Future()
@@ -57,7 +59,8 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
         return f
 
-    def opByte(self, p1, p2, current: Ice.Current):
+    @override
+    def opByte(self, p1: int, p2: int, current: Ice.Current) -> Any:
         # Test the ability to use another Future type
         f = concurrent.futures.Future()
         with self.threadLock:
@@ -66,11 +69,13 @@ class MyDerivedClassI(Test.MyDerivedClass):
             thread.start()
         return f
 
-    def opBool(self, p1, p2, current: Ice.Current):
+    @override
+    def opBool(self, p1: bool, p2: bool, current: Ice.Current) -> Awaitable[tuple[bool, bool]]:
         return Ice.Future.completed((p2, p1))
 
     # Test the ability to define a servant method as a coroutine
-    async def opShortIntLong(self, p1, p2, p3, current: Ice.Current):
+    @override
+    async def opShortIntLong(self, p1: int, p2: int, p3: int, current: Ice.Current) -> tuple[int, int, int, int]:
         f = Ice.Future()
 
         with self.threadLock:
@@ -80,16 +85,22 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
         return await f
 
-    def opFloatDouble(self, p1, p2, current: Ice.Current):
+    @override
+    def opFloatDouble(self, p1: float, p2: float, current: Ice.Current) -> Awaitable[tuple[float, float, float]]:
         return Ice.Future.completed((p2, p1, p2))
 
-    def opString(self, p1, p2, current: Ice.Current):
+    @override
+    def opString(self, p1: str, p2: str, current: Ice.Current) -> Awaitable[tuple[str, str]]:
         return Ice.Future.completed((p1 + " " + p2, p2 + " " + p1))
 
-    def opMyEnum(self, p1, current: Ice.Current):
+    @override
+    def opMyEnum(self, p1: Test.MyEnum, current: Ice.Current) -> Awaitable[tuple[Test.MyEnum, Test.MyEnum]]:
         return Ice.Future.completed((Test.MyEnum.enum3, p1))
 
-    def opMyClass(self, p1, current: Ice.Current):
+    @override
+    def opMyClass(
+        self, p1: Test.MyClassPrx | None, current: Ice.Current
+    ) -> Awaitable[tuple[Test.MyClassPrx | None, Test.MyClassPrx | None, Test.MyClassPrx | None]]:
         p2 = p1
         p3 = Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(Ice.stringToIdentity("noSuchIdentity")))
         return Ice.Future.completed(
@@ -100,23 +111,31 @@ class MyDerivedClassI(Test.MyDerivedClass):
             )
         )
 
-    def opStruct(self, p1, p2, current: Ice.Current):
+    @override
+    def opStruct(
+        self, p1: Test.Structure, p2: Test.Structure, current: Ice.Current
+    ) -> Awaitable[tuple[Test.Structure, Test.Structure]]:
         p1.s.s = "a new string"
         return Ice.Future.completed((p2, p1))
 
-    def opByteS(self, p1, p2, current: Ice.Current):
+    @override
+    def opByteS(self, p1: bytes, p2: bytes, current: Ice.Current) -> Awaitable[tuple[bytes, bytes]]:
         p3 = bytes(reversed(p1))
         r = p1 + p2
         return Ice.Future.completed((r, p3))
 
-    def opBoolS(self, p1, p2, current: Ice.Current):
+    @override
+    def opBoolS(self, p1: list[bool], p2: list[bool], current: Ice.Current) -> Awaitable[tuple[list[bool], list[bool]]]:
         p3 = p1[0:]
         p3.extend(p2)
         r = p1[0:]
         r.reverse()
         return Ice.Future.completed((r, p3))
 
-    def opShortIntLongS(self, p1, p2, p3, current: Ice.Current):
+    @override
+    def opShortIntLongS(
+        self, p1: list[int], p2: list[int], p3: list[int], current: Ice.Current
+    ) -> Awaitable[tuple[list[int], list[int], list[int], list[int]]]:
         p4 = p1[0:]
         p5 = p2[0:]
         p5.reverse()
@@ -124,7 +143,10 @@ class MyDerivedClassI(Test.MyDerivedClass):
         p6.extend(p3)
         return Ice.Future.completed((p3, p4, p5, p6))
 
-    def opFloatDoubleS(self, p1, p2, current: Ice.Current):
+    @override
+    def opFloatDoubleS(
+        self, p1: list[float], p2: list[float], current: Ice.Current
+    ) -> Awaitable[tuple[list[float], list[float], list[float]]]:
         p3 = p1[0:]
         p4 = p2[0:]
         p4.reverse()
@@ -132,28 +154,38 @@ class MyDerivedClassI(Test.MyDerivedClass):
         r.extend(p1)
         return Ice.Future.completed((r, p3, p4))
 
-    def opStringS(self, p1, p2, current: Ice.Current):
+    @override
+    def opStringS(self, p1: list[str], p2: list[str], current: Ice.Current) -> Awaitable[tuple[list[str], list[str]]]:
         p3 = p1[0:]
         p3.extend(p2)
         r = p1[0:]
         r.reverse()
         return Ice.Future.completed((r, p3))
 
-    def opByteSS(self, p1, p2, current: Ice.Current):
+    @override
+    def opByteSS(
+        self, p1: list[bytes], p2: list[bytes], current: Ice.Current
+    ) -> Awaitable[tuple[list[bytes], list[bytes]]]:
         p3 = p1[0:]
         p3.reverse()
         r = p1[0:]
         r.extend(p2)
         return Ice.Future.completed((r, p3))
 
-    def opBoolSS(self, p1, p2, current: Ice.Current):
+    @override
+    def opBoolSS(
+        self, p1: list[list[bool]], p2: list[list[bool]], current: Ice.Current
+    ) -> Awaitable[tuple[list[list[bool]], list[list[bool]]]]:
         p3 = p1[0:]
         p3.extend(p2)
         r = p1[0:]
         r.reverse()
         return Ice.Future.completed((r, p3))
 
-    def opShortIntLongSS(self, p1, p2, p3, current: Ice.Current):
+    @override
+    def opShortIntLongSS(
+        self, p1: list[list[int]], p2: list[list[int]], p3: list[list[int]], current: Ice.Current
+    ) -> Awaitable[tuple[list[list[int]], list[list[int]], list[list[int]], list[list[int]]]]:
         p4 = p1[0:]
         p5 = p2[0:]
         p5.reverse()
@@ -161,7 +193,10 @@ class MyDerivedClassI(Test.MyDerivedClass):
         p6.extend(p3)
         return Ice.Future.completed((p3, p4, p5, p6))
 
-    def opFloatDoubleSS(self, p1, p2, current: Ice.Current):
+    @override
+    def opFloatDoubleSS(
+        self, p1: list[list[float]], p2: list[list[float]], current: Ice.Current
+    ) -> Awaitable[tuple[list[list[float]], list[list[float]], list[list[float]]]]:
         p3 = p1[0:]
         p4 = p2[0:]
         p4.reverse()
@@ -169,229 +204,328 @@ class MyDerivedClassI(Test.MyDerivedClass):
         r.extend(p2)
         return Ice.Future.completed((r, p3, p4))
 
-    def opStringSS(self, p1, p2, current: Ice.Current):
+    @override
+    def opStringSS(
+        self, p1: list[list[str]], p2: list[list[str]], current: Ice.Current
+    ) -> Awaitable[tuple[list[list[str]], list[list[str]]]]:
         p3 = p1[0:]
         p3.extend(p2)
         r = p2[0:]
         r.reverse()
         return Ice.Future.completed((r, p3))
 
-    def opStringSSS(self, p1, p2, current: Ice.Current):
+    @override
+    def opStringSSS(
+        self, p1: list[list[list[str]]], p2: list[list[list[str]]], current: Ice.Current
+    ) -> Awaitable[tuple[list[list[list[str]]], list[list[list[str]]]]]:
         p3 = p1[0:]
         p3.extend(p2)
         r = p2[0:]
         r.reverse()
         return Ice.Future.completed((r, p3))
 
-    def opByteBoolD(self, p1, p2, current: Ice.Current):
+    @override
+    def opByteBoolD(
+        self, p1: dict[int, bool], p2: dict[int, bool], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[int, bool], Mapping[int, bool]]]:
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opShortIntD(self, p1, p2, current: Ice.Current):
+    @override
+    def opShortIntD(
+        self, p1: dict[int, int], p2: dict[int, int], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[int, int], Mapping[int, int]]]:
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opLongFloatD(self, p1, p2, current: Ice.Current):
+    @override
+    def opLongFloatD(
+        self, p1: dict[int, float], p2: dict[int, float], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[int, float], Mapping[int, float]]]:
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opStringStringD(self, p1, p2, current: Ice.Current):
+    @override
+    def opStringStringD(
+        self, p1: dict[str, str], p2: dict[str, str], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[str, str], Mapping[str, str]]]:
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opStringMyEnumD(self, p1, p2, current: Ice.Current):
+    @override
+    def opStringMyEnumD(
+        self, p1: dict[str, Test.MyEnum], p2: dict[str, Test.MyEnum], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[str, Test.MyEnum], Mapping[str, Test.MyEnum]]]:
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opMyEnumStringD(self, p1, p2, current: Ice.Current):
+    @override
+    def opMyEnumStringD(
+        self, p1: dict[Test.MyEnum, str], p2: dict[Test.MyEnum, str], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[Test.MyEnum, str], Mapping[Test.MyEnum, str]]]:
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opMyStructMyEnumD(self, p1, p2, current: Ice.Current):
+    @override
+    def opMyStructMyEnumD(
+        self, p1: dict[Test.MyStruct, Test.MyEnum], p2: dict[Test.MyStruct, Test.MyEnum], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[Test.MyStruct, Test.MyEnum], Mapping[Test.MyStruct, Test.MyEnum]]]:
         p3 = p1.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opByteBoolDS(self, p1, p2, current: Ice.Current):
+    @override
+    def opByteBoolDS(
+        self, p1: list[dict[int, bool]], p2: list[dict[int, bool]], current: Ice.Current
+    ) -> Awaitable[tuple[Sequence[Mapping[int, bool]], Sequence[Mapping[int, bool]]]]:
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return Ice.Future.completed((r, p3))
 
-    def opShortIntDS(self, p1, p2, current: Ice.Current):
+    @override
+    def opShortIntDS(
+        self, p1: list[dict[int, int]], p2: list[dict[int, int]], current: Ice.Current
+    ) -> Awaitable[tuple[Sequence[Mapping[int, int]], Sequence[Mapping[int, int]]]]:
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return Ice.Future.completed((r, p3))
 
-    def opLongFloatDS(self, p1, p2, current: Ice.Current):
+    @override
+    def opLongFloatDS(
+        self, p1: list[dict[int, float]], p2: list[dict[int, float]], current: Ice.Current
+    ) -> Awaitable[tuple[Sequence[Mapping[int, float]], Sequence[Mapping[int, float]]]]:
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return Ice.Future.completed((r, p3))
 
-    def opStringStringDS(self, p1, p2, current: Ice.Current):
+    @override
+    def opStringStringDS(
+        self, p1: list[dict[str, str]], p2: list[dict[str, str]], current: Ice.Current
+    ) -> Awaitable[tuple[Sequence[Mapping[str, str]], Sequence[Mapping[str, str]]]]:
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return Ice.Future.completed((r, p3))
 
-    def opStringMyEnumDS(self, p1, p2, current: Ice.Current):
+    @override
+    def opStringMyEnumDS(
+        self, p1: list[dict[str, Test.MyEnum]], p2: list[dict[str, Test.MyEnum]], current: Ice.Current
+    ) -> Awaitable[tuple[Sequence[Mapping[str, Test.MyEnum]], Sequence[Mapping[str, Test.MyEnum]]]]:
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return Ice.Future.completed((r, p3))
 
-    def opMyEnumStringDS(self, p1, p2, current: Ice.Current):
+    @override
+    def opMyEnumStringDS(
+        self, p1: list[dict[Test.MyEnum, str]], p2: list[dict[Test.MyEnum, str]], current: Ice.Current
+    ) -> Awaitable[tuple[Sequence[Mapping[Test.MyEnum, str]], Sequence[Mapping[Test.MyEnum, str]]]]:
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return Ice.Future.completed((r, p3))
 
-    def opMyStructMyEnumDS(self, p1, p2, current: Ice.Current):
+    @override
+    def opMyStructMyEnumDS(
+        self,
+        p1: list[dict[Test.MyStruct, Test.MyEnum]],
+        p2: list[dict[Test.MyStruct, Test.MyEnum]],
+        current: Ice.Current,
+    ) -> Awaitable[tuple[Sequence[Mapping[Test.MyStruct, Test.MyEnum]], Sequence[Mapping[Test.MyStruct, Test.MyEnum]]]]:
         p3 = p2[0:]
         p3.extend(p1)
         r = p1[::-1]
         return Ice.Future.completed((r, p3))
 
-    def opByteByteSD(self, p1, p2, current: Ice.Current):
+    @override
+    def opByteByteSD(
+        self, p1: dict[int, bytes], p2: dict[int, bytes], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[int, bytes], Mapping[int, bytes]]]:
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opBoolBoolSD(self, p1, p2, current: Ice.Current):
+    @override
+    def opBoolBoolSD(
+        self, p1: dict[bool, list[bool]], p2: dict[bool, list[bool]], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[bool, list[bool]], Mapping[bool, list[bool]]]]:
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opShortShortSD(self, p1, p2, current: Ice.Current):
+    @override
+    def opShortShortSD(
+        self, p1: dict[int, list[int]], p2: dict[int, list[int]], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[int, list[int]], Mapping[int, list[int]]]]:
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opIntIntSD(self, p1, p2, current: Ice.Current):
+    @override
+    def opIntIntSD(
+        self, p1: dict[int, list[int]], p2: dict[int, list[int]], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[int, list[int]], Mapping[int, list[int]]]]:
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opLongLongSD(self, p1, p2, current: Ice.Current):
+    @override
+    def opLongLongSD(
+        self, p1: dict[int, list[int]], p2: dict[int, list[int]], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[int, list[int]], Mapping[int, list[int]]]]:
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opStringFloatSD(self, p1, p2, current: Ice.Current):
+    @override
+    def opStringFloatSD(
+        self, p1: dict[str, list[float]], p2: dict[str, list[float]], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[str, list[float]], Mapping[str, list[float]]]]:
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opStringDoubleSD(self, p1, p2, current: Ice.Current):
+    @override
+    def opStringDoubleSD(
+        self, p1: dict[str, list[float]], p2: dict[str, list[float]], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[str, list[float]], Mapping[str, list[float]]]]:
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opStringStringSD(self, p1, p2, current: Ice.Current):
+    @override
+    def opStringStringSD(
+        self, p1: dict[str, list[str]], p2: dict[str, list[str]], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[str, list[str]], Mapping[str, list[str]]]]:
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opMyEnumMyEnumSD(self, p1, p2, current: Ice.Current):
+    @override
+    def opMyEnumMyEnumSD(
+        self, p1: dict[Test.MyEnum, list[Test.MyEnum]], p2: dict[Test.MyEnum, list[Test.MyEnum]], current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[Test.MyEnum, list[Test.MyEnum]], Mapping[Test.MyEnum, list[Test.MyEnum]]]]:
         p3 = p2.copy()
         r = p1.copy()
         r.update(p2)
         return Ice.Future.completed((r, p3))
 
-    def opIntS(self, s, current: Ice.Current):
+    @override
+    def opIntS(self, s: list[int], current: Ice.Current) -> Awaitable[Sequence[int]]:
         return Ice.Future.completed([-x for x in s])
 
-    def opByteSOneway(self, s, current: Ice.Current):
+    @override
+    def opByteSOneway(self, s: bytes, current: Ice.Current) -> Awaitable[None]:
         with self.lock:
             self.opByteSOnewayCount += 1
         return Ice.Future.completed(None)
 
-    def opByteSOnewayCallCount(self, current: Ice.Current):
+    @override
+    def opByteSOnewayCallCount(self, current: Ice.Current) -> Awaitable[int]:
         with self.lock:
             count = self.opByteSOnewayCount
             self.opByteSOnewayCount = 0
         return Ice.Future.completed(count)
 
-    def opDoubleMarshaling(self, p1, p2, current: Ice.Current):
+    @override
+    def opDoubleMarshaling(self, p1: float, p2: list[float], current: Ice.Current) -> Awaitable[None]:
         d = 1278312346.0 / 13.0
         test(p1 == d)
         for i in p2:
             test(i == d)
         return Ice.Future.completed(None)
 
-    def opContext(self, current: Ice.Current):
+    @override
+    def opContext(self, current: Ice.Current) -> Awaitable[Mapping[str, str]]:
         return Ice.Future.completed(current.ctx)
 
-    def opIdempotent(self, current: Ice.Current):
+    @override
+    def opIdempotent(self, current: Ice.Current) -> Awaitable[None]:
         test(current.mode == Ice.OperationMode.Idempotent)
         return Ice.Future.completed(None)
 
-    def opDerived(self, current: Ice.Current):
+    @override
+    def opDerived(self, current: Ice.Current) -> Awaitable[None]:
         return Ice.Future.completed(None)
 
-    def opByte1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opByte1(self, opByte1: int, current: Ice.Current) -> Awaitable[int]:
+        return Ice.Future.completed(opByte1)
 
-    def opShort1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opShort1(self, opShort1: int, current: Ice.Current) -> Awaitable[int]:
+        return Ice.Future.completed(opShort1)
 
-    def opInt1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opInt1(self, opInt1: int, current: Ice.Current) -> Awaitable[int]:
+        return Ice.Future.completed(opInt1)
 
-    def opLong1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opLong1(self, opLong1: int, current: Ice.Current) -> Awaitable[int]:
+        return Ice.Future.completed(opLong1)
 
-    def opFloat1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opFloat1(self, opFloat1: float, current: Ice.Current) -> Awaitable[float]:
+        return Ice.Future.completed(opFloat1)
 
-    def opDouble1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opDouble1(self, opDouble1: float, current: Ice.Current) -> Awaitable[float]:
+        return Ice.Future.completed(opDouble1)
 
-    def opString1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opString1(self, opString1: str, current: Ice.Current) -> Awaitable[str]:
+        return Ice.Future.completed(opString1)
 
-    def opStringS1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opStringS1(self, opStringS1: list[str], current: Ice.Current) -> Awaitable[Sequence[str]]:
+        return Ice.Future.completed(opStringS1)
 
-    def opByteBoolD1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opByteBoolD1(self, opByteBoolD1: dict[int, bool], current: Ice.Current) -> Awaitable[Mapping[int, bool]]:
+        return Ice.Future.completed(opByteBoolD1)
 
-    def opStringS2(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opStringS2(self, stringS: list[str], current: Ice.Current) -> Awaitable[Sequence[str]]:
+        return Ice.Future.completed(stringS)
 
-    def opByteBoolD2(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opByteBoolD2(self, byteBoolD: dict[int, bool], current: Ice.Current) -> Awaitable[Mapping[int, bool]]:
+        return Ice.Future.completed(byteBoolD)
 
-    def opMyClass1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opMyClass1(self, opMyClass1: Test.MyClass1 | None, current: Ice.Current) -> Awaitable[Test.MyClass1 | None]:
+        return Ice.Future.completed(opMyClass1)
 
-    def opMyStruct1(self, value, current: Ice.Current):
-        return Ice.Future.completed(value)
+    @override
+    def opMyStruct1(self, opMyStruct1: Test.MyStruct1, current: Ice.Current) -> Awaitable[Test.MyStruct1]:
+        return Ice.Future.completed(opMyStruct1)
 
-    def opStringLiterals(self, current: Ice.Current):
+    @override
+    def opStringLiterals(self, current: Ice.Current) -> Awaitable[Sequence[str]]:
         return Ice.Future.completed(
             [
                 Test.s0,
@@ -428,23 +562,31 @@ class MyDerivedClassI(Test.MyDerivedClass):
             ]
         )
 
-    def opWStringLiterals(self, current: Ice.Current):
+    @override
+    def opWStringLiterals(self, current: Ice.Current) -> Awaitable[Sequence[str]]:
         return self.opStringLiterals(current)
 
+    # TODO: Marshaled result
+    @override
     def opMStruct1(self, current: Ice.Current):
         return Ice.Future.completed(Test.MyClass.OpMStruct1MarshaledResult(Test.Structure(), current))
 
-    def opMStruct2(self, p1, current: Ice.Current):
+    @override
+    def opMStruct2(self, p1: Test.Structure, current: Ice.Current):
         return Ice.Future.completed(Test.MyClass.OpMStruct2MarshaledResult((p1, p1), current))
 
+    @override
     def opMSeq1(self, current: Ice.Current):
         return Ice.Future.completed(Test.MyClass.OpMSeq1MarshaledResult([], current))
 
-    def opMSeq2(self, p1, current: Ice.Current):
+    @override
+    def opMSeq2(self, p1: list[str], current: Ice.Current):
         return Ice.Future.completed(Test.MyClass.OpMSeq2MarshaledResult((p1, p1), current))
 
+    @override
     def opMDict1(self, current: Ice.Current):
         return Ice.Future.completed(Test.MyClass.OpMDict1MarshaledResult({}, current))
 
-    def opMDict2(self, p1, current: Ice.Current):
+    @override
+    def opMDict2(self, p1: dict[str, str], current: Ice.Current):
         return Ice.Future.completed(Test.MyClass.OpMDict2MarshaledResult((p1, p1), current))

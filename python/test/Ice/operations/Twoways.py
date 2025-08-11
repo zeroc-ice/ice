@@ -3,18 +3,15 @@
 import array
 import math
 from sys import version_info
+from typing import cast
 
 from generated.test.Ice.operations import Test
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def twoways(helper, p):
+def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
     communicator = helper.communicator()
     literals = p.opStringLiterals()
 
@@ -259,6 +256,9 @@ def twoways(helper, p):
     # opMyClass
     #
     r, c1, c2 = p.opMyClass(p)
+    assert r is not None
+    assert c1 is not None
+    assert c2 is not None
     test(Ice.proxyIdentityAndFacetEqual(c1, p))
     test(not Ice.proxyIdentityAndFacetEqual(c2, p))
     test(Ice.proxyIdentityAndFacetEqual(r, p))
@@ -274,8 +274,9 @@ def twoways(helper, p):
         pass
 
     r, c1, c2 = p.opMyClass(None)
-    test(not c1)
-    test(c2)
+    assert r is not None
+    assert c1 is None
+    assert c2 is not None
     test(Ice.proxyIdentityAndFacetEqual(r, p))
     r.opVoid()
 
@@ -300,13 +301,14 @@ def twoways(helper, p):
     test(so.p == p)
     test(so.e == Test.MyEnum.enum3)
     test(so.s.s == "a new string")
+    assert so.p is not None
     so.p.opVoid()
 
     # Test marshaling of null structs and structs with null members.
     si1 = Test.Structure()
     si2 = None
 
-    rso, so = p.opStruct(si1, si2)
+    rso, so = p.opStruct(si1, si2)  # pyright: ignore
     test(rso.p is None)
     test(rso.e == Test.MyEnum.enum1)
     test(rso.s.s == "")
@@ -385,7 +387,7 @@ def twoways(helper, p):
     bsi2 = array.array("B")
     bsi2.fromlist([0])
 
-    rso, bso = p.opBoolS(bsi1, bsi2)
+    rso, bso = p.opBoolS(bsi1, bsi2)  # pyright: ignore
     test(len(bso) == 4)
     test(bso[0])
     test(bso[1])
@@ -1278,15 +1280,17 @@ def twoways(helper, p):
     ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 
     r = p.opContext()
-    test(len(p.ice_getContext()) == 0)
+
+    test(len(cast(dict[str, str], p.ice_getContext())) == 0)
     test(r != ctx)
 
     r = p.opContext(ctx)
-    test(len(p.ice_getContext()) == 0)
+    test(len(cast(dict[str, str], p.ice_getContext())) == 0)
     test(r == ctx)
 
     p2 = Test.MyClassPrx.checkedCast(p.ice_context(ctx))
-    test(p2.ice_getContext() == ctx)
+    assert p2 is not None
+    test(cast(dict[str, str], p2.ice_getContext()) == ctx)
     r = p2.opContext()
     test(r == ctx)
     r = p2.opContext(ctx)
@@ -1301,23 +1305,28 @@ def twoways(helper, p):
             initData = Ice.InitializationData()
             initData.properties = communicator.getProperties().clone()
             initData.properties.setProperty("Ice.ImplicitContext", i)
-            ic = Ice.initialize(initData=initData)
+            communicator = Ice.initialize(initData=initData)
 
             ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 
-            p1 = Test.MyClassPrx(ic, f"test:{helper.getTestEndpoint()}")
+            p1 = Test.MyClassPrx(communicator, f"test:{helper.getTestEndpoint()}")
 
-            ic.getImplicitContext().setContext(ctx)
-            test(ic.getImplicitContext().getContext() == ctx)
+            implicitContext = communicator.getImplicitContext()
+            assert implicitContext is not None
+            implicitContext.setContext(ctx)
+
+            implicitContext = communicator.getImplicitContext()
+            assert implicitContext is not None
+            test(implicitContext.getContext() == ctx)
             test(p1.opContext() == ctx)
 
-            test(ic.getImplicitContext().containsKey("zero") is False)
-            r = ic.getImplicitContext().put("zero", "ZERO")
+            test(implicitContext.containsKey("zero") is False)
+            r = implicitContext.put("zero", "ZERO")
             test(r == "")
-            test(ic.getImplicitContext().containsKey("zero") is True)
-            test(ic.getImplicitContext().get("zero") == "ZERO")
+            test(implicitContext.containsKey("zero") is True)
+            test(implicitContext.get("zero") == "ZERO")
 
-            ctx = ic.getImplicitContext().getContext()
+            ctx = implicitContext.getContext()
             test(p1.opContext() == ctx)
 
             prxContext = {"one": "UN", "four": "QUATRE"}
@@ -1328,15 +1337,15 @@ def twoways(helper, p):
 
             p2 = Test.MyClassPrx.uncheckedCast(p1.ice_context(prxContext))
 
-            ic.getImplicitContext().setContext({})
+            implicitContext.setContext({})
             test(p2.opContext() == prxContext)
 
-            ic.getImplicitContext().setContext(ctx)
+            implicitContext.setContext(ctx)
             test(p2.opContext() == combined)
 
-            test(ic.getImplicitContext().remove("one") == "ONE")
+            test(implicitContext.remove("one") == "ONE")
 
-            ic.destroy()
+            communicator.destroy()
 
     d = 1278312346.0 / 13.0
     ds = []
@@ -1356,10 +1365,10 @@ def twoways(helper, p):
     test(p.opFloat1(1.0) == 1.0)
     test(p.opDouble1(1.0) == 1.0)
     test(p.opString1("opString1") == "opString1")
-    test(len(p.opStringS1(None)) == 0)
-    test(len(p.opByteBoolD1(None)) == 0)
-    test(len(p.opStringS2(None)) == 0)
-    test(len(p.opByteBoolD2(None)) == 0)
+    test(len(p.opStringS1(None)) == 0)  # pyright: ignore
+    test(len(p.opByteBoolD1(None)) == 0)  # pyright: ignore
+    test(len(p.opStringS2(None)) == 0)  # pyright: ignore
+    test(len(p.opByteBoolD2(None)) == 0)  # pyright: ignore
 
     d = Test.MyDerivedClassPrx.uncheckedCast(p)
     s = Test.MyStruct1()
@@ -1375,6 +1384,7 @@ def twoways(helper, p):
     c.myClass = None
     c.myClass1 = "Test.MyClass1.myClass1"
     c = d.opMyClass1(c)
+    assert c is not None
     test(c.tesT == "Test.MyClass1.testT")
     test(c.myClass is None)
     test(c.myClass1 == "Test.MyClass1.myClass1")
