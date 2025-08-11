@@ -1,15 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
 import time
+from typing import cast
 
 from generated.test.Ice.operations import Test
+from TestHelper import test
 
 import Ice
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
 
 
 class BatchRequestInterceptor:
@@ -19,7 +16,7 @@ class BatchRequestInterceptor:
         self._size = 0
         self._lastRequestSize = 0
 
-    def enqueue(self, request, count, size):
+    def enqueue(self, request: Ice.BatchRequest, count: int, size: int):
         test(request.getOperation() == "opByteSOneway" or request.getOperation() == "ice_ping")
         test(request.getProxy().ice_isBatchOneway())
 
@@ -31,6 +28,7 @@ class BatchRequestInterceptor:
 
         if self._size + request.getSize() > 25000:
             f = request.getProxy().ice_flushBatchRequestsAsync()
+            assert isinstance(f, Ice.Future)
             f.result()
             self._size = 18  # header
 
@@ -39,27 +37,27 @@ class BatchRequestInterceptor:
             self._count += 1
             request.enqueue()
 
-    def setEnabled(self, v):
+    def setEnabled(self, v: bool):
         self._enabled = v
 
     def count(self):
         return self._count
 
 
-def batchOneways(p):
-    bs1 = bytes([0 for x in range(0, 10 * 1024)])
+def batchOneways(p: Test.MyClassPrx) -> None:
+    bs1 = bytes([0 for _ in range(0, 10 * 1024)])
 
     p.opByteSOneway(bs1)
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
     batch.ice_flushBatchRequests()  # Empty flush
     if batch.ice_getConnection():
-        batch.ice_getConnection().flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
+        cast(Ice.Connection, batch.ice_getConnection()).flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
     batch.ice_getCommunicator().flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
 
     p.opByteSOnewayCallCount()  # Reset the call count
 
-    for i in range(30):
+    for _ in range(30):
         batch.opByteSOneway(bs1)
 
     count = 0
@@ -74,7 +72,7 @@ def batchOneways(p):
         batch1.ice_ping()
         batch2.ice_ping()
         batch1.ice_flushBatchRequests()
-        batch1.ice_getConnection().close().result()
+        cast(Ice.Connection, batch1.ice_getConnection()).close().result()
         batch1.ice_ping()
         batch2.ice_ping()
 
@@ -82,7 +80,7 @@ def batchOneways(p):
         batch2.ice_getConnection()
 
         batch1.ice_ping()
-        batch1.ice_getConnection().close().result()
+        cast(Ice.Connection, batch1.ice_getConnection()).close().result()
 
         batch1.ice_ping()
         batch2.ice_ping()

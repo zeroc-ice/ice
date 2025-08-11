@@ -9,16 +9,12 @@ import OnewaysFuture
 import Twoways
 import TwowaysFuture
 from generated.test.Ice.operations import Test
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator) -> None:
     cl = Test.MyClassPrx(communicator, f"test:{helper.getTestEndpoint()}")
     derived = Test.MyDerivedClassPrx(communicator, f"test:{helper.getTestEndpoint()}")
 

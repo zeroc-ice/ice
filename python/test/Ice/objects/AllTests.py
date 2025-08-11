@@ -4,16 +4,12 @@ import sys
 
 from generated.test.Ice.objects import Test
 from generated.test.Ice.objects.client_private.Test import UnexpectedObjectExceptionTestPrx
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.InitialPrx:
     initial = Test.InitialPrx(communicator, f"initial:{helper.getTestEndpoint()}")
 
     sys.stdout.write("getting B1... ")
@@ -43,19 +39,25 @@ def allTests(helper, communicator):
     sys.stdout.write("getting K... ")
     sys.stdout.flush()
     k = initial.getK()
-    test(isinstance(k.value, Test.L))
+    assert k is not None
+    assert k.value is not None
+    assert isinstance(k.value, Test.L)
     test(k.value.data == "l")
     print("ok")
 
     sys.stdout.write("testing Value as parameter... ")
     sys.stdout.flush()
     v1, v2 = initial.opValue(Test.L("l"))
-    test(v1.data == "l")
-    test(v2.data == "l")
+    assert isinstance(v1, Test.L)
+    assert isinstance(v2, Test.L)
+    assert v1.data == "l"
+    assert v2.data == "l"
 
     v1, v2 = initial.opValueSeq([Test.L("l")])
-    test(v1[0].data == "l")
-    test(v2[0].data == "l")
+    assert isinstance(v1[0], Test.L)
+    assert isinstance(v2[0], Test.L)
+    assert v1[0].data == "l"
+    assert v2[0].data == "l"
 
     v1, v2 = initial.opValueMap({"l": Test.L("l")})
     test(v1["l"].data == "l")
