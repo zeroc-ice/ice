@@ -41,7 +41,6 @@ namespace
             const Ice::CommunicatorPtr&,
             const Ice::ObjectAdapterPtr&,
             const Ice::ObjectAdapterPtr&,
-            const std::string&,
             const Ice::Identity&);
 
         void stop() final;
@@ -79,16 +78,15 @@ IceStormInternal::Service::create(
     const CommunicatorPtr& communicator,
     const ObjectAdapterPtr& topicAdapter,
     const ObjectAdapterPtr& publishAdapter,
-    const string& name,
     const Ice::Identity& id)
 {
     auto service = make_shared<ServiceI>();
-    service->start(communicator, topicAdapter, publishAdapter, name, id);
+    service->start(communicator, topicAdapter, publishAdapter, id);
     return service;
 }
 
 void
-ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, const StringSeq&)
+ServiceI::start([[maybe_unused]] const string& serviceName, const CommunicatorPtr& communicator, const StringSeq&)
 {
     auto properties = communicator->getProperties();
 
@@ -113,8 +111,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
 
     if (properties->getIcePropertyAsInt("IceStorm.Transient") > 0)
     {
-        _instance =
-            make_shared<Instance>(instanceName, serviceName, communicator, publishAdapter, topicAdapter, nullptr);
+        _instance = make_shared<Instance>(instanceName, communicator, publishAdapter, topicAdapter, nullptr);
         try
         {
             auto manager = make_shared<TransientTopicManagerImpl>(_instance);
@@ -125,7 +122,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
             _instance = nullptr;
 
             LoggerOutputBase s;
-            s << "exception while starting IceStorm service " << serviceName << ":\n";
+            s << "exception while starting IceStorm service:\n";
             s << ex;
             throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
@@ -138,8 +135,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
     {
         try
         {
-            auto instance =
-                make_shared<PersistentInstance>(instanceName, serviceName, communicator, publishAdapter, topicAdapter);
+            auto instance = make_shared<PersistentInstance>(instanceName, communicator, publishAdapter, topicAdapter);
             _manager = TopicManagerImpl::create(instance);
             _instance = std::move(instance);
             _managerProxy = topicAdapter->add<TopicManagerPrx>(_manager->getServant(), topicManagerId);
@@ -149,7 +145,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
             _instance = nullptr;
 
             LoggerOutputBase s;
-            s << "exception while starting IceStorm service " << serviceName << ":\n";
+            s << "exception while starting IceStorm service:\n";
             s << ex;
 
             throw IceBox::FailureException(__FILE__, __LINE__, s.str());
@@ -283,7 +279,6 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
             auto nodeAdapter = communicator->createObjectAdapter("IceStorm.Node");
             auto instance = make_shared<PersistentInstance>(
                 instanceName,
-                serviceName,
                 communicator,
                 publishAdapter,
                 topicAdapter,
@@ -343,7 +338,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
             _instance = nullptr;
 
             LoggerOutputBase s;
-            s << "exception while starting IceStorm service " << serviceName << ":\n" << ex;
+            s << "exception while starting IceStorm service:\n" << ex;
             throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
     }
@@ -361,7 +356,6 @@ ServiceI::start(
     const CommunicatorPtr& communicator,
     const ObjectAdapterPtr& topicAdapter,
     const ObjectAdapterPtr& publishAdapter,
-    const string& serviceName,
     const Identity& id)
 {
     //
@@ -369,7 +363,7 @@ ServiceI::start(
     //
 
     const string instanceName = "IceStorm";
-    _instance = make_shared<Instance>(instanceName, serviceName, communicator, publishAdapter, topicAdapter, nullptr);
+    _instance = make_shared<Instance>(instanceName, communicator, publishAdapter, topicAdapter, nullptr);
 
     try
     {
@@ -380,7 +374,7 @@ ServiceI::start(
     {
         _instance = nullptr;
         LoggerOutputBase s;
-        s << "exception while starting IceStorm service " << serviceName << ":\n" << ex;
+        s << "exception while starting IceStorm service:\n" << ex;
         throw IceBox::FailureException(__FILE__, __LINE__, s.str());
     }
 }

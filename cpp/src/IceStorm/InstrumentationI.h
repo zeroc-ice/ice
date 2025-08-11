@@ -33,13 +33,10 @@ namespace IceStorm
 
         void setObserverUpdater(const std::shared_ptr<IceStorm::Instrumentation::ObserverUpdater>&) override;
 
-        std::shared_ptr<IceStorm::Instrumentation::TopicObserver> getTopicObserver(
-            const std::string&,
-            const std::string&,
-            const std::shared_ptr<IceStorm::Instrumentation::TopicObserver>&) override;
+        std::shared_ptr<IceStorm::Instrumentation::TopicObserver>
+        getTopicObserver(const std::string&, const std::shared_ptr<IceStorm::Instrumentation::TopicObserver>&) override;
 
         std::shared_ptr<IceStorm::Instrumentation::SubscriberObserver> getSubscriberObserver(
-            const std::string&,
             const std::string&,
             const Ice::ObjectPrx&,
             const IceStorm::QoS&,

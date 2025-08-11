@@ -30,7 +30,7 @@ namespace
         };
         static Attributes attributes;
 
-        TopicHelper(const string& service, const string& name) : _service(service), _name(name) {}
+        TopicHelper(const string& name) : _name(name) {}
 
         string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
@@ -39,7 +39,7 @@ namespace
         [[nodiscard]] const string& getId() const { return _name; }
 
     private:
-        const string& _service;
+        const string _service{"IceStorm"};
         const string& _name;
     };
 
@@ -73,14 +73,12 @@ namespace
         static Attributes attributes;
 
         SubscriberHelper(
-            const string& svc,
             const string& topic,
             const Ice::ObjectPrx& proxy,
             const IceStorm::QoS& qos,
             optional<IceStorm::TopicPrx> link,
             SubscriberState state)
-            : _service(svc),
-              _topic(topic),
+            : _topic(topic),
               _proxy(proxy),
               _qos(qos),
               _link(std::move(link)),
@@ -179,7 +177,7 @@ namespace
         }
 
     private:
-        const string& _service;
+        const string _service{"IceStorm"};
         const string& _topic;
         const Ice::ObjectPrx& _proxy;
         const IceStorm::QoS& _qos;
@@ -285,16 +283,13 @@ TopicManagerObserverI::setObserverUpdater(const shared_ptr<ObserverUpdater>& upd
 }
 
 shared_ptr<TopicObserver>
-TopicManagerObserverI::getTopicObserver(
-    const string& service,
-    const string& topic,
-    const shared_ptr<TopicObserver>& old)
+TopicManagerObserverI::getTopicObserver(const string& topic, const shared_ptr<TopicObserver>& old)
 {
     if (_topics.isEnabled())
     {
         try
         {
-            return _topics.getObserver(TopicHelper(service, topic), old);
+            return _topics.getObserver(TopicHelper(topic), old);
         }
         catch (const exception& ex)
         {
@@ -307,7 +302,6 @@ TopicManagerObserverI::getTopicObserver(
 
 shared_ptr<SubscriberObserver>
 TopicManagerObserverI::getSubscriberObserver(
-    const string& svc,
     const string& topic,
     const Ice::ObjectPrx& proxy,
     const IceStorm::QoS& qos,
@@ -319,7 +313,7 @@ TopicManagerObserverI::getSubscriberObserver(
     {
         try
         {
-            return _subscribers.getObserver(SubscriberHelper(svc, topic, proxy, qos, link, state), old);
+            return _subscribers.getObserver(SubscriberHelper(topic, proxy, qos, link, state), old);
         }
         catch (const exception& ex)
         {
