@@ -69,13 +69,6 @@ final class PropertyNames {
             new Property("ThreadPool", false, "", false, PropertyNames.ThreadPoolProps)
         });
 
-    public static final PropertyArray LMDBProps = new PropertyArray(
-        "LMDB",
-        true,
-        false,
-        new Property[] {
-        });
-
     public static final PropertyArray IceProps = new PropertyArray(
         "Ice",
         false,

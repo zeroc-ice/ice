@@ -18,14 +18,9 @@ using namespace IceStormInternal;
 
 namespace
 {
-    string getLMDBPath(const Ice::PropertiesPtr& properties, const string& serviceName)
+    string getLMDBPath(const Ice::PropertiesPtr& properties)
     {
-        string path = properties->getIceProperty("IceStorm.LMDB.Path");
-        if (path.empty())
-        {
-            path = serviceName;
-        }
-        return path;
+        return properties->getIceProperty("IceStorm.LMDB.Path");
     }
 }
 
@@ -319,9 +314,9 @@ PersistentInstance::PersistentInstance(
           std::move(topicAdapter),
           std::move(nodeAdapter),
           std::move(nodeProxy)),
-      _dbLock(getLMDBPath(communicator->getProperties(), serviceName) + "/icedb.lock"),
+      _dbLock(getLMDBPath(communicator->getProperties()) + "/icedb.lock"),
       _dbEnv(
-          getLMDBPath(communicator->getProperties(), serviceName),
+          getLMDBPath(communicator->getProperties()),
           2,
           IceDB::getMapSize(communicator->getProperties()->getIcePropertyAsInt("IceStorm.LMDB.MapSize")))
 {
