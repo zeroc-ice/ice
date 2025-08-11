@@ -21,7 +21,7 @@ def connect(prx: Ice.ObjectPrx):
         except Ice.ConnectTimeoutException:
             # Can sporadically occur with slow machines
             pass
-    assert prx.ice_getConnection()  # Establish connection
+    prx.ice_getConnection()  # Establish connection
 
 
 def allTests(helper: TestHelper, communicator: Ice.Communicator):
