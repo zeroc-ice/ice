@@ -81,14 +81,14 @@ class MyInterface2(Test_Inner.MyInterface):
     @override
     def opMyStructSeq(
         self, s1: list[Test_Inner_Inner2.MyStruct], current: Ice.Current
-    ) -> tuple[Sequence[Test_Inner_Inner2.MyStruct], list[Test_Inner_Inner2.MyStruct]]:
+    ) -> tuple[Sequence[Test_Inner_Inner2.MyStruct], Sequence[Test_Inner_Inner2.MyStruct]]:
         return (s1, s1)
 
     @override
     def opMyStructMap(
-        self, s1: dict[str, Test_Inner_Inner2.MyStruct], current: Ice.Current
+        self, c1: dict[str, Test_Inner_Inner2.MyStruct], current: Ice.Current
     ) -> tuple[Mapping[str, Test_Inner_Inner2.MyStruct], Mapping[str, Test_Inner_Inner2.MyStruct]]:
-        return (s1, s1)
+        return (c1, c1)
 
     @override
     def opMyClass(
@@ -123,7 +123,7 @@ class MyInterface3(Test_Inner.MyInterface):
     @override
     def opMyStructSeq(
         self, s1: list[Test_Inner_Inner2.MyStruct], current: Ice.Current
-    ) -> tuple[list[Test_Inner_Inner2.MyStruct], list[Test_Inner_Inner2.MyStruct]]:
+    ) -> tuple[Sequence[Test_Inner_Inner2.MyStruct], Sequence[Test_Inner_Inner2.MyStruct]]:
         return (s1, s1)
 
     @override

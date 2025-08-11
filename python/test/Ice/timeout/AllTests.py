@@ -8,7 +8,7 @@ from TestHelper import TestHelper, test
 import Ice
 
 
-def connect(prx: Ice.ObjectPrx) -> Ice.Connection | None:
+def connect(prx: Ice.ObjectPrx):
     # Establish connection with the given proxy (which might have a timeout
     # set and might sporadically fail on connection establishment if it's
     # too slow). The loop ensures that the connection is established by retrying

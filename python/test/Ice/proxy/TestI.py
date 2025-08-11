@@ -10,7 +10,7 @@ import Ice
 
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
-        self.ctx = dict[str, str]()
+        self.ctx: dict[str, str] = {}
 
     @override
     def shutdown(self, current: Ice.Current) -> None:
@@ -32,7 +32,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
 class CI(Test.C):
     def __init__(self):
-        self.ctx = dict[str, str]()
+        self.ctx: dict[str, str] = {}
 
     @override
     def opA(self, a: Test.APrx | None, current: Ice.Current) -> Test.APrx | None:

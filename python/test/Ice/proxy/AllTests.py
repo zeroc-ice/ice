@@ -518,8 +518,15 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
 
     test(communicator.stringToProxy("foo") == communicator.stringToProxy("foo"))
     test(communicator.stringToProxy("foo") != communicator.stringToProxy("foo2"))
-    test(cast(str, communicator.stringToProxy("foo")) < cast(str, communicator.stringToProxy("foo2")))
-    test(not (cast(str, communicator.stringToProxy("foo2")) < cast(str, communicator.stringToProxy("foo"))))
+    test(
+        cast(Ice.ObjectPrx, communicator.stringToProxy("foo")) < cast(Ice.ObjectPrx, communicator.stringToProxy("foo2"))
+    )
+    test(
+        not (
+            cast(Ice.ObjectPrx, communicator.stringToProxy("foo2"))
+            < cast(Ice.ObjectPrx, communicator.stringToProxy("foo"))
+        )
+    )
 
     compObj = communicator.stringToProxy("foo")
     assert compObj is not None
