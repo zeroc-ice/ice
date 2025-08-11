@@ -2,15 +2,12 @@
 
 import math
 import threading
+from typing import cast
 
 from generated.test.Ice.operations import Test
+from TestHelper import TestHelper, test
 
 import Ice
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
 
 
 class CallbackBase:
@@ -31,11 +28,11 @@ class CallbackBase:
 
 
 class Callback(CallbackBase):
-    def __init__(self, communicator=None):
+    def __init__(self, communicator: Ice.Communicator | None = None):
         CallbackBase.__init__(self)
         self._communicator = communicator
 
-    def opByte(self, f):
+    def opByte(self, f: Ice.Future):
         try:
             (r, b) = f.result()
             test(b == 0xF0)
@@ -44,7 +41,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opBool(self, f):
+    def opBool(self, f: Ice.Future):
         try:
             (r, b) = f.result()
             test(b)
@@ -53,7 +50,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opShortIntLong(self, f):
+    def opShortIntLong(self, f: Ice.Future):
         try:
             (r, s, i, l) = f.result()  # noqa: E741
             test(s == 10)
@@ -64,7 +61,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opFloatDouble(self, fut):
+    def opFloatDouble(self, fut: Ice.Future):
         try:
             (r, f, d) = fut.result()
             test(f - 3.14 < 0.001)
@@ -74,7 +71,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opString(self, f):
+    def opString(self, f: Ice.Future):
         try:
             (r, s) = f.result()
             test(s == "world hello")
@@ -83,7 +80,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opMyEnum(self, f):
+    def opMyEnum(self, f: Ice.Future):
         try:
             (r, e) = f.result()
             test(e == Test.MyEnum.enum2)
@@ -92,13 +89,14 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opMyClass(self, f):
+    def opMyClass(self, f: Ice.Future):
         try:
             (r, c1, c2) = f.result()
             test(c1.ice_getIdentity() == Ice.stringToIdentity("test"))
             test(c2.ice_getIdentity() == Ice.stringToIdentity("noSuchIdentity"))
             test(r.ice_getIdentity() == Ice.stringToIdentity("test"))
             # We can't do the callbacks below in serialize mode
+            assert self._communicator is not None
             if self._communicator.getProperties().getPropertyAsInt("Ice.Client.ThreadPool.Serialize") == 0:
                 r.opVoid()
                 c1.opVoid()
@@ -111,7 +109,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opStruct(self, f):
+    def opStruct(self, f: Ice.Future):
         try:
             (rso, so) = f.result()
             test(rso.p is None)
@@ -120,13 +118,14 @@ class Callback(CallbackBase):
             test(so.e == Test.MyEnum.enum3)
             test(so.s.s == "a new string")
             # We can't do the callbacks below in serialize mode.
+            assert self._communicator is not None
             if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0:
                 so.p.opVoid()
             self.called()
         except Exception:
             test(False)
 
-    def opByteS(self, f):
+    def opByteS(self, f: Ice.Future):
         try:
             (rso, bso) = f.result()
             test(len(bso) == 4)
@@ -147,7 +146,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opBoolS(self, f):
+    def opBoolS(self, f: Ice.Future):
         try:
             (rso, bso) = f.result()
             test(len(bso) == 4)
@@ -163,7 +162,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opShortIntLongS(self, f):
+    def opShortIntLongS(self, f: Ice.Future):
         try:
             (rso, sso, iso, lso) = f.result()
             test(len(sso) == 3)
@@ -190,7 +189,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opFloatDoubleS(self, f):
+    def opFloatDoubleS(self, f: Ice.Future):
         try:
             (rso, fso, dso) = f.result()
             test(len(fso) == 2)
@@ -210,7 +209,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opStringS(self, f):
+    def opStringS(self, f: Ice.Future):
         try:
             (rso, sso) = f.result()
             test(len(sso) == 4)
@@ -226,7 +225,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opByteSS(self, f):
+    def opByteSS(self, f: Ice.Future):
         try:
             (rso, bso) = f.result()
             test(len(bso) == 2)
@@ -252,7 +251,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opBoolSS(self, f):
+    def opBoolSS(self, f: Ice.Future):
         try:
             (rso, bso) = f.result()
             test(len(bso) == 4)
@@ -279,7 +278,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opShortIntLongSS(self, f):
+    def opShortIntLongSS(self, f: Ice.Future):
         try:
             (rso, sso, iso, lso) = f.result()
             test(len(rso) == 1)
@@ -311,7 +310,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opFloatDoubleSS(self, f):
+    def opFloatDoubleSS(self, f: Ice.Future):
         try:
             (rso, fso, dso) = f.result()
             test(len(fso) == 3)
@@ -338,7 +337,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opStringSS(self, f):
+    def opStringSS(self, f: Ice.Future):
         try:
             (rso, sso) = f.result()
             test(len(sso) == 5)
@@ -360,7 +359,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opByteBoolD(self, f):
+    def opByteBoolD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             di1 = {10: True, 100: False}
@@ -374,7 +373,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opShortIntD(self, f):
+    def opShortIntD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             di1 = {110: -1, 1100: 123123}
@@ -388,7 +387,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opLongFloatD(self, f):
+    def opLongFloatD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             di1 = {999999110: -1.1, 999999111: 123123.2}
@@ -403,7 +402,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opStringStringD(self, f):
+    def opStringStringD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             di1 = {"foo": "abc -1.1", "bar": "abc 123123.2"}
@@ -417,7 +416,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opStringMyEnumD(self, f):
+    def opStringMyEnumD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             di1 = {"abc": Test.MyEnum.enum1, "": Test.MyEnum.enum2}
@@ -431,7 +430,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opMyEnumStringD(self, f):
+    def opMyEnumStringD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             di1 = {Test.MyEnum.enum1: "abc"}
@@ -444,7 +443,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opMyStructMyEnumD(self, f):
+    def opMyStructMyEnumD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             s11 = Test.MyStruct()
@@ -470,7 +469,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opByteBoolDS(self, f):
+    def opByteBoolDS(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(ro) == 2)
@@ -496,7 +495,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opShortIntDS(self, f):
+    def opShortIntDS(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(ro) == 2)
@@ -521,7 +520,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opLongFloatDS(self, f):
+    def opLongFloatDS(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(ro) == 2)
@@ -546,7 +545,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opStringStringDS(self, f):
+    def opStringStringDS(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(ro) == 2)
@@ -571,7 +570,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opStringMyEnumDS(self, f):
+    def opStringMyEnumDS(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(ro) == 2)
@@ -596,7 +595,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opMyEnumStringDS(self, f):
+    def opMyEnumStringDS(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(ro) == 2)
@@ -617,7 +616,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opMyStructMyEnumDS(self, f):
+    def opMyStructMyEnumDS(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             s11 = Test.MyStruct(1, 1)
@@ -646,7 +645,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opByteByteSD(self, f):
+    def opByteByteSD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(do) == 1)
@@ -666,7 +665,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opBoolBoolSD(self, f):
+    def opBoolBoolSD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(do) == 1)
@@ -685,7 +684,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opShortShortSD(self, f):
+    def opShortShortSD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(do) == 1)
@@ -707,7 +706,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opIntIntSD(self, f):
+    def opIntIntSD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(do) == 1)
@@ -729,7 +728,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opLongLongSD(self, f):
+    def opLongLongSD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(do) == 1)
@@ -751,7 +750,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opStringFloatSD(self, f):
+    def opStringFloatSD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(do) == 1)
@@ -773,7 +772,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opStringDoubleSD(self, f):
+    def opStringDoubleSD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(do) == 1)
@@ -795,7 +794,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opStringStringSD(self, f):
+    def opStringStringSD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(do) == 1)
@@ -817,7 +816,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opMyEnumMyEnumSD(self, f):
+    def opMyEnumMyEnumSD(self, f: Ice.Future):
         try:
             (ro, do) = f.result()
             test(len(do) == 1)
@@ -839,7 +838,7 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opIntS(self, f):
+    def opIntS(self, f: Ice.Future):
         try:
             r = f.result()
             for j in range(0, len(r)):
@@ -848,65 +847,71 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
 
-    def opIdempotent(self, f):
+    def opIdempotent(self, f: Ice.Future):
         self.called()
 
-    def opDerived(self, f):
+    def opDerived(self, f: Ice.Future):
         self.called()
 
 
-def twowaysFuture(helper, p):
+def twowaysFuture(helper: TestHelper, p: Test.MyClassPrx):
     communicator = helper.communicator()
     f = p.ice_pingAsync()
+    assert isinstance(f, Ice.Future)
     test(f.result() is None)
 
     f = p.ice_isAAsync(Test.MyClass.ice_staticId())
+    assert isinstance(f, Ice.Future)
     test(f.result())
 
     f = p.ice_idAsync()
+    assert isinstance(f, Ice.Future)
     test(f.result() == "::Test::MyDerivedClass")
 
     f = p.ice_idsAsync()
+    assert isinstance(f, Ice.Future)
     test(len(f.result()) == 3)
 
     f = p.opVoidAsync()
+    assert isinstance(f, Ice.Future)
     test(f.result() is None)
 
     cb = Callback()
-    p.opVoidAsync().add_done_callback(lambda f: cb.called())
+    cast(Ice.InvocationFuture, p.opVoidAsync()).add_done_callback(lambda f: cb.called())
     cb.check()
 
     f = p.opByteAsync(0xFF, 0x0F)
+    assert isinstance(f, Ice.Future)
     (ret, p3) = f.result()
     test(p3 == 0xF0)
     test(ret == 0xFF)
 
     cb = Callback()
-    p.opByteAsync(0xFF, 0x0F).add_done_callback(cb.opByte)
+    cast(Ice.InvocationFuture, p.opByteAsync(0xFF, 0x0F)).add_done_callback(cb.opByte)
     cb.check()
 
     cb = Callback()
-    p.opBoolAsync(True, False).add_done_callback(cb.opBool)
+    cast(Ice.InvocationFuture, p.opBoolAsync(True, False)).add_done_callback(cb.opBool)
     cb.check()
 
     cb = Callback()
-    p.opShortIntLongAsync(10, 11, 12).add_done_callback(cb.opShortIntLong)
+    cast(Ice.InvocationFuture, p.opShortIntLongAsync(10, 11, 12)).add_done_callback(cb.opShortIntLong)
     cb.check()
 
     cb = Callback()
-    p.opFloatDoubleAsync(3.14, 1.1e10).add_done_callback(cb.opFloatDouble)
+    cast(Ice.InvocationFuture, p.opFloatDoubleAsync(3.14, 1.1e10)).add_done_callback(cb.opFloatDouble)
     cb.check()
 
     cb = Callback()
-    p.opStringAsync("hello", "world").add_done_callback(cb.opString)
+    cast(Ice.InvocationFuture, p.opStringAsync("hello", "world")).add_done_callback(cb.opString)
     cb.check()
 
     cb = Callback()
-    p.opMyEnumAsync(Test.MyEnum.enum2).add_done_callback(cb.opMyEnum)
+    cast(Ice.InvocationFuture, p.opMyEnumAsync(Test.MyEnum.enum2)).add_done_callback(cb.opMyEnum)
     cb.check()
 
     cb = Callback(communicator)
-    p.opMyClassAsync(p).add_done_callback(cb.opMyClass)
+    cast(Ice.InvocationFuture, p.opMyClassAsync(p)).add_done_callback(cb.opMyClass)
     cb.check()
 
     si1 = Test.Structure()
@@ -921,21 +926,21 @@ def twowaysFuture(helper, p):
     si2.s.s = "def"
 
     cb = Callback(communicator)
-    p.opStructAsync(si1, si2).add_done_callback(cb.opStruct)
+    cast(Ice.InvocationFuture, p.opStructAsync(si1, si2)).add_done_callback(cb.opStruct)
     cb.check()
 
     bsi1 = (0x01, 0x11, 0x12, 0x22)
     bsi2 = (0xF1, 0xF2, 0xF3, 0xF4)
 
     cb = Callback()
-    p.opByteSAsync(bsi1, bsi2).add_done_callback(cb.opByteS)
+    cast(Ice.InvocationFuture, p.opByteSAsync(bsi1, bsi2)).add_done_callback(cb.opByteS)
     cb.check()
 
     bsi1 = (True, True, False)
     bsi2 = (False,)
 
     cb = Callback()
-    p.opBoolSAsync(bsi1, bsi2).add_done_callback(cb.opBoolS)
+    cast(Ice.InvocationFuture, p.opBoolSAsync(bsi1, bsi2)).add_done_callback(cb.opBoolS)
     cb.check()
 
     ssi = (1, 2, 3)
@@ -943,28 +948,28 @@ def twowaysFuture(helper, p):
     lsi = (10, 30, 20)
 
     cb = Callback()
-    p.opShortIntLongSAsync(ssi, isi, lsi).add_done_callback(cb.opShortIntLongS)
+    cast(Ice.InvocationFuture, p.opShortIntLongSAsync(ssi, isi, lsi)).add_done_callback(cb.opShortIntLongS)
     cb.check()
 
     fsi = (3.14, 1.11)
     dsi = (1.1e10, 1.2e10, 1.3e10)
 
     cb = Callback()
-    p.opFloatDoubleSAsync(fsi, dsi).add_done_callback(cb.opFloatDoubleS)
+    cast(Ice.InvocationFuture, p.opFloatDoubleSAsync(fsi, dsi)).add_done_callback(cb.opFloatDoubleS)
     cb.check()
 
     ssi1 = ("abc", "de", "fghi")
     ssi2 = ("xyz",)
 
     cb = Callback()
-    p.opStringSAsync(ssi1, ssi2).add_done_callback(cb.opStringS)
+    cast(Ice.InvocationFuture, p.opStringSAsync(ssi1, ssi2)).add_done_callback(cb.opStringS)
     cb.check()
 
     bsi1 = ((0x01, 0x11, 0x12), (0xFF,))
     bsi2 = ((0x0E,), (0xF2, 0xF1))
 
     cb = Callback()
-    p.opByteSSAsync(bsi1, bsi2).add_done_callback(cb.opByteSS)
+    cast(Ice.InvocationFuture, p.opByteSSAsync(bsi1, bsi2)).add_done_callback(cb.opByteSS)
     cb.check()
 
     bsi1 = (
@@ -975,7 +980,7 @@ def twowaysFuture(helper, p):
     bsi2 = ((False, False, True),)
 
     cb = Callback()
-    p.opBoolSSAsync(bsi1, bsi2).add_done_callback(cb.opBoolSS)
+    cast(Ice.InvocationFuture, p.opBoolSSAsync(bsi1, bsi2)).add_done_callback(cb.opBoolSS)
     cb.check()
 
     ssi = ((1, 2, 5), (13,), ())
@@ -983,49 +988,49 @@ def twowaysFuture(helper, p):
     lsi = ((496, 1729),)
 
     cb = Callback()
-    p.opShortIntLongSSAsync(ssi, isi, lsi).add_done_callback(cb.opShortIntLongSS)
+    cast(Ice.InvocationFuture, p.opShortIntLongSSAsync(ssi, isi, lsi)).add_done_callback(cb.opShortIntLongSS)
     cb.check()
 
     fsi = ((3.14,), (1.11,), ())
     dsi = ((1.1e10, 1.2e10, 1.3e10),)
 
     cb = Callback()
-    p.opFloatDoubleSSAsync(fsi, dsi).add_done_callback(cb.opFloatDoubleSS)
+    cast(Ice.InvocationFuture, p.opFloatDoubleSSAsync(fsi, dsi)).add_done_callback(cb.opFloatDoubleSS)
     cb.check()
 
     ssi1 = (("abc",), ("de", "fghi"))
     ssi2 = ((), (), ("xyz",))
 
     cb = Callback()
-    p.opStringSSAsync(ssi1, ssi2).add_done_callback(cb.opStringSS)
+    cast(Ice.InvocationFuture, p.opStringSSAsync(ssi1, ssi2)).add_done_callback(cb.opStringSS)
     cb.check()
 
     di1 = {10: True, 100: False}
     di2 = {10: True, 11: False, 101: True}
 
     cb = Callback()
-    p.opByteBoolDAsync(di1, di2).add_done_callback(cb.opByteBoolD)
+    cast(Ice.InvocationFuture, p.opByteBoolDAsync(di1, di2)).add_done_callback(cb.opByteBoolD)
     cb.check()
 
     di1 = {110: -1, 1100: 123123}
     di2 = {110: -1, 111: -100, 1101: 0}
 
     cb = Callback()
-    p.opShortIntDAsync(di1, di2).add_done_callback(cb.opShortIntD)
+    cast(Ice.InvocationFuture, p.opShortIntDAsync(di1, di2)).add_done_callback(cb.opShortIntD)
     cb.check()
 
     di1 = {999999110: -1.1, 999999111: 123123.2}
     di2 = {999999110: -1.1, 999999120: -100.4, 999999130: 0.5}
 
     cb = Callback()
-    p.opLongFloatDAsync(di1, di2).add_done_callback(cb.opLongFloatD)
+    cast(Ice.InvocationFuture, p.opLongFloatDAsync(di1, di2)).add_done_callback(cb.opLongFloatD)
     cb.check()
 
     di1 = {"foo": "abc -1.1", "bar": "abc 123123.2"}
     di2 = {"foo": "abc -1.1", "FOO": "abc -100.4", "BAR": "abc 0.5"}
 
     cb = Callback()
-    p.opStringStringDAsync(di1, di2).add_done_callback(cb.opStringStringD)
+    cast(Ice.InvocationFuture, p.opStringStringDAsync(di1, di2)).add_done_callback(cb.opStringStringD)
     cb.check()
 
     di1 = {"abc": Test.MyEnum.enum1, "": Test.MyEnum.enum2}
@@ -1036,14 +1041,14 @@ def twowaysFuture(helper, p):
     }
 
     cb = Callback()
-    p.opStringMyEnumDAsync(di1, di2).add_done_callback(cb.opStringMyEnumD)
+    cast(Ice.InvocationFuture, p.opStringMyEnumDAsync(di1, di2)).add_done_callback(cb.opStringMyEnumD)
     cb.check()
 
     di1 = {Test.MyEnum.enum1: "abc"}
     di2 = {Test.MyEnum.enum2: "Hello!!", Test.MyEnum.enum3: "qwerty"}
 
     cb = Callback()
-    p.opMyEnumStringDAsync(di1, di2).add_done_callback(cb.opMyEnumStringD)
+    cast(Ice.InvocationFuture, p.opMyEnumStringDAsync(di1, di2)).add_done_callback(cb.opMyEnumStringD)
     cb.check()
 
     s11 = Test.MyStruct()
@@ -1062,21 +1067,21 @@ def twowaysFuture(helper, p):
     di2 = {s11: Test.MyEnum.enum1, s22: Test.MyEnum.enum3, s23: Test.MyEnum.enum2}
 
     cb = Callback()
-    p.opMyStructMyEnumDAsync(di1, di2).add_done_callback(cb.opMyStructMyEnumD)
+    cast(Ice.InvocationFuture, p.opMyStructMyEnumDAsync(di1, di2)).add_done_callback(cb.opMyStructMyEnumD)
     cb.check()
 
     dsi1 = ({10: True, 100: False}, {10: True, 11: False, 101: True})
     dsi2 = ({100: False, 101: False},)
 
     cb = Callback()
-    p.opByteBoolDSAsync(dsi1, dsi2).add_done_callback(cb.opByteBoolDS)
+    cast(Ice.InvocationFuture, p.opByteBoolDSAsync(dsi1, dsi2)).add_done_callback(cb.opByteBoolDS)
     cb.check()
 
     dsi1 = ({110: -1, 1100: 123123}, {110: -1, 111: -100, 1101: 0})
     dsi2 = ({100: -1001},)
 
     cb = Callback()
-    p.opShortIntDSAsync(dsi1, dsi2).add_done_callback(cb.opShortIntDS)
+    cast(Ice.InvocationFuture, p.opShortIntDSAsync(dsi1, dsi2)).add_done_callback(cb.opShortIntDS)
     cb.called()
 
     dsi1 = (
@@ -1086,7 +1091,7 @@ def twowaysFuture(helper, p):
     dsi2 = ({999999140: 3.14},)
 
     cb = Callback()
-    p.opLongFloatDSAsync(dsi1, dsi2).add_done_callback(cb.opLongFloatDS)
+    cast(Ice.InvocationFuture, p.opLongFloatDSAsync(dsi1, dsi2)).add_done_callback(cb.opLongFloatDS)
     cb.called()
 
     dsi1 = (
@@ -1096,7 +1101,7 @@ def twowaysFuture(helper, p):
     dsi2 = ({"f00": "ABC -3.14"},)
 
     cb = Callback()
-    p.opStringStringDSAsync(dsi1, dsi2).add_done_callback(cb.opStringStringDS)
+    cast(Ice.InvocationFuture, p.opStringStringDSAsync(dsi1, dsi2)).add_done_callback(cb.opStringStringDS)
     cb.called()
 
     dsi1 = (
@@ -1111,7 +1116,7 @@ def twowaysFuture(helper, p):
     dsi2 = ({"Goodbye": Test.MyEnum.enum1},)
 
     cb = Callback()
-    p.opStringMyEnumDSAsync(dsi1, dsi2).add_done_callback(cb.opStringMyEnumDS)
+    cast(Ice.InvocationFuture, p.opStringMyEnumDSAsync(dsi1, dsi2)).add_done_callback(cb.opStringMyEnumDS)
     cb.called()
 
     dsi1 = (
@@ -1121,7 +1126,7 @@ def twowaysFuture(helper, p):
     dsi2 = ({Test.MyEnum.enum1: "Goodbye"},)
 
     cb = Callback()
-    p.opMyEnumStringDSAsync(dsi1, dsi2).add_done_callback(cb.opMyEnumStringDS)
+    cast(Ice.InvocationFuture, p.opMyEnumStringDSAsync(dsi1, dsi2)).add_done_callback(cb.opMyEnumStringDS)
     cb.called()
 
     s11 = Test.MyStruct(1, 1)
@@ -1137,35 +1142,35 @@ def twowaysFuture(helper, p):
     dsi2 = ({s23: Test.MyEnum.enum3},)
 
     cb = Callback()
-    p.opMyStructMyEnumDSAsync(dsi1, dsi2).add_done_callback(cb.opMyStructMyEnumDS)
+    cast(Ice.InvocationFuture, p.opMyStructMyEnumDSAsync(dsi1, dsi2)).add_done_callback(cb.opMyStructMyEnumDS)
     cb.called()
 
     sdi1 = {0x01: (0x01, 0x11), 0x22: (0x12,)}
     sdi2 = {0xF1: (0xF2, 0xF3)}
 
     cb = Callback()
-    p.opByteByteSDAsync(sdi1, sdi2).add_done_callback(cb.opByteByteSD)
+    cast(Ice.InvocationFuture, p.opByteByteSDAsync(sdi1, sdi2)).add_done_callback(cb.opByteByteSD)
     cb.called()
 
     sdi1 = {False: (True, False), True: (False, True, True)}
     sdi2 = {False: (True, False)}
 
     cb = Callback()
-    p.opBoolBoolSDAsync(sdi1, sdi2).add_done_callback(cb.opBoolBoolSD)
+    cast(Ice.InvocationFuture, p.opBoolBoolSDAsync(sdi1, sdi2)).add_done_callback(cb.opBoolBoolSD)
     cb.called()
 
     sdi1 = {1: (1, 2, 3), 2: (4, 5)}
     sdi2 = {4: (6, 7)}
 
     cb = Callback()
-    p.opShortShortSDAsync(sdi1, sdi2).add_done_callback(cb.opShortShortSD)
+    cast(Ice.InvocationFuture, p.opShortShortSDAsync(sdi1, sdi2)).add_done_callback(cb.opShortShortSD)
     cb.called()
 
     sdi1 = {100: (100, 200, 300), 200: (400, 500)}
     sdi2 = {400: (600, 700)}
 
     cb = Callback()
-    p.opIntIntSDAsync(sdi1, sdi2).add_done_callback(cb.opIntIntSD)
+    cast(Ice.InvocationFuture, p.opIntIntSDAsync(sdi1, sdi2)).add_done_callback(cb.opIntIntSD)
     cb.called()
 
     sdi1 = {
@@ -1175,28 +1180,28 @@ def twowaysFuture(helper, p):
     sdi2 = {999999992: (999999110, 999999120)}
 
     cb = Callback()
-    p.opLongLongSDAsync(sdi1, sdi2).add_done_callback(cb.opLongLongSD)
+    cast(Ice.InvocationFuture, p.opLongLongSDAsync(sdi1, sdi2)).add_done_callback(cb.opLongLongSD)
     cb.called()
 
     sdi1 = {"abc": (-1.1, 123123.2, 100.0), "ABC": (42.24, -1.61)}
     sdi2 = {"aBc": (-3.14, 3.14)}
 
     cb = Callback()
-    p.opStringFloatSDAsync(sdi1, sdi2).add_done_callback(cb.opStringFloatSD)
+    cast(Ice.InvocationFuture, p.opStringFloatSDAsync(sdi1, sdi2)).add_done_callback(cb.opStringFloatSD)
     cb.called()
 
     sdi1 = {"Hello!!": (1.1e10, 1.2e10, 1.3e10), "Goodbye": (1.4e10, 1.5e10)}
     sdi2 = {"": (1.6e10, 1.7e10)}
 
     cb = Callback()
-    p.opStringDoubleSDAsync(sdi1, sdi2).add_done_callback(cb.opStringDoubleSD)
+    cast(Ice.InvocationFuture, p.opStringDoubleSDAsync(sdi1, sdi2)).add_done_callback(cb.opStringDoubleSD)
     cb.called()
 
     sdi1 = {"abc": ("abc", "de", "fghi"), "def": ("xyz", "or")}
     sdi2 = {"ghi": ("and", "xor")}
 
     cb = Callback()
-    p.opStringStringSDAsync(sdi1, sdi2).add_done_callback(cb.opStringStringSD)
+    cast(Ice.InvocationFuture, p.opStringStringSDAsync(sdi1, sdi2)).add_done_callback(cb.opStringStringSD)
     cb.called()
 
     sdi1 = {
@@ -1206,37 +1211,40 @@ def twowaysFuture(helper, p):
     sdi2 = {Test.MyEnum.enum1: (Test.MyEnum.enum3, Test.MyEnum.enum3)}
 
     cb = Callback()
-    p.opMyEnumMyEnumSDAsync(sdi1, sdi2).add_done_callback(cb.opMyEnumMyEnumSD)
+    cast(Ice.InvocationFuture, p.opMyEnumMyEnumSDAsync(sdi1, sdi2)).add_done_callback(cb.opMyEnumMyEnumSD)
     cb.called()
 
     lengths = (0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000)
     for length in lengths:
-        s = []
-        for i in range(length):
-            s.append(i)
-        cb = Callback(length)
-        p.opIntSAsync(s).add_done_callback(cb.opIntS)
+        s = [i for i in range(length)]
+        cb = Callback()
+        cast(Ice.InvocationFuture, p.opIntSAsync(s)).add_done_callback(cb.opIntS)
         cb.check()
 
     ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 
-    test(len(p.ice_getContext()) == 0)
+    test(len(cast(dict[str, str], p.ice_getContext())) == 0)
     f = p.opContextAsync()
+    assert isinstance(f, Ice.Future)
     c = f.result()
     test(c != ctx)
 
-    test(len(p.ice_getContext()) == 0)
+    test(len(cast(dict[str, str], p.ice_getContext())) == 0)
     f = p.opContextAsync(context=ctx)
+    assert isinstance(f, Ice.Future)
     c = f.result()
     test(c == ctx)
 
     p2 = Test.MyClassPrx.checkedCast(p.ice_context(ctx))
-    test(p2.ice_getContext() == ctx)
+    assert p2 is not None
+    test(cast(dict[str, str], p2.ice_getContext()) == ctx)
     f = p2.opContextAsync()
+    assert isinstance(f, Ice.Future)
     c = f.result()
     test(c == ctx)
 
     f = p2.opContextAsync(context=ctx)
+    assert isinstance(f, Ice.Future)
     c = f.result()
     test(c == ctx)
 
@@ -1255,16 +1263,18 @@ def twowaysFuture(helper, p):
 
             p3 = Test.MyClassPrx(ic, f"test:{helper.getTestEndpoint()}")
 
-            ic.getImplicitContext().setContext(ctx)
-            test(ic.getImplicitContext().getContext() == ctx)
+            cast(Ice.ImplicitContext, ic.getImplicitContext()).setContext(ctx)
+            test(cast(Ice.ImplicitContext, ic.getImplicitContext()).getContext() == ctx)
             f = p3.opContextAsync()
+            assert isinstance(f, Ice.Future)
             c = f.result()
             test(c == ctx)
 
-            ic.getImplicitContext().put("zero", "ZERO")
+            cast(Ice.ImplicitContext, ic.getImplicitContext()).put("zero", "ZERO")
 
-            ctx = ic.getImplicitContext().getContext()
+            ctx = cast(Ice.ImplicitContext, ic.getImplicitContext()).getContext()
             f = p3.opContextAsync()
+            assert isinstance(f, Ice.Future)
             c = f.result()
             test(c == ctx)
 
@@ -1276,57 +1286,70 @@ def twowaysFuture(helper, p):
             test(combined["one"] == "UN")
 
             p3 = Test.MyClassPrx.uncheckedCast(p3.ice_context(prxContext))
-            ic.getImplicitContext().setContext({})
+            cast(Ice.ImplicitContext, ic.getImplicitContext()).setContext({})
             f = p3.opContextAsync()
+            assert isinstance(f, Ice.Future)
             c = f.result()
             test(c == prxContext)
 
-            ic.getImplicitContext().setContext(ctx)
+            cast(Ice.ImplicitContext, ic.getImplicitContext()).setContext(ctx)
             f = p3.opContextAsync()
+            assert isinstance(f, Ice.Future)
             c = f.result()
             test(c == combined)
 
             ic.destroy()
 
     cb = Callback()
-    p.opIdempotentAsync().add_done_callback(cb.opIdempotent)
+    cast(Ice.InvocationFuture, p.opIdempotentAsync()).add_done_callback(cb.opIdempotent)
     cb.check()
 
     derived = Test.MyDerivedClassPrx.checkedCast(p)
-    test(derived)
+    assert derived is not None
     cb = Callback()
-    derived.opDerivedAsync().add_done_callback(cb.opDerived)
+    cast(Ice.InvocationFuture, derived.opDerivedAsync()).add_done_callback(cb.opDerived)
     cb.check()
 
     f = p.opByte1Async(0xFF)
+    assert isinstance(f, Ice.Future)
     test(f.result() == 0xFF)
 
     f = p.opShort1Async(0x7FFF)
+    assert isinstance(f, Ice.Future)
     test(f.result() == 0x7FFF)
 
     f = p.opInt1Async(0x7FFFFFFF)
+    assert isinstance(f, Ice.Future)
     test(f.result() == 0x7FFFFFFF)
 
     f = p.opLong1Async(0x7FFFFFFFFFFFFFFF)
+    assert isinstance(f, Ice.Future)
     test(f.result() == 0x7FFFFFFFFFFFFFFF)
 
     f = p.opFloat1Async(1.0)
+    assert isinstance(f, Ice.Future)
     test(f.result() == 1.0)
 
     f = p.opDouble1Async(1.0)
+    assert isinstance(f, Ice.Future)
     test(f.result() == 1.0)
 
     f = p.opString1Async("opString1")
+    assert isinstance(f, Ice.Future)
     test(f.result() == "opString1")
 
-    f = p.opStringS1Async(None)
+    f = p.opStringS1Async(None)  # type: ignore[reportArgumentType]
+    assert isinstance(f, Ice.Future)
     test(len(f.result()) == 0)
 
-    f = p.opByteBoolD1Async(None)
+    f = p.opByteBoolD1Async(None)  # type: ignore[reportArgumentType]
+    assert isinstance(f, Ice.Future)
     test(len(f.result()) == 0)
 
-    f = p.opStringS2Async(None)
+    f = p.opStringS2Async(None)  # type: ignore[reportArgumentType]
+    assert isinstance(f, Ice.Future)
     test(len(f.result()) == 0)
 
-    f = p.opByteBoolD2Async(None)
+    f = p.opByteBoolD2Async(None)  # type: ignore[reportArgumentType]
+    assert isinstance(f, Ice.Future)
     test(len(f.result()) == 0)
