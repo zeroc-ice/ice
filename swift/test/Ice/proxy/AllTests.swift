@@ -468,7 +468,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     b1 = b1.ice_collocationOptimized(true)
     b1 = b1.ice_connectionCached(true)
     b1 = b1.ice_preferSecure(false)
-    b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
+    b1 = b1.ice_endpointSelection(.Ordered)
     b1 = b1.ice_locatorCacheTimeout(100)
     b1 = b1.ice_invocationTimeout(1234)
     b1 = b1.ice_encodingVersion(Ice.EncodingVersion(major: 1, minor: 0))
@@ -477,7 +477,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     router = router.ice_collocationOptimized(false)
     router = router.ice_connectionCached(true)
     router = router.ice_preferSecure(true)
-    router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+    router = router.ice_endpointSelection(.Random)
     router = router.ice_locatorCacheTimeout(200)
     router = router.ice_invocationTimeout(1500)
 
@@ -485,7 +485,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     locator = locator.ice_collocationOptimized(true)
     locator = locator.ice_connectionCached(false)
     locator = locator.ice_preferSecure(true)
-    locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+    locator = locator.ice_endpointSelection(.Random)
     locator = locator.ice_locatorCacheTimeout(300)
     locator = locator.ice_invocationTimeout(1500)
 
@@ -572,11 +572,11 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     try test(compObj!.ice_connectionCached(false) != compObj!.ice_connectionCached(true))
 
     try test(
-        compObj!.ice_endpointSelection(Ice.EndpointSelectionType.Random)
-            == compObj!.ice_endpointSelection(Ice.EndpointSelectionType.Random))
+        compObj!.ice_endpointSelection(.Random)
+            == compObj!.ice_endpointSelection(.Random))
     try test(
-        compObj!.ice_endpointSelection(Ice.EndpointSelectionType.Random)
-            != compObj!.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
+        compObj!.ice_endpointSelection(.Random)
+            != compObj!.ice_endpointSelection(.Ordered))
 
     try test(compObj!.ice_connectionId("id2") == compObj!.ice_connectionId("id2"))
     try test(compObj!.ice_connectionId("id1") != compObj!.ice_connectionId("id2"))
