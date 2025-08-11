@@ -83,26 +83,26 @@ func batchOneways(_ helper: TestHelper, _ p: MyClassPrx) async throws {
         try await batchC1.opByteSOneway(bs1)
         try await batchC1.opByteSOneway(bs1)
         try await batchC1.opByteSOneway(bs1)
-        try await batchC1.ice_getConnection()!.flushBatchRequests(Ice.CompressBatch.Yes)
+        try await batchC1.ice_getConnection()!.flushBatchRequests(.Yes)
 
         try await batchC2.opByteSOneway(bs1)
         try await batchC2.opByteSOneway(bs1)
         try await batchC2.opByteSOneway(bs1)
-        try await batchC1.ice_getConnection()!.flushBatchRequests(Ice.CompressBatch.No)
+        try await batchC1.ice_getConnection()!.flushBatchRequests(.No)
 
         try await batchC1.opByteSOneway(bs1)
         try await batchC1.opByteSOneway(bs1)
         try await batchC1.opByteSOneway(bs1)
-        try await batchC1.ice_getConnection()!.flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
+        try await batchC1.ice_getConnection()!.flushBatchRequests(.BasedOnProxy)
 
         try await batchC1.opByteSOneway(bs1)
         try await batchC2.opByteSOneway(bs1)
         try await batchC1.opByteSOneway(bs1)
-        try await batchC1.ice_getConnection()!.flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
+        try await batchC1.ice_getConnection()!.flushBatchRequests(.BasedOnProxy)
 
         try await batchC1.opByteSOneway(bs1)
         try await batchC3.opByteSOneway(bs1)
         try await batchC1.opByteSOneway(bs1)
-        try await batchC1.ice_getConnection()!.flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
+        try await batchC1.ice_getConnection()!.flushBatchRequests(.BasedOnProxy)
     }
 }
