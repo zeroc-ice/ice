@@ -2,8 +2,6 @@
 
 from generated.test.Ice.objects import Test
 
-import Ice
-
 
 class BI(Test.B):
     def __init__(self):
@@ -41,7 +39,7 @@ class DI(Test.D):
         self.postUnmarshalInvoked = True
 
 
-def customSliceLoader(typeId: str) -> Ice.Value | None:
+def customSliceLoader(typeId):
     match typeId:
         case "::Test::B":
             return BI()
