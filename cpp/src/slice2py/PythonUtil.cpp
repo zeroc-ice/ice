@@ -301,7 +301,8 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
         else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
         {
             // For marshaling, we use a generic Mapping type hint. This is to allow for more flexible value types.
-            const string dictionaryAlias = forMarshaling ? getImportAlias(source, "collections.abc", "Mapping") : "dict";
+            const string dictionaryAlias =
+                forMarshaling ? getImportAlias(source, "collections.abc", "Mapping") : "dict";
             ostringstream os;
             os << dictionaryAlias << "[" << typeToTypeHintString(dict->keyType(), false, source, forMarshaling) << ", "
                << typeToTypeHintString(dict->valueType(), false, source, forMarshaling) << "]";
