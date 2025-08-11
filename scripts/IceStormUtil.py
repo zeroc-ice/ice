@@ -77,7 +77,9 @@ class IceStorm(ProcessFromBinDir, Server):
             {
                 # We don't use IceStorm as the service name to make sure the service name is not used
                 # by accident as a property prefix.
-                "IceBox.Service.TestIceStorm": "IceStormService," + Component.component.getSoVersion() + ":createIceStorm",
+                "IceBox.Service.TestIceStorm": "IceStormService,"
+                + Component.component.getSoVersion()
+                + ":createIceStorm",
                 "IceBox.PrintServicesReady": "IceStorm",
                 "IceBox.InheritProperties": 1,
                 "IceStorm.InstanceName": self.instanceName,
