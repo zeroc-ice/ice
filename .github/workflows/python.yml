@@ -55,7 +55,6 @@ jobs:
           pyright python/test/Glacier2
           pyright python/test/Slice
 
-
           pyright python/test/Ice/adapterDeactivation
           pyright python/test/Ice/admin
           pyright python/test/Ice/ami
