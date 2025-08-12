@@ -86,9 +86,9 @@ class MyInterface2(Test_Inner.MyInterface):
 
     @override
     def opMyStructMap(
-        self, c1: dict[str, Test_Inner_Inner2.MyStruct], current: Ice.Current
+        self, s1: dict[str, Test_Inner_Inner2.MyStruct], current: Ice.Current
     ) -> tuple[Mapping[str, Test_Inner_Inner2.MyStruct], Mapping[str, Test_Inner_Inner2.MyStruct]]:
-        return (c1, c1)
+        return (s1, s1)
 
     @override
     def opMyClass(
@@ -128,9 +128,9 @@ class MyInterface3(Test_Inner.MyInterface):
 
     @override
     def opMyStructMap(
-        self, c1: dict[str, Test_Inner_Inner2.MyStruct], current: Ice.Current
+        self, s1: dict[str, Test_Inner_Inner2.MyStruct], current: Ice.Current
     ) -> tuple[Mapping[str, Test_Inner_Inner2.MyStruct], Mapping[str, Test_Inner_Inner2.MyStruct]]:
-        return (c1, c1)
+        return (s1, s1)
 
     @override
     def opMyClass(
