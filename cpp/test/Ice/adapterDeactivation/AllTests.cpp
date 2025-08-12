@@ -52,6 +52,17 @@ allTests(Test::TestHelper* helper)
     obj->transientAsync().get();
     cout << "ok" << endl;
 
+    cout << "testing object adapter deactivation... " << flush;
+    {
+        auto adapter = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+        adapter->activate();
+        test(!adapter->isDeactivated());
+        adapter->deactivate();
+        test(adapter->isDeactivated());
+        adapter->destroy();
+    }
+    cout << "ok" << endl;
+
     {
         cout << "testing connection closure... " << flush;
         for (int i = 0; i < 10; ++i)

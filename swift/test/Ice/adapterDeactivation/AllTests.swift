@@ -46,6 +46,19 @@ func allTests(_ helper: TestHelper) async throws {
     try await obj.transient()
     output.writeLine("ok")
 
+    output.write("testing object adapter deactivation... ")
+    do {
+        let adapter = try communicator.createObjectAdapterWithEndpoints(
+            name: "TransientTestAdapter",
+            endpoints: "default")
+        try adapter.activate()
+        try test(!adapter.isDeactivated())
+        adapter.deactivate()
+        try test(adapter.isDeactivated())
+        adapter.destroy()
+    }
+    output.writeLine("ok")
+
     do {
         output.write("testing connection closure... ")
         for _ in 0..<10 {
