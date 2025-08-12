@@ -219,7 +219,8 @@ NodeI::createSessionAsync(
                     {
                         Trace out(traceLevels->logger, traceLevels->sessionCat);
                         out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '"
-                            << subscriber << "' because session '" << session->getId() << "' is already connected to: '" << session->getSession() << "'";
+                            << subscriber << "' because session '" << session->getId() << "' is already connected to: '"
+                            << session->getSession() << "'";
                     }
                     exception(
                         std::make_exception_ptr(SessionCreationException{SessionCreationError::AlreadyConnected}));
@@ -325,7 +326,8 @@ NodeI::confirmCreateSessionAsync(
         {
             Trace out(traceLevels->logger, traceLevels->sessionCat);
             out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '" << publisher
-                << "' because session '" << session->getId() << "' is already connected to: '" << session->getSession() << "'";
+                << "' because session '" << session->getId() << "' is already connected to: '" << session->getSession()
+                << "'";
         }
         exception(make_exception_ptr(SessionCreationException{SessionCreationError::AlreadyConnected}));
         return;
