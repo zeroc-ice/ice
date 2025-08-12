@@ -219,7 +219,8 @@ NodeI::createSessionAsync(
                     {
                         Trace out(traceLevels->logger, traceLevels->sessionCat);
                         out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '"
-                            << subscriber << "' because session '" << session->getId() << "' is already connected";
+                            << subscriber << "' because session '" << session->getId() << "' is already connected to: '"
+                            << session->getSession() << "'";
                     }
                     exception(
                         std::make_exception_ptr(SessionCreationException{SessionCreationError::AlreadyConnected}));
@@ -325,7 +326,8 @@ NodeI::confirmCreateSessionAsync(
         {
             Trace out(traceLevels->logger, traceLevels->sessionCat);
             out << "node '" << current.id << "' is ignoring '" << current.operation << "' request from '" << publisher
-                << "' because session '" << session->getId() << "' is already connected";
+                << "' because session '" << session->getId() << "' is already connected to: '" << session->getSession()
+                << "'";
         }
         exception(make_exception_ptr(SessionCreationException{SessionCreationError::AlreadyConnected}));
         return;
@@ -420,7 +422,7 @@ NodeI::createPublisherSession(
                     Trace out(traceLevels->logger, traceLevels->sessionCat);
                     out << "node '" << _proxy->ice_getIdentity()
                         << "' is ignoring 'createPublisherSession' request from '" << publisher << "' because session '"
-                        << session->getId() << "' is already connected";
+                        << session->getId() << "' is already connected to: '" << session->getSession() << "'";
                 }
                 throw SessionCreationException{SessionCreationError::AlreadyConnected};
             }
@@ -458,6 +460,24 @@ NodeI::retrySubscriberSessionCreation(
     const shared_ptr<SubscriberSessionI>& session,
     exception_ptr ex)
 {
+    try
+    {
+        rethrow_exception(ex);
+    }
+    catch (const SessionCreationException& sessionCreationException)
+    {
+        if (sessionCreationException.error == SessionCreationError::AlreadyConnected && session->checkSession())
+        {
+            // A concurrent session attempt from the peer succeeded, no need to retry.
+            return;
+        }
+        // else let Session::retry handle the exception
+    }
+    catch (...)
+    {
+        // Let Session::retry handle the exception.
+    }
+
     if (!session->retry(node, ex))
     {
         removeSubscriberSession(node, session, ex);
@@ -487,6 +507,24 @@ NodeI::retryPublisherSessionCreation(
     const shared_ptr<PublisherSessionI>& session,
     exception_ptr ex)
 {
+    try
+    {
+        rethrow_exception(ex);
+    }
+    catch (const SessionCreationException& sessionCreationException)
+    {
+        if (sessionCreationException.error == SessionCreationError::AlreadyConnected && session->checkSession())
+        {
+            // A concurrent session attempt from the peer succeeded, no need to retry.
+            return;
+        }
+        // else let Session::retry handle the exception
+    }
+    catch (...)
+    {
+        // Let Session::retry handle the exception.
+    }
+
     if (!session->retry(node, ex))
     {
         removePublisherSession(node, session, ex);
