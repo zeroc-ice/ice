@@ -7,7 +7,7 @@ import Ice
 
 
 class TestActivationI(Test.TestActivation):
-    def activateServantLocator(self, activate, current: Ice.Current):
+    def activateServantLocator(self, activate: bool, current: Ice.Current):
         if activate:
             current.adapter.addServantLocator(TestI.ServantLocatorI(""), "")
             current.adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")

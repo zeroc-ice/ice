@@ -1,18 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from typing import cast
 
 from generated.test.Ice.proxy import Test
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator, collocated):
+def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClassPrx:
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
 
@@ -20,13 +17,13 @@ def allTests(helper, communicator, collocated):
     # Test nil proxies.
     #
     p = communicator.stringToProxy("")
-    test(p is None)
+    assert p is None
     p = communicator.propertyToProxy("bogus")
-    test(p is None)
+    assert p is None
 
     ref = "test:{0}".format(helper.getTestEndpoint())
     base = communicator.stringToProxy(ref)
-    test(base)
+    assert base is not None
 
     b1 = communicator.stringToProxy("test")
     test(
@@ -378,6 +375,7 @@ def allTests(helper, communicator, collocated):
     b1 = b1.ice_encodingVersion(Ice.EncodingVersion(1, 0))
 
     router = communicator.stringToProxy("router")
+    assert router is not None
     router = router.ice_collocationOptimized(False)
     router = router.ice_connectionCached(True)
     router = router.ice_preferSecure(True)
@@ -386,6 +384,7 @@ def allTests(helper, communicator, collocated):
     router = router.ice_invocationTimeout(1500)
 
     locator = communicator.stringToProxy("locator")
+    assert locator is not None
     locator = locator.ice_collocationOptimized(True)
     locator = locator.ice_connectionCached(False)
     locator = locator.ice_preferSecure(True)
@@ -519,10 +518,18 @@ def allTests(helper, communicator, collocated):
 
     test(communicator.stringToProxy("foo") == communicator.stringToProxy("foo"))
     test(communicator.stringToProxy("foo") != communicator.stringToProxy("foo2"))
-    test(communicator.stringToProxy("foo") < communicator.stringToProxy("foo2"))
-    test(not (communicator.stringToProxy("foo2") < communicator.stringToProxy("foo")))
+    test(
+        cast(Ice.ObjectPrx, communicator.stringToProxy("foo")) < cast(Ice.ObjectPrx, communicator.stringToProxy("foo2"))
+    )
+    test(
+        not (
+            cast(Ice.ObjectPrx, communicator.stringToProxy("foo2"))
+            < cast(Ice.ObjectPrx, communicator.stringToProxy("foo"))
+        )
+    )
 
     compObj = communicator.stringToProxy("foo")
+    assert compObj is not None
 
     test(compObj.ice_facet("facet") == compObj.ice_facet("facet"))
     test(compObj.ice_facet("facet") != compObj.ice_facet("facet1"))
@@ -627,12 +634,16 @@ def allTests(helper, communicator, collocated):
 
     compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")
     compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")
+    assert compObj1 is not None
+    assert compObj2 is not None
     test(compObj1 != compObj2)
     test(compObj1 < compObj2)
     test(not (compObj2 < compObj1))
 
     compObj1 = communicator.stringToProxy("foo@MyAdapter1")
     compObj2 = communicator.stringToProxy("foo@MyAdapter2")
+    assert compObj1 is not None
+    assert compObj2 is not None
     test(compObj1 != compObj2)
     test(compObj1 < compObj2)
     test(not (compObj2 < compObj1))
@@ -649,16 +660,18 @@ def allTests(helper, communicator, collocated):
 
     compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 1000")
     compObj2 = communicator.stringToProxy("foo@MyAdapter1")
+    assert compObj1 is not None
+    assert compObj2 is not None
     test(compObj1 != compObj2)
     test(compObj1 < compObj2)
     test(not (compObj2 < compObj1))
 
-    endpts1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints()
-    endpts2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001").ice_getEndpoints()
+    endpts1 = cast(Ice.ObjectPrx, communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")).ice_getEndpoints()
+    endpts2 = cast(Ice.ObjectPrx, communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")).ice_getEndpoints()
     test(endpts1 != endpts2)
     test(endpts1 < endpts2)
     test(not (endpts2 < endpts1))
-    test(endpts1 == communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints())
+    test(endpts1 == cast(Ice.ObjectPrx, communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")).ice_getEndpoints())
 
     test(compObj1.ice_encodingVersion(Ice.Encoding_1_0) == compObj1.ice_encodingVersion(Ice.Encoding_1_0))
     test(compObj1.ice_encodingVersion(Ice.Encoding_1_0) != compObj1.ice_encodingVersion(Ice.Encoding_1_1))
@@ -668,6 +681,7 @@ def allTests(helper, communicator, collocated):
     baseConnection = base.ice_getConnection()
     if baseConnection:
         baseConnection2 = base.ice_connectionId("base2").ice_getConnection()
+        assert baseConnection2 is not None
         compObj1 = compObj1.ice_fixed(baseConnection)
         compObj2 = compObj2.ice_fixed(baseConnection2)
         test(compObj1 != compObj2)
@@ -677,10 +691,10 @@ def allTests(helper, communicator, collocated):
     sys.stdout.write("testing checked cast... ")
     sys.stdout.flush()
     cl = Test.MyClassPrx.checkedCast(base)
-    test(cl)
+    assert cl is not None
 
     derived = Test.MyDerivedClassPrx.checkedCast(cl)
-    test(derived)
+    assert derived is not None
     test(cl == base)
     test(derived == base)
     test(cl == derived)
@@ -698,9 +712,10 @@ def allTests(helper, communicator, collocated):
     # Upcasting
     #
     cl2 = Test.MyClassPrx.checkedCast(derived)
+    assert cl2 is not None
     obj = Ice.ObjectPrx.checkedCast(derived)
-    test(cl2)
-    test(obj)
+    assert cl2 is not None
+    assert obj is not None
     test(cl2 == obj)
     test(cl2 == derived)
 
@@ -709,13 +724,15 @@ def allTests(helper, communicator, collocated):
     sys.stdout.write("testing checked cast with context... ")
     sys.stdout.flush()
     tccp = Test.MyClassPrx.checkedCast(base)
+    assert tccp is not None
     c = tccp.getContext()
-    test(c is None or len(c) == 0)
+    assert c is None or len(c) == 0
 
     c = {}
     c["one"] = "hello"
     c["two"] = "world"
     tccp = Test.MyClassPrx.checkedCast(base, context=c)
+    assert tccp is not None
     c2 = tccp.getContext()
     test(c == c2)
     print("ok")
@@ -733,16 +750,18 @@ def allTests(helper, communicator, collocated):
         ctx = {}
         ctx["one"] = "hello"
         ctx["two"] = "world"
-        test(len(cl.ice_fixed(connection).ice_getContext()) == 0)
-        test(len(cl.ice_context(ctx).ice_fixed(connection).ice_getContext()) == 2)
+        test(len(cast(dict[str, str], cl.ice_fixed(connection).ice_getContext())) == 0)
+        test(len(cast(dict[str, str], cl.ice_context(ctx).ice_fixed(connection).ice_getContext())) == 2)
         test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1)
         test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10)
         test(cl.ice_fixed(connection).ice_getConnection() == connection)
         test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection)
 
         fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection()
+        assert fixedConnection is not None
         test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection)
         try:
+            assert connection is not None
             cl.ice_secure(not connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping()
         except Ice.NoEndpointException:
             pass
@@ -752,7 +771,7 @@ def allTests(helper, communicator, collocated):
             pass
     else:
         try:
-            cl.ice_fixed(connection)
+            cl.ice_fixed(connection)  # type: ignore
             test(False)
         except Exception:
             # Expected with null connection.
@@ -763,6 +782,7 @@ def allTests(helper, communicator, collocated):
     sys.stdout.flush()
     ref20 = "test -e 2.0:{0}".format(helper.getTestEndpoint())
     cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20))
+    assert cl20 is not None
     try:
         cl20.ice_ping()
         test(False)
@@ -772,6 +792,7 @@ def allTests(helper, communicator, collocated):
 
     ref10 = "test -e 1.0:{0}".format(helper.getTestEndpoint())
     cl10 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10))
+    assert cl10 is not None
     cl10.ice_ping()
     cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
     cl.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
@@ -887,6 +908,7 @@ def allTests(helper, communicator, collocated):
 
         # Try to invoke on the SSL endpoint to verify that we get a ConnectionRefusedException.
         try:
+            assert p1 is not None
             p1.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
             test(False)
         except Ice.ConnectFailedException:
@@ -914,6 +936,7 @@ def allTests(helper, communicator, collocated):
     test(Test.CPrx.checkedCast(bPrx) is not None)
 
     cPrx = cPrx.opC(cPrx)
+    assert cPrx is not None
 
     s = Test.S(cPrx, cPrx)
     s = cPrx.opS(s)

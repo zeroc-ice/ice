@@ -67,5 +67,11 @@ jobs:
           # pyright python/test/Ice/info
           pyright python/test/Ice/inheritance
           pyright python/test/Ice/location
+          pyright python/test/Ice/properties
+          pyright python/test/Ice/proxy
+          pyright python/test/Ice/scope
+          pyright python/test/Ice/servantLocator
+          pyright python/test/Ice/thread
+          pyright python/test/Ice/timeout
           # pyright python/test/Ice/objects
           pyright python/test/Ice/operations

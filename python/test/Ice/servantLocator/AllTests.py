@@ -1,18 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from typing import cast
 
 from generated.test.Ice.servantLocator import Test
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def testExceptions(obj):
+def testExceptions(obj: Test.TestIntfPrx):
     try:
         obj.requestFailedException()
         test(False)
@@ -123,7 +120,7 @@ def testExceptions(obj):
         test(False)
 
 
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
     base = communicator.stringToProxy("asm:{0}".format(helper.getTestEndpoint()))
@@ -141,6 +138,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         obj = communicator.stringToProxy("category/locate:{0}".format(helper.getTestEndpoint()))
+        assert obj is not None
         obj.ice_ids()
         test(False)
     except Ice.UnknownUserException as ex:
@@ -150,6 +148,7 @@ def allTests(helper, communicator):
 
     try:
         obj = communicator.stringToProxy("category/finished:{0}".format(helper.getTestEndpoint()))
+        assert obj is not None
         obj.ice_ids()
         test(False)
     except Ice.UnknownUserException as ex:
@@ -192,6 +191,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     base = communicator.stringToProxy("category/locate:{0}".format(helper.getTestEndpoint()))
     obj = Test.TestIntfPrx.checkedCast(base)
+    assert obj is not None
     testExceptions(obj)
     print("ok")
 
@@ -199,6 +199,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     base = communicator.stringToProxy("category/finished:{0}".format(helper.getTestEndpoint()))
     obj = Test.TestIntfPrx.checkedCast(base)
+    assert obj is not None
     testExceptions(obj)
     print("ok")
 
@@ -206,6 +207,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     base = communicator.stringToProxy("test/activation:{0}".format(helper.getTestEndpoint()))
     activation = Test.TestActivationPrx.checkedCast(base)
+    assert activation is not None
     activation.activateServantLocator(False)
     try:
         obj.ice_ping()
@@ -226,11 +228,15 @@ def allTests(helper, communicator):
     sys.stdout.write("testing invalid locate return values ... ")
     sys.stdout.flush()
     try:
-        communicator.stringToProxy("invalidReturnValue:{0}".format(helper.getTestEndpoint())).ice_ping()
+        cast(
+            Ice.ObjectPrx, communicator.stringToProxy("invalidReturnValue:{0}".format(helper.getTestEndpoint()))
+        ).ice_ping()
     except Ice.ObjectNotExistException:
         pass
     try:
-        communicator.stringToProxy("invalidReturnType:{0}".format(helper.getTestEndpoint())).ice_ping()
+        cast(
+            Ice.ObjectPrx, communicator.stringToProxy("invalidReturnType:{0}".format(helper.getTestEndpoint()))
+        ).ice_ping()
     except Ice.ObjectNotExistException:
         pass
     print("ok")

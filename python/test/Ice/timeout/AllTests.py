@@ -3,16 +3,12 @@
 import sys
 
 from generated.test.Ice.timeout import Test
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def connect(prx):
+def connect(prx: Ice.ObjectPrx):
     # Establish connection with the given proxy (which might have a timeout
     # set and might sporadically fail on connection establishment if it's
     # too slow). The loop ensures that the connection is established by retrying
@@ -25,10 +21,10 @@ def connect(prx):
         except Ice.ConnectTimeoutException:
             # Can sporadically occur with slow machines
             pass
-    return prx.ice_getConnection()  # Establish connection
+    prx.ice_getConnection()  # Establish connection
 
 
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     controller = Test.ControllerPrx(communicator, f"controller:{helper.getTestEndpoint(num=1)}")
     connect(controller)
 
@@ -41,7 +37,7 @@ def allTests(helper, communicator):
         raise
 
 
-def allTestsWithController(helper, communicator, controller):
+def allTestsWithController(helper: TestHelper, communicator: Ice.Communicator, controller: Test.ControllerPrx):
     timeout = Test.TimeoutPrx(communicator, f"timeout:{helper.getTestEndpoint()}")
 
     sys.stdout.write("testing invocation timeout... ")
