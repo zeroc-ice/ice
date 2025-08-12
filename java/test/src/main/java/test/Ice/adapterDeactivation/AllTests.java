@@ -85,6 +85,18 @@ public class AllTests {
         obj.transientOpAsync().join();
         out.println("ok");
 
+        out.print("testing object adapter deactivation... ");
+        out.flush();
+        {
+            ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+            adapter.activate();
+            test(!adapter.isDeactivated());
+            adapter.deactivate();
+            test(adapter.isDeactivated());
+            adapter.destroy();
+        }
+        out.println("ok");
+
         {
             out.print("testing connection closure... ");
             out.flush();

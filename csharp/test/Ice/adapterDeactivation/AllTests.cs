@@ -51,6 +51,18 @@ public class AllTests : global::Test.AllTests
         await obj.transientAsync();
         output.WriteLine("ok");
 
+        output.Write("testing object adapter deactivation... ");
+        output.Flush();
+        {
+            ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
+            adapter.activate();
+            test(!adapter.isDeactivated());
+            adapter.deactivate();
+            test(adapter.isDeactivated());
+            adapter.destroy();
+        }
+        output.WriteLine("ok");
+
         {
             output.Write("testing connection closure... ");
             output.Flush();

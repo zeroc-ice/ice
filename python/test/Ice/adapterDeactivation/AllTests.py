@@ -36,6 +36,16 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestInt
     obj.transient()
     print("ok")
 
+    sys.stdout.write("testing object adapter deactivation... ")
+    sys.stdout.flush()
+    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default")
+    adapter.activate()
+    test(not adapter.isDeactivated())
+    adapter.deactivate()
+    test(adapter.isDeactivated())
+    adapter.destroy()
+    print("ok")
+
     sys.stdout.write("testing connection closure... ")
     sys.stdout.flush()
     for _ in range(10):
