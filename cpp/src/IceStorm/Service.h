@@ -31,7 +31,6 @@ namespace IceStormInternal
             const Ice::CommunicatorPtr&,
             const Ice::ObjectAdapterPtr&,
             const Ice::ObjectAdapterPtr&,
-            const std::string&,
             const Ice::Identity&);
 
         [[nodiscard]] virtual IceStorm::TopicManagerPrx getTopicManager() const = 0;

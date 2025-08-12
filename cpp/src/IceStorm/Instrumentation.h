@@ -68,7 +68,7 @@ namespace IceStorm::Instrumentation
         virtual void updateSubscriberObservers() = 0;
     };
 
-    /// The topic manager observer interface used by the Ice run-time to obtain and update observers for its
+    /// The topic manager observer interface used by the Ice runtime to obtain and update observers for its
     /// observable objects. This interface should be implemented by add-ins that wish to observe IceStorm objects in
     /// order to collect statistics.
     class TopicManagerObserver
@@ -77,20 +77,16 @@ namespace IceStorm::Instrumentation
         virtual ~TopicManagerObserver() = default;
 
         /// This method should return an observer for the given topic.
-        /// @param svc The service name.
         /// @param name The topic name.
         /// @param old The previous observer, only set when updating an existing observer.
-        virtual std::shared_ptr<TopicObserver> getTopicObserver(
-            const std::string& svc,
-            const std::string& name,
-            const std::shared_ptr<TopicObserver>& old) = 0;
+        virtual std::shared_ptr<TopicObserver>
+        getTopicObserver(const std::string& name, const std::shared_ptr<TopicObserver>& old) = 0;
 
         /// This method should return an observer for the given subscriber.
         /// @param topic The name of the topic subscribed.
         /// @param link The proxy of the linked topic if this subscriber forwards events to a linked topic.
         /// @param old The previous observer, only set when updating an existing observer.
         virtual std::shared_ptr<SubscriberObserver> getSubscriberObserver(
-            const std::string& svc,
             const std::string& topic,
             const Ice::ObjectPrx& prx,
             const QoS& q,

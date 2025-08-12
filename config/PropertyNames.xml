@@ -50,11 +50,6 @@
         <property name="ThreadPool" class="ThreadPool" languages="cpp,csharp,java" />
     </class>
 
-    <class name="LMDB" prefix-only="true">
-        <property name="Path" languages="cpp" />
-        <property name="MapSize" languages="cpp" />
-    </class>
-
     <!-- TODO: use this to validate IceMX properties -->
     <!-- <class name="Metrics" prefix-only="true">
         <property name="Accept.[any]" languages="cpp,csharp,java" />
@@ -280,7 +275,8 @@
         <property name="Registry.Discovery.Port" languages="cpp" default="4061" />
         <property name="Registry.DynamicRegistration" languages="cpp" />
         <property name="Registry.Internal" class="ObjectAdapter" languages="cpp" />
-        <property name="Registry.LMDB" class="LMDB" languages="cpp"/>
+        <property name="Registry.LMDB.Path" languages="cpp"/>
+        <property name="Registry.LMDB.MapSize" languages="cpp"/>
         <property name="Registry.NodeSessionTimeout" languages="cpp" default="30" />
         <property name="Registry.PermissionsVerifier" class="Proxy" languages="cpp" />
         <property name="Registry.ReplicaName" languages="cpp" default="Master" />
@@ -345,7 +341,8 @@
         <property name="Election.ResponseTimeout" languages="cpp" default="10" />
         <property name="Flush.Timeout" languages="cpp" default="1000" />
         <property name="InstanceName" languages="cpp" default="IceStorm" />
-        <property name="LMDB" class="LMDB" languages="cpp"/>
+        <property name="LMDB.Path" languages="cpp" default="IceStorm" />
+        <property name="LMDB.MapSize" languages="cpp" />
         <property name="Node" class="ObjectAdapter" languages="cpp" />
         <property name="NodeId" languages="cpp" default="-1" />
         <property name="Nodes.[any]" languages="cpp" />

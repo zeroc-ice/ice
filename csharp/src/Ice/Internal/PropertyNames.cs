@@ -70,12 +70,6 @@ internal sealed class PropertyNames
             new(pattern: @"ThreadPool", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ThreadPoolProps)
         ]);
 
-    internal static PropertyArray LMDBProps = new(
-        "LMDB",
-        true,
-        false,
-        []);
-
     internal static PropertyArray IceProps = new(
         "Ice",
         false,

@@ -41,10 +41,6 @@ PropertyNames.ObjectAdapterProps.properties = [
     new Property("Router", false, "", false, PropertyNames.ProxyProps)
 ];
 
-PropertyNames.LMDBProps = new PropertyArray("LMDB", true, false);
-PropertyNames.LMDBProps.properties = [
-];
-
 PropertyNames.IceProps = new PropertyArray("Ice", false, false);
 PropertyNames.IceProps.properties = [
     new Property("BackgroundLocatorCacheUpdates", false, "0", false, null),

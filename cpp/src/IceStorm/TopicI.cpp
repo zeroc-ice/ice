@@ -428,7 +428,7 @@ TopicImpl::TopicImpl(
 
         if (_instance->observer())
         {
-            _observer.attach(_instance->observer()->getTopicObserver(_instance->serviceName(), _name, nullptr));
+            _observer.attach(_instance->observer()->getTopicObserver(_name, nullptr));
         }
     }
     catch (const std::exception&)
@@ -1140,7 +1140,7 @@ TopicImpl::updateObserver()
 
     if (_instance->observer())
     {
-        _observer.attach(_instance->observer()->getTopicObserver(_instance->serviceName(), _name, _observer.get()));
+        _observer.attach(_instance->observer()->getTopicObserver(_name, _observer.get()));
     }
 }
 

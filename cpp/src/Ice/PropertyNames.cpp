@@ -93,21 +93,6 @@ const PropertyArray PropertyNames::ObjectAdapterProps
     .length=12
 };
 
-const Property LMDBPropsData[] =
-{
-    Property{"Path", "", false, false, nullptr},
-    Property{"MapSize", "", false, false, nullptr}
-};
-
-const PropertyArray PropertyNames::LMDBProps
-{
-    .name="LMDB",
-    .prefixOnly=true,
-    .isOptIn=false,
-    .properties=LMDBPropsData,
-    .length=2
-};
-
 const Property IcePropsData[] =
 {
     Property{"AcceptClassCycles", "0", false, false, nullptr},
@@ -389,7 +374,8 @@ const Property IceGridPropsData[] =
     Property{"Registry.Discovery.Port", "4061", false, false, nullptr},
     Property{"Registry.DynamicRegistration", "", false, false, nullptr},
     Property{"Registry.Internal", "", false, false, &PropertyNames::ObjectAdapterProps},
-    Property{"Registry.LMDB", "", false, false, &PropertyNames::LMDBProps},
+    Property{"Registry.LMDB.Path", "", false, false, nullptr},
+    Property{"Registry.LMDB.MapSize", "", false, false, nullptr},
     Property{"Registry.NodeSessionTimeout", "30", false, false, nullptr},
     Property{"Registry.PermissionsVerifier", "", false, false, &PropertyNames::ProxyProps},
     Property{"Registry.ReplicaName", "Master", false, false, nullptr},
@@ -421,7 +407,7 @@ const PropertyArray PropertyNames::IceGridProps
     .prefixOnly=false,
     .isOptIn=true,
     .properties=IceGridPropsData,
-    .length=62
+    .length=63
 };
 
 const Property IceSSLPropsData[] =
@@ -466,7 +452,8 @@ const Property IceStormPropsData[] =
     Property{"Election.ResponseTimeout", "10", false, false, nullptr},
     Property{"Flush.Timeout", "1000", false, false, nullptr},
     Property{"InstanceName", "IceStorm", false, false, nullptr},
-    Property{"LMDB", "", false, false, &PropertyNames::LMDBProps},
+    Property{"LMDB.Path", "IceStorm", false, false, nullptr},
+    Property{"LMDB.MapSize", "", false, false, nullptr},
     Property{"Node", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"NodeId", "-1", false, false, nullptr},
     Property{"Nodes.*", "", true, false, nullptr},
@@ -492,7 +479,7 @@ const PropertyArray PropertyNames::IceStormProps
     .prefixOnly=false,
     .isOptIn=true,
     .properties=IceStormPropsData,
-    .length=24
+    .length=25
 };
 
 const Property IceStormAdminPropsData[] =
