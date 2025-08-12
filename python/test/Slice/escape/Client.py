@@ -3,6 +3,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from typing import override
 
 from TestHelper import TestHelper
 
@@ -15,24 +16,38 @@ import Ice
 
 
 class delI(escaped_and._del):
-    def _elif(self, _else, current: Ice.Current):
-        pass
+    @override
+    def _elif(self, _else: int, current: Ice.Current) -> int:
+        return 0
 
 
 class execI(escaped_and._exec):
+    @override
     def _finally(self, current: Ice.Current):
         assert current.operation == "finally"
 
 
 class ifI(escaped_and._if):
-    def _elif(self, _else, current: Ice.Current):
-        pass
+    @override
+    def _elif(self, _else: int, current: Ice.Current) -> int:
+        return 0
 
+    @override
     def _finally(self, current: Ice.Current):
         pass
 
-    def _raise(self, _else, _return, _while, _yield, _or, _global):
-        pass
+    @override
+    def _raise(
+        self,
+        _else: escaped_and._continue,
+        _return: escaped_and._for | None,
+        _while: escaped_and._delPrx | None,
+        _yield: escaped_and._execPrx | None,
+        _or: escaped_and._ifPrx | None,
+        _global: int,
+        current: Ice.Current,
+    ) -> escaped_and._assert:
+        return escaped_and._assert._break
 
 
 class SequenceI(Sequence):

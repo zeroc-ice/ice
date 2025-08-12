@@ -5,27 +5,24 @@
 import copy
 import sys
 
-from TestHelper import TestHelper
+from TestHelper import TestHelper, test
 
 if "--load-slice" in sys.argv:
     TestHelper.loadSlice("Test.ice")
 
 from generated.test.Slice.structure import Test
 
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
+import Ice
 
 
-def allTests(communicator):
+def allTests(communicator: Ice.Communicator):
     sys.stdout.write("testing equals() for Slice structures... ")
     sys.stdout.flush()
 
     #
     # Define some default values.
     #
-    def_s2 = Test.S2(True, 98, 99, 100, 101, "string", (1, 2, 3), Test.S1("name"))
+    def_s2 = Test.S2(True, 98, 99, 100, 101, "string", [1, 2, 3], Test.S1("name"))
 
     #
     # Compare default-constructed structures.
@@ -71,18 +68,18 @@ def allTests(communicator):
 
     v1 = copy.copy(def_s2)
     v2 = copy.copy(def_s2)
-    v1.str = None
+    v1.str = ""
     test(v1 != v2)
 
     v1 = copy.copy(def_s2)
     v2 = copy.copy(def_s2)
-    v2.str = None
+    v2.str = ""
     test(v1 != v2)
 
     v1 = copy.copy(def_s2)
     v2 = copy.copy(def_s2)
-    v1.str = None
-    v2.str = None
+    v1.str = ""
+    v2.str = ""
     test(v1 == v2)
 
     #
@@ -93,21 +90,21 @@ def allTests(communicator):
     test(v1 == def_s2)
 
     v1 = copy.copy(def_s2)
-    v1.seq = ()
+    v1.seq = []
     test(v1 != def_s2)
 
     v1 = copy.copy(def_s2)
-    v1.seq = (1, 2, 3)
+    v1.seq = [1, 2, 3]
     test(v1 == def_s2)
 
     v1 = copy.copy(def_s2)
     v2 = copy.copy(def_s2)
-    v1.seq = None
+    v1.seq = []
     test(v1 != v2)
 
     v1 = copy.copy(def_s2)
     v2 = copy.copy(def_s2)
-    v2.seq = None
+    v2.seq = []
     test(v1 != v2)
 
     #
@@ -127,12 +124,12 @@ def allTests(communicator):
 
     v1 = copy.copy(def_s2)
     v2 = copy.copy(def_s2)
-    v1.s = None
+    v1.s = Test.S1("")
     test(v1 != v2)
 
     v1 = copy.copy(def_s2)
     v2 = copy.copy(def_s2)
-    v2.s = None
+    v2.s = Test.S1("")
     test(v1 != v2)
 
     #
@@ -161,7 +158,7 @@ def allTests(communicator):
     v1.sd = copy.copy(def_s3.sd)
     test(v1 == def_s3)
 
-    v1.sd = None
+    v1.sd = {}
     test(v1 != def_s3)
 
     v1.sd = {"1": "3"}
