@@ -266,13 +266,13 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                        << numpyBuiltinTable[elementType->kind()] << "]";
                 }
             }
-            else if (seq->hasMetadata("python:list"))
+            else if (seq->hasMetadata("python:list") || seq->hasMetadata("python:seq:list"))
             {
                 os << "list[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
             }
-            else if (seq->hasMetadata("python:tuple"))
+            else if (seq->hasMetadata("python:tuple") || seq->hasMetadata("python:seq:tuple"))
             {
-                os << "tuple[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
+                os << "tuple[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << ", ...]";
             }
             else if (seq->hasMetadata("python:numpy.ndarray"))
             {
@@ -1410,11 +1410,11 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
         bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
 
         out << " = " << fieldAlias << "(default_factory=";
-        if (seq->hasMetadata("python:list"))
+        if (seq->hasMetadata("python:list") || seq->hasMetadata("python:seq:list"))
         {
             out << "list";
         }
-        else if (seq->hasMetadata("python:tuple"))
+        else if (seq->hasMetadata("python:tuple") || seq->hasMetadata("python:seq:tuple"))
         {
             out << "tuple";
         }

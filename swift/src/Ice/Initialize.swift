@@ -297,7 +297,7 @@ public func stringToIdentity(_ string: String) throws -> Identity {
 ///   in the result.
 ///
 /// - returns: `String` - The string representation of the object identity.
-public func identityToString(id: Identity, mode: ToStringMode = ToStringMode.Unicode) -> String {
+public func identityToString(id: Identity, mode: ToStringMode = .Unicode) -> String {
     precondition(!id.name.isEmpty, "Invalid identity with an empty name")
     return ICEUtil.identityToString(name: id.name, category: id.category, mode: mode.rawValue)
 }

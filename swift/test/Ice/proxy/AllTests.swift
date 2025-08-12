@@ -292,18 +292,18 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     // Testing bytes 127(\x7F, \177) and €
     id = Ice.Identity(name: "test", category: "\u{007f}€")
 
-    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.Unicode)
+    idStr = Ice.identityToString(id: id, mode: .Unicode)
     try test(idStr == "\\u007f€/test")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
     try test(Ice.identityToString(id: id) == idStr)
 
-    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.ASCII)
+    idStr = Ice.identityToString(id: id, mode: .ASCII)
     try test(idStr == "\\u007f\\u20ac/test")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
 
-    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.Compat)
+    idStr = Ice.identityToString(id: id, mode: .Compat)
     try test(idStr == "\\177\\342\\202\\254/test")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
@@ -316,17 +316,17 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         name: "banana \u{000E}-\u{1f34c}\u{20ac}\u{00a2}\u{0024}",
         category: "greek \u{1016a}")
 
-    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.Unicode)
+    idStr = Ice.identityToString(id: id, mode: .Unicode)
     try test(idStr == "greek \u{1016a}/banana \\u000e-\u{1f34c}\u{20ac}\u{00a2}$")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
 
-    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.ASCII)
+    idStr = Ice.identityToString(id: id, mode: .ASCII)
     try test(idStr == "greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$")
     id2 = try Ice.stringToIdentity(idStr)
     try test(id == id2)
 
-    idStr = Ice.identityToString(id: id, mode: Ice.ToStringMode.Compat)
+    idStr = Ice.identityToString(id: id, mode: .Compat)
     id2 = try Ice.stringToIdentity(idStr)
     try test(
         idStr
@@ -429,13 +429,13 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).EndpointSelection"
-    try test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
+    try test(b1.ice_getEndpointSelection() == .Random)
     prop.setProperty(key: property, value: "Random")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
-    try test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
+    try test(b1.ice_getEndpointSelection() == .Random)
     prop.setProperty(key: property, value: "Ordered")
     b1 = try communicator.propertyToProxy(propertyPrefix)!
-    try test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered)
+    try test(b1.ice_getEndpointSelection() == .Ordered)
     prop.setProperty(key: property, value: "")
 
     property = "\(propertyPrefix).CollocationOptimized"
@@ -468,7 +468,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     b1 = b1.ice_collocationOptimized(true)
     b1 = b1.ice_connectionCached(true)
     b1 = b1.ice_preferSecure(false)
-    b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
+    b1 = b1.ice_endpointSelection(.Ordered)
     b1 = b1.ice_locatorCacheTimeout(100)
     b1 = b1.ice_invocationTimeout(1234)
     b1 = b1.ice_encodingVersion(Ice.EncodingVersion(major: 1, minor: 0))
@@ -477,7 +477,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     router = router.ice_collocationOptimized(false)
     router = router.ice_connectionCached(true)
     router = router.ice_preferSecure(true)
-    router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+    router = router.ice_endpointSelection(.Random)
     router = router.ice_locatorCacheTimeout(200)
     router = router.ice_invocationTimeout(1500)
 
@@ -485,7 +485,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     locator = locator.ice_collocationOptimized(true)
     locator = locator.ice_connectionCached(false)
     locator = locator.ice_preferSecure(true)
-    locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random)
+    locator = locator.ice_endpointSelection(.Random)
     locator = locator.ice_locatorCacheTimeout(300)
     locator = locator.ice_invocationTimeout(1500)
 
@@ -572,11 +572,11 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     try test(compObj!.ice_connectionCached(false) != compObj!.ice_connectionCached(true))
 
     try test(
-        compObj!.ice_endpointSelection(Ice.EndpointSelectionType.Random)
-            == compObj!.ice_endpointSelection(Ice.EndpointSelectionType.Random))
+        compObj!.ice_endpointSelection(.Random)
+            == compObj!.ice_endpointSelection(.Random))
     try test(
-        compObj!.ice_endpointSelection(Ice.EndpointSelectionType.Random)
-            != compObj!.ice_endpointSelection(Ice.EndpointSelectionType.Ordered))
+        compObj!.ice_endpointSelection(.Random)
+            != compObj!.ice_endpointSelection(.Ordered))
 
     try test(compObj!.ice_connectionId("id2") == compObj!.ice_connectionId("id2"))
     try test(compObj!.ice_connectionId("id1") != compObj!.ice_connectionId("id2"))
