@@ -4,7 +4,7 @@
 
 import sys
 
-from TestHelper import TestHelper
+from TestHelper import TestHelper, test
 
 if "--load-slice" in sys.argv:
     TestHelper.loadSlice("Test1.ice Test2.ice")
@@ -14,11 +14,6 @@ from generated.test.Slice.import_test.Test.SubA.SubSubA1 import Value2 as Test_S
 from generated.test.Slice.import_test.Test.SubA.SubSubA2 import Value1 as Test_SubA_SubSubA2_Value1
 from generated.test.Slice.import_test.Test.SubB.SubSubB1 import Value1 as Test_SubB_SubSubB1_Value1
 from generated.test.Slice.import_test.Test.SubB.SubSubB1 import Value2 as Test_SubB_SubSubB1_Value2
-
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
 
 
 class Client(TestHelper):
