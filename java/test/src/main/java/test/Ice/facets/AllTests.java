@@ -57,6 +57,14 @@ public class AllTests {
         communicator.getProperties().setProperty("Ice.Admin.Facets", "");
         out.println("ok");
 
+        out.print("testing add facet with uuid... ");
+        {
+            var testAdapter = communicator.createObjectAdapterWithEndpoints("TestAdapter2", "default");
+            test(testAdapter.addFacetWithUUID(new EmptyI(), "facetABCD").ice_getFacet() == "facetABCD");
+            testAdapter.destroy();
+        }
+        out.println("ok");
+
         out.print("testing facet registration exceptions... ");
         final String host =
             communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0

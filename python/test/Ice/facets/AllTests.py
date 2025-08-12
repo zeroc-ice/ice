@@ -36,6 +36,13 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     communicator.getProperties().setProperty("Ice.Admin.Facets", "")
     print("ok")
 
+    sys.stdout.write("testing add facet with uuid... ")
+    sys.stdout.flush()
+    adapter = communicator.createObjectAdapterWithEndpoints("TestAdapter2", "default")
+    test(adapter.addFacetWithUUID(EmptyI(), "facetABCD").ice_getFacet() == "facetABCD")
+    adapter.destroy()
+    sys.stdout.write("ok\n")
+
     sys.stdout.write("testing facet registration exceptions... ")
     sys.stdout.flush()
     communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h *")
