@@ -440,8 +440,7 @@ module DataStormContract
         /// - The publisher node has previously sent a initiateCreateSession request.
         ///
         /// The publisher node dispatching this request then sends a confirmCreateSession request to the subscriber node
-        /// to continue session establishment. If an active session already exists with the subscriber node, the
-        /// request is ignored.
+        /// to continue session establishment.
         ///
         /// @param subscriber The subscriber node initiating the session. This proxy is never null.
         /// @param session The subscriber session being created. This proxy is never null.
