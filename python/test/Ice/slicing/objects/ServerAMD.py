@@ -2,8 +2,8 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from collections.abc import Awaitable, Mapping
 import sys
+from collections.abc import Awaitable, Mapping
 from typing import override
 
 from TestHelper import TestHelper, test
