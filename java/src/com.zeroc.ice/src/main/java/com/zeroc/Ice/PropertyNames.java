@@ -74,7 +74,6 @@ final class PropertyNames {
         false,
         false,
         new Property[] {
-            new Property("AcceptClassCycles", false, "0", false, null),
             new Property("Admin", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Admin.DelayCreation", false, "0", false, null),
             new Property("Admin.Enabled", false, "", false, null),

@@ -75,7 +75,6 @@ internal sealed class PropertyNames
         false,
         false,
         [
-            new(pattern: @"AcceptClassCycles", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"Admin", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ObjectAdapterProps),
             new(pattern: @"Admin.DelayCreation", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"Admin.Enabled", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
