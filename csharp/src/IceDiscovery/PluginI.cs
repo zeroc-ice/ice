@@ -88,8 +88,7 @@ public sealed class PluginI : Ice.Plugin
             _locatorAdapter.addWithUUID(locatorRegistry));
 
         Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
-        // No colloc optimization or router for the multicast proxy!
-        lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
+        lookupPrx = lookupPrx.ice_router(null);
 
         //
         // Add lookup and lookup reply Ice objects

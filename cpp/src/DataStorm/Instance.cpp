@@ -130,7 +130,7 @@ Instance::init()
             // propertyToProxy only returns a nullopt proxy when the property is empty.
             lookup = *_communicator->propertyToProxy<DataStormContract::LookupPrx>("DataStorm.Node.Multicast.Proxy");
         }
-        _lookup = lookup->ice_collocationOptimized(false)->ice_datagram();
+        _lookup = lookup->ice_datagram();
     }
 
     _adapter->activate();

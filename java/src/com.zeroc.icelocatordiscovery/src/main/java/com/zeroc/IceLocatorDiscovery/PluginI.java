@@ -636,8 +636,7 @@ class PluginI implements Plugin {
 
         ObjectPrx lookupPrx =
             _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
-        // No collocation optimization or router for the multicast proxy!
-        lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
+        lookupPrx = lookupPrx.ice_router(null);
 
         LocatorPrx voidLoc =
             LocatorPrx.uncheckedCast(

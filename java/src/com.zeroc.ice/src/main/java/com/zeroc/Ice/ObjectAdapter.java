@@ -933,14 +933,15 @@ public final class ObjectAdapter {
             //
             return ref.getAdapterId().equals(_id) || ref.getAdapterId().equals(_replicaGroupId);
         } else {
-            // Proxies which have at least one endpoint in common with the published endpoints
-            // are considered local.
+            // Proxies which have at least one endpoint in common with the published endpoints are considered local.
+            // This check doesn't take datagram endpoints into account; this effectively disables colloc optimization
+            // for UDP.
             synchronized (this) {
                 checkForDestruction();
 
                 EndpointI[] endpoints = ref.getEndpoints();
-                return Arrays.stream(_publishedEndpoints)
-                    .anyMatch(p -> Arrays.stream(endpoints).anyMatch(p::equivalent));
+                return Arrays.stream(endpoints).filter(e -> !e.datagram())
+                    .anyMatch(p -> Arrays.stream(_publishedEndpoints).anyMatch(p::equivalent));
             }
         }
     }
