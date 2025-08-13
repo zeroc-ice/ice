@@ -5,83 +5,87 @@
 import gc
 import sys
 import threading
+from typing import Optional, TypeVar, cast
 
 from generated.test.Ice.slicing.objects import Test
 from generated.test.Ice.slicing.objects.client_private import Test as ClientPrivateTest
+from TestHelper import TestHelper, test
 
 import Ice
 
-
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
+_T = TypeVar("_T")
 
 
 class CallbackBase:
-    def __init__(self):
+    def __init__(self) -> None:
         self._called = False
         self._cond = threading.Condition()
 
-    def check(self):
+    def check(self) -> None:
         with self._cond:
             while not self._called:
                 self._cond.wait()
             self._called = False
 
-    def called(self):
+    def called(self) -> None:
         with self._cond:
             self._called = True
             self._cond.notify()
 
 
-class Callback(CallbackBase):
-    def response_SBaseAsObject(self, f):
+class Callback[_T](CallbackBase):
+    def __init__(self) -> None:
+        super().__init__()
+        self.r: _T | None = None
+        self.bout: dict[int, Test.B] | None = None
+
+    def response_SBaseAsObject(self, f: Ice.Future[Ice.Value]) -> None:
         o = f.result()
-        test(o)
+        assert o is not None
         test(o.ice_id() == "::Test::SBase")
         sb = o
-        test(isinstance(sb, Test.SBase))
+        assert isinstance(sb, Test.SBase)
         test(sb.sb == "SBase.sb")
         self.called()
 
-    def response_SBaseAsSBase(self, f):
+    def response_SBaseAsSBase(self, f: Ice.Future[Test.SBase]) -> None:
         sb = f.result()
         test(sb.sb == "SBase.sb")
         self.called()
 
-    def response_SBSKnownDerivedAsSBase(self, f):
+    def response_SBSKnownDerivedAsSBase(self, f: Ice.Future[Test.SBSKnownDerived]) -> None:
         sbskd = f.result()
         test(isinstance(sbskd, Test.SBSKnownDerived))
         test(sbskd.sbskd == "SBSKnownDerived.sbskd")
         self.called()
 
-    def response_SBSKnownDerivedAsSBSKnownDerived(self, f):
+    def response_SBSKnownDerivedAsSBSKnownDerived(self, f: Ice.Future[Test.SBSKnownDerived]) -> None:
         sbskd = f.result()
         test(sbskd.sbskd == "SBSKnownDerived.sbskd")
         self.called()
 
-    def response_SBSUnknownDerivedAsSBase(self, f):
+    def response_SBSUnknownDerivedAsSBase(self, f: Ice.Future[Test.SBase]) -> None:
         sb = f.result()
         test(sb.sb == "SBSUnknownDerived.sb")
         self.called()
 
-    def exception_SBSUnknownDerivedAsSBaseCompact(self, f):
+    def exception_SBSUnknownDerivedAsSBaseCompact(self, f: Ice.Future[Test.SBase]) -> None:
         test(f.exception() is not None)
         test(isinstance(f.exception(), Ice.MarshalException))
         self.called()
 
-    def exception_SUnknownAsObject10(self, f):
+    def exception_SUnknownAsObject10(self, f: Ice.Future[Ice.Value]) -> None:
         test(f.exception() is not None)
         test("the Slice loader did not find a class for type ID '::Test::SUnknown'" in str(f.exception()))
         self.called()
 
-    def response_SUnknownAsObject11(self, f):
+    def response_SUnknownAsObject11(self, f: Ice.Future[Ice.Value]) -> None:
         o = f.result()
-        test(isinstance(o, Ice.UnknownSlicedValue))
+        assert isinstance(o, Ice.UnknownSlicedValue)
         test(o.unknownTypeId == "::Test::SUnknown")
         self.called()
 
-    def response_oneElementCycle(self, f):
+    def response_oneElementCycle(self, f: Ice.Future[Test.B]) -> None:
         b = f.result()
         test(b)
         test(b.ice_id() == "::Test::B")
@@ -89,41 +93,41 @@ class Callback(CallbackBase):
         test(b.pb == b)
         self.called()
 
-    def response_twoElementCycle(self, f):
+    def response_twoElementCycle(self, f: Ice.Future[Test.B]) -> None:
         b1 = f.result()
-        test(b1)
+        assert b1 is not None
         test(b1.ice_id() == "::Test::B")
         test(b1.sb == "B1.sb")
 
         b2 = b1.pb
-        test(b2)
+        assert b2 is not None
         test(b2.ice_id() == "::Test::B")
         test(b2.sb == "B2.sb")
         test(b2.pb == b1)
         self.called()
 
-    def response_D1AsB(self, f):
+    def response_D1AsB(self, f: Ice.Future[Test.B]) -> None:
         b1 = f.result()
-        test(b1)
+        assert b1 is not None
         test(b1.ice_id() == "::Test::D1")
         test(b1.sb == "D1.sb")
         test(b1.pb)
         test(b1.pb != b1)
         d1 = b1
-        test(isinstance(d1, Test.D1))
+        assert isinstance(d1, Test.D1)
         test(d1.sd1 == "D1.sd1")
         test(d1.pd1)
         test(d1.pd1 != b1)
         test(b1.pb == d1.pd1)
 
         b2 = b1.pb
-        test(b2)
+        assert b2 is not None
         test(b2.pb == b1)
         test(b2.sb == "D2.sb")
         test(b2.ice_id() == "::Test::B")
         self.called()
 
-    def response_D1AsD1(self, f):
+    def response_D1AsD1(self, f: Ice.Future[Test.D1]) -> None:
         d1 = f.result()
         test(d1)
         test(d1.ice_id() == "::Test::D1")
@@ -132,13 +136,13 @@ class Callback(CallbackBase):
         test(d1.pb != d1)
 
         b2 = d1.pb
-        test(b2)
+        assert b2 is not None
         test(b2.ice_id() == "::Test::B")
         test(b2.sb == "D2.sb")
         test(b2.pb == d1)
         self.called()
 
-    def response_D2AsB(self, f):
+    def response_D2AsB(self, f: Ice.Future[Test.B]) -> None:
         b2 = f.result()
         test(b2)
         test(b2.ice_id() == "::Test::B")
@@ -147,24 +151,24 @@ class Callback(CallbackBase):
         test(b2.pb != b2)
 
         b1 = b2.pb
-        test(b1)
+        assert b1 is not None
         test(b1.ice_id() == "::Test::D1")
         test(b1.sb == "D1.sb")
         test(b1.pb == b2)
         d1 = b1
-        test(isinstance(d1, Test.D1))
+        assert isinstance(d1, Test.D1)
         test(d1.sd1 == "D1.sd1")
         test(d1.pd1 == b2)
         self.called()
 
-    def response_paramTest1(self, f):
+    def response_paramTest1(self, f: Ice.Future[tuple[Test.B, Test.B]]) -> None:
         (b1, b2) = f.result()
         test(b1)
         test(b1.ice_id() == "::Test::D1")
         test(b1.sb == "D1.sb")
         test(b1.pb == b2)
         d1 = b1
-        test(isinstance(d1, Test.D1))
+        assert isinstance(d1, Test.D1)
         test(d1.sd1 == "D1.sd1")
         test(d1.pd1 == b2)
 
@@ -174,22 +178,23 @@ class Callback(CallbackBase):
         test(b2.pb == b1)
         self.called()
 
-    def response_returnTest1(self, f):
-        (r, p1, p2) = f.result()
+    def response_returnTest1(self, f: Ice.Future[tuple[Test.B, Test.B, Test.B]]) -> None:
+        (r, p1, _) = f.result()
         test(r == p1)
         self.called()
 
-    def response_returnTest2(self, f):
-        (r, p1, p2) = f.result()
+    def response_returnTest2(self, f: Ice.Future[tuple[Test.B, Test.B, Test.B]]) -> None:
+        (r, p1, _) = f.result()
         test(r == p1)
         self.called()
 
-    def response_returnTest3(self, f):
+    def response_returnTest3(self, f: Ice.Future[_T]) -> None:
         b = f.result()
+        assert b is not None
         self.r = b
         self.called()
 
-    def response_paramTest3(self, f):
+    def response_paramTest3(self, f: Ice.Future[tuple[Test.B, Test.B, Test.B]]) -> None:
         (ret, p1, p2) = f.result()
         test(p1)
         test(p1.sb == "D2.sb (p1 1)")
@@ -207,7 +212,7 @@ class Callback(CallbackBase):
         test(ret.ice_id() == "::Test::D1")
         self.called()
 
-    def response_paramTest4(self, f):
+    def response_paramTest4(self, f: Ice.Future[tuple[Test.B, Test.B]]) -> None:
         (ret, b) = f.result()
         test(b)
         test(b.sb == "D4.sb (1)")
@@ -220,107 +225,104 @@ class Callback(CallbackBase):
         test(ret.ice_id() == "::Test::B")
         self.called()
 
-    def response_sequenceTest(self, f):
+    def response_sequenceTest(self, f: Ice.Future[_T]) -> None:
         ss = f.result()
         self.r = ss
         self.called()
 
-    def response_dictionaryTest(self, f):
+    def response_dictionaryTest(self, f: Ice.Future[tuple[_T, dict[int, Test.B]]]) -> None:
         (r, bout) = f.result()
         self.r = r
         self.bout = bout
         self.called()
 
-    def exception_throwBaseAsBase(self, f):
+    def exception_throwBaseAsBase(self, f: Ice.Future[None]) -> None:
         ex = f.exception()
-        test(ex is not None)
+
+        assert isinstance(ex, Test.BaseException)
         test(ex.ice_id() == "::Test::BaseException")
         e = ex
-        test(isinstance(e, Test.BaseException))
         test(e.sbe == "sbe")
-        test(e.pb)
+        assert e.pb
         test(e.pb.sb == "sb")
         test(e.pb.pb == e.pb)
         self.called()
 
-    def exception_throwDerivedAsBase(self, f):
+    def exception_throwDerivedAsBase(self, f: Ice.Future[None]) -> None:
         ex = f.exception()
-        test(ex is not None)
+        assert isinstance(ex, Test.DerivedException)
         test(ex.ice_id() == "::Test::DerivedException")
         e = ex
-        test(isinstance(e, Test.DerivedException))
         test(e.sbe == "sbe")
-        test(e.pb)
+        assert e.pb
         test(e.pb.sb == "sb1")
         test(e.pb.pb == e.pb)
         test(e.sde == "sde1")
-        test(e.pd1)
+        assert e.pd1
         test(e.pd1.sb == "sb2")
         test(e.pd1.pb == e.pd1)
         test(e.pd1.sd1 == "sd2")
         test(e.pd1.pd1 == e.pd1)
         self.called()
 
-    def exception_throwDerivedAsDerived(self, f):
+    def exception_throwDerivedAsDerived(self, f: Ice.Future[None]) -> None:
         ex = f.exception()
-        test(ex is not None)
+        assert isinstance(ex, Test.DerivedException)
         test(ex.ice_id() == "::Test::DerivedException")
         e = ex
-        test(isinstance(e, Test.DerivedException))
         test(e.sbe == "sbe")
-        test(e.pb)
+        assert e.pb
         test(e.pb.sb == "sb1")
         test(e.pb.pb == e.pb)
         test(e.sde == "sde1")
-        test(e.pd1)
+        assert e.pd1
         test(e.pd1.sb == "sb2")
         test(e.pd1.pb == e.pd1)
         test(e.pd1.sd1 == "sd2")
         test(e.pd1.pd1 == e.pd1)
         self.called()
 
-    def exception_throwUnknownDerivedAsBase(self, f):
+    def exception_throwUnknownDerivedAsBase(self, f: Ice.Future[None]) -> None:
         ex = f.exception()
-        test(ex is not None)
+        assert isinstance(ex, Test.BaseException)
         test(ex.ice_id() == "::Test::BaseException")
         e = ex
-        test(isinstance(e, Test.BaseException))
         test(e.sbe == "sbe")
-        test(e.pb)
+        assert e.pb
         test(e.pb.sb == "sb d2")
         test(e.pb.pb == e.pb)
         self.called()
 
-    def response_useForward(self, f):
+    def response_useForward(self, f: Ice.Future[Test.Forward]) -> None:
         fwd = f.result()
         test(fwd)
         self.called()
 
-    def response_preserved1(self, f):
+    def response_preserved1(self, f: Ice.Future[Test.Preserved]) -> None:
         r = f.result()
-        test(r)
-        test(isinstance(r, Test.PDerived))
+        assert r is not None
+        assert isinstance(r, Test.PDerived)
         test(r.pi == 3)
         test(r.ps == "preserved")
         test(r.pb == r)
         self.called()
 
-    def response_preserved2encoding10(self, f):
+    def response_preserved2encoding10(self, f: Ice.Future[Test.Preserved]) -> None:
         r = f.result()
-        test(r)
+        assert r is not None
         test(not isinstance(r, ClientPrivateTest.PCUnknown))
         test(r.pi == 3)
         self.called()
 
-    def response_preserved2encoding11(self, f):
+    def response_preserved2encoding11(self, f: Ice.Future[Test.Preserved]) -> None:
         r = f.result()
-        test(r)
-        test(isinstance(r, ClientPrivateTest.PCUnknown))
+        assert r is not None
+        assert isinstance(r, ClientPrivateTest.PCUnknown)
         test(r.pi == 3)
         test(r.pu == "preserved")
         self.called()
 
-    def response_preserved3(self, f):
+    def response_preserved3(self, f: Ice.Future[Test.Preserved]) -> None:
         #
         # Encoding 1.0
         #
@@ -329,23 +331,23 @@ class Callback(CallbackBase):
         test(r.pi == 3)
         self.called()
 
-    def response_preserved4(self, f):
+    def response_preserved4(self, f: Ice.Future[Test.Preserved]) -> None:
         #
         # Encoding > 1.0
         #
         r = f.result()
-        test(isinstance(r, ClientPrivateTest.PCDerived))
+        assert isinstance(r, ClientPrivateTest.PCDerived)
         test(r.pi == 3)
         test(r.pbs[0] == r)
         self.called()
 
-    def response_preserved5(self, f):
+    def response_preserved5(self, f: Ice.Future[Test.Preserved]) -> None:
         r = f.result()
-        test(isinstance(r, ClientPrivateTest.PCDerived3))
+        assert isinstance(r, ClientPrivateTest.PCDerived3)
         test(r.pi == 3)
         for i in range(0, 300):
             p2 = r.pbs[i]
-            test(isinstance(p2, ClientPrivateTest.PCDerived2))
+            assert isinstance(p2, ClientPrivateTest.PCDerived2)
             test(p2.pi == i)
             test(len(p2.pbs) == 1)
             test(not p2.pbs[0])
@@ -354,7 +356,7 @@ class Callback(CallbackBase):
         test(r.pcd3 == r.pbs[10])
         self.called()
 
-    def response_compactPreserved1(self, f):
+    def response_compactPreserved1(self, f: Ice.Future[Test.Preserved]) -> None:
         #
         # Encoding 1.0
         #
@@ -363,12 +365,12 @@ class Callback(CallbackBase):
         test(r.pi == 3)
         self.called()
 
-    def response_compactPreserved2(self, f):
+    def response_compactPreserved2(self, f: Ice.Future[Test.Preserved]) -> None:
         #
         # Encoding > 1.0
         #
         r = f.result()
-        test(isinstance(r, ClientPrivateTest.CompactPCDerived))
+        assert isinstance(r, ClientPrivateTest.CompactPCDerived)
         test(r.pi == 3)
         test(r.pbs[0] == r)
         self.called()
@@ -377,24 +379,24 @@ class Callback(CallbackBase):
 class PNodeI(Test.PNode):
     counter = 0
 
-    def __init__(self):
+    def __init__(self) -> None:
         PNodeI.counter = PNodeI.counter + 1
 
-    def __del__(self):
+    def __del__(self) -> None:
         PNodeI.counter = PNodeI.counter - 1
 
 
 class PreservedI(Test.Preserved):
     counter = 0
 
-    def __init__(self):
+    def __init__(self) -> None:
         PreservedI.counter = PreservedI.counter + 1
 
-    def __del__(self):
+    def __del__(self) -> None:
         PreservedI.counter = PreservedI.counter - 1
 
 
-def customSliceLoader(typeId):
+def customSliceLoader(typeId: str) -> PreservedI | PNodeI | None:
     if typeId == Test.Preserved.ice_staticId():
         return PreservedI()
     elif typeId == Test.PNode.ice_staticId():
@@ -403,28 +405,27 @@ def customSliceLoader(typeId):
         return None
 
 
-def allTests(helper, communicator):
-    t = Test.TestIntfPrx(communicator, f"Test:{helper.getTestEndpoint()}")
-
+def testValueSlicing(t: Test.TestIntfPrx):
     sys.stdout.write("base as Object... ")
     sys.stdout.flush()
     o = None
     try:
         o = t.SBaseAsObject()
-        test(o)
+        assert o is not None
         test(o.ice_id() == "::Test::SBase")
     except Ice.Exception:
         test(False)
     sb = o
-    test(isinstance(sb, Test.SBase))
-    test(sb)
+
+    assert isinstance(sb, Test.SBase)
+    assert sb is not None
     test(sb.sb == "SBase.sb")
     print("ok")
 
     sys.stdout.write("base as Object (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBaseAsObjectAsync().add_done_callback(cb.response_SBaseAsObject)
+    cast(Ice.InvocationFuture, t.SBaseAsObjectAsync()).add_done_callback(cb.response_SBaseAsObject)
     cb.check()
     print("ok")
 
@@ -432,6 +433,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         sb = t.SBaseAsSBase()
+        assert sb is not None
         test(sb.sb == "SBase.sb")
     except Ice.Exception:
         test(False)
@@ -440,7 +442,7 @@ def allTests(helper, communicator):
     sys.stdout.write("base as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBaseAsSBaseAsync().add_done_callback(cb.response_SBaseAsSBase)
+    cast(Ice.InvocationFuture, t.SBaseAsSBaseAsync()).add_done_callback(cb.response_SBaseAsSBase)
     cb.check()
     print("ok")
 
@@ -448,19 +450,20 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         sb = t.SBSKnownDerivedAsSBase()
+        assert sb is not None
         test(sb.sb == "SBSKnownDerived.sb")
     except Ice.Exception:
         test(False)
     sbskd = sb
-    test(isinstance(sbskd, Test.SBSKnownDerived))
-    test(sbskd)
+    assert isinstance(sbskd, Test.SBSKnownDerived)
+    assert sbskd is not None
     test(sbskd.sbskd == "SBSKnownDerived.sbskd")
     print("ok")
 
     sys.stdout.write("base with known derived as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBSKnownDerivedAsSBaseAsync().add_done_callback(cb.response_SBSKnownDerivedAsSBase)
+    cast(Ice.InvocationFuture, t.SBSKnownDerivedAsSBaseAsync()).add_done_callback(cb.response_SBSKnownDerivedAsSBase)
     cb.check()
     print("ok")
 
@@ -468,6 +471,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         sbskd = t.SBSKnownDerivedAsSBSKnownDerived()
+        assert sbskd is not None
         test(sbskd.sbskd == "SBSKnownDerived.sbskd")
     except Ice.Exception:
         test(False)
@@ -476,7 +480,9 @@ def allTests(helper, communicator):
     sys.stdout.write("base with known derived as known derived (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBSKnownDerivedAsSBSKnownDerivedAsync().add_done_callback(cb.response_SBSKnownDerivedAsSBSKnownDerived)
+    cast(Ice.InvocationFuture, t.SBSKnownDerivedAsSBSKnownDerivedAsync()).add_done_callback(
+        cb.response_SBSKnownDerivedAsSBSKnownDerived
+    )
     cb.check()
     print("ok")
 
@@ -484,6 +490,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         sb = t.SBSUnknownDerivedAsSBase()
+        assert sb is not None
         test(sb.sb == "SBSUnknownDerived.sb")
     except Ice.Exception:
         test(False)
@@ -493,6 +500,7 @@ def allTests(helper, communicator):
             # This test succeeds for the 1.0 encoding.
             #
             sb = t.SBSUnknownDerivedAsSBaseCompact()
+            assert sb is not None
             test(sb.sb == "SBSUnknownDerived.sb")
         except Ice.OperationNotExistException:
             pass
@@ -520,14 +528,18 @@ def allTests(helper, communicator):
     sys.stdout.write("base with unknown derived as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.SBSUnknownDerivedAsSBaseAsync().add_done_callback(cb.response_SBSUnknownDerivedAsSBase)
+    cast(Ice.InvocationFuture, t.SBSUnknownDerivedAsSBaseAsync()).add_done_callback(
+        cb.response_SBSUnknownDerivedAsSBase
+    )
     cb.check()
     if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
         #
         # This test succeeds for the 1.0 encoding.
         #
         cb = Callback()
-        t.SBSUnknownDerivedAsSBaseCompactAsync().add_done_callback(cb.response_SBSUnknownDerivedAsSBase)
+        cast(Ice.InvocationFuture, t.SBSUnknownDerivedAsSBaseCompactAsync()).add_done_callback(
+            cb.response_SBSUnknownDerivedAsSBase
+        )
         cb.check()
     else:
         #
@@ -535,7 +547,9 @@ def allTests(helper, communicator):
         # be sliced to a known type.
         #
         cb = Callback()
-        t.SBSUnknownDerivedAsSBaseCompactAsync().add_done_callback(cb.exception_SBSUnknownDerivedAsSBaseCompact)
+        cast(Ice.InvocationFuture, t.SBSUnknownDerivedAsSBaseCompactAsync()).add_done_callback(
+            cb.exception_SBSUnknownDerivedAsSBaseCompact
+        )
         cb.check()
     print("ok")
 
@@ -544,7 +558,7 @@ def allTests(helper, communicator):
     try:
         o = t.SUnknownAsObject()
         test(t.ice_getEncodingVersion() != Ice.Encoding_1_0)
-        test(isinstance(o, Ice.UnknownSlicedValue))
+        assert isinstance(o, Ice.UnknownSlicedValue)
         test(o.unknownTypeId == "::Test::SUnknown")
         test(o.ice_getSlicedData())
         t.checkSUnknown(o)
@@ -559,19 +573,21 @@ def allTests(helper, communicator):
     try:
         cb = Callback()
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            t.SUnknownAsObjectAsync().add_done_callback(cb.exception_SUnknownAsObject10)
+            cast(Ice.InvocationFuture, t.SUnknownAsObjectAsync()).add_done_callback(cb.exception_SUnknownAsObject10)
         else:
-            t.SUnknownAsObjectAsync().add_done_callback(cb.response_SUnknownAsObject11)
+            cast(Ice.InvocationFuture, t.SUnknownAsObjectAsync()).add_done_callback(cb.response_SUnknownAsObject11)
         cb.check()
     except Ice.Exception:
         test(False)
     print("ok")
 
+
+def testCycles(t: Test.TestIntfPrx):
     sys.stdout.write("one-element cycle... ")
     sys.stdout.flush()
     try:
         b = t.oneElementCycle()
-        test(b)
+        assert b is not None
         test(b.ice_id() == "::Test::B")
         test(b.sb == "B1.sb")
         test(b.pb == b)
@@ -582,7 +598,7 @@ def allTests(helper, communicator):
     sys.stdout.write("one-element cycle (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.oneElementCycleAsync().add_done_callback(cb.response_oneElementCycle)
+    cast(Ice.InvocationFuture, t.oneElementCycleAsync()).add_done_callback(cb.response_oneElementCycle)
     cb.check()
     print("ok")
 
@@ -590,12 +606,12 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         b1 = t.twoElementCycle()
-        test(b1)
+        assert b1 is not None
         test(b1.ice_id() == "::Test::B")
         test(b1.sb == "B1.sb")
 
         b2 = b1.pb
-        test(b2)
+        assert b2 is not None
         test(b2.ice_id() == "::Test::B")
         test(b2.sb == "B2.sb")
         test(b2.pb == b1)
@@ -606,7 +622,7 @@ def allTests(helper, communicator):
     sys.stdout.write("two-element cycle (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.twoElementCycleAsync().add_done_callback(cb.response_twoElementCycle)
+    cast(Ice.InvocationFuture, t.twoElementCycleAsync()).add_done_callback(cb.response_twoElementCycle)
     cb.check()
     print("ok")
 
@@ -614,20 +630,20 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         b1 = t.D1AsB()
-        test(b1)
+        assert b1 is not None
         test(b1.ice_id() == "::Test::D1")
         test(b1.sb == "D1.sb")
         test(b1.pb)
         test(b1.pb != b1)
         d1 = b1
-        test(isinstance(d1, Test.D1))
+        assert isinstance(d1, Test.D1)
         test(d1.sd1 == "D1.sd1")
         test(d1.pd1)
         test(d1.pd1 != b1)
         test(b1.pb == d1.pd1)
 
         b2 = b1.pb
-        test(b2)
+        assert b2
         test(b2.pb == b1)
         test(b2.sb == "D2.sb")
         test(b2.ice_id() == "::Test::B")
@@ -635,10 +651,12 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
+
+def testPointerSlicing(t: Test.TestIntfPrx) -> None:
     sys.stdout.write("known derived pointer slicing as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.D1AsBAsync().add_done_callback(cb.response_D1AsB)
+    cast(Ice.InvocationFuture, t.D1AsBAsync()).add_done_callback(cb.response_D1AsB)
     cb.check()
     print("ok")
 
@@ -646,14 +664,14 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         d1 = t.D1AsD1()
-        test(d1)
+        assert d1 is not None
         test(d1.ice_id() == "::Test::D1")
         test(d1.sb == "D1.sb")
         test(d1.pb)
         test(d1.pb != d1)
 
         b2 = d1.pb
-        test(b2)
+        assert b2 is not None
         test(b2.ice_id() == "::Test::B")
         test(b2.sb == "D2.sb")
         test(b2.pb == d1)
@@ -664,7 +682,7 @@ def allTests(helper, communicator):
     sys.stdout.write("known derived pointer slicing as derived (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.D1AsD1Async().add_done_callback(cb.response_D1AsD1)
+    cast(Ice.InvocationFuture, t.D1AsD1Async()).add_done_callback(cb.response_D1AsD1)
     cb.check()
     print("ok")
 
@@ -672,19 +690,19 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         b2 = t.D2AsB()
-        test(b2)
+        assert b2 is not None
         test(b2.ice_id() == "::Test::B")
         test(b2.sb == "D2.sb")
         test(b2.pb)
         test(b2.pb != b2)
 
         b1 = b2.pb
-        test(b1)
+        assert b1 is not None
         test(b1.ice_id() == "::Test::D1")
         test(b1.sb == "D1.sb")
         test(b1.pb == b2)
         d1 = b1
-        test(isinstance(d1, Test.D1))
+        assert isinstance(d1, Test.D1)
         test(d1.sd1 == "D1.sd1")
         test(d1.pd1 == b2)
     except Ice.Exception:
@@ -694,7 +712,7 @@ def allTests(helper, communicator):
     sys.stdout.write("unknown derived pointer slicing as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.D2AsBAsync().add_done_callback(cb.response_D2AsB)
+    cast(Ice.InvocationFuture, t.D2AsBAsync()).add_done_callback(cb.response_D2AsB)
     cb.check()
     print("ok")
 
@@ -703,16 +721,16 @@ def allTests(helper, communicator):
     try:
         b1, b2 = t.paramTest1()
 
-        test(b1)
+        assert b1 is not None
         test(b1.ice_id() == "::Test::D1")
         test(b1.sb == "D1.sb")
         test(b1.pb == b2)
         d1 = b1
-        test(isinstance(d1, Test.D1))
+        assert isinstance(d1, Test.D1)
         test(d1.sd1 == "D1.sd1")
         test(d1.pd1 == b2)
 
-        test(b2)
+        assert b2 is not None
         test(b2.ice_id() == "::Test::B")  # No factory, must be sliced
         test(b2.sb == "D2.sb")
         test(b2.pb == b1)
@@ -723,7 +741,7 @@ def allTests(helper, communicator):
     sys.stdout.write("param ptr slicing with known first (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.paramTest1Async().add_done_callback(cb.response_paramTest1)
+    cast(Ice.InvocationFuture, t.paramTest1Async()).add_done_callback(cb.response_paramTest1)
     cb.check()
     print("ok")
 
@@ -732,16 +750,16 @@ def allTests(helper, communicator):
     try:
         b2, b1 = t.paramTest2()
 
-        test(b1)
+        assert b1 is not None
         test(b1.ice_id() == "::Test::D1")
         test(b1.sb == "D1.sb")
         test(b1.pb == b2)
         d1 = b1
-        test(isinstance(d1, Test.D1))
+        assert isinstance(d1, Test.D1)
         test(d1.sd1 == "D1.sd1")
         test(d1.pd1 == b2)
 
-        test(b2)
+        assert b2 is not None
         test(b2.ice_id() == "::Test::B")  # No factory, must be sliced
         test(b2.sb == "D2.sb")
         test(b2.pb == b1)
@@ -761,7 +779,7 @@ def allTests(helper, communicator):
     sys.stdout.write("return value identity with known first (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.returnTest1Async().add_done_callback(cb.response_returnTest1)
+    cast(Ice.InvocationFuture, t.returnTest1Async()).add_done_callback(cb.response_returnTest1)
     cb.check()
     print("ok")
 
@@ -777,7 +795,7 @@ def allTests(helper, communicator):
     sys.stdout.write("return value identity with unknown first (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.returnTest2Async().add_done_callback(cb.response_returnTest2)
+    cast(Ice.InvocationFuture, t.returnTest2Async()).add_done_callback(cb.response_returnTest2)
     cb.check()
     print("ok")
 
@@ -797,23 +815,23 @@ def allTests(helper, communicator):
 
         b1 = t.returnTest3(d1, d3)
 
-        test(b1)
+        assert b1 is not None
         test(b1.sb == "D1.sb")
         test(b1.ice_id() == "::Test::D1")
         p1 = b1
-        test(isinstance(p1, Test.D1))
+        assert isinstance(p1, Test.D1)
         test(p1.sd1 == "D1.sd1")
         test(p1.pd1 == b1.pb)
 
         b2 = b1.pb
-        test(b2)
+        assert b2 is not None
         test(b2.sb == "D3.sb")
         test(b2.pb == b1)
         p3 = b2
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(b2, ClientPrivateTest.D3))
+            assert isinstance(p3, ClientPrivateTest.D3)
             test(p3.pd3 == p1)
             test(p3.sd3 == "D3.sd3")
 
@@ -839,28 +857,28 @@ def allTests(helper, communicator):
         d1.pb = d3
         d1.pd1 = d3
 
-        cb = Callback()
-        t.returnTest3Async(d1, d3).add_done_callback(cb.response_returnTest3)
+        cb = Callback[Test.B]()
+        cast(Ice.InvocationFuture, t.returnTest3Async(d1, d3)).add_done_callback(cb.response_returnTest3)
         cb.check()
         b1 = cb.r
 
-        test(b1)
+        assert b1 is not None
         test(b1.sb == "D1.sb")
         test(b1.ice_id() == "::Test::D1")
         p1 = b1
-        test(isinstance(p1, Test.D1))
+        assert isinstance(p1, Test.D1)
         test(p1.sd1 == "D1.sd1")
         test(p1.pd1 == b1.pb)
 
         b2 = b1.pb
-        test(b2)
+        assert b2 is not None
         test(b2.sb == "D3.sb")
         test(b2.pb == b1)
         p3 = b2
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(b2, ClientPrivateTest.D3))
+            assert isinstance(p3, ClientPrivateTest.D3)
             test(p3.pd3 == p1)
             test(p3.sd3 == "D3.sd3")
 
@@ -888,17 +906,17 @@ def allTests(helper, communicator):
 
         b1 = t.returnTest3(d3, d1)
 
-        test(b1)
+        assert b1 is not None
         test(b1.sb == "D3.sb")
 
         b2 = b1.pb
-        test(b2)
+        assert b2 is not None
         test(b2.sb == "D1.sb")
         test(b2.ice_id() == "::Test::D1")
         test(b2.pb == b1)
 
         p3 = b2
-        test(isinstance(p3, Test.D1))
+        assert isinstance(p3, Test.D1)
         test(p3.sd1 == "D1.sd1")
         test(p3.pd1 == b1)
 
@@ -906,7 +924,7 @@ def allTests(helper, communicator):
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(p1, ClientPrivateTest.D3))
         else:
-            test(isinstance(p1, ClientPrivateTest.D3))
+            assert isinstance(p1, ClientPrivateTest.D3)
             test(p1.pd3 == b2)
             test(p1.sd3 == "D3.sd3")
 
@@ -932,19 +950,20 @@ def allTests(helper, communicator):
         d1.pb = d3
         d1.pd1 = d3
 
-        cb = Callback()
-        t.returnTest3Async(d3, d1).add_done_callback(cb.response_returnTest3)
+        cb = Callback[Test.B]()
+        cast(Ice.InvocationFuture, t.returnTest3Async(d3, d1)).add_done_callback(cb.response_returnTest3)
         cb.check()
         b1 = cb.r
+        assert b1 is not None
 
         b2 = b1.pb
-        test(b2)
+        assert b2 is not None
         test(b2.sb == "D1.sb")
         test(b2.ice_id() == "::Test::D1")
         test(b2.pb == b1)
 
         p3 = b2
-        test(isinstance(p3, Test.D1))
+        assert isinstance(p3, Test.D1)
         test(p3.sd1 == "D1.sd1")
         test(p3.pd1 == b1)
 
@@ -952,7 +971,7 @@ def allTests(helper, communicator):
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(p1, ClientPrivateTest.D3))
         else:
-            test(isinstance(p1, ClientPrivateTest.D3))
+            assert isinstance(p1, ClientPrivateTest.D3)
             test(p1.pd3 == b2)
             test(p1.sd3 == "D3.sd3")
 
@@ -969,17 +988,17 @@ def allTests(helper, communicator):
     try:
         ret, p1, p2 = t.paramTest3()
 
-        test(p1)
+        assert p1 is not None
         test(p1.sb == "D2.sb (p1 1)")
         test(p1.pb is None)
         test(p1.ice_id() == "::Test::B")
 
-        test(p2)
+        assert p2 is not None
         test(p2.sb == "D2.sb (p2 1)")
         test(p2.pb is None)
         test(p2.ice_id() == "::Test::B")
 
-        test(ret)
+        assert ret is not None
         test(ret.sb == "D1.sb (p2 2)")
         test(ret.pb is None)
         test(ret.ice_id() == "::Test::D1")
@@ -990,7 +1009,7 @@ def allTests(helper, communicator):
     sys.stdout.write("remainder unmarshaling (3 instances) (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.paramTest3Async().add_done_callback(cb.response_paramTest3)
+    cast(Ice.InvocationFuture, t.paramTest3Async()).add_done_callback(cb.response_paramTest3)
     cb.check()
     print("ok")
 
@@ -999,12 +1018,12 @@ def allTests(helper, communicator):
     try:
         ret, b = t.paramTest4()
 
-        test(b)
+        assert b is not None
         test(b.sb == "D4.sb (1)")
         test(b.pb is None)
         test(b.ice_id() == "::Test::B")
 
-        test(ret)
+        assert ret is not None
         test(ret.sb == "B.sb (2)")
         test(ret.pb is None)
         test(ret.ice_id() == "::Test::B")
@@ -1015,7 +1034,7 @@ def allTests(helper, communicator):
     sys.stdout.write("remainder unmarshaling (4 instances) (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.paramTest4Async().add_done_callback(cb.response_paramTest4)
+    cast(Ice.InvocationFuture, t.paramTest4Async()).add_done_callback(cb.response_paramTest4)
     cb.check()
     print("ok")
 
@@ -1044,12 +1063,13 @@ def allTests(helper, communicator):
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(p3, ClientPrivateTest.D3))
+            assert isinstance(p3, ClientPrivateTest.D3)
 
             test(p3.sb == "D3.sb")
             test(p3.pb == r)
             test(p3.sd3 == "D3.sd3")
 
+            assert p3.pd3 is not None
             test(p3.pd3.ice_id() == "::Test::B")
             test(p3.pd3.sb == "B.sb(1)")
             test(p3.pd3.pb == p3.pd3)
@@ -1075,8 +1095,8 @@ def allTests(helper, communicator):
         b2.sb = "B.sb(2)"
         b2.pb = b1
 
-        cb = Callback()
-        t.returnTest3Async(d3, b2).add_done_callback(cb.response_returnTest3)
+        cb = Callback[Test.B]()
+        cast(Ice.InvocationFuture, t.returnTest3Async(d3, b2)).add_done_callback(cb.response_returnTest3)
         cb.check()
         r = cb.r
 
@@ -1084,12 +1104,13 @@ def allTests(helper, communicator):
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(p3, ClientPrivateTest.D3))
+            assert isinstance(p3, ClientPrivateTest.D3)
 
             test(p3.sb == "D3.sb")
             test(p3.pb == r)
             test(p3.sd3 == "D3.sd3")
 
+            assert p3.pd3 is not None
             test(p3.pd3.ice_id() == "::Test::B")
             test(p3.pd3.sb == "B.sb(1)")
             test(p3.pd3.pb == p3.pd3)
@@ -1120,14 +1141,16 @@ def allTests(helper, communicator):
 
         r = t.returnTest3(d3, d12)
 
+        assert r is not None
         test(r.sb == "D3.sb")
         test(r.pb == r)
         p3 = r
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(p3, ClientPrivateTest.D3))
+            assert isinstance(p3, ClientPrivateTest.D3)
             test(p3.sd3 == "D3.sd3")
+            assert p3.pd3 is not None
             test(p3.pd3.ice_id() == "::Test::D1")
 
     except Ice.Exception:
@@ -1155,10 +1178,11 @@ def allTests(helper, communicator):
         d12.sd1 = "D1.sd1(2)"
         d12.pd1 = d11
 
-        cb = Callback()
-        t.returnTest3Async(d3, d12).add_done_callback(cb.response_returnTest3)
+        cb = Callback[Test.B]()
+        cast(Ice.InvocationFuture, t.returnTest3Async(d3, d12)).add_done_callback(cb.response_returnTest3)
         cb.check()
         r = cb.r
+        assert r is not None
 
         test(r.sb == "D3.sb")
         test(r.pb == r)
@@ -1166,7 +1190,8 @@ def allTests(helper, communicator):
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(p3, ClientPrivateTest.D3))
         else:
-            test(isinstance(p3, ClientPrivateTest.D3))
+            assert isinstance(p3, ClientPrivateTest.D3)
+            assert p3.pd3 is not None
             test(p3.sd3 == "D3.sd3")
             test(p3.pd3.ice_id() == "::Test::D1")
 
@@ -1174,6 +1199,8 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
+
+def testSequenceSlicing(t: Test.TestIntfPrx) -> None:
     sys.stdout.write("sequence slicing... ")
     sys.stdout.flush()
     try:
@@ -1213,28 +1240,34 @@ def allTests(helper, communicator):
         ss2d3.pd3 = ss1d1
 
         ss1 = Test.SS1()
-        ss1.s = (ss1b, ss1d1, ss1d3)
+        ss1.s = [ss1b, ss1d1, ss1d3]
 
         ss2 = Test.SS2()
-        ss2.s = (ss2b, ss2d1, ss2d3)
+        ss2.s = [ss2b, ss2d1, ss2d3]
 
         ss = t.sequenceTest(ss1, ss2)
 
-        test(ss.c1)
+        assert ss.c1 is not None
         ss1b = ss.c1.s[0]
         ss1d1 = ss.c1.s[1]
         test(ss.c2)
         ss1d3 = ss.c1.s[2]
 
-        test(ss.c2)
+        assert ss.c2 is not None
         ss2b = ss.c2.s[0]
         ss2d1 = ss.c2.s[1]
         ss2d3 = ss.c2.s[2]
 
+        assert ss1b is not None
+        assert ss1d1 is not None
+        assert ss1d3 is not None
         test(ss1b.pb == ss1b)
         test(ss1d1.pb == ss1b)
         test(ss1d3.pb == ss1b)
 
+        assert ss2b is not None
+        assert ss2d1 is not None
+        assert ss2d3 is not None
         test(ss2b.pb == ss1b)
         test(ss2d1.pb == ss2b)
         test(ss2d3.pb == ss2b)
@@ -1295,31 +1328,38 @@ def allTests(helper, communicator):
         ss2d3.pd3 = ss1d1
 
         ss1 = Test.SS1()
-        ss1.s = (ss1b, ss1d1, ss1d3)
+        ss1.s = [ss1b, ss1d1, ss1d3]
 
         ss2 = Test.SS2()
-        ss2.s = (ss2b, ss2d1, ss2d3)
+        ss2.s = [ss2b, ss2d1, ss2d3]
 
-        cb = Callback()
-        t.sequenceTestAsync(ss1, ss2).add_done_callback(cb.response_sequenceTest)
+        cb = Callback[Test.SS3]()
+        cast(Ice.InvocationFuture, t.sequenceTestAsync(ss1, ss2)).add_done_callback(cb.response_sequenceTest)
         cb.check()
         ss = cb.r
+        assert ss is not None
 
-        test(ss.c1)
+        assert ss.c1 is not None
         ss1b = ss.c1.s[0]
         ss1d1 = ss.c1.s[1]
-        test(ss.c2)
+        assert ss.c2 is not None
         ss1d3 = ss.c1.s[2]
 
-        test(ss.c2)
+        assert ss.c2 is not None
         ss2b = ss.c2.s[0]
         ss2d1 = ss.c2.s[1]
         ss2d3 = ss.c2.s[2]
 
+        assert ss1b is not None
+        assert ss1d1 is not None
+        assert ss1d3 is not None
         test(ss1b.pb == ss1b)
         test(ss1d1.pb == ss1b)
         test(ss1d3.pb == ss1b)
 
+        assert ss2b is not None
+        assert ss2d1 is not None
+        assert ss2d3 is not None
         test(ss2b.pb == ss1b)
         test(ss2d1.pb == ss2b)
         test(ss2d3.pb == ss2b)
@@ -1341,6 +1381,8 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
+
+def testDictionarySlicing(t: Test.TestIntfPrx) -> None:
     sys.stdout.write("dictionary slicing... ")
     sys.stdout.flush()
     try:
@@ -1359,10 +1401,10 @@ def allTests(helper, communicator):
         test(len(bout) == 10)
         for i in range(0, 10):
             b = bout[i * 10]
-            test(b)
+            assert b is not None
             s = "D1." + str(i)
             test(b.sb == s)
-            test(b.pb)
+            assert b.pb is not None
             test(b.pb != b)
             test(b.pb.sb == s)
             test(b.pb.pb == b.pb)
@@ -1370,7 +1412,7 @@ def allTests(helper, communicator):
         test(len(r) == 10)
         for i in range(0, 10):
             b = r[i * 20]
-            test(b)
+            assert b is not None
             s = "D1." + str(i * 20)
             test(b.sb == s)
             if i == 0:
@@ -1378,7 +1420,7 @@ def allTests(helper, communicator):
             else:
                 test(b.pb == r[(i - 1) * 20])
             d1 = b
-            test(isinstance(d1, Test.D1))
+            assert isinstance(d1, Test.D1)
             test(d1.sd1 == s)
             test(d1.pd1 == d1)
     except Ice.Exception:
@@ -1399,10 +1441,12 @@ def allTests(helper, communicator):
             bin[i] = d1
 
         cb = Callback()
-        t.dictionaryTestAsync(bin).add_done_callback(cb.response_dictionaryTest)
+        cast(Ice.InvocationFuture, t.dictionaryTestAsync(bin)).add_done_callback(cb.response_dictionaryTest)
         cb.check()
         bout = cb.bout
         r = cb.r
+        assert bout is not None
+        assert r is not None
 
         test(len(bout) == 10)
         for i in range(0, 10):
@@ -1410,7 +1454,7 @@ def allTests(helper, communicator):
             test(b)
             s = "D1." + str(i)
             test(b.sb == s)
-            test(b.pb)
+            assert b.pb is not None
             test(b.pb != b)
             test(b.pb.sb == s)
             test(b.pb.pb == b.pb)
@@ -1433,6 +1477,8 @@ def allTests(helper, communicator):
         test(False)
     print("ok")
 
+
+def testExceptionSlicing(t: Test.TestIntfPrx) -> None:
     sys.stdout.write("base exception thrown as base exception... ")
     sys.stdout.flush()
     try:
@@ -1441,7 +1487,7 @@ def allTests(helper, communicator):
     except Test.BaseException as e:
         test(e.ice_id() == "::Test::BaseException")
         test(e.sbe == "sbe")
-        test(e.pb)
+        assert e.pb is not None
         test(e.pb.sb == "sb")
         test(e.pb.pb == e.pb)
     except Ice.Exception:
@@ -1451,7 +1497,7 @@ def allTests(helper, communicator):
     sys.stdout.write("base exception thrown as base exception (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.throwBaseAsBaseAsync().add_done_callback(cb.exception_throwBaseAsBase)
+    cast(Ice.InvocationFuture, t.throwBaseAsBaseAsync()).add_done_callback(cb.exception_throwBaseAsBase)
     cb.check()
     print("ok")
 
@@ -1463,11 +1509,11 @@ def allTests(helper, communicator):
     except Test.DerivedException as e:
         test(e.ice_id() == "::Test::DerivedException")
         test(e.sbe == "sbe")
-        test(e.pb)
+        assert e.pb is not None
         test(e.pb.sb == "sb1")
         test(e.pb.pb == e.pb)
         test(e.sde == "sde1")
-        test(e.pd1)
+        assert e.pd1 is not None
         test(e.pd1.sb == "sb2")
         test(e.pd1.pb == e.pd1)
         test(e.pd1.sd1 == "sd2")
@@ -1479,7 +1525,7 @@ def allTests(helper, communicator):
     sys.stdout.write("derived exception thrown as base exception (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.throwDerivedAsBaseAsync().add_done_callback(cb.exception_throwDerivedAsBase)
+    cast(Ice.InvocationFuture, t.throwDerivedAsBaseAsync()).add_done_callback(cb.exception_throwDerivedAsBase)
     cb.check()
     print("ok")
 
@@ -1491,11 +1537,11 @@ def allTests(helper, communicator):
     except Test.DerivedException as e:
         test(e.ice_id() == "::Test::DerivedException")
         test(e.sbe == "sbe")
-        test(e.pb)
+        assert e.pb is not None
         test(e.pb.sb == "sb1")
         test(e.pb.pb == e.pb)
         test(e.sde == "sde1")
-        test(e.pd1)
+        assert e.pd1 is not None
         test(e.pd1.sb == "sb2")
         test(e.pd1.pb == e.pd1)
         test(e.pd1.sd1 == "sd2")
@@ -1507,7 +1553,7 @@ def allTests(helper, communicator):
     sys.stdout.write("derived exception thrown as derived exception (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.throwDerivedAsDerivedAsync().add_done_callback(cb.exception_throwDerivedAsDerived)
+    cast(Ice.InvocationFuture, t.throwDerivedAsDerivedAsync()).add_done_callback(cb.exception_throwDerivedAsDerived)
     cb.check()
     print("ok")
 
@@ -1519,7 +1565,7 @@ def allTests(helper, communicator):
     except Test.BaseException as e:
         test(e.ice_id() == "::Test::BaseException")
         test(e.sbe == "sbe")
-        test(e.pb)
+        assert e.pb is not None
         test(e.pb.sb == "sb d2")
         test(e.pb.pb == e.pb)
     except Ice.Exception:
@@ -1529,10 +1575,14 @@ def allTests(helper, communicator):
     sys.stdout.write("unknown derived exception thrown as base exception (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.throwUnknownDerivedAsBaseAsync().add_done_callback(cb.exception_throwUnknownDerivedAsBase)
+    cast(Ice.InvocationFuture, t.throwUnknownDerivedAsBaseAsync()).add_done_callback(
+        cb.exception_throwUnknownDerivedAsBase
+    )
     cb.check()
     print("ok")
 
+
+def testClassSlicing(t: Test.TestIntfPrx) -> None:
     sys.stdout.write("forward-declared class... ")
     sys.stdout.flush()
     try:
@@ -1545,7 +1595,7 @@ def allTests(helper, communicator):
     sys.stdout.write("forward-declared class (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.useForwardAsync().add_done_callback(cb.response_useForward)
+    cast(Ice.InvocationFuture, t.useForwardAsync()).add_done_callback(cb.response_useForward)
     cb.check()
     print("ok")
 
@@ -1562,7 +1612,7 @@ def allTests(helper, communicator):
         pd.pb = pd
 
         r = t.exchangePBase(pd)
-        test(isinstance(r, Test.PDerived))
+        assert isinstance(r, Test.PDerived)
         test(r.pi == 3)
         test(r.ps == "preserved")
         test(r.pb == r)
@@ -1575,13 +1625,14 @@ def allTests(helper, communicator):
         pu.pu = "preserved"
 
         r = t.exchangePBase(pu)
+        assert r is not None
         test(r.pi == 3)
 
         p2 = r
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(p2, ClientPrivateTest.PCUnknown))
         else:
-            test(isinstance(p2, ClientPrivateTest.PCUnknown))
+            assert isinstance(p2, ClientPrivateTest.PCUnknown)
             test(p2.pu == "preserved")
 
         #
@@ -1593,11 +1644,12 @@ def allTests(helper, communicator):
         pcd.pbs = [pcd]
 
         r = t.exchangePBase(pcd)
+        assert r is not None
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(r, ClientPrivateTest.PCDerived))
             test(r.pi == 3)
         else:
-            test(isinstance(r, ClientPrivateTest.PCDerived))
+            assert isinstance(r, ClientPrivateTest.PCDerived)
             test(r.pi == 3)
             test(r.pbs[0] == r)
 
@@ -1610,11 +1662,12 @@ def allTests(helper, communicator):
         pcd.pbs = [pcd]
 
         r = t.exchangePBase(pcd)
+        assert r is not None
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(r, ClientPrivateTest.CompactPCDerived))
             test(r.pi == 3)
         else:
-            test(isinstance(r, ClientPrivateTest.CompactPCDerived))
+            assert isinstance(r, ClientPrivateTest.CompactPCDerived)
             test(r.pi == 3)
             test(r.pbs[0] == r)
 
@@ -1638,16 +1691,17 @@ def allTests(helper, communicator):
         pcd.pcd3 = pcd.pbs[10]
 
         r = t.exchangePBase(pcd)
+        assert r is not None
         if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
             test(not isinstance(r, ClientPrivateTest.PCDerived3))
             test(isinstance(r, Test.Preserved))
             test(r.pi == 3)
         else:
-            test(isinstance(r, ClientPrivateTest.PCDerived3))
+            assert isinstance(r, ClientPrivateTest.PCDerived3)
             test(r.pi == 3)
             for i in range(0, 300):
                 p2 = r.pbs[i]
-                test(isinstance(p2, ClientPrivateTest.PCDerived2))
+                assert isinstance(p2, ClientPrivateTest.PCDerived2)
                 test(p2.pi == i)
                 test(len(p2.pbs) == 1)
                 test(not p2.pbs[0])
@@ -1661,12 +1715,14 @@ def allTests(helper, communicator):
         # they should be included.
         #
         p = t.PBSUnknownAsPreserved()
+        assert p is not None
         t.checkPBSUnknown(p)
         if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
             slicedData = p.ice_getSlicedData()
-            test(slicedData)
-            test(len(slicedData.slices) == 1)
-            test(slicedData.slices[0].typeId == "::Test::PSUnknown")
+            assert slicedData is not None
+            # TODO: type hinting for SlicedData
+            test(len(slicedData.slices) == 1)  # pyright: ignore
+            test(slicedData.slices[0].typeId == "::Test::PSUnknown")  # pyright: ignore
             t.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p)
         else:
             test(p.ice_getSlicedData() is None)
@@ -1687,7 +1743,7 @@ def allTests(helper, communicator):
     pd.pb = pd
 
     cb = Callback()
-    t.exchangePBaseAsync(pd).add_done_callback(cb.response_preserved1)
+    cast(Ice.InvocationFuture, t.exchangePBaseAsync(pd)).add_done_callback(cb.response_preserved1)
     cb.check()
 
     #
@@ -1699,9 +1755,9 @@ def allTests(helper, communicator):
 
     cb = Callback()
     if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-        t.exchangePBaseAsync(pu).add_done_callback(cb.response_preserved2encoding10)
+        cast(Ice.InvocationFuture, t.exchangePBaseAsync(pu)).add_done_callback(cb.response_preserved2encoding10)
     else:
-        t.exchangePBaseAsync(pu).add_done_callback(cb.response_preserved2encoding11)
+        cast(Ice.InvocationFuture, t.exchangePBaseAsync(pu)).add_done_callback(cb.response_preserved2encoding11)
     cb.check()
 
     #
@@ -1714,9 +1770,9 @@ def allTests(helper, communicator):
 
     cb = Callback()
     if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-        t.exchangePBaseAsync(pcd).add_done_callback(cb.response_preserved3)
+        cast(Ice.InvocationFuture, t.exchangePBaseAsync(pcd)).add_done_callback(cb.response_preserved3)
     else:
-        t.exchangePBaseAsync(pcd).add_done_callback(cb.response_preserved4)
+        cast(Ice.InvocationFuture, t.exchangePBaseAsync(pcd)).add_done_callback(cb.response_preserved4)
     cb.check()
 
     #
@@ -1729,9 +1785,9 @@ def allTests(helper, communicator):
 
     cb = Callback()
     if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-        t.exchangePBaseAsync(pcd).add_done_callback(cb.response_compactPreserved1)
+        cast(Ice.InvocationFuture, t.exchangePBaseAsync(pcd)).add_done_callback(cb.response_compactPreserved1)
     else:
-        t.exchangePBaseAsync(pcd).add_done_callback(cb.response_compactPreserved2)
+        cast(Ice.InvocationFuture, t.exchangePBaseAsync(pcd)).add_done_callback(cb.response_compactPreserved2)
     cb.check()
 
     #
@@ -1755,9 +1811,9 @@ def allTests(helper, communicator):
 
     cb = Callback()
     if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-        t.exchangePBaseAsync(pcd).add_done_callback(cb.response_preserved3)
+        cast(Ice.InvocationFuture, t.exchangePBaseAsync(pcd)).add_done_callback(cb.response_preserved3)
     else:
-        t.exchangePBaseAsync(pcd).add_done_callback(cb.response_preserved5)
+        cast(Ice.InvocationFuture, t.exchangePBaseAsync(pcd)).add_done_callback(cb.response_preserved5)
     cb.check()
 
     print("ok")
@@ -1776,8 +1832,10 @@ def allTests(helper, communicator):
 
         test(PNodeI.counter == 0)
         n = t.exchangePNode(c)
+        assert n is not None
         test(PNodeI.counter == 3)
-        test(n.next is not None)
+        assert n.next is not None
+        assert n.next.next is not None
         test(n.next != n.next.next)
         test(n.next.next != n.next.next.next)
         test(n.next.next.next == n)
@@ -1808,15 +1866,27 @@ def allTests(helper, communicator):
         #
         test(PreservedI.counter == 0)
         p = t.PBSUnknown2AsPreservedWithGraph()
-        test(p is not None)
+        assert p is not None
         test(PreservedI.counter == 1)
         t.checkPBSUnknown2WithGraph(p)
-        p._ice_slicedData = None  # Break the cycle.
+        p._ice_slicedData = None  # Break the cycle. # pyright: ignore
         p = None  # Release reference.
         test(PreservedI.counter == 0)
     except Ice.OperationNotExistException:
         pass
 
     print("ok")
+
+
+def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestIntfPrx:
+    t = Test.TestIntfPrx(communicator, f"Test:{helper.getTestEndpoint()}")
+
+    testValueSlicing(t)
+    testCycles(t)
+    testPointerSlicing(t)
+    testSequenceSlicing(t)
+    testDictionarySlicing(t)
+    testExceptionSlicing(t)
+    testClassSlicing(t)
 
     return t

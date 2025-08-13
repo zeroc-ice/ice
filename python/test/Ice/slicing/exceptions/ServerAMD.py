@@ -15,11 +15,6 @@ from generated.test.Ice.slicing.exceptions.server_private import Test as ServerP
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
 class TestI(Test.TestIntf):
     def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()

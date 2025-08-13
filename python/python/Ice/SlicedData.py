@@ -7,7 +7,7 @@ class SlicedData:
 
     Attributes
     ----------
-    slices : tuple[SliceInfo]
+    slices : tuple[SliceInfo, ...]
         The details of each slice, in order of most-derived to least-derived.
     """
 
