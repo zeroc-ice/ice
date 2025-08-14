@@ -2,7 +2,7 @@
 
 # This script creates an APT repository for ZeroC Ice DEB packages.
 #
-# --distribution specifies the target distribution (e.g., debian12 or ubuntu24.04).
+# --distribution specifies the target distribution (e.g., debian12, debian13, or ubuntu24.04).
 # --channel specifies the Ice version channel (e.g., 3.8 or nightly).
 # --staging specifies the directory containing the built DEB packages.
 # --repository specifies the directory where the APT repository will be created. This can also be
@@ -62,9 +62,9 @@ done
 
 # Validate distribution
 case "$DISTRIBUTION" in
-    debian12|ubuntu24.04) ;;
+    debian12|debian13|ubuntu24.04) ;;
     *)
-        echo "Error: DISTRIBUTION must be 'debian12' or 'ubuntu24.04'" >&2
+        echo "Error: DISTRIBUTION must be 'debian12', 'debian13', or 'ubuntu24.04'" >&2
         exit 1
         ;;
 esac
@@ -89,6 +89,7 @@ fi
 
 declare -A CODENAMES=(
     ["debian12"]="bookworm"
+    ["debian13"]="trixie"
     ["ubuntu24.04"]="noble"
 )
 
