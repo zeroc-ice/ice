@@ -60,7 +60,7 @@ public class AllTests {
         out.print("testing add facet with uuid... ");
         {
             var testAdapter = communicator.createObjectAdapterWithEndpoints("TestAdapter2", "default");
-            test(testAdapter.addFacetWithUUID(new EmptyI(), "facetABCD").ice_getFacet().equals("facetABCD"));
+            test("facetABCD".equals(testAdapter.addFacetWithUUID(new EmptyI(), "facetABCD").ice_getFacet()));
             testAdapter.destroy();
         }
         out.println("ok");

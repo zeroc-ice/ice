@@ -35,13 +35,13 @@ func allTests(_ helper: TestHelper) async throws -> GPrx {
     output.writeLine("ok")
 
     do {
-        output.write("testing add facet with uuid... ");
+        output.write("testing add facet with uuid... ")
         let testAdapter = try communicator.createObjectAdapterWithEndpoints(
             name: "TestAdapter2",
-            endpoints: "default");
-        try test(testAdapter.addFacetWithUUID(servant: EmptyI(), facet: "facetABCD").ice_getFacet() == "facetABCD");
-        testAdapter.destroy();
-        output.writeLine("ok");
+            endpoints: "default")
+        try test(testAdapter.addFacetWithUUID(servant: EmptyI(), facet: "facetABCD").ice_getFacet() == "facetABCD")
+        testAdapter.destroy()
+        output.writeLine("ok")
     }
 
     output.write("testing facet registration exceptions... ")
