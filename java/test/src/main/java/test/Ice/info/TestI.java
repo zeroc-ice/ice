@@ -7,7 +7,6 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.EndpointInfo;
 import com.zeroc.Ice.IPConnectionInfo;
 import com.zeroc.Ice.IPEndpointInfo;
-import com.zeroc.Ice.UDPEndpointInfo;
 import com.zeroc.Ice.WSConnectionInfo;
 
 import test.Ice.info.Test.TestIntf;
