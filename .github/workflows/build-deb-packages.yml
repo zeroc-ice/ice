@@ -39,6 +39,12 @@ jobs:
           - distribution: debian12
             arch: arm64
             deb_build_profiles: "no-python312"
+
+          - distribution: debian13
+            arch: amd64
+
+          - distribution: debian13
+            arch: arm64
     env:
       DEB_BUILD_OPTIONS: "nocheck parallel=4"
     steps:
