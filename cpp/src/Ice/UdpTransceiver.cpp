@@ -85,13 +85,7 @@ IceInternal::UdpTransceiver::bind()
         _mcastAddr = _addr;
 
 #ifdef _WIN32
-        //
-        // Windows does not allow binding to the mcast address itself
-        // so we bind to INADDR_ANY (0.0.0.0) instead. As a result,
-        // bi-directional connection won't work because the source
-        // address won't be the multicast address and the client will
-        // therefore reject the datagram.
-        //
+        // Windows does not allow binding to the mcast address itself so we bind to INADDR_ANY instead.
         const_cast<Address&>(_addr) = getAddressForServer("", _port, getProtocolSupport(_addr), false, false);
 #endif
 
