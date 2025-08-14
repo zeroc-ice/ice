@@ -2,8 +2,8 @@
 
 # Copyright (c) ZeroC, Inc.
 
-from collections.abc import Sequence
 import sys
+from collections.abc import Sequence
 from typing import Mapping, override
 
 from TestHelper import TestHelper
