@@ -676,13 +676,18 @@ Ice::ObjectAdapterI::isLocal(const ReferencePtr& ref) const
         checkForDestruction();
 
         // Proxies which have at least one endpoint in common with the published endpoints are considered local.
+        // This check doesn't take datagram endpoints into account; this effectively disables colloc optimization
+        // for UDP.
         for (const auto& endpoint : ref->getEndpoints())
         {
-            for (const auto& publishedEndpoint : _publishedEndpoints)
+            if (!endpoint->datagram())
             {
-                if (endpoint->equivalent(publishedEndpoint))
+                for (const auto& publishedEndpoint : _publishedEndpoints)
                 {
-                    return true;
+                    if (endpoint->equivalent(publishedEndpoint))
+                    {
+                        return true;
+                    }
                 }
             }
         }

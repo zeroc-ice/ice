@@ -256,8 +256,7 @@ PluginI::initialize()
     _locatorAdapter->setLocator(nullopt);
 
     LookupPrx lookupPrx(_communicator, "IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
-    // No collocation optimization for the multicast proxy!
-    lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(nullopt);
+    lookupPrx = lookupPrx->ice_router(nullopt);
 
     auto voidLocator = _locatorAdapter->addWithUUID<Ice::LocatorPrx>(make_shared<VoidLocatorI>());
 

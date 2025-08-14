@@ -116,8 +116,7 @@ PluginI::initialize()
     auto locatorRegistryPrx = _locatorAdapter->addWithUUID<Ice::LocatorRegistryPrx>(locatorRegistry);
 
     LookupPrx lookupPrx(_communicator, "IceDiscovery/Lookup -d:" + lookupEndpoints);
-    // No collocation optimization for the multicast proxy!
-    lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(nullopt);
+    lookupPrx = lookupPrx->ice_router(nullopt);
 
     //
     // Add lookup and lookup reply Ice objects

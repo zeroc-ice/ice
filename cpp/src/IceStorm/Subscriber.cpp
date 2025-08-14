@@ -295,8 +295,7 @@ namespace
 {
     SubscriberLink::SubscriberLink(const shared_ptr<Instance>& instance, const SubscriberRecord& rec)
         : Subscriber(instance, rec, nullopt, -1, 1),
-          _obj(Ice::uncheckedCast<TopicLinkPrx>(
-              rec.obj->ice_collocationOptimized(false)->ice_invocationTimeout(instance->sendTimeout())))
+          _obj(Ice::uncheckedCast<TopicLinkPrx>(rec.obj->ice_invocationTimeout(instance->sendTimeout())))
     {
     }
 

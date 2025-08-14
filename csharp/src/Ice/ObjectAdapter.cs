@@ -865,10 +865,12 @@ public sealed class ObjectAdapter
         else
         {
             // Proxies which have at least one endpoint in common with the published endpoints are considered local.
+            // This check doesn't take datagram endpoints into account; this effectively disables colloc optimization
+            // for UDP.
             lock (_mutex)
             {
                 checkForDestruction();
-                EndpointI[] endpoints = r.getEndpoints();
+                IEnumerable<EndpointI> endpoints = r.getEndpoints().Where(e => !e.datagram());
                 return _publishedEndpoints.Any(e => endpoints.Any(e.equivalent));
             }
         }

@@ -643,8 +643,7 @@ internal class PluginI : Ice.Plugin
         _locatorAdapter.setLocator(null);
 
         Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
-        // No colloc optimization or router for the multicast proxy!
-        lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
+        lookupPrx = lookupPrx.ice_router(null);
 
         Ice.LocatorPrx voidLo = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
 
