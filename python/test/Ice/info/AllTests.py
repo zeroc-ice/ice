@@ -8,21 +8,23 @@ from TestHelper import TestHelper, test
 import Ice
 
 
-def getTCPEndpointInfo(info):
+def getTCPEndpointInfo(info: Ice.EndpointInfo) -> Ice.TCPEndpointInfo:
     while info:
         if isinstance(info, Ice.TCPEndpointInfo):
             return info
+        assert info.underlying is not None
         info = info.underlying
 
 
-def getTCPConnectionInfo(info):
+def getTCPConnectionInfo(info: Ice.ConnectionInfo) -> Ice.TCPConnectionInfo:
     while info:
         if isinstance(info, Ice.TCPConnectionInfo):
             return info
+        assert info.underlying is not None
         info = info.underlying
 
 
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     sys.stdout.write("testing proxy endpoint information... ")
     sys.stdout.flush()
 
@@ -37,7 +39,7 @@ def allTests(helper, communicator):
 
     endpoint = endps[0].getInfo()
     tcpEndpoint = getTCPEndpointInfo(endpoint)
-    test(isinstance(tcpEndpoint, Ice.TCPEndpointInfo))
+    assert isinstance(tcpEndpoint, Ice.TCPEndpointInfo)
     test(tcpEndpoint.host == "tcphost")
     test(tcpEndpoint.port == 10000)
     test(tcpEndpoint.sourceAddress == "10.10.10.10")
@@ -57,7 +59,7 @@ def allTests(helper, communicator):
     )
 
     udpEndpoint = endps[1].getInfo()
-    test(isinstance(udpEndpoint, Ice.UDPEndpointInfo))
+    assert isinstance(udpEndpoint, Ice.UDPEndpointInfo)
     test(udpEndpoint.host == "udphost")
     test(udpEndpoint.port == 10001)
     test(udpEndpoint.sourceAddress == "10.10.10.10")
@@ -69,7 +71,7 @@ def allTests(helper, communicator):
     test(udpEndpoint.type() == Ice.UDPEndpointType)
 
     opaqueEndpoint = endps[2].getInfo()
-    test(isinstance(opaqueEndpoint, Ice.OpaqueEndpointInfo))
+    assert isinstance(opaqueEndpoint, Ice.OpaqueEndpointInfo)
     test(opaqueEndpoint.rawEncoding == Ice.EncodingVersion(1, 8))
 
     print("ok")
@@ -98,6 +100,7 @@ def allTests(helper, communicator):
     test(tcpEndpoint.port > 0)
 
     udpEndpoint = endpoints[1].getInfo()
+    assert isinstance(udpEndpoint, Ice.UDPEndpointInfo)
     test(udpEndpoint.host == host)
     test(udpEndpoint.datagram())
     test(udpEndpoint.port > 0)
@@ -135,7 +138,9 @@ def allTests(helper, communicator):
     base = communicator.stringToProxy(
         "test:{0}:{1}".format(helper.getTestEndpoint(), helper.getTestEndpoint(protocol="udp"))
     )
+    assert base is not None
     testIntf = Test.TestIntfPrx.checkedCast(base)
+    assert testIntf is not None
 
     sys.stdout.write("test connection endpoint information... ")
     sys.stdout.flush()
@@ -143,7 +148,10 @@ def allTests(helper, communicator):
     defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host")
     port = helper.getTestPort()
 
-    tcpinfo = getTCPEndpointInfo(base.ice_getConnection().getEndpoint().getInfo())
+    connection = base.ice_getConnection()
+    assert connection is not None
+
+    tcpinfo = getTCPEndpointInfo(connection.getEndpoint().getInfo())
     test(tcpinfo.port == port)
     test(not tcpinfo.compress)
     test(tcpinfo.host == defaultHost)
@@ -154,7 +162,10 @@ def allTests(helper, communicator):
     port = int(ctx["port"])
     test(port > 0)
 
-    udp = base.ice_datagram().ice_getConnection().getEndpoint().getInfo()
+    connection = base.ice_datagram().ice_getConnection()
+    assert connection is not None
+    udp = connection.getEndpoint().getInfo()
+    assert isinstance(udp, Ice.UDPEndpointInfo)
     test(udp.port == port)
     test(udp.host == defaultHost)
 
@@ -164,6 +175,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
 
     connection = base.ice_getConnection()
+    assert connection is not None
     connection.setBufferSize(1024, 2048)
 
     info = connection.getInfo()
@@ -185,8 +197,10 @@ def allTests(helper, communicator):
     test(ctx["remotePort"] == str(tcpinfo.localPort))
     test(ctx["localPort"] == str(tcpinfo.remotePort))
 
-    if base.ice_getConnection().type() == "ws" or base.ice_getConnection().type() == "wss":
-        test(isinstance(info, Ice.WSConnectionInfo))
+    connection = base.ice_getConnection()
+    assert connection is not None
+    if connection.type() == "ws" or connection.type() == "wss":
+        assert isinstance(info, Ice.WSConnectionInfo)
 
         test(info.headers["Upgrade"] == "websocket")
         test(info.headers["Connection"] == "Upgrade")

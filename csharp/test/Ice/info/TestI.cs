@@ -43,13 +43,6 @@ public class TestI : Test.TestIntfDisp_
         ctx["host"] = ipinfo.host;
         ctx["port"] = ipinfo.port.ToString();
 
-        if (ipinfo is Ice.UDPEndpointInfo)
-        {
-            var udp = (Ice.UDPEndpointInfo)ipinfo;
-            ctx["mcastInterface"] = udp.mcastInterface;
-            ctx["mcastTtl"] = udp.mcastTtl.ToString();
-        }
-
         return ctx;
     }
 

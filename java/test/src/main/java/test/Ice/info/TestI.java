@@ -7,7 +7,6 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.EndpointInfo;
 import com.zeroc.Ice.IPConnectionInfo;
 import com.zeroc.Ice.IPEndpointInfo;
-import com.zeroc.Ice.UDPEndpointInfo;
 import com.zeroc.Ice.WSConnectionInfo;
 
 import test.Ice.info.Test.TestIntf;
@@ -54,12 +53,6 @@ public class TestI implements TestIntf {
         IPEndpointInfo ipinfo = getIPEndpointInfo(info);
         ctx.put("host", ipinfo.host);
         ctx.put("port", Integer.toString(ipinfo.port));
-
-        if (ipinfo instanceof UDPEndpointInfo) {
-            UDPEndpointInfo udp = (UDPEndpointInfo) ipinfo;
-            ctx.put("mcastInterface", udp.mcastInterface);
-            ctx.put("mcastTtl", Integer.toString(udp.mcastTtl));
-        }
 
         return ctx;
     }

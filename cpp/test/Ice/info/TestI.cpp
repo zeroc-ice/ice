@@ -64,13 +64,6 @@ TestI::getEndpointInfoAsContext(const Current& c)
     os << ipinfo->port;
     ctx["port"] = os.str();
 
-    if (dynamic_pointer_cast<UDPEndpointInfo>(ipinfo))
-    {
-        UDPEndpointInfoPtr udp = dynamic_pointer_cast<UDPEndpointInfo>(ipinfo);
-        ctx["mcastInterface"] = udp->mcastInterface;
-        ctx["mcastTtl"] = static_cast<char>(udp->mcastTtl);
-    }
-
     return ctx;
 }
 
