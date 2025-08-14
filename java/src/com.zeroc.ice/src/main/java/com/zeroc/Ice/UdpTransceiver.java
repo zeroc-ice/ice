@@ -50,15 +50,11 @@ final class UdpTransceiver implements Transceiver {
     @Override
     public EndpointI bind() {
         if (_addr.getAddress().isMulticastAddress()) {
+            // Set SO_REUSEADDR socket option to allow multiple sockets to bind to the same multicast address.
             Network.setReuseAddress(_fd, true);
             _mcastAddr = _addr;
             if (System.getProperty("os.name").startsWith("Windows")) {
-                //
-                // Windows does not allow binding to the mcast address itself so we bind to
-                // INADDR_ANY (0.0.0.0) instead. As a result, bi-directional connection won't work
-                // because the source address won't be the multicast address and the client will
-                // therefore reject the datagram.
-                //
+                // Windows does not allow binding to the mcast address itself so we bind to INADDR_ANY instead.
                 int protocolSupport = Network.getProtocolSupport(_mcastAddr);
                 _addr =
                     Network.getAddressForServer(
@@ -71,19 +67,6 @@ final class UdpTransceiver implements Transceiver {
             }
             Network.setMcastGroup(_fd, _mcastAddr, _mcastInterface);
         } else {
-            if (!System.getProperty("os.name").startsWith("Windows")) {
-                //
-                // Enable SO_REUSEADDR on Unix platforms to allow re-using the socket even if it's
-                // in the TIME_WAIT state. On Windows, this doesn't appear to be necessary and
-                // enabling SO_REUSEADDR would actually not be a good thing since it allows a second
-                // process to bind to an address even it's already bound by another process.
-                //
-                // TODO: using SO_EXCLUSIVEADDRUSE on Windows would probably be better but it's only
-                // supported by recent
-                // Windows versions (XP SP2, Windows Server 2003).
-                //
-                Network.setReuseAddress(_fd, true);
-            }
             _addr = Network.doBind(_fd, _addr);
         }
 
