@@ -1,21 +1,26 @@
 # Copyright (c) ZeroC, Inc.
 
+from typing import override
+
 from generated.test.Ice.info import Test
 
 import Ice
 
 
-def getIPEndpointInfo(info):
+def getIPEndpointInfo(info: Ice.EndpointInfo) -> Ice.IPEndpointInfo:
     while info:
         if isinstance(info, Ice.IPEndpointInfo):
             return info
+        assert info.underlying is not None
         info = info.underlying
 
 
-def getIPConnectionInfo(info):
+def getIPConnectionInfo(info: Ice.ConnectionInfo) -> Ice.IPConnectionInfo:
     while info:
         if isinstance(info, Ice.IPConnectionInfo):
             return info
+
+        assert info.underlying is not None
         info = info.underlying
 
 
@@ -23,11 +28,14 @@ class MyDerivedClassI(Test.TestIntf):
     def __init__(self):
         self.ctx = None
 
+    @override
     def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
-    def getEndpointInfoAsContext(self, current: Ice.Current):
+    @override
+    def getEndpointInfoAsContext(self, current: Ice.Current) -> dict[str, str]:
         ctx = {}
+        assert current.con is not None
         info = getIPEndpointInfo(current.con.getEndpoint().getInfo())
         if info.compress:
             ctx["compress"] = "true"
@@ -46,18 +54,12 @@ class MyDerivedClassI(Test.TestIntf):
         ctx["host"] = info.host
         ctx["port"] = str(info.port)
 
-        if isinstance(info, Ice.UDPEndpointInfo):
-            ctx["protocolMajor"] = str(info.protocolMajor)
-            ctx["protocolMinor"] = str(info.protocolMinor)
-            ctx["encodingMajor"] = str(info.encodingMajor)
-            ctx["encodingMinor"] = str(info.encodingMinor)
-            ctx["mcastInterface"] = info.mcastInterface
-            ctx["mcastTtl"] = str(info.mcastTtl)
-
         return ctx
 
-    def getConnectionInfoAsContext(self, current: Ice.Current):
+    @override
+    def getConnectionInfoAsContext(self, current: Ice.Current) -> dict[str, str]:
         ctx = {}
+        assert current.con is not None
         info = current.con.getInfo()
         ipinfo = getIPConnectionInfo(info)
         ctx["adapterName"] = info.adapterName

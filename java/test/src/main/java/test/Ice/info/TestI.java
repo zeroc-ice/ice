@@ -55,12 +55,6 @@ public class TestI implements TestIntf {
         ctx.put("host", ipinfo.host);
         ctx.put("port", Integer.toString(ipinfo.port));
 
-        if (ipinfo instanceof UDPEndpointInfo) {
-            UDPEndpointInfo udp = (UDPEndpointInfo) ipinfo;
-            ctx.put("mcastInterface", udp.mcastInterface);
-            ctx.put("mcastTtl", Integer.toString(udp.mcastTtl));
-        }
-
         return ctx;
     }
 

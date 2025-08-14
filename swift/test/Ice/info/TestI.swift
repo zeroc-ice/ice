@@ -41,10 +41,6 @@ final class TestI: TestIntf {
         ctx["host"] = ipinfo.host
         ctx["port"] = "\(ipinfo.port)"
 
-        if let udpinfo = ipinfo as? Ice.UDPEndpointInfo {
-            ctx["mcastInterface"] = udpinfo.mcastInterface
-            ctx["mcastTtl"] = "\(udpinfo.mcastTtl)"
-        }
         return ctx
     }
 

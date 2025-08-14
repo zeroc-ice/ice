@@ -546,66 +546,6 @@ asyncInvocationContextCancel(AsyncInvocationContextObject* self, PyObject* /*arg
     return Py_None;
 }
 
-extern "C" PyObject*
-asyncInvocationContextCallLater(AsyncInvocationContextObject* self, PyObject* args)
-{
-    PyObject* callback{nullptr};
-    if (!PyArg_ParseTuple(args, "O", &callback))
-    {
-        return nullptr;
-    }
-
-    if (!PyCallable_Check(callback))
-    {
-        PyErr_Format(PyExc_ValueError, "invalid argument passed to callLater");
-        return nullptr;
-    }
-
-    class CallbackWrapper final
-    {
-    public:
-        CallbackWrapper(PyObject* callback) : _callback(Py_NewRef(callback)) {}
-
-        ~CallbackWrapper()
-        {
-            // Adopt the Python GIL. This is called from the C++ thread pool.
-            AdoptThread adoptThread;
-            Py_XDECREF(_callback);
-        }
-
-        void run()
-        {
-            AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
-
-            PyObjectHandle args{PyTuple_New(0)};
-            assert(args.get());
-            PyObjectHandle tmp{PyObject_Call(_callback, args.get(), nullptr)};
-            PyErr_Clear();
-        }
-
-    private:
-        PyObject* _callback{nullptr};
-    };
-
-    // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
-    try
-    {
-        auto callbackWrapper = make_shared<CallbackWrapper>(callback);
-        (*self->communicator)->postToClientThreadPool([callbackWrapper]() { callbackWrapper->run(); });
-    }
-    catch (const Ice::CommunicatorDestroyedException&)
-    {
-        setPythonException(current_exception());
-        return nullptr;
-    }
-    catch (...)
-    {
-        assert(false);
-    }
-
-    return Py_None;
-}
-
 //
 // MarshaledResult operations
 //
@@ -999,10 +939,6 @@ static PyMethodDef AsyncInvocationContextMethods[] = {
      reinterpret_cast<PyCFunction>(asyncInvocationContextCancel),
      METH_NOARGS,
      PyDoc_STR("cancels the invocation")},
-    {"callLater",
-     reinterpret_cast<PyCFunction>(asyncInvocationContextCallLater),
-     METH_VARARGS,
-     PyDoc_STR("internal function")},
     {} /* sentinel */
 };
 

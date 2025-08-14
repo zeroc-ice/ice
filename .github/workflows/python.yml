@@ -66,7 +66,7 @@ jobs:
           pyright python/test/Ice/executor
           pyright python/test/Ice/facets
           pyright python/test/Ice/faultTolerance
-          # pyright python/test/Ice/info
+          pyright python/test/Ice/info
           pyright python/test/Ice/inheritance
           pyright python/test/Ice/location
           pyright python/test/Ice/properties
