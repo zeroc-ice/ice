@@ -29,6 +29,14 @@ public class AllTests : global::Test.AllTests
         communicator.getProperties().setProperty("Ice.Admin.Facets", "");
         output.WriteLine("ok");
 
+        output.Write("testing add facet with uuid... ");
+        {
+            var testAdapter = communicator.createObjectAdapterWithEndpoints("TestAdapter2", "default");
+            test(testAdapter.addFacetWithUUID(new EmptyI(), "facetABCD").ice_getFacet() == "facetABCD");
+            testAdapter.destroy();
+        }
+        output.WriteLine("ok");
+
         output.Write("testing facet registration exceptions... ");
         communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h *");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");

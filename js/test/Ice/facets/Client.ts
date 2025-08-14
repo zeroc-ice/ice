@@ -2,6 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
+import { EmptyI } from "./TestI.js";
 import { TestHelper, test } from "../../Common/TestHelper.js";
 
 export class Client extends TestHelper {
@@ -29,6 +30,14 @@ export class Client extends TestHelper {
             test(df2.ice_getFacet() == "facetABCD");
             const df3 = Test.DPrx.uncheckedCast(df, "");
             test(df3.ice_getFacet().length === 0);
+            out.writeLine("ok");
+        }
+
+        {
+            out.write("testing add facet with uuid... ");
+            const testAdapter = await communicator.createObjectAdapter("");
+            test(testAdapter.addFacetWithUUID(new EmptyI(), "facetABCD").ice_getFacet() == "facetABCD");
+            testAdapter.destroy();
             out.writeLine("ok");
         }
 
