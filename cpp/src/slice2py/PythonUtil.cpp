@@ -1106,31 +1106,6 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
         const string sliceName = operation->name();
         const string mappedName = operation->mappedName();
 
-        if (operation->hasMarshaledResult())
-        {
-            string capName = sliceName;
-            capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
-            out << sp;
-            out << nl << "@staticmethod";
-            out << nl << "def " << capName << "MarshaledResult(result: object, current: " << currentAlias << "):";
-            out.inc();
-            out << nl << tripleQuotes;
-            out << nl << "Immediately marshals the result of an invocation of " << sliceName;
-            out << nl << "and returns an object that the servant implementation must return";
-            out << nl << "as its result.";
-            out << nl;
-            out << nl << "Args:";
-            out << nl << "  result: The result (or result tuple) of the invocation.";
-            out << nl << "  current: The Current object passed to the invocation.";
-            out << nl;
-            out << nl << "Returns";
-            out << nl << "  An object containing the marshaled result.";
-            out << nl << tripleQuotes;
-            out << nl << "return IcePy.MarshaledResult(result, " << p->mappedName() << "._op_" << sliceName
-                << ", current.adapter.getCommunicator()._getImpl(), current.encoding)";
-            out.dec();
-        }
-
         const string abstractMethodAlias = getImportAlias(p, "abc", "abstractmethod");
         out << sp;
         out << nl << "@" << abstractMethodAlias;

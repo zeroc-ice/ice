@@ -2,7 +2,9 @@
 
 # Copyright (c) ZeroC, Inc.
 
+from collections.abc import Awaitable, Mapping, Sequence
 import sys
+from typing import override
 
 from TestHelper import TestHelper
 
@@ -15,23 +17,28 @@ import Ice
 
 
 class InitialI(Test.Initial):
+    @override
     def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
-    def pingPong(self, o, current: Ice.Current):
+    @override
+    def pingPong(self, o: Ice.Value | None, current: Ice.Current) -> Awaitable[Ice.Value | None]:
         return Ice.Future.completed(o)
 
-    def opOptionalException(self, a, b, current: Ice.Current):
+    @override
+    def opOptionalException(self, a: int | None, b: str | None, current: Ice.Current):
         f = Ice.Future()
         f.set_exception(Test.OptionalException(False, a, b))
         return f
 
-    def opDerivedException(self, a, b, current: Ice.Current):
+    @override
+    def opDerivedException(self, a: int | None, b: str | None, current: Ice.Current):
         f = Ice.Future()
         f.set_exception(Test.DerivedException(False, a, b, "d1", b, "d2"))
         return f
 
-    def opRequiredException(self, a, b, current: Ice.Current):
+    @override
+    def opRequiredException(self, a: int | None, b: str | None, current: Ice.Current):
         e = Test.RequiredException()
         e.a = a
         e.b = b
@@ -41,134 +48,229 @@ class InitialI(Test.Initial):
         f.set_exception(e)
         return f
 
-    def opByte(self, p1, current: Ice.Current):
+    @override
+    def opByte(self, p1: int | None, current: Ice.Current) -> Awaitable[tuple[int | None, int | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opBool(self, p1, current: Ice.Current):
+    @override
+    def opBool(self, p1: bool | None, current: Ice.Current) -> Awaitable[tuple[bool | None, bool | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opShort(self, p1, current: Ice.Current):
+    @override
+    def opShort(self, p1: int | None, current: Ice.Current) -> Awaitable[tuple[int | None, int | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opInt(self, p1, current: Ice.Current):
+    @override
+    def opInt(self, p1: int | None, current: Ice.Current) -> Awaitable[tuple[int | None, int | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opLong(self, p1, current: Ice.Current):
+    @override
+    def opLong(self, p1: int | None, current: Ice.Current) -> Awaitable[tuple[int | None, int | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opFloat(self, p1, current: Ice.Current):
+    @override
+    def opFloat(self, p1: float | None, current: Ice.Current) -> Awaitable[tuple[float | None, float | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opDouble(self, p1, current: Ice.Current):
+    @override
+    def opDouble(self, p1: float | None, current: Ice.Current) -> Awaitable[tuple[float | None, float | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opString(self, p1, current: Ice.Current):
+    @override
+    def opString(self, p1: str | None, current: Ice.Current) -> Awaitable[tuple[str | None, str | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opMyEnum(self, p1, current: Ice.Current):
+    @override
+    def opMyEnum(
+        self, p1: Test.MyEnum | None, current: Ice.Current
+    ) -> Awaitable[tuple[Test.MyEnum | None, Test.MyEnum | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opSmallStruct(self, p1, current: Ice.Current):
+    @override
+    def opSmallStruct(
+        self, p1: Test.SmallStruct | None, current: Ice.Current
+    ) -> Awaitable[tuple[Test.SmallStruct | None, Test.SmallStruct | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opFixedStruct(self, p1, current: Ice.Current):
+    @override
+    def opFixedStruct(
+        self, p1: Test.FixedStruct | None, current: Ice.Current
+    ) -> Awaitable[tuple[Test.FixedStruct | None, Test.FixedStruct | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opVarStruct(self, p1, current: Ice.Current):
+    @override
+    def opVarStruct(
+        self, p1: Test.VarStruct | None, current: Ice.Current
+    ) -> Awaitable[tuple[Test.VarStruct | None, Test.VarStruct | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opOneOptional(self, p1, current: Ice.Current):
+    @override
+    def opOneOptional(
+        self, p1: Test.OneOptional | None, current: Ice.Current
+    ) -> Awaitable[tuple[Test.OneOptional | None, Test.OneOptional | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opMyInterfaceProxy(self, p1, current: Ice.Current):
+    @override
+    def opMyInterfaceProxy(
+        self, p1: Test.MyInterfacePrx | None, current: Ice.Current
+    ) -> Awaitable[tuple[Test.MyInterfacePrx | None, Test.MyInterfacePrx | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opByteSeq(self, p1, current: Ice.Current):
+    @override
+    def opByteSeq(
+        self, p1: bytes | None, current: Ice.Current
+    ) -> Awaitable[tuple[Sequence[int] | None, Sequence[int] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opBoolSeq(self, p1, current: Ice.Current):
+    @override
+    def opBoolSeq(
+        self, p1: list[bool] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[bool] | None, list[bool] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opShortSeq(self, p1, current: Ice.Current):
+    @override
+    def opShortSeq(
+        self, p1: list[int] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[int] | None, list[int] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opIntSeq(self, p1, current: Ice.Current):
+    @override
+    def opIntSeq(
+        self, p1: list[int] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[int] | None, list[int] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opLongSeq(self, p1, current: Ice.Current):
+    @override
+    def opLongSeq(
+        self, p1: list[int] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[int] | None, list[int] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opFloatSeq(self, p1, current: Ice.Current):
+    @override
+    def opFloatSeq(
+        self, p1: list[float] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[float] | None, list[float] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opDoubleSeq(self, p1, current: Ice.Current):
+    @override
+    def opDoubleSeq(
+        self, p1: list[float] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[float] | None, list[float] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opStringSeq(self, p1, current: Ice.Current):
+    @override
+    def opStringSeq(
+        self, p1: list[str] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[str] | None, list[str] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opSmallStructSeq(self, p1, current: Ice.Current):
+    @override
+    def opSmallStructSeq(
+        self, p1: list[Test.SmallStruct] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[Test.SmallStruct] | None, list[Test.SmallStruct] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opSmallStructList(self, p1, current: Ice.Current):
+    @override
+    def opSmallStructList(
+        self, p1: list[Test.SmallStruct] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[Test.SmallStruct] | None, list[Test.SmallStruct] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opFixedStructSeq(self, p1, current: Ice.Current):
+    @override
+    def opFixedStructSeq(
+        self, p1: list[Test.FixedStruct] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[Test.FixedStruct] | None, list[Test.FixedStruct] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opFixedStructList(self, p1, current: Ice.Current):
+    @override
+    def opFixedStructList(
+        self, p1: list[Test.FixedStruct] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[Test.FixedStruct] | None, list[Test.FixedStruct] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opVarStructSeq(self, p1, current: Ice.Current):
+    @override
+    def opVarStructSeq(
+        self, p1: list[Test.VarStruct] | None, current: Ice.Current
+    ) -> Awaitable[tuple[list[Test.VarStruct] | None, list[Test.VarStruct] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opSerializable(self, p1, current: Ice.Current):
+    @override
+    def opSerializable(self, p1: bytes | None, current: Ice.Current) -> Awaitable[tuple[bytes | None, bytes | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opIntIntDict(self, p1, current: Ice.Current):
+    @override
+    def opIntIntDict(
+        self, p1: dict[int, int] | None, current: Ice.Current
+    ) -> Awaitable[tuple[dict[int, int] | None, dict[int, int] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opStringIntDict(self, p1, current: Ice.Current):
+    @override
+    def opStringIntDict(
+        self, p1: dict[str, int] | None, current: Ice.Current
+    ) -> Awaitable[tuple[dict[str, int] | None, dict[str, int] | None]]:
         return Ice.Future.completed((p1, p1))
 
-    def opClassAndUnknownOptional(self, p, current: Ice.Current):
+    @override
+    def opClassAndUnknownOptional(self, p: Test.A | None, current: Ice.Current):
         return Ice.Future.completed(None)
 
-    def opG(self, g, current: Ice.Current):
+    @override
+    def opG(self, g: Test.G | None, current: Ice.Current) -> Awaitable[Test.G | None]:
         return Ice.Future.completed(g)
 
-    def opVoid(self, current: Ice.Current):
+    @override
+    def opVoid(self, current: Ice.Current) -> Awaitable[None]:
         return Ice.Future.completed(None)
 
-    def opMStruct1(self, current: Ice.Current):
-        return Ice.Future.completed(Test.Initial.OpMStruct1MarshaledResult(Test.SmallStruct(), current))
+    @override
+    def opMStruct1(self, current: Ice.Current) -> Awaitable[Test.SmallStruct | None]:
+        return Ice.Future.completed(Test.SmallStruct())
 
-    def opMStruct2(self, p1, current: Ice.Current):
-        return Ice.Future.completed(Test.Initial.OpMStruct2MarshaledResult((p1, p1), current))
+    @override
+    def opMStruct2(
+        self, p1: Test.SmallStruct | None, current: Ice.Current
+    ) -> Awaitable[tuple[Test.SmallStruct | None, Test.SmallStruct | None]]:
+        return Ice.Future.completed((p1, p1))
 
-    def opMSeq1(self, current: Ice.Current):
-        return Ice.Future.completed(Test.Initial.OpMSeq1MarshaledResult([], current))
+    @override
+    def opMSeq1(self, current: Ice.Current) -> Awaitable[list[str] | None]:
+        return Ice.Future.completed([])
 
-    def opMSeq2(self, p1, current: Ice.Current):
-        return Ice.Future.completed(Test.Initial.OpMSeq2MarshaledResult((p1, p1), current))
+    @override
+    def opMSeq2(
+        self, p1: list[str] | None, current: Ice.Current
+    ) -> Awaitable[tuple[Sequence[str] | None, Sequence[str] | None]]:
+        return Ice.Future.completed((p1, p1))
 
+    @override
     def opMDict1(self, current: Ice.Current):
-        return Ice.Future.completed(Test.Initial.OpMDict1MarshaledResult({}, current))
+        return Ice.Future.completed({})
 
-    def opMDict2(self, p1, current: Ice.Current):
-        return Ice.Future.completed(Test.Initial.OpMDict2MarshaledResult((p1, p1), current))
+    @override
+    def opMDict2(
+        self, p1: dict[str, int] | None, current: Ice.Current
+    ) -> Awaitable[tuple[Mapping[str, int] | None, Mapping[str, int] | None]]:
+        return Ice.Future.completed((p1, p1))
 
-    def opRequiredAfterOptional(self, p1, p2, p3, current: Ice.Current):
+    @override
+    def opRequiredAfterOptional(
+        self, p1: int, p2: int | None, p3: int, current: Ice.Current
+    ) -> Awaitable[tuple[int, int | None, int]]:
         return Ice.Future.completed((p1, p2, p3))
 
-    def opOptionalAfterRequired(self, p1, p2, p3, current: Ice.Current):
+    @override
+    def opOptionalAfterRequired(
+        self, p1: int, p2: int | None, p3: int | None, current: Ice.Current
+    ) -> Awaitable[tuple[int, int | None, int | None]]:
         return Ice.Future.completed((p1, p2, p3))
 
+    @override
     def supportsJavaSerializable(self, current: Ice.Current):
         return Ice.Future.completed(True)
 
 
 class ServerAMD(TestHelper):
+    @override
     def run(self, args: list[str]):
         with self.initialize(args=args) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
