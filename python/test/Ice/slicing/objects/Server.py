@@ -3,8 +3,10 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from collections.abc import Awaitable, Mapping
+from typing import override
 
-from TestHelper import TestHelper
+from TestHelper import TestHelper, test
 
 if "--load-slice" in sys.argv:
     TestHelper.loadSlice("Test.ice ServerPrivate.ice")
@@ -15,65 +17,70 @@ from generated.test.Ice.slicing.objects.server_private import Test as ServerPriv
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
 class TestI(Test.TestIntf):
-    def SBaseAsObject(self, current: Ice.Current):
+    @override
+    def SBaseAsObject(self, current: Ice.Current) -> Test.SBase:
         sb = Test.SBase()
         sb.sb = "SBase.sb"
         return sb
 
-    def SBaseAsSBase(self, current: Ice.Current):
+    @override
+    def SBaseAsSBase(self, current: Ice.Current) -> Test.SBase:
         sb = Test.SBase()
         sb.sb = "SBase.sb"
         return sb
 
-    def SBSKnownDerivedAsSBase(self, current: Ice.Current):
+    @override
+    def SBSKnownDerivedAsSBase(self, current: Ice.Current) -> Test.SBase:
         sbskd = Test.SBSKnownDerived()
         sbskd.sb = "SBSKnownDerived.sb"
         sbskd.sbskd = "SBSKnownDerived.sbskd"
         return sbskd
 
-    def SBSKnownDerivedAsSBSKnownDerived(self, current: Ice.Current):
+    @override
+    def SBSKnownDerivedAsSBSKnownDerived(self, current: Ice.Current) -> Test.SBSKnownDerived:
         sbskd = Test.SBSKnownDerived()
         sbskd.sb = "SBSKnownDerived.sb"
         sbskd.sbskd = "SBSKnownDerived.sbskd"
         return sbskd
 
-    def SBSUnknownDerivedAsSBase(self, current: Ice.Current):
+    @override
+    def SBSUnknownDerivedAsSBase(self, current: Ice.Current) -> Test.SBase:
         sbsud = ServerPrivateTest.SBSUnknownDerived()
         sbsud.sb = "SBSUnknownDerived.sb"
         sbsud.sbsud = "SBSUnknownDerived.sbsud"
         return sbsud
 
-    def SBSUnknownDerivedAsSBaseCompact(self, current: Ice.Current):
+    @override
+    def SBSUnknownDerivedAsSBaseCompact(self, current: Ice.Current) -> Test.SBase:
         sbsud = ServerPrivateTest.SBSUnknownDerived()
         sbsud.sb = "SBSUnknownDerived.sb"
         sbsud.sbsud = "SBSUnknownDerived.sbsud"
         return sbsud
 
-    def SUnknownAsObject(self, current: Ice.Current):
+    @override
+    def SUnknownAsObject(self, current: Ice.Current) -> Ice.Value:
         su = ServerPrivateTest.SUnknown()
         su.su = "SUnknown.su"
         return su
 
-    def checkSUnknown(self, obj, current: Ice.Current):
+    @override
+    def checkSUnknown(self, o: Ice.Value | None, current: Ice.Current):
         if current.encoding == Ice.Encoding_1_0:
-            test(not isinstance(obj, ServerPrivateTest.SUnknown))
+            test(not isinstance(o, ServerPrivateTest.SUnknown))
         else:
-            test(isinstance(obj, ServerPrivateTest.SUnknown))
-            test(obj.su == "SUnknown.su")
+            assert isinstance(o, ServerPrivateTest.SUnknown)
+            test(o.su == "SUnknown.su")
 
-    def oneElementCycle(self, current: Ice.Current):
+    @override
+    def oneElementCycle(self, current: Ice.Current) -> Test.B:
         b = Test.B()
         b.sb = "B1.sb"
         b.pb = b
         return b
 
-    def twoElementCycle(self, current: Ice.Current):
+    @override
+    def twoElementCycle(self, current: Ice.Current) -> Test.B:
         b1 = Test.B()
         b1.sb = "B1.sb"
         b2 = Test.B()
@@ -82,7 +89,8 @@ class TestI(Test.TestIntf):
         b1.pb = b2
         return b1
 
-    def D1AsB(self, current: Ice.Current):
+    @override
+    def D1AsB(self, current: Ice.Current) -> Test.B:
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -95,7 +103,8 @@ class TestI(Test.TestIntf):
         d1.pd1 = d2
         return d1
 
-    def D1AsD1(self, current: Ice.Current):
+    @override
+    def D1AsD1(self, current: Ice.Current) -> Test.D1:
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -108,7 +117,8 @@ class TestI(Test.TestIntf):
         d1.pd1 = d2
         return d1
 
-    def D2AsB(self, current: Ice.Current):
+    @override
+    def D2AsB(self, current: Ice.Current) -> Test.B:
         d2 = ServerPrivateTest.D2()
         d2.sb = "D2.sb"
         d2.sd2 = "D2.sd2"
@@ -121,7 +131,8 @@ class TestI(Test.TestIntf):
         d2.pd2 = d1
         return d2
 
-    def paramTest1(self, current: Ice.Current):
+    @override
+    def paramTest1(self, current: Ice.Current) -> tuple[Test.B, Test.B]:
         d1 = Test.D1()
         d1.sb = "D1.sb"
         d1.sd1 = "D1.sd1"
@@ -134,11 +145,13 @@ class TestI(Test.TestIntf):
         d1.pd1 = d2
         return (d1, d2)
 
-    def paramTest2(self, current: Ice.Current):
+    @override
+    def paramTest2(self, current: Ice.Current) -> tuple[Test.B, Test.B]:
         p1, p2 = self.paramTest1(current)
         return (p2, p1)
 
-    def paramTest3(self, current: Ice.Current):
+    @override
+    def paramTest3(self, current: Ice.Current) -> tuple[Test.B | None, Test.B | None, Test.B | None]:
         d2 = ServerPrivateTest.D2()
         d2.sb = "D2.sb (p1 1)"
         d2.pb = None
@@ -165,7 +178,8 @@ class TestI(Test.TestIntf):
 
         return (d3, d2, d4)
 
-    def paramTest4(self, current: Ice.Current):
+    @override
+    def paramTest4(self, current: Ice.Current) -> tuple[Test.B | None, Test.B | None]:
         d4 = ServerPrivateTest.D4()
         d4.sb = "D4.sb (1)"
         d4.pb = None
@@ -177,27 +191,35 @@ class TestI(Test.TestIntf):
         d4.p2.pb = None
         return (d4.p2, d4)
 
-    def returnTest1(self, current: Ice.Current):
+    @override
+    def returnTest1(self, current: Ice.Current) -> tuple[Test.B, Test.B, Test.B]:
         p1, p2 = self.paramTest1(current)
         return (p1, p1, p2)
 
-    def returnTest2(self, current: Ice.Current):
+    @override
+    def returnTest2(self, current: Ice.Current) -> tuple[Test.B, Test.B, Test.B]:
         p2, p1 = self.paramTest1(current)
         return (p1, p1, p2)
 
-    def returnTest3(self, p1, p2, current: Ice.Current):
+    @override
+    def returnTest3(self, p1: Test.B | None, p2: Test.B | None, current: Ice.Current) -> Test.B | None:
         return p1
 
-    def sequenceTest(self, p1, p2, current: Ice.Current):
+    @override
+    def sequenceTest(self, p1: Test.SS1 | None, p2: Test.SS2 | None, current: Ice.Current) -> Test.SS3:
         ss = Test.SS3()
         ss.c1 = p1
         ss.c2 = p2
         return ss
 
-    def dictionaryTest(self, bin, current: Ice.Current):
+    @override
+    def dictionaryTest(
+        self, bin: dict[int, Test.B | None], current: Ice.Current
+    ) -> tuple[Mapping[int, Test.B | None], Mapping[int, Test.B | None]]:
         bout = {}
         for i in range(0, 10):
             b = bin[i]
+            assert b is not None
             d2 = ServerPrivateTest.D2()
             d2.sb = b.sb
             d2.pb = b.pb
@@ -220,10 +242,12 @@ class TestI(Test.TestIntf):
 
         return (r, bout)
 
-    def exchangePBase(self, pb, current: Ice.Current):
+    @override
+    def exchangePBase(self, pb: Test.PBase | None, current: Ice.Current) -> Test.PBase | None:
         return pb
 
-    def PBSUnknownAsPreserved(self, current: Ice.Current):
+    @override
+    def PBSUnknownAsPreserved(self, current: Ice.Current) -> Test.Preserved | None:
         r = ServerPrivateTest.PSUnknown()
         r.pi = 5
         r.ps = "preserved"
@@ -231,19 +255,22 @@ class TestI(Test.TestIntf):
         r.graph = None
         return r
 
-    def checkPBSUnknown(self, p, current: Ice.Current):
+    @override
+    def checkPBSUnknown(self, p: Test.Preserved | None, current: Ice.Current):
+        assert p is not None
         if current.encoding == Ice.Encoding_1_0:
             test(not isinstance(p, ServerPrivateTest.PSUnknown))
             test(p.pi == 5)
             test(p.ps == "preserved")
         else:
-            test(isinstance(p, ServerPrivateTest.PSUnknown))
+            assert isinstance(p, ServerPrivateTest.PSUnknown)
             test(p.pi == 5)
             test(p.ps == "preserved")
             test(p.psu == "unknown")
             test(not p.graph)
 
-    def PBSUnknownAsPreservedWithGraph(self, current: Ice.Current):
+    @override
+    def PBSUnknownAsPreservedWithGraph(self, current: Ice.Current) -> Awaitable[Test.Preserved | None]:
         r = ServerPrivateTest.PSUnknown()
         r.pi = 5
         r.ps = "preserved"
@@ -255,22 +282,28 @@ class TestI(Test.TestIntf):
         return Ice.Future.completed(r)
         # r.graph.next.next.next = None   # Break the cycle.
 
-    def checkPBSUnknownWithGraph(self, p, current: Ice.Current):
+    @override
+    def checkPBSUnknownWithGraph(self, p: Test.Preserved | None, current: Ice.Current):
+        assert p is not None
         if current.encoding == Ice.Encoding_1_0:
             test(not isinstance(p, ServerPrivateTest.PSUnknown))
             test(p.pi == 5)
             test(p.ps == "preserved")
         else:
-            test(isinstance(p, ServerPrivateTest.PSUnknown))
+            assert isinstance(p, ServerPrivateTest.PSUnknown)
             test(p.pi == 5)
             test(p.ps == "preserved")
             test(p.psu == "unknown")
+            assert p.graph is not None
+            assert p.graph.next is not None
+            assert p.graph.next.next is not None
             test(p.graph != p.graph.next)
             test(p.graph.next != p.graph.next.next)
             test(p.graph.next.next.next == p.graph)
             p.graph.next.next.next = None  # Break the cycle.
 
-    def PBSUnknown2AsPreservedWithGraph(self, current: Ice.Current):
+    @override
+    def PBSUnknown2AsPreservedWithGraph(self, current: Ice.Current) -> Awaitable[Test.Preserved | None]:
         r = ServerPrivateTest.PSUnknown2()
         r.pi = 5
         r.ps = "preserved"
@@ -278,21 +311,25 @@ class TestI(Test.TestIntf):
         return Ice.Future.completed(r)
         # r.pb = None         # Break the cycle.
 
-    def checkPBSUnknown2WithGraph(self, p, current: Ice.Current):
+    @override
+    def checkPBSUnknown2WithGraph(self, p: Test.Preserved | None, current: Ice.Current):
+        assert p is not None
         if current.encoding == Ice.Encoding_1_0:
             test(not isinstance(p, ServerPrivateTest.PSUnknown2))
             test(p.pi == 5)
             test(p.ps == "preserved")
         else:
-            test(isinstance(p, ServerPrivateTest.PSUnknown2))
+            assert isinstance(p, ServerPrivateTest.PSUnknown2)
             test(p.pi == 5)
             test(p.ps == "preserved")
             test(p.pb == p)
             p.pb = None  # Break the cycle.
 
-    def exchangePNode(self, pn, current: Ice.Current):
+    @override
+    def exchangePNode(self, pn: Test.PNode | None, current: Ice.Current) -> Test.PNode | None:
         return pn
 
+    @override
     def throwBaseAsBase(self, current: Ice.Current):
         be = Test.BaseException()
         be.sbe = "sbe"
@@ -301,6 +338,7 @@ class TestI(Test.TestIntf):
         be.pb.pb = be.pb
         raise be
 
+    @override
     def throwDerivedAsBase(self, current: Ice.Current):
         de = Test.DerivedException()
         de.sbe = "sbe"
@@ -315,6 +353,7 @@ class TestI(Test.TestIntf):
         de.pd1.pd1 = de.pd1
         raise de
 
+    @override
     def throwDerivedAsDerived(self, current: Ice.Current):
         de = Test.DerivedException()
         de.sbe = "sbe"
@@ -329,6 +368,7 @@ class TestI(Test.TestIntf):
         de.pd1.pd1 = de.pd1
         raise de
 
+    @override
     def throwUnknownDerivedAsBase(self, current: Ice.Current):
         d2 = ServerPrivateTest.D2()
         d2.sb = "sb d2"
@@ -343,17 +383,20 @@ class TestI(Test.TestIntf):
         ude.pd2 = d2
         raise ude
 
+    @override
     def useForward(self, current: Ice.Current):
         f = Test.Forward()
         f.h = Test.Hidden()
         f.h.f = f
         return f
 
+    @override
     def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
 
 class Server(TestHelper):
+    @override
     def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.Dispatch", "0")
