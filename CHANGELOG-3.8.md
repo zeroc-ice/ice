@@ -308,7 +308,9 @@ classDiagram
 - Removed the `stringToIdentity` method from the Communicator class. This method was deprecated in Ice 3.7.
 
 - The collocation optimization check no longer takes datagram endpoints into account. As a result, a call to a proxy
-  with only UDP endpoints is never collocation-optimized.
+  with only UDP endpoints is never collocation-optimized. This change is particularly useful for multicast UDP
+  endpoints (and by extension proxies), since multiple object adapters often listen on the same multicast address/port
+  combination.
 
 ## Slice Language Changes
 
