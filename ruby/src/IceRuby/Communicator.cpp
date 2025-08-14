@@ -193,7 +193,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             data.properties = Ice::createProperties(seq, data.properties);
         }
 
-        // Always accept cycles in Ruby
+        // Always accept class cycles during the unmarshaling of Ruby objects by the C++ code.
         data.properties->setProperty("Ice.AcceptClassCycles", "1");
 
         // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
