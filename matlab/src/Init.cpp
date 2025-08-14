@@ -35,8 +35,7 @@ extern "C"
                 initData.properties = Ice::createProperties();
             }
 
-            // Always accept cycles in MATLAB.
-            initData.properties->setProperty("Ice.AcceptClassCycles", "1");
+            // We don't implement Ice.AcceptClassCycles in InputStream, and ignore the value of this property.
 
             // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
             if (!initData.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())

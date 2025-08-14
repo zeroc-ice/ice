@@ -61,7 +61,8 @@
     </class> -->
 
     <section name="Ice" opt-in="false">
-        <property name="AcceptClassCycles" languages="cpp,csharp,java" default="0" />
+        <!-- AcceptClassCycles is implemented in C++ and Swift. -->
+        <property name="AcceptClassCycles" languages="cpp" default="0" />
         <property name="Admin" class="ObjectAdapter" languages="cpp,csharp,java" />
         <property name="Admin.DelayCreation" languages="cpp,csharp,java" default="0" />
         <property name="Admin.Enabled" languages="cpp,csharp,java" />

@@ -191,7 +191,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
-    // Always accept cycles in Python
+    // Always accept class cycles during the unmarshaling of Python objects by the C++ code.
     data.properties->setProperty("Ice.AcceptClassCycles", "1");
 
     // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.

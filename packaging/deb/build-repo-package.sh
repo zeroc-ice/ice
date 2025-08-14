@@ -2,7 +2,7 @@
 
 # This script builds a DEB package that installs the ZeroC Ice APT repository configuration.
 #
-# --distribution specifies the target distribution (e.g., debian12 or ubuntu24.04).
+# --distribution specifies the target distribution (e.g., debian12, debian13, or ubuntu24.04).
 # --channel specifies the Ice version channel (e.g., 3.8 or nightly).
 #
 # The resulting package installs the ice-repo-<channel>.list file into /etc/apt/sources.list.d/
@@ -46,9 +46,9 @@ done
 
 # Validate distribution
 case "$DISTRIBUTION" in
-    debian12|ubuntu24.04) ;;
+    debian12|debian13|ubuntu24.04) ;;
     *)
-        echo "Error: DISTRIBUTION must be 'debian12' or 'ubuntu24.04'" >&2
+        echo "Error: DISTRIBUTION must be 'debian12', 'debian13', or 'ubuntu24.04'" >&2
         exit 1
         ;;
 esac
@@ -64,6 +64,7 @@ esac
 
 declare -A CODENAMES=(
     ["debian12"]="bookworm"
+    ["debian13"]="trixie"
     ["ubuntu24.04"]="noble"
 )
 

@@ -959,7 +959,7 @@ ZEND_FUNCTION(Ice_initialize)
         initData.properties = Ice::createProperties();
     }
 
-    // Always accept cycles in PHP
+    // Always accept class cycles during the unmarshaling of PHP objects by the C++ code.
     initData.properties->setProperty("Ice.AcceptClassCycles", "1");
 
     // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.

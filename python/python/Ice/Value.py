@@ -5,7 +5,7 @@ import IcePy
 from .SlicedData import SlicedData
 
 
-class Value(object):
+class Value:
     """
     The base class for instances of Slice-defined classes.
     """

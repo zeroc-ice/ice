@@ -46,6 +46,11 @@ jobs:
             msbuild_project: "msbuild/ice.proj"
             test_flags: "--platform=Win32"
             python_tests: true
+          - os: windows-2025
+            config: "release"
+            build_flags: "/p:Platform=x64"
+            test_flags: "--platform=x64"
+            python_tests: true
 
           # Debug builds
           - os: macos-15
