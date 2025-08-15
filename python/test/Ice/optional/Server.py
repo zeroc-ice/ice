@@ -3,6 +3,8 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from collections.abc import Sequence
+from typing import Mapping, override
 
 from TestHelper import TestHelper
 
@@ -15,19 +17,24 @@ import Ice
 
 
 class InitialI(Test.Initial):
+    @override
     def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
-    def pingPong(self, o, current: Ice.Current):
+    @override
+    def pingPong(self, o: Ice.Value | None, current: Ice.Current) -> Ice.Value | None:
         return o
 
-    def opOptionalException(self, a, b, current: Ice.Current):
+    @override
+    def opOptionalException(self, a: int | None, b: str | None, current: Ice.Current):
         raise Test.OptionalException(False, a, b)
 
-    def opDerivedException(self, a, b, current: Ice.Current):
+    @override
+    def opDerivedException(self, a: int | None, b: str | None, current: Ice.Current):
         raise Test.DerivedException(False, a, b, "d1", b, "d2")
 
-    def opRequiredException(self, a, b, current: Ice.Current):
+    @override
+    def opRequiredException(self, a: int | None, b: str | None, current: Ice.Current):
         e = Test.RequiredException()
         e.a = a
         e.b = b
@@ -35,134 +42,211 @@ class InitialI(Test.Initial):
             e.ss = b
         raise e
 
-    def opByte(self, p1, current: Ice.Current):
+    @override
+    def opByte(self, p1: int | None, current: Ice.Current) -> tuple[int | None, int | None]:
         return (p1, p1)
 
-    def opBool(self, p1, current: Ice.Current):
+    @override
+    def opBool(self, p1: bool | None, current: Ice.Current) -> tuple[bool | None, bool | None]:
         return (p1, p1)
 
-    def opShort(self, p1, current: Ice.Current):
+    @override
+    def opShort(self, p1: int | None, current: Ice.Current) -> tuple[int | None, int | None]:
         return (p1, p1)
 
-    def opInt(self, p1, current: Ice.Current):
+    @override
+    def opInt(self, p1: int | None, current: Ice.Current) -> tuple[int | None, int | None]:
         return (p1, p1)
 
-    def opLong(self, p1, current: Ice.Current):
+    @override
+    def opLong(self, p1: int | None, current: Ice.Current) -> tuple[int | None, int | None]:
         return (p1, p1)
 
-    def opFloat(self, p1, current: Ice.Current):
+    @override
+    def opFloat(self, p1: float | None, current: Ice.Current) -> tuple[float | None, float | None]:
         return (p1, p1)
 
-    def opDouble(self, p1, current: Ice.Current):
+    @override
+    def opDouble(self, p1: float | None, current: Ice.Current) -> tuple[float | None, float | None]:
         return (p1, p1)
 
-    def opString(self, p1, current: Ice.Current):
+    @override
+    def opString(self, p1: str | None, current: Ice.Current) -> tuple[str | None, str | None]:
         return (p1, p1)
 
-    def opMyEnum(self, p1, current: Ice.Current):
+    @override
+    def opMyEnum(self, p1: Test.MyEnum | None, current: Ice.Current) -> tuple[Test.MyEnum | None, Test.MyEnum | None]:
         return (p1, p1)
 
-    def opSmallStruct(self, p1, current: Ice.Current):
+    @override
+    def opSmallStruct(
+        self, p1: Test.SmallStruct | None, current: Ice.Current
+    ) -> tuple[Test.SmallStruct | None, Test.SmallStruct | None]:
         return (p1, p1)
 
-    def opFixedStruct(self, p1, current: Ice.Current):
+    @override
+    def opFixedStruct(
+        self, p1: Test.FixedStruct | None, current: Ice.Current
+    ) -> tuple[Test.FixedStruct | None, Test.FixedStruct | None]:
         return (p1, p1)
 
-    def opVarStruct(self, p1, current: Ice.Current):
+    @override
+    def opVarStruct(
+        self, p1: Test.VarStruct | None, current: Ice.Current
+    ) -> tuple[Test.VarStruct | None, Test.VarStruct | None]:
         return (p1, p1)
 
-    def opOneOptional(self, p1, current: Ice.Current):
+    @override
+    def opOneOptional(
+        self, p1: Test.OneOptional | None, current: Ice.Current
+    ) -> tuple[Test.OneOptional | None, Test.OneOptional | None]:
         return (p1, p1)
 
-    def opMyInterfaceProxy(self, p1, current: Ice.Current):
+    @override
+    def opMyInterfaceProxy(
+        self, p1: Test.MyInterfacePrx | None, current: Ice.Current
+    ) -> tuple[Test.MyInterfacePrx | None, Test.MyInterfacePrx | None]:
         return (p1, p1)
 
-    def opByteSeq(self, p1, current: Ice.Current):
+    @override
+    def opByteSeq(self, p1: bytes | None, current: Ice.Current) -> tuple[Sequence[int] | None, Sequence[int] | None]:
         return (p1, p1)
 
-    def opBoolSeq(self, p1, current: Ice.Current):
+    @override
+    def opBoolSeq(self, p1: list[bool] | None, current: Ice.Current) -> tuple[list[bool] | None, list[bool] | None]:
         return (p1, p1)
 
-    def opShortSeq(self, p1, current: Ice.Current):
+    @override
+    def opShortSeq(self, p1: list[int] | None, current: Ice.Current) -> tuple[list[int] | None, list[int] | None]:
         return (p1, p1)
 
-    def opIntSeq(self, p1, current: Ice.Current):
+    @override
+    def opIntSeq(self, p1: list[int] | None, current: Ice.Current) -> tuple[list[int] | None, list[int] | None]:
         return (p1, p1)
 
-    def opLongSeq(self, p1, current: Ice.Current):
+    @override
+    def opLongSeq(self, p1: list[int] | None, current: Ice.Current) -> tuple[list[int] | None, list[int] | None]:
         return (p1, p1)
 
-    def opFloatSeq(self, p1, current: Ice.Current):
+    @override
+    def opFloatSeq(self, p1: list[float] | None, current: Ice.Current) -> tuple[list[float] | None, list[float] | None]:
         return (p1, p1)
 
-    def opDoubleSeq(self, p1, current: Ice.Current):
+    @override
+    def opDoubleSeq(
+        self, p1: list[float] | None, current: Ice.Current
+    ) -> tuple[list[float] | None, list[float] | None]:
         return (p1, p1)
 
-    def opStringSeq(self, p1, current: Ice.Current):
+    @override
+    def opStringSeq(self, p1: list[str] | None, current: Ice.Current) -> tuple[list[str] | None, list[str] | None]:
         return (p1, p1)
 
-    def opSmallStructSeq(self, p1, current: Ice.Current):
+    @override
+    def opSmallStructSeq(
+        self, p1: list[Test.SmallStruct] | None, current: Ice.Current
+    ) -> tuple[list[Test.SmallStruct] | None, list[Test.SmallStruct] | None]:
         return (p1, p1)
 
-    def opSmallStructList(self, p1, current: Ice.Current):
+    @override
+    def opSmallStructList(
+        self, p1: list[Test.SmallStruct] | None, current: Ice.Current
+    ) -> tuple[list[Test.SmallStruct] | None, list[Test.SmallStruct] | None]:
         return (p1, p1)
 
-    def opFixedStructSeq(self, p1, current: Ice.Current):
+    @override
+    def opFixedStructSeq(
+        self, p1: list[Test.FixedStruct] | None, current: Ice.Current
+    ) -> tuple[list[Test.FixedStruct] | None, list[Test.FixedStruct] | None]:
         return (p1, p1)
 
-    def opFixedStructList(self, p1, current: Ice.Current):
+    @override
+    def opFixedStructList(
+        self, p1: list[Test.FixedStruct] | None, current: Ice.Current
+    ) -> tuple[list[Test.FixedStruct] | None, list[Test.FixedStruct] | None]:
         return (p1, p1)
 
-    def opVarStructSeq(self, p1, current: Ice.Current):
+    @override
+    def opVarStructSeq(
+        self, p1: list[Test.VarStruct] | None, current: Ice.Current
+    ) -> tuple[list[Test.VarStruct] | None, list[Test.VarStruct] | None]:
         return (p1, p1)
 
-    def opSerializable(self, p1, current: Ice.Current):
+    @override
+    def opSerializable(self, p1: bytes | None, current: Ice.Current) -> tuple[bytes | None, bytes | None]:
         return (p1, p1)
 
-    def opIntIntDict(self, p1, current: Ice.Current):
+    @override
+    def opIntIntDict(
+        self, p1: dict[int, int] | None, current: Ice.Current
+    ) -> tuple[Mapping[int, int] | None, Mapping[int, int] | None]:
         return (p1, p1)
 
-    def opStringIntDict(self, p1, current: Ice.Current):
+    @override
+    def opStringIntDict(
+        self, p1: dict[str, int] | None, current: Ice.Current
+    ) -> tuple[dict[str, int] | None, dict[str, int] | None]:
         return (p1, p1)
 
-    def opClassAndUnknownOptional(self, p, current: Ice.Current):
+    @override
+    def opClassAndUnknownOptional(self, p: Test.A | None, current: Ice.Current):
         pass
 
-    def opG(self, g, current: Ice.Current):
+    @override
+    def opG(self, g: Test.G | None, current: Ice.Current) -> Test.G | None:
         return g
 
+    @override
     def opVoid(self, current: Ice.Current):
         pass
 
-    def opMStruct1(self, current: Ice.Current):
-        return Test.Initial.OpMStruct1MarshaledResult(Test.SmallStruct(), current)
+    @override
+    def opMStruct1(self, current: Ice.Current) -> Test.SmallStruct | None:
+        return Test.SmallStruct()
 
-    def opMStruct2(self, p1, current: Ice.Current):
-        return Test.Initial.OpMStruct2MarshaledResult((p1, p1), current)
+    @override
+    def opMStruct2(
+        self, p1: Test.SmallStruct | None, current: Ice.Current
+    ) -> tuple[Test.SmallStruct | None, Test.SmallStruct | None]:
+        return (p1, p1)
 
-    def opMSeq1(self, current: Ice.Current):
-        return Test.Initial.OpMSeq1MarshaledResult([], current)
+    @override
+    def opMSeq1(self, current: Ice.Current) -> Sequence[str] | None:
+        return []
 
-    def opMSeq2(self, p1, current: Ice.Current):
-        return Test.Initial.OpMSeq2MarshaledResult((p1, p1), current)
+    @override
+    def opMSeq2(self, p1: list[str] | None, current: Ice.Current) -> tuple[Sequence[str] | None, Sequence[str] | None]:
+        return (p1, p1)
 
+    @override
     def opMDict1(self, current: Ice.Current):
-        return Test.Initial.OpMDict1MarshaledResult({}, current)
+        return {}
 
-    def opMDict2(self, p1, current: Ice.Current):
-        return Test.Initial.OpMDict2MarshaledResult((p1, p1), current)
+    @override
+    def opMDict2(
+        self, p1: dict[str, int] | None, current: Ice.Current
+    ) -> tuple[Mapping[str, int] | None, Mapping[str, int] | None]:
+        return (p1, p1)
 
-    def opRequiredAfterOptional(self, p1, p2, p3, current: Ice.Current):
+    @override
+    def opRequiredAfterOptional(
+        self, p1: int, p2: int | None, p3: int, current: Ice.Current
+    ) -> tuple[int, int | None, int]:
         return (p1, p2, p3)
 
-    def opOptionalAfterRequired(self, p1, p2, p3, current: Ice.Current):
+    @override
+    def opOptionalAfterRequired(
+        self, p1: int, p2: int | None, p3: int | None, current: Ice.Current
+    ) -> tuple[int, int | None, int | None]:
         return (p1, p2, p3)
 
+    @override
     def supportsJavaSerializable(self, current: Ice.Current):
         return True
 
 
 class Server(TestHelper):
+    @override
     def run(self, args: list[str]):
         with self.initialize(args=args) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())

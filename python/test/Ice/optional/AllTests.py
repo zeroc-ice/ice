@@ -4,16 +4,12 @@ import sys
 
 from generated.test.Ice.optional import Test
 from generated.test.Ice.optional.client_private.Test import Initial2Prx
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator):
     initial = Test.InitialPrx(communicator, f"initial:{helper.getTestEndpoint()}")
 
     sys.stdout.write("testing optional data members... ")
@@ -71,7 +67,7 @@ def allTests(helper, communicator):
         "test",
         Test.MyEnum.MyEnumMember,
         Test.MyInterfacePrx(communicator, "test"),
-        [5],
+        bytes([5]),
         ["test", "test2"],
         {4: 3},
         {"test": 10},
@@ -99,19 +95,30 @@ def allTests(helper, communicator):
     test(mo1.h == "test")
     test(mo1.i == Test.MyEnum.MyEnumMember)
     test(mo1.j == Test.MyInterfacePrx(communicator, "test"))
-    test(mo1.bs == [5])
+    test(mo1.bs == bytes([5]))
     test(mo1.ss == ["test", "test2"])
+    assert mo1.iid is not None
+    assert mo1.sid is not None
     test(mo1.iid[4] == 3)
     test(mo1.sid["test"] == 10)
     test(mo1.fs == Test.FixedStruct(78))
     test(mo1.vs == Test.VarStruct("hello"))
 
+    assert mo1.shs is not None
+    assert mo1.es is not None
+    assert mo1.fss is not None
+    assert mo1.vss is not None
+    assert mo1.mips is not None
     test(mo1.shs[0] == 1)
     test(mo1.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo1.fss[0] == Test.FixedStruct(78))
     test(mo1.vss[0] == Test.VarStruct("hello"))
     test(mo1.mips[0] == Test.MyInterfacePrx(communicator, "test"))
 
+    assert mo1.ied is not None
+    assert mo1.ifsd is not None
+    assert mo1.ivsd is not None
+    assert mo1.imipd is not None
     test(mo1.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo1.ifsd[4] == Test.FixedStruct(78))
     test(mo1.ivsd[5] == Test.VarStruct("hello"))
@@ -122,10 +129,10 @@ def allTests(helper, communicator):
     #
     # Test generated struct and classes compare with None
     #
-    test(ss is not None)
-    test(fs is not None)
-    test(vs is not None)
-    test(mo1 is not None)
+    assert ss is not None
+    assert fs is not None
+    assert vs is not None
+    assert mo1 is not None
 
     print("ok")
 
@@ -133,12 +140,17 @@ def allTests(helper, communicator):
     sys.stdout.flush()
 
     oo4 = initial.pingPong(Test.OneOptional())
+    assert oo4 is not None
+    assert isinstance(oo4, Test.OneOptional)
     test(oo4.a is None)
 
     oo5 = initial.pingPong(oo1)
+    assert oo5 is not None
+    assert isinstance(oo5, Test.OneOptional)
     test(oo1.a == oo5.a)
 
     mo4 = initial.pingPong(Test.MultiOptional())
+    assert isinstance(mo4, Test.MultiOptional)
     test(mo4.a is None)
     test(mo4.b is None)
     test(mo4.c is None)
@@ -170,6 +182,7 @@ def allTests(helper, communicator):
     test(mo4.bos is None)
 
     mo5 = initial.pingPong(mo1)
+    assert isinstance(mo5, Test.MultiOptional)
     test(mo5.a == mo1.a)
     test(mo5.b == mo1.b)
     test(mo5.c == mo1.c)
@@ -180,18 +193,29 @@ def allTests(helper, communicator):
     test(mo5.h == mo1.h)
     test(mo5.i == mo1.i)
     test(mo5.j == mo1.j)
+    assert mo5.bs is not None
     test(mo5.bs[0] == 5)
     test(mo5.ss == mo1.ss)
+    assert mo5.iid is not None
+    assert mo5.sid is not None
     test(mo5.iid[4] == 3)
     test(mo5.sid["test"] == 10)
     test(mo5.fs == mo1.fs)
     test(mo5.vs == mo1.vs)
     test(mo5.shs == mo1.shs)
+    assert mo5.es is not None
+    assert mo5.fss is not None
+    assert mo5.vss is not None
+    assert mo5.mips is not None
     test(mo5.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo5.fss[0] == Test.FixedStruct(78))
     test(mo5.vss[0] == Test.VarStruct("hello"))
     test(mo5.mips[0] == Test.MyInterfacePrx(communicator, "test"))
 
+    assert mo5.ied is not None
+    assert mo5.ifsd is not None
+    assert mo5.ivsd is not None
+    assert mo5.imipd is not None
     test(mo5.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo5.ifsd[4] == Test.FixedStruct(78))
     test(mo5.ivsd[5] == Test.VarStruct("hello"))
@@ -215,6 +239,7 @@ def allTests(helper, communicator):
     mo6.bos = mo5.bos
 
     mo7 = initial.pingPong(mo6)
+    assert isinstance(mo7, Test.MultiOptional)
     test(mo7.a is None)
     test(mo7.b == mo1.b)
     test(mo7.c is None)
@@ -225,8 +250,10 @@ def allTests(helper, communicator):
     test(mo7.h == mo1.h)
     test(mo7.i is None)
     test(mo7.j == mo1.j)
+    assert mo7.bs is not None
     test(mo7.bs[0] == 5)
     test(mo7.ss is None)
+    assert mo7.iid is not None
     test(mo7.iid[4] == 3)
     test(mo7.sid is None)
     test(mo7.fs == mo1.fs)
@@ -234,11 +261,13 @@ def allTests(helper, communicator):
 
     test(mo7.shs == mo1.shs)
     test(mo7.es is None)
+    assert mo7.fss is not None
     test(mo7.fss[0] == Test.FixedStruct(78))
     test(mo7.vss is None)
     test(mo7.mips is None)
 
     test(mo7.ied is None)
+    assert mo7.ifsd is not None
     test(mo7.ifsd[4] == Test.FixedStruct(78))
     test(mo7.ivsd is None)
     test(mo7.imipd is None)
@@ -265,6 +294,7 @@ def allTests(helper, communicator):
     mo8.imipd = mo5.imipd
 
     mo9 = initial.pingPong(mo8)
+    assert isinstance(mo9, Test.MultiOptional)
     test(mo9.a == mo1.a)
     test(mo9.b is None)
     test(mo9.c == mo1.c)
@@ -278,16 +308,23 @@ def allTests(helper, communicator):
     test(mo9.bs is None)
     test(mo9.ss == mo1.ss)
     test(mo9.iid is None)
+    assert mo9.sid is not None
     test(mo9.sid["test"] == 10)
     test(mo9.fs is None)
     test(mo9.vs == mo1.vs)
 
     test(mo9.shs is None)
+    assert mo9.es is not None
     test(mo9.es[0] == Test.MyEnum.MyEnumMember and mo1.es[1] == Test.MyEnum.MyEnumMember)
     test(mo9.fss is None)
+    assert mo9.vss is not None
+    assert mo9.mips is not None
     test(mo9.vss[0] == Test.VarStruct("hello"))
     test(mo9.mips[0] == Test.MyInterfacePrx(communicator, "test"))
 
+    assert mo9.ied is not None
+    assert mo9.ivsd is not None
+    assert mo9.imipd is not None
     test(mo9.ied[4] == Test.MyEnum.MyEnumMember)
     test(mo9.ifsd is None)
     test(mo9.ivsd[5] == Test.VarStruct("hello"))
@@ -301,6 +338,11 @@ def allTests(helper, communicator):
     g.gg2Opt = Test.G2(20)
     g.gg1 = Test.G1("gg1")
     r = initial.opG(g)
+    assert isinstance(r, Test.G)
+    assert r.gg1Opt is not None
+    assert r.gg2 is not None
+    assert r.gg2Opt is not None
+    assert r.gg1 is not None
     test(r.gg1Opt.a == "gg1Opt")
     test(r.gg2.a == 10)
     test(r.gg2Opt.a == 20)
@@ -316,9 +358,9 @@ def allTests(helper, communicator):
 
     mc = Test.MultiOptional()
 
-    mc.bs = []
+    mc.bs = bytes()
     for i in range(1000):
-        mc.bs.append(0)
+        mc.bs += bytes([0])
     mc.shs = []
     for i in range(300):
         mc.shs.append(0)
@@ -332,6 +374,11 @@ def allTests(helper, communicator):
         mc.ifsd[i] = Test.FixedStruct()
 
     mc = initial.pingPong(mc)
+    assert isinstance(mc, Test.MultiOptional)
+    assert mc.bs is not None
+    assert mc.shs is not None
+    assert mc.fss is not None
+    assert mc.ifsd is not None
     test(len(mc.bs) == 1000)
     test(len(mc.shs) == 300)
     test(len(mc.fss) == 300)
@@ -344,6 +391,7 @@ def allTests(helper, communicator):
 
     b = Test.B()
     b2 = initial.pingPong(b)
+    assert isinstance(b2, Test.B)
     test(b2.ma is None)
     test(b2.mb is None)
     test(b2.mc is None)
@@ -354,6 +402,7 @@ def allTests(helper, communicator):
     b.md = 13
 
     b2 = initial.pingPong(b)
+    assert isinstance(b2, Test.B)
     test(b2.ma == 10)
     test(b2.mb == 11)
     test(b2.mc == 12)
@@ -370,6 +419,7 @@ def allTests(helper, communicator):
     f.fse = f.fsf
 
     rf = initial.pingPong(f)
+    assert isinstance(rf, Test.F)
     test(rf.fse == rf.fsf)
 
     print("ok")
@@ -378,11 +428,13 @@ def allTests(helper, communicator):
     sys.stdout.flush()
 
     wd = initial.pingPong(Test.WD())
+    assert isinstance(wd, Test.WD)
     test(wd.a == 5)
     test(wd.s == "test")
     wd.a = None
     wd.s = None
     wd = initial.pingPong(wd)
+    assert isinstance(wd, Test.WD)
     test(wd.a is None)
     test(wd.s is None)
 
@@ -396,6 +448,7 @@ def allTests(helper, communicator):
         c.ss = "test"
         c.ms = "testms"
         c = initial.pingPong(c)
+        assert isinstance(c, Test.C)
         test(c.ma is None)
         test(c.mb is None)
         test(c.mc is None)
@@ -422,6 +475,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opByte(56)
     test(p2 == 56 and p3 == 56)
     f = initial.opByteAsync(56)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == 56 and p3 == 56)
 
@@ -430,6 +484,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opBool(True)
     test(p2 is True and p3 is True)
     f = initial.opBoolAsync(True)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 is True and p3 is True)
 
@@ -438,6 +493,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opShort(56)
     test(p2 == 56 and p3 == 56)
     f = initial.opShortAsync(56)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == 56 and p3 == 56)
 
@@ -446,6 +502,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opInt(56)
     test(p2 == 56 and p3 == 56)
     f = initial.opIntAsync(56)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == 56 and p3 == 56)
 
@@ -454,6 +511,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opLong(56)
     test(p2 == 56 and p3 == 56)
     f = initial.opLongAsync(56)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == 56 and p3 == 56)
 
@@ -462,6 +520,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opFloat(1.0)
     test(p2 == 1.0 and p3 == 1.0)
     f = initial.opFloatAsync(1.0)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == 1.0 and p3 == 1.0)
 
@@ -470,6 +529,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opDouble(1.0)
     test(p2 == 1.0 and p3 == 1.0)
     f = initial.opDoubleAsync(1.0)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == 1.0 and p3 == 1.0)
 
@@ -478,6 +538,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opString("test")
     test(p2 == "test" and p3 == "test")
     f = initial.opStringAsync("test")
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == "test" and p3 == "test")
 
@@ -486,6 +547,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opMyEnum(Test.MyEnum.MyEnumMember)
     test(p2 == Test.MyEnum.MyEnumMember and p3 == Test.MyEnum.MyEnumMember)
     f = initial.opMyEnumAsync(Test.MyEnum.MyEnumMember)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == Test.MyEnum.MyEnumMember and p3 == Test.MyEnum.MyEnumMember)
 
@@ -495,6 +557,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opSmallStruct(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opSmallStructAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
@@ -504,6 +567,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opFixedStruct(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opFixedStructAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
@@ -513,6 +577,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opVarStruct(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opVarStructAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
@@ -523,6 +588,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opOneOptional(p1)
     test(p2.a == p1.a and p3.a == p1.a)
     f = initial.opOneOptionalAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2.a == p1.a and p3.a == p1.a)
 
@@ -532,17 +598,19 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opMyInterfaceProxy(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opMyInterfaceProxyAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opByteSeq(None)
     test(p2 is None and p3 is None)
-    p1 = [56 for x in range(100)]
+    p1 = [56 for _ in range(100)]
     (p2, p3) = initial.opByteSeq(p1)
     test(len(p2) == len(p1) and len(p3) == len(p1))
     test(p2[0] == 0x38)
     test(p3[0] == 0x38)
     f = initial.opByteSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(len(p2) == len(p1) and len(p3) == len(p1))
     test(p2[0] == 0x38)
@@ -550,109 +618,121 @@ def allTests(helper, communicator):
 
     (p2, p3) = initial.opBoolSeq(None)
     test(p2 is None and p3 is None)
-    p1 = [True for x in range(100)]
+    p1 = [True for _ in range(100)]
     (p2, p3) = initial.opBoolSeq(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opBoolSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opShortSeq(None)
     test(p2 is None and p3 is None)
-    p1 = [56 for x in range(100)]
+    p1 = [56 for _ in range(100)]
     (p2, p3) = initial.opShortSeq(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opShortSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opIntSeq(None)
     test(p2 is None and p3 is None)
-    p1 = [56 for x in range(100)]
+    p1 = [56 for _ in range(100)]
     (p2, p3) = initial.opIntSeq(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opIntSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opLongSeq(None)
     test(p2 is None and p3 is None)
-    p1 = [56 for x in range(100)]
+    p1 = [56 for _ in range(100)]
     (p2, p3) = initial.opLongSeq(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opLongSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opFloatSeq(None)
     test(p2 is None and p3 is None)
-    p1 = [1.0 for x in range(100)]
+    p1 = [1.0 for _ in range(100)]
     (p2, p3) = initial.opFloatSeq(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opFloatSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opDoubleSeq(None)
     test(p2 is None and p3 is None)
-    p1 = [1.0 for x in range(100)]
+    p1 = [1.0 for _ in range(100)]
     (p2, p3) = initial.opDoubleSeq(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opDoubleSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opStringSeq(None)
     test(p2 is None and p3 is None)
-    p1 = ["test1" for x in range(100)]
+    p1 = ["test1" for _ in range(100)]
     (p2, p3) = initial.opStringSeq(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opStringSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opSmallStructSeq(None)
     test(p2 is None and p3 is None)
-    p1 = [Test.SmallStruct(1) for x in range(10)]
+    p1 = [Test.SmallStruct(1) for _ in range(10)]
     (p2, p3) = initial.opSmallStructSeq(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opSmallStructSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opSmallStructList(None)
     test(p2 is None and p3 is None)
-    p1 = tuple([Test.SmallStruct(1) for x in range(10)])
+    p1 = tuple([Test.SmallStruct(1) for _ in range(10)])
     (p2, p3) = initial.opSmallStructList(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opSmallStructListAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opFixedStructSeq(None)
     test(p2 is None and p3 is None)
-    p1 = [Test.FixedStruct(1) for x in range(10)]
+    p1 = [Test.FixedStruct(1) for _ in range(10)]
     (p2, p3) = initial.opFixedStructSeq(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opFixedStructSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opFixedStructList(None)
     test(p2 is None and p3 is None)
-    p1 = tuple([Test.FixedStruct(1) for x in range(10)])
+    p1 = tuple([Test.FixedStruct(1) for _ in range(10)])
     (p2, p3) = initial.opFixedStructList(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opFixedStructListAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
     (p2, p3) = initial.opVarStructSeq(None)
     test(p2 is None and p3 is None)
-    p1 = [Test.VarStruct("test") for x in range(10)]
+    p1 = [Test.VarStruct("test") for _ in range(10)]
     (p2, p3) = initial.opVarStructSeq(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opVarStructSeqAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
@@ -662,6 +742,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opIntIntDict(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opIntIntDictAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 
@@ -671,6 +752,7 @@ def allTests(helper, communicator):
     (p2, p3) = initial.opStringIntDict(p1)
     test(p2 == p1 and p3 == p1)
     f = initial.opStringIntDictAsync(p1)
+    assert isinstance(f, Ice.Future)
     (p2, p3) = f.result()
     test(p2 == p1 and p3 == p1)
 

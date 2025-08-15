@@ -566,27 +566,26 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def opWStringLiterals(self, current: Ice.Current) -> Awaitable[Sequence[str]]:
         return self.opStringLiterals(current)
 
-    # TODO: Marshaled result
     @override
     def opMStruct1(self, current: Ice.Current):
-        return Ice.Future.completed(Test.MyClass.OpMStruct1MarshaledResult(Test.Structure(), current))
+        return Ice.Future.completed(Test.Structure())
 
     @override
     def opMStruct2(self, p1: Test.Structure, current: Ice.Current):
-        return Ice.Future.completed(Test.MyClass.OpMStruct2MarshaledResult((p1, p1), current))
+        return Ice.Future.completed((p1, p1))
 
     @override
     def opMSeq1(self, current: Ice.Current):
-        return Ice.Future.completed(Test.MyClass.OpMSeq1MarshaledResult([], current))
+        return Ice.Future.completed([])
 
     @override
     def opMSeq2(self, p1: list[str], current: Ice.Current):
-        return Ice.Future.completed(Test.MyClass.OpMSeq2MarshaledResult((p1, p1), current))
+        return Ice.Future.completed((p1, p1))
 
     @override
     def opMDict1(self, current: Ice.Current):
-        return Ice.Future.completed(Test.MyClass.OpMDict1MarshaledResult({}, current))
+        return Ice.Future.completed({})
 
     @override
     def opMDict2(self, p1: dict[str, str], current: Ice.Current):
-        return Ice.Future.completed(Test.MyClass.OpMDict2MarshaledResult((p1, p1), current))
+        return Ice.Future.completed((p1, p1))

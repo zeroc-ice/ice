@@ -830,6 +830,8 @@ initialization. See `InitializationData.pluginFactories`.
   track outputs. In 3.8, each Slice definition is compiled into a separate module under its Python package path. The
   new `--list` option helps track the set of generated files.
 
+- Removed support for the 'marshaled-result' metadata directive.
+
 ## Ruby Changes
 
 ## Swift Changes

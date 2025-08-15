@@ -75,7 +75,8 @@ jobs:
           pyright python/test/Ice/servantLocator
           pyright python/test/Ice/thread
           pyright python/test/Ice/timeout
-          # pyright python/test/Ice/objects
+          pyright python/test/Ice/objects
+          pyright python/test/Ice/optional
           pyright python/test/Ice/operations
 
           pyright python/test/Ice/slicing

@@ -295,13 +295,6 @@ namespace IcePy
         Ice::CommunicatorPtr* communicator;
     };
 
-    struct MarshaledResultObject
-    {
-        PyObject_HEAD Ice::OutputStream* out;
-    };
-
-    extern PyTypeObject MarshaledResultType;
-
     extern PyTypeObject OperationType;
 }
 
@@ -544,74 +537,6 @@ asyncInvocationContextCancel(AsyncInvocationContextObject* self, PyObject* /*arg
     }
 
     return Py_None;
-}
-
-//
-// MarshaledResult operations
-//
-
-extern "C" MarshaledResultObject*
-marshaledResultNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
-{
-    MarshaledResultObject* self{reinterpret_cast<MarshaledResultObject*>(type->tp_alloc(type, 0))};
-    if (!self)
-    {
-        return nullptr;
-    }
-    self->out = nullptr;
-    return self;
-}
-
-extern "C" int
-marshaledResultInit(MarshaledResultObject* self, PyObject* args, PyObject* /*kwds*/)
-{
-    PyObject* versionType{IcePy::lookupType("Ice.EncodingVersion")};
-    PyObject* result{nullptr};
-    OperationObject* opObj{nullptr};
-    PyObject* communicatorObj{nullptr};
-    PyObject* encodingObj{nullptr};
-    if (!PyArg_ParseTuple(args, "OOOO!", &result, &opObj, &communicatorObj, versionType, &encodingObj))
-    {
-        return -1;
-    }
-
-    Ice::CommunicatorPtr communicator{getCommunicator(communicatorObj)};
-    Ice::EncodingVersion encoding;
-    if (!getEncodingVersion(encodingObj, encoding))
-    {
-        return -1;
-    }
-
-    self->out = new Ice::OutputStream(communicator);
-
-    OperationPtr op{*opObj->op};
-    self->out->startEncapsulation(encoding, op->format);
-
-    try
-    {
-        op->marshalResult(*self->out, result);
-    }
-    catch (const AbortMarshaling&)
-    {
-        assert(PyErr_Occurred());
-        return -1;
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return -1;
-    }
-
-    self->out->endEncapsulation();
-
-    return 0;
-}
-
-extern "C" void
-marshaledResultDealloc(MarshaledResultObject* self)
-{
-    delete self->out;
-    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
 //
@@ -975,16 +900,6 @@ namespace IcePy
         .tp_methods = AsyncInvocationContextMethods,
         .tp_new = reinterpret_cast<newfunc>(asyncInvocationContextNew),
     };
-
-    PyTypeObject MarshaledResultType = {
-        .ob_base = PyVarObject_HEAD_INIT(nullptr, 0) /* object header */
-        .tp_name = "IcePy.MarshaledResult",
-        .tp_basicsize = sizeof(MarshaledResultObject),
-        .tp_dealloc = reinterpret_cast<destructor>(marshaledResultDealloc),
-        .tp_flags = Py_TPFLAGS_DEFAULT,
-        .tp_init = reinterpret_cast<initproc>(marshaledResultInit),
-        .tp_new = reinterpret_cast<newfunc>(marshaledResultNew),
-    };
     // clang-format on
 }
 
@@ -1018,16 +933,6 @@ IcePy::initOperation(PyObject* module)
 
     if (PyModule_AddObject(module, "AsyncInvocationContext", reinterpret_cast<PyObject*>(&AsyncInvocationContextType)) <
         0)
-    {
-        return false;
-    }
-
-    if (PyType_Ready(&MarshaledResultType) < 0)
-    {
-        return false;
-    }
-
-    if (PyModule_AddObject(module, "MarshaledResult", reinterpret_cast<PyObject*>(&MarshaledResultType)) < 0)
     {
         return false;
     }
@@ -2140,31 +2045,23 @@ IcePy::TypedUpcall::response(PyObject* result)
 {
     try
     {
-        if (PyObject_IsInstance(result, reinterpret_cast<PyObject*>(&MarshaledResultType)))
+        try
         {
-            auto* mro = reinterpret_cast<MarshaledResultObject*>(result);
-            _response(true, mro->out->finished());
+            Ice::OutputStream os(_communicator);
+            os.startEncapsulation(_encoding, _op->format);
+            _op->marshalResult(os, result);
+            os.endEncapsulation();
+            _response(true, os.finished());
         }
-        else
+        catch (const AbortMarshaling&)
         {
             try
             {
-                Ice::OutputStream os(_communicator);
-                os.startEncapsulation(_encoding, _op->format);
-                _op->marshalResult(os, result);
-                os.endEncapsulation();
-                _response(true, os.finished());
+                throwPythonException();
             }
-            catch (const AbortMarshaling&)
+            catch (...)
             {
-                try
-                {
-                    throwPythonException();
-                }
-                catch (...)
-                {
-                    _error(current_exception());
-                }
+                _error(current_exception());
             }
         }
     }
