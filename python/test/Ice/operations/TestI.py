@@ -510,25 +510,25 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def opWStringLiterals(self, current: Ice.Current) -> Sequence[str]:
         return self.opStringLiterals(current)
 
-    def opMStruct1(self, current: Ice.Current):  # pyright: ignore
+    def opMStruct1(self, current: Ice.Current):
         return Test.Structure()
 
     @override
-    def opMStruct2(self, p1, current: Ice.Current):  # pyright: ignore
+    def opMStruct2(self, p1: Test.Structure, current: Ice.Current):
         return (p1, p1)
 
     @override
-    def opMSeq1(self, current: Ice.Current):  # pyright: ignore
+    def opMSeq1(self, current: Ice.Current):
         return ()
 
     @override
-    def opMSeq2(self, p1, current: Ice.Current):  # pyright: ignore
+    def opMSeq2(self, p1: list[str], current: Ice.Current) -> tuple[Sequence[str], Sequence[str]]:
         return (p1, p1)
 
     @override
-    def opMDict1(self, current: Ice.Current):  # pyright: ignore
+    def opMDict1(self, current: Ice.Current):
         return {}
 
     @override
-    def opMDict2(self, p1: dict[str, str], current: Ice.Current):  # pyright: ignore
+    def opMDict2(self, p1: dict[str, str], current: Ice.Current):
         return (p1, p1)
