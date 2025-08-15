@@ -273,24 +273,12 @@ def allTests(helper, communicator)
     test(b1.ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered)
     prop.setProperty(property, "")
 
-    #
-    # isCollocationOptimized is not implemented because the
-    # collocation optimization is permanently disabled with IcePy.
-    #
-    #property = propertyPrefix + ".CollocationOptimized"
-    #test(b1.ice_isCollocationOptimized())
-    #prop.setProperty(property, "0")
-    #b1 = communicator.propertyToProxy(propertyPrefix)
-    #test(!b1.ice_isCollocationOptimized())
-    #prop.setProperty(property, "")
-
     puts "ok"
 
     print "testing proxyToProperty... "
     STDOUT.flush
 
     b1 = communicator.stringToProxy("test")
-    #b1 = b1.ice_collocationOptimized(true)
     b1 = b1.ice_connectionCached(true)
     b1 = b1.ice_preferSecure(false)
     b1 = b1.ice_endpointSelection(Ice::EndpointSelectionType::Ordered)
@@ -319,7 +307,6 @@ def allTests(helper, communicator)
     test(proxyProps.length() == 21)
 
     test(proxyProps["Test"] == "test -e 1.0")
-    #test(proxyProps["Test.CollocationOptimized"] == "1")
     test(proxyProps["Test.ConnectionCached"] == "1")
     test(proxyProps["Test.PreferSecure"] == "0")
     test(proxyProps["Test.EndpointSelection"] == "Ordered")
@@ -327,7 +314,6 @@ def allTests(helper, communicator)
     test(proxyProps["Test.InvocationTimeout"] == "1234");
 
     test(proxyProps["Test.Locator"] == "locator")
-    #test(proxyProps["Test.Locator.CollocationOptimized"] == "1")
     test(proxyProps["Test.Locator.ConnectionCached"] == "0")
     test(proxyProps["Test.Locator.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random")
@@ -335,7 +321,6 @@ def allTests(helper, communicator)
     test(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
 
     test(proxyProps["Test.Locator.Router"] == "router");
-    #test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
     test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1")
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
@@ -455,11 +440,6 @@ def allTests(helper, communicator)
     test(compObj.ice_secure(false) != compObj.ice_secure(true))
     #test(compObj.ice_secure(false) < compObj.ice_secure(true))
     #test(!(compObj.ice_secure(true) < compObj.ice_secure(false)))
-
-    #test(compObj.ice_collocationOptimized(true) == compObj.ice_collocationOptimized(true))
-    #test(compObj.ice_collocationOptimized(false) != compObj.ice_collocationOptimized(true))
-    #test(compObj.ice_collocationOptimized(false) < compObj.ice_collocationOptimized(true))
-    #test(!(compObj.ice_collocationOptimized(true) < compObj.ice_collocationOptimized(false)))
 
     test(compObj.ice_connectionCached(true) == compObj.ice_connectionCached(true))
     test(compObj.ice_connectionCached(false) != compObj.ice_connectionCached(true))

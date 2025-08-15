@@ -332,7 +332,6 @@ classdef AllTests
             assert(proxyProps.numEntries == 21);
 
             assert(strcmp(proxyProps('Test'), 'test -e 1.0'));
-            %assert(strcmp(proxyProps('Test.CollocationOptimized'), '1'));
             assert(strcmp(proxyProps('Test.ConnectionCached'), '1'));
             assert(strcmp(proxyProps('Test.PreferSecure'), '0'));
             assert(strcmp(proxyProps('Test.EndpointSelection'), 'Ordered'));
@@ -340,7 +339,6 @@ classdef AllTests
             assert(strcmp(proxyProps('Test.InvocationTimeout'), '1234'));
 
             assert(strcmp(proxyProps('Test.Locator'), 'locator'));
-            %assert(strcmp(proxyProps('Test.Locator.CollocationOptimized'), '1'));
             assert(strcmp(proxyProps('Test.Locator.ConnectionCached'), '0'));
             assert(strcmp(proxyProps('Test.Locator.PreferSecure'), '1'));
             assert(strcmp(proxyProps('Test.Locator.EndpointSelection'), 'Random'));
@@ -348,7 +346,6 @@ classdef AllTests
             assert(strcmp(proxyProps('Test.Locator.InvocationTimeout'), '1500'));
 
             assert(strcmp(proxyProps('Test.Locator.Router'), 'router'));
-            %assert(strcmp(proxyProps('Test.Locator.Router.CollocationOptimized'), '0'));
             assert(strcmp(proxyProps('Test.Locator.Router.ConnectionCached'), '1'));
             assert(strcmp(proxyProps('Test.Locator.Router.PreferSecure'), '1'));
             assert(strcmp(proxyProps('Test.Locator.Router.EndpointSelection'), 'Random'));
@@ -401,8 +398,6 @@ classdef AllTests
             assert(base.ice_batchDatagram().ice_isBatchDatagram());
             assert(base.ice_secure(true).ice_isSecure());
             assert(~base.ice_secure(false).ice_isSecure());
-            %assert(base.ice_collocationOptimized(true).ice_isCollocationOptimized());
-            %assert(~base.ice_collocationOptimized(false).ice_isCollocationOptimized());
             assert(base.ice_preferSecure(true).ice_isPreferSecure());
             assert(~base.ice_preferSecure(false).ice_isPreferSecure());
             assert(base.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_getEncodingVersion() == Ice.EncodingVersion(1, 0));
@@ -470,11 +465,6 @@ classdef AllTests
             assert(compObj.ice_secure(false) ~= compObj.ice_secure(true));
             %assert(compObj.ice_secure(false) < compObj.ice_secure(true));
             %assert(~(compObj.ice_secure(true) < compObj.ice_secure(false)));
-
-            %assert(compObj.ice_collocationOptimized(true) == compObj.ice_collocationOptimized(true));
-            %assert(compObj.ice_collocationOptimized(false) ~= compObj.ice_collocationOptimized(true));
-            %assert(compObj.ice_collocationOptimized(false) < compObj.ice_collocationOptimized(true));
-            %assert(~(compObj.ice_collocationOptimized(true) < compObj.ice_collocationOptimized(false)));
 
             assert(compObj.ice_connectionCached(true) == compObj.ice_connectionCached(true));
             assert(compObj.ice_connectionCached(false) ~= compObj.ice_connectionCached(true));
