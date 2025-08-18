@@ -99,11 +99,7 @@ func allTests(_ helper: TestHelper) async throws {
     output.write("testing id@ReplicaGroupId indirect proxy... ")
     try await obj.shutdown()
     try await manager.startServer()
-    do {
-        try await obj6.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await obj6.ice_ping()
     output.writeLine("ok")
 
     output.write("testing identity indirect proxy... ")
