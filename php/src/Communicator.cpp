@@ -36,10 +36,9 @@ namespace IcePHP
 {
     zend_class_entry* communicatorClassEntry = 0;
 
-    // An active communicator is in use by at least one request and may have
-    // registered so that it remains active after a request completes. The
-    // communicator is destroyed when there are no more references to this
-    // object.
+    // An ActiveCommunicator represents a communicator that is still in use—either because a
+    // request is currently using it, or because it has been registered and its expiration
+    // time has not yet elapsed.
     class ActiveCommunicator
     {
     public:
@@ -48,15 +47,13 @@ namespace IcePHP
 
         const Ice::CommunicatorPtr communicator;
         vector<string> ids;
-        int expires;
+        int expires{0};
         std::chrono::steady_clock::time_point lastAccess;
     };
     using ActiveCommunicatorPtr = shared_ptr<ActiveCommunicator>;
 
-    // CommunicatorInfoI encapsulates communicator-related information that
-    // is specific to a PHP "request". In other words, multiple PHP requests
-    // might share the same communicator instance but still need separate
-    // workspaces.
+    // CommunicatorInfoI encapsulates communicator-related information that is specific to a PHP "request". In other
+    // words, multiple PHP requests might share the same communicator instance but still need separate workspaces.
     class CommunicatorInfoI final : public CommunicatorInfo, public enable_shared_from_this<CommunicatorInfoI>
     {
     public:
@@ -92,23 +89,18 @@ namespace
     ProfileMap _profiles;
     const string _defaultProfileName = "";
 
-    // This map represents communicators that have been registered so that they can be used
-    // by multiple PHP requests.
+    // This map represents communicators that have been registered so that they can be reused for multiple requests.
     using RegisteredCommunicatorMap = map<string, ActiveCommunicatorPtr>;
     RegisteredCommunicatorMap _registeredCommunicators;
 
-    // std::mutex constructor is constexpr so it is statically initialized
-    // _registeredCommunicatorsMutex protects _registeredCommunicators and _reapThread
-    // _reapFinishedMutex protects _reapingFinished
+    // Protects _registeredCommunicators, _reapThread, and _reapingFinished
     std::mutex _registeredCommunicatorsMutex;
-    std::mutex _reapFinishedMutex;
     std::condition_variable _reapCond;
     std::thread _reapThread;
-    bool _reapingFinished = true;
+    bool _reapingFinished{false};
 
-    // This map is stored in the "global" variables for each PHP request and holds
-    // the communicators that have been created (or registered communicators that have
-    // been used) by the request.
+    // This map is stored in the "global" variables for each PHP request and holds the communicators that have been
+    // created (or registered communicators that have been used) by the request.
     using CommunicatorMap = map<Ice::CommunicatorPtr, CommunicatorInfoIPtr>;
 
     void reapRegisteredCommunicators()
@@ -118,7 +110,7 @@ namespace
         RegisteredCommunicatorMap::iterator p = _registeredCommunicators.begin();
         while (p != _registeredCommunicators.end())
         {
-            if (p->second->lastAccess + std::chrono::hours(p->second->expires) <= now)
+            if (p->second->expires > 0 && p->second->lastAccess + std::chrono::hours(p->second->expires) <= now)
             {
                 p->second->communicator->destroy();
                 _registeredCommunicators.erase(p++);
@@ -202,9 +194,9 @@ ZEND_METHOD(Ice_Communicator, destroy)
         // Remove all registrations.
         {
             lock_guard lock(_registeredCommunicatorsMutex);
-            for (vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
+            for (const auto& id : _this->ac->ids)
             {
-                _registeredCommunicators.erase(*p);
+                _registeredCommunicators.erase(id);
             }
             _this->ac->ids.clear();
         }
@@ -714,7 +706,7 @@ static zend_object*
 handleClone(zend_object* zobj)
 {
     php_error_docref(0, E_ERROR, "communicators cannot be cloned");
-    return 0;
+    return nullptr;
 }
 
 static CommunicatorInfoIPtr
@@ -725,7 +717,7 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
         if (object_init_ex(zv, communicatorClassEntry) != SUCCESS)
         {
             runtimeError("unable to initialize communicator object");
-            return 0;
+            return nullptr;
         }
 
         Wrapper<CommunicatorInfoIPtr>* obj = Wrapper<CommunicatorInfoIPtr>::extract(zv);
@@ -1028,9 +1020,7 @@ ZEND_FUNCTION(Ice_register)
     {
         if (p->second->communicator != info->getCommunicator())
         {
-            //
             // A different communicator is already registered with that ID.
-            //
             RETURN_FALSE;
         }
     }
@@ -1042,28 +1032,27 @@ ZEND_FUNCTION(Ice_register)
 
     if (expires > 0)
     {
-        //
-        // Update the expiration time. If a communicator is registered with multiple IDs, we
-        // always use the most recent expiration setting.
-        //
+        // Update the expiration time. If a communicator is registered with multiple IDs, we always use the most
+        // recent expiration setting.
         info->ac->expires = static_cast<int>(expires);
         info->ac->lastAccess = std::chrono::steady_clock::now();
 
-        //
-        // Start the timer if necessary. Reap expired communicators every five minutes.
-        //
+        // Start the reap thread if necessary, the reap thread reaps communicator every 5 minutes.
         if (!_reapThread.joinable())
         {
             _reapThread = std::thread(
                 [&]
                 {
-                    std::unique_lock lock(_reapFinishedMutex);
-                    _reapCond.wait_for(lock, std::chrono::minutes(5), [&] { return _reapingFinished; });
-                    if (_reapingFinished)
+                    while (true)
                     {
-                        return;
+                        std::unique_lock lock(_registeredCommunicatorsMutex);
+                        _reapCond.wait_for(lock, std::chrono::minutes(5), [&] { return _reapingFinished; });
+                        if (_reapingFinished)
+                        {
+                            break; // Shutdown in progress
+                        }
+                        reapRegisteredCommunicators();
                     }
-                    reapRegisteredCommunicators();
                 });
         }
     }
@@ -1464,9 +1453,6 @@ parseProfiles(const string& file)
 bool
 IcePHP::communicatorInit(void)
 {
-    // We register an interface and a class that implements the interface. This allows
-    // applications to safely include the Slice-generated code for the type.
-
     // Register the Communicator interface.
     zend_class_entry ce;
     INIT_NS_CLASS_ENTRY(ce, "Ice", "Communicator", _interfaceMethods);
@@ -1510,22 +1496,6 @@ IcePHP::communicatorInit(void)
         {
             return false;
         }
-
-        if (INI_BOOL(const_cast<char*>("ice.hide_profiles")))
-        {
-            memset(const_cast<char*>(profiles), '*', strlen(profiles));
-            //
-            // For some reason the code below does not work as expected. It causes a call
-            // to ini_get_all() to segfault.
-            //
-            /*
-            if(zend_alter_ini_entry("ice.profiles", sizeof("ice.profiles"), "<hidden>", sizeof("<hidden>") - 1,
-                                    PHP_INI_ALL, PHP_INI_STAGE_STARTUP) == FAILURE)
-            {
-                return false;
-            }
-            */
-        }
     }
 
     return true;
@@ -1536,22 +1506,21 @@ IcePHP::communicatorShutdown(void)
 {
     _profiles.clear();
 
+    std::thread reapThread;
     {
-        lock_guard lock(_reapFinishedMutex);
+        lock_guard lock(_registeredCommunicatorsMutex);
+        reapThread = std::move(_reapThread);
         _reapingFinished = true;
         _reapCond.notify_one();
+        // Clearing the map releases the last remaining reference counts of the ActiveCommunicator objects. The
+        // ActiveCommunicator destructor destroys its communicator.
+        _registeredCommunicators.clear();
     }
 
-    lock_guard lock(_registeredCommunicatorsMutex);
-    // Clearing the map releases the last remaining reference counts of the ActiveCommunicator objects. The
-    // ActiveCommunicator destructor destroys its communicator.
-    _registeredCommunicators.clear();
-
-    if (_reapThread.joinable())
+    if (reapThread.joinable())
     {
-        _reapThread.join();
+        reapThread.join();
     }
-
     return true;
 }
 
@@ -1578,7 +1547,7 @@ IcePHP::communicatorRequestShutdown(void)
     return true;
 }
 
-IcePHP::ActiveCommunicator::ActiveCommunicator(const Ice::CommunicatorPtr& c) : communicator(c), expires(0) {}
+IcePHP::ActiveCommunicator::ActiveCommunicator(const Ice::CommunicatorPtr& c) : communicator(c) {}
 
 IcePHP::ActiveCommunicator::~ActiveCommunicator()
 {

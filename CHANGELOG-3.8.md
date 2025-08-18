@@ -743,6 +743,8 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Removed the flattened mapping deprecated in 3.7.
 
+- Removed ice.hide_profiles directive.
+
 - Removed support for Windows PHP builds.
 
 - Removed support for PHP 5 builds.
