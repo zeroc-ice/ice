@@ -1,19 +1,16 @@
 # Copyright (c) ZeroC, Inc.
 
 import sys
+from typing import cast
 
 from generated.test.Ice.objects import Test
 from generated.test.Ice.objects.client_private.Test import UnexpectedObjectExceptionTestPrx
+from TestHelper import TestHelper, test
 
 import Ice
 
 
-def test(b):
-    if not b:
-        raise RuntimeError("test assertion failed")
-
-
-def allTests(helper, communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.InitialPrx:
     initial = Test.InitialPrx(communicator, f"initial:{helper.getTestEndpoint()}")
 
     sys.stdout.write("getting B1... ")
@@ -43,21 +40,28 @@ def allTests(helper, communicator):
     sys.stdout.write("getting K... ")
     sys.stdout.flush()
     k = initial.getK()
-    test(isinstance(k.value, Test.L))
+    assert k is not None
+    assert isinstance(k.value, Test.L)
     test(k.value.data == "l")
     print("ok")
 
     sys.stdout.write("testing Value as parameter... ")
     sys.stdout.flush()
     v1, v2 = initial.opValue(Test.L("l"))
+    assert isinstance(v1, Test.L)
+    assert isinstance(v2, Test.L)
     test(v1.data == "l")
     test(v2.data == "l")
 
     v1, v2 = initial.opValueSeq([Test.L("l")])
+    assert isinstance(v1[0], Test.L)
+    assert isinstance(v2[0], Test.L)
     test(v1[0].data == "l")
     test(v2[0].data == "l")
 
     v1, v2 = initial.opValueMap({"l": Test.L("l")})
+    assert isinstance(v1["l"], Test.L)
+    assert isinstance(v2["l"], Test.L)
     test(v1["l"].data == "l")
     test(v2["l"].data == "l")
     print("ok")
@@ -65,6 +69,11 @@ def allTests(helper, communicator):
     sys.stdout.write("getting D1... ")
     sys.stdout.flush()
     d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")))
+    assert d1 is not None
+    assert d1.a1 is not None
+    assert d1.a2 is not None
+    assert d1.a3 is not None
+    assert d1.a4 is not None
     test(d1.a1.name == "a1")
     test(d1.a2.name == "a2")
     test(d1.a3.name == "a3")
@@ -77,6 +86,10 @@ def allTests(helper, communicator):
         initial.throwEDerived()
         test(False)
     except Test.EDerived as e:
+        assert e.a1 is not None
+        assert e.a2 is not None
+        assert e.a3 is not None
+        assert e.a4 is not None
         test(e.a1.name == "a1")
         test(e.a2.name == "a2")
         test(e.a3.name == "a3")
@@ -99,12 +112,13 @@ def allTests(helper, communicator):
     test(b2 != c)
     test(b2 != d)
     test(c != d)
+    assert b1 is not None
     test(b1.theB == b1)
     test(b1.theC is None)
-    test(isinstance(b1.theA, Test.B))
+    assert isinstance(b1.theA, Test.B)
     test(b1.theA.theA == b1.theA)
     test(b1.theA.theB == b1)
-    test(b1.theA.theC)
+    assert b1.theA.theC is not None
     test(b1.theA.theC.theB == b1.theA)
     test(b1.preMarshalInvoked)
     test(b1.postUnmarshalInvoked)
@@ -113,27 +127,24 @@ def allTests(helper, communicator):
     test(b1.theA.theC.preMarshalInvoked)
     test(b1.theA.theC.postUnmarshalInvoked)
     # More tests possible for b2 and d, but I think this is already sufficient.
+    assert b2 is not None
     test(b2.theA == b2)
+    assert d is not None
     test(d.theC is None)
     print("ok")
 
     sys.stdout.write("getting B1, B2, C, and D all at once... ")
     sys.stdout.flush()
     b1, b2, c, d = initial.getAll()
-    test(b1)
-    test(b2)
-    test(c)
-    test(d)
+    assert b1 is not None
+    assert b2 is not None
+    assert c is not None
+    assert d is not None
     print("ok")
 
     sys.stdout.write("checking consistency... ")
     sys.stdout.flush()
     test(b1 != b2)
-    test(b1 != c)
-    test(b1 != d)
-    test(b2 != c)
-    test(b2 != d)
-    test(c != d)
     test(b1.theA == b2)
     test(b1.theB == b1)
     test(b1.theC is None)
@@ -146,6 +157,9 @@ def allTests(helper, communicator):
     test(d.theC is None)
     test(d.preMarshalInvoked)
     test(d.postUnmarshalInvoked)
+    assert d.theA is not None
+    assert d.theB is not None
+    assert d.theB.theC is not None
     test(d.theA.preMarshalInvoked)
     test(d.theA.postUnmarshalInvoked)
     test(d.theB.preMarshalInvoked)
@@ -201,7 +215,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     b1 = initial.getMB()
     test(b1 is not None and b1.theB == b1)
-    b1 = initial.getAMDMBAsync().result()
+    b1 = cast(Ice.Future, initial.getAMDMBAsync()).result()
     test(b1 is not None and b1.theB == b1)
     print("ok")
 
@@ -236,30 +250,42 @@ def allTests(helper, communicator):
     k2 = Test.StructKey(2, "2")
     m.v[k2] = Test.L("two")
     m1, m2 = initial.opM(m)
+    assert m1 is not None
+    assert m2 is not None
     test(len(m1.v) == 2)
     test(len(m2.v) == 2)
 
-    test(m1.v[k1].data == "one")
-    test(m2.v[k1].data == "one")
+    test(cast(Test.L, m1.v[k1]).data == "one")
+    test(cast(Test.L, m2.v[k1]).data == "one")
 
-    test(m1.v[k2].data == "two")
-    test(m2.v[k2].data == "two")
+    test(cast(Test.L, m1.v[k2]).data == "two")
+    test(cast(Test.L, m2.v[k2]).data == "two")
 
     print("ok")
 
     sys.stdout.write("testing forward declarations... ")
     sys.stdout.flush()
     f11, f12 = initial.opF1(Test.F1("F11"))
+    assert f11 is not None
+    assert f12 is not None
     test(f11.name == "F11")
     test(f12.name == "F12")
 
     f21, f22 = initial.opF2(Test.F2Prx(communicator, f"F21:{helper.getTestEndpoint()}"))
+    assert f21 is not None
+    assert f22 is not None
     test(f21.ice_getIdentity().name == "F21")
     f21.op()
     test(f22.ice_getIdentity().name == "F22")
 
     if initial.hasF3():
         f31, f32 = initial.opF3(Test.F3(f11, f21))
+        assert f31 is not None
+        assert f31.f1 is not None
+        assert f31.f2 is not None
+        assert f32 is not None
+        assert f32.f1 is not None
+        assert f32.f2 is not None
 
         test(f31.f1.name == "F11")
         test(f31.f2.ice_getIdentity().name == "F21")
