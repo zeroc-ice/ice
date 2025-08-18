@@ -89,11 +89,7 @@ func allTests(_ helper: TestHelper) async throws {
     output.write("testing id@AdapterId indirect proxy... ")
     try await obj.shutdown()
     try await manager.startServer()
-    do {
-        try await obj2.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await obj2.ice_ping()
     output.writeLine("ok")
 
     output.write("testing id@ReplicaGroupId indirect proxy... ")
@@ -106,59 +102,27 @@ func allTests(_ helper: TestHelper) async throws {
     try await obj.shutdown()
     try await manager.startServer()
 
-    do {
-        try await obj3.ice_ping()
-    } catch {
-        try test(false)
-    }
-
-    do {
-        try await obj2.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await obj3.ice_ping()
+    try await obj2.ice_ping()
     try await obj.shutdown()
     try await manager.startServer()
 
-    do {
-        try await obj2.ice_ping()
-    } catch {
-        try test(false)
-    }
-
-    do {
-        try await obj3.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await obj2.ice_ping()
+    try await obj3.ice_ping()
 
     try await obj.shutdown()
     try await manager.startServer()
 
-    do {
-        try await obj2.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await obj2.ice_ping()
 
     try await obj.shutdown()
     try await manager.startServer()
 
-    do {
-        try await obj3.ice_ping()
-    } catch {
-        try test(false)
-    }
-
+    try await obj3.ice_ping()
     try await obj.shutdown()
     try await manager.startServer()
 
-    do {
-        let obj5 = try await checkedCast(prx: base5, type: TestIntfPrx.self)!
-        try await obj5.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await obj5.ice_ping()
     output.writeLine("ok")
 
     output.write("testing proxy with unknown identity... ")
@@ -297,16 +261,12 @@ func allTests(_ helper: TestHelper) async throws {
 
     try await registry.setAdapterDirectProxy(
         id: "TestAdapter3", proxy: locator.findAdapterById("TestAdapter"))
-    do {
-        try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
-        try await registry.setAdapterDirectProxy(
-            id: "TestAdapter3",
-            proxy: communicator.stringToProxy("dummy:\(helper.getTestEndpoint(num: 99))")
-        )
-        try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
+    try await registry.setAdapterDirectProxy(
+        id: "TestAdapter3",
+        proxy: communicator.stringToProxy("dummy:\(helper.getTestEndpoint(num: 99))")
+    )
+    try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
 
     do {
         try await communicator.stringToProxy("test@TestAdapter3")!.ice_locatorCacheTimeout(0)
@@ -321,11 +281,7 @@ func allTests(_ helper: TestHelper) async throws {
 
     try await registry.setAdapterDirectProxy(
         id: "TestAdapter3", proxy: locator.findAdapterById("TestAdapter"))
-    do {
-        try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
     output.writeLine("ok")
 
     output.write("testing well-known object locator cache... ")
@@ -348,20 +304,12 @@ func allTests(_ helper: TestHelper) async throws {
 
     try await registry.setAdapterDirectProxy(
         id: "TestAdapter4", proxy: locator.findAdapterById("TestAdapter"))
-    do {
-        try await communicator.stringToProxy("test3")!.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await communicator.stringToProxy("test3")!.ice_ping()
 
     try await registry.setAdapterDirectProxy(
         id: "TestAdapter4",
         proxy: communicator.stringToProxy("dummy:\(helper.getTestEndpoint(num: 99))"))
-    do {
-        try await communicator.stringToProxy("test3")!.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await communicator.stringToProxy("test3")!.ice_ping()
 
     do {
         try await communicator.stringToProxy("test@TestAdapter4")!.ice_locatorCacheTimeout(0)
@@ -381,11 +329,7 @@ func allTests(_ helper: TestHelper) async throws {
 
     try await registry.addObject(communicator.stringToProxy("test3@TestAdapter"))
 
-    do {
-        try await communicator.stringToProxy("test3")!.ice_ping()
-    } catch {
-        try test(false)
-    }
+    try await communicator.stringToProxy("test3")!.ice_ping()
 
     try await registry.addObject(communicator.stringToProxy("test4"))
 
