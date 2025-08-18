@@ -13,10 +13,16 @@ jobs:
           - distribution: debian12
             channel: 3.8
 
+          - distribution: debian13
+            channel: 3.8
+
           - distribution: ubuntu24.04
             channel: 3.8
 
           - distribution: debian12
+            channel: nightly
+
+          - distribution: debian13
             channel: nightly
 
           - distribution: ubuntu24.04
@@ -62,7 +68,7 @@ jobs:
 
           # Validate DISTRIBUTION
           case "$DISTRIBUTION" in
-            debian12|ubuntu24.04) ;;
+            debian12|debian13|ubuntu24.04) ;;
             *)
               echo "Invalid DISTRIBUTION: $DISTRIBUTION"
               exit 1
