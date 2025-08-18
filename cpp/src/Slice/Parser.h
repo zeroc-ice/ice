@@ -19,12 +19,6 @@
 
 namespace Slice
 {
-    enum NodeType
-    {
-        Dummy,
-        Real
-    };
-
     //
     // Format to use when marshaling a class instance.
     //
@@ -480,7 +474,7 @@ namespace Slice
         [[nodiscard]] InterfaceDefPtr createInterfaceDef(const std::string& name, const InterfaceList& bases);
         [[nodiscard]] InterfaceDeclPtr createInterfaceDecl(const std::string& name);
         [[nodiscard]] ExceptionPtr
-        createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
+        createException(const std::string& name, const ExceptionPtr& base);
         [[nodiscard]] StructPtr createStruct(const std::string& name);
         [[nodiscard]] SequencePtr createSequence(const std::string& name, const TypePtr& type, MetadataList metadata);
         [[nodiscard]] DictionaryPtr createDictionary(
@@ -618,7 +612,7 @@ namespace Slice
     public:
         ClassDef(const ContainerPtr& container, const std::string& name, std::int32_t id, ClassDefPtr base);
         void destroy() final;
-        DataMemberPtr createDataMember(
+        [[nodiscard]] DataMemberPtr createDataMember(
             const std::string& name,
             const TypePtr& type,
             bool isOptional,
@@ -837,7 +831,7 @@ namespace Slice
     public:
         Exception(const ContainerPtr& container, const std::string& name, ExceptionPtr base);
         void destroy() final;
-        DataMemberPtr createDataMember(
+        [[nodiscard]] DataMemberPtr createDataMember(
             const std::string& name,
             const TypePtr& type,
             bool isOptional,
@@ -867,11 +861,9 @@ namespace Slice
     {
     public:
         Struct(const ContainerPtr& container, const std::string& name);
-        DataMemberPtr createDataMember(
+        [[nodiscard]] DataMemberPtr createDataMember(
             const std::string& name,
             const TypePtr& type,
-            bool isOptional,
-            std::int32_t tag,
             SyntaxTreeBasePtr defaultValueType,
             std::optional<std::string> defaultValueString);
         [[nodiscard]] DataMemberList dataMembers() const;

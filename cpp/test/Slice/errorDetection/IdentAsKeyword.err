@@ -1,16 +1,16 @@
 IdentAsKeyword.ice:5: syntax error, unexpected identifier
 IdentAsKeyword.ice:7: exceptions can only be defined within a module
-IdentAsKeyword.ice:8: keyword 'int' cannot be used as exception name
+IdentAsKeyword.ice:8: keyword 'int' cannot be used as a name
 IdentAsKeyword.ice:8: exceptions can only be defined within a module
 IdentAsKeyword.ice:10: structs can only be defined within a module
 IdentAsKeyword.ice:11: keyword 'double' cannot be used as a name
 IdentAsKeyword.ice:11: structs can only be defined within a module
 IdentAsKeyword.ice:13: structs can only be defined within a module
 IdentAsKeyword.ice:14: structs can only be defined within a module
-IdentAsKeyword.ice:14: keyword 'byte' cannot be used as data member name
+IdentAsKeyword.ice:14: keyword 'byte' cannot be used as a name
 IdentAsKeyword.ice:15: structs can only be defined within a module
 IdentAsKeyword.ice:16: structs can only be defined within a module
-IdentAsKeyword.ice:16: keyword 'byte' cannot be used as data member name
+IdentAsKeyword.ice:16: keyword 'byte' cannot be used as a name
 IdentAsKeyword.ice:18: classes can only be defined within a module
 IdentAsKeyword.ice:19: keyword 'interface' cannot be used as class name
 IdentAsKeyword.ice:19: classes can only be defined within a module
@@ -19,9 +19,9 @@ IdentAsKeyword.ice:22: keyword 'module' cannot be used as class name
 IdentAsKeyword.ice:22: classes can only be defined within a module
 IdentAsKeyword.ice:24: classes can only be defined within a module
 IdentAsKeyword.ice:25: classes can only be defined within a module
-IdentAsKeyword.ice:25: keyword 'extends' cannot be used as data member name
+IdentAsKeyword.ice:25: keyword 'extends' cannot be used as a name
 IdentAsKeyword.ice:26: classes can only be defined within a module
-IdentAsKeyword.ice:26: keyword 'extends' cannot be used as data member name
+IdentAsKeyword.ice:26: keyword 'extends' cannot be used as a name
 IdentAsKeyword.ice:28: keyword 'idempotent' cannot be used as interface name
 IdentAsKeyword.ice:28: interfaces can only be defined within a module
 IdentAsKeyword.ice:29: interfaces can only be defined within a module
@@ -70,8 +70,10 @@ IdentAsKeyword.ice:66: interfaces can only be defined within a module
 IdentAsKeyword.ice:66: syntax error, unexpected out keyword
 IdentAsKeyword.ice:67: interfaces can only be defined within a module
 IdentAsKeyword.ice:69: interfaces can only be defined within a module
+IdentAsKeyword.ice:69: keyword 'byte' cannot be used as a name
 IdentAsKeyword.ice:70: interfaces can only be defined within a module
 IdentAsKeyword.ice:72: interfaces can only be defined within a module
+IdentAsKeyword.ice:72: keyword 'byte' cannot be used as a name
 IdentAsKeyword.ice:73: interfaces can only be defined within a module
 IdentAsKeyword.ice:75: interfaces can only be defined within a module
 IdentAsKeyword.ice:77: illegal leading underscore in identifier '_a'

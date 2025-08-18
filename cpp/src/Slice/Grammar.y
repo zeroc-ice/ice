@@ -194,6 +194,15 @@ namespace
 
 %token BAD_TOKEN "invalid character"
 
+// Precedence rule use to inform the parser when matching '%empty' is preferred over matching a token.
+%token EMPTY_PREC
+%precedence EMPTY_PREC
+
+// Special handling for when a user makes the following syntax error: '(interface|exception|class) extends...'
+// This could be resolved to either a 'bad-identifier' or a 'missing-identifier' depending on context.
+// We tell the parser to prefer resolving this as a 'bad-identifier', since it leads to less confusing errors.
+%precedence ICE_EXTENDS
+
 %%
 
 // ----------------------------------------------------------------------
@@ -333,7 +342,7 @@ definition
 }
 | exception_def opt_semicolon
 {
-    assert($1 == nullptr || dynamic_pointer_cast<Exception>($1));
+    assert(dynamic_pointer_cast<Exception>($1));
 }
 | struct_decl ';'
 {
@@ -448,24 +457,9 @@ module_def
 ;
 
 // ----------------------------------------------------------------------
-exception_id
-// ----------------------------------------------------------------------
-: ICE_EXCEPTION ICE_IDENTIFIER
-{
-    $$ = $2;
-}
-| ICE_EXCEPTION keyword
-{
-    auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as exception name");
-    $$ = $2; // Dummy
-}
-;
-
-// ----------------------------------------------------------------------
 exception_decl
 // ----------------------------------------------------------------------
-: exception_id
+: ICE_EXCEPTION definition_name
 {
     currentUnit->error("exceptions cannot be forward declared");
     $$ = nullptr;
@@ -475,26 +469,21 @@ exception_decl
 // ----------------------------------------------------------------------
 exception_def
 // ----------------------------------------------------------------------
-: exception_id exception_extends
+: ICE_EXCEPTION definition_name exception_extends
 {
-    auto ident = dynamic_pointer_cast<StringTok>($1);
-    auto base = dynamic_pointer_cast<Exception>($2);
+    auto ident = dynamic_pointer_cast<StringTok>($2);
+    auto base = dynamic_pointer_cast<Exception>($3);
     ContainerPtr cont = currentUnit->currentContainer();
     ExceptionPtr ex = cont->createException(ident->v, base);
-    if (ex)
-    {
-        cont->checkHasChangedMeaning(ident->v, ex);
-        currentUnit->pushContainer(ex);
-    }
+
+    cont->checkHasChangedMeaning(ident->v, ex);
+    currentUnit->pushContainer(ex);
     $$ = ex;
 }
 '{' data_members '}'
 {
-    if ($3)
-    {
-        currentUnit->popContainer();
-    }
-    $$ = $3;
+    currentUnit->popContainer();
+    $$ = $4;
 }
 ;
 
@@ -518,7 +507,7 @@ exception_extends
 // ----------------------------------------------------------------------
 type_id
 // ----------------------------------------------------------------------
-: type ICE_IDENTIFIER
+: type definition_name
 {
     auto type = dynamic_pointer_cast<Type>($1);
     auto ident = dynamic_pointer_cast<StringTok>($2);
@@ -794,106 +783,59 @@ data_member
 : optional_type_id
 {
     auto def = dynamic_pointer_cast<OptionalDefTok>($1);
-    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     DataMemberPtr dm;
-    if (cl)
+
+    if (auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer()))
     {
         dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, nullptr, std::nullopt);
     }
-    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
-    if (st)
+    else if (auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer()))
     {
         if (def->isOptional)
         {
             currentUnit->error("optional data members are not supported in structs");
-            dm = st->createDataMember(def->name, def->type, false, 0, nullptr, std::nullopt); // Dummy
         }
-        else
-        {
-            dm = st->createDataMember(def->name, def->type, false, -1, nullptr, std::nullopt);
-        }
+        dm = st->createDataMember(def->name, def->type, nullptr, std::nullopt);
     }
-    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
-    if (ex)
+    else if (auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer()))
     {
         dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, nullptr, std::nullopt);
     }
-    currentUnit->currentContainer()->checkHasChangedMeaning(def->name, dm);
+
+    if (dm)
+    {
+        currentUnit->currentContainer()->checkHasChangedMeaning(def->name, dm);
+    }
     $$ = dm;
 }
 | optional_type_id '=' const_initializer
 {
     auto def = dynamic_pointer_cast<OptionalDefTok>($1);
     auto value = dynamic_pointer_cast<ConstDefTok>($3);
-    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     DataMemberPtr dm;
-    if (cl)
+
+    if (auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer()))
     {
         dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v, value->valueAsString);
     }
-    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
-    if (st)
+    else if (auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer()))
     {
         if (def->isOptional)
         {
             currentUnit->error("optional data members are not supported in structs");
-            dm = st->createDataMember(def->name, def->type, false, 0, nullptr, std::nullopt); // Dummy
         }
-        else
-        {
-            dm = st->createDataMember(def->name, def->type, false, -1, value->v, value->valueAsString);
-        }
+        dm = st->createDataMember(def->name, def->type, value->v, value->valueAsString);
     }
-    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
-    if (ex)
+    else if (auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer()))
     {
         dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, value->v, value->valueAsString);
     }
-    currentUnit->currentContainer()->checkHasChangedMeaning(def->name, dm);
+
+    if (dm)
+    {
+        currentUnit->currentContainer()->checkHasChangedMeaning(def->name, dm);
+    }
     $$ = dm;
-}
-| type keyword
-{
-    auto type = dynamic_pointer_cast<Type>($1);
-    string name = dynamic_pointer_cast<StringTok>($2)->v;
-    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
-    if (cl)
-    {
-        $$ = cl->createDataMember(name, type, false, 0, nullptr, std::nullopt); // Dummy
-    }
-    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
-    if (st)
-    {
-        $$ = st->createDataMember(name, type, false, 0, nullptr, std::nullopt); // Dummy
-    }
-    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
-    if (ex)
-    {
-        $$ = ex->createDataMember(name, type, false, 0, nullptr, std::nullopt); // Dummy
-    }
-    assert($$);
-    currentUnit->error("keyword '" + name + "' cannot be used as data member name");
-}
-| type
-{
-    auto type = dynamic_pointer_cast<Type>($1);
-    auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
-    if (cl)
-    {
-        $$ = cl->createDataMember(Ice::generateUUID(), type, false, 0, nullptr, std::nullopt); // Dummy
-    }
-    auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
-    if (st)
-    {
-        $$ = st->createDataMember(Ice::generateUUID(), type, false, 0, nullptr, std::nullopt); // Dummy
-    }
-    auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
-    if (ex)
-    {
-        $$ = ex->createDataMember(Ice::generateUUID(), type, false, 0, nullptr, std::nullopt); // Dummy
-    }
-    assert($$);
-    currentUnit->error("missing data member name");
 }
 ;
 
@@ -1165,14 +1107,20 @@ exception_list
 {
     auto exceptionList = dynamic_pointer_cast<ExceptionListTok>($1);
     auto exception = dynamic_pointer_cast<Exception>($3);
-    exceptionList->v.push_back(exception);
+    if (exception)
+    {
+        exceptionList->v.push_back(exception);
+    }
     $$ = exceptionList;
 }
 | exception
 {
     auto exceptionList = make_shared<ExceptionListTok>();
     auto exception = dynamic_pointer_cast<Exception>($1);
-    exceptionList->v.push_back(exception);
+    if (exception)
+    {
+        exceptionList->v.push_back(exception);
+    }
     $$ = exceptionList;
 }
 ;
@@ -1185,18 +1133,23 @@ exception
     auto scoped = dynamic_pointer_cast<StringTok>($1);
     ContainerPtr cont = currentUnit->currentContainer();
     ExceptionPtr exception = cont->lookupException(scoped->v, true);
-    if (!exception)
+    if (exception)
     {
-        exception = cont->createException(Ice::generateUUID(), 0, Dummy); // Dummy
+        cont->checkHasChangedMeaning(scoped->v, exception);
     }
-    cont->checkHasChangedMeaning(scoped->v, exception);
     $$ = exception;
 }
 | keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    currentUnit->error("keyword '" + ident->v + "' cannot be used as exception name");
-    $$ = currentUnit->currentContainer()->createException(Ice::generateUUID(), 0, Dummy); // Dummy
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as a name");
+    ContainerPtr cont = currentUnit->currentContainer();
+    ExceptionPtr exception = cont->lookupException(ident->v, false);
+    if (exception)
+    {
+        cont->checkHasChangedMeaning(ident->v, exception);
+    }
+    $$ = exception;
 }
 ;
 
@@ -1343,33 +1296,6 @@ parameter
     {
         param = op->createParameter(tsp->name, tsp->type, tsp->isOptional, tsp->tag);
         currentUnit->currentContainer()->checkHasChangedMeaning(tsp->name, param);
-    }
-    $$ = param;
-}
-| type keyword
-{
-    auto type = dynamic_pointer_cast<Type>($1);
-    auto ident = dynamic_pointer_cast<StringTok>($2);
-    ParameterPtr param;
-
-    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
-    if (op)
-    {
-        param = op->createParameter(ident->v, type, false, 0); // Dummy
-        currentUnit->error("keyword '" + ident->v + "' cannot be used as parameter name");
-    }
-    $$ = param;
-}
-| type
-{
-    auto type = dynamic_pointer_cast<Type>($1);
-    ParameterPtr param;
-
-    auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
-    if (op)
-    {
-        param = op->createParameter(Ice::generateUUID(), type, false, 0); // Dummy
-        currentUnit->error("missing parameter name");
     }
     $$ = param;
 }
@@ -1705,7 +1631,7 @@ definition_name
     currentUnit->error("keyword '" + ident->v + "' cannot be used as a name");
     $$ = ident;
 }
-| %empty
+| %empty %prec EMPTY_PREC
 {
     // If the user forgot to give a name to a Slice definition, we emit an error,
     // but continue along, returning an empty string instead of an identifier.

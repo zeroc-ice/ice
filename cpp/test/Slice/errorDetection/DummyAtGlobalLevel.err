@@ -1,6 +1,6 @@
 DummyAtGlobalLevel.ice:4: interfaces can only be defined within a module
 DummyAtGlobalLevel.ice:5: 'UndefinedException' is not defined
-DummyAtGlobalLevel.ice:6: keyword 'class' cannot be used as exception name
+DummyAtGlobalLevel.ice:6: keyword 'class' cannot be used as a name
 DummyAtGlobalLevel.ice:9: sequences can only be defined within a module
 DummyAtGlobalLevel.ice:12: structs can only be defined within a module
 DummyAtGlobalLevel.ice:16: dictionaries can only be defined within a module
