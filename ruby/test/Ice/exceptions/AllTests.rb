@@ -189,10 +189,7 @@ def allTests(helper, communicator)
             thrower.throwUndeclaredA(1)
             test(false)
         rescue Ice::UnknownUserException
-            #
-            # We get an unknown user exception without collocation
-            # optimization.
-            #
+            # expected
         rescue
             print $!.backtrace.join("\n")
             test(false)
@@ -202,10 +199,7 @@ def allTests(helper, communicator)
             thrower.throwUndeclaredB(1, 2)
             test(false)
         rescue Ice::UnknownUserException
-            #
-            # We get an unknown user exception without collocation
-            # optimization.
-            #
+            # expected
         rescue
             print $!.backtrace.join("\n")
             test(false)
@@ -215,10 +209,7 @@ def allTests(helper, communicator)
             thrower.throwUndeclaredC(1, 2, 3)
             test(false)
         rescue Ice::UnknownUserException
-            #
-            # We get an unknown user exception without collocation
-            # optimization.
-            #
+            # expected
         rescue
             print $!.backtrace.join("\n")
             test(false)
@@ -311,10 +302,7 @@ def allTests(helper, communicator)
         thrower.throwLocalException()
         test(false)
     rescue Ice::UnknownLocalException
-        #
-        # We get an unknown local exception without collocation
-        # optimization.
-        #
+        # expected
     rescue
         print $!.backtrace.join("\n")
         test(false)
@@ -324,10 +312,7 @@ def allTests(helper, communicator)
         thrower.throwLocalExceptionIdempotent()
         test(false)
     rescue Ice::UnknownLocalException
-        #
-        # We get an unknown local exception without collocation
-        # optimization.
-        #
+        # expected
     rescue Ice::OperationNotExistException
     rescue
         print $!.backtrace.join("\n")
@@ -343,10 +328,7 @@ def allTests(helper, communicator)
         thrower.throwNonIceException()
         test(false)
     rescue Ice::UnknownException
-        #
-        # We get an unknown exception without collocation
-        # optimization.
-        #
+        # expected
     rescue
         print $!.backtrace.join("\n")
         test(false)
