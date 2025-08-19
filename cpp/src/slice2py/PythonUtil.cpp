@@ -777,6 +777,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
         auto [factory, typeHint] = splitMemoryviewArguments(arguments);
 
         auto [factoryPackage, factoryFunction] = splitFQDN(factory);
+        // TODO: only do this when the parent is a class or struct as we only need them for field factories.
         addRuntimeImport(factoryPackage, factoryFunction, source);
 
         if (typeHint)
