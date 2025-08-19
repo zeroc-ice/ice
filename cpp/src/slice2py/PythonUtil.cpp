@@ -776,9 +776,11 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
         auto arguments = metadata ? metadata->arguments() : "";
         auto [factory, typeHint] = splitMemoryviewArguments(arguments);
 
-        auto [factoryPackage, factoryFunction] = splitFQDN(factory);
-        // TODO: only do this when the parent is a class or struct as we only need them for field factories.
-        addRuntimeImport(factoryPackage, factoryFunction, source);
+        if (dynamic_pointer_cast<ClassDef>(source) || dynamic_pointer_cast<Struct>(source))
+        {
+            auto [factoryPackage, factoryFunction] = splitFQDN(factory);
+            addRuntimeImport(factoryPackage, factoryFunction, source);
+        }
 
         if (typeHint)
         {
