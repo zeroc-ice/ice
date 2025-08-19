@@ -114,4 +114,9 @@ module Test
 
         void shutdown();
     }
+
+    struct M
+    {
+        ["python:memoryview:Custom.myBoolSeq:array.array"] BoolSeq2 boolSeq;
+    }
 }

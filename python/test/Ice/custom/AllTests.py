@@ -78,19 +78,19 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
 
     s = Test.S()
     s.b1 = bytes(byteList)
-    s.b2 = bytes(byteList)
+    s.b2 = byteList
     s.b4 = byteList
     s.s1 = stringList
-    s.s2 = stringList
+    s.s2 = tuple(stringList)
     s.s3 = tuple(stringList)
     custom.sendS(s)
 
     c = Test.C()
     c.b1 = bytes(byteList)
-    c.b2 = bytes(byteList)
+    c.b2 = byteList
     c.b4 = byteList
     c.s1 = stringList
-    c.s2 = stringList
+    c.s2 = tuple(stringList)
     c.s3 = tuple(stringList)
     custom.sendC(c)
 

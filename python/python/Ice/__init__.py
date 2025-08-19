@@ -44,6 +44,15 @@ from .Blobject import Blobject
 from .BoolSeq import _Ice_BoolSeq_t
 from .BTEndpointType import BTEndpointType
 from .BTSEndpointType import BTSEndpointType
+from .Builtin import (
+    BuiltinBool,
+    BuiltinByte,
+    BuiltinDouble,
+    BuiltinFloat,
+    BuiltinInt,
+    BuiltinLong,
+    BuiltinShort,
+)
 from .ByteSeq import _Ice_ByteSeq_t
 from .Communicator import Communicator
 from .CompressBatch import CompressBatch
@@ -188,6 +197,13 @@ __all__ = [
     "BTEndpointType",
     "BTSEndpointType",
     "Blobject",
+    "BuiltinBool",
+    "BuiltinByte",
+    "BuiltinDouble",
+    "BuiltinFloat",
+    "BuiltinInt",
+    "BuiltinLong",
+    "BuiltinShort",
     "CloseConnectionException",
     "CloseTimeoutException",
     "Communicator",

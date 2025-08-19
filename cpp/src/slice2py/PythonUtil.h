@@ -192,8 +192,13 @@ namespace Slice::Python
     /// @return A pair containing the module and name components.
     std::pair<std::string, std::string> splitFQDN(const std::string& fqdn);
 
-    // A helper class to initialize the _outBuffer member of BufferedOutput before is passed to the Output
-    // constructor.
+    /// Splits the arguments the python:memoryview metadata into the factory function and optional type hint.
+    /// @param arguments The arguments of python:memoryview
+    /// @return A pair containing the factory function and optional type hint
+    std::pair<std::string, std::optional<std::string>> splitMemoryviewArguments(const std::string& arguments);
+
+    // A helper class to initialize the _outBuffer member of BufferedOutput before is
+    // passed to the Output constructor.
     class BufferedOutputBase
     {
     protected:

@@ -252,6 +252,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
             bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
             bool isBoolSequence = elementType && elementType->kind() == Builtin::KindBool;
             auto sequenceMetadata = getSequenceMetadata(seq, localMetadata);
+            const string metadataDirective = sequenceMetadata ? sequenceMetadata->directive() : "";
 
             if (forMarshaling)
             {
@@ -265,52 +266,49 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                     os << " | bytes";
                 }
 
-                if (sequenceMetadata)
+                if (metadataDirective == "python:array.array" && isBoolSequence)
                 {
-                    if (sequenceMetadata->directive() == "python:array.array" && isBoolSequence)
+                    // array.array does not support boolean values. The common convention is to use a
+                    // char array, array.array('b'), whose Python type is int.
+                    // Python will map True and False to 1 and 0, respectively.
+                    os << " | " << getImportAlias(source, "array", "array") << "[int]";
+                }
+                else if (metadataDirective == "python:numpy.ndarray")
+                {
+                    assert(elementType && elementType->kind() <= Builtin::KindDouble);
+                    const string numpyAlias = getImportAlias(source, "numpy");
+                    os << " | " << numpyAlias << ".typing.NDArray[" << numpyAlias << "."
+                       << numpyBuiltinTable[elementType->kind()] << "]";
+                }
+                else if (sequenceMetadata && metadataDirective == "python:memoryview")
+                {
+                    auto arguments = sequenceMetadata->arguments();
+                    size_t pos = arguments.find(':');
+                    if (pos != string::npos)
                     {
-                        // array.array does not support boolean values. The common convention is to use a
-                        // char array, array.array('b'), whose Python type is int.
-                        // Python will map True and False to 1 and 0, respectively.
-                        os << " | " << getImportAlias(source, "array", "array") << "[int]";
-                    }
-                    else if (sequenceMetadata->directive() == "python:numpy.ndarray")
-                    {
-                        assert(elementType && elementType->kind() <= Builtin::KindDouble);
-                        const string numpyAlias = getImportAlias(source, "numpy");
-                        os << " | " << numpyAlias << ".typing.NDArray[" << numpyAlias << "."
-                           << numpyBuiltinTable[elementType->kind()] << "]";
-                    }
-                    else if (sequenceMetadata && sequenceMetadata->directive() == "python:memoryview")
-                    {
-                        auto arguments = sequenceMetadata->arguments();
-                        size_t pos = arguments.find(':');
-                        if (pos != string::npos)
-                        {
-                            auto typeHint = arguments.substr(pos + 1);
-                            auto [package, name] = splitFQDN(typeHint);
-                            auto memoryViewType = getImportAlias(source, package, name);
-                            os << " | " << memoryViewType;
-                        }
+                        auto typeHint = arguments.substr(pos + 1);
+                        auto [package, name] = splitFQDN(typeHint);
+                        auto memoryViewType = getImportAlias(source, package, name);
+                        os << " | " << memoryViewType;
                     }
                 }
             }
-            else if (sequenceMetadata && sequenceMetadata->directive() == "python:list")
+            else if (metadataDirective == "python:list")
             {
                 os << "list[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
             }
-            else if (sequenceMetadata && sequenceMetadata->directive() == "python:tuple")
+            else if (metadataDirective == "python:tuple")
             {
                 os << "tuple[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << ", ...]";
             }
-            else if (sequenceMetadata && sequenceMetadata->directive() == "python:numpy.ndarray")
+            else if (metadataDirective == "python:numpy.ndarray")
             {
                 assert(elementType && elementType->kind() <= Builtin::KindDouble);
                 const string numpyAlias = getImportAlias(source, "numpy");
                 os << numpyAlias << ".typing.NDArray[" << numpyAlias << "." << numpyBuiltinTable[elementType->kind()]
                    << "]";
             }
-            else if (sequenceMetadata && sequenceMetadata->directive() == "python:array.array")
+            else if (metadataDirective == "python:array.array")
             {
                 assert(elementType && elementType->kind() <= Builtin::KindDouble);
                 const string arrayAlias = getImportAlias(source, "array", "array");
@@ -326,7 +324,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                     os << arrayAlias << "[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
                 }
             }
-            else if (sequenceMetadata && sequenceMetadata->directive() == "python:memoryview")
+            else if (metadataDirective == "python:memoryview")
             {
                 auto arguments = sequenceMetadata->arguments();
                 size_t pos = arguments.find(':');
@@ -776,12 +774,15 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
     else if (directive == "python:memoryview")
     {
         auto arguments = metadata ? metadata->arguments() : "";
-        size_t pos = arguments.find(':');
-        if (pos != string::npos)
+        auto [factory, typeHint] = splitMemoryviewArguments(arguments);
+
+        auto [factoryPackage, factoryFunction] = splitFQDN(factory);
+        addRuntimeImport(factoryPackage, factoryFunction, source);
+
+        if (typeHint)
         {
-            auto typeHint = arguments.substr(pos + 1);
-            auto [package, name] = splitFQDN(typeHint);
-            addRuntimeImport(package, name, source);
+            auto [typeHintPackage, typeHintName] = splitFQDN(*typeHint);
+            addRuntimeImport(typeHintPackage, typeHintName, source);
         }
         else
         {
@@ -1432,7 +1433,8 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
 
     const string fieldAlias = getImportAlias(parent, "dataclasses", "field");
 
-    out << nl << p->mappedName() << ": " << typeToTypeHintString(p->type(), p->optional(), parent, false);
+    out << nl << p->mappedName() << ": "
+        << typeToTypeHintString(p->type(), p->optional(), parent, false, p->getMetadata());
 
     if (p->defaultValue())
     {
@@ -1470,17 +1472,19 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
     {
         auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
         bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
+        auto sequenceMetadata = getSequenceMetadata(seq, p->getMetadata());
+        auto metadataDirective = sequenceMetadata ? sequenceMetadata->directive() : "";
 
         out << " = " << fieldAlias << "(default_factory=";
-        if (seq->hasMetadata("python:list"))
+        if (metadataDirective == "python:list")
         {
             out << "list";
         }
-        else if (seq->hasMetadata("python:tuple"))
+        else if (metadataDirective == "python:tuple")
         {
             out << "tuple";
         }
-        else if (seq->hasMetadata("python:numpy.ndarray"))
+        else if (metadataDirective == "python:numpy.ndarray")
         {
             assert(elementType && elementType->kind() <= Builtin::KindDouble);
             static const char* builtinTable[] = {"int8", "bool", "int16", "int32", "int64", "float32", "float64"};
@@ -1488,12 +1492,53 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
             out << "lambda: " << numpyAlias << ".empty(0, " << numpyAlias << "." << builtinTable[elementType->kind()]
                 << ")";
         }
-        else if (seq->hasMetadata("python:array.array"))
+        else if (metadataDirective == "python:array.array")
         {
             assert(elementType && elementType->kind() <= Builtin::KindDouble);
             static const char* builtinTable[] = {"b", "b", "h", "i", "q", "f", "d"};
             const string arrayAlias = getImportAlias(parent, "array", "array");
             out << "lambda: " << arrayAlias << "('" << builtinTable[elementType->kind()] << "')";
+        }
+        else if (metadataDirective == "python:memoryview")
+        {
+            auto arguments = sequenceMetadata->arguments();
+            auto [factory, _] = splitMemoryviewArguments(arguments);
+
+            auto [factoryPackage, factoryFunction] = splitFQDN(factory);
+
+            auto factoryFunctionAlias = getImportAlias(parent, factoryPackage, factoryFunction);
+
+            // This builtin type integer corresponds to the values of Ice.BuiltinBool, Ice.BuiltinByte, etc.
+            int builtinType;
+            switch (elementType->kind())
+            {
+                case Builtin::KindBool:
+                    builtinType = 0;
+                    break;
+                case Builtin::KindByte:
+                    builtinType = 1;
+                    break;
+                case Builtin::KindShort:
+                    builtinType = 2;
+                    break;
+                case Builtin::KindInt:
+                    builtinType = 3;
+                    break;
+                case Builtin::KindLong:
+                    builtinType = 4;
+                    break;
+                case Builtin::KindFloat:
+                    builtinType = 5;
+                    break;
+                case Builtin::KindDouble:
+                    builtinType = 6;
+                    break;
+                default:
+                    assert(false);
+                    break;
+            }
+
+            out << "lambda: " << factoryFunctionAlias << "(None, " << builtinType << ")";
         }
         else if (isByteSequence)
         {
@@ -2188,7 +2233,7 @@ Slice::Python::getSequenceMetadata(const SequencePtr& seq, const MetadataList& l
     return nullptr;
 }
 
-std::pair<std::string, std::string>
+pair<string, string>
 Slice::Python::splitFQDN(const std::string& fqdn)
 {
     size_t lastDot = fqdn.rfind('.');
@@ -2197,6 +2242,17 @@ Slice::Python::splitFQDN(const std::string& fqdn)
         return {fqdn.substr(0, lastDot), fqdn.substr(lastDot + 1)};
     }
     return {"", fqdn};
+}
+
+pair<string, optional<string>>
+Slice::Python::splitMemoryviewArguments(const string& arguments)
+{
+    size_t pos = arguments.find(':');
+    if (pos != std::string::npos)
+    {
+        return {arguments.substr(0, pos), arguments.substr(pos + 1)};
+    }
+    return {arguments, std::nullopt};
 }
 
 void
@@ -3003,13 +3059,20 @@ Slice::Python::validatePythonMetadata(const UnitPtr& unit)
                 // - python:memoryview:<factory>
                 // - python:memoryview:<factory>:<type-hint>
 
-                auto pos = arguments.find(":");
-                if (pos != string::npos)
+                auto [factory, typeHint] = splitMemoryviewArguments(arguments);
+
+                // If a type hint is specified, it must be a fully-qualified name
+                const auto [factoryPackage, factoryFunction] = splitFQDN(factory);
+                if (factoryPackage.empty() || factoryFunction.empty())
+                {
+                    return "the 'python:memoryview' metadata requires a fully-qualified factory function";
+                }
+
+                if (typeHint)
                 {
                     // If a type hint is specified, it must be a fully-qualified name
-                    string typeHint = arguments.substr(pos + 1);
-                    const auto [package, name] = splitFQDN(typeHint);
-                    if (package.empty() || name.empty())
+                    const auto [typeHintPackage, typeHintName] = splitFQDN(*typeHint);
+                    if (typeHintPackage.empty() || typeHintName.empty())
                     {
                         return "the 'python:memoryview' metadata requires a fully-qualified type hint";
                     }
