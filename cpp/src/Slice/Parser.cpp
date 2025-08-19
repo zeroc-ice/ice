@@ -3413,7 +3413,7 @@ Slice::Exception::createDataMember(
                     ostringstream os;
                     os << "data member '" << name << "' is already defined in a base exception";
                     unit()->error(os.str());
-                    continue;
+                    break;
                 }
 
                 string baseName = IceInternal::toLower(baseMember->name());
