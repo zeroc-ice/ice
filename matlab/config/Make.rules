@@ -11,8 +11,6 @@ MATLAB_HOME ?= /usr/local/MATLAB/R2019b
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
--include        $(lang_srcdir)/config/Make.rules.$(os)
-
 matlab := $(MATLAB_HOME)/bin/matlab
 mex    := $(MATLAB_HOME)/bin/mex
 
@@ -27,7 +25,7 @@ matlab_cflags = -fexceptions \
 
 matlab_cppflags := $(matlab_cflags) -DICE_CPP11_MAPPING
 
-ifneq ($(shell $(CC) -E config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
+ifneq ($(shell $(CC) -E $(lang_srcdir)/../cpp/config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
 matlab_cppflags := $(matlab_cppflags) -std=c++11
 endif
 matlab_ldflags  := -L$(MATLAB_HOME)/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++
