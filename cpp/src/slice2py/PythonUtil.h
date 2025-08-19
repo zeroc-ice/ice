@@ -184,6 +184,14 @@ namespace Slice::Python
     // Get a list of all definitions exported for the Python module corresponding to the given Slice definition.
     std::vector<std::string> getAll(const ContainedPtr& definition);
 
+    /// Get sequence metadata associated with the given sequence and any local metadata.
+    Slice::MetadataPtr getSequenceMetadata(const SequencePtr& seq, const MetadataList& localMetadata);
+
+    /// Splits a FQDN into its Module and Name components.
+    /// @param fqdn The fully qualified domain name to split.
+    /// @return A pair containing the module and name components.
+    std::pair<std::string, std::string> splitFQDN(const std::string& fqdn);
+
     // A helper class to initialize the _outBuffer member of BufferedOutput before is passed to the Output
     // constructor.
     class BufferedOutputBase
@@ -288,7 +296,11 @@ namespace Slice::Python
         /// Add the runtime imports for the given Sequence definition.
         /// @param sequence The Sequence definition being imported.
         /// @param source The Slice definition that requires the import.
-        void addRuntimeImportForSequence(const SequencePtr& sequence, const ContainedPtr& source);
+        /// @param localMetadata Any additional metadata associated with the import. Such has parameter metadata.
+        void addRuntimeImportForSequence(
+            const SequencePtr& sequence,
+            const ContainedPtr& source,
+            const MetadataList& localMetadata = MetadataList());
 
         /// Adds a runtime import for the given Slice definition if it comes from a different module.
         /// @param definition The Slice definition to import.
@@ -386,9 +398,14 @@ namespace Slice::Python
         /// @param source The Slice definition requesting the type hint.
         /// @param forMarshaling If true, the type is used for marshaling (invocation input parameter, or dispatch
         /// output parameter).
+        /// @param localMetadata The local metadata to consider when generating the type hint.
         /// @return The string representation of the type hint for the given Slice type.
-        std::string
-        typeToTypeHintString(const TypePtr& type, bool optional, const ContainedPtr& source, bool forMarshaling);
+        std::string typeToTypeHintString(
+            const TypePtr& type,
+            bool optional,
+            const ContainedPtr& source,
+            bool forMarshaling,
+            const MetadataList& localMetadata = MetadataList());
 
         /// Returns a string representation of the return type hint for the given operation.
         /// @param operation The Slice operation to get the return type hint for.

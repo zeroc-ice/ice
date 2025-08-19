@@ -5,14 +5,14 @@
 ["python:identifier:generated.test.Ice.custom.Test"]
 module Test
 {
-    sequence<byte> ByteString; /* By default, sequence<byte> is received as a string. */
+    sequence<byte> ByteString; /* By default, sequence<byte> is received as a bytes literal. */
     ["python:seq:list"] sequence<byte> ByteList;
 
     sequence<string> StringList; /* By default, a sequence is received as a list. */
     ["python:seq:tuple"] sequence<string> StringTuple;
 
     ["python:array.array"] sequence<bool> BoolSeq1;
-    ["python:memoryview:Custom.myBoolSeq"] sequence<bool> BoolSeq2;
+    ["python:memoryview:Custom.myBoolSeq:array.array"] sequence<bool> BoolSeq2;
 
     ["python:array.array"] sequence<byte> ByteSeq1;
     ["python:memoryview:Custom.myByteSeq"] sequence<byte> ByteSeq2;

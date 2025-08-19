@@ -1,90 +1,90 @@
 # Copyright (c) ZeroC, Inc.
 
-from importlib.util import find_spec
+import array
 
 from ArrayUtil import createArray
 
-hasNumPy = find_spec("numpy") is not None
 
-
-def myBoolSeq(buffer, type):
+def myBoolSeq(buffer: memoryview, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myByteSeq(buffer, type):
+def myByteSeq(buffer: memoryview, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myShortSeq(buffer, type):
+def myShortSeq(buffer: memoryview, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myIntSeq(buffer, type):
+def myIntSeq(buffer: memoryview, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myLongSeq(buffer, type):
+def myLongSeq(buffer: memoryview, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myFloatSeq(buffer, type):
+def myFloatSeq(buffer: memoryview, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myDoubleSeq(buffer, type):
+def myDoubleSeq(buffer: memoryview, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-if hasNumPy:
+try:
+    import numpy
     from ArrayUtil import createNumPyArray
 
-    def myNumPyBoolSeq(buffer, type):
+    def myNumPyBoolSeq(buffer: memoryview, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyByteSeq(buffer, type):
+    def myNumPyByteSeq(buffer: memoryview, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyShortSeq(buffer, type):
+    def myNumPyShortSeq(buffer: memoryview, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyIntSeq(buffer, type):
+    def myNumPyIntSeq(buffer: memoryview, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyLongSeq(buffer, type):
+    def myNumPyLongSeq(buffer: memoryview, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyFloatSeq(buffer, type):
+    def myNumPyFloatSeq(buffer: memoryview, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyDoubleSeq(buffer, type):
+    def myNumPyDoubleSeq(buffer: memoryview, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyComplex128Seq(buffer, type):
-        import numpy
-
+    def myNumPyComplex128Seq(buffer: memoryview | None, type: int) -> numpy.ndarray:
         if buffer is not None:
             return numpy.frombuffer(buffer.tobytes(), numpy.complex128)
         else:
             return numpy.empty(0, numpy.complex128)
 
-    def myNumPyMatrix3x3(buffer, type):
+    def myNumPyMatrix3x3(buffer: memoryview, type: int) -> numpy.ndarray:
         a = createNumPyArray(buffer, type)
         a.shape = (3, 3)
         return a
 
-    def myBogusNumpyArrayType(buffer, type):
+    def myBogusNumpyArrayType(buffer: memoryview, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, 1024)
 
+except ImportError:
+    pass
 
-def myBogusArrayThrowFactory(buffer, type):
+
+def myBogusArrayThrowFactory(buffer: memoryview, type: int) -> None:
     raise ValueError()
 
 
-def myBogusArrayType(buffer, type):
-    return createArray(buffer, 1024)
+def myBogusArrayType(buffer: memoryview, type: int) -> None:
+    return createArray(buffer, 1024)  # pyright: ignore
 
 
-def myBogusArrayNoneFactory(buffer, type):
+def myBogusArrayNoneFactory(buffer: memoryview | None, type: int) -> None:
     return None
 
 

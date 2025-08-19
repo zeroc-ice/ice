@@ -13,11 +13,13 @@
 #include "Ice/StringUtil.h"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <climits>
 #include <iostream>
 #include <iterator>
 #include <mutex>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -190,7 +192,8 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
     const TypePtr& type,
     bool optional,
     const ContainedPtr& source,
-    bool forMarshaling)
+    bool forMarshaling,
+    const MetadataList& localMetadata)
 {
     assert(type);
 
@@ -247,6 +250,9 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
 
             auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
             bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
+            bool isBoolSequence = elementType && elementType->kind() == Builtin::KindBool;
+            auto sequenceMetadata = getSequenceMetadata(seq, localMetadata);
+
             if (forMarshaling)
             {
                 const string sequenceAlias = getImportAlias(source, "collections.abc", "Sequence");
@@ -258,34 +264,75 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                 {
                     os << " | bytes";
                 }
-                if (seq->hasMetadata("python:numpy.ndarray"))
+
+                if (sequenceMetadata)
                 {
-                    assert(elementType && elementType->kind() <= Builtin::KindDouble);
-                    const string numpyAlias = getImportAlias(source, "numpy");
-                    os << " | " << numpyAlias << ".typing.NDArray[" << numpyAlias << "."
-                       << numpyBuiltinTable[elementType->kind()] << "]";
+                    if (sequenceMetadata->directive() == "python:array.array" && isBoolSequence)
+                    {
+                        // array.array does not support boolean values. The common convention is to use a
+                        // char array, array.array('b'), whose Python type is int.
+                        // Python will map True and False to 1 and 0, respectively.
+                        os << " | " << getImportAlias(source, "array") << ".array[int]";
+                    }
+                    else if (sequenceMetadata->directive() == "python:numpy.ndarray")
+                    {
+                        assert(elementType && elementType->kind() <= Builtin::KindDouble);
+                        const string numpyAlias = getImportAlias(source, "numpy");
+                        os << " | " << numpyAlias << ".typing.NDArray[" << numpyAlias << "."
+                           << numpyBuiltinTable[elementType->kind()] << "]";
+                    }
                 }
             }
-            else if (seq->hasMetadata("python:list") || seq->hasMetadata("python:seq:list"))
+
+            else if (sequenceMetadata && sequenceMetadata->directive() == "python:list")
             {
                 os << "list[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
             }
-            else if (seq->hasMetadata("python:tuple") || seq->hasMetadata("python:seq:tuple"))
+            else if (sequenceMetadata && sequenceMetadata->directive() == "python:tuple")
             {
                 os << "tuple[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << ", ...]";
             }
-            else if (seq->hasMetadata("python:numpy.ndarray"))
+            else if (sequenceMetadata && sequenceMetadata->directive() == "python:numpy.ndarray")
             {
                 assert(elementType && elementType->kind() <= Builtin::KindDouble);
                 const string numpyAlias = getImportAlias(source, "numpy");
                 os << numpyAlias << ".typing.NDArray[" << numpyAlias << "." << numpyBuiltinTable[elementType->kind()]
                    << "]";
             }
-            else if (seq->hasMetadata("python:array.array"))
+            else if (sequenceMetadata && sequenceMetadata->directive() == "python:array.array")
             {
                 assert(elementType && elementType->kind() <= Builtin::KindDouble);
                 const string arrayAlias = getImportAlias(source, "array");
-                os << arrayAlias << ".array[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
+                // array.array does not support boolean values. The common convention is to use a
+                // char array, array.array('b'), whose Python type is int.
+                // Python will map True and False to 1 and 0, respectively.
+                if (isBoolSequence)
+                {
+                    os << arrayAlias << ".array[int]";
+                }
+                else
+                {
+                    os << arrayAlias << ".array[" << typeToTypeHintString(seq->type(), false, source, forMarshaling)
+                       << "]";
+                }
+            }
+            else if (sequenceMetadata && sequenceMetadata->directive() == "python:memoryview")
+            {
+                auto arguments = sequenceMetadata->arguments();
+                size_t pos = arguments.find(':');
+                if (pos != string::npos)
+                {
+                    auto typeHint = arguments.substr(pos + 1);
+                    auto [package, name] = splitFQDN(typeHint);
+                    auto memoryViewType = getImportAlias(source, package, name);
+                    os << memoryViewType;
+                }
+                else
+                {
+                    // Otherwise, we have no idea what the type is so we just use Any.
+                    const string anyAlias = getImportAlias(source, "typing", "Any");
+                    os << anyAlias;
+                }
             }
             else if (isByteSequence)
             {
@@ -328,13 +375,18 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
         os << "tuple[";
         if (operation->returnType())
         {
-            os << typeToTypeHintString(operation->returnType(), operation->returnIsOptional(), source, forMarshaling);
+            os << typeToTypeHintString(
+                operation->returnType(),
+                operation->returnIsOptional(),
+                source,
+                forMarshaling,
+                operation->getMetadata());
             os << ", ";
         }
 
         for (const auto& param : outParameters)
         {
-            os << typeToTypeHintString(param->type(), param->optional(), source, forMarshaling);
+            os << typeToTypeHintString(param->type(), param->optional(), source, forMarshaling, param->getMetadata());
             if (param != outParameters.back())
             {
                 os << ", ";
@@ -345,13 +397,18 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
     }
     else if (operation->returnType())
     {
-        returnTypeHint =
-            typeToTypeHintString(operation->returnType(), operation->returnIsOptional(), source, forMarshaling);
+        returnTypeHint = typeToTypeHintString(
+            operation->returnType(),
+            operation->returnIsOptional(),
+            source,
+            forMarshaling,
+            operation->getMetadata());
     }
     else if (!outParameters.empty())
     {
         const auto& param = outParameters.front();
-        returnTypeHint = typeToTypeHintString(param->type(), param->optional(), source, forMarshaling);
+        returnTypeHint =
+            typeToTypeHintString(param->type(), param->optional(), source, forMarshaling, param->getMetadata());
     }
     else
     {
@@ -688,21 +745,39 @@ Slice::Python::ImportVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-Slice::Python::ImportVisitor::addRuntimeImportForSequence(const SequencePtr& sequence, const ContainedPtr& source)
+Slice::Python::ImportVisitor::addRuntimeImportForSequence(
+    const SequencePtr& sequence,
+    const ContainedPtr& source,
+    const MetadataList& localMetadata)
 {
-    if (sequence->hasMetadata("python:numpy.ndarray"))
+    auto metadata = getSequenceMetadata(sequence, localMetadata);
+    auto directive = metadata ? metadata->directive() : "";
+
+    if (directive == "python:numpy.ndarray")
     {
         // Import numpy for using it in the field factory.
         addRuntimeImport("numpy", "", source);
     }
-    else if (sequence->hasMetadata("python:array.array"))
+    else if (directive == "python:array.array")
     {
         // Import array for using it in the field factory.
         addRuntimeImport("array", "", source);
     }
-    else if (sequence->hasMetadata("python:memoryview"))
+    else if (directive == "python:memoryview")
     {
-        // TODO
+        auto arguments = metadata ? metadata->arguments() : "";
+        size_t pos = arguments.find(':');
+        if (pos != string::npos)
+        {
+            auto typeHint = arguments.substr(pos + 1);
+            auto [package, name] = splitFQDN(typeHint);
+            addRuntimeImport(package, name, source);
+        }
+        else
+        {
+            // Otherwise, we have no idea what the type is so we just Any
+            addRuntimeImport("typing", "Any", source);
+        }
     }
     else
     {
@@ -1138,7 +1213,9 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
 
         for (const auto& param : operation->inParameters())
         {
-            out << (param->mappedName() + ": " + typeToTypeHintString(param->type(), param->optional(), p, false));
+            out
+                << (param->mappedName() + ": " +
+                    typeToTypeHintString(param->type(), param->optional(), p, false, param->getMetadata()));
         }
 
         const string currentParamName = getEscapedParamName(operation->parameters(), "current");
@@ -2102,6 +2179,44 @@ Slice::Python::getAll(const ContainedPtr& definition)
         all.push_back(getMetaType(definition));
     }
     return all;
+}
+
+Slice::MetadataPtr
+Slice::Python::getSequenceMetadata(const SequencePtr& seq, const MetadataList& localMetadata)
+{
+    auto sequenceMetaData = array{
+        "python:seq",
+        "python:list",
+        "python:tuple",
+        "python:array.array",
+        "python:numpy.ndarray",
+        "python:memoryview"};
+
+    // First check source metadata. For example, an operation parameter.
+    // If nothing was found, check the sequence itself.
+    for (const auto& metadataList : std::array{localMetadata, seq->getMetadata()})
+    {
+        for (const auto& metadata : metadataList)
+        {
+            if (find(sequenceMetaData.begin(), sequenceMetaData.end(), metadata->directive()) != sequenceMetaData.end())
+            {
+                return metadata;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+std::pair<std::string, std::string>
+Slice::Python::splitFQDN(const std::string& fqdn)
+{
+    size_t lastDot = fqdn.rfind('.');
+    if (lastDot != std::string::npos)
+    {
+        return {fqdn.substr(0, lastDot), fqdn.substr(lastDot + 1)};
+    }
+    return {"", fqdn};
 }
 
 void
