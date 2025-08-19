@@ -273,20 +273,12 @@ function allTests($helper)
     test($b1->ice_getEndpointSelection() == Ice\EndpointSelectionType::Ordered);
     $communicator->getProperties()->setProperty($property, "");
 
-    //$property = $propertyPrefix . ".CollocationOptimized";
-    //test($b1->ice_isCollocationOptimized());
-    //$communicator->getProperties()->setProperty($property, "0");
-    //$b1 = $communicator->propertyToProxy($propertyPrefix);
-    //test(!$b1->ice_isCollocationOptimized());
-    //$communicator->getProperties()->setProperty($property, "");
-
     echo "ok\n";
 
     echo "testing proxyToProperty... ";
     flush();
 
     $b1 = $communicator->stringToProxy("test");
-    //$b1 = $b1->ice_collocationOptimized(true);
     $b1 = $b1->ice_connectionCached(true);
     $b1 = $b1->ice_preferSecure(false);
     $b1 = $b1->ice_endpointSelection(Ice\EndpointSelectionType::Ordered);
@@ -294,14 +286,12 @@ function allTests($helper)
     $b1 = $b1->ice_encodingVersion(new Ice\EncodingVersion(1, 0));
 
     $router = Ice\RouterPrxHelper::createProxy($communicator, "router");
-    //$router = $router->ice_collocationOptimized(false);
     $router = $router->ice_connectionCached(true);
     $router = $router->ice_preferSecure(true);
     $router = $router->ice_endpointSelection(Ice\EndpointSelectionType::Random);
     $router = $router->ice_locatorCacheTimeout(200);
 
     $locator = Ice\LocatorPrxHelper::createProxy($communicator, "locator");
-    //$locator = $locator->ice_collocationOptimized(true);
     $locator = $locator->ice_connectionCached(false);
     $locator = $locator->ice_preferSecure(true);
     $locator = $locator->ice_endpointSelection(Ice\EndpointSelectionType::Random);
@@ -314,21 +304,18 @@ function allTests($helper)
     test(count($proxyProps) == 21);
 
     test($proxyProps["Test"] == "test -e 1.0");
-    //test($proxyProps["Test.CollocationOptimized"] == "1");
     test($proxyProps["Test.ConnectionCached"] == "1");
     test($proxyProps["Test.PreferSecure"] == "0");
     test($proxyProps["Test.EndpointSelection"] == "Ordered");
     test($proxyProps["Test.LocatorCacheTimeout"] == "100");
 
     test($proxyProps["Test.Locator"] == "locator");
-    //test($proxyProps["Test.Locator.CollocationOptimized"] == "1");
     test($proxyProps["Test.Locator.ConnectionCached"] == "0");
     test($proxyProps["Test.Locator.PreferSecure"] == "1");
     test($proxyProps["Test.Locator.EndpointSelection"] == "Random");
     test($proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
 
     test($proxyProps["Test.Locator.Router"] == "router");
-    //test($proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
     test($proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
     test($proxyProps["Test.Locator.Router.PreferSecure"] == "1");
     test($proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
