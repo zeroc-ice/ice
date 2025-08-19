@@ -9,6 +9,14 @@
 // warning C4100: 'rawComment': unreferenced parameter
 #    pragma warning(disable : 4100)
 #endif
+#ifdef __GNUC__
+// unused parameter ‘rawComment’
+#    pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+#if defined(__clang__)
+// unused parameter ‘rawComment’
+#    pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
 
 namespace Slice
 {
