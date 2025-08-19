@@ -16,7 +16,7 @@ mxArray*
 Ice_ImplicitContext_unref(void* self)
 {
     delete reinterpret_cast<shared_ptr<Ice::ImplicitContext>*>(self);
-    return 0;
+    return createEmptyArray();
 }
 
 mxArray*
@@ -40,12 +40,12 @@ Ice_ImplicitContext_setContext(void* self, mxArray* newContext)
         map<string, string> ctx;
         getStringMap(newContext, ctx);
         deref<Ice::ImplicitContext>(self)->setContext(ctx);
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*

@@ -109,7 +109,7 @@ mxArray*
 Ice_intVersion(int* v)
 {
     *v = ICE_INT_VERSION;
-    return 0;
+    return createEmptyArray();
 }
 
 mxArray*
