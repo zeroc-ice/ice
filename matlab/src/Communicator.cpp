@@ -105,7 +105,7 @@ Ice_Communicator_propertyToProxy(void* self, const char* prop, void** proxy)
         {
             *proxy = 0;
         }
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -151,7 +151,7 @@ Ice_Communicator_getImplicitContext(void* self, void** ctx)
     {
         auto p = deref<Ice::Communicator>(self)->getImplicitContext();
         *ctx = createShared<Ice::ImplicitContext>(p);
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -166,7 +166,7 @@ Ice_Communicator_getProperties(void* self, void** props)
     {
         auto p = deref<Ice::Communicator>(self)->getProperties();
         *props = new shared_ptr<Ice::Properties>(move(p));
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -181,7 +181,7 @@ Ice_Communicator_getLogger(void* self, void** logger)
     {
         auto l = deref<Ice::Communicator>(self)->getLogger();
         *logger = createShared<Ice::Logger>(l);
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -203,7 +203,7 @@ Ice_Communicator_getDefaultRouter(void* self, void** proxy)
         {
             *proxy = 0;
         }
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -222,7 +222,7 @@ Ice_Communicator_setDefaultRouter(void* self, void* proxy)
             p = Ice::uncheckedCast<Ice::RouterPrx>(deref<Ice::ObjectPrx>(proxy));
         }
         deref<Ice::Communicator>(self)->setDefaultRouter(p);
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -244,7 +244,7 @@ Ice_Communicator_getDefaultLocator(void* self, void** proxy)
         {
             *proxy = 0;
         }
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -263,7 +263,7 @@ Ice_Communicator_setDefaultLocator(void* self, void* proxy)
             p = Ice::uncheckedCast<Ice::LocatorPrx>(deref<Ice::ObjectPrx>(proxy));
         }
         deref<Ice::Communicator>(self)->setDefaultLocator(p);
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -278,7 +278,7 @@ Ice_Communicator_flushBatchRequests(void* self, mxArray* mode)
     {
         auto m = static_cast<Ice::CompressBatch>(getEnumerator(mode, "Ice.CompressBatch"));
         deref<Ice::Communicator>(self)->flushBatchRequests(m);
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -307,7 +307,7 @@ Ice_Communicator_flushBatchRequestsAsync(void* self, mxArray* mode, void** futur
             });
         f->token(token);
         *future = new shared_ptr<SimpleFuture>(move(f));
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {

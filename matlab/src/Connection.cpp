@@ -161,7 +161,7 @@ Ice_Connection_close(void* self, mxArray* m)
     {
         auto mode = static_cast<Ice::ConnectionClose>(getEnumerator(m, "Ice.ConnectionClose"));
         deref<Ice::Connection>(self)->close(mode);
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -203,7 +203,7 @@ Ice_Connection_createProxy(void* self, mxArray* id, void** r)
         getIdentity(id, ident);
         auto proxy = deref<Ice::Connection>(self)->createProxy(ident);
         *r = new shared_ptr<Ice::ObjectPrx>(move(proxy));
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -218,7 +218,7 @@ Ice_Connection_flushBatchRequests(void* self, mxArray* c)
     {
         auto mode = static_cast<Ice::CompressBatch>(getEnumerator(c, "Ice.CompressBatch"));
         deref<Ice::Connection>(self)->flushBatchRequests(mode);
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -247,7 +247,7 @@ Ice_Connection_flushBatchRequestsAsync(void* self, mxArray* c, void** future)
             });
         f->token(token);
         *future = new shared_ptr<SimpleFuture>(move(f));
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -261,7 +261,7 @@ Ice_Connection_getEndpoint(void* self, void** endpoint)
     try
     {
         *endpoint = createShared<Ice::Endpoint>(deref<Ice::Connection>(self)->getEndpoint());
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -275,7 +275,7 @@ Ice_Connection_heartbeat(void* self)
     try
     {
         deref<Ice::Connection>(self)->heartbeat();
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -302,7 +302,7 @@ Ice_Connection_heartbeatAsync(void* self, void** future)
             });
         f->token(token);
         *future = new shared_ptr<SimpleFuture>(move(f));
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -340,7 +340,7 @@ Ice_Connection_setACM(void* self, mxArray* t, mxArray* c, mxArray* h)
             heartbeat = static_cast<Ice::ACMHeartbeat>(getEnumerator(h, "Ice.ACMHeartbeat"));
         }
         deref<Ice::Connection>(self)->setACM(timeout, close, heartbeat);
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -427,7 +427,7 @@ Ice_Connection_setBufferSize(void* self, int rcvSize, int sndSize)
     try
     {
         deref<Ice::Connection>(self)->setBufferSize(rcvSize, sndSize);
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -441,7 +441,7 @@ Ice_Connection_throwException(void* self)
     try
     {
         deref<Ice::Connection>(self)->throwException();
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {

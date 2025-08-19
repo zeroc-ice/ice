@@ -25,7 +25,7 @@ Ice_Logger_print(void* self, mxArray* message)
     try
     {
         deref<Ice::Logger>(self)->print(getStringFromUTF16(message));
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -39,7 +39,7 @@ Ice_Logger_trace(void* self, mxArray* category, mxArray* message)
     try
     {
         deref<Ice::Logger>(self)->trace(getStringFromUTF16(category), getStringFromUTF16(message));
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -53,7 +53,7 @@ Ice_Logger_warning(void* self, mxArray* message)
     try
     {
         deref<Ice::Logger>(self)->warning(getStringFromUTF16(message));
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -67,7 +67,7 @@ Ice_Logger_error(void* self, mxArray* message)
     try
     {
         deref<Ice::Logger>(self)->error(getStringFromUTF16(message));
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
@@ -96,7 +96,7 @@ Ice_Logger_cloneWithPrefix(void* self, mxArray* prefix, void** r)
         auto logger = deref<Ice::Logger>(self);
         auto newLogger = logger->cloneWithPrefix(getStringFromUTF16(prefix));
         *r = newLogger == logger ? 0 : new shared_ptr<Ice::Logger>(move(newLogger));
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {

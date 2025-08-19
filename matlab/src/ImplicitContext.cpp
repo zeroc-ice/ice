@@ -40,7 +40,7 @@ Ice_ImplicitContext_setContext(void* self, mxArray* newContext)
         map<string, string> ctx;
         getStringMap(newContext, ctx);
         deref<Ice::ImplicitContext>(self)->setContext(ctx);
-	return createEmptyArray();
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
