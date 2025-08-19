@@ -2843,19 +2843,6 @@ IcePHP::ValueWriter::ValueWriter(zval* object, ObjectMap* objectMap, ClassInfoPt
 IcePHP::ValueWriter::~ValueWriter() { zval_ptr_dtor(&_object); }
 
 void
-IcePHP::ValueWriter::ice_preMarshal()
-{
-    string name = "ice_premarshal"; // Must be lowercase.
-    if (zend_hash_str_exists(&Z_OBJCE_P(&_object)->function_table, name.c_str(), static_cast<uint32_t>(name.size())))
-    {
-        if (!invokeMethod(&_object, name))
-        {
-            throw AbortMarshaling();
-        }
-    }
-}
-
-void
 IcePHP::ValueWriter::_iceWrite(Ice::OutputStream* os) const
 {
     // Retrieve the SlicedData object that we stored as a hidden member of the PHP object.
@@ -2942,19 +2929,6 @@ IcePHP::ValueReader::ValueReader(zval* object, const ClassInfoPtr& info, const C
 }
 
 IcePHP::ValueReader::~ValueReader() { zval_ptr_dtor(&_object); }
-
-void
-IcePHP::ValueReader::ice_postUnmarshal()
-{
-    string name = "ice_postunmarshal"; // Must be lowercase.
-    if (zend_hash_str_exists(&Z_OBJCE(_object)->function_table, name.c_str(), static_cast<int>(name.size())))
-    {
-        if (!invokeMethod(&_object, name))
-        {
-            throw AbortMarshaling();
-        }
-    }
-}
 
 void
 IcePHP::ValueReader::_iceWrite(Ice::OutputStream*) const
