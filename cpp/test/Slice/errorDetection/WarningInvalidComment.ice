@@ -7,7 +7,7 @@ module Test
     /// @deprecated This one is fine.
     /// @throws Exception never.
     /// @exception Exception synonym for @throws.
-    /// @return Nothing because it's an enum.
+    /// @return Nothing because it's an @p enum.
     enum NotAnOperation {
         /// @see CommentDummy
         Okay,
@@ -32,18 +32,22 @@ module Test
     /// @deprecated Message2
     exception DerivedFromDummy extends CommentDummy {}
 
+    /// Unterminated code-snippet: `
+    /// Also an unterminated code-snippet: ``hello there`
+    /// But this is not an unterminated code-snippet: \` because it's escaped.
+    /// It's okay to have backticks inside of other backticks: ```` ``` `` ` `` ``` ````.
     exception SomeOtherException {}
 
     interface MyInterface
     {
         /// @param NoParam should give a no-matching-parameter warning.
-        /// @return Nothing because it's void.
+        /// @return Nothing because it's void. Also @p param isn't a real parameter.
         /// @throws FakeException should give a not-an-exception warning.
         /// @throws CommentDummy should give a not-thrown-by-this-operation warning.
         void voidOp();
 
-        /// @param value no warning, because this ia a real parameter.
-        /// @param value should give a duplicate-tag warning.
+        /// @param value no warning, because this ia a real parameter. @p
+        /// @param value should give a duplicate-tag warning. But This is fine: @p value.
         /// @param namess should give a no-matching-parameter warning.
         /// @return Something because it's non-void.
         /// @return Should give a duplicate-tag warning.
