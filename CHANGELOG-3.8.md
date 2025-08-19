@@ -283,8 +283,10 @@ classDiagram
   example, you can use the `ClassSliceLoader` implementation to create a Slice loader for one or more generated classes
   (typically classes with remapped names or compact IDs).
 
-  Limitation: in Python, Ruby, and PHP, a custom Slice loader can only create class instances. The creation of custom
-  user exceptions is currently ignored.
+  Limitations:
+  - in Python and Ruby, a custom Slice loader can only create class instances. The creation of custom user exceptions is
+    currently ignored.
+  - there is no custom Slice loader in PHP.
 
 - The plug-ins provided by Ice now have fixed names: IceIAP, IceBT, IceUDP, IceWS, IceDiscovery, IceLocatorDiscovery.
   This fixed name is the only name you can use when loading/configuring such a plug-in with the Ice.Plugin.name property.
@@ -746,6 +748,10 @@ initialization. See `InitializationData.pluginFactories`.
 - Removed support for Windows PHP builds.
 
 - Removed support for PHP 5 builds.
+
+- Removed the `ice_premarshal` and `ice_postunmarshal` "hooks" during class marshaling and unmarshaling.
+`ice_postunmarshal` only makes sense if the application can register a custom Slice loader and Ice for PHP does not
+provide custom Slice loaders.
 
 ## Python Changes
 

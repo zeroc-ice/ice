@@ -4,59 +4,6 @@
 require_once('Test.php');
 require_once('Forward.php');
 
-class BI extends Test\B
-{
-    function ice_preUnmarshal()
-    {
-        $this->preUnmarshalInvoked = true;
-    }
-
-    function ice_postUnmarshal()
-    {
-        $this->postUnmarshalInvoked = true;
-    }
-}
-
-class CI extends Test\C
-{
-    function ice_preUnmarshal()
-    {
-        $this->preUnmarshalInvoked = true;
-    }
-
-    function ice_postUnmarshal()
-    {
-        $this->postUnmarshalInvoked = true;
-    }
-}
-
-class DI extends Test\D
-{
-    function ice_preUnmarshal()
-    {
-        $this->preUnmarshalInvoked = true;
-    }
-
-    function ice_postUnmarshal()
-    {
-        $this->postUnmarshalInvoked = true;
-    }
-}
-
-class CustomSliceLoader implements Ice\SliceLoader
-{
-    function newInstance(string $typeId) : ?object
-    {
-        return match($typeId)
-        {
-            "::Test::B" => new BI(),
-            "::Test::C" => new CI(),
-            "::Test::D" => new DI(),
-            default => null,
-        };
-    }
-}
-
 function allTests($helper)
 {
     $ref = sprintf("initial:%s", $helper->getTestEndpoint());
@@ -103,12 +50,6 @@ function allTests($helper)
     test($b1->theA->theB === $b1);
     test($b1->theA->theC != null);
     test($b1->theA->theC->theB === $b1->theA);
-    test($b1->preMarshalInvoked);
-    test($b1->postUnmarshalInvoked);
-    test($b1->theA->preMarshalInvoked);
-    test($b1->theA->postUnmarshalInvoked);
-    test($b1->theA->theC->preMarshalInvoked);
-    test($b1->theA->theC->postUnmarshalInvoked);
     // More tests possible for b2 and d, but I think this is already sufficient.
     test($b2->theA === $b2);
     test($d->theC == null);
@@ -168,14 +109,6 @@ function allTests($helper)
     test($d->theA === $b1);
     test($d->theB === $b2);
     test($d->theC == null);
-    test($d->preMarshalInvoked);
-    test($d->postUnmarshalInvoked);
-    test($d->theA->preMarshalInvoked);
-    test($d->theA->postUnmarshalInvoked);
-    test($d->theB->preMarshalInvoked);
-    test($d->theB->postUnmarshalInvoked);
-    test($d->theB->theC->preMarshalInvoked);
-    test($d->theB->theC->postUnmarshalInvoked);
     echo "ok\n";
 
     //
@@ -413,7 +346,6 @@ class Client extends TestHelper
     {
         $initData = new Ice\InitializationData();
         $initData->properties = $this->createTestProperties($args);
-        $initData->sliceLoader = new CustomSliceLoader();
         $communicator = $this->initialize($initData);
         $initial = allTests($this);
         $initial->shutdown();

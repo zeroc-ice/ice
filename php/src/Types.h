@@ -454,8 +454,6 @@ namespace IcePHP
         ValueWriter(zval*, ObjectMap*, ClassInfoPtr);
         ~ValueWriter();
 
-        void ice_preMarshal() final;
-
         void _iceWrite(Ice::OutputStream*) const final;
         void _iceRead(Ice::InputStream*) final;
 
@@ -474,8 +472,6 @@ namespace IcePHP
     public:
         ValueReader(zval*, const ClassInfoPtr&, const CommunicatorInfoPtr&);
         ~ValueReader();
-
-        void ice_postUnmarshal() final;
 
         void _iceWrite(Ice::OutputStream*) const final;
         void _iceRead(Ice::InputStream*) final;
