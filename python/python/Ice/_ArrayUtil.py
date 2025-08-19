@@ -2,8 +2,6 @@
 
 import array
 
-from python.test.Ice.custom.ArrayUtil import BuiltinByte
-
 from .Builtin import BuiltinBool, BuiltinByte, BuiltinDouble, BuiltinFloat, BuiltinInt, BuiltinLong, BuiltinShort
 
 BuiltinTypes = [
