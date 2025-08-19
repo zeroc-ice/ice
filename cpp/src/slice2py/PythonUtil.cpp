@@ -35,7 +35,7 @@ class PythonDocCommentFormatter final : public DocCommentFormatter
 {
     string formatCode(string rawText) final
     {
-        // We target Sphinx (RST) for Python doc-comments, which use double backticks for code formatting.
+        // We target Sphinx (RST) for Python doc-comments, which uses double backticks for code formatting.
         return "``" + rawText + "``";
     }
 
