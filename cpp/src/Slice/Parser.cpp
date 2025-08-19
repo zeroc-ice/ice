@@ -1177,8 +1177,8 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base)
             else
             {
                 ostringstream os;
-                os << "exception '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-                << matches.front()->name() << "'";
+                os << "exception '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                   << " '" << matches.front()->name() << "'";
                 unit()->error(os.str());
             }
         }
@@ -2311,7 +2311,7 @@ Slice::ClassDef::createDataMember(
                 {
                     ostringstream os;
                     os << "data member '" << name << "' differs only in capitalization from data member '"
-                    << baseMember->name() << "', which is defined in a base class";
+                       << baseMember->name() << "', which is defined in a base class";
                     unit()->error(os.str());
                 }
             }
