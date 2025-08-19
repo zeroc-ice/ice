@@ -256,19 +256,6 @@ namespace Slice
     // DocComment
     // ----------------------------------------------------------------------
 
-    /// Functions of this type are used to map link tags into each language's link syntax.
-    /// In Slice, links are of the form: '{@link <rawLink>}'.
-    ///
-    /// The first argument (`rawLink`) is the raw link text, taken verbatim from the doc-comment.
-    /// The second argument (`source`) is a pointer to the Slice element that the doc comment (and link) are written on.
-    /// The third argument (`target`) is a pointer to the Slice element that is being linked to.
-    /// If the parser could not resolve the link, this will be `nullptr`.
-    ///
-    /// This function should return the fully formatted link, which will replace the entire '{@link <rawLink>}'
-    /// in a raw doc-comment.
-    using DocLinkFormatter =
-        std::string (*)(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
-
     class DocCommentParser;
 
     class DocComment final

@@ -24,6 +24,14 @@ namespace
     bool interrupted = false;
 }
 
+class JSDocCommentFormatter final : public DocCommentFormatter
+{
+    string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+    {
+        return Slice::JavaScript::jsLinkFormatter(rawLink, source, target);
+    }
+};
+
 void
 interruptedCallback(int /*signal*/)
 {
@@ -217,7 +225,8 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocComments(unit, Slice::JavaScript::jsLinkFormatter);
+                JSDocCommentFormatter formatter;
+                parseAllDocComments(unit, formatter);
 
                 if (useStdout)
                 {

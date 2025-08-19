@@ -24,6 +24,19 @@ namespace
     bool interrupted = false;
 }
 
+class JavaDocCommentFormatter final : public DocCommentFormatter
+{
+    string formatCode(string rawText) final
+    {
+        return "{@code " + rawText + "}";
+    }
+
+    string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+    {
+        return Slice::Java::javaLinkFormatter(rawLink, source, target);
+    }
+};
+
 void
 interruptedCallback(int /*signal*/)
 {
@@ -172,7 +185,8 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocComments(unit, Slice::Java::javaLinkFormatter);
+                JavaDocCommentFormatter formatter;
+                parseAllDocComments(unit, formatter);
 
                 Gen gen(preprocessor->getBaseName(), includePaths, output);
                 gen.generate(unit);

@@ -23,6 +23,28 @@ namespace
     bool interrupted = false;
 }
 
+class Slice2DocCommentFormatter final : public DocCommentFormatter
+{
+    string formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) final
+    {
+        // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
+        // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
+        string formattedLink = rawLink;
+        auto separatorPos = formattedLink.find('#');
+        if (separatorPos == 0)
+        {
+            // We want to avoid converting the relative link '#member' into the global link '::member'.
+            // Instead we simply convert it to 'member' with no prefix.
+            formattedLink = formattedLink.substr(1);
+        }
+        else if (separatorPos != string::npos)
+        {
+            formattedLink.replace(separatorPos, 1, "::");
+        }
+        return "{@link " + formattedLink + "}";
+    }
+};
+
 void
 interruptedCallback(int /*signal*/)
 {
@@ -158,7 +180,8 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocComments(unit, Slice::slice2LinkFormatter);
+                Slice2DocCommentFormatter formatter;
+                parseAllDocComments(unit, formatter);
 
                 DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
                 assert(dc);
