@@ -52,10 +52,8 @@ namespace IcePHP
     };
     using ActiveCommunicatorPtr = shared_ptr<ActiveCommunicator>;
 
-    // CommunicatorInfoI encapsulates communicator-related information that
-    // is specific to a PHP "request". In other words, multiple PHP requests
-    // might share the same communicator instance but still need separate
-    // workspaces.
+    // CommunicatorInfoI encapsulates communicator-related information that is specific to a PHP "request". In other
+    // words, multiple PHP requests might share the same communicator instance but still need separate workspaces.
     class CommunicatorInfoI final : public CommunicatorInfo, public enable_shared_from_this<CommunicatorInfoI>
     {
     public:
@@ -68,13 +66,11 @@ namespace IcePHP
         Ice::CommunicatorPtr getCommunicator() const final;
         Ice::SliceLoaderPtr getSliceLoader() const final;
 
-        void setSliceLoader(Ice::SliceLoaderPtr);
-
         const ActiveCommunicatorPtr ac;
         zval zv;
 
     private:
-        Ice::SliceLoaderPtr _sliceLoader;
+        mutable Ice::SliceLoaderPtr _sliceLoader; // lazily initialized DefaultSliceLoader
     };
     using CommunicatorInfoIPtr = std::shared_ptr<CommunicatorInfoI>;
 }
@@ -754,11 +750,7 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
 }
 
 static CommunicatorInfoIPtr
-initializeCommunicator(
-    zval* zv,
-    Ice::StringSeq& args,
-    bool hasArgs,
-    Ice::InitializationData initData)
+initializeCommunicator(zval* zv, Ice::StringSeq& args, bool hasArgs, Ice::InitializationData initData)
 {
     try
     {
@@ -784,10 +776,6 @@ initializeCommunicator(
             {
             }
         }
-
-        // Create and register Slice loader.
-        Ice::SliceLoaderPtr sliceLoader = make_shared<DefaultSliceLoader>(info);
-        info->setSliceLoader(std::move(sliceLoader));
 
         return info;
     }
@@ -1603,11 +1591,10 @@ IcePHP::CommunicatorInfoI::getCommunicator() const
 Ice::SliceLoaderPtr
 IcePHP::CommunicatorInfoI::getSliceLoader() const
 {
+    if (!_sliceLoader)
+    {
+        auto self = const_cast<CommunicatorInfoI*>(this)->shared_from_this();
+        _sliceLoader = make_shared<DefaultSliceLoader>(self);
+    }
     return _sliceLoader;
-}
-
-void
-IcePHP::CommunicatorInfoI::setSliceLoader(Ice::SliceLoaderPtr sliceLoader)
-{
-    _sliceLoader = std::move(sliceLoader);
 }
