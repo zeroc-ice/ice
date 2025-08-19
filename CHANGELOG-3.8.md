@@ -830,6 +830,8 @@ initialization. See `InitializationData.pluginFactories`.
   track outputs. In 3.8, each Slice definition is compiled into a separate module under its Python package path. The
   new `--list` option helps track the set of generated files.
 
+- Removed support for the `python:seq` metadata. Use `python:list` and `python:tuple` instead.
+
 ## Ruby Changes
 
 ## Swift Changes

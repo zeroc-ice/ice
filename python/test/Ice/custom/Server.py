@@ -25,7 +25,7 @@ class CustomI(Test.Custom):
         return (b1, b1)
 
     @override
-    def opByteString2(self, b1: list[int], current: Ice.Current) -> tuple[Sequence[int], Sequence[int]]:
+    def opByteString2(self, b1: list[int], current: Ice.Current):
         test(isinstance(b1, list))
         return (b1, b1)
 
@@ -168,32 +168,32 @@ try:
             return v1, v1
 
         @override
-        def opShortSeq(self, v1, current: Ice.Current):
+        def opShortSeq(self, v1: numpy.typing.NDArray[numpy.int16], current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
         @override
-        def opIntSeq(self, v1, current: Ice.Current):
+        def opIntSeq(self, v1: numpy.typing.NDArray[numpy.int32], current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
         @override
-        def opLongSeq(self, v1, current: Ice.Current):
+        def opLongSeq(self, v1: numpy.typing.NDArray[numpy.int64], current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
         @override
-        def opFloatSeq(self, v1, current: Ice.Current):
+        def opFloatSeq(self, v1: numpy.typing.NDArray[numpy.float32], current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
         @override
-        def opDoubleSeq(self, v1, current: Ice.Current):
+        def opDoubleSeq(self, v1: numpy.typing.NDArray[numpy.float64], current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1, v1
 
         @override
-        def opComplex128Seq(self, v1, current: Ice.Current):
+        def opComplex128Seq(self, v1: numpy.typing.NDArray[numpy.complex128], current: Ice.Current):
             test(isinstance(v1, numpy.ndarray))
             return v1
 

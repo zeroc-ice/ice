@@ -13,9 +13,8 @@ if "--load-slice" in sys.argv:
 from generated.test.Ice.custom import Test
 
 
-def allTests(helper: TestHelper, communicator: Ice.Communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomPrx:
     custom = Test.CustomPrx(communicator, f"test:{helper.getTestEndpoint()}")
-    test(custom)
 
     byteList = [1, 2, 3, 4, 5]
     byteString = bytes(byteList)
@@ -601,4 +600,4 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     except ImportError:
         pass
 
-    return custom
+    return Test.CustomPrx(communicator, f"test:{helper.getTestEndpoint()}")

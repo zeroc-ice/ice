@@ -272,7 +272,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                         // array.array does not support boolean values. The common convention is to use a
                         // char array, array.array('b'), whose Python type is int.
                         // Python will map True and False to 1 and 0, respectively.
-                        os << " | " << getImportAlias(source, "array") << ".array[int]";
+                        os << " | " << getImportAlias(source, "array", "array") << "[int]";
                     }
                     else if (sequenceMetadata->directive() == "python:numpy.ndarray")
                     {
@@ -281,9 +281,20 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                         os << " | " << numpyAlias << ".typing.NDArray[" << numpyAlias << "."
                            << numpyBuiltinTable[elementType->kind()] << "]";
                     }
+                    else if (sequenceMetadata && sequenceMetadata->directive() == "python:memoryview")
+                    {
+                        auto arguments = sequenceMetadata->arguments();
+                        size_t pos = arguments.find(':');
+                        if (pos != string::npos)
+                        {
+                            auto typeHint = arguments.substr(pos + 1);
+                            auto [package, name] = splitFQDN(typeHint);
+                            auto memoryViewType = getImportAlias(source, package, name);
+                            os << " | " << memoryViewType;
+                        }
+                    }
                 }
             }
-
             else if (sequenceMetadata && sequenceMetadata->directive() == "python:list")
             {
                 os << "list[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
@@ -302,18 +313,17 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
             else if (sequenceMetadata && sequenceMetadata->directive() == "python:array.array")
             {
                 assert(elementType && elementType->kind() <= Builtin::KindDouble);
-                const string arrayAlias = getImportAlias(source, "array");
+                const string arrayAlias = getImportAlias(source, "array", "array");
                 // array.array does not support boolean values. The common convention is to use a
                 // char array, array.array('b'), whose Python type is int.
                 // Python will map True and False to 1 and 0, respectively.
                 if (isBoolSequence)
                 {
-                    os << arrayAlias << ".array[int]";
+                    os << arrayAlias << "[int]";
                 }
                 else
                 {
-                    os << arrayAlias << ".array[" << typeToTypeHintString(seq->type(), false, source, forMarshaling)
-                       << "]";
+                    os << arrayAlias << "[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
                 }
             }
             else if (sequenceMetadata && sequenceMetadata->directive() == "python:memoryview")
@@ -342,7 +352,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
             {
                 return "list[" + typeToTypeHintString(seq->type(), false, source, forMarshaling) + "]";
             }
-            // TODO add support for python:memoryview.
+
             return os.str();
         }
         else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
@@ -670,7 +680,7 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             if (auto sequence = dynamic_pointer_cast<Sequence>(ret))
             {
-                addRuntimeImportForSequence(sequence, p);
+                addRuntimeImportForSequence(sequence, p, op->getMetadata());
             }
             else if (dynamic_pointer_cast<Dictionary>(ret))
             {
@@ -686,7 +696,7 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             if (auto sequence = dynamic_pointer_cast<Sequence>(param->type()))
             {
-                addRuntimeImportForSequence(sequence, p);
+                addRuntimeImportForSequence(sequence, p, param->getMetadata());
             }
             else if (dynamic_pointer_cast<Dictionary>(param->type()))
             {
@@ -761,7 +771,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
     else if (directive == "python:array.array")
     {
         // Import array for using it in the field factory.
-        addRuntimeImport("array", "", source);
+        addRuntimeImport("array", "array", source);
     }
     else if (directive == "python:memoryview")
     {
@@ -1487,11 +1497,11 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
         bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
 
         out << " = " << fieldAlias << "(default_factory=";
-        if (seq->hasMetadata("python:list") || seq->hasMetadata("python:seq:list"))
+        if (seq->hasMetadata("python:list"))
         {
             out << "list";
         }
-        else if (seq->hasMetadata("python:tuple") || seq->hasMetadata("python:seq:tuple"))
+        else if (seq->hasMetadata("python:tuple"))
         {
             out << "tuple";
         }
@@ -1507,8 +1517,8 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
         {
             assert(elementType && elementType->kind() <= Builtin::KindDouble);
             static const char* builtinTable[] = {"b", "b", "h", "i", "q", "f", "d"};
-            const string arrayAlias = getImportAlias(parent, "array");
-            out << "lambda: " << arrayAlias << ".array('" << builtinTable[elementType->kind()] << "')";
+            const string arrayAlias = getImportAlias(parent, "array", "array");
+            out << "lambda: " << arrayAlias << "('" << builtinTable[elementType->kind()] << "')";
         }
         else if (isByteSequence)
         {
@@ -2184,13 +2194,8 @@ Slice::Python::getAll(const ContainedPtr& definition)
 Slice::MetadataPtr
 Slice::Python::getSequenceMetadata(const SequencePtr& seq, const MetadataList& localMetadata)
 {
-    auto sequenceMetaData = array{
-        "python:seq",
-        "python:list",
-        "python:tuple",
-        "python:array.array",
-        "python:numpy.ndarray",
-        "python:memoryview"};
+    auto sequenceMetaData =
+        array{"python:list", "python:tuple", "python:array.array", "python:numpy.ndarray", "python:memoryview"};
 
     // First check source metadata. For example, an operation parameter.
     // If nothing was found, check the sequence itself.
@@ -3012,6 +3017,29 @@ Slice::Python::validatePythonMetadata(const UnitPtr& unit)
                        "' metadata can only be applied to sequences of bools, bytes, shorts, ints, longs, floats, "
                        "or doubles";
             }
+
+            if (m->directive() == "python:memoryview")
+            {
+                // Argument can't be empty as it sets MetadataArgumentKind::RequiredTextArgument
+                auto arguments = m->arguments();
+                assert(!arguments.empty());
+
+                // The memoryview directive can have two forms:
+                // - python:memoryview:<factory>
+                // - python:memoryview:<factory>:<type-hint>
+
+                auto pos = arguments.find(":");
+                if (pos != string::npos)
+                {
+                    // If a type hint is specified, it must be a fully-qualified name
+                    string typeHint = arguments.substr(pos + 1);
+                    const auto [package, name] = splitFQDN(typeHint);
+                    if (package.empty() || name.empty())
+                    {
+                        return "the 'python:memoryview' metadata requires a fully-qualified type hint";
+                    }
+                }
+            }
         }
         return nullopt;
     };
@@ -3057,15 +3085,6 @@ Slice::Python::validatePythonMetadata(const UnitPtr& unit)
     };
     knownMetadata.emplace("python:memoryview", std::move(memoryViewInfo));
 
-    // "python:seq"
-    // We support 2 arguments to this metadata: "list", and "tuple".
-    MetadataInfo seqInfo = {
-        .validOn = {typeid(Sequence)},
-        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        .validArgumentValues = {{"list", "tuple"}},
-        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
-    };
-    knownMetadata.emplace("python:seq", std::move(seqInfo));
     MetadataInfo unqualifiedSeqInfo = {
         .validOn = {typeid(Sequence)},
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,

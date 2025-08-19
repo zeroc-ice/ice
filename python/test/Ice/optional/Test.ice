@@ -45,9 +45,9 @@ module Test
     sequence<string> StringSeq;
     sequence<MyEnum> MyEnumSeq;
     sequence<SmallStruct> SmallStructSeq;
-    ["python:seq:tuple"] sequence<SmallStruct> SmallStructList;
+    ["python:tuple"] sequence<SmallStruct> SmallStructList;
     sequence<FixedStruct> FixedStructSeq;
-    ["python:seq:tuple"] sequence<FixedStruct> FixedStructList;
+    ["python:tuple"] sequence<FixedStruct> FixedStructList;
     sequence<VarStruct> VarStructSeq;
     sequence<MyInterface*> MyInterfacePrxSeq;
 
