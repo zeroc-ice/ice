@@ -25,15 +25,9 @@ namespace
 
 class CppDocCommentFormatter final : public DocCommentFormatter
 {
-    string formatCode(string rawText) final
-    {
-        return "<tt>" + rawText + "</tt>";
-    }
+    string formatCode(string rawText) final { return "<tt>" + rawText + "</tt>"; }
 
-    string formatParamRef(const string& param) final
-    {
-        return "@p " + param;
-    }
+    string formatParamRef(const string& param) final { return "@p " + param; }
 
     string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {

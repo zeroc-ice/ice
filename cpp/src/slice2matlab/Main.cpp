@@ -35,13 +35,9 @@ namespace
     mutex globalMutex;
     bool interrupted = false;
 
-
     class MatlabDocCommentFormatter final : public DocCommentFormatter
     {
-        string formatCode(string rawText) final
-        {
-            return "|" + rawText + "|";
-        }
+        string formatCode(string rawText) final { return "|" + rawText + "|"; }
 
         string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
         {

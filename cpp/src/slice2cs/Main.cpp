@@ -51,15 +51,9 @@ class CsharpDocCommentFormatter final : public DocCommentFormatter
         }
     }
 
-    string formatCode(string rawText) final
-    {
-        return "<c>" + rawText + "</c>";
-    }
+    string formatCode(string rawText) final { return "<c>" + rawText + "</c>"; }
 
-    string formatParamRef(const string& param) final
-    {
-        return "<paramref name=\"" + param + "\">";
-    }
+    string formatParamRef(const string& param) final { return "<paramref name=\"" + param + "\">"; }
 
     string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {

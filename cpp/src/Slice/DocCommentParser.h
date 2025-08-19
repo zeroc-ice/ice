@@ -5,6 +5,11 @@
 
 #include "Parser.h"
 
+#ifdef _MSC_VER
+// warning C4100: 'rawComment': unreferenced parameter
+#    pragma warning(disable : 4100)
+#endif
+
 namespace Slice
 {
     class DocCommentFormatter
@@ -15,7 +20,7 @@ namespace Slice
         /// characters like leading '///' and '*' characters or leading whitespace.
         //
         // By default we perform no preprocessing.
-        virtual void preprocess(StringList&) {}
+        virtual void preprocess(StringList& rawComment) {}
 
         /// This function is called by the doc-comment parser to map code-snippets (`<rawText>`) into each language's
         /// syntax.
@@ -24,10 +29,7 @@ namespace Slice
         /// entire "`...`" string with the returned value.
         //
         // By default we just re-emit the text with the original number of backticks around it.
-        [[nodiscard]] virtual std::string formatCode(std::string rawText)
-        {
-            return "`" + rawText + "`";
-        }
+        [[nodiscard]] virtual std::string formatCode(std::string rawText) { return "`" + rawText + "`"; }
 
         /// This function is called by the doc-comment parser to map '@p' tags into each language's syntax.
         /// @param param The mapped name of the parameter that is being referenced.
@@ -39,15 +41,13 @@ namespace Slice
 
         /// This function is called by the doc-comment parser to map doc-links ('{@link <rawLink>}') into each
         /// language's syntax.
-        /// @param rawLink The link's raw text taken verbatim from the doc-comment.
+        /// @param rawLink The link's raw text, taken verbatim from the doc-comment.
         /// @param source A pointer to the Slice element that the doc-comment (and link) are written on.
         /// @param target A pointer to the Slice element that is being linked to, or `nullptr` if it doesn't exist.
         /// @return A properly formatted doc-link in the target language. The doc-comment parser will replace the
         /// entire "{@link <rawLink>}" string with the returned value.
-        [[nodiscard]] virtual std::string formatLink(
-            const std::string& rawLink,
-            const ContainedPtr& source,
-            const SyntaxTreeBasePtr& target) = 0;
+        [[nodiscard]] virtual std::string
+        formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) = 0;
     };
 
     /// Parses all doc-comments within the provided unit (in-place).

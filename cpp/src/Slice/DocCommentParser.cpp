@@ -271,7 +271,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
         while ((pos = line.find('`', pos)) != string::npos)
         {
             // If this backtick is escaped with a backslash, skip it.
-            if (pos > 0 && line[pos-1] == '\'')
+            if (pos > 0 && line[pos - 1] == '\'')
             {
                 pos += 1;
                 continue;
