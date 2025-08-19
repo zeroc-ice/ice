@@ -288,7 +288,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             if (closingStart == string::npos)
             {
                 // No matching delimeter was found.
-                p->unit()->warning(p->file(), p->line(), InvalidComment, "missing parameter name after '@p' tag");
+                p->unit()->warning(p->file(), p->line(), InvalidComment, "unterminated code snippet: missing closing backtick delimiter");
                 break; // Skip to the next line, this line is broken.
             }
 
