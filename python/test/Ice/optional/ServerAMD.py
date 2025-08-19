@@ -172,8 +172,8 @@ class InitialI(Test.Initial):
 
     @override
     def opSmallStructList(
-        self, p1: list[Test.SmallStruct] | None, current: Ice.Current
-    ) -> Awaitable[tuple[list[Test.SmallStruct] | None, list[Test.SmallStruct] | None]]:
+        self, p1: tuple[Test.SmallStruct, ...] | None, current: Ice.Current
+    ) -> Awaitable[tuple[Sequence[Test.SmallStruct] | None, Sequence[Test.SmallStruct] | None]]:
         return Ice.Future.completed((p1, p1))
 
     @override
@@ -184,8 +184,8 @@ class InitialI(Test.Initial):
 
     @override
     def opFixedStructList(
-        self, p1: list[Test.FixedStruct] | None, current: Ice.Current
-    ) -> Awaitable[tuple[list[Test.FixedStruct] | None, list[Test.FixedStruct] | None]]:
+        self, p1: tuple[Test.FixedStruct, ...] | None, current: Ice.Current
+    ) -> Awaitable[tuple[Sequence[Test.FixedStruct] | None, Sequence[Test.FixedStruct] | None]]:
         return Ice.Future.completed((p1, p1))
 
     @override
