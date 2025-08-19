@@ -20,14 +20,14 @@ mxArray*
 Ice_Communicator_unref(void* self)
 {
     delete reinterpret_cast<shared_ptr<Ice::Communicator>*>(self);
-    return 0;
+    return createEmptyArray();
 }
 
 mxArray*
 Ice_Communicator_destroy(void* self)
 {
     deref<Ice::Communicator>(self)->destroy();
-    return 0;
+    return createEmptyArray();
 }
 
 mxArray*
@@ -51,7 +51,7 @@ Ice_Communicator_destroyAsync(void* self, void** future)
         });
     t.detach();
     *future = new shared_ptr<SimpleFuture>(move(f));
-    return 0;
+    return createEmptyArray();
 }
 
 mxArray*
@@ -68,12 +68,12 @@ Ice_Communicator_stringToProxy(void* self, const char* s, void** proxy)
         {
             *proxy = 0;
         }
+    return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -105,12 +105,12 @@ Ice_Communicator_propertyToProxy(void* self, const char* prop, void** proxy)
         {
             *proxy = 0;
         }
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -151,12 +151,12 @@ Ice_Communicator_getImplicitContext(void* self, void** ctx)
     {
         auto p = deref<Ice::Communicator>(self)->getImplicitContext();
         *ctx = createShared<Ice::ImplicitContext>(p);
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -166,12 +166,12 @@ Ice_Communicator_getProperties(void* self, void** props)
     {
         auto p = deref<Ice::Communicator>(self)->getProperties();
         *props = new shared_ptr<Ice::Properties>(move(p));
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -181,12 +181,12 @@ Ice_Communicator_getLogger(void* self, void** logger)
     {
         auto l = deref<Ice::Communicator>(self)->getLogger();
         *logger = createShared<Ice::Logger>(l);
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -203,12 +203,12 @@ Ice_Communicator_getDefaultRouter(void* self, void** proxy)
         {
             *proxy = 0;
         }
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -222,12 +222,12 @@ Ice_Communicator_setDefaultRouter(void* self, void* proxy)
             p = Ice::uncheckedCast<Ice::RouterPrx>(deref<Ice::ObjectPrx>(proxy));
         }
         deref<Ice::Communicator>(self)->setDefaultRouter(p);
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -244,12 +244,12 @@ Ice_Communicator_getDefaultLocator(void* self, void** proxy)
         {
             *proxy = 0;
         }
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -263,12 +263,12 @@ Ice_Communicator_setDefaultLocator(void* self, void* proxy)
             p = Ice::uncheckedCast<Ice::LocatorPrx>(deref<Ice::ObjectPrx>(proxy));
         }
         deref<Ice::Communicator>(self)->setDefaultLocator(p);
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -278,12 +278,12 @@ Ice_Communicator_flushBatchRequests(void* self, mxArray* mode)
     {
         auto m = static_cast<Ice::CompressBatch>(getEnumerator(mode, "Ice.CompressBatch"));
         deref<Ice::Communicator>(self)->flushBatchRequests(m);
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -307,12 +307,12 @@ Ice_Communicator_flushBatchRequestsAsync(void* self, mxArray* mode, void** futur
             });
         f->token(token);
         *future = new shared_ptr<SimpleFuture>(move(f));
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 }

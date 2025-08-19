@@ -43,7 +43,7 @@ mxArray*
 Ice_Properties_unref(void* self)
 {
     delete reinterpret_cast<shared_ptr<Ice::Properties>*>(self);
-    return 0;
+    return createEmptyArray();
 }
 
 mxArray*
@@ -78,12 +78,12 @@ Ice_Properties_getPropertyAsInt(void* self, const char* key, int* r)
     try
     {
         *r = deref<Ice::Properties>(self)->getPropertyAsInt(key);
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -92,12 +92,12 @@ Ice_Properties_getPropertyAsIntWithDefault(void* self, const char* key, int dflt
     try
     {
         *r = deref<Ice::Properties>(self)->getPropertyAsIntWithDefault(key, dflt);
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -150,12 +150,12 @@ Ice_Properties_setProperty(void* self, const char* key, const char* value)
     try
     {
         deref<Ice::Properties>(self)->setProperty(key, value);
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -210,12 +210,12 @@ Ice_Properties_load(void* self, const char* file)
     try
     {
         deref<Ice::Properties>(self)->load(file);
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*
@@ -224,12 +224,12 @@ Ice_Properties_clone(void* self, void** r)
     try
     {
         *r = new shared_ptr<Ice::Properties>(deref<Ice::Properties>(self)->clone());
+        return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 }

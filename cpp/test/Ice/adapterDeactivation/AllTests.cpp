@@ -8,6 +8,8 @@
 
 #ifdef ICE_CPP11_MAPPING
 #   include <thread>
+#   include <chrono>
+    using namespace std::literals::chrono_literals;
 #endif
 
 using namespace std;
