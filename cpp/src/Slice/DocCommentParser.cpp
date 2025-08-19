@@ -288,7 +288,8 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             if (closingStart == string::npos)
             {
                 // No matching delimeter was found.
-                p->unit()->warning(p->file(), p->line(), InvalidComment, "unterminated code snippet: missing closing backtick delimiter");
+                const string msg = "unterminated code snippet: missing closing backtick delimiter";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 break; // Skip to the next line, this line is broken.
             }
 
