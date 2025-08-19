@@ -148,7 +148,7 @@ mxArray*
 Ice_SimpleFuture_unref(void* self)
 {
     delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
-    return 0;
+    return createEmptyArray();
 }
 
 mxArray*
@@ -183,7 +183,7 @@ mxArray*
 Ice_SimpleFuture_cancel(void* self)
 {
     deref<SimpleFuture>(self)->cancel();
-    return 0;
+    return createEmptyArray();
 }
 
 mxArray*
@@ -212,7 +212,7 @@ Ice_SimpleFuture_check(void* self)
     //
     delete reinterpret_cast<shared_ptr<SimpleFuture>*>(self);
 
-    return 0;
+    return createEmptyArray();
 }
 
 }

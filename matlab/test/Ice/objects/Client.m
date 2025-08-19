@@ -5,7 +5,7 @@
 function client(args)
     addpath('generated');
     if ~libisloaded('ice')
-        loadlibrary('ice', @iceproto)
+        loadlibrary('ice', @iceproto);
     end
 
     helper = TestHelper();
