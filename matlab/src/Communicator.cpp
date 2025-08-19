@@ -68,7 +68,7 @@ Ice_Communicator_stringToProxy(void* self, const char* s, void** proxy)
         {
             *proxy = 0;
         }
-	return createEmptyArray();
+    return createEmptyArray();
     }
     catch(const std::exception& ex)
     {
