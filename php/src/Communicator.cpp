@@ -7,7 +7,6 @@
 #include "IceDiscovery/IceDiscovery.h"
 #include "IceLocatorDiscovery/IceLocatorDiscovery.h"
 #include "Logger.h"
-#include "PHPSliceLoader.h"
 #include "Properties.h"
 #include "Proxy.h"
 #include "Types.h"
@@ -759,8 +758,7 @@ initializeCommunicator(
     zval* zv,
     Ice::StringSeq& args,
     bool hasArgs,
-    Ice::InitializationData initData,
-    zval* initDataSliceLoader)
+    Ice::InitializationData initData)
 {
     try
     {
@@ -789,14 +787,6 @@ initializeCommunicator(
 
         // Create and register Slice loader.
         Ice::SliceLoaderPtr sliceLoader = make_shared<DefaultSliceLoader>(info);
-        if (initDataSliceLoader && !ZVAL_IS_NULL(initDataSliceLoader))
-        {
-            auto compositeSliceLoader = make_shared<Ice::CompositeSliceLoader>();
-            compositeSliceLoader->add(make_shared<PHPSliceLoader>(initDataSliceLoader, info));
-            compositeSliceLoader->add(std::move(sliceLoader));
-            sliceLoader = std::move(compositeSliceLoader);
-        }
-
         info->setSliceLoader(std::move(sliceLoader));
 
         return info;
@@ -913,8 +903,6 @@ ZEND_FUNCTION(Ice_initialize)
         RETURN_NULL();
     }
 
-    zval* initDataSliceLoader{nullptr};
-
     if (zvinit)
     {
         zval* data;
@@ -943,15 +931,6 @@ ZEND_FUNCTION(Ice_initialize)
                 }
             }
         }
-
-        member = "sliceLoader";
-        {
-            if ((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), member.c_str(), member.size())) != 0)
-            {
-                assert(Z_TYPE_P(data) == IS_INDIRECT);
-                initDataSliceLoader = Z_INDIRECT_P(data);
-            }
-        }
     }
 
     if (!initData.properties)
@@ -973,8 +952,7 @@ ZEND_FUNCTION(Ice_initialize)
         initData.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
     }
 
-    CommunicatorInfoIPtr info =
-        initializeCommunicator(return_value, seq, zvargs != 0, std::move(initData), initDataSliceLoader);
+    CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, zvargs != 0, std::move(initData));
     if (!info)
     {
         RETURN_NULL();
