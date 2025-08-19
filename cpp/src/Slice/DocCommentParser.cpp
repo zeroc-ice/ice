@@ -345,6 +345,10 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
         }
     }
 
+    // Some tags are only valid if they're applied to an operation.
+    // And we need a reference to the operation to make sure any names used in the tag match the names in the operation.
+    OperationPtr operationTarget = dynamic_pointer_cast<Operation>(p);
+
     // Fix any '@p' tags using the provided param-ref formatter.
     const string paramref = "@p";
     for (auto& line : lines)
@@ -370,15 +374,42 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             }
 
             // Then find the ending position of the name.
-            auto nameEnd = line.find_first_of(ws, nameStart);
+            const string identifierChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+            auto nameEnd = line.find_first_not_of(identifierChars, nameStart);
             if (nameEnd == string::npos)
             {
                 // If there isn't any whitespace after the name, that means it runs to the end of the line.
                 nameEnd = line.size();
             }
 
-            // Format the parameter's name, skipping past the one we just formatted.
-            const string parameterName = line.substr(nameStart, nameEnd - nameStart);
+            // Extract the parameter's name and check if matches an operation parameter.
+            // If it does, make sure to use the mapped name instead of the Slice name.
+            string parameterName = line.substr(nameStart, nameEnd - nameStart);
+            if (operationTarget)
+            {
+                bool doesParameterExist = false;
+                for (const auto& param : operationTarget->parameters())
+                {
+                    if (param->name() == parameterName)
+                    {
+                        parameterName = param->mappedName();
+                        doesParameterExist = true;
+                        break;
+                    }
+                }
+                if (!doesParameterExist)
+                {
+                    string opName = operationTarget->name();
+                    string msg = "No parameter named '" + parameterName + "' exists on operation '" + opName + "'";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                }
+            }
+            else
+            {
+                p->unit()->warning(p->file(), p->line(), InvalidComment, "'@p' tags can only be used on operations");
+            }
+
+            // Format the parameter's name and insert it in-place of the original '@p name'.
             const string formattedParamName = _formatter.formatParamRef(parameterName);
             line.erase(pos, nameEnd - pos);
             line.insert(pos, formattedParamName);
@@ -387,10 +418,6 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             pos += formattedParamName.size();
         }
     }
-
-    // Some tags are only valid if they're applied to an operation.
-    // And we need a reference to the operation to make sure any names used in the tag match the names in the operation.
-    OperationPtr operationTarget = dynamic_pointer_cast<Operation>(p);
 
     const string paramTag = "@param";
     const string throwsTag = "@throws";
