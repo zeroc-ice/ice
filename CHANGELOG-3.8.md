@@ -749,6 +749,10 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Removed support for PHP 5 builds.
 
+- Removed the `ice_premarshal` and `ice_postunmarshal` "hooks" during class marshaling and unmarshaling.
+`ice_postunmarshal` only makes sense if the application can register a custom Slice loader and Ice for PHP does not
+provide custom Slice loaders.
+
 ## Python Changes
 
 - Added `Ice.EventLoopAdapter` for async event loop integration. This adapter enables integration of Ice with the
