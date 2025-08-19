@@ -2302,7 +2302,7 @@ Slice::ClassDef::createDataMember(
                     ostringstream os;
                     os << "data member '" << name << "' is already defined as a data member in a base class";
                     unit()->error(os.str());
-                    continue;
+                    break;
                 }
 
                 string baseName = IceInternal::toLower(baseMember->name());
