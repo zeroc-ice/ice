@@ -268,6 +268,10 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
     test(d1.floatSeq is None)
     test(d1.doubleSeq is None)
 
+    m = custom.opM(Test.M())
+    assert isinstance(m.boolSeq, array.array)
+    test(len(m.boolSeq) == 0)
+
     # Use the new buffer interface for marshaling sequences of types that implement the buffer protocol and this allow
     # Ice to check that the container item size and endianness
     try:

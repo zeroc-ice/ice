@@ -8,27 +8,27 @@ module Test
     module NumPy
     {
         ["python:numpy.ndarray"] sequence<bool> BoolSeq1;
-        ["python:memoryview:Custom.myNumPyBoolSeq:numpy.ndarray"] sequence<bool> BoolSeq2;
+        ["python:memoryview:CustomFactory.myNumPyBoolSeq:numpy.ndarray"] sequence<bool> BoolSeq2;
 
         ["python:numpy.ndarray"] sequence<byte> ByteSeq1;
-        ["python:memoryview:Custom.myNumPyByteSeq:numpy.ndarray"] sequence<byte> ByteSeq2;
+        ["python:memoryview:CustomFactory.myNumPyByteSeq:numpy.ndarray"] sequence<byte> ByteSeq2;
 
         ["python:numpy.ndarray"] sequence<short> ShortSeq1;
-        ["python:memoryview:Custom.myNumPyShortSeq:numpy.ndarray"] sequence<short> ShortSeq2;
+        ["python:memoryview:CustomFactory.myNumPyShortSeq:numpy.ndarray"] sequence<short> ShortSeq2;
 
         ["python:numpy.ndarray"] sequence<int> IntSeq1;
-        ["python:memoryview:Custom.myNumPyIntSeq:numpy.ndarray"] sequence<int> IntSeq2;
+        ["python:memoryview:CustomFactory.myNumPyIntSeq:numpy.ndarray"] sequence<int> IntSeq2;
 
         ["python:numpy.ndarray"] sequence<long> LongSeq1;
-        ["python:memoryview:Custom.myNumPyLongSeq:numpy.ndarray"] sequence<long> LongSeq2;
+        ["python:memoryview:CustomFactory.myNumPyLongSeq:numpy.ndarray"] sequence<long> LongSeq2;
 
         ["python:numpy.ndarray"] sequence<float> FloatSeq1;
-        ["python:memoryview:Custom.myNumPyFloatSeq:numpy.ndarray"] sequence<float> FloatSeq2;
+        ["python:memoryview:CustomFactory.myNumPyFloatSeq:numpy.ndarray"] sequence<float> FloatSeq2;
 
         ["python:numpy.ndarray"] sequence<double> DoubleSeq1;
-        ["python:memoryview:Custom.myNumPyDoubleSeq:numpy.ndarray"] sequence<double> DoubleSeq2;
+        ["python:memoryview:CustomFactory.myNumPyDoubleSeq:numpy.ndarray"] sequence<double> DoubleSeq2;
 
-        ["python:memoryview:Custom.myNumPyComplex128Seq:numpy.ndarray"] sequence<byte> Complex128Seq;
+        ["python:memoryview:CustomFactory.myNumPyComplex128Seq:numpy.ndarray"] sequence<byte> Complex128Seq;
 
         class D
         {
@@ -63,15 +63,15 @@ module Test
             DoubleSeq1 opDoubleSeq(DoubleSeq1 v1, out DoubleSeq2 v2);
             Complex128Seq opComplex128Seq(Complex128Seq v1);
 
-            ["python:memoryview:Custom.myNumPyMatrix3x3:numpy.ndarray"] BoolSeq1 opBoolMatrix();
-            ["python:memoryview:Custom.myNumPyMatrix3x3:numpy.ndarray"] ByteSeq1 opByteMatrix();
-            ["python:memoryview:Custom.myNumPyMatrix3x3:numpy.ndarray"] ShortSeq1 opShortMatrix();
-            ["python:memoryview:Custom.myNumPyMatrix3x3:numpy.ndarray"] IntSeq1 opIntMatrix();
-            ["python:memoryview:Custom.myNumPyMatrix3x3:numpy.ndarray"] LongSeq1 opLongMatrix();
-            ["python:memoryview:Custom.myNumPyMatrix3x3:numpy.ndarray"] FloatSeq1 opFloatMatrix();
-            ["python:memoryview:Custom.myNumPyMatrix3x3:numpy.ndarray"] DoubleSeq1 opDoubleMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] BoolSeq1 opBoolMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] ByteSeq1 opByteMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] ShortSeq1 opShortMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] IntSeq1 opIntMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] LongSeq1 opLongMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] FloatSeq1 opFloatMatrix();
+            ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] DoubleSeq1 opDoubleMatrix();
 
-            ["python:memoryview:Custom.myBogusNumpyArrayType:numpy.ndarray"] BoolSeq1 opBogusNumpyArrayType();
+            ["python:memoryview:CustomFactory.myBogusNumpyArrayType:numpy.ndarray"] BoolSeq1 opBogusNumpyArrayType();
 
             D opD(D d);
 

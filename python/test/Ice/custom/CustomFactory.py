@@ -5,31 +5,31 @@ import array
 from ArrayUtil import createArray
 
 
-def myBoolSeq(buffer: memoryview, type: int) -> array.array:
+def myBoolSeq(buffer: memoryview | None, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myByteSeq(buffer: memoryview, type: int) -> array.array:
+def myByteSeq(buffer: memoryview | None, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myShortSeq(buffer: memoryview, type: int) -> array.array:
+def myShortSeq(buffer: memoryview | None, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myIntSeq(buffer: memoryview, type: int) -> array.array:
+def myIntSeq(buffer: memoryview | None, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myLongSeq(buffer: memoryview, type: int) -> array.array:
+def myLongSeq(buffer: memoryview | None, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myFloatSeq(buffer: memoryview, type: int) -> array.array:
+def myFloatSeq(buffer: memoryview | None, type: int) -> array.array:
     return createArray(buffer, type)
 
 
-def myDoubleSeq(buffer: memoryview, type: int) -> array.array:
+def myDoubleSeq(buffer: memoryview | None, type: int) -> array.array:
     return createArray(buffer, type)
 
 
@@ -37,25 +37,25 @@ try:
     import numpy
     from ArrayUtil import createNumPyArray
 
-    def myNumPyBoolSeq(buffer: memoryview, type: int) -> numpy.ndarray:
+    def myNumPyBoolSeq(buffer: memoryview | None, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyByteSeq(buffer: memoryview, type: int) -> numpy.ndarray:
+    def myNumPyByteSeq(buffer: memoryview | None, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyShortSeq(buffer: memoryview, type: int) -> numpy.ndarray:
+    def myNumPyShortSeq(buffer: memoryview | None, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyIntSeq(buffer: memoryview, type: int) -> numpy.ndarray:
+    def myNumPyIntSeq(buffer: memoryview | None, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyLongSeq(buffer: memoryview, type: int) -> numpy.ndarray:
+    def myNumPyLongSeq(buffer: memoryview | None, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyFloatSeq(buffer: memoryview, type: int) -> numpy.ndarray:
+    def myNumPyFloatSeq(buffer: memoryview | None, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
-    def myNumPyDoubleSeq(buffer: memoryview, type: int) -> numpy.ndarray:
+    def myNumPyDoubleSeq(buffer: memoryview | None, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, type)
 
     def myNumPyComplex128Seq(buffer: memoryview | None, type: int) -> numpy.ndarray:
@@ -64,23 +64,23 @@ try:
         else:
             return numpy.empty(0, numpy.complex128)
 
-    def myNumPyMatrix3x3(buffer: memoryview, type: int) -> numpy.ndarray:
+    def myNumPyMatrix3x3(buffer: memoryview | None, type: int) -> numpy.ndarray:
         a = createNumPyArray(buffer, type)
         a.shape = (3, 3)
         return a
 
-    def myBogusNumpyArrayType(buffer: memoryview, type: int) -> numpy.ndarray:
+    def myBogusNumpyArrayType(buffer: memoryview | None, type: int) -> numpy.ndarray:
         return createNumPyArray(buffer, 1024)
 
 except ImportError:
     pass
 
 
-def myBogusArrayThrowFactory(buffer: memoryview, type: int) -> None:
+def myBogusArrayThrowFactory(buffer: memoryview | None, type: int) -> None:
     raise ValueError()
 
 
-def myBogusArrayType(buffer: memoryview, type: int) -> None:
+def myBogusArrayType(buffer: memoryview | None, type: int) -> None:
     return createArray(buffer, 1024)  # pyright: ignore
 
 

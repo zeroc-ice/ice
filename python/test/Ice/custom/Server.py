@@ -141,6 +141,10 @@ class CustomI(Test.Custom):
         return d
 
     @override
+    def opM(self, m: Test.M, current: Ice.Current) -> Test.M:
+        return m
+
+    @override
     def shutdown(self, current: Ice.Current):
         current.adapter.getCommunicator().shutdown()
 
