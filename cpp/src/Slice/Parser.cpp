@@ -877,7 +877,7 @@ Slice::Container::createModule(const string& name, bool nestedSyntax)
         }
         if (!hasConflictingIdentifier)
         {
-            // If this module has a valid identifier and doesn't conflict with another definition,
+            // If this module's identifier doesn't conflict with another definition,
             // add it to the unit's contentMap so it can be looked up later.
             unit()->addContent(q);
         }
@@ -1157,36 +1157,41 @@ Slice::Container::createInterfaceDecl(const string& name)
 }
 
 ExceptionPtr
-Slice::Container::createException(const string& name, const ExceptionPtr& base, NodeType nodeType)
+Slice::Container::createException(const string& name, const ExceptionPtr& base)
 {
-    ContainedList matches = unit()->findContents(thisScope() + name);
-    if (!matches.empty())
+    ExceptionPtr p = make_shared<Exception>(shared_from_this(), name, base);
+
+    checkForGlobalDefinition("exceptions");
+
+    if (!name.empty())
     {
-        if (matches.front()->name() == name)
+        ContainedList matches = unit()->findContents(thisScope() + name);
+        if (!matches.empty())
         {
-            ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as exception";
-            unit()->error(os.str());
+            if (matches.front()->name() == name)
+            {
+                ostringstream os;
+                os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as exception";
+                unit()->error(os.str());
+            }
+            else
+            {
+                ostringstream os;
+                os << "exception '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+                   << " '" << matches.front()->name() << "'";
+                unit()->error(os.str());
+            }
         }
         else
         {
-            ostringstream os;
-            os << "exception '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
-               << matches.front()->name() << "'";
-            unit()->error(os.str());
+            // If this exceptions's identifier doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(p);
         }
-        return nullptr;
+
+        reportIllegalSuffixOrUnderscore(name);
     }
 
-    reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the exception anyway
-
-    if (nodeType == Real)
-    {
-        checkForGlobalDefinition("exceptions"); // Don't return here -- we create the exception anyway
-    }
-
-    ExceptionPtr p = make_shared<Exception>(shared_from_this(), name, base);
-    unit()->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -1219,7 +1224,7 @@ Slice::Container::createStruct(const string& name)
         }
         else
         {
-            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // If this struct's identifier doesn't conflict with another definition,
             // add it to the unit's contentMap so it can be looked up later.
             unit()->addContent(p);
         }
@@ -1259,7 +1264,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, Metada
         }
         else
         {
-            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // If this sequence's identifier doesn't conflict with another definition,
             // add it to the unit's contentMap so it can be looked up later.
             unit()->addContent(p);
         }
@@ -1314,7 +1319,7 @@ Slice::Container::createDictionary(
         }
         else
         {
-            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // If this dictionary's identifier doesn't conflict with another definition,
             // add it to the unit's contentMap so it can be looked up later.
             unit()->addContent(p);
         }
@@ -1354,7 +1359,7 @@ Slice::Container::createEnum(const string& name)
         }
         else
         {
-            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // If this enum's identifier doesn't conflict with another definition,
             // add it to the unit's contentMap so it can be looked up later.
             unit()->addContent(p);
         }
@@ -1402,7 +1407,7 @@ Slice::Container::createConst(
         }
         else
         {
-            // If this definition has a valid identifier and doesn't conflict with another definition,
+            // If this constant's identifier doesn't conflict with another definition,
             // add it to the unit's contentMap so it can be looked up later.
             unit()->addContent(p);
         }
@@ -2256,40 +2261,6 @@ Slice::ClassDef::createDataMember(
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
-    if (doesNameConflict(name, "data member", _contents))
-    {
-        return nullptr;
-    }
-
-    reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the data member anyway.
-
-    //
-    // Check whether any bases have defined something with the same name already.
-    //
-    if (_base)
-    {
-        for (const auto& dataMember : _base->allDataMembers())
-        {
-            if (dataMember->name() == name)
-            {
-                ostringstream os;
-                os << "data member '" << name << "' is already defined as a data member in a base class";
-                unit()->error(os.str());
-                return nullptr;
-            }
-
-            string baseName = IceInternal::toLower(dataMember->name());
-            string newName = IceInternal::toLower(name);
-            if (baseName == newName)
-            {
-                ostringstream os;
-                os << "data member '" << name << "' differs only in capitalization from data member '"
-                   << dataMember->name() << "', which is defined in a base class";
-                unit()->error(os.str());
-            }
-        }
-    }
-
     if (defaultValueString)
     {
         // Validate the default value.
@@ -2298,21 +2269,6 @@ Slice::ClassDef::createDataMember(
             // Create the data member anyway, just without the default value.
             defaultValueType = nullptr;
             defaultValueString = nullopt;
-        }
-    }
-
-    if (isOptional)
-    {
-        // Validate the tag.
-        for (const auto& q : dataMembers())
-        {
-            if (q->optional() && tag == q->tag())
-            {
-                ostringstream os;
-                os << "tag for optional data member '" << name << "' is already in use";
-                unit()->error(os.str());
-                break;
-            }
         }
     }
 
@@ -2325,7 +2281,56 @@ Slice::ClassDef::createDataMember(
         std::move(defaultValueType),
         std::move(defaultValueString));
 
-    unit()->addContent(member);
+    if (!name.empty())
+    {
+        if (!doesNameConflict(name, "data member", _contents))
+        {
+            // If this data member's identifier doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(member);
+        }
+
+        reportIllegalSuffixOrUnderscore(name);
+
+        // Check whether any bases have defined something with the same name already.
+        if (_base)
+        {
+            for (const auto& baseMember : _base->allDataMembers())
+            {
+                if (baseMember->name() == name)
+                {
+                    ostringstream os;
+                    os << "data member '" << name << "' is already defined as a data member in a base class";
+                    unit()->error(os.str());
+                    break;
+                }
+
+                string baseName = IceInternal::toLower(baseMember->name());
+                string newName = IceInternal::toLower(name);
+                if (baseName == newName)
+                {
+                    ostringstream os;
+                    os << "data member '" << name << "' differs only in capitalization from data member '"
+                       << baseMember->name() << "', which is defined in a base class";
+                    unit()->error(os.str());
+                }
+            }
+        }
+    }
+
+    if (isOptional)
+    {
+        // Validate the tag.
+        for (const auto& q : dataMembers())
+        {
+            if (q->optional() && tag == q->tag())
+            {
+                unit()->error("tag for optional data member '" + name + "' is already in use");
+                break;
+            }
+        }
+    }
+
     _contents.push_back(member);
     return member;
 }
@@ -2754,7 +2759,7 @@ Slice::InterfaceDef::createOperation(
 
         if (!hasConflictingIdentifier)
         {
-            // If this operation has a valid identifier and doesn't conflict with another definition,
+            // If this operation's identifier doesn't conflict with another definition,
             // add it to the unit's contentMap so it can be looked up later.
             unit()->addContent(op);
         }
@@ -2979,37 +2984,41 @@ Slice::Operation::hasMarshaledResult() const
 ParameterPtr
 Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOptional, int32_t tag)
 {
-    if (doesNameConflict(name, "parameter", _contents))
-    {
-        return nullptr;
-    }
+    ParameterPtr p = make_shared<Parameter>(shared_from_this(), name, type, isOptional, tag);
 
-    reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the parameter anyway.
+    if (!name.empty())
+    {
+        if (!doesNameConflict(name, "parameter", _contents))
+        {
+            // If this parameter's identifier doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(p);
+        }
+
+        reportIllegalSuffixOrUnderscore(name);
+    }
 
     if (isOptional)
     {
         // Check for a duplicate tag.
-        ostringstream os;
-        os << "tag for optional parameter '" << name << "' is already in use";
+        const string msg = "tag for optional parameter '" + name + "' is already in use";
         if (_returnIsOptional && tag == _returnTag)
         {
-            unit()->error(os.str());
+            unit()->error(msg);
         }
         else
         {
-            for (const auto& p : parameters())
+            for (const auto& param : parameters())
             {
-                if (p->optional() && p->tag() == tag)
+                if (param->optional() && param->tag() == tag)
                 {
-                    unit()->error(os.str());
+                    unit()->error(msg);
                     break;
                 }
             }
         }
     }
 
-    ParameterPtr p = make_shared<Parameter>(shared_from_this(), name, type, isOptional, tag);
-    unit()->addContent(p);
     _contents.push_back(p);
     return p;
 }
@@ -3363,38 +3372,6 @@ Slice::Exception::createDataMember(
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
-    if (doesNameConflict(name, "data member", _contents))
-    {
-        return nullptr;
-    }
-
-    reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the data member anyway.
-
-    // Check whether any bases have defined a member with the same name already.
-    for (const auto& q : allBases())
-    {
-        for (const auto& member : q->dataMembers())
-        {
-            if (member->name() == name)
-            {
-                ostringstream os;
-                os << "data member '" << name << "' is already defined in a base exception";
-                unit()->error(os.str());
-                return nullptr;
-            }
-
-            string baseName = IceInternal::toLower(member->name());
-            string newName = IceInternal::toLower(name);
-            if (baseName == newName) // TODO use ciCompare
-            {
-                ostringstream os;
-                os << "data member '" << name << "' differs only in capitalization from data member '" << member->name()
-                   << "', which is defined in a base exception";
-                unit()->error(os.str());
-            }
-        }
-    }
-
     if (defaultValueString)
     {
         // Validate the default value.
@@ -3403,21 +3380,6 @@ Slice::Exception::createDataMember(
             // Create the data member anyway, just without the default value.
             defaultValueType = nullptr;
             defaultValueString = nullopt;
-        }
-    }
-
-    if (isOptional)
-    {
-        // Validate the tag.
-        for (const auto& q : dataMembers())
-        {
-            if (q->optional() && tag == q->tag())
-            {
-                ostringstream os;
-                os << "tag for optional data member '" << name << "' is already in use";
-                unit()->error(os.str());
-                break;
-            }
         }
     }
 
@@ -3430,7 +3392,56 @@ Slice::Exception::createDataMember(
         std::move(defaultValueType),
         std::move(defaultValueString));
 
-    unit()->addContent(member);
+    if (!name.empty())
+    {
+        if (!doesNameConflict(name, "data member", _contents))
+        {
+            // If this data member's identifier doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(member);
+        }
+
+        reportIllegalSuffixOrUnderscore(name);
+
+        // Check whether any bases have defined a member with the same name already.
+        for (const auto& q : allBases())
+        {
+            for (const auto& baseMember : q->dataMembers())
+            {
+                if (baseMember->name() == name)
+                {
+                    ostringstream os;
+                    os << "data member '" << name << "' is already defined in a base exception";
+                    unit()->error(os.str());
+                    break;
+                }
+
+                string baseName = IceInternal::toLower(baseMember->name());
+                string newName = IceInternal::toLower(name);
+                if (baseName == newName) // TODO use ciCompare
+                {
+                    ostringstream os;
+                    os << "data member '" << name << "' differs only in capitalization from data member '"
+                       << baseMember->name() << "', which is defined in a base exception";
+                    unit()->error(os.str());
+                }
+            }
+        }
+    }
+
+    if (isOptional)
+    {
+        // Validate the tag.
+        for (const auto& q : dataMembers())
+        {
+            if (q->optional() && tag == q->tag())
+            {
+                unit()->error("tag for optional data member '" + name + "' is already in use");
+                break;
+            }
+        }
+    }
+
     _contents.push_back(member);
     return member;
 }
@@ -3575,24 +3586,13 @@ DataMemberPtr
 Slice::Struct::createDataMember(
     const string& name,
     const TypePtr& type,
-    bool isOptional,
-    int32_t tag,
     SyntaxTreeBasePtr defaultValueType,
     optional<string> defaultValueString)
 {
-    if (doesNameConflict(name, "data member", _contents))
-    {
-        return nullptr;
-    }
-
-    reportIllegalSuffixOrUnderscore(name); // Don't return here -- we create the data member anyway.
-
     // Structures cannot contain themselves.
     if (type && type.get() == this)
     {
-        ostringstream os;
-        os << "struct '" << this->name() << "' cannot contain itself";
-        unit()->error(os.str());
+        unit()->error("struct '" + this->name() + "' cannot contain itself");
         return nullptr;
     }
 
@@ -3611,12 +3611,23 @@ Slice::Struct::createDataMember(
         shared_from_this(),
         name,
         type,
-        isOptional,
-        tag,
+        false,
+        -1,
         std::move(defaultValueType),
         std::move(defaultValueString));
 
-    unit()->addContent(member);
+    if (!name.empty())
+    {
+        if (!doesNameConflict(name, "data member", _contents))
+        {
+            // If this data member's identifier doesn't conflict with another definition,
+            // add it to the unit's contentMap so it can be looked up later.
+            unit()->addContent(member);
+        }
+
+        reportIllegalSuffixOrUnderscore(name);
+    }
+
     _contents.push_back(member);
     return member;
 }
