@@ -217,7 +217,7 @@ ZEND_METHOD(Ice_Communicator, destroy)
         m->erase(c);
 
         // Remove all registrations.
-        TimerTask reapTask;
+        IceInternal::TimerTaskPtr reapTask;
         {
             lock_guard lock(_registeredCommunicatorsMutex);
             for (const auto& id : _this->ac->ids)
