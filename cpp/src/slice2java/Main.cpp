@@ -26,7 +26,7 @@ namespace
 
 class JavaDocCommentFormatter final : public DocCommentFormatter
 {
-    string formatCode(string rawText) final { return "{@code " + rawText + "}"; }
+    string formatCode(const string& rawText) final { return "{@code " + rawText + "}"; }
 
     string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {

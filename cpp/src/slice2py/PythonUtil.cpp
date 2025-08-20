@@ -33,7 +33,7 @@ namespace
 
 class PythonDocCommentFormatter final : public DocCommentFormatter
 {
-    string formatCode(string rawText) final
+    string formatCode(const string& rawText) final
     {
         // We target Sphinx (RST) for Python doc-comments, which uses double backticks for code formatting.
         return "``" + rawText + "``";

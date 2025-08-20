@@ -37,7 +37,7 @@ namespace Slice
         /// entire "`...`" string with the returned value.
         //
         // By default we just re-emit the text with the original number of backticks around it.
-        [[nodiscard]] virtual std::string formatCode(std::string rawText) { return "`" + rawText + "`"; }
+        [[nodiscard]] virtual std::string formatCode(const std::string& rawText) { return "`" + rawText + "`"; }
 
         /// This function is called by the doc-comment parser to map '@p' tags into each language's syntax.
         /// @param param The mapped name of the parameter that is being referenced.
