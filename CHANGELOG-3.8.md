@@ -745,6 +745,14 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Removed the flattened mapping deprecated in 3.7.
 
+- Removed the `ice.hide_profiles` directive. This directive was intended to clear the `ice.profiles` setting after it
+  was read by the Ice extension, preventing untrusted applications on the same web server from accessing it. However,
+  it could be circumvented and thus provided only a false sense of security. The recommended and more secure approach
+  is to use PHP-FPM, which supports separate PHP pools per application and avoids the need of sharing PHP settings
+  between untrusted applications.
+
+- Updated Ice\register to accept fractional minute values for the expires argument by using a double instead of an int.
+
 - Removed support for Windows PHP builds.
 
 - Removed support for PHP 5 builds.

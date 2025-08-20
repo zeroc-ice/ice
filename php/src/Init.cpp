@@ -226,7 +226,6 @@ PHP_INI_BEGIN()
 PHP_INI_ENTRY("ice.config", "", PHP_INI_SYSTEM, 0)
 PHP_INI_ENTRY("ice.options", "", PHP_INI_SYSTEM, 0)
 PHP_INI_ENTRY("ice.profiles", "", PHP_INI_SYSTEM, 0)
-PHP_INI_ENTRY("ice.hide_profiles", "1", PHP_INI_SYSTEM, 0)
 PHP_INI_END()
 
 extern "C" int
