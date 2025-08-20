@@ -197,7 +197,7 @@ namespace Slice::Python
     /// @return A pair containing the factory function and optional type hint
     std::pair<std::string, std::optional<std::string>> splitMemoryviewArguments(const std::string& arguments);
 
-    // A helper class to initialize the _outBuffer member of BufferedOutput before is
+    // A helper class to initialize the _outBuffer member of BufferedOutput before it's
     // passed to the Output constructor.
     class BufferedOutputBase
     {
