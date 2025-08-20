@@ -769,7 +769,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
         }
         else
         {
-            addTypingImport("numpy", "ndarray", source);
+            addRuntimeImport("numpy", "", source);
         }
     }
     else if (directive == "python:array.array")
