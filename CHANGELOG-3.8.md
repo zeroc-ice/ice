@@ -834,6 +834,12 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Removed support for the `python:seq` metadata. Use `python:list` and `python:tuple` instead.
 
+- Added type hints to the Ice package and generated code.
+
+- Added additional (optional) argument to `python:memoryview` metadata directive which is used to specify a type hint.
+  For example, `["python:memoryview:CustomFactory.myByteSeq:array.array"]` indicates that the factory function
+  will return an `array.array`.
+
 ## Ruby Changes
 
 ## Swift Changes
