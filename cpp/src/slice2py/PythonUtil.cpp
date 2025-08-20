@@ -2218,7 +2218,7 @@ Slice::Python::getSequenceMetadata(const SequencePtr& seq, const MetadataList& l
 
     // First check source metadata. For example, an operation parameter.
     // If nothing was found, check the sequence itself.
-    for (const auto& metadataList : std::array{localMetadata, seq->getMetadata()})
+    for (const auto& metadataList : array{localMetadata, seq->getMetadata()})
     {
         for (const auto& metadata : metadataList)
         {
@@ -2233,10 +2233,10 @@ Slice::Python::getSequenceMetadata(const SequencePtr& seq, const MetadataList& l
 }
 
 pair<string, string>
-Slice::Python::splitFQN(const std::string& fqn)
+Slice::Python::splitFQN(const string& fqn)
 {
     size_t lastDot = fqn.rfind('.');
-    if (lastDot != std::string::npos)
+    if (lastDot != string::npos)
     {
         return {fqn.substr(0, lastDot), fqn.substr(lastDot + 1)};
     }
@@ -2247,11 +2247,11 @@ pair<string, optional<string>>
 Slice::Python::splitMemoryviewArguments(const string& arguments)
 {
     size_t pos = arguments.find(':');
-    if (pos != std::string::npos)
+    if (pos != string::npos)
     {
         return {arguments.substr(0, pos), arguments.substr(pos + 1)};
     }
-    return {arguments, std::nullopt};
+    return {arguments, nullopt};
 }
 
 void
