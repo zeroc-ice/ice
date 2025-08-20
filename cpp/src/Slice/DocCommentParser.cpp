@@ -48,9 +48,10 @@ Slice::parseAllDocComments(const UnitPtr& unit, DocCommentFormatter& formatter)
     unit->visit(&visitor);
 }
 
-
 void
-DocCommentFormatter::preprocess(StringList&) {}
+DocCommentFormatter::preprocess(StringList&)
+{
+}
 
 string
 DocCommentFormatter::formatCode(const string& rawText)
