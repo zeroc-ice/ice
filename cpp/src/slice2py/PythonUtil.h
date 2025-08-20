@@ -187,10 +187,10 @@ namespace Slice::Python
     /// Get sequence metadata associated with the given sequence and any local metadata.
     Slice::MetadataPtr getSequenceMetadata(const SequencePtr& seq, const MetadataList& localMetadata);
 
-    /// Splits a FQDN into its Module and Name components.
-    /// @param fqdn The fully qualified domain name to split.
+    /// Splits a fully qualified name (FQN) into its Module and Name components.
+    /// @param fqn The fully qualified name to split.
     /// @return A pair containing the module and name components.
-    std::pair<std::string, std::string> splitFQDN(const std::string& fqdn);
+    std::pair<std::string, std::string> splitFQN(const std::string& fqn);
 
     /// Splits the arguments the python:memoryview metadata into the factory function and optional type hint.
     /// @param arguments The arguments of python:memoryview
