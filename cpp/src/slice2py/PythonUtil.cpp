@@ -789,7 +789,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
         auto arguments = metadata ? metadata->arguments() : "";
         auto [factory, typeHint] = splitMemoryviewArguments(arguments);
 
-        // The factory is required at runtime as it's called by the dataclass.
+        // Import factory for using it in the field factory.
         if (needsRunTimeImport)
         {
             auto [factoryPackage, factoryFunction] = splitFQN(factory);
