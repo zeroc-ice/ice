@@ -48,9 +48,9 @@ namespace IcePHP
         const Ice::CommunicatorPtr communicator;
         // The list of IDs used to register this communicator or empty.
         vector<string> ids;
-        // The timer task used to reap this communicator if expires.
+        // The timer task used to reap this communicator if it expires.
         IceInternal::TimerTaskPtr reapTask;
-        // The number of seconds in which this communicator will expire if not used. Expired communicators are
+        // The number of milliseconds in which this communicator will expire if not used. Expired communicators are
         // destroyed by the reap task.
         std::chrono::milliseconds expires;
         // The last time this communicator was accessed.
@@ -217,6 +217,7 @@ ZEND_METHOD(Ice_Communicator, destroy)
         m->erase(c);
 
         // Remove all registrations.
+        TimerTask reapTask;
         {
             lock_guard lock(_registeredCommunicatorsMutex);
             for (const auto& id : _this->ac->ids)
@@ -224,6 +225,13 @@ ZEND_METHOD(Ice_Communicator, destroy)
                 _registeredCommunicators.erase(id);
             }
             _this->ac->ids.clear();
+            reapTask = _this->ac->reapTask;
+        }
+
+        if (reapTask)
+        {
+            // Cancel the reap task if it is still scheduled.
+            _timer->cancel(reapTask);
         }
         c->destroy();
     }
@@ -1065,7 +1073,7 @@ ZEND_FUNCTION(Ice_register)
     {
         // Update the expiration time. If a communicator is registered with multiple IDs, we always use the most
         // recent expiration setting. The expires parameter is number of minutes as a double number, internally we
-        // convert it to seconds.
+        // convert it to milliseconds.
         info->ac->expires = std::chrono::milliseconds(static_cast<int>(expires * 60 * 1000));
         info->ac->lastAccess = std::chrono::steady_clock::now();
         info->ac->reapTask = make_shared<ReapCommunicatorTimerTask>(info->ac);
@@ -1524,12 +1532,15 @@ IcePHP::communicatorShutdown(void)
 {
     _profiles.clear();
 
+    RegisteredCommunicatorMap registeredCommunicators;
     {
         lock_guard lock(_registeredCommunicatorsMutex);
-        // Clearing the map releases the last remaining reference counts of the ActiveCommunicator objects. The
-        // ActiveCommunicator destructor destroys its communicator.
-        _registeredCommunicators.clear();
+        _registeredCommunicators.swap(registeredCommunicators);
     }
+
+    // Clearing the map releases the last remaining reference counts of the ActiveCommunicator objects. The
+    // ActiveCommunicator destructor destroys its communicator.
+    registeredCommunicators.clear();
 
     if (_timer)
     {
@@ -1565,6 +1576,12 @@ IcePHP::ActiveCommunicator::ActiveCommunicator(const Ice::CommunicatorPtr& c) : 
 
 IcePHP::ActiveCommunicator::~ActiveCommunicator()
 {
+    if (reapTask)
+    {
+        // Cancel the reap task if it is still scheduled.
+        _timer->cancel(reapTask);
+    }
+
     // There are no more references to this communicator, so we can safely destroy it now.
     try
     {
