@@ -226,7 +226,10 @@ ZEND_METHOD(Ice_Communicator, destroy)
             _this->ac->ids.clear();
 
             // Cancel the reap task if it is still scheduled.
-            _timer->cancel(_this->ac->reapTask);
+            if (_this->ac->reapTask)
+            {
+                _timer->cancel(_this->ac->reapTask);
+            }
         }
 
         c->destroy();
