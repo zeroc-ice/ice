@@ -26,6 +26,14 @@ namespace
     bool interrupted = false;
 }
 
+class SwiftDocCommentFormatter final : public DocCommentFormatter
+{
+    string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+    {
+        return Slice::Swift::swiftLinkFormatter(rawLink, source, target);
+    }
+};
+
 static void
 interruptedCallback(int /*signal*/)
 {
@@ -190,7 +198,8 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocComments(unit, Slice::Swift::swiftLinkFormatter);
+                SwiftDocCommentFormatter formatter;
+                parseAllDocComments(unit, formatter);
                 Gen gen(preprocessor->getBaseName(), includePaths, output);
                 gen.generate(unit);
 

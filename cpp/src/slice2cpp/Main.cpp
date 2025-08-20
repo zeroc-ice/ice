@@ -23,6 +23,16 @@ namespace
     bool interrupted = false;
 }
 
+class CppDocCommentFormatter final : public DocCommentFormatter
+{
+    string formatParamRef(const string& param) final { return "@p " + param; }
+
+    string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+    {
+        return Slice::cppLinkFormatter(rawLink, source, target);
+    }
+};
+
 void
 interruptedCallback(int /*signal*/)
 {
@@ -212,7 +222,8 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocComments(unit, Slice::cppLinkFormatter);
+                CppDocCommentFormatter formatter;
+                parseAllDocComments(unit, formatter);
 
                 Gen gen(
                     preprocessor->getBaseName(),

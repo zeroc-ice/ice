@@ -31,6 +31,20 @@ namespace
     const char* const tripleQuotes = R"(""")";
 }
 
+class PythonDocCommentFormatter final : public DocCommentFormatter
+{
+    string formatCode(const string& rawText) final
+    {
+        // We target Sphinx (RST) for Python doc-comments, which uses double backticks for code formatting.
+        return "``" + rawText + "``";
+    }
+
+    string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+    {
+        return Slice::Python::pyLinkFormatter(rawLink, source, target);
+    }
+};
+
 string
 Slice::Python::getPythonModuleForDefinition(const SyntaxTreeBasePtr& p)
 {
@@ -2649,7 +2663,8 @@ Slice::Python::compile(
                     dependencyGenerator->addDependenciesFor(unit);
                 }
 
-                parseAllDocComments(unit, Slice::Python::pyLinkFormatter);
+                PythonDocCommentFormatter formatter;
+                parseAllDocComments(unit, formatter);
                 validatePythonMetadata(unit);
 
                 unit->visit(&packageVisitor);

@@ -35,6 +35,16 @@ namespace
     mutex globalMutex;
     bool interrupted = false;
 
+    class MatlabDocCommentFormatter final : public DocCommentFormatter
+    {
+        string formatCode(const string& rawText) final { return "|" + rawText + "|"; }
+
+        string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+        {
+            return Slice::matlabLinkFormatter(rawLink, source, target);
+        }
+    };
+
     void interruptedCallback(int /*signal*/)
     {
         lock_guard lock(globalMutex);
@@ -214,7 +224,8 @@ namespace
                 {
                     FileTracker::instance()->setSource(fileName);
 
-                    parseAllDocComments(unit, Slice::matlabLinkFormatter);
+                    MatlabDocCommentFormatter formatter;
+                    parseAllDocComments(unit, formatter);
 
                     validateMatlabMetadata(unit);
 

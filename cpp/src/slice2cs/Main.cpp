@@ -23,6 +23,44 @@ namespace
     bool interrupted = false;
 }
 
+class CsharpDocCommentFormatter final : public DocCommentFormatter
+{
+    void preprocess(StringList& rawComment) final
+    {
+        for (auto& line : rawComment)
+        {
+            // Escape any XML special characters in the comment.
+            string::size_type pos = 0;
+            while ((pos = line.find_first_of("&<>", pos)) != string::npos)
+            {
+                switch (line[pos])
+                {
+                    case '&':
+                        line.replace(pos, 1, "&amp;");
+                        break;
+                    case '<':
+                        line.replace(pos, 1, "&lt;");
+                        break;
+                    case '>':
+                        line.replace(pos, 1, "&gt;");
+                        break;
+                }
+                // Skip over the leading '&' character to avoid 'find'ing it again.
+                pos += 1;
+            }
+        }
+    }
+
+    string formatCode(const string& rawText) final { return "<c>" + rawText + "</c>"; }
+
+    string formatParamRef(const string& param) final { return "<paramref name=\"" + param + "\" />"; }
+
+    string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+    {
+        return Slice::Csharp::csLinkFormatter(rawLink, source, target);
+    }
+};
+
 void
 interruptedCallback(int /*signal*/)
 {
@@ -186,7 +224,8 @@ compile(const vector<string>& argv)
             }
             else
             {
-                parseAllDocComments(unit, Slice::Csharp::csLinkFormatter);
+                CsharpDocCommentFormatter formatter;
+                parseAllDocComments(unit, formatter);
 
                 Gen gen(preprocessor->getBaseName(), includePaths, output);
                 gen.generate(unit);

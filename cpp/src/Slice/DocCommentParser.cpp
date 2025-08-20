@@ -14,7 +14,7 @@ namespace Slice
     class DocCommentParser final : public ParserVisitor
     {
     public:
-        DocCommentParser(DocLinkFormatter linkFormatter) : _linkFormatter(linkFormatter) {}
+        DocCommentParser(DocCommentFormatter& formatter) : _formatter(formatter) {}
 
         bool visitModuleStart(const ModulePtr& p) final;
         void visitClassDecl(const ClassDeclPtr& p) final;
@@ -37,15 +37,32 @@ namespace Slice
         /// @remark This function must be called on a doc-comment before it's usable for code-gen purposes.
         void parseDocCommentFor(const ContainedPtr& p);
 
-        DocLinkFormatter _linkFormatter;
+        DocCommentFormatter& _formatter;
     };
 }
 
 void
-Slice::parseAllDocComments(const UnitPtr& unit, DocLinkFormatter linkFormatter)
+Slice::parseAllDocComments(const UnitPtr& unit, DocCommentFormatter& formatter)
 {
-    DocCommentParser visitor{linkFormatter};
+    DocCommentParser visitor{formatter};
     unit->visit(&visitor);
+}
+
+void
+DocCommentFormatter::preprocess(StringList&)
+{
+}
+
+string
+DocCommentFormatter::formatCode(const string& rawText)
+{
+    return "`" + rawText + "`";
+}
+
+string
+DocCommentFormatter::formatParamRef(const string& param)
+{
+    return formatCode(param);
 }
 
 bool
@@ -256,44 +273,51 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
         return;
     }
 
-    // TODO: this is a temporary hack since only "csharp" happens to set 'escapeXml'.
-    // If true, escapes all XML special characters in the parsed comment. Defaults to false.
-    const bool escapeXml = (p->unit()->languageName() == "cs");
-
-    // Split the comment's raw text up into lines.
+    // Get the comment's raw lines, and let the formatter perform any preprocessing it wants to.
     StringList lines = docComment->_rawDocCommentLines;
+    _formatter.preprocess(lines);
 
-    // Escape any XML entities if necessary.
-    if (escapeXml)
+    const string ws = " \t";
+
+    // Format any code-snippets. Slice fully supports Markdown's backtick handling.
+    // Normal text backticks can be escaped with a backslash: '\`',
+    // And we allow multiple backticks to be used as a single delimiter: '`` wow ` is cool``'.
+    for (auto& line : lines)
     {
-        const string amp = "&amp;";
-        const string lt = "&lt;";
-        const string gt = "&gt;";
-
-        for (auto& line : lines)
+        size_t pos = 0;
+        while ((pos = line.find('`', pos)) != string::npos)
         {
-            string::size_type pos = 0;
-            while ((pos = line.find_first_of("&<>", pos)) != string::npos)
+            // If this backtick is escaped with a backslash, skip it.
+            if (pos > 0 && line[pos - 1] == '\\')
             {
-                switch (line[pos])
-                {
-                    case '&':
-                        line.replace(pos, 1, amp);
-                        pos += amp.size();
-                        break;
-                    case '<':
-                        line.replace(pos, 1, lt);
-                        pos += lt.size();
-                        break;
-                    case '>':
-                        line.replace(pos, 1, gt);
-                        pos += gt.size();
-                        break;
-                    default:
-                        assert(false);
-                        break;
-                }
+                pos += 1;
+                continue;
             }
+
+            // Count the number of successive backticks. The end of the code-snippet must have the same number.
+            auto openingEnd = line.find_first_not_of('`', pos);
+            openingEnd = (openingEnd == string::npos ? line.size() : openingEnd);
+            auto count = openingEnd - pos;
+
+            // Find the closing delimeter, starting for the end of the opening delimeter.
+            auto delimiter = string(count, '`');
+            auto closingStart = line.find(delimiter, openingEnd);
+            if (closingStart == string::npos)
+            {
+                // No matching delimeter was found.
+                const string msg = "unterminated code snippet: missing closing backtick delimiter";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                break; // Skip to the next line, this line is broken.
+            }
+
+            // Format the snippet's text, and replace the entire raw code-snippet with the returned string.
+            const string snippetText = line.substr(openingEnd, closingStart - openingEnd);
+            const string formattedSnippet = _formatter.formatCode(snippetText);
+            line.erase(pos, closingStart + count - pos);
+            line.insert(pos, formattedSnippet);
+
+            // Go on to check for the next code-snippet, skipping past the one we just formatted.
+            pos += formattedSnippet.size();
         }
     }
 
@@ -301,15 +325,15 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
     const string link = "{@link ";
     for (auto& line : lines)
     {
-        auto pos = line.find(link);
-        while (pos != string::npos)
+        size_t pos = 0;
+        while ((pos = line.find(link, pos)) != string::npos)
         {
             auto endpos = line.find('}', pos);
             if (endpos != string::npos)
             {
                 // Extract the linked-to identifier.
-                auto identStart = line.find_first_not_of(" \t", pos + link.size());
-                auto identEnd = line.find_last_not_of(" \t", endpos);
+                auto identStart = line.find_first_not_of(ws, pos + link.size());
+                auto identEnd = line.find_last_not_of(ws, endpos);
                 string linkText = line.substr(identStart, identEnd - identStart);
 
                 // Then erase the entire '{@link foo}' tag from the comment.
@@ -332,11 +356,10 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                 }
 
                 // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
-                string formattedLink = (*_linkFormatter)(linkText, p, linkTarget);
+                string formattedLink = _formatter.formatLink(linkText, p, linkTarget);
                 line.insert(pos, formattedLink);
                 pos += formattedLink.length();
             }
-            pos = line.find(link, pos);
         }
     }
 
@@ -344,7 +367,76 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
     // And we need a reference to the operation to make sure any names used in the tag match the names in the operation.
     OperationPtr operationTarget = dynamic_pointer_cast<Operation>(p);
 
-    const string ws = " \t";
+    // Fix any '@p' tags using the provided param-ref formatter.
+    const string paramref = "@p";
+    for (auto& line : lines)
+    {
+        size_t pos = 0;
+        while ((pos = line.find(paramref, pos)) != string::npos)
+        {
+            // Param-refs always look like "@p<whitespace><name>".
+            // First we find the starting position of the name.
+            auto nameStart = line.find_first_not_of(ws, pos + paramref.size());
+
+            // If we hit EOL before finding a non-whitespace character, then the 'name' is missing.
+            if (nameStart == string::npos)
+            {
+                p->unit()->warning(p->file(), p->line(), InvalidComment, "missing parameter name after '@p' tag");
+                break; // Since we hit EOL, we know we're done parsing this line. Skip to the next line.
+            }
+            // If a non-whitespace character comes directly after '@p', it's probably '@param'. Just skip it.
+            if (nameStart == pos + paramref.size())
+            {
+                pos = nameStart;
+                continue;
+            }
+
+            // Then find the ending position of the name.
+            const string identifierChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+            auto nameEnd = line.find_first_not_of(identifierChars, nameStart);
+            if (nameEnd == string::npos)
+            {
+                // If there isn't any whitespace after the name, that means it runs to the end of the line.
+                nameEnd = line.size();
+            }
+
+            // Extract the parameter's name and check if matches an operation parameter.
+            // If it does, make sure to use the mapped name instead of the Slice name.
+            string parameterName = line.substr(nameStart, nameEnd - nameStart);
+            if (operationTarget)
+            {
+                bool doesParameterExist = false;
+                for (const auto& param : operationTarget->parameters())
+                {
+                    if (param->name() == parameterName)
+                    {
+                        parameterName = param->mappedName();
+                        doesParameterExist = true;
+                        break;
+                    }
+                }
+                if (!doesParameterExist)
+                {
+                    string opName = operationTarget->name();
+                    string msg = "No parameter named '" + parameterName + "' exists on operation '" + opName + "'";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                }
+            }
+            else
+            {
+                p->unit()->warning(p->file(), p->line(), InvalidComment, "'@p' tags can only be used on operations");
+            }
+
+            // Format the parameter's name and insert it in-place of the original '@p name'.
+            const string formattedParamName = _formatter.formatParamRef(parameterName);
+            line.erase(pos, nameEnd - pos);
+            line.insert(pos, formattedParamName);
+
+            // Check for the next '@p' tag, skipping past the formatted tag we just emitted.
+            pos += formattedParamName.size();
+        }
+    }
+
     const string paramTag = "@param";
     const string throwsTag = "@throws";
     const string exceptionTag = "@exception";
