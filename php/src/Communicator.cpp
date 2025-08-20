@@ -144,7 +144,7 @@ namespace
         }
 
     private:
-        ActiveCommunicatorPtr _activeCommunicator;
+        const ActiveCommunicatorPtr _activeCommunicator;
     };
 }
 
@@ -217,7 +217,6 @@ ZEND_METHOD(Ice_Communicator, destroy)
         m->erase(c);
 
         // Remove all registrations.
-        IceInternal::TimerTaskPtr reapTask;
         {
             lock_guard lock(_registeredCommunicatorsMutex);
             for (const auto& id : _this->ac->ids)
@@ -225,14 +224,11 @@ ZEND_METHOD(Ice_Communicator, destroy)
                 _registeredCommunicators.erase(id);
             }
             _this->ac->ids.clear();
-            reapTask = _this->ac->reapTask;
+
+            // Cancel the reap task if it is still scheduled.
+            _timer->cancel(_this->ac->reapTask);
         }
 
-        if (reapTask)
-        {
-            // Cancel the reap task if it is still scheduled.
-            _timer->cancel(reapTask);
-        }
         c->destroy();
     }
 }
@@ -1077,7 +1073,7 @@ ZEND_FUNCTION(Ice_register)
         info->ac->expires = std::chrono::milliseconds(static_cast<int>(expires * 60 * 1000));
         info->ac->lastAccess = std::chrono::steady_clock::now();
         info->ac->reapTask = make_shared<ReapCommunicatorTimerTask>(info->ac);
-        _timer->scheduleRepeated(info->ac->reapTask, info->ac->expires);
+        _timer->scheduleRepeated(info->ac->reapTask, info->ac->expires / 2);
     }
 
     RETURN_TRUE;
@@ -1140,7 +1136,7 @@ ZEND_FUNCTION(Ice_find)
         RETURN_NULL();
     }
 
-    if (p->second->expires > std::chrono::milliseconds::zero())
+    if (p->second->reapTask)
     {
         p->second->lastAccess = std::chrono::steady_clock::now();
     }
