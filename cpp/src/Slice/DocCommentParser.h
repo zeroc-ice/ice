@@ -5,19 +5,6 @@
 
 #include "Parser.h"
 
-#ifdef _MSC_VER
-// warning C4100: 'rawComment': unreferenced parameter
-#    pragma warning(disable : 4100)
-#endif
-#ifdef __GNUC__
-// unused parameter ‘rawComment’
-#    pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-#if defined(__clang__)
-// unused parameter ‘rawComment’
-#    pragma clang diagnostic ignored "-Wunused-parameter"
-#endif
-
 namespace Slice
 {
     class DocCommentFormatter
@@ -28,7 +15,7 @@ namespace Slice
         /// characters like leading '///' and '*' characters or leading whitespace.
         //
         // By default we perform no preprocessing.
-        virtual void preprocess(StringList& rawComment) {}
+        virtual void preprocess(StringList& rawComment);
 
         /// This function is called by the doc-comment parser to map code-snippets (`<rawText>`) into each language's
         /// syntax.
@@ -37,7 +24,7 @@ namespace Slice
         /// entire "`...`" string with the returned value.
         //
         // By default we just re-emit the text with the original number of backticks around it.
-        [[nodiscard]] virtual std::string formatCode(const std::string& rawText) { return "`" + rawText + "`"; }
+        [[nodiscard]] virtual std::string formatCode(const std::string& rawText);
 
         /// This function is called by the doc-comment parser to map '@p' tags into each language's syntax.
         /// @param param The mapped name of the parameter that is being referenced.
@@ -45,7 +32,7 @@ namespace Slice
         /// replace the entire "@p <rawParamName>" string with the returned value.
         //
         // By default we just emit the parameter's name in code formatting.
-        [[nodiscard]] virtual std::string formatParamRef(const std::string& param) { return formatCode(param); }
+        [[nodiscard]] virtual std::string formatParamRef(const std::string& param);
 
         /// This function is called by the doc-comment parser to map doc-links ('{@link <rawLink>}') into each
         /// language's syntax.

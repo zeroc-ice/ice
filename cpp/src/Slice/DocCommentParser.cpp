@@ -48,6 +48,22 @@ Slice::parseAllDocComments(const UnitPtr& unit, DocCommentFormatter& formatter)
     unit->visit(&visitor);
 }
 
+
+void
+DocCommentFormatter::preprocess(StringList&) {}
+
+string
+DocCommentFormatter::formatCode(const string& rawText)
+{
+    return "`" + rawText + "`";
+}
+
+string
+DocCommentFormatter::formatParamRef(const string& param)
+{
+    return formatCode(param);
+}
+
 bool
 DocCommentParser::visitModuleStart(const ModulePtr& p)
 {
