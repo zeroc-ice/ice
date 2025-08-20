@@ -122,6 +122,4 @@ module Test
 
         void shutdown();
     }
-
-
 }

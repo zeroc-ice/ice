@@ -282,12 +282,10 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                 }
                 else if (sequenceMetadata && metadataDirective == "python:memoryview")
                 {
-                    auto arguments = sequenceMetadata->arguments();
-                    size_t pos = arguments.find(':');
-                    if (pos != string::npos)
+                    auto [_, typeHint] = splitMemoryviewArguments(sequenceMetadata->arguments());
+                    if (typeHint)
                     {
-                        auto typeHint = arguments.substr(pos + 1);
-                        auto [package, name] = splitFQDN(typeHint);
+                        auto [package, name] = splitFQDN(*typeHint);
                         auto memoryViewType = getImportAlias(source, package, name);
                         os << " | " << memoryViewType;
                     }
@@ -326,12 +324,10 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
             }
             else if (metadataDirective == "python:memoryview")
             {
-                auto arguments = sequenceMetadata->arguments();
-                size_t pos = arguments.find(':');
-                if (pos != string::npos)
+                auto [_, typeHint] = splitMemoryviewArguments(sequenceMetadata->arguments());
+                if (typeHint)
                 {
-                    auto typeHint = arguments.substr(pos + 1);
-                    auto [package, name] = splitFQDN(typeHint);
+                    auto [package, name] = splitFQDN(*typeHint);
                     auto memoryViewType = getImportAlias(source, package, name);
                     os << memoryViewType;
                 }
