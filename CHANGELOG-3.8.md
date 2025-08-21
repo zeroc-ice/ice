@@ -383,17 +383,16 @@ classDiagram
   class RadarScan {}
   ```
 
-  `@p` can only be used on operations, and provides a way to reference it's parameters in the doc-comment.
-  This is different than `@param` which is used to describe a parameter, not reference one. For example:
+  `@p` can only be used on operations, and provides a way to reference parameters in its doc-comment.
+  This is different than `@param`. `@param` is used to describe a parameter, not reference one. For example:
 
   ```slice
-  /// Returns how many seconds passed between start and end.
-  /// @param start The starting time.
-  /// @param end The ending time. Must be greater than @p start.
+  /// @param start The start.
+  /// @param end The end. Must be greater than @p start.
   int getDuration(int start, int end);
   ```
 
-- Added support for Markdown code-snippets in doc-comments:
+- Added support for Markdown style code-snippets in doc-comments:
 
   ```slice
   /// This is `true`, and can be used as a default value: `bool b = ConstBool;`
@@ -404,7 +403,7 @@ classDiagram
   This is useful if the code-snippet itself will contain backticks:
 
   ```slice
-  /// This snippet ``contains a ` character!`` just fine.
+  /// This snippet ``contains a ` character`` just fine.
   ```
 
   Outside of code-snippets, you can escape a backtick with a backslash to get a normal textual backtick character:
