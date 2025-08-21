@@ -374,6 +374,47 @@ classDiagram
   int sendRequest(string message);
   ```
 
+- Added support for 2 new doc-comment tags: `@remark` and `@p`
+  `@remark` can be used to provide additional (often non-critical) information in a doc-comment:
+
+  ```slice
+  /// Provides access to a radar scanner.
+  /// @remark for sonar, use {@link SonarScan} instead.
+  class RadarScan {}
+  ```
+
+  `@p` can only be used on operations, and provides a way to reference it's parameters in the doc-comment.
+  This is different than `@param` which is used to describe a parameter, not reference one. For example:
+
+  ```slice
+  /// Returns how many seconds passed between start and end.
+  /// @param start The starting time.
+  /// @param end The ending time. Must be greater than @p start.
+  int getDuration(int start, int end);
+  ```
+
+- Added support for Markdown code-snippets in doc-comments:
+
+  ```slice
+  /// This is `true`, and can be used as a default value: `bool b = ConstBool;`
+  const bool ConstBool = true;
+  ```
+
+  You can use any number of backticks to mark the beginning/end of the code-snippet, but they must match in number.
+  This is useful if the code-snippet itself will contain backticks:
+
+  ```slice
+  /// This snippet ``contains a ` character!`` just fine.
+  ```
+
+  Outside of code-snippets, you can escape a backtick with a backslash to get a normal textual backtick character:
+
+  ```slice
+  /// This character \` doesn't start a code-snippet and will appear like a normal backtick character.
+  ```
+
+- `@link` tags are now mapped to proper documentation links in Swift and MATLAB.
+
 - Lists of metadata can be split into separate brackets now, allowing for longer metadata to be placed on separate lines
   or for metadata to be grouped by functionality. For example, you can now write:
 
@@ -430,6 +471,8 @@ classDiagram
   should be used to generate Slice API documentation.
 
 - Removed the `--impl` argument from the Slice compilers.
+
+- Removed the `-E` flag from the Slice compilers.
 
 - You can now use identifiers with underscores or with the Ice prefix without any special compiler option.
 
