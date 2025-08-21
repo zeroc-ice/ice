@@ -3,7 +3,7 @@ entries reflect significant new additions, while others represent minor correcti
 comprehensive report of every change we made in a release, it does provide details on the changes we feel Ice users
 might need to be aware of.
 
-We recommend that you use the release notes as a guide for migrating your applications to this release, and the manual
+We recommend that you use the release notes as a guide for migrating your applications to this release, and the Manual
 for complete details on a particular aspect of Ice.
 
 # Changes in Ice 3.8.0
@@ -139,13 +139,16 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   - Replaced dispatch interceptors by middleware. See the new forwarder and middleware demos.
   - Changed the name of the Ice 3.7 dispatcher API: it's now called executor.
 
+- Add new property `Ice.Warn.Executor`: when 1 (the default), the communicator logs a warning when a custom executor
+  throws an exception.
+
 - Add `setDefaultObjectAdapter` operation on Communicator to simplify the creation of bidir connections. See the updated
   Ice/bidir demo.
 
 - Rework the published endpoints of object adapters
   - The published endpoints of an object adapter are the endpoint(s) included in the proxies returned by the `add` and
-`createProxy` operations on an object adapter. For indirect object adapters, the published endpoints are the endpoints
-registered with the Ice Locator (typically the IceGrid registry).
+    `createProxy` operations on an object adapter. For indirect object adapters, the published endpoints are the
+    endpoints registered with the Ice Locator (typically the IceGrid registry).
   - Improved the algorithm for computing the default published endpoints.
   - Add new _adapter_.PublishedHost property, used to compute the default published endpoints.
   - Removed the `refreshPublishedEndpoints` operation on `ObjectAdapter`.
@@ -283,22 +286,20 @@ classDiagram
   example, you can use the `ClassSliceLoader` implementation to create a Slice loader for one or more generated classes
   (typically classes with remapped names or compact IDs).
 
+  In Java, MATLAB and Swift, a communicator creates during initialization a "not found" cache to cache failed Slice
+  loader resolutions. This cache can be configured using `Ice.SliceLoader.NotFoundCacheSize` and `Ice.Warn.SliceLoader`.
+
   Limitations:
   - in Python and Ruby, a custom Slice loader can only create class instances. The creation of custom user exceptions is
     currently ignored.
   - there is no custom Slice loader in PHP.
 
 - The plug-ins provided by Ice now have fixed names: IceIAP, IceBT, IceUDP, IceWS, IceDiscovery, IceLocatorDiscovery.
-  This fixed name is the only name you can use when loading/configuring such a plug-in with the Ice.Plugin.name property.
+  This fixed name is the only name you can use when loading/configuring such a plug-in with the Ice.Plugin.name
+  property.
 
-- The Windows MSI installer is now built using the WiX Toolset. The WiX project files are included in the packaging/msi
-  directory.
-
-- The RPM packaging files, previously distributed in the ice-packaging repository, are now included in the packaging/rpm
-  directory.
-
-- The DEB packaging files, previously distributed in the ice-packaging repository, are now included in the packaging/deb
-  directory.
+- Added a new always-enabled logger middleware in all languages with dispatch support. This middleware logs dispatches
+  using the configured logger based on the value of `Ice.Trace.Dispatch` and `Ice.Warn.Dispatch`.
 
 - Removed support for setting per-language plug-in entry points. In Ice 3.7 and earlier, it was possible to specify
   plug-in entry points on a per-language basis using the `Ice.Plugin.<name>.<lang>` syntax. This feature was rarely used
@@ -313,6 +314,17 @@ classDiagram
   with only UDP endpoints is never collocation-optimized. This change is particularly useful for multicast UDP
   endpoints (and by extension proxies), since multiple object adapters often listen on the same multicast address/port
   combination.
+
+## Packaging Changes
+
+- The Windows MSI installer is now built using the WiX Toolset. The WiX project files are included in the packaging/msi
+  directory.
+
+- The RPM packaging files, previously distributed in the ice-packaging repository, are now included in the packaging/rpm
+  directory.
+
+- The DEB packaging files, previously distributed in the ice-packaging repository, are now included in the packaging/deb
+  directory.
 
 ## Slice Language Changes
 
@@ -424,12 +436,12 @@ classDiagram
 ## Slice Tools
 
 - Add new `ice2slice` compiler that converts Slice files in the `.ice` format (used by Ice) into Slice files in the
-`.slice` format (used by IceRPC).
+  `.slice` format (used by IceRPC).
 
 - Removed the `slice2html` compiler, which was previously used to convert Slice documentation comments to HTML. Doxygen
   should be used to generate Slice API documentation.
 
-- Removed the `--impl` argument from the Slice compilers.
+- Removed the `--impl` option from the Slice compilers.
 
 - You can now use identifiers with underscores or with the Ice prefix without any special compiler option.
 
@@ -444,7 +456,7 @@ SSL engine APIs. This provides significantly greater flexibility for advanced us
 
 - The ssl transport can now be fully configured programmatically, without relying on IceSSL properties.
 - Separate configurations for outgoing and incoming SSL connections are supported.
-- Per-ObjectAdapter configuration is also possible.
+- Per object adapter configuration is also possible.
 
 > These APIs are platform-dependent. A good starting point is the `Ice/secure` demo for your target platform and
 > language mapping.
@@ -539,7 +551,7 @@ no longer useful, or they go against best practices:
 ## C++ Changes
 
 - There is now a single C++ mapping, based on the C++11 mapping provided by Ice 3.7. This new C++ mapping requires a
-C++ compiler with support for C++17 or higher.
+  C++ compiler with support for C++17 or higher.
 
 - Generated proxy classes are now concrete classes with public constructors.
 
@@ -799,8 +811,8 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Enumerations now inherit from Python's `enum.Enum` type. The `Ice.EnumBase` class has been removed.
 
-- The default value for struct, sequence, and dictionary Slice data members has been changed from `None`
-  to a default initialized instance.
+- The default value for struct, sequence, and dictionary Slice fields has been changed from `None` to a default
+  initialized instance.
 
 - Removed support for the `python:package` Slice metadata. Use instead the `python:identifier` metadata directive to
   map Slice module to a custom Python package.
@@ -905,14 +917,25 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Removed Glacier2 helper classes.
 
+- Removed session timeouts configured using `Glacier2.SessionTimeout`. The Glacier2 router now relies on the common
+  idle check described under [General Changes](#general-changes) for these connection-bound sessions.
+
 ## IceGrid Changes
 
 - Removed deprecated server and application distributions in IceGrid. These distributions relied on the IcePatch2
 service.
 
+- Removed client and admin-client session timeouts configured using `IceGrid.Registry.SessionTimeout`. IceGrid now
+  relies on the common idle check described under [General Changes](#general-changes) for these connection-bound
+  sessions.
+
 ## IcePatch2 Changes
 
 - The IcePatch2 service was removed.
+
+## IceStorm Changes
+
+- The IceStorm configuration now uses the `IceStorm` prefix instead of the IceBox service name as prefix.
 
 [IceRPC]: https://github.com/icerpc
 [Slice/print]: cpp/test/Slice/print
