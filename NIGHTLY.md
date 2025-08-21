@@ -4,8 +4,8 @@ This document provides instruction for installing Ice nightly builds. Ice nightl
 GitHub main branch and target the next Ice non patch release.
 
 - [Linux](#linux)
-  - [RPM-based Linux](rpm-based-linux)
-  - [DEB-based Linux](deb-based-linux)
+  - [RPM-based Linux](#rpm-based-linux)
+  - [DEB-based Linux](#deb-based-linux)
 - [macOS](#macos)
   - [Swift](#swift)
   - [Homebrew](#homebrew)
