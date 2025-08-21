@@ -310,9 +310,8 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
             {
                 assert(elementType && elementType->kind() <= Builtin::KindDouble);
                 const string arrayAlias = getImportAlias(source, "array", "array");
-                // array.array does not support boolean values. The common convention is to use a
-                // char array, array.array('b'), whose Python type is int.
-                // Python will map True and False to 1 and 0, respectively.
+                // For boolean sequences "python:array.array" is mapped to array.array('b'), whose type-hint
+                // is array.array[int].
                 if (isBoolSequence)
                 {
                     os << arrayAlias << "[int]";
@@ -769,7 +768,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
         }
         else
         {
-            addRuntimeImport("numpy", "", source);
+            addTypingImport("numpy", "", source);
         }
     }
     else if (directive == "python:array.array")
