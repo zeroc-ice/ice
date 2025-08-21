@@ -25,9 +25,6 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 platform = os.getenv("CPP_PLATFORM", "x64")
 configuration = os.getenv("CPP_CONFIGURATION", "Release")
 
-# Define Python packages to be included
-packages = ["Glacier2", "Ice", "IceBox", "IceGrid", "IceMX", "IceStorm", "slice"]
-
 # Define source directories for Ice C++
 ice_cpp_sources = [
     "../cpp/src/Ice",
@@ -321,7 +318,7 @@ ice_py = Extension(
 
 # Setup configuration for the package
 setup(
-    packages=packages + ["IcePy-stubs"],
+    packages=["Glacier2", "Ice", "IceBox", "IceGrid", "IceMX", "IceStorm", "slice", "IcePy-stubs"],
     package_dir={"": "dist/lib"},
     package_data={"slice": ["*.ice"]},
     include_package_data=True,
