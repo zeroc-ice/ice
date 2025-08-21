@@ -768,7 +768,8 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
         }
         else
         {
-            addTypingImport("numpy", "", source);
+            // TODO: change to addTypingImport, which currently doesn't handle empty definitions correctly.
+            addRuntimeImport("numpy", "", source);
         }
     }
     else if (directive == "python:array.array")
