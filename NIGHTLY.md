@@ -4,8 +4,8 @@ This document provides instruction for installing Ice nightly builds. Ice nightl
 GitHub main branch and target the next Ice non patch release.
 
 - [Linux](#linux)
-  - [RPM-based Linux (RHEL 9/10, Amazon Linux 2023)](rpm-based-linux-rhel-910-amazon-linux-2023)
-  - [DEB-based Linux (Debian 13, Debian 12, Ubuntu 24.04)](deb-based-linux-debian1213-ubuntu-2404)
+  - [RPM-based Linux](rpm-based-linux)
+  - [DEB-based Linux](deb-based-linux)
 - [macOS](#macos)
   - [Swift](#swift)
   - [Homebrew](#homebrew)
@@ -21,18 +21,30 @@ GitHub main branch and target the next Ice non patch release.
 
 ## Linux
 
-### RPM-based Linux (RHEL 9/10, Amazon Linux 2023)
+### RPM-based Linux
 
 The ZeroC Ice nightly RPM packages for Red Hat Enterprise Linux 9, Red Hat Enterprise Linux 10, and Amazon Linux 2023
 are available from the ZeroC DNF nightly repository.
 
-To enable the nightly repository, set your distribution identifier and run:
+To enable the nightly repository for your distribution run:
 
-```shell
-DIST=el9  # or 'el10' or 'amzn2023'
+- Red Hat Enterprise Linux 9
 
-sudo dnf install https://download.zeroc.com/ice/nightly/$DIST/ice-repo-nightly-1.0.0-1.$DIST.noarch.rpm
-```
+  ```shell
+  sudo dnf install https://download.zeroc.com/ice/nightly/el9/ice-repo-nightly-1.0.0-1.el9.noarch.rpm
+  ```
+
+- Red Hat Enterprise Linux 10
+
+  ```shell
+  sudo dnf install https://download.zeroc.com/ice/nightly/el10/ice-repo-nightly-1.0.0-1.el10.noarch.rpm
+  ```
+
+- Amazon Linux 2023
+
+  ```shell
+  sudo dnf install https://download.zeroc.com/ice/nightly/amzn2023/ice-repo-nightly-1.0.0-1.amzn2023.noarch.rpm
+  ```
 
 Then install the desired packages. For example:
 
@@ -42,20 +54,36 @@ sudo dnf install libice-c++-devel
 
 For a full list of available packages, see the [RPM packages README](packaging/rpm/README).
 
-### DEB-based Linux (Debian 12/13, Ubuntu 24.04)
+### DEB-based Linux
 
 The ZeroC Ice nightly DEB packages for Debian 12, Debian 13, and Ubuntu 24.04 are available from the ZeroC APT nightly
 repository.
 
-To enable the nightly repository, set your distribution name and run:
+To enable the nightly repository for your distribution run:
 
-```shell
-DIST=debian12  # or 'debian13' or 'ubuntu24.04'
+- Debian 12
 
-wget "https://download.zeroc.com/ice/nightly/$DIST/ice-repo-nightly_1.0_all.deb" -O ice-repo-nightly.deb
-sudo dpkg -i ice-repo-nightly.deb
-rm ice-repo-nightly.deb
-```
+  ```shell
+  wget "https://download.zeroc.com/ice/nightly/debian12/ice-repo-nightly_1.0_all.deb" -O ice-repo-nightly.deb
+  sudo dpkg -i ice-repo-nightly.deb
+  rm ice-repo-nightly.deb
+  ```
+
+- Debian 13
+
+  ```shell
+  wget "https://download.zeroc.com/ice/nightly/debian13/ice-repo-nightly_1.0_all.deb" -O ice-repo-nightly.deb
+  sudo dpkg -i ice-repo-nightly.deb
+  rm ice-repo-nightly.deb
+  ```
+
+- Ubuntu 24.04
+
+  ```shell
+  wget "https://download.zeroc.com/ice/nightly/ubuntu24.04/ice-repo-nightly_1.0_all.deb" -O ice-repo-nightly.deb
+  sudo dpkg -i ice-repo-nightly.deb
+  rm ice-repo-nightly.deb
+  ```
 
 Then update your package index and install the desired packages. For example:
 
