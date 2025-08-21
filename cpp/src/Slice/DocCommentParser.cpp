@@ -351,7 +351,6 @@ namespace
         }
     }
 
-
     /// Formats an `@p name` element starting at \p pos.
     /// @param line The line containing the paramref. This line will be edited in place to remove the original
     ///             Slice-style paramref and replace it with a properly formatted paramref for the target language.
@@ -443,7 +442,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
     for (auto& line : lines)
     {
         size_t pos = 0;
-        while(true)
+        while (true)
         {
             // We check for all inline tags all at the same time, to prevent overlap.
             // For example: `@p hello` should _only_ be a code-snippet, not also a param-ref.
