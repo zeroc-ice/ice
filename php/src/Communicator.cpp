@@ -209,28 +209,26 @@ ZEND_METHOD(Ice_Communicator, destroy)
     assert(c);
     CommunicatorMap* m = reinterpret_cast<CommunicatorMap*>(ICE_G(communicatorMap));
     assert(m);
-    if (m->find(c) != m->end())
+
+    m->erase(c);
+
+    // Remove all registrations.
     {
-        m->erase(c);
-
-        // Remove all registrations.
+        lock_guard lock(_registeredCommunicatorsMutex);
+        for (const auto& id : _this->ac->ids)
         {
-            lock_guard lock(_registeredCommunicatorsMutex);
-            for (const auto& id : _this->ac->ids)
-            {
-                _registeredCommunicators.erase(id);
-            }
-            _this->ac->ids.clear();
-
-            // Cancel the reap task if it is still scheduled.
-            if (_this->ac->reapTask)
-            {
-                _timer->cancel(_this->ac->reapTask);
-            }
+            _registeredCommunicators.erase(id);
         }
+        _this->ac->ids.clear();
 
-        c->destroy();
+        // Cancel the reap task if it is still scheduled.
+        if (_this->ac->reapTask)
+        {
+            _timer->cancel(_this->ac->reapTask);
+            _this->ac->reapTask = nullptr;
+        }
     }
+    c->destroy();
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Communicator_stringToProxy_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
