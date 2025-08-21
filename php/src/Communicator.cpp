@@ -225,6 +225,7 @@ ZEND_METHOD(Ice_Communicator, destroy)
         if (_this->ac->reapTask)
         {
             _timer->cancel(_this->ac->reapTask);
+            _this->ac->reapTask = nullptr;
         }
     }
     c->destroy();
