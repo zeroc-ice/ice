@@ -1329,10 +1329,10 @@ class Process(Runnable):
                             else:
                                 raise ex
             finally:
-                if not process.isTerminated():
-                    process.terminate()
                 if not self.quiet:  # Write the output to the test case (but not on stdout)
                     current.write(self.getOutput(current), stdout=False)
+                if not process.isTerminated():
+                    process.terminate()
 
     def teardown(self, current, success):
         if self in current.processes:
