@@ -37,7 +37,7 @@ jobs:
       - name: Publish MSI Packages
         run: |
           set -euo pipefail
-          if [ '${CHANNEL}' == 'nightly' ]; then
+          if [ "${CHANNEL}" = "nightly" ]; then
             # Rename the MSI file to Ice-nightly.msi if it's the nightly channel
             aws s3 cp staging/windows-msi/*.msi "s3://zeroc-downloads/ice/${CHANNEL}/Ice-nightly.msi"
           else
@@ -65,10 +65,10 @@ jobs:
       - name: Publish MATLAB Packages
         run: |
           set -euo pipefail
-          if [ '${CHANNEL}' == 'nightly' ]; then
-            # Rename the Toolbox files to ice-nightly-R2024a-<os>.mltbx if it's the nightly channel
-            aws s3 cp staging/matlab-packages-windows-*/ice-*-R2024a-win.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/ice-nightly-R2024a-win.mltbx"
-            aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-R2024a-linux.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/ice-nightly-R2024a-linux.mltbx"
+          if [ "${CHANNEL}" = "nightly" ]; then
+            # Rename the Toolbox files to ice-nightly-R2025a-<os>.mltbx if it's the nightly channel
+            aws s3 cp staging/matlab-packages-windows-*/ice-*-R2025a-win.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/ice-nightly-R2025a-win.mltbx"
+            aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-R2025a-linux.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/ice-nightly-R2025a-linux.mltbx"
           else
             aws s3 cp staging/matlab-packages-windows-*/ice-*-win.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/"
             aws s3 cp staging/matlab-packages-ubuntu-*/ice-*-linux.mltbx "s3://zeroc-downloads/ice/${CHANNEL}/"
