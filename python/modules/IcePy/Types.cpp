@@ -2235,17 +2235,7 @@ IcePy::SequenceInfo::SequenceMapping::getType(const Ice::StringSeq& metadata, Ty
 {
     for (const auto& name : metadata)
     {
-        if (name == "python:seq:tuple")
-        {
-            t = SEQ_TUPLE;
-            return true;
-        }
-        else if (name == "python:seq:list")
-        {
-            t = SEQ_LIST;
-            return true;
-        }
-        else if (name == "python:tuple")
+        if (name == "python:tuple")
         {
             t = SEQ_TUPLE;
             return true;
@@ -2312,7 +2302,14 @@ IcePy::SequenceInfo::SequenceMapping::SequenceMapping(Type t, const Ice::StringS
         {
             if (i->find(prefix) == 0)
             {
-                const string typestr = i->substr(prefix.size());
+                string typestr = i->substr(prefix.size());
+                // Strip away the trailing type hint colon if present.
+                auto pos = typestr.find(':');
+                if (pos != string::npos)
+                {
+                    typestr = typestr.substr(0, pos);
+                }
+
                 factory = lookupType(typestr);
                 if (!factory)
                 {

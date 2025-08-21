@@ -2,13 +2,7 @@
 
 import array
 
-BuiltinBool = 0
-BuiltinByte = 1
-BuiltinShort = 2
-BuiltinInt = 3
-BuiltinLong = 4
-BuiltinFloat = 5
-BuiltinDouble = 6
+from .Builtin import BuiltinBool, BuiltinByte, BuiltinDouble, BuiltinFloat, BuiltinInt, BuiltinLong, BuiltinShort
 
 BuiltinTypes = [
     BuiltinBool,
