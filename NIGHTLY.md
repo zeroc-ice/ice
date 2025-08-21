@@ -4,8 +4,8 @@ This document provides instruction for installing Ice nightly builds. Ice nightl
 GitHub main branch and target the next Ice non patch release.
 
 - [Linux](#linux)
-  - [RPM-based Linux](#rpm-based-linux)
-  - [DEB-based Linux](#deb-based-linux)
+  - [RPM-based Linux (RHEL, Amazon Linux)](rpm-based-linux-rhel-amazon-linux)
+  - [DEB-based Linux (Debian, Ubuntu)](deb-based-linux-debian-ubuntu)
 - [macOS](#macos)
   - [Swift](#swift)
   - [Homebrew](#homebrew)
@@ -21,7 +21,7 @@ GitHub main branch and target the next Ice non patch release.
 
 ## Linux
 
-### RPM-based Linux
+### RPM-based Linux (RHEL, Amazon Linux)
 
 The ZeroC Ice nightly RPM packages for Red Hat Enterprise Linux 9, Red Hat Enterprise Linux 10, and Amazon Linux 2023
 are available from the ZeroC DNF nightly repository.
@@ -54,12 +54,12 @@ sudo dnf install libice-c++-devel
 
 For a full list of available packages, see the [RPM packages README](packaging/rpm/README).
 
-### DEB-based Linux
+### DEB-based Linux (Debian, Ubuntu)
 
 The ZeroC Ice nightly DEB packages for Debian 12, Debian 13, and Ubuntu 24.04 are available from the ZeroC APT nightly
 repository.
 
-To enable the nightly repository for your distribution run:
+To enable the nightly repository, for your distribution run:
 
 - Debian 12
 
