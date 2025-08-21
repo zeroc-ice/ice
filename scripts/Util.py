@@ -1228,7 +1228,7 @@ class Process(Runnable):
                         print("process {0} is hanging - {1}".format(process, time.strftime("%x %X")))
 
                         # If we're running in CI, dump the stack trace and exit
-                        if os.getenv("CI"):
+                        if os.getenv("CI") and isinstance(process, Expect.Expect):
                             process.stackDump()
                             self.stop(current, False, exitstatus)
                             raise
@@ -1316,7 +1316,7 @@ class Process(Runnable):
                         except Expect.TIMEOUT:
                             print("process {0} is hanging on shutdown - {1}".format(process, time.strftime("%x %X")))
 
-                            if os.getenv("CI"):
+                            if os.getenv("CI") and isinstance(process, Expect.Expect):
                                 process.stackDump()
                                 raise
 
