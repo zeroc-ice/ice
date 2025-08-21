@@ -164,7 +164,7 @@ class CustomBuildExtCommand(_build_ext):
 class CustomSdistCommand(_sdist):
     def include_file(self, filename):
         filename = os.path.normpath(filename)
-        if pathlib.Path(filename).suffix.lower() not in [".c", ".cpp", ".h", ".ice", ".py"]:
+        if pathlib.Path(filename).suffix.lower() not in [".c", ".cpp", ".h", ".ice", ".py", ".pyi"]:
             return False
         return True
 
@@ -281,7 +281,7 @@ class CustomSdistCommand(_sdist):
 
         for root, dirs, files in os.walk("python"):
             for file in files:
-                if file.endswith(".py"):
+                if file.endswith(".py") or file.endswith(".pyi") or file == "py.typed":
                     source_file = os.path.join(root, file)
                     relative_path = os.path.relpath(source_file, "python")
                     target_file = os.path.join(script_directory, "dist/lib", relative_path)
@@ -296,7 +296,7 @@ class CustomSdistCommand(_sdist):
 
         global sources  # Use the global sources list
         sources = []  # Clear the sources list
-        for root, dirs, files in os.walk("dist"):
+        for root, _, files in os.walk("dist"):
             for file in files:
                 if self.include_file(os.path.join(root, file)):
                     sources.append(os.path.join(root, file))
@@ -321,7 +321,7 @@ ice_py = Extension(
 
 # Setup configuration for the package
 setup(
-    packages=packages,
+    packages=packages + ["IcePy-stubs"],
     package_dir={"": "dist/lib"},
     package_data={"slice": ["*.ice"]},
     include_package_data=True,
