@@ -144,11 +144,17 @@ Slice::Python::getImportAlias(
         // exported by the source module. We need to use an alias.
         useAlias = true;
     }
-    else
+    else if (auto p = allImports.find(importName); p != allImports.end())
     {
         // If the name being bound is already imported from a different module, we need to use an alias.
-        auto p = allImports.find(importName);
-        useAlias = p != allImports.end() && p->second != moduleName;
+        if (name.empty())
+        {
+            useAlias = p->second != moduleName;
+        }
+        else
+        {
+            useAlias = p->second != moduleName + "." + name;
+        }
     }
 
     if (useAlias)
@@ -883,12 +889,12 @@ Slice::Python::ImportVisitor::addRuntimeImport(
     if (name == alias)
     {
         definitionImports.definitions.insert({name, ""});
-        allImports[name] = definitionModule;
+        allImports[name] = definitionModule + "." + name;
     }
     else
     {
         definitionImports.definitions.insert({name, alias});
-        allImports[alias] = definitionModule;
+        allImports[alias] = definitionModule + "." + name;
     }
 }
 
@@ -947,12 +953,12 @@ Slice::Python::ImportVisitor::addRuntimeImport(
     else if (definition == alias)
     {
         definitionImports.definitions.insert({definition, ""});
-        allImports[definition] = definitionModule;
+        allImports[definition] = definitionModule + "." + definition;
     }
     else
     {
         definitionImports.definitions.insert({definition, alias});
-        allImports[alias] = definitionModule;
+        allImports[alias] = definitionModule + "." + definition;
     }
 }
 
@@ -973,12 +979,12 @@ Slice::Python::ImportVisitor::addTypingImport(
     if (definition == alias)
     {
         definitionImports.definitions.insert({definition, ""});
-        imports[definition] = moduleName;
+        imports[definition] = moduleName + "." + definition;
     }
     else
     {
         definitionImports.definitions.insert({definition, alias});
-        imports[alias] = moduleName;
+        imports[alias] = moduleName + "." + definition;
     }
 
     // If we are importing a type with the TypingImport scope, we also need a runtime import for TYPE_CHECKING from
