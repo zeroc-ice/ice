@@ -134,7 +134,7 @@ Then add the `ZeroC.Ice.Cpp` package to your Visual Studio C++ projects.
 
 The ZeroC Ice nightly Windows installer (MSI) is available at:
 
-- [Ice-nightly.msi](https://download.zeroc.com/nexus/repository/nuget-nightly/Ice-nightly.msi)
+- [Ice-nightly.msi](https://download.zeroc.com/ice/nightly/Ice-nightly.msi)
 
 ## C\#
 
@@ -203,8 +203,8 @@ NuGet nightly repository.
 
 You can download and install the appropriate .mltbx file for your platform:
 
-- Windows: [ice-nightly-R2024a-win.mltbx](https://download.zeroc.com/nexus/repository/nuget-nightly/ice-nightly-R2024a-win.mltbx)
-- Ubuntu 24.04: [ice-nightly-R2024a-linux.mltbx](https://download.zeroc.com/nexus/repository/nuget-nightly/ice-nightly-R2024a-linux.mltbx)
+- Windows: [ice-nightly-R2024a-win.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-win.mltbx)
+- Ubuntu 24.04: [ice-nightly-R2024a-linux.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-linux.mltbx)
 
 To install, simply double-click the `.mltbx` file in MATLAB.
 
