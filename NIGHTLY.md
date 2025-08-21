@@ -5,7 +5,7 @@ GitHub main branch and target the next Ice non patch release.
 
 - [Linux](#linux)
   - [RPM-based Linux (RHEL 9/10, Amazon Linux 2023)](rpm-based-linux-rhel-910-amazon-linux-2023)
-  - [DEB-based Linux (Debian 12, Ubuntu 24.04)](deb-based-linux-debian-12-ubuntu-2404)
+  - [DEB-based Linux (Debian 13, Debian 12, Ubuntu 24.04)](deb-based-linux-debian1213-ubuntu-2404)
 - [macOS](#macos)
   - [Swift](#swift)
   - [Homebrew](#homebrew)
@@ -42,15 +42,15 @@ sudo dnf install libice-c++-devel
 
 For a full list of available packages, see the [RPM packages README](packaging/rpm/README).
 
-### DEB-based Linux (Debian 12, Ubuntu 24.04)
+### DEB-based Linux (Debian 12/13, Ubuntu 24.04)
 
-The ZeroC Ice nightly DEB packages for Debian 12 and Ubuntu 24.04 are available from the ZeroC APT nightly repository.
+The ZeroC Ice nightly DEB packages for Debian 12, Debian 13, and Ubuntu 24.04 are available from the ZeroC APT nightly
+repository.
 
 To enable the nightly repository, set your distribution name and run:
 
 ```shell
-# Supported values: debian12 or ubuntu24.04
-DIST=debian12  # or 'ubuntu24.04'
+DIST=debian12  # or 'debian13' or 'ubuntu24.04'
 
 wget "https://download.zeroc.com/ice/nightly/$DIST/ice-repo-nightly_1.0_all.deb" -O ice-repo-nightly.deb
 sudo dpkg -i ice-repo-nightly.deb
@@ -170,7 +170,8 @@ dependencyResolutionManagement {
 
 ## MATLAB
 
-The ZeroC Ice MATLAB nightly toolboxes for Windows and Ubuntu 24.04 are available for direct download from the ZeroC NuGet nightly repository.
+The ZeroC Ice MATLAB nightly toolboxes for Windows and Ubuntu 24.04 are available for direct download from the ZeroC
+NuGet nightly repository.
 
 You can download and install the appropriate .mltbx file for your platform:
 
