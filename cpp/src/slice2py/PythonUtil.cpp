@@ -906,8 +906,7 @@ Slice::Python::ImportVisitor::addImport(
     string alias = getImportAlias(source, allImports, moduleName, definition);
 
     auto it = moduleImports.find(moduleName);
-    ModuleImports& definitionImports =
-        it == moduleImports.end() ? moduleImports[moduleName] : it->second;
+    ModuleImports& definitionImports = it == moduleImports.end() ? moduleImports[moduleName] : it->second;
     if (it == moduleImports.end())
     {
         // If the module does not exist, we create an empty map for it.
