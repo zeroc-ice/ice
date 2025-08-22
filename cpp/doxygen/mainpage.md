@@ -1,4 +1,4 @@
-# C++ API Reference
+# Introduction
 
 **Welcome to the C++ API Reference for Ice!**
 

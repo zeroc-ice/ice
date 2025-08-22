@@ -1,4 +1,4 @@
-# Slice API Reference
+# Introduction
 
 **Welcome to the Slice API Reference for Ice!**
 
