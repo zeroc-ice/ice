@@ -23,7 +23,7 @@ module IceGrid
         /// The database properties.
         PropertyDescriptorSeq properties;
     }
-    sequence<InternalDbEnvDescriptor> InternalDbEnvDescriptorSeq;
+    ["deprecated"] sequence<InternalDbEnvDescriptor> InternalDbEnvDescriptorSeq;
 
     class InternalAdapterDescriptor
     {

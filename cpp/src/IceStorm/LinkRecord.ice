@@ -16,7 +16,7 @@ module IceStorm
         TopicLink* obj;
         /// The cost.
         int cost;
-        /// The linked topic for {@link getLinkInfoSeq}.
+        /// The linked topic for {@link Topic::getLinkInfoSeq}.
         Topic* theTopic;
     }
 }

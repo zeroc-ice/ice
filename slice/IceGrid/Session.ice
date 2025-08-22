@@ -19,7 +19,7 @@ module IceGrid
     interface Registry; // For doc-comments.
 
     /// Represents a session object used by IceGrid clients to allocate and release objects. Client sessions are created
-    /// either via the {@link Registry} object or via the registry client {@link SessionManager} object.
+    /// either via the {@link Registry} object or via the registry client {@link Glacier2::SessionManager} object.
     interface Session extends Glacier2::Session
     {
         /// Keeps the session alive.
