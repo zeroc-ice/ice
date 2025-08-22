@@ -59,7 +59,7 @@ For a full list of available packages, see the [RPM packages README](packaging/r
 The ZeroC Ice nightly DEB packages for Debian 12, Debian 13, and Ubuntu 24.04 are available from the ZeroC APT nightly
 repository.
 
-To enable the nightly repository, for your distribution run:
+To enable the nightly repository for your distribution run:
 
 - Debian 12
 
