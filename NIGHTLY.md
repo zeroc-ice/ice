@@ -108,7 +108,8 @@ brew install zeroc-ice/nightly/ice
 
 ### Swift
 
-The Ice for Swift nightly package is available via Swift Package Manager (SPM) from the zeroc-ice/ice-swift-nightly GitHub repository.
+The Ice for Swift nightly package is available via Swift Package Manager (SPM) from the zeroc-ice/ice-swift-nightly
+GitHub repository.
 
 To use it in your project, add the following URL as a dependency in your Package.swift:
 
@@ -198,15 +199,12 @@ dependencyResolutionManagement {
 
 ## MATLAB
 
-The ZeroC Ice MATLAB nightly toolboxes for Windows and Ubuntu 24.04 are available for direct download from the ZeroC
-NuGet nightly repository.
+Ice toolbox for MATLAB R2025a:
 
-You can download and install the appropriate .mltbx file for your platform:
+- Windows: [ice-nightly-R2025a-win.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-win.mltbx)
+- Ubuntu 24.04: [ice-nightly-R2025a-linux.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-linux.mltbx)
 
-- Windows: [ice-nightly-R2024a-win.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-win.mltbx)
-- Ubuntu 24.04: [ice-nightly-R2024a-linux.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-linux.mltbx)
-
-To install, simply double-click the `.mltbx` file in MATLAB.
+To install, download the package corresponding to your platform and simply double-click the `.mltbx` file from MATLAB.
 
 ## Python
 
