@@ -7,5 +7,7 @@
     <IceVersionMM Condition="'$(IceVersionMM)' == ''">3.8</IceVersionMM>
     <IceSoVersion Condition="'$(IceSoVersion)' == ''">38a0</IceSoVersion>
     <IcePackageVersion Condition="'$(IcePackageVersion)' == ''">3.8.0-alpha0</IcePackageVersion>
+    <!-- MATLAB ToolBox version doesn't support alpha/beta versions -->
+    <IceToolBoxVersion Condition="'$(IceToolBoxVersion)' == ''">3.8.0.0</IceToolBoxVersion>
   </PropertyGroup>
 </Project>

@@ -3,14 +3,13 @@
 #
 # the location of the MATLAB installation.
 #
-MATLAB_VERSION ?= R2024a
+MATLAB_VERSION ?= R2025a
 MATLAB_HOME    ?= /usr/local/MATLAB/$(MATLAB_VERSION)
+ICE_TOOLBOX_VERSION ?= 3.8.0.0
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
-
--include        $(lang_srcdir)/config/Make.rules.$(os)
 
 matlab_cflags = -fexceptions \
     -fno-omit-frame-pointer \
@@ -23,7 +22,7 @@ matlab_cflags = -fexceptions \
 
 matlab_cppflags := $(matlab_cflags)
 
-ifneq ($(shell $(CC) -E config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
+ifneq ($(shell $(CC) -E $(lang_srcdir)/../cpp/config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
 matlab_cppflags := $(matlab_cppflags) -std=c++17
 endif
 matlab_ldflags  := -L$(MATLAB_HOME)/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++
