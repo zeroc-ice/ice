@@ -379,7 +379,7 @@ classDiagram
 
   ```slice
   /// Provides access to a radar scanner.
-  /// @remark for sonar, use {@link SonarScan} instead.
+  /// @remark For sonar, use {@link SonarScan} instead.
   class RadarScan {}
   ```
 
@@ -392,24 +392,24 @@ classDiagram
   int getDuration(int start, int end);
   ```
 
-- Added support for Markdown style code-snippets in doc-comments:
+- Added support for Markdown style code-spans in doc-comments:
 
   ```slice
-  /// This is `true`, and can be used as a default value: `bool b = ConstBool;`
-  const bool ConstBool = true;
+  /// This is `true`, and can be used as a default value: `bool b = Yes;`
+  const bool Yes = true;
   ```
 
-  You can use any number of backticks to mark the beginning/end of the code-snippet, but they must match in number.
-  This is useful if the code-snippet itself will contain backticks:
+  You can use any number of backticks to mark the beginning/end of the code-span, but they must match in number.
+  This is useful if the code-span itself will contain backticks:
 
   ```slice
-  /// This snippet ``contains a ` character`` just fine.
+  /// This code-span ``contains a ` character`` just fine.
   ```
 
-  Outside of code-snippets, you can escape a backtick with a backslash to get a normal textual backtick character:
+  Outside of code-spans, you can escape a backtick with a backslash to get a normal textual backtick character:
 
   ```slice
-  /// This character \` doesn't start a code-snippet and will appear like a normal backtick character.
+  /// This character \` doesn't start a code-span and will appear like a normal backtick character.
   ```
 
 - `@link` tags are now mapped to proper documentation links in Swift and MATLAB.
@@ -469,9 +469,9 @@ classDiagram
 - Removed the `slice2html` compiler, which was previously used to convert Slice documentation comments to HTML. Doxygen
   should be used to generate Slice API documentation.
 
-- Removed the `--impl` argument from the Slice compilers.
+- Removed the `--impl` option from the Slice compilers.
 
-- Removed the `-E` flag from the Slice compilers.
+- Removed the `-E` option from the Slice compilers.
 
 - You can now use identifiers with underscores or with the Ice prefix without any special compiler option.
 

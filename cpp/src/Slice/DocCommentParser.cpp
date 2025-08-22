@@ -667,9 +667,12 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                 if (line[0] == '@')
                 {
                     auto unknownTag = line.substr(0, line.find_first_of(" \t"));
-                    const string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                    currentSection = nullptr;
+                    if (unknownTag != "@p")
+                    {
+                        const string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
+                        p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                        currentSection = nullptr;
+                    }
                 }
 
                 // '@see' tags are not allowed to span multiple lines.
