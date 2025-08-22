@@ -353,7 +353,6 @@ const Property IceGridPropsData[] =
     Property{"Node.Trace.Activator", "0", false, false, nullptr},
     Property{"Node.Trace.Adapter", "0", false, false, nullptr},
     Property{"Node.Trace.Admin", "0", false, false, nullptr},
-    Property{"Node.Trace.Patch", "0", false, false, nullptr},
     Property{"Node.Trace.Replica", "0", false, false, nullptr},
     Property{"Node.Trace.Server", "0", false, false, nullptr},
     Property{"Node.UserAccountMapper", "", false, false, &PropertyNames::ProxyProps},
@@ -391,7 +390,6 @@ const Property IceGridPropsData[] =
     Property{"Registry.Trace.Locator", "0", false, false, nullptr},
     Property{"Registry.Trace.Node", "0", false, false, nullptr},
     Property{"Registry.Trace.Object", "0", false, false, nullptr},
-    Property{"Registry.Trace.Patch", "0", false, false, nullptr},
     Property{"Registry.Trace.Replica", "0", false, false, nullptr},
     Property{"Registry.Trace.Server", "0", false, false, nullptr},
     Property{"Registry.Trace.Session", "0", false, false, nullptr},
@@ -407,7 +405,7 @@ const PropertyArray PropertyNames::IceGridProps
     .prefixOnly=false,
     .isOptIn=true,
     .properties=IceGridPropsData,
-    .length=63
+    .length=61
 };
 
 const Property IceSSLPropsData[] =
