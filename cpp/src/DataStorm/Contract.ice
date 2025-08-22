@@ -58,7 +58,7 @@ module DataStormContract
         Ice::ByteSeq value;
     }
 
-    // A queue of {@link DataSample}
+    /// A queue of {@link DataSample}
     ["cpp:type:std::deque<DataSample>"] sequence<DataSample> DataSampleSeq;
 
     /// Represents a collection of data samples produced by a specific writer.

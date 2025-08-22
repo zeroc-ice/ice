@@ -53,7 +53,7 @@ module IceStorm
         string name;
     }
 
-    /// The exception that is thrown when attempting to subscribe to a proxy for which a subscription already exists.
+    /// The exception that is thrown when attempting to subscribe a proxy for which a subscription already exists.
     exception AlreadySubscribed
     {
     }
