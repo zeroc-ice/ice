@@ -450,32 +450,30 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             size_t nextLinkPos = line.find("{@link ", pos);
             size_t nextParamrefPos = line.find("@p", pos);
 
-            // If the next element to handle is a code-snippet.
-            if (nextBacktickPos != string::npos && (nextBacktickPos < nextLinkPos && nextBacktickPos < nextParamrefPos))
+            // Remember, `string::npos` is `size_t::max`. So `npos` can _never_ be less than another position.
+            if (nextBacktickPos < nextLinkPos && nextBacktickPos < nextParamrefPos)
             {
+                // If the next element to handle is a code-snippet.
                 pos = nextBacktickPos;
                 formatCodeElement(p, _formatter, line, pos);
-                continue;
             }
-
-            // If the next element to handle is a link.
-            if (nextLinkPos != string::npos && (nextLinkPos < nextBacktickPos && nextLinkPos < nextParamrefPos))
+            else if (nextLinkPos < nextBacktickPos && nextLinkPos < nextParamrefPos)
             {
+                // If the next element to handle is a link.
                 pos = nextLinkPos;
                 formatLinkElement(p, _formatter, line, pos);
-                continue;
             }
-
-            // If the next element to handle is a param-ref.
-            if (nextParamrefPos != string::npos && (nextParamrefPos < nextBacktickPos && nextParamrefPos < nextLinkPos))
+            else if (nextParamrefPos < nextBacktickPos && nextParamrefPos < nextLinkPos)
             {
+                // If the next element to handle is a param-ref.
                 pos = nextParamrefPos;
                 formatParamrefElement(p, _formatter, line, pos);
-                continue;
             }
-
-            // If there's no more inline tags to fix on this line, move on to the next line.
-            break;
+            else
+            {
+                // If there's no more inline tags to fix on this line, move on to the next line.
+                break;
+            }
         }
     }
 
