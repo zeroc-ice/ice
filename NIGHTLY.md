@@ -199,12 +199,12 @@ dependencyResolutionManagement {
 
 ## MATLAB
 
-The ZeroC Ice nightly MATLAB toolboxes for Windows and Ubuntu 24.04 are available for direct download from:
+Ice toolbox for MATLAB R2025a:
 
 - Windows: [ice-nightly-R2025a-win.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-win.mltbx)
 - Ubuntu 24.04: [ice-nightly-R2025a-linux.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-linux.mltbx)
 
-To install, download the package corresponding to your platform and simply double-click the `.mltbx` file in MATLAB.
+To install, download the package corresponding to your platform and simply double-click the `.mltbx` file from MATLAB.
 
 ## Python
 
