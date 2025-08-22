@@ -386,7 +386,7 @@ MARKDOWN_ID_STYLE      = DOXYGEN
 # globally by setting AUTOLINK_SUPPORT to NO.
 # The default value is: YES.
 
-AUTOLINK_SUPPORT       = YES
+AUTOLINK_SUPPORT       = NO
 
 AUTOLINK_IGNORE_WORDS  = DataStorm Glacier2 Ice IceBox IceGrid IceMX IceStorm
 

@@ -17,16 +17,17 @@ module Ice
     /// directly reachable from these clients.
     interface Router
     {
-        /// Gets the router's client proxy, i.e., the proxy to use for forwarding requests from the client to the
+        /// Gets the router's client proxy, i.e. the proxy to use for forwarding requests from the client to the
         /// router. If a null proxy is returned, the client will forward requests to the router's endpoints.
         /// @param hasRoutingTable Indicates whether or not the router supports a routing table. If `true`, the Ice
         /// runtime will call {@link addProxies} to populate the routing table. The Ice runtime assumes the router has
-        /// a routing table when @p hasRoutingTable is not set. Introduced in Ice 3.7.
+        /// a routing table when @p hasRoutingTable is not set.
         /// @return The router's client proxy.
+        /// @remark Introduced in Ice 3.7.
         ["cpp:const"]
         idempotent Object* getClientProxy(out optional(1) bool hasRoutingTable);
 
-        /// Gets the router's server proxy, i.e., the proxy to use for forwarding requests from the server to the
+        /// Gets the router's server proxy, i.e. the proxy to use for forwarding requests from the server to the
         /// router. The Ice runtime uses the endpoints of this proxy as the published endpoints of bi-dir object
         /// adapters.
         /// @return The router's server proxy.

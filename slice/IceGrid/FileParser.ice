@@ -22,13 +22,12 @@ module IceGrid
         string reason;
     }
 
-    /// `icegridadmin` provides a {@link FileParser} object to transform XML files into {@link ApplicationDescriptor}
-    /// objects.
+    /// `icegridadmin` provides a `FileParser` object to transform XML files into {@link ApplicationDescriptor} objects.
     interface FileParser
     {
         /// Parses a file.
         /// @param xmlFile The full path to the file.
-        /// @param adminProxy An Admin proxy, used only to retrieve default templates when needed. May be null.
+        /// @param adminProxy An {@link Admin} proxy, used only to retrieve default templates when needed. May be null.
         /// @return The application descriptor.
         /// @throws ParseException Thrown when an error occurs during parsing.
         idempotent ApplicationDescriptor parse(string xmlFile, Admin* adminProxy)
