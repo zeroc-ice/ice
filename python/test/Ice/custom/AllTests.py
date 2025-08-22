@@ -10,26 +10,11 @@ import Ice
 if "--load-slice" in sys.argv:
     TestHelper.loadSlice("Test.ice")
 
-try:
-    import numpy
-
-    hasNumPy = True
-except ImportError:
-    hasNumPy = False
-    pass
-
 from generated.test.Ice.custom import Test
 
-if hasNumPy:
-    if "--load-slice" in sys.argv:
-        TestHelper.loadSlice("TestNumPy.ice")
 
-    from generated.test.Ice.custom.Test import NumPy
-
-
-def allTests(helper: TestHelper, communicator: Ice.Communicator):
+def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomPrx:
     custom = Test.CustomPrx(communicator, f"test:{helper.getTestEndpoint()}")
-    test(custom)
 
     byteList = [1, 2, 3, 4, 5]
     byteString = bytes(byteList)
@@ -59,8 +44,8 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
         test(b2[i] == byteList[i])
 
     (r, b2) = custom.opByteList2(byteList)
-    test(isinstance(r, list))
-    test(isinstance(b2, tuple))
+    assert isinstance(r, list)
+    assert isinstance(b2, tuple)
     test(r == byteList)
     for i in range(0, len(byteList)):
         test(b2[i] == byteList[i])
@@ -92,21 +77,21 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     test(b2 == stringList)
 
     s = Test.S()
-    s.b1 = byteList
+    s.b1 = bytes(byteList)
     s.b2 = byteList
     s.b4 = byteList
     s.s1 = stringList
-    s.s2 = stringList
-    s.s3 = stringList
+    s.s2 = tuple(stringList)
+    s.s3 = tuple(stringList)
     custom.sendS(s)
 
     c = Test.C()
-    c.b1 = byteList
+    c.b1 = bytes(byteList)
     c.b2 = byteList
     c.b4 = byteList
     c.s1 = stringList
-    c.s2 = stringList
-    c.s3 = stringList
+    c.s2 = tuple(stringList)
+    c.s3 = tuple(stringList)
     custom.sendC(c)
 
     print("ok")
@@ -243,43 +228,49 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
     d.doubleSeq = array.array("d", [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256])
 
     d1 = custom.opD(d)
-    test(isinstance(d1.boolSeq, array.array))
+    assert d1 is not None
+    assert isinstance(d1.boolSeq, array.array)
     test(len(d1.boolSeq) == len(d.boolSeq))
     for i in range(len(d.boolSeq)):
         test(d.boolSeq[i] == d1.boolSeq[i])
 
-    test(isinstance(d1.byteSeq, array.array))
+    assert isinstance(d1.byteSeq, array.array)
     test(len(d1.byteSeq) == len(d.byteSeq))
     for i in range(len(d.byteSeq)):
         test(d.byteSeq[i] == d1.byteSeq[i])
 
-    test(isinstance(d1.intSeq, array.array))
+    assert isinstance(d1.intSeq, array.array)
     test(len(d1.intSeq) == len(d.intSeq))
     for i in range(len(d.intSeq)):
         test(d.intSeq[i] == d1.intSeq[i])
 
-    test(isinstance(d1.longSeq, array.array))
+    assert isinstance(d1.longSeq, array.array)
     test(len(d1.longSeq) == len(d.longSeq))
     for i in range(len(d.longSeq)):
         test(d.longSeq[i] == d1.longSeq[i])
 
-    test(isinstance(d1.floatSeq, array.array))
+    assert isinstance(d1.floatSeq, array.array)
     test(len(d1.floatSeq) == len(d.floatSeq))
     for i in range(len(d.floatSeq)):
         test(round(d.floatSeq[i], 1) == round(d1.floatSeq[i], 1))
 
-    test(isinstance(d1.doubleSeq, array.array))
+    assert isinstance(d1.doubleSeq, array.array)
     test(len(d1.doubleSeq) == len(d.doubleSeq))
     for i in range(len(d.doubleSeq)):
         test(round(d.doubleSeq[i], 1) == round(d1.doubleSeq[i], 1))
 
     d1 = custom.opD(Test.D())
+    assert d1
     test(d1.boolSeq is None)
     test(d1.byteSeq is None)
     test(d1.intSeq is None)
     test(d1.longSeq is None)
     test(d1.floatSeq is None)
     test(d1.doubleSeq is None)
+
+    m = custom.opM(Test.M())
+    assert isinstance(m.boolSeq, array.array)
+    test(len(m.boolSeq) == 0)
 
     # Use the new buffer interface for marshaling sequences of types that implement the buffer protocol and this allow
     # Ice to check that the container item size and endianness
@@ -357,13 +348,20 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
 
     print("ok")
 
-    if hasNumPy:
+    try:
+        import numpy
+
+        if "--load-slice" in sys.argv:
+            TestHelper.loadSlice("TestNumPy.ice")
+
+        from generated.test.Ice.custom.Test import NumPy
+
         ref = "test.numpy:{0}".format(helper.getTestEndpoint())
         base = communicator.stringToProxy(ref)
         test(base)
 
         custom = NumPy.CustomPrx.checkedCast(base)
-        test(custom)
+        assert custom is not None
         sys.stdout.write("testing python:numpy.ndarray... ")
         sys.stdout.flush()
 
@@ -496,37 +494,39 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
         d.doubleSeq = numpy.array([0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256], numpy.float64)
 
         d1 = custom.opD(d)
-        test(isinstance(d1.boolSeq, numpy.ndarray))
+        assert d1 is not None
+        assert isinstance(d1.boolSeq, numpy.ndarray)
         test(len(d1.boolSeq) == len(d.boolSeq))
         for i in range(len(d.boolSeq)):
             test(d.boolSeq[i] == d1.boolSeq[i])
 
-        test(isinstance(d1.byteSeq, numpy.ndarray))
+        assert isinstance(d1.byteSeq, numpy.ndarray)
         test(len(d1.byteSeq) == len(d.byteSeq))
         for i in range(len(d.byteSeq)):
             test(d.byteSeq[i] == d1.byteSeq[i])
 
-        test(isinstance(d1.intSeq, numpy.ndarray))
+        assert isinstance(d1.intSeq, numpy.ndarray)
         test(len(d1.intSeq) == len(d.intSeq))
         for i in range(len(d.intSeq)):
             test(d.intSeq[i] == d1.intSeq[i])
 
-        test(isinstance(d1.longSeq, numpy.ndarray))
+        assert isinstance(d1.longSeq, numpy.ndarray)
         test(len(d1.longSeq) == len(d.longSeq))
         for i in range(len(d.longSeq)):
             test(d.longSeq[i] == d1.longSeq[i])
 
-        test(isinstance(d1.floatSeq, numpy.ndarray))
+        assert isinstance(d1.floatSeq, numpy.ndarray)
         test(len(d1.floatSeq) == len(d.floatSeq))
         for i in range(len(d.floatSeq)):
             test(round(d.floatSeq[i], 1) == round(d1.floatSeq[i], 1))
 
-        test(isinstance(d1.doubleSeq, numpy.ndarray))
+        assert isinstance(d1.doubleSeq, numpy.ndarray)
         test(len(d1.doubleSeq) == len(d.doubleSeq))
         for i in range(len(d.doubleSeq)):
             test(round(d.doubleSeq[i], 1) == round(d1.doubleSeq[i], 1))
 
         d1 = custom.opD(NumPy.D())
+        assert d1 is not None
         test(d1.boolSeq is None)
         test(d1.byteSeq is None)
         test(d1.intSeq is None)
@@ -601,4 +601,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator):
 
         print("ok")
 
-    return custom
+    except ImportError:
+        pass
+
+    return Test.CustomPrx(communicator, f"test:{helper.getTestEndpoint()}")

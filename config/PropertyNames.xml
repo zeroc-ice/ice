@@ -255,7 +255,6 @@
         <property name="Node.Trace.Activator" languages="cpp" default="0" />
         <property name="Node.Trace.Adapter" languages="cpp" default="0" />
         <property name="Node.Trace.Admin" languages="cpp" default="0" />
-        <property name="Node.Trace.Patch" languages="cpp" default="0" />
         <property name="Node.Trace.Replica" languages="cpp" default="0" />
         <property name="Node.Trace.Server" languages="cpp" default="0" />
         <property name="Node.UserAccountMapper" class="Proxy" languages="cpp" />
@@ -293,7 +292,6 @@
         <property name="Registry.Trace.Locator" languages="cpp" default="0" />
         <property name="Registry.Trace.Node" languages="cpp" default="0" />
         <property name="Registry.Trace.Object" languages="cpp" default="0" />
-        <property name="Registry.Trace.Patch" languages="cpp" default="0" />
         <property name="Registry.Trace.Replica" languages="cpp" default="0" />
         <property name="Registry.Trace.Server" languages="cpp" default="0" />
         <property name="Registry.Trace.Session" languages="cpp" default="0" />

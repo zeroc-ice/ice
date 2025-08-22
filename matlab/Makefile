@@ -5,28 +5,19 @@ lang_srcdir     := $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(lastword $(abs
 
 include $(top_srcdir)/config/Make.rules
 
-icetoolbox_file = toolbox/ice-$(version)-$(MATLAB_VERSION)-linux.mltbx
-
-#
 # Load C++ dependencies
-#
 $(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2matlab))
 $(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceLocatorDiscovery IceDiscovery)))
 
-#
 # Load MATLAB rules after loading C++ dependencies
-#
 include $(lang_srcdir)/config/Make.rules
 
-#
+icetoolbox_file = toolbox/ice-$(ICE_TOOLBOX_VERSION)-$(MATLAB_VERSION)-linux.mltbx
+
 # Load Makefile.mk fragments
-#
 include $(shell find $(lang_srcdir) -name Makefile.mk)
 
-#
-# Make the projects (this expands all the build configuration and defines rules for all
-# the components).
-#
+# Make the projects (this expands all the build configuration and defines rules for all the components).
 $(call make-projects,$(projects))
 srcs:: $(projects)
 
@@ -44,9 +35,7 @@ $(eval $(call make-matlab-package,$(slicedir),lib/generated,Glacier2))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceGrid))
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,IceStorm))
 
-#
 # icethunk mex library
-#
 icethunk_libdir = $(lang_srcdir)/lib/x86_64-linux-gnu
 icethunk_srcdir = $(lang_srcdir)/src
 icethunk_builddir = $(lang_srcdir)/src/build
@@ -81,16 +70,14 @@ clean::
 
 all:: srcs $(icethunk_target)
 
-#
 # Toolbox
-#
 $(icetoolbox_file):: $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/x86_64-linux-gnu/ice.mexa64
 	rm -rf $(lang_srcdir)/toolbox/build
 	mkdir -p $(lang_srcdir)/toolbox/build
 	cp $(lang_srcdir)/toolbox/toolbox.template.prj $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's|@RootDir@|$(lang_srcdir)|g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's|@MatlabHome@|$(MATLAB_HOME)|g' $(lang_srcdir)/toolbox/toolbox.prj
-	sed -i 's/@IceVersion@/$(version)/g' $(lang_srcdir)/toolbox/toolbox.prj
+	sed -i 's/@IceVersion@/$(ICE_TOOLBOX_VERSION)/g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's/@MatlabVersion@/$(MATLAB_VERSION)/g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's/@SLICE2MATLAB@/slice2matlab/g' $(lang_srcdir)/toolbox/toolbox.prj
 	sed -i 's/@IS_WINDOWS@/false/g' $(lang_srcdir)/toolbox/toolbox.prj
@@ -118,11 +105,11 @@ $(icetoolbox_file):: $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/
 	cp -rf $(lang_srcdir)/toolbox/doc $(lang_srcdir)/toolbox/build
 ifneq (,$(MATLAB_COMMAND))
 	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "addFolderToPath '`realpath build`'"
-	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "buildToolbox '$(version)'"
+	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "buildToolbox '$(ICE_TOOLBOX_VERSION)'"
 	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "removeFolderFromPath '`realpath build`'"
 else
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "addFolderToPath '`realpath build`'"
-	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "buildToolbox '$(version)'"
+	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "buildToolbox '$(ICE_TOOLBOX_VERSION)'"
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "removeFolderFromPath '`realpath build`'"
 endif
 

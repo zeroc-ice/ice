@@ -52,31 +52,4 @@ jobs:
       - name: Pyright check
         run: |-
           pyright python/python
-          pyright python/test/Glacier2
-          pyright python/test/Slice
-
-          pyright python/test/Ice/adapterDeactivation
-          pyright python/test/Ice/admin
-          pyright python/test/Ice/ami
-          pyright python/test/Ice/asyncio
-          pyright python/test/Ice/blobject
-          pyright python/test/Ice/current
-          # pyright python/test/Ice/custom
-          pyright python/test/Ice/exceptions
-          pyright python/test/Ice/executor
-          pyright python/test/Ice/facets
-          pyright python/test/Ice/faultTolerance
-          pyright python/test/Ice/info
-          pyright python/test/Ice/inheritance
-          pyright python/test/Ice/location
-          pyright python/test/Ice/properties
-          pyright python/test/Ice/proxy
-          pyright python/test/Ice/scope
-          pyright python/test/Ice/servantLocator
-          pyright python/test/Ice/thread
-          pyright python/test/Ice/timeout
-          pyright python/test/Ice/objects
-          pyright python/test/Ice/optional
-          pyright python/test/Ice/operations
-
-          pyright python/test/Ice/slicing
+          pyright python/test

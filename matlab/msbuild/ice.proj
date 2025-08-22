@@ -6,7 +6,7 @@
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
         <RootDir>$([System.IO.Path]::GetFullPath( $(MSBuildThisFileDirectory)..\msbuild ))</RootDir>
         <ToolboxDir>$(MSBuildThisFileDirectory)..\toolbox\build</ToolboxDir>
-        <MatlabVersion Condition="'$(MatlabVersion)' == ''">R2024a</MatlabVersion>
+        <MatlabVersion Condition="'$(MatlabVersion)' == ''">R2025a</MatlabVersion>
         <MatlabVersion Condition="'$(MATLAB_VERSION)' != ''">$(MATLAB_VERSION)</MatlabVersion>
         <MatlabHome Condition="'$(MatlabHome)' == ''">C:\Program Files\MATLAB\$(MatlabVersion)</MatlabHome>
         <MatlabHome Condition="'$(MATLAB_HOME)' != ''">$(MATLAB_HOME)</MatlabHome>
@@ -118,7 +118,7 @@
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\toolbox\toolbox.template.prj"
                                    OutputFile="$(MSBuildThisFileDirectory)..\toolbox\toolbox.prj"
                                    Tokens="@RootDir@;@MatlabHome@;@IceVersion@;@MatlabVersion@;@SLICE2MATLAB@;@IS_WINDOWS@;@IS_LINUX@"
-                                   Replacements="$(RootDir);$(MatlabHome);3.8a0;$(MatlabVersion);slice2matlab.exe;true;false"/>
+                                   Replacements="$(RootDir);$(MatlabHome);$(IceToolboxVersion);$(MatlabVersion);slice2matlab.exe;true;false"/>
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\toolbox\info.template.xml"
                                    OutputFile="$(MSBuildThisFileDirectory)..\toolbox\info.xml"
                                    Tokens="@MatlabVersion@"
@@ -127,7 +127,7 @@
                  Properties="Configuration=$(Configuration);Platform=x64" />
         <Exec Command="$(MatlabCommand) &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');addFolderToPath '$(ToolboxDir)'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="$(MatlabCommand) &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');buildToolbox '3.8a0'&quot;"
+        <Exec Command="$(MatlabCommand) &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');buildToolbox '$(IceToolboxVersion)'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
         <Exec Command="$(MatlabCommand) &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');removeFolderFromPath '$(ToolboxDir)'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>

@@ -9,6 +9,8 @@ IcePy.*
 
 # Do not ignore IcePy.pyi, it is used for type checking
 !IcePy.pyi
+# Do not ignore py.typed, used to indicate a package is type-checked
+!py.typed
 
 # Generated files for Python Ice package
 Ice/AdapterAlreadyActiveException.py

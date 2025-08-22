@@ -9,5 +9,6 @@
     },
     "[swift]": {
         "editor.formatOnSave": false
-    }
+    },
+    "java.compile.nullAnalysis.mode": "disabled"
 }

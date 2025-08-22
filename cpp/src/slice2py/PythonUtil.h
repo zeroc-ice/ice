@@ -184,8 +184,21 @@ namespace Slice::Python
     // Get a list of all definitions exported for the Python module corresponding to the given Slice definition.
     std::vector<std::string> getAll(const ContainedPtr& definition);
 
-    // A helper class to initialize the _outBuffer member of BufferedOutput before is passed to the Output
-    // constructor.
+    /// Get sequence metadata associated with the given sequence and any local metadata.
+    Slice::MetadataPtr getSequenceMetadata(const SequencePtr& seq, const MetadataList& localMetadata);
+
+    /// Splits a fully qualified name (FQN) into its Module and Name components.
+    /// @param fqn The fully qualified name to split.
+    /// @return A pair containing the module and name components.
+    std::pair<std::string, std::string> splitFQN(const std::string& fqn);
+
+    /// Splits the arguments the python:memoryview metadata into the factory function and optional type hint.
+    /// @param arguments The arguments of python:memoryview
+    /// @return A pair containing the factory function and optional type hint
+    std::pair<std::string, std::optional<std::string>> splitMemoryviewArguments(const std::string& arguments);
+
+    // A helper class to initialize the _outBuffer member of BufferedOutput before it's
+    // passed to the Output constructor.
     class BufferedOutputBase
     {
     protected:
@@ -288,7 +301,11 @@ namespace Slice::Python
         /// Add the runtime imports for the given Sequence definition.
         /// @param sequence The Sequence definition being imported.
         /// @param source The Slice definition that requires the import.
-        void addRuntimeImportForSequence(const SequencePtr& sequence, const ContainedPtr& source);
+        /// @param localMetadata Any additional metadata associated with the import. Such has parameter metadata.
+        void addRuntimeImportForSequence(
+            const SequencePtr& sequence,
+            const ContainedPtr& source,
+            const MetadataList& localMetadata = MetadataList());
 
         /// Adds a runtime import for the given Slice definition if it comes from a different module.
         /// @param definition The Slice definition to import.
@@ -325,18 +342,23 @@ namespace Slice::Python
         void
         addTypingImport(const SyntaxTreeBasePtr& definition, const ContainedPtr& source, bool forMarshaling = false);
 
-        /// Adds a typing import for the given package.
-        ///
-        /// Typing imports are generated inside an `if TYPE_CHECKING:` block, so they are only used for type hints.
-        ///
-        /// @param packageName The name of the package to import.
-        /// @param source The Slice definition that requires this import.
-        void addTypingImport(const std::string& packageName, const ContainedPtr& source);
-
         /// Import the meta type for the given Slice definition if it comes from a different module.
         /// @param definition is the Slice definition to import.
         /// @param source is the Slice definition that requires the import.
         void addRuntimeImportForMetaType(const SyntaxTreeBasePtr& definition, const ContainedPtr& source);
+
+        /// Adds an import for the given definition from the specified Python module.
+        ///
+        /// @param moduleImports The map of imports for the current generated Python module. This can represent either
+        /// the runtime or typing imports for the module.
+        /// @param moduleName The fully qualified name of the Python module to import from.
+        /// @param definition The definition to import, represented as a pair of name and alias.
+        /// @param source The Slice definition that requires this import.
+        void addImport(
+            ModuleImportsMap& moduleImports,
+            const std::string& moduleName,
+            const std::string& definition,
+            const ContainedPtr& source);
 
         ImportsMap _runtimeImports;
         ImportsMap _typingImports;
@@ -386,9 +408,14 @@ namespace Slice::Python
         /// @param source The Slice definition requesting the type hint.
         /// @param forMarshaling If true, the type is used for marshaling (invocation input parameter, or dispatch
         /// output parameter).
+        /// @param localMetadata The local metadata to consider when generating the type hint.
         /// @return The string representation of the type hint for the given Slice type.
-        std::string
-        typeToTypeHintString(const TypePtr& type, bool optional, const ContainedPtr& source, bool forMarshaling);
+        std::string typeToTypeHintString(
+            const TypePtr& type,
+            bool optional,
+            const ContainedPtr& source,
+            bool forMarshaling,
+            const MetadataList& localMetadata = MetadataList());
 
         /// Returns a string representation of the return type hint for the given operation.
         /// @param operation The Slice operation to get the return type hint for.

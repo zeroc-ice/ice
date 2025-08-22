@@ -27,5 +27,24 @@ class Client extends TestHelper
         test(Ice\find('Hello1') == null);
         test(Ice\find('Hello2') == null);
         test(Ice\find('Hello3') != null);
+
+        $communicator = Ice\initialize();
+        Ice\register($communicator, "Hello4");
+        Ice\register($communicator, "Hello5");
+        test(Ice\find('Hello4') != null);
+        test(Ice\find('Hello5') != null);
+        // Destroying a communicator removes its registrations.
+        $communicator->destroy();
+        test(Ice\find('Hello4') == null);
+        test(Ice\find('Hello5') == null);
+        // Calling destroy again should have no effect.
+        $communicator->destroy();
+
+        // Cannot register a different communicator with the same ID.
+        $communicator = Ice\initialize();
+        Ice\register($communicator, "Hello6");
+        test(Ice\find('Hello6') != null);
+        $communicator = Ice\initialize();
+        test(Ice\register($communicator, "Hello6") == false);
     }
 }

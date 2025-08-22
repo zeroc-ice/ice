@@ -13,11 +13,14 @@
 #include "Ice/StringUtil.h"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <climits>
 #include <iostream>
 #include <iterator>
+#include <memory>
 #include <mutex>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -141,11 +144,17 @@ Slice::Python::getImportAlias(
         // exported by the source module. We need to use an alias.
         useAlias = true;
     }
-    else
+    else if (auto p = allImports.find(importName); p != allImports.end())
     {
         // If the name being bound is already imported from a different module, we need to use an alias.
-        auto p = allImports.find(importName);
-        useAlias = p != allImports.end() && p->second != moduleName;
+        if (name.empty())
+        {
+            useAlias = p->second != moduleName;
+        }
+        else
+        {
+            useAlias = p->second != moduleName + "." + name;
+        }
     }
 
     if (useAlias)
@@ -204,7 +213,8 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
     const TypePtr& type,
     bool optional,
     const ContainedPtr& source,
-    bool forMarshaling)
+    bool forMarshaling,
+    const MetadataList& localMetadata)
 {
     assert(type);
 
@@ -239,7 +249,6 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
     }
     else
     {
-        string definitionModule = getPythonModuleForDefinition(type);
         string sourceModule = getPythonModuleForDefinition(source);
 
         auto contained = dynamic_pointer_cast<Contained>(type);
@@ -261,6 +270,10 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
 
             auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
             bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
+            bool isBoolSequence = elementType && elementType->kind() == Builtin::KindBool;
+            auto sequenceMetadata = getSequenceMetadata(seq, localMetadata);
+            const string metadataDirective = sequenceMetadata ? sequenceMetadata->directive() : "";
+
             if (forMarshaling)
             {
                 const string sequenceAlias = getImportAlias(source, "collections.abc", "Sequence");
@@ -272,34 +285,76 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                 {
                     os << " | bytes";
                 }
-                if (seq->hasMetadata("python:numpy.ndarray"))
+
+                if (metadataDirective == "python:array.array" && isBoolSequence)
+                {
+                    // For boolean sequences "python:array.array" is mapped to array.array('b'), whose type-hint
+                    // is array.array[int].
+                    os << " | " << getImportAlias(source, "array", "array") << "[int]";
+                }
+                else if (metadataDirective == "python:numpy.ndarray")
                 {
                     assert(elementType && elementType->kind() <= Builtin::KindDouble);
                     const string numpyAlias = getImportAlias(source, "numpy");
                     os << " | " << numpyAlias << ".typing.NDArray[" << numpyAlias << "."
                        << numpyBuiltinTable[elementType->kind()] << "]";
                 }
+                else if (sequenceMetadata && metadataDirective == "python:memoryview")
+                {
+                    auto [_, typeHint] = splitMemoryviewArguments(sequenceMetadata->arguments());
+                    if (typeHint)
+                    {
+                        auto [package, name] = splitFQN(*typeHint);
+                        auto memoryViewType = getImportAlias(source, package, name);
+                        os << " | " << memoryViewType;
+                    }
+                }
             }
-            else if (seq->hasMetadata("python:list") || seq->hasMetadata("python:seq:list"))
+            else if (metadataDirective == "python:list")
             {
                 os << "list[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
             }
-            else if (seq->hasMetadata("python:tuple") || seq->hasMetadata("python:seq:tuple"))
+            else if (metadataDirective == "python:tuple")
             {
                 os << "tuple[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << ", ...]";
             }
-            else if (seq->hasMetadata("python:numpy.ndarray"))
+            else if (metadataDirective == "python:numpy.ndarray")
             {
                 assert(elementType && elementType->kind() <= Builtin::KindDouble);
                 const string numpyAlias = getImportAlias(source, "numpy");
                 os << numpyAlias << ".typing.NDArray[" << numpyAlias << "." << numpyBuiltinTable[elementType->kind()]
                    << "]";
             }
-            else if (seq->hasMetadata("python:array.array"))
+            else if (metadataDirective == "python:array.array")
             {
                 assert(elementType && elementType->kind() <= Builtin::KindDouble);
-                const string arrayAlias = getImportAlias(source, "array");
-                os << arrayAlias << ".array[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
+                const string arrayAlias = getImportAlias(source, "array", "array");
+                // For boolean sequences "python:array.array" is mapped to array.array('b'), whose type-hint
+                // is array.array[int].
+                if (isBoolSequence)
+                {
+                    os << arrayAlias << "[int]";
+                }
+                else
+                {
+                    os << arrayAlias << "[" << typeToTypeHintString(seq->type(), false, source, forMarshaling) << "]";
+                }
+            }
+            else if (metadataDirective == "python:memoryview")
+            {
+                auto [_, typeHint] = splitMemoryviewArguments(sequenceMetadata->arguments());
+                if (typeHint)
+                {
+                    auto [package, name] = splitFQN(*typeHint);
+                    auto memoryViewType = getImportAlias(source, package, name);
+                    os << memoryViewType;
+                }
+                else
+                {
+                    // Otherwise, we have no idea what the type is so we just use Any.
+                    const string anyAlias = getImportAlias(source, "typing", "Any");
+                    os << anyAlias;
+                }
             }
             else if (isByteSequence)
             {
@@ -309,7 +364,7 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
             {
                 return "list[" + typeToTypeHintString(seq->type(), false, source, forMarshaling) + "]";
             }
-            // TODO add support for python:memoryview.
+
             return os.str();
         }
         else if (auto dict = dynamic_pointer_cast<Dictionary>(type))
@@ -342,13 +397,18 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
         os << "tuple[";
         if (operation->returnType())
         {
-            os << typeToTypeHintString(operation->returnType(), operation->returnIsOptional(), source, forMarshaling);
+            os << typeToTypeHintString(
+                operation->returnType(),
+                operation->returnIsOptional(),
+                source,
+                forMarshaling,
+                operation->getMetadata());
             os << ", ";
         }
 
         for (const auto& param : outParameters)
         {
-            os << typeToTypeHintString(param->type(), param->optional(), source, forMarshaling);
+            os << typeToTypeHintString(param->type(), param->optional(), source, forMarshaling, param->getMetadata());
             if (param != outParameters.back())
             {
                 os << ", ";
@@ -359,13 +419,18 @@ Slice::Python::CodeVisitor::returnTypeHint(const OperationPtr& operation, Method
     }
     else if (operation->returnType())
     {
-        returnTypeHint =
-            typeToTypeHintString(operation->returnType(), operation->returnIsOptional(), source, forMarshaling);
+        returnTypeHint = typeToTypeHintString(
+            operation->returnType(),
+            operation->returnIsOptional(),
+            source,
+            forMarshaling,
+            operation->getMetadata());
     }
     else if (!outParameters.empty())
     {
         const auto& param = outParameters.front();
-        returnTypeHint = typeToTypeHintString(param->type(), param->optional(), source, forMarshaling);
+        returnTypeHint =
+            typeToTypeHintString(param->type(), param->optional(), source, forMarshaling, param->getMetadata());
     }
     else
     {
@@ -627,7 +692,7 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             if (auto sequence = dynamic_pointer_cast<Sequence>(ret))
             {
-                addRuntimeImportForSequence(sequence, p);
+                addRuntimeImportForSequence(sequence, p, op->getMetadata());
             }
             else if (dynamic_pointer_cast<Dictionary>(ret))
             {
@@ -643,7 +708,7 @@ Slice::Python::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             if (auto sequence = dynamic_pointer_cast<Sequence>(param->type()))
             {
-                addRuntimeImportForSequence(sequence, p);
+                addRuntimeImportForSequence(sequence, p, param->getMetadata());
             }
             else if (dynamic_pointer_cast<Dictionary>(param->type()))
             {
@@ -687,7 +752,6 @@ Slice::Python::ImportVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Python::ImportVisitor::visitEnum(const EnumPtr& p)
 {
-    // TODO if a value is initialized with a constant, we need to import the type of the constant.
     addRuntimeImport("enum", "Enum", p);
 }
 
@@ -702,21 +766,63 @@ Slice::Python::ImportVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-Slice::Python::ImportVisitor::addRuntimeImportForSequence(const SequencePtr& sequence, const ContainedPtr& source)
+Slice::Python::ImportVisitor::addRuntimeImportForSequence(
+    const SequencePtr& sequence,
+    const ContainedPtr& source,
+    const MetadataList& localMetadata)
 {
-    if (sequence->hasMetadata("python:numpy.ndarray"))
+    auto metadata = getSequenceMetadata(sequence, localMetadata);
+    auto directive = metadata ? metadata->directive() : "";
+
+    auto needsRunTimeImport = dynamic_pointer_cast<ClassDef>(source) || dynamic_pointer_cast<Struct>(source) ||
+                              dynamic_pointer_cast<Exception>(source);
+
+    if (directive == "python:numpy.ndarray")
     {
         // Import numpy for using it in the field factory.
-        addRuntimeImport("numpy", "", source);
+        if (needsRunTimeImport)
+        {
+            addRuntimeImport("numpy", "", source);
+        }
+        else
+        {
+            addTypingImport("numpy", "", source);
+        }
     }
-    else if (sequence->hasMetadata("python:array.array"))
+    else if (directive == "python:array.array")
     {
         // Import array for using it in the field factory.
-        addRuntimeImport("array", "", source);
+        if (needsRunTimeImport)
+        {
+            addRuntimeImport("array", "array", source);
+        }
+        else
+        {
+            addTypingImport("array", "array", source);
+        }
     }
-    else if (sequence->hasMetadata("python:memoryview"))
+    else if (directive == "python:memoryview")
     {
-        // TODO
+        auto arguments = metadata ? metadata->arguments() : "";
+        auto [factory, typeHint] = splitMemoryviewArguments(arguments);
+
+        // Import factory for using it in the field factory.
+        if (needsRunTimeImport)
+        {
+            auto [factoryPackage, factoryFunction] = splitFQN(factory);
+            addRuntimeImport(factoryPackage, factoryFunction, source);
+        }
+
+        if (typeHint)
+        {
+            auto [typeHintPackage, typeHintName] = splitFQN(*typeHint);
+            addTypingImport(typeHintPackage, typeHintName, source);
+        }
+        else
+        {
+            // Otherwise, we have no idea what the type is so we just Any
+            addTypingImport("typing", "Any", source);
+        }
     }
     else
     {
@@ -732,22 +838,18 @@ Slice::Python::ImportVisitor::addRuntimeImport(
     InterfaceTypeContext typeContext)
 {
     // The module containing the definition we want to import.
-    auto definitionModule = getPythonModuleForDefinition(definition);
+    auto moduleName = getPythonModuleForDefinition(definition);
 
     // The module importing the definition.
     string sourceModule = getPythonModuleForDefinition(source);
 
-    if (definitionModule == sourceModule)
+    if (moduleName == sourceModule)
     {
         // If the definition and source are in the same module, we don't need to import it.
         return;
     }
 
-    auto& allImports = _allImports[sourceModule];
-
     string name;
-    string alias;
-
     if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
     {
         if (builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue)
@@ -755,9 +857,7 @@ Slice::Python::ImportVisitor::addRuntimeImport(
             // Builtin types other than ObjectPrx and Value don't need imports.
             return;
         }
-
         name = builtin->kind() == Builtin::KindObjectProxy ? "ObjectPrx" : "Value";
-        alias = getImportAlias(source, allImports, definition);
     }
     else
     {
@@ -770,53 +870,48 @@ Slice::Python::ImportVisitor::addRuntimeImport(
         {
             name += "Prx";
         }
-
-        alias = getImportAlias(source, allImports, contained->mappedScoped("."), name);
     }
-
-    auto& sourceModuleImports = _runtimeImports[sourceModule];
-    auto& definitionImports = sourceModuleImports[definitionModule];
-
-    if (name == alias)
-    {
-        definitionImports.definitions.insert({name, ""});
-        allImports[name] = definitionModule;
-    }
-    else
-    {
-        definitionImports.definitions.insert({name, alias});
-        allImports[alias] = definitionModule;
-    }
+    addRuntimeImport(moduleName, name, source);
 }
 
 void
 Slice::Python::ImportVisitor::addRuntimeImport(
-    const string& definitionModule,
+    const string& moduleName,
+    const string& definition,
+    const ContainedPtr& source)
+{
+    // The module importing the definition.
+    string sourceModule = getPythonModuleForDefinition(source);
+    auto& sourceModuleImports = _runtimeImports[sourceModule];
+    addImport(sourceModuleImports, moduleName, definition, source);
+}
+
+void
+Slice::Python::ImportVisitor::addImport(
+    ModuleImportsMap& moduleImports,
+    const string& moduleName,
     const string& definition,
     const ContainedPtr& source)
 {
     // The module importing the definition.
     string sourceModule = getPythonModuleForDefinition(source);
 
-    if (definitionModule == sourceModule)
+    if (moduleName == sourceModule)
     {
         // If the definition and source are in the same module, we don't need to import it.
         return;
     }
 
-    auto& sourceModuleImports = _runtimeImports[sourceModule];
-
     auto& allImports = _allImports[sourceModule];
-    string alias = getImportAlias(source, allImports, definitionModule, definition);
+    string alias = getImportAlias(source, allImports, moduleName, definition);
 
-    auto it = sourceModuleImports.find(definitionModule);
-    ModuleImports& definitionImports =
-        it == sourceModuleImports.end() ? sourceModuleImports[definitionModule] : it->second;
-    if (it == sourceModuleImports.end())
+    auto it = moduleImports.find(moduleName);
+    ModuleImports& definitionImports = it == moduleImports.end() ? moduleImports[moduleName] : it->second;
+    if (it == moduleImports.end())
     {
         // If the module does not exist, we create an empty map for it.
-        definitionImports = sourceModuleImports[definitionModule];
-        definitionImports.moduleName = definitionModule;
+        definitionImports = moduleImports[moduleName];
+        definitionImports.moduleName = moduleName;
         definitionImports.moduleAlias = "";
         definitionImports.imported = false;
     }
@@ -828,28 +923,28 @@ Slice::Python::ImportVisitor::addRuntimeImport(
     if (definition.empty())
     {
         definitionImports.imported = true;
-        definitionImports.moduleName = definitionModule;
-        if (alias == definitionModule)
+        definitionImports.moduleName = moduleName;
+        if (alias == moduleName)
         {
-            auto pos = definitionModule.rfind('.');
-            const string importName = pos == string::npos ? definitionModule : definitionModule.substr(pos + 1);
-            allImports[importName] = definitionModule;
+            auto pos = moduleName.rfind('.');
+            const string importName = pos == string::npos ? moduleName : moduleName.substr(pos + 1);
+            allImports[importName] = moduleName;
         }
         else
         {
             definitionImports.moduleAlias = alias;
-            allImports[alias] = definitionModule;
+            allImports[alias] = moduleName;
         }
     }
     else if (definition == alias)
     {
         definitionImports.definitions.insert({definition, ""});
-        allImports[definition] = definitionModule;
+        allImports[definition] = moduleName + "." + definition;
     }
     else
     {
         definitionImports.definitions.insert({definition, alias});
-        allImports[alias] = definitionModule;
+        allImports[alias] = moduleName + "." + definition;
     }
 }
 
@@ -862,21 +957,7 @@ Slice::Python::ImportVisitor::addTypingImport(
     // The module importing the definition.
     string sourceModule = getPythonModuleForDefinition(source);
     auto& sourceModuleImports = _typingImports[sourceModule];
-    auto& definitionImports = sourceModuleImports[moduleName];
-
-    auto& imports = _allImports[sourceModule];
-    string alias = getImportAlias(source, imports, moduleName, definition);
-
-    if (definition == alias)
-    {
-        definitionImports.definitions.insert({definition, ""});
-        imports[definition] = moduleName;
-    }
-    else
-    {
-        definitionImports.definitions.insert({definition, alias});
-        imports[alias] = moduleName;
-    }
+    addImport(sourceModuleImports, moduleName, definition, source);
 
     // If we are importing a type with the TypingImport scope, we also need a runtime import for TYPE_CHECKING from
     // typing.
@@ -920,24 +1001,6 @@ Slice::Python::ImportVisitor::addTypingImport(
 }
 
 void
-Slice::Python::ImportVisitor::addTypingImport(const string& packageName, const ContainedPtr& source)
-{
-    // The module importing the definition.
-    string sourceModule = getPythonModuleForDefinition(source);
-
-    auto& sourceModuleImports = _typingImports[sourceModule];
-    if (sourceModuleImports.find(packageName) == sourceModuleImports.end())
-    {
-        // If the package does not exist, we create an empty map for it.
-        sourceModuleImports[packageName] = {};
-    }
-
-    // If we are importing a type with the TypingImport scope, we also need a runtime import for TYPE_CHECKING from
-    // typing.
-    addRuntimeImport("typing", "TYPE_CHECKING", source);
-}
-
-void
 Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
     const SyntaxTreeBasePtr& definition,
     const ContainedPtr& source)
@@ -955,13 +1018,13 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
         dynamic_pointer_cast<InterfaceDecl>(definition) || dynamic_pointer_cast<InterfaceDef>(definition) || builtin;
 
     // The module containing the definition we want to import.
-    string definitionModule =
+    string moduleName =
         isForwardDeclared ? getPythonModuleForForwardDeclaration(definition) : getPythonModuleForDefinition(definition);
 
     // The module importing the definition.
     string sourceModule = getPythonModuleForDefinition(source);
 
-    if (definitionModule == sourceModule)
+    if (moduleName == sourceModule)
     {
         // If the definition and source are in the same module, we don't need to import it.
         return;
@@ -969,11 +1032,11 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
 
     auto& sourceModuleImports = _runtimeImports[sourceModule];
 
-    auto it = sourceModuleImports.find(definitionModule);
+    auto it = sourceModuleImports.find(moduleName);
     if (it == sourceModuleImports.end())
     {
-        sourceModuleImports[definitionModule] = ModuleImports{
-            .moduleName = definitionModule,
+        sourceModuleImports[moduleName] = ModuleImports{
+            .moduleName = moduleName,
             .moduleAlias = "",
             .imported = false,
             .definitions = {{getMetaType(definition), ""}},
@@ -1127,7 +1190,9 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p, Output& ou
 
         for (const auto& param : operation->inParameters())
         {
-            out << (param->mappedName() + ": " + typeToTypeHintString(param->type(), param->optional(), p, false));
+            out
+                << (param->mappedName() + ": " +
+                    typeToTypeHintString(param->type(), param->optional(), p, false, param->getMetadata()));
         }
 
         const string currentParamName = getEscapedParamName(operation->parameters(), "current");
@@ -1359,7 +1424,8 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
 
     const string fieldAlias = getImportAlias(parent, "dataclasses", "field");
 
-    out << nl << p->mappedName() << ": " << typeToTypeHintString(p->type(), p->optional(), parent, false);
+    out << nl << p->mappedName() << ": "
+        << typeToTypeHintString(p->type(), p->optional(), parent, false, p->getMetadata());
 
     if (p->defaultValue())
     {
@@ -1397,17 +1463,19 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
     {
         auto elementType = dynamic_pointer_cast<Builtin>(seq->type());
         bool isByteSequence = elementType && elementType->kind() == Builtin::KindByte;
+        auto sequenceMetadata = getSequenceMetadata(seq, p->getMetadata());
+        auto metadataDirective = sequenceMetadata ? sequenceMetadata->directive() : "";
 
         out << " = " << fieldAlias << "(default_factory=";
-        if (seq->hasMetadata("python:list") || seq->hasMetadata("python:seq:list"))
+        if (metadataDirective == "python:list")
         {
             out << "list";
         }
-        else if (seq->hasMetadata("python:tuple") || seq->hasMetadata("python:seq:tuple"))
+        else if (metadataDirective == "python:tuple")
         {
             out << "tuple";
         }
-        else if (seq->hasMetadata("python:numpy.ndarray"))
+        else if (metadataDirective == "python:numpy.ndarray")
         {
             assert(elementType && elementType->kind() <= Builtin::KindDouble);
             static const char* builtinTable[] = {"int8", "bool", "int16", "int32", "int64", "float32", "float64"};
@@ -1415,12 +1483,35 @@ Slice::Python::CodeVisitor::visitDataMember(const DataMemberPtr& p)
             out << "lambda: " << numpyAlias << ".empty(0, " << numpyAlias << "." << builtinTable[elementType->kind()]
                 << ")";
         }
-        else if (seq->hasMetadata("python:array.array"))
+        else if (metadataDirective == "python:array.array")
         {
             assert(elementType && elementType->kind() <= Builtin::KindDouble);
             static const char* builtinTable[] = {"b", "b", "h", "i", "q", "f", "d"};
-            const string arrayAlias = getImportAlias(parent, "array");
-            out << "lambda: " << arrayAlias << ".array('" << builtinTable[elementType->kind()] << "')";
+            const string arrayAlias = getImportAlias(parent, "array", "array");
+            out << "lambda: " << arrayAlias << "('" << builtinTable[elementType->kind()] << "')";
+        }
+        else if (metadataDirective == "python:memoryview")
+        {
+            auto arguments = sequenceMetadata->arguments();
+            auto [factory, _] = splitMemoryviewArguments(arguments);
+
+            auto [factoryPackage, factoryFunction] = splitFQN(factory);
+
+            auto factoryFunctionAlias = getImportAlias(parent, factoryPackage, factoryFunction);
+
+            // This builtin type integer corresponds to the values of Ice.BuiltinBool, Ice.BuiltinByte, etc.
+            static const char* builtinTable[] = {
+                "1", // Builtin::KindByte
+                "0", // Builtin::KindBool
+                "2", // Builtin::KindShort
+                "3", // Builtin::KindInt
+                "4", // Builtin::KindLong
+                "5", // Builtin::KindFloat
+                "6", // Builtin::KindDouble
+            };
+            assert(elementType->kind() <= Builtin::KindDouble);
+
+            out << "lambda: " << factoryFunctionAlias << "(None, " << builtinTable[elementType->kind()] << ")";
         }
         else if (isByteSequence)
         {
@@ -2091,6 +2182,50 @@ Slice::Python::getAll(const ContainedPtr& definition)
         all.push_back(getMetaType(definition));
     }
     return all;
+}
+
+Slice::MetadataPtr
+Slice::Python::getSequenceMetadata(const SequencePtr& seq, const MetadataList& localMetadata)
+{
+    auto sequenceMetaData =
+        array{"python:list", "python:tuple", "python:array.array", "python:numpy.ndarray", "python:memoryview"};
+
+    // First check source metadata. For example, an operation parameter.
+    // If nothing was found, check the sequence itself.
+    for (const auto& metadataList : array{localMetadata, seq->getMetadata()})
+    {
+        for (const auto& metadata : metadataList)
+        {
+            if (find(sequenceMetaData.begin(), sequenceMetaData.end(), metadata->directive()) != sequenceMetaData.end())
+            {
+                return metadata;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+pair<string, string>
+Slice::Python::splitFQN(const string& fqn)
+{
+    size_t lastDot = fqn.rfind('.');
+    if (lastDot != string::npos)
+    {
+        return {fqn.substr(0, lastDot), fqn.substr(lastDot + 1)};
+    }
+    return {"", fqn};
+}
+
+pair<string, optional<string>>
+Slice::Python::splitMemoryviewArguments(const string& arguments)
+{
+    size_t pos = arguments.find(':');
+    if (pos != string::npos)
+    {
+        return {arguments.substr(0, pos), arguments.substr(pos + 1)};
+    }
+    return {arguments, nullopt};
 }
 
 void
@@ -2887,6 +3022,36 @@ Slice::Python::validatePythonMetadata(const UnitPtr& unit)
                        "' metadata can only be applied to sequences of bools, bytes, shorts, ints, longs, floats, "
                        "or doubles";
             }
+
+            if (m->directive() == "python:memoryview")
+            {
+                // Argument can't be empty as it sets MetadataArgumentKind::RequiredTextArgument, but it can
+                // be empty during validation
+                auto arguments = m->arguments();
+
+                // The memoryview directive can have two forms:
+                // - python:memoryview:<factory>
+                // - python:memoryview:<factory>:<type-hint>
+
+                auto [factory, typeHint] = splitMemoryviewArguments(arguments);
+
+                // If a type hint is specified, it must be a fully-qualified name
+                const auto [factoryPackage, factoryFunction] = splitFQN(factory);
+                if (factoryPackage.empty() || factoryFunction.empty())
+                {
+                    return "the 'python:memoryview' metadata requires a fully-qualified factory function";
+                }
+
+                if (typeHint)
+                {
+                    // If a type hint is specified, it must be a fully-qualified name
+                    const auto [typeHintPackage, typeHintName] = splitFQN(*typeHint);
+                    if (typeHintPackage.empty() || typeHintName.empty())
+                    {
+                        return "the 'python:memoryview' metadata requires a fully-qualified type hint";
+                    }
+                }
+            }
         }
         return nullopt;
     };
@@ -2932,15 +3097,6 @@ Slice::Python::validatePythonMetadata(const UnitPtr& unit)
     };
     knownMetadata.emplace("python:memoryview", std::move(memoryViewInfo));
 
-    // "python:seq"
-    // We support 2 arguments to this metadata: "list", and "tuple".
-    MetadataInfo seqInfo = {
-        .validOn = {typeid(Sequence)},
-        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
-        .validArgumentValues = {{"list", "tuple"}},
-        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
-    };
-    knownMetadata.emplace("python:seq", std::move(seqInfo));
     MetadataInfo unqualifiedSeqInfo = {
         .validOn = {typeid(Sequence)},
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,

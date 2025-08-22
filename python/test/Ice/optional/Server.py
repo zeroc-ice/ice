@@ -150,8 +150,8 @@ class InitialI(Test.Initial):
 
     @override
     def opSmallStructList(
-        self, p1: list[Test.SmallStruct] | None, current: Ice.Current
-    ) -> tuple[list[Test.SmallStruct] | None, list[Test.SmallStruct] | None]:
+        self, p1: tuple[Test.SmallStruct, ...] | None, current: Ice.Current
+    ) -> tuple[Sequence[Test.SmallStruct] | None, Sequence[Test.SmallStruct] | None]:
         return (p1, p1)
 
     @override
@@ -162,8 +162,8 @@ class InitialI(Test.Initial):
 
     @override
     def opFixedStructList(
-        self, p1: list[Test.FixedStruct] | None, current: Ice.Current
-    ) -> tuple[list[Test.FixedStruct] | None, list[Test.FixedStruct] | None]:
+        self, p1: tuple[Test.FixedStruct, ...] | None, current: Ice.Current
+    ) -> tuple[Sequence[Test.FixedStruct] | None, Sequence[Test.FixedStruct] | None]:
         return (p1, p1)
 
     @override
