@@ -249,7 +249,6 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
     }
     else
     {
-        string definitionModule = getPythonModuleForDefinition(type);
         string sourceModule = getPythonModuleForDefinition(source);
 
         auto contained = dynamic_pointer_cast<Contained>(type);
@@ -753,7 +752,6 @@ Slice::Python::ImportVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Python::ImportVisitor::visitEnum(const EnumPtr& p)
 {
-    // TODO if a value is initialized with a constant, we need to import the type of the constant.
     addRuntimeImport("enum", "Enum", p);
 }
 
@@ -788,8 +786,7 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
         }
         else
         {
-            // TODO: change to addTypingImport, which currently doesn't handle empty definitions correctly.
-            addRuntimeImport("numpy", "", source);
+            addTypingImport("numpy", "", source);
         }
     }
     else if (directive == "python:array.array")
@@ -841,22 +838,18 @@ Slice::Python::ImportVisitor::addRuntimeImport(
     InterfaceTypeContext typeContext)
 {
     // The module containing the definition we want to import.
-    auto definitionModule = getPythonModuleForDefinition(definition);
+    auto moduleName = getPythonModuleForDefinition(definition);
 
     // The module importing the definition.
     string sourceModule = getPythonModuleForDefinition(source);
 
-    if (definitionModule == sourceModule)
+    if (moduleName == sourceModule)
     {
         // If the definition and source are in the same module, we don't need to import it.
         return;
     }
 
-    auto& allImports = _allImports[sourceModule];
-
     string name;
-    string alias;
-
     if (auto builtin = dynamic_pointer_cast<Builtin>(definition))
     {
         if (builtin->kind() != Builtin::KindObjectProxy && builtin->kind() != Builtin::KindValue)
@@ -864,9 +857,7 @@ Slice::Python::ImportVisitor::addRuntimeImport(
             // Builtin types other than ObjectPrx and Value don't need imports.
             return;
         }
-
         name = builtin->kind() == Builtin::KindObjectProxy ? "ObjectPrx" : "Value";
-        alias = getImportAlias(source, allImports, definition);
     }
     else
     {
@@ -879,53 +870,48 @@ Slice::Python::ImportVisitor::addRuntimeImport(
         {
             name += "Prx";
         }
-
-        alias = getImportAlias(source, allImports, contained->mappedScoped("."), name);
     }
-
-    auto& sourceModuleImports = _runtimeImports[sourceModule];
-    auto& definitionImports = sourceModuleImports[definitionModule];
-
-    if (name == alias)
-    {
-        definitionImports.definitions.insert({name, ""});
-        allImports[name] = definitionModule + "." + name;
-    }
-    else
-    {
-        definitionImports.definitions.insert({name, alias});
-        allImports[alias] = definitionModule + "." + name;
-    }
+    addRuntimeImport(moduleName, name, source);
 }
 
 void
 Slice::Python::ImportVisitor::addRuntimeImport(
-    const string& definitionModule,
+    const string& moduleName,
+    const string& definition,
+    const ContainedPtr& source)
+{
+    // The module importing the definition.
+    string sourceModule = getPythonModuleForDefinition(source);
+    auto& sourceModuleImports = _runtimeImports[sourceModule];
+    addImport(sourceModuleImports, moduleName, definition, source);
+}
+
+void
+Slice::Python::ImportVisitor::addImport(
+    ModuleImportsMap& moduleImports,
+    const string& moduleName,
     const string& definition,
     const ContainedPtr& source)
 {
     // The module importing the definition.
     string sourceModule = getPythonModuleForDefinition(source);
 
-    if (definitionModule == sourceModule)
+    if (moduleName == sourceModule)
     {
         // If the definition and source are in the same module, we don't need to import it.
         return;
     }
 
-    auto& sourceModuleImports = _runtimeImports[sourceModule];
-
     auto& allImports = _allImports[sourceModule];
-    string alias = getImportAlias(source, allImports, definitionModule, definition);
+    string alias = getImportAlias(source, allImports, moduleName, definition);
 
-    auto it = sourceModuleImports.find(definitionModule);
-    ModuleImports& definitionImports =
-        it == sourceModuleImports.end() ? sourceModuleImports[definitionModule] : it->second;
-    if (it == sourceModuleImports.end())
+    auto it = moduleImports.find(moduleName);
+    ModuleImports& definitionImports = it == moduleImports.end() ? moduleImports[moduleName] : it->second;
+    if (it == moduleImports.end())
     {
         // If the module does not exist, we create an empty map for it.
-        definitionImports = sourceModuleImports[definitionModule];
-        definitionImports.moduleName = definitionModule;
+        definitionImports = moduleImports[moduleName];
+        definitionImports.moduleName = moduleName;
         definitionImports.moduleAlias = "";
         definitionImports.imported = false;
     }
@@ -937,28 +923,28 @@ Slice::Python::ImportVisitor::addRuntimeImport(
     if (definition.empty())
     {
         definitionImports.imported = true;
-        definitionImports.moduleName = definitionModule;
-        if (alias == definitionModule)
+        definitionImports.moduleName = moduleName;
+        if (alias == moduleName)
         {
-            auto pos = definitionModule.rfind('.');
-            const string importName = pos == string::npos ? definitionModule : definitionModule.substr(pos + 1);
-            allImports[importName] = definitionModule;
+            auto pos = moduleName.rfind('.');
+            const string importName = pos == string::npos ? moduleName : moduleName.substr(pos + 1);
+            allImports[importName] = moduleName;
         }
         else
         {
             definitionImports.moduleAlias = alias;
-            allImports[alias] = definitionModule;
+            allImports[alias] = moduleName;
         }
     }
     else if (definition == alias)
     {
         definitionImports.definitions.insert({definition, ""});
-        allImports[definition] = definitionModule + "." + definition;
+        allImports[definition] = moduleName + "." + definition;
     }
     else
     {
         definitionImports.definitions.insert({definition, alias});
-        allImports[alias] = definitionModule + "." + definition;
+        allImports[alias] = moduleName + "." + definition;
     }
 }
 
@@ -971,21 +957,7 @@ Slice::Python::ImportVisitor::addTypingImport(
     // The module importing the definition.
     string sourceModule = getPythonModuleForDefinition(source);
     auto& sourceModuleImports = _typingImports[sourceModule];
-    auto& definitionImports = sourceModuleImports[moduleName];
-
-    auto& imports = _allImports[sourceModule];
-    string alias = getImportAlias(source, imports, moduleName, definition);
-
-    if (definition == alias)
-    {
-        definitionImports.definitions.insert({definition, ""});
-        imports[definition] = moduleName + "." + definition;
-    }
-    else
-    {
-        definitionImports.definitions.insert({definition, alias});
-        imports[alias] = moduleName + "." + definition;
-    }
+    addImport(sourceModuleImports, moduleName, definition, source);
 
     // If we are importing a type with the TypingImport scope, we also need a runtime import for TYPE_CHECKING from
     // typing.
@@ -1029,24 +1001,6 @@ Slice::Python::ImportVisitor::addTypingImport(
 }
 
 void
-Slice::Python::ImportVisitor::addTypingImport(const string& packageName, const ContainedPtr& source)
-{
-    // The module importing the definition.
-    string sourceModule = getPythonModuleForDefinition(source);
-
-    auto& sourceModuleImports = _typingImports[sourceModule];
-    if (sourceModuleImports.find(packageName) == sourceModuleImports.end())
-    {
-        // If the package does not exist, we create an empty map for it.
-        sourceModuleImports[packageName] = {};
-    }
-
-    // If we are importing a type with the TypingImport scope, we also need a runtime import for TYPE_CHECKING from
-    // typing.
-    addRuntimeImport("typing", "TYPE_CHECKING", source);
-}
-
-void
 Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
     const SyntaxTreeBasePtr& definition,
     const ContainedPtr& source)
@@ -1064,13 +1018,13 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
         dynamic_pointer_cast<InterfaceDecl>(definition) || dynamic_pointer_cast<InterfaceDef>(definition) || builtin;
 
     // The module containing the definition we want to import.
-    string definitionModule =
+    string moduleName =
         isForwardDeclared ? getPythonModuleForForwardDeclaration(definition) : getPythonModuleForDefinition(definition);
 
     // The module importing the definition.
     string sourceModule = getPythonModuleForDefinition(source);
 
-    if (definitionModule == sourceModule)
+    if (moduleName == sourceModule)
     {
         // If the definition and source are in the same module, we don't need to import it.
         return;
@@ -1078,11 +1032,11 @@ Slice::Python::ImportVisitor::addRuntimeImportForMetaType(
 
     auto& sourceModuleImports = _runtimeImports[sourceModule];
 
-    auto it = sourceModuleImports.find(definitionModule);
+    auto it = sourceModuleImports.find(moduleName);
     if (it == sourceModuleImports.end())
     {
-        sourceModuleImports[definitionModule] = ModuleImports{
-            .moduleName = definitionModule,
+        sourceModuleImports[moduleName] = ModuleImports{
+            .moduleName = moduleName,
             .moduleAlias = "",
             .imported = false,
             .definitions = {{getMetaType(definition), ""}},

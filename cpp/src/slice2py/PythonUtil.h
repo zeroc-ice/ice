@@ -342,18 +342,23 @@ namespace Slice::Python
         void
         addTypingImport(const SyntaxTreeBasePtr& definition, const ContainedPtr& source, bool forMarshaling = false);
 
-        /// Adds a typing import for the given package.
-        ///
-        /// Typing imports are generated inside an `if TYPE_CHECKING:` block, so they are only used for type hints.
-        ///
-        /// @param packageName The name of the package to import.
-        /// @param source The Slice definition that requires this import.
-        void addTypingImport(const std::string& packageName, const ContainedPtr& source);
-
         /// Import the meta type for the given Slice definition if it comes from a different module.
         /// @param definition is the Slice definition to import.
         /// @param source is the Slice definition that requires the import.
         void addRuntimeImportForMetaType(const SyntaxTreeBasePtr& definition, const ContainedPtr& source);
+
+        /// Adds an import for the given definition from the specified Python module.
+        ///
+        /// @param moduleImports The map of imports for the current generated Python module. This can represent either
+        /// the runtime or typing imports for the module.
+        /// @param moduleName The fully qualified name of the Python module to import from.
+        /// @param definition The definition to import, represented as a pair of name and alias.
+        /// @param source The Slice definition that requires this import.
+        void addImport(
+            ModuleImportsMap& moduleImports,
+            const std::string& moduleName,
+            const std::string& definition,
+            const ContainedPtr& source);
 
         ImportsMap _runtimeImports;
         ImportsMap _typingImports;
