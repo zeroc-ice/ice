@@ -2,7 +2,7 @@
 
 **Welcome to the Slice API Reference for Ice!**
 
-Ice is complete RPC framework that helps you build networked applications, and Slice is Ice's own
+Ice is a complete RPC framework that helps you build networked applications, and Slice is Ice's own
 [Interface Definition Language].
 
 Ice and Ice-based applications use the Slice language to describe remote APIs in a purely declarative manner. For
