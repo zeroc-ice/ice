@@ -286,8 +286,8 @@ classDiagram
   example, you can use the `ClassSliceLoader` implementation to create a Slice loader for one or more generated classes
   (typically classes with remapped names or compact IDs).
 
-  In Java, MATLAB and Swift, a communicator creates during initialization a "not found" cache to cache failed Slice
-  loader resolutions. This cache can be configured using `Ice.SliceLoader.NotFoundCacheSize` and `Ice.Warn.SliceLoader`.
+  In Java, MATLAB and Swift, the communicator caches "not found" Slice loader resolutions. This cache can be configured
+  using `Ice.SliceLoader.NotFoundCacheSize` and `Ice.Warn.SliceLoader`.
 
   Limitations:
   - in Python and Ruby, a custom Slice loader can only create class instances. The creation of custom user exceptions is
