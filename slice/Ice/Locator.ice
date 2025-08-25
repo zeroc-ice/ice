@@ -29,7 +29,7 @@ module Ice
 
     interface LocatorRegistry;
 
-    /// Client applications use the {@link Locator} object to resolve Ice indirect proxies. This object also allows
+    /// Client applications use the Locator object to resolve Ice indirect proxies. This object also allows
     /// server applications to retrieve a proxy to the associated {@link LocatorRegistry} object where they can register
     /// their object adapters.
     interface Locator

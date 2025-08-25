@@ -68,7 +68,7 @@ module IceGrid
 
         /// Finds all the replicas of a well-known object.
         /// @param proxy A proxy that identifies the well-known object.
-        /// @return A list of proxies  to the replicas of the well-known object specified by @p proxy. Can be empty.
+        /// @return A list of proxies to the replicas of the well-known object specified by @p proxy. Can be empty.
         ["cpp:const"]
         idempotent Ice::ObjectProxySeq findAllReplicas(Object* proxy);
     }
@@ -88,19 +88,19 @@ module IceGrid
         /// Creates an administrative session.
         /// @param userId The user ID.
         /// @param password The password for the given user.
-        /// @return A proxy for the newly created session. This proxy is never null.
+        /// @return A proxy to the newly created session. This proxy is never null.
         /// @throws PermissionDeniedException Thrown when authentication or authorization fails.
         AdminSession* createAdminSession(string userId, string password)
             throws PermissionDeniedException;
 
         /// Creates a client session from a secure connection.
-        /// @return A proxy for the newly created session. This proxy is never null.
+        /// @return A proxy to the newly created session. This proxy is never null.
         /// @throws PermissionDeniedException Thrown when authentication or authorization fails.
         Session* createSessionFromSecureConnection()
             throws PermissionDeniedException;
 
         /// Creates an administrative session from a secure connection.
-        /// @return A proxy for the newly created session. This proxy is never null.
+        /// @return A proxy to the newly created session. This proxy is never null.
         /// @throws PermissionDeniedException Thrown when authentication or authorization fails.
         AdminSession* createAdminSessionFromSecureConnection()
             throws PermissionDeniedException;

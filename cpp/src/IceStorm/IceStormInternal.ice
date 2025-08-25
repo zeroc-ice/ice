@@ -28,10 +28,10 @@ module IceStorm
         Ice::Context context;
     }
 
-    /// A sequence of EventData.
+    /// A sequence of {@link EventData}.
     ["cpp:type:std::deque<IceStorm::EventData>"] sequence<EventData> EventDataSeq;
 
-    /// The TopicLink interface. This is used to forward events between federated Topic instances.
+    /// The `TopicLink` interface. This is used to forward events between federated {@link Topic} instances.
     /// @see TopicInternal
     interface TopicLink
     {
@@ -40,7 +40,7 @@ module IceStorm
         void forward(EventDataSeq events);
     }
 
-    /// Thrown if the reap call would block.
+    /// Thrown if the {@link TopicInternal::reap} call would block.
     exception ReapWouldBlock
     {
     }
@@ -49,8 +49,8 @@ module IceStorm
     /// @see Topic
     interface TopicInternal extends Topic
     {
-        /// Retrieve a proxy to the TopicLink interface.
-        /// @return The TopicLink for the Topic.
+        /// Retrieve a proxy to the {@link TopicLink} interface.
+        /// @return The {@link TopicLink} for the {@link Topic}.
         idempotent TopicLink* getLinkProxy();
 
         /// Reap the given identities.
@@ -64,7 +64,7 @@ module IceStorm
     interface TopicManagerInternal extends TopicManager
     {
         /// Return the replica node proxy for this topic manager.
-        /// @return The replica proxy, or null if this instance is not replicated.
+        /// @return The replica proxy, or `null` if this instance is not replicated.
         ["cpp:const"] idempotent IceStormElection::Node* getReplicaNode();
     }
-} // End module IceStorm
+}

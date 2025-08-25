@@ -67,7 +67,7 @@ module IceGrid
         string type;
     }
 
-    /// A sequence of ObjectInfo.
+    /// A sequence of {@link ObjectInfo}.
     sequence<ObjectInfo> ObjectInfoSeq;
 
     /// Information about an adapter registered with the IceGrid registry.
@@ -83,7 +83,7 @@ module IceGrid
         string replicaGroupId;
     }
 
-    /// A sequence of AdapterInfo.
+    /// A sequence of {@link AdapterInfo}.
     sequence<AdapterInfo> AdapterInfoSeq;
 
     /// Information about a server managed by an IceGrid node.
@@ -129,8 +129,8 @@ module IceGrid
         /// The machine hardware type.
         string machine;
 
-        /// The number of processor threads on the node. For example, nProcessors is 8 on a computer with a single
-        /// quad-core processor and two threads per core.
+        /// The number of processor threads on the node.
+        /// For example, nProcessors is 8 on a computer with a single quad-core processor and two threads per core.
         int nProcessors;
 
         /// The path to the node data directory.
@@ -752,7 +752,7 @@ module IceGrid
         /// @param info The details of the updated object.
         void objectUpdated(ObjectInfo info);
 
-       /// Notifies the observer that a well-known object was removed.
+        /// Notifies the observer that a well-known object was removed.
         /// @param id The identity of the removed object.
         void objectRemoved(Ice::Identity id);
     }

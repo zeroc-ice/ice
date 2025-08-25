@@ -19,7 +19,7 @@ module Glacier2
 {
     interface Router; // So that doc-comments can link to `Glacier2::Router`.
 
-    /// The exception that is thrown when an attempt to create a new session failed.
+    /// The exception that is thrown when an attempt to create a new session fails.
     exception CannotCreateSessionException
     {
         /// The reason why the session creation failed.
@@ -78,18 +78,19 @@ module Glacier2
 
     /// Represents a router-provided object that allows an application-provided session manager to configure the
     /// routing constraints for a session.
+    /// @see SessionManager
     interface SessionControl
     {
         /// Gets a proxy to the object that manages the allowable categories for object identities for this session.
-        /// @return A proxy to a StringSet object. This proxy is never null.
+        /// @return A proxy to a {@link StringSet} object. This proxy is never null.
         StringSet* categories();
 
         /// Gets a proxy to the object that manages the allowable adapter identities for objects for this session.
-        /// @return A proxy to StringSet object. This proxy is never null.
+        /// @return A proxy to a {@link StringSet} object. This proxy is never null.
         StringSet* adapterIds();
 
         /// Gets a proxy to the object that manages the allowable object identities for this session.
-        /// @return A proxy to an IdentitySet object. This proxy is never null.
+        /// @return A proxy to an {@link IdentitySet} object. This proxy is never null.
         IdentitySet* identities();
 
         /// Gets the session timeout.

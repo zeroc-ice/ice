@@ -19,7 +19,7 @@ module IceGrid
     interface Registry; // For doc-comments.
 
     /// Represents a session object used by IceGrid clients to allocate and release objects. Client sessions are created
-    /// either via the {@link Registry} object or via the registry client `SessionManager` object.
+    /// either via the {@link Registry} object or via the registry client {@link Glacier2::SessionManager} object.
     interface Session extends Glacier2::Session
     {
         /// Keeps the session alive.
@@ -57,7 +57,7 @@ module IceGrid
 
         /// Sets the allocation timeout. When no object is immediately available for an allocation request, the
         /// implementation of {@link allocateObjectById} and {@link allocateObjectByType} waits for the duration of
-        /// this timeout.
+        /// this @p timeout.
         /// @param timeout The timeout in milliseconds.
         idempotent void setAllocationTimeout(int timeout);
     }

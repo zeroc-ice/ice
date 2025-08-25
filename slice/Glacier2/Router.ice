@@ -61,12 +61,12 @@ module Glacier2
         /// This occurs automatically when the router is configured as the client's default router at the time the
         /// session proxy is created in the client application; otherwise, the client must configure the session proxy
         /// explicitly.
-        /// @see Session
-        /// @see SessionManager
-        /// @see PermissionsVerifier
         /// @return A proxy for the newly created session, or null if no {@link SSLSessionManager} is configured.
         /// @throws PermissionDeniedException Thrown when an authentication or authorization failure occurs.
         /// @throws CannotCreateSessionException Thrown when the session cannot be created.
+        /// @see Session
+        /// @see SessionManager
+        /// @see PermissionsVerifier
         ["amd"]
         Session* createSessionFromSecureConnection()
             throws PermissionDeniedException, CannotCreateSessionException;
