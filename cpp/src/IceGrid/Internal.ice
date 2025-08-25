@@ -41,7 +41,7 @@ module IceGrid
         /// The server ID.
         string id;
 
-        /// The server application
+        /// The server application.
         string application;
 
         /// The application uuid.
@@ -109,22 +109,22 @@ module IceGrid
 
     interface Adapter
     {
-        /// Activate this adapter. If this adapter can be activated, this will activate the adapter and return the direct
-        /// proxy of the adapter once it's active. If this adapter can be activated on demand, this will return 0 if the
-        /// adapter is inactive or the adapter direct proxy it's active.
+        /// Activate this adapter. If this adapter can be activated, this will activate the adapter and return the
+        /// direct proxy of the adapter once it's active. If this adapter can be activated on demand, this will return
+        /// `null` if the adapter is inactive or the adapter direct proxy it's active.
         ["amd"] Object* activate();
 
-        /// Get the adapter direct proxy. The adapter direct proxy is a proxy created with the object adapter. The proxy
-        /// contains the last known adapter endpoints.
+        /// Get the adapter's direct proxy. The adapter's direct proxy is a proxy created with the object adapter.
+        /// The proxy contains the last known adapter endpoints.
         /// @return A direct proxy containing the last known adapter endpoints if the adapter is already active.
         ["cpp:const"] idempotent Object* getDirectProxy()
             throws AdapterNotActiveException;
 
         /// Set the direct proxy for this adapter.
-        /// @param proxy The direct proxy. The direct proxy should be created with the object adapter and should contain the
-        /// object adapter endpoints.
-        /// @throws AdapterActiveException The adapter is already active. It's not possible to override the direct proxy of
-        /// an active adapter.
+        /// @param proxy The direct proxy.
+        /// The direct proxy should be created with the object adapter and should contain the object adapter endpoints.
+        /// @throws AdapterActiveException The adapter is already active.
+        /// It's not possible to override the direct proxy of an active adapter.
         void setDirectProxy(Object* proxy)
             throws AdapterActiveException;
     }
@@ -143,7 +143,7 @@ module IceGrid
         ["cpp:const"] idempotent long getOffsetFromEnd(string filename, int lines)
             throws FileNotAvailableException;
 
-        /// Read lines (or size bytes) at the specified position from the given file.
+        /// Read lines (or @p size many bytes) at the specified position from the given file.
         ["cpp:const"] idempotent bool read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
             throws FileNotAvailableException;
     }
@@ -171,20 +171,19 @@ module IceGrid
         /// Check if the server is enabled.
         ["cpp:const"] idempotent bool isEnabled();
 
-        /// Send signal to the server
+        /// Send @p signal to the server
         void sendSignal(string signal)
             throws BadSignalException;
 
-        /// Write message on servers' stdout or stderr.
+        /// Write @p message on servers' stdout or stderr.
         void writeMessage(string message, int fd);
 
         /// Return the server state.
         /// @return The server state.
-        /// @see ServerState
         ["cpp:const"] idempotent ServerState getState();
 
-        /// Get the server pid. Note that the value returned by this method is system dependant. On Unix operating systems,
-        /// it's the pid value returned by the fork() system call and converted to an integer.
+        /// Get the server's pid. Note that the value returned by this method is system dependant. On Unix operating
+        /// systems, it's the pid value returned by the `fork()` system call and converted to an integer.
         ["cpp:const"] idempotent int getPid();
 
         /// Set the process proxy.
@@ -209,7 +208,7 @@ module IceGrid
     interface Node extends FileReader, ReplicaObserver
     {
         /// Load the given server. If the server resources weren't already created (database environment directories,
-            /// property files, etc), they will be created. The returned proxy is never null.
+        /// property files, etc), they will be created. The returned proxy is never null.
         ["amd"] idempotent Server* loadServer(
             InternalServerDescriptor svr,
             string replicaName,
@@ -217,9 +216,9 @@ module IceGrid
             out int activateTimeout,
             out int deactivateTimeout) throws DeploymentException;
 
-        /// Load the given server and ensure the server won't be restarted. If the server resources weren't already created
-        /// (database environment directories, property files, etc), they will be created. If the server can't be updated
-        /// without a restart, a DeploymentException is raised. The returned proxy is never null.
+        /// Load the given server and ensure the server won't be restarted. If the server resources weren't already
+        /// created (database environment directories, property files, etc), they will be created. If the server can't
+        /// be updated without a restart, a {@link DeploymentException} is raised. The returned proxy is never null.
         ["amd"] idempotent Server* loadServerWithoutRestart(
             InternalServerDescriptor svr,
             string replicaName,
@@ -235,8 +234,8 @@ module IceGrid
         ["amd"] idempotent void destroyServerWithoutRestart(string name, string uuid, int revision, string replicaName)
             throws DeploymentException;
 
-        /// Establish a session to the given replica, this method only returns once the registration was attempted (unlike
-        /// replicaAdded below).
+        /// Establish a session to the given replica, this method only returns once the registration was attempted
+        /// (unlike {@link ReplicaObserver::replicaAdded}).
         void registerWithReplica(InternalRegistry* replica);
 
         /// Get the node name.
@@ -264,11 +263,11 @@ module IceGrid
 
     interface NodeSession
     {
-        /// The node call this method to keep the session alive.
+        /// The node calls this method to keep the session alive.
         void keepAlive(LoadInfo load);
 
-        /// Set the replica observer. The node calls this method when it's ready to receive notifications for the replicas.
-        /// It only calls this for the session with the master.
+        /// Set the replica observer. The node calls this method when it's ready to receive notifications for the
+        /// replicas. It only calls this for the session with the master.
         void setReplicaObserver(ReplicaObserver* observer);
 
         /// Return the node session timeout.
@@ -284,7 +283,7 @@ module IceGrid
         ["cpp:const"] idempotent Ice::StringSeq getServers();
 
         /// Wait for the application update to complete (the application is completely updated once all the registry
-        /// replicas have been updated). This is used by the node to ensure that before to start a server all the
+        /// replicas have been updated). This is used by the node to ensure that before starting a server, all the
         /// replicas have the up-to-date descriptor of the server.
         ["amd"] ["cpp:const"] void waitForApplicationUpdate(string application, int revision);
 
@@ -314,30 +313,31 @@ module IceGrid
 
     interface ReplicaSession
     {
-        /// The replica call this method to keep the session alive.
+        /// The replica calls this method to keep the session alive.
         void keepAlive();
 
         /// Return the replica session timeout.
         ["cpp:const"] idempotent int getTimeout();
 
-        /// Set the database observer. Once the observer is subscribed, it will receive the database and database updates.
+        /// Set the database observer.
+        /// Once the observer is subscribed, it will receive the database and database updates.
         idempotent void setDatabaseObserver(DatabaseObserver* dbObs, optional(1) StringLongDict serials)
             throws ObserverAlreadyRegisteredException, DeploymentException;
 
-        /// This method sets the endpoints of the replica. This allows the master to create proxies with multiple endpoints
-        /// for replicated objects (e.g.: IceGrid::Query object).
+        /// This method sets the endpoints of the replica. This allows the master to create proxies with multiple
+        /// endpoints for replicated objects (e.g.: IceGrid::Query object).
         idempotent void setEndpoints(StringObjectProxyDict endpoints);
 
-        /// Registers the replica well-known objects with the master.
+        /// Registers the replica's well-known objects with the master.
         idempotent void registerWellKnownObjects(ObjectInfoSeq objects);
 
-        /// Set the adapter direct proxy of the given adapter in the master. This is used to support dynamic registration
-        /// with the locator registry interface.
+        /// Set the adapter's direct proxy of the given adapter in the master.
+        /// This is used to support dynamic registration with the locator registry interface.
         idempotent void setAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
             throws AdapterNotExistException, AdapterExistsException;
 
-        /// Notify the master that an update was received. The master might wait for replication updates to be received by
-        /// all the replicas before to continue.
+        /// Notify the master that an update was received.
+        /// The master might wait for replication updates to be received by all the replicas before to continue.
         void receivedUpdate(TopicName name, int serial, string failure);
 
         /// Destroy the session.
@@ -353,16 +353,16 @@ module IceGrid
         /// The operating system name.
         string os;
 
-        /// The network name of the host running this node (as defined in uname()).
+        /// The network name of the host running this node (as defined in `uname()`).
         string hostname;
 
-        /// The operation system release level (as defined in uname()).
+        /// The operation system release level (as defined in `uname()`).
         string release;
 
-        /// The operation system version (as defined in uname()).
+        /// The operation system version (as defined in `uname()`).
         string version;
 
-        /// The machine hardware type (as defined in uname()).
+        /// The machine hardware type (as defined in `uname()`).
         string machine;
 
         /// The number of processor threads (e.g. 8 on system with 1 quad-core CPU, with 2 threads per core)
@@ -371,8 +371,8 @@ module IceGrid
         /// The path to the node data directory.
         string dataDir;
 
-        /// The Ice SO version of this node, for example 38. It is typically used to load the same version of the IceStorm
-        /// service in IceBox.
+        /// The Ice SO version of this node, for example `38`.
+        /// It is typically used to load the same version of the IceStorm service in IceBox.
         optional(1) string iceSoVersion;
     }
 
@@ -382,15 +382,14 @@ module IceGrid
         /// The name of the registry.
         string name;
 
-        /// The network name of the host running this registry (as defined in uname()).
+        /// The network name of the host running this registry (as defined in `uname()`).
         string hostname;
     }
 
     interface InternalRegistry extends FileReader
     {
         /// Register a node with the registry. If a node with the same name is already registered,
-        /// this operation overrides the existing registration only when the previously
-        /// registered node is not active.
+        /// this operation overrides the existing registration only when the previously registered node is not active.
         /// @param info Some information on the node.
         /// @param prx The proxy of the node.
         /// @param loadInf The load information of the node.
@@ -400,8 +399,7 @@ module IceGrid
             throws NodeActiveException, PermissionDeniedException;
 
         /// Register a replica with the registry. If a replica with the same name is already registered,
-        /// this operation overrides the existing registration only when the previously
-        /// registered node is not active.
+        /// this operation overrides the existing registration only when the previously registered node is not active.
         /// @param info Some information on the replica.
         /// @param prx The proxy of the replica.
         /// @return The replica session proxy.
@@ -409,8 +407,8 @@ module IceGrid
         ReplicaSession* registerReplica(InternalReplicaInfo info, InternalRegistry* prx)
             throws ReplicaActiveException, PermissionDeniedException;
 
-        /// Create a session with the given registry replica. This method returns only once the session creation has been
-        /// attempted.
+        /// Create a session with the given registry replica.
+        /// This method returns only once the session creation has been attempted.
         void registerWithReplica(InternalRegistry* prx);
 
         /// Return the proxies of all the nodes known by this registry.
@@ -419,9 +417,13 @@ module IceGrid
         /// Return the proxies of all the registry replicas known by this registry.
         ["cpp:const"] idempotent InternalRegistryPrxSeq getReplicas();
 
-        /// Return applications, adapters, objects from this replica.
+        /// Return applications from this replica.
         ["cpp:const"] idempotent ApplicationInfoSeq getApplications(out long serial);
+
+        /// Return adapters from this replica.
         ["cpp:const"] idempotent AdapterInfoSeq getAdapters(out long serial);
+
+        /// Return objects from this replica.
         ["cpp:const"] idempotent ObjectInfoSeq getObjects(out long serial);
 
         /// Shutdown this registry.

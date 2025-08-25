@@ -171,7 +171,7 @@ namespace Ice
         /// @throws NotRegisteredException Thrown when no servant with the given identity is registered.
         virtual ObjectPtr remove(const Identity& id) = 0;
 
-        //// Removes a servant from the object adapter's Active Servant Map, while specifying a facet.
+        /// Removes a servant from the object adapter's Active Servant Map, while specifying a facet.
         /// @param id The identity of the Ice object that is implemented by the servant.
         /// @param facet The facet. An empty facet means the default facet.
         /// @return The removed servant.

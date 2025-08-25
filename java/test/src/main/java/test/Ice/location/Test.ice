@@ -16,7 +16,7 @@ module Test
 
     interface TestLocator extends Ice::Locator
     {
-        /// Returns the number of request on the locator interface.
+        /// Returns the number of requests on the locator interface.
         idempotent int getRequestCount();
     }
 

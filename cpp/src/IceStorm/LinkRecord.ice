@@ -9,14 +9,14 @@
 
 module IceStorm
 {
-    /// Used to store persistent information for Topic federation.
+    /// Used to store persistent information for {@link Topic} federation.
     struct LinkRecord
     {
         /// The topic link object.
         TopicLink* obj;
         /// The cost.
         int cost;
-        /// The linked topic for getLinkInfoSeq
+        /// The linked topic for {@link Topic::getLinkInfoSeq}.
         Topic* theTopic;
     }
 }

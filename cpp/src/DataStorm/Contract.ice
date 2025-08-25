@@ -11,6 +11,7 @@
 module DataStormContract
 {
     /// Defines policies for clearing the data sample history of a reader in response to sample events.
+    /// @see DataSample
     enum ClearHistoryPolicy
     {
         /// The reader clears its history when a new data sample is added.
@@ -38,10 +39,10 @@ module DataStormContract
         long id;
 
         /// The unique identifier for the associated key.
-        /// A negative value (< 0) indicates a key filter.
+        /// A negative value (`keyId < 0`) indicates a key filter.
         long keyId;
 
-        /// The encoded key value, used when keyId < 0 (key filter).
+        /// The encoded key value, used when `keyId < 0` (key filter).
         Ice::ByteSeq keyValue;
 
         /// The timestamp when the sample was written, in milliseconds since the epoch.
@@ -57,7 +58,7 @@ module DataStormContract
         Ice::ByteSeq value;
     }
 
-    // A queue of DataSample
+    /// A queue of {@link DataSample}
     ["cpp:type:std::deque<DataSample>"] sequence<DataSample> DataSampleSeq;
 
     /// Represents a collection of data samples produced by a specific writer.
@@ -99,8 +100,8 @@ module DataStormContract
 
         /// The list of active topic reader or writer IDs.
         ///
-        /// - In a publisher session,  the `ids` field contains the active topic writer IDs.
-        /// - In a subscriber session,  the `ids` field contains the active topic reader IDs.
+        /// - In a publisher session, the `ids` field contains the active topic writer IDs.
+        /// - In a subscriber session, the `ids` field contains the active topic reader IDs.
         Ice::LongSeq ids;
     }
 
@@ -110,7 +111,7 @@ module DataStormContract
     /// @see Session#announceTopics
     sequence<TopicInfo> TopicInfoSeq;
 
-    /// Provides detailed information about topic readers and topic writers, including its ID, name, keys, filters,
+    /// Provides detailed information about a topic reader or topic writer, including its ID, name, keys, filters,
     /// and tags.
     ///
     /// @see Session#attachTopic
@@ -118,7 +119,7 @@ module DataStormContract
     struct TopicSpec
     {
         /// The unique identifier for the topic.
-        /// The ID uniquely identifies a topic reader or topic writer within a node.
+        /// This ID uniquely identifies a topic reader or topic writer within a node.
         long id;
 
         /// The name of the topic.
@@ -289,14 +290,14 @@ module DataStormContract
         /// @see attachTopic
         void announceTopics(TopicInfoSeq topics, bool initialize);
 
-        // Attaches a local topic to a remote topic after receiving a topic announcement from the peer.
+        /// Attaches a local topic to a remote topic after receiving a topic announcement from the peer.
         ///
         /// This operation is invoked if the session is interested in the announced topic. Which occurs when:
         ///
         /// - The session has a reader for a topic that the peer writes, or
         /// - The session has a writer for a topic that the peer reads.
         ///
-        /// @param topic The TopicSpec describing the topic to attach.
+        /// @param topic The {@link TopicSpec} describing the topic to attach.
         void attachTopic(TopicSpec topic);
 
         /// Detaches a topic from the session, typically called when the topic is destroyed.
@@ -365,7 +366,7 @@ module DataStormContract
         /// Initializes the subscriber with the publisher queued samples for a topic during session establishment.
         ///
         /// @param topicId The unique identifier for the topic.
-        /// @param samples A sequence of `DataSamples` containing the queued samples to initialize the subscriber.
+        /// @param samples A sequence of {@link DataSamples} containing the queued samples to initialize the subscriber.
         void initSamples(long topicId, DataSamplesSeq samples);
 
         /// Notifies the peer that the session is being disconnected.
@@ -407,7 +408,7 @@ module DataStormContract
         Internal,
     }
 
-    /// Throws when the session cannot be created.
+    /// Thrown when the session cannot be created.
     exception SessionCreationException
     {
         SessionCreationError error;
@@ -420,8 +421,8 @@ module DataStormContract
     /// initiates the creation of a subscriber session.
     ///
     /// The publisher node hosts the publisher session servant, which is accessed by the subscriber node through a
-    /// PublisherSession proxy. The subscriber node hosts the subscriber session servant, which is accessed by the
-    /// publisher node through a SubscriberSession proxy.
+    /// {@link PublisherSession} proxy. The subscriber node hosts the subscriber session servant, which is accessed by
+    /// the publisher node through a {@link SubscriberSession} proxy.
     interface Node
     {
         /// Initiate the creation of a publisher session with a node, after the target node has announced a topic
@@ -437,10 +438,10 @@ module DataStormContract
         ///
         /// - The subscriber has received a topic writer announcement from the publisher and has a matching topic
         /// reader.
-        /// - The publisher node has previously sent a initiateCreateSession request.
+        /// - The publisher node has previously sent a {@link Node::initiateCreateSession} request.
         ///
-        /// The publisher node dispatching this request then sends a confirmCreateSession request to the subscriber node
-        /// to continue session establishment.
+        /// The publisher node dispatching this request then sends a {@link Node::confirmCreateSession} request to the
+        /// subscriber node to continue session establishment.
         ///
         /// @param subscriber The subscriber node initiating the session. This proxy is never null.
         /// @param session The subscriber session being created. This proxy is never null.
@@ -459,7 +460,7 @@ module DataStormContract
 
     /// The lookup interface is used by DataStorm nodes to announce their topic readers and writers to other connected
     /// nodes. When multicast is enabled, the lookup interface also broadcasts these announcements.
-    /// Each DataStorm node hosts a lookup servant with the identity "DataStorm/Lookup".
+    /// Each DataStorm node hosts a lookup servant with the identity `DataStorm/Lookup`.
     interface Lookup
     {
         /// Announce a topic reader.

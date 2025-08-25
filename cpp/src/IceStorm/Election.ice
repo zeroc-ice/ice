@@ -93,7 +93,7 @@ module IceStormElection
         NodeStateNormal
     }
 
-    /// Forward declaration.
+    // Forward declaration.
     interface Node;
 
     /// All nodes in the replication group.
@@ -104,7 +104,6 @@ module IceStormElection
         /// The node proxy.
         Node* n;
     }
-
     /// A sequence of node info.
     sequence<NodeInfo> NodeInfoSeq;
 
@@ -147,8 +146,8 @@ module IceStormElection
     interface Node
     {
         /// Invite the node into a group with the given coordinator and group name.
-        /// @param gn The group name.
         /// @param j The group coordinator.
+        /// @param gn The group name.
         void invitation(int j, string gn);
 
         /// Call from the group coordinator to a node to inform the node that the replica group is active.
@@ -161,9 +160,9 @@ module IceStormElection
 
         /// Called to accept an invitation into the given group.
         /// @param j The id of the node accepting the invitation.
-        /// @param observer The observer.
         /// @param gn The group name.
         /// @param forwardedInvites The ids of the nodes to which invitations were forwarded.
+        /// @param observer The observer.
         /// @param llu The last log update for the given node.
         /// @param max The highest priority node seen by this replica group.
         void accept(int j, string gn, Ice::IntSeq forwardedInvites, Object* observer, LogUpdate llu, int max);

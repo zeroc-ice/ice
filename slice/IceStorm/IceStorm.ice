@@ -58,7 +58,7 @@ module IceStorm
     {
     }
 
-    /// The exception that is thrown when attempting to subscribe with an invalid QoS.
+    /// The exception that is thrown when attempting to subscribe with an invalid {@link QoS}.
     exception BadQoS
     {
         /// The reason for the failure.
@@ -91,7 +91,7 @@ module IceStorm
 
         /// Subscribes to this topic.
         /// @param theQoS The quality of service parameters for this subscription.
-        /// @param subscriber The subscriber's proxy. This proxy is never null.
+        /// @param subscriber The subscriber's proxy. This proxy cannot be null.
         /// @return The per-subscriber publisher proxy. This proxy is never null.
         /// @throws AlreadySubscribed Thrown when @p subscriber is already subscribed.
         /// @throws BadQoS Thrown when @p theQoS is unavailable or invalid.
@@ -105,13 +105,13 @@ module IceStorm
         idempotent void unsubscribe(Object* subscriber);
 
         /// Creates a link to another topic. All events originating on this topic will also be sent to the other topic.
-        /// @param linkTo The topic to link to. This proxy is never null.
+        /// @param linkTo The topic to link to. This proxy cannot be null.
         /// @param cost The cost of the link.
         /// @throws LinkExists Thrown when a link to @p linkTo already exists.
         void link(Topic* linkTo, int cost) throws LinkExists;
 
         /// Destroys a link from this topic to the provided topic.
-        /// @param linkTo The topic to destroy the link to. This proxy is never null.
+        /// @param linkTo The topic to destroy the link to. This proxy cannot be null.
         /// @throws NoSuchLink Thrown when a link to @p linkTo does not exist.
         void unlink(Topic* linkTo) throws NoSuchLink;
 
@@ -152,7 +152,7 @@ module IceStorm
         /// Creates a new topic.
         /// @param name The name of the topic.
         /// @return A proxy to the new topic object. The returned proxy is never null.
-        /// @throws TopicExists Thrown when a topic with the same name already exists.
+        /// @throws TopicExists Thrown when a topic with the same @p name already exists.
         Topic* create(string name) throws TopicExists;
 
         /// Retrieves a topic by name.

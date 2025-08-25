@@ -14,7 +14,7 @@
 module IceLocatorDiscovery
 {
     /// Represents a callback object implemented by IceLocatorDiscovery clients. It allows IceLocatorDiscovery clients
-    /// to receive replies to Lookup requests.
+    /// to receive replies to {@link Lookup} requests.
     /// @see Lookup
     interface LookupReply
     {
@@ -26,12 +26,12 @@ module IceLocatorDiscovery
     /// Looks for a locator using UDP multicast.
     /// @remark This interface is implemented by Ice locator implementations and can be used by clients to find
     /// available Ice locators on the network.
-    /// Ice locator implementations provide a well-known 'Ice/LocatorLookup' object accessible through UDP multicast.
-    /// Clients typically make a multicast findLocator request to find the locator proxy.
+    /// Ice locator implementations provide a well-known `Ice/LocatorLookup` object accessible through UDP multicast.
+    /// Clients typically make a multicast `findLocator` request to find the locator proxy.
     /// @see LookupReply
     interface Lookup
     {
-        /// Finds a locator proxy with the given instance name.
+        /// Finds a locator proxy with the given @p instanceName.
         /// @param instanceName Restrict the search to Ice registries configured with the given instance name. If
         /// empty, all the available registries will reply.
         /// @param reply The reply object to use to send the reply.

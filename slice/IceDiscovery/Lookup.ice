@@ -12,7 +12,7 @@
 module IceDiscovery
 {
     /// Represents a callback object implemented by IceDiscovery clients. It allows IceDiscovery clients to receive
-    /// replies to Lookup requests.
+    /// replies to {@link Lookup} requests.
     interface LookupReply
     {
         /// Provides a reply to a {@link Lookup#findObjectById} request.
@@ -35,16 +35,16 @@ module IceDiscovery
         /// @param domainId The IceDiscovery domain identifier. An IceDiscovery client only replies to requests with a
         /// matching domain identifier.
         /// @param id The well-known object identity.
-        /// @param reply The proxy of the LookupReply interface that should be used to send the reply if a matching
-        /// object is found. The reply proxy is never null.
+        /// @param reply The proxy of the {@link LookupReply} interface that should be used to send the reply if a
+        /// matching object is found. The reply proxy is never null.
         idempotent void findObjectById(string domainId, Ice::Identity id, LookupReply* reply);
 
         /// Finds an object adapter.
         /// @param domainId The IceDiscovery domain identifier. An IceDiscovery client only replies to requests with a
         /// matching domain identifier.
         /// @param id The adapter ID.
-        /// @param reply The proxy of the LookupReply interface that should be used to send the reply if a matching
-        /// adapter is found. The reply proxy is never null.
+        /// @param reply The proxy of the {@link LookupReply} interface that should be used to send the reply if a
+        /// matching adapter is found. The reply proxy is never null.
         idempotent void findAdapterById(string domainId, string id, LookupReply* reply);
     }
 }

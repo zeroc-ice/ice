@@ -48,7 +48,7 @@ module Ice
         /// microseconds since the Unix Epoch (00:00:00 UTC on 1 January 1970).
         long timestamp;
 
-        /// For a message of type trace, the trace category of this log message; otherwise, the empty string.
+        /// For a message of type 'trace', the trace category of this log message; otherwise, the empty string.
         string traceCategory;
 
         /// The log message itself.
@@ -74,24 +74,25 @@ module Ice
         void log(LogMessage message);
     }
 
-    /// Thrown when the provided RemoteLogger was previously attached to a LoggerAdmin.
+    /// Thrown when the provided {@link RemoteLogger} was previously attached to a {@link LoggerAdmin}.
     exception RemoteLoggerAlreadyAttachedException
     {
     }
 
-    /// Represents the admin facet that allows an Ice application the attach its {@link RemoteLogger} to the local
+    /// Represents the admin facet that allows an Ice application to attach its {@link RemoteLogger} to the local
     /// logger of an Ice communicator.
     interface LoggerAdmin
     {
-        /// Attaches a RemoteLogger object to the local logger. This operation calls {@link RemoteLogger#init} on @p prx.
+        /// Attaches a {@link RemoteLogger} object to the local logger. This operation calls {@link RemoteLogger::init}
+        /// on @p prx.
         /// @param prx A proxy to the remote logger.
         /// @param messageTypes The list of message types that the remote logger wishes to receive. An empty list means
         /// no filtering (send all message types).
         /// @param traceCategories The categories of traces that the remote logger wishes to receive. This parameter is
-        /// ignored if messageTypes is not empty and does not include trace. An empty list means no filtering (send all
-        /// trace categories).
-        /// @param messageMax The maximum number of log messages (of all types) to be provided to init. A negative
-        /// value requests all messages available.
+        /// ignored if @p messageTypes is not empty and does not include trace. An empty list means no filtering
+        /// (send all trace categories).
+        /// @param messageMax The maximum number of log messages (of all types) to be provided to
+        /// {@link RemoteLogger::init}. A negative value requests all messages available.
         /// @throws RemoteLoggerAlreadyAttachedException Thrown if this remote logger is already attached to this admin
         /// object.
         void attachRemoteLogger(
@@ -101,16 +102,16 @@ module Ice
             int messageMax)
             throws RemoteLoggerAlreadyAttachedException;
 
-        /// Detaches a RemoteLogger object from the local logger.
+        /// Detaches a {@link RemoteLogger} object from the local logger.
         /// @param prx A proxy to the remote logger.
         /// @return `true` if the provided remote logger proxy was detached, and `false` otherwise.
         bool detachRemoteLogger(RemoteLogger* prx);
 
-        /// Retrieves log messages recently logged.
+        /// Retrieves recently logged log messages.
         /// @param messageTypes The list of message types that the caller wishes to receive. An empty list means no
         /// filtering (send all message types).
         /// @param traceCategories The categories of traces that caller wish to receive. This parameter is ignored if
-        /// messageTypes is not empty and does not include trace. An empty list means no filtering (send all trace
+        /// @p messageTypes is not empty and does not include trace. An empty list means no filtering (send all trace
         /// categories).
         /// @param messageMax The maximum number of log messages (of all types) to be returned. A negative value
         /// requests all messages available.

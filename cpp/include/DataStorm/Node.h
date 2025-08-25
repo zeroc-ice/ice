@@ -77,7 +77,7 @@ namespace DataStorm
         /// @param configFile The path to an optional Ice configuration file.
         /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
         /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
-        //// @remark Windows only.
+        /// @remark Windows only.
         Node(
             int& argc,
             wchar_t* argv[],

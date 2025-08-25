@@ -59,7 +59,7 @@ module IceMX
     /// necessary.
     sequence<Metrics> MetricsMap;
 
-    /// A metrics view is a dictionary of metrics map. The key of the dictionary is the name of the metrics map.
+    /// A metrics view is a dictionary of metrics maps. The key of the dictionary is the name of the metrics map.
     dictionary<string, MetricsMap> MetricsView;
 
     /// The exception that is thrown when a metrics view cannot be found.
@@ -73,7 +73,7 @@ module IceMX
     {
         /// Gets the names of enabled and disabled metrics.
         /// @param disabledViews The names of the disabled views.
-        /// @return The name of the enabled views.
+        /// @return The names of the enabled views.
         Ice::StringSeq getMetricsViewNames(out Ice::StringSeq disabledViews);
 
         /// Enables a metrics view.
@@ -90,16 +90,16 @@ module IceMX
 
         /// Gets the metrics objects for the given metrics view.
         /// @param view The name of the metrics view.
-        /// @param timestamp The local time of the process when the metrics object were retrieved.
+        /// @param timestamp The local time of the process when the metrics objects were retrieved.
         /// @return The metrics view data, a dictionary of metric maps for each metrics class configured with the view.
-        /// The timestamp allows the client to compute averages which are not dependent of the invocation latency for
+        /// The @p timestamp allows the client to compute averages which are not dependent of the invocation latency for
         /// this operation.
         /// @throws UnknownMetricsView Thrown when the metrics view cannot be found.
         ["format:sliced"]
         MetricsView getMetricsView(string view, out long timestamp)
             throws UnknownMetricsView;
 
-        /// Gets the metrics failures associated with the given view and map.
+        /// Gets the metrics failures associated with the given @p view and @p map.
         /// @param view The name of the metrics view.
         /// @param map The name of the metrics map.
         /// @return The metrics failures associated with the map.
@@ -120,7 +120,7 @@ module IceMX
     /// Provides information on the number of threads currently in use and their activity.
     class ThreadMetrics extends Metrics
     {
-        /// The number of threads which are currently performing socket read or writes.
+        /// The number of threads which are currently performing socket reads or writes.
         int inUseForIO = 0;
 
         /// The number of threads which are currently calling user code (servant dispatch, AMI callbacks, etc).

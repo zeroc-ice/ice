@@ -31,7 +31,7 @@ module Glacier2
         /// @param password The user's password.
         /// @param reason The reason why access was denied.
         /// @return `true` if access is granted, `false` otherwise.
-        /// @throws PermissionDeniedException Thrown when the user access is denied. This exception can be thrown
+        /// @throws PermissionDeniedException Thrown when the user's access is denied. This exception can be thrown
         /// instead of returning `false` with a reason set in the reason out parameter.
         ["cpp:const"]
         idempotent bool checkPermissions(string userId, string password, out string reason)
@@ -46,7 +46,7 @@ module Glacier2
         /// @param info The SSL information.
         /// @param reason The reason why access was denied.
         /// @return `true` if access is granted, `false` otherwise.
-        /// @throws PermissionDeniedException Thrown when the user access is denied. This exception can be thrown
+        /// @throws PermissionDeniedException Thrown when the user's access is denied. This exception can be thrown
         /// instead of returning `false` with a reason set in the reason out parameter.
         ["cpp:const"]
         idempotent bool authorize(SSLInfo info, out string reason)
