@@ -14,7 +14,6 @@
 module IceGrid
 {
     // This class is no longer used. We keep it only for interop with IceGrid 3.7.
-    ["deprecated"]
     class InternalDbEnvDescriptor
     {
         /// The name of the database environment.
@@ -23,7 +22,7 @@ module IceGrid
         /// The database properties.
         PropertyDescriptorSeq properties;
     }
-    ["deprecated"] sequence<InternalDbEnvDescriptor> InternalDbEnvDescriptorSeq;
+    sequence<InternalDbEnvDescriptor> InternalDbEnvDescriptorSeq;
 
     class InternalAdapterDescriptor
     {
@@ -88,7 +87,7 @@ module IceGrid
         InternalAdapterDescriptorSeq adapters;
 
         // Not used, always empty. Kept only for interop with IceGrid 3.7.
-        ["deprecated"] InternalDbEnvDescriptorSeq dbEnvs;
+        InternalDbEnvDescriptorSeq dbEnvs;
 
         /// The configuration files of the server.
         PropertyDescriptorSeqDict properties;

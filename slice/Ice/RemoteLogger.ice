@@ -83,7 +83,7 @@ module Ice
     /// logger of an Ice communicator.
     interface LoggerAdmin
     {
-        /// Attaches a {@link RemoteLogger} object to the local logger. This operation calls {@link RemoteLogger#init}
+        /// Attaches a {@link RemoteLogger} object to the local logger. This operation calls {@link RemoteLogger::init}
         /// on @p prx.
         /// @param prx A proxy to the remote logger.
         /// @param messageTypes The list of message types that the remote logger wishes to receive. An empty list means
@@ -92,7 +92,7 @@ module Ice
         /// ignored if @p messageTypes is not empty and does not include trace. An empty list means no filtering
         /// (send all trace categories).
         /// @param messageMax The maximum number of log messages (of all types) to be provided to
-        /// {@link RemoteLogger#init}. A negative value requests all messages available.
+        /// {@link RemoteLogger::init}. A negative value requests all messages available.
         /// @throws RemoteLoggerAlreadyAttachedException Thrown if this remote logger is already attached to this admin
         /// object.
         void attachRemoteLogger(

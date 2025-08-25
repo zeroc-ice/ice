@@ -384,7 +384,7 @@ module DataStormContract
     /// The SubscriberSession servant is hosted by the subscriber node and is accessed by the publisher node.
     interface SubscriberSession extends Session
     {
-        /// Queue a @p sample with the subscribers of the topic element.
+        /// Queue a sample with the subscribers of the topic element.
         ///
         /// @param topicId The unique identifier for the topic to which the sample belong.
         /// @param elementId The unique identifier for the element to which the sample belong.
@@ -460,7 +460,7 @@ module DataStormContract
 
     /// The lookup interface is used by DataStorm nodes to announce their topic readers and writers to other connected
     /// nodes. When multicast is enabled, the lookup interface also broadcasts these announcements.
-    /// Each DataStorm node hosts a lookup servant with the identity `'DataStorm/Lookup'`.
+    /// Each DataStorm node hosts a lookup servant with the identity `DataStorm/Lookup`.
     interface Lookup
     {
         /// Announce a topic reader.
