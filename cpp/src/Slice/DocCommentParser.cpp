@@ -262,24 +262,24 @@ namespace
         return (results.empty() ? nullptr : results.front());
     }
 
-    /// Formats a code-snippet starting at \p pos.
+    /// Formats a code-span starting at \p pos.
     /// Slice fully supports Markdown's backtick handling, so normal text backticks can be escaped with a backslash
     /// '\`', and we allow multiple backticks to be used as a single delimiter: '`` wow ` is cool``'.
-    /// @param line The line containing the code-snippet. This line will be edited in place to remove the original
-    ///             Slice-style code-snippet and replace it with a properly formatted code-snippet.
+    /// @param line The line containing the code-span. This line will be edited in place to remove the original
+    ///             Slice-style code-span and replace it with a properly formatted code-span.
     /// @param pos The position where the '`' appears in the line. This value should be updated to account for
     ///            any characters this function inserts to avoid double-parsing things.
     void formatCodeElement(const ContainedPtr& p, DocCommentFormatter& formatter, string& line, size_t& pos)
     {
         // If this backtick is escaped with a backslash, remove the backslash but do nothing else.
-        // This isn't a code-snippet, just a normal backtick.
+        // This isn't a code-span, just a normal backtick.
         if (pos > 0 && line[pos - 1] == '\\')
         {
             line.erase(pos - 1, 1);
             return;
         }
 
-        // Count the number of successive backticks. The end of the code-snippet must have the same number.
+        // Count the number of successive backticks. The end of the code-span must have the same number.
         auto openingEnd = line.find_first_not_of('`', pos);
         openingEnd = (openingEnd == string::npos ? line.size() : openingEnd);
         auto count = openingEnd - pos;
@@ -290,21 +290,21 @@ namespace
         if (closingStart == string::npos)
         {
             // No matching delimeter was found. Emit a warning, then skip to the next line. This one is broken.
-            const string msg = "unterminated code snippet: missing closing backtick delimiter";
+            const string msg = "unterminated code span: missing closing backtick delimiter";
             p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
 
             pos = line.size();
         }
         else
         {
-            // Format the snippet's text, and replace the entire raw code-snippet with the returned string.
-            const string snippetText = line.substr(openingEnd, closingStart - openingEnd);
-            const string formattedSnippet = formatter.formatCode(snippetText);
+            // Format the span's text, and replace the entire raw code-span with the returned string.
+            const string spanText = line.substr(openingEnd, closingStart - openingEnd);
+            const string formattedSpan = formatter.formatCode(spanText);
             line.erase(pos, closingStart + count - pos);
-            line.insert(pos, formattedSnippet);
+            line.insert(pos, formattedSpan);
 
-            // Go on to check for the next code-snippet, skipping past the one we just formatted.
-            pos += formattedSnippet.size();
+            // Go on to check for the next code-span, skipping past the one we just formatted.
+            pos += formattedSpan.size();
         }
     }
 
@@ -445,7 +445,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
         while (true)
         {
             // We check for all inline tags all at the same time, to prevent overlap.
-            // For example: `@p hello` should _only_ be a code-snippet, not also a param-ref.
+            // For example: `@p hello` should _only_ be a code-span, not also a param-ref.
             size_t nextBacktickPos = line.find('`', pos);
             size_t nextLinkPos = line.find("{@link ", pos);
             size_t nextParamrefPos = line.find("@p", pos);
@@ -453,7 +453,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             // Remember, `string::npos` is `size_t::max`. So `npos` can _never_ be less than another position.
             if (nextBacktickPos < nextLinkPos && nextBacktickPos < nextParamrefPos)
             {
-                // If the next element to handle is a code-snippet.
+                // If the next element to handle is a code-span.
                 pos = nextBacktickPos;
                 formatCodeElement(p, _formatter, line, pos);
             }

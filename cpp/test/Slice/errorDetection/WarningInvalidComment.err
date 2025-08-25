@@ -12,8 +12,8 @@ WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@deprecated:' i
 WarningInvalidComment.ice:29: warning: '@see' tags cannot span multiple lines and must be of the form: '@see identifier'
 WarningInvalidComment.ice:29: warning: ignoring unknown doc tag '@bad' in comment
 WarningInvalidComment.ice:33: warning: ignoring duplicate doc-comment tag: '@deprecated'
-WarningInvalidComment.ice:39: warning: unterminated code snippet: missing closing backtick delimiter
-WarningInvalidComment.ice:39: warning: unterminated code snippet: missing closing backtick delimiter
+WarningInvalidComment.ice:39: warning: unterminated code span: missing closing backtick delimiter
+WarningInvalidComment.ice:39: warning: unterminated code span: missing closing backtick delimiter
 WarningInvalidComment.ice:47: warning: No parameter named 'param' exists on operation 'voidOp'
 WarningInvalidComment.ice:47: warning: '@param NoParam' does not correspond to any parameter in operation 'voidOp'
 WarningInvalidComment.ice:47: warning: '@return' is only valid on operations with non-void return types

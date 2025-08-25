@@ -17,10 +17,10 @@ namespace Slice
         // By default we perform no preprocessing.
         virtual void preprocess(StringList& rawComment);
 
-        /// This function is called by the doc-comment parser to map code-snippets (`<rawText>`) into each language's
+        /// This function is called by the doc-comment parser to map code-spans (`<rawText>`) into each language's
         /// syntax.
         /// @param rawText The raw text contained within the backticks (the backticks are NOT included).
-        /// @return A properly formatted code snippet in the target language. The doc-comment parser will replace the
+        /// @return A properly formatted code span in the target language. The doc-comment parser will replace the
         /// entire "`...`" string with the returned value.
         //
         // By default we just re-emit the text with the original number of backticks around it.
