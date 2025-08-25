@@ -3,9 +3,6 @@ entries reflect significant new additions, while others represent minor correcti
 comprehensive report of every change we made in a release, it does provide details on the changes we feel Ice users
 might need to be aware of.
 
-We recommend that you use the release notes as a guide for migrating your applications to this release, and the Manual
-for complete details on a particular aspect of Ice.
-
 # Changes in Ice 3.8.0
 
 These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANGELOG-3.7.md).
@@ -326,6 +323,24 @@ classDiagram
 - The DEB packaging files, previously distributed in the ice-packaging repository, are now included in the packaging/deb
   directory.
 
+- The monolithic `zeroc.ice.net` package has been replaced with modular NuGet packages:
+
+  | Package                   | Description                                                                                             |
+  | ------------------------- | ------------------------------------------------------------------------------------------------------- |
+  | iceboxnet                 | The IceBox server for .NET, packaged as a dotnet tool.                                                  |
+  | ZeroC.Glacier2            | The Glacier2 assembly, used by Glacier2 client applications.                                            |
+  | ZeroC.Ice                 | The main Ice assembly.                                                                                  |
+  | ZeroC.Ice.Slice.Tools     | The Slice compiler (slice2cs) and MSBuild integration. Replaces the `zeroc.icebuilder.msbuild` package. |
+  | ZeroC.IceBox              | The IceBox assembly.                                                                                    |
+  | ZeroC.IceDiscovery        | The IceDiscovery plug-in.                                                                               |
+  | ZeroC.IceGrid             | The IceGrid assembly, used by IceGrid client applications.                                              |
+  | ZeroC.IceLocatorDiscovery | The IceLocatorDiscovery plug-in.                                                                        |
+  | ZeroC.IceStorm            | The IceStorm assembly, used by publishers and subscribers for IceStorm.                                 |
+
+- The C++ NuGet package has been renamed to `ZeroC.Ice.Cpp`. This package replaces the `zeroc.ice.vXXX` packages from
+  Ice 3.7. It includes the Slice tools for C++ and no longer requires the `zeroc.icebuilder.msbuild` package.
+  Additionally, it provides CMake support files in the cmake directory.
+
 ## Slice Language Changes
 
 - Removed local Slice. `local` is no longer a Slice keyword.
@@ -369,7 +384,7 @@ classDiagram
 
   Note: metadata cannot be applied to modules using this syntax, since it's ambiguous which module it would apply to.
 
-- Added support for triple-slash doc comments, in addition to the already supported JavaDoc comment syntax.
+- Added support for triple-slash doc-comments, in addition to the already supported JavaDoc comment syntax.
   For example, the following two definitions are equivalent:
 
   ```slice
@@ -629,10 +644,6 @@ See `InitializationData::pluginFactories`.
 - Removed the `--nowarn` option, which was used to suppress warnings in `icegridnode`, `glacier2router`,
   `icegridregistry`, and `icebox`.
 
-- The C++ NuGet package has been renamed to `ZeroC.Ice.Cpp`. This package replaces the `zeroc.ice.vXXX` packages from
-  Ice 3.7. It includes the Slice tools for C++ and no longer requires the `zeroc.icebuilder.msbuild` package.
-  Additionally, it provides CMake support files in the cmake directory.
-
 - Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept
   `std::chrono::duration` values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods
   now return `std::chrono::milliseconds`.
@@ -672,22 +683,6 @@ plug-ins are created during communicator initialization. See `InitializationData
 - Removed ThreadHookPlugin.
 
 - Removed support for serializable objects (the `cs:serializable` metadata directive).
-
-- The monolithic `zeroc.ice.net` package has been replaced with modular NuGet packages:
-
-  ### New C\# Packages
-
-    | Package                   | Description                                                                                             |
-    | ------------------------- | ------------------------------------------------------------------------------------------------------- |
-    | iceboxnet                 | The IceBox server for .NET, packaged as a dotnet tool.                                                  |
-    | ZeroC.Glacier2            | The Glacier2 assembly, used by Glacier2 client applications.                                            |
-    | ZeroC.Ice                 | The main Ice assembly.                                                                                  |
-    | ZeroC.Ice.Slice.Tools     | The Slice compiler (slice2cs) and MSBuild integration. Replaces the `zeroc.icebuilder.msbuild` package. |
-    | ZeroC.IceBox              | The IceBox assembly.                                                                                    |
-    | ZeroC.IceDiscovery        | The IceDiscovery plug-in.                                                                               |
-    | ZeroC.IceGrid             | The IceGrid assembly, used by IceGrid client applications.                                              |
-    | ZeroC.IceLocatorDiscovery | The IceLocatorDiscovery plug-in.                                                                        |
-    | ZeroC.IceStorm            | The IceStorm assembly, used by publishers and subscribers for IceStorm.                                 |
 
 - Added overloads for the `ice_invocationTimeout` and `ice_locatorCacheTimeout` proxy methods that accept `TimeSpan`
   values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods now return a `TimeSpan`.
@@ -910,6 +905,9 @@ initialization. See `InitializationData.pluginFactories`.
 
 ## Ruby Changes
 
+- There are no Ruby-specific updates in this release. Nevertheless, we made many updates to Ice for Ruby: see
+  [General Changes](#general-changes) and [Slice Language Changes](#slice-language-changes).
+
 ## Swift Changes
 
 - Ice for Swift now requires Swift 6.1.
@@ -951,7 +949,7 @@ initialization. See `InitializationData.pluginFactories`.
 
 ## Glacier2 Changes
 
-- Removed buffered mode. As a result, Glacier2 has now a single mode, the previous "unbuffered" mode.
+- Removed buffered mode. As a result, Glacier2 has now a single mode, the previous unbuffered mode.
 
 - Removed support for request overrides (the `_ovrd` request context).
 
