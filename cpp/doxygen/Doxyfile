@@ -1175,7 +1175,7 @@ FORTRAN_COMMENT_AFTER  = 72
 # also VERBATIM_HEADERS is set to NO.
 # The default value is: NO.
 
-SOURCE_BROWSER         = NO
+SOURCE_BROWSER         = YES
 
 # Setting the INLINE_SOURCES tag to YES will include the body of functions,
 # multi-line macros, enums or list initialized variables directly into the
@@ -1188,8 +1188,9 @@ INLINE_SOURCES         = NO
 # special comment blocks from generated source code fragments. Normal C, C++ and
 # Fortran comments will always remain visible.
 # The default value is: YES.
+# Switch to NO to keep doc-comments in the "source browser" source files.
 
-STRIP_CODE_COMMENTS    = YES
+STRIP_CODE_COMMENTS    = NO
 
 # If the REFERENCED_BY_RELATION tag is set to YES then for each documented
 # entity all documented functions referencing it will be listed.
