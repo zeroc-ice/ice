@@ -1154,6 +1154,7 @@ INLINE_SOURCES         = NO
 # special comment blocks from generated source code fragments. Normal C, C++ and
 # Fortran comments will always remain visible.
 # The default value is: YES.
+# We switch to NO to keep doc-comments in the Slice code sample of mainpage.md.
 
 STRIP_CODE_COMMENTS    = NO
 
