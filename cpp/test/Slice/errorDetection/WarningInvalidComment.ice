@@ -32,9 +32,9 @@ module Test
     /// @deprecated Message2
     exception DerivedFromDummy extends CommentDummy {}
 
-    /// Unterminated code-snippet: `
-    /// Also an unterminated code-snippet: ``hello there`
-    /// But this is not an unterminated code-snippet: \` because it's escaped.
+    /// Unterminated code-span: `
+    /// Also an unterminated code-span: ``hello there`
+    /// But this is not an unterminated code-span: \` because it's escaped.
     /// It's okay to have backticks inside of other backticks: ```` ``` `` ` `` ``` ````.
     exception SomeOtherException {}
 
