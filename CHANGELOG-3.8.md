@@ -905,7 +905,7 @@ initialization. See `InitializationData.pluginFactories`.
 
 ## Ruby Changes
 
-- There is no Ruby-specific update in this release. Nevertheless, we made many updates to Ice for Ruby: see
+- There are no Ruby-specific updates in this release. Nevertheless, we made many updates to Ice for Ruby: see
   [General Changes](#general-changes) and [Slice Language Changes](#slice-language-changes).
 
 ## Swift Changes
