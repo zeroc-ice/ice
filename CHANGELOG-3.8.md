@@ -226,71 +226,6 @@ classDiagram
   New local exceptions:\
   ConnectionAbortedException, ConnectionClosedException, ParseException
 
-- Refactored the unmarshaling of Slice-defined classes and exceptions.
-  When Ice unmarshals a Slice-defined class or exception, it first needs to locate and create an instance of the mapped
-  C++/C#/Java (...) class, using the default parameter-less constructor of the mapped class. The new abstraction for
-  this process is the Slice loader. Its API varies slightly from language to language, for example:
-
-  ```cpp
-  // C++
-  class SliceLoader
-  {
-  public:
-        [[nodiscard]] virtual ValuePtr newClassInstance(std::string_view typeId) const;
-        [[nodiscard]] virtual std::exception_ptr newExceptionInstance(std::string_view typeId) const;
-  };
-  ```
-
-  ```java
-  // Java
-  @FunctionalInterface
-  public interface SliceLoader {
-      java.lang.Object newInstance(String typeId);
-  }
-  ```
-
-  ```typescript
-  // TypeScript
-  interface SliceLoader {
-      newInstance(typeId: string): Ice.Value | Ice.UserException | null;
-  }
-  ```
-
-  ```matlab
-  % MATLAB
-  classdef (Abstract) SliceLoader < handle
-      methods(Abstract)
-          r = newInstance(obj, typeId)
-      end
-  end
-  ```
-
-  You can implement `SliceLoader` and install your own custom Slice loader on a communicator by setting the
-  `sliceLoader` field in `InitializationData`. This custom Slice loader is always in addition to an internal Slice
-  loader that Ice uses when you don't set a custom Slice loader or when your Slice loader returns null. This new
-  `InitializationData` field replaces the `ValueFactory` and `ValueFactoryManager` provided in previous Ice releases.
-
-  In most languages, generated classes for Slice classes and exceptions register themselves at startup with a default
-  Slice loader implemented by Ice, and you don't need to do anything to help Ice locate these generated classes.
-  However, in Java and MATLAB, there is no such registration at startup, and you need to help Ice locate these generated
-  classes when:
-  - you remap either the class name or an enclosing module using the `java:identifier`, `java:package`, or
-    `matlab:identifier` metadata; or
-  - you assign a compact ID to your class
-
-  You help Ice locate these classes by installing a Slice loader in `InitializationData`, just like when you provide a
-  custom Slice loader. Ice for Java and Ice for MATLAB provide implementations of `SliceLoader` for this purpose. For
-  example, you can use the `ClassSliceLoader` implementation to create a Slice loader for one or more generated classes
-  (typically classes with remapped names or compact IDs).
-
-  In Java, MATLAB and Swift, the communicator caches "not found" Slice loader resolutions. This cache can be configured
-  using `Ice.SliceLoader.NotFoundCacheSize` and `Ice.Warn.SliceLoader`.
-
-  Limitations:
-  - in Python and Ruby, a custom Slice loader can only create class instances. The creation of custom user exceptions is
-    currently ignored.
-  - there is no custom Slice loader in PHP.
-
 - The plug-ins provided by Ice now have fixed names: IceIAP, IceBT, IceUDP, IceWS, IceDiscovery, IceLocatorDiscovery.
   This fixed name is the only name you can use when loading/configuring such a plug-in with the Ice.Plugin.name
   property.
@@ -301,9 +236,6 @@ classDiagram
 - Removed support for setting per-language plug-in entry points. In Ice 3.7 and earlier, it was possible to specify
   plug-in entry points on a per-language basis using the `Ice.Plugin.<name>.<lang>` syntax. This feature was rarely used
   and discouraged, as configuration files should not be shared across language mappings.
-
-- The default value for Ice.ClassGraphDepthMax is now `10`. In Ice 3.7, the default was `0`, which meant the class
-  graph depth was unlimited.
 
 - Removed the `stringToIdentity` method from the Communicator class. This method was deprecated in Ice 3.7.
 
@@ -337,11 +269,16 @@ classDiagram
   | ZeroC.IceLocatorDiscovery | The IceLocatorDiscovery plug-in.                                                                        |
   | ZeroC.IceStorm            | The IceStorm assembly, used by publishers and subscribers for IceStorm.                                 |
 
+  ZeroC.Ice.Slice.Tools contains `slice2cs` binaries for Linux, macOS and Windows. As you result, `slice2cs` is no
+  longer distributed in any other package.
+
 - The C++ NuGet package has been renamed to `ZeroC.Ice.Cpp`. This package replaces the `zeroc.ice.vXXX` packages from
   Ice 3.7. It includes the Slice tools for C++ and no longer requires the `zeroc.icebuilder.msbuild` package.
   Additionally, it provides CMake support files in the cmake directory.
 
-## Slice Language Changes
+- The `slice2js` Slice compiler is now included in the `@zeroc/ice` NPM package.
+
+## Slice Changes
 
 - Removed local Slice. `local` is no longer a Slice keyword.
 
@@ -439,8 +376,6 @@ classDiagram
   /// This character \` doesn't start a code-span and will appear like a normal backtick character.
   ```
 
-- `@link` tags are now mapped to proper documentation links in Swift and MATLAB.
-
 - Lists of metadata can be split into separate brackets now, allowing for longer metadata to be placed on separate lines
   or for metadata to be grouped by functionality. For example, you can now write:
 
@@ -481,37 +416,99 @@ classDiagram
 
 - `:` is now an alias for the `extends` keyword.
 
-- Removed Slice checksums.
-
-- Sequences can no longer be used as dictionary key types.
-  This feature has been deprecated since Ice 3.3.0.
-
 - Improved validation of metadata and doc-comments.
-
-## Slice Tools
 
 - Add new `ice2slice` compiler that converts Slice files in the `.ice` format (used by Ice) into Slice files in the
   `.slice` format (used by IceRPC).
 
+- Removed Slice checksums.
+
 - Removed the `slice2html` compiler, which was previously used to convert Slice documentation comments to HTML. Doxygen
   should be used to generate Slice API documentation.
 
-- Removed the `--impl` option from the Slice compilers.
+- Removed the `--impl` and `-E` options from the Slice compilers.
 
-- Removed the `-E` option from the Slice compilers.
+- Sequences can no longer be used as dictionary key types.
+  This feature has been deprecated since Ice 3.3.0.
 
-- You can now use identifiers with underscores or with the Ice prefix without any special compiler option.
+- The default value for Ice.ClassGraphDepthMax is now `10`. In Ice 3.7, the default was `0`, which meant the class
+  graph depth was unlimited.
+
+- Refactored the unmarshaling of Slice-defined classes and exceptions.
+  When Ice unmarshals a Slice-defined class or exception, it first needs to locate and create an instance of the mapped
+  C++/C#/Java (...) class, using the default parameter-less constructor of the mapped class. The new abstraction for
+  this process is the Slice loader. Its API varies slightly from language to language, for example:
+
+  ```cpp
+  // C++
+  class SliceLoader
+  {
+  public:
+        [[nodiscard]] virtual ValuePtr newClassInstance(std::string_view typeId) const;
+        [[nodiscard]] virtual std::exception_ptr newExceptionInstance(std::string_view typeId) const;
+  };
+  ```
+
+  ```java
+  // Java
+  @FunctionalInterface
+  public interface SliceLoader {
+      java.lang.Object newInstance(String typeId);
+  }
+  ```
+
+  ```typescript
+  // TypeScript
+  interface SliceLoader {
+      newInstance(typeId: string): Ice.Value | Ice.UserException | null;
+  }
+  ```
+
+  ```matlab
+  % MATLAB
+  classdef (Abstract) SliceLoader < handle
+      methods(Abstract)
+          r = newInstance(obj, typeId)
+      end
+  end
+  ```
+
+  You can implement `SliceLoader` and install your own custom Slice loader on a communicator by setting the
+  `sliceLoader` field in `InitializationData`. This custom Slice loader is always in addition to an internal Slice
+  loader that Ice uses when you don't set a custom Slice loader or when your Slice loader returns null. This new
+  `InitializationData` field replaces the `ValueFactory` and `ValueFactoryManager` provided in previous Ice releases.
+
+  In most languages, generated classes for Slice classes and exceptions register themselves at startup with a default
+  Slice loader implemented by Ice, and you don't need to do anything to help Ice locate these generated classes.
+  However, in Java and MATLAB, there is no such registration at startup, and you need to help Ice locate these generated
+  classes when:
+  - you remap either the class name or an enclosing module using the `java:identifier`, `java:package`, or
+    `matlab:identifier` metadata; or
+  - you assign a compact ID to your class
+
+  You help Ice locate these classes by installing a Slice loader in `InitializationData`, just like when you provide a
+  custom Slice loader. Ice for Java and Ice for MATLAB provide implementations of `SliceLoader` for this purpose. For
+  example, you can use the `ClassSliceLoader` implementation to create a Slice loader for one or more generated classes
+  (typically classes with remapped names or compact IDs).
+
+  In Java, MATLAB and Swift, the communicator caches "not found" Slice loader resolutions. This cache can be configured
+  using `Ice.SliceLoader.NotFoundCacheSize` and `Ice.Warn.SliceLoader`.
+
+  Limitations:
+  - in Python and Ruby, a custom Slice loader can only create class instances. The creation of custom user exceptions is
+    currently ignored.
+  - there is no custom Slice loader in PHP.
 
 ## IceSSL Changes
 
-The ssl transport is no longer a plug-in. It is now built into the main Ice library and always available.
+The SSL transport is no longer a plug-in. It is now built into the main Ice library and always available.
 
 ### Integration with Platform SSL Engines
 
-Ice 3.8 introduces new IceSSL configuration APIs that allow you to configure the ssl transport using platform-native
+Ice 3.8 introduces new IceSSL configuration APIs that allow you to configure the SSL transport using platform-native
 SSL engine APIs. This provides significantly greater flexibility for advanced use cases.
 
-- The ssl transport can now be fully configured programmatically, without relying on IceSSL properties.
+- The SSL transport can now be fully configured programmatically, without relying on IceSSL properties.
 - Separate configurations for outgoing and incoming SSL connections are supported.
 - Per object adapter configuration is also possible.
 
@@ -650,6 +647,8 @@ See `InitializationData::pluginFactories`.
 
 ## C# Changes
 
+- Upgraded to .NET 8.0 / C# 12.
+
 - Added full support for nullable types:
   - Both the Ice C# API and the code generated by the Slice compiler are `#nullable enable`.
   - Ice now uses the standard `?` notation for all nullable types.
@@ -691,6 +690,8 @@ plug-ins are created during communicator initialization. See `InitializationData
 
 ## Java Changes
 
+- Upgraded to Java 17.
+
 - Removed the Java-Compat mapping.
 
 - Add plug-in factories to InitializationData. The corresponding plug-ins are created during communicator
@@ -716,9 +717,6 @@ initialization. See `InitializationData.pluginFactories`.
 ## JavaScript Changes
 
 - The Ice for JavaScript NPM package has been converted to a scoped package named `@zeroc/ice`.
-
-- The `slice2js` Slice compiler is now included in the `@zeroc/ice` package, so there is no longer a need to install a
-  separate `slice2js` NPM package.
 
 - Added support for `Symbol.asyncDispose` on `Ice.Communicator`. TypeScript applications can now use the communicator in
   `await using` expressions.
@@ -749,6 +747,8 @@ initialization. See `InitializationData.pluginFactories`.
   these versions.
 
 ## MATLAB Changes
+
+- Upgraded to MATLAB 2024a.
 
 - Added argument validation for generated proxy methods.
   - All argument types are now validated, except for parameters that correspond to optional Slice parameters.
@@ -811,6 +811,8 @@ initialization. See `InitializationData.pluginFactories`.
   provide custom Slice loaders.
 
 ## Python Changes
+
+- Upgraded to Python 3.12.
 
 - Added `Ice.EventLoopAdapter` for async event loop integration. This adapter enables integration of Ice with the
   application’s event loop, eliminates the need for manual use of `Ice.wrap_future`, and supports alternative event
@@ -906,7 +908,7 @@ initialization. See `InitializationData.pluginFactories`.
 ## Ruby Changes
 
 - There are no Ruby-specific updates in this release. Nevertheless, we made many updates to Ice for Ruby: see
-  [General Changes](#general-changes) and [Slice Language Changes](#slice-language-changes).
+  [General Changes](#general-changes) and [Slice Changes](#slice-changes).
 
 ## Swift Changes
 
