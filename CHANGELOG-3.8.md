@@ -928,7 +928,9 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Added a SwiftPM plugin, `CompileSlice`, that lets you compile Slice files as part of SwiftPM and Xcode builds.
 
-## DataStorm Changes
+## Ice Service Changes
+
+### DataStorm
 
 - The DataStorm publisher/subscriber framework has been integrated into the Ice distribution, and is no longer a
   separate product.
@@ -944,7 +946,7 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Fixed a bug in filter initialization that can result in segmentation fault when using a key or a sample filter.
 
-## Glacier2 Changes
+### Glacier2
 
 - Removed buffered mode. As a result, Glacier2 has now a single mode, the previous unbuffered mode.
 
@@ -957,7 +959,7 @@ initialization. See `InitializationData.pluginFactories`.
 - Removed session timeouts configured using `Glacier2.SessionTimeout`. The Glacier2 router now relies on the common
   idle check described under [General Changes](#general-changes) for these connection-bound sessions.
 
-## IceGrid Changes
+### IceGrid
 
 - Removed deprecated server and application distributions in IceGrid. These distributions relied on the IcePatch2
 service.
@@ -966,11 +968,11 @@ service.
   relies on the common idle check described under [General Changes](#general-changes) for these connection-bound
   sessions.
 
-## IcePatch2 Changes
+### IcePatch2 Changes
 
 - The IcePatch2 service was removed.
 
-## IceStorm Changes
+### IceStorm Changes
 
 - The IceStorm configuration now uses the `IceStorm` prefix instead of the IceBox service name as prefix.
 
