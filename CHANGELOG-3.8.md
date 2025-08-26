@@ -150,6 +150,74 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   - Add new _adapter_.PublishedHost property, used to compute the default published endpoints.
   - Removed the `refreshPublishedEndpoints` operation on `ObjectAdapter`.
 
+- The default value for Ice.ClassGraphDepthMax is now `10`. In Ice 3.7, the default was `0`, which meant the class
+  graph depth was unlimited.
+
+- Refactored the unmarshaling of Slice-defined classes and exceptions.
+  When Ice unmarshals a Slice-defined class or exception, it first needs to locate and create an instance of the mapped
+  C++/C#/Java (...) class, using the default parameter-less constructor of the mapped class. The new abstraction for
+  this process is the Slice loader. Its API varies slightly from language to language, for example:
+
+  ```cpp
+  // C++
+  class SliceLoader
+  {
+  public:
+        [[nodiscard]] virtual ValuePtr newClassInstance(std::string_view typeId) const;
+        [[nodiscard]] virtual std::exception_ptr newExceptionInstance(std::string_view typeId) const;
+  };
+  ```
+
+  ```java
+  // Java
+  @FunctionalInterface
+  public interface SliceLoader {
+      java.lang.Object newInstance(String typeId);
+  }
+  ```
+
+  ```typescript
+  // TypeScript
+  interface SliceLoader {
+      newInstance(typeId: string): Ice.Value | Ice.UserException | null;
+  }
+  ```
+
+  ```matlab
+  % MATLAB
+  classdef (Abstract) SliceLoader < handle
+      methods(Abstract)
+          r = newInstance(obj, typeId)
+      end
+  end
+  ```
+
+  You can implement `SliceLoader` and install your own custom Slice loader on a communicator by setting the
+  `sliceLoader` field in `InitializationData`. This custom Slice loader is always in addition to an internal Slice
+  loader that Ice uses when you don't set a custom Slice loader or when your Slice loader returns null. This new
+  `InitializationData` field replaces the `ValueFactory` and `ValueFactoryManager` provided in previous Ice releases.
+
+  In most languages, generated classes for Slice classes and exceptions register themselves at startup with a default
+  Slice loader implemented by Ice, and you don't need to do anything to help Ice locate these generated classes.
+  However, in Java and MATLAB, there is no such registration at startup, and you need to help Ice locate these generated
+  classes when:
+  - you remap either the class name or an enclosing module using the `java:identifier`, `java:package`, or
+    `matlab:identifier` metadata; or
+  - you assign a compact ID to your class
+
+  You help Ice locate these classes by installing a Slice loader in `InitializationData`, just like when you provide a
+  custom Slice loader. Ice for Java and Ice for MATLAB provide implementations of `SliceLoader` for this purpose. For
+  example, you can use the `ClassSliceLoader` implementation to create a Slice loader for one or more generated classes
+  (typically classes with remapped names or compact IDs).
+
+  In Java, MATLAB and Swift, the communicator caches "not found" Slice loader resolutions. This cache can be configured
+  using `Ice.SliceLoader.NotFoundCacheSize` and `Ice.Warn.SliceLoader`.
+
+  Limitations:
+  - in Python and Ruby, a custom Slice loader can only create class instances. The creation of custom user exceptions is
+    currently ignored.
+  - there is no custom Slice loader in PHP.
+
 - The local exceptions that can be marshaled now have a common base class (`DispatchException`), and are no longer
   limited to 6 exceptions. The reply status of a dispatch exception can have any value between 2 and 255. A dispatch
   exception with reply status >= 5 is marshaled as its reply status (one byte) followed by its message (a Slice-encoded
@@ -244,6 +312,16 @@ classDiagram
   endpoints (and by extension proxies), since multiple object adapters often listen on the same multicast address/port
   combination.
 
+- Add new `ice2slice` compiler that converts Slice files in the `.ice` format (used by Ice) into Slice files in the
+  `.slice` format (used by IceRPC).
+
+- Removed Slice checksums.
+
+- Removed the `slice2html` compiler, which was previously used to convert Slice documentation comments to HTML. Doxygen
+  should be used to generate Slice API documentation.
+
+- Removed the `--impl` and `-E` options from the Slice compilers.
+
 ## Packaging Changes
 
 - The Windows MSI installer is now built using the WiX Toolset. The WiX project files are included in the packaging/msi
@@ -269,7 +347,7 @@ classDiagram
   | ZeroC.IceLocatorDiscovery | The IceLocatorDiscovery plug-in.                                                                        |
   | ZeroC.IceStorm            | The IceStorm assembly, used by publishers and subscribers for IceStorm.                                 |
 
-  ZeroC.Ice.Slice.Tools contains `slice2cs` binaries for Linux, macOS and Windows. As you result, `slice2cs` is no
+  ZeroC.Ice.Slice.Tools contains `slice2cs` binaries for Linux, macOS and Windows. As a result, `slice2cs` is no
   longer distributed in any other package.
 
 - The C++ NuGet package has been renamed to `ZeroC.Ice.Cpp`. This package replaces the `zeroc.ice.vXXX` packages from
@@ -278,9 +356,11 @@ classDiagram
 
 - The `slice2js` Slice compiler is now included in the `@zeroc/ice` NPM package.
 
-## Slice Changes
+## Slice Language Changes
 
 - Removed local Slice. `local` is no longer a Slice keyword.
+
+- The type of an optional field or parameter can no longer be a class or contain a class.
 
 - Added new metadata for customizing the mapped names of Slice definitions in each language.
   This metadata is of the form: `["<lang>:identifier:<identifier>"]`, where `<lang>` can be any of the standard language
@@ -412,92 +492,10 @@ classDiagram
 - An interface can no longer be used as a type. This feature, known as "interface by value", has been deprecated since
   Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `Greeter` represents an interface.
 
-- The type of an optional field or parameter can no longer be a class or contain a class.
-
 - `:` is now an alias for the `extends` keyword.
-
-- Improved validation of metadata and doc-comments.
-
-- Add new `ice2slice` compiler that converts Slice files in the `.ice` format (used by Ice) into Slice files in the
-  `.slice` format (used by IceRPC).
-
-- Removed Slice checksums.
-
-- Removed the `slice2html` compiler, which was previously used to convert Slice documentation comments to HTML. Doxygen
-  should be used to generate Slice API documentation.
-
-- Removed the `--impl` and `-E` options from the Slice compilers.
 
 - Sequences can no longer be used as dictionary key types.
   This feature has been deprecated since Ice 3.3.0.
-
-- The default value for Ice.ClassGraphDepthMax is now `10`. In Ice 3.7, the default was `0`, which meant the class
-  graph depth was unlimited.
-
-- Refactored the unmarshaling of Slice-defined classes and exceptions.
-  When Ice unmarshals a Slice-defined class or exception, it first needs to locate and create an instance of the mapped
-  C++/C#/Java (...) class, using the default parameter-less constructor of the mapped class. The new abstraction for
-  this process is the Slice loader. Its API varies slightly from language to language, for example:
-
-  ```cpp
-  // C++
-  class SliceLoader
-  {
-  public:
-        [[nodiscard]] virtual ValuePtr newClassInstance(std::string_view typeId) const;
-        [[nodiscard]] virtual std::exception_ptr newExceptionInstance(std::string_view typeId) const;
-  };
-  ```
-
-  ```java
-  // Java
-  @FunctionalInterface
-  public interface SliceLoader {
-      java.lang.Object newInstance(String typeId);
-  }
-  ```
-
-  ```typescript
-  // TypeScript
-  interface SliceLoader {
-      newInstance(typeId: string): Ice.Value | Ice.UserException | null;
-  }
-  ```
-
-  ```matlab
-  % MATLAB
-  classdef (Abstract) SliceLoader < handle
-      methods(Abstract)
-          r = newInstance(obj, typeId)
-      end
-  end
-  ```
-
-  You can implement `SliceLoader` and install your own custom Slice loader on a communicator by setting the
-  `sliceLoader` field in `InitializationData`. This custom Slice loader is always in addition to an internal Slice
-  loader that Ice uses when you don't set a custom Slice loader or when your Slice loader returns null. This new
-  `InitializationData` field replaces the `ValueFactory` and `ValueFactoryManager` provided in previous Ice releases.
-
-  In most languages, generated classes for Slice classes and exceptions register themselves at startup with a default
-  Slice loader implemented by Ice, and you don't need to do anything to help Ice locate these generated classes.
-  However, in Java and MATLAB, there is no such registration at startup, and you need to help Ice locate these generated
-  classes when:
-  - you remap either the class name or an enclosing module using the `java:identifier`, `java:package`, or
-    `matlab:identifier` metadata; or
-  - you assign a compact ID to your class
-
-  You help Ice locate these classes by installing a Slice loader in `InitializationData`, just like when you provide a
-  custom Slice loader. Ice for Java and Ice for MATLAB provide implementations of `SliceLoader` for this purpose. For
-  example, you can use the `ClassSliceLoader` implementation to create a Slice loader for one or more generated classes
-  (typically classes with remapped names or compact IDs).
-
-  In Java, MATLAB and Swift, the communicator caches "not found" Slice loader resolutions. This cache can be configured
-  using `Ice.SliceLoader.NotFoundCacheSize` and `Ice.Warn.SliceLoader`.
-
-  Limitations:
-  - in Python and Ruby, a custom Slice loader can only create class instances. The creation of custom user exceptions is
-    currently ignored.
-  - there is no custom Slice loader in PHP.
 
 ## IceSSL Changes
 
@@ -908,7 +906,7 @@ initialization. See `InitializationData.pluginFactories`.
 ## Ruby Changes
 
 - There are no Ruby-specific updates in this release. Nevertheless, we made many updates to Ice for Ruby: see
-  [General Changes](#general-changes) and [Slice Changes](#slice-changes).
+  [General Changes](#general-changes) and [Slice Language Changes](#slice-language-changes).
 
 ## Swift Changes
 
