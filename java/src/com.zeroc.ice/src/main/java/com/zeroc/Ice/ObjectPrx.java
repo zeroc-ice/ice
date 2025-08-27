@@ -712,7 +712,7 @@ public interface ObjectPrx {
      * @param obj The source proxy.
      * @param facet The facet for the new proxy.
      * @return A new proxy with the specified facet, or {@code null} if the target facet does not support the specified
-     * type.
+     *         type.
      */
     static ObjectPrx checkedCast(ObjectPrx obj, String facet) {
         return checkedCast(obj, facet, noExplicitContext);
@@ -725,7 +725,7 @@ public interface ObjectPrx {
      * @param facet The facet for the new proxy.
      * @param context The <code>Context</code> map for the invocation.
      * @return A new proxy with the specified facet, or {@code null} if the target facet does not support the specified
-     * type.
+     *         type.
      */
     static ObjectPrx checkedCast(
             ObjectPrx obj, String facet, Map<String, String> context) {
