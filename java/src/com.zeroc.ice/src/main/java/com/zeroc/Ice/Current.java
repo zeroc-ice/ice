@@ -18,7 +18,7 @@ public final class Current implements Cloneable {
      * The connection that received the request. It's null when the invocation and dispatch are
      * collocated.
      */
-    public final Connection con;
+    public final     Connection con;
 
     /** The identity of the target Ice object. */
     public final Identity id;
@@ -57,6 +57,7 @@ public final class Current implements Cloneable {
     public Current(
             ObjectAdapter adapter,
             Connection con,
+
             Identity id,
             String facet,
             String operation,
@@ -95,17 +96,21 @@ public final class Current implements Cloneable {
         if (mode != OperationMode.Normal) {
             throw new MarshalException(
                 String.format(
-                    "Operation mode mismatch for operation '%s': received %s for non-idempotent operation",
-                    operation, mode));
+        "Operation mode mismatch for operation '%s': received %s for non-idempotent operation",
+        operation, mode));
         }
     }
 
     @Override
-    public Current clone() {
+    public Current clone()
+    
+    {
         Current clone = null;
-        try {
+        try
+        {
             clone = (Current) super.clone();
-        } catch (CloneNotSupportedException ex) {
+        } catch (CloneNotSupportedException ex)
+        {
             assert false; // impossible
         }
         return clone;
