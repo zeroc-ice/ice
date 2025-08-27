@@ -569,7 +569,8 @@ internal sealed class Network
         return addresses;
     }
 
-    internal static IPAddress[] getLocalAddresses(int protocol, bool singleAddressPerInterface)
+    // Only used for multicast.
+    internal static IPAddress[] getLocalAddresses(int protocol)
     {
         List<IPAddress> addresses;
         int retry = 5;
@@ -578,7 +579,9 @@ internal sealed class Network
         try
         {
             addresses = new List<IPAddress>();
-            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            IEnumerable<NetworkInterface> nics = NetworkInterface.GetAllNetworkInterfaces().Where(
+                nic => nic.SupportsMulticast && nic.OperationalStatus == OperationalStatus.Up);
+
             foreach (NetworkInterface ni in nics)
             {
                 IPInterfaceProperties ipProps = ni.GetIPProperties();
@@ -591,10 +594,7 @@ internal sealed class Network
                         if (!addresses.Contains(uni.Address))
                         {
                             addresses.Add(uni.Address);
-                            if (singleAddressPerInterface)
-                            {
-                                break;
-                            }
+                            break; // need only one address per interface
                         }
                     }
                 }
@@ -686,7 +686,7 @@ internal sealed class Network
         var interfaces = new List<string>();
         if (isWildcard(intf, out bool ipv4Wildcard))
         {
-            foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, true))
+            foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol))
             {
                 interfaces.Add(a.ToString());
             }
