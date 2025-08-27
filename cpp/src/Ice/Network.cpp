@@ -113,7 +113,8 @@ namespace
         return fd;
     }
 
-    vector<Address> getLocalAddresses(ProtocolSupport protocol, bool includeLoopback, bool singleAddressPerInterface)
+    // Only used for multicast.
+    vector<Address> getLocalAddresses(ProtocolSupport protocol)
     {
         vector<Address> result;
 
@@ -152,26 +153,18 @@ namespace
                         memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
                         if (addr.saStorage.ss_family == AF_INET && protocol != EnableIPv6)
                         {
-                            if (addr.saIn.sin_addr.s_addr != 0 &&
-                                (includeLoopback || addr.saIn.sin_addr.s_addr != htonl(INADDR_LOOPBACK)))
+                            if (addr.saIn.sin_addr.s_addr != 0)
                             {
                                 result.push_back(addr);
-                                if (singleAddressPerInterface)
-                                {
-                                    break; // One address is enough for each interface.
-                                }
+                                break; // a single address per interface is sufficient
                             }
                         }
                         else if (addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
                         {
-                            if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) &&
-                                (includeLoopback || !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr)))
+                            if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
                             {
                                 result.push_back(addr);
-                                if (singleAddressPerInterface)
-                                {
-                                    break; // One address is enough for each interface.
-                                }
+                                break; // a single address per interface is sufficient
                             }
                         }
                     }
@@ -191,7 +184,7 @@ namespace
         set<string> interfaces;
         while (curr != nullptr)
         {
-            if (curr->ifa_addr && (includeLoopback || !(curr->ifa_flags & IFF_LOOPBACK)))
+            if (curr->ifa_addr)
             {
                 if (curr->ifa_addr->sa_family == AF_INET && protocol != EnableIPv6)
                 {
@@ -199,7 +192,7 @@ namespace
                     memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in));
                     if (addr.saIn.sin_addr.s_addr != 0)
                     {
-                        if (!singleAddressPerInterface || interfaces.find(curr->ifa_name) == interfaces.end())
+                        if (interfaces.find(curr->ifa_name) == interfaces.end())
                         {
                             result.push_back(addr);
                             interfaces.insert(curr->ifa_name);
@@ -212,7 +205,7 @@ namespace
                     memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in6));
                     if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
                     {
-                        if (!singleAddressPerInterface || interfaces.find(curr->ifa_name) == interfaces.end())
+                        if (interfaces.find(curr->ifa_name) == interfaces.end())
                         {
                             result.push_back(addr);
                             interfaces.insert(curr->ifa_name);
@@ -291,10 +284,9 @@ namespace
                     {
                         Address addr;
                         memcpy(&addr.saStorage, &ifr[j].ifr_addr, sizeof(sockaddr_in));
-                        if (addr.saIn.sin_addr.s_addr != 0 &&
-                            (includeLoopback || addr.saIn.sin_addr.s_addr != htonl(INADDR_LOOPBACK)))
+                        if (addr.saIn.sin_addr.s_addr != 0)
                         {
-                            if (!singleAddressPerInterface || interfaces.find(ifr[j].ifr_name) == interfaces.end())
+                            if (interfaces.find(ifr[j].ifr_name) == interfaces.end())
                             {
                                 result.push_back(addr);
                                 interfaces.insert(ifr[j].ifr_name);
@@ -305,10 +297,9 @@ namespace
                     {
                         Address addr;
                         memcpy(&addr.saStorage, &ifr[j].ifr_addr, sizeof(sockaddr_in6));
-                        if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) &&
-                            (includeLoopback || !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr)))
+                        if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
                         {
-                            if (!singleAddressPerInterface || interfaces.find(ifr[j].ifr_name) == interfaces.end())
+                            if (interfaces.find(ifr[j].ifr_name) == interfaces.end())
                             {
                                 result.push_back(addr);
                                 interfaces.insert(ifr[j].ifr_name);
@@ -1182,7 +1173,7 @@ IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport proto
     bool ipv4Wildcard = false;
     if (isWildcard(intf, protocolSupport, ipv4Wildcard))
     {
-        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, true, true);
+        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport);
         for (const auto& addr : addrs)
         {
             interfaces.push_back(inetAddrToString(addr)); // We keep link local addresses for multicast
