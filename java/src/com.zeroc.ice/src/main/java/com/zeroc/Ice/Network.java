@@ -634,7 +634,8 @@ public final class Network {
         return addresses;
     }
 
-    public static ArrayList<InetAddress> getLocalAddresses(int protocol) {
+    // Only used for multicast.
+    private static ArrayList<InetAddress> getLocalAddresses(int protocol) {
         ArrayList<InetAddress> result = new ArrayList<>();
         try {
             Enumeration<NetworkInterface> ifaces =
@@ -660,8 +661,7 @@ public final class Network {
         return result;
     }
 
-    public static List<String> getInterfacesForMulticast(
-            String intf, int protocolSupport) {
+    public static List<String> getInterfacesForMulticast(String intf, int protocolSupport) {
         ArrayList<String> interfaces = new ArrayList<>();
         if (isWildcard(intf)) {
             for (InetAddress addr : getLocalAddresses(protocolSupport)) {
