@@ -14,7 +14,7 @@ might need to be aware of.
     - [Removed Support for OpenSSL on Windows](#removed-support-for-openssl-on-windows)
     - [Removed IceSSL APIs](#removed-icessl-apis)
     - [Updated IceSSL Properties](#updated-icessl-properties)
-  - [Removed IceSSL Properties](#removed-icessl-properties)
+    - [Removed IceSSL Properties](#removed-icessl-properties)
   - [C++ Changes](#c-changes)
   - [C# Changes](#c-changes-1)
   - [Java Changes](#java-changes)
@@ -593,7 +593,7 @@ it always uses the platform’s native SSL APIs. On Windows, this means **Schann
   the now-removed certificate verifier APIs. Applications requiring custom trust logic should use the new validation
   callbacks.
 
-### Removed IceSSL Properties
+#### Removed IceSSL Properties
 
 Several IceSSL properties have been removed in Ice 3.8, either because better alternatives are now available, they are
 no longer useful, or they go against best practices:
