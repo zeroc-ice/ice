@@ -11,6 +11,7 @@
 
   <PropertyGroup>
     <Gradle Condition="'$(Gradle)' == ''">gradlew</Gradle>
+    <GRADLEARGS>-x checkStyleMain -x checkStyleTest</GRADLEARGS>
     <slice2java>slice2java</slice2java>
   </PropertyGroup>
 
