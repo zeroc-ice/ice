@@ -1,4 +1,4 @@
-The entries below contain brief descriptions of the changes in each release, in no particular order. Some of the
+**The** entries below contain brief descriptions of the changes in each release, in no particular order. Some of the
 entries reflect significant new additions, while others represent minor corrections. Although this list is not a
 comprehensive report of every change we made in a release, it does provide details on the changes we feel Ice users
 might need to be aware of.
@@ -61,6 +61,8 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   client connections) or `Ice.Connection.Server.CloseTimeout` (for server connections). The unit for this timeout is
   seconds, as usual. You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.CloseTimeout`.
+
+- Removed the `setHeartbeatCallback` operation on `Connection`.
 
 - Add new properties for flow control.
   - Max dispatches\
@@ -321,6 +323,12 @@ classDiagram
   Doxygen to generate an API reference for your Slice files.
 
 - Removed the `--impl` and `-E` options from the Slice compilers.
+
+- Added stricter property validation. Ice now throws an exception during communicator initialization when an unknown
+  Ice property is set.
+
+- Added `getIceProperty`, `getIcePropertyAsInt`, and `getIcePropertyAsList` functions to `Properties`. These functions
+  return the value of an Ice property, or the default value if the property is not set.
 
 ## Packaging Changes
 
