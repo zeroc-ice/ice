@@ -1,13 +1,42 @@
+# Ice 3.8 Changelog <!-- omit in toc -->
+
 The entries below contain brief descriptions of the changes in each release, in no particular order. Some of the
 entries reflect significant new additions, while others represent minor corrections. Although this list is not a
 comprehensive report of every change we made in a release, it does provide details on the changes we feel Ice users
 might need to be aware of.
 
-# Changes in Ice 3.8.0
+- [Changes in Ice 3.8.0](#changes-in-ice-380)
+  - [General Changes](#general-changes)
+  - [Packaging Changes](#packaging-changes)
+  - [Slice Language Changes](#slice-language-changes)
+  - [IceSSL Changes](#icessl-changes)
+    - [Integration with Platform SSL Engines](#integration-with-platform-ssl-engines)
+    - [Removed Support for OpenSSL on Windows](#removed-support-for-openssl-on-windows)
+    - [Removed IceSSL APIs](#removed-icessl-apis)
+    - [Updated IceSSL Properties](#updated-icessl-properties)
+    - [Removed IceSSL Properties](#removed-icessl-properties)
+  - [C++ Changes](#c-changes)
+  - [C# Changes](#c-changes-1)
+  - [Java Changes](#java-changes)
+  - [JavaScript Changes](#javascript-changes)
+  - [MATLAB Changes](#matlab-changes)
+  - [Objective-C Changes](#objective-c-changes)
+  - [PHP Changes](#php-changes)
+  - [Python Changes](#python-changes)
+  - [Ruby Changes](#ruby-changes)
+  - [Swift Changes](#swift-changes)
+  - [Ice Service Changes](#ice-service-changes)
+    - [DataStorm](#datastorm)
+    - [Glacier2](#glacier2)
+    - [IceGrid](#icegrid)
+    - [IcePatch2](#icepatch2)
+    - [IceStorm](#icestorm)
+
+## Changes in Ice 3.8.0
 
 These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANGELOG-3.7.md).
 
-## General Changes
+### General Changes
 
 - Replaced ACM and connection timeouts by idle, inactivity, connect, and close timeouts.
   - Idle timeout\
@@ -61,6 +90,8 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   client connections) or `Ice.Connection.Server.CloseTimeout` (for server connections). The unit for this timeout is
   seconds, as usual. You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.CloseTimeout`.
+
+- Removed the `setHeartbeatCallback` operation on `Connection`.
 
 - Add new properties for flow control.
   - Max dispatches\
@@ -322,7 +353,13 @@ classDiagram
 
 - Removed the `--impl` and `-E` options from the Slice compilers.
 
-## Packaging Changes
+- Added stricter property validation. Ice now throws an exception during communicator initialization when an unknown
+  Ice property is set.
+
+- Added `getIceProperty`, `getIcePropertyAsInt`, and `getIcePropertyAsList` methods to `Properties`. These methods
+  return the value of an Ice property, or the default value if the property is not set.
+
+### Packaging Changes
 
 - The Windows MSI installer is now built using the WiX Toolset. The WiX project files are included in the packaging/msi
   directory.
@@ -356,7 +393,7 @@ classDiagram
 
 - The `slice2js` Slice compiler is now included in the `@zeroc/ice` NPM package.
 
-## Slice Language Changes
+### Slice Language Changes
 
 - Removed local Slice. `local` is no longer a Slice keyword.
 
@@ -497,11 +534,11 @@ classDiagram
 - Sequences can no longer be used as dictionary key types.
   This feature has been deprecated since Ice 3.3.0.
 
-## IceSSL Changes
+### IceSSL Changes
 
 The SSL transport is no longer a plug-in. It is now built into the main Ice library and always available.
 
-### Integration with Platform SSL Engines
+#### Integration with Platform SSL Engines
 
 Ice 3.8 introduces new IceSSL configuration APIs that allow you to configure the SSL transport using platform-native
 SSL engine APIs. This provides significantly greater flexibility for advanced use cases.
@@ -513,13 +550,13 @@ SSL engine APIs. This provides significantly greater flexibility for advanced us
 > These APIs are platform-dependent. A good starting point is the `Ice/secure` demo for your target platform and
 > language mapping.
 
-### Removed Support for OpenSSL on Windows
+#### Removed Support for OpenSSL on Windows
 
 In Ice 3.7, IceSSL on Windows could be built with either Schannel or OpenSSL. In Ice 3.8, since IceSSL is now built-in,
 it always uses the platform’s native SSL APIs. On Windows, this means **Schannel is always used**;
 **OpenSSL is no longer supported** on Windows.
 
-### Removed IceSSL APIs
+#### Removed IceSSL APIs
 
 - **Certificate API**\
   The `IceSSL::Certificate` type and related APIs have been removed. Applications that require access to certificate
@@ -533,7 +570,7 @@ it always uses the platform’s native SSL APIs. On Windows, this means **Schann
   Password callback support has been removed. Applications can now provide certificates and keys directly through the
   new configuration APIs.
 
-### Updated IceSSL Properties
+#### Updated IceSSL Properties
 
 - **IceSSL.CertFile**\
   This property no longer accepts multiple files. In Ice 3.7, IceSSL with OpenSSL or Schannel allowed specifying two
@@ -556,7 +593,7 @@ it always uses the platform’s native SSL APIs. On Windows, this means **Schann
   the now-removed certificate verifier APIs. Applications requiring custom trust logic should use the new validation
   callbacks.
 
-### Removed IceSSL Properties
+#### Removed IceSSL Properties
 
 Several IceSSL properties have been removed in Ice 3.8, either because better alternatives are now available, they are
 no longer useful, or they go against best practices:
@@ -600,7 +637,7 @@ no longer useful, or they go against best practices:
   Previously used to set the maximum certificate chain length. This feature was rarely used. Applications requiring this
   functionality should implement a custom certificate validation callback.
 
-## C++ Changes
+### C++ Changes
 
 - There is now a single C++ mapping, based on the C++11 mapping provided by Ice 3.7. This new C++ mapping requires a
   C++ compiler with support for C++17 or higher.
@@ -643,7 +680,7 @@ See `InitializationData::pluginFactories`.
   `std::chrono::duration` values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods
   now return `std::chrono::milliseconds`.
 
-## C# Changes
+### C# Changes
 
 - Upgrade to .NET 8.0 / C# 12.
 
@@ -686,7 +723,7 @@ plug-ins are created during communicator initialization. See `InitializationData
 
 - Removed support for using `clr` as an alias for `cs` in metadata declarations.
 
-## Java Changes
+### Java Changes
 
 - Upgrade to Java 17.
 
@@ -712,7 +749,7 @@ initialization. See `InitializationData.pluginFactories`.
 - Added support for the `Ice.ClassGraphDepthMax` property, which controls the maximum depth allowed when unmarshaling a
   graph of Slice class instances.
 
-## JavaScript Changes
+### JavaScript Changes
 
 - The Ice for JavaScript NPM package has been converted to a scoped package named `@zeroc/ice`.
 
@@ -744,7 +781,7 @@ initialization. See `InitializationData.pluginFactories`.
   do not reliably report errors during connection establishment. We advise against using the WebSocket transport on
   these versions.
 
-## MATLAB Changes
+### MATLAB Changes
 
 - Upgrade to MATLAB 2024a.
 
@@ -784,11 +821,11 @@ initialization. See `InitializationData.pluginFactories`.
 - The `slice2matlab` function has been updated to accept multiple arguments, which are passed directly to the
   `slice2matlab` compiler. In Ice 3.7, all arguments had to be provided as a single string, which was less convenient.
 
-## Objective-C Changes
+### Objective-C Changes
 
 - The Objective-C mapping was removed.
 
-## PHP Changes
+### PHP Changes
 
 - Removed the flattened mapping deprecated in 3.7.
 
@@ -808,7 +845,7 @@ initialization. See `InitializationData.pluginFactories`.
   `ice_postunmarshal` only makes sense if the application can register a custom Slice loader and Ice for PHP does not
   provide custom Slice loaders.
 
-## Python Changes
+### Python Changes
 
 - Upgrade to Python 3.12.
 
@@ -900,12 +937,12 @@ initialization. See `InitializationData.pluginFactories`.
   For example, `["python:memoryview:CustomFactory.myByteSeq:array.array"]` indicates that the factory function
   will return an `array.array`.
 
-## Ruby Changes
+### Ruby Changes
 
 - There are no Ruby-specific updates in this release. Nevertheless, we made many updates to Ice for Ruby: see
   [General Changes](#general-changes) and [Slice Language Changes](#slice-language-changes).
 
-## Swift Changes
+### Swift Changes
 
 - Upgrade to Swift 6.1.
 
@@ -928,9 +965,9 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Added a SwiftPM plugin, `CompileSlice`, that lets you compile Slice files as part of SwiftPM and Xcode builds.
 
-## Ice Service Changes
+### Ice Service Changes
 
-### DataStorm
+#### DataStorm
 
 - The DataStorm publisher/subscriber framework has been integrated into the Ice distribution, and is no longer a
   separate product.
@@ -946,7 +983,7 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Fixed a bug in filter initialization that can result in segmentation fault when using a key or a sample filter.
 
-### Glacier2
+#### Glacier2
 
 - Removed buffered mode. As a result, Glacier2 has now a single mode, the previous unbuffered mode.
 
@@ -959,7 +996,7 @@ initialization. See `InitializationData.pluginFactories`.
 - Removed session timeouts configured using `Glacier2.SessionTimeout`. The Glacier2 router now relies on the common
   idle check described under [General Changes](#general-changes) for these connection-bound sessions.
 
-### IceGrid
+#### IceGrid
 
 - Removed deprecated server and application distributions in IceGrid. These distributions relied on the IcePatch2
 service.
@@ -968,11 +1005,11 @@ service.
   relies on the common idle check described under [General Changes](#general-changes) for these connection-bound
   sessions.
 
-### IcePatch2 Changes
+#### IcePatch2
 
 - The IcePatch2 service was removed.
 
-### IceStorm Changes
+#### IceStorm
 
 - The IceStorm configuration now uses the `IceStorm` prefix instead of the IceBox service name as prefix.
 
