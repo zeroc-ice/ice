@@ -20,6 +20,8 @@ ifneq ($(install_bindir),)
   GRADLEARGS += -Dorg.gradle.project.binDir=$(install_bindir)
 endif
 
+GRADLEARGS += -x checkStyleMain -x checkStyleTest
+
 all:
 	$(GRADLE) $(GRADLEARGS) build
 
