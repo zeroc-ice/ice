@@ -29,8 +29,8 @@ might need to be aware of.
     - [DataStorm](#datastorm)
     - [Glacier2](#glacier2)
     - [IceGrid](#icegrid)
-    - [IcePatch2 Changes](#icepatch2-changes)
-    - [IceStorm Changes](#icestorm-changes)
+    - [IcePatch2](#icepatch2)
+    - [IceStorm](#icestorm)
 
 ## Changes in Ice 3.8.0
 
@@ -356,7 +356,7 @@ classDiagram
 - Added stricter property validation. Ice now throws an exception during communicator initialization when an unknown
   Ice property is set.
 
-- Added `getIceProperty`, `getIcePropertyAsInt`, and `getIcePropertyAsList` functions to `Properties`. These functions
+- Added `getIceProperty`, `getIcePropertyAsInt`, and `getIcePropertyAsList` methods to `Properties`. These methods
   return the value of an Ice property, or the default value if the property is not set.
 
 ### Packaging Changes
@@ -1005,11 +1005,11 @@ service.
   relies on the common idle check described under [General Changes](#general-changes) for these connection-bound
   sessions.
 
-#### IcePatch2 Changes
+#### IcePatch2
 
 - The IcePatch2 service was removed.
 
-#### IceStorm Changes
+#### IceStorm
 
 - The IceStorm configuration now uses the `IceStorm` prefix instead of the IceBox service name as prefix.
 
