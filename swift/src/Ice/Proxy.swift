@@ -315,21 +315,20 @@ public func makeProxy(communicator: Ice.Communicator, proxyString: String, type:
     try communicator.makeProxyImpl(proxyString) as ObjectPrxI
 }
 
-/// Casts a proxy to `Ice.ObjectPrx`. This call contacts the server and will throw an Ice run-time exception
-/// if the target object does not exist or the server cannot be reached.
+/// Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
 ///
-/// - parameter prx: `Ice.ObjectPrx` - The proxy to cast to `Ice.ObjectPrx`.
+/// - parameter prx: `Ice.ObjectPrx` - The source proxy.
 ///
-/// - parameter type: `Ice.ObjectPrx.Protocol` - The proxy type to cast to.
+/// - parameter type: `Ice.ObjectPrx.Protocol` - The type of the new proxy.
 ///
 /// - parameter facet: `String?` - The optional facet for the new proxy.
 ///
 /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
 ///
-/// - throws: Throws an Ice run-time exception if the target object does not exist, the specified facet
+/// - throws: Throws an Ice local exception if the target object does not exist, the specified facet
 ///   does not exist, or the server cannot be reached.
 ///
-/// - returns: The new proxy with the specified facet or nil if the target object does not support the specified
+/// - returns: A new proxy with the specified facet or nil if the target object does not support the specified
 ///   interface.
 public func checkedCast(
     prx: Ice.ObjectPrx,
@@ -340,16 +339,15 @@ public func checkedCast(
     return try await ObjectPrxI.checkedCast(prx: prx, facet: facet, context: context) as ObjectPrxI?
 }
 
-/// Creates a new proxy that is identical to the passed proxy, except for its facet. This call does
-/// not contact the server and always succeeds.
+/// Creates a new proxy from an existing proxy.
 ///
-/// - parameter prx: `Ice.ObjectPrx` - The proxy to cast to `Ice.ObjectPrx`.
+/// - parameter prx: `Ice.ObjectPrx` - The source proxy.
 ///
-/// - parameter type: `Ice.ObjectPrx.Protocol` - The proxy type to cast to.
+/// - parameter type: `Ice.ObjectPrx.Protocol` - The type of the new proxy.
 ///
 /// - parameter facet: `String?` - The optional facet for the new proxy.
 ///
-/// - returns: The new proxy with the specified facet.
+/// - returns: A new proxy with the specified facet.
 public func uncheckedCast(
     prx: Ice.ObjectPrx,
     type _: ObjectPrx.Protocol,

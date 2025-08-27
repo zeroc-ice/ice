@@ -33,7 +33,7 @@ def uncheckedCast(type: Type[T], proxy: None, facet: str | None = None) -> None:
 
 def uncheckedCast(type: Type[T], proxy: ObjectPrx | None, facet: str | None = None) -> T | None:
     """
-    Downcasts a proxy without confirming the target object's type via a remote invocation.
+    Creates a new proxy from an existing proxy.
 
     Parameters
     ----------
@@ -49,7 +49,7 @@ def uncheckedCast(type: Type[T], proxy: ObjectPrx | None, facet: str | None = No
     Returns
     -------
     ObjectPrx | None
-        A proxy with the requested type.
+        A new proxy with the requested type, or None if the source proxy is None.
     """
     if proxy is None:
         return None
@@ -62,7 +62,7 @@ def checkedCast(
     type: Type[T], proxy: ObjectPrx | None, facet: str | None = None, context: dict[str, str] | None = None
 ) -> T | None:
     """
-    Downcasts a proxy after confirming the target object's type via a remote invocation.
+    Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
 
     Parameters
     ----------
@@ -81,7 +81,8 @@ def checkedCast(
     Returns
     -------
     ObjectPrx | None
-        A proxy with the requested type, or None if the target object does not support the requested type.
+        A new proxy with the requested type, or None if the source proxy is None or if the target object does not
+        support the requested type.
     """
     if proxy is None:
         return None
@@ -94,7 +95,7 @@ async def checkedCastAsync(
     type: Type[T], proxy: ObjectPrx | None, facet: str | None = None, context: dict[str, str] | None = None
 ) -> T | None:
     """
-    Downcasts a proxy after confirming the target object's type via a remote invocation.
+    Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
 
     Parameters
     ----------
@@ -113,7 +114,8 @@ async def checkedCastAsync(
     Returns
     -------
     ObjectPrx | None
-        A proxy with the requested type, or None if the target object does not support the requested type.
+        A new proxy with the requested type, or None if the source proxy is None or if the target object does not
+        support the requested type.
     """
     if proxy is None:
         return None
@@ -129,9 +131,9 @@ class ObjectPrx(IcePy.ObjectPrx):
     """
 
     @staticmethod
-    def uncheckedCast(proxy: ObjectPrx, facet: str | None = None) -> ObjectPrx | None:
+    def uncheckedCast(proxy: ObjectPrx | None, facet: str | None = None) -> ObjectPrx | None:
         """
-        Downcasts a proxy without confirming the target object's type via a remote invocation.
+        Creates a new proxy from an existing proxy.
 
         Parameters
         ----------
@@ -144,16 +146,16 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         ObjectPrx | None
-            A proxy with the requested type, or None if the target object does not support the requested type.
+            A new proxy with the requested type, or None if the source proxy is None.
         """
         return uncheckedCast(ObjectPrx, proxy, facet)
 
     @staticmethod
     def checkedCast(
-        proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None
+        proxy: ObjectPrx | None, facet: str | None = None, context: dict[str, str] | None = None
     ) -> ObjectPrx | None:
         """
-        Downcasts a proxy after confirming the target object's type via a remote invocation.
+        Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
 
         Parameters
         ----------
@@ -169,7 +171,8 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         ObjectPrx | None
-            A proxy with the requested type, or None if the target object does not support the requested type.
+            A new proxy with the requested type, or None if the source proxy is None or if the target object does not
+            support the requested type.
         """
         return checkedCast(ObjectPrx, proxy, facet, context)
 
@@ -178,7 +181,7 @@ class ObjectPrx(IcePy.ObjectPrx):
         proxy: ObjectPrx, facet: str | None = None, context: dict[str, str] | None = None
     ) -> Awaitable[ObjectPrx | None]:
         """
-        Downcasts a proxy after confirming the target object's type via a remote invocation.
+        Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
 
         Parameters
         ----------
@@ -194,7 +197,8 @@ class ObjectPrx(IcePy.ObjectPrx):
         Returns
         -------
         ObjectPrx | None
-            A proxy with the requested type, or None if the target object does not support the requested type.
+            A new proxy with the requested type, or None if the source proxy is None or if the target object does not
+            support the requested type.
         """
         return checkedCastAsync(ObjectPrx, proxy, facet, context)
 

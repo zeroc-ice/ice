@@ -2394,10 +2394,10 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp;
     _out << nl << "/**";
-    _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
-    _out << nl << " * @param prx The target proxy.";
+    _out << nl << " * Creates a new proxy from an existing proxy.";
+    _out << nl << " * @param prx The source proxy.";
     _out << nl << " * @param facet An optional facet name.";
-    _out << nl << " * @returns A proxy with the requested type and facet, or null if the target proxy is null.";
+    _out << nl << " * @returns A new proxy with the requested type and facet, or null if the source proxy is null.";
     _out << nl << " */";
     _out << nl << "static uncheckedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx"
          << ", "
@@ -2405,10 +2405,10 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp;
     _out << nl << "/**";
-    _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
-    _out << nl << " * @param prx The target proxy.";
+    _out << nl << " * Creates a new proxy from an existing proxy.";
+    _out << nl << " * @param prx The source proxy.";
     _out << nl << " * @param facet An optional facet name.";
-    _out << nl << " * @returns A proxy with the requested type and facet, or null if the target proxy is null.";
+    _out << nl << " * @returns A new proxy with the requested type and facet, or null if the source proxy is null.";
     _out << nl << " */";
     _out << nl << "static uncheckedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx | null"
          << ", "
@@ -2416,13 +2416,15 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp;
     _out << nl << "/**";
-    _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
-    _out << nl << " * @param prx The target proxy.";
+    _out << nl
+         << " * Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
+            "invocation.";
+    _out << nl << " * @param prx The source proxy.";
     _out << nl << " * @param facet An optional facet name.";
     _out << nl << " * @param context The request context.";
     _out << nl
-         << " * @returns A proxy with the requested type and facet, or null if the target proxy is null or the target";
-    _out << nl << " * object does not support the requested type.";
+         << " * @returns A proxy with the requested type and facet, or null if the target object does not support the "
+            "requested type.";
     _out << nl << " */";
     _out << nl << "static checkedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx | null"
          << ", "

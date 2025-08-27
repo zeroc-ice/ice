@@ -30,22 +30,20 @@ namespace Ice
         }
     }
 
-    /// Downcasts a proxy without confirming the target object's type via a remote invocation.
+    /// Creates a new proxy from an existing proxy.
     /// @param proxy The source proxy.
-    /// @return A proxy with the requested type.
-    /// @remark The preferred syntax is to construct the proxy from another proxy using the explicit proxy
-    /// constructor.
+    /// @return A new proxy with the requested type.
+    /// @remark This is a purely local operation.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     Prx uncheckedCast(const ObjectPrx& proxy)
     {
         return Prx::_fromReference(proxy._getReference());
     }
 
-    /// Downcasts a proxy without confirming the target object's type via a remote invocation.
+    /// Creates a new proxy from an existing proxy.
     /// @param proxy The source proxy (can be nullopt).
-    /// @return A proxy with the requested type.
-    /// @remark The preferred syntax is to construct the proxy from another proxy using the explicit ObjectPrx
-    /// constructor.
+    /// @return A new proxy with the requested type, or nullopt if the source proxy is nullopt.
+    /// @remark This is a purely local operation.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy)
     {
@@ -59,20 +57,22 @@ namespace Ice
         }
     }
 
-    /// Downcasts a proxy without confirming the target object's type via a remote invocation.
+    /// Creates a new proxy from an existing proxy.
     /// @param proxy The source proxy.
     /// @param facet A facet name.
-    /// @return A proxy with the requested type and facet.
+    /// @return A new proxy with the requested type and facet.
+    /// @remark This is a purely local operation.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     Prx uncheckedCast(const ObjectPrx& proxy, std::string facet)
     {
         return uncheckedCast<Prx>(proxy->ice_facet(std::move(facet)));
     }
 
-    /// Downcasts a proxy without confirming the target object's type via a remote invocation.
-    /// @param proxy The source proxy.
+    /// Creates a new proxy from an existing proxy.
+    /// @param proxy The source proxy (can be nullopt).
     /// @param facet A facet name.
-    /// @return A proxy with the requested type and facet.
+    /// @return A new proxy with the requested type and facet, or nullopt if the source proxy is nullopt.
+    /// @remark This is a purely local operation.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy, std::string facet)
     {
@@ -86,10 +86,11 @@ namespace Ice
         }
     }
 
-    /// Downcasts a proxy after confirming the target object's type via a remote invocation.
+    /// Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
     /// @param proxy The source proxy.
     /// @param context The request context.
-    /// @return A proxy with the requested type, or nullopt if the target object does not support the requested type.
+    /// @return A new proxy with the requested type, or nullopt if the target object does not support the requested
+    /// type.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     std::optional<Prx> checkedCast(const ObjectPrx& proxy, const Context& context = noExplicitContext)
     {
@@ -103,22 +104,22 @@ namespace Ice
         }
     }
 
-    /// Downcasts a proxy after confirming the target object's type via a remote invocation.
+    /// Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
     /// @param proxy The source proxy (can be nullopt).
     /// @param context The request context.
-    /// @return A proxy with the requested type, or nullopt if the source proxy is nullopt or if the target object does
-    /// not support the requested type.
+    /// @return A new proxy with the requested type, or nullopt if the target object does not support the requested
+    /// type.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     std::optional<Prx> checkedCast(const std::optional<ObjectPrx>& proxy, const Context& context = noExplicitContext)
     {
         return proxy ? checkedCast<Prx>(proxy.value(), context) : std::nullopt;
     }
 
-    /// Downcasts a proxy after confirming the target object's type via a remote invocation.
+    /// Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
     /// @param proxy The source proxy.
     /// @param facet A facet name.
     /// @param context The request context.
-    /// @return A proxy with the requested type and facet, or nullopt if the target facet is not of the requested
+    /// @return A new proxy with the requested type and facet, or nullopt if the target facet is not of the requested
     /// type.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     std::optional<Prx>
@@ -127,12 +128,12 @@ namespace Ice
         return checkedCast<Prx>(proxy->ice_facet(std::move(facet)), context);
     }
 
-    /// Downcasts a proxy after confirming the target object's type via a remote invocation.
+    /// Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
     /// @param proxy The source proxy (can be nullopt).
     /// @param facet A facet name.
     /// @param context The request context.
-    /// @return A proxy with the requested type and facet, or nullopt if the source proxy is nullopt, or if the target
-    /// facet is not of the requested type.
+    /// @return A new proxy with the requested type and facet, or nullopt if the target facet is not of the requested
+    /// type.
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     std::optional<Prx>
     checkedCast(const std::optional<ObjectPrx>& proxy, std::string facet, const Context& context = noExplicitContext)

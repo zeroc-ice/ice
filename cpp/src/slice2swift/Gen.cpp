@@ -1186,19 +1186,21 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // checkedCast
     //
     out << sp;
-    out << nl << "/// Casts a proxy to the requested type. This call contacts the server and verifies that the object";
-    out << nl << "/// implements this type.";
+    out << nl
+        << "/// Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
+           "invocation.";
     out << nl << "///";
-    out << nl << "/// It will throw a local exception if a communication error occurs. You can optionally supply a";
+    out << nl << "/// This call throws a local exception if a communication error occurs. You can optionally supply a";
     out << nl << "/// facet name and a context map.";
     out << nl << "///";
     out << nl << "/// - Parameters:";
-    out << nl << "///   - prx: The proxy to be cast.";
-    out << nl << "///   - type: The proxy type to cast to.";
+    out << nl << "///   - prx: The source proxy.";
+    out << nl << "///   - type: The type of the new proxy.";
     out << nl << "///   - facet: The optional name of the desired facet.";
     out << nl << "///   - context: The optional context dictionary for the remote invocation.";
     out << nl << "///";
-    out << nl << "/// - Returns: A proxy with the requested type or nil if the objet does not support this type.";
+    out << nl
+        << "/// - Returns: A proxy with the requested type or nil if the target object does not support this type.";
     out << nl << "///";
     out << nl << "/// - Throws: `Ice.LocalException` if a communication error occurs.";
     out << nl << "public func checkedCast" << spar << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
@@ -1214,14 +1216,14 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // uncheckedCast
     //
     out << sp;
-    out << nl << "/// Downcasts the given proxy to this type without contacting the remote server.";
+    out << nl << "/// Creates a new proxy from an existing proxy.";
     out << nl << "///";
     out << nl << "/// - Parameters:";
-    out << nl << "///   - prx: The proxy to be cast.";
-    out << nl << "///   - type: The proxy type to cast to.";
+    out << nl << "///   - prx: The source proxy.";
+    out << nl << "///   - type: The type of the new proxy.";
     out << nl << "///   - facet: The optional name of the desired facet.";
     out << nl << "///";
-    out << nl << "/// - Returns: A proxy with the requested type.";
+    out << nl << "/// - Returns: A new proxy with the requested type.";
     out << nl << "public func uncheckedCast" << spar << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
         << ("type: " + prx + ".Protocol") << ("facet: Swift.String? = nil") << epar << " -> " << prx;
     out << sb;

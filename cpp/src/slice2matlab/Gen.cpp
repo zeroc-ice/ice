@@ -669,11 +669,8 @@ namespace
         }
         out << nl << "%";
         out << nl << "%   " << name << " Static Methods:";
-        out << nl
-            << "%     checkedCast - Contacts the remote server to check if the target object implements Slice "
-               "interface "
-            << p->scoped() << ".";
-        out << nl << "%     uncheckedCast - Creates a " << name << " from another proxy without any validation.";
+        out << nl << "%     checkedCast - Creates a new proxy from an existing proxy after checking the target's type.";
+        out << nl << "%     uncheckedCast - Creates a new " << name << " from an existing proxy.";
 
         writeDeprecated(out, doc, p);
         writeSeeAlso(out, doc, p->container());
@@ -1523,11 +1520,13 @@ CodeVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     out << nl << "function r = checkedCast(p, varargin)";
     out.inc();
-    out << nl << "%CHECKEDCAST Contacts the remote server to check if the target object implements Slice interface "
+    out << nl
+        << "%CHECKEDCAST Creates a new proxy from an existing proxy after confirming the target object implements "
+           "Slice interface "
         << p->scoped() << ".";
     out << nl << "%";
     out << nl << "%   Input Arguments";
-    out << nl << "%     p - The proxy to check.";
+    out << nl << "%     p - The source proxy.";
     out << nl << "%       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx";
     out << nl << "%     facet - The desired facet (optional).";
     out << nl << "%       character vector";
@@ -1535,7 +1534,7 @@ CodeVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << nl << "%       dictionary(string, string) scalar";
     out << nl << "%";
     out << nl << "%   Output Arguments";
-    out << nl << "%     r - A " << prxAbs << " scalar if the target object implements Slice interface ";
+    out << nl << "%     r - A new " << prxAbs << " scalar if the target object implements Slice interface ";
     out << nl << "%       " << p->scoped() << "; otherwise, an empty array of " << prxAbs << ".";
     out << nl << "%";
     out << nl << "arguments";
@@ -1555,7 +1554,7 @@ CodeVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     out << nl << "function r = uncheckedCast(p, varargin)";
     out.inc();
-    out << nl << "%UNCHECKEDCAST Creates a " << prxAbs << " from another proxy without any validation.";
+    out << nl << "%UNCHECKEDCAST Creates a new " << prxAbs << " from an existing proxy.";
     out << nl << "%";
     out << nl << "%   Input Arguments";
     out << nl << "%     p - The source proxy.";
