@@ -207,8 +207,8 @@ module IceGrid
 
     interface Node extends FileReader, ReplicaObserver
     {
-        /// Load the given server. If the server resources weren't already created (database environment directories,
-        /// property files, etc), they will be created. The returned proxy is never null.
+        /// Load the given server. If the server resources weren't already created (property files, etc), they will be
+        /// created. The returned proxy is never null.
         ["amd"] idempotent Server* loadServer(
             InternalServerDescriptor svr,
             string replicaName,
@@ -217,8 +217,8 @@ module IceGrid
             out int deactivateTimeout) throws DeploymentException;
 
         /// Load the given server and ensure the server won't be restarted. If the server resources weren't already
-        /// created (database environment directories, property files, etc), they will be created. If the server can't
-        /// be updated without a restart, a {@link DeploymentException} is raised. The returned proxy is never null.
+        /// created (property files, etc), they will be created. If the server can't be updated without a restart, a
+        /// {@link DeploymentException} is raised. The returned proxy is never null.
         ["amd"] idempotent Server* loadServerWithoutRestart(
             InternalServerDescriptor svr,
             string replicaName,

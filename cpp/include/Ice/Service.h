@@ -214,6 +214,6 @@ namespace Ice
 #endif
     };
 
-} // End of namespace Ice
+}
 
 #endif

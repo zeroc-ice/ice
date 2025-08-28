@@ -301,9 +301,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         return false;
     }
 
-    //
-    // Initialize the database environment (first setup the directory structure if needed).
-    //
+    // Create the directory structure.
     string dataPath = properties->getIceProperty("IceGrid.Node.Data");
     if (dataPath.empty())
     {

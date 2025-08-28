@@ -102,7 +102,7 @@ ReplicaCache::add(const string& name, const shared_ptr<ReplicaSessionI>& session
         if (traceLevels)
         {
             Ice::Warning out(traceLevels->logger);
-            out << "unexpected exception while publishing `replicaAdded' update:\n" << ex;
+            out << "unexpected exception while publishing 'replicaAdded' update:\n" << ex;
         }
     }
 
@@ -145,7 +145,7 @@ ReplicaCache::remove(const string& name, bool shutdown)
             if (traceLevels)
             {
                 Ice::Warning out(traceLevels->logger);
-                out << "unexpected exception while publishing `replicaRemoved' update:\n" << ex;
+                out << "unexpected exception while publishing 'replicaRemoved' update:\n" << ex;
             }
         }
     }
