@@ -4231,9 +4231,10 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     writeDocComment(
         out,
-        "Contacts the remote server to verify that the object implements this type.\n"
-        "Raises a local exception if a communication error occurs.\n"
-        "@param obj The untyped proxy.\n"
+        "Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
+        "invocation.\n"
+        "Throws a local exception if a communication error occurs.\n"
+        "@param obj The source proxy.\n"
         "@return A proxy for this type, or null if the object does not support this type.");
     out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj)";
     out << sb;
@@ -4243,11 +4244,12 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     writeDocComment(
         out,
-        "Contacts the remote server to verify that the object implements this type.\n"
-        "Raises a local exception if a communication error occurs.\n"
-        "@param obj The untyped proxy.\n"
+        "Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
+        "invocation.\n"
+        "Throws a local exception if a communication error occurs.\n"
+        "@param obj The source proxy.\n"
         "@param context The Context map to send with the invocation.\n"
-        "@return A proxy for this type, or null if the object does not support this type.");
+        "@return A new proxy for this type, or null if the object does not support this type.");
     out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, " << contextParam << ')';
     out << sb;
     out << nl << "return (obj != null && obj.ice_isA(ice_staticId(), context)) ? new " << prxIName << "(obj) : null;";
@@ -4256,11 +4258,12 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     writeDocComment(
         out,
-        "Contacts the remote server to verify that a facet of the object implements this type.\n"
-        "Raises a local exception if a communication error occurs.\n"
-        "@param obj The untyped proxy.\n"
+        "Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
+        "invocation.\n"
+        "Throws a local exception if a communication error occurs.\n"
+        "@param obj The source proxy.\n"
         "@param facet The name of the desired facet.\n"
-        "@return A proxy for this type, or null if the object does not support this type.");
+        "@return A new proxy for this type, or null if the facet does not support this type.");
     out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, java.lang.String facet)";
     out << sb;
     out << nl << "return checkedCast(obj, facet, noExplicitContext);";
@@ -4269,12 +4272,13 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     writeDocComment(
         out,
-        "Contacts the remote server to verify that a facet of the object implements this type.\n"
-        "Raises a local exception if a communication error occurs.\n"
-        "@param obj The untyped proxy.\n"
+        "Creates a new proxy from an existing proxy after confirming the target object's type via a remote "
+        "invocation.\n"
+        "Throws a local exception if a communication error occurs.\n"
+        "@param obj The source proxy.\n"
         "@param facet The name of the desired facet.\n"
         "@param context The Context map to send with the invocation.\n"
-        "@return A proxy for this type, or null if the object does not support this type.");
+        "@return A new proxy for this type, or null if the object does not support this type.");
     out << nl << "static " << prxName << " checkedCast(com.zeroc.Ice.ObjectPrx obj, java.lang.String facet, "
         << contextParam << ')';
     out << sb;
@@ -4284,9 +4288,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     writeDocComment(
         out,
-        "Downcasts the given proxy to this type without contacting the remote server.\n"
+        "Creates a new proxy from an existing proxy.\n"
         "@param obj The untyped proxy.\n"
-        "@return A proxy for this type.");
+        "@return A new proxy for this type.");
     out << nl << "static " << prxName << " uncheckedCast(com.zeroc.Ice.ObjectPrx obj)";
     out << sb;
     out << nl << "return (obj == null) ? null : new " << prxIName << "(obj);";
@@ -4295,10 +4299,10 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     writeDocComment(
         out,
-        "Downcasts the given proxy to this type without contacting the remote server.\n"
+        "Creates a new proxy from an existing proxy.\n"
         "@param obj The untyped proxy.\n"
         "@param facet The name of the desired facet.\n"
-        "@return A proxy for this type.");
+        "@return A new proxy for this type.");
     out << nl << "static " << prxName << " uncheckedCast(com.zeroc.Ice.ObjectPrx obj, java.lang.String facet)";
     out << sb;
     out << nl << "return (obj == null) ? null : new " << prxIName << "(obj.ice_facet(facet));";

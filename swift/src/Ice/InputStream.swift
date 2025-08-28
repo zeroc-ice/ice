@@ -1091,7 +1091,7 @@ private class EncapsDecoder10: EncapsDecoder {
                 //
                 // An oversight in the 1.0 encoding means there is no marker to indicate
                 // the last slice of an exception. As a result, we just try to read the
-                // next type ID, which raises MarshalException when the
+                // next type ID, which throws MarshalException when the
                 // input buffer underflows.
 
                 throw MarshalException("unknown exception type '\(mostDerivedId)'")

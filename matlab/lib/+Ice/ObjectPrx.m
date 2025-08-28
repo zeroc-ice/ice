@@ -1350,11 +1350,11 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = checkedCast(p, varargin)
-            %CHECKEDCAST Contacts the remote server to check if the target object implements the pseudo-Slice interface
-            %   Ice::Object.
+            %CHECKEDCAST Creates a proxy from an existing proxy after contacting the server to check if the target
+            %   object implements pseudo-Slice interface Ice::Object.
             %
             %   Input Arguments
-            %     p - The proxy to check.
+            %     p - The source proxy.
             %       Ice.ObjectPrx scalar | empty array of Ice.ObjectPrx
             %     facet - The desired facet (optional).
             %       character vector
@@ -1362,7 +1362,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
             %       dictionary(string, string) scalar
             %
             %   Output Arguments
-            %     r - An Ice.ObjectPrx scalar if the target object implements Slice interface
+            %     r - A new Ice.ObjectPrx scalar if the target object implements Slice interface
             %       ::Ice::Object; otherwise, an empty array of Ice.ObjectPrx.
             %
             arguments
@@ -1375,7 +1375,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
         end
 
         function r = uncheckedCast(p, varargin)
-            %UNCHECKEDCAST Creates an Ice.ObjectPrx from another proxy without any validation.
+            %UNCHECKEDCAST Creates a new Ice.ObjectPrx from an existing proxy without any validation.
             %
             %   Input Arguments
             %     p - The source proxy.

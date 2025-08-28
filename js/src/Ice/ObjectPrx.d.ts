@@ -427,27 +427,28 @@ declare module "@zeroc/ice" {
             equals(other: ObjectPrx | null | undefined): boolean;
 
             /**
-             * Downcasts a proxy without confirming the target object's type via a remote invocation.
+             * Creates a new proxy from an existing proxy.
              *
-             * @param prx - The target proxy to be downcast.
+             * @param prx - The source proxy.
              * @param facet - An optional facet name.
              * @returns A proxy with the requested type and facet, or null if the source proxy is null.
              */
             static uncheckedCast(prx: ObjectPrx, facet?: string): ObjectPrx;
 
             /**
-             * Downcasts a proxy without confirming the target object's type via a remote invocation.
+             * Creates a new proxy from an existing proxy.
              *
-             * @param prx - The target proxy to be downcast.
+             * @param prx - The source proxy.
              * @param facet - An optional facet name.
              * @returns A proxy with the requested type and facet, or null if the source proxy is null.
              */
             static uncheckedCast(prx: ObjectPrx | null, facet?: string): ObjectPrx | null;
 
             /**
-             * Downcasts a proxy after confirming the target object's type via a remote invocation.
+             * Creates a new proxy from an existing proxy after confirming the target object's type via a remote
+             * invocation.
              *
-             * @param prx - The target proxy to be downcast.
+             * @param prx - The source proxy.
              * @param facet - An optional facet name.
              * @param context - An optional context map for the invocation.
              * @returns An asynchronous result resolving to a proxy with the requested type and facet, or `null` if the

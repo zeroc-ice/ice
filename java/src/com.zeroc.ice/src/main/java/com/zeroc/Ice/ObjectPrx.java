@@ -686,52 +686,46 @@ public interface ObjectPrx {
     }
 
     /**
-     * Casts a proxy to {@link ObjectPrx}. For user-defined types, this call contacts the server and
-     * will throw an Ice run-time exception if the target object does not exist or the server cannot
-     * be reached.
+     * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The proxy to cast to {@link ObjectPrx}.
-     * @return {@code obj}.
+     * @param obj The source proxy.
+     * @return A new proxy or {@code null} if the target object does not support the specified type.
      */
     static ObjectPrx checkedCast(ObjectPrx obj) {
         return checkedCast(obj, noExplicitContext);
     }
 
     /**
-     * Casts a proxy to {@link ObjectPrx}. For user-defined types, this call contacts the server and
-     * throws an Ice run-time exception if the target object does not exist or the server cannot be
-     * reached.
+     * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The proxy to cast to {@link ObjectPrx}.
+     * @param obj The source proxy.
      * @param context The {@code Context} map for the invocation.
-     * @return {@code obj}.
+     * @return A new proxy or {@code null} if the target object does not support the specified type.
      */
     static ObjectPrx checkedCast(ObjectPrx obj, Map<String, String> context) {
         return obj != null && obj.ice_isA(ice_staticId, context) ? obj : null;
     }
 
     /**
-     * Creates a new proxy that is identical to the passed proxy, except for its facet. This call
-     * contacts the server and throws an Ice run-time exception if the target object does not exist,
-     * the specified facet does not exist, or the server cannot be reached.
+     * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The proxy to cast to {@link ObjectPrx}.
+     * @param obj The source proxy.
      * @param facet The facet for the new proxy.
-     * @return The new proxy with the specified facet.
+     * @return A new proxy with the specified facet, or {@code null} if the target facet does not support the specified
+     *         type.
      */
     static ObjectPrx checkedCast(ObjectPrx obj, String facet) {
         return checkedCast(obj, facet, noExplicitContext);
     }
 
     /**
-     * Creates a new proxy that is identical to the passed proxy, except for its facet. This call
-     * contacts the server and throws an Ice run-time exception if the target object does not exist,
-     * the specified facet does not exist, or the server cannot be reached.
+    * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The proxy to cast to {@link ObjectPrx}.
+     * @param obj The source proxy.
      * @param facet The facet for the new proxy.
      * @param context The <code>Context</code> map for the invocation.
-     * @return The new proxy with the specified facet.
+     * @return A new proxy with the specified facet, or {@code null} if the target facet does not support the specified
+     *         type.
      */
     static ObjectPrx checkedCast(
             ObjectPrx obj, String facet, Map<String, String> context) {
@@ -739,23 +733,21 @@ public interface ObjectPrx {
     }
 
     /**
-     * Casts a proxy to {@link ObjectPrx}. This call does not contact the server and always
-     * succeeds.
+     * Creates a new proxy from an existing proxy.
      *
-     * @param obj The proxy to cast to {@link ObjectPrx}.
-     * @return {@code obj}.
+     * @param obj The source proxy.
+     * @return A new proxy with the desired type or {@code null} if {@code obj} is {@code null}.
      */
     static ObjectPrx uncheckedCast(ObjectPrx obj) {
         return obj;
     }
 
     /**
-     * Creates a new proxy that is identical to the passed proxy, except for its facet. This call
-     * does not contact the server and always succeeds.
+    * Creates a new proxy from an existing proxy.
      *
-     * @param obj The proxy to cast to {@link ObjectPrx}.
+     * @param obj The source proxy.
      * @param facet The facet for the new proxy.
-     * @return The new proxy with the specified facet.
+     * @return A new proxy with the desired type or {@code null} if {@code obj} is {@code null}.
      */
     static ObjectPrx uncheckedCast(ObjectPrx obj, String facet) {
         return obj == null ? null : obj.ice_facet(facet);

@@ -1988,12 +1988,11 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     ostringstream checkedCastSummary;
-    checkedCastSummary << "Downcasts a proxy to " << getArticleFor(name) << " <see cref=\"" << name
-                       << "Prx\" /> after checking that the target object implements Slice interface <c>" << p->name()
-                       << "</c>.";
+    checkedCastSummary << "Creates a new <see cref=\"" << name << "Prx\" /> from an existing proxy after checking that "
+                       << "the target object implements Slice interface <c>" << p->name() << "</c>.";
 
     ostringstream checkedCastReturns;
-    checkedCastReturns << "A proxy with the requested type, or null if the target object does not implement Slice"
+    checkedCastReturns << "A new proxy with the requested type, or null if the target object does not implement Slice"
                           " interface <c>"
                        << p->name() << "</c>.";
 
@@ -2013,12 +2012,12 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     ostringstream checkedCastWithFacetSummary;
-    checkedCastWithFacetSummary << "Downcasts a proxy to " << getArticleFor(name) << " <see cref=\"" << name
-                                << "Prx\" /> after checking that the target facet implements Slice interface <c>"
-                                << p->name() << "</c>.";
+    checkedCastWithFacetSummary << "Creates a new <see cref=\"" << name << "Prx\" /> from an existing proxy after "
+                                << "checking that the target facet implements Slice interface <c>" << p->name()
+                                << "</c>.";
 
     ostringstream checkedCastWithFacetReturns;
-    checkedCastWithFacetReturns << "A proxy with the requested type, or null if the target facet does not implement"
+    checkedCastWithFacetReturns << "A new proxy with the requested type, or null if the target facet does not implement"
                                    " Slice interface <c>"
                                 << p->name() << "</c>.";
 
@@ -2075,13 +2074,11 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     ostringstream uncheckedCastSummary;
-    uncheckedCastSummary << "Downcasts a proxy to " << getArticleFor(name) << " <see cref=\"" << name
-                         << "Prx\" />. This method does not perform any check.";
-
+    uncheckedCastSummary << "Creates a new <see cref=\"" << name << "Prx\" /> from an existing proxy.";
     _out << sp;
     writeDocLine(_out, "summary", uncheckedCastSummary.str());
     writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
-    writeDocLine(_out, "returns", "A proxy with the requested type, or null if the source proxy is null.");
+    writeDocLine(_out, "returns", "A new proxy with the requested type, or null if the source proxy is null.");
     _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(proxy))]";
     _out << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? proxy) =>";
     _out.inc();
@@ -2089,14 +2086,14 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     ostringstream uncheckedCastWithFacetSummary;
-    uncheckedCastWithFacetSummary << "Downcasts a proxy to " << getArticleFor(name) << " <see cref=\"" << name
-                                  << "Prx\" /> after changing its facet. This method does not perform any check.";
+    uncheckedCastWithFacetSummary << "Creates a new <see cref=\"" << name
+                                  << "Prx\" /> from an existing proxy after changing its facet.";
 
     _out << sp;
     writeDocLine(_out, "summary", uncheckedCastWithFacetSummary.str());
     writeDocLine(_out, R"(param name="proxy")", "The source proxy.", "param");
     writeDocLine(_out, R"(param name="facet")", "The facet.", "param");
-    writeDocLine(_out, "returns", "A proxy with the requested type, or null if the source proxy is null.");
+    writeDocLine(_out, "returns", "A new proxy with the requested type, or null if the source proxy is null.");
     _out << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(proxy))]";
     _out << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? proxy, string facet) =>";
     _out.inc();
