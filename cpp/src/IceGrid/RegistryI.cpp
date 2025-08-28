@@ -304,11 +304,7 @@ RegistryI::startImpl()
         }
     }
 
-    //
-    // Ensure that nothing is running on this port. This is also
-    // useful to ensure that we don't run twice the same registry instance of
-    // too (which would cause the database environment of the already running instance to be "corrupted".)
-    //
+    // Ensure that nothing is running on this port.
     try
     {
         string endpoints = properties->getIceProperty("IceGrid.Registry.Client.Endpoints");
