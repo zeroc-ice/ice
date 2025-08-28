@@ -46,8 +46,6 @@ namespace
         void stop() final;
 
     private:
-        void createDbEnv(const Ice::CommunicatorPtr&);
-
         std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
         std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
         std::optional<IceStorm::TopicManagerPrx> _managerProxy;
@@ -103,9 +101,6 @@ ServiceI::start([[maybe_unused]] const string& serviceName, const CommunicatorPt
     auto topicAdapter = communicator->createObjectAdapter("IceStorm.TopicManager");
     auto publishAdapter = communicator->createObjectAdapter("IceStorm.Publish");
 
-    //
-    // We use the name of the service for the name of the database environment.
-    //
     string instanceName = properties->getIceProperty("IceStorm.InstanceName");
     Identity topicManagerId = {"TopicManager", instanceName};
 

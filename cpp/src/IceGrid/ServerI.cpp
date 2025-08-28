@@ -195,7 +195,7 @@ namespace IceGrid
             {
                 Ice::Error out(_traceLevels->logger);
                 out << "couldn't reactivate server '" << _server->getId()
-                    << "' with `always' activation mode after failure:\n"
+                    << "' with 'always' activation mode after failure:\n"
                     << ex.reason;
             }
             catch (const Ice::ObjectNotExistException&)
@@ -881,7 +881,7 @@ ServerI::setEnabled(bool enabled, const Ice::Current&)
         catch (const ServerStartException& ex)
         {
             Ice::Error out(_node->getTraceLevels()->logger);
-            out << "couldn't reactivate server '" << _id << "' with `always' activation mode:\n" << ex.reason;
+            out << "couldn't reactivate server '" << _id << "' with 'always' activation mode:\n" << ex.reason;
         }
         catch (const Ice::ObjectNotExistException&)
         {
@@ -2420,7 +2420,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         if (pw->pw_uid == 0 && _node->getCommunicator()->getProperties()->getIcePropertyAsInt(
                                    "IceGrid.Node.AllowRunningServersAsRoot") <= 0)
         {
-            throw runtime_error("running server as `root' is not allowed");
+            throw runtime_error("running server as 'root' is not allowed");
         }
 
         if (update)
@@ -2770,48 +2770,48 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
         Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
         if (_state == ServerI::Active)
         {
-            out << "changed server '" << _id << "' state to `Active'";
+            out << "changed server '" << _id << "' state to 'Active'";
         }
         else if (_state == ServerI::Inactive)
         {
             if (_node->getTraceLevels()->server > 2 || previous != ServerI::Loading)
             {
-                out << "changed server '" << _id << "' state to `Inactive'";
+                out << "changed server '" << _id << "' state to 'Inactive'";
             }
         }
         else if (_state == ServerI::Destroyed)
         {
-            out << "changed server '" << _id << "' state to `Destroyed'";
+            out << "changed server '" << _id << "' state to 'Destroyed'";
         }
         else if (_node->getTraceLevels()->server > 2)
         {
             if (_state == ServerI::WaitForActivation)
             {
-                out << "changed server '" << _id << "' state to `WaitForActivation'";
+                out << "changed server '" << _id << "' state to 'WaitForActivation'";
             }
             else if (_state == ServerI::ActivationTimeout)
             {
-                out << "changed server '" << _id << "' state to `ActivationTimeout'";
+                out << "changed server '" << _id << "' state to 'ActivationTimeout'";
             }
             else if (_state == ServerI::Activating)
             {
-                out << "changed server '" << _id << "' state to `Activating'";
+                out << "changed server '" << _id << "' state to 'Activating'";
             }
             else if (_state == ServerI::Deactivating)
             {
-                out << "changed server '" << _id << "' state to `Deactivating'";
+                out << "changed server '" << _id << "' state to 'Deactivating'";
             }
             else if (_state == ServerI::DeactivatingWaitForProcess)
             {
-                out << "changed server '" << _id << "' state to `DeactivatingWaitForProcess'";
+                out << "changed server '" << _id << "' state to 'DeactivatingWaitForProcess'";
             }
             else if (_state == ServerI::Destroying)
             {
-                out << "changed server '" << _id << "' state to `Destroying'";
+                out << "changed server '" << _id << "' state to 'Destroying'";
             }
             else if (_state == ServerI::Loading)
             {
-                out << "changed server '" << _id << "' state to `Loading'";
+                out << "changed server '" << _id << "' state to 'Loading'";
             }
         }
         if (!reason.empty())

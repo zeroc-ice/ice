@@ -349,7 +349,7 @@ Parser::usage(const string& category, const list<string>& args)
     }
     else if (args.size() > 1)
     {
-        invalidCommand("`help' requires at most 1 argument");
+        invalidCommand("'help' requires at most 1 argument");
     }
     else
     {

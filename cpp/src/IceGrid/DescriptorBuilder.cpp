@@ -655,7 +655,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     desc.registerProcess = attrs.asBool("register-process", false);
     if (desc.id == "")
     {
-        throw invalid_argument("empty `id' for adapter '" + desc.name + "'");
+        throw invalid_argument("empty 'id' for adapter '" + desc.name + "'");
     }
     desc.serverLifetime = attrs.asBool("server-lifetime", true);
     _descriptor->adapters.push_back(desc);

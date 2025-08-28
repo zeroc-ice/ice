@@ -692,8 +692,8 @@ internal class ServiceManagerI : ServiceManagerDisp_
             }
 
             //
-            // For each service, we call stop on the service and flush its database environment to
-            // the disk. Services are stopped in the reverse order of the order they were started.
+            // For each service, we call stop on the service.
+            // Services are stopped in the reverse order of the order they were started.
             //
             _services.Reverse();
             var stoppedServices = new List<string>();

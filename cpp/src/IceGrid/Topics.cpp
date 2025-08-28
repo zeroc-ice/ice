@@ -315,7 +315,7 @@ RegistryObserverTopic::registryUp(const RegistryInfo& info)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `registryUp' update:\n" << ex;
+        out << "unexpected exception while publishing 'registryUp' update:\n" << ex;
     }
 }
 
@@ -345,7 +345,7 @@ RegistryObserverTopic::registryDown(const string& name)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `registryDown' update:\n" << ex;
+        out << "unexpected exception while publishing 'registryDown' update:\n" << ex;
     }
 }
 
@@ -480,7 +480,7 @@ NodeObserverTopic::updateServer(string node, ServerDynamicInfo server, const Ice
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `updateServer' update:\n" << ex;
+        out << "unexpected exception while publishing 'updateServer' update:\n" << ex;
     }
 }
 
@@ -536,7 +536,7 @@ NodeObserverTopic::updateAdapter(string node, AdapterDynamicInfo adapter, const 
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `updateAdapter' update:\n" << ex;
+        out << "unexpected exception while publishing 'updateAdapter' update:\n" << ex;
     }
 }
 
@@ -573,7 +573,7 @@ NodeObserverTopic::nodeDown(const string& name)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `nodeDown' update:\n" << ex;
+        out << "unexpected exception while publishing 'nodeDown' update:\n" << ex;
     }
 }
 
@@ -643,7 +643,7 @@ ApplicationObserverTopic::applicationInit(int64_t dbSerial, const ApplicationInf
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `applicationInit' update:\n" << ex;
+        out << "unexpected exception while publishing 'applicationInit' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -670,7 +670,7 @@ ApplicationObserverTopic::applicationAdded(int64_t dbSerial, const ApplicationIn
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `applicationAdded' update:\n" << ex;
+        out << "unexpected exception while publishing 'applicationAdded' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -696,7 +696,7 @@ ApplicationObserverTopic::applicationRemoved(int64_t dbSerial, const string& nam
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `applicationRemoved' update:\n" << ex;
+        out << "unexpected exception while publishing 'applicationRemoved' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -752,7 +752,7 @@ ApplicationObserverTopic::applicationUpdated(int64_t dbSerial, const Application
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `applicationUpdated' update:\n" << ex;
+        out << "unexpected exception while publishing 'applicationUpdated' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -804,7 +804,7 @@ AdapterObserverTopic::adapterInit(int64_t dbSerial, const AdapterInfoSeq& adpts)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `adapterInit' update:\n" << ex;
+        out << "unexpected exception while publishing 'adapterInit' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -830,7 +830,7 @@ AdapterObserverTopic::adapterAdded(int64_t dbSerial, const AdapterInfo& info)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `adapterAdded' update:\n" << ex;
+        out << "unexpected exception while publishing 'adapterAdded' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -856,7 +856,7 @@ AdapterObserverTopic::adapterUpdated(int64_t dbSerial, const AdapterInfo& info)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `adapterUpdated' update:\n" << ex;
+        out << "unexpected exception while publishing 'adapterUpdated' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -882,7 +882,7 @@ AdapterObserverTopic::adapterRemoved(int64_t dbSerial, const string& id)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `adapterRemoved' update:\n" << ex;
+        out << "unexpected exception while publishing 'adapterRemoved' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -934,7 +934,7 @@ ObjectObserverTopic::objectInit(int64_t dbSerial, const ObjectInfoSeq& objects)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `objectInit' update:\n" << ex;
+        out << "unexpected exception while publishing 'objectInit' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -960,7 +960,7 @@ ObjectObserverTopic::objectAdded(int64_t dbSerial, const ObjectInfo& info)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `objectAdded' update:\n" << ex;
+        out << "unexpected exception while publishing 'objectAdded' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -986,7 +986,7 @@ ObjectObserverTopic::objectUpdated(int64_t dbSerial, const ObjectInfo& info)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;
+        out << "unexpected exception while publishing 'objectUpdated' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -1012,7 +1012,7 @@ ObjectObserverTopic::objectRemoved(int64_t dbSerial, const Ice::Identity& id)
     catch (const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `objectRemoved' update:\n" << ex;
+        out << "unexpected exception while publishing 'objectRemoved' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -1044,7 +1044,7 @@ ObjectObserverTopic::wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq& infos)
             catch (const Ice::LocalException& ex)
             {
                 Ice::Warning out(_logger);
-                out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;
+                out << "unexpected exception while publishing 'objectUpdated' update:\n" << ex;
             }
         }
         else
@@ -1060,7 +1060,7 @@ ObjectObserverTopic::wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq& infos)
             catch (const Ice::LocalException& ex)
             {
                 Ice::Warning out(_logger);
-                out << "unexpected exception while publishing `objectAdded' update:\n" << ex;
+                out << "unexpected exception while publishing 'objectAdded' update:\n" << ex;
             }
         }
     }
@@ -1096,7 +1096,7 @@ ObjectObserverTopic::wellKnownObjectsRemoved(const ObjectInfoSeq& infos)
         catch (const Ice::LocalException& ex)
         {
             Ice::Warning out(_logger);
-            out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;
+            out << "unexpected exception while publishing 'objectUpdated' update:\n" << ex;
         }
     }
 

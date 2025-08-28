@@ -602,8 +602,8 @@ final class ServiceManagerI implements ServiceManager {
             } catch (InterruptedException ex) {}
         }
 
-        // For each service, we call stop on the service and flush its database environment to
-        // the disk. Services are stopped in the reverse order of the order they were started.
+        // For each service, we call stop on the service.
+        // Services are stopped in the reverse order of the order they were started.
         List<String> stoppedServices = new ArrayList<>();
         ListIterator<ServiceInfo> p = _services.listIterator(_services.size());
         while (p.hasPrevious()) {

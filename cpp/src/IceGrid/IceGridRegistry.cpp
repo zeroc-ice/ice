@@ -32,7 +32,7 @@ namespace IceGrid
         shared_ptr<RegistryI> _registry;
     };
 
-} // End of namespace IceGrid
+}
 
 bool
 RegistryService::shutdown()

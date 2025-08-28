@@ -729,8 +729,7 @@ IceBox::ServiceManagerI::stopAll()
     vector<string> stoppedServices;
 
     //
-    // First, for each service, we call stop on the service and flush its database environment to
-    // the disk.
+    // First, for each service, we call stop on the service.
     //
     for (auto p = _services.rbegin(); p != _services.rend(); ++p)
     {
