@@ -14,8 +14,8 @@ using namespace Ice;
 using namespace IceDiscovery;
 
 LocatorRegistryI::LocatorRegistryI(const Ice::CommunicatorPtr& communicator)
-    : _wellKnownProxy(
-          ObjectPrx(communicator, "dummy")->ice_locator(nullopt)->ice_router(nullopt)->ice_collocationOptimized(true))
+    : _wellKnownProxy{
+          ObjectPrx{communicator, "dummy"}.ice_locator(nullopt).ice_router(nullopt).ice_collocationOptimized(true)}
 {
 }
 
