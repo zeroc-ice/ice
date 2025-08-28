@@ -25,12 +25,9 @@
 #    include <winsock2.h>
 #    include <ws2tcpip.h>
 #else
+#    include <ifaddrs.h>
 #    include <net/if.h>
 #    include <sys/ioctl.h>
-#endif
-
-#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
-#    include <ifaddrs.h>
 #endif
 
 using namespace std;
@@ -173,7 +170,7 @@ namespace
 
             free(adapter_addresses);
         }
-#elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
+#else
         struct ifaddrs* ifap;
         if (::getifaddrs(&ifap) == SOCKET_ERROR)
         {
@@ -218,98 +215,6 @@ namespace
         }
 
         ::freeifaddrs(ifap);
-#else
-        for (int i = 0; i < 2; i++)
-        {
-            if ((i == 0 && protocol == EnableIPv6) || (i == 1 && protocol == EnableIPv4))
-            {
-                continue;
-            }
-            SOCKET fd = createSocketImpl(false, i == 0 ? AF_INET : AF_INET6);
-
-            int cmd = SIOCGIFCONF;
-            struct ifconf ifc;
-            int numaddrs = 10;
-            int old_ifc_len = 0;
-
-            //
-            // Need to call ioctl multiple times since we do not know up front
-            // how many addresses there will be, and thus how large a buffer we need.
-            // We keep increasing the buffer size until subsequent calls return
-            // the same length, meaning we have all the addresses.
-            //
-            while (true)
-            {
-                int bufsize = numaddrs * static_cast<int>(sizeof(struct ifreq));
-                ifc.ifc_len = bufsize;
-                ifc.ifc_buf = (char*)malloc(bufsize);
-
-                int rs = ioctl(fd, cmd, &ifc);
-                if (rs == SOCKET_ERROR)
-                {
-                    free(ifc.ifc_buf);
-                    closeSocketNoThrow(fd);
-                    throw SocketException(__FILE__, __LINE__, getSocketErrno());
-                }
-                else if (ifc.ifc_len == old_ifc_len)
-                {
-                    //
-                    // Returned same length twice in a row, finished.
-                    //
-                    break;
-                }
-                else
-                {
-                    old_ifc_len = ifc.ifc_len;
-                }
-
-                numaddrs += 10;
-                free(ifc.ifc_buf);
-            }
-            closeSocket(fd);
-
-            numaddrs = ifc.ifc_len / static_cast<int>(sizeof(struct ifreq));
-            struct ifreq* ifr = ifc.ifc_req;
-            set<string> interfaces;
-            for (int j = 0; j < numaddrs; ++j)
-            {
-                if (!(ifr[j].ifr_flags & IFF_LOOPBACK)) // Don't include loopback interface addresses
-                {
-                    //
-                    // On Solaris the above Loopback check does not always work so we double
-                    // check the address below. Solaris also returns duplicate entries that need
-                    // to be filtered out.
-                    //
-                    if (ifr[j].ifr_addr.sa_family == AF_INET && protocol != EnableIPv6)
-                    {
-                        Address addr;
-                        memcpy(&addr.saStorage, &ifr[j].ifr_addr, sizeof(sockaddr_in));
-                        if (addr.saIn.sin_addr.s_addr != 0)
-                        {
-                            if (interfaces.find(ifr[j].ifr_name) == interfaces.end())
-                            {
-                                result.push_back(addr);
-                                interfaces.insert(ifr[j].ifr_name);
-                            }
-                        }
-                    }
-                    else if (ifr[j].ifr_addr.sa_family == AF_INET6 && protocol != EnableIPv4)
-                    {
-                        Address addr;
-                        memcpy(&addr.saStorage, &ifr[j].ifr_addr, sizeof(sockaddr_in6));
-                        if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
-                        {
-                            if (interfaces.find(ifr[j].ifr_name) == interfaces.end())
-                            {
-                                result.push_back(addr);
-                                interfaces.insert(ifr[j].ifr_name);
-                            }
-                        }
-                    }
-                }
-            }
-            free(ifc.ifc_buf);
-        }
 #endif
 
         //
@@ -446,13 +351,9 @@ namespace
             throw Ice::SocketException(__FILE__, __LINE__, WSAEINVAL);
         }
 #else
-
-        //
         // Look for an interface with a matching IP address
-        //
         if (isAddr)
         {
-#    if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
             struct ifaddrs* ifap;
             if (::getifaddrs(&ifap) != SOCKET_ERROR)
             {
@@ -472,67 +373,6 @@ namespace
                 }
                 ::freeifaddrs(ifap);
             }
-#    else
-            SOCKET fd = createSocketImpl(false, AF_INET6);
-            int cmd = SIOCGIFCONF;
-            struct ifconf ifc;
-            int numaddrs = 10;
-            int old_ifc_len = 0;
-
-            //
-            // Need to call ioctl multiple times since we do not know up front
-            // how many addresses there will be, and thus how large a buffer we need.
-            // We keep increasing the buffer size until subsequent calls return
-            // the same length, meaning we have all the addresses.
-            //
-            while (true)
-            {
-                int bufsize = numaddrs * static_cast<int>(sizeof(struct ifreq));
-                ifc.ifc_len = bufsize;
-                ifc.ifc_buf = (char*)malloc(bufsize);
-
-                int rs = ioctl(fd, cmd, &ifc);
-                if (rs == SOCKET_ERROR)
-                {
-                    free(ifc.ifc_buf);
-                    ifc.ifc_buf = 0;
-                    break;
-                }
-                else if (ifc.ifc_len == old_ifc_len)
-                {
-                    //
-                    // Returned same length twice in a row, finished.
-                    //
-                    break;
-                }
-                else
-                {
-                    old_ifc_len = ifc.ifc_len;
-                }
-                numaddrs += 10;
-                free(ifc.ifc_buf);
-            }
-            closeSocketNoThrow(fd);
-
-            if (ifc.ifc_buf)
-            {
-                numaddrs = ifc.ifc_len / static_cast<int>(sizeof(struct ifreq));
-                struct ifreq* ifr = ifc.ifc_req;
-                for (int i = 0; i < numaddrs; ++i)
-                {
-                    if (ifr[i].ifr_addr.sa_family == AF_INET6)
-                    {
-                        struct sockaddr_in6* ipv6Addr = reinterpret_cast<struct sockaddr_in6*>(&ifr[i].ifr_addr);
-                        if (memcmp(&addr, &ipv6Addr->sin6_addr, sizeof(in6_addr)) == 0)
-                        {
-                            index = static_cast<int>(if_nametoindex(ifr[i].ifr_name));
-                            break;
-                        }
-                    }
-                }
-                free(ifc.ifc_buf);
-            }
-#    endif
         }
         else // Look for an interface with the given name.
         {

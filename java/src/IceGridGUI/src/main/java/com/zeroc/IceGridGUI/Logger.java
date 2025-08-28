@@ -27,7 +27,6 @@ class Logger implements com.zeroc.Ice.Logger {
 
     @Override
     public void warning(final String message) {
-        // Ignore spurious selector wake up warnings in solaris.
         SwingUtilities.invokeLater(
             () -> {
                 JOptionPane.showMessageDialog(
