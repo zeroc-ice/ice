@@ -53,6 +53,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
     }
     else
     {
+        // We use stringToProxy because the property can be empty.
         auto defaultLocator =
             _communicator->stringToProxy<LocatorPrx>(_serviceProperties->getIceProperty("Ice.Default.Locator"));
         if (defaultLocator != nullopt)

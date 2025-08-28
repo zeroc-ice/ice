@@ -642,7 +642,10 @@ internal class PluginI : Ice.Plugin
         _replyAdapter.setLocator(null);
         _locatorAdapter.setLocator(null);
 
-        Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
+        Ice.ObjectPrx lookupPrx = Ice.ObjectPrxHelper.createProxy(
+            _communicator,
+            "IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
+
         lookupPrx = lookupPrx.ice_router(null);
 
         Ice.LocatorPrx voidLo = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));

@@ -342,9 +342,8 @@ final class LoggerAdminI implements LoggerAdmin {
             return null;
         }
 
-        ObjectPrx result = communicator.stringToProxy(prx.toString());
-        return RemoteLoggerPrx.uncheckedCast(
-            result.ice_invocationTimeout(prx.ice_getInvocationTimeout()));
+        return RemoteLoggerPrx.createProxy(
+            communicator, prx.toString()).ice_invocationTimeout(prx.ice_getInvocationTimeout());
     }
 
     private static void copyProperties(String prefix, Properties from, Properties to) {

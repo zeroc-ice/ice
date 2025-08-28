@@ -317,7 +317,7 @@ namespace
         {
             try
             {
-                resolver.getCommunicator()->stringToProxy("dummy " + proxyOptions);
+                ObjectPrx proxy{resolver.getCommunicator(), "dummy " + proxyOptions};
             }
             catch (const Ice::ParseException& ex)
             {

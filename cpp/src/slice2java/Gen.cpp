@@ -4315,6 +4315,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         "ice_endpoints(com.zeroc.Ice.Endpoint[] newEndpoints)",
         "ice_locatorCacheTimeout(int newTimeout)",
         "ice_invocationTimeout(int newTimeout)",
+        "ice_invocationTimeout(java.time.Duration newTimeout)",
         "ice_connectionCached(boolean newCache)",
         "ice_endpointSelection(com.zeroc.Ice.EndpointSelectionType newType)",
         "ice_secure(boolean b)",
