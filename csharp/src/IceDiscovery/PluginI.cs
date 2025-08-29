@@ -87,7 +87,10 @@ public sealed class PluginI : Ice.Plugin
         Ice.LocatorRegistryPrx locatorRegistryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(
             _locatorAdapter.addWithUUID(locatorRegistry));
 
-        Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
+        Ice.ObjectPrx lookupPrx = Ice.ObjectPrxHelper.createProxy(
+            _communicator,
+            "IceDiscovery/Lookup -d:" + lookupEndpoints);
+
         lookupPrx = lookupPrx.ice_router(null);
 
         //

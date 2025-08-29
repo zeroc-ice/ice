@@ -203,7 +203,7 @@ ServiceI::start([[maybe_unused]] const string& serviceName, const CommunicatorPt
             // We work out the node id by removing the instance name. The node id must follow.
             auto locator = uncheckedCast<IceGrid::LocatorPrx>(communicator->getDefaultLocator().value());
             auto query = locator->getLocalQuery();
-            auto replicas = query->findAllReplicas(communicator->stringToProxy(instanceName + "/TopicManager"));
+            auto replicas = query->findAllReplicas(ObjectPrx{communicator, instanceName + "/TopicManager"});
 
             for (const auto& replica : replicas)
             {

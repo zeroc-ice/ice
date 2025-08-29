@@ -78,7 +78,7 @@ class PluginI implements Plugin {
                 _locatorAdapter.addWithUUID(locatorRegistry));
 
         ObjectPrx lookupPrx =
-            _communicator.stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
+            ObjectPrx.createProxy(_communicator, "IceDiscovery/Lookup -d:" + lookupEndpoints);
         lookupPrx = lookupPrx.ice_router(null);
 
         // Add lookup and lookup reply Ice objects

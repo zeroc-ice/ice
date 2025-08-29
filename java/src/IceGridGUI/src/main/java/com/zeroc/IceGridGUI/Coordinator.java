@@ -2243,9 +2243,7 @@ public class Coordinator {
         }
 
         try {
-            FileParserPrx fileParser =
-                FileParserPrx.checkedCast(
-                    getCommunicator().stringToProxy(_fileParser).ice_router(null));
+            var fileParser = FileParserPrx.createProxy(getCommunicator(), _fileParser).ice_router(null);
             return fileParser.parse(file.getAbsolutePath(), _sessionKeeper.getRoutedAdmin());
         } catch (ParseException e) {
             JOptionPane.showMessageDialog(

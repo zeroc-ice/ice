@@ -389,13 +389,13 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     optional<Ice::ObjectPrx> admin = communicator->getAdmin();
     test(admin);
 
-    auto clientProps = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin->ice_facet("Properties"));
-    auto clientMetrics = Ice::uncheckedCast<IceMX::MetricsAdminPrx>(admin->ice_facet("Metrics"));
+    auto clientProps = admin->ice_facet<Ice::PropertiesAdminPrx>("Properties");
+    auto clientMetrics = admin->ice_facet<IceMX::MetricsAdminPrx>("Metrics");
 
     admin = metrics->getAdmin();
 
-    auto serverProps = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin->ice_facet("Properties"));
-    auto serverMetrics = Ice::uncheckedCast<IceMX::MetricsAdminPrx>(admin->ice_facet("Metrics"));
+    auto serverProps = admin->ice_facet<Ice::PropertiesAdminPrx>("Properties");
+    auto serverMetrics = admin->ice_facet<IceMX::MetricsAdminPrx>("Metrics");
 
     UpdateCallbackIPtr update = make_shared<UpdateCallbackI>(serverProps);
 

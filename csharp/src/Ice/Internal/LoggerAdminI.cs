@@ -366,8 +366,8 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
             return null;
         }
 
-        Ice.ObjectPrx result = communicator.stringToProxy(prx.ToString());
-        return Ice.RemoteLoggerPrxHelper.uncheckedCast(result.ice_invocationTimeout(prx.ice_getInvocationTimeout()));
+        ObjectPrx result = ObjectPrxHelper.createProxy(communicator, prx.ToString());
+        return RemoteLoggerPrxHelper.uncheckedCast(result.ice_invocationTimeout(prx.ice_getInvocationTimeout()));
     }
 
     private static void copyProperties(string prefix, Ice.Properties from, Ice.Properties to)

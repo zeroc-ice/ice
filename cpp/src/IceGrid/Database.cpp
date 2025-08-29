@@ -1143,7 +1143,7 @@ Database::getAdapterDirectProxy(
     }
     if (!endpoints.empty())
     {
-        return _communicator->stringToProxy("dummy:default")->ice_endpoints(endpoints);
+        return Ice::ObjectPrx{_communicator, "dummy:default"}.ice_endpoints(endpoints);
     }
     return nullopt;
 }

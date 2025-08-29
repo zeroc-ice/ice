@@ -660,7 +660,7 @@ public class Root extends Communicator {
         ObjectPrx proxy = null;
 
         try {
-            proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
+            proxy = ObjectPrx.createProxy(_coordinator.getCommunicator(), strProxy);
         } catch (LocalException e) {
             JOptionPane.showMessageDialog(
                 _coordinator.getMainFrame(),
@@ -669,13 +669,7 @@ public class Root extends Communicator {
                 JOptionPane.ERROR_MESSAGE);
         }
 
-        if (proxy == null) {
-            JOptionPane.showMessageDialog(
-                _coordinator.getMainFrame(),
-                "You must provide a non-null proxy",
-                "addObject failed",
-                JOptionPane.ERROR_MESSAGE);
-        }
+        assert proxy != null;
 
         String strIdentity =
             _coordinator.getCommunicator().identityToString(proxy.ice_getIdentity());
@@ -718,7 +712,7 @@ public class Root extends Communicator {
     }
 
     void removeObject(String strProxy) {
-        ObjectPrx proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
+        var proxy = ObjectPrx.createProxy(_coordinator.getCommunicator(), strProxy);
         Identity identity = proxy.ice_getIdentity();
         final String strIdentity = _coordinator.getCommunicator().identityToString(identity);
 

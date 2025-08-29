@@ -635,7 +635,7 @@ class PluginI implements Plugin {
         _locatorAdapter.setLocator(null);
 
         ObjectPrx lookupPrx =
-            _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
+            ObjectPrx.createProxy(_communicator, "IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
         lookupPrx = lookupPrx.ice_router(null);
 
         LocatorPrx voidLoc =

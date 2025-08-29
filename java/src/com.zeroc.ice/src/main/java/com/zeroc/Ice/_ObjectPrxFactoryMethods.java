@@ -2,6 +2,7 @@
 
 package com.zeroc.Ice;
 
+import java.time.Duration;
 import java.util.Map;
 
 /**
@@ -42,6 +43,11 @@ public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _Obj
 
     @Override
     public T ice_invocationTimeout(int newTimeout) {
+        return (T) super.ice_invocationTimeout(newTimeout);
+    }
+
+    @Override
+    public T ice_invocationTimeout(Duration newTimeout) {
         return (T) super.ice_invocationTimeout(newTimeout);
     }
 

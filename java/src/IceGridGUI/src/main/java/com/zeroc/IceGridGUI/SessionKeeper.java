@@ -1930,7 +1930,9 @@ public class SessionKeeper {
                                     endpoint.append(_coordinator.getCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_directCustomEndpointValue.getText());
-                                    _coordinator.getCommunicator().stringToProxy(endpoint.toString());
+
+                                    ObjectPrx.createProxy(_coordinator.getCommunicator(), endpoint.toString());
+
                                     if (containsSecureEndpoints(endpoint.toString())) {
                                         _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                         _wizardSteps.push(WizardStep.X509CertificateStep);
@@ -1975,7 +1977,9 @@ public class SessionKeeper {
                                     endpoint.append(_coordinator.getCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_routedCustomEndpointValue.getText());
-                                    _coordinator.getCommunicator().stringToProxy(endpoint.toString());
+
+                                    ObjectPrx.createProxy(_coordinator.getCommunicator(), endpoint.toString());
+
                                     if (containsSecureEndpoints(endpoint.toString())) {
                                         _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                         _wizardSteps.push(WizardStep.X509CertificateStep);
@@ -2693,8 +2697,10 @@ public class SessionKeeper {
     }
 
     private boolean containsSecureEndpoints(String str) {
+        var proxy = ObjectPrx.createProxy(_coordinator.getCommunicator(), str);
+
         try {
-            for (Endpoint endpoint : _coordinator.getCommunicator().stringToProxy(str).ice_getEndpoints()) {
+            for (Endpoint endpoint : proxy.ice_getEndpoints()) {
                 if (endpoint.getInfo().secure()) {
                     return true;
                 }
