@@ -3,12 +3,11 @@
 <icegrid>
   <application name="Templates">
 
+    <!-- Creates a Glacier2 router with activation mode "always" -->
     <server-template id="Glacier2">
-
       <parameter name="instance-name" default="${application}.Glacier2"/>
       <parameter name="client-endpoints"/>
       <parameter name="server-endpoints" default=""/>
-      <parameter name="session-timeout" default="0"/>
 
       <server id="${instance-name}" exe="glacier2router" activation="always">
          <properties>
@@ -17,13 +16,13 @@
             <property name="Glacier2.InstanceName" value="${instance-name}"/>
          </properties>
       </server>
-
     </server-template>
 
+    <!-- Creates an IceStorm service -->
     <service-template id="IceStorm">
-
       <parameter name="instance-name" default="${application}.IceStorm"/>
       <parameter name="topic-manager-endpoints" default="default"/>
+      <!-- publish-endpoints configures the IceStorm.Publish object adapter -->
       <parameter name="publish-endpoints" default="default"/>
       <parameter name="flush-timeout" default="1000"/>
 
@@ -43,11 +42,10 @@
            <property name="IceStorm.Flush.Timeout" value="${flush-timeout}"/>
         </properties>
       </service>
-
     </service-template>
 
+    <!-- Creates an IceBox server that loads the IceStorm service. Its activation mode is "on-demand". -->
     <server-template id="IceStorm">
-
       <parameter name="instance-name" default="${application}.IceStorm"/>
       <parameter name="topic-manager-endpoints" default="default"/>
       <parameter name="publish-endpoints" default="default"/>
@@ -60,14 +58,14 @@
                           publish-endpoints="${publish-endpoints}"
                           flush-timeout="${flush-timeout}"/>
       </icebox>
-
     </server-template>
 
+    <!-- Creates an IceStorm service for a replicated / high availability deployment -->
     <service-template id="IceStorm-HA">
-
       <parameter name="instance-name" default="${application}.IceStorm"/>
       <parameter name="node-id"/>
       <parameter name="topic-manager-endpoints" default="default"/>
+      <!-- publish-endpoints configures the IceStorm.Publish object adapter -->
       <parameter name="publish-endpoints" default="default"/>
       <parameter name="node-endpoints" default="default"/>
       <parameter name="flush-timeout" default="1000"/>
@@ -95,11 +93,10 @@
            <property name="IceStorm.Flush.Timeout" value="${flush-timeout}"/>
         </properties>
       </service>
-
     </service-template>
 
+    <!-- Creates an IceBox server that loads the IceStorm-HA service. Its activation mode is "on-demand". -->
     <server-template id="IceStorm-HA">
-
       <parameter name="instance-name" default="${application}.IceStorm"/>
       <parameter name="node-id"/>
       <parameter name="topic-manager-endpoints" default="default"/>
@@ -120,7 +117,6 @@
                           publish-replica-group="${publish-replica-group}"
                           topic-manager-replica-group="${topic-manager-replica-group}"/>
       </icebox>
-
    </server-template>
 
   </application>
