@@ -44,7 +44,7 @@
       </service>
     </service-template>
 
-    <!-- Creates an IceBox server that loads the IceStorm service. Its activation mode is on-demand. -->
+    <!-- Creates an IceBox server that loads the IceStorm service. Its activation mode is "on-demand". -->
     <server-template id="IceStorm">
       <parameter name="instance-name" default="${application}.IceStorm"/>
       <parameter name="topic-manager-endpoints" default="default"/>
@@ -95,7 +95,7 @@
       </service>
     </service-template>
 
-    <!-- Creates an IceBox server that loads the IceStorm-HA service. Its activation mode is on-demand. -->
+    <!-- Creates an IceBox server that loads the IceStorm-HA service. Its activation mode is "on-demand". -->
     <server-template id="IceStorm-HA">
       <parameter name="instance-name" default="${application}.IceStorm"/>
       <parameter name="node-id"/>
