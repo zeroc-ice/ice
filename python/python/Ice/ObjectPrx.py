@@ -598,34 +598,6 @@ class ObjectPrx(IcePy.ObjectPrx):
         """
         return super().ice_endpointSelection(newType)
 
-    def ice_isSecure(self) -> bool:
-        """
-        Returns whether this proxy communicates only via secure endpoints.
-
-        Returns
-        -------
-        bool
-            True if this proxy communicates only via secure endpoints; False otherwise.
-        """
-        return super().ice_isSecure()
-
-    def ice_secure(self, secure: bool) -> Self:
-        """
-        Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
-
-        Parameters
-        ----------
-        secure : bool
-            If secure is True, only endpoints that use a secure transport are used by the new proxy.
-            If secure is False, the returned proxy uses both secure and insecure endpoints.
-
-        Returns
-        -------
-        ObjectPrx
-            The new proxy with the specified selection policy.
-        """
-        return super().ice_secure(secure)
-
     def ice_encodingVersion(self, version: EncodingVersion) -> Self:
         """
         Creates a new proxy that is identical to this proxy, except for the encoding used to marshal parameters.
@@ -652,34 +624,6 @@ class ObjectPrx(IcePy.ObjectPrx):
             The encoding version.
         """
         return super().ice_getEncodingVersion()
-
-    def ice_isPreferSecure(self) -> bool:
-        """
-        Returns whether this proxy prefers secure endpoints.
-
-        Returns
-        -------
-        bool
-            True if the proxy always attempts to invoke via secure endpoints before it attempts to use insecure endpoints; False otherwise.
-        """
-        return super().ice_isPreferSecure()
-
-    def ice_preferSecure(self, preferSecure: bool) -> Self:
-        """
-        Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
-
-        Parameters
-        ----------
-        preferSecure : bool
-            If b is True, the new proxy will use secure endpoints for invocations and only use insecure endpoints if an invocation cannot be made via secure endpoints.
-            If b is False, the proxy prefers insecure endpoints to secure ones.
-
-        Returns
-        -------
-        ObjectPrx
-            The new proxy with the new endpoint selection policy.
-        """
-        return super().ice_preferSecure(preferSecure)
 
     def ice_getRouter(self) -> RouterPrx | None:
         """

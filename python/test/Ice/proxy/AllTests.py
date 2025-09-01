@@ -240,10 +240,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     test(b1.ice_isDatagram())
     b1 = communicator.stringToProxy("test -D")
     test(b1.ice_isBatchDatagram())
-    b1 = communicator.stringToProxy("test")
-    test(not b1.ice_isSecure())
-    b1 = communicator.stringToProxy("test -s")
-    test(b1.ice_isSecure())
 
     try:
         b1 = communicator.stringToProxy("test:tcp@adapterId")
@@ -323,13 +319,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     test(b1.ice_getRouter() and b1.ice_getRouter().ice_getIdentity().name == "router")
     prop.setProperty(property, "")
 
-    property = propertyPrefix + ".PreferSecure"
-    test(not b1.ice_isPreferSecure())
-    prop.setProperty(property, "1")
-    b1 = communicator.propertyToProxy(propertyPrefix)
-    test(b1.ice_isPreferSecure())
-    prop.setProperty(property, "")
-
     property = propertyPrefix + ".ConnectionCached"
     test(b1.ice_isConnectionCached())
     prop.setProperty(property, "0")
@@ -368,7 +357,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     b1 = communicator.stringToProxy("test")
     b1 = b1.ice_collocationOptimized(True)
     b1 = b1.ice_connectionCached(True)
-    b1 = b1.ice_preferSecure(False)
     b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered)
     b1 = b1.ice_locatorCacheTimeout(100)
     b1 = b1.ice_invocationTimeout(1234)
@@ -378,7 +366,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     assert router is not None
     router = router.ice_collocationOptimized(False)
     router = router.ice_connectionCached(True)
-    router = router.ice_preferSecure(True)
     router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random)
     router = router.ice_locatorCacheTimeout(200)
     router = router.ice_invocationTimeout(1500)
@@ -387,7 +374,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     assert locator is not None
     locator = locator.ice_collocationOptimized(True)
     locator = locator.ice_connectionCached(False)
-    locator = locator.ice_preferSecure(True)
     locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random)
     locator = locator.ice_locatorCacheTimeout(300)
     locator = locator.ice_invocationTimeout(1500)
@@ -396,12 +382,11 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     b1 = b1.ice_locator(Ice.LocatorPrx.uncheckedCast(locator))
 
     proxyProps = communicator.proxyToProperty(b1, "Test")
-    test(len(proxyProps) == 21)
+    test(len(proxyProps) == 18)
 
     test(proxyProps["Test"] == "test -e 1.0")
     test(proxyProps["Test.CollocationOptimized"] == "1")
     test(proxyProps["Test.ConnectionCached"] == "1")
-    test(proxyProps["Test.PreferSecure"] == "0")
     test(proxyProps["Test.EndpointSelection"] == "Ordered")
     test(proxyProps["Test.LocatorCacheTimeout"] == "100")
     test(proxyProps["Test.InvocationTimeout"] == "1234")
@@ -409,7 +394,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     test(proxyProps["Test.Locator"] == "locator")
     test(proxyProps["Test.Locator.CollocationOptimized"] == "1")
     test(proxyProps["Test.Locator.ConnectionCached"] == "0")
-    test(proxyProps["Test.Locator.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random")
     test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300")
     test(proxyProps["Test.Locator.InvocationTimeout"] == "1500")
@@ -417,7 +401,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     test(proxyProps["Test.Locator.Router"] == "router")
     test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
     test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1")
-    test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
     test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200")
     test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500")
@@ -468,12 +451,8 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     test(base.ice_batchOneway().ice_isBatchOneway())
     test(base.ice_datagram().ice_isDatagram())
     test(base.ice_batchDatagram().ice_isBatchDatagram())
-    test(base.ice_secure(True).ice_isSecure())
-    test(not base.ice_secure(False).ice_isSecure())
     test(base.ice_collocationOptimized(True).ice_isCollocationOptimized())
     test(not base.ice_collocationOptimized(False).ice_isCollocationOptimized())
-    test(base.ice_preferSecure(True).ice_isPreferSecure())
-    test(not base.ice_preferSecure(False).ice_isPreferSecure())
     test(base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion() == Ice.Encoding_1_0)
     test(base.ice_encodingVersion(Ice.Encoding_1_1).ice_getEncodingVersion() == Ice.Encoding_1_1)
     test(base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion() != Ice.Encoding_1_1)
@@ -540,11 +519,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     test(compObj.ice_oneway() != compObj.ice_twoway())
     test(compObj.ice_twoway() < compObj.ice_oneway())
     test(not (compObj.ice_oneway() < compObj.ice_twoway()))
-
-    test(compObj.ice_secure(True) == compObj.ice_secure(True))
-    test(compObj.ice_secure(False) != compObj.ice_secure(True))
-    test(compObj.ice_secure(False) < compObj.ice_secure(True))
-    test(not (compObj.ice_secure(True) < compObj.ice_secure(False)))
 
     test(compObj.ice_collocationOptimized(True) == compObj.ice_collocationOptimized(True))
     test(compObj.ice_collocationOptimized(False) != compObj.ice_collocationOptimized(True))
@@ -626,11 +600,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
     test(compObj.ice_context(ctx1) != compObj.ice_context(ctx2))
     test(compObj.ice_context(ctx1) < compObj.ice_context(ctx2))
     test(not (compObj.ice_context(ctx2) < compObj.ice_context(ctx1)))
-
-    test(compObj.ice_preferSecure(True) == compObj.ice_preferSecure(True))
-    test(compObj.ice_preferSecure(True) != compObj.ice_preferSecure(False))
-    test(compObj.ice_preferSecure(False) < compObj.ice_preferSecure(True))
-    test(not (compObj.ice_preferSecure(True) < compObj.ice_preferSecure(False)))
 
     compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")
     compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")
@@ -744,7 +713,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
         test(cl.ice_isFixed() is False)
         test(cl.ice_fixed(connection).ice_isFixed())
         cl.ice_fixed(connection).getContext()
-        test(cl.ice_secure(True).ice_fixed(connection).ice_isSecure())
         test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet")
         test(cl.ice_oneway().ice_fixed(connection).ice_isOneway())
         ctx = {}
@@ -760,11 +728,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.MyClass
         fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection()
         assert fixedConnection is not None
         test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection)
-        try:
-            assert connection is not None
-            cl.ice_secure(not connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping()
-        except Ice.NoEndpointException:
-            pass
         try:
             cl.ice_datagram().ice_fixed(connection).ice_ping()
         except Ice.NoEndpointException:

@@ -168,10 +168,6 @@ function allTests($helper)
     test($b1->ice_isDatagram());
     $b1 = $communicator->stringToProxy("test -D");
     test($b1->ice_isBatchDatagram());
-    $b1 = $communicator->stringToProxy("test");
-    test(!$b1->ice_isSecure());
-    $b1 = $communicator->stringToProxy("test -s");
-    test($b1->ice_isSecure());
 
     try {
         $b1 = $communicator->stringToProxy("test:tcp@adapterId");
@@ -249,13 +245,6 @@ function allTests($helper)
     test($b1->ice_getRouter() && $b1->ice_getRouter()->ice_getIdentity()->name == "router");
     $communicator->getProperties()->setProperty($property, "");
 
-    $property = $propertyPrefix . ".PreferSecure";
-    test(!$b1->ice_isPreferSecure());
-    $communicator->getProperties()->setProperty($property, "1");
-    $b1 = $communicator->propertyToProxy($propertyPrefix);
-    test($b1->ice_isPreferSecure());
-    $communicator->getProperties()->setProperty($property, "");
-
     $property = $propertyPrefix . ".ConnectionCached";
     test($b1->ice_isConnectionCached());
     $communicator->getProperties()->setProperty($property, "0");
@@ -280,20 +269,17 @@ function allTests($helper)
 
     $b1 = $communicator->stringToProxy("test");
     $b1 = $b1->ice_connectionCached(true);
-    $b1 = $b1->ice_preferSecure(false);
     $b1 = $b1->ice_endpointSelection(Ice\EndpointSelectionType::Ordered);
     $b1 = $b1->ice_locatorCacheTimeout(100);
     $b1 = $b1->ice_encodingVersion(new Ice\EncodingVersion(1, 0));
 
     $router = Ice\RouterPrxHelper::createProxy($communicator, "router");
     $router = $router->ice_connectionCached(true);
-    $router = $router->ice_preferSecure(true);
     $router = $router->ice_endpointSelection(Ice\EndpointSelectionType::Random);
     $router = $router->ice_locatorCacheTimeout(200);
 
     $locator = Ice\LocatorPrxHelper::createProxy($communicator, "locator");
     $locator = $locator->ice_connectionCached(false);
-    $locator = $locator->ice_preferSecure(true);
     $locator = $locator->ice_endpointSelection(Ice\EndpointSelectionType::Random);
     $locator = $locator->ice_locatorCacheTimeout(300);
 
@@ -301,23 +287,20 @@ function allTests($helper)
     $b1 = $b1->ice_locator($locator);
 
     $proxyProps = $communicator->proxyToProperty($b1, "Test");
-    test(count($proxyProps) == 21);
+    test(count($proxyProps) == 18);
 
     test($proxyProps["Test"] == "test -e 1.0");
     test($proxyProps["Test.ConnectionCached"] == "1");
-    test($proxyProps["Test.PreferSecure"] == "0");
     test($proxyProps["Test.EndpointSelection"] == "Ordered");
     test($proxyProps["Test.LocatorCacheTimeout"] == "100");
 
     test($proxyProps["Test.Locator"] == "locator");
     test($proxyProps["Test.Locator.ConnectionCached"] == "0");
-    test($proxyProps["Test.Locator.PreferSecure"] == "1");
     test($proxyProps["Test.Locator.EndpointSelection"] == "Random");
     test($proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
 
     test($proxyProps["Test.Locator.Router"] == "router");
     test($proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
-    test($proxyProps["Test.Locator.Router.PreferSecure"] == "1");
     test($proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
     test($proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200");
 
@@ -362,10 +345,6 @@ function allTests($helper)
     test($base->ice_batchOneway()->ice_isBatchOneway());
     test($base->ice_datagram()->ice_isDatagram());
     test($base->ice_batchDatagram()->ice_isBatchDatagram());
-    test($base->ice_secure(true)->ice_isSecure());
-    test(!$base->ice_secure(false)->ice_isSecure());
-    test($base->ice_preferSecure(true)->ice_isPreferSecure());
-    test(!$base->ice_preferSecure(false)->ice_isPreferSecure());
     test($base->ice_connectionId("id1")->ice_getConnectionId() == "id1");
     test($base->ice_connectionId("id2")->ice_getConnectionId() == "id2");
     test($base->ice_encodingVersion($Ice_Encoding_1_0)->ice_getEncodingVersion() == $Ice_Encoding_1_0);
@@ -416,7 +395,6 @@ function allTests($helper)
         test(!$cl->ice_isFixed());
         test($cl->ice_fixed($connection)->ice_isFixed());
         $cl->ice_fixed($connection)->getContext();
-        test($cl->ice_secure(true)->ice_fixed($connection)->ice_isSecure());
         test($cl->ice_facet("facet")->ice_fixed($connection)->ice_getFacet() == "facet");
         test($cl->ice_oneway()->ice_fixed($connection)->ice_isOneway());
         $ctx = array();
@@ -430,10 +408,6 @@ function allTests($helper)
         test($cl->ice_fixed($connection)->ice_fixed($connection)->ice_getConnection() == $connection);
         $fixedConnection = $cl->ice_connectionId("ice_fixed")->ice_getConnection();
         test($cl->ice_fixed($connection)->ice_fixed($fixedConnection)->ice_getConnection() == $fixedConnection);
-        try {
-            $cl->ice_secure(!$connection->getEndpoint()->getInfo()->secure())->ice_fixed($connection)->ice_ping();
-        } catch (Exception $ex) {
-        }
         try {
             $cl->ice_datagram()->ice_fixed($connection)->ice_ping();
         } catch (Exception $ex) {
