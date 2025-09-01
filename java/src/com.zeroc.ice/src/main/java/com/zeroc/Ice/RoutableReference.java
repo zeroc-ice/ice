@@ -45,11 +45,6 @@ class RoutableReference extends Reference {
     }
 
     @Override
-    public final boolean getPreferSecure() {
-        return _preferSecure;
-    }
-
-    @Override
     public final EndpointSelectionType getEndpointSelection() {
         return _endpointSelection;
     }
@@ -157,13 +152,6 @@ class RoutableReference extends Reference {
     }
 
     @Override
-    public Reference changePreferSecure(boolean newPreferSecure) {
-        RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
-        r._preferSecure = newPreferSecure;
-        return r;
-    }
-
-    @Override
     public final Reference changeEndpointSelection(EndpointSelectionType newType) {
         RoutableReference r = (RoutableReference) getInstance().referenceFactory().copy(this);
         r._endpointSelection = newType;
@@ -199,7 +187,6 @@ class RoutableReference extends Reference {
             getIdentity(),
             getFacet(),
             getMode(),
-            getSecure(),
             getCompress(),
             getProtocol(),
             getEncoding(),
@@ -281,7 +268,6 @@ class RoutableReference extends Reference {
         properties.put(prefix, toString());
         properties.put(prefix + ".CollocationOptimized", _collocationOptimized ? "1" : "0");
         properties.put(prefix + ".ConnectionCached", _cacheConnection ? "1" : "0");
-        properties.put(prefix + ".PreferSecure", _preferSecure ? "1" : "0");
         properties.put(
             prefix + ".EndpointSelection",
             _endpointSelection == EndpointSelectionType.Random ? "Random" : "Ordered");
@@ -359,9 +345,6 @@ class RoutableReference extends Reference {
             return false;
         }
         if (_cacheConnection != rhs._cacheConnection) {
-            return false;
-        }
-        if (_preferSecure != rhs._preferSecure) {
             return false;
         }
         if (_endpointSelection != rhs._endpointSelection) {
@@ -509,7 +492,6 @@ class RoutableReference extends Reference {
             Identity identity,
             String facet,
             int mode,
-            boolean secure,
             Optional<Boolean> compress,
             ProtocolVersion protocol,
             EncodingVersion encoding,
@@ -519,7 +501,6 @@ class RoutableReference extends Reference {
             RouterInfo routerInfo,
             boolean collocationOptimized,
             boolean cacheConnection,
-            boolean preferSecure,
             EndpointSelectionType endpointSelection,
             Duration locatorCacheTimeout,
             Duration invocationTimeout,
@@ -530,7 +511,6 @@ class RoutableReference extends Reference {
             identity,
             facet,
             mode,
-            secure,
             compress,
             protocol,
             encoding,
@@ -542,7 +522,6 @@ class RoutableReference extends Reference {
         _routerInfo = routerInfo;
         _collocationOptimized = collocationOptimized;
         _cacheConnection = cacheConnection;
-        _preferSecure = preferSecure;
         _endpointSelection = endpointSelection;
         _locatorCacheTimeout = locatorCacheTimeout;
 
@@ -610,24 +589,6 @@ class RoutableReference extends Reference {
             case Random -> Collections.shuffle(endpoints);
             case Ordered -> { /* Nothing to do. */ }
             default -> throw new AssertionError();
-        }
-
-        // If a secure connection is requested or secure overrides is set, remove all non-secure endpoints.
-        // Otherwise if preferSecure is set make secure endpoints preferred.
-        // By default make non-secure endpoints preferred over secure endpoints.
-        DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
-        if (overrides.overrideSecure.isPresent() ? overrides.overrideSecure.get() : getSecure()) {
-            Iterator<EndpointI> i = endpoints.iterator();
-            while (i.hasNext()) {
-                EndpointI endpoint = i.next();
-                if (!endpoint.secure()) {
-                    i.remove();
-                }
-            }
-        } else if (getPreferSecure()) {
-            Collections.sort(endpoints, _preferSecureEndpointComparator);
-        } else {
-            Collections.sort(endpoints, _preferNonSecureEndpointComparator);
         }
 
         return endpoints.toArray(new EndpointI[endpoints.size()]);
@@ -729,39 +690,6 @@ class RoutableReference extends Reference {
         }
     }
 
-    static class EndpointComparator implements Comparator<EndpointI> {
-        EndpointComparator(boolean preferSecure) {
-            _preferSecure = preferSecure;
-        }
-
-        @Override
-        public int compare(EndpointI le, EndpointI re) {
-            boolean ls = le.secure();
-            boolean rs = re.secure();
-            if ((ls && rs) || (!ls && !rs)) {
-                return 0;
-            } else if (!ls && rs) {
-                if (_preferSecure) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            } else {
-                if (_preferSecure) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-        }
-
-        private final boolean _preferSecure;
-    }
-
-    private static final EndpointComparator _preferNonSecureEndpointComparator =
-        new EndpointComparator(false);
-    private static final EndpointComparator _preferSecureEndpointComparator =
-        new EndpointComparator(true);
     private static final EndpointI[] _emptyEndpoints = new EndpointI[0];
 
     private BatchRequestQueue _batchRequestQueue;
@@ -772,7 +700,6 @@ class RoutableReference extends Reference {
     private RouterInfo _routerInfo; // Null if no router is used.
     private boolean _collocationOptimized;
     private boolean _cacheConnection;
-    private boolean _preferSecure;
     private EndpointSelectionType _endpointSelection;
     private Duration _locatorCacheTimeout;
     private String _connectionId = "";

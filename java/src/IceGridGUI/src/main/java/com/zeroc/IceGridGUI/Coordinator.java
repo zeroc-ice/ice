@@ -1704,11 +1704,7 @@ public class Coordinator {
                             _communicator.setDefaultRouter(router);
 
                             SessionPrx s;
-                            if (info.getAuth()
-                                == SessionKeeper.AuthType.X509CertificateAuthType) {
-                                router =
-                                    RouterPrx.uncheckedCast(
-                                        router.ice_secure(true));
+                            if (info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType) {
 
                                 s = router.createSessionFromSecureConnection();
 
@@ -1728,10 +1724,6 @@ public class Coordinator {
                                     return;
                                 }
                             } else {
-                                router =
-                                    RouterPrx.uncheckedCast(
-                                        router.ice_preferSecure(true));
-
                                 s =
                                     router.createSession(
                                         info.getUsername(),
@@ -1989,14 +1981,11 @@ public class Coordinator {
                                     if (info.getAuth()
                                         == SessionKeeper.AuthType
                                         .X509CertificateAuthType) {
-                                        cb.setRegistry(cb.getRegistry().ice_secure(true));
                                         cb.setSession(
                                             cb.getRegistry()
                                                 .createAdminSessionFromSecureConnection());
                                         assert cb.getSession() != null;
                                     } else {
-                                        cb.setRegistry(
-                                            cb.getRegistry().ice_preferSecure(true));
 
                                         cb.setSession(
                                             cb.getRegistry()

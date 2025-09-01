@@ -223,16 +223,8 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
         return _reference instanceof FixedReference;
     }
 
-    public boolean ice_isSecure() {
-        return _reference.getSecure();
-    }
-
     public EncodingVersion ice_getEncodingVersion() {
         return _reference.getEncoding().clone();
-    }
-
-    public boolean ice_isPreferSecure() {
-        return _reference.getPreferSecure();
     }
 
     public RouterPrx ice_getRouter() {
@@ -435,29 +427,11 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
     }
 
     @Override
-    public ObjectPrx ice_secure(boolean b) {
-        if (b == _reference.getSecure()) {
-            return this;
-        } else {
-            return _newInstance(_reference.changeSecure(b));
-        }
-    }
-
-    @Override
     public ObjectPrx ice_encodingVersion(EncodingVersion e) {
         if (e.equals(_reference.getEncoding())) {
             return this;
         } else {
             return _newInstance(_reference.changeEncoding(e));
-        }
-    }
-
-    @Override
-    public ObjectPrx ice_preferSecure(boolean b) {
-        if (b == _reference.getPreferSecure()) {
-            return this;
-        } else {
-            return _newInstance(_reference.changePreferSecure(b));
         }
     }
 

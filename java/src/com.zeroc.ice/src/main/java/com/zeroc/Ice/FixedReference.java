@@ -13,7 +13,6 @@ class FixedReference extends Reference {
             Identity identity,
             String facet,
             int mode,
-            boolean secure,
             Optional<Boolean> compress,
             ProtocolVersion protocol,
             EncodingVersion encoding,
@@ -26,7 +25,6 @@ class FixedReference extends Reference {
             identity,
             facet,
             mode,
-            secure,
             compress,
             protocol,
             encoding,
@@ -63,11 +61,6 @@ class FixedReference extends Reference {
     @Override
     public final boolean getCacheConnection() {
         return true;
-    }
-
-    @Override
-    public boolean getPreferSecure() {
-        return false;
     }
 
     @Override
@@ -122,11 +115,6 @@ class FixedReference extends Reference {
 
     @Override
     public final Reference changeCacheConnection(boolean newCache) {
-        throw new FixedProxyException();
-    }
-
-    @Override
-    public Reference changePreferSecure(boolean prefSec) {
         throw new FixedProxyException();
     }
 
@@ -191,23 +179,9 @@ class FixedReference extends Reference {
             }
         }
 
-        //
-        // If a secure connection is requested or secure overrides is set, check if the connection
-        // is secure.
-        //
-        boolean secure;
-        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-        if (defaultsAndOverrides.overrideSecure.isPresent()) {
-            secure = defaultsAndOverrides.overrideSecure.get();
-        } else {
-            secure = getSecure();
-        }
-        if (secure && !_fixedConnection.endpoint().secure()) {
-            throw new NoEndpointException(new _ObjectPrxI(this));
-        }
-
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
+        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
         boolean compress =
             defaultsAndOverrides.overrideCompress.isPresent()
                 ? defaultsAndOverrides.overrideCompress.get()

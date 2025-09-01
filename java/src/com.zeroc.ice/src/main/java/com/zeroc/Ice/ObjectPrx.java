@@ -394,24 +394,6 @@ public interface ObjectPrx {
     ObjectPrx ice_endpointSelection(EndpointSelectionType newType);
 
     /**
-     * Determines whether this proxy uses only secure endpoints.
-     *
-     * @return {@code true} if this proxy communicates only via secure endpoints, {@code false}
-     *     otherwise.
-     */
-    boolean ice_isSecure();
-
-    /**
-     * Returns a proxy that is identical to this proxy, except for how it selects endpoints.
-     *
-     * @param b If <code>b</code> is <code>true</code>, only endpoints that use a secure transport
-     *     are used by the new proxy. If <code>b</code> is false, the returned proxy uses both
-     *     secure and insecure endpoints.
-     * @return The proxy with the specified selection policy.
-     */
-    ObjectPrx ice_secure(boolean b);
-
-    /**
      * Returns a proxy that is identical to this proxy, except for the encoding used to marshal
      * parameters.
      *
@@ -426,25 +408,6 @@ public interface ObjectPrx {
      * @return The encoding version.
      */
     EncodingVersion ice_getEncodingVersion();
-
-    /**
-     * Determines whether this proxy prefers secure endpoints.
-     *
-     * @return {@code true} if the proxy always attempts to invoke via secure endpoints before
-     *     it attempts to use insecure endpoints, {@code false} otherwise.
-     */
-    boolean ice_isPreferSecure();
-
-    /**
-     * Returns a proxy that is identical to this proxy, except for its endpoint selection policy.
-     *
-     * @param b If <code>b</code> is <code>true</code>, the new proxy will use secure endpoints for
-     *     invocations and only use insecure endpoints if an invocation cannot be made via secure
-     *     endpoints. If <code>b</code> is <code>false</code>, the proxy prefers insecure endpoints
-     *     to secure ones.
-     * @return The proxy with the specified selection policy.
-     */
-    ObjectPrx ice_preferSecure(boolean b);
 
     /**
      * Gets the router for this proxy.

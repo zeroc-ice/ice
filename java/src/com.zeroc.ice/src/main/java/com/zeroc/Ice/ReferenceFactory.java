@@ -18,7 +18,6 @@ final class ReferenceFactory {
             ident,
             facet,
             tmpl.getMode(),
-            tmpl.getSecure(),
             tmpl.getCompress(),
             tmpl.getProtocol(),
             tmpl.getEncoding(),
@@ -36,7 +35,6 @@ final class ReferenceFactory {
             ident,
             facet,
             tmpl.getMode(),
-            tmpl.getSecure(),
             tmpl.getCompress(),
             tmpl.getProtocol(),
             tmpl.getEncoding(),
@@ -59,7 +57,6 @@ final class ReferenceFactory {
             ident,
             "", // Facet
             fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
-            fixedConnection.endpoint().secure(),
             Optional.empty(),
             Util.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
@@ -131,7 +128,6 @@ final class ReferenceFactory {
 
         String facet = "";
         int mode = Reference.ModeTwoway;
-        boolean secure = false;
         EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
         ProtocolVersion protocol = Util.Protocol_1_0;
         String adapter = "";
@@ -286,7 +282,7 @@ final class ReferenceFactory {
                                 + s
                                 + "'");
                     }
-                    secure = true;
+                    // Ignored. Only kept for backwards compatibility.
                     break;
                 }
 
@@ -335,7 +331,7 @@ final class ReferenceFactory {
         }
 
         if (beg == -1) {
-            return create(ident, facet, mode, secure, Optional.empty(), protocol, encoding, null, null, propertyPrefix);
+            return create(ident, facet, mode, Optional.empty(), protocol, encoding, null, null, propertyPrefix);
         }
 
         ArrayList<EndpointI> endpoints = new ArrayList<>();
@@ -411,7 +407,6 @@ final class ReferenceFactory {
                 ident,
                 facet,
                 mode,
-                secure,
                 Optional.empty(),
                 protocol,
                 encoding,
@@ -458,7 +453,6 @@ final class ReferenceFactory {
                 ident,
                 facet,
                 mode,
-                secure,
                 Optional.empty(),
                 protocol,
                 encoding,
@@ -500,7 +494,7 @@ final class ReferenceFactory {
             throw new MarshalException("Received invalid proxy mode " + mode);
         }
 
-        boolean secure = s.readBool();
+        s.readBool(); // read and ignore secure field
 
         ProtocolVersion protocol;
         EncodingVersion encoding;
@@ -529,7 +523,6 @@ final class ReferenceFactory {
             ident,
             facet,
             mode,
-            secure,
             Optional.empty(),
             protocol,
             encoding,
@@ -582,7 +575,6 @@ final class ReferenceFactory {
             Identity ident,
             String facet,
             int mode,
-            boolean secure,
             Optional<Boolean> compress,
             ProtocolVersion protocol,
             EncodingVersion encoding,
@@ -608,7 +600,6 @@ final class ReferenceFactory {
         RouterInfo routerInfo = _instance.routerManager().get(_defaultRouter);
         boolean collocationOptimized = defaultsAndOverrides.defaultCollocationOptimization;
         boolean cacheConnection = true;
-        boolean preferSecure = defaultsAndOverrides.defaultPreferSecure;
         EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
         Duration locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
         Duration invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
@@ -661,10 +652,6 @@ final class ReferenceFactory {
             cacheConnection =
                 properties.getPropertyAsIntWithDefault(property, cacheConnection ? 1 : 0) > 0;
 
-            property = propertyPrefix + ".PreferSecure";
-            preferSecure =
-                properties.getPropertyAsIntWithDefault(property, preferSecure ? 1 : 0) > 0;
-
             property = propertyPrefix + ".EndpointSelection";
             if (properties.getProperty(property).length() > 0) {
                 String type = properties.getProperty(property);
@@ -713,7 +700,6 @@ final class ReferenceFactory {
             ident,
             facet,
             mode,
-            secure,
             compress,
             protocol,
             encoding,
@@ -723,7 +709,6 @@ final class ReferenceFactory {
             routerInfo,
             collocationOptimized,
             cacheConnection,
-            preferSecure,
             endpointSelection,
             locatorCacheTimeout,
             invocationTimeout,

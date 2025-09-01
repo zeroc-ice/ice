@@ -682,60 +682,6 @@ public class AllTests {
         }
         out.println("ok");
 
-        if ("ssl".equals(communicator.getProperties().getIceProperty("Ice.Default.Protocol"))) {
-            out.print("testing unsecure vs. secure endpoints... ");
-            out.flush();
-            {
-                List<RemoteObjectAdapterPrx> adapters = new ArrayList<>();
-                adapters.add(rcom.createObjectAdapter("Adapter81", "ssl"));
-                adapters.add(rcom.createObjectAdapter("Adapter82", "tcp"));
-
-                TestIntfPrx test = createTestIntfPrx(adapters);
-                int i;
-                for (i = 0; i < 5; i++) {
-                    test("Adapter82".equals(test.getAdapterName()));
-                    test.ice_getConnection().close();
-                }
-
-                TestIntfPrx testSecure = test.ice_secure(true);
-                test(testSecure.ice_isSecure());
-                testSecure = test.ice_secure(false);
-                test(!testSecure.ice_isSecure());
-                testSecure = test.ice_secure(true);
-                test(testSecure.ice_isSecure());
-                test(test.ice_getConnection() != testSecure.ice_getConnection());
-
-                rcom.deactivateObjectAdapter(adapters.get(1));
-
-                for (i = 0; i < 5; i++) {
-                    test("Adapter81".equals(test.getAdapterName()));
-                    test.ice_getConnection().close();
-                }
-
-                rcom.createObjectAdapter(
-                    "Adapter83", test.ice_getEndpoints()[1].toString()); // Reactive tcp OA.
-
-                for (i = 0; i < 5; i++) {
-                    test("Adapter83".equals(test.getAdapterName()));
-                    test.ice_getConnection().close();
-                }
-
-                rcom.deactivateObjectAdapter(adapters.get(0));
-                try {
-                    testSecure.ice_ping();
-                    test(false);
-                } catch (ConnectFailedException ex) {
-                    //
-                    // Usually the actual type of this exception is ConnectionRefusedException,
-                    // but not always. See bug 3179.
-                    //
-                }
-
-                deactivate(rcom, adapters);
-            }
-            out.println("ok");
-        }
-
         {
             out.print("testing ipv4 & ipv6 connections... ");
             out.flush();
