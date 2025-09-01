@@ -8,8 +8,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties)
-    : overrideCompress(nullopt)
+IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties) : overrideCompress(nullopt)
 {
     const_cast<string&>(defaultProtocol) = properties->getIceProperty("Ice.Default.Protocol");
 
