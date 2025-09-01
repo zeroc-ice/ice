@@ -4,6 +4,7 @@ using System.Net;
 
 namespace Ice.Internal;
 
+// Describes transport protocol.
 public class ProtocolInstance
 {
     public ProtocolInstance(Ice.Communicator communicator, short type, string protocol, bool secure)

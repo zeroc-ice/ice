@@ -20,7 +20,6 @@ internal class ReferenceFactory
             ident,
             facet,
             tmpl.getMode(),
-            tmpl.getSecure(),
             tmpl.getProtocol(),
             tmpl.getEncoding(),
             endpoints,
@@ -43,7 +42,6 @@ internal class ReferenceFactory
             ident,
             facet,
             tmpl.getMode(),
-            tmpl.getSecure(),
             tmpl.getProtocol(),
             tmpl.getEncoding(),
             null,
@@ -67,7 +65,6 @@ internal class ReferenceFactory
             ident,
             "", // Facet
             connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
-            connection.endpoint().secure(),
             compress: null,
             Ice.Util.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
@@ -169,7 +166,6 @@ internal class ReferenceFactory
 
         string facet = "";
         Reference.Mode mode = Reference.Mode.ModeTwoway;
-        bool secure = false;
         Ice.EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
         Ice.ProtocolVersion protocol = Ice.Util.Protocol_1_0;
         while (true)
@@ -325,7 +321,7 @@ internal class ReferenceFactory
                         throw new ParseException(
                             $"unexpected argument '{argument}' provided for -s option in proxy string '{s}'");
                     }
-                    secure = true;
+                    // Ignored. Only kept for backwards compatibility.
                     break;
                 }
 
@@ -374,7 +370,7 @@ internal class ReferenceFactory
 
         if (beg == -1)
         {
-            return create(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
+            return create(ident, facet, mode, protocol, encoding, null, null, propertyPrefix);
         }
 
         var endpoints = new List<EndpointI>();
@@ -462,7 +458,7 @@ internal class ReferenceFactory
             }
 
             EndpointI[] ep = endpoints.ToArray();
-            return create(ident, facet, mode, secure, protocol, encoding, ep, null, propertyPrefix);
+            return create(ident, facet, mode, protocol, encoding, ep, null, propertyPrefix);
         }
         else if (s[beg] == '@')
         {
@@ -513,7 +509,7 @@ internal class ReferenceFactory
             {
                 throw new ParseException($"empty adapter ID in proxy string '{s}'");
             }
-            return create(ident, facet, mode, secure, protocol, encoding, null, adapter, propertyPrefix);
+            return create(ident, facet, mode, protocol, encoding, null, adapter, propertyPrefix);
         }
 
         throw new ParseException($"malformed proxy string '{s}'");
@@ -555,7 +551,7 @@ internal class ReferenceFactory
             throw new MarshalException($"Received invalid proxy mode {mode}");
         }
 
-        bool secure = s.readBool();
+        _ = s.readBool(); // the secure field is no longer used
 
         Ice.ProtocolVersion protocol;
         Ice.EncodingVersion encoding;
@@ -587,7 +583,7 @@ internal class ReferenceFactory
             adapterId = s.readString();
         }
 
-        return create(ident, facet, (Reference.Mode)mode, secure, protocol, encoding, endpoints, adapterId, null);
+        return create(ident, facet, (Reference.Mode)mode, protocol, encoding, endpoints, adapterId, null);
     }
 
     internal ReferenceFactory setDefaultRouter(Ice.RouterPrx defaultRouter)
@@ -633,7 +629,6 @@ internal class ReferenceFactory
         Ice.Identity ident,
         string facet,
         Reference.Mode mode,
-        bool secure,
         Ice.ProtocolVersion protocol,
         Ice.EncodingVersion encoding,
         EndpointI[] endpoints,
@@ -661,7 +656,6 @@ internal class ReferenceFactory
         RouterInfo routerInfo = _instance.routerManager().get(_defaultRouter);
         bool collocOptimized = defaultsAndOverrides.defaultCollocationOptimization;
         bool cacheConnection = true;
-        bool preferSecure = defaultsAndOverrides.defaultPreferSecure;
         Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
         TimeSpan locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
         TimeSpan invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
@@ -715,9 +709,6 @@ internal class ReferenceFactory
             property = propertyPrefix + ".ConnectionCached";
             cacheConnection = properties.getPropertyAsIntWithDefault(property, cacheConnection ? 1 : 0) > 0;
 
-            property = propertyPrefix + ".PreferSecure";
-            preferSecure = properties.getPropertyAsIntWithDefault(property, preferSecure ? 1 : 0) > 0;
-
             property = propertyPrefix + ".EndpointSelection";
             if (properties.getProperty(property).Length > 0)
             {
@@ -766,7 +757,6 @@ internal class ReferenceFactory
             ident,
             facet,
             mode,
-            secure,
             compress: null,
             protocol,
             encoding,
@@ -776,7 +766,6 @@ internal class ReferenceFactory
             routerInfo,
             collocOptimized,
             cacheConnection,
-            preferSecure,
             endpointSelection,
             locatorCacheTimeout,
             invocationTimeout,

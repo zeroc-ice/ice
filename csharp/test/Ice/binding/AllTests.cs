@@ -767,66 +767,6 @@ public class AllTests : global::Test.AllTests
             }
         }
         output.WriteLine("ok");
-        if (communicator.getProperties().getIceProperty("Ice.Default.Protocol") == "ssl")
-        {
-            output.Write("testing unsecure vs. secure endpoints... ");
-            output.Flush();
-            {
-                var adapters = new List<Test.RemoteObjectAdapterPrx>
-                    {
-                        com.createObjectAdapter("Adapter81", "ssl"),
-                        com.createObjectAdapter("Adapter82", "tcp")
-                    };
-
-                var obj = createTestIntfPrx(adapters);
-                int i;
-                for (i = 0; i < 5; i++)
-                {
-                    test(obj.getAdapterName() == "Adapter82");
-                    await obj.ice_getConnection().closeAsync();
-                }
-
-                var testSecure = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
-                test(testSecure.ice_isSecure());
-                testSecure = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_secure(false));
-                test(!testSecure.ice_isSecure());
-                testSecure = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
-                test(testSecure.ice_isSecure());
-                test(obj.ice_getConnection() != testSecure.ice_getConnection());
-
-                com.deactivateObjectAdapter(adapters[1]);
-
-                for (i = 0; i < 5; i++)
-                {
-                    test(obj.getAdapterName() == "Adapter81");
-                    await obj.ice_getConnection().closeAsync();
-                }
-
-                com.createObjectAdapter("Adapter83", obj.ice_getEndpoints()[1].ToString()); // Reactive tcp OA.
-
-                for (i = 0; i < 5; i++)
-                {
-                    test(obj.getAdapterName() == "Adapter83");
-                    await obj.ice_getConnection().closeAsync();
-                }
-
-                com.deactivateObjectAdapter(adapters[0]);
-                try
-                {
-                    testSecure.ice_ping();
-                    test(false);
-                }
-                catch (ConnectFailedException)
-                {
-                }
-                catch (ConnectTimeoutException)
-                {
-                }
-
-                deactivate(com, adapters);
-            }
-            output.WriteLine("ok");
-        }
 
         {
             output.Write("testing ipv4 & ipv6 connections... ");
