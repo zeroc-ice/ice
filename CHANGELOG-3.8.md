@@ -181,6 +181,13 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   - Add new _adapter_.PublishedHost property, used to compute the default published endpoints.
   - Removed the `refreshPublishedEndpoints` operation on `ObjectAdapter`.
 
+- Removed the `secure` proxy option, the `PreferSecure` proxy property, and all associated properties
+  (`Ice.Default.PreferSecure`, `Ice.Override.Secure`) and proxy methods (`ice_secure`, `ice_preferSecure`, etc.).
+  `secure` and `PreferSecure` were about handling proxies with both tcp and ssl endpoints (or ws and wss endpoints).
+  You should not create such "client-decides-on-security" proxies, and Ice no longer provides special support for these
+  proxies. If you still use such proxies (even though you shouldn't), the communicator no longer prefers secure or
+  non-secure endpoints when establishing a connection for such a proxy: all endpoints are treated the same.
+
 - The default value for `Ice.ClassGraphDepthMax` is now `10`. In Ice 3.7, the default was `0`, which meant the class
   graph depth was unlimited.
 
