@@ -65,7 +65,7 @@ Glacier2::RoutingTable::add(
             throw ObjectNotExistException{__FILE__, __LINE__};
         }
 
-        ObjectPrx proxy = prx->ice_twoway()->ice_secure(false)->ice_facet(""); // We add proxies in default form.
+        ObjectPrx proxy = prx->ice_twoway()->ice_facet(""); // We add proxies in default form.
         proxies.push_back(proxy);
     }
 

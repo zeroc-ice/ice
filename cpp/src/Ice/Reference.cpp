@@ -55,14 +55,6 @@ IceInternal::Reference::changeMode(Mode newMode) const
 }
 
 ReferencePtr
-IceInternal::Reference::changeSecure(bool newSecure) const
-{
-    ReferencePtr r = clone();
-    r->_secure = newSecure;
-    return r;
-}
-
-ReferencePtr
 IceInternal::Reference::changeIdentity(Identity newIdentity) const
 {
     ReferencePtr r = clone();
@@ -116,7 +108,6 @@ Reference::hash() const noexcept
 {
     size_t h = 5381;
     hashAdd(h, static_cast<int32_t>(_mode));
-    hashAdd(h, _secure);
     hashAdd(h, _identity.name);
     hashAdd(h, _identity.category);
     hashAdd(h, _context->getValue());
@@ -149,7 +140,7 @@ IceInternal::Reference::streamWrite(OutputStream* s) const
 
     s->write(static_cast<uint8_t>(_mode));
 
-    s->write(_secure);
+    s->write(false); // secure, no longer used
 
     if (s->getEncoding() != Ice::Encoding_1_0)
     {
@@ -245,11 +236,6 @@ IceInternal::Reference::toString() const
         }
     }
 
-    if (_secure)
-    {
-        s << " -s";
-    }
-
     if (_protocol != Ice::Protocol_1_0)
     {
         // We print the protocol unless it's 1.0.
@@ -275,11 +261,6 @@ IceInternal::Reference::operator==(const Reference& r) const noexcept
     //
 
     if (_mode != r._mode)
-    {
-        return false;
-    }
-
-    if (_secure != r._secure)
     {
         return false;
     }
@@ -373,15 +354,6 @@ IceInternal::Reference::operator<(const Reference& r) const noexcept
         return false;
     }
 
-    if (!_secure && r._secure)
-    {
-        return true;
-    }
-    else if (r._secure < _secure)
-    {
-        return false;
-    }
-
     if (_protocol < r._protocol)
     {
         return true;
@@ -418,7 +390,6 @@ IceInternal::Reference::Reference(
     Identity id,
     string facet,
     Mode mode,
-    bool secure,
     std::optional<bool> compress,
     ProtocolVersion protocol,
     EncodingVersion encoding,
@@ -427,7 +398,6 @@ IceInternal::Reference::Reference(
     : _instance(std::move(instance)),
       _communicator(std::move(communicator)),
       _mode(mode),
-      _secure(secure),
       _compress(compress),
       _identity(std::move(id)),
       _context(make_shared<SharedContext>(std::move(ctx))),
@@ -443,7 +413,6 @@ IceInternal::Reference::Reference(const Reference& r)
       _instance(r._instance),
       _communicator(r._communicator),
       _mode(r._mode),
-      _secure(r._secure),
       _compress(r._compress),
       _identity(r._identity),
       _context(r._context),
@@ -460,7 +429,6 @@ IceInternal::FixedReference::FixedReference(
     Identity id,
     string facet,
     Mode mode,
-    bool secure,
     std::optional<bool> compress,
     ProtocolVersion protocol,
     EncodingVersion encoding,
@@ -473,7 +441,6 @@ IceInternal::FixedReference::FixedReference(
           std::move(id),
           std::move(facet),
           mode,
-          secure,
           compress,
           protocol,
           encoding,
@@ -505,12 +472,6 @@ bool
 IceInternal::FixedReference::getCacheConnection() const noexcept
 {
     return true;
-}
-
-bool
-IceInternal::FixedReference::getPreferSecure() const noexcept
-{
-    return false;
 }
 
 Ice::EndpointSelectionType
@@ -563,12 +524,6 @@ IceInternal::FixedReference::changeCollocationOptimized(bool) const
 
 ReferencePtr
 IceInternal::FixedReference::changeCacheConnection(bool) const
-{
-    throw FixedProxyException(__FILE__, __LINE__);
-}
-
-ReferencePtr
-IceInternal::FixedReference::changePreferSecure(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
@@ -659,30 +614,9 @@ IceInternal::FixedReference::getRequestHandler() const
         }
     }
 
-    //
-    // If a secure connection is requested or secure overrides is set,
-    // check if the connection is secure.
-    //
-    bool secure;
-    DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
-    if (defaultsAndOverrides->overrideSecure.has_value())
-    {
-        secure = *defaultsAndOverrides->overrideSecure;
-    }
-    else
-    {
-        secure = getSecure();
-    }
-    if (secure && !_fixedConnection->endpoint()->secure())
-    {
-        throw NoEndpointException(
-            __FILE__,
-            __LINE__,
-            ObjectPrx::_fromReference(const_cast<FixedReference*>(this)->shared_from_this()));
-    }
-
     _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
 
+    DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
     bool compress = defaultsAndOverrides->overrideCompress.has_value() ? *defaultsAndOverrides->overrideCompress
                                                                        : getCompress().value_or(false);
 
@@ -748,7 +682,6 @@ IceInternal::RoutableReference::RoutableReference(
     Identity id,
     string facet,
     Mode mode,
-    bool secure,
     optional<bool> compress,
     ProtocolVersion protocol,
     EncodingVersion encoding,
@@ -758,7 +691,6 @@ IceInternal::RoutableReference::RoutableReference(
     RouterInfoPtr routerInfo,
     bool collocationOptimized,
     bool cacheConnection,
-    bool preferSecure,
     EndpointSelectionType endpointSelection,
     chrono::milliseconds locatorCacheTimeout,
     chrono::milliseconds invocationTimeout,
@@ -769,7 +701,6 @@ IceInternal::RoutableReference::RoutableReference(
           std::move(id),
           std::move(facet),
           mode,
-          secure,
           compress,
           protocol,
           encoding,
@@ -781,7 +712,6 @@ IceInternal::RoutableReference::RoutableReference(
       _routerInfo(std::move(routerInfo)),
       _collocationOptimized(collocationOptimized),
       _cacheConnection(cacheConnection),
-      _preferSecure(preferSecure),
       _endpointSelection(endpointSelection),
       _locatorCacheTimeout(locatorCacheTimeout)
 {
@@ -823,12 +753,6 @@ bool
 IceInternal::RoutableReference::getCacheConnection() const noexcept
 {
     return _cacheConnection;
-}
-
-bool
-IceInternal::RoutableReference::getPreferSecure() const noexcept
-{
-    return _preferSecure;
 }
 
 Ice::EndpointSelectionType
@@ -944,14 +868,6 @@ IceInternal::RoutableReference::changeCacheConnection(bool newCache) const
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changePreferSecure(bool newPreferSecure) const
-{
-    RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
-    r->_preferSecure = newPreferSecure;
-    return r;
-}
-
-ReferencePtr
 IceInternal::RoutableReference::changeEndpointSelection(EndpointSelectionType newType) const
 {
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
@@ -994,7 +910,6 @@ IceInternal::RoutableReference::changeConnection(Ice::ConnectionIPtr connection)
         getIdentity(),
         getFacet(),
         getMode(),
-        getSecure(),
         getCompress(),
         getProtocol(),
         getEncoding(),
@@ -1096,7 +1011,6 @@ IceInternal::RoutableReference::toProperty(string prefix) const
 
     properties[prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0";
     properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
-    properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
     properties[prefix + ".EndpointSelection"] =
         _endpointSelection == EndpointSelectionType::Random ? "Random" : "Ordered";
     properties[prefix + ".LocatorCacheTimeout"] =
@@ -1148,10 +1062,6 @@ IceInternal::RoutableReference::operator==(const Reference& r) const noexcept
 
     const auto* rhs = dynamic_cast<const RoutableReference*>(&r);
     if (!rhs || !Reference::operator==(r))
-    {
-        return false;
-    }
-    if (_preferSecure != rhs->_preferSecure)
     {
         return false;
     }
@@ -1225,14 +1135,6 @@ IceInternal::RoutableReference::operator<(const Reference& r) const noexcept
         return true; // As a rule, routable references are superior to fixed references.
     }
 
-    if (!_preferSecure && rhs->_preferSecure)
-    {
-        return true;
-    }
-    else if (rhs->_preferSecure < _preferSecure)
-    {
-        return false;
-    }
     if (!_collocationOptimized && rhs->_collocationOptimized)
     {
         return true;
@@ -1604,7 +1506,6 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
       _routerInfo(r._routerInfo),
       _collocationOptimized(r._collocationOptimized),
       _cacheConnection(r._cacheConnection),
-      _preferSecure(r._preferSecure),
       _endpointSelection(r._endpointSelection),
       _locatorCacheTimeout(r._locatorCacheTimeout),
       _connectionId(r._connectionId)
@@ -1670,38 +1571,6 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
             assert(false);
             break;
         }
-    }
-
-    //
-    // If a secure connection is requested or secure overrides is set,
-    // remove all non-secure endpoints. Otherwise if preferSecure is set
-    // make secure endpoints preferred. By default make non-secure
-    // endpoints preferred over secure endpoints.
-    //
-    DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
-    if (overrides->overrideSecure.has_value() ? *overrides->overrideSecure : getSecure())
-    {
-        endpoints.erase(
-            remove_if(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return !p->secure(); }),
-            endpoints.end());
-    }
-    else if (getPreferSecure())
-    {
-        //
-        // We must use stable_partition() instead of just simply
-        // partition(), because otherwise some STL implementations
-        // order our now randomized endpoints.
-        //
-        stable_partition(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return p->secure(); });
-    }
-    else
-    {
-        //
-        // We must use stable_partition() instead of just simply
-        // partition(), because otherwise some STL implementations
-        // order our now randomized endpoints.
-        //
-        stable_partition(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return !p->secure(); });
     }
 
     return endpoints;

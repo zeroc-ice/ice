@@ -191,13 +191,6 @@ namespace Ice
         /// @return A proxy that uses oneway invocations.
         [[nodiscard]] Prx ice_oneway() const { return fromReference(asPrx()._oneway()); }
 
-        /// Creates a proxy that is identical to this proxy, except for its prefer secure policy.
-        /// @param b If `true`, the new proxy will use secure endpoints for invocations and only use nonsecure
-        /// endpoints if an invocation cannot be made via secure endpoints. If `false`, the proxy prefers nonsecure
-        /// endpoints to secure ones.
-        /// @return A proxy with the specified prefer secure policy.
-        [[nodiscard]] Prx ice_preferSecure(bool b) const { return fromReference(asPrx()._preferSecure(b)); }
-
         /// Creates a proxy that is identical to this proxy, except for the router.
         /// @param router The router for the new proxy.
         /// @return A proxy with the specified router.
@@ -205,12 +198,6 @@ namespace Ice
         {
             return fromReference(asPrx()._router(router));
         }
-
-        /// Creates a proxy that is identical to this proxy, except for how it selects endpoints.
-        /// @param b If `true`, only endpoints that use a secure transport are used by the new proxy.
-        /// If `false`, the returned proxy uses both secure and nonsecure endpoints.
-        /// @return A proxy with the specified security policy.
-        [[nodiscard]] Prx ice_secure(bool b) const { return fromReference(asPrx()._secure(b)); }
 
         /// Creates a proxy that is identical to this proxy, but uses twoway invocations.
         /// @return A proxy that uses twoway invocations.
@@ -594,18 +581,9 @@ namespace Ice
         /// @return The endpoint selection policy.
         [[nodiscard]] Ice::EndpointSelectionType ice_getEndpointSelection() const noexcept;
 
-        /// Determines whether this proxy uses only secure endpoints.
-        /// @return `true` if this proxy communicates only via secure endpoints, `false` otherwise.
-        [[nodiscard]] bool ice_isSecure() const noexcept;
-
         /// Gets the encoding version used to marshal request parameters.
         /// @return The encoding version.
         [[nodiscard]] Ice::EncodingVersion ice_getEncodingVersion() const noexcept;
-
-        /// Determines whether this proxy prefers secure endpoints.
-        /// @return `true` if the proxy always attempts to invoke via secure endpoints before it
-        /// attempts to use insecure endpoints, `false` otherwise.
-        [[nodiscard]] bool ice_isPreferSecure() const noexcept;
 
         /// Gets the router for this proxy.
         /// @return The router for the proxy. If no router is configured for the proxy, the return value
@@ -718,9 +696,7 @@ namespace Ice
         [[nodiscard]] IceInternal::ReferencePtr _locator(const std::optional<LocatorPrx>&) const;
         [[nodiscard]] IceInternal::ReferencePtr _locatorCacheTimeout(std::chrono::milliseconds) const;
         [[nodiscard]] IceInternal::ReferencePtr _oneway() const;
-        [[nodiscard]] IceInternal::ReferencePtr _preferSecure(bool) const;
         [[nodiscard]] IceInternal::ReferencePtr _router(const std::optional<RouterPrx>&) const;
-        [[nodiscard]] IceInternal::ReferencePtr _secure(bool) const;
         [[nodiscard]] IceInternal::ReferencePtr _twoway() const;
 
         // Only the assignment operators can change these fields. All other member functions must be const.

@@ -104,7 +104,7 @@ Glacier2::Blobject::invoke(
 
                 case 's':
                 {
-                    proxy = proxy->ice_secure(true);
+                    // Ignored.
                     break;
                 }
 

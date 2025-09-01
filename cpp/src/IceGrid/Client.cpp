@@ -393,7 +393,7 @@ run(const Ice::StringSeq& args)
         if (communicator->getDefaultRouter())
         {
             // Use SSL if available.
-            router = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter()->ice_preferSecure(true));
+            router = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter());
             if (ssl)
             {
                 session = Ice::uncheckedCast<IceGrid::AdminSessionPrx>(router->createSessionFromSecureConnection());
@@ -535,9 +535,6 @@ run(const Ice::StringSeq& args)
                     colloc->addWithUUID<Ice::RouterPrx>(make_shared<ReuseConnectionRouter>(locator)));
                 registry = registry->ice_router(communicator->getDefaultRouter());
             }
-
-            // Prefer SSL.
-            registry = registry->ice_preferSecure(true);
 
             if (ssl)
             {

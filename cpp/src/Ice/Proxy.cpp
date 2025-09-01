@@ -124,22 +124,10 @@ Ice::ObjectPrx::ice_getEndpointSelection() const noexcept
     return _reference->getEndpointSelection();
 }
 
-bool
-Ice::ObjectPrx::ice_isSecure() const noexcept
-{
-    return _reference->getSecure();
-}
-
 Ice::EncodingVersion
 Ice::ObjectPrx::ice_getEncodingVersion() const noexcept
 {
     return _reference->getEncoding();
-}
-
-bool
-Ice::ObjectPrx::ice_isPreferSecure() const noexcept
-{
-    return _reference->getPreferSecure();
 }
 
 optional<RouterPrx>
@@ -526,19 +514,6 @@ Ice::ObjectPrx::_oneway() const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_preferSecure(bool b) const
-{
-    if (b == _reference->getPreferSecure())
-    {
-        return _reference;
-    }
-    else
-    {
-        return _reference->changePreferSecure(b);
-    }
-}
-
-ReferencePtr
 Ice::ObjectPrx::_router(const std::optional<RouterPrx>& router) const
 {
     ReferencePtr ref = _reference->changeRouter(router);
@@ -549,19 +524,6 @@ Ice::ObjectPrx::_router(const std::optional<RouterPrx>& router) const
     else
     {
         return ref;
-    }
-}
-
-ReferencePtr
-Ice::ObjectPrx::_secure(bool b) const
-{
-    if (b == _reference->getSecure())
-    {
-        return _reference;
-    }
-    else
-    {
-        return _reference->changeSecure(b);
     }
 }
 

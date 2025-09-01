@@ -46,7 +46,6 @@ namespace IceInternal
         [[nodiscard]] Mode getMode() const noexcept { return _mode; }
         [[nodiscard]] bool isBatch() const noexcept { return _mode == ModeBatchOneway || _mode == ModeBatchDatagram; }
         [[nodiscard]] bool isTwoway() const noexcept { return _mode == ModeTwoway; }
-        [[nodiscard]] bool getSecure() const noexcept { return _secure; }
         [[nodiscard]] const Ice::ProtocolVersion& getProtocol() const noexcept { return _protocol; }
         [[nodiscard]] const Ice::EncodingVersion& getEncoding() const noexcept { return _encoding; }
         [[nodiscard]] const Ice::Identity& getIdentity() const noexcept { return _identity; }
@@ -64,7 +63,6 @@ namespace IceInternal
         [[nodiscard]] virtual RouterInfoPtr getRouterInfo() const noexcept { return nullptr; }
         [[nodiscard]] virtual bool getCollocationOptimized() const noexcept = 0;
         [[nodiscard]] virtual bool getCacheConnection() const noexcept = 0;
-        [[nodiscard]] virtual bool getPreferSecure() const noexcept = 0;
         [[nodiscard]] virtual Ice::EndpointSelectionType getEndpointSelection() const noexcept = 0;
         [[nodiscard]] virtual std::chrono::milliseconds getLocatorCacheTimeout() const noexcept = 0;
         [[nodiscard]] virtual std::string getConnectionId() const = 0;
@@ -75,7 +73,6 @@ namespace IceInternal
         // corresponding value changed.
         //
         [[nodiscard]] ReferencePtr changeContext(Ice::Context) const;
-        [[nodiscard]] ReferencePtr changeSecure(bool) const;
         [[nodiscard]] ReferencePtr changeIdentity(Ice::Identity) const;
         [[nodiscard]] ReferencePtr changeFacet(std::string) const;
         [[nodiscard]] ReferencePtr changeInvocationTimeout(std::chrono::milliseconds) const;
@@ -90,7 +87,6 @@ namespace IceInternal
         [[nodiscard]] virtual ReferencePtr changeCollocationOptimized(bool) const = 0;
         [[nodiscard]] virtual ReferencePtr changeLocatorCacheTimeout(std::chrono::milliseconds) const = 0;
         [[nodiscard]] virtual ReferencePtr changeCacheConnection(bool) const = 0;
-        [[nodiscard]] virtual ReferencePtr changePreferSecure(bool) const = 0;
         [[nodiscard]] virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const = 0;
 
         [[nodiscard]] virtual ReferencePtr changeConnectionId(std::string) const = 0;
@@ -144,7 +140,6 @@ namespace IceInternal
             Ice::Identity,
             std::string,
             Mode,
-            bool,
             std::optional<bool>,
             Ice::ProtocolVersion,
             Ice::EncodingVersion,
@@ -159,7 +154,6 @@ namespace IceInternal
         const Ice::CommunicatorPtr _communicator;
 
         Mode _mode;
-        bool _secure;
         std::optional<bool> _compress;
         Ice::Identity _identity;
         SharedContextPtr _context;
@@ -178,7 +172,6 @@ namespace IceInternal
             Ice::Identity,
             std::string,
             Mode,
-            bool,
             std::optional<bool>,
             Ice::ProtocolVersion,
             Ice::EncodingVersion,
@@ -192,7 +185,6 @@ namespace IceInternal
         [[nodiscard]] std::string getAdapterId() const final;
         [[nodiscard]] bool getCollocationOptimized() const noexcept final;
         [[nodiscard]] bool getCacheConnection() const noexcept final;
-        [[nodiscard]] bool getPreferSecure() const noexcept final;
         [[nodiscard]] Ice::EndpointSelectionType getEndpointSelection() const noexcept final;
         [[nodiscard]] std::chrono::milliseconds getLocatorCacheTimeout() const noexcept final;
         [[nodiscard]] std::string getConnectionId() const final;
@@ -203,7 +195,6 @@ namespace IceInternal
         [[nodiscard]] ReferencePtr changeRouter(std::optional<Ice::RouterPrx>) const final;
         [[nodiscard]] ReferencePtr changeCollocationOptimized(bool) const final;
         [[nodiscard]] ReferencePtr changeCacheConnection(bool) const final;
-        [[nodiscard]] ReferencePtr changePreferSecure(bool) const final;
         [[nodiscard]] ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const final;
         [[nodiscard]] ReferencePtr changeLocatorCacheTimeout(std::chrono::milliseconds) const final;
 
@@ -239,7 +230,6 @@ namespace IceInternal
             Ice::Identity,
             std::string,
             Mode,
-            bool,
             std::optional<bool>,
             Ice::ProtocolVersion,
             Ice::EncodingVersion,
@@ -247,7 +237,6 @@ namespace IceInternal
             std::string,
             LocatorInfoPtr,
             RouterInfoPtr,
-            bool,
             bool,
             bool,
             Ice::EndpointSelectionType,
@@ -263,7 +252,6 @@ namespace IceInternal
         [[nodiscard]] RouterInfoPtr getRouterInfo() const noexcept final;
         [[nodiscard]] bool getCollocationOptimized() const noexcept final;
         [[nodiscard]] bool getCacheConnection() const noexcept final;
-        [[nodiscard]] bool getPreferSecure() const noexcept final;
         [[nodiscard]] Ice::EndpointSelectionType getEndpointSelection() const noexcept final;
         [[nodiscard]] std::chrono::milliseconds getLocatorCacheTimeout() const noexcept final;
         [[nodiscard]] std::string getConnectionId() const final;
@@ -277,7 +265,6 @@ namespace IceInternal
         [[nodiscard]] ReferencePtr changeRouter(std::optional<Ice::RouterPrx>) const final;
         [[nodiscard]] ReferencePtr changeCollocationOptimized(bool) const final;
         [[nodiscard]] ReferencePtr changeCacheConnection(bool) const final;
-        [[nodiscard]] ReferencePtr changePreferSecure(bool) const final;
         [[nodiscard]] ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const final;
         [[nodiscard]] ReferencePtr changeLocatorCacheTimeout(std::chrono::milliseconds) const final;
 
@@ -332,7 +319,6 @@ namespace IceInternal
         RouterInfoPtr _routerInfo;   // Null if no router is used.
         bool _collocationOptimized;
         bool _cacheConnection;
-        bool _preferSecure;
         Ice::EndpointSelectionType _endpointSelection;
         std::chrono::milliseconds _locatorCacheTimeout;
 

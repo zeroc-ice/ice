@@ -42,7 +42,6 @@ namespace IceInternal
             Ice::Identity ident,
             std::string facet,
             Reference::Mode mode,
-            bool secure,
             Ice::ProtocolVersion protocol,
             Ice::EncodingVersion encoding,
             std::vector<EndpointIPtr> endpoints,
