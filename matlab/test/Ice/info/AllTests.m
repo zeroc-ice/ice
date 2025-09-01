@@ -22,10 +22,6 @@ classdef AllTests
             assert(strcmp(tcpEndpoint.sourceAddress, '10.10.10.10'));
             assert(tcpEndpoint.compress);
             assert(~tcpEndpoint.datagram());
-            assert(tcpEndpoint.type() == Ice.TCPEndpointType.value && ~tcpEndpoint.secure() || ...
-                   tcpEndpoint.type() == Ice.SSLEndpointType.value && tcpEndpoint.secure() || ...
-                   tcpEndpoint.type() == Ice.WSEndpointType.value && ~tcpEndpoint.secure() || ...
-                   tcpEndpoint.type() == Ice.WSSEndpointType.value && tcpEndpoint.secure());
 
             % TODO: With SSL types
                  %tcpEndpoint.type() == Ice.SSLEndpointType.value && isa(info, 'Ice.SSL.EndpointInfo') ||
@@ -41,7 +37,6 @@ classdef AllTests
             assert(udpEndpoint.mcastTtl == 5);
             assert(strcmp(udpEndpoint.sourceAddress, '10.10.10.10'));
             assert(~udpEndpoint.compress);
-            assert(~udpEndpoint.secure());
             assert(udpEndpoint.datagram());
             assert(udpEndpoint.type() == Ice.UDPEndpointType.value);
 

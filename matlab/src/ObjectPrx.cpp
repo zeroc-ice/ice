@@ -660,46 +660,6 @@ extern "C"
         }
     }
 
-    mxArray* Ice_ObjectPrx_ice_isSecure(void* self)
-    {
-        return createResultValue(createBool(restoreProxy(self)->ice_isSecure()));
-    }
-
-    mxArray* Ice_ObjectPrx_ice_secure(void* self, void** r, unsigned char b)
-    {
-        try
-        {
-            auto proxy = restoreProxy(self);
-            auto newProxy = proxy->ice_secure(b == 1);
-            *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
-            return createEmptyArray();
-        }
-        catch (...)
-        {
-            return convertException(std::current_exception());
-        }
-    }
-
-    mxArray* Ice_ObjectPrx_ice_isPreferSecure(void* self)
-    {
-        return createResultValue(createBool(restoreProxy(self)->ice_isPreferSecure()));
-    }
-
-    mxArray* Ice_ObjectPrx_ice_preferSecure(void* self, void** r, unsigned char b)
-    {
-        try
-        {
-            auto proxy = restoreProxy(self);
-            auto newProxy = proxy->ice_preferSecure(b == 1);
-            *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
-            return createEmptyArray();
-        }
-        catch (...)
-        {
-            return convertException(std::current_exception());
-        }
-    }
-
     mxArray* Ice_ObjectPrx_ice_isTwoway(void* self)
     {
         return createResultValue(createBool(restoreProxy(self)->ice_isTwoway()));
