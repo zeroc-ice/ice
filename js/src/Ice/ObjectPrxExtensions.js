@@ -150,18 +150,6 @@ ObjectPrx.prototype.ice_endpointSelection = function (newType) {
     }
 };
 
-ObjectPrx.prototype.ice_isSecure = function () {
-    return this._reference.getSecure();
-};
-
-ObjectPrx.prototype.ice_secure = function (b) {
-    if (b === this._reference.getSecure()) {
-        return this;
-    } else {
-        return this._newInstance(this._reference.changeSecure(b));
-    }
-};
-
 ObjectPrx.prototype.ice_getEncodingVersion = function () {
     return this._reference.getEncoding().clone();
 };
@@ -171,18 +159,6 @@ ObjectPrx.prototype.ice_encodingVersion = function (e) {
         return this;
     } else {
         return this._newInstance(this._reference.changeEncoding(e));
-    }
-};
-
-ObjectPrx.prototype.ice_isPreferSecure = function () {
-    return this._reference.getPreferSecure();
-};
-
-ObjectPrx.prototype.ice_preferSecure = function (b) {
-    if (b === this._reference.getPreferSecure()) {
-        return this;
-    } else {
-        return this._newInstance(this._reference.changePreferSecure(b));
     }
 };
 
