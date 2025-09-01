@@ -91,6 +91,12 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   seconds, as usual. You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.CloseTimeout`.
 
+- Removed all properties and APIs related to the old connection timeouts: `Ice.Default.Timeout`, `Ice.Override.Timeout`,
+  `Ice.Override.ConnectTimeout`, `Ice.Override.CloseTimeout`, `ice_timeout`, etc.
+  The default timeout assigned to new `tcp`, `ssl`, `ws`, `wss`, etc. endpoints is now always 60,000 ms. This timeout
+  has no effect on Ice 3.8 applications but it can have an effect on older Ice applications that receive proxies with
+  such endpoints.
+
 - Removed the `setHeartbeatCallback` operation on `Connection`.
 
 - Add new properties for flow control.
