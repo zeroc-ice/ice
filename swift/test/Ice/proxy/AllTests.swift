@@ -209,10 +209,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     try test(b1.ice_isDatagram())
     b1 = try communicator.stringToProxy("test -D")!
     try test(b1.ice_isBatchDatagram())
-    b1 = try communicator.stringToProxy("test")!
-    try test(!b1.ice_isSecure())
-    b1 = try communicator.stringToProxy("test -s")!
-    try test(b1.ice_isSecure())
 
     try test(b1.ice_getEncodingVersion() == Ice.currentEncoding)
 
@@ -344,7 +340,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         b2 = try await b1.ice_getConnection()!.createProxy(Ice.stringToIdentity("fixed"))
         let str = communicator.proxyToString(b2)
         try test(b2.ice_toString() == str)
-        let str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ice_toString()
+        let str2 = b1.ice_identity(b2.ice_getIdentity()).ice_toString()
         // Verify that the stringified fixed proxy is the same as a regular stringified proxy
         // but without endpoints
         try test(str2.hasPrefix("\(str):"))
@@ -407,13 +403,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     try test(b1.ice_getRouter() != nil && b1.ice_getRouter()!.ice_getIdentity().name == "router")
     prop.setProperty(key: property, value: "")
 
-    property = "\(propertyPrefix).PreferSecure"
-    try test(!b1.ice_isPreferSecure())
-    prop.setProperty(key: property, value: "1")
-    b1 = try communicator.propertyToProxy(propertyPrefix)!
-    try test(b1.ice_isPreferSecure())
-    prop.setProperty(key: property, value: "")
-
     property = "\(propertyPrefix).ConnectionCached"
     try test(b1.ice_isConnectionCached())
     prop.setProperty(key: property, value: "0")
@@ -467,7 +456,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     b1 = try communicator.stringToProxy("test")!
     b1 = b1.ice_collocationOptimized(true)
     b1 = b1.ice_connectionCached(true)
-    b1 = b1.ice_preferSecure(false)
     b1 = b1.ice_endpointSelection(.Ordered)
     b1 = b1.ice_locatorCacheTimeout(100)
     b1 = b1.ice_invocationTimeout(1234)
@@ -476,7 +464,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     var router = try communicator.stringToProxy("router")!
     router = router.ice_collocationOptimized(false)
     router = router.ice_connectionCached(true)
-    router = router.ice_preferSecure(true)
     router = router.ice_endpointSelection(.Random)
     router = router.ice_locatorCacheTimeout(200)
     router = router.ice_invocationTimeout(1500)
@@ -484,7 +471,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     var locator = try communicator.stringToProxy("locator")!
     locator = locator.ice_collocationOptimized(true)
     locator = locator.ice_connectionCached(false)
-    locator = locator.ice_preferSecure(true)
     locator = locator.ice_endpointSelection(.Random)
     locator = locator.ice_locatorCacheTimeout(300)
     locator = locator.ice_invocationTimeout(1500)
@@ -493,12 +479,11 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     b1 = b1.ice_locator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
 
     let proxyProps = communicator.proxyToProperty(proxy: b1, property: "Test")
-    try test(proxyProps.count == 21)
+    try test(proxyProps.count == 18)
 
     try test(proxyProps["Test"] == "test -e 1.0")
     try test(proxyProps["Test.CollocationOptimized"] == "1")
     try test(proxyProps["Test.ConnectionCached"] == "1")
-    try test(proxyProps["Test.PreferSecure"] == "0")
     try test(proxyProps["Test.EndpointSelection"] == "Ordered")
     try test(proxyProps["Test.LocatorCacheTimeout"] == "100")
     try test(proxyProps["Test.InvocationTimeout"] == "1234")
@@ -508,7 +493,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     // Locator collocation optimization is always disabled.
     // test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
     try test(proxyProps["Test.Locator.ConnectionCached"] == "0")
-    try test(proxyProps["Test.Locator.PreferSecure"] == "1")
     try test(proxyProps["Test.Locator.EndpointSelection"] == "Random")
     try test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300")
     try test(proxyProps["Test.Locator.InvocationTimeout"] == "1500")
@@ -517,7 +501,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         proxyProps["Test.Locator.Router"] == "router")
     try test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
     try test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1")
-    try test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
     try test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
     try test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200")
     try test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500")
@@ -536,12 +519,8 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     try test(baseProxy.ice_batchOneway().ice_isBatchOneway())
     try test(baseProxy.ice_datagram().ice_isDatagram())
     try test(baseProxy.ice_batchDatagram().ice_isBatchDatagram())
-    try test(baseProxy.ice_secure(true).ice_isSecure())
-    try test(!baseProxy.ice_secure(false).ice_isSecure())
     try test(baseProxy.ice_collocationOptimized(true).ice_isCollocationOptimized())
     try test(!baseProxy.ice_collocationOptimized(false).ice_isCollocationOptimized())
-    try test(baseProxy.ice_preferSecure(true).ice_isPreferSecure())
-    try test(!baseProxy.ice_preferSecure(false).ice_isPreferSecure())
 
     try test(baseProxy.ice_invocationTimeout(-1).ice_getInvocationTimeout() == -1)
     try test(baseProxy.ice_locatorCacheTimeout(0).ice_getLocatorCacheTimeout() == 0)
@@ -561,9 +540,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
 
     try test(compObj!.ice_oneway() == compObj!.ice_oneway())
     try test(compObj!.ice_oneway() != compObj!.ice_twoway())
-
-    try test(compObj!.ice_secure(true) == compObj!.ice_secure(true))
-    try test(compObj!.ice_secure(false) != compObj!.ice_secure(true))
 
     try test(compObj!.ice_collocationOptimized(true) == compObj!.ice_collocationOptimized(true))
     try test(compObj!.ice_collocationOptimized(false) != compObj!.ice_collocationOptimized(true))
@@ -625,9 +601,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     try test(compObj!.ice_context(Ice.Context()) != compObj!.ice_context(ctx2))
     try test(compObj!.ice_context(ctx1) != compObj!.ice_context(ctx2))
 
-    try test(compObj!.ice_preferSecure(true) == compObj!.ice_preferSecure(true))
-    try test(compObj!.ice_preferSecure(true) != compObj!.ice_preferSecure(false))
-
     var compObj1 = try communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")
     var compObj2 = try communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")
     try test(compObj1 != compObj2)
@@ -686,7 +659,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         if connection != nil {
             let prx = cl.ice_fixed(connection!)
             try await prx.ice_ping()
-            try test(cl.ice_secure(true).ice_fixed(connection!).ice_isSecure())
             try test(cl.ice_facet("facet").ice_fixed(connection!).ice_getFacet() == "facet")
             try test(cl.ice_oneway().ice_fixed(connection!).ice_isOneway())
             let ctx = ["one": "hello", "two": "world"]
@@ -702,12 +674,6 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
             try await test(
                 cl.ice_fixed(connection!).ice_fixed(fixedConnection!).ice_getConnection()
                     === fixedConnection)
-            do {
-                try await cl.ice_secure(!connection!.getEndpoint().getInfo()!.secure()).ice_fixed(
-                    connection!
-                )
-                .ice_ping()
-            } catch is Ice.NoEndpointException {}
 
             do {
                 try await cl.ice_datagram().ice_fixed(connection!).ice_ping()

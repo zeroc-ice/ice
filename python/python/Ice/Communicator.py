@@ -196,9 +196,7 @@ class Communicator:
         Convert a set of proxy properties into a proxy.
 
         The "base" name supplied in the property argument refers to a property containing a stringified proxy,
-        such as `MyProxy=id:tcp -h localhost -p 10000`. Additional properties configure local settings for the proxy,
-        such as `MyProxy.PreferSecure=1`. The "Properties" appendix in the Ice manual describes each of the supported
-        proxy properties.
+        such as `MyProxy=id:tcp -h localhost -p 10000`.
 
         Parameters
         ----------

@@ -20,7 +20,6 @@ internal sealed class PropertyNames
             new(pattern: @"InvocationTimeout", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ProxyProps),
             new(pattern: @"LocatorCacheTimeout", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
-            new(pattern: @"PreferSecure", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Router", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ProxyProps)
         ]);
 
@@ -100,7 +99,6 @@ internal sealed class PropertyNames
             new(pattern: @"Default.InvocationTimeout", usesRegex: false, defaultValue: "-1", deprecated: false, propertyArray: null),
             new(pattern: @"Default.Locator", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ProxyProps),
             new(pattern: @"Default.LocatorCacheTimeout", usesRegex: false, defaultValue: "-1", deprecated: false, propertyArray: null),
-            new(pattern: @"Default.PreferSecure", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"Default.Protocol", usesRegex: false, defaultValue: "tcp", deprecated: false, propertyArray: null),
             new(pattern: @"Default.Router", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: ProxyProps),
             new(pattern: @"Default.SlicedFormat", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
@@ -114,7 +112,6 @@ internal sealed class PropertyNames
             new(pattern: @"LogFile", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"MessageSizeMax", usesRegex: false, defaultValue: "1024", deprecated: false, propertyArray: null),
             new(pattern: @"Override.Compress", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
-            new(pattern: @"Override.Secure", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"^Plugin\.[^\s]+$", usesRegex: true, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"PluginLoadOrder", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"PreferIPv6Address", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),

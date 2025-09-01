@@ -12,7 +12,6 @@
         <property name="InvocationTimeout" languages="all" />
         <property name="Locator" languages="all" class="Proxy"/>
         <property name="LocatorCacheTimeout" languages="all" />
-        <property name="PreferSecure" languages="all" />
         <property name="Router" languages="all" class="Proxy"/>
     </class>
 
@@ -89,7 +88,6 @@
         <property name="Default.Locator" languages="all" class="Proxy" />
         <property name="Default.LocatorCacheTimeout" languages="all" default="-1" />
         <property name="Default.Package" languages="java" />
-        <property name="Default.PreferSecure" languages="all" default="0" />
         <property name="Default.Protocol" languages="all" default="tcp" />
         <property name="Default.Router" languages="all" class="Proxy" />
         <property name="Default.SlicedFormat" languages="all" default="0" />
@@ -107,7 +105,6 @@
         <property name="MessageSizeMax" languages="all" default="1024" />
         <property name="Nohup" languages="cpp" default="1" />
         <property name="Override.Compress" languages="cpp,csharp,java" />
-        <property name="Override.Secure" languages="all" />
         <property name="Package.[any]" languages="java" />
         <property name="Plugin.[any]" languages="cpp,csharp,java" />
         <property name="PluginLoadOrder" languages="cpp,csharp,java" />

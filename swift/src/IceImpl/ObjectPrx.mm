@@ -301,36 +301,6 @@
     }
 }
 
-- (bool)ice_isSecure
-{
-    return _prx->ice_isSecure();
-}
-
-- (instancetype)ice_secure:(bool)b
-{
-    auto prx = _prx->ice_secure(b);
-    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
-}
-
-- (bool)ice_isPreferSecure
-{
-    return _prx->ice_isPreferSecure();
-}
-
-- (instancetype)ice_preferSecure:(bool)b error:(NSError**)error
-{
-    try
-    {
-        auto prx = _prx->ice_preferSecure(b);
-        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
-}
-
 - (bool)ice_isTwoway
 {
     return _prx->ice_isTwoway();

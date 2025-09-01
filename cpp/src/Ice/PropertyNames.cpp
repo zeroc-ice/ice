@@ -18,7 +18,6 @@ const Property ProxyPropsData[] =
     Property{"InvocationTimeout", "", false, false, nullptr},
     Property{"Locator", "", false, false, &PropertyNames::ProxyProps},
     Property{"LocatorCacheTimeout", "", false, false, nullptr},
-    Property{"PreferSecure", "", false, false, nullptr},
     Property{"Router", "", false, false, &PropertyNames::ProxyProps}
 };
 
@@ -28,7 +27,7 @@ const PropertyArray PropertyNames::ProxyProps
     .prefixOnly=false,
     .isOptIn=false,
     .properties=ProxyPropsData,
-    .length=9
+    .length=8
 };
 
 const Property ConnectionPropsData[] =
@@ -119,7 +118,6 @@ const Property IcePropsData[] =
     Property{"Default.InvocationTimeout", "-1", false, false, nullptr},
     Property{"Default.Locator", "", false, false, &PropertyNames::ProxyProps},
     Property{"Default.LocatorCacheTimeout", "-1", false, false, nullptr},
-    Property{"Default.PreferSecure", "0", false, false, nullptr},
     Property{"Default.Protocol", "tcp", false, false, nullptr},
     Property{"Default.Router", "", false, false, &PropertyNames::ProxyProps},
     Property{"Default.SlicedFormat", "0", false, false, nullptr},
@@ -137,7 +135,6 @@ const Property IcePropsData[] =
     Property{"MessageSizeMax", "1024", false, false, nullptr},
     Property{"Nohup", "1", false, false, nullptr},
     Property{"Override.Compress", "", false, false, nullptr},
-    Property{"Override.Secure", "", false, false, nullptr},
     Property{"Plugin.*", "", true, false, nullptr},
     Property{"PluginLoadOrder", "", false, false, nullptr},
     Property{"PreferIPv6Address", "0", false, false, nullptr},
@@ -189,7 +186,7 @@ const PropertyArray PropertyNames::IceProps
     .prefixOnly=false,
     .isOptIn=false,
     .properties=IcePropsData,
-    .length=86
+    .length=84
 };
 
 const Property IceMXPropsData[] =

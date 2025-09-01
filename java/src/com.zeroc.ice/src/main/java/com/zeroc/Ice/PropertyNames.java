@@ -19,7 +19,6 @@ final class PropertyNames {
             new Property("InvocationTimeout", false, "", false, null),
             new Property("Locator", false, "", false, PropertyNames.ProxyProps),
             new Property("LocatorCacheTimeout", false, "", false, null),
-            new Property("PreferSecure", false, "", false, null),
             new Property("Router", false, "", false, PropertyNames.ProxyProps)
         });
 
@@ -99,7 +98,6 @@ final class PropertyNames {
             new Property("Default.Locator", false, "", false, PropertyNames.ProxyProps),
             new Property("Default.LocatorCacheTimeout", false, "-1", false, null),
             new Property("Default.Package", false, "", false, null),
-            new Property("Default.PreferSecure", false, "0", false, null),
             new Property("Default.Protocol", false, "tcp", false, null),
             new Property("Default.Router", false, "", false, PropertyNames.ProxyProps),
             new Property("Default.SlicedFormat", false, "0", false, null),
@@ -113,7 +111,6 @@ final class PropertyNames {
             new Property("LogFile", false, "", false, null),
             new Property("MessageSizeMax", false, "1024", false, null),
             new Property("Override.Compress", false, "", false, null),
-            new Property("Override.Secure", false, "", false, null),
             new Property("Package\\.[^\\s]+", true, "", false, null),
             new Property("Plugin\\.[^\\s]+", true, "", false, null),
             new Property("PluginLoadOrder", false, "", false, null),

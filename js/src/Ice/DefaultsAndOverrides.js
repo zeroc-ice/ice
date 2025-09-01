@@ -6,6 +6,7 @@ import { Protocol, stringToEncodingVersion } from "./Protocol.js";
 import { ParseException, InitializationException } from "./LocalExceptions.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
 
+// Even though this class is called DefaultsAndOverrides, like in other languages, it only holds Default values.
 export class DefaultsAndOverrides {
     constructor(properties) {
         this.defaultProtocol = properties.getPropertyWithDefault(
