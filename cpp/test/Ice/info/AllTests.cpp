@@ -73,6 +73,11 @@ allTests(Test::TestHelper* helper)
         test(ipEndpoint->sourceAddress == "10.10.10.10");
         test(ipEndpoint->compress);
         test(!ipEndpoint->datagram());
+        test(
+            (ipEndpoint->type() == Ice::TCPEndpointType && !ipEndpoint->secure()) ||
+            (ipEndpoint->type() == Ice::SSLEndpointType && ipEndpoint->secure()) ||
+            (ipEndpoint->type() == Ice::WSEndpointType && !ipEndpoint->secure()) ||
+            (ipEndpoint->type() == Ice::WSSEndpointType && ipEndpoint->secure()));
 
         test(
             (ipEndpoint->type() == Ice::TCPEndpointType && dynamic_pointer_cast<Ice::TCPEndpointInfo>(info)) ||
@@ -88,6 +93,7 @@ allTests(Test::TestHelper* helper)
         test(udpEndpoint->mcastInterface == "eth0");
         test(udpEndpoint->mcastTtl == 5);
         test(!udpEndpoint->compress);
+        test(!udpEndpoint->secure());
         test(udpEndpoint->datagram());
         test(udpEndpoint->type() == Ice::UDPEndpointType);
 

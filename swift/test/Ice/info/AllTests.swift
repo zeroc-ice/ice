@@ -51,6 +51,12 @@ func allTests(_ helper: TestHelper) async throws {
         try test(!tcpEndpoint.datagram())
 
         try test(
+            tcpEndpoint.type() == Ice.TCPEndpointType && !tcpEndpoint.secure()
+                || tcpEndpoint.type() == Ice.SSLEndpointType && tcpEndpoint.secure()
+                || tcpEndpoint.type() == Ice.WSEndpointType && !tcpEndpoint.secure()
+                || tcpEndpoint.type() == Ice.WSSEndpointType && tcpEndpoint.secure())
+
+        try test(
             tcpEndpoint.type() == Ice.TCPEndpointType && info is Ice.TCPEndpointInfo
                 || tcpEndpoint.type() == Ice.SSLEndpointType && info is Ice.SSLEndpointInfo
                 || tcpEndpoint.type() == Ice.WSEndpointType && info is Ice.WSEndpointInfo
@@ -63,6 +69,7 @@ func allTests(_ helper: TestHelper) async throws {
         try test(udpEndpoint.mcastTtl == 5)
         try test(udpEndpoint.sourceAddress == "10.10.10.10")
         try test(!udpEndpoint.compress)
+        try test(!udpEndpoint.secure())
         try test(udpEndpoint.datagram())
         try test(udpEndpoint.type() == 3)
 
