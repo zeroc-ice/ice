@@ -164,6 +164,19 @@ jobs:
         shell: powershell
         if: runner.os == 'Windows'
 
+      - name: Dump /etc/hosts and ping hostname
+        run: |
+          set -x
+          cat /etc/hosts
+          echo "Hostname: $(hostname)"
+          echo "Fully Qualified Domain Name: $(hostname -f)"
+          echo "Pinging hostname..."
+          ping -c 1 $(hostname)
+          echo "Pinging FQDN..."
+          ping -c 1 $(hostname -f)
+        shell: bash
+        if: runner.os != 'Windows'
+
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
         timeout-minutes: 90
