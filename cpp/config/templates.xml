@@ -20,12 +20,16 @@
 
     <!-- Creates an IceStorm service -->
     <service-template id="IceStorm">
+      <!-- instance-name is the name of this IceStorm instance; it's used for IceStorm.InstanceName, in various adapter
+           IDs, and also for the service name. -->
       <parameter name="instance-name" default="${application}.IceStorm"/>
       <parameter name="topic-manager-endpoints" default="default"/>
       <!-- publish-endpoints configures the IceStorm.Publish object adapter -->
       <parameter name="publish-endpoints" default="default"/>
       <parameter name="flush-timeout" default="1000"/>
 
+      <!-- In general, the IceStorm service name should be simply "IceStorm". Using a configurable name allows us to
+           load multiple IceStorm service instances in the same IceBox server - a rare use case. -->
       <service name="${instance-name}" entry="IceStormService,${node.ice.soversion}:createIceStorm">
 
         <adapter name="IceStorm.TopicManager"
@@ -44,7 +48,7 @@
       </service>
     </service-template>
 
-    <!-- Creates an IceBox server that loads the IceStorm service. Its activation mode is "on-demand". -->
+    <!-- Creates an IceBox server that loads a single IceStorm service. Its activation mode is "on-demand". -->
     <server-template id="IceStorm">
       <parameter name="instance-name" default="${application}.IceStorm"/>
       <parameter name="topic-manager-endpoints" default="default"/>
@@ -62,6 +66,8 @@
 
     <!-- Creates an IceStorm service for a replicated / high availability deployment -->
     <service-template id="IceStorm-HA">
+       <!-- instance-name is the name of this IceStorm instance; it's used for IceStorm.InstanceName, in various adapter
+            IDs, and also in the service name. -->
       <parameter name="instance-name" default="${application}.IceStorm"/>
       <parameter name="node-id"/>
       <parameter name="topic-manager-endpoints" default="default"/>
@@ -72,6 +78,8 @@
       <parameter name="publish-replica-group"/>
       <parameter name="topic-manager-replica-group"/>
 
+      <!-- In general, the IceStorm service name should be simply "IceStorm". Using a configurable name allows us to
+           load multiple IceStorm service instances in the same IceBox server - a rare use case. -->
       <service name="${instance-name}${node-id}" entry="IceStormService,${node.ice.soversion}:createIceStorm">
 
         <adapter name="IceStorm.TopicManager"
@@ -95,7 +103,7 @@
       </service>
     </service-template>
 
-    <!-- Creates an IceBox server that loads the IceStorm-HA service. Its activation mode is "on-demand". -->
+    <!-- Creates an IceBox server that loads a single IceStorm-HA service. Its activation mode is "on-demand". -->
     <server-template id="IceStorm-HA">
       <parameter name="instance-name" default="${application}.IceStorm"/>
       <parameter name="node-id"/>
