@@ -165,9 +165,7 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   MyProxy=id:tcp -h localhost -p 10000
             %
-            %   Additional properties configure local settings for the proxy, such as:
-            %
-            %   MyProxy.PreferSecure=1
+            %   Additional properties configure local settings for the proxy.
             %
             %   Input Arguments
             %     prop - The base property name.

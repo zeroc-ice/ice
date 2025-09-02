@@ -28,12 +28,10 @@ namespace IceInternal
         Ice::EndpointSelectionType defaultEndpointSelection;
         std::chrono::milliseconds defaultInvocationTimeout;
         std::chrono::seconds defaultLocatorCacheTimeout;
-        bool defaultPreferSecure;
         Ice::EncodingVersion defaultEncoding;
         Ice::FormatType defaultFormat;
 
         std::optional<bool> overrideCompress;
-        std::optional<bool> overrideSecure;
     };
 }
 

@@ -183,10 +183,6 @@ classdef AllTests
             assert(b1.ice_isDatagram());
             b1 = communicator.stringToProxy('test -D');
             assert(b1.ice_isBatchDatagram());
-            b1 = communicator.stringToProxy('test');
-            assert(~b1.ice_isSecure());
-            b1 = communicator.stringToProxy('test -s');
-            assert(b1.ice_isSecure());
 
             try
                 b1 = communicator.stringToProxy('test:tcp@adapterId');
@@ -268,13 +264,6 @@ classdef AllTests
             assert(~isempty(b1.ice_getRouter()) && strcmp(b1.ice_getRouter().ice_getIdentity().name, 'router'));
             prop.setProperty(property, '');
 
-            property = [propertyPrefix, '.PreferSecure'];
-            assert(~b1.ice_isPreferSecure());
-            prop.setProperty(property, '1');
-            b1 = communicator.propertyToProxy(propertyPrefix);
-            assert(b1.ice_isPreferSecure());
-            prop.setProperty(property, '');
-
             property = [propertyPrefix, '.ConnectionCached'];
             assert(b1.ice_isConnectionCached());
             prop.setProperty(property, '0');
@@ -305,7 +294,6 @@ classdef AllTests
 
             b1 = communicator.stringToProxy('test');
             b1 = b1.ice_connectionCached(true);
-            b1 = b1.ice_preferSecure(false);
             b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
             b1 = b1.ice_locatorCacheTimeout(100);
             b1 = b1.ice_invocationTimeout(1234);
@@ -313,14 +301,12 @@ classdef AllTests
 
             router = Ice.RouterPrx(communicator, 'router');
             router = router.ice_connectionCached(true);
-            router = router.ice_preferSecure(true);
             router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random);
             router = router.ice_locatorCacheTimeout(200);
             router = router.ice_invocationTimeout(1500);
 
             locator = Ice.LocatorPrx(communicator, 'locator');
             locator = locator.ice_connectionCached(false);
-            locator = locator.ice_preferSecure(true);
             locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random);
             locator = locator.ice_locatorCacheTimeout(300);
             locator = locator.ice_invocationTimeout(1500);
@@ -329,25 +315,22 @@ classdef AllTests
             b1 = b1.ice_locator(locator);
 
             proxyProps = communicator.proxyToProperty(b1, 'Test');
-            assert(proxyProps.numEntries == 21);
+            assert(proxyProps.numEntries == 18);
 
             assert(strcmp(proxyProps('Test'), 'test -e 1.0'));
             assert(strcmp(proxyProps('Test.ConnectionCached'), '1'));
-            assert(strcmp(proxyProps('Test.PreferSecure'), '0'));
             assert(strcmp(proxyProps('Test.EndpointSelection'), 'Ordered'));
             assert(strcmp(proxyProps('Test.LocatorCacheTimeout'), '100'));
             assert(strcmp(proxyProps('Test.InvocationTimeout'), '1234'));
 
             assert(strcmp(proxyProps('Test.Locator'), 'locator'));
             assert(strcmp(proxyProps('Test.Locator.ConnectionCached'), '0'));
-            assert(strcmp(proxyProps('Test.Locator.PreferSecure'), '1'));
             assert(strcmp(proxyProps('Test.Locator.EndpointSelection'), 'Random'));
             assert(strcmp(proxyProps('Test.Locator.LocatorCacheTimeout'), '300'));
             assert(strcmp(proxyProps('Test.Locator.InvocationTimeout'), '1500'));
 
             assert(strcmp(proxyProps('Test.Locator.Router'), 'router'));
             assert(strcmp(proxyProps('Test.Locator.Router.ConnectionCached'), '1'));
-            assert(strcmp(proxyProps('Test.Locator.Router.PreferSecure'), '1'));
             assert(strcmp(proxyProps('Test.Locator.Router.EndpointSelection'), 'Random'));
             assert(strcmp(proxyProps('Test.Locator.Router.LocatorCacheTimeout'), '200'));
             assert(strcmp(proxyProps('Test.Locator.Router.InvocationTimeout'), '1500'));
@@ -396,10 +379,6 @@ classdef AllTests
             assert(base.ice_batchOneway().ice_isBatchOneway());
             assert(base.ice_datagram().ice_isDatagram());
             assert(base.ice_batchDatagram().ice_isBatchDatagram());
-            assert(base.ice_secure(true).ice_isSecure());
-            assert(~base.ice_secure(false).ice_isSecure());
-            assert(base.ice_preferSecure(true).ice_isPreferSecure());
-            assert(~base.ice_preferSecure(false).ice_isPreferSecure());
             assert(base.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_getEncodingVersion() == Ice.EncodingVersion(1, 0));
             assert(base.ice_encodingVersion(Ice.EncodingVersion(1, 1)).ice_getEncodingVersion() == Ice.EncodingVersion(1, 1));
             assert(base.ice_encodingVersion(Ice.EncodingVersion(1, 0)).ice_getEncodingVersion() ~= Ice.EncodingVersion(1, 1));
@@ -460,11 +439,6 @@ classdef AllTests
             assert(compObj.ice_oneway() ~= compObj.ice_twoway());
             %assert(compObj.ice_twoway() < compObj.ice_oneway());
             %assert(~(compObj.ice_oneway() < compObj.ice_twoway()));
-
-            assert(compObj.ice_secure(true) == compObj.ice_secure(true));
-            assert(compObj.ice_secure(false) ~= compObj.ice_secure(true));
-            %assert(compObj.ice_secure(false) < compObj.ice_secure(true));
-            %assert(~(compObj.ice_secure(true) < compObj.ice_secure(false)));
 
             assert(compObj.ice_connectionCached(true) == compObj.ice_connectionCached(true));
             assert(compObj.ice_connectionCached(false) ~= compObj.ice_connectionCached(true));
@@ -532,11 +506,6 @@ classdef AllTests
             assert(compObj.ice_context(ctx1) ~= compObj.ice_context(ctx2));
             %assert(compObj.ice_context(ctx1) < compObj.ice_context(ctx2));
             %assert(~(compObj.ice_context(ctx2) < compObj.ice_context(ctx1)));
-
-            assert(compObj.ice_preferSecure(true) == compObj.ice_preferSecure(true));
-            assert(compObj.ice_preferSecure(true) ~= compObj.ice_preferSecure(false));
-            %assert(compObj.ice_preferSecure(false) < compObj.ice_preferSecure(true));
-            %assert(~(compObj.ice_preferSecure(true) < compObj.ice_preferSecure(false)));
 
             compObj1 = communicator.stringToProxy('foo:tcp -h 127.0.0.1 -p 10000');
             compObj2 = communicator.stringToProxy('foo:tcp -h 127.0.0.1 -p 10001');
@@ -650,7 +619,6 @@ classdef AllTests
                 assert(cl.ice_fixed(connection).ice_isFixed());
                 prx = cl.ice_fixed(connection); % Test factory method return type
                 prx.ice_ping();
-                assert(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                 assert(strcmp(cl.ice_facet('facet').ice_fixed(connection).ice_getFacet(), 'facet'));
                 assert(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
                 ctx = configureDictionary('char', 'char');
@@ -665,13 +633,6 @@ classdef AllTests
                 assert(cl.ice_compress(true).ice_fixed(connection).ice_getCompress() == true);
                 fixedConnection = cl.ice_connectionId('ice_fixed').ice_getConnection();
                 assert(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
-                try
-                    cl.ice_secure(~connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
-                catch ex
-                    if ~isa(ex, 'Ice.NoEndpointException')
-                        rethrow(ex);
-                    end
-                end
                 try
                     cl.ice_datagram().ice_fixed(connection).ice_ping();
                 catch ex

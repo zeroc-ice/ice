@@ -8,9 +8,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties)
-    : overrideCompress(nullopt),
-      overrideSecure(nullopt)
+IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties) : overrideCompress(nullopt)
 {
     const_cast<string&>(defaultProtocol) = properties->getIceProperty("Ice.Default.Protocol");
 
@@ -35,12 +33,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     if (!value.empty())
     {
         const_cast<optional<bool>&>(overrideCompress) = properties->getIcePropertyAsInt("Ice.Override.Compress") > 0;
-    }
-
-    value = properties->getIceProperty("Ice.Override.Secure");
-    if (!value.empty())
-    {
-        const_cast<optional<bool>&>(overrideSecure) = properties->getIcePropertyAsInt("Ice.Override.Secure") > 0;
     }
 
     const_cast<bool&>(defaultCollocationOptimization) =
@@ -79,8 +71,6 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
             __LINE__,
             "invalid value for Ice.Default.LocatorCacheTimeout: " + to_string(defaultLocatorCacheTimeout.count())};
     }
-
-    const_cast<bool&>(defaultPreferSecure) = properties->getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 
     value = properties->getIceProperty("Ice.Default.EncodingVersion");
     defaultEncoding = stringToEncodingVersion(value);

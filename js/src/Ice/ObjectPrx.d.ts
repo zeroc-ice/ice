@@ -236,16 +236,6 @@ declare module "@zeroc/ice" {
             ice_isBatchDatagram(): boolean;
 
             /**
-             * Creates a new proxy identical to this one, but with a different endpoint selection policy based on
-             * security.
-             *
-             * @param secure - If `true`, the new proxy uses only endpoints with secure transport. If `false`, the new
-             * proxy uses both secure and insecure endpoints.
-             * @returns A new proxy configured with the specified security policy for endpoint selection.
-             */
-            ice_secure(secure: boolean): this;
-
-            /**
              * Retrieves the encoding version used to marshal request parameters.
              *
              * @returns The encoding version currently used by this proxy.
@@ -260,31 +250,6 @@ declare module "@zeroc/ice" {
              * @returns A new proxy configured with the specified encoding version.
              */
             ice_encodingVersion(encodingVersion: EncodingVersion): this;
-
-            /**
-             * Checks whether this proxy uses only secure endpoints.
-             *
-             * @returns `true` if this proxy communicates only via secure endpoints, `false` otherwise.
-             */
-            ice_isSecure(): boolean;
-
-            /**
-             * Creates a new proxy identical to this one, but with a different endpoint security preference.
-             *
-             * @param secure - If `true`, the new proxy will prefer secure endpoints for invocations and will use
-             *                 insecure endpoints only if a secure invocation cannot be made. If `false`, the proxy
-             *                  will prefer insecure endpoints over secure ones.
-             * @returns A new proxy configured with the specified endpoint security preference.
-             */
-            ice_preferSecure(secure: boolean): this;
-
-            /**
-             * Checks whether this proxy prefers secure endpoints.
-             *
-             * @returns `true` if the proxy always attempts to invoke via secure endpoints before using insecure
-             * endpoints, `false` otherwise.
-             */
-            ice_isPreferSecure(): boolean;
 
             /**
              * Creates a new proxy identical to this one, but with a different router.

@@ -391,10 +391,6 @@ BridgeI::ice_invokeAsync(
             {
                 target = target->ice_datagram();
             }
-            else if (info->secure())
-            {
-                target = target->ice_secure(true);
-            }
 
             //
             // Force the proxy to establish a new connection by using a unique connection ID.

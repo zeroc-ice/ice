@@ -44,14 +44,6 @@ final class DefaultsAndOverrides {
             overrideCompress = Optional.empty();
         }
 
-        value = properties.getIceProperty("Ice.Override.Secure");
-        if (!value.isEmpty()) {
-            boolean overrideSecureValue = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
-            overrideSecure = Optional.of(overrideSecureValue);
-        } else {
-            overrideSecure = Optional.empty();
-        }
-
         defaultCollocationOptimization =
             properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
 
@@ -81,8 +73,6 @@ final class DefaultsAndOverrides {
         }
         defaultInvocationTimeout = Duration.ofMillis(intValue);
 
-        defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
-
         value = properties.getIceProperty("Ice.Default.EncodingVersion");
         defaultEncoding = Util.stringToEncodingVersion(value);
         Protocol.checkSupportedEncoding(defaultEncoding);
@@ -98,10 +88,8 @@ final class DefaultsAndOverrides {
     public final EndpointSelectionType defaultEndpointSelection;
     public final Duration defaultLocatorCacheTimeout;
     public final Duration defaultInvocationTimeout;
-    public final boolean defaultPreferSecure;
     public final EncodingVersion defaultEncoding;
     public final FormatType defaultFormat;
 
     public final Optional<Boolean> overrideCompress;
-    public final Optional<Boolean> overrideSecure;
 }

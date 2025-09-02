@@ -273,10 +273,7 @@ public class AllTests {
         test(b1.ice_isDatagram());
         b1 = communicator.stringToProxy("test -D");
         test(b1.ice_isBatchDatagram());
-        b1 = communicator.stringToProxy("test");
-        test(!b1.ice_isSecure());
-        b1 = communicator.stringToProxy("test -s");
-        test(b1.ice_isSecure());
+        b1 = communicator.stringToProxy("test -s"); // does nothing
 
         test(b1.ice_getEncodingVersion().equals(Util.currentEncoding()));
 
@@ -425,8 +422,7 @@ public class AllTests {
             b2 = b1.ice_getConnection().createProxy(Util.stringToIdentity("fixed"));
             String str = communicator.proxyToString(b2);
             test(b2.toString().equals(str));
-            String str2 =
-                b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
+            String str2 = b1.ice_identity(b2.ice_getIdentity()).toString();
 
             // Verify that the stringified fixed proxy is the same as a regular stringified proxy
             // but without endpoints
@@ -501,13 +497,6 @@ public class AllTests {
                 && "router".equals(b1.ice_getRouter().ice_getIdentity().name));
         prop.setProperty(property, "");
 
-        property = propertyPrefix + ".PreferSecure";
-        test(!b1.ice_isPreferSecure());
-        prop.setProperty(property, "1");
-        b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_isPreferSecure());
-        prop.setProperty(property, "");
-
         property = propertyPrefix + ".ConnectionCached";
         test(b1.ice_isConnectionCached());
         prop.setProperty(property, "0");
@@ -562,7 +551,6 @@ public class AllTests {
         b1 = communicator.stringToProxy("test");
         b1 = b1.ice_collocationOptimized(true);
         b1 = b1.ice_connectionCached(true);
-        b1 = b1.ice_preferSecure(false);
         b1 = b1.ice_endpointSelection(EndpointSelectionType.Ordered);
         b1 = b1.ice_locatorCacheTimeout(100);
         b1 = b1.ice_invocationTimeout(1234);
@@ -571,7 +559,6 @@ public class AllTests {
         ObjectPrx router = communicator.stringToProxy("router");
         router = router.ice_collocationOptimized(false);
         router = router.ice_connectionCached(true);
-        router = router.ice_preferSecure(true);
         router = router.ice_endpointSelection(EndpointSelectionType.Random);
         router = router.ice_locatorCacheTimeout(200);
         router = router.ice_invocationTimeout(1500);
@@ -579,7 +566,6 @@ public class AllTests {
         ObjectPrx locator = communicator.stringToProxy("locator");
         locator = locator.ice_collocationOptimized(true);
         locator = locator.ice_connectionCached(false);
-        locator = locator.ice_preferSecure(true);
         locator = locator.ice_endpointSelection(EndpointSelectionType.Random);
         locator = locator.ice_locatorCacheTimeout(300);
         locator = locator.ice_invocationTimeout(1500);
@@ -588,12 +574,11 @@ public class AllTests {
         b1 = b1.ice_locator(LocatorPrx.uncheckedCast(locator));
 
         Map<String, String> proxyProps = communicator.proxyToProperty(b1, "Test");
-        test(proxyProps.size() == 21);
+        test(proxyProps.size() == 18);
 
         test("test -e 1.0".equals(proxyProps.get("Test")));
         test("1".equals(proxyProps.get("Test.CollocationOptimized")));
         test("1".equals(proxyProps.get("Test.ConnectionCached")));
-        test("0".equals(proxyProps.get("Test.PreferSecure")));
         test("Ordered".equals(proxyProps.get("Test.EndpointSelection")));
         test("100".equals(proxyProps.get("Test.LocatorCacheTimeout")));
         test("1234".equals(proxyProps.get("Test.InvocationTimeout")));
@@ -602,7 +587,6 @@ public class AllTests {
         // Locator collocation optimization is always disabled.
         // test(proxyProps.get("Test.Locator.CollocationOptimized").equals("1"));
         test("0".equals(proxyProps.get("Test.Locator.ConnectionCached")));
-        test("1".equals(proxyProps.get("Test.Locator.PreferSecure")));
         test("Random".equals(proxyProps.get("Test.Locator.EndpointSelection")));
         test("300".equals(proxyProps.get("Test.Locator.LocatorCacheTimeout")));
         test("1500".equals(proxyProps.get("Test.Locator.InvocationTimeout")));
@@ -610,7 +594,6 @@ public class AllTests {
         test("router".equals(proxyProps.get("Test.Locator.Router")));
         test("0".equals(proxyProps.get("Test.Locator.Router.CollocationOptimized")));
         test("1".equals(proxyProps.get("Test.Locator.Router.ConnectionCached")));
-        test("1".equals(proxyProps.get("Test.Locator.Router.PreferSecure")));
         test("Random".equals(proxyProps.get("Test.Locator.Router.EndpointSelection")));
         test("200".equals(proxyProps.get("Test.Locator.Router.LocatorCacheTimeout")));
         test("1500".equals(proxyProps.get("Test.Locator.Router.InvocationTimeout")));
@@ -631,12 +614,8 @@ public class AllTests {
         test(base.ice_batchOneway().ice_isBatchOneway());
         test(base.ice_datagram().ice_isDatagram());
         test(base.ice_batchDatagram().ice_isBatchDatagram());
-        test(base.ice_secure(true).ice_isSecure());
-        test(!base.ice_secure(false).ice_isSecure());
         test(base.ice_collocationOptimized(true).ice_isCollocationOptimized());
         test(!base.ice_collocationOptimized(false).ice_isCollocationOptimized());
-        test(base.ice_preferSecure(true).ice_isPreferSecure());
-        test(!base.ice_preferSecure(false).ice_isPreferSecure());
         test(
             base.ice_encodingVersion(Util.Encoding_1_0)
                 .ice_getEncodingVersion()
@@ -699,9 +678,6 @@ public class AllTests {
         test(compObj.ice_oneway().equals(compObj.ice_oneway()));
         test(!compObj.ice_oneway().equals(compObj.ice_twoway()));
 
-        test(compObj.ice_secure(true).equals(compObj.ice_secure(true)));
-        test(!compObj.ice_secure(false).equals(compObj.ice_secure(true)));
-
         test(compObj.ice_collocationOptimized(true).equals(compObj.ice_collocationOptimized(true)));
         test(
             !compObj.ice_collocationOptimized(false)
@@ -755,9 +731,6 @@ public class AllTests {
         test(!compObj.ice_context(ctx1).equals(compObj.ice_context(null)));
         test(!compObj.ice_context(null).equals(compObj.ice_context(ctx2)));
         test(!compObj.ice_context(ctx1).equals(compObj.ice_context(ctx2)));
-
-        test(compObj.ice_preferSecure(true).equals(compObj.ice_preferSecure(true)));
-        test(!compObj.ice_preferSecure(true).equals(compObj.ice_preferSecure(false)));
 
         ObjectPrx compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
         ObjectPrx compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");
@@ -846,7 +819,6 @@ public class AllTests {
                     MyClassPrx prx = cl.ice_fixed(connection); // Test proxy return type.
                     test(prx.ice_isFixed());
                     prx.ice_ping();
-                    test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                     test(
                         "facet"
                             .equals(cl.ice_facet("facet")
@@ -877,11 +849,6 @@ public class AllTests {
                     test(
                         cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection()
                             == fixedConnection);
-                    try {
-                        cl.ice_secure(!connection.getEndpoint().getInfo().secure())
-                            .ice_fixed(connection)
-                            .ice_ping();
-                    } catch (NoEndpointException ex) {}
                     try {
                         cl.ice_datagram().ice_fixed(connection).ice_ping();
                     } catch (NoEndpointException ex) {}

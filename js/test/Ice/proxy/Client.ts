@@ -278,10 +278,7 @@ export class Client extends TestHelper {
         test(b1.ice_isDatagram());
         b1 = communicator.stringToProxy("test -D");
         test(b1.ice_isBatchDatagram());
-        b1 = communicator.stringToProxy("test");
-        test(!b1.ice_isSecure());
-        b1 = communicator.stringToProxy("test -s");
-        test(b1.ice_isSecure());
+        b1 = communicator.stringToProxy("test -s"); // does nothing
 
         test(b1.ice_getEncodingVersion().equals(Ice.currentEncoding()));
 
@@ -442,13 +439,6 @@ export class Client extends TestHelper {
         test(b1.ice_getRouter()?.ice_getIdentity().name === "router");
         prop.setProperty(property, "");
 
-        property = propertyPrefix + ".PreferSecure";
-        test(!b1.ice_isPreferSecure());
-        prop.setProperty(property, "1");
-        b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_isPreferSecure());
-        prop.setProperty(property, "");
-
         property = propertyPrefix + ".ConnectionCached";
         test(b1.ice_isConnectionCached());
         prop.setProperty(property, "0");
@@ -494,7 +484,6 @@ export class Client extends TestHelper {
 
         b1 = communicator.stringToProxy("test");
         b1 = b1.ice_connectionCached(true);
-        b1 = b1.ice_preferSecure(false);
         b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
         b1 = b1.ice_locatorCacheTimeout(100);
         b1 = b1.ice_invocationTimeout(1234);
@@ -502,14 +491,12 @@ export class Client extends TestHelper {
 
         let router = communicator.stringToProxy("router");
         router = router.ice_connectionCached(true);
-        router = router.ice_preferSecure(true);
         router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random);
         router = router.ice_locatorCacheTimeout(200);
         router = router.ice_invocationTimeout(1500);
 
         let locator = communicator.stringToProxy("locator");
         locator = locator.ice_connectionCached(false);
-        locator = locator.ice_preferSecure(true);
         locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random);
         locator = locator.ice_locatorCacheTimeout(300);
         locator = locator.ice_invocationTimeout(1500);
@@ -518,24 +505,21 @@ export class Client extends TestHelper {
         b1 = b1.ice_locator(Ice.LocatorPrx.uncheckedCast(locator));
 
         const proxyProps = communicator.proxyToProperty(b1, "Test");
-        test(proxyProps.size === 18);
+        test(proxyProps.size === 15);
         test(proxyProps.get("Test") === "test -e 1.0");
         test(proxyProps.get("Test.ConnectionCached") === "1");
-        test(proxyProps.get("Test.PreferSecure") === "0");
         test(proxyProps.get("Test.EndpointSelection") === "Ordered");
         test(proxyProps.get("Test.LocatorCacheTimeout") === "100");
         test(proxyProps.get("Test.InvocationTimeout") === "1234");
 
         test(proxyProps.get("Test.Locator") === "locator");
         test(proxyProps.get("Test.Locator.ConnectionCached") === "0");
-        test(proxyProps.get("Test.Locator.PreferSecure") === "1");
         test(proxyProps.get("Test.Locator.EndpointSelection") === "Random");
         test(proxyProps.get("Test.Locator.LocatorCacheTimeout") === "300");
         test(proxyProps.get("Test.Locator.InvocationTimeout") === "1500");
 
         test(proxyProps.get("Test.Locator.Router") === "router");
         test(proxyProps.get("Test.Locator.Router.ConnectionCached") === "1");
-        test(proxyProps.get("Test.Locator.Router.PreferSecure") === "1");
         test(proxyProps.get("Test.Locator.Router.EndpointSelection") === "Random");
         test(proxyProps.get("Test.Locator.Router.LocatorCacheTimeout") === "200");
         test(proxyProps.get("Test.Locator.Router.InvocationTimeout") === "1500");
@@ -559,10 +543,6 @@ export class Client extends TestHelper {
         test(base.ice_batchOneway().ice_isBatchOneway());
         test(base.ice_datagram().ice_isDatagram());
         test(base.ice_batchDatagram().ice_isBatchDatagram());
-        test(base.ice_secure(true).ice_isSecure());
-        test(!base.ice_secure(false).ice_isSecure());
-        test(base.ice_preferSecure(true).ice_isPreferSecure());
-        test(!base.ice_preferSecure(false).ice_isPreferSecure());
         test(base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Encoding_1_0));
         test(base.ice_encodingVersion(Ice.Encoding_1_1).ice_getEncodingVersion().equals(Ice.Encoding_1_1));
         test(!base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Encoding_1_1));
@@ -621,9 +601,6 @@ export class Client extends TestHelper {
         test(compObj.ice_oneway().equals(compObj.ice_oneway()));
         test(!compObj.ice_oneway().equals(compObj.ice_twoway()));
 
-        test(compObj.ice_secure(true).equals(compObj.ice_secure(true)));
-        test(!compObj.ice_secure(false).equals(compObj.ice_secure(true)));
-
         test(compObj.ice_connectionCached(true).equals(compObj.ice_connectionCached(true)));
         test(!compObj.ice_connectionCached(false).equals(compObj.ice_connectionCached(true)));
 
@@ -669,9 +646,6 @@ export class Client extends TestHelper {
         test(!compObj.ice_context(ctx1).equals(compObj.ice_context(null!)));
         test(!compObj.ice_context(null!).equals(compObj.ice_context(ctx2)));
         test(!compObj.ice_context(ctx1).equals(compObj.ice_context(ctx2)));
-
-        test(compObj.ice_preferSecure(true).equals(compObj.ice_preferSecure(true)));
-        test(!compObj.ice_preferSecure(true).equals(compObj.ice_preferSecure(false)));
 
         let compObj1 = communicator.stringToProxy("foo:" + defaultProtocol + " -h 127.0.0.1 -p 10000");
         let compObj2 = communicator.stringToProxy("foo:" + defaultProtocol + " -h 127.0.0.1 -p 10001");
@@ -748,7 +722,6 @@ export class Client extends TestHelper {
                 test(!cl.ice_isFixed());
                 test(cl.ice_fixed(connection).ice_isFixed());
                 await cl.ice_fixed(connection).getContext();
-                test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                 test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet");
                 test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
                 const ctx = new Map();
@@ -764,11 +737,6 @@ export class Client extends TestHelper {
                 test(
                     (await cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection()) == fixedConnection,
                 );
-                try {
-                    await cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
-                } catch (ex) {
-                    test(ex instanceof Ice.NoEndpointException);
-                }
                 try {
                     await cl.ice_datagram().ice_fixed(connection).ice_ping();
                 } catch (ex) {
@@ -1036,7 +1004,7 @@ export class Client extends TestHelper {
         b2 = con.createProxy(Ice.stringToIdentity("fixed"));
         const str = communicator.proxyToString(b2);
         test(b2.toString() === str);
-        const str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
+        const str2 = b1.ice_identity(b2.ice_getIdentity()).toString();
 
         // Verify that the stringified fixed proxy is the same as a regular stringified proxy
         // but without endpoints

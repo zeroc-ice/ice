@@ -270,21 +270,6 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     ObjectPrx ice_endpointSelection(EndpointSelectionType newType);
 
     /// <summary>
-    /// Returns whether this proxy communicates only via secure endpoints.
-    /// </summary>
-    /// <returns>True if this proxy communicates only via secure endpoints; false, otherwise.</returns>
-    bool ice_isSecure();
-
-    /// <summary>
-    /// Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
-    /// </summary>
-    /// <param name="secure"> If secure is true, only endpoints that use a secure transport are
-    /// used by the new proxy. If secure is false, the returned proxy uses both secure and insecure
-    /// endpoints.</param>
-    /// <returns>The new proxy with the specified selection policy.</returns>
-    ObjectPrx ice_secure(bool secure);
-
-    /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
     /// parameters.
     /// </summary>
@@ -295,22 +280,6 @@ public interface ObjectPrx : IEquatable<ObjectPrx>
     /// <summary>Gets the encoding version used to marshal requests parameters.</summary>
     /// <returns>The encoding version.</returns>
     EncodingVersion ice_getEncodingVersion();
-
-    /// <summary>
-    /// Returns whether this proxy prefers secure endpoints.
-    /// </summary>
-    /// <returns>True if the proxy always attempts to invoke via secure endpoints before it
-    /// attempts to use insecure endpoints; false, otherwise.</returns>
-    bool ice_isPreferSecure();
-
-    /// <summary>
-    /// Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
-    /// </summary>
-    /// <param name="preferSecure">If preferSecure is true, the new proxy will use secure endpoints for invocations
-    /// and only use insecure endpoints if an invocation cannot be made via secure endpoints. If preferSecure is
-    /// false, the proxy prefers insecure endpoints to secure ones.</param>
-    /// <returns>The new proxy with the new endpoint selection policy.</returns>
-    ObjectPrx ice_preferSecure(bool preferSecure);
 
     /// <summary>
     /// Gets the router for this proxy.
@@ -1111,31 +1080,6 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     }
 
     /// <summary>
-    /// Returns whether this proxy communicates only via secure endpoints.
-    /// </summary>
-    /// <returns>True if this proxy communicates only vi secure endpoints; false, otherwise.</returns>
-    public bool ice_isSecure() => _reference.getSecure();
-
-    /// <summary>
-    /// Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
-    /// </summary>
-    /// <param name="secure"> If secure is true, only endpoints that use a secure transport are
-    /// used by the new proxy. If secure is false, the returned proxy uses both secure and insecure
-    /// endpoints.</param>
-    /// <returns>The new proxy with the specified selection policy.</returns>
-    public ObjectPrx ice_secure(bool secure)
-    {
-        if (secure == _reference.getSecure())
-        {
-            return this;
-        }
-        else
-        {
-            return iceNewInstance(_reference.changeSecure(secure));
-        }
-    }
-
-    /// <summary>
     /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
     /// parameters.
     /// </summary>
@@ -1156,32 +1100,6 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     /// <summary>Gets the encoding version used to marshal requests parameters.</summary>
     /// <returns>The encoding version.</returns>
     public EncodingVersion ice_getEncodingVersion() => _reference.getEncoding();
-
-    /// <summary>
-    /// Returns whether this proxy prefers secure endpoints.
-    /// </summary>
-    /// <returns>True if the proxy always attempts to invoke via secure endpoints before it
-    /// attempts to use insecure endpoints; false, otherwise.</returns>
-    public bool ice_isPreferSecure() => _reference.getPreferSecure();
-
-    /// <summary>
-    /// Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
-    /// </summary>
-    /// <param name="preferSecure">If preferSecure is true, the new proxy will use secure endpoints for invocations
-    /// and only use insecure endpoints if an invocation cannot be made via secure endpoints. If preferSecure is
-    /// false, the proxy prefers insecure endpoints to secure ones.</param>
-    /// <returns>The new proxy with the new endpoint selection policy.</returns>
-    public ObjectPrx ice_preferSecure(bool preferSecure)
-    {
-        if (preferSecure == _reference.getPreferSecure())
-        {
-            return this;
-        }
-        else
-        {
-            return iceNewInstance(_reference.changePreferSecure(preferSecure));
-        }
-    }
 
     /// <summary>
     /// Gets the router for this proxy.

@@ -437,7 +437,6 @@ allTests(Test::TestHelper* helper)
     Ice::Identity encoding10_secure;
     encoding10_secure.name = "encoding10-secure";
     test(query->findObjectById(encoding10_secure)->ice_getEncodingVersion() == Ice::Encoding_1_0);
-    test(query->findObjectById(encoding10_secure)->ice_isSecure());
     Ice::Identity oaoptions;
     oaoptions.name = "oaoptions";
     test(query->findObjectById(oaoptions)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.2"));

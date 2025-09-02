@@ -84,10 +84,6 @@ extern "C"
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_router(void*, void**, void*);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_getLocator(void*, void**);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_locator(void*, void**, void*);
-    ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_isSecure(void*);
-    ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_secure(void*, void**, unsigned char);
-    ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_isPreferSecure(void*);
-    ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_preferSecure(void*, void**, unsigned char);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_isTwoway(void*);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_twoway(void*, void**);
     ICE_MATLAB_API mxArray* Ice_ObjectPrx_ice_isOneway(void*);

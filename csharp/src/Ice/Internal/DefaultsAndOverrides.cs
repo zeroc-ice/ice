@@ -53,16 +53,6 @@ public sealed class DefaultsAndOverrides
             overrideCompress = BZip2.isLoaded(logger) ? null : false;
         }
 
-        val = properties.getIceProperty("Ice.Override.Secure");
-        if (val.Length > 0)
-        {
-            overrideSecure = properties.getIcePropertyAsInt("Ice.Override.Secure") > 0;
-        }
-        else
-        {
-            overrideSecure = null;
-        }
-
         defaultCollocationOptimization =
             properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
 
@@ -99,8 +89,6 @@ public sealed class DefaultsAndOverrides
             defaultInvocationTimeout = TimeSpan.FromMilliseconds(value);
         }
 
-        defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
-
         val = properties.getIceProperty("Ice.Default.EncodingVersion");
         defaultEncoding = Ice.Util.stringToEncodingVersion(val);
         Protocol.checkSupportedEncoding(defaultEncoding);
@@ -116,10 +104,8 @@ public sealed class DefaultsAndOverrides
     public Ice.EndpointSelectionType defaultEndpointSelection;
     public TimeSpan defaultLocatorCacheTimeout;
     public TimeSpan defaultInvocationTimeout;
-    public bool defaultPreferSecure;
     public Ice.EncodingVersion defaultEncoding;
     public Ice.FormatType defaultFormat;
 
     public bool? overrideCompress;
-    public bool? overrideSecure;
 }

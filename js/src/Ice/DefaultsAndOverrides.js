@@ -6,6 +6,7 @@ import { Protocol, stringToEncodingVersion } from "./Protocol.js";
 import { ParseException, InitializationException } from "./LocalExceptions.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
 
+// Even though this class is called DefaultsAndOverrides, like in other languages, it only holds Default values.
 export class DefaultsAndOverrides {
     constructor(properties) {
         this.defaultProtocol = properties.getPropertyWithDefault(
@@ -18,8 +19,6 @@ export class DefaultsAndOverrides {
 
         value = properties.getIceProperty("Ice.Default.SourceAddress");
         this.defaultSourceAddress = value.length > 0 ? value : null;
-
-        this.overrideSecure = false;
 
         value = properties.getIceProperty("Ice.Default.EndpointSelection");
         if (value === "Random") {
@@ -45,8 +44,6 @@ export class DefaultsAndOverrides {
                 `invalid value for Ice.Default.InvocationTimeout: ${this.defaultInvocationTimeout}`,
             );
         }
-
-        this.defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 
         value = properties.getIceProperty("Ice.Default.EncodingVersion");
         this.defaultEncoding = stringToEncodingVersion(value);

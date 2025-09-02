@@ -54,8 +54,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public Mode getMode() => _mode;
 
-    public bool getSecure() => secure_;
-
     public Ice.ProtocolVersion getProtocol() => _protocol;
 
     public Ice.EncodingVersion getEncoding() => _encoding;
@@ -87,8 +85,6 @@ public abstract class Reference : IEquatable<Reference>
     public abstract bool getCollocationOptimized();
 
     public abstract bool getCacheConnection();
-
-    public abstract bool getPreferSecure();
 
     public abstract Ice.EndpointSelectionType getEndpointSelection();
 
@@ -124,13 +120,6 @@ public abstract class Reference : IEquatable<Reference>
     {
         Reference r = _instance.referenceFactory().copy(this);
         r._mode = newMode;
-        return r;
-    }
-
-    public Reference changeSecure(bool newSecure)
-    {
-        Reference r = _instance.referenceFactory().copy(this);
-        r.secure_ = newSecure;
         return r;
     }
 
@@ -182,8 +171,6 @@ public abstract class Reference : IEquatable<Reference>
 
     public abstract Reference changeCacheConnection(bool newCache);
 
-    public abstract Reference changePreferSecure(bool newPreferSecure);
-
     public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
 
     public abstract Reference changeLocatorCacheTimeout(TimeSpan newTimeout);
@@ -228,7 +215,7 @@ public abstract class Reference : IEquatable<Reference>
 
         s.writeByte((byte)_mode);
 
-        s.writeBool(secure_);
+        s.writeBool(false); // the secure field is no longer used
 
         if (!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
         {
@@ -326,11 +313,6 @@ public abstract class Reference : IEquatable<Reference>
             }
         }
 
-        if (secure_)
-        {
-            s.Append(" -s");
-        }
-
         if (_protocol != Ice.Util.Protocol_1_0)
         {
             // We print the protocol unless it's 1.0.
@@ -363,7 +345,6 @@ public abstract class Reference : IEquatable<Reference>
     {
         var hash = new HashCode();
         hash.Add(_mode);
-        hash.Add(secure_);
         hash.Add(_identity);
         hash.Add(_context.Count); // we only hash the count, not the contents
         hash.Add(_facet);
@@ -379,7 +360,6 @@ public abstract class Reference : IEquatable<Reference>
         Debug.Assert(other is not null);
 
         return _mode == other._mode &&
-            secure_ == other.secure_ &&
             _identity == other._identity &&
             _context.DictionaryEqual(other._context) &&
             _facet == other._facet &&
@@ -402,7 +382,6 @@ public abstract class Reference : IEquatable<Reference>
     private Ice.Identity _identity;
     private Dictionary<string, string> _context;
     private string _facet;
-    protected bool secure_;
     private Ice.ProtocolVersion _protocol;
     private Ice.EncodingVersion _encoding;
     private TimeSpan _invocationTimeout;
@@ -414,7 +393,6 @@ public abstract class Reference : IEquatable<Reference>
         Ice.Identity identity,
         string facet,
         Mode mode,
-        bool secure,
         bool? compress,
         Ice.ProtocolVersion protocol,
         Ice.EncodingVersion encoding,
@@ -433,7 +411,6 @@ public abstract class Reference : IEquatable<Reference>
         _protocol = protocol;
         _encoding = encoding;
         _invocationTimeout = invocationTimeout;
-        secure_ = secure;
         _compress = compress;
     }
 
@@ -450,7 +427,6 @@ public class FixedReference : Reference
         Ice.Identity identity,
         string facet,
         Mode mode,
-        bool secure,
         bool? compress,
         Ice.ProtocolVersion protocol,
         Ice.EncodingVersion encoding,
@@ -463,7 +439,6 @@ public class FixedReference : Reference
         identity,
         facet,
         mode,
-        secure,
         compress,
         protocol,
         encoding,
@@ -482,8 +457,6 @@ public class FixedReference : Reference
     public override bool getCollocationOptimized() => false;
 
     public override bool getCacheConnection() => true;
-
-    public override bool getPreferSecure() => false;
 
     public override Ice.EndpointSelectionType getEndpointSelection() => Ice.EndpointSelectionType.Random;
 
@@ -507,8 +480,6 @@ public class FixedReference : Reference
         throw new Ice.FixedProxyException();
 
     public override Reference changeCacheConnection(bool newCache) => throw new Ice.FixedProxyException();
-
-    public override Reference changePreferSecure(bool newPreferSecure) => throw new Ice.FixedProxyException();
 
     public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType) =>
         throw new Ice.FixedProxyException();
@@ -565,27 +536,9 @@ public class FixedReference : Reference
             }
         }
 
-        //
-        // If a secure connection is requested or secure overrides is set,
-        // check if the connection is secure.
-        //
-        bool secure;
-        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
-        if (defaultsAndOverrides.overrideSecure is not null)
-        {
-            secure = defaultsAndOverrides.overrideSecure.Value;
-        }
-        else
-        {
-            secure = getSecure();
-        }
-        if (secure && !_fixedConnection.endpoint().secure())
-        {
-            throw new NoEndpointException(new ObjectPrxHelper(this));
-        }
-
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
+        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
         bool compress = defaultsAndOverrides.overrideCompress ?? getCompress() ?? false;
         return new FixedRequestHandler(this, _fixedConnection, compress);
     }
@@ -619,8 +572,6 @@ public class RoutableReference : Reference
     public override bool getCollocationOptimized() => _collocationOptimized;
 
     public override bool getCacheConnection() => _cacheConnection;
-
-    public override bool getPreferSecure() => _preferSecure;
 
     public override Ice.EndpointSelectionType getEndpointSelection() => _endpointSelection;
 
@@ -714,13 +665,6 @@ public class RoutableReference : Reference
         return r;
     }
 
-    public override Reference changePreferSecure(bool newPreferSecure)
-    {
-        var r = (RoutableReference)getInstance().referenceFactory().copy(this);
-        r._preferSecure = newPreferSecure;
-        return r;
-    }
-
     public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
     {
         var r = (RoutableReference)getInstance().referenceFactory().copy(this);
@@ -759,7 +703,6 @@ public class RoutableReference : Reference
             getIdentity(),
             getFacet(),
             getMode(),
-            getSecure(),
             getCompress(),
             getProtocol(),
             getEncoding(),
@@ -847,7 +790,6 @@ public class RoutableReference : Reference
             [prefix] = ToString(),
             [prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0",
             [prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0",
-            [prefix + ".PreferSecure"] = _preferSecure ? "1" : "0",
             [prefix + ".EndpointSelection"] =
                    _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered",
             [prefix + ".LocatorCacheTimeout"] =
@@ -905,7 +847,6 @@ public class RoutableReference : Reference
             _routerInfo == rhs._routerInfo &&
             _collocationOptimized == rhs._collocationOptimized &&
             _cacheConnection == rhs._cacheConnection &&
-            _preferSecure == rhs._preferSecure &&
             _endpointSelection == rhs._endpointSelection &&
             _locatorCacheTimeout == rhs._locatorCacheTimeout &&
             _connectionId == rhs._connectionId &&
@@ -1076,7 +1017,6 @@ public class RoutableReference : Reference
         Ice.Identity identity,
         string facet,
         Mode mode,
-        bool secure,
         bool? compress,
         Ice.ProtocolVersion protocol,
         Ice.EncodingVersion encoding,
@@ -1086,7 +1026,6 @@ public class RoutableReference : Reference
         RouterInfo routerInfo,
         bool collocationOptimized,
         bool cacheConnection,
-        bool preferSecure,
         Ice.EndpointSelectionType endpointSelection,
         TimeSpan locatorCacheTimeout,
         TimeSpan invocationTimeout,
@@ -1097,7 +1036,6 @@ public class RoutableReference : Reference
         identity,
         facet,
         mode,
-        secure,
         compress,
         protocol,
         encoding,
@@ -1110,7 +1048,6 @@ public class RoutableReference : Reference
         _routerInfo = routerInfo;
         _collocationOptimized = collocationOptimized;
         _cacheConnection = cacheConnection;
-        _preferSecure = preferSecure;
         _endpointSelection = endpointSelection;
         _locatorCacheTimeout = locatorCacheTimeout;
 
@@ -1228,35 +1165,6 @@ public class RoutableReference : Reference
             }
         }
 
-        //
-        // If a secure connection is requested or secure overrides
-        // is set, remove all non-secure endpoints. Otherwise make
-        // non-secure endpoints preferred over secure endpoints by
-        // partitioning the endpoint vector, so that non-secure
-        // endpoints come first.
-        //
-        DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
-        if (overrides.overrideSecure ?? getSecure())
-        {
-            var tmp = new List<EndpointI>();
-            foreach (EndpointI endpoint in endpoints)
-            {
-                if (endpoint.secure())
-                {
-                    tmp.Add(endpoint);
-                }
-            }
-            endpoints = tmp;
-        }
-        else if (getPreferSecure())
-        {
-            UtilInternal.Collections.Sort(ref endpoints, _preferSecureEndpointComparator);
-        }
-        else
-        {
-            UtilInternal.Collections.Sort(ref endpoints, _preferNonSecureEndpointComparator);
-        }
-
         var arr = new EndpointI[endpoints.Count];
         endpoints.CopyTo(arr);
         return arr;
@@ -1352,47 +1260,6 @@ public class RoutableReference : Reference
             isBatch ? new BatchRequestQueue(getInstance(), getMode() == Mode.ModeBatchDatagram) : null;
     }
 
-    private class EndpointComparator : IComparer<EndpointI>
-    {
-        public EndpointComparator(bool preferSecure) => _preferSecure = preferSecure;
-
-        public int Compare(EndpointI le, EndpointI re)
-        {
-            bool ls = le.secure();
-            bool rs = re.secure();
-            if ((ls && rs) || (!ls && !rs))
-            {
-                return 0;
-            }
-            else if (!ls && rs)
-            {
-                if (_preferSecure)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return -1;
-                }
-            }
-            else
-            {
-                if (_preferSecure)
-                {
-                    return -1;
-                }
-                else
-                {
-                    return 1;
-                }
-            }
-        }
-
-        private readonly bool _preferSecure;
-    }
-
-    private static readonly EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);
-    private static readonly EndpointComparator _preferSecureEndpointComparator = new EndpointComparator(true);
     private static readonly EndpointI[] _emptyEndpoints = [];
 
     private BatchRequestQueue _batchRequestQueue;
@@ -1403,7 +1270,6 @@ public class RoutableReference : Reference
     private RouterInfo _routerInfo; // Null if no router is used.
     private bool _collocationOptimized;
     private bool _cacheConnection;
-    private bool _preferSecure;
     private Ice.EndpointSelectionType _endpointSelection;
     private TimeSpan _locatorCacheTimeout;
 

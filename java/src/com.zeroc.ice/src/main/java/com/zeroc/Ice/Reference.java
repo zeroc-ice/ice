@@ -66,15 +66,6 @@ public abstract class Reference implements Cloneable {
     }
 
     /**
-     * Returns true if this reference requires a secure connection.
-     *
-     * @return true if secure connections are required
-     */
-    public final boolean getSecure() {
-        return _secure;
-    }
-
-    /**
      * Gets the Ice protocol version for this reference.
      *
      * @return the protocol version
@@ -198,13 +189,6 @@ public abstract class Reference implements Cloneable {
     public abstract boolean getCacheConnection();
 
     /**
-     * Returns true if secure endpoints are preferred.
-     *
-     * @return true if secure endpoints are preferred
-     */
-    public abstract boolean getPreferSecure();
-
-    /**
      * Gets the endpoint selection type for this reference.
      *
      * @return the endpoint selection type
@@ -272,18 +256,6 @@ public abstract class Reference implements Cloneable {
     public Reference changeMode(int newMode) {
         Reference r = _instance.referenceFactory().copy(this);
         r._mode = newMode;
-        return r;
-    }
-
-    /**
-     * Creates a new reference with the specified secure setting.
-     *
-     * @param newSecure the new secure setting
-     * @return a new reference with the updated secure setting
-     */
-    public Reference changeSecure(boolean newSecure) {
-        Reference r = _instance.referenceFactory().copy(this);
-        r._secure = newSecure;
         return r;
     }
 
@@ -396,14 +368,6 @@ public abstract class Reference implements Cloneable {
     public abstract Reference changeCacheConnection(boolean newCache);
 
     /**
-     * Creates a new reference with the specified prefer secure setting.
-     *
-     * @param newPreferSecure the new prefer secure setting
-     * @return a new reference with the updated setting
-     */
-    public abstract Reference changePreferSecure(boolean newPreferSecure);
-
-    /**
      * Creates a new reference with the specified endpoint selection type.
      *
      * @param newType the new endpoint selection type
@@ -439,7 +403,6 @@ public abstract class Reference implements Cloneable {
     public int hashCode() {
         int h = 5381;
         h = HashUtil.hashAdd(h, _mode);
-        h = HashUtil.hashAdd(h, _secure);
         h = HashUtil.hashAdd(h, _identity);
         h = HashUtil.hashAdd(h, _context);
         h = HashUtil.hashAdd(h, _facet);
@@ -509,7 +472,7 @@ public abstract class Reference implements Cloneable {
 
         s.writeByte((byte) _mode);
 
-        s.writeBool(_secure);
+        s.writeBool(false); // the secure field, no longer used.
 
         if (!s.getEncoding().equals(Util.Encoding_1_0)) {
             _protocol.ice_writeMembers(s);
@@ -577,10 +540,6 @@ public abstract class Reference implements Cloneable {
             case ModeBatchDatagram -> s.append(" -D");
         }
 
-        if (_secure) {
-            s.append(" -s");
-        }
-
         if (!_protocol.equals(Util.Protocol_1_0)) {
             // We print the protocol unless it's 1.0.
             s.append(" -p ");
@@ -637,10 +596,6 @@ public abstract class Reference implements Cloneable {
             return false;
         }
 
-        if (_secure != r._secure) {
-            return false;
-        }
-
         if (!_identity.equals(r._identity)) {
             return false;
         }
@@ -689,7 +644,6 @@ public abstract class Reference implements Cloneable {
     private final Communicator _communicator;
 
     private int _mode;
-    private boolean _secure;
     private Optional<Boolean> _compress;
     private Identity _identity;
     private Map<String, String> _context;
@@ -706,7 +660,6 @@ public abstract class Reference implements Cloneable {
      * @param identity the object identity
      * @param facet the facet name
      * @param mode the invocation mode
-     * @param secure whether secure connections are required
      * @param compress the compression setting
      * @param protocol the protocol version
      * @param encoding the encoding version
@@ -719,7 +672,6 @@ public abstract class Reference implements Cloneable {
             Identity identity,
             String facet,
             int mode,
-            boolean secure,
             Optional<Boolean> compress,
             ProtocolVersion protocol,
             EncodingVersion encoding,
@@ -735,7 +687,6 @@ public abstract class Reference implements Cloneable {
         _instance = instance;
         _communicator = communicator;
         _mode = mode;
-        _secure = secure;
         _compress = compress;
         _identity = identity;
         _context = context != null ? new HashMap<>(context) : _emptyContext;

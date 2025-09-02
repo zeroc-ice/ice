@@ -656,44 +656,6 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
 }
 
 extern "C" PyObject*
-proxyIceIsSecure(ProxyObject* self, PyObject* /*args*/)
-{
-    assert(self->proxy);
-    return (*self->proxy)->ice_isSecure() ? Py_True : Py_False;
-}
-
-extern "C" PyObject*
-proxyIceSecure(ProxyObject* self, PyObject* args)
-{
-    PyObject* flag{nullptr};
-    if (!PyArg_ParseTuple(args, "O", &flag))
-    {
-        return nullptr;
-    }
-
-    int n = PyObject_IsTrue(flag);
-    if (n < 0)
-    {
-        return nullptr;
-    }
-
-    assert(self->proxy);
-
-    optional<Ice::ObjectPrx> newProxy;
-    try
-    {
-        newProxy = (*self->proxy)->ice_secure(n == 1);
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return nullptr;
-    }
-
-    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
-}
-
-extern "C" PyObject*
 proxyIceGetEncodingVersion(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
@@ -723,44 +685,6 @@ proxyIceEncodingVersion(ProxyObject* self, PyObject* args)
     try
     {
         newProxy = (*self->proxy)->ice_encodingVersion(val);
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return nullptr;
-    }
-
-    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
-}
-
-extern "C" PyObject*
-proxyIceIsPreferSecure(ProxyObject* self, PyObject* /*args*/)
-{
-    assert(self->proxy);
-    return (*self->proxy)->ice_isPreferSecure() ? Py_True : Py_False;
-}
-
-extern "C" PyObject*
-proxyIcePreferSecure(ProxyObject* self, PyObject* args)
-{
-    PyObject* flag;
-    if (!PyArg_ParseTuple(args, "O", &flag))
-    {
-        return nullptr;
-    }
-
-    int n = PyObject_IsTrue(flag);
-    if (n < 0)
-    {
-        return nullptr;
-    }
-
-    assert(self->proxy);
-
-    optional<Ice::ObjectPrx> newProxy;
-    try
-    {
-        newProxy = (*self->proxy)->ice_preferSecure(n == 1);
     }
     catch (...)
     {
@@ -1409,11 +1333,6 @@ static PyMethodDef ProxyMethods[] = {
      reinterpret_cast<PyCFunction>(proxyIceEndpointSelection),
      METH_VARARGS,
      PyDoc_STR("ice_endpointSelection(Ice.EndpointSelectionType) -> Ice.ObjectPrx")},
-    {"ice_isSecure", reinterpret_cast<PyCFunction>(proxyIceIsSecure), METH_NOARGS, PyDoc_STR("ice_isSecure() -> bool")},
-    {"ice_secure",
-     reinterpret_cast<PyCFunction>(proxyIceSecure),
-     METH_VARARGS,
-     PyDoc_STR("ice_secure(bool) -> Ice.ObjectPrx")},
     {"ice_getEncodingVersion",
      reinterpret_cast<PyCFunction>(proxyIceGetEncodingVersion),
      METH_NOARGS,
@@ -1422,14 +1341,6 @@ static PyMethodDef ProxyMethods[] = {
      reinterpret_cast<PyCFunction>(proxyIceEncodingVersion),
      METH_VARARGS,
      PyDoc_STR("ice_endpointSelection(Ice.EncodingVersion) -> Ice.ObjectPrx")},
-    {"ice_isPreferSecure",
-     reinterpret_cast<PyCFunction>(proxyIceIsPreferSecure),
-     METH_NOARGS,
-     PyDoc_STR("ice_isPreferSecure() -> bool")},
-    {"ice_preferSecure",
-     reinterpret_cast<PyCFunction>(proxyIcePreferSecure),
-     METH_VARARGS,
-     PyDoc_STR("ice_preferSecure(bool) -> Ice.ObjectPrx")},
     {"ice_getRouter",
      reinterpret_cast<PyCFunction>(proxyIceGetRouter),
      METH_NOARGS,

@@ -518,8 +518,6 @@ NodeService::startImpl(int argc, char* argv[], int& status)
                 throw runtime_error("invalid registry");
             }
 
-            registry = registry->ice_preferSecure(true); // Use SSL if available.
-
             optional<AdminSessionPrx> session;
             if (communicator()->getProperties()->getIcePropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
             {

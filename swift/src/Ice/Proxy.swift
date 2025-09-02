@@ -172,34 +172,6 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
     /// - returns: The new proxy with the specified locator.
     func ice_locator(_ locator: LocatorPrx?) -> Self
 
-    /// Returns whether this proxy communicates only via secure endpoints.
-    ///
-    /// - returns: `Bool` - True if this proxy communicates only via secure endpoints; false, otherwise.
-    func ice_isSecure() -> Bool
-
-    /// Creates a new proxy that is identical to this proxy, except for how it selects endpoints.
-    ///
-    /// - parameter secure: `Bool` - If true only endpoints that use a secure transport are used by the new proxy.
-    ///   otherwise the returned proxy uses both secure and insecure endpoints.
-    ///
-    /// - returns: The new proxy with the specified selection policy.
-    func ice_secure(_ secure: Bool) -> Self
-
-    /// Returns whether this proxy prefers secure endpoints.
-    ///
-    /// - returns: `Bool` - True if the proxy always attempts to invoke via secure endpoints before it
-    ///   attempts to use insecure endpoints; false, otherwise.
-    func ice_isPreferSecure() -> Bool
-
-    /// Creates a new proxy that is identical to this proxy, except for its endpoint selection policy.
-    ///
-    /// - parameter preferSecure: `Bool` - If true, the new proxy will use secure endpoints for invocations
-    ///   and only use insecure endpoints if an invocation cannot be made via secure endpoints. Otherwise
-    ///   the proxy prefers insecure endpoints to secure ones.
-    ///
-    /// - returns: The new proxy with the new endpoint selection policy.
-    func ice_preferSecure(_ preferSecure: Bool) -> Self
-
     /// Returns whether this proxy uses twoway invocations.
     ///
     /// - returns: `Bool` - True if this proxy uses twoway invocations; false, otherwise.
@@ -775,29 +747,6 @@ open class ObjectPrxI: ObjectPrx, @unchecked Sendable {
             return try autoreleasepool {
                 let l = locator as? ObjectPrxI
                 return try fromICEObjectPrx(handle.ice_locator(l?.handle ?? nil))
-            }
-        } catch {
-            fatalError("\(error)")
-        }
-    }
-
-    public func ice_isSecure() -> Bool {
-        return handle.ice_isSecure()
-    }
-
-    public func ice_secure(_ secure: Bool) -> Self {
-        return fromICEObjectPrx(handle.ice_secure(secure))
-    }
-
-    public func ice_isPreferSecure() -> Bool {
-        return handle.ice_isPreferSecure()
-    }
-
-    public func ice_preferSecure(_ preferSecure: Bool) -> Self {
-        precondition(!ice_isFixed(), "Cannot create a fixed proxy with preferSecure")
-        do {
-            return try autoreleasepool {
-                try fromICEObjectPrx(handle.ice_preferSecure(preferSecure)) as Self
             }
         } catch {
             fatalError("\(error)")

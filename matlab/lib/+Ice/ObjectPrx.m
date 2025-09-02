@@ -60,17 +60,13 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %     ice_isDatagram - Returns whether this proxy uses datagram invocations.
     %     ice_isFixed - Determines whether this proxy is a fixed proxy.
     %     ice_isOneway - Returns whether this proxy uses oneway invocations.
-    %     ice_isPreferSecure - Returns whether this proxy prefers secure endpoints.
-    %     ice_isSecure - Returns whether this proxy uses only secure endpoints.
     %     ice_isTwoway - Returns whether this proxy uses twoway invocations.
     %     ice_locator - Returns a proxy that is identical to this proxy, except for the locator.
     %     ice_locatorCacheTimeout - Returns a proxy that is identical to this proxy, except for the locator cache timeout.
     %     ice_oneway - Returns a proxy that is identical to this proxy, but uses oneway invocations.
     %     ice_ping - Tests whether the target object of this proxy can be reached.
     %     ice_pingAsync - An asynchronous ice_ping.
-    %     ice_preferSecure - Returns a proxy that is identical to this proxy, except for its endpoint selection policy.
     %     ice_router - Returns a proxy that is identical to this proxy, except for the router.
-    %     ice_secure - Returns a proxy that is identical to this proxy, except for how it selects endpoints.
     %     ice_toString - Creates a stringified version of this proxy.
     %     ice_twoway - Returns a proxy that is identical to this proxy, but uses twoway invocations.
 
@@ -821,84 +817,6 @@ classdef ObjectPrx < IceInternal.WrapperObject
                 impl = loc.impl_;
             end
             r = obj.factory_('ice_locator', true, impl);
-        end
-
-        function r = ice_isSecure(obj)
-            %ICE_ISSECURE Returns whether this proxy uses only secure endpoints.
-            %
-            %   Output Arguments
-            %      r - True if this proxy communicates only via secure endpoints; false otherwise.
-            %        logical scalar
-
-            arguments
-                obj (1, 1) Ice.ObjectPrx
-            end
-            r = obj.iceCallWithResult('ice_isSecure');
-        end
-
-        function r = ice_secure(obj, b)
-            %ICE_SECURE Returns a proxy that is identical to this proxy, except for how it selects endpoints.
-            %
-            %   Input Arguments
-            %      b - If b is true, only endpoints that use a secure transport are used by the new proxy. If b is
-            %        false, the returned proxy uses both secure and insecure endpoints.
-            %        logical scalar
-            %
-            %   Output Arguments
-            %      r - The proxy with the specified selection policy.
-            %        proxy scalar with the same type as obj
-
-            arguments
-                obj (1, 1) Ice.ObjectPrx
-                b (1, 1) logical
-            end
-            if b
-                val = 1;
-            else
-                val = 0;
-            end
-            r = obj.factory_('ice_secure', true, val);
-        end
-
-        function r = ice_isPreferSecure(obj)
-            %ICE_ISPREFERSECURE Returns whether this proxy prefers secure endpoints.
-            %
-            %   Output Arguments
-            %      r - True if the proxy always attempts to invoke via secure endpoints before it attempts to use
-            %        insecure endpoints; false otherwise.
-            %        logical scalar
-
-            arguments
-                obj (1, 1) Ice.ObjectPrx
-            end
-            r = obj.iceCallWithResult('ice_isPreferSecure');
-        end
-
-        function r = ice_preferSecure(obj, b)
-            %ICE_PREFERSECURE Returns a proxy that is identical to this proxy, except for its endpoint selection
-            %   policy.
-            %
-            %   Input Arguments
-            %      b - If b is true, the new proxy will use secure endpoints for invocations and only use insecure
-            %        endpoints if an invocation cannot be made via secure endpoints. If b is false, the proxy prefers
-            %        insecure endpoints to secure ones.
-            %        logical scalar
-
-            %
-            %   Output Arguments
-            %      r - The proxy with the specified selection policy.
-            %        proxy scalar with the same type as obj
-
-            arguments
-                obj (1, 1) Ice.ObjectPrx
-                b (1, 1) logical
-            end
-            if b
-                val = 1;
-            else
-                val = 0;
-            end
-            r = obj.factory_('ice_preferSecure', true, val);
         end
 
         function r = ice_isTwoway(obj)

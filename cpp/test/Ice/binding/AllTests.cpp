@@ -793,64 +793,6 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "ssl")
-    {
-        cout << "testing unsecure vs. secure endpoints... " << flush;
-        {
-            vector<optional<RemoteObjectAdapterPrx>> adapters;
-            adapters.push_back(com->createObjectAdapter("Adapter81", "ssl"));
-            adapters.push_back(com->createObjectAdapter("Adapter82", "tcp"));
-
-            TestIntfPrx test = createTestIntfPrx(adapters);
-            int i;
-            for (i = 0; i < 5; i++)
-            {
-                test(test->getAdapterName() == "Adapter82");
-                test->ice_getConnection()->close().get();
-            }
-
-            TestIntfPrx testSecure = test->ice_secure(true);
-            test(testSecure->ice_isSecure());
-            testSecure = test->ice_secure(false);
-            test(!testSecure->ice_isSecure());
-            testSecure = test->ice_secure(true);
-            test(testSecure->ice_isSecure());
-            test(test->ice_getConnection() != testSecure->ice_getConnection());
-
-            com->deactivateObjectAdapter(adapters[1]);
-
-            for (i = 0; i < 5; i++)
-            {
-                test(test->getAdapterName() == "Adapter81");
-                test->ice_getConnection()->close().get();
-            }
-
-            com->createObjectAdapter("Adapter83", (test->ice_getEndpoints()[1])->toString()); // Reactive tcp OA.
-
-            for (i = 0; i < 5; i++)
-            {
-                test(test->getAdapterName() == "Adapter83");
-                test->ice_getConnection()->close().get();
-            }
-
-            com->deactivateObjectAdapter(adapters[0]);
-            try
-            {
-                testSecure->ice_ping();
-                test(false);
-            }
-            catch (const Ice::ConnectFailedException&)
-            {
-            }
-            catch (const Ice::ConnectTimeoutException&)
-            {
-            }
-
-            deactivate(com, adapters);
-        }
-        cout << "ok" << endl;
-    }
-
     {
         cout << "testing ipv4 & ipv6 connections... " << flush;
 

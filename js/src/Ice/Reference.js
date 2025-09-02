@@ -28,7 +28,7 @@ const _emptyContext = new Map();
 const _emptyEndpoints = [];
 
 export class Reference {
-    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context) {
+    constructor(instance, communicator, identity, facet, mode, protocol, encoding, invocationTimeout, context) {
         //
         // Validate string arguments.
         //
@@ -39,7 +39,6 @@ export class Reference {
         this._instance = instance;
         this._communicator = communicator;
         this._mode = mode;
-        this._secure = secure;
         this._identity = identity;
         this._context = context === undefined || context === null ? _emptyContext : context;
         this._facet = facet;
@@ -58,10 +57,6 @@ export class Reference {
 
     get isTwoway() {
         return this._mode == ReferenceMode.ModeTwoway;
-    }
-
-    getSecure() {
-        return this._secure;
     }
 
     getProtocol() {
@@ -120,12 +115,6 @@ export class Reference {
         return r;
     }
 
-    changeSecure(newSecure) {
-        const r = this._instance.referenceFactory().copy(this);
-        r._secure = newSecure;
-        return r;
-    }
-
     changeIdentity(newIdentity) {
         const r = this._instance.referenceFactory().copy(this);
         r._identity = new Identity(newIdentity.name, newIdentity.category);
@@ -153,7 +142,6 @@ export class Reference {
     hashCode() {
         let h = 5381;
         h = HashUtil.addNumber(h, this._mode);
-        h = HashUtil.addBoolean(h, this._secure);
         h = HashUtil.addHashable(h, this._identity);
         if (this._context !== null && this._context !== undefined) {
             for (const [key, value] of this._context) {
@@ -197,7 +185,7 @@ export class Reference {
 
         s.writeByte(this._mode);
 
-        s.writeBool(this._secure);
+        s.writeBool(false); // Reserved for secure (not used anymore).
 
         if (!s.getEncoding().equals(Encoding_1_0)) {
             this._protocol._write(s);
@@ -286,10 +274,6 @@ export class Reference {
             }
         }
 
-        if (this._secure) {
-            s.push(" -s");
-        }
-
         if (!this._protocol.equals(Protocol_1_0)) {
             // We print the protocol unless it's 1.0.
             s.push(" -p ");
@@ -316,10 +300,6 @@ export class Reference {
         //
 
         if (this._mode !== r._mode) {
-            return false;
-        }
-
-        if (this._secure !== r._secure) {
             return false;
         }
 
@@ -365,14 +345,13 @@ export class FixedReference extends Reference {
         identity,
         facet,
         mode,
-        secure,
         protocol,
         encoding,
         connection,
         invocationTimeout,
         context,
     ) {
-        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
+        super(instance, communicator, identity, facet, mode, protocol, encoding, invocationTimeout, context);
         this._fixedConnection = connection;
     }
 
@@ -394,10 +373,6 @@ export class FixedReference extends Reference {
 
     getCacheConnection() {
         return true;
-    }
-
-    getPreferSecure() {
-        return false;
     }
 
     getEndpointSelection() {
@@ -429,10 +404,6 @@ export class FixedReference extends Reference {
     }
 
     changeCacheConnection() {
-        throw new FixedProxyException();
-    }
-
-    changePreferSecure() {
         throw new FixedProxyException();
     }
 
@@ -481,7 +452,6 @@ export class FixedReference extends Reference {
             this.getIdentity(),
             this.getFacet(),
             this.getMode(),
-            this.getSecure(),
             this.getProtocol(),
             this.getEncoding(),
             this._fixedConnection,
@@ -517,18 +487,6 @@ export class FixedReference extends Reference {
             }
         }
 
-        //
-        // If a secure connection is requested or secure overrides is set,
-        // check if the connection is secure.
-        //
-        const defaultsAndOverrides = this.getInstance().defaultsAndOverrides();
-        const secure = defaultsAndOverrides.overrideSecure
-            ? defaultsAndOverrides.overrideSecureValue
-            : this.getSecure();
-        if (secure && !this._fixedConnection.endpoint().secure()) {
-            throw new NoEndpointException(new ObjectPrx(this));
-        }
-
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
         return new FixedRequestHandler(this, this._fixedConnection);
@@ -559,7 +517,6 @@ export class RoutableReference extends Reference {
         identity,
         facet,
         mode,
-        secure,
         protocol,
         encoding,
         endpoints,
@@ -567,19 +524,17 @@ export class RoutableReference extends Reference {
         locatorInfo,
         routerInfo,
         cacheConnection,
-        preferSecure,
         endpointSelection,
         locatorCacheTimeout,
         invocationTimeout,
         context,
     ) {
-        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
+        super(instance, communicator, identity, facet, mode, protocol, encoding, invocationTimeout, context);
         this._endpoints = endpoints;
         this._adapterId = adapterId;
         this._locatorInfo = locatorInfo;
         this._routerInfo = routerInfo;
         this._cacheConnection = cacheConnection;
-        this._preferSecure = preferSecure;
         this._endpointSelection = endpointSelection;
         this._locatorCacheTimeout = locatorCacheTimeout;
 
@@ -612,10 +567,6 @@ export class RoutableReference extends Reference {
 
     getCacheConnection() {
         return this._cacheConnection;
-    }
-
-    getPreferSecure() {
-        return this._preferSecure;
     }
 
     getEndpointSelection() {
@@ -695,12 +646,6 @@ export class RoutableReference extends Reference {
         return r;
     }
 
-    changePreferSecure(newPreferSecure) {
-        const r = this.getInstance().referenceFactory().copy(this);
-        r._preferSecure = newPreferSecure;
-        return r;
-    }
-
     changeEndpointSelection(newType) {
         const r = this.getInstance().referenceFactory().copy(this);
         r._endpointSelection = newType;
@@ -727,7 +672,6 @@ export class RoutableReference extends Reference {
             this.getIdentity(),
             this.getFacet(),
             this.getMode(),
-            this.getSecure(),
             this.getProtocol(),
             this.getEncoding(),
             newConnection,
@@ -802,7 +746,6 @@ export class RoutableReference extends Reference {
 
         properties.set(prefix, this.toString());
         properties.set(prefix + ".ConnectionCached", this._cacheConnection ? "1" : "0");
-        properties.set(prefix + ".PreferSecure", this._preferSecure ? "1" : "0");
         properties.set(
             prefix + ".EndpointSelection",
             this._endpointSelection === EndpointSelectionType.Random ? "Random" : "Ordered",
@@ -855,9 +798,6 @@ export class RoutableReference extends Reference {
             return false;
         }
         if (this._cacheConnection !== rhs._cacheConnection) {
-            return false;
-        }
-        if (this._preferSecure !== rhs._preferSecure) {
             return false;
         }
         if (this._endpointSelection !== rhs._endpointSelection) {
@@ -980,7 +920,6 @@ export class RoutableReference extends Reference {
             this.getIdentity(),
             this.getFacet(),
             this.getMode(),
-            this.getSecure(),
             this.getProtocol(),
             this.getEncoding(),
             this._endpoints,
@@ -988,7 +927,6 @@ export class RoutableReference extends Reference {
             this._locatorInfo,
             this._routerInfo,
             this._cacheConnection,
-            this._preferSecure,
             this._endpointSelection,
             this._locatorCacheTimeout,
             this._invocationTimeout,
@@ -1075,30 +1013,6 @@ export class RoutableReference extends Reference {
             }
         }
 
-        //
-        // If a secure connection is requested or secure overrides is
-        // set, remove all non-secure endpoints. Otherwise if preferSecure is set
-        // make secure endpoints preferred. By default make non-secure
-        // endpoints preferred over secure endpoints.
-        //
-        const overrides = this.getInstance().defaultsAndOverrides();
-        if (overrides.overrideSecure ? overrides.overrideSecureValue : this.getSecure()) {
-            endpoints = endpoints.filter(e => e.secure());
-        } else {
-            const preferSecure = this.getPreferSecure();
-            const compare = (e1, e2) => {
-                const ls = e1.secure();
-                const rs = e2.secure();
-                if ((ls && rs) || (!ls && !rs)) {
-                    return 0;
-                } else if (!ls && rs) {
-                    return preferSecure ? 1 : -1;
-                } else {
-                    return preferSecure ? -1 : 1;
-                }
-            };
-            endpoints.sort(compare);
-        }
         return endpoints;
     }
 

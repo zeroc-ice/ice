@@ -62,18 +62,8 @@ public abstract class _ObjectPrxFactoryMethods<T extends ObjectPrx> extends _Obj
     }
 
     @Override
-    public T ice_secure(boolean b) {
-        return (T) super.ice_secure(b);
-    }
-
-    @Override
     public T ice_encodingVersion(EncodingVersion e) {
         return (T) super.ice_encodingVersion(e);
-    }
-
-    @Override
-    public T ice_preferSecure(boolean b) {
-        return (T) super.ice_preferSecure(b);
     }
 
     @Override

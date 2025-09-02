@@ -588,57 +588,6 @@ ZEND_METHOD(Ice_ObjectPrx, ice_endpointSelection)
     }
 }
 
-ZEND_METHOD(Ice_ObjectPrx, ice_isSecure)
-{
-    if (ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
-    assert(_this);
-
-    try
-    {
-        bool b = _this->proxy->ice_isSecure();
-        RETURN_BOOL(b ? 1 : 0);
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_FALSE;
-    }
-}
-
-ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_secure_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, secure)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_ObjectPrx, ice_secure)
-{
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
-    assert(_this);
-
-    zend_bool b;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("b"), &b) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    try
-    {
-        if (!_this->clone(return_value, _this->proxy->ice_secure(b ? true : false)))
-        {
-            RETURN_NULL();
-        }
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
-    }
-}
-
 ZEND_METHOD(Ice_ObjectPrx, ice_getEncodingVersion)
 {
     if (ZEND_NUM_ARGS() != 0)
@@ -696,57 +645,6 @@ ZEND_METHOD(Ice_ObjectPrx, ice_encodingVersion)
             throwException(current_exception());
             RETURN_NULL();
         }
-    }
-}
-
-ZEND_METHOD(Ice_ObjectPrx, ice_isPreferSecure)
-{
-    if (ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
-    assert(_this);
-
-    try
-    {
-        bool b = _this->proxy->ice_isPreferSecure();
-        RETURN_BOOL(b ? 1 : 0);
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_FALSE;
-    }
-}
-
-ZEND_BEGIN_ARG_INFO_EX(Ice_ObjectPrx_ice_preferSecure_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-ZEND_ARG_INFO(0, preferSecure)
-ZEND_END_ARG_INFO()
-
-ZEND_METHOD(Ice_ObjectPrx, ice_preferSecure)
-{
-    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
-    assert(_this);
-
-    zend_bool b;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("b"), &b) != SUCCESS)
-    {
-        RETURN_NULL();
-    }
-
-    try
-    {
-        if (!_this->clone(return_value, _this->proxy->ice_preferSecure(b ? true : false)))
-        {
-            RETURN_NULL();
-        }
-    }
-    catch (...)
-    {
-        throwException(current_exception());
-        RETURN_NULL();
     }
 }
 
@@ -1708,18 +1606,10 @@ static zend_function_entry _proxyMethods[] = {
     ZEND_ME(Ice_ObjectPrx, ice_getEndpointSelection, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // ice_endpointSelection
     ZEND_ME(Ice_ObjectPrx, ice_endpointSelection, Ice_ObjectPrx_ice_endpointSelection_arginfo, ZEND_ACC_PUBLIC)
-    // ice_isSecure
-    ZEND_ME(Ice_ObjectPrx, ice_isSecure, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    // ice_secure
-    ZEND_ME(Ice_ObjectPrx, ice_secure, Ice_ObjectPrx_ice_secure_arginfo, ZEND_ACC_PUBLIC)
     // ice_getEncodingVersion
     ZEND_ME(Ice_ObjectPrx, ice_getEncodingVersion, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // ice_encodingVersion
     ZEND_ME(Ice_ObjectPrx, ice_encodingVersion, Ice_ObjectPrx_ice_encodingVersion_arginfo, ZEND_ACC_PUBLIC)
-    // ice_isPreferSecure
-    ZEND_ME(Ice_ObjectPrx, ice_isPreferSecure, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    // ice_preferSecure
-    ZEND_ME(Ice_ObjectPrx, ice_preferSecure, Ice_ObjectPrx_ice_preferSecure_arginfo, ZEND_ACC_PUBLIC)
     // ice_getRouter
     ZEND_ME(Ice_ObjectPrx, ice_getRouter, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // ice_router

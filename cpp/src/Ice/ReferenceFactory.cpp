@@ -40,7 +40,6 @@ IceInternal::ReferenceFactory::create(
         std::move(ident),
         std::move(facet),
         tmpl->getMode(),
-        tmpl->getSecure(),
         tmpl->getProtocol(),
         tmpl->getEncoding(),
         std::move(endpoints),
@@ -57,7 +56,6 @@ IceInternal::ReferenceFactory::create(Identity ident, string facet, const Refere
         std::move(ident),
         std::move(facet),
         tmpl->getMode(),
-        tmpl->getSecure(),
         tmpl->getProtocol(),
         tmpl->getEncoding(),
         vector<EndpointIPtr>(),
@@ -71,7 +69,6 @@ IceInternal::ReferenceFactory::create(Identity ident, Ice::ConnectionIPtr connec
     assert(!ident.name.empty());
 
     Reference::Mode mode = connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway;
-    bool isSecure = connection->endpoint()->secure();
 
     // Create new reference
     return make_shared<FixedReference>(
@@ -80,7 +77,6 @@ IceInternal::ReferenceFactory::create(Identity ident, Ice::ConnectionIPtr connec
         std::move(ident),
         "", // Facet
         mode,
-        isSecure,
         nullopt,
         Ice::Protocol_1_0,
         _instance->defaultsAndOverrides()->defaultEncoding,
@@ -165,7 +161,6 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
 
     string facet;
     Reference::Mode mode = Reference::ModeTwoway;
-    bool secure = false;
     Ice::EncodingVersion encoding = _instance->defaultsAndOverrides()->defaultEncoding;
     Ice::ProtocolVersion protocol = Protocol_1_0;
     string adapter;
@@ -343,7 +338,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
                         __LINE__,
                         "unexpected argument '" + argument + "' provided for -s option in proxy string '" + s + "'");
                 }
-                secure = true;
+                // Ignored. Kept for backwards compatibility.
                 break;
             }
 
@@ -404,7 +399,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
 
     if (beg == string::npos)
     {
-        return create(ident, facet, mode, secure, protocol, encoding, vector<EndpointIPtr>(), "", propertyPrefix);
+        return create(ident, facet, mode, protocol, encoding, vector<EndpointIPtr>(), "", propertyPrefix);
     }
 
     vector<EndpointIPtr> endpoints;
@@ -493,7 +488,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
                 }
             }
 
-            return create(ident, facet, mode, secure, protocol, encoding, endpoints, "", propertyPrefix);
+            return create(ident, facet, mode, protocol, encoding, endpoints, "", propertyPrefix);
             break;
         }
         case '@':
@@ -554,7 +549,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
                 throw ParseException(__FILE__, __LINE__, "empty adapter id in proxy string '" + s + "'");
             }
 
-            return create(ident, facet, mode, secure, protocol, encoding, endpoints, adapter, propertyPrefix);
+            return create(ident, facet, mode, protocol, encoding, endpoints, adapter, propertyPrefix);
             break;
         }
         default:
@@ -596,8 +591,8 @@ IceInternal::ReferenceFactory::create(Identity ident, InputStream* s)
         throw MarshalException{__FILE__, __LINE__, "received proxy with invalid mode " + to_string(mode)};
     }
 
-    bool secure;
-    s->read(secure);
+    [[maybe_unused]] bool secure;
+    s->read(secure); // and ignored
 
     Ice::ProtocolVersion protocol;
     Ice::EncodingVersion encoding;
@@ -635,7 +630,6 @@ IceInternal::ReferenceFactory::create(Identity ident, InputStream* s)
         std::move(ident),
         std::move(facet),
         mode,
-        secure,
         protocol,
         encoding,
         std::move(endpoints),
@@ -694,7 +688,6 @@ IceInternal::ReferenceFactory::create(
     Identity ident,
     string facet,
     Reference::Mode mode,
-    bool secure,
     Ice::ProtocolVersion protocol,
     Ice::EncodingVersion encoding,
     vector<EndpointIPtr> endpoints,
@@ -721,7 +714,6 @@ IceInternal::ReferenceFactory::create(
     RouterInfoPtr routerInfo = _defaultRouter ? _instance->routerManager()->get(_defaultRouter.value()) : nullptr;
     bool collocationOptimized = defaultsAndOverrides->defaultCollocationOptimization;
     bool cacheConnection = true;
-    bool preferSecure = defaultsAndOverrides->defaultPreferSecure;
     Ice::EndpointSelectionType endpointSelection = defaultsAndOverrides->defaultEndpointSelection;
     chrono::seconds locatorCacheTimeout = defaultsAndOverrides->defaultLocatorCacheTimeout;
     chrono::milliseconds invocationTimeout = defaultsAndOverrides->defaultInvocationTimeout;
@@ -776,9 +768,6 @@ IceInternal::ReferenceFactory::create(
         property = propertyPrefix + ".ConnectionCached";
         cacheConnection = properties->getPropertyAsIntWithDefault(property, cacheConnection) > 0;
 
-        property = propertyPrefix + ".PreferSecure";
-        preferSecure = properties->getPropertyAsIntWithDefault(property, preferSecure) > 0;
-
         property = propertyPrefix + ".EndpointSelection";
         if (!properties->getProperty(property).empty())
         {
@@ -825,7 +814,6 @@ IceInternal::ReferenceFactory::create(
         std::move(ident),
         std::move(facet),
         mode,
-        secure,
         nullopt,
         protocol,
         encoding,
@@ -835,7 +823,6 @@ IceInternal::ReferenceFactory::create(
         std::move(routerInfo),
         collocationOptimized,
         cacheConnection,
-        preferSecure,
         endpointSelection,
         locatorCacheTimeout,
         invocationTimeout,

@@ -238,10 +238,7 @@ allTests(TestHelper* helper)
     test(b1->ice_isDatagram());
     b1 = communicator->stringToProxy("test -D");
     test(b1->ice_isBatchDatagram());
-    b1 = communicator->stringToProxy("test");
-    test(!b1->ice_isSecure());
-    b1 = communicator->stringToProxy("test -s");
-    test(b1->ice_isSecure());
+    b1 = communicator->stringToProxy("test -s"); // does nothing
 
     test(b1->ice_getEncodingVersion() == Ice::currentEncoding);
 
@@ -428,7 +425,7 @@ allTests(TestHelper* helper)
         b2 = b1->ice_getConnection()->createProxy(Ice::stringToIdentity("fixed"));
         string str = communicator->proxyToString(b2);
         test(b2->ice_toString() == str);
-        string str2 = b1->ice_identity(b2->ice_getIdentity())->ice_secure(b2->ice_isSecure())->ice_toString();
+        string str2 = b1->ice_identity(b2->ice_getIdentity())->ice_toString();
 
         // Verify that the stringified fixed proxy is the same as a regular stringified proxy
         // but without endpoints
@@ -494,13 +491,6 @@ allTests(TestHelper* helper)
     test(b1->ice_getRouter() && b1->ice_getRouter()->ice_getIdentity().name == "router");
     prop->setProperty(property, "");
 
-    property = propertyPrefix + ".PreferSecure";
-    test(!b1->ice_isPreferSecure());
-    prop->setProperty(property, "1");
-    b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_isPreferSecure());
-    prop->setProperty(property, "");
-
     property = propertyPrefix + ".ConnectionCached";
     test(b1->ice_isConnectionCached());
     prop->setProperty(property, "0");
@@ -554,7 +544,6 @@ allTests(TestHelper* helper)
     b1 = communicator->stringToProxy("test");
     b1 = b1->ice_collocationOptimized(true);
     b1 = b1->ice_connectionCached(true);
-    b1 = b1->ice_preferSecure(false);
     b1 = b1->ice_endpointSelection(Ice::EndpointSelectionType::Ordered);
     b1 = b1->ice_locatorCacheTimeout(100);
     b1 = b1->ice_invocationTimeout(1234);
@@ -564,7 +553,6 @@ allTests(TestHelper* helper)
     RouterPrx router(communicator, "router");
     router = router->ice_collocationOptimized(false);
     router = router->ice_connectionCached(true);
-    router = router->ice_preferSecure(true);
     router = router->ice_endpointSelection(Ice::EndpointSelectionType::Random);
     router = router->ice_locatorCacheTimeout(200);
     router = router->ice_invocationTimeout(1500);
@@ -572,7 +560,6 @@ allTests(TestHelper* helper)
     LocatorPrx locator(communicator, "locator");
     locator = locator->ice_collocationOptimized(true);
     locator = locator->ice_connectionCached(false);
-    locator = locator->ice_preferSecure(true);
     locator = locator->ice_endpointSelection(Ice::EndpointSelectionType::Random);
     locator = locator->ice_locatorCacheTimeout(300);
     locator = locator->ice_invocationTimeout(1500);
@@ -581,12 +568,11 @@ allTests(TestHelper* helper)
     b1 = b1->ice_locator(locator);
 
     Ice::PropertyDict proxyProps = communicator->proxyToProperty(b1, "Test");
-    test(proxyProps.size() == 21);
+    test(proxyProps.size() == 18);
 
     test(proxyProps["Test"] == "test -e 1.0");
     test(proxyProps["Test.CollocationOptimized"] == "1");
     test(proxyProps["Test.ConnectionCached"] == "1");
-    test(proxyProps["Test.PreferSecure"] == "0");
     test(proxyProps["Test.EndpointSelection"] == "Ordered");
     test(proxyProps["Test.LocatorCacheTimeout"] == "100");
     test(proxyProps["Test.InvocationTimeout"] == "1234");
@@ -595,7 +581,6 @@ allTests(TestHelper* helper)
     // Locator collocation optimization is always disabled.
     // test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
     test(proxyProps["Test.Locator.ConnectionCached"] == "0");
-    test(proxyProps["Test.Locator.PreferSecure"] == "1");
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random");
     test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
     test(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
@@ -603,7 +588,6 @@ allTests(TestHelper* helper)
     test(proxyProps["Test.Locator.Router"] == "router");
     test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
     test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
-    test(proxyProps["Test.Locator.Router.PreferSecure"] == "1");
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
     test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200");
     test(proxyProps["Test.Locator.Router.InvocationTimeout"] == "1500");
@@ -626,12 +610,8 @@ allTests(TestHelper* helper)
     test(base->ice_batchOneway()->ice_isBatchOneway());
     test(base->ice_datagram()->ice_isDatagram());
     test(base->ice_batchDatagram()->ice_isBatchDatagram());
-    test(base->ice_secure(true)->ice_isSecure());
-    test(!base->ice_secure(false)->ice_isSecure());
     test(base->ice_collocationOptimized(true)->ice_isCollocationOptimized());
     test(!base->ice_collocationOptimized(false)->ice_isCollocationOptimized());
-    test(base->ice_preferSecure(true)->ice_isPreferSecure());
-    test(!base->ice_preferSecure(false)->ice_isPreferSecure());
     test(base->ice_encodingVersion(Ice::Encoding_1_0)->ice_getEncodingVersion() == Ice::Encoding_1_0);
     test(base->ice_encodingVersion(Ice::Encoding_1_1)->ice_getEncodingVersion() == Ice::Encoding_1_1);
     test(base->ice_encodingVersion(Ice::Encoding_1_0)->ice_getEncodingVersion() != Ice::Encoding_1_1);
@@ -672,11 +652,6 @@ allTests(TestHelper* helper)
     test(compObj->ice_oneway() != compObj->ice_twoway());
     test(compObj->ice_twoway() < compObj->ice_oneway());
     test(compObj->ice_oneway() >= compObj->ice_twoway());
-
-    test(compObj->ice_secure(true) == compObj->ice_secure(true));
-    test(compObj->ice_secure(false) != compObj->ice_secure(true));
-    test(compObj->ice_secure(false) < compObj->ice_secure(true));
-    test(compObj->ice_secure(true) >= compObj->ice_secure(false));
 
     test(compObj->ice_collocationOptimized(true) == compObj->ice_collocationOptimized(true));
     test(compObj->ice_collocationOptimized(false) != compObj->ice_collocationOptimized(true));
@@ -755,11 +730,6 @@ allTests(TestHelper* helper)
     test(compObj->ice_context(ctx1) != compObj->ice_context(ctx2));
     test(compObj->ice_context(ctx1) < compObj->ice_context(ctx2));
     test(compObj->ice_context(ctx2) >= compObj->ice_context(ctx1));
-
-    test(compObj->ice_preferSecure(true) == compObj->ice_preferSecure(true));
-    test(compObj->ice_preferSecure(true) != compObj->ice_preferSecure(false));
-    test((compObj->ice_preferSecure(false) < compObj->ice_preferSecure(true)));
-    test((compObj->ice_preferSecure(true) >= compObj->ice_preferSecure(false)));
 
     auto compObj1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
     auto compObj2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");
@@ -883,7 +853,6 @@ allTests(TestHelper* helper)
                 MyClassPrx prx = cl->ice_fixed(connection); // Test factory method return type
                 test(prx->ice_isFixed());
                 prx->ice_ping();
-                test(cl->ice_secure(true)->ice_fixed(connection)->ice_isSecure());
                 test(cl->ice_facet("facet")->ice_fixed(connection)->ice_getFacet() == "facet");
                 test(cl->ice_oneway()->ice_fixed(connection)->ice_isOneway());
                 ctx.clear();
@@ -898,13 +867,6 @@ allTests(TestHelper* helper)
                 test(*cl->ice_compress(true)->ice_fixed(connection)->ice_getCompress());
                 Ice::ConnectionPtr fixedConnection = cl->ice_connectionId("ice_fixed")->ice_getConnection();
                 test(cl->ice_fixed(connection)->ice_fixed(fixedConnection)->ice_getConnection() == fixedConnection);
-                try
-                {
-                    cl->ice_secure(!connection->getEndpoint()->getInfo()->secure())->ice_fixed(connection)->ice_ping();
-                }
-                catch (const Ice::NoEndpointException&)
-                {
-                }
                 try
                 {
                     cl->ice_datagram()->ice_fixed(connection)->ice_ping();

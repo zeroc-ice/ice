@@ -130,8 +130,7 @@ public final class Communicator implements AutoCloseable {
      * Converts a set of proxy properties into a proxy. The "base" name supplied in the {@code
      * prefix} argument refers to a property containing a stringified proxy, such as {@code
      * MyProxy=id:tcp -h localhost -p 10000}. Additional properties configure local settings
-     * for the proxy, such as {@code MyProxy.PreferSecure=1}. The "Properties" appendix in the
-     * Ice manual describes each of the supported proxy properties.
+     * for the proxy.
      *
      * @param prefix The base property name.
      * @return The proxy, or null if the property is not set.

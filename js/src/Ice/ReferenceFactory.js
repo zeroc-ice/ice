@@ -38,7 +38,6 @@ export class ReferenceFactory {
             ident,
             facet,
             template.getMode(),
-            template.getSecure(),
             template.getProtocol(),
             template.getEncoding(),
             endpoints,
@@ -61,7 +60,6 @@ export class ReferenceFactory {
             ident,
             "", // Facet
             fixedConnection.endpoint().datagram() ? ReferenceMode.ModeDatagram : ReferenceMode.ModeTwoway,
-            fixedConnection.endpoint().secure(),
             Protocol_1_0,
             this._instance.defaultsAndOverrides().defaultEncoding,
             fixedConnection,
@@ -143,7 +141,6 @@ export class ReferenceFactory {
 
         let facet = "";
         let mode = ReferenceMode.ModeTwoway;
-        let secure = false;
         let encoding = this._instance.defaultsAndOverrides().defaultEncoding;
         let protocol = Protocol_1_0;
         let adapter = "";
@@ -263,7 +260,7 @@ export class ReferenceFactory {
                     if (argument !== null) {
                         throw new ParseException(`unexpected argument '${argument}' provided for -s option in '${s}'`);
                     }
-                    secure = true;
+                    // Ignored. Kept for backwards compatibility.
                     break;
                 }
 
@@ -302,7 +299,7 @@ export class ReferenceFactory {
         }
 
         if (beg === -1) {
-            return this.createImpl(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
+            return this.createImpl(ident, facet, mode, protocol, encoding, null, null, propertyPrefix);
         }
 
         const endpoints = [];
@@ -370,7 +367,7 @@ export class ReferenceFactory {
                 this._instance.initializationData().logger.warning(msg.join(""));
             }
 
-            return this.createImpl(ident, facet, mode, secure, protocol, encoding, endpoints, null, propertyPrefix);
+            return this.createImpl(ident, facet, mode, protocol, encoding, endpoints, null, propertyPrefix);
         } else if (s.charAt(beg) == "@") {
             beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
             if (beg == -1) {
@@ -405,7 +402,7 @@ export class ReferenceFactory {
             if (adapter.length === 0) {
                 throw new ParseException(`empty adapter id in '${s}'`);
             }
-            return this.createImpl(ident, facet, mode, secure, protocol, encoding, null, adapter, propertyPrefix);
+            return this.createImpl(ident, facet, mode, protocol, encoding, null, adapter, propertyPrefix);
         }
 
         throw new ParseException(`malformed proxy '${s}'`);
@@ -440,7 +437,7 @@ export class ReferenceFactory {
             throw new MarshalException(`Received invalid proxy mode ${mode}`);
         }
 
-        const secure = s.readBool();
+        s.readBool(); // ignore secure field (unused)
 
         let protocol = null;
         let encoding = null;
@@ -467,7 +464,7 @@ export class ReferenceFactory {
             adapterId = s.readString();
         }
 
-        return this.createImpl(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, null);
+        return this.createImpl(ident, facet, mode, protocol, encoding, endpoints, adapterId, null);
     }
 
     setDefaultRouter(defaultRouter) {
@@ -500,7 +497,7 @@ export class ReferenceFactory {
         return this._defaultLocator;
     }
 
-    createImpl(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, propertyPrefix) {
+    createImpl(ident, facet, mode, protocol, encoding, endpoints, adapterId, propertyPrefix) {
         const defaultsAndOverrides = this._instance.defaultsAndOverrides();
 
         //
@@ -516,7 +513,6 @@ export class ReferenceFactory {
         }
         let routerInfo = this._instance.routerManager().find(this._defaultRouter);
         let cacheConnection = true;
-        let preferSecure = defaultsAndOverrides.defaultPreferSecure;
         let endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
         let locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
         let invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
@@ -560,9 +556,6 @@ export class ReferenceFactory {
 
             property = propertyPrefix + ".ConnectionCached";
             cacheConnection = properties.getPropertyAsIntWithDefault(property, cacheConnection ? 1 : 0) > 0;
-
-            property = propertyPrefix + ".PreferSecure";
-            preferSecure = properties.getPropertyAsIntWithDefault(property, preferSecure ? 1 : 0) > 0;
 
             property = propertyPrefix + ".EndpointSelection";
             if (properties.getProperty(property).length > 0) {
@@ -631,7 +624,6 @@ export class ReferenceFactory {
             ident,
             facet,
             mode,
-            secure,
             protocol,
             encoding,
             endpoints,
@@ -639,7 +631,6 @@ export class ReferenceFactory {
             locatorInfo,
             routerInfo,
             cacheConnection,
-            preferSecure,
             endpointSelection,
             locatorCacheTimeout,
             invocationTimeout,
