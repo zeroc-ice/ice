@@ -3137,7 +3137,6 @@ namespace
                "--depend                 Generate Makefile dependencies.\n"
                "--depend-xml             Generate dependencies in XML format.\n"
                "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
-               "--no-package             Do not generate Python package hierarchy.\n"
                "--build                  modules|index|all\n"
                "\n"
                "    Controls which types of Python files are generated from the Slice definitions.\n"

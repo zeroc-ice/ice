@@ -75,7 +75,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   `Ice.Connection.Server.InactivityTimeout` (for server connections). The unit for this timeout is seconds. You
   can also override this value for a specific object adapter with the configuration property
   `AdapterName.Connection.InactivityTimeout`.\
-  Note: make sure your inactivity timeout is greater than your idle timeout, as the implementation of the inactivity
+  Make sure your inactivity timeout is greater than your idle timeout, as the implementation of the inactivity
   timeout relies on a smaller idle timeout value. If you disable your idle timeout by setting it to 0 or very large
   value (not something we recommend), you will effectively disable your inactivity timeout as well.
   - Connect timeout\
@@ -106,6 +106,8 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   connections). You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.MaxDispatches`.
   When the limit is reached, Ice stops reading from the connection, which applies back pressure on the peer.
+  The JavaScript mapping doesn't implement max dispatches because the WebSocket APIs doesn't provide a mechanism to stop
+  reading and apply back pressure.
   - Max connections\
   The property _adapter_.MaxConnections limits the number of incoming connections accepted by an object adapter. The
   default is 0, which means no limit.
@@ -404,7 +406,8 @@ classDiagram
   Ice 3.7. It includes the Slice tools for C++ and no longer requires the `zeroc.icebuilder.msbuild` package.
   Additionally, it provides CMake support files in the cmake directory.
 
-- The `slice2js` Slice compiler is now included in the `@zeroc/ice` NPM package.
+- The `ice` NPM package has been converted to an scoped package named `@zeroc/ice` and includes the `slice2js` Slice
+  compiler for Linux, macOS and Windows.
 
 ### Slice Language Changes
 
@@ -449,7 +452,7 @@ classDiagram
   module Foo::Bar::Baz { /*...*/ }
   ```
 
-  Note: metadata cannot be applied to modules using this syntax, since it's ambiguous which module it would apply to.
+  Metadata cannot be applied to modules using this syntax, since it's ambiguous which module it would apply to.
 
 - Added support for triple-slash doc-comments, in addition to the already supported JavaDoc comment syntax.
   For example, the following two definitions are equivalent:
@@ -705,7 +708,8 @@ See `InitializationData::pluginFactories`.
 invocation made from an Ice thread pool thread executes in a .NET thread pool thread; previously, this continuation
 was executed in a thread managed by the same Ice thread pool unless you specified `.ConfigureAwait(false)`.
 
-- The `cs:attribute` Slice metadata is now limited to enums, enumerators, fields, and constants.
+- The `cs:attribute` Slice metadata is now limited to enums, enumerators, fields, and constants. For other constructs you
+  can define custom attributes using C# partial class, struct or interface.
 
 - Replaced the `Ice.Util.registerPluginFactory` mechanism by plug-in factories on InitializationData. The corresponding
 plug-ins are created during communicator initialization. See `InitializationData.pluginFactories`.
@@ -763,8 +767,6 @@ initialization. See `InitializationData.pluginFactories`.
   graph of Slice class instances.
 
 ### JavaScript Changes
-
-- The Ice for JavaScript NPM package has been converted to a scoped package named `@zeroc/ice`.
 
 - Added support for `Symbol.asyncDispose` on `Ice.Communicator`. TypeScript applications can now use the communicator in
   `await using` expressions.
@@ -862,9 +864,19 @@ initialization. See `InitializationData.pluginFactories`.
 
 - Upgrade to Python 3.12.
 
-- Added `Ice.EventLoopAdapter` for async event loop integration. This adapter enables integration of Ice with the
-  application’s event loop, eliminates the need for manual use of `Ice.wrap_future`, and supports alternative event
-  loops beyond the default asyncio loop.
+- Added `Ice.EventLoopAdapter` for async event loop integration. This adapter integrates Ice asynchronous methods with
+  the event loop of your choice. With it:
+
+  - Asynchronous proxy invocations return an awaitable that can be awaited directly in the chosen event loop.
+    There is no longer a need to wrap the returned future to run in your event loop.
+
+  - The same applies to other asynchronous methods in the Ice API: the returned awaitable always uses the event loop
+    adapter to ensure it can be correctly awaited in the selected event loop.
+
+  - Asynchronous dispatch methods can be implemented as async methods that run in that event loop.
+
+  Ice includes a built-in adapter for Python’s asyncio, and the same mechanism can be extended to support other event
+  loop systems.
 
 - Added async context manager support to `Ice.Communicator`. You can now use the communicator in `async with`
   expressions.
