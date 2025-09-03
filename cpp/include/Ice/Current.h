@@ -40,7 +40,7 @@ namespace Ice
         /// The request ID. `0` means the request is one-way.
         int requestId;
 
-        /// The Ice encoding version used to marshal the payload of the request.
+        /// The Slice encoding version used to marshal the payload of the request.
         EncodingVersion encoding;
     };
 

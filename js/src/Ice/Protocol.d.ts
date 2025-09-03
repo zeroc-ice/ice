@@ -28,7 +28,7 @@ declare module "@zeroc/ice" {
             static readonly magic: Uint8Array;
 
             //
-            // The current Ice protocol and encoding version
+            // The current Ice protocol and Slice encoding version
             //
             static readonly protocolMajor: number;
             static readonly protocolMinor: number;

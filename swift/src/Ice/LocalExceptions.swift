@@ -3,8 +3,7 @@
 // This file contains all the exception classes derived from LocalException defined in the Ice module.
 
 //
-// The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
-// message. Other local exceptions can't be marshaled.
+// Dispatch exceptions
 //
 
 /// The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the

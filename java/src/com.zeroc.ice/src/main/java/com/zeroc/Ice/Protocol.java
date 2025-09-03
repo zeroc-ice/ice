@@ -23,7 +23,7 @@ final class Protocol {
     public static final byte[] magic = {0x49, 0x63, 0x65, 0x50}; // 'I', 'c', 'e', 'P'
 
     //
-    // The current Ice protocol and encoding version
+    // The current Ice protocol and Slice encoding version
     //
     public static final byte protocolMajor = 1;
     public static final byte protocolMinor = 0;

@@ -24,7 +24,7 @@ public sealed class Protocol
     internal static readonly byte[] magic = new byte[] { 0x49, 0x63, 0x65, 0x50 }; // 'I', 'c', 'e', 'P'
 
     //
-    // The current Ice protocol and encoding version
+    // The current Ice protocol and Slice encoding version
     //
     internal const byte protocolMajor = 1;
     internal const byte protocolMinor = 0;

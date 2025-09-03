@@ -483,9 +483,9 @@ public final class Util {
     }
 
     /**
-     * Returns the supported Ice encoding version.
+     * Returns the supported Slice encoding version.
      *
-     * @return The Ice encoding version.
+     * @return The Slice encoding version.
      */
     public static EncodingVersion currentEncoding() {
         return Protocol.currentEncoding.clone();

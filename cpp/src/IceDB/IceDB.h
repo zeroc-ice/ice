@@ -332,7 +332,7 @@ namespace IceDB
     };
 
     //
-    // Partial specialization of Codec for Ice encoding
+    // Partial specialization of Codec for Slice encoding
     //
     struct IceContext
     {
