@@ -2,9 +2,9 @@
 
 declare module "@zeroc/ice" {
     namespace Ice {
-        ///
-        /// Dispatch exceptions
-        ///
+        //
+        // Dispatch exceptions
+        //
 
         /**
          * The dispatch failed. This is the base class for local exceptions that can be marshaled and
