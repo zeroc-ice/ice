@@ -15,7 +15,7 @@
 
 [["js:module:@zeroc/ice"]]
 
-/// Full-featured RPC framework.
+/// The Ice RPC framework.
 ["java:identifier:com.zeroc.Ice"]
 module Ice
 {
