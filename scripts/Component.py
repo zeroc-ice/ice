@@ -137,7 +137,7 @@ class Ice(Util.Component):
         return False  # By default, tests support being run concurrently
 
     def getDefaultProcesses(self, mapping, processType, testId):
-        if testId.startswith("IceUtil") or testId.startswith("Slice"):
+        if testId.startswith("IceUtil"):
             return [Util.SimpleClient()]
         elif testId.startswith("IceGrid"):
             if processType in ["client", "collocated"]:
