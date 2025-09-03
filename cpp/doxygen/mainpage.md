@@ -14,10 +14,6 @@ The C++ demos help you get started with Ice, and showcase the most important Ice
 
 #### Tag file
 
-[Ice C++ tag file]
-
-Use this tag file to include links to this C++ API reference from your own Doxygen C++ API reference.
-
 [icepp.tag]
 
 Use this tag file to include links to this C++ API reference from your own Doxygen C++ API reference.
