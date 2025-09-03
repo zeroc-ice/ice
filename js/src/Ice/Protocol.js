@@ -32,7 +32,7 @@ Protocol.headerSize = 14;
 Protocol.magic = new Uint8Array([0x49, 0x63, 0x65, 0x50]);
 
 //
-// The current Ice protocol and encoding version
+// The current Ice protocol and Slice encoding version
 //
 Protocol.protocolMajor = 1;
 Protocol.protocolMinor = 0;

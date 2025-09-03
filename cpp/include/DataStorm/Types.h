@@ -148,7 +148,7 @@ namespace DataStorm
 
     /// The Encoder template provides a method to encode decode user types.
     /// The encoder template can be specialized to provide encoding for types that don't support being encoded with
-    /// Ice. By default, the Ice encoding is used if no Encoder template specialization is provided for the type.
+    /// Ice. By default, the Slice encoding is used if no Encoder template specialization is provided for the type.
     /// @headerfile DataStorm/DataStorm.h
     template<typename T, typename Enabler = void> struct Encoder
     {

@@ -75,7 +75,7 @@ public abstract class Reference implements Cloneable {
     }
 
     /**
-     * Gets the Ice encoding version for this reference.
+     * Gets the Slice encoding version for this reference.
      *
      * @return the encoding version
      */

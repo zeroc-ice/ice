@@ -5,8 +5,7 @@
 
 module Ice
     #
-    # The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
-    # reply message. Other local exceptions can't be marshaled.
+    # Dispatch exceptions
     #
 
     class DispatchException < LocalException

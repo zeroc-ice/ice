@@ -7,7 +7,7 @@
 
 namespace Ice
 {
-    /// Specifies the format for marshaling classes and exceptions with the Ice 1.1 encoding.
+    /// Specifies the format for marshaling classes and exceptions with the Slice 1.1 encoding.
     enum class FormatType : std::uint8_t
     {
         /// Favors compactness, but does not support slicing-off unknown slices during unmarshaling.

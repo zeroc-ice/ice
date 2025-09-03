@@ -25,7 +25,7 @@ import java.util.OptionalLong;
 import java.util.TreeMap;
 
 /**
- * Interface to marshal (write) Slice types into sequence of bytes encoded using the Ice encoding.
+ * Interface to marshal (write) Slice types into sequence of bytes encoded using the Slice encoding.
  *
  * @see InputStream
  */
