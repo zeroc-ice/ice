@@ -962,6 +962,20 @@ initialization. See `InitializationData.pluginFactories`.
   For example, `["python:memoryview:CustomFactory.myByteSeq:array.array"]` indicates that the factory function
   will return an `array.array`.
 
+- The `Ice.loadSlice` function for dynamically loading Slice files at run time now accepts only a list of compiler
+  arguments (strings). Previously, it accepted both a command string and an optional list of arguments (which served
+  the same purpose). This has been simplified to require a single list of strings.
+
+  ```python
+  # Old syntax (no longer supported)
+  Ice.loadSlice("-I. Foo.ice")
+  Ice.loadSlice("-I.", ["Foo.ice"])
+  Ice.loadSlice("", ["-I.", "Foo.ice"])
+
+  # New syntax
+  Ice.loadSlice(["-I.", "Foo.ice"])
+  ```
+
 ### Ruby Changes
 
 - There are no Ruby-specific updates in this release. Nevertheless, we made many updates to Ice for Ruby: see

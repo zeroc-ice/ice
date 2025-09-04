@@ -9,7 +9,7 @@ from typing import override
 from TestHelper import TestHelper
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test.ice")
+    TestHelper.loadSlice(["Test.ice"])
 
 from generated.test.Ice.scope import Test
 from generated.test.Ice.scope.Inner.Test import Inner2 as Inner_Test_Inner2

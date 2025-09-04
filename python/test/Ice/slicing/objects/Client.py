@@ -7,7 +7,7 @@ import sys
 from TestHelper import TestHelper
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test.ice ClientPrivate.ice")
+    TestHelper.loadSlice(["Test.ice", "ClientPrivate.ice"])
 
 import AllTests
 import Ice

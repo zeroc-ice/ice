@@ -8,7 +8,7 @@ from typing import override
 from TestHelper import TestHelper
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test.ice")
+    TestHelper.loadSlice(["Test.ice"])
 
 from generated.test.Ice.location import Test
 

@@ -8,7 +8,7 @@ from TestHelper import TestHelper, test
 import Ice
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test.ice")
+    TestHelper.loadSlice(["Test.ice"])
 
 from generated.test.Ice.custom import Test
 
@@ -352,7 +352,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
         import numpy
 
         if "--load-slice" in sys.argv:
-            TestHelper.loadSlice("TestNumPy.ice")
+            TestHelper.loadSlice(["TestNumPy.ice"])
 
         from generated.test.Ice.custom.Test import NumPy
 
