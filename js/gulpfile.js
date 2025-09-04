@@ -141,6 +141,7 @@ const tests = [
     "test/Glacier2/router",
     "test/Slice/escape",
     "test/Slice/macros",
+    "test/Slice/moduleMapping",
 ];
 
 gulp.task("test:common:generate", cb => {
