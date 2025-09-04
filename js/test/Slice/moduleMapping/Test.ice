@@ -19,7 +19,6 @@ module foo
         };
     }
 
-
     ["js:identifier:max_"]
     module max
     {
