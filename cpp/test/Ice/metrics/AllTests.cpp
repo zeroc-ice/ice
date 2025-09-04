@@ -399,7 +399,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     UpdateCallbackIPtr update = make_shared<UpdateCallbackI>(serverProps);
 
-    dynamic_pointer_cast<Ice::NativePropertiesAdmin>(communicator->findAdminFacet("Properties"))
+    communicator->findAdminFacet<Ice::NativePropertiesAdmin>("Properties")
         ->addUpdateCallback([update](const Ice::PropertyDict& changes) { update->updated(changes); });
 
     cout << "ok" << endl;

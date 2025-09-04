@@ -264,12 +264,6 @@ Ice::Communicator::getPluginManager() const
     return _instance->pluginManager();
 }
 
-void
-Ice::Communicator::postToClientThreadPool(function<void()> call)
-{
-    _instance->clientThreadPool()->execute(std::move(call), nullptr);
-}
-
 std::function<void()>
 Ice::Communicator::flushBatchRequestsAsync(
     CompressBatch compress,
@@ -319,7 +313,7 @@ Ice::Communicator::removeAdminFacet(string_view facet)
 }
 
 ObjectPtr
-Ice::Communicator::findAdminFacet(string_view facet)
+Ice::Communicator::_findAdminFacet(string_view facet)
 {
     return _instance->findAdminFacet(facet);
 }

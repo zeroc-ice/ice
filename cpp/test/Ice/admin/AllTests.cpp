@@ -27,9 +27,9 @@ testFacets(const CommunicatorPtr& com, bool builtInFacets = true)
     com->addAdminFacet(f2, "Facet2");
     com->addAdminFacet(f3, "Facet3");
 
-    test(ObjectPtr(com->findAdminFacet("Facet1")) == f1);
-    test(ObjectPtr(com->findAdminFacet("Facet2")) == f2);
-    test(ObjectPtr(com->findAdminFacet("Facet3")) == f3);
+    test(com->findAdminFacet<TestFacetI>("Facet1") == f1);
+    test(com->findAdminFacet<TestFacetI>("Facet2") == f2);
+    test(com->findAdminFacet<TestFacetI>("Facet3") == f3);
     test(!com->findAdminFacet("Bogus"));
 
     const FacetMap facetMap = com->findAllAdminFacets();
