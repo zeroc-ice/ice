@@ -935,20 +935,40 @@ Slice::Gen::ExportsVisitor::visitModuleStart(const ModulePtr& p)
     const string scoped = p->mappedScoped(".");
     if (_exportedModules.insert(scoped).second)
     {
+        const string scope = p->mappedScope(".");
+        const string name = p->mappedName();
+
+        vector<string> subs;
+        IceInternal::splitString(string_view{name}, ".", subs);
+        const string top = subs.empty() ? name : subs[0];
+        string prefix = scope + top;
+
+        _out << nl;
+
         if (p->isTopLevel())
         {
             if (_importedModules.find(scoped) == _importedModules.end())
             {
-                _out << nl << "export const " << scoped << " = {};";
+                // declare and export
+                _out << "export const " << prefix << " = {};";
             }
             else
             {
-                _out << nl << "export { " << scoped << " };";
+                // re-export only
+                _out << "export { " << prefix << " };";
             }
         }
         else
         {
-            _out << nl << scoped << " = " << scoped << " || {};";
+            // nested module init (no export)
+            _out << prefix << " = " << prefix << " || {};";
+        }
+
+        // initialize nested levels for remapped modules if any
+        for (size_t i = 1; i < subs.size(); ++i)
+        {
+            prefix += "." + subs[i];
+            _out << nl << prefix << " = " << prefix << " || {};";
         }
     }
     return true;
