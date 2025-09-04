@@ -313,17 +313,19 @@ namespace Ice
         ObjectPtr removeAdminFacet(std::string_view facet);
 
         /// Returns a facet of the Admin object.
+        /// @tparam T The type of the facet to return.
         /// @param facet The name of the Admin facet.
         /// @return The servant associated with this Admin facet, or null if no facet is registered with the given name.
-        ObjectPtr findAdminFacet(std::string_view facet);
+        template<typename T = Object, std::enable_if_t<std::is_base_of_v<Object, T>, bool> = true>
+        std::shared_ptr<T> findAdminFacet(std::string_view facet)
+        {
+            return std::dynamic_pointer_cast<T>(_findAdminFacet(facet));
+        }
 
         /// Returns a map of all facets of the Admin object.
         /// @return A collection containing all the facet names and servants of the Admin object.
         /// @see #findAdminFacet
         FacetMap findAllAdminFacets();
-
-        /// @private
-        void postToClientThreadPool(std::function<void()> call);
 
     private:
         Communicator() = default;
@@ -335,6 +337,7 @@ namespace Ice
 
         [[nodiscard]] IceInternal::ReferencePtr _stringToProxy(std::string_view str) const;
         [[nodiscard]] IceInternal::ReferencePtr _propertyToProxy(std::string_view property) const;
+        [[nodiscard]] ObjectPtr _findAdminFacet(std::string_view facet);
 
         /// @cond INTERNAL
         friend ICE_API_FRIEND CommunicatorPtr initialize(int&, const char*[], InitializationData);

@@ -62,11 +62,9 @@ RemoteCommunicatorI::addUpdateCallback()
 {
     lock_guard lock(_mutex);
 
-    ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
-    if (propFacet)
+    auto admin = _communicator->findAdminFacet<NativePropertiesAdmin>("Properties");
+    if (admin)
     {
-        NativePropertiesAdminPtr admin = dynamic_pointer_cast<NativePropertiesAdmin>(propFacet);
-        assert(admin);
         _removeCallback = admin->addUpdateCallback([this](const PropertyDict& changes) { updated(changes); });
     }
 }
@@ -82,11 +80,9 @@ RemoteCommunicatorI::removeUpdateCallback(const Current&)
 {
     lock_guard lock(_mutex);
 
-    ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
-    if (propFacet)
+    auto admin = _communicator->findAdminFacet<NativePropertiesAdmin>("Properties");
+    if (admin)
     {
-        NativePropertiesAdminPtr admin = dynamic_pointer_cast<NativePropertiesAdmin>(propFacet);
-        assert(admin);
         if (_removeCallback)
         {
             _removeCallback();
