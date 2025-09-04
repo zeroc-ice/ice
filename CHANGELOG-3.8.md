@@ -406,7 +406,7 @@ classDiagram
   Ice 3.7. It includes the Slice tools for C++ and no longer requires the `zeroc.icebuilder.msbuild` package.
   Additionally, it provides CMake support files in the cmake directory.
 
-- The `ice` NPM package has been converted to an scoped package named `@zeroc/ice` and includes the `slice2js` Slice
+- The `ice` NPM package has been converted into a scoped package named `@zeroc/ice` and also includes the `slice2js` Slice
   compiler for Linux, macOS and Windows.
 
 ### Slice Language Changes
