@@ -2,8 +2,7 @@
 # Copyright (c) ZeroC, Inc.
 
 require 'Ice'
-Ice::loadSlice('Key.ice')
-Ice::loadSlice('Clash.ice')
+Ice::loadSlice(['Key.ice', 'Clash.ice'])
 
 class Client < ::TestHelper
     def run(args)

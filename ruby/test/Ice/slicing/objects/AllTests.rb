@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
 require 'Ice'
-Ice::loadSlice('-I. --all ClientPrivate.ice')
+Ice::loadSlice(['-I.', '--all', 'ClientPrivate.ice'])
 
 def allTests(helper, communicator)
     t = Test::TestIntfPrx.new(communicator, "Test:#{helper.getTestEndpoint()}")

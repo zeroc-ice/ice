@@ -2,9 +2,7 @@
 # Copyright (c) ZeroC, Inc.
 
 require 'Ice'
-Ice::loadSlice('Test.ice')
-Ice::loadSlice('Forward.ice')
-Ice::loadSlice('ClientPrivate.ice')
+Ice::loadSlice(["Test.ice", "Forward.ice", "ClientPrivate.ice"])
 require './AllTests'
 require './TestI.rb'
 

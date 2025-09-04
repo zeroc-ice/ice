@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc.
 
 require 'Ice'
-Ice::loadSlice("'-I#{Ice.getSliceDir()}' Test.ice")
+Ice::loadSlice(["-I#{Ice.getSliceDir()}", "Test.ice"])
 require './AllTests'
 
 class Client < ::TestHelper

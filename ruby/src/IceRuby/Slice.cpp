@@ -18,32 +18,15 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {
-        if (argc < 1 || argc > 2)
+        if (argc != 1)
         {
             throw RubyException(rb_eArgError, "wrong number of arguments");
         }
 
-        string cmd = getString(argv[0]);
         vector<string> argSeq;
-        try
+        if (!arrayToStringSeq(argv[0], argSeq))
         {
-            argSeq = IceInternal::Options::split(cmd);
-        }
-        catch (const IceInternal::BadOptException& ex)
-        {
-            throw RubyException(rb_eArgError, "error in Slice options: %s", ex.what());
-        }
-        catch (const IceInternal::APIException& ex)
-        {
-            throw RubyException(rb_eArgError, "error in Slice options: %s", ex.what());
-        }
-
-        if (argc > 1)
-        {
-            if (!arrayToStringSeq(argv[1], argSeq))
-            {
-                throw RubyException(rb_eTypeError, "argument 2 is not an array");
-            }
+            throw RubyException(rb_eTypeError, "argument 1 is not an array");
         }
 
         IceInternal::Options opts;
@@ -60,7 +43,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
             files = opts.parse(argSeq);
             if (files.empty())
             {
-                throw RubyException(rb_eArgError, "no Slice files specified in `%s'", cmd.c_str());
+                throw RubyException(rb_eArgError, "no Slice files specified");
             }
         }
         catch (const IceInternal::BadOptException& ex)
@@ -115,7 +98,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
 
                 if (preprocessedHandle == 0)
                 {
-                    throw RubyException(rb_eArgError, "Slice preprocessing failed for `%s'", cmd.c_str());
+                    throw RubyException(rb_eArgError, "Slice preprocessing failed");
                 }
 
                 unit = Unit::createUnit("ruby", all);
@@ -126,7 +109,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
                 if (parseStatus == EXIT_FAILURE)
                 {
                     unit->destroy();
-                    throw RubyException(rb_eArgError, "Slice parsing failed for `%s'", cmd.c_str());
+                    throw RubyException(rb_eArgError, "Slice parsing failed");
                 }
 
                 //
@@ -142,7 +125,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
                 Slice::Ruby::generate(unit, all, includePaths, out);
                 if (unit->getStatus() == EXIT_FAILURE)
                 {
-                    throw RubyException(rb_eArgError, "Slice validation failed for `%s'", cmd.c_str());
+                    throw RubyException(rb_eArgError, "Slice validation failed");
                 }
                 unit->destroy();
 
