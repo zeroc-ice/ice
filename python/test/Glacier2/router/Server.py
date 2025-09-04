@@ -8,7 +8,7 @@ from typing import override
 from TestHelper import TestHelper
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Callback.ice")
+    TestHelper.loadSlice(["Callback.ice"])
 
 from generated.test.Glacier2.router import Test
 

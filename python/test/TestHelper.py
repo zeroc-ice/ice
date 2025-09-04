@@ -95,12 +95,13 @@ class TestHelper(ABC):
     def run(self, args: list[str]) -> None: ...
 
     @staticmethod
-    def loadSlice(args: str) -> None:
+    def loadSlice(args: [str]) -> None:
         sliceDir = Ice.getSliceDir()
         if not sliceDir:
             print(sys.argv[0] + ": Slice directory not found.")
             sys.exit(1)
-        Ice.loadSlice(f"'-I{sliceDir}' {args}")
+        args.insert(0, f"-I{sliceDir}")
+        Ice.loadSlice(args)
 
     @classmethod
     def runTest(cls) -> int:

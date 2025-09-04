@@ -7,7 +7,7 @@ import sys
 from TestHelper import TestHelper, test
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test.ice")
+    TestHelper.loadSlice(["Test.ice"])
 
 from generated.test.Slice.macros import Test
 

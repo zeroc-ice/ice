@@ -8,7 +8,7 @@ import sys
 from TestHelper import TestHelper
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test.ice")
+    TestHelper.loadSlice(["Test.ice"])
 
 from generated.test.Ice.faultTolerance import Test
 

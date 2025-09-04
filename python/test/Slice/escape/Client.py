@@ -8,7 +8,7 @@ from typing import override
 from TestHelper import TestHelper
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Key.ice Clash.ice")
+    TestHelper.loadSlice(["Key.ice", "Clash.ice"])
 
 from generated.test.Slice.escape.Test import Sequence, SequencePrx, escaped_and
 
