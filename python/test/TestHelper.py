@@ -95,7 +95,7 @@ class TestHelper(ABC):
     def run(self, args: list[str]) -> None: ...
 
     @staticmethod
-    def loadSlice(args: [str]) -> None:
+    def loadSlice(args: list[str]) -> None:
         sliceDir = Ice.getSliceDir()
         if not sliceDir:
             print(sys.argv[0] + ": Slice directory not found.")
