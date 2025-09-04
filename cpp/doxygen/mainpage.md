@@ -14,11 +14,11 @@ The C++ demos help you get started with Ice, and showcase the most important Ice
 
 #### Tag file
 
-[icepp.tag]
+[icecpp.tag]
 
 Use this tag file to include links to this C++ API reference from your own Doxygen C++ API reference.
 
-[icepp.tag]: ../icepp.tag
+[icecpp.tag]: ../icecpp.tag
 [zeroc-ice/ice]: https://github.com/zeroc-ice/ice
 [C++ demos on GitHub]: https://github.com/zeroc-ice/ice-demos/tree/main/cpp
 [Ice Manual]: https://docs.zeroc.com
