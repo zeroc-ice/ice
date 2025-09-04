@@ -9,7 +9,7 @@ from typing import override
 from TestHelper import TestHelper, test
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test.ice")
+    TestHelper.loadSlice(["Test.ice"])
 
 import array
 
@@ -156,7 +156,7 @@ try:
     hasNumPy = True
 
     if "--load-slice" in sys.argv:
-        TestHelper.loadSlice("TestNumPy.ice")
+        TestHelper.loadSlice(["TestNumPy.ice"])
 
     from generated.test.Ice.custom.Test import NumPy
 

@@ -7,7 +7,7 @@ import sys
 from TestHelper import TestHelper, test
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test1.ice Test2.ice")
+    TestHelper.loadSlice(["Test1.ice", "Test2.ice"])
 
 from generated.test.Slice.import_test.Test.SubA.SubSubA1 import Value1 as Test_SubA_SubSubA1_Value1
 from generated.test.Slice.import_test.Test.SubA.SubSubA1 import Value2 as Test_SubA_SubSubA1_Value2

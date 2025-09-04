@@ -25,24 +25,13 @@ using namespace IceInternal;
 extern "C" PyObject*
 IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 {
-    char* cmd;
     PyObject* list{nullptr};
-    if (!PyArg_ParseTuple(args, "s|O!", &cmd, &PyList_Type, &list))
+    if (!PyArg_ParseTuple(args, "O!", &PyList_Type, &list))
     {
         return nullptr;
     }
 
     vector<string> argSeq;
-    try
-    {
-        argSeq = IceInternal::Options::split(cmd);
-    }
-    catch (const std::exception& ex)
-    {
-        PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.what());
-        return nullptr;
-    }
-
     if (list && !listToStringSeq(list, argSeq))
     {
         return nullptr;
@@ -61,7 +50,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         sliceFiles = opts.parse(argSeq);
         if (sliceFiles.empty())
         {
-            PyErr_Format(PyExc_RuntimeError, "no Slice files specified in `%s'", cmd);
+            PyErr_Format(PyExc_RuntimeError, "no Slice files specified in `%S'", args);
             return nullptr;
         }
     }

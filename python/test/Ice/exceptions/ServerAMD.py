@@ -6,15 +6,12 @@ import sys
 
 from TestHelper import TestHelper
 
-if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test.ice")
-
-import TestAMDI
-
 import Ice
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test.ice")
+    TestHelper.loadSlice(["Test.ice"])
+
+import TestAMDI
 
 
 class ServerAMD(TestHelper):

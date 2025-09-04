@@ -9,7 +9,7 @@ from typing import override
 from TestHelper import TestHelper, test
 
 if "--load-slice" in sys.argv:
-    TestHelper.loadSlice("Test.ice ServerPrivate.ice")
+    TestHelper.loadSlice(["Test.ice", "ServerPrivate.ice"])
 
 from generated.test.Ice.slicing.objects import Test
 from generated.test.Ice.slicing.objects.server_private import Test as ServerPrivateTest
