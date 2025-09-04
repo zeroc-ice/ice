@@ -3173,7 +3173,7 @@ class Driver:
 
         import Ice
 
-        Ice.loadSlice(os.path.join(self.component.getSourceDir(), "scripts", "Controller.ice"))
+        Ice.loadSlice([os.path.join(self.component.getSourceDir(), "scripts", "Controller.ice")])
 
         initData = Ice.InitializationData()
         initData.properties = Ice.createProperties()
