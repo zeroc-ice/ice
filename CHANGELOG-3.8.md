@@ -709,7 +709,7 @@ invocation made from an Ice thread pool thread executes in a .NET thread pool th
 was executed in a thread managed by the same Ice thread pool unless you specified `.ConfigureAwait(false)`.
 
 - The `cs:attribute` Slice metadata is now limited to enums, enumerators, fields, and constants. For other constructs you
-  can define custom attributes using C# partial class, struct or interface.
+  can define custom attributes using a C# partial class, struct, or interface.
 
 - Replaced the `Ice.Util.registerPluginFactory` mechanism by plug-in factories on InitializationData. The corresponding
 plug-ins are created during communicator initialization. See `InitializationData.pluginFactories`.
