@@ -76,9 +76,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   can also override this value for a specific object adapter with the configuration property
   `AdapterName.Connection.InactivityTimeout`.\
   > [!NOTE]
-  > Make sure your inactivity timeout is greater than your idle timeout, as the implementation of the inactivity
-  > timeout relies on a smaller idle timeout value. If you disable your idle timeout by setting it to 0 or very large
-  > value (not something we recommend), you will effectively disable your inactivity timeout as well.
+  > Make sure your inactivity timeout is greater than your idle timeout, as the implementation of the inactivity timeout relies on a smaller idle timeout value. If you disable your idle timeout by setting it to 0 or very large value (not something we recommend), you will effectively disable your inactivity timeout as well.
   - Connect timeout\
   A connection establishment fails if it takes more than connect timeout to complete. The default connect timeout is 10
   seconds. You can change this value by setting `Ice.Connection.Client.ConnectTimeout` (for client connections) or
