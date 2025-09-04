@@ -75,9 +75,10 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   `Ice.Connection.Server.InactivityTimeout` (for server connections). The unit for this timeout is seconds. You
   can also override this value for a specific object adapter with the configuration property
   `AdapterName.Connection.InactivityTimeout`.\
-  Make sure your inactivity timeout is greater than your idle timeout, as the implementation of the inactivity
-  timeout relies on a smaller idle timeout value. If you disable your idle timeout by setting it to 0 or very large
-  value (not something we recommend), you will effectively disable your inactivity timeout as well.
+  > [!NOTE]
+  > Make sure your inactivity timeout is greater than your idle timeout, as the implementation of the inactivity
+  > timeout relies on a smaller idle timeout value. If you disable your idle timeout by setting it to 0 or very large
+  > value (not something we recommend), you will effectively disable your inactivity timeout as well.
   - Connect timeout\
   A connection establishment fails if it takes more than connect timeout to complete. The default connect timeout is 10
   seconds. You can change this value by setting `Ice.Connection.Client.ConnectTimeout` (for client connections) or
@@ -106,7 +107,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   connections). You can also override this value for a specific object adapter with the configuration
   property `AdapterName.Connection.MaxDispatches`.
   When the limit is reached, Ice stops reading from the connection, which applies back pressure on the peer.
-  The JavaScript mapping doesn't implement max dispatches because the WebSocket APIs doesn't provide a mechanism to stop
+  Ice for JavaScript doesn't implement max dispatches because the WebSocket APIs doesn't provide a mechanism to stop
   reading and apply back pressure.
   - Max connections\
   The property _adapter_.MaxConnections limits the number of incoming connections accepted by an object adapter. The
@@ -406,8 +407,8 @@ classDiagram
   Ice 3.7. It includes the Slice tools for C++ and no longer requires the `zeroc.icebuilder.msbuild` package.
   Additionally, it provides CMake support files in the cmake directory.
 
-- The `ice` NPM package has been converted into a scoped package named `@zeroc/ice` and also includes the `slice2js` Slice
-  compiler for Linux, macOS and Windows.
+- The `ice` NPM package has been converted into a scoped package named `@zeroc/ice` and also includes the `slice2js`
+  Slice compiler for Linux, macOS and Windows.
 
 ### Slice Language Changes
 
@@ -708,8 +709,8 @@ See `InitializationData::pluginFactories`.
 invocation made from an Ice thread pool thread executes in a .NET thread pool thread; previously, this continuation
 was executed in a thread managed by the same Ice thread pool unless you specified `.ConfigureAwait(false)`.
 
-- The `cs:attribute` Slice metadata is now limited to enums, enumerators, fields, and constants. For other constructs you
-  can define custom attributes using a C# partial class, struct, or interface.
+- The `cs:attribute` Slice metadata is now limited to enums, enumerators, fields, and constants. For other constructs,
+  you can define custom attributes using a C# partial class, struct, or interface.
 
 - Replaced the `Ice.Util.registerPluginFactory` mechanism by plug-in factories on InitializationData. The corresponding
 plug-ins are created during communicator initialization. See `InitializationData.pluginFactories`.
