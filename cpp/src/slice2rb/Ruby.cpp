@@ -151,7 +151,10 @@ Slice::Ruby::compile(const vector<string>& argv)
         {
             preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2RB__");
-            assert(preprocessedHandle);
+            if (preprocessedHandle == nullptr)
+            {
+                return EXIT_FAILURE;
+            }
 
             unit = Unit::createUnit("ruby", all);
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
