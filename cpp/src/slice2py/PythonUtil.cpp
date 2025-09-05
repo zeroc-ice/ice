@@ -286,6 +286,11 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                     os << " | bytes";
                 }
 
+                if (elementType && elementType->kind() <= Builtin::KindDouble)
+                {
+                    os << " | memoryview";
+                }
+
                 if (metadataDirective == "python:array.array" && isBoolSequence)
                 {
                     // For boolean sequences "python:array.array" is mapped to array.array('b'), whose type-hint
