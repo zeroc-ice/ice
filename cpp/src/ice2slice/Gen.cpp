@@ -185,9 +185,13 @@ namespace
     string paramToString(const ParameterPtr& param, const string& scope, bool includeParamName = true)
     {
         ostringstream os;
-        if (auto identifier = param->getMetadataArgs("cs:identifier"))
+        if (includeParamName)
         {
-            os << "[cs::identifier(\"" << *identifier << "\")] ";
+            auto identifier = param->getMetadataArgs("cs:identifier");
+            if (identifier)
+            {
+                os << "[cs::identifier(\"" << *identifier << "\")] ";
+            }
         }
 
         if (param->optional())
@@ -311,21 +315,6 @@ namespace
             out << nl << "/// @see " << ident;
         }
     }
-
-    void writeDataMembers(Output& out, const DataMemberList& dataMembers, const string& scope)
-    {
-        for (const auto& member : dataMembers)
-        {
-            writeDocComment(member, out);
-            writeCsIdentifier(member, out);
-            out << nl;
-            if (member->optional())
-            {
-                out << "tag(" << member->tag() << ") ";
-            }
-            out << member->name() << ": " << typeToString(member->type(), scope, member->optional());
-        }
-    }
 }
 
 Gen::Gen(std::string fileBase) : _fileBase(std::move(fileBase)) {}
@@ -411,6 +400,133 @@ Gen::TypesVisitor::visitUnitEnd(const UnitPtr&)
 }
 
 bool
+Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    InterfaceList bases = p->bases();
+    const string scope = p->scope();
+    Output& out = getOutput(p);
+
+    out << sp;
+    writeDocComment(p, out);
+    writeCsIdentifier(p, out);
+    out << nl << "interface " << p->name();
+    if (bases.size() > 0)
+    {
+        out << " : ";
+        out.spar("");
+        for (const auto& base : bases)
+        {
+            out << getUnqualified(base, scope);
+        }
+        out.epar("");
+    }
+    out << " {";
+    out.inc();
+    return true;
+}
+
+void
+Gen::TypesVisitor::visitOperation(const OperationPtr& op)
+{
+    InterfaceDefPtr interface = op->interface();
+    InterfaceList bases = interface->bases();
+    const string scope = interface->scope();
+    Output& out = getOutput(interface);
+
+    if (!isFirstElement(op))
+    {
+        out << sp;
+    }
+
+    writeDocComment(op, out);
+    // We don't write cs::identifier for operations because Original Slice often uses cs:identifier to get
+    // proper casing for the mapped C# method. New Slice already generates the correct casing.
+    // TODO: should we issue a warning for this omission? See writeCsIdentifier.
+
+    if (op->hasMetadata("marshaled-result"))
+    {
+        out << nl << "[cs::encodedReturn]";
+    }
+    out << nl;
+    if (op->mode() == Operation::Idempotent)
+    {
+        out << "idempotent ";
+    }
+    out << op->name();
+
+    // Write the operation's parameters.
+    out << spar;
+    for (const auto& param : op->inParameters())
+    {
+        out << paramToString(param, scope);
+    }
+    out << epar;
+
+    // Write the operation's return type.
+    string returnValueName = "returnValue";
+    // Make sure returnValueName does not collide with any out parameter name:
+    for (const auto& param : op->outParameters())
+    {
+        if (param->name() == returnValueName)
+        {
+            returnValueName += "_";
+            break; // multiple collisions means the user is trying to get a collision.
+        }
+    }
+
+    ParameterList returnAndOutParams = op->outParameters();
+    ParameterPtr returnParam = op->returnParameter(returnValueName);
+    if (returnParam)
+    {
+        returnAndOutParams.push_back(returnParam); // push to the back for encoding compatibility
+    }
+
+    if (returnAndOutParams.size() > 1)
+    {
+        out << " -> ";
+        out << spar;
+        for (const auto& param : returnAndOutParams)
+        {
+            out << paramToString(param, scope);
+        }
+        out << epar;
+    }
+    else if (returnAndOutParams.size() > 0)
+    {
+        out << " -> " << paramToString(returnAndOutParams.front(), scope, false);
+    }
+
+    ExceptionList throws = op->throws();
+    if (throws.size() == 1)
+    {
+        out << " throws " << getUnqualified(throws.front(), scope);
+    }
+    else if (throws.size() > 1)
+    {
+        out << " throws ";
+        out << spar;
+        for (const auto& ex : throws)
+        {
+            out << getUnqualified(ex, scope);
+        }
+        out << epar;
+    }
+}
+
+void
+Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+{
+    Output& out = getOutput(p);
+
+    out.dec();
+    out << nl << "}";
+
+    out << sp;
+    out << nl << "[cs::type(\"" << typeToCsString(p->declaration(), false) << "\")]";
+    out << nl << "custom " << p->name() << "Proxy";
+}
+
+bool
 Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     ClassDefPtr base = p->base();
@@ -428,133 +544,15 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << " {";
     out.inc();
 
-    writeDataMembers(out, p->dataMembers(), scope);
-
-    out.dec();
-    out << nl << "}";
-    return false;
+    return true;
 }
 
-bool
-Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+void
+Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    InterfaceList bases = p->bases();
-    const string scope = p->scope();
     Output& out = getOutput(p);
-
-    out << sp;
-    writeDocComment(p, out);
-    writeCsIdentifier(p, out);
-    out << nl << "interface " << p->name();
-    if (bases.size() > 0)
-    {
-        out << " :";
-        for (auto q = bases.begin(); q != bases.end();)
-        {
-            InterfaceDefPtr base = *q;
-            out << " " << getUnqualified(base, scope);
-            q++;
-            if (q != bases.end())
-            {
-                out << ",";
-            }
-        }
-    }
-    out << " {";
-    out.inc();
-    OperationList operations = p->operations();
-    for (auto q = operations.begin(); q != operations.end();)
-    {
-        OperationPtr op = *q;
-        writeDocComment(op, out);
-        writeCsIdentifier(op, out);
-        if (op->hasMetadata("marshaled-result"))
-        {
-            out << nl << "[cs::encodedReturn]";
-        }
-        out << nl;
-        if (op->mode() == Operation::Idempotent)
-        {
-            out << "idempotent ";
-        }
-        out << op->name();
-
-        // Write the operation's parameters.
-        out << spar;
-        for (const auto& param : op->inParameters())
-        {
-            out << paramToString(param, scope);
-        }
-        out << epar;
-
-        // Write the operation's return type.
-        string returnValueName = "returnValue";
-        // Make sure returnValueName does not collide with any out parameter name:
-        for (const auto& param : op->outParameters())
-        {
-            if (param->name() == returnValueName)
-            {
-                returnValueName += "_";
-                break; // multiple collisions means the user is trying to get a collision.
-            }
-        }
-
-        ParameterList returnAndOutParams = op->outParameters();
-        ParameterPtr returnParam = op->returnParameter(returnValueName);
-        if (returnParam)
-        {
-            returnAndOutParams.push_back(returnParam); // push to the back for encoding compatibility
-        }
-
-        if (returnAndOutParams.size() > 1)
-        {
-            out << " -> ";
-            out << spar;
-            for (const auto& param : returnAndOutParams)
-            {
-                out << paramToString(param, scope);
-            }
-            out << epar;
-        }
-        else if (returnAndOutParams.size() > 0)
-        {
-            out << " -> " << paramToString(returnAndOutParams.front(), scope, false);
-        }
-
-        ExceptionList throws = op->throws();
-        if (throws.size() == 1)
-        {
-            out << " throws " << getUnqualified(throws.front(), scope);
-        }
-        else if (throws.size() > 1)
-        {
-            out << " throws (";
-            for (auto r = throws.begin(); r != throws.end();)
-            {
-                ExceptionPtr ex = *r;
-                out << getUnqualified(ex, scope);
-                r++;
-                if (r != throws.end())
-                {
-                    out << ", ";
-                }
-            }
-            out << ")";
-        }
-
-        q++;
-        if (q != operations.end())
-        {
-            out << sp;
-        }
-    }
     out.dec();
     out << nl << "}";
-
-    out << sp;
-    out << nl << "[cs::type(\"" << typeToCsString(p->declaration(), false) << "\")]";
-    out << nl << "custom " << p->name() << "Proxy";
-    return false;
 }
 
 bool
@@ -574,17 +572,20 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << " {";
     out.inc();
 
-    writeDataMembers(out, p->dataMembers(), scope);
+    return true;
+}
 
+void
+Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
+{
+    Output& out = getOutput(p);
     out.dec();
     out << nl << "}";
-    return false;
 }
 
 bool
 Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    const string scope = p->scope();
     Output& out = getOutput(p);
 
     out << sp;
@@ -593,11 +594,40 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "compact struct " << p->name() << " {";
     out.inc();
 
-    writeDataMembers(out, p->dataMembers(), scope);
+    return true;
+}
 
+void
+Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
+{
+    Output& out = getOutput(p);
     out.dec();
     out << nl << "}";
-    return false;
+}
+
+void
+Gen::TypesVisitor::visitDataMember(const DataMemberPtr& field)
+{
+    auto parent = dynamic_pointer_cast<Contained>(field->container());
+    const string scope = parent->scope();
+    Output& out = getOutput(parent);
+
+    if (!isFirstElement(field))
+    {
+        out << sp;
+    }
+
+    writeDocComment(field, out);
+    // We don't write cs::identifier for fields because Original Slice often uses cs:identifier to get proper casing
+    // for the mapped C# property. New Slice already generates the correct casing.
+    // TODO: should we issue a warning for this omission? See writeCsIdentifier.
+
+    out << nl;
+    if (field->optional())
+    {
+        out << "tag(" << field->tag() << ") ";
+    }
+    out << field->name() << ": " << typeToString(field->type(), scope, field->optional());
 }
 
 void
@@ -632,11 +662,11 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             }
             out << "<"
                 // TODO the generic argument must be the IceRPC C# mapped type
-                << typeToString(p->type(), scope, false) << ">\")]";
+                << typeToString(p->type(), scope, false) << ">\")] ";
             break;
         }
     }
-    out << " Sequence<" << typeToString(p->type(), scope, false) << ">";
+    out << "Sequence<" << typeToString(p->type(), scope, false) << ">";
 }
 
 void
@@ -656,11 +686,11 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
             out << "[cs::type(\"[System.Collections.Generic.SortedDictionary<"
                 // TODO the generic arguments must be the IceRPC C# mapped types
                 << typeToString(p->keyType(), scope, false) << ", " << typeToString(p->valueType(), scope, false)
-                << ">\")]";
+                << ">\")] ";
             break;
         }
     }
-    out << " Dictionary<" << typeToString(p->keyType(), scope, false) << ", "
+    out << "Dictionary<" << typeToString(p->keyType(), scope, false) << ", "
         << typeToString(p->valueType(), scope, false) << ">";
 }
 
@@ -677,6 +707,12 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     for (const auto& en : p->enumerators())
     {
+        if (!isFirstElement(en))
+        {
+            out << sp;
+        }
+
+        writeDocComment(en, out);
         out << nl << en->name();
         if (p->hasExplicitValues())
         {
@@ -701,11 +737,6 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
         assert(contained);
         typeString = contained->scoped();
     }
-
-    Output& out = getOutput(p);
-    out << sp;
-    out << nl << "// ice2slice could not convert:";
-    out << nl << "// const " << typeString << " " << p->name() << " = " << p->value();
 
     p->unit()
         ->warning(p->file(), p->line(), WarningCategory::All, "ice2slice could not convert constant: " + p->name());
