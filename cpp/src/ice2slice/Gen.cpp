@@ -505,7 +505,7 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     {
         out << " throws ";
         out << spar;
-        for (const auto& ex: throws)
+        for (const auto& ex : throws)
         {
             out << getUnqualified(ex, scope);
         }
