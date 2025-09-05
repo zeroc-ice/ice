@@ -1566,7 +1566,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     // rather than the native comparison operators.
     bool keyUseEquals = false;
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(keyType);
-    if ((b && b->kind() == Builtin::KindLong) || dynamic_pointer_cast<Struct>(keyType))
+    if (dynamic_pointer_cast<Struct>(keyType))
     {
         keyUseEquals = true;
     }
@@ -2046,7 +2046,7 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
         const TypePtr keyType = d->keyType();
         builtin = dynamic_pointer_cast<Builtin>(keyType);
         ostringstream os;
-        if ((builtin && builtin->kind() == Builtin::KindLong) || dynamic_pointer_cast<Struct>(keyType))
+        if (dynamic_pointer_cast<Struct>(keyType))
         {
             os << _iceImportPrefix << "Ice.HashMap<";
         }

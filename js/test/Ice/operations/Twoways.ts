@@ -7,6 +7,16 @@ import { TestHelper, test } from "../../Common/TestHelper.js";
 const int64MaxValue = 9223372036854775807n;
 const int64MinValue = -9223372036854775808n;
 
+function floatEquals(a: number | undefined, b: number | undefined): boolean {
+    if (a === undefined && b === undefined) {
+        return true;
+    } else if (a === undefined || b === undefined) {
+        return false;
+    } else {
+        return Math.abs(a - b) <= 0.01;
+    }
+}
+
 export async function twoways(
     communicator: Ice.Communicator,
     prx: Test.MyClassPrx,
@@ -601,12 +611,15 @@ export async function twoways(
 
         const [retval, p3] = await prx.opLongFloatD(di1, di2);
 
-        test(p3.equals(di1, (v1, v2) => Math.abs(v1) - Math.abs(v2) <= 0.01));
+        test(p3.size === di1.size);
+        for (const [k, v] of di1) {
+            test(floatEquals(v, p3.get(k)));
+        }
         test(retval.size === 4);
-        test(Math.abs(retval.get(999999110n) || 0) - Math.abs(-1.1) <= 0.01);
-        test(Math.abs(retval.get(999999120n) || 0) - Math.abs(-100.4) <= 0.01);
-        test((retval.get(999999111n) || 0) - 123123.2 <= 0.01);
-        test((retval.get(999999130n) || 0) - 0.5 <= 0.01);
+        test(floatEquals(retval.get(999999110n), -1.1));
+        test(floatEquals(retval.get(999999120n), -100.4));
+        test(floatEquals(retval.get(999999111n), 123123.2));
+        test(floatEquals(retval.get(999999130n), 0.5));
     }
 
     {
@@ -769,23 +782,23 @@ export async function twoways(
         const [retval, p3] = await prx.opLongFloatDS([di1, di2], [di3]);
         test(retval.length == 2);
         test(retval[0].size == 3);
-        test((retval[0].get(999999110n) || 0) - Math.abs(-1.1) <= 0.1);
-        test((retval[0].get(999999120n) || 0) - Math.abs(-100.4) <= 0.1);
-        test((retval[0].get(999999130n) || 0) - 0.5 <= 0.1);
+        test(floatEquals(retval[0].get(999999110n), -1.1));
+        test(floatEquals(retval[0].get(999999120n), -100.4));
+        test(floatEquals(retval[0].get(999999130n), 0.5));
         test(retval[1].size == 2);
-        test((retval[1].get(999999110n) || 0) - Math.abs(-1.1) <= 0.1);
-        test((retval[1].get(999999111n) || 0) - 123123.2 <= 0.1);
+        test(floatEquals(retval[1].get(999999110n), -1.1));
+        test(floatEquals(retval[1].get(999999111n), 123123.2));
 
         test(p3.length == 3);
         test(p3[0].size == 1);
-        test((p3[0].get(999999140n) || 0) - 3.14 <= 0.1);
+        test(floatEquals(p3[0].get(999999140n), 3.14));
         test(p3[1].size == 2);
-        test((p3[1].get(999999110n) || 0) - Math.abs(-1.1) <= 0.1);
-        test((p3[1].get(999999111n) || 0) - 123123.2 <= 0.1);
+        test(floatEquals(p3[1].get(999999110n), -1.1));
+        test(floatEquals(p3[1].get(999999111n), 123123.2));
         test(p3[2].size == 3);
-        test((p3[2].get(999999110n) || 0) - Math.abs(-1.1) <= 0.1);
-        test((p3[2].get(999999120n) || 0) - Math.abs(-100.4) <= 0.1);
-        test((p3[2].get(999999130n) || 0) - 0.5 <= 0.1);
+        test(floatEquals(p3[2].get(999999110n), -1.1));
+        test(floatEquals(p3[2].get(999999120n), -100.4));
+        test(floatEquals(p3[2].get(999999130n), 0.5));
     }
 
     {

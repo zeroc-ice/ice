@@ -789,8 +789,11 @@ initialization. See `InitializationData.pluginFactories`.
 - Slice modules are now always mapped to JavaScript ES6 modules. The `js:es6-module` metadata has been removed, as a
   single module mapping is now used by default.
 
-- **Slice `long` is now mapped to JavaScript `BigInt`.** For input parameters, both `number` and `BigInt` are accepted.
+- Slice `long` is now mapped to JavaScript `BigInt`. For input parameters, both `number` and `BigInt` are accepted.
   The `Ice.Long` class has been removed.
+
+- Dictionaries with `long` keys now use the built-in `Map` type.
+  Previously, `Ice.HashMap` was required because `Ice.Long` objects could not be used as keys in a `Map`.
 
 - The WebSocket transport is now supported with Node.js 24 and higher. In Node.js 23 and earlier, WebSocket connections
   do not reliably report errors during connection establishment. We advise against using the WebSocket transport on
