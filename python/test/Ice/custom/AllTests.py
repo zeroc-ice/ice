@@ -368,7 +368,6 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
         v = [True, False, True, False, True]
         a = numpy.array(v, numpy.bool_)
         v1, v2 = custom.opBoolSeq(memoryview(a), a)
-        print(type(v1), type(v2))
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v))
