@@ -95,8 +95,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
                 string file = *p;
                 preprocessor = Preprocessor::create("preprocessor", file, cppArgs);
                 FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2RB__");
-
-                if (preprocessedHandle == 0)
+                if (preprocessedHandle == nullptr)
                 {
                     throw RubyException(rb_eArgError, "Slice preprocessing failed");
                 }

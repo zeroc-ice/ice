@@ -1244,7 +1244,10 @@ compile(const vector<string>& argv)
         {
             PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PHP__");
-            assert(preprocessedHandle);
+            if (preprocessedHandle == nullptr)
+            {
+                return EXIT_FAILURE;
+            }
 
             unit = Unit::createUnit("php", all);
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);

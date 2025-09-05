@@ -165,7 +165,10 @@ compile(const vector<string>& argv)
             FileTracker::instance()->setSource(fileName);
             preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2JAVA__");
-            assert(preprocessedHandle);
+            if (preprocessedHandle == nullptr)
+            {
+                return EXIT_FAILURE;
+            }
 
             unit = Unit::createUnit("java", false);
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);

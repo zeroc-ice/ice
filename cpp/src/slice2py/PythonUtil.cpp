@@ -2791,6 +2791,10 @@ Slice::Python::compile(
         {
             preprocessor = Preprocessor::create(programName, fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2PY__");
+            if (preprocessedHandle == nullptr)
+            {
+                throw runtime_error("Failed to preprocess Slice file: " + fileName);
+            }
 
             unit = Unit::createUnit("python", debug);
             int parseStatus = unit->parse(fileName, preprocessedHandle, false);

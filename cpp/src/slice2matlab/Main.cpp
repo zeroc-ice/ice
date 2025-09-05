@@ -205,7 +205,10 @@ namespace
             {
                 preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
                 FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2MATLAB__");
-                assert(preprocessedHandle);
+                if (preprocessedHandle == nullptr)
+                {
+                    return EXIT_FAILURE;
+                }
 
                 unit = Unit::createUnit("matlab", all);
                 int parseStatus = unit->parse(fileName, preprocessedHandle, debug);

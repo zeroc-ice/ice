@@ -196,7 +196,10 @@ compile(const vector<string>& argv)
         {
             preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__SLICE2CPP__");
-            assert(preprocessedHandle);
+            if (preprocessedHandle == nullptr)
+            {
+                return EXIT_FAILURE;
+            }
 
             unit = Unit::createUnit("cpp", false);
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);

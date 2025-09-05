@@ -167,7 +167,10 @@ compile(const vector<string>& argv)
         {
             PreprocessorPtr preprocessor = Preprocessor::create(argv[0], fileName, preprocessorArgs);
             FILE* preprocessedHandle = preprocessor->preprocess("-D__ICE2SLICE__");
-            assert(preprocessedHandle);
+            if (preprocessedHandle == nullptr)
+            {
+                return EXIT_FAILURE;
+            }
 
             unit = Unit::createUnit("", false);
             int parseStatus = unit->parse(fileName, preprocessedHandle, debug);
