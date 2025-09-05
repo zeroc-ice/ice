@@ -7,60 +7,67 @@ module Test
 {
     module NumPy
     {
-        ["python:numpy.ndarray"] sequence<bool> BoolSeq1;
-        ["python:memoryview:CustomFactory.myNumPyBoolSeq:numpy.ndarray"] sequence<bool> BoolSeq2;
+        sequence<bool> BoolSeq1;
+        ["python:numpy.ndarray"] sequence<bool> BoolSeq2;
+        ["python:memoryview:CustomFactory.myNumPyBoolSeq:numpy.ndarray"] sequence<bool> BoolSeq3;
 
-        ["python:numpy.ndarray"] sequence<byte> ByteSeq1;
-        ["python:memoryview:CustomFactory.myNumPyByteSeq:numpy.ndarray"] sequence<byte> ByteSeq2;
+        sequence<byte> ByteSeq1;
+        ["python:numpy.ndarray"] sequence<byte> ByteSeq2;
+        ["python:memoryview:CustomFactory.myNumPyByteSeq:numpy.ndarray"] sequence<byte> ByteSeq3;
 
-        ["python:numpy.ndarray"] sequence<short> ShortSeq1;
-        ["python:memoryview:CustomFactory.myNumPyShortSeq:numpy.ndarray"] sequence<short> ShortSeq2;
+        sequence<short> ShortSeq1;
+        ["python:numpy.ndarray"] sequence<short> ShortSeq2;
+        ["python:memoryview:CustomFactory.myNumPyShortSeq:numpy.ndarray"] sequence<short> ShortSeq3;
 
-        ["python:numpy.ndarray"] sequence<int> IntSeq1;
-        ["python:memoryview:CustomFactory.myNumPyIntSeq:numpy.ndarray"] sequence<int> IntSeq2;
+        sequence<int> IntSeq1;
+        ["python:numpy.ndarray"] sequence<int> IntSeq2;
+        ["python:memoryview:CustomFactory.myNumPyIntSeq:numpy.ndarray"] sequence<int> IntSeq3;
 
-        ["python:numpy.ndarray"] sequence<long> LongSeq1;
-        ["python:memoryview:CustomFactory.myNumPyLongSeq:numpy.ndarray"] sequence<long> LongSeq2;
+        sequence<long> LongSeq1;
+        ["python:numpy.ndarray"] sequence<long> LongSeq2;
+        ["python:memoryview:CustomFactory.myNumPyLongSeq:numpy.ndarray"] sequence<long> LongSeq3;
 
-        ["python:numpy.ndarray"] sequence<float> FloatSeq1;
-        ["python:memoryview:CustomFactory.myNumPyFloatSeq:numpy.ndarray"] sequence<float> FloatSeq2;
+        sequence<float> FloatSeq1;
+        ["python:numpy.ndarray"] sequence<float> FloatSeq2;
+        ["python:memoryview:CustomFactory.myNumPyFloatSeq:numpy.ndarray"] sequence<float> FloatSeq3;
 
-        ["python:numpy.ndarray"] sequence<double> DoubleSeq1;
-        ["python:memoryview:CustomFactory.myNumPyDoubleSeq:numpy.ndarray"] sequence<double> DoubleSeq2;
+        sequence<double> DoubleSeq1;
+        ["python:numpy.ndarray"] sequence<double> DoubleSeq2;
+        ["python:memoryview:CustomFactory.myNumPyDoubleSeq:numpy.ndarray"] sequence<double> DoubleSeq3;
 
         ["python:memoryview:CustomFactory.myNumPyComplex128Seq:numpy.ndarray"] sequence<byte> Complex128Seq;
 
         class D
         {
-            optional(1) BoolSeq1 boolSeq;
-            optional(2) ByteSeq1 byteSeq;
-            optional(3) ShortSeq1 shortSeq;
-            optional(4) IntSeq1 intSeq;
-            optional(5) LongSeq1 longSeq;
-            optional(6) FloatSeq1 floatSeq;
-            optional(7) DoubleSeq1 doubleSeq;
+            optional(1) BoolSeq2 boolSeq;
+            optional(2) ByteSeq2 byteSeq;
+            optional(3) ShortSeq2 shortSeq;
+            optional(4) IntSeq2 intSeq;
+            optional(5) LongSeq2 longSeq;
+            optional(6) FloatSeq2 floatSeq;
+            optional(7) DoubleSeq2 doubleSeq;
         }
 
         class E
         {
-            BoolSeq1 boolSeq;
-            ByteSeq1 byteSeq;
-            ShortSeq1 shortSeq;
-            IntSeq1 intSeq;
-            LongSeq1 longSeq;
-            FloatSeq1 floatSeq;
-            DoubleSeq1 doubleSeq;
+            BoolSeq2 boolSeq;
+            ByteSeq2 byteSeq;
+            ShortSeq2 shortSeq;
+            IntSeq2 intSeq;
+            LongSeq2 longSeq;
+            FloatSeq2 floatSeq;
+            DoubleSeq2 doubleSeq;
         }
 
         interface Custom
         {
-            BoolSeq1 opBoolSeq(BoolSeq1 v1, out BoolSeq2 v2);
-            ByteSeq1 opByteSeq(ByteSeq1 v1, out ByteSeq2 v2);
-            ShortSeq1 opShortSeq(ShortSeq1 v1, out ShortSeq2 v2);
-            IntSeq1 opIntSeq(IntSeq1 v1, out IntSeq2 v2);
-            LongSeq1 opLongSeq(LongSeq1 v1, out LongSeq2 v2);
-            FloatSeq1 opFloatSeq(FloatSeq1 v1, out FloatSeq2 v2);
-            DoubleSeq1 opDoubleSeq(DoubleSeq1 v1, out DoubleSeq2 v2);
+            BoolSeq2 opBoolSeq(BoolSeq1 v1, BoolSeq2 v2, out BoolSeq3 v3);
+            ByteSeq2 opByteSeq(ByteSeq1 v1, ByteSeq2 v2, out ByteSeq3 v3);
+            ShortSeq2 opShortSeq(ShortSeq1 v1, ShortSeq2 v2, out ShortSeq3 v3);
+            IntSeq2 opIntSeq(IntSeq1 v1, IntSeq2 v2, out IntSeq3 v3);
+            LongSeq2 opLongSeq(LongSeq1 v1, LongSeq2 v2, out LongSeq3 v3);
+            FloatSeq2 opFloatSeq(FloatSeq1 v1, FloatSeq2 v2, out FloatSeq3 v3);
+            DoubleSeq2 opDoubleSeq(DoubleSeq1 v1, DoubleSeq2 v2, out DoubleSeq3 v3);
             Complex128Seq opComplex128Seq(Complex128Seq v1);
 
             ["python:memoryview:CustomFactory.myNumPyMatrix3x3:numpy.ndarray"] BoolSeq1 opBoolMatrix();

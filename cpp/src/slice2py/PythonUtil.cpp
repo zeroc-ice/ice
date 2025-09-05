@@ -286,6 +286,11 @@ Slice::Python::CodeVisitor::typeToTypeHintString(
                     os << " | bytes";
                 }
 
+                if (elementType && elementType->kind() <= Builtin::KindDouble)
+                {
+                    os << " | " << getImportAlias(source, "collections.abc", "Buffer");
+                }
+
                 if (metadataDirective == "python:array.array" && isBoolSequence)
                 {
                     // For boolean sequences "python:array.array" is mapped to array.array('b'), whose type-hint
@@ -776,6 +781,12 @@ Slice::Python::ImportVisitor::addRuntimeImportForSequence(
 
     auto needsRunTimeImport = dynamic_pointer_cast<ClassDef>(source) || dynamic_pointer_cast<Struct>(source) ||
                               dynamic_pointer_cast<Exception>(source);
+
+    auto builtin = dynamic_pointer_cast<Builtin>(sequence->type());
+    if (builtin && builtin->kind() <= Builtin::KindDouble)
+    {
+        addTypingImport("collections.abc", "Buffer", source);
+    }
 
     if (directive == "python:numpy.ndarray")
     {

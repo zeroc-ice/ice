@@ -162,39 +162,39 @@ try:
 
     class NumPyCustomI(NumPy.Custom):
         @override
-        def opBoolSeq(self, v1: numpy.typing.NDArray[numpy.bool], current: Ice.Current):
-            test(isinstance(v1, numpy.ndarray))
-            return v1, v1
+        def opBoolSeq(self, v1: list[bool], v2: numpy.typing.NDArray[numpy.bool], current: Ice.Current):
+            test(isinstance(v2, numpy.ndarray))
+            return v2, v2
 
         @override
-        def opByteSeq(self, v1: numpy.typing.NDArray[numpy.int8], current: Ice.Current):
-            test(isinstance(v1, numpy.ndarray))
-            return v1, v1
+        def opByteSeq(self, v1: bytes, v2: numpy.typing.NDArray[numpy.int8], current: Ice.Current):
+            test(isinstance(v2, numpy.ndarray))
+            return v2, v2
 
         @override
-        def opShortSeq(self, v1: numpy.typing.NDArray[numpy.int16], current: Ice.Current):
-            test(isinstance(v1, numpy.ndarray))
-            return v1, v1
+        def opShortSeq(self, v1: list[int], v2: numpy.typing.NDArray[numpy.int16], current: Ice.Current):
+            test(isinstance(v2, numpy.ndarray))
+            return v2, v2
 
         @override
-        def opIntSeq(self, v1: numpy.typing.NDArray[numpy.int32], current: Ice.Current):
-            test(isinstance(v1, numpy.ndarray))
-            return v1, v1
+        def opIntSeq(self, v1: list[int], v2: numpy.typing.NDArray[numpy.int32], current: Ice.Current):
+            test(isinstance(v2, numpy.ndarray))
+            return v2, v2
 
         @override
-        def opLongSeq(self, v1: numpy.typing.NDArray[numpy.int64], current: Ice.Current):
-            test(isinstance(v1, numpy.ndarray))
-            return v1, v1
+        def opLongSeq(self, v1: list[int], v2: numpy.typing.NDArray[numpy.int64], current: Ice.Current):
+            test(isinstance(v2, numpy.ndarray))
+            return v2, v2
 
         @override
-        def opFloatSeq(self, v1: numpy.typing.NDArray[numpy.float32], current: Ice.Current):
-            test(isinstance(v1, numpy.ndarray))
-            return v1, v1
+        def opFloatSeq(self, v1: list[float], v2: numpy.typing.NDArray[numpy.float32], current: Ice.Current):
+            test(isinstance(v2, numpy.ndarray))
+            return v2, v2
 
         @override
-        def opDoubleSeq(self, v1: numpy.typing.NDArray[numpy.float64], current: Ice.Current):
-            test(isinstance(v1, numpy.ndarray))
-            return v1, v1
+        def opDoubleSeq(self, v1: list[float], v2: numpy.typing.NDArray[numpy.float64], current: Ice.Current):
+            test(isinstance(v2, numpy.ndarray))
+            return v2, v2
 
         @override
         def opComplex128Seq(self, v1: numpy.typing.NDArray[numpy.complex128], current: Ice.Current):
