@@ -2,7 +2,7 @@
 # Copyright (c) ZeroC, Inc.
 
 require 'Ice'
-Ice::loadSlice('Test.ice')
+Ice::loadSlice(['Test.ice'])
 require './AllTests'
 
 class Client < ::TestHelper
