@@ -978,7 +978,7 @@ initialization. See `InitializationData.pluginFactories`.
 
 ### Ruby Changes
 
-- The `Ice.loadSlice` function for dynamically loading Slice files at run time now accepts only a list of compiler
+- The `Ice.loadSlice` function for dynamically loading Slice files at runtime now accepts only a list of compiler
   arguments (strings). Previously, it accepted both a command string and an optional list of arguments (which served
   the same purpose). This has been simplified to require a single list of strings.
 
