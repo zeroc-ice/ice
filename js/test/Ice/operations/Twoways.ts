@@ -601,7 +601,12 @@ export async function twoways(
 
         const [retval, p3] = await prx.opLongFloatD(di1, di2);
 
-        test(p3.equals(di1, (v1, v2) => Math.abs(v1) - Math.abs(v2) <= 0.01));
+        test(p3.size === di1.size);
+        for (const [k, v1] of di1) {
+            const v2 = p3.get(k);
+            test(v2 !== undefined);
+            test(Math.abs(v1) - Math.abs(v2) <= 0.01);
+        }
         test(retval.size === 4);
         test(Math.abs(retval.get(999999110n) || 0) - Math.abs(-1.1) <= 0.01);
         test(Math.abs(retval.get(999999120n) || 0) - Math.abs(-100.4) <= 0.01);
