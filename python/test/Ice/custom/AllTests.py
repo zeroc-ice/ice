@@ -366,7 +366,8 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
         sys.stdout.flush()
 
         v = [True, False, True, False, True]
-        v1, v2 = custom.opBoolSeq(numpy.array(v, numpy.bool_))
+        a = numpy.array(v, numpy.bool_)
+        v1, v2 = custom.opBoolSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v))
@@ -376,14 +377,16 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
             test(v2[i] == v[i])
 
         v = []
-        v1, v2 = custom.opBoolSeq(numpy.array(v, numpy.bool_))
+        a = numpy.array(v, numpy.bool_)
+        v1, v2 = custom.opBoolSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == 0)
         test(len(v2) == 0)
 
         v = [0, 2, 4, 8, 16, 32, 64, 127]
-        v1, v2 = custom.opByteSeq(numpy.array(v, numpy.int8))
+        a = numpy.array(v, numpy.int8)
+        v1, v2 = custom.opByteSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v))
@@ -393,14 +396,16 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
             test(v2[i] == v[i])
 
         v = []
-        v1, v2 = custom.opByteSeq(numpy.array(v, numpy.int8))
+        a = numpy.array(v, numpy.int8)
+        v1, v2 = custom.opByteSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == 0)
         test(len(v2) == 0)
 
         v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
-        v1, v2 = custom.opShortSeq(numpy.array(v, numpy.int16))
+        a = numpy.array(v, numpy.int16)
+        v1, v2 = custom.opShortSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v))
@@ -410,14 +415,16 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
             test(v2[i] == v[i])
 
         v = []
-        v1, v2 = custom.opShortSeq(numpy.array(v, numpy.int16))
+        a = numpy.array(v, numpy.int16)
+        v1, v2 = custom.opShortSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == 0)
         test(len(v2) == 0)
 
         v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
-        v1, v2 = custom.opIntSeq(numpy.array(v, numpy.int32))
+        a = numpy.array(v, numpy.int32)
+        v1, v2 = custom.opIntSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v))
@@ -427,14 +434,16 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
             test(v2[i] == v[i])
 
         v = []
-        v1, v2 = custom.opIntSeq(numpy.array(v, numpy.int32))
+        a = numpy.array(v, numpy.int32)
+        v1, v2 = custom.opIntSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == 0)
         test(len(v2) == 0)
 
         v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
-        v1, v2 = custom.opLongSeq(numpy.array(v, numpy.int64))
+        a = numpy.array(v, numpy.int64)
+        v1, v2 = custom.opLongSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v))
@@ -444,14 +453,16 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
             test(v2[i] == v[i])
 
         v = []
-        v1, v2 = custom.opLongSeq(numpy.array(v, numpy.int64))
+        a = numpy.array(v, numpy.int64)
+        v1, v2 = custom.opLongSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == 0)
         test(len(v2) == 0)
 
         v = [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256]
-        v1, v2 = custom.opFloatSeq(numpy.array(v, numpy.float32))
+        a = numpy.array(v, numpy.float32)
+        v1, v2 = custom.opFloatSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v))
@@ -461,14 +472,16 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
             test(round(float(v2[i]), 1) == round(v[i], 1))
 
         v = []
-        v1, v2 = custom.opFloatSeq(numpy.array(v, numpy.float32))
+        a = numpy.array(v, numpy.float32)
+        v1, v2 = custom.opFloatSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == 0)
         test(len(v2) == 0)
 
         v = [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256]
-        v1, v2 = custom.opDoubleSeq(numpy.array(v, numpy.float64))
+        a = numpy.array(v, numpy.float64)
+        v1, v2 = custom.opDoubleSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == len(v))
@@ -478,7 +491,8 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.CustomP
             test(round(float(v2[i]), 1) == round(v[i], 1))
 
         v = []
-        v1, v2 = custom.opDoubleSeq(numpy.array(v, numpy.float64))
+        a = numpy.array(v, numpy.float64)
+        v1, v2 = custom.opDoubleSeq(a, a)
         test(isinstance(v1, numpy.ndarray))
         test(isinstance(v2, numpy.ndarray))
         test(len(v1) == 0)
