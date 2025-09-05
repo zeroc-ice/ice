@@ -412,17 +412,13 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "interface " << p->name();
     if (bases.size() > 0)
     {
-        out << " :";
-        for (auto q = bases.begin(); q != bases.end();)
+        out << " : ";
+        out.spar("");
+        for (const auto& base : bases)
         {
-            InterfaceDefPtr base = *q;
-            out << " " << getUnqualified(base, scope);
-            q++;
-            if (q != bases.end())
-            {
-                out << ",";
-            }
+            out << getUnqualified(base, scope);
         }
+        out.epar("");
     }
     out << " {";
     out.inc();
@@ -439,7 +435,7 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
 
     if (!isFirstElement(op))
     {
-        out << nl;
+        out << sp;
     }
 
     writeDocComment(op, out);
@@ -507,18 +503,13 @@ Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     }
     else if (throws.size() > 1)
     {
-        out << " throws (";
-        for (auto r = throws.begin(); r != throws.end();)
+        out << " throws ";
+        out << spar;
+        for (const auto& ex: throws)
         {
-            ExceptionPtr ex = *r;
             out << getUnqualified(ex, scope);
-            r++;
-            if (r != throws.end())
-            {
-                out << ", ";
-            }
         }
-        out << ")";
+        out << epar;
     }
 }
 
@@ -621,6 +612,11 @@ Gen::TypesVisitor::visitDataMember(const DataMemberPtr& field)
     const string scope = parent->scope();
     Output& out = getOutput(parent);
 
+    if (!isFirstElement(field))
+    {
+        out << sp;
+    }
+
     writeDocComment(field, out);
     // We don't write cs::identifier for fields because Original Slice often uses cs:identifier to get proper casing
     // for the mapped C# property. New Slice already generates the correct casing.
@@ -711,6 +707,12 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     for (const auto& en : p->enumerators())
     {
+        if (!isFirstElement(en))
+        {
+            out << sp;
+        }
+
+        writeDocComment(en, out);
         out << nl << en->name();
         if (p->hasExplicitValues())
         {
