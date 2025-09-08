@@ -1,6 +1,6 @@
 # Ice for Ruby
 
-[Examples] | [Documentation] | [API Reference] | [Building from source]
+[Examples] | [Documentation] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
@@ -43,7 +43,6 @@ end
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/ruby
-[Documentation]: https://doc.zeroc.com/ice/3.7
-[API Reference]: https://code.zeroc.com/ice/main/api/ruby/index.html
+[Documentation]: https://docs.zeroc.com/ice/latest/ruby/
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

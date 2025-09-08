@@ -3054,9 +3054,7 @@ public class Coordinator {
             try {
                 desktop.browse(
                     new URI(
-                        "https://doc.zeroc.com/ice/"
-                            + version
-                            + "/ice-services/icegrid/icegrid-gui-tool"));
+                        "https://docs.zeroc.com/ice/latest/cpp/icegrid-gui-tool"));
             } catch (Exception e) {
                 JOptionPane.showMessageDialog(
                     null,

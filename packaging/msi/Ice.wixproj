@@ -12,9 +12,9 @@
     <VCInstallDir Condition="'$(VCInstallDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(VCInstallDir)'))</VCInstallDir>
     <!-- Use DefineConstants to make MSBuild properties available in wxs Wix Files-->
     <DefineConstants>Version=3.8.0</DefineConstants>
-    <DefineConstants>$(DefineConstants);IceManualUrl=https://doc.zeroc.com/ice/3.8/</DefineConstants>
-    <DefineConstants>$(DefineConstants);IceSourceUrl=https://github.com/zeroc-ice/ice/tree/3.8</DefineConstants>
-    <DefineConstants>$(DefineConstants);IceReleaseNotesUrl=https://github.com/zeroc-ice/ice/releases/tag/v3.8.0</DefineConstants>
+    <DefineConstants>$(DefineConstants);IceManualUrl=https://docs.zeroc.com/ice/latest/cpp/</DefineConstants>
+    <DefineConstants>$(DefineConstants);IceSourceUrl=https://github.com/zeroc-ice/ice</DefineConstants>
+    <DefineConstants>$(DefineConstants);IceReleaseNotesUrl=https://docs.zeroc.com/ice/latest/cpp/ice-3-8-0-preview</DefineConstants>
     <OutputName>Ice-$(IcePackageVersion)</OutputName>
     <ProductCode>Ice-$(Version)</ProductCode>
   </PropertyGroup>

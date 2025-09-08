@@ -87,7 +87,7 @@ class Chatbot implements Greeter {
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/java
-[Documentation]: https://doc.zeroc.com/ice/3.7
+[Documentation]: https://docs.zeroc.com/ice/latest/java/
 [API Reference]: https://code.zeroc.com/ice/main/api/java/index.html
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
