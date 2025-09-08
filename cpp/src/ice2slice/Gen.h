@@ -27,6 +27,7 @@ namespace Slice
         {
         public:
             bool visitClassDefStart(const ClassDefPtr&) final;
+
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
             bool visitStructStart(const StructPtr&) final;
@@ -58,10 +59,19 @@ namespace Slice
             TypesVisitor(std::string fileBase, const std::set<std::string>& modules);
 
             void visitUnitEnd(const UnitPtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
+
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            void visitClassDefEnd(const ClassDefPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
+            void visitExceptionEnd(const ExceptionPtr&) final;
             bool visitStructStart(const StructPtr&) final;
+            void visitStructEnd(const StructPtr&) final;
+            void visitDataMember(const DataMemberPtr&) final;
+
             void visitSequence(const SequencePtr&) final;
             void visitDictionary(const DictionaryPtr&) final;
             void visitEnum(const EnumPtr&) final;
