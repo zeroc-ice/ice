@@ -66,6 +66,6 @@ Example:
 ```
 
 [package]: https://www.nuget.org/packages/ZeroC.Ice.Cpp
-[slice]: https://docs.zeroc.com/ice/latest/csharp/the-slice-language
+[slice]: https://docs.zeroc.com/ice/latest/cpp/the-slice-language
 [slice2cpp]: https://docs.zeroc.com/ice/latest/cpp/using-the-slice-compilers
 [source]: https://github.com/zeroc-ice/ice/tree/main/cpp/tools/ZeroC.Ice.Slice.Tools.Cpp
