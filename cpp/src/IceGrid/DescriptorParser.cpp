@@ -21,7 +21,7 @@ namespace
     public:
         DescriptorHandler(string, const shared_ptr<Ice::Communicator>&);
 
-        void setAdmin(IceGrid::AdminPrx);
+        void setAdmin(std::optional<IceGrid::AdminPrx>);
         void setVariables(const map<string, string>&, const vector<string>&);
 
         void startElement(const string&, const XMLAttributes&, int, int) override;
@@ -72,7 +72,7 @@ namespace
     {
     }
 
-    void DescriptorHandler::setAdmin(AdminPrx admin) { _admin = std::move(admin); }
+    void DescriptorHandler::setAdmin(std::optional<AdminPrx> admin) { _admin = std::move(admin); }
 
     void DescriptorHandler::setVariables(const map<string, string>& variables, const vector<string>& targets)
     {
@@ -155,9 +155,7 @@ namespace
 
                 bool importTemplates = attributes.asBool("import-default-templates", false);
 
-                //
-                // TODO: is ignoring importTemplates the desired behavior when _admin == nullopt?
-                //
+                // The templates come from _admin.
                 if (importTemplates && _admin != nullopt)
                 {
                     try
@@ -770,7 +768,7 @@ DescriptorParser::parseDescriptor(
     const Ice::StringSeq& targets,
     const map<string, string>& variables,
     const shared_ptr<Ice::Communicator>& communicator,
-    IceGrid::AdminPrx admin)
+    std::optional<IceGrid::AdminPrx> admin)
 {
     string filename = simplify(descriptor);
     DescriptorHandler handler(filename, communicator);

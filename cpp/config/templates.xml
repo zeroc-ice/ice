@@ -10,6 +10,7 @@
       <parameter name="server-endpoints" default=""/>
 
       <server id="${instance-name}" exe="glacier2router" activation="always">
+         <description>A Glacier2 router with activation mode "always".</description>
          <properties>
             <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
             <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
@@ -32,6 +33,7 @@
            load multiple IceStorm service instances in the same IceBox server - a rare use case. -->
       <service name="${instance-name}" entry="IceStormService,${node.ice.soversion}:createIceStorm">
 
+        <description>An IceStorm service, hosted by an IceBox server.</description>
         <adapter name="IceStorm.TopicManager"
                  id="${instance-name}.TopicManager"
                  endpoints="${topic-manager-endpoints}">
@@ -56,6 +58,7 @@
       <parameter name="flush-timeout" default="1000"/>
 
       <icebox id="${instance-name}" exe="icebox" activation="on-demand">
+        <description>An IceBox server that loads a single IceStorm service.</description>
         <service-instance template="IceStorm"
                           instance-name="${instance-name}"
                           topic-manager-endpoints="${topic-manager-endpoints}"
@@ -81,6 +84,7 @@
       <!-- In general, the IceStorm service name should be simply "IceStorm". Using a configurable name allows us to
            load multiple IceStorm service instances in the same IceBox server - a rare use case. -->
       <service name="${instance-name}${node-id}" entry="IceStormService,${node.ice.soversion}:createIceStorm">
+        <description>An IceStorm service for a replicated / high availability deployment.</description>
 
         <adapter name="IceStorm.TopicManager"
                  id="${instance-name}${node-id}.TopicManager"
@@ -115,6 +119,7 @@
       <parameter name="topic-manager-replica-group"/>
 
       <icebox id="${instance-name}${node-id}" exe="icebox" activation="on-demand">
+        <description>An IceBox server that loads a single IceStorm-HA service.</description>
         <service-instance template="IceStorm-HA"
                           instance-name="${instance-name}"
                           node-id="${node-id}"
