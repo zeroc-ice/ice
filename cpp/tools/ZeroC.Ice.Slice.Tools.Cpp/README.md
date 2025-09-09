@@ -9,7 +9,8 @@ source files (`.cpp` files) automatically as part of your build process.
 
 - **Automatic Slice Compilation:** Compiles Slice `.ice` files to C++ `.cpp` files using the `slice2cpp` compiler.
 - **Incremental Build Support:** Only recompiles Slice `.ice` files that have changed or have outdated dependencies.
-- **Customizable Compilation Options:** Allows configuring include directories, additional options, and output directories.
+- **Customizable Compilation Options:** Allows configuring include directories, additional options, and output
+  directories.
 
 ## Installation
 
@@ -65,6 +66,6 @@ Example:
 ```
 
 [package]: https://www.nuget.org/packages/ZeroC.Ice.Cpp
-[slice]: https://doc.zeroc.com/ice/3.7/the-slice-language
-[slice2cpp]: https://doc.zeroc.com/ice/latest/language-mappings/c++-mapping/slice2cpp-command-line-options
+[slice]: https://docs.zeroc.com/ice/latest/cpp/the-slice-language
+[slice2cpp]: https://docs.zeroc.com/ice/latest/cpp/using-the-slice-compilers
 [source]: https://github.com/zeroc-ice/ice/tree/main/cpp/tools/ZeroC.Ice.Slice.Tools.Cpp

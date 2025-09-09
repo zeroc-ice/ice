@@ -1,6 +1,6 @@
 # Ice for MATLAB
 
-[Examples] | [Documentation] | [API Reference] | [Building from source]
+[Examples] | [Documentation] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
@@ -50,7 +50,6 @@ end
 ```
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/matlab
-[Documentation]: https://doc.zeroc.com/ice/3.7
-[API Reference]: https://code.zeroc.com
+[Documentation]: https://docs.zeroc.com/ice/latest/matlab/
 [Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

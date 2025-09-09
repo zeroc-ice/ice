@@ -1,6 +1,6 @@
 # Ice For JavaScript
 
-[Getting started] | [Examples] | [NPM packages] | [Documentation] | [Building from source]
+[Examples] | [NPM packages] | [Documentation] | [API Reference] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
@@ -53,11 +53,11 @@ builds to remove such statements. Different module bundlers provide different op
 - If using rollup, see the [@rollup/plugin-strip] plugin and the [drop-labels option][strip-drop-labels].
 - If using WebPack the [TerserWebpackPlugin] plugin can be configured to drop `console.assert`; see `drop_console` in [terser options].
 
-[Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-javascript
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/js
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/js
 [NPM Packages]: https://www.npmjs.com/~zeroc
-[Documentation]: https://doc.zeroc.com/ice/3.7
-[Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/js/BUILDING.md
+[Documentation]: https://docs.zeroc.com/ice/latest/javascript/
+[API Reference]: https://code.zeroc.com/ice/main/api/javascript/index.html
+[Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice
 [esbuild]: https://esbuild.github.io/
 [esbuild-drop-labels]: https://esbuild.github.io/api/#drop-labels

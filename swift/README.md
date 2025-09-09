@@ -1,6 +1,6 @@
 # Ice For Swift
 
-[Getting started] | [Examples] | [NuGet package] | [Documentation] | [Building from source]
+[Examples] | [Documentation] | [Building from source]
 
 The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.
 
@@ -145,8 +145,7 @@ do {
 }
 ```
 
-[Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-swift
-[Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/swift
-[Documentation]: https://doc.zeroc.com/ice/3.7
-[Building from source]: https://github.com/zeroc-ice/ice/blob/3.7/swift/BUILDING.md
+[Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/swift
+[Documentation]: https://docs.zeroc.com/ice/latest/swift/
+[Building from source]: ./BUILDING.md
 [Ice framework]: https://github.com/zeroc-ice/ice

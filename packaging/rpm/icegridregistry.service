@@ -3,7 +3,7 @@
 [Unit]
 Description=IceGrid registry daemon
 Documentation=man:icegridregistry(1)
-Documentation=https://doc.zeroc.com/ice/latest/ice-services/icegrid/icegrid-server-reference/icegridregistry
+Documentation=https://docs.zeroc.com/ice/latest/cpp/icegridregistry
 Before=icegridnode.service
 After=syslog.target network.target
 

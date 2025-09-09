@@ -8,10 +8,11 @@
 
 # The Ice framework
 
-Ice helps you build networked applications with minimal effort. By taking care of all interactions with low-level
-network programming interfaces, Ice allows you to focus your efforts on your application logic. You don't need to
-worry about details such as opening network connections, encoding and decoding data for network transmission,
-or retrying failed connection attempts (to name just a few of dozens of such low-level details).
+The Internet Communications Engine (Ice) is a complete RPC framework that helps you build networked applications with
+minimal effort. Ice allows you to focus your efforts on your application logic, and it takes care of all interactions
+with low-level network programming interfaces. With Ice, there is no need to worry about details such as opening
+network connections, serializing and deserializing data for network transmission, or retrying failed connection
+attempts.
 
 [Downloads][downloads] | [Examples][examples] | [Documentation][docs]
 
@@ -50,7 +51,7 @@ slice2cpp Greeter.ice
 // Call operation greet on a remote object that implements
 // interface Greeter using the generated proxy class (GreeterPrx).
 GreeterPrx greeter{communicator, "greeter:tcp -h localhost -p 4061"};
-string greeting = greeter->greet("alice");
+string greeting = greeter.greet("alice");
 ```
 
 ```c++
@@ -77,9 +78,8 @@ server; neither side knows the programming language used by the other side.
 
 The Ice framework provides everything you need to build networked applications:
 
-- RPCs with a compact binary [protocol][protocol] over a variety of network transports (TCP, UDP, WebSocket,
+- RPCs with a compact binary [protocol][protocol] over a variety of network transports (TCP, SSL, UDP, WebSocket,
 Bluetooth...)
-- Secure communications ([IceSSL][icessl])
 - Configuration ([Ice Properties][properties])
 - Logging ([Ice Logger][logger])
 - Instrumentation and metrics ([IceMX][icemx])
@@ -112,21 +112,20 @@ license terms.
 
 [Commercial]: https://zeroc.com/ice/pricing
 [copyleft]: https://en.wikipedia.org/wiki/Copyleft
-[datastorm]: https://doc.zeroc.com/datastorm/latest/introduction
-[docs]: https://doc.zeroc.com/ice/3.7
+[datastorm]: https://docs.zeroc.com/ice/latest/cpp/datastorm
+[docs]: https://docs.zeroc.com/ice/latest
 [downloads]: https://zeroc.com/downloads/ice
 [examples]: https://github.com/zeroc-ice/ice-demos
 [gitter]: https://gitter.im/zeroc-ice/ice?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-[glacier2]: https://doc.zeroc.com/ice/3.7/ice-services/glacier2
+[glacier2]: https://docs.zeroc.com/ice/latest/cpp/glacier2
 [ice-repo]: https://github.com/zeroc-ice/ice
-[icegrid]: https://doc.zeroc.com/ice/3.7/ice-services/icegrid
-[icemx]: https://doc.zeroc.com/ice/3.7/administration-and-diagnostics/administrative-facility/the-metrics-facet
-[icessl]: https://doc.zeroc.com/ice/3.7/ice-plugins/icessl
-[icestorm]: https://doc.zeroc.com/ice/3.7/ice-services/icestorm
+[icegrid]: https://docs.zeroc.com/ice/latest/cpp/icegrid
+[icemx]: https://docs.zeroc.com/ice/latest/cpp/the-metrics-facet
+[icestorm]: https://docs.zeroc.com/ice/latest/cpp/icestorm
 [idl]: https://en.wikipedia.org/wiki/Interface_description_language
 [license]: LICENSE
-[logger]: https://doc.zeroc.com/ice/3.7/administration-and-diagnostics/logger-facility
-[properties]: https://doc.zeroc.com/ice/3.7/properties-and-configuration
-[protocol]: https://doc.zeroc.com/ice/3.7/ice-protocol-and-encoding
+[logger]: https://docs.zeroc.com/ice/latest/cpp/logger-facility
+[properties]: https://docs.zeroc.com/ice/latest/cpp/properties-and-configuration
+[protocol]: https://docs.zeroc.com/ice/latest/cpp/ice-protocol
 [rpcs]: https://en.wikipedia.org/wiki/Remote_procedure_call
-[slice]: https://doc.zeroc.com/ice/3.7/the-slice-language
+[slice]: https://docs.zeroc.com/ice/latest/cpp/the-slice-language

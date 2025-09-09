@@ -70,6 +70,6 @@ Example:
 
 [default-items]: https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#enabledefaultitems
 [package]: https://www.nuget.org/packages/ZeroC.Ice.Slice.Tools
-[slice]: https://doc.zeroc.com/ice/3.7/the-slice-language
-[slice2cs]: https://doc.zeroc.com/ice/3.7/language-mappings/c-sharp-mapping/client-side-slice-to-c-sharp-mapping/slice2cs-command-line-options
+[slice]: https://docs.zeroc.com/ice/latest/csharp/the-slice-language
+[slice2cs]: https://docs.zeroc.com/ice/latest/csharp/using-the-slice-compilers
 [source]: https://github.com/zeroc-ice/ice/tree/main/csharp/tools/ZeroC.Ice.Slice.Tools
