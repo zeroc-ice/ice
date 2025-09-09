@@ -13,7 +13,7 @@ namespace IceGrid::DescriptorParser
         const Ice::StringSeq&,
         const std::map<std::string, std::string>&,
         const Ice::CommunicatorPtr&,
-        IceGrid::AdminPrx);
+        std::optional<IceGrid::AdminPrx>);
 
     ApplicationDescriptor parseDescriptor(const std::string&, const Ice::CommunicatorPtr&);
 }
