@@ -1065,6 +1065,8 @@ service.
     registry.
   - Use only the 3.8 admin tools (icegridadmin, IceGridUI) when administering an IceGrid 3.8 registry. The 3.7 tools may
     not operate reliably due to updates in the session management code.
+  - If you've written your own IceGrid admin tool using Ice 3.7, it should still work with a 3.8 registry. But make sure
+    you turn on heartbeats (see Idle timeout earlier). Or upgrade this tool to use Ice 3.8.
   - The registry database schema remains the same as in Ice 3.7. As a result, you can start a 3.8 registry with a
     database created by a 3.7 registry, or vice-versa.
 
