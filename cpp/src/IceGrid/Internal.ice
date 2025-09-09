@@ -13,16 +13,8 @@
 
 module IceGrid
 {
-    // This class is no longer used. We keep it only for interop with IceGrid 3.7.
-    class InternalDbEnvDescriptor
-    {
-        /// The name of the database environment.
-        string name;
-
-        /// The database properties.
-        PropertyDescriptorSeq properties;
-    }
-    sequence<InternalDbEnvDescriptor> InternalDbEnvDescriptorSeq;
+    // These Internal descriptors are used for registry-node communications. InternalServerDescriptor changed in 3.8
+    // so a registry 3.8 cannot communicate with a node 3.7 or older.
 
     class InternalAdapterDescriptor
     {
@@ -85,9 +77,6 @@ module IceGrid
 
         /// The indirect object adapters.
         InternalAdapterDescriptorSeq adapters;
-
-        // Not used, always empty. Kept only for interop with IceGrid 3.7.
-        InternalDbEnvDescriptorSeq dbEnvs;
 
         /// The configuration files of the server.
         PropertyDescriptorSeqDict properties;

@@ -1054,9 +1054,19 @@ initialization. See `InitializationData.pluginFactories`.
 - Removed deprecated server and application distributions in IceGrid. These distributions relied on the IcePatch2
 service.
 
+- Removed deprecated Freeze database environments (DbEnv).
+
 - Removed client and admin-client session timeouts configured using `IceGrid.Registry.SessionTimeout`. IceGrid now
   relies on the common idle check described under [General Changes](#general-changes) for these connection-bound
   sessions.
+
+- Interop/upgrade from 3.7
+  - IceGrid registry and IceGrid node must all use version 3.8. For example, you can't use a 3.7 node with a 3.8
+    registry.
+  - Use only the 3.8 admin tools (icegridadmin, IceGridUI) when administering an IceGrid 3.8 registry. The 3.7 tools may
+    not operate reliably due to updates in the session management code.
+  - The registry database schema remains the same as in Ice 3.7. As a result, you can start a 3.8 registry with a
+    database created by a 3.7 registry, or vice-versa.
 
 #### IcePatch2
 
