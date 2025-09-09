@@ -59,13 +59,35 @@ sudo apt-get install libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev libssl-de
 Add the ZeroC repository:
 
 ```shell
-dnf install https://zeroc.com/download/ice/3.7/el9/ice-repo-3.7.el9.noarch.rpm
+dnf install https://zeroc.com/download/ice/3.8/el9/ice-repo-3.8-1.0.0-1.el9.noarch.rpm
 ```
 
 Install the required third-party libraries:
 
 ```shell
 dnf install bzip2-devel expat-devel libedit-devel libsystemd-devel lmdb-devel mcpp-devel openssl-devel
+```
+
+#### On RHEL 10
+
+Add the ZeroC repository:
+
+```shell
+dnf install https://zeroc.com/download/ice/3.8/el10/ice-repo-3.8-1.0.0-1.el10.noarch.rpm
+```
+
+Install the required third-party libraries:
+
+```shell
+dnf install bzip2-devel expat-devel libedit-devel libsystemd-devel lmdb-devel mcpp-devel openssl-devel
+```
+
+#### On Amazon Linux 2023
+
+Install the required third-party libraries:
+
+```shell
+dnf install bzip2-devel expat-devel libedit-devel systemd-devel lmdb-devel libmcpp-devel openssl-devel
 ```
 
 ### Building
