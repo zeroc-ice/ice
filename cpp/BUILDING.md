@@ -54,29 +54,26 @@ Install the required third-party libraries:
 sudo apt-get install libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev libssl-dev libsystemd-dev
 ```
 
-#### On RHEL 9
+#### On RHEL
 
-Add the ZeroC repository:
+First add the ZeroC repository:
+
+##### RHEL 9
 
 ```shell
 dnf install https://zeroc.com/download/ice/3.8/el9/ice-repo-3.8-1.0.0-1.el9.noarch.rpm
 ```
 
-Install the required third-party libraries:
-
-```shell
-dnf install bzip2-devel expat-devel libedit-devel libsystemd-devel lmdb-devel mcpp-devel openssl-devel
-```
-
-#### On RHEL 10
-
-Add the ZeroC repository:
+##### RHEL 10
 
 ```shell
 dnf install https://zeroc.com/download/ice/3.8/el10/ice-repo-3.8-1.0.0-1.el10.noarch.rpm
 ```
 
-Install the required third-party libraries:
+> The ZeroC repository provides the `lmdb-devel` and `mcpp-devel` packages, which are not available in the standard
+> RHEL repositories.
+
+Then install the required third-party libraries:
 
 ```shell
 dnf install bzip2-devel expat-devel libedit-devel libsystemd-devel lmdb-devel mcpp-devel openssl-devel
