@@ -17,11 +17,13 @@ runs:
       if: runner.os == 'Linux'
       id: linux-version
       run: echo "version=$(lsb_release -rs)" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Get macOS version
       if: runner.os == 'macOS'
       id: macos-version
       run: echo "version=$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Get Windows version
       if: runner.os == 'Windows'
