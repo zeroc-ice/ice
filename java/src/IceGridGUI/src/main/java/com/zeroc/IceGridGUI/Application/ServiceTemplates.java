@@ -3,6 +3,7 @@
 package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.AdapterDescriptor;
+import com.zeroc.IceGrid.DbEnvDescriptor;
 import com.zeroc.IceGrid.PropertyDescriptor;
 import com.zeroc.IceGrid.PropertySetDescriptor;
 import com.zeroc.IceGrid.ServiceDescriptor;
@@ -62,6 +63,7 @@ class ServiceTemplates extends Templates {
                 new LinkedList<AdapterDescriptor>(),
                 new PropertySetDescriptor(
                     new String[0], new LinkedList<PropertyDescriptor>()),
+                new DbEnvDescriptor[0],
                 new String[0],
                 "",
                 "",
