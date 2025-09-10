@@ -4,6 +4,7 @@ package com.zeroc.IceGridGUI.Application;
 
 import com.zeroc.IceGrid.AdapterDescriptor;
 import com.zeroc.IceGrid.CommunicatorDescriptor;
+import com.zeroc.IceGrid.DbEnvDescriptor;
 import com.zeroc.IceGrid.DistributionDescriptor;
 import com.zeroc.IceGrid.IceBoxDescriptor;
 import com.zeroc.IceGrid.PropertyDescriptor;
@@ -60,6 +61,7 @@ class PlainServer extends Communicator implements Server {
             new LinkedList<AdapterDescriptor>(),
             new PropertySetDescriptor(
                 new String[0], new LinkedList<PropertyDescriptor>()),
+            new DbEnvDescriptor[0],
             new String[0],
             "",
             "NewServer",
@@ -82,6 +84,7 @@ class PlainServer extends Communicator implements Server {
             new LinkedList<AdapterDescriptor>(),
             new PropertySetDescriptor(
                 new String[0], new LinkedList<PropertyDescriptor>()),
+            new DbEnvDescriptor[0],
             new String[0],
             "",
             "NewIceBox",
