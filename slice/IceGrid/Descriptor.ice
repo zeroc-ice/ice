@@ -116,6 +116,7 @@ module IceGrid
         string dbHome;
 
         /// The configuration properties of the database environment.
+        ["matlab:identifier:propertyDescriptors"]
         PropertyDescriptorSeq properties;
     }
 
