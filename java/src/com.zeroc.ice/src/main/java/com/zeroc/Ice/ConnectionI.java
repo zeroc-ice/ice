@@ -919,13 +919,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 s.append(" connection\n");
                 s.append(toString());
 
-                //
-                // Trace the cause of unexpected connection closures
-                //
-                if (!(_exception instanceof CloseConnectionException
-                    || _exception instanceof ConnectionAbortedException
-                    || _exception instanceof ConnectionClosedException
-                    || _exception instanceof CommunicatorDestroyedException
+                // Trace the cause of most connection closures.
+                if (!(_exception instanceof CommunicatorDestroyedException
                     || _exception instanceof ObjectAdapterDeactivatedException
                     || _exception instanceof ObjectAdapterDestroyedException)) {
                     s.append("\n");
@@ -1074,19 +1069,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     public synchronized void idleCheck(int idleTimeout) {
         if (_state == StateActive && _idleTimeoutTransceiver.isIdleCheckEnabled()) {
-            if (_instance.traceLevels().network >= 1) {
-                _instance
-                    .initializationData()
-                    .logger
-                    .trace(
-                        _instance.traceLevels().networkCat,
-                        "connection aborted by the idle check because it did not receive"
-                            + " any bytes for "
-                            + idleTimeout
-                            + "s\n"
-                            + _transceiver.toDetailedString());
-            }
-
             setState(
                 StateClosed,
                 new ConnectionAbortedException(
@@ -1279,7 +1261,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             if (_warn && _validated) {
                 // Don't warn about certain expected exceptions.
                 if (!(_exception instanceof CloseConnectionException
-                    || _exception instanceof ConnectionAbortedException
                     || _exception instanceof ConnectionClosedException
                     || _exception instanceof CommunicatorDestroyedException
                     || _exception instanceof ObjectAdapterDeactivatedException
@@ -1414,7 +1395,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             }
             if (_observer != null && state == StateClosed && _exception != null) {
                 if (!(_exception instanceof CloseConnectionException
-                    || _exception instanceof ConnectionAbortedException
                     || _exception instanceof ConnectionClosedException
                     || _exception instanceof CommunicatorDestroyedException
                     || _exception instanceof ObjectAdapterDeactivatedException

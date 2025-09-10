@@ -1169,14 +1169,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 s.Append(" connection\n");
                 s.Append(ToString());
 
-                //
-                // Trace the cause of unexpected connection closures
-                //
-                if (!(_exception is CloseConnectionException ||
-                     _exception is ConnectionAbortedException ||
-                     _exception is ConnectionClosedException ||
-                     _exception is CommunicatorDestroyedException ||
-                     _exception is ObjectAdapterDeactivatedException))
+                // Trace the cause of most connection closures.
+                if (!(_exception is CommunicatorDestroyedException || _exception is ObjectAdapterDeactivatedException))
                 {
                     s.Append('\n');
                     s.Append(_exception);
@@ -1440,13 +1434,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 int idleTimeoutInSeconds = (int)idleTimeout.TotalSeconds;
 
-                if (_instance.traceLevels().network >= 1)
-                {
-                    _instance.initializationData().logger.trace(
-                        _instance.traceLevels().networkCat,
-                        $"connection aborted by the idle check because it did not receive any bytes for {idleTimeoutInSeconds}s\n{_transceiver.toDetailedString()}");
-                }
-
                 setState(
                     StateClosed,
                     new ConnectionAbortedException(
@@ -1561,7 +1548,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 // Don't warn about certain expected exceptions.
                 //
                 if (!(_exception is CloseConnectionException ||
-                     _exception is ConnectionAbortedException ||
                      _exception is ConnectionClosedException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException ||
@@ -1733,7 +1719,6 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             if (_observer is not null && state == StateClosed && _exception is not null)
             {
                 if (!(_exception is CloseConnectionException ||
-                     _exception is ConnectionAbortedException ||
                      _exception is ConnectionClosedException ||
                      _exception is CommunicatorDestroyedException ||
                      _exception is ObjectAdapterDeactivatedException ||

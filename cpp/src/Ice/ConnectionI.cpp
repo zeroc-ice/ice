@@ -1642,15 +1642,6 @@ Ice::ConnectionI::finish(bool close)
             {
                 rethrow_exception(_exception);
             }
-            catch (const CloseConnectionException&)
-            {
-            }
-            catch (const ConnectionAbortedException&)
-            {
-            }
-            catch (const ConnectionClosedException&)
-            {
-            }
             catch (const CommunicatorDestroyedException&)
             {
             }
@@ -2030,9 +2021,6 @@ Ice::ConnectionI::setState(State state, exception_ptr ex)
             catch (const CloseConnectionException&)
             {
             }
-            catch (const ConnectionAbortedException&)
-            {
-            }
             catch (const ConnectionClosedException&)
             {
             }
@@ -2226,9 +2214,6 @@ Ice::ConnectionI::setState(State state)
             catch (const CloseConnectionException&)
             {
             }
-            catch (const ConnectionAbortedException&)
-            {
-            }
             catch (const ConnectionClosedException&)
             {
             }
@@ -2323,14 +2308,6 @@ Ice::ConnectionI::idleCheck(const chrono::seconds& idleTimeout) noexcept
     std::lock_guard lock(_mutex);
     if (_state == StateActive && _idleTimeoutTransceiver->idleCheckEnabled())
     {
-        if (_instance->traceLevels()->network >= 1)
-        {
-            Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
-            out << "connection aborted by the idle check because it did not receive any bytes for "
-                << idleTimeout.count() << "s\n";
-            out << _transceiver->toDetailedString();
-        }
-
         setState(
             StateClosed,
             make_exception_ptr(ConnectionAbortedException{
