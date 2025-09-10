@@ -13,17 +13,23 @@ runs:
     # Cache
     #
 
-    - name: Get OS version
-      id: os-version
+    - name: Get Linux version
+      if: runner.os == 'Linux'
+      id: linux-version
+      run: echo "version=$(lsb_release -rs)" >> $GITHUB_OUTPUT
+
+    - name: Get macOS version
+      if: runner.os == 'macOS'
+      id: macos-version
+      run: echo "version=$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+
+    - name: Get Windows version
+      if: runner.os == 'Windows'
+      id: windows-version
       run: |
-        if [ "$RUNNER_OS" == "Linux" ]; then
-          echo "version=$(lsb_release -rs)" >> $GITHUB_OUTPUT
-        elif [ "$RUNNER_OS" == "macOS" ]; then
-          echo "version=$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
-        elif [ "$RUNNER_OS" == "Windows" ]; then
-          echo "version=$(systeminfo | findstr /B /C:"OS Version")" >> $GITHUB_OUTPUT
-        fi
-      shell: bash
+        $version = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').ReleaseId
+        echo "version=win$version" >> $env:GITHUB_OUTPUT
+      shell: powershell
 
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
