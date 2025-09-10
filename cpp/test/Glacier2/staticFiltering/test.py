@@ -17,6 +17,7 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
         routerProps = {
             "Ice.Config": "{testdir}/router.cfg",
             "Glacier2.RoutingTable.MaxSize": 10,
+            "Ice.Warn.Connections": 0,
         }
 
         # Override the server/router default host property, we don't want to use the loopback
