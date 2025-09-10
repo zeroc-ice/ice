@@ -27,7 +27,7 @@ runs:
       if: runner.os == 'Windows'
       id: windows-version
       run: |
-        $version = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').ReleaseId
+        $version = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').DisplayVersion
         echo "version=win$version" >> $env:GITHUB_OUTPUT
       shell: powershell
 
