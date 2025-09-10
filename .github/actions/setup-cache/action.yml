@@ -12,14 +12,27 @@ runs:
     #
     # Cache
     #
+
+    - name: Get OS version
+      id: os-version
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          echo "version=$(lsb_release -rs)" >> $GITHUB_OUTPUT
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          echo "version=$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+          echo "version=$(systeminfo | findstr /B /C:"OS Version")" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
         create-symlink: false
         append-timestamp: false
-        key: ${{ inputs.prefix }}-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+        key: ${{ inputs.prefix }}-${{ runner.os }}-${{ steps.os-version.outputs.version }}-${{ runner.arch }}-${{ github.sha }}
         restore-keys: |
-          ${{ inputs.prefix }}-${{ runner.os }}-${{ runner.arch }}
+          ${{ inputs.prefix }}-${{ runner.os }}-${{ steps.os-version.outputs.version }}-${{ runner.arch }}
         max-size: 1G
         evict-old-files: job
         variant: ${{ runner.os == 'Windows' && 'ccache' || 'ccache' }}
