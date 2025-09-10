@@ -1922,6 +1922,7 @@ public class SessionKeeper {
                             }
 
                             case DirectCustomEndpointStep -> {
+                                boolean hasSecureEndpoints = false;
                                 try {
                                     Identity id = new Identity();
                                     id.name = "Locator";
@@ -1933,7 +1934,8 @@ public class SessionKeeper {
 
                                     ObjectPrx.createProxy(_coordinator.getCommunicator(), endpoint.toString());
 
-                                    if (containsSecureEndpoints(endpoint.toString())) {
+                                    hasSecureEndpoints = containsSecureEndpoints(endpoint.toString());
+                                    if (hasSecureEndpoints) {
                                         _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                         _wizardSteps.push(WizardStep.X509CertificateStep);
                                     } else {
@@ -1958,8 +1960,7 @@ public class SessionKeeper {
                                     return;
                                 }
                                 if (_x509CertificateDefault) {
-                                    if (containsSecureEndpoints(
-                                        _directCustomEndpointValue.getText())) {
+                                    if (hasSecureEndpoints) {
                                         _x509CertificateYesButton.setSelected(true);
                                         _certificateAuthButton.setSelected(true);
                                     } else {
@@ -1969,6 +1970,7 @@ public class SessionKeeper {
                                 }
                             }
                             case RoutedCustomEndpointStep -> {
+                                boolean hasSecureEndpoints = false;
                                 try {
                                     Identity id = new Identity();
                                     id.name = "router";
@@ -1980,7 +1982,8 @@ public class SessionKeeper {
 
                                     ObjectPrx.createProxy(_coordinator.getCommunicator(), endpoint.toString());
 
-                                    if (containsSecureEndpoints(endpoint.toString())) {
+                                    hasSecureEndpoints = containsSecureEndpoints(endpoint.toString());
+                                    if (hasSecureEndpoints) {
                                         _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                         _wizardSteps.push(WizardStep.X509CertificateStep);
                                     } else {
@@ -1998,8 +2001,7 @@ public class SessionKeeper {
                                     return;
                                 }
                                 if (_x509CertificateDefault) {
-                                    if (containsSecureEndpoints(
-                                        _routedCustomEndpointValue.getText())) {
+                                    if (hasSecureEndpoints) {
                                         _x509CertificateYesButton.setSelected(true);
                                         _certificateAuthButton.setSelected(true);
                                     } else {
@@ -2697,9 +2699,8 @@ public class SessionKeeper {
     }
 
     private boolean containsSecureEndpoints(String str) {
-        var proxy = ObjectPrx.createProxy(_coordinator.getCommunicator(), str);
-
         try {
+            var proxy = ObjectPrx.createProxy(_coordinator.getCommunicator(), str);
             for (Endpoint endpoint : proxy.ice_getEndpoints()) {
                 if (endpoint.getInfo().secure()) {
                     return true;
