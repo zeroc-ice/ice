@@ -235,7 +235,14 @@ public:
 void
 Subscriber::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder ich = initialize(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
+    InitializationData initData;
+    initData.properties = make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"});
+    initData.properties = createProperties(argc, argv, initData.properties);
+    parseTestOptions(argc, argv, initData.properties);
+
+    // override the test default since we abort connections
+    initData.properties->setProperty("Ice.Warn.Connections", "0");
+    Ice::CommunicatorHolder ich = initialize(initData);
     const auto& communicator = ich.communicator();
     IceInternal::Options opts;
     opts.addOpt("", "events", IceInternal::Options::NeedArg);

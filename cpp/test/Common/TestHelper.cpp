@@ -23,14 +23,6 @@ namespace
     }
 
 #endif
-
-    void parseTestOptions(int& argc, char* argv[], const Ice::PropertiesPtr& properties)
-    {
-        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-        args = properties->parseCommandLineOptions("Test", args);
-        args = properties->parseCommandLineOptions("TestAdapter", args);
-        Ice::stringSeqToArgs(args, argc, argv);
-    }
 }
 
 #if TARGET_OS_IPHONE != 0
@@ -269,6 +261,15 @@ Test::TestHelper::createTestProperties(int& argc, char* argv[])
     Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
     parseTestOptions(argc, argv, properties);
     return properties;
+}
+
+void
+Test::TestHelper::parseTestOptions(int& argc, char* argv[], const Ice::PropertiesPtr& properties)
+{
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+    args = properties->parseCommandLineOptions("Test", args);
+    args = properties->parseCommandLineOptions("TestAdapter", args);
+    Ice::stringSeqToArgs(args, argc, argv);
 }
 
 Ice::CommunicatorPtr
