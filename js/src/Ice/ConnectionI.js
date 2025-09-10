@@ -636,12 +636,9 @@ export class ConnectionI {
             }
         } else if (traceLevels.network >= 1) {
             let s = `closed ${this._endpoint.protocol()} connection\n${this}`;
-            // Trace the cause of unexpected connection closures
+            // Trace the cause of most connection closures
             if (
                 !(
-                    this._exception instanceof CloseConnectionException ||
-                    this._exception instanceof ConnectionAbortedException ||
-                    this._exception instanceof ConnectionClosedException ||
                     this._exception instanceof CommunicatorDestroyedException ||
                     this._exception instanceof ObjectAdapterDestroyedException
                 )
@@ -816,7 +813,6 @@ export class ConnectionI {
                     if (
                         !(
                             this._exception instanceof CloseConnectionException ||
-                            this._exception instanceof ConnectionAbortedException ||
                             this._exception instanceof ConnectionClosedException ||
                             this._exception instanceof CommunicatorDestroyedException ||
                             this._exception instanceof ObjectAdapterDestroyedException ||
@@ -960,12 +956,6 @@ export class ConnectionI {
 
     idleCheck(idleTimeout) {
         if (this._state === StateActive || this._state === StateHolding) {
-            if (this._traceLevels.network >= 1) {
-                this._logger.trace(
-                    this._traceLevels.networkCat,
-                    `connection aborted by the idle check because it did not receive any bytes for ${idleTimeout}s\n${this._transceiver.toString()}`,
-                );
-            }
             this.setState(
                 StateClosed,
                 new ConnectionAbortedException(
