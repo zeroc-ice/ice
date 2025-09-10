@@ -7,7 +7,8 @@
 - [Building Ice for C++ on Linux](#building-ice-for-c-on-linux)
   - [Installing Build Dependencies](#installing-build-dependencies)
     - [On Ubuntu and other Debian-based systems](#on-ubuntu-and-other-debian-based-systems)
-    - [On RHEL 9](#on-rhel-9)
+    - [On RHEL](#on-rhel)
+    - [On Amazon Linux 2023](#on-amazon-linux-2023)
   - [Building](#building)
   - [Testing](#testing)
   - [Installation](#installation)
@@ -54,18 +55,37 @@ Install the required third-party libraries:
 sudo apt-get install libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev libssl-dev libsystemd-dev
 ```
 
-#### On RHEL 9
+#### On RHEL
 
-Add the ZeroC repository:
+First add the ZeroC repository:
+
+##### RHEL 9
 
 ```shell
-dnf install https://zeroc.com/download/ice/3.7/el9/ice-repo-3.7.el9.noarch.rpm
+dnf install https://zeroc.com/download/ice/3.8/el9/ice-repo-3.8-1.0.0-1.el9.noarch.rpm
 ```
+
+##### RHEL 10
+
+```shell
+dnf install https://zeroc.com/download/ice/3.8/el10/ice-repo-3.8-1.0.0-1.el10.noarch.rpm
+```
+
+> The ZeroC repository provides the `lmdb-devel` and `mcpp-devel` packages, which are not available in the standard
+> RHEL repositories.
+
+Then install the required third-party libraries:
+
+```shell
+dnf install bzip2-devel expat-devel libedit-devel libsystemd-devel lmdb-devel mcpp-devel openssl-devel
+```
+
+#### On Amazon Linux 2023
 
 Install the required third-party libraries:
 
 ```shell
-dnf install bzip2-devel expat-devel libedit-devel libsystemd-devel lmdb-devel mcpp-devel openssl-devel
+dnf install bzip2-devel expat-devel libedit-devel systemd-devel lmdb-devel libmcpp-devel openssl-devel
 ```
 
 ### Building
