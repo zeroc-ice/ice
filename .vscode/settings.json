@@ -10,5 +10,6 @@
     "[swift]": {
         "editor.formatOnSave": false
     },
-    "java.compile.nullAnalysis.mode": "disabled"
+    "java.compile.nullAnalysis.mode": "disabled",
+    "markdown.extension.toc.levels": "1..3"
 }

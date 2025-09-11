@@ -6,33 +6,16 @@ Ice nightly builds are produced daily from the main GitHub branch.
 
 - [Dev kits](#dev-kits)
   - [Ice for C++](#ice-for-c)
-    - [Linux](#linux)
-      - [RHEL, Amazon Linux](#rhel-amazon-linux)
-      - [Debian, Ubuntu](#debian-ubuntu)
-    - [macOS](#macos)
-    - [Windows](#windows)
   - [Ice for C#](#ice-for-c-1)
   - [Ice for Java](#ice-for-java)
-    - [Gradle](#gradle)
   - [Ice for JavaScript](#ice-for-javascript)
   - [Ice for MATLAB](#ice-for-matlab)
   - [Ice for PHP](#ice-for-php)
-    - [Linux](#linux-1)
-      - [RHEL](#rhel)
-      - [Amazon Linux](#amazon-linux)
-      - [Debian, Ubuntu](#debian-ubuntu-1)
-    - [macOS](#macos-1)
   - [Ice for Python](#ice-for-python)
-    - [Pypi](#pypi)
-    - [Linux](#linux-2)
-      - [RHEL, Amazon Linux](#rhel-amazon-linux-1)
-      - [Debian, Ubuntu](#debian-ubuntu-2)
   - [Ice for Ruby](#ice-for-ruby)
   - [Ice for Swift](#ice-for-swift)
 - [Ice Services](#ice-services)
   - [Linux](#linux-3)
-    - [RHEL, Amazon Linux](#rhel-amazon-linux-2)
-    - [Debian, Ubuntu](#debian-ubuntu-3)
   - [macOS](#macos-2)
   - [Windows](#windows-1)
 - [Linux Repositories](#linux-repositories)
@@ -259,7 +242,7 @@ Then, install the desired service. For example:
 sudo dnf install icegrid
 ```
 
-Refer to the [RPM packages README] for the package names.
+Refer to the [RPM packages README] for a complete list of available service packages and their package names.
 
 #### Debian, Ubuntu
 
