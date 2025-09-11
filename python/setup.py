@@ -134,7 +134,7 @@ class CustomBuildExtCommand(_build_ext):
         self.distribution.ext_modules[0].sources = filtered
         _build_ext.run(self)
 
-    def build_extension(self, ext: str):
+    def build_extension(self, ext: Extension):
         original_compile = self.compiler._compile
 
         # Monkey-patch the compiler to add extra compile args for C++ files. This works around errors with Clang and
