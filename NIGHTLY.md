@@ -268,7 +268,7 @@ sudo apt-get update
 sudo apt-get install zeroc-icegrid
 ```
 
-Refer to the [DEB packages README] for the package names.
+Refer to the [DEB packages README] for a complete list of available service packages and their package names.
 
 ### macOS
 
