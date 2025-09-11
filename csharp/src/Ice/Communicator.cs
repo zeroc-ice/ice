@@ -139,8 +139,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
 
     /// <summary>
     /// Converts a set of proxy properties into a proxy. The "base" name supplied in the <paramref name="property" />
-    /// argument refers to a property containing a stringified proxy, such as
-    /// <code>MyProxy=id:tcp -h localhost -p 10000</code>.
+    /// argument refers to a property containing a stringified proxy, such as `MyProxy=id:tcp -h localhost -p 10000`.
     /// Additional properties configure local settings for the proxy.
     /// </summary>
     ///
