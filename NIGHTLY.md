@@ -246,7 +246,7 @@ https://github.com/zeroc-ice/ice-swift-nightly
 This section describes how to install the DataStorm, Glacier2, IceBox, IceBridge, IceGrid, and IceStorm services.
 
 > DataStorm is primarily a library-based service, installed as part of Ice for C++. The DataStorm component described
-> in this section in the DataStorm server (dsnode).
+> in this section is the DataStorm server (dsnode).
 
 ### Linux
 
