@@ -14,7 +14,7 @@ export class Client extends TestHelper {
         const out = this.getWriter();
         const manager = new Test.ServerManagerPrx(communicator, `ServerManager:${this.getTestEndpoint()}`);
 
-        const locator = Test.TestLocatorPrx.uncheckedCast(communicator.getDefaultLocator());
+        const locator = Test.TestLocatorPrx.uncheckedCast(communicator.getDefaultLocator()!);
 
         const registry = Test.TestLocatorRegistryPrx.uncheckedCast((await locator.getRegistry())!);
 
@@ -28,7 +28,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing ice_locator and ice_getLocator... ");
-        test(proxyIdentityCompare(base.ice_getLocator()!, communicator.getDefaultLocator()));
+        test(proxyIdentityCompare(base.ice_getLocator()!, communicator.getDefaultLocator()!));
         const anotherLocator = new Ice.LocatorPrx(communicator, "anotherLocator");
         base = base.ice_locator(anotherLocator);
         test(proxyIdentityCompare(base.ice_getLocator()!, anotherLocator));
@@ -39,7 +39,7 @@ export class Client extends TestHelper {
         test(proxyIdentityCompare(base.ice_getLocator()!, anotherLocator));
         communicator.setDefaultLocator(locator);
         base = new Ice.ObjectPrx(communicator, "test @ TestAdapter");
-        test(proxyIdentityCompare(base.ice_getLocator()!, communicator.getDefaultLocator()));
+        test(proxyIdentityCompare(base.ice_getLocator()!, communicator.getDefaultLocator()!));
 
         // We also test ice_router/ice_getRouter (perhaps we should add a test/Ice/router test?)
         test(base.ice_getRouter() === null);
@@ -49,7 +49,7 @@ export class Client extends TestHelper {
         const router = new Ice.RouterPrx(communicator, "dummyrouter");
         communicator.setDefaultRouter(router);
         base = new Ice.ObjectPrx(communicator, "test @ TestAdapter");
-        test(proxyIdentityCompare(base.ice_getRouter()!, communicator.getDefaultRouter()));
+        test(proxyIdentityCompare(base.ice_getRouter()!, communicator.getDefaultRouter()!));
         communicator.setDefaultRouter(null);
         base = new Ice.ObjectPrx(communicator, "test @ TestAdapter");
         test(base.ice_getRouter() === null);

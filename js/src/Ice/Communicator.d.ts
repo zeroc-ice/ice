@@ -184,7 +184,7 @@ declare module "@zeroc/ice" {
              *
              * @see {@link setDefaultRouter}
              */
-            getDefaultRouter(): RouterPrx;
+            getDefaultRouter(): RouterPrx | null;
 
             /**
              * Sets the communicator's default router.
@@ -209,7 +209,7 @@ declare module "@zeroc/ice" {
              *
              * @see {@link setDefaultLocator}
              */
-            getDefaultLocator(): LocatorPrx;
+            getDefaultLocator(): LocatorPrx | null;
 
             /**
              * Sets the communicator's default locator.

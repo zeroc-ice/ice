@@ -358,7 +358,7 @@ class Communicator:
         properties = self._impl.getProperties()
         return Properties(properties)
 
-    def getLogger(self):
+    def getLogger(self) -> Logger:
         """
         Get the logger for this communicator.
 
@@ -373,7 +373,7 @@ class Communicator:
         else:
             return LoggerI(logger)
 
-    def getDefaultRouter(self):
+    def getDefaultRouter(self) -> RouterPrx | None:
         """
         Get the default router for this communicator.
 
