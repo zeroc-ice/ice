@@ -178,7 +178,7 @@ Not yet available.
 
 ### Ice for Python
 
-#### Pypi
+#### PyPI
 
 The ZeroC Ice nightly Python package is available from the ZeroC PyPI nightly repository for all platforms (Linux,
 macOS, Windows).
