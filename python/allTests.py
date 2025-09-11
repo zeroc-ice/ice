@@ -7,6 +7,6 @@ import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
-from Util import runTestsWithPath
+from Util import runTestsWithPath  # pyright: ignore[reportMissingImports]
 
 runTestsWithPath(__file__)
