@@ -63,7 +63,7 @@ declare module "@zeroc/ice" {
              *
              * @see {@link proxyToString}
              */
-            stringToProxy(proxyString: string): Ice.ObjectPrx;
+            stringToProxy(proxyString: string): Ice.ObjectPrx | null;
 
             /**
              * Converts a proxy into a string.

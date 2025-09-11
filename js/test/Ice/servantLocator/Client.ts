@@ -134,7 +134,7 @@ export class Client extends TestHelper {
 
         out.write("testing ice_ids... ");
         try {
-            const o = communicator.stringToProxy(`category/locate:${this.getTestEndpoint()}`);
+            const o = new Ice.ObjectPrx(communicator, `category/locate:${this.getTestEndpoint()}`);
             await o.ice_ids();
             test(false);
         } catch (ex) {
@@ -142,7 +142,7 @@ export class Client extends TestHelper {
         }
 
         try {
-            const o = communicator.stringToProxy(`category/finished:${this.getTestEndpoint()}`);
+            const o = new Ice.ObjectPrx(communicator, `category/finished:${this.getTestEndpoint()}`);
             await o.ice_ids();
             test(false);
         } catch (ex) {

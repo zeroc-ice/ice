@@ -1319,7 +1319,7 @@ export async function twoways(
         ctx.set("two", "TWO");
         ctx.set("three", "THREE");
 
-        let p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:" + helper.getTestEndpoint()));
+        let p3 = new Test.MyClassPrx(ic, "test:" + helper.getTestEndpoint());
 
         ic.getImplicitContext().setContext(ctx);
         test(Ice.MapUtil.equals(ic.getImplicitContext().getContext(), ctx));

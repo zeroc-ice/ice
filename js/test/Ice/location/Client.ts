@@ -115,7 +115,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing proxy with unknown identity... ");
-        base = communicator.stringToProxy("unknown/unknown");
+        base = new Ice.ObjectPrx(communicator, "unknown/unknown");
         try {
             await base.ice_ping();
             test(false);
@@ -130,7 +130,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing proxy with unknown adapter... ");
-        base = communicator.stringToProxy("test @ TestAdapterUnknown");
+        base = new Ice.ObjectPrx(communicator, "test @ TestAdapterUnknown");
         try {
             await base.ice_ping();
         } catch (ex) {
@@ -145,7 +145,7 @@ export class Client extends TestHelper {
 
         out.write("testing locator cache timeout... ");
         let count = await locator.getRequestCount();
-        const basencc = communicator.stringToProxy("test@TestAdapter").ice_connectionCached(false);
+        const basencc = new Ice.ObjectPrx(communicator, "test@TestAdapter").ice_connectionCached(false);
         await basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == (await locator.getRequestCount()));
         await basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
@@ -156,26 +156,26 @@ export class Client extends TestHelper {
         await basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == (await locator.getRequestCount()));
 
-        await communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        await new Ice.ObjectPrx(communicator, "test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         count += 2;
         test(count == (await locator.getRequestCount()));
-        await communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+        await new Ice.ObjectPrx(communicator, "test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         test(count == (await locator.getRequestCount()));
         await Ice.Promise.delay(1200); // 1200ms
-        await communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+        await new Ice.ObjectPrx(communicator, "test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         count += 2;
         test(count == (await locator.getRequestCount()));
 
-        await communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping();
+        await new Ice.ObjectPrx(communicator, "test@TestAdapter").ice_locatorCacheTimeout(-1).ice_ping();
         test(count == (await locator.getRequestCount()));
-        await communicator.stringToProxy("test").ice_locatorCacheTimeout(-1).ice_ping();
+        await new Ice.ObjectPrx(communicator, "test").ice_locatorCacheTimeout(-1).ice_ping();
         test(count == (await locator.getRequestCount()));
-        await communicator.stringToProxy("test@TestAdapter").ice_ping();
+        await new Ice.ObjectPrx(communicator, "test@TestAdapter").ice_ping();
         test(count == (await locator.getRequestCount()));
-        await communicator.stringToProxy("test").ice_ping();
+        await new Ice.ObjectPrx(communicator, "test").ice_ping();
         test(count == (await locator.getRequestCount()));
 
-        test(communicator.stringToProxy("test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() === 99);
+        test(new Ice.ObjectPrx(communicator, "test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() === 99);
         out.writeLine("ok");
 
         out.write("testing proxy from server... ");
@@ -240,7 +240,7 @@ export class Client extends TestHelper {
 
         out.write("testing adapter locator cache... ");
         try {
-            await communicator.stringToProxy("test@TestAdapter3").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test@TestAdapter3").ice_ping();
             test(false);
         } catch (ex) {
             if (ex instanceof Ice.NotRegisteredException) {
@@ -252,28 +252,28 @@ export class Client extends TestHelper {
         }
         await registry.setAdapterDirectProxy("TestAdapter3", await locator.findAdapterById("TestAdapter"));
         try {
-            await communicator.stringToProxy("test@TestAdapter3").ice_ping();
-            await registry.setAdapterDirectProxy("TestAdapter3", communicator.stringToProxy("dummy:default"));
-            await communicator.stringToProxy("test@TestAdapter3").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test@TestAdapter3").ice_ping();
+            await registry.setAdapterDirectProxy("TestAdapter3", new Ice.ObjectPrx(communicator, "dummy:default"));
+            await new Ice.ObjectPrx(communicator, "test@TestAdapter3").ice_ping();
         } catch (ex) {
             test(false, ex as Error);
         }
 
         try {
-            await communicator.stringToProxy("test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
+            await new Ice.ObjectPrx(communicator, "test@TestAdapter3").ice_locatorCacheTimeout(0).ice_ping();
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.LocalException, ex as Error);
         }
         try {
-            await communicator.stringToProxy("test@TestAdapter3").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test@TestAdapter3").ice_ping();
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.LocalException, ex as Error);
         }
         await registry.setAdapterDirectProxy("TestAdapter3", await locator.findAdapterById("TestAdapter"));
         try {
-            await communicator.stringToProxy("test@TestAdapter3").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test@TestAdapter3").ice_ping();
         } catch (ex) {
             test(false, ex as Error);
         }
@@ -281,9 +281,9 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing well-known object locator cache... ");
-        await registry.addObject(communicator.stringToProxy("test3@TestUnknown"));
+        await registry.addObject(new Ice.ObjectPrx(communicator, "test3@TestUnknown"));
         try {
-            await communicator.stringToProxy("test3").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test3").ice_ping();
             test(false);
         } catch (ex) {
             if (ex instanceof Ice.NotRegisteredException) {
@@ -293,10 +293,10 @@ export class Client extends TestHelper {
                 test(false, ex as Error);
             }
         }
-        await registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
-        await registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
+        await registry.addObject(new Ice.ObjectPrx(communicator, "test3@TestAdapter4")); // Update
+        await registry.setAdapterDirectProxy("TestAdapter4", new Ice.ObjectPrx(communicator, "dummy:default"));
         try {
-            await communicator.stringToProxy("test3").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test3").ice_ping();
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.LocalException, ex as Error);
@@ -304,49 +304,49 @@ export class Client extends TestHelper {
 
         await registry.setAdapterDirectProxy("TestAdapter4", await locator.findAdapterById("TestAdapter"));
         try {
-            await communicator.stringToProxy("test3").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test3").ice_ping();
         } catch (ex) {
             test(false, ex as Error);
         }
 
-        await registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:default"));
+        await registry.setAdapterDirectProxy("TestAdapter4", new Ice.ObjectPrx(communicator, "dummy:default"));
         try {
-            await communicator.stringToProxy("test3").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test3").ice_ping();
         } catch (ex) {
             test(false, ex as Error);
         }
 
         try {
-            await communicator.stringToProxy("test@TestAdapter4").ice_locatorCacheTimeout(0).ice_ping();
+            await new Ice.ObjectPrx(communicator, "test@TestAdapter4").ice_locatorCacheTimeout(0).ice_ping();
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.LocalException, ex as Error);
         }
 
         try {
-            await communicator.stringToProxy("test@TestAdapter4").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test@TestAdapter4").ice_ping();
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.LocalException, ex as Error);
         }
 
         try {
-            await communicator.stringToProxy("test3").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test3").ice_ping();
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.LocalException, ex as Error);
         }
 
-        await registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
+        await registry.addObject(new Ice.ObjectPrx(communicator, "test3@TestAdapter"));
         try {
-            await communicator.stringToProxy("test3").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test3").ice_ping();
         } catch (ex) {
             test(false, ex as Error);
         }
 
-        await registry.addObject(communicator.stringToProxy("test4"));
+        await registry.addObject(new Ice.ObjectPrx(communicator, "test4"));
         try {
-            await communicator.stringToProxy("test4").ice_ping();
+            await new Ice.ObjectPrx(communicator, "test4").ice_ping();
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.NoEndpointException, ex as Error);
@@ -361,29 +361,29 @@ export class Client extends TestHelper {
             const ic = Ice.initialize(initData);
 
             await registry.setAdapterDirectProxy("TestAdapter5", await locator.findAdapterById("TestAdapter"));
-            await registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
+            await registry.addObject(new Ice.ObjectPrx(communicator, "test3@TestAdapter"));
 
             count = await locator.getRequestCount();
-            await ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
-            await ic.stringToProxy("test3").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+            await new Ice.ObjectPrx(ic, "test@TestAdapter5").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+            await new Ice.ObjectPrx(ic, "test3").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
             count += 3;
             test(count == (await locator.getRequestCount()));
             await registry.setAdapterDirectProxy("TestAdapter5", null);
-            await registry.addObject(communicator.stringToProxy("test3:default"));
-            await ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
-            await ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+            await registry.addObject(new Ice.ObjectPrx(communicator, "test3:default"));
+            await new Ice.ObjectPrx(ic, "test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+            await new Ice.ObjectPrx(ic, "test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
             test(count == (await locator.getRequestCount()));
             await Ice.Promise.delay(1200);
 
             // The following request should trigger the background
             // updates but still use the cached endpoints and
             // therefore succeed.
-            await ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-            await ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+            await new Ice.ObjectPrx(ic, "test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+            await new Ice.ObjectPrx(ic, "test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
 
             try {
                 while (true) {
-                    await ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                    await new Ice.ObjectPrx(ic, "test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
                     await Ice.Promise.delay(10);
                 }
             } catch (ex) {
@@ -392,7 +392,7 @@ export class Client extends TestHelper {
             }
             try {
                 while (true) {
-                    await ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                    await new Ice.ObjectPrx(ic, "test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
                     await Ice.Promise.delay(10);
                 }
             } catch (ex) {
@@ -412,7 +412,7 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing object migration... ");
-        hello = await Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"));
+        hello = await Test.HelloPrx.checkedCast(new Ice.ObjectPrx(communicator, "hello"));
         test(hello !== null);
         await obj.migrateHello();
         const conn = await hello.ice_getConnection();
@@ -425,13 +425,13 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing locator encoding resolution... ");
-        hello = await Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"));
+        hello = await Test.HelloPrx.checkedCast(new Ice.ObjectPrx(communicator, "hello"));
         count = await locator.getRequestCount();
-        await communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Ice.Encoding_1_1).ice_ping();
+        await new Ice.ObjectPrx(communicator, "test@TestAdapter").ice_encodingVersion(Ice.Encoding_1_1).ice_ping();
         test(count == (await locator.getRequestCount()));
-        await communicator.stringToProxy("test@TestAdapter10").ice_encodingVersion(Ice.Encoding_1_0).ice_ping();
+        await new Ice.ObjectPrx(communicator, "test@TestAdapter10").ice_encodingVersion(Ice.Encoding_1_0).ice_ping();
         test(++count == (await locator.getRequestCount()));
-        await communicator.stringToProxy("test -e 1.0@TestAdapter10-2").ice_ping();
+        await new Ice.ObjectPrx(communicator, "test -e 1.0@TestAdapter10-2").ice_ping();
         test(++count == (await locator.getRequestCount()));
         out.writeLine("ok");
 

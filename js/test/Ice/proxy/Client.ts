@@ -18,32 +18,37 @@ export class Client extends TestHelper {
         out.write("testing stringToProxy... ");
         let b1 = communicator.stringToProxy("test");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getAdapterId().length === 0 &&
                 b1.ice_getFacet().length === 0,
         );
         b1 = communicator.stringToProxy("test ");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet().length === 0,
         );
         b1 = communicator.stringToProxy(" test ");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet().length === 0,
         );
         b1 = communicator.stringToProxy(" test");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet().length === 0,
         );
         b1 = communicator.stringToProxy("'test -f facet'");
         test(
-            b1.ice_getIdentity().name === "test -f facet" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test -f facet" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet().length === 0,
         );
@@ -57,19 +62,22 @@ export class Client extends TestHelper {
 
         b1 = communicator.stringToProxy('"test -f facet"');
         test(
-            b1.ice_getIdentity().name === "test -f facet" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test -f facet" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet().length === 0,
         );
         b1 = communicator.stringToProxy('"test -f facet@test"');
         test(
-            b1.ice_getIdentity().name === "test -f facet@test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test -f facet@test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet().length === 0,
         );
         b1 = communicator.stringToProxy('"test -f facet@test @test"');
         test(
-            b1.ice_getIdentity().name === "test -f facet@test @test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test -f facet@test @test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet().length === 0,
         );
@@ -82,7 +90,7 @@ export class Client extends TestHelper {
         }
 
         b1 = communicator.stringToProxy("test\\040test");
-        test(b1.ice_getIdentity().name === "test test" && b1.ice_getIdentity().category.length === 0);
+        test(b1 !== null && b1.ice_getIdentity().name === "test test" && b1.ice_getIdentity().category.length === 0);
 
         try {
             b1 = communicator.stringToProxy("test\\777");
@@ -92,30 +100,35 @@ export class Client extends TestHelper {
         }
 
         b1 = communicator.stringToProxy("test\\40test");
-        test(b1.ice_getIdentity().name === "test test");
+        test(b1 !== null && b1.ice_getIdentity().name === "test test");
 
         // Test some octal and hex corner cases.
         b1 = communicator.stringToProxy("test\\4test");
-        test(b1.ice_getIdentity().name === "test\x04test");
+        test(b1 !== null && b1.ice_getIdentity().name === "test\x04test");
         b1 = communicator.stringToProxy("test\\04test");
-        test(b1.ice_getIdentity().name === "test\x04test");
+        test(b1 !== null && b1.ice_getIdentity().name === "test\x04test");
         b1 = communicator.stringToProxy("test\\004test");
-        test(b1.ice_getIdentity().name === "test\x04test");
+        test(b1 !== null && b1.ice_getIdentity().name === "test\x04test");
         b1 = communicator.stringToProxy("test\\1114test");
-        test(b1.ice_getIdentity().name === "test\x494test");
+        test(b1 !== null && b1.ice_getIdentity().name === "test\x494test");
 
         b1 = communicator.stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
-        test(b1.ice_getIdentity().name === "test\b\f\n\r\t'\"\\test" && b1.ice_getIdentity().category.length === 0);
+        test(
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test\b\f\n\r\t'\"\\test" &&
+                b1.ice_getIdentity().category.length === 0,
+        );
 
         b1 = communicator.stringToProxy("category/test");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category === "category" &&
                 b1.ice_getAdapterId().length === 0,
         );
 
         b1 = communicator.stringToProxy('test:tcp --sourceAddress "::1"');
-        test(b1.equals(communicator.stringToProxy(b1.toString())));
+        test(b1 !== null && b1.equals(communicator.stringToProxy(b1.toString())));
 
         b1 = communicator.stringToProxy("");
         test(b1 === null);
@@ -137,7 +150,8 @@ export class Client extends TestHelper {
 
         b1 = communicator.stringToProxy("test@adapter");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getAdapterId() === "adapter",
         );
@@ -150,62 +164,72 @@ export class Client extends TestHelper {
 
         b1 = communicator.stringToProxy("category/test@adapter");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category === "category" &&
                 b1.ice_getAdapterId() === "adapter",
         );
         b1 = communicator.stringToProxy("category/test@adapter:" + defaultProtocol);
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category === "category" &&
                 b1.ice_getAdapterId() === "adapter:" + defaultProtocol,
         );
         b1 = communicator.stringToProxy("'category 1/test'@adapter");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category === "category 1" &&
                 b1.ice_getAdapterId() === "adapter",
         );
         b1 = communicator.stringToProxy("'category/test 1'@adapter");
         test(
-            b1.ice_getIdentity().name === "test 1" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test 1" &&
                 b1.ice_getIdentity().category === "category" &&
                 b1.ice_getAdapterId() === "adapter",
         );
         b1 = communicator.stringToProxy("'category/test'@'adapter 1'");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category === "category" &&
                 b1.ice_getAdapterId() === "adapter 1",
         );
         b1 = communicator.stringToProxy('"category \\/test@foo/test"@adapter');
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category === "category /test@foo" &&
                 b1.ice_getAdapterId() === "adapter",
         );
         b1 = communicator.stringToProxy('"category \\/test@foo/test"@"adapter:' + defaultProtocol + '"');
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category === "category /test@foo" &&
                 b1.ice_getAdapterId() === "adapter:" + defaultProtocol,
         );
 
         b1 = communicator.stringToProxy("id -f facet");
         test(
-            b1.ice_getIdentity().name === "id" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "id" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet() === "facet",
         );
         b1 = communicator.stringToProxy("id -f 'facet x'");
         test(
-            b1.ice_getIdentity().name === "id" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "id" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet() === "facet x",
         );
         b1 = communicator.stringToProxy('id -f "facet x"');
         test(
-            b1.ice_getIdentity().name === "id" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "id" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet() === "facet x",
         );
@@ -226,35 +250,40 @@ export class Client extends TestHelper {
 
         b1 = communicator.stringToProxy("test -f facet:" + defaultProtocol);
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet() === "facet" &&
                 b1.ice_getAdapterId().length === 0,
         );
         b1 = communicator.stringToProxy('test -f "facet:' + defaultProtocol + '"');
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet() === "facet:" + defaultProtocol &&
                 b1.ice_getAdapterId().length === 0,
         );
         b1 = communicator.stringToProxy("test -f facet@test");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet() === "facet" &&
                 b1.ice_getAdapterId() === "test",
         );
         b1 = communicator.stringToProxy("test -f 'facet@test'");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet() === "facet@test" &&
                 b1.ice_getAdapterId().length === 0,
         );
         b1 = communicator.stringToProxy("test -f 'facet@test'@test");
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getFacet() === "facet@test" &&
                 b1.ice_getAdapterId() === "test",
@@ -267,32 +296,32 @@ export class Client extends TestHelper {
             test(ex instanceof Ice.ParseException, ex as Error);
         }
         b1 = communicator.stringToProxy("test");
-        test(b1.ice_isTwoway());
+        test(b1 !== null && b1.ice_isTwoway());
         b1 = communicator.stringToProxy("test -t");
-        test(b1.ice_isTwoway());
+        test(b1 !== null && b1.ice_isTwoway());
         b1 = communicator.stringToProxy("test -o");
-        test(b1.ice_isOneway());
+        test(b1 !== null && b1.ice_isOneway());
         b1 = communicator.stringToProxy("test -O");
-        test(b1.ice_isBatchOneway());
+        test(b1 !== null && b1.ice_isBatchOneway());
         b1 = communicator.stringToProxy("test -d");
-        test(b1.ice_isDatagram());
+        test(b1 !== null && b1.ice_isDatagram());
         b1 = communicator.stringToProxy("test -D");
-        test(b1.ice_isBatchDatagram());
+        test(b1 !== null && b1.ice_isBatchDatagram());
         b1 = communicator.stringToProxy("test -s"); // does nothing
 
-        test(b1.ice_getEncodingVersion().equals(Ice.currentEncoding()));
+        test(b1 !== null && b1.ice_getEncodingVersion().equals(Ice.currentEncoding()));
 
         b1 = communicator.stringToProxy("test -e 1.0");
-        test(b1.ice_getEncodingVersion().major === 1 && b1.ice_getEncodingVersion().minor === 0);
+        test(b1 !== null && b1.ice_getEncodingVersion().major === 1 && b1.ice_getEncodingVersion().minor === 0);
 
         b1 = communicator.stringToProxy("test -e 6.5");
-        test(b1.ice_getEncodingVersion().major === 6 && b1.ice_getEncodingVersion().minor === 5);
+        test(b1 !== null && b1.ice_getEncodingVersion().major === 6 && b1.ice_getEncodingVersion().minor === 5);
 
         b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
-        test(b1.toString() === "test -e 1.0");
+        test(b1 !== null && b1.toString() === "test -e 1.0");
 
         b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
-        test(b1.toString() === "test -p 6.5 -e 1.0");
+        test(b1 !== null && b1.toString() === "test -p 6.5 -e 1.0");
 
         try {
             b1 = communicator.stringToProxy("test:" + defaultProtocol + "@adapterId");
@@ -395,7 +424,8 @@ export class Client extends TestHelper {
         prop.setProperty(propertyPrefix, `test:${this.getTestEndpoint()}`);
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(
-            b1.ice_getIdentity().name === "test" &&
+            b1 !== null &&
+                b1.ice_getIdentity().name === "test" &&
                 b1.ice_getIdentity().category.length === 0 &&
                 b1.ice_getAdapterId().length === 0 &&
                 b1.ice_getFacet().length === 0,
@@ -405,14 +435,14 @@ export class Client extends TestHelper {
         test(b1.ice_getLocator() === null);
         prop.setProperty(property, "locator:default -p 10000");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getLocator()?.ice_getIdentity().name === "locator");
+        test(b1 !== null && b1.ice_getLocator()?.ice_getIdentity().name === "locator");
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".LocatorCacheTimeout";
         test(b1.ice_getLocatorCacheTimeout() === -1);
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getLocatorCacheTimeout() === 1);
+        test(b1 !== null && b1.ice_getLocatorCacheTimeout() === 1);
         prop.setProperty(property, "");
 
         // Now retest with an indirect proxy.
@@ -420,14 +450,14 @@ export class Client extends TestHelper {
         property = propertyPrefix + ".Locator";
         prop.setProperty(property, "locator:default -p 10000");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getLocator()?.ice_getIdentity().name === "locator");
+        test(b1 !== null && b1.ice_getLocator()?.ice_getIdentity().name === "locator");
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".LocatorCacheTimeout";
         test(b1.ice_getLocatorCacheTimeout() === -1);
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getLocatorCacheTimeout() === 1);
+        test(b1 !== null && b1.ice_getLocatorCacheTimeout() === 1);
         prop.setProperty(property, "");
 
         prop.setProperty(propertyPrefix, `test:${this.getTestEndpoint()}`);
@@ -436,44 +466,44 @@ export class Client extends TestHelper {
         test(b1.ice_getRouter() === null);
         prop.setProperty(property, "router:default -p 10000");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getRouter()?.ice_getIdentity().name === "router");
+        test(b1 !== null && b1.ice_getRouter()?.ice_getIdentity().name === "router");
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".ConnectionCached";
         test(b1.ice_isConnectionCached());
         prop.setProperty(property, "0");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(!b1.ice_isConnectionCached());
+        test(b1 !== null && !b1.ice_isConnectionCached());
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".InvocationTimeout";
         test(b1.ice_getInvocationTimeout() == -1);
         prop.setProperty(property, "1000");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getInvocationTimeout() == 1000);
+        test(b1 !== null && b1.ice_getInvocationTimeout() == 1000);
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".EndpointSelection";
         test(b1.ice_getEndpointSelection() === Ice.EndpointSelectionType.Random);
         prop.setProperty(property, "Random");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getEndpointSelection() === Ice.EndpointSelectionType.Random);
+        test(b1 !== null && b1.ice_getEndpointSelection() === Ice.EndpointSelectionType.Random);
         prop.setProperty(property, "Ordered");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getEndpointSelection() === Ice.EndpointSelectionType.Ordered);
+        test(b1 !== null && b1.ice_getEndpointSelection() === Ice.EndpointSelectionType.Ordered);
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".Context.c1";
         test(!b1.ice_getContext().has("c1"));
         prop.setProperty(property, "TEST");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getContext().get("c1") == "TEST");
+        test(b1 !== null && b1.ice_getContext().get("c1") == "TEST");
 
         property = propertyPrefix + ".Context.c2";
         test(!b1.ice_getContext().has("c2"));
         prop.setProperty(property, "TEST");
         b1 = communicator.propertyToProxy(propertyPrefix);
-        test(b1.ice_getContext().get("c2") == "TEST");
+        test(b1 !== null && b1.ice_getContext().get("c2") == "TEST");
 
         prop.setProperty(propertyPrefix + ".Context.c1", "");
         prop.setProperty(propertyPrefix + ".Context.c2", "");
@@ -482,20 +512,20 @@ export class Client extends TestHelper {
 
         out.write("testing proxyToProperty... ");
 
-        b1 = communicator.stringToProxy("test");
+        b1 = new Ice.ObjectPrx(communicator, "test");
         b1 = b1.ice_connectionCached(true);
         b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
         b1 = b1.ice_locatorCacheTimeout(100);
         b1 = b1.ice_invocationTimeout(1234);
         b1 = b1.ice_encodingVersion(new Ice.EncodingVersion(1, 0));
 
-        let router = communicator.stringToProxy("router");
+        let router = new Ice.RouterPrx(communicator, "router");
         router = router.ice_connectionCached(true);
         router = router.ice_endpointSelection(Ice.EndpointSelectionType.Random);
         router = router.ice_locatorCacheTimeout(200);
         router = router.ice_invocationTimeout(1500);
 
-        let locator = communicator.stringToProxy("locator");
+        let locator = new Ice.LocatorPrx(communicator, "locator");
         locator = locator.ice_connectionCached(false);
         locator = locator.ice_endpointSelection(Ice.EndpointSelectionType.Random);
         locator = locator.ice_locatorCacheTimeout(300);
@@ -590,10 +620,10 @@ export class Client extends TestHelper {
 
         out.write("testing proxy comparison... ");
 
-        test(communicator.stringToProxy("foo").equals(communicator.stringToProxy("foo")));
-        test(!communicator.stringToProxy("foo").equals(communicator.stringToProxy("foo2")));
+        test(new Ice.ObjectPrx(communicator, "foo").equals(new Ice.ObjectPrx(communicator, "foo")));
+        test(!new Ice.ObjectPrx(communicator, "foo").equals(new Ice.ObjectPrx(communicator, "foo2")));
 
-        const compObj = communicator.stringToProxy("foo");
+        const compObj = new Ice.ObjectPrx(communicator, "foo");
 
         test(compObj.ice_facet("facet").equals(compObj.ice_facet("facet")));
         test(!compObj.ice_facet("facet").equals(compObj.ice_facet("facet1")));
@@ -647,12 +677,12 @@ export class Client extends TestHelper {
         test(!compObj.ice_context(null!).equals(compObj.ice_context(ctx2)));
         test(!compObj.ice_context(ctx1).equals(compObj.ice_context(ctx2)));
 
-        let compObj1 = communicator.stringToProxy("foo:" + defaultProtocol + " -h 127.0.0.1 -p 10000");
-        let compObj2 = communicator.stringToProxy("foo:" + defaultProtocol + " -h 127.0.0.1 -p 10001");
+        let compObj1 = new Ice.ObjectPrx(communicator, "foo:" + defaultProtocol + " -h 127.0.0.1 -p 10000");
+        let compObj2 = new Ice.ObjectPrx(communicator, "foo:" + defaultProtocol + " -h 127.0.0.1 -p 10001");
         test(!compObj1.equals(compObj2));
 
-        compObj1 = communicator.stringToProxy("foo@MyAdapter1");
-        compObj2 = communicator.stringToProxy("foo@MyAdapter2");
+        compObj1 = new Ice.ObjectPrx(communicator, "foo@MyAdapter1");
+        compObj2 = new Ice.ObjectPrx(communicator, "foo@MyAdapter2");
         test(!compObj1.equals(compObj2));
 
         test(compObj1.ice_locatorCacheTimeout(20).equals(compObj1.ice_locatorCacheTimeout(20)));
@@ -661,16 +691,22 @@ export class Client extends TestHelper {
         test(compObj1.ice_invocationTimeout(20).equals(compObj1.ice_invocationTimeout(20)));
         test(!compObj1.ice_invocationTimeout(10).equals(compObj1.ice_invocationTimeout(20)));
 
-        compObj1 = communicator.stringToProxy("foo:" + defaultProtocol + " -h 127.0.0.1 -p 1000");
-        compObj2 = communicator.stringToProxy("foo@MyAdapter1");
+        compObj1 = new Ice.ObjectPrx(communicator, "foo:" + defaultProtocol + " -h 127.0.0.1 -p 1000");
+        compObj2 = new Ice.ObjectPrx(communicator, "foo@MyAdapter1");
         test(!compObj1.equals(compObj2));
 
-        const endpts1 = communicator.stringToProxy(`foo:${defaultProtocol} -h 127.0.0.1 -p 10000`).ice_getEndpoints();
-        const endpts2 = communicator.stringToProxy(`foo:${defaultProtocol} -h 127.0.0.1 -p 10001`).ice_getEndpoints();
+        const endpts1 = new Ice.ObjectPrx(
+            communicator,
+            `foo:${defaultProtocol} -h 127.0.0.1 -p 10000`,
+        ).ice_getEndpoints();
+        const endpts2 = new Ice.ObjectPrx(
+            communicator,
+            `foo:${defaultProtocol} -h 127.0.0.1 -p 10001`,
+        ).ice_getEndpoints();
         test(!endpts1[0].equals(endpts2[0]));
         test(
             endpts1[0].equals(
-                communicator.stringToProxy(`foo:${defaultProtocol} -h 127.0.0.1 -p 10000`).ice_getEndpoints()[0],
+                new Ice.ObjectPrx(communicator, `foo:${defaultProtocol} -h 127.0.0.1 -p 10000`).ice_getEndpoints()[0],
             ),
         );
 
@@ -756,7 +792,7 @@ export class Client extends TestHelper {
         out.write("testing encoding versioning... ");
 
         let ref20 = `test -e 2.0:${this.getTestEndpoint()}`;
-        let cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
+        let cl20 = new Test.MyClassPrx(communicator, ref20);
         try {
             await cl20.ice_ping();
             test(false);
@@ -765,7 +801,7 @@ export class Client extends TestHelper {
         }
 
         let ref10 = `test -e 1.0:${this.getTestEndpoint()}`;
-        let cl10 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10));
+        let cl10 = new Test.MyClassPrx(communicator, ref10);
 
         await cl10.ice_ping();
         await cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping();
@@ -774,13 +810,13 @@ export class Client extends TestHelper {
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
         let ref13 = `test -e 1.3:${this.getTestEndpoint()}`;
-        let cl13 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13));
+        let cl13 = new Test.MyClassPrx(communicator, ref13);
         await cl13.ice_ping();
         out.writeLine("ok");
 
         out.write("testing protocol versioning... ");
         ref20 = `test -p 2.0:${this.getTestEndpoint()}`;
-        cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
+        cl20 = new Test.MyClassPrx(communicator, ref20);
         try {
             await cl20.ice_ping();
             test(false);
@@ -790,13 +826,13 @@ export class Client extends TestHelper {
         }
 
         ref10 = `test -p 1.0:${this.getTestEndpoint()}`;
-        cl10 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10));
+        cl10 = new Test.MyClassPrx(communicator, ref10);
         await cl10.ice_ping();
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 protocol
         ref13 = `test -p 1.3:${this.getTestEndpoint()}`;
-        cl13 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13));
+        cl13 = new Test.MyClassPrx(communicator, ref13);
         await cl13.ice_ping();
         out.writeLine("ok");
 
@@ -891,21 +927,21 @@ export class Client extends TestHelper {
         }
 
         // Legal TCP endpoint expressed as opaque endpoint
-        let p1 = communicator.stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+        let p1 = new Ice.ObjectPrx(communicator, "test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         let pstr = communicator.proxyToString(p1);
         test(pstr === "test:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
         // Legal WS endpoint expressed as opaque endpoint
-        p1 = communicator.stringToProxy("test -e 1.1:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
+        p1 = new Ice.ObjectPrx(communicator, "test -e 1.1:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
         pstr = communicator.proxyToString(p1);
         test(pstr === "test:ws -h 127.0.0.1 -p 12010 -t 10000");
 
         // Opaque endpoint encoded with 1.1 encoding.
 
-        let p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+        let p2 = new Ice.ObjectPrx(communicator, "test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         test(communicator.proxyToString(p2) === "test:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
-        p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 4 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
+        p2 = new Ice.ObjectPrx(communicator, "test:opaque -e 1.1 -t 4 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=");
         test(communicator.proxyToString(p2) === "test:ws -h 127.0.0.1 -p 12010 -t 10000");
 
         const ref = `test:${this.getTestEndpoint()}`;
@@ -918,13 +954,15 @@ export class Client extends TestHelper {
         //   }
 
         // Two legal TCP endpoints expressed as opaque endpoints
-        p1 = communicator.stringToProxy(
+        p1 = new Ice.ObjectPrx(
+            communicator,
             "test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==",
         );
         pstr = communicator.proxyToString(p1);
         test(pstr === "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
-        p1 = communicator.stringToProxy(
+        p1 = new Ice.ObjectPrx(
+            communicator,
             "test -e 1.0:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAAA=:opaque -t 4 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAAA=",
         );
         pstr = communicator.proxyToString(p1);
@@ -934,7 +972,8 @@ export class Client extends TestHelper {
         // Test that an SSL endpoint and a nonsense endpoint get
         // written back out as an opaque endpoint.
         //
-        p1 = communicator.stringToProxy(
+        p1 = new Ice.ObjectPrx(
+            communicator,
             "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch",
         );
         pstr = communicator.proxyToString(p1);
@@ -963,15 +1002,13 @@ export class Client extends TestHelper {
         // be sent over the wire and returned by the server without
         // losing the opaque endpoints.
         //
-        derived = Test.MyDerivedClassPrx.uncheckedCast(
-            communicator.stringToProxy(`test -e 1.0:${this.getTestEndpoint()}`),
-        );
+        derived = new Test.MyDerivedClassPrx(communicator, `test -e 1.0:${this.getTestEndpoint()}`);
         p2 = (await derived.echo(p1)) as Ice.ObjectPrx;
 
         pstr = communicator.proxyToString(p2);
         test(pstr === "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
 
-        let p = communicator.stringToProxy(`test:${this.getTestEndpoint()}`);
+        let p = new Ice.ObjectPrx(communicator, `test:${this.getTestEndpoint()}`);
         if (defaultProtocol === "tcp") {
             test(p.ice_getEndpoints()[0].getInfo() instanceof Ice.TCPEndpointInfo);
         } else if (defaultProtocol === "ws" || defaultProtocol === "wss") {
@@ -987,8 +1024,8 @@ export class Client extends TestHelper {
 
         // The first endpoint is a non connectable and should be automatically skipped.
         p = TestHelper.isBrowser()
-            ? communicator.stringToProxy(`test:${this.getTestEndpoint("tcp")}:${this.getTestEndpoint()}`)
-            : communicator.stringToProxy(`test:${this.getTestEndpoint("ws")}:${this.getTestEndpoint()}`);
+            ? new Ice.ObjectPrx(communicator, `test:${this.getTestEndpoint("tcp")}:${this.getTestEndpoint()}`)
+            : new Ice.ObjectPrx(communicator, `test:${this.getTestEndpoint("ws")}:${this.getTestEndpoint()}`);
 
         p = p.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
         await p.ice_ping();
@@ -996,8 +1033,8 @@ export class Client extends TestHelper {
         out.writeLine("ok");
 
         out.write("testing proxyToString... ");
-        b1 = communicator.stringToProxy(ref);
-        let b2 = communicator.stringToProxy(communicator.proxyToString(b1));
+        b1 = new Ice.ObjectPrx(communicator, ref);
+        let b2 = new Ice.ObjectPrx(communicator, communicator.proxyToString(b1));
         test(b1.equals(b2));
 
         con = await b1.ice_getConnection();
@@ -1020,7 +1057,7 @@ export class Client extends TestHelper {
             // will fail creating the WebSocket object.
             //
             const communicator2 = Ice.initialize();
-            const invalid = communicator2.stringToProxy(`test:${this.getTestEndpoint()}`);
+            const invalid = new Ice.ObjectPrx(communicator2, `test:${this.getTestEndpoint()}`);
             try {
                 await invalid.ice_ping();
                 test(false);
