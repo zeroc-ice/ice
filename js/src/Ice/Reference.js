@@ -811,9 +811,7 @@ export class RoutableReference extends Reference {
 
     // Sets or resets _batchRequestQueue based on _mode.
     setBatchRequestQueue() {
-        this._batchRequestQueue = this.isBatch
-            ? new BatchRequestQueue(this._instance)
-            : null;
+        this._batchRequestQueue = this.isBatch ? new BatchRequestQueue(this._instance) : null;
     }
 
     getConnection(handler) {
