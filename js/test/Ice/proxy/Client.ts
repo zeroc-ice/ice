@@ -274,10 +274,6 @@ export class Client extends TestHelper {
         test(b1.ice_isOneway());
         b1 = communicator.stringToProxy("test -O");
         test(b1.ice_isBatchOneway());
-        b1 = communicator.stringToProxy("test -d");
-        test(b1.ice_isDatagram());
-        b1 = communicator.stringToProxy("test -D");
-        test(b1.ice_isBatchDatagram());
         b1 = communicator.stringToProxy("test -s"); // does nothing
 
         test(b1.ice_getEncodingVersion().equals(Ice.currentEncoding()));
@@ -541,8 +537,6 @@ export class Client extends TestHelper {
         test(base.ice_twoway().ice_isTwoway());
         test(base.ice_oneway().ice_isOneway());
         test(base.ice_batchOneway().ice_isBatchOneway());
-        test(base.ice_datagram().ice_isDatagram());
-        test(base.ice_batchDatagram().ice_isBatchDatagram());
         test(base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Encoding_1_0));
         test(base.ice_encodingVersion(Ice.Encoding_1_1).ice_getEncodingVersion().equals(Ice.Encoding_1_1));
         test(!base.ice_encodingVersion(Ice.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Encoding_1_1));
@@ -737,11 +731,6 @@ export class Client extends TestHelper {
                 test(
                     (await cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection()) == fixedConnection,
                 );
-                try {
-                    await cl.ice_datagram().ice_fixed(connection).ice_ping();
-                } catch (ex) {
-                    test(ex instanceof Ice.NoEndpointException);
-                }
             } else {
                 try {
                     cl.ice_fixed(connection);
