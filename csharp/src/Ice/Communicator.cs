@@ -138,12 +138,13 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
         proxy is null ? "" : ((ObjectPrxHelperBase)proxy).iceReference().ToString();
 
     /// <summary>
-    /// Converts a set of proxy properties into a proxy. The "base" name supplied in the property argument refers to a
-    /// property containing a stringified proxy, such as "MyProxy=id:tcp -h localhost -p 10000". Additional properties
-    /// configure local settings for the proxy.
-    /// </summary>
+    /// Converts a set of proxy properties into a proxy. The "base" name supplied in the <paramref name="property" />
+    /// argument refers to a property containing a stringified proxy, such as
+    /// <code>MyProxy=id:tcp -h localhost -p 10000</code>.
+    /// Additional properties configure local settings for the proxy.
+    ///
     /// <param name="property">The base property name.</param>
-    /// <returns>The proxy.</returns>
+    /// <returns>The proxy, or <c>null</c> if the property is not set.</returns>
     public ObjectPrx? propertyToProxy(string property)
     {
         string proxy = instance.initializationData().properties!.getProperty(property);

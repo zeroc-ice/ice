@@ -74,16 +74,14 @@ declare module "@zeroc/ice" {
             proxyToString(prx: Ice.ObjectPrx): string;
 
             /**
-             * Converts a set of proxy properties into a proxy.
+             * Converts a set of proxy properties into a proxy. The "base" name supplied in the`property` argument
+             * refers to a property containing a stringified proxy, such as `MyProxy=id:tcp -h localhost -p 10000`.
+             * Additional properties configure local settings for the proxy.
              *
-             * The "base" name supplied in the `property` argument refers to a property containing a
-             * stringified proxy, such as `MyProxy=id:tcp -h localhost -p 10000`. Additional properties
-             * configure local settings for the proxy.
-             *
-             * @param property - The base property name.
-             * @returns The proxy created from the specified properties.
+             * @param property The base property name.
+             * @returns The proxy, or null if the property is not set.
              */
-            propertyToProxy(property: string): Ice.ObjectPrx;
+            propertyToProxy(property: string): Ice.ObjectPrx | null;
 
             /**
              * Converts a proxy into a set of proxy properties.
