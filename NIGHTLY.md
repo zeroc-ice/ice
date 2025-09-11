@@ -76,7 +76,7 @@ Add the following feed to your NuGet sources to get the nightly package:
 https://download.zeroc.com/nexus/repository/nuget-nightly/
 ```
 
-### Ice for C\#
+### Ice for C#
 
 Ice for C# is distributed as NuGet packages for all platforms.
 
