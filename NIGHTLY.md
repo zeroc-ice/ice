@@ -1,6 +1,6 @@
 # Installing the Nightly Builds <!-- omit in toc -->
 
-This document provides instructions for installing Ice from nightly builds of Ice.
+This document provides instructions for installing Ice from nightly builds.
 
 Ice nightly builds are produced daily from the main GitHub branch.
 
