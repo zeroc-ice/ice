@@ -142,6 +142,7 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
     /// argument refers to a property containing a stringified proxy, such as
     /// <code>MyProxy=id:tcp -h localhost -p 10000</code>.
     /// Additional properties configure local settings for the proxy.
+    /// </summary>
     ///
     /// <param name="property">The base property name.</param>
     /// <returns>The proxy, or <c>null</c> if the property is not set.</returns>
