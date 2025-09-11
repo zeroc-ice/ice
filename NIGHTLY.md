@@ -64,7 +64,7 @@ sudo apt-get install libzeroc-ice-dev
 
 #### macOS
 
-Ice for C++ is included in the [ice formula](#maos-brew-formula).
+Ice for C++ is included in the [ice formula](#macos-brew-formula).
 
 #### Windows
 
