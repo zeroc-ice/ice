@@ -1,20 +1,21 @@
-# Installing the Nightly Builds
+# Installing the Nightly Builds <!-- omit in toc -->
 
 This document provides instruction for installing Ice nightly builds. Ice nightly builds are produced daily from
 GitHub main branch and target the next Ice non patch release.
 
 - [Linux](#linux)
-  - [RPM-based Linux (RHEL, Amazon Linux)](rpm-based-linux-rhel-amazon-linux)
-  - [DEB-based Linux (Debian, Ubuntu)](deb-based-linux-debian-ubuntu)
+  - [RPM-based Linux (RHEL, Amazon Linux)](#rpm-based-linux-rhel-amazon-linux)
+  - [DEB-based Linux (Debian, Ubuntu)](#deb-based-linux-debian-ubuntu)
 - [macOS](#macos)
-  - [Swift](#swift)
   - [Homebrew](#homebrew)
+  - [Swift](#swift)
 - [Windows](#windows)
   - [C++ NuGet](#c-nuget)
   - [MSI Installer](#msi-installer)
-- [C#](c)
+- [C#](#c)
 - [JavaScript](#javascript)
 - [Java](#java)
+  - [Gradle](#gradle)
 - [MATLAB](#matlab)
 - [Python](#python)
 - [Ruby](#ruby)
