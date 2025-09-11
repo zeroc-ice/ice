@@ -132,7 +132,7 @@ public final class Communicator implements AutoCloseable {
      * Additional properties configure local settings for the proxy.
      *
      * @param property The base property name.
-     * @returns The proxy, or null if the property is not set.
+     * @return The proxy, or null if the property is not set.
      */
     public ObjectPrx propertyToProxy(String property) {
         String proxy = _instance.initializationData().properties.getProperty(property);
