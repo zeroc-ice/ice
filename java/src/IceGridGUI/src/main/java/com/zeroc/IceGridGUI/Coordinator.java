@@ -2320,10 +2320,8 @@ public class Coordinator {
         return _saveIceLogChooser;
     }
 
-    private static Properties createProperties(
-            String[] args, List<String> rArgs) {
-        Properties properties =
-            new Properties(Collections.singletonList("IceGridAdmin"));
+    private static Properties createProperties(String[] args, List<String> rArgs) {
+        Properties properties = new Properties(Collections.singletonList("IceGridAdmin"));
 
         // Disable retries
         properties.setProperty("Ice.RetryIntervals", "-1");
