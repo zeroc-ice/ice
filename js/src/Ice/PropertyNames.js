@@ -106,6 +106,10 @@ PropertyNames.IceGridProps = new PropertyArray("IceGrid", false, true);
 PropertyNames.IceGridProps.properties = [
 ];
 
+PropertyNames.IceGridGUIProps = new PropertyArray("IceGridGUI", false, true);
+PropertyNames.IceGridGUIProps.properties = [
+];
+
 PropertyNames.IceSSLProps = new PropertyArray("IceSSL", false, false);
 PropertyNames.IceSSLProps.properties = [
 ];
@@ -140,6 +144,7 @@ PropertyNames.validProps = [
     PropertyNames.IceBridgeProps,
     PropertyNames.IceGridAdminProps,
     PropertyNames.IceGridProps,
+    PropertyNames.IceGridGUIProps,
     PropertyNames.IceSSLProps,
     PropertyNames.IceStormProps,
     PropertyNames.IceStormAdminProps,

@@ -405,6 +405,20 @@ const PropertyArray PropertyNames::IceGridProps
     .length=61
 };
 
+const Property IceGridGUIPropsData[] =
+{
+    
+};
+
+const PropertyArray PropertyNames::IceGridGUIProps
+{
+    .name="IceGridGUI",
+    .prefixOnly=false,
+    .isOptIn=true,
+    .properties=IceGridGUIPropsData,
+    .length=0
+};
+
 const Property IceSSLPropsData[] =
 {
     Property{"CAs", "", false, false, nullptr},
@@ -577,7 +591,7 @@ const PropertyArray PropertyNames::DataStormProps
     .length=19
 };
 
-const std::array<PropertyArray, 15> PropertyNames::validProps =
+const std::array<PropertyArray, 16> PropertyNames::validProps =
 {
     IceProps,
     IceMXProps,
@@ -588,6 +602,7 @@ const std::array<PropertyArray, 15> PropertyNames::validProps =
     IceBridgeProps,
     IceGridAdminProps,
     IceGridProps,
+    IceGridGUIProps,
     IceSSLProps,
     IceStormProps,
     IceStormAdminProps,

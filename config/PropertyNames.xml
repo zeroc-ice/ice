@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- Copyright (c) ZeroC, Inc. -->
 
-<!-- This file defines the properties used by Ice. -->
+<!-- This file defines the properties used by Ice, Ice services, and Ice admin tools. -->
 
 <properties>
     <class name="Proxy" prefix-only="false">
@@ -48,16 +48,6 @@
         <property name="Router" class="Proxy" languages="all" />
         <property name="ThreadPool" class="ThreadPool" languages="cpp,csharp,java" />
     </class>
-
-    <!-- TODO: use this to validate IceMX properties -->
-    <!-- <class name="Metrics" prefix-only="true">
-        <property name="Accept.[any]" languages="cpp,csharp,java" />
-        <property name="Disabled" languages="cpp,csharp,java" />
-        <property name="GroupBy" languages="cpp,csharp,java" />
-        <property name="Map.[any]" languages="cpp,csharp,java" />
-        <property name="Reject.[any]" languages="cpp,csharp,java" />
-        <property name="RetainDetached" languages="cpp,csharp,java" default="10" />
-    </class> -->
 
     <section name="Ice" opt-in="false">
         <!-- AcceptClassCycles is implemented in C++ and Swift. -->
@@ -223,7 +213,7 @@
         <property name="Discovery.Reply" class="ObjectAdapter" languages="cpp" />
         <property name="Host" languages="cpp" />
         <property name="InstanceName" languages="cpp" />
-        <property name="MetricsConfig" languages="java" />
+        <property name="MetricsConfigs" languages="java" />
         <property name="Password" languages="cpp" />
         <property name="Port" languages="cpp" />
         <property name="Replica" languages="cpp" />
@@ -296,6 +286,13 @@
         <property name="Registry.Trace.Topic" languages="cpp" default="0" />
         <property name="Registry.Trace.TopicManager" languages="cpp" default="0" />
         <property name="Registry.UserAccounts" languages="cpp" />
+    </section>
+
+    <section name="IceGridGUI" opt-in="true">
+        <!-- Metrics provide a list of strings that are later used as prefixes for the IceGridGUI.Metrics.* properties.
+        -->
+        <property name="Metrics" languages="java" />
+        <property name="Metrics.[any]" languages="java" />
     </section>
 
     <section name="IceSSL" opt-in="false">
