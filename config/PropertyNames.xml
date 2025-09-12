@@ -223,12 +223,12 @@
         <property name="Discovery.Reply" class="ObjectAdapter" languages="cpp" />
         <property name="Host" languages="cpp" />
         <property name="InstanceName" languages="cpp" />
+        <!-- An undocumented internal object adapter used by IceGridGUI to route Admin calls. -->
+        <property name="Internal" class="ObjectAdapter" languages="java" />
         <property name="MetricsConfig" languages="java" />
         <property name="Password" languages="cpp" />
         <property name="Port" languages="cpp" />
         <property name="Replica" languages="cpp" />
-        <!-- An undocumented internal object adapter used by IceGridGUI. -->
-        <property name="Router" class="ObjectAdapter" languages="java" />
         <property name="Server" class="ObjectAdapter" languages="cpp" />
         <property name="Trace.Observers" languages="java" />
         <property name="Trace.SaveToRegistry" languages="java" />

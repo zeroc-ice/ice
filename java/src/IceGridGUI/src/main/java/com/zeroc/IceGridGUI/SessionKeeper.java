@@ -260,7 +260,7 @@ public class SessionKeeper {
                 ObjectAdapter adminRouterAdapter =
                     _coordinator
                         .getCommunicator()
-                        .createObjectAdapterWithEndpoints("IceGridAdmin.Router", "tcp -h 127.0.0.1");
+                        .createObjectAdapterWithEndpoints("IceGridAdmin.Internal", "tcp -h 127.0.0.1");
 
                 _routedAdmin =
                     AdminPrx.uncheckedCast(adminRouterAdapter.addWithUUID(new AdminRouter(_admin)));

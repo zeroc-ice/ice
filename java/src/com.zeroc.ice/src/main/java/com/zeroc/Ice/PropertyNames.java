@@ -238,8 +238,8 @@ final class PropertyNames {
         false,
         true,
         new Property[] {
+            new Property("Internal", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("MetricsConfig", false, "", false, null),
-            new Property("Router", false, "", false, PropertyNames.ObjectAdapterProps),
             new Property("Trace.Observers", false, "", false, null),
             new Property("Trace.SaveToRegistry", false, "", false, null)
         });
