@@ -87,22 +87,22 @@ namespace Ice
     /// @param c The string converter.
     ICE_API void setProcessWstringConverter(const WstringConverterPtr& c);
 
-    /// Converts the given wide string to a narrow string.
-    /// @param str A wide string.
-    /// @param nc The narrow string converter. If null, the result's narrow string encoding is UTF-8.
-    /// @param wc The wide string converter. If null, the input's wstring encoding is UTF-16 or UTF-32
-    /// depending on the size of wchar_t.
+    /// Converts a wide string to a narrow string.
+    /// @param str The wide string to convert.
+    /// @param nc The narrow string converter. If null, the result's encoding is UTF-8.
+    /// @param wc The wide string converter. If null, the encoding of @p str is UTF-16 or UTF-32 depending on the size
+    /// of wchar_t.
     /// @return A narrow string.
     ICE_API std::string wstringToString(
         const std::wstring& str,
         const StringConverterPtr& nc = nullptr,
         const WstringConverterPtr& wc = nullptr);
 
-    /// Converts the given narrow string to a wide string.
-    /// @param str A narrow string.
-    /// @param nc The narrow string converter. If null, the result's narrow string encoding is UTF-8.
-    /// @param wc The wide string converter. If null, the input's wstring encoding is UTF-16 or UTF-32
-    /// depending on the size of wchar_t.
+    /// Converts a narrow string to a wide string.
+    /// @param str The narrow string to convert.
+    /// @param nc The narrow string converter. If null, the encoding of @p str is UTF-8.
+    /// @param wc The wide string converter. If null, the result's encoding is UTF-16 or UTF-32 depending on the size of
+    /// wchar_t.
     /// @return A wide string.
     ICE_API std::wstring stringToWstring(
         const std::string& str,

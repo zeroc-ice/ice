@@ -662,6 +662,9 @@ no longer useful, or they go against best practices:
 
 - Nullable proxies are represented using `std::optional`.
 
+- Removed the IceUtil namespace. All remaining utility classes and functions, such as `CtrlCHandler` and
+  `wstringToString`, are now in the Ice namespace.
+
 - All functions that create proxies, including `Communicator::stringToProxy`, `ObjectAdapter::add`,
   `Connection::createProxy` and more, are now template functions that allow you to choose the type of the returned
   proxy. The default proxy type is `Ice::ObjectPrx` for backwards compatibility. We recommend you always specify the
