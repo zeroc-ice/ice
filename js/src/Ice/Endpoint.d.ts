@@ -53,12 +53,6 @@ declare module "@zeroc/ice" {
             type(): number;
 
             /**
-             * Returns true if this endpoint is a datagram endpoint.
-             * @returns True for a datagram endpoint.
-             */
-            datagram(): boolean;
-
-            /**
              * @returns True for a secure endpoint.
              */
             secure(): boolean;

@@ -324,7 +324,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
             ctx = OutgoingAsync._emptyContext;
         }
 
-        if (this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram()) {
+        if (this._proxy.ice_isBatchOneway()) {
             this._proxy._reference.batchRequestQueue.prepareBatchRequest(this._os);
         } else {
             this._os.writeBlob(Protocol.requestHdr);
@@ -381,14 +381,14 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
     }
 
     abort(ex) {
-        if (this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram()) {
+        if (this._proxy.ice_isBatchOneway()) {
             this._proxy._reference.batchRequestQueue.abortBatchRequest(this._os);
         }
         super.abort(ex);
     }
 
     invoke() {
-        if (this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram()) {
+        if (this._proxy.ice_isBatchOneway()) {
             this._sentSynchronously = true;
             this._proxy._reference.batchRequestQueue.finishBatchRequest(this._os, this._proxy, this._operation);
             this.markFinished(true);

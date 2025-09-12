@@ -85,13 +85,6 @@ export class OpaqueEndpointI extends EndpointI {
     }
 
     //
-    // Return true if the endpoint is datagram-based.
-    //
-    datagram() {
-        return false;
-    }
-
-    //
     // Return true if the endpoint is secure.
     //
     secure() {

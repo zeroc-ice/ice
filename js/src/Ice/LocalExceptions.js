@@ -395,7 +395,7 @@ export class TwowayOnlyException extends LocalException {
     }
 
     constructor(operation) {
-        super(`Cannot invoke operation '${operation}' with a oneway, batchOneway, datagram, or batchDatagram proxy.`);
+        super(`Cannot invoke operation '${operation}' with a oneway or batchOneway proxy.`);
         this.operation = operation;
     }
 }

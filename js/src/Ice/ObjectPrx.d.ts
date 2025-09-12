@@ -208,34 +208,6 @@ declare module "@zeroc/ice" {
             ice_isBatchOneway(): boolean;
 
             /**
-             * Creates a new proxy identical to this one, but configured to use datagram invocations.
-             *
-             * @returns A new proxy configured to use datagram invocations.
-             */
-            ice_datagram(): this;
-
-            /**
-             * Determines whether this proxy uses datagram invocations.
-             *
-             * @returns `true` if this proxy uses datagram invocations, `false` otherwise.
-             */
-            ice_isDatagram(): boolean;
-
-            /**
-             * Creates a new proxy identical to this one, but configured to use batch datagram invocations.
-             *
-             * @returns A new proxy configured to use batch datagram invocations.
-             */
-            ice_batchDatagram(): this;
-
-            /**
-             * Determines whether this proxy uses batch datagram invocations.
-             *
-             * @returns `true` if this proxy uses batch datagram invocations, `false` otherwise.
-             */
-            ice_isBatchDatagram(): boolean;
-
-            /**
              * Retrieves the encoding version used to marshal request parameters.
              *
              * @returns The encoding version currently used by this proxy.
