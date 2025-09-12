@@ -1,5 +1,6 @@
 {
     "include": ["python"],
+    "exclude": ["python/dist"],
     "extraPaths": ["python/python"],
     "typeCheckingMode": "standard",
     "reportMissingTypeAnnotation": "error",

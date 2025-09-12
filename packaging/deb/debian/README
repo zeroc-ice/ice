@@ -9,13 +9,12 @@ DEB Package              Description
 -----------------------  ---------------------------------------------------------------
 zeroc-dsnode             DataStorm server
 zeroc-glacier2           Glacier2 service
-zeroc-ice-compilers      Slice compilers, such as slice2cpp, slice2java, and slice2py
 zeroc-ice-slice          Slice definition files
 zeroc-ice-utils          Utilities for administering an Ice installation
 zeroc-icebox             IceBox server for C++
 zeroc-icebridge          IceBridge service
 zeroc-icegrid            IceGrid service
-libzeroc-ice-dev         C++ headers and symlinks to Ice C++ runtime libraries
+libzeroc-ice-dev         Ice for C++ headers and symlinks, and the Slice compiler for C++
 libzeroc-ice3.8-c++      Ice for C++ runtime libraries (includes plug-ins, DataStorm and client libraries for Ice services)
 libzeroc-icestorm3.8     IceStorm service
 php-zeroc-ice            Ice for PHP

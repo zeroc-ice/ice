@@ -102,6 +102,28 @@ module IceGrid
     ["java:type:java.util.LinkedList<AdapterDescriptor>"]
     sequence<AdapterDescriptor> AdapterDescriptorSeq;
 
+    /// A Freeze database environment descriptor (deprecated, no longer used).
+    ["deprecated:This descriptor is provided for schema compatibility. It is no longer used as of Ice 3.8."]
+    struct DbEnvDescriptor
+    {
+        /// The name of the database environment.
+        string name;
+
+        /// The description of this database environment.
+        string description;
+
+        /// The home of the database environment.
+        string dbHome;
+
+        /// The configuration properties of the database environment.
+        ["matlab:identifier:propertyDescriptors"]
+        PropertyDescriptorSeq properties;
+    }
+
+    /// A sequence of {@link DbEnvDescriptor}.
+    ["deprecated:This descriptor is provided for schema compatibility. It is no longer used as of Ice 3.8."]
+    sequence<DbEnvDescriptor> DbEnvDescriptorSeq;
+
     /// Describes an Ice communicator.
     class CommunicatorDescriptor
     {
@@ -110,6 +132,10 @@ module IceGrid
 
         /// The property set.
         PropertySetDescriptor propertySet;
+
+        /// The database environments.
+        ["deprecated"]
+        DbEnvDescriptorSeq dbEnvs;
 
         /// The path of each log file.
         Ice::StringSeq logs;

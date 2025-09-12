@@ -12,14 +12,46 @@ runs:
     #
     # Cache
     #
+
+    - name: Get Linux version
+      if: runner.os == 'Linux'
+      id: linux-version
+      run: echo "version=$(lsb_release -rs)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Get macOS version
+      if: runner.os == 'macOS'
+      id: macos-version
+      run: echo "version=$(sw_vers -productVersion)" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Get Windows version
+      if: runner.os == 'Windows'
+      id: windows-version
+      run: |
+        echo "version=$((Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion').DisplayVersion)" >> $env:GITHUB_OUTPUT
+      shell: powershell
+
+    - name: Set OS version output
+      id: os-version
+      run: |
+        if [ "$RUNNER_OS" == "Linux" ]; then
+          echo "version=${{ steps.linux-version.outputs.version }}" >> $GITHUB_OUTPUT
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          echo "version=${{ steps.macos-version.outputs.version }}" >> $GITHUB_OUTPUT
+        elif [ "$RUNNER_OS" == "Windows" ]; then
+          echo "version=${{ steps.windows-version.outputs.version }}" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
         create-symlink: false
         append-timestamp: false
-        key: ${{ inputs.prefix }}-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+        key: ${{ inputs.prefix }}-${{ runner.os }}-${{ steps.os-version.outputs.version }}-${{ runner.arch }}-${{ github.sha }}
         restore-keys: |
-          ${{ inputs.prefix }}-${{ runner.os }}-${{ runner.arch }}
+          ${{ inputs.prefix }}-${{ runner.os }}-${{ steps.os-version.outputs.version }}-${{ runner.arch }}
         max-size: 1G
         evict-old-files: job
         variant: ${{ runner.os == 'Windows' && 'ccache' || 'ccache' }}

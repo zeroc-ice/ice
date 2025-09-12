@@ -6,7 +6,7 @@ import shutil
 import sys
 import urllib.request
 
-from setuptools import Extension, setup
+from setuptools import Extension, find_namespace_packages, setup
 from setuptools.command.build_ext import build_ext as _build_ext
 from setuptools.command.sdist import sdist as _sdist
 
@@ -89,7 +89,7 @@ else:
         libraries.append("dl")
 
 
-def filter_source(filename):
+def filter_source(filename: str):
     # Filter out sources that are not needed for building the extension depending on the target platform.
     if "ios/" in filename:
         return False
@@ -125,7 +125,7 @@ def filter_source(filename):
 class CustomBuildExtCommand(_build_ext):
     def run(self):
         sources = []
-        for root, dirs, files in os.walk("dist"):
+        for root, _, files in os.walk("dist"):
             for file in files:
                 if pathlib.Path(file).suffix.lower() in [".c", ".cpp"]:
                     sources.append(os.path.join(root, file))
@@ -134,12 +134,14 @@ class CustomBuildExtCommand(_build_ext):
         self.distribution.ext_modules[0].sources = filtered
         _build_ext.run(self)
 
-    def build_extension(self, ext):
+    def build_extension(self, ext: Extension):
         original_compile = self.compiler._compile
 
         # Monkey-patch the compiler to add extra compile args for C++ files. This works around errors with Clang and
         # GCC as they don't accept --std=c++XX when compiling C files. The MSVC backend doesn't use _compile.
-        def _compile(obj, src, ext, cc_args, extra_postargs, pp_opts):
+        def _compile(
+            obj: str, src: str, ext: str | None, cc_args: list[str], extra_postargs: list[str], pp_opts: list[str]
+        ):
             original_compile(
                 obj,
                 src,
@@ -159,7 +161,7 @@ class CustomBuildExtCommand(_build_ext):
 # Customize the sdist command to ensure that the third-party sources and the generated sources are included in the
 # source distribution.
 class CustomSdistCommand(_sdist):
-    def include_file(self, filename):
+    def include_file(self, filename: str):
         filename = os.path.normpath(filename)
         if pathlib.Path(filename).suffix.lower() not in [".c", ".cpp", ".h", ".ice", ".py", ".pyi"]:
             return False
@@ -318,7 +320,7 @@ ice_py = Extension(
 
 # Setup configuration for the package
 setup(
-    packages=["Glacier2", "Ice", "IceBox", "IceGrid", "IceMX", "IceStorm", "slice", "IcePy-stubs"],
+    packages=find_namespace_packages(where="dist/lib"),
     package_dir={"": "dist/lib"},
     package_data={"slice": ["*.ice"]},
     include_package_data=True,

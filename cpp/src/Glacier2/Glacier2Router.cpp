@@ -404,6 +404,7 @@ RouterService::initializeCommunicator(int& argc, char* argv[], InitializationDat
     initData.properties->setProperty("Ice.Default.Router", "");
 
     // Turn-off the inactivity timeout for the Glacier2.Client object adapter unless the application sets this property.
+    // We use getProperty and not getIceProperty on purpose here!
     if (initData.properties->getProperty("Glacier2.Client.Connection.InactivityTimeout").empty())
     {
         initData.properties->setProperty("Glacier2.Client.Connection.InactivityTimeout", "0");

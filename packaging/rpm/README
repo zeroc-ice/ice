@@ -9,14 +9,13 @@ RPM Package             Description
 ----------------------  ---------------------------------------------------------------
 dsnode                  DataStorm server
 glacier2                Glacier2 service
-ice-compilers           Slice compilers, such as slice2cpp, slice2java, and slice2py
 ice-slice               Slice definition files
 ice-utils               Utilities for administering an Ice installation
 icebox                  IceBox server for C++
 icebridge               IceBridge service
 icegrid                 IceGrid service
 icegridgui              IceGrid GUI application
-libice-c++-devel        C++ headers and symlinks to Ice C++ runtime libraries
+libice-c++-devel        Ice for C++ headers and symlinks, and the Slice compiler for C++
 libice3.8-c++           Ice for C++ runtime libraries (includes plug-ins, DataStorm and client libraries for Ice services)
 libicestorm3.8          IceStorm service
 php-ice                 Ice for PHP [1]

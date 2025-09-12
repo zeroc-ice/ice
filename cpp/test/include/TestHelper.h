@@ -97,6 +97,7 @@ namespace Test
         static int getTestPort(const Ice::PropertiesPtr&, int port = 0);
 
         static Ice::PropertiesPtr createTestProperties(int&, char*[]);
+        static void parseTestOptions(int&, char*[], const Ice::PropertiesPtr&);
 
         Ice::CommunicatorPtr initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = nullptr);
         Ice::CommunicatorPtr initialize(Ice::InitializationData);

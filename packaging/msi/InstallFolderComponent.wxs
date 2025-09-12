@@ -34,7 +34,7 @@
             <!-- Slice Files-->
             <Files Include="!(bindpath.STAGING_DIR)slice\**" Directory="SliceFolder" />
             <!-- Config Files -->
-            <Files Include="!(bindpath.SOURCE_ROOT)cpp\config\*.cfg" Directory="ConfigFolder" />
+            <Files Include="!(bindpath.SOURCE_ROOT)packaging\msi\config\*.cfg" Directory="ConfigFolder" />
             <Files Include="!(bindpath.SOURCE_ROOT)cpp\config\templates.xml" Directory="ConfigFolder" />
             <!-- License Files -->
             <File Id="License"

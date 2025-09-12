@@ -51,5 +51,4 @@ jobs:
 
       - name: Pyright check
         run: |-
-          pyright python/python
-          pyright python/test
+          pyright python
