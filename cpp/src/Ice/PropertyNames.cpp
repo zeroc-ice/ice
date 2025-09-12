@@ -333,7 +333,6 @@ const PropertyArray PropertyNames::IceGridAdminProps
 
 const Property IceGridPropsData[] =
 {
-    Property{"AdminRouter", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"InstanceName", "", false, false, nullptr},
     Property{"Node", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Node.AllowEndpointsOverride", "0", false, false, nullptr},
@@ -402,7 +401,7 @@ const PropertyArray PropertyNames::IceGridProps
     .prefixOnly=false,
     .isOptIn=true,
     .properties=IceGridPropsData,
-    .length=61
+    .length=60
 };
 
 const Property IceSSLPropsData[] =

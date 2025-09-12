@@ -254,18 +254,16 @@ public class SessionKeeper {
 
             if (_routedAdmin == null) {
                 // Create a local Admin object used to route some operations to the real Admin.
-                // Routing admin calls is even necessary when we don't through Glacier2
+                // Routing admin calls is even necessary when we don't go through Glacier2
                 // since the Admin object provided by the registry is a well-known object
                 // (indirect, locator-dependent).
                 ObjectAdapter adminRouterAdapter =
                     _coordinator
                         .getCommunicator()
-                        .createObjectAdapterWithEndpoints(
-                            "IceGrid.AdminRouter", "tcp -h localhost");
+                        .createObjectAdapterWithEndpoints("IceGridAdmin.Router", "tcp -h 127.0.0.1");
 
                 _routedAdmin =
-                    AdminPrx.uncheckedCast(
-                        adminRouterAdapter.addWithUUID(new AdminRouter(_admin)));
+                    AdminPrx.uncheckedCast(adminRouterAdapter.addWithUUID(new AdminRouter(_admin)));
 
                 adminRouterAdapter.activate();
             }

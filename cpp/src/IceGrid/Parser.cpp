@@ -46,7 +46,7 @@ namespace
         {"application",
          "diff",
          "application diff [-s | --servers] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
-         "                          Print the differences betwen the application\n"
+         "                          Print the differences between the application\n"
          "                          described in DESC and the current deployment.\n"
          "                          If -s or --servers is specified, print the\n"
          "                          the list of servers affected by the differences.\n"},
