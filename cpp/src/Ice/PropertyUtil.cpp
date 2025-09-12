@@ -14,7 +14,8 @@ using namespace IceInternal;
 optional<Property>
 IceInternal::findProperty(string_view key, const PropertyArray* propertyArray)
 {
-    assert(propertyArray && propertyArray->properties);
+    assert(propertyArray);
+    assert(propertyArray->properties != nullptr || propertyArray->length == 0);
 
     for (int i = 0; i < propertyArray->length; ++i)
     {

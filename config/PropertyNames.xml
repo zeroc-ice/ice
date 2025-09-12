@@ -213,6 +213,8 @@
         <property name="Discovery.Reply" class="ObjectAdapter" languages="cpp" />
         <property name="Host" languages="cpp" />
         <property name="InstanceName" languages="cpp" />
+        <!-- An undocumented internal object adapter used by IceGridGUI to route Admin calls. -->
+        <property name="Internal" class="ObjectAdapter" languages="java" />
         <property name="MetricsConfigs" languages="java" />
         <property name="Password" languages="cpp" />
         <property name="Port" languages="cpp" />
@@ -224,7 +226,6 @@
     </section>
 
     <section name="IceGrid" opt-in="true">
-        <property name="AdminRouter" class="ObjectAdapter" languages="cpp" />
         <!-- The default for InstanceName is computed and eventually falls back to 'IceGrid' -->
         <property name="InstanceName" languages="cpp" />
         <property name="Node" class="ObjectAdapter" languages="cpp" />
