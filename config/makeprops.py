@@ -306,8 +306,8 @@ const std::array<PropertyArray, {len(self.generatedPropertyArrays())}> PropertyN
         isOptIn = "true" if propertyArray.isOptIn else "false"
         self.hFile.write(f"        static const PropertyArray {name}Props;\n")
 
-        # In C++ it is illegal to have an empty array. Instead of generating an empty data array
-        # we set the .properties field of the PropertyArray to nullptr.
+        # In C++ it is illegal to have an empty array. Instead, we set
+        # the `properties` field of the PropertyArray to nullptr.
         if propertyArray.properties:
             self.cppFile.write(f"""\
 const Property {arrayName}[] =
