@@ -254,7 +254,7 @@ public class SessionKeeper {
 
             if (_routedAdmin == null) {
                 // Create a local Admin object used to route some operations to the real Admin.
-                // Routing admin calls is even necessary when we don't go through Glacier2
+                // Routing admin calls is also necessary when we don't go through Glacier2
                 // since the Admin object provided by the registry is a well-known object
                 // (indirect, locator-dependent).
                 ObjectAdapter adminRouterAdapter =
