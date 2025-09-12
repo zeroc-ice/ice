@@ -21,7 +21,7 @@ Ice nightly builds are produced daily from the main GitHub branch.
 - [Linux Repositories](#linux-repositories)
   - [RPM-based Linux (RHEL, Amazon Linux)](#rpm-based-linux-rhel-amazon-linux)
   - [DEB-based Linux (Debian, Ubuntu)](#deb-based-linux-debian-ubuntu)
-- [macOS Brew Formula](#macos-brew-formula)
+- [macOS Brew Formula and Cask](#macos-brew-formula-and-cask)
 
 ## Dev kits
 
@@ -47,7 +47,7 @@ sudo apt-get install libzeroc-ice-dev
 
 #### macOS
 
-Ice for C++ is included in the [ice formula](#macos-brew-formula).
+Ice for C++ is included in the [ice formula](#macos-brew-formula-and-cask).
 
 #### Windows
 
@@ -71,7 +71,7 @@ https://download.zeroc.com/nexus/repository/nuget-nightly/
 
 ### Ice for Java
 
-The ZeroC Ice Java nightly packages are available from the maven central snapshots repository.
+The nightly packages are available from the maven central snapshots repository.
 
 To use them, add the following Maven repository to your build configuration:
 
@@ -104,7 +104,7 @@ dependencyResolutionManagement {
 
 ### Ice for JavaScript
 
-The ZeroC Ice NPM nightly package @zeroc/ice is available from the ZeroC NPM nightly registry.
+The nightly NPM package @zeroc/ice is available from the ZeroC NPM nightly registry.
 
 To install it, add the following line to your project’s .npmrc file:
 
@@ -126,7 +126,7 @@ Ice toolbox for MATLAB R2025a:
 - Windows: [ice-nightly-R2025a-win.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-win.mltbx)
 - Ubuntu 24.04: [ice-nightly-R2025a-linux.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-linux.mltbx)
 
-To install a toolbox, download the package corresponding to your platform and simply double-click the `.mltbx` file
+To install a toolbox, download the package corresponding to your platform and simply double-click on the `.mltbx` file
 from MATLAB.
 
 ### Ice for PHP
@@ -163,13 +163,12 @@ Not yet available.
 
 #### PyPI
 
-The ZeroC Ice nightly Python package is available from the ZeroC PyPI nightly repository for all platforms (Linux,
-macOS, Windows).
+The nightly package for all platforms (Linux, macOS, Windows) is available from the ZeroC PyPI nightly repository.
 
 To install the latest zeroc-ice nightly package, add the following lines to your requirements.txt:
 
 ```shell
-# Use ZeroC Nightly repository as the main index for pip
+# Use ZeroC nightly repository as the main index for pip
 --index-url https://download.zeroc.com/nexus/repository/pypi-nightly/simple/
 
 # Allow installing packages from the official PyPI index if not found in the ZeroC repository
@@ -204,7 +203,7 @@ sudo apt-get install python3-zeroc-ice
 
 ### Ice for Ruby
 
-The ZeroC Ice nightly Ruby GEM package is available from the ZeroC RubyGems nightly repository.
+The nightly Ruby GEM package is available from the ZeroC RubyGems nightly repository.
 
 You can install the latest Ruby gem by running the following command:
 
@@ -215,8 +214,7 @@ gem install zeroc-ice --source https://download.zeroc.com/nexus/repository/rubyg
 
 ### Ice for Swift
 
-The Ice for Swift nightly package is available via Swift Package Manager (SPM) from the zeroc-ice/ice-swift-nightly
-GitHub repository.
+The nightly package is available via the Swift Package Manager (SPM).
 
 To use it in your project, add the following URL as a dependency in your Package.swift:
 
@@ -226,7 +224,8 @@ https://github.com/zeroc-ice/ice-swift-nightly
 
 ## Ice Services
 
-This section describes how to install the DataStorm, Glacier2, IceBox, IceBridge, IceGrid, and IceStorm services.
+This section describes how to install the DataStorm, Glacier2, IceBox, IceBridge, IceGrid, IceStorm services, and the
+associated admin tools.
 
 > DataStorm is primarily a library-based service, installed as part of Ice for C++. The DataStorm component described
 > in this section is the DataStorm server (dsnode).
@@ -234,7 +233,7 @@ This section describes how to install the DataStorm, Glacier2, IceBox, IceBridge
 ### Linux
 
 First, enable the Ice nightly DNF or APT repository on your system as per [Linux Repositories](#linux-repositories).
-Then, install the desired service. For example:
+Then, install the desired service or tool. For example:
 
 #### RHEL, Amazon Linux
 
@@ -255,7 +254,8 @@ Refer to the [DEB packages README] for a complete list of available service pack
 
 ### macOS
 
-All Ice services are included in the [ice formula](#macos-brew-formula).
+All Ice services and admin tools are included in the [ice formula](#macos-brew-formula-and-cask), except IceGrid GUI,
+which is provided by a [cask](#macos-brew-formula-and-cask).
 
 ### Windows
 
@@ -268,8 +268,8 @@ etc.) are provided in a Windows installer MSI package:
 
 ### RPM-based Linux (RHEL, Amazon Linux)
 
-The ZeroC Ice nightly RPM packages for Red Hat Enterprise Linux and Amazon Linux are available from the ZeroC DNF
-nightly repository.
+The nightly RPM packages for Red Hat Enterprise Linux and Amazon Linux are available from the ZeroC DNF nightly
+repository.
 
 To enable the nightly repository for your distribution run:
 
@@ -295,7 +295,7 @@ See also: [RPM packages README]
 
 ### DEB-based Linux (Debian, Ubuntu)
 
-The ZeroC Ice nightly DEB packages for Debian and Ubuntu are available from the ZeroC APT nightly repository.
+The nightly DEB packages for Debian and Ubuntu are available from the ZeroC APT nightly repository.
 
 To enable the nightly repository for your distribution run:
 
@@ -325,7 +325,7 @@ To enable the nightly repository for your distribution run:
 
 See also: [DEB packages README]
 
-## macOS Brew Formula
+## macOS Brew Formula and Cask
 
 You can install the nightly ice formula by running:
 
@@ -336,7 +336,9 @@ brew install zeroc-ice/nightly/ice
 The ice formula includes:
 
 - the Ice for C++ runtime and dev kit
-- all Ice services (Glacier2, IceGrid, IceStorm, etc.)
+- all Ice services (Glacier2, IceGrid, IceStorm, etc.) and all admin tools except IceGrid GUI.
+
+IceGridGUI is distributed in its own brew cask. This cask is not yet available.
 
 [RPM packages README]: packaging/rpm/README
 [DEB packages README]: packaging/deb/debian/README
