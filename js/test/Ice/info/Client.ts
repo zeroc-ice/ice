@@ -46,7 +46,6 @@ export class Client extends TestHelper {
         test(ipEndpoint.timeout == 1200);
         test(ipEndpoint.sourceAddress == "10.10.10.10");
         test(ipEndpoint.compress);
-        test(!ipEndpoint.datagram());
         test(
             (ipEndpoint.type() == Ice.TCPEndpointType && !ipEndpoint.secure()) ||
                 (ipEndpoint.type() == Ice.WSEndpointType && !ipEndpoint.secure()) ||

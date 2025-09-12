@@ -116,13 +116,6 @@ export class TcpEndpointI extends IPEndpointI {
         }
     }
 
-    //
-    // Return true if the endpoint is datagram-based.
-    //
-    datagram() {
-        return false;
-    }
-
     connectable() {
         // TCP endpoints are not connectable when running in a browser, SSL isn't currently supported.
         return TcpTransceiver !== null && !this.secure();

@@ -69,10 +69,6 @@ export class WSEndpoint extends EndpointI {
         }
     }
 
-    datagram() {
-        return this._delegate.datagram();
-    }
-
     secure() {
         return this._delegate.secure();
     }

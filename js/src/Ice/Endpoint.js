@@ -33,10 +33,6 @@ export class EndpointInfo {
         return this._underlying?.type() ?? -1;
     }
 
-    datagram() {
-        return this._underlying?.datagram() ?? false;
-    }
-
     secure() {
         return this._underlying?.secure() ?? false;
     }

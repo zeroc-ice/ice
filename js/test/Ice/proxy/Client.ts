@@ -274,6 +274,7 @@ export class Client extends TestHelper {
         test(b1.ice_isOneway());
         b1 = communicator.stringToProxy("test -O");
         test(b1.ice_isBatchOneway());
+        b1 = communicator.stringToProxy("test -d");
         b1 = communicator.stringToProxy("test -s"); // does nothing
 
         test(b1.ice_getEncodingVersion().equals(Ice.currentEncoding()));

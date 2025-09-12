@@ -938,35 +938,6 @@ export class RoutableReference extends Reference {
         let endpoints = allEndpoints.filter(e => !(e instanceof OpaqueEndpointI) && e.connectable());
 
         //
-        // Filter out endpoints according to the mode of the reference.
-        //
-        switch (this.getMode()) {
-            case ReferenceMode.ModeTwoway:
-            case ReferenceMode.ModeOneway:
-            case ReferenceMode.ModeBatchOneway: {
-                //
-                // Filter out datagram endpoints.
-                //
-                endpoints = endpoints.filter(e => !e.datagram());
-                break;
-            }
-
-            case ReferenceMode.ModeDatagram:
-            case ReferenceMode.ModeBatchDatagram: {
-                //
-                // Filter out non-datagram endpoints.
-                //
-                endpoints = endpoints.filter(e => e.datagram());
-                break;
-            }
-
-            default: {
-                console.assert(false);
-                break;
-            }
-        }
-
-        //
         // Sort the endpoints according to the endpoint selection type.
         //
         switch (this.getEndpointSelection()) {
