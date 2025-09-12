@@ -238,10 +238,7 @@ class CppPropertyHandler(PropertyHandler):
 #ifndef ICE_INTERNAL_PROPERTY_NAMES_H
 #define ICE_INTERNAL_PROPERTY_NAMES_H
 
-#include "Ice/Config.h"
-
 #include <array>
-#include <string>
 
 namespace IceInternal
 {{
@@ -304,22 +301,29 @@ const std::array<PropertyArray, {len(self.generatedPropertyArrays())}> PropertyN
     @override
     def writePropertyArray(self, propertyArray):
         name = propertyArray.name
+        arrayName = f"{name}PropsData"
         prefixOnly = "true" if propertyArray.prefixOnly else "false"
         isOptIn = "true" if propertyArray.isOptIn else "false"
         self.hFile.write(f"        static const PropertyArray {name}Props;\n")
 
-        self.cppFile.write(f"""\
-const Property {name}PropsData[] =
+        # In C++ it is illegal to have an empty array. Instead of generating an empty data array
+        # we set the .properties field of the PropertyArray to nullptr.
+        if propertyArray.properties:
+            self.cppFile.write(f"""\
+const Property {arrayName}[] =
 {{
     {",\n    ".join(propertyArray.properties)}
 }};
 
+""")
+
+        self.cppFile.write(f"""\
 const PropertyArray PropertyNames::{name}Props
 {{
     .name="{name}",
     .prefixOnly={prefixOnly},
     .isOptIn={isOptIn},
-    .properties={name}PropsData,
+    .properties={arrayName if propertyArray.properties else "nullptr"},
     .length={len(propertyArray.properties)}
 }};
 
