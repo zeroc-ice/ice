@@ -238,10 +238,7 @@ export class InitialI extends Test.Initial {
     opF3(f31: Test.F3 | null, current: Ice.Current): [Test.F3 | null, Test.F3 | null] {
         return [
             f31,
-            new Test.F3(
-                new Test_Forward.F1("F12"),
-                Test_Forward.F2Prx.uncheckedCast(current.adapter.getCommunicator().stringToProxy("F22")),
-            ),
+            new Test.F3(new Test_Forward.F1("F12"), new Test_Forward.F2Prx(current.adapter.getCommunicator(), "F22")),
         ];
     }
 

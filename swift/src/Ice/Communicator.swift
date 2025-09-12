@@ -53,7 +53,7 @@ public protocol Communicator: AnyObject, Sendable {
     ///
     /// - parameter property: `String` The base property name.
     ///
-    /// - returns: `ObjectPrx?` - The proxy.
+    /// - returns: `ObjectPrx?` - The proxy, or nil if the property is not set.
     func propertyToProxy(_ property: String) throws -> ObjectPrx?
 
     /// Convert a proxy to a set of proxy properties.

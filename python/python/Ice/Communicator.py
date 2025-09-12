@@ -191,12 +191,11 @@ class Communicator:
         """
         return self._impl.proxyToString(proxy)
 
-    def propertyToProxy(self, property: str) -> ObjectPrx:
+    def propertyToProxy(self, property: str) -> ObjectPrx | None:
         """
-        Convert a set of proxy properties into a proxy.
-
-        The "base" name supplied in the property argument refers to a property containing a stringified proxy,
-        such as `MyProxy=id:tcp -h localhost -p 10000`.
+        Converts a set of proxy properties into a proxy. The "base" name supplied in the property argument refers to a
+        property containing a stringified proxy, such as :code:`MyProxy=id:tcp -h localhost -p 10000`.
+        Additional properties configure local settings for the proxy.
 
         Parameters
         ----------
@@ -205,8 +204,8 @@ class Communicator:
 
         Returns
         -------
-        ObjectPrx
-            The proxy.
+        ObjectPrx | None
+            The proxy, or None if the property is not set.
         """
         return self._impl.propertyToProxy(property)
 
@@ -359,7 +358,7 @@ class Communicator:
         properties = self._impl.getProperties()
         return Properties(properties)
 
-    def getLogger(self):
+    def getLogger(self) -> Logger:
         """
         Get the logger for this communicator.
 
@@ -374,7 +373,7 @@ class Communicator:
         else:
             return LoggerI(logger)
 
-    def getDefaultRouter(self):
+    def getDefaultRouter(self) -> RouterPrx | None:
         """
         Get the default router for this communicator.
 

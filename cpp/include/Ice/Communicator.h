@@ -102,8 +102,8 @@ namespace Ice
         std::string proxyToString(const std::optional<ObjectPrx>& obj) const;
 
         /// Converts a set of proxy properties into a proxy. The "base" name supplied in the @p property argument refers
-        /// to a property containing a stringified proxy, such as `MyProxy=id:tcp -h localhost -p 10000`. Additional
-        /// properties configure local settings for the proxy.
+        /// to a property containing a stringified proxy, such as `MyProxy=id:tcp -h localhost -p 10000`.
+        /// Additional properties configure local settings for the proxy.
         /// @tparam Prx The type of the proxy to return.
         /// @param property The base property name.
         /// @return The proxy, or nullopt if the property is not set.
