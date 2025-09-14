@@ -5,7 +5,7 @@
 The [Ice framework] provides everything you need to build networked applications,
 including RPC, pub/sub, server deployment, and more.
 
-Ice for JavaScript is the JavaScript implementation of the Ice framework.
+Ice for JavaScript is the JavaScript implementation of the Ice framework, with support for JavaScript and TypeScript.
 
 ## Sample Code
 
@@ -57,7 +57,7 @@ builds to remove such statements. Different module bundlers provide different op
 [terser options].
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/js
-[NPM Packages]: https://www.npmjs.com/~zeroc
+[NPM Packages]: ../NIGHTLY.md#ice-for-javascript
 [Documentation]: https://docs.zeroc.com/ice/latest/javascript/
 [API Reference]: https://code.zeroc.com/ice/main/api/javascript/index.html
 [Building from source]: ./BUILDING.md
