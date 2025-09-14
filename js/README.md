@@ -10,38 +10,40 @@ Ice for JavaScript is the JavaScript implementation of the Ice framework.
 ## Sample Code
 
 ```slice
-// Slice definitions (Hello.ice)
+// Slice definitions (Greeter.ice)
 
-module Demo
+#pragma once
+
+module VisitorCenter
 {
-    interface Hello
+    /// Represents a simple greeter.
+    interface Greeter
     {
-        void sayHello();
+        /// Creates a personalized greeting.
+        /// @param name The name of the person to greet.
+        /// @return The greeting.
+        string greet(string name);
     }
 }
 ```
 
-```javascript
-// Client application (client.js)
-let communicator;
-try
-{
-    communicator = Ice.initialize(process.argv);
-    const hello = await Demo.HelloPrx.checkedCast(
-        communicator.stringToProxy("hello:tcp -h localhost -p 10000"));
-    await hello.sayHello();
-}
-catch(ex)
-{
-    console.log(ex.toString());
-}
-finally
-{
-   if(communicator)
-   {
-      await communicator.destroy();
-   }
-}
+```typescript
+// Client application for Node.js (client.ts)
+
+import { Ice } from "@zeroc/ice";
+import { VisitorCenter } from "./Greeter.js";
+import process from "node:process";
+
+await using communicator = Ice.initialize(process.argv);
+
+const greeter = new VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061");
+
+// Retrieve my name
+const name = process.env.USER || process.env.USERNAME || "masked user";
+
+const greeting = await greeter.greet(name);
+
+console.log(greeting);
 ```
 
 ## Development
@@ -51,7 +53,8 @@ builds to remove such statements. Different module bundlers provide different op
 
 - If using [esbuild], see [drop-labels option][esbuild-drop-labels].
 - If using rollup, see the [@rollup/plugin-strip] plugin and the [drop-labels option][strip-drop-labels].
-- If using WebPack the [TerserWebpackPlugin] plugin can be configured to drop `console.assert`; see `drop_console` in [terser options].
+- If using WebPack the [TerserWebpackPlugin] plugin can be configured to drop `console.assert`; see `drop_console` in
+[terser options].
 
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/main/js
 [NPM Packages]: https://www.npmjs.com/~zeroc
