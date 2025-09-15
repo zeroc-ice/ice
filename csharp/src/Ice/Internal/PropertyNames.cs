@@ -238,6 +238,12 @@ internal sealed class PropertyNames
         true,
         []);
 
+    internal static PropertyArray IceGridGUIProps = new(
+        "IceGridGUI",
+        false,
+        true,
+        []);
+
     internal static PropertyArray IceSSLProps = new(
         "IceSSL",
         false,
@@ -302,6 +308,7 @@ internal sealed class PropertyNames
         IceBridgeProps,
         IceGridAdminProps,
         IceGridProps,
+        IceGridGUIProps,
         IceSSLProps,
         IceStormProps,
         IceStormAdminProps,
