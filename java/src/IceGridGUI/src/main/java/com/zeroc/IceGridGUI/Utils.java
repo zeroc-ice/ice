@@ -17,8 +17,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -501,5 +503,44 @@ public class Utils {
         }
     }
 
-    private Utils() {}
+    /**
+     * Search for "icegridadmin" in the PATH.
+     *
+     * @return the full path to icegridadmin if found, "icegridadmin(.exe)" otherwise
+     */
+    public static String getIceGridAdmin() {
+
+        String exe = "icegridadmin";
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            exe += ".exe";
+        }
+
+        String path = System.getenv("PATH");
+
+        List<String> searchDirs;
+        if (path == null || path.isEmpty()) {
+            searchDirs = new ArrayList<>();
+        } else {
+            searchDirs = Arrays.asList(path.split(File.pathSeparator));
+        }
+
+        if (System.getProperty("os.name").startsWith("Mac OS")) {
+            // Add the default brew cellar to the search path.
+            String brewPath = "/opt/homebrew/bin";
+            if (!searchDirs.contains(brewPath)) {
+                searchDirs.add(brewPath);
+            }
+        }
+
+        for (String dir : searchDirs) {
+            java.io.File f = new java.io.File(dir, exe);
+            if (f.exists() && f.canExecute()) {
+                return f.getAbsolutePath();
+            }
+        }
+
+        return exe;
+    }
+
+
 }
