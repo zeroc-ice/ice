@@ -5,9 +5,8 @@
     <Fragment>
         <!-- Define the directory structure -->
         <StandardDirectory Id="ProgramFiles64Folder">
-            <Directory Id="INSTALLFOLDER" Name="ZeroC\Ice-$(Version)">
+            <Directory Id="INSTALLFOLDER" Name="ZeroC\Ice-Services-$(Version)">
                 <Directory Id="BinFolder" Name="bin" />
-                <Directory Id="SliceFolder" Name="slice" />
                 <Directory Id="ConfigFolder" Name="config" />
             </Directory>
         </StandardDirectory>
@@ -31,8 +30,6 @@
             <Files Include="!(bindpath.STAGING_DIR)bin\**" Directory="BinFolder" />
             <!-- The IceGrid GUI jar -->
             <File Source="!(bindpath.SOURCE_ROOT)java\lib\icegridgui.jar" Directory="BinFolder" />
-            <!-- Slice Files-->
-            <Files Include="!(bindpath.STAGING_DIR)slice\**" Directory="SliceFolder" />
             <!-- Config Files -->
             <Files Include="!(bindpath.SOURCE_ROOT)packaging\msi\config\*.cfg" Directory="ConfigFolder" />
             <Files Include="!(bindpath.SOURCE_ROOT)cpp\config\templates.xml" Directory="ConfigFolder" />

@@ -4,16 +4,16 @@
     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
     <Package
-        Name="Ice $(Version)"
+        Name="Ice Services $(Version)"
         Manufacturer="ZeroC, Inc."
         Version="$(Version).0"
         InstallerVersion="500"
         Compressed="yes"
-        Id="Ice_$(Version)">
+        Id="Ice_Services_$(Version)">
 
         <SummaryInformation
-            Description="Ice $(Version)"
-            Comments="Ice $(Version) MSI Installer"
+            Description="Ice Services $(Version)"
+            Comments="Ice Services $(Version) MSI Installer"
             Keywords="Ice, RPC"/>
 
         <!-- Embed CAB files in MSI -->

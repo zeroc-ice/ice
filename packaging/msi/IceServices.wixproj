@@ -15,8 +15,8 @@
     <DefineConstants>$(DefineConstants);IceManualUrl=https://docs.zeroc.com/ice/latest/cpp/</DefineConstants>
     <DefineConstants>$(DefineConstants);IceSourceUrl=https://github.com/zeroc-ice/ice</DefineConstants>
     <DefineConstants>$(DefineConstants);IceReleaseNotesUrl=https://docs.zeroc.com/ice/latest/cpp/ice-3-8-0-preview</DefineConstants>
-    <OutputName>Ice-$(IcePackageVersion)</OutputName>
-    <ProductCode>Ice-$(Version)</ProductCode>
+    <OutputName>Ice-Services-$(IcePackageVersion)</OutputName>
+    <ProductCode>Ice-Services-$(Version)</ProductCode>
   </PropertyGroup>
   <ItemGroup>
     <BindPath Include="$(MSBuildThisFileDirectory)..\..\" BindName="SOURCE_ROOT" />
@@ -29,7 +29,6 @@
   </ItemGroup>
   <!-- Files from the source build -->
   <ItemGroup>
-    <Slices Include="$(PackageDir)slice\**\*.ice" />
     <Libraries Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\*.dll" />
     <Executables Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\*.exe"
       Exclude="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\slice2*.exe" />
@@ -40,8 +39,6 @@
       Text="The IceGridGUI must be build before creating the MSI package." />
     <RemoveDir Directories="$(StagingDir)" />
     <MakeDir Directories="$(StagingDir)bin" />
-    <MakeDir Directories="$(StagingDir)slice" />
-    <Copy SourceFiles="@(Slices)" DestinationFolder="$(StagingDir)slice\%(Slices.RecursiveDir)" />
     <Copy SourceFiles="@(Tools)" DestinationFolder="$(StagingDir)bin" />
     <Copy SourceFiles="@(Libraries)" DestinationFolder="$(StagingDir)bin" />
     <Copy SourceFiles="@(Executables)" DestinationFolder="$(StagingDir)bin" />
