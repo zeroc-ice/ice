@@ -36,7 +36,7 @@ import process from "node:process";
 
 await using communicator = Ice.initialize(process.argv);
 
-const greeter = new VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h localhost -p 4061");
+const greeter = new VisitorCenter.GreeterPrx(communicator, "greeter:tcp -h hello.zeroc.com -p 4061");
 
 // Retrieve my name
 const name = process.env.USER || process.env.USERNAME || "masked user";

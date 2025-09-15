@@ -44,7 +44,7 @@ function client(args)
     communicator = Ice.Communicator(args);
     cleanup = onCleanup(@() communicator.destroy());
 
-    greeter = visitorcenter.GreeterPrx(communicator, 'greeter:tcp -h localhost -p 4061');
+    greeter = visitorcenter.GreeterPrx(communicator, 'greeter:tcp -h hello.zeroc.com -p 4061');
     fprintf('%s\n', greeting);
 end
 ```
