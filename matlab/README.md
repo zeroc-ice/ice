@@ -31,10 +31,11 @@ module VisitorCenter
 ```
 
 ```matlab
-// Client application (client.m)
 function client(args)
-    if nargin == 0
-        args = {};
+    %CLIENT A simple Ice client.
+
+    arguments (Repeating)
+        args (1, :) char
     end
 
     if ~libisloaded('ice')
@@ -45,6 +46,8 @@ function client(args)
     cleanup = onCleanup(@() communicator.destroy());
 
     greeter = visitorcenter.GreeterPrx(communicator, 'greeter:tcp -h hello.zeroc.com -p 4061');
+
+    greeting = greeter.greet(char(java.lang.System.getProperty('user.name')));
     fprintf('%s\n', greeting);
 end
 ```
