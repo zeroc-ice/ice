@@ -972,7 +972,7 @@ communicatorFindAllAdminFacets(CommunicatorObject* self, PyObject* /*args*/)
 
     for (const auto& [facet, servant] : facetMap)
     {
-        PyObjectHandle obj;
+        PyObjectHandle obj{};
 
         ServantWrapperPtr wrapper = dynamic_pointer_cast<ServantWrapper>(servant);
         if (wrapper)
