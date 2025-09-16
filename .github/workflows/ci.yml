@@ -74,7 +74,7 @@ jobs:
             python_tests: true
 
           # iOS
-          - os: macos-15
+          - os: macos-26
             config: "ios"
             build_flags: "OPTIMIZE=no PLATFORMS='macosx iphonesimulator' CONFIGS='static shared' LANGUAGES='cpp swift'"
             # TODO swift/Ice/udp and swift/Ice/location are failing regularly
