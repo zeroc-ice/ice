@@ -16,7 +16,7 @@
         <SummaryInformation
             Description="Ice Services $(Version)"
             Comments="Ice Services $(Version) MSI Installer"
-            Keywords="DataStorm, Glacier2, IceBridge, IceGrid, IceStorm" />
+            Keywords="DataStorm, Glacier2, Ice, IceBridge, IceGrid, IceStorm" />
 
         <!-- Embed CAB files in MSI -->
         <MediaTemplate EmbedCab="yes" />
