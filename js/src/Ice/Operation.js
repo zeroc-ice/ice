@@ -446,7 +446,7 @@ function addProxyOperation(proxyType, name, data) {
                 for (let i = 0; i < op.inParams.length; ++i) {
                     const p = op.inParams[i];
                     const v = params[p.pos];
-                    if (!p.tag || v !== undefined) {
+                    if (!p.tag || (v !== undefined && v !== null)) {
                         if (typeof p.type.validate === "function") {
                             if (!p.type.validate(v)) {
                                 throw new MarshalException(

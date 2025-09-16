@@ -18,9 +18,9 @@ def test(b: Any) -> None:
 def testFacets(com: Ice.Communicator, builtInFacets: bool = True) -> None:
     if builtInFacets:
         test(com.findAdminFacet("Properties") is not None)
-        test(com.findAdminFacet("Process") is not None)
-        test(com.findAdminFacet("Logger") is not None)
-        test(com.findAdminFacet("Metrics") is not None)
+        test(com.findAdminFacet("Process") is None)
+        test(com.findAdminFacet("Logger") is None)
+        test(com.findAdminFacet("Metrics") is None)
 
     f1 = TestI.TestFacetI()
     f2 = TestI.TestFacetI()

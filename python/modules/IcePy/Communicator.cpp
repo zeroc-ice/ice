@@ -917,11 +917,7 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
     assert(self->communicator);
     try
     {
-        //
-        // The facet being found may not be implemented by a Python servant
-        // (e.g., it could be the Process or Properties facet), in which case
-        // we return None.
-        //
+        // The facet being found may not be implemented by a Python servant in which case we return None.
         Ice::ObjectPtr obj = (*self->communicator)->findAdminFacet(facet);
         if (obj)
         {
@@ -937,9 +933,8 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
                 return createNativePropertiesAdmin(props);
             }
 
-            // If the facet isn't supported in Python, just return an Ice.Object.
-            PyTypeObject* objectType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Object"));
-            return objectType->tp_alloc(objectType, 0);
+            // If the facet isn't supported in Python, just return None.
+            return Py_None;
         }
     }
     catch (...)

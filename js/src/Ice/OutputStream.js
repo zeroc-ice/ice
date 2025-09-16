@@ -716,7 +716,7 @@ export class OutputStream {
     }
 
     writeOptionalHelper(tag, format, write, v) {
-        if (v !== undefined) {
+        if (v !== undefined && v !== null) {
             if (this.writeOptional(tag, format)) {
                 write.call(this, v);
             }

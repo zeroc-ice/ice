@@ -42,6 +42,7 @@
 /// <reference path="./Router.d.ts" />
 /// <reference path="./Exception.d.ts" />
 /// <reference path="./Process.d.ts" />
+/// <reference path="./ProcessLogger.d.ts" />
 /// <reference path="./OutgoingResponse.d.ts" />
 /// <reference path="./ReplyStatus.d.ts" />
 /// <reference path="./PropertyDict.d.ts" />
