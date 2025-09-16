@@ -106,7 +106,7 @@ jobs:
 
   publish-swift-packages:
     name: "Publish Swift Packages"
-    runs-on: macos-15
+    runs-on: macos-26
     # Stable Swift releases must be published manually.
     if: ${{ inputs.channel == 'nightly' }}
     steps:
@@ -132,7 +132,7 @@ jobs:
 
   publish-brew-packages:
     name: "Publish Brew Packages"
-    runs-on: macos-15
+    runs-on: macos-26
     # Stable Brew releases must be published manually.
     if: ${{ inputs.channel == 'nightly' }}
     env:
