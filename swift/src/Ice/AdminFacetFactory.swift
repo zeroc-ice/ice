@@ -84,11 +84,6 @@ final class AdminFacetFacade: ICEDispatchAdapter {
     func complete() {}
 }
 
-struct UnsupportedAdminFacet: Dispatcher {
-    func dispatch(_ request: sending IncomingRequest) throws -> OutgoingResponse {
-        throw Ice.OperationNotExistException()
-    }
-}
 
 final class AdminFacetFactory: ICEAdminFacetFactory {
     static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter {
@@ -111,14 +106,6 @@ final class AdminFacetFactory: ICEAdminFacetFactory {
         return AdminFacetFacade(
             communicator: c,
             servant: NativePropertiesAdmin(handle: handle)
-        )
-    }
-
-    static func createUnsupported(_ communicator: ICECommunicator) -> ICEDispatchAdapter {
-        let c = communicator.getCachedSwiftObject(CommunicatorI.self)
-        return AdminFacetFacade(
-            communicator: c,
-            servant: UnsupportedAdminFacet()
         )
     }
 }

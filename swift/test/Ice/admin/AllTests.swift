@@ -68,8 +68,8 @@ func testFacets(com: Ice.Communicator, builtInFacets: Bool, helper: TestHelper) 
     if builtInFacets {
         try helper.test(com.findAdminFacet("Properties") != nil)
         try helper.test(com.findAdminFacet("Process") != nil)
-        try helper.test(com.findAdminFacet("Logger") != nil)
-        try helper.test(com.findAdminFacet("Metrics") != nil)
+        try helper.test(com.findAdminFacet("Logger") == nil)
+        try helper.test(com.findAdminFacet("Metrics") == nil)
     }
 
     let f1 = TestFacetI()
@@ -87,11 +87,11 @@ func testFacets(com: Ice.Communicator, builtInFacets: Bool, helper: TestHelper) 
 
     let facetMap = com.findAllAdminFacets()
     if builtInFacets {
-        try helper.test(facetMap.count == 7)
+        try helper.test(facetMap.count == 5)
         try helper.test(facetMap["Properties"] != nil)
         try helper.test(facetMap["Process"] != nil)
-        try helper.test(facetMap["Logger"] != nil)
-        try helper.test(facetMap["Metrics"] != nil)
+        try helper.test(facetMap["Logger"] == nil)
+        try helper.test(facetMap["Metrics"] == nil)
     } else {
         try helper.test(facetMap.count >= 3)
     }

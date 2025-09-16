@@ -358,7 +358,12 @@
 
         for (const auto& d : self.communicator->findAllAdminFacets())
         {
-            [facets setObject:[self facetToDispatchAdapter:d.second] forKey:toNSString(d.first)];
+            // Some builtin C++ admin facets may not have a corresponding dispatch adapter in Swift.
+            // For example: Logger, Metrics
+            if (id object = [self facetToDispatchAdapter:d.second]; object != [NSNull null])
+            {
+                [facets setObject:object forKey:toNSString(d.first)];
+            }
         }
 
         return facets;
@@ -376,12 +381,9 @@
     return [ICEProperties getHandle:props];
 }
 
-- (id<ICEDispatchAdapter>)facetToDispatchAdapter:(const Ice::ObjectPtr&)servant
+- (id)facetToDispatchAdapter:(const Ice::ObjectPtr&)servant
 {
-    if (!servant)
-    {
-        return nil;
-    }
+    assert(servant);
 
     auto cppDispatcher = std::dynamic_pointer_cast<CppDispatcher>(servant);
     if (cppDispatcher)
@@ -407,7 +409,7 @@
         return [factory createProperties:self handle:propertiesAdminHandle];
     }
 
-    return [factory createUnsupported:self];
+    return [NSNull null];
 }
 
 - (BOOL)initializePlugins:(NSError**)error
