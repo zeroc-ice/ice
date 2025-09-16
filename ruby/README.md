@@ -36,7 +36,7 @@ require 'Ice'
 require_relative 'Greeter.rb'
 
 Ice::initialize(ARGV) do |communicator|
-    greeter = VisitorCenter::GreeterPrx.new(communicator, "greeter:tcp -h localhost -p 4061")
+    greeter = VisitorCenter::GreeterPrx.new(communicator, "greeter:tcp -h hello.zeroc.com -p 4061")
     greeting = greeter.greet(Etc.getlogin)
     puts greeting
 end
