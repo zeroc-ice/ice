@@ -84,7 +84,6 @@ final class AdminFacetFacade: ICEDispatchAdapter {
     func complete() {}
 }
 
-
 final class AdminFacetFactory: ICEAdminFacetFactory {
     static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter {
         // We create a new ProcessI each time, which does not really matter since users are not expected
