@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35507.96 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{B7DD6F7E-DEF8-4E67-B5B7-07EF123DB6F0}") = "Ice", "Ice.wixproj", "{77503B21-AE1E-4F41-8C56-4F000B3F7A0F}"
+Project("{B7DD6F7E-DEF8-4E67-B5B7-07EF123DB6F0}") = "IceServices", "IceServices.wixproj", "{77503B21-AE1E-4F41-8C56-4F000B3F7A0F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
