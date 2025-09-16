@@ -21,7 +21,7 @@ jobs:
       matrix:
         include:
           # Release builds
-          - os: macos-15
+          - os: macos-26
             config: "release"
             # We want to test C++ and Swift only (in each direction)
             cross_test_flags: "--all-cross --filter cpp --filter swift"
@@ -53,7 +53,7 @@ jobs:
             python_tests: true
 
           # Debug builds
-          - os: macos-15
+          - os: macos-26
             config: "debug"
             build_flags: "OPTIMIZE=no"
             test_flags: "--swift-config=debug --csharp-config=Debug"

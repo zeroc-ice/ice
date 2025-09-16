@@ -3,49 +3,6 @@
 import Ice
 import TestCommon
 
-actor PreservedCounter {
-    static var counter: Int32 = 0
-}
-
-class PreservedI: Preserved {
-    public required init() {
-        PreservedCounter.counter += 1
-        super.init()
-    }
-
-    deinit {
-        PreservedCounter.counter -= 1
-    }
-}
-
-actor PNodeCounter {
-    static var counter: Int32 = 0
-}
-
-class PNodeI: PNode {
-    public required init() {
-        PNodeCounter.counter += 1
-        super.init()
-    }
-
-    deinit {
-        PNodeCounter.counter -= 1
-    }
-}
-
-class CustomSliceLoader: SliceLoader {
-    func newInstance(_ typeId: String) -> AnyObject? {
-        switch typeId {
-        case Preserved.ice_staticId():
-            return PreservedI()
-        case PNode.ice_staticId():
-            return PNodeI()
-        default:
-            return nil
-        }
-    }
-}
-
 public class Client: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
@@ -56,7 +13,6 @@ public class Client: TestHelperI, @unchecked Sendable {
         var initData = InitializationData()
         initData.properties = properties
         initData.sliceLoader = CompositeSliceLoader(
-            CustomSliceLoader(),
             DefaultSliceLoader("IceSlicingObjects"),
             DefaultSliceLoader("IceSlicingObjectsClient")
         )
