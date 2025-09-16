@@ -311,6 +311,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opByte(); // same as initial.opByte(undefined);
             test(p1 === undefined);
             test(p2 === undefined);
+
+            await initial.opByte(null!); // same as initial.opByte(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opByte(56);
             test(p1 === 56);
             test(p2 === 56);
@@ -320,6 +325,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opBool();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            await initial.opBool(null!); // same as initial.opBool(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opBool(true);
             test(p1 === true);
             test(p2 === true);
@@ -329,6 +339,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opShort();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            await initial.opShort(null!); // same as initial.opShort(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opShort(56);
             test(p1 === 56);
             test(p2 === 56);
@@ -338,6 +353,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opInt();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            await initial.opInt(null!); // same as initial.opInt(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opInt(56);
             test(p1 === 56);
             test(p2 === 56);
@@ -347,6 +367,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opLong();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            await initial.opLong(null!); // same as initial.opLong(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opLong(56n);
             test(p1 === 56n);
             test(p2 === 56n);
@@ -356,6 +381,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opFloat();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            await initial.opFloat(null!); // same as initial.opFloat(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opFloat(1.0);
             test(p1 === 1.0);
             test(p2 === 1.0);
@@ -365,6 +395,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opDouble();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            await initial.opDouble(null!); // same as initial.opDouble(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opDouble(1.0);
             test(p1 === 1.0);
             test(p2 === 1.0);
@@ -374,6 +409,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opString();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            [p1, p2] = await initial.opString(null!); // Same as initial.opString(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opString("test");
             test(p1 === "test");
             test(p2 === "test");
@@ -383,10 +423,12 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opMyEnum();
             test(p1 === undefined);
             test(p2 === undefined);
+
             [p1, p2] = await initial.opMyEnum(Test.MyEnum.MyEnumMember);
             test(p1 === Test.MyEnum.MyEnumMember);
             test(p2 === Test.MyEnum.MyEnumMember);
-            [p1, p2] = await initial.opMyEnum(null!); // Test null enum
+
+            [p1, p2] = await initial.opMyEnum(null!); // Same as initial.opMyEnum(undefined);
             test(p1 === undefined);
             test(p2 === undefined);
         }
@@ -395,10 +437,12 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opSmallStruct();
             test(p1 === undefined);
             test(p2 === undefined);
+
             [p1, p2] = await initial.opSmallStruct(new Test.SmallStruct(56));
             test(p1!.equals(new Test.SmallStruct(56)));
             test(p2!.equals(new Test.SmallStruct(56)));
-            [p1, p2] = await initial.opSmallStruct(null!); // Test null struct
+
+            [p1, p2] = await initial.opSmallStruct(null!); // Same as initial.opSmallStruct(undefined);
             test(p1 === undefined);
             test(p2 === undefined);
         }
@@ -407,6 +451,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opFixedStruct();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            await initial.opFixedStruct(null!); // same as initial.opFixedStruct(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opFixedStruct(new Test.FixedStruct(56));
             test(p1!.equals(new Test.FixedStruct(56)));
             test(p2!.equals(new Test.FixedStruct(56)));
@@ -416,6 +465,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opVarStruct();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            await initial.opVarStruct(null!); // same as initial.opVarStruct(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opVarStruct(new Test.VarStruct("test"));
             test(p1!.equals(new Test.VarStruct("test")));
             test(p2!.equals(new Test.VarStruct("test")));
@@ -425,6 +479,12 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opOneOptional(new Test.OneOptional());
             test(p1 === p2);
             test(p2!.a === undefined);
+
+            // Same as initial.opOneOptional(new Test.OneOptional(undefined));
+            [p1, p2] = await initial.opOneOptional(new Test.OneOptional(null!));
+            test(p1 === p2);
+            test(p2!.a === undefined);
+
             [p1, p2] = await initial.opOneOptional(new Test.OneOptional(58));
             test(p1 === p2);
             test(p2!.a === 58);
@@ -434,6 +494,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opMyInterfaceProxy();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            await initial.opMyInterfaceProxy(null); // same as initial.opMyInterfaceProxy(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             [p1, p2] = await initial.opMyInterfaceProxy(new Test.MyInterfacePrx(communicator, "test"));
             test(p1!.equals(new Test.MyInterfacePrx(communicator, "test")));
             test(p2!.equals(new Test.MyInterfacePrx(communicator, "test")));
@@ -441,6 +506,10 @@ export class Client extends TestHelper {
 
         {
             let [p1, p2] = await initial.opByteSeq();
+            test(p1 === undefined);
+            test(p2 === undefined);
+
+            await initial.opByteSeq(null!); // same as initial.opByteSeq(undefined);
             test(p1 === undefined);
             test(p2 === undefined);
 
@@ -463,6 +532,10 @@ export class Client extends TestHelper {
             test(p1 === undefined);
             test(p2 === undefined);
 
+            [p1, p2] = await initial.opBoolSeq(null!); // same as initial.opBoolSeq(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: boolean[] = [];
             for (let i = 0; i < 100; ++i) {
                 data[i] = true;
@@ -478,6 +551,10 @@ export class Client extends TestHelper {
 
         {
             let [p1, p2] = await initial.opShortSeq();
+            test(p1 === undefined);
+            test(p2 === undefined);
+
+            [p1, p2] = await initial.opShortSeq(null!); // same as initial.opShortSeq(undefined);
             test(p1 === undefined);
             test(p2 === undefined);
 
@@ -499,6 +576,10 @@ export class Client extends TestHelper {
             test(p1 === undefined);
             test(p2 === undefined);
 
+            [p1, p2] = await initial.opIntSeq(null!); // same as initial.opIntSeq(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: number[] = [];
             for (let i = 0; i < 100; ++i) {
                 data[i] = 56;
@@ -516,6 +597,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opLongSeq();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            [p1, p2] = await initial.opLongSeq(null!); // same as initial.opLongSeq(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: bigint[] = [];
             for (let i = 0; i < 100; ++i) {
                 data[i] = 56n;
@@ -533,6 +619,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opFloatSeq();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            [p1, p2] = await initial.opFloatSeq(null!); // same as initial.opFloatSeq(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: number[] = [];
             for (let i = 0; i < 100; ++i) {
                 data[i] = 1.0;
@@ -550,6 +641,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opDoubleSeq();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            [p1, p2] = await initial.opDoubleSeq(null!); // same as initial.opDoubleSeq(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: number[] = [];
             for (let i = 0; i < 100; ++i) {
                 data[i] = 1.0;
@@ -567,6 +663,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opStringSeq();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            [p1, p2] = await initial.opStringSeq(null!); // same as initial.opStringSeq(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: string[] = [];
             for (let i = 0; i < 100; ++i) {
                 data[i] = "test1";
@@ -585,6 +686,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opSmallStructSeq();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            [p1, p2] = await initial.opSmallStructSeq(null!); // same as initial.opSmallStructSeq(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: Test.SmallStruct[] = [];
             for (let i = 0; i < 100; ++i) {
                 data[i] = new Test.SmallStruct();
@@ -603,6 +709,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opFixedStructSeq();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            [p1, p2] = await initial.opFixedStructSeq(null!); // same as initial.opFixedStructSeq(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: Test.FixedStruct[] = [];
             for (let i = 0; i < 100; ++i) {
                 data[i] = new Test.FixedStruct();
@@ -621,6 +732,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opVarStructSeq();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            [p1, p2] = await initial.opVarStructSeq(null!); // same as initial.opVarStructSeq(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: Test.VarStruct[] = [];
             for (let i = 0; i < 100; ++i) {
                 data[i] = new Test.VarStruct("");
@@ -638,6 +754,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opIntIntDict();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            [p1, p2] = await initial.opIntIntDict(null!); // same as initial.opIntIntDict(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: Map<number, number> = new Map();
             data.set(1, 2);
             data.set(2, 3);
@@ -649,6 +770,11 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opStringIntDict();
             test(p1 === undefined);
             test(p2 === undefined);
+
+            [p1, p2] = await initial.opStringIntDict(null!); // same as initial.opStringIntDict(undefined);
+            test(p1 === undefined);
+            test(p2 === undefined);
+
             const data: Map<string, number> = new Map();
             data.set("1", 1);
             data.set("2", 2);
