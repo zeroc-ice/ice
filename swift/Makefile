@@ -6,7 +6,7 @@ include $(top_srcdir)/config/Make.rules
 
 CONFIG ?= $(if $(filter $(OPTIMIZE),no),Debug,Release)
 
-SWIFT_BUILD_FLAGS ?= -Xswiftc -warnings-as-errors $(if $(V),,--quiet) --configuration  $(shell echo $(CONFIG) | tr '[:upper:]' '[:lower:]')
+SWIFT_BUILD_FLAGS ?= -Xswiftc -warnings-as-errors $(if $(V),--verbose,) --configuration  $(shell echo $(CONFIG) | tr '[:upper:]' '[:lower:]')
 
 # $(call make-xcodebuild-rule,$1=rule,$2=platform,$3=action)
 define xcode-test-app-rule
