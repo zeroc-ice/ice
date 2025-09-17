@@ -221,7 +221,7 @@ final class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecke
         }
     }
 
-    func removeAdminFacet(_ facet: String) throws  {
+    func removeAdminFacet(_ facet: String) throws {
         return try autoreleasepool {
             try handle.removeAdminFacet(facet)
         }
