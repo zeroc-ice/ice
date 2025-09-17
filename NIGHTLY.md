@@ -15,9 +15,9 @@ Ice nightly builds are produced daily from the main GitHub branch.
   - [Ice for Ruby](#ice-for-ruby)
   - [Ice for Swift](#ice-for-swift)
 - [Ice Services](#ice-services)
-  - [Linux](#linux-3)
-  - [macOS](#macos-2)
-  - [Windows](#windows-1)
+  - [Linux](#linux)
+  - [macOS](#macos)
+  - [Windows](#windows)
 - [Linux Repositories](#linux-repositories)
   - [RPM-based Linux (RHEL, Amazon Linux)](#rpm-based-linux-rhel-amazon-linux)
   - [DEB-based Linux (Debian, Ubuntu)](#deb-based-linux-debian-ubuntu)
@@ -27,7 +27,7 @@ Ice nightly builds are produced daily from the main GitHub branch.
 
 ### Ice for C++
 
-#### Linux
+#### Linux <!-- omit in toc -->
 
 First, enable the Ice nightly DNF or APT repository on your system as per [Linux Repositories](#linux-repositories).
 Then, install the C++ dev kit:
@@ -45,11 +45,11 @@ sudo apt-get update
 sudo apt-get install libzeroc-ice-dev
 ```
 
-#### macOS
+#### macOS <!-- omit in toc -->
 
 Ice for C++ is included in the [ice formula](#macos-brew-formula-and-cask).
 
-#### Windows
+#### Windows <!-- omit in toc -->
 
 Ice for C++ is distributed as the `ZeroC.Ice.Cpp` NuGet package on Windows.
 
@@ -79,7 +79,7 @@ To use them, add the following Maven repository to your build configuration:
 https://central.sonatype.com/repository/maven-snapshots/
 ```
 
-#### Gradle
+#### Gradle <!-- omit in toc -->
 
 Here’s an example configuration using Kotlin DSL:
 
@@ -131,7 +131,7 @@ from MATLAB.
 
 ### Ice for PHP
 
-#### Linux
+#### Linux <!-- omit in toc -->
 
 First, enable the Ice nightly DNF or APT repository on your system as per [Linux Repositories](#linux-repositories).
 Then, install the Ice for PHP package:
@@ -155,13 +155,9 @@ sudo apt-get update
 sudo apt-get install php-zeroc-ice
 ```
 
-#### macOS
-
-Not yet available.
-
 ### Ice for Python
 
-#### PyPI
+#### PyPI <!-- omit in toc -->
 
 The nightly package for all platforms (Linux, macOS, Windows) is available from the ZeroC PyPI nightly repository.
 
@@ -181,7 +177,7 @@ To install the latest zeroc-ice nightly package, add the following lines to your
 zeroc-ice
 ```
 
-#### Linux
+#### Linux <!-- omit in toc -->
 
 Ice for Python is also available as a RPM or DEB package, depending on your distribution.
 
@@ -235,7 +231,7 @@ associated admin tools.
 First, enable the Ice nightly DNF or APT repository on your system as per [Linux Repositories](#linux-repositories).
 Then, install the desired service or tool. For example:
 
-#### RHEL, Amazon Linux
+#### RHEL, Amazon Linux <!-- omit in toc -->
 
 ```shell
 sudo dnf install icegrid
@@ -243,7 +239,7 @@ sudo dnf install icegrid
 
 Refer to the [RPM packages README] for a complete list of available service packages and their package names.
 
-#### Debian, Ubuntu
+#### Debian, Ubuntu <!-- omit in toc -->
 
 ```shell
 sudo apt-get update
