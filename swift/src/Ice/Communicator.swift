@@ -206,10 +206,7 @@ public protocol Communicator: AnyObject, Sendable {
     /// NotRegisteredException.
     ///
     /// - parameter facet: `String` The name of the Admin facet.
-    ///
-    /// - returns: `Dispatcher` - The servant associated with this Admin facet.
-    @discardableResult
-    func removeAdminFacet(_ facet: String) throws -> Dispatcher
+    func removeAdminFacet(_ facet: String) throws
 
     /// Returns a facet of the Admin object.
     ///

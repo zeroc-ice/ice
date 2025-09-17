@@ -221,13 +221,9 @@ final class CommunicatorI: LocalObject<ICECommunicator>, Communicator, @unchecke
         }
     }
 
-    func removeAdminFacet(_ facet: String) throws -> Dispatcher {
+    func removeAdminFacet(_ facet: String) throws  {
         return try autoreleasepool {
-            guard let facade = try handle.removeAdminFacet(facet) as? AdminFacetFacade else {
-                preconditionFailure()
-            }
-
-            return facade.servant
+            try handle.removeAdminFacet(facet)
         }
     }
 

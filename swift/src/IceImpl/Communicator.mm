@@ -315,17 +315,17 @@
     }
 }
 
-- (id<ICEDispatchAdapter>)removeAdminFacet:(NSString*)facet error:(NSError**)error
+- (BOOL)removeAdminFacet:(NSString*)facet error:(NSError**)error
 {
     try
     {
-        // servant can either be a Swift wrapped facet or a builtin admin facet
-        return [self facetToDispatchAdapter:self.communicator->removeAdminFacet(fromNSString(facet))];
+        self.communicator->removeAdminFacet(fromNSString(facet));
+        return YES;
     }
     catch (...)
     {
         *error = convertException(std::current_exception());
-        return nil;
+        return NO;
     }
 }
 
@@ -341,7 +341,8 @@
             return [NSNull null];
         }
 
-        return [self facetToDispatchAdapter:servant];
+        id<ICEDispatchAdapter> dispatchAdapter = [self facetToDispatchAdapter:servant];
+        return dispatchAdapter ? (id)dispatchAdapter : [NSNull null];
     }
     catch (...)
     {
@@ -360,9 +361,9 @@
         {
             // Some builtin C++ admin facets may not have a corresponding dispatch adapter in Swift.
             // For example: Logger, Metrics
-            if (id object = [self facetToDispatchAdapter:d.second]; object != [NSNull null])
+            if (id<ICEDispatchAdapter> dispatchAdapter = [self facetToDispatchAdapter:d.second])
             {
-                [facets setObject:object forKey:toNSString(d.first)];
+                [facets setObject:dispatchAdapter forKey:toNSString(d.first)];
             }
         }
 
@@ -381,7 +382,7 @@
     return [ICEProperties getHandle:props];
 }
 
-- (id)facetToDispatchAdapter:(const Ice::ObjectPtr&)servant
+- (nullable id<ICEDispatchAdapter>)facetToDispatchAdapter:(const Ice::ObjectPtr&)servant
 {
     assert(servant);
 
@@ -409,7 +410,7 @@
         return [factory createProperties:self handle:propertiesAdminHandle];
     }
 
-    return [NSNull null];
+    return nil;
 }
 
 - (BOOL)initializePlugins:(NSError**)error

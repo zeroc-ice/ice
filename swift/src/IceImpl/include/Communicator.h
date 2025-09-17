@@ -49,7 +49,7 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
                                 error:(NSError**)error;
 - (nullable id)getAdmin:(NSError**)error;
 - (BOOL)addAdminFacet:(id<ICEDispatchAdapter>)servant facet:(NSString*)facet error:(NSError**)error;
-- (nullable id<ICEDispatchAdapter>)removeAdminFacet:(NSString*)facet error:(NSError* _Nullable* _Nullable)error;
+- (BOOL)removeAdminFacet:(NSString*)facet error:(NSError* _Nullable* _Nullable)error;
 - (nullable id)findAdminFacet:(NSString*)facet error:(NSError* _Nullable* _Nullable)error;
 - (nullable NSDictionary<NSString*, id<ICEDispatchAdapter>>*)findAllAdminFacets:(NSError* _Nullable* _Nullable)error;
 - (ICEProperties*)getProperties;
