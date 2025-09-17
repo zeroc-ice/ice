@@ -341,8 +341,8 @@
             return [NSNull null];
         }
 
-        id<ICEDispatchAdapter> dispatchAdapter = [self facetToDispatchAdapter:servant];
-        return dispatchAdapter ? (id)dispatchAdapter : [NSNull null];
+        id dispatchAdapter = [self facetToDispatchAdapter:servant];
+        return dispatchAdapter ? dispatchAdapter : [NSNull null];
     }
     catch (...)
     {
