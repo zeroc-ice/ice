@@ -802,6 +802,10 @@ initialization. See `InitializationData.pluginFactories`.
   do not reliably report errors during connection establishment. We advise against using the WebSocket transport on
   these versions.
 
+- The `js:module` file metadata directive can no longer be used to generate bundles with the Gulp Ice Builder. You must
+  now use a standard JavaScript bundler instead. This metadata remains useful to indicate that your generated code is
+  published as an npm package and to control how other generated code imports it.
+
 ### MATLAB Changes
 
 - Upgrade to MATLAB 2024a.
