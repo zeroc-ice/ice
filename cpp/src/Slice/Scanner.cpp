@@ -1,4 +1,4 @@
-#line 2 "src/Slice/Scanner.cpp"
+#line 1 "src/Slice/Scanner.cpp"
 // Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ScannerConfig.h"
@@ -11,7 +11,7 @@
 
 // NOLINTBEGIN
 
-#line 15 "src/Slice/Scanner.cpp"
+#line 14 "src/Slice/Scanner.cpp"
 
 #define  YY_INT_ALIGNED long int
 
@@ -1257,7 +1257,7 @@ namespace
 #define YY_USER_ACTION preAction();
 #define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 1261 "src/Slice/Scanner.cpp"
+#line 1260 "src/Slice/Scanner.cpp"
 #line 68 "src/Slice/Scanner.l"
   /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
   /* Instructs flex to not suppress any warnings when generating the scanner. */
@@ -1284,7 +1284,7 @@ namespace
 
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
-#line 1288 "src/Slice/Scanner.cpp"
+#line 1287 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define C_COMMENT 1
@@ -1575,7 +1575,7 @@ YY_DECL
 
   /* ========== Literals ========== */
   /* Matches the start of a double-quoted string literal. */
-#line 1579 "src/Slice/Scanner.cpp"
+#line 1578 "src/Slice/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -2248,7 +2248,7 @@ YY_RULE_SETUP
 #line 567 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2252 "src/Slice/Scanner.cpp"
+#line 2251 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SLICE):
 case YY_STATE_EOF(METADATA):
@@ -3306,7 +3306,7 @@ namespace
         line.erase(0, idx);
 
         // Read the line number
-        yylineno = stoi(line.c_str(), &idx) - 1;
+        int newLineNumber = stoi(line.c_str(), &idx) - 1;
 
         // Scan the remainder of the line for a filename.
         idx = line.find_first_not_of(" \t\r", idx);
@@ -3328,9 +3328,10 @@ namespace
                     line = line.substr(1);
                 }
             }
-            lineTypeCode = currentUnit->setCurrentFile(line, yylineno);
+            lineTypeCode = currentUnit->setCurrentFile(line, newLineNumber);
             yyfilename = string(line);
         }
+        yylineno = newLineNumber;
         return lineTypeCode;
     }
 

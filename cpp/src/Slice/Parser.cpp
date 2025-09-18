@@ -4497,6 +4497,12 @@ Slice::Unit::setCurrentFile(std::string currentFile, int lineNumber)
     {
         case Push:
         {
+            DefinitionContextPtr dc = currentDefinitionContext();
+            if (dc && dc->seenDefinition())
+            {
+                error("'#include' directives must come before any Slice definitions in a file");
+            }
+
             if (++_currentIncludeLevel == 1)
             {
                 if (find(_includeFiles.begin(), _includeFiles.end(), currentFile) == _includeFiles.end())

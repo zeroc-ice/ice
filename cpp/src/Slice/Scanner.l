@@ -617,7 +617,7 @@ namespace
         line.erase(0, idx);
 
         // Read the line number
-        yylineno = stoi(line.c_str(), &idx) - 1;
+        int newLineNumber = stoi(line.c_str(), &idx) - 1;
 
         // Scan the remainder of the line for a filename.
         idx = line.find_first_not_of(" \t\r", idx);
@@ -639,9 +639,10 @@ namespace
                     line = line.substr(1);
                 }
             }
-            lineTypeCode = currentUnit->setCurrentFile(line, yylineno);
+            lineTypeCode = currentUnit->setCurrentFile(line, newLineNumber);
             yyfilename = string(line);
         }
+        yylineno = newLineNumber;
         return lineTypeCode;
     }
 
