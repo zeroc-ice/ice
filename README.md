@@ -114,7 +114,7 @@ license terms.
 [copyleft]: https://en.wikipedia.org/wiki/Copyleft
 [datastorm]: https://docs.zeroc.com/ice/latest/cpp/datastorm
 [docs]: https://docs.zeroc.com/ice/latest
-[downloads]: https://zeroc.com/downloads/ice
+[downloads]: ./NIGHTLY.md
 [examples]: https://github.com/zeroc-ice/ice-demos
 [gitter]: https://gitter.im/zeroc-ice/ice?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 [glacier2]: https://docs.zeroc.com/ice/latest/cpp/glacier2
