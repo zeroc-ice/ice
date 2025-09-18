@@ -39,12 +39,21 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir "${STAGING_DIR}"
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "slice-tools-packages" --dir "${STAGING_DIR}"
 
-      - name: Publish Java Packages
+      - name: Publish Nightly Java Packages
         run: packaging/maven/publish-maven-release.sh
         env:
           CHANNEL: ${{ inputs.channel }}
-          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          MAVEN_CENTRAL_API_KEY: ${{ secrets.MAVEN_CENTRAL_API_KEY }}
+          MAVEN_USERNAME: "nightly"
+          MAVEN_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+        if: ${{ inputs.channel == 'nightly' }}
+
+      - name: Publish 3.8 Java Packages
+        run: packaging/maven/publish-maven-release.sh
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_API_KEY }}
+        if: ${{ inputs.channel != 'nightly' }}
 
       - name: Clean Credentials
         if: always()
