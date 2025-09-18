@@ -520,7 +520,7 @@ public class Utils {
 
         String path = System.getenv("PATH");
 
-        List<String> searchDirs;
+        ArrayList<String> searchDirs;
         if (path == null || path.isEmpty()) {
             searchDirs = new ArrayList<>();
         } else {
