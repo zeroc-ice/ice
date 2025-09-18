@@ -507,13 +507,13 @@ public class Utils {
      * Get the path to the icegridadmin executable. Searches the PATH environment variable on Unix-like systems.
      * On Windows, it simply returns "icegridadmin" since the working directory is searched first.
      *
-     * @return the full path to icegridadmin if found, "icegridadmin(.exe)" otherwise
+     * @return the path to the icegridadmin executable
      */
     public static String getIceGridAdmin() {
 
         String exe = "icegridadmin";
-        // Windows checks the working directory first. The GUI is started from this directory
-        // so don't need to search for anything.
+        // Windows checks the working directory first when running an executable. The IceGrid GUI is always started
+        // from the same directory as icegridadmin so don't need to search for anything.
         if (System.getProperty("os.name").startsWith("Windows")) {
             return exe;
         }
