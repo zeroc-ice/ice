@@ -19,8 +19,8 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -543,5 +543,8 @@ public class Utils {
         }
 
         return exe;
+    }
+
+    private Utils() {
     }
 }
