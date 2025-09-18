@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -520,11 +521,9 @@ public class Utils {
 
         String path = System.getenv("PATH");
 
-        ArrayList<String> searchDirs;
-        if (path == null) {
-            searchDirs = new ArrayList<>();
-        } else {
-            searchDirs = new ArrayList<>(Arrays.asList(path.split(File.pathSeparator)));
+        ArrayList<String> searchDirs = new ArrayList<>();
+        if (path != null) {
+            Collections.addAll(searchDirs, path.split(File.pathSeparator));
         }
 
         // Add the default brew bin directory to the search list on macOS.
