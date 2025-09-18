@@ -2191,7 +2191,6 @@ public class Coordinator {
                 String icegridadmin = Utils.getIceGridAdmin();
                 ProcessBuilder processBuilder = new ProcessBuilder(icegridadmin, "--server");
                 _icegridadminProcess = processBuilder.start();
-
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(
                     _mainFrame,
