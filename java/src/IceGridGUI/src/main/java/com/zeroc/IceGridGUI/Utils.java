@@ -504,15 +504,18 @@ public class Utils {
     }
 
     /**
-     * Search for "icegridadmin" in the PATH.
+     * Get the path to the icegridadmin executable. Searches the PATH environment variable on Unix-like systems.
+     * On Windows, it simply returns "icegridadmin" since the working directory is searched first.
      *
      * @return the full path to icegridadmin if found, "icegridadmin(.exe)" otherwise
      */
     public static String getIceGridAdmin() {
 
         String exe = "icegridadmin";
+        // Windows checks the working directory first. The GUI is started from this directory
+        // so don't need to search for anything.
         if (System.getProperty("os.name").startsWith("Windows")) {
-            exe += ".exe";
+            return exe;
         }
 
         String path = System.getenv("PATH");
@@ -524,8 +527,8 @@ public class Utils {
             searchDirs = Arrays.asList(path.split(File.pathSeparator));
         }
 
+        // Add the default brew cellar to the search path on macOS.
         if (System.getProperty("os.name").startsWith("Mac OS")) {
-            // Add the default brew cellar to the search path.
             String brewPath = "/opt/homebrew/bin";
             if (!searchDirs.contains(brewPath)) {
                 searchDirs.add(brewPath);
