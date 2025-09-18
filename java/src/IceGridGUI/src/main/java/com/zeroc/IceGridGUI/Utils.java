@@ -536,7 +536,7 @@ public class Utils {
         }
 
         for (String dir : searchDirs) {
-            java.io.File f = new java.io.File(dir, exe);
+            File f = new File(dir, exe);
             if (f.exists() && f.canExecute()) {
                 return f.getAbsolutePath();
             }
