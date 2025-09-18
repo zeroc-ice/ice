@@ -14,8 +14,6 @@ another programming language such as C++, C# or Java.
 ```slice
 // Slice definitions (Greeter.ice)
 
-#pragma once
-
 module VisitorCenter
 {
     /// Represents a simple greeter.

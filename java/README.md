@@ -12,8 +12,6 @@ Ice for Java is the Java implementation of the Ice framework.
 ```slice
 // Slice definitions (Greeter.ice)
 
-#pragma once
-
 ["java:identifier:com.example.visitorcenter"]
 module VisitorCenter
 {
