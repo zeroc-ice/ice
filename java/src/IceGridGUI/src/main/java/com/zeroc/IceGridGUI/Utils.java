@@ -521,7 +521,7 @@ public class Utils {
         String path = System.getenv("PATH");
 
         ArrayList<String> searchDirs;
-        if (path == null || path.isEmpty()) {
+        if (path == null) {
             searchDirs = new ArrayList<>();
         } else {
             searchDirs = new ArrayList<>(Arrays.asList(path.split(File.pathSeparator)));
