@@ -71,12 +71,12 @@ https://download.zeroc.com/nexus/repository/nuget-nightly/
 
 ### Ice for Java
 
-The nightly packages are available from the maven central snapshots repository.
+The nightly packages are available from the ZeroC maven-nightly repository.
 
 To use them, add the following Maven repository to your build configuration:
 
 ```shell
-https://central.sonatype.com/repository/maven-snapshots/
+https://download.zeroc.com/nexus/repository/maven-nightly/
 ```
 
 #### Gradle
