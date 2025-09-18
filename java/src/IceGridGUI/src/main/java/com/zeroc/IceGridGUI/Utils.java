@@ -510,7 +510,7 @@ public class Utils {
      * @return the path to the icegridadmin executable
      */
     public static String getIceGridAdmin() {
-        String exe = "icegridadmin";
+        final String exe = "icegridadmin";
 
         // Windows checks the working directory first when running an executable. The IceGrid GUI is always started
         // from the same directory as icegridadmin so don't need to search for anything.
