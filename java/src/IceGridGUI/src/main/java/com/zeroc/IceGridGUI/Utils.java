@@ -524,11 +524,11 @@ public class Utils {
         if (path == null || path.isEmpty()) {
             searchDirs = new ArrayList<>();
         } else {
-            searchDirs = Arrays.asList(path.split(File.pathSeparator));
+            searchDirs = new ArrayList<>(Arrays.asList(path.split(File.pathSeparator)));
         }
 
         // Add the default brew bin directory to the search list on macOS.
-        if (System.getProperty("os.name").startsWith("Mac OS")) {
+        if (System.getProperty("os.name").startsWith("Mac")) {
             String brewPath = "/opt/homebrew/bin";
             if (!searchDirs.contains(brewPath)) {
                 searchDirs.add(brewPath);
