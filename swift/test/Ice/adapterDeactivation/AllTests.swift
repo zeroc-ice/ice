@@ -62,9 +62,7 @@ func allTests(_ helper: TestHelper) async throws {
     do {
         output.write("testing connection closure... ")
         for _ in 0..<10 {
-            var initData = Ice.InitializationData()
-            initData.properties = communicator.getProperties().clone()
-            let comm = try Ice.initialize(initData)
+            let comm = try Ice.initialize(Ice.InitializationData(properties: communicator.getProperties().clone()))
 
             // stringToProxy must be called before the communicator is destroyed
             let prx = try comm.stringToProxy(ref)!

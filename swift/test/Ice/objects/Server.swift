@@ -7,9 +7,7 @@ class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
-        var initData = Ice.InitializationData()
-        initData.properties = properties
-        initData.sliceLoader = DefaultSliceLoader("IceObjects")
+        let initData = Ice.InitializationData(properties: properties, sliceLoader: DefaultSliceLoader("IceObjects"))
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()
