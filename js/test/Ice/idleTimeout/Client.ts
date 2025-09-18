@@ -87,7 +87,7 @@ async function testConnectionAbortedByIdleCheck(properties: Ice.Properties, help
         const obj = adapter.add(new TestI(), Ice.stringToIdentity("test"));
         const callback = Test.TestIntfPrx.uncheckedCast(obj);
 
-        const p = Test.TestIntfBidirPrx.uncheckedCast(communicator.stringToProxy(proxyString));
+        const p = new Test.TestIntfBidirPrx(communicator, proxyString);
 
         const connection = await p.ice_getConnection();
         test(connection != null);
@@ -178,7 +178,7 @@ export class Client extends TestHelper {
 
         await testNoIdleTimeout(communicator.getProperties(), this);
 
-        const p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy(`test: ${this.getTestEndpoint(0)}`));
+        const p = new Test.TestIntfPrx(communicator, `test: ${this.getTestEndpoint(0)}`);
         await p.shutdown();
     }
 

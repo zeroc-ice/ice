@@ -238,7 +238,8 @@ final class PropertyNames {
         false,
         true,
         new Property[] {
-            new Property("MetricsConfig", false, "", false, null),
+            new Property("Internal", false, "", false, PropertyNames.ObjectAdapterProps),
+            new Property("MetricsConfigs", false, "", false, null),
             new Property("Trace.Observers", false, "", false, null),
             new Property("Trace.SaveToRegistry", false, "", false, null)
         });
@@ -248,6 +249,15 @@ final class PropertyNames {
         false,
         true,
         new Property[] {
+        });
+
+    public static final PropertyArray IceGridGUIProps = new PropertyArray(
+        "IceGridGUI",
+        false,
+        true,
+        new Property[] {
+            new Property("Metrics", false, "", false, null),
+            new Property("Metrics\\.[^\\s]+", true, "", false, null)
         });
 
     public static final PropertyArray IceSSLProps = new PropertyArray(
@@ -322,6 +332,7 @@ final class PropertyNames {
         IceBridgeProps,
         IceGridAdminProps,
         IceGridProps,
+        IceGridGUIProps,
         IceSSLProps,
         IceStormProps,
         IceStormAdminProps,

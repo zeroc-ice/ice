@@ -226,30 +226,6 @@ ObjectPrx.prototype.ice_batchOneway = function () {
     }
 };
 
-ObjectPrx.prototype.ice_isDatagram = function () {
-    return this._reference.getMode() === ReferenceMode.ModeDatagram;
-};
-
-ObjectPrx.prototype.ice_datagram = function () {
-    if (this._reference.getMode() === ReferenceMode.ModeDatagram) {
-        return this;
-    } else {
-        return this._newInstance(this._reference.changeMode(ReferenceMode.ModeDatagram));
-    }
-};
-
-ObjectPrx.prototype.ice_isBatchDatagram = function () {
-    return this._reference.getMode() === ReferenceMode.ModeBatchDatagram;
-};
-
-ObjectPrx.prototype.ice_batchDatagram = function () {
-    if (this._reference.getMode() === ReferenceMode.ModeBatchDatagram) {
-        return this;
-    } else {
-        return this._newInstance(this._reference.changeMode(ReferenceMode.ModeBatchDatagram));
-    }
-};
-
 ObjectPrx.prototype.ice_fixed = function (connection) {
     if (connection === null) {
         throw new RangeError("invalid null connection passed to ice_fixed");

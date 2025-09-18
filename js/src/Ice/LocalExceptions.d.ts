@@ -272,9 +272,8 @@ declare module "@zeroc/ice" {
 
         /**
          * The operation can only be invoked with a two-way request.
-         * This exception is raised if an attempt is made to invoke an operation with ice_oneway, ice_batchOneway,
-         * ice_datagram, or ice_batchDatagram and the operation has a return value, out-parameters, or an exception
-         * specification.
+         * This exception is raised if an attempt is made to invoke an operation with ice_oneway or ice_batchOneway,
+         * and the operation has a return value, out-parameters, or an exception specification.
          */
         class TwowayOnlyException extends LocalException {
             constructor(operation: string);

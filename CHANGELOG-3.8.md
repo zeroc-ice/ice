@@ -662,6 +662,9 @@ no longer useful, or they go against best practices:
 
 - Nullable proxies are represented using `std::optional`.
 
+- Removed the IceUtil namespace. All remaining utility classes and functions, such as `CtrlCHandler` and
+  `wstringToString`, are now in the Ice namespace.
+
 - All functions that create proxies, including `Communicator::stringToProxy`, `ObjectAdapter::add`,
   `Connection::createProxy` and more, are now template functions that allow you to choose the type of the returned
   proxy. The default proxy type is `Ice::ObjectPrx` for backwards compatibility. We recommend you always specify the
@@ -798,6 +801,10 @@ initialization. See `InitializationData.pluginFactories`.
 - The WebSocket transport is now supported with Node.js 24 and higher. In Node.js 23 and earlier, WebSocket connections
   do not reliably report errors during connection establishment. We advise against using the WebSocket transport on
   these versions.
+
+- The `js:module` file metadata directive can no longer be used to generate bundles with the Gulp Ice Builder. You must
+  now use a standard JavaScript bundler instead. This metadata remains useful to indicate that your generated code is
+  published as an npm package and to control how other generated code imports it.
 
 ### MATLAB Changes
 

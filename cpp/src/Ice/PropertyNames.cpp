@@ -333,7 +333,6 @@ const PropertyArray PropertyNames::IceGridAdminProps
 
 const Property IceGridPropsData[] =
 {
-    Property{"AdminRouter", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"InstanceName", "", false, false, nullptr},
     Property{"Node", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Node.AllowEndpointsOverride", "0", false, false, nullptr},
@@ -402,7 +401,16 @@ const PropertyArray PropertyNames::IceGridProps
     .prefixOnly=false,
     .isOptIn=true,
     .properties=IceGridPropsData,
-    .length=61
+    .length=60
+};
+
+const PropertyArray PropertyNames::IceGridGUIProps
+{
+    .name="IceGridGUI",
+    .prefixOnly=false,
+    .isOptIn=true,
+    .properties=nullptr,
+    .length=0
 };
 
 const Property IceSSLPropsData[] =
@@ -577,7 +585,7 @@ const PropertyArray PropertyNames::DataStormProps
     .length=19
 };
 
-const std::array<PropertyArray, 15> PropertyNames::validProps =
+const std::array<PropertyArray, 16> PropertyNames::validProps =
 {
     IceProps,
     IceMXProps,
@@ -588,6 +596,7 @@ const std::array<PropertyArray, 15> PropertyNames::validProps =
     IceBridgeProps,
     IceGridAdminProps,
     IceGridProps,
+    IceGridGUIProps,
     IceSSLProps,
     IceStormProps,
     IceStormAdminProps,

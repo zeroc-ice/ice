@@ -33,7 +33,7 @@ export class Client extends TestHelper {
             const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             const comm = Ice.initialize(initData);
-            await comm.stringToProxy(`test:${this.getTestEndpoint()}`).ice_ping();
+            await new Ice.ObjectPrx(comm, `test:${this.getTestEndpoint()}`).ice_ping();
             await comm.destroy();
         }
         out.writeLine("ok");
@@ -47,7 +47,8 @@ export class Client extends TestHelper {
             test(adapter.getPublishedEndpoints().length === 1);
             const endpt = adapter.getPublishedEndpoints()[0];
             test(endpt!.toString() == "tcp -h localhost -p 12345 -t 30000");
-            const prx = communicator.stringToProxy(
+            const prx = new Ice.ObjectPrx(
+                communicator,
                 "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000",
             );
             adapter.setPublishedEndpoints(prx.ice_getEndpoints());

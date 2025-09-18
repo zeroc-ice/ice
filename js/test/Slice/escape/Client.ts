@@ -50,7 +50,7 @@ export class Client extends TestHelper {
         const p = new escapedAwait._package(
             new escapedAwait._break(100),
             escapedAwait._var.base,
-            escapedAwait.explicitPrx.uncheckedCast(communicator.stringToProxy("hello")),
+            new escapedAwait.explicitPrx(communicator, "hello"),
             new Map<string, escapedAwait._break>(),
             "",
         );

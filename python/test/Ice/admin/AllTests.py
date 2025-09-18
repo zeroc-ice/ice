@@ -18,9 +18,9 @@ def test(b: Any) -> None:
 def testFacets(com: Ice.Communicator, builtInFacets: bool = True) -> None:
     if builtInFacets:
         test(com.findAdminFacet("Properties") is not None)
-        test(com.findAdminFacet("Process") is not None)
-        test(com.findAdminFacet("Logger") is not None)
-        test(com.findAdminFacet("Metrics") is not None)
+        test(com.findAdminFacet("Process") is None)
+        test(com.findAdminFacet("Logger") is None)
+        test(com.findAdminFacet("Metrics") is None)
 
     f1 = TestI.TestFacetI()
     f2 = TestI.TestFacetI()
@@ -37,12 +37,9 @@ def testFacets(com: Ice.Communicator, builtInFacets: bool = True) -> None:
 
     facetMap = com.findAllAdminFacets()
     if builtInFacets:
-        test(len(facetMap) == 7)
+        test(len(facetMap) == 4)
         test("Properties" in facetMap)
         test(isinstance(facetMap["Properties"], Ice.NativePropertiesAdmin))
-        test("Process" in facetMap)
-        test("Logger" in facetMap)
-        test("Metrics" in facetMap)
 
     test(len(facetMap) >= 3)
 

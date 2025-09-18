@@ -7,10 +7,7 @@
 #ifndef ICE_INTERNAL_PROPERTY_NAMES_H
 #define ICE_INTERNAL_PROPERTY_NAMES_H
 
-#include "Ice/Config.h"
-
 #include <array>
-#include <string>
 
 namespace IceInternal
 {
@@ -50,6 +47,7 @@ namespace IceInternal
         static const PropertyArray IceBridgeProps;
         static const PropertyArray IceGridAdminProps;
         static const PropertyArray IceGridProps;
+        static const PropertyArray IceGridGUIProps;
         static const PropertyArray IceSSLProps;
         static const PropertyArray IceStormProps;
         static const PropertyArray IceStormAdminProps;
@@ -58,7 +56,7 @@ namespace IceInternal
         static const PropertyArray DataStormProps;
 
         /// Property arrays defined using sections in PropertyNames.xml.
-        static const std::array<PropertyArray, 15> validProps;
+        static const std::array<PropertyArray, 16> validProps;
     };
 }
 

@@ -1382,7 +1382,7 @@ export class ConnectionI {
                     // Received request on a connection without an object adapter.
                     this.sendResponse(
                         request.current.createOutgoingResponseWithException(new ObjectNotExistException()),
-                        !this._endpoint.datagram() && requestId != 0,
+                        requestId != 0,
                     );
                 }
                 --requestCount;
@@ -1410,7 +1410,7 @@ export class ConnectionI {
                 } catch (ex) {
                     response = request.current.createOutgoingResponseWithException(ex);
                 }
-                connection.sendResponse(response, !connection._endpoint.datagram() && requestId != 0);
+                connection.sendResponse(response, requestId != 0);
             } catch (ex) {
                 connection.dispatchException(ex, 1);
             }

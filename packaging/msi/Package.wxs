@@ -4,17 +4,19 @@
     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
     <Package
-        Name="Ice $(Version)"
+        Name="Ice Services $(Version)"
         Manufacturer="ZeroC, Inc."
         Version="$(Version).0"
         InstallerVersion="500"
         Compressed="yes"
-        Id="Ice_$(Version)">
+        ProductCode="A88CEE67-24BF-42CE-9D2D-7427DDEE395E"
+        UpgradeCode="B7AB6233-5E08-42CA-9003-912FD3432ACA"
+        Id="Ice_Services_$(Version)">
 
         <SummaryInformation
-            Description="Ice $(Version)"
-            Comments="Ice $(Version) MSI Installer"
-            Keywords="Ice, RPC"/>
+            Description="Ice Services $(Version)"
+            Comments="Ice Services $(Version) MSI Installer"
+            Keywords="DataStorm, Glacier2, Ice, IceBridge, IceGrid, IceStorm" />
 
         <!-- Embed CAB files in MSI -->
         <MediaTemplate EmbedCab="yes" />

@@ -1,35 +1,29 @@
-# Ice For Swift
+# Ice for Swift
 
 [Examples] | [Documentation] | [Building from source]
 
-The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server deployment, and more.
+The [Ice framework] provides everything you need to build networked applications, including RPC, pub/sub, server
+deployment, and more.
 
-Ice for Swift is the swift implementation of the Ice framework.
+Ice for Swift is the Swift implementation of the Ice framework.
 
 ## Usage
 
-Ice for Swift requires Swift 5.9 or later and the Swift Package Manager (SwiftPM).
-
-To add Ice to your project, add the dependency to your `Package.swift`:
+To add Ice to your project, add the following URL as a dependency in your Package.swift:
 
 ```swift
-dependencies: [
-    .package(url: "https://github.com/zeroc-ice/ice", from: "3.7.8"),
-],
+dependencies: [.package(url: "https://github.com/zeroc-ice/ice-swift-nightly.git", branch: "main")],
 ```
 
 Next, add the products you need to your target's dependencies:
 
 ```swift
-.target(
-    name: "MyTarget",
-    dependencies: [
-        .product(name: "Ice", package: "ice"),
-        .product(name: "IceGrid", package: "ice"),
-        .product(name: "IceStorm", package: "ice"),
-        .product(name: "Glacier2", package: "ice"),
-    ]
-)
+targets: [
+    .executableTarget(
+        name: "MyTarget",
+        dependencies: [.product(name: "Ice", package: "ice-swift-nightly")],
+    ),
+ ]
 ```
 
 ### CompileSlice Plugin
@@ -45,8 +39,7 @@ list:
 .target(
     name: "MyTarget",
     ...,
-    plugins: [
-        .plugin(name: "CompileSlice", package: "ice"),
+    plugins: [.plugin(name: "CompileSlice", package: "ice-swift-nightly"),
     ]
 )
 ```
@@ -81,67 +74,85 @@ Example `slice-plugin.json`:
 ## Sample Code
 
 ```slice
-// Slice definitions (Hello.ice)
+// Slice definitions (Greeter.ice)
 
-module Demo
+#pragma once
+
+module VisitorCenter
 {
-    interface Hello
+    /// Represents a simple greeter.
+    interface Greeter
     {
-        void sayHello();
+        /// Creates a personalized greeting.
+        /// @param name The name of the person to greet.
+        /// @return The greeting.
+        string greet(string name);
     }
 }
 ```
 
 ```swift
 // Client application
+
 import Foundation
 import Ice
 
-do {
-    let communicator = try Ice.initialize(CommandLine.arguments)
-    defer {
-        communicator.destroy()
-    }
+var args = CommandLine.arguments
+let communicator = try Ice.initialize(&args)
 
-    let hello = try uncheckedCast(
-        prx: communicator.stringToProxy("hello:default -h localhost -p 10000")!,
-        type: HelloPrx.self)
-    try hello.sayHello()
-} catch {
-    print("Error: \(error)\n")
-    exit(1)
+defer {
+    communicator.destroy()
 }
+
+let greeter = try makeProxy(
+    communicator: communicator, proxyString: "greeter:tcp -h localhost -p 4061",
+    type: GreeterPrx.self)
+
+let greeting = try await greeter.greet(NSUserName())
+
+print(greeting)
 ```
 
 ```swift
 // Server application
-import Foundation
+
 import Ice
 
-// Automatically flush stdout
-setbuf(__stdoutp, nil)
+let ctrlCHandler = CtrlCHandler()
 
-struct Printer: Hello {
-    func sayHello(current _: Ice.Current) throws {
-        print("Hello World!")
-    }
+var args = CommandLine.arguments
+let communicator = try Ice.initialize(&args)
+
+defer {
+    communicator.destroy()
 }
 
-do {
-    let communicator = try Ice.initialize(CommandLine.arguments)
-    defer {
-        communicator.destroy()
-    }
+let adapter = try communicator.createObjectAdapterWithEndpoints(
+    name: "GreeterAdapter", endpoints: "tcp -p 4061")
 
-    let adapter = try communicator.createObjectAdapterWithEndpoints(
-        name: "Hello",
-        endpoints: "default -h localhost -p 10000")
-    try adapter.add(servant: HelloDisp(Printer()), id: Ice.stringToIdentity("hello"))
-    try adapter.activate()
-    communicator.waitForShutdown()
-} catch {
-    print("Error: \(error)\n")
-    exit(1)
+try adapter.add(servant: Chatbot(), id: Ice.Identity(name: "greeter"))
+
+try adapter.activate()
+print("Listening on port 4061...")
+
+ctrlCHandler.setCallback { signal in
+    print("Caught signal \(signal), shutting down...")
+    communicator.shutdown()
+}
+
+await communicator.shutdownCompleted()
+```
+
+```swift
+// Greeter implementation
+
+import Ice
+
+struct Chatbot: Greeter {
+    func greet(name: String, current _: Ice.Current) -> String {
+        print("Dispatching greet request { name = '\(name)' }")
+        return "Hello, \(name)!"
+    }
 }
 ```
 

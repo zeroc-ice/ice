@@ -1,31 +1,271 @@
 # Installing the Nightly Builds <!-- omit in toc -->
 
-This document provides instruction for installing Ice nightly builds. Ice nightly builds are produced daily from
-GitHub main branch and target the next Ice non patch release.
+This document provides instructions for installing Ice from nightly builds.
 
-- [Linux](#linux)
+Ice nightly builds are produced daily from the main GitHub branch.
+
+- [Dev kits](#dev-kits)
+  - [Ice for C++](#ice-for-c)
+  - [Ice for C#](#ice-for-c-1)
+  - [Ice for Java](#ice-for-java)
+  - [Ice for JavaScript](#ice-for-javascript)
+  - [Ice for MATLAB](#ice-for-matlab)
+  - [Ice for PHP](#ice-for-php)
+  - [Ice for Python](#ice-for-python)
+  - [Ice for Ruby](#ice-for-ruby)
+  - [Ice for Swift](#ice-for-swift)
+- [Ice Services](#ice-services)
+  - [Linux](#linux)
+  - [macOS](#macos)
+  - [Windows](#windows)
+- [Linux Repositories](#linux-repositories)
   - [RPM-based Linux (RHEL, Amazon Linux)](#rpm-based-linux-rhel-amazon-linux)
   - [DEB-based Linux (Debian, Ubuntu)](#deb-based-linux-debian-ubuntu)
-- [macOS](#macos)
-  - [Homebrew](#homebrew)
-  - [Swift](#swift)
-- [Windows](#windows)
-  - [C++ NuGet](#c-nuget)
-  - [MSI Installer](#msi-installer)
-- [C#](#c)
-- [JavaScript](#javascript)
-- [Java](#java)
-  - [Gradle](#gradle)
-- [MATLAB](#matlab)
-- [Python](#python)
-- [Ruby](#ruby)
+- [macOS Brew Formula and Cask](#macos-brew-formula-and-cask)
 
-## Linux
+## Dev kits
+
+### Ice for C++
+
+#### Linux <!-- omit in toc -->
+
+First, enable the Ice nightly DNF or APT repository on your system as per [Linux Repositories](#linux-repositories).
+Then, install the C++ dev kit:
+
+##### RHEL, Amazon Linux
+
+```shell
+sudo dnf install libice-c++-devel
+```
+
+##### Debian, Ubuntu
+
+```shell
+sudo apt-get update
+sudo apt-get install libzeroc-ice-dev
+```
+
+#### macOS <!-- omit in toc -->
+
+Ice for C++ is included in the [ice formula](#macos-brew-formula-and-cask).
+
+#### Windows <!-- omit in toc -->
+
+Ice for C++ is distributed as the `ZeroC.Ice.Cpp` NuGet package on Windows.
+
+Add the following feed to your NuGet sources to get the nightly package:
+
+```shell
+https://download.zeroc.com/nexus/repository/nuget-nightly/
+```
+
+### Ice for C#
+
+Ice for C# is distributed as NuGet packages for all platforms.
+
+Add the following feed to your NuGet sources to get the nightly packages:
+
+```shell
+https://download.zeroc.com/nexus/repository/nuget-nightly/
+```
+
+### Ice for Java
+
+The nightly packages are available from the ZeroC maven-nightly repository.
+
+To use them, add the following Maven repository to your build configuration:
+
+```shell
+https://download.zeroc.com/nexus/repository/maven-nightly/
+```
+
+#### Gradle <!-- omit in toc -->
+
+Here’s an example configuration using Kotlin DSL:
+
+```kotlin
+// settings.gradle.kts
+pluginManagement {
+    repositories {
+        mavenLocal()
+        maven("https://download.zeroc.com/nexus/repository/maven-nightly/")
+        gradlePluginPortal() // Keep this to allow fetching other plugins
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        // This demo uses the latest Ice nightly build published to the ZeroC maven-nightly repository.
+        maven("https://download.zeroc.com/nexus/repository/maven-nightly/")
+        mavenCentral()
+    }
+}
+```
+
+### Ice for JavaScript
+
+The nightly NPM package @zeroc/ice is available from the ZeroC NPM nightly registry.
+
+To install it, add the following line to your project’s .npmrc file:
+
+```shell
+# Use ZeroC nightly registry for @zeroc packages
+@zeroc:registry=https://download.zeroc.com/nexus/repository/npm-nightly/
+```
+
+Then add the `@zeroc/ice` package to your project:
+
+```shell
+npm install @zeroc/ice
+```
+
+### Ice for MATLAB
+
+Ice toolbox for MATLAB R2025a:
+
+- Windows: [ice-nightly-R2025a-win.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-win.mltbx)
+- Ubuntu 24.04: [ice-nightly-R2025a-linux.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-linux.mltbx)
+
+To install a toolbox, download the package corresponding to your platform and simply double-click on the `.mltbx` file
+from MATLAB.
+
+### Ice for PHP
+
+#### Linux <!-- omit in toc -->
+
+First, enable the Ice nightly DNF or APT repository on your system as per [Linux Repositories](#linux-repositories).
+Then, install the Ice for PHP package:
+
+##### RHEL
+
+```shell
+sudo dnf install php-ice
+```
+
+##### Amazon Linux
+
+```shell
+sudo dnf install php8.4-ice
+```
+
+##### Debian, Ubuntu
+
+```shell
+sudo apt-get update
+sudo apt-get install php-zeroc-ice
+```
+
+### Ice for Python
+
+#### PyPI <!-- omit in toc -->
+
+The nightly package for all platforms (Linux, macOS, Windows) is available from the ZeroC PyPI nightly repository.
+
+To install the latest zeroc-ice nightly package, add the following lines to your requirements.txt:
+
+```shell
+# Use ZeroC nightly repository as the main index for pip
+--index-url https://download.zeroc.com/nexus/repository/pypi-nightly/simple/
+
+# Allow installing packages from the official PyPI index if not found in the ZeroC repository
+--extra-index-url https://pypi.org/simple/
+
+# Enable installation of pre-release versions (required for nightly builds)
+--pre
+
+# Specify the zeroc-ice package (latest nightly version)
+zeroc-ice
+```
+
+#### Linux <!-- omit in toc -->
+
+Ice for Python is also available as a RPM or DEB package, depending on your distribution.
+
+First, enable the Ice nightly DNF or APT repository on your system as per [Linux Repositories](#linux-repositories).
+Then, install the Ice for Python package:
+
+##### RHEL, Amazon Linux
+
+```shell
+sudo dnf install python3-ice
+```
+
+##### Debian, Ubuntu
+
+```shell
+sudo apt-get update
+sudo apt-get install python3-zeroc-ice
+```
+
+### Ice for Ruby
+
+The nightly Ruby GEM package is available from the ZeroC RubyGems nightly repository.
+
+You can install the latest Ruby gem by running the following command:
+
+```shell
+gem install zeroc-ice --source https://download.zeroc.com/nexus/repository/rubygems-nightly --user \
+    --pre --version '>= 3.8.0.pre'
+```
+
+### Ice for Swift
+
+The nightly package is available via the Swift Package Manager (SPM).
+
+To use it in your project, add the following URL as a dependency in your Package.swift:
+
+```shell
+https://github.com/zeroc-ice/ice-swift-nightly
+```
+
+## Ice Services
+
+This section describes how to install the DataStorm, Glacier2, IceBox, IceBridge, IceGrid, IceStorm services, and the
+associated admin tools.
+
+> DataStorm is primarily a library-based service, installed as part of Ice for C++. The DataStorm component described
+> in this section is the DataStorm server (dsnode).
+
+### Linux
+
+First, enable the Ice nightly DNF or APT repository on your system as per [Linux Repositories](#linux-repositories).
+Then, install the desired service or tool. For example:
+
+#### RHEL, Amazon Linux <!-- omit in toc -->
+
+```shell
+sudo dnf install icegrid
+```
+
+Refer to the [RPM packages README] for a complete list of available service packages and their package names.
+
+#### Debian, Ubuntu <!-- omit in toc -->
+
+```shell
+sudo apt-get update
+sudo apt-get install zeroc-icegrid
+```
+
+Refer to the [DEB packages README] for a complete list of available service packages and their package names.
+
+### macOS
+
+All Ice services and admin tools are included in the [ice formula](#macos-brew-formula-and-cask), except IceGrid GUI,
+which is provided by a [cask](#macos-brew-formula-and-cask).
+
+### Windows
+
+The Ice services (Glacier2, IceGrid, IceStorm, etc.) and all admin tools for these services (IceGridGUI, icegridadmin,
+etc.) are provided in a Windows installer MSI package:
+
+- [Ice-Services-nightly.msi](https://download.zeroc.com/ice/nightly/Ice-Services-nightly.msi)
+
+## Linux Repositories
 
 ### RPM-based Linux (RHEL, Amazon Linux)
 
-The ZeroC Ice nightly RPM packages for Red Hat Enterprise Linux 9, Red Hat Enterprise Linux 10, and Amazon Linux 2023
-are available from the ZeroC DNF nightly repository.
+The nightly RPM packages for Red Hat Enterprise Linux and Amazon Linux are available from the ZeroC DNF nightly
+repository.
 
 To enable the nightly repository for your distribution run:
 
@@ -47,18 +287,11 @@ To enable the nightly repository for your distribution run:
   sudo dnf install https://download.zeroc.com/ice/nightly/amzn2023/ice-repo-nightly-1.0.0-1.amzn2023.noarch.rpm
   ```
 
-Then install the desired packages. For example:
-
-```shell
-sudo dnf install libice-c++-devel
-```
-
-For a full list of available packages, see the [RPM packages README](packaging/rpm/README).
+See also: [RPM packages README]
 
 ### DEB-based Linux (Debian, Ubuntu)
 
-The ZeroC Ice nightly DEB packages for Debian 12, Debian 13, and Ubuntu 24.04 are available from the ZeroC APT nightly
-repository.
+The nightly DEB packages for Debian and Ubuntu are available from the ZeroC APT nightly repository.
 
 To enable the nightly repository for your distribution run:
 
@@ -86,154 +319,22 @@ To enable the nightly repository for your distribution run:
   rm ice-repo-nightly.deb
   ```
 
-Then update your package index and install the desired packages. For example:
+See also: [DEB packages README]
 
-```shell
-sudo apt-get update
-sudo apt-get install libzeroc-ice-dev
-```
+## macOS Brew Formula and Cask
 
-For a full list of available packages, see the [DEB packages README](packaging/deb/debian/README).
-
-## macOS
-
-### Homebrew
-
-The Ice nightly Homebrew tap is provided by the zeroc-ice/homebrew-nightly repository.
-
-You can install the nightly Ice package by running:
+You can install the nightly ice formula by running:
 
 ```shell
 brew install zeroc-ice/nightly/ice
 ```
 
-### Swift
+The ice formula includes:
 
-The Ice for Swift nightly package is available via Swift Package Manager (SPM) from the zeroc-ice/ice-swift-nightly
-GitHub repository.
+- the Ice for C++ runtime and dev kit
+- all Ice services (Glacier2, IceGrid, IceStorm, etc.) and all admin tools except IceGrid GUI.
 
-To use it in your project, add the following URL as a dependency in your Package.swift:
+IceGridGUI is distributed in its own brew cask. This cask is not yet available.
 
-```shell
-https://github.com/zeroc-ice/ice-swift-nightly
-```
-
-## Windows
-
-### C++ NuGet
-
-The ZeroC Ice nightly C++ NuGet packages for Windows are available from the ZeroC NuGet nightly feed.
-
-To use them, add the following feed to your NuGet sources:
-
-```shell
-https://download.zeroc.com/nexus/repository/nuget-nightly/
-```
-
-Then add the `ZeroC.Ice.Cpp` package to your Visual Studio C++ projects.
-
-### MSI Installer
-
-The ZeroC Ice nightly Windows installer (MSI) is available at:
-
-- [Ice-nightly.msi](https://download.zeroc.com/ice/nightly/Ice-nightly.msi)
-
-## C\#
-
-The ZeroC Ice nightly .NET NuGet packages are available from the ZeroC NuGet nightly feed.
-
-To use them, add the following feed to your NuGet sources:
-
-```shell
-https://download.zeroc.com/nexus/repository/nuget-nightly/
-```
-
-## JavaScript
-
-The ZeroC Ice NPM nightly package @zeroc/ice is available from the ZeroC NPM nightly registry.
-
-To install it, add the following line to your project’s .npmrc file:
-
-```shell
-# Use ZeroC nightly registry for @zeroc packages
-@zeroc:registry=https://download.zeroc.com/nexus/repository/npm-nightly/
-```
-
-Then add the `@zeroc/ice` package to your project:
-
-```shell
-npm install @zeroc/ice
-```
-
-## Java
-
-The ZeroC Ice Java nightly packages are available from the maven central snapshots repository.
-
-To use them, add the following Maven repository to your build configuration:
-
-```shell
-https://central.sonatype.com/repository/maven-snapshots/
-```
-
-### Gradle
-
-Here’s an example configuration using Kotlin DSL:
-
-```kotlin
-// settings.gradle.kts
-pluginManagement {
-    repositories {
-        mavenLocal()
-        maven("https://central.sonatype.com/repository/maven-snapshots/")
-        gradlePluginPortal() // Keep this to allow fetching other plugins
-    }
-}
-
-dependencyResolutionManagement {
-    repositories {
-        // This demo uses the latest Ice nightly build published to the maven central snapshots repository.
-        maven("https://central.sonatype.com/repository/maven-snapshots/")
-        mavenCentral()
-    }
-}
-```
-
-## MATLAB
-
-Ice toolbox for MATLAB R2025a:
-
-- Windows: [ice-nightly-R2025a-win.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-win.mltbx)
-- Ubuntu 24.04: [ice-nightly-R2025a-linux.mltbx](https://download.zeroc.com/ice/nightly/ice-nightly-R2025a-linux.mltbx)
-
-To install, download the package corresponding to your platform and simply double-click the `.mltbx` file from MATLAB.
-
-## Python
-
-The ZeroC Ice nightly Python package is available from the ZeroC PyPI nightly repository.
-
-To install the latest zeroc-ice nightly package, add the following lines to your requirements.txt:
-
-```shell
-# Use ZeroC Nightly repository as the main index for pip
---index-url https://download.zeroc.com/nexus/repository/pypi-nightly/simple/
-
-# Allow installing packages from the official PyPI index if not found in the ZeroC repository
---extra-index-url https://pypi.org/simple/
-
-# Enable installation of pre-release versions (required for nightly builds)
---pre
-
-# Specify the zeroc-ice package (latest nightly version)
-zeroc-ice
-```
-
-## Ruby
-
-The ZeroC Ice nightly Ruby GEM package is available from the ZeroC RubyGems nightly repository.
-
-You can install the latest Ruby gem by running the following command:
-
-```shell
-gem install zeroc-ice --source https://download.zeroc.com/nexus/repository/rubygems-nightly --user \
-    --pre --version '>= 3.8.0.pre'
-```
+[RPM packages README]: packaging/rpm/README
+[DEB packages README]: packaging/deb/debian/README

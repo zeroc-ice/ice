@@ -295,7 +295,7 @@ export class Client extends TestHelper {
 
         await communicator.destroy();
         [communicator] = this.initialize(properties);
-        com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+        com = new Test.RemoteCommunicatorPrx(communicator, ref);
 
         out.write("testing ordered endpoint selection... ");
         {
@@ -367,7 +367,7 @@ export class Client extends TestHelper {
 
         await communicator.destroy();
         [communicator] = this.initialize(properties);
-        com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+        com = new Test.RemoteCommunicatorPrx(communicator, ref);
 
         out.write("testing per request binding with single endpoint... ");
         {
@@ -409,7 +409,7 @@ export class Client extends TestHelper {
 
         await communicator.destroy();
         [communicator] = this.initialize(properties);
-        com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+        com = new Test.RemoteCommunicatorPrx(communicator, ref);
 
         out.write("testing per request binding with multiple endpoints... ");
         {
@@ -461,7 +461,7 @@ export class Client extends TestHelper {
 
             await communicator.destroy();
             [communicator] = this.initialize(properties);
-            com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
+            com = new Test.RemoteCommunicatorPrx(communicator, ref);
 
             out.write("testing per request binding and ordered endpoint selection... ");
             let adapters = (await Promise.all([
@@ -541,8 +541,7 @@ export class Client extends TestHelper {
                 // web socket send() method never returns for the sending of close connection message.
                 //
                 out.writeLine("Test not supported with Safari web workers.");
-                const obj = communicator.stringToProxy(`communicator:${this.getTestEndpoint()}`);
-                const prx = Test.RemoteCommunicatorPrx.uncheckedCast(obj);
+                const prx = new Test.RemoteCommunicatorPrx(communicator, `communicator:${this.getTestEndpoint()}`);
                 await prx.shutdown();
             } else {
                 await this.allTests();

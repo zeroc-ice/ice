@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-15
+          - os: macos-26
             target: macos-arm64
             artifact-path: cpp/bin/slice2cs
           - os: windows-2022

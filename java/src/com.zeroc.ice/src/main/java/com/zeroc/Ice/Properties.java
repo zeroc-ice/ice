@@ -606,7 +606,7 @@ public final class Properties {
      * @return A copy of this property set.
      */
     public synchronized Properties _clone() {
-        Properties clonedProperties = new Properties();
+        Properties clonedProperties = new Properties(_optInPrefixes);
         //
         // NOTE: we can't just do a shallow copy of the map as the map values
         // would otherwise be shared between the two Properties objects.

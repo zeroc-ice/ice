@@ -127,17 +127,16 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Converts a set of proxy properties into a proxy. The "base" name supplied in the {@code
-     * prefix} argument refers to a property containing a stringified proxy, such as {@code
-     * MyProxy=id:tcp -h localhost -p 10000}. Additional properties configure local settings
-     * for the proxy.
+     * Converts a set of proxy properties into a proxy. The "base" name supplied in the {@code property} argument
+     * refers to a property containing a stringified proxy, such as {@code MyProxy=id:tcp -h localhost -p 10000}.
+     * Additional properties configure local settings for the proxy.
      *
-     * @param prefix The base property name.
+     * @param property The base property name.
      * @return The proxy, or null if the property is not set.
      */
-    public ObjectPrx propertyToProxy(String prefix) {
-        String proxy = _instance.initializationData().properties.getProperty(prefix);
-        var ref = _instance.referenceFactory().create(proxy, prefix);
+    public ObjectPrx propertyToProxy(String property) {
+        String proxy = _instance.initializationData().properties.getProperty(property);
+        var ref = _instance.referenceFactory().create(proxy, property);
         return ref == null ? null : new _ObjectPrxI(ref);
     }
 

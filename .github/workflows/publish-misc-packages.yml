@@ -39,7 +39,7 @@ jobs:
           set -euo pipefail
           if [ "${CHANNEL}" = "nightly" ]; then
             # Rename the MSI file to Ice-nightly.msi if it's the nightly channel
-            aws s3 cp staging/windows-msi/*.msi "s3://zeroc-downloads/ice/${CHANNEL}/Ice-nightly.msi"
+            aws s3 cp staging/windows-msi/*.msi "s3://zeroc-downloads/ice/${CHANNEL}/Ice-Services-nightly.msi"
           else
             aws s3 cp staging/windows-msi/*.msi "s3://zeroc-downloads/ice/${CHANNEL}/"
           fi
@@ -106,7 +106,7 @@ jobs:
 
   publish-swift-packages:
     name: "Publish Swift Packages"
-    runs-on: macos-15
+    runs-on: macos-26
     # Stable Swift releases must be published manually.
     if: ${{ inputs.channel == 'nightly' }}
     steps:
@@ -132,7 +132,7 @@ jobs:
 
   publish-brew-packages:
     name: "Publish Brew Packages"
-    runs-on: macos-15
+    runs-on: macos-26
     # Stable Brew releases must be published manually.
     if: ${{ inputs.channel == 'nightly' }}
     env:

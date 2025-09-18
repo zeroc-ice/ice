@@ -55,9 +55,9 @@ public class Slice2CppTask : SliceCompilerTask
         return builder.ToString();
     }
 
-    protected override Dictionary<string, string> GetOptions()
+    protected override Dictionary<string, string> GetOptions(ITaskItem source)
     {
-        var options = base.GetOptions();
+        var options = base.GetOptions(source);
         if (!string.IsNullOrEmpty(HeaderOutputDir))
         {
             options["HeaderOutputDir"] = HeaderOutputDir;

@@ -59,7 +59,7 @@ export class ReferenceFactory {
             this._communicator,
             ident,
             "", // Facet
-            fixedConnection.endpoint().datagram() ? ReferenceMode.ModeDatagram : ReferenceMode.ModeTwoway,
+            ReferenceMode.ModeTwoway,
             Protocol_1_0,
             this._instance.defaultsAndOverrides().defaultEncoding,
             fixedConnection,

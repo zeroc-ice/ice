@@ -463,32 +463,13 @@ export class FixedReference extends Reference {
     }
 
     getRequestHandler() {
-        switch (this.getMode()) {
-            case ReferenceMode.ModeTwoway:
-            case ReferenceMode.ModeOneway:
-            case ReferenceMode.ModeBatchOneway: {
-                if (this._fixedConnection.endpoint().datagram()) {
-                    throw new NoEndpointException(new ObjectPrx(this));
-                }
-                break;
-            }
-
-            case ReferenceMode.ModeDatagram:
-            case ReferenceMode.ModeBatchDatagram: {
-                if (!this._fixedConnection.endpoint().datagram()) {
-                    throw new NoEndpointException(new ObjectPrx(this));
-                }
-                break;
-            }
-
-            default: {
-                console.assert(false);
-                break;
-            }
+        const mode = this.getMode();
+        if (mode == ReferenceMode.ModeDatagram || mode == ReferenceMode.ModeBatchDatagram) {
+            throw new NoEndpointException(new ObjectPrx(this));
         }
 
-        this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
-
+        // Throw in case our connection is already destroyed.
+        this._fixedConnection.throwException();
         return new FixedRequestHandler(this, this._fixedConnection);
     }
 
@@ -830,9 +811,7 @@ export class RoutableReference extends Reference {
 
     // Sets or resets _batchRequestQueue based on _mode.
     setBatchRequestQueue() {
-        this._batchRequestQueue = this.isBatch
-            ? new BatchRequestQueue(this._instance, this._mode === ReferenceMode.ModeBatchDatagram)
-            : null;
+        this._batchRequestQueue = this.isBatch ? new BatchRequestQueue(this._instance) : null;
     }
 
     getConnection(handler) {
@@ -957,35 +936,6 @@ export class RoutableReference extends Reference {
         // Filter out opaque endpoints or endpoints which can't connect.
         //
         let endpoints = allEndpoints.filter(e => !(e instanceof OpaqueEndpointI) && e.connectable());
-
-        //
-        // Filter out endpoints according to the mode of the reference.
-        //
-        switch (this.getMode()) {
-            case ReferenceMode.ModeTwoway:
-            case ReferenceMode.ModeOneway:
-            case ReferenceMode.ModeBatchOneway: {
-                //
-                // Filter out datagram endpoints.
-                //
-                endpoints = endpoints.filter(e => !e.datagram());
-                break;
-            }
-
-            case ReferenceMode.ModeDatagram:
-            case ReferenceMode.ModeBatchDatagram: {
-                //
-                // Filter out non-datagram endpoints.
-                //
-                endpoints = endpoints.filter(e => e.datagram());
-                break;
-            }
-
-            default: {
-                console.assert(false);
-                break;
-            }
-        }
 
         //
         // Sort the endpoints according to the endpoint selection type.

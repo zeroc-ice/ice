@@ -41,7 +41,7 @@ public abstract class SliceCompilerTask : ToolTask
 
     protected abstract string GeneratedExtensions { get; }
 
-    protected virtual Dictionary<string, string> GetOptions()
+    protected virtual Dictionary<string, string> GetOptions(ITaskItem item)
     {
         var options = new Dictionary<string, string>
         {
@@ -49,9 +49,10 @@ public abstract class SliceCompilerTask : ToolTask
             ["OutputDir"] = OutputDir.TrimEnd('\\')
         };
 
-        if (IncludeDirectories.Length > 0)
+        var value = item.GetMetadata("IncludeDirectories").Trim(';');
+        if (!string.IsNullOrEmpty(value))
         {
-            options["IncludeDirectories"] = string.Join(";", IncludeDirectories);
+            options["IncludeDirectories"] = value;
         }
 
         if (AdditionalOptions.Length > 0)
@@ -76,10 +77,10 @@ public abstract class SliceCompilerTask : ToolTask
 
         foreach (string path in IncludeDirectories)
         {
-            builder.AppendSwitchIfNotNull("-I", path);
+            builder.AppendSwitchIfNotNull("-I", Path.GetFullPath(path));
         }
 
-        foreach (var option in AdditionalOptions)
+        foreach (string option in AdditionalOptions)
         {
             builder.AppendTextUnquoted(" ");
             builder.AppendTextUnquoted(option);
@@ -133,7 +134,7 @@ public abstract class SliceCompilerTask : ToolTask
                             new XElement("source", new XAttribute("name", source.GetMetadata("FullPath")),
                                 inputs.Select(path => new XElement("dependsOn", new XAttribute("name", path))),
                                 new XElement("options",
-                                    GetOptions().Select(e => new XElement(e.Key, e.Value))))));
+                                    GetOptions(source).Select(e => new XElement(e.Key, e.Value))))));
 
                     doc.Save(Path.Combine(OutputDir,
                                             string.Format("SliceCompile.{0}.d", source.GetMetadata("Filename"))));

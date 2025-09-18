@@ -37,7 +37,7 @@ require_once 'Ice.php';
 require_once 'Greeter.php';
 
 $communicator = Ice\initialize();
-$greeter = VisitorCenter\GreeterPrxHelper::createProxy($communicator, 'greeter:tcp -h localhost -p 4061');
+$greeter = VisitorCenter\GreeterPrxHelper::createProxy($communicator, 'greeter:tcp -h hello.zeroc.com -p 4061');
 
 $greeting = $greeter->greet(get_current_user());
 echo "$greeting\n";

@@ -79,7 +79,6 @@
         <ItemGroup>
             <_SliceCompileNormalized Include="@(SliceCompile)">
                 <OutputDir>$([MSBuild]::NormalizePath('%(SliceCompile.OutputDir)'))</OutputDir>
-                <IncludeDirectories>$([MSBuild]::NormalizePath('%(SliceCompile.IncludeDirectories)'))</IncludeDirectories>
             </_SliceCompileNormalized>
         </ItemGroup>
 

@@ -48,14 +48,10 @@ public abstract class SliceDependTask : Task
             ["OutputDir"] = item.GetMetadata("OutputDir").TrimEnd('\\')
         };
 
-        var value = item.GetMetadata("IncludeDirectories");
+        var value = item.GetMetadata("IncludeDirectories").Trim(';');
         if (!string.IsNullOrEmpty(value))
         {
-            value = value.Trim(';');
-            if (!string.IsNullOrEmpty(value))
-            {
-                options["IncludeDirectories"] = value;
-            }
+            options["IncludeDirectories"] = value;
         }
         value = item.GetMetadata("AdditionalOptions");
         if (!string.IsNullOrEmpty(value))
