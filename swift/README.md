@@ -76,8 +76,6 @@ Example `slice-plugin.json`:
 ```slice
 // Slice definitions (Greeter.ice)
 
-#pragma once
-
 module VisitorCenter
 {
     /// Represents a simple greeter.

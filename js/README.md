@@ -12,8 +12,6 @@ Ice for JavaScript is the JavaScript implementation of the Ice framework, with s
 ```slice
 // Slice definitions (Greeter.ice)
 
-#pragma once
-
 module VisitorCenter
 {
     /// Represents a simple greeter.

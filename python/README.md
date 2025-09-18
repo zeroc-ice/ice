@@ -12,8 +12,6 @@ Ice for Python is the Python implementation of the Ice framework.
 ```slice
 // Slice definitions (Greeter.ice)
 
-#pragma once
-
 module VisitorCenter
 {
     /// Represents a simple greeter.
