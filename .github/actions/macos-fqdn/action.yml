@@ -1,4 +1,5 @@
 name: macOS FQDN
+description: Ensures the macOS runner has a valid Fully Qualified Domain Name (FQDN) by checking and fixing its hostname configuration.
 runs:
   using: "composite"
   steps:
