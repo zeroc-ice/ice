@@ -18,7 +18,7 @@ runs:
       shell: bash
       run: |
         FQDN=$(hostname -f)
-        if ! grep -q "$FQDN" /etc/hosts; then
+        if ! grep -qF "$FQDN" /etc/hosts; then
             echo "FQDN $FQDN not found in /etc/hosts"
 
             # Find the entry in /etc/hosts that corresponds to what the hostname should be.
