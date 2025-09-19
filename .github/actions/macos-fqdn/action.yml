@@ -1,41 +1,73 @@
+# The macOS FQDN can be misconfigured on GitHub-hosted runners,
+# causing issues with some tests that expect a valid FQDN.
+# See https://github.com/actions/runner-images/issues/12562
+#
+# Example from a runner that is good:
+# > scutil --get ComputerName
+# iad20-fj925-81b5ba22-7890-42f2-92e2-f0dbf5ebb8ed-1E029398D518
+# > scutil --get LocalHostName
+# iad20-fj925-81b5ba22-7890-42f2-92e2-f0dbf5ebb8ed-1E029398D518
+# > scutil --get HostName
+# iad20-fj925-81b5ba22-7890-42f2-92e2-f0dbf5ebb8ed-1E029398D518.local
+
 name: macOS FQDN
 description: Ensures the macOS runner has a valid Fully Qualified Domain Name (FQDN) by checking and fixing its hostname configuration.
 runs:
   using: "composite"
   steps:
-    # The macOS FQDN can be misconfigured on GitHub-hosted runners,
-    # causing issues with some tests that expect a valid FQDN.
-    # See https://github.com/actions/runner-images/issues/12562
-    #
-    # Example from a runner that is good:
-    # > scutil --get ComputerName
-    # iad20-fj925-81b5ba22-7890-42f2-92e2-f0dbf5ebb8ed-1E029398D518
-    # > scutil --get LocalHostName
-    # iad20-fj925-81b5ba22-7890-42f2-92e2-f0dbf5ebb8ed-1E029398D518
-    # > scutil --get HostName
-    # iad20-fj925-81b5ba22-7890-42f2-92e2-f0dbf5ebb8ed-1E029398D518.local
+    - name: Print host info
+      shell: bash
+      run: &print_host_info |
+        echo "Initial hostname settings:"
+        echo "ComputerName: $(scutil --get ComputerName)"
+        echo "LocalHostName: $(scutil --get LocalHostName)"
+        echo "HostName: $(scutil --get HostName)"
+        echo "FQDN: $(hostname -f)"
+        echo "Short hostname: $(hostname -s)"
+        echo "/etc/hosts:"
+        cat /etc/hosts
 
     - name: Check and fix FQDN
       shell: bash
       run: |
-        FQDN=$(hostname -f)
-        if ! grep -qF "$FQDN" /etc/hosts; then
-            echo "FQDN $FQDN not found in /etc/hosts"
+        RUNNER_FQDN=$(hostname -f)
+
+        # GitHub macOS runners will always have an entry for the hostname in /etc/hosts.
+        # For example: 192.168.64.24 iad20-fj917_6cae4d32-d0ce-456c-8173-514448759e72-FE7BB458E416.local iad20-fj917_6cae4d32-d0ce-456c-8173-514448759e72-FE7BB458E416
+        # This is the correct FQDN that that matches the runner's IP address.
+        # Due to a bug/misconfiguration, the actual hostname of the runner is something else.
+        #
+        # *If* the runner FQDN is not in /etc/hosts, we fix it by finding the correct entry in /etc/hosts
+        # and setting the hostname accordingly.
+
+        if ! grep -qF "$RUNNER_FQDN" /etc/hosts; then
+            echo "Runner hostname $RUNNER_FQDN not found in /etc/hosts. Updating hostname to match /etc/hosts."
 
             # Find the entry in /etc/hosts that corresponds to what the hostname should be.
             # It's the one that ends in ".local" and is not "localhost" or "broadcasthost".
             ENTRY=$(grep '\.local' /etc/hosts | grep -v 'localhost' | grep -v 'broadcasthost' | grep -v '^#' | head -1 || true)
             if [ -n "$ENTRY" ]; then
               HOSTNAME=$(echo "$ENTRY" | awk '{print $2}')
-              COMPUTER_NAME="${FQDN%%.*}"
-              echo "Setting hostname/fqdn from /etc/hosts: $HOSTNAME / $FQDN"
+              SHORT_HOSTNAME="${HOSTNAME%%.*}"
 
-              sudo scutil --set ComputerName "$COMPUTER_NAME" # keep domain part for ComputerName
-              sudo scutil --set LocalHostName "$COMPUTER_NAME" # strip domain part for LocalHostName
-              sudo scutil --set HostName "$HOSTNAME" # strip domain part for HostName
+              echo "Setting hostname from /etc/hosts: $ENTRY"
+
+              # The user-friendly name
+              sudo scutil --set ComputerName "${SHORT_HOSTNAME}"
+
+              # The Bonjour/mDNS name. It usually ends in .local but for some reason
+              # GitHub runners have it set to the short hostname.
+              sudo scutil --set LocalHostName "${SHORT_HOSTNAME}"
+
+              # The FQDN of the system
+              sudo scutil --set HostName "${HOSTNAME}"
 
               sudo dscacheutil -flushcache
             else
               echo "No suitable entry found in /etc/hosts."
             fi
           fi
+
+    - name: Print host info
+      shell: bash
+      run: *print_host_info
