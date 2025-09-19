@@ -23,7 +23,7 @@ runs:
 
             # Find the entry in /etc/hosts that corresponds to what the hostname should be.
             # It's the one that ends in ".local" and is not "localhost" or "broadcasthost".
-            ENTRY=$(grep '\.local' /etc/hosts | grep -v 'localhost' | grep -v 'broadcasthost' | grep -v '^#' | head -1)
+            ENTRY=$(grep '\.local' /etc/hosts | grep -v 'localhost' | grep -v 'broadcasthost' | grep -v '^#' | head -1 || true)
             if [ -n "$ENTRY" ]; then
               HOSTNAME=$(echo "$ENTRY" | awk '{print $2}')
               echo "Setting hostname from /etc/hosts: $HOSTNAME"
