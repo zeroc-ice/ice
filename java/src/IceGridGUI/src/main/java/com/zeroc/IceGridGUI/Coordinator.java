@@ -2188,7 +2188,8 @@ public class Coordinator {
             // Start icegridadmin server
             //
             try {
-                _icegridadminProcess = Runtime.getRuntime().exec("icegridadmin --server");
+                String icegridadmin = Utils.getIceGridAdmin();
+                _icegridadminProcess = Runtime.getRuntime().exec(new String[]{icegridadmin, "--server"});
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(
                     _mainFrame,
