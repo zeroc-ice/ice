@@ -26,13 +26,14 @@ runs:
             # It's the one that ends in ".local" and is not "localhost" or "broadcasthost".
             ENTRY=$(grep '\.local' /etc/hosts | grep -v 'localhost' | grep -v 'broadcasthost' | grep -v '^#' | head -1 || true)
             if [ -n "$ENTRY" ]; then
-              FQDN=$(echo "$ENTRY" | awk '{print $2}')
-              HOSTNAME="${FQDN%%.*}"
+              HOSTNAME=$(echo "$ENTRY" | awk '{print $2}')
+              COMPUTER_NAME="${FQDN%%.*}"
               echo "Setting hostname/fqdn from /etc/hosts: $HOSTNAME / $FQDN"
 
+              sudo scutil --set ComputerName "$COMPUTER_NAME" # keep domain part for ComputerName
+              sudo scutil --set LocalHostName "$COMPUTER_NAME" # strip domain part for LocalHostName
               sudo scutil --set HostName "$HOSTNAME" # strip domain part for HostName
-              sudo scutil --set LocalHostName "$HOSTNAME" # strip domain part for LocalHostName
-              sudo scutil --set ComputerName "$FQDN" # keep domain part for ComputerName
+
               sudo dscacheutil -flushcache
             else
               echo "No suitable entry found in /etc/hosts."
