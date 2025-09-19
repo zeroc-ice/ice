@@ -1,0 +1,72 @@
+# The macOS FQDN can be misconfigured on GitHub-hosted runners,
+# causing issues with some tests that expect a valid FQDN.
+# See https://github.com/actions/runner-images/issues/12562
+#
+# Example from a runner that is good:
+# > scutil --get ComputerName
+# iad20-fj925-81b5ba22-7890-42f2-92e2-f0dbf5ebb8ed-1E029398D518
+# > scutil --get LocalHostName
+# iad20-fj925-81b5ba22-7890-42f2-92e2-f0dbf5ebb8ed-1E029398D518
+# > scutil --get HostName
+# iad20-fj925-81b5ba22-7890-42f2-92e2-f0dbf5ebb8ed-1E029398D518.local
+
+name: macOS FQDN
+description: Ensures the macOS runner has a valid Fully Qualified Domain Name (FQDN) by checking and fixing its hostname configuration.
+runs:
+  using: "composite"
+  steps:
+    - name: Print host info
+      shell: bash
+      run: |
+        echo "ComputerName: $(scutil --get ComputerName)"
+        echo "LocalHostName: $(scutil --get LocalHostName)"
+        echo "HostName: $(scutil --get HostName)"
+        echo "FQDN: $(hostname -f)"
+        echo "Short hostname: $(hostname -s)"
+        echo "/etc/hosts:"
+        cat /etc/hosts
+
+    - name: Check and fix FQDN
+      shell: bash
+      run: |
+        RUNNER_FQDN=$(hostname -f)
+
+        # GitHub macOS runners will always have an entry for the hostname in /etc/hosts.
+        # For example: 192.168.64.24 iad20-fj917_6cae4d32-d0ce-456c-8173-514448759e72-FE7BB458E416.local iad20-fj917_6cae4d32-d0ce-456c-8173-514448759e72-FE7BB458E416
+        # This is the correct FQDN that matches the runner's IP address.
+        # Due to a bug/misconfiguration, the actual hostname of the runner is sometimes something else.
+        #
+        # If the runner FQDN is not in /etc/hosts, we find the correct entry in /etc/hosts and update the hostname.
+
+        if ! grep -qF "$RUNNER_FQDN" /etc/hosts; then
+            echo "Runner hostname $RUNNER_FQDN not found in /etc/hosts. Updating hostname to match /etc/hosts."
+
+            # Find the entry in /etc/hosts that corresponds to what the hostname should be.
+            # It's the one that ends in ".local" and is not "localhost" or "broadcasthost".
+            ENTRY=$(grep '\.local' /etc/hosts | grep -v 'localhost' | grep -v 'broadcasthost' | grep -v '^#' | head -1 || true)
+            if [ -n "$ENTRY" ]; then
+              HOSTNAME=$(echo "$ENTRY" | awk '{print $2}')
+              SHORT_HOSTNAME="${HOSTNAME%%.*}"
+
+              echo "Setting hostname from /etc/hosts: $ENTRY"
+
+              sudo scutil --set ComputerName "${SHORT_HOSTNAME}" # User-friendly name
+              sudo scutil --set LocalHostName "${SHORT_HOSTNAME}" # The Bonjour/mDNS name
+              sudo scutil --set HostName "${HOSTNAME}" # The system hostname
+
+              sudo dscacheutil -flushcache
+            else
+              echo "No suitable entry found in /etc/hosts."
+            fi
+          fi
+
+    - name: Print host info
+      shell: bash
+      run: |
+        echo "ComputerName: $(scutil --get ComputerName)"
+        echo "LocalHostName: $(scutil --get LocalHostName)"
+        echo "HostName: $(scutil --get HostName)"
+        echo "FQDN: $(hostname -f)"
+        echo "Short hostname: $(hostname -s)"
+        echo "/etc/hosts:"
+        cat /etc/hosts
