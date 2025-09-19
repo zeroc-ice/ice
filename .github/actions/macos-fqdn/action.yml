@@ -50,15 +50,9 @@ runs:
 
               echo "Setting hostname from /etc/hosts: $ENTRY"
 
-              # The user-friendly name
-              sudo scutil --set ComputerName "${SHORT_HOSTNAME}"
-
-              # The Bonjour/mDNS name. It usually ends in .local but for some reason
-              # GitHub runners have it set to the short hostname.
-              sudo scutil --set LocalHostName "${SHORT_HOSTNAME}"
-
-              # The FQDN of the system
-              sudo scutil --set HostName "${HOSTNAME}"
+              sudo scutil --set ComputerName "${SHORT_HOSTNAME}" # User-friendly name
+              sudo scutil --set LocalHostName "${SHORT_HOSTNAME}" # The Bonjour/mDNS name
+              sudo scutil --set HostName "${HOSTNAME}" # The system hostname
 
               sudo dscacheutil -flushcache
             else
