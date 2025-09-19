@@ -36,8 +36,7 @@ runs:
         # This is the correct FQDN that that matches the runner's IP address.
         # Due to a bug/misconfiguration, the actual hostname of the runner is something else.
         #
-        # *If* the runner FQDN is not in /etc/hosts, we fix it by finding the correct entry in /etc/hosts
-        # and setting the hostname accordingly.
+        # If the runner FQDN is not in /etc/hosts, we find the correct entry in /etc/hosts and update the hostname.
 
         if ! grep -qF "$RUNNER_FQDN" /etc/hosts; then
             echo "Runner hostname $RUNNER_FQDN not found in /etc/hosts. Updating hostname to match /etc/hosts."
