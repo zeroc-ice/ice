@@ -17,9 +17,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -501,5 +504,46 @@ public class Utils {
         }
     }
 
-    private Utils() {}
+    /**
+     * Get the path to the icegridadmin executable. Searches the PATH environment variable on Unix-like systems.
+     * On Windows, it simply returns "icegridadmin" since the working directory is searched first.
+     *
+     * @return the path to the icegridadmin executable
+     */
+    static String getIceGridAdmin() {
+        final String exe = "icegridadmin";
+
+        // Windows checks the working directory first when running an executable. The IceGrid GUI is always started
+        // from the same directory as icegridadmin so don't need to search for anything.
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            return exe;
+        }
+
+        String path = System.getenv("PATH");
+
+        ArrayList<String> searchDirs = new ArrayList<>();
+        if (path != null) {
+            Collections.addAll(searchDirs, path.split(File.pathSeparator));
+        }
+
+        // Add the default brew bin directory to the search list on macOS.
+        if (System.getProperty("os.name").startsWith("Mac")) {
+            final String brewPath = "/opt/homebrew/bin";
+            if (!searchDirs.contains(brewPath)) {
+                searchDirs.add(brewPath);
+            }
+        }
+
+        for (String dir : searchDirs) {
+            File f = new File(dir, exe);
+            if (f.canExecute()) {
+                return f.getAbsolutePath();
+            }
+        }
+
+        return exe;
+    }
+
+    private Utils() {
+    }
 }
