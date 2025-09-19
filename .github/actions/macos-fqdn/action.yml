@@ -17,7 +17,7 @@ runs:
   steps:
     - name: Print host info
       shell: bash
-      run: &print_host_info |
+      run: |
         echo "ComputerName: $(scutil --get ComputerName)"
         echo "LocalHostName: $(scutil --get LocalHostName)"
         echo "HostName: $(scutil --get HostName)"
@@ -33,8 +33,8 @@ runs:
 
         # GitHub macOS runners will always have an entry for the hostname in /etc/hosts.
         # For example: 192.168.64.24 iad20-fj917_6cae4d32-d0ce-456c-8173-514448759e72-FE7BB458E416.local iad20-fj917_6cae4d32-d0ce-456c-8173-514448759e72-FE7BB458E416
-        # This is the correct FQDN that that matches the runner's IP address.
-        # Due to a bug/misconfiguration, the actual hostname of the runner is something else.
+        # This is the correct FQDN that matches the runner's IP address.
+        # Due to a bug/misconfiguration, the actual hostname of the runner is sometimes something else.
         #
         # If the runner FQDN is not in /etc/hosts, we find the correct entry in /etc/hosts and update the hostname.
 
@@ -62,4 +62,11 @@ runs:
 
     - name: Print host info
       shell: bash
-      run: *print_host_info
+      run: |
+        echo "ComputerName: $(scutil --get ComputerName)"
+        echo "LocalHostName: $(scutil --get LocalHostName)"
+        echo "HostName: $(scutil --get HostName)"
+        echo "FQDN: $(hostname -f)"
+        echo "Short hostname: $(hostname -s)"
+        echo "/etc/hosts:"
+        cat /etc/hosts
