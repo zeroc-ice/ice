@@ -110,12 +110,12 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: macOS FQDN Fix
         uses: ./.github/actions/macos-fqdn
         if: runner.os == 'macOS'
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Setup C++
         uses: ./.github/actions/setup-cpp
