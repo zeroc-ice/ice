@@ -5,10 +5,7 @@ import TestCommon
 
 class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
-        var initData = Ice.InitializationData()
-        initData.properties = try createTestProperties(args)
-        initData.sliceLoader = DefaultSliceLoader("IceScope")
-        let communicator = try initialize(initData)
+        let communicator = try initialize(args)
         defer {
             communicator.destroy()
         }

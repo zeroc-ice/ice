@@ -9,10 +9,7 @@ public class Client: TestHelperI, @unchecked Sendable {
         properties.setProperty(
             key: "Ice.Default.Locator",
             value: "locator:\(getTestEndpoint(properties: properties, num: 0))")
-        var initData = Ice.InitializationData()
-        initData.properties = properties
-
-        let communicator = try initialize(initData)
+        let communicator = try initialize(Ice.InitializationData(properties: properties))
         defer {
             communicator.destroy()
         }

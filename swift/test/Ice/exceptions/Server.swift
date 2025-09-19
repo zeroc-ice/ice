@@ -12,9 +12,7 @@ class Server: TestHelperI, @unchecked Sendable {
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
         properties.setProperty(key: "Ice.MessageSizeMax", value: "10")  // 10KB max
 
-        var initData = Ice.InitializationData()
-        initData.properties = properties
-        initData.sliceLoader = DefaultSliceLoader("IceExceptions")
+        let initData = Ice.InitializationData(properties: properties, sliceLoader: DefaultSliceLoader("IceExceptions"))
 
         let communicator = try initialize(initData)
         defer {

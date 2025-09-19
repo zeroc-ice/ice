@@ -13,10 +13,7 @@ class Server: TestHelperI, @unchecked Sendable {
         //
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.ThreadPool.Server.Size", value: "2")
-        var initData = Ice.InitializationData()
-        initData.properties = properties
-
-        let communicator = try initialize(initData)
+        let communicator = try initialize(Ice.InitializationData(properties: properties))
         defer {
             communicator.destroy()
         }

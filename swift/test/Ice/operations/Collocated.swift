@@ -22,9 +22,7 @@ class Collocated: TestHelperI, @unchecked Sendable {
         //
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
 
-        var initData = Ice.InitializationData()
-        initData.properties = properties
-        initData.sliceLoader = DefaultSliceLoader("IceOperations")
+        let initData = Ice.InitializationData(properties: properties, sliceLoader: DefaultSliceLoader("IceOperations"))
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

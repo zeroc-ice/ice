@@ -5,9 +5,8 @@ import TestCommon
 
 class Server: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
-        var initData = Ice.InitializationData()
-        initData.properties = try createTestProperties(args)
-        initData.sliceLoader = DefaultSliceLoader("IceServantLocator")
+        let initData = try Ice.InitializationData(
+            properties: createTestProperties(args), sliceLoader: DefaultSliceLoader("IceServantLocator"))
         let communicator = try initialize(initData)
         defer {
             communicator.destroy()

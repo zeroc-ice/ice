@@ -137,9 +137,7 @@ func allTests(_ helper: TestHelper) async throws {
         properties.setProperty(key: "Ice.Admin.Endpoints", value: "tcp -h 127.0.0.1")
         properties.setProperty(key: "Ice.Admin.InstanceName", value: "Test")
 
-        var initData = Ice.InitializationData()
-        initData.properties = properties
-        let com = try Ice.initialize(initData)
+        let com = try Ice.initialize(Ice.InitializationData(properties: properties))
         try testFacets(com: com, builtInFacets: true, helper: helper)
         com.destroy()
     }
@@ -152,9 +150,7 @@ func allTests(_ helper: TestHelper) async throws {
         properties.setProperty(key: "Ice.Admin.Endpoints", value: "tcp -h 127.0.0.1")
         properties.setProperty(key: "Ice.Admin.InstanceName", value: "Test")
         properties.setProperty(key: "Ice.Admin.Facets", value: "Properties")
-        var initData = Ice.InitializationData()
-        initData.properties = properties
-        let com = try Ice.initialize(initData)
+        let com = try Ice.initialize(Ice.InitializationData(properties: properties))
         try testFacets(com: com, builtInFacets: false, helper: helper)
         com.destroy()
     }
@@ -174,9 +170,7 @@ func allTests(_ helper: TestHelper) async throws {
         //
         let properties = Ice.createProperties()
         properties.setProperty(key: "Ice.Admin.Enabled", value: "1")
-        var initData = Ice.InitializationData()
-        initData.properties = properties
-        let com = try Ice.initialize(initData)
+        let com = try Ice.initialize(Ice.InitializationData(properties: properties))
         try test(com.getAdmin() == nil)
         let id = try Ice.stringToIdentity("test-admin")
         do {
@@ -200,9 +194,7 @@ func allTests(_ helper: TestHelper) async throws {
         properties.setProperty(key: "Ice.Admin.Endpoints", value: "tcp -h 127.0.0.1")
         properties.setProperty(key: "Ice.Admin.InstanceName", value: "Test")
         properties.setProperty(key: "Ice.Admin.DelayCreation", value: "1")
-        var initData = Ice.InitializationData()
-        initData.properties = properties
-        let com = try Ice.initialize(initData)
+        let com = try Ice.initialize(Ice.InitializationData(properties: properties))
         try testFacets(com: com, builtInFacets: true, helper: helper)
         _ = try com.getAdmin()
         try testFacets(com: com, builtInFacets: true, helper: helper)
