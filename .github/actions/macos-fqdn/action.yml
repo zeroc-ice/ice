@@ -18,7 +18,6 @@ runs:
     - name: Print host info
       shell: bash
       run: &print_host_info |
-        echo "Initial hostname settings:"
         echo "ComputerName: $(scutil --get ComputerName)"
         echo "LocalHostName: $(scutil --get LocalHostName)"
         echo "HostName: $(scutil --get HostName)"
