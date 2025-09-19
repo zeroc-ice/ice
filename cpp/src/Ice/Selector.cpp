@@ -131,6 +131,7 @@ Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int 
                 Ice::Error out(_instance->initializationData().logger);
                 out << "couldn't dequeue packet from completion port:\n" << ex;
                 this_thread::sleep_for(5s); // Sleep 5s to avoid looping
+                throw ex;
             }
         }
         AsyncInfo* info = static_cast<AsyncInfo*>(ol);
