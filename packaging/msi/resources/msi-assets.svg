@@ -429,11 +429,103 @@
        inkscape:collect="always"
        xlink:href="#linearGradient950"
        id="linearGradient952"
-       x1="24.856064"
-       y1="239.15431"
-       x2="-44.22105"
-       y2="280.44748"
+       x1="53.364883"
+       y1="258.26547"
+       x2="-74.862106"
+       y2="259.59894"
        gradientUnits="userSpaceOnUse" />
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1139">
+      <rect
+         style="fill:#6c6753;fill-opacity:1;stroke:none;stroke-width:0.46098217"
+         id="rect1141"
+         width="52.595219"
+         height="82.550011"
+         x="0"
+         y="214.45" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1139-3">
+      <rect
+         style="fill:#6c6753;fill-opacity:1;stroke:none;stroke-width:0.46098217"
+         id="rect1141-2"
+         width="52.595219"
+         height="82.550011"
+         x="0"
+         y="214.45" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1139-3-6">
+      <rect
+         style="fill:#6c6753;fill-opacity:1;stroke:none;stroke-width:0.46098217"
+         id="rect1141-2-0"
+         width="52.595219"
+         height="82.550011"
+         x="0"
+         y="214.45" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1235">
+      <rect
+         style="fill:#55d400;fill-opacity:1;stroke:none;stroke-width:0.06907123"
+         id="rect1237"
+         width="130.43959"
+         height="82.550003"
+         x="0"
+         y="214.45"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96"
+         ry="0"
+         clip-path="url(#clipPath1139-3)"
+         transform="matrix(0.8993994,0,0,0.99999999,0,1.1261049e-6)" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1139-3-6-0">
+      <rect
+         style="fill:#6c6753;fill-opacity:1;stroke:none;stroke-width:0.46098217"
+         id="rect1141-2-0-8"
+         width="52.595219"
+         height="82.550011"
+         x="0"
+         y="214.45" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1266">
+      <rect
+         style="fill:#55d400;fill-opacity:1;stroke:none;stroke-width:0.06907123"
+         id="rect1268"
+         width="130.43959"
+         height="82.550003"
+         x="0"
+         y="214.45"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96"
+         ry="0"
+         clip-path="url(#clipPath1139-3-6)"
+         transform="matrix(0.84534534,0,0,0.99999999,0,1.1261049e-6)" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1270">
+      <rect
+         style="fill:#55d400;fill-opacity:1;stroke:none;stroke-width:0.06907123"
+         id="rect1272"
+         width="130.43959"
+         height="82.550003"
+         x="0"
+         y="214.45"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96"
+         ry="0"
+         clip-path="url(#clipPath1139-3-6-0)"
+         transform="matrix(0.84534534,0,0,0.99999999,0,1.1261049e-6)" />
+    </clipPath>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -442,9 +534,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="23.628805"
-     inkscape:cy="176.20259"
+     inkscape:zoom="3.3503521"
+     inkscape:cx="127.72649"
+     inkscape:cy="132.97676"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -497,7 +589,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -506,6 +598,15 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-190.26202)">
+    <rect
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.89400917"
+       id="rect1274"
+       width="130.43959"
+       height="82.550034"
+       x="0"
+       y="214.45"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <image
        y="190.26202"
        x="0"
@@ -525,7 +626,8 @@
        height="82.550003"
        width="130.43959"
        inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
+       inkscape:export-ydpi="96"
+       clip-path="url(#clipPath1270)" />
     <rect
        style="fill:url(#linearGradient952);fill-opacity:1;stroke:none;stroke-width:0.06907123"
        id="rect21"
@@ -535,7 +637,8 @@
        y="214.45"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96"
-       ry="0" />
+       ry="0"
+       clip-path="url(#clipPath1266)" />
     <rect
        style="fill:url(#linearGradient6325-9);fill-opacity:1;stroke:none;stroke-width:0.02978063"
        id="rect21-0"
