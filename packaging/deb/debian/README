@@ -3,7 +3,7 @@ ZeroC Ice DEB Distribution
 
 The ZeroC Ice DEB distribution includes the following packages.
 
-Currently, the distribution supports Ubuntu 24.04 and Debian 12, for both amd64 and arm64 architectures.
+Currently, the distribution supports Ubuntu 24.04, Debian 12, and Debian 13, for both amd64 and arm64 architectures.
 
 DEB Package              Description
 -----------------------  ---------------------------------------------------------------

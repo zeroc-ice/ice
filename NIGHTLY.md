@@ -87,17 +87,27 @@ Here’s an example configuration using Kotlin DSL:
 // settings.gradle.kts
 pluginManagement {
     repositories {
-        mavenLocal()
-        maven("https://download.zeroc.com/nexus/repository/maven-nightly/")
-        gradlePluginPortal() // Keep this to allow fetching other plugins
+        gradlePluginPortal()
+        // This demo uses the nightly build of the Slice Tools plugin, published to the ZeroC Maven Nightly repository.
+        maven {
+            url = uri("https://download.zeroc.com/nexus/repository/maven-nightly/")
+            content {
+                includeGroupByRegex("com\\.zeroc.*")
+            }
+        }
     }
 }
 
 dependencyResolutionManagement {
     repositories {
-        // This demo uses the latest Ice nightly build published to the ZeroC maven-nightly repository.
-        maven("https://download.zeroc.com/nexus/repository/maven-nightly/")
         mavenCentral()
+        // This demo uses the nightly build of Ice, published to the ZeroC Maven Nightly repository.
+        maven {
+            url = uri("https://download.zeroc.com/nexus/repository/maven-nightly/")
+            content {
+                includeGroupByRegex("com\\.zeroc.*")
+            }
+        }
     }
 }
 ```
