@@ -21,6 +21,9 @@
         <!-- Embed CAB files in MSI -->
         <MediaTemplate EmbedCab="yes" />
 
+        <!-- Default settings -->
+        <Property Id="ADD_TO_PATH" Value="1" />
+
         <!-- Reference the UI Fragment -->
         <PropertyRef Id="UiFragment"/>
 

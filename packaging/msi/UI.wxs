@@ -15,7 +15,6 @@
 
         <!-- Customize Exit Dialog -->
         <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="View Release Notes" />
-        <Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="You need to reboot your computer to get the updated system path." />
 
         <!-- Use the default WixUI_InstallDir dialog set and personalize the license an images -->
         <WixVariable Id="WixUILicenseRtf" Value="!(bindpath.SOURCE_ROOT)packaging\msi\docs\LICENSE.rtf"/>
