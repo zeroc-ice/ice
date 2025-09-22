@@ -74,12 +74,12 @@ $(project)_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 
 icegridnode_sources             := $(addprefix $(currentdir)/,$(local_node_srcs) $(local_registry_srcs) IceGridNode.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/Lookup.ice
-icegridnode_dependencies        := IceBox IceStormService IceStorm
+icegridnode_dependencies        := IceStormService IceStorm
 icegridnode_libs                := expat lmdb
 
 icegridregistry_sources         := $(addprefix $(currentdir)/,$(local_registry_srcs) IceGridRegistry.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/Lookup.ice
-icegridregistry_dependencies    := IceBox IceStormService IceStorm
+icegridregistry_dependencies    := IceStormService IceStorm
 icegridregistry_libs            := expat lmdb
 
 icegridadmin_sources            := $(addprefix $(currentdir)/,$(local_admin_srcs))
