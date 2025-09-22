@@ -180,9 +180,6 @@ getPassword(const string& prompt)
     return IceInternal::trim(password);
 }
 
-extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
-createIceLocatorDiscovery(const shared_ptr<Ice::Communicator>&, const string&, const Ice::StringSeq&);
-
 int
 run(const Ice::StringSeq& args)
 {
@@ -329,14 +326,14 @@ run(const Ice::StringSeq& args)
             }
             else
             {
-                //
-                // NOTE: we don't configure the plugin with the Ice communicator on initialization
-                // because it would install a default locator. Instead, we create the plugin here
-                // to lookup for locator proxies. We destroy the plugin, once we have selected a
-                // locator.
-                //
-                shared_ptr<Ice::Plugin> pluginObj(
-                    createIceLocatorDiscovery(communicator, "IceGridAdmin.Discovery", Ice::StringSeq()));
+                // NOTE: we don't configure the plugin with the Ice communicator on initialization because it would
+                // install a default locator. Instead, we create the plugin here to lookup for locator proxies. We
+                // destroy the plugin, once we have selected a locator.
+                Ice::PluginFactory pluginFactory = IceLocatorDiscovery::locatorDiscoveryPluginFactory();
+
+                shared_ptr<Ice::Plugin> pluginObj{
+                    pluginFactory.factoryFunc(communicator, pluginFactory.pluginName, Ice::StringSeq())};
+
                 auto plugin = dynamic_pointer_cast<IceLocatorDiscovery::Plugin>(pluginObj);
                 plugin->initialize();
 
