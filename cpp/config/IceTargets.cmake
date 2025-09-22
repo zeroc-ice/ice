@@ -85,25 +85,8 @@ if(WIN32)
     endif()
   endfunction()
 
-  # Find all executables in the bin directories
-  file(GLOB ICE_EXECUTABLES
-       "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Release/*.exe"
-       "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug/*.exe")
-
-  # Get unique executable names without path and extension
-  set(ICE_EXE_NAMES)
-  foreach(exe_path ${ICE_EXECUTABLES})
-    get_filename_component(exe_name ${exe_path} NAME_WE)
-    list(APPEND ICE_EXE_NAMES ${exe_name})
-  endforeach()
-
-  # Remove duplicates (debug/release variants)
-  list(REMOVE_DUPLICATES ICE_EXE_NAMES)
-
-  # Create imported targets for each executable
-  foreach(exe ${ICE_EXE_NAMES})
-    add_ice_executable(${exe})
-  endforeach()
+  add_ice_executable(icebox)
+  add_ice_executable(iceboxadmin)
 endif()
 
 # Adds an Ice:<component> target with the specified link libraries
