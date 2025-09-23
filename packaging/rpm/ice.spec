@@ -302,10 +302,10 @@ your application logic.
 # icebridge package
 #
 %package -n %{?nameprefix}icebridge
-Summary: Ice bridge.
+Summary: IceBridge service.
 Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
 %description -n %{?nameprefix}icebridge
-This package contains the Ice bridge. The Ice bridge allows you to bridge
+This package contains the IceBridge service. IceBridge allows you to bridge
 connections securely between one or multiple clients and a server. It
 relays requests from clients to a target server and makes every effort
 to be as transparent as possible.
