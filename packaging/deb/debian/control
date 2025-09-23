@@ -63,12 +63,14 @@ Description: C++ run-time libraries for the Ice framework
  network programming interfaces and allows you to focus your efforts on
  your application logic.
 
-Package: libzeroc-icestorm3.8
+Package: zeroc-icestorm
 Architecture: any
 Multi-Arch: same
 Section: net
 Pre-Depends: ${misc:Pre-Depends}
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         zeroc-icebox (= ${binary:Version}),
+         zeroc-ice-utils (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: IceStorm publish-subscribe event distribution service
@@ -221,7 +223,8 @@ Architecture: any
 Multi-Arch: foreign
 Section: net
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
-         libzeroc-icestorm3.8 (= ${binary:Version}),
+         zeroc-icestorm (= ${binary:Version}),
+         zeroc-ice-utils (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: Locate, deploy, and manage Ice servers
