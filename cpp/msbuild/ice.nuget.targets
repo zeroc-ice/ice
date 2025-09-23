@@ -6,7 +6,9 @@
 
     <!-- Dynamic libraries and import libraries -->
     <ItemGroup>
-        <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll" />
+        <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
+                   Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormservice*.dll;
+                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libexpat*.dll" />
 
         <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
                          Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
@@ -19,7 +21,7 @@
         <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe" />
 
         <!-- The included executables -->
-        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebox*.exe" />
+        <Executables Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icebox.exe" />
     </ItemGroup>
 
     <!-- public C++ header and Slice files -->
