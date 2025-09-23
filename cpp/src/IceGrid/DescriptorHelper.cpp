@@ -127,10 +127,6 @@ namespace
         {
             return false;
         }
-        if (lhs.registerProcess != rhs.registerProcess)
-        {
-            return false;
-        }
         if (lhs.serverLifetime != rhs.serverLifetime)
         {
             return false;
@@ -1118,7 +1114,6 @@ CommunicatorHelper::instantiateImpl(const shared_ptr<CommunicatorDescriptor>& in
         adapter.name = resolve(p->name, "object adapter name", false);
         adapter.description = resolve(p->description, "object adapter description");
         adapter.id = resolve.asId(p->id, "object adapter id");
-        adapter.registerProcess = p->registerProcess;
         adapter.serverLifetime = p->serverLifetime;
         adapter.replicaGroupId = resolve.asId(p->replicaGroupId, "object adapter replica group id", true);
 
@@ -1246,7 +1241,6 @@ CommunicatorHelper::printObjectAdapter(
     {
         out << nl << "proxy options = '" << proxyOptions << "'";
     }
-    out << nl << "register process = '" << (adapter.registerProcess ? "true" : "false") << "'";
     out << nl << "server lifetime = '" << (adapter.serverLifetime ? "true" : "false") << "'";
     for (const auto& object : adapter.objects)
     {

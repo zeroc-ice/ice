@@ -93,7 +93,6 @@ allTests(Test::TestHelper* helper)
         AdapterDescriptor adapter;
         adapter.name = "Server";
         adapter.id = "ServerAdapter";
-        adapter.registerProcess = false;
         adapter.serverLifetime = false;
         addProperty(server, "Server.Endpoints", "default");
         ObjectDescriptor object;
@@ -159,7 +158,6 @@ allTests(Test::TestHelper* helper)
         adapter = AdapterDescriptor();
         adapter.name = "Server";
         adapter.id = "${server}";
-        adapter.registerProcess = false;
         adapter.serverLifetime = false;
         addProperty(server, "Server.Endpoints", "default");
         object = ObjectDescriptor();
@@ -364,7 +362,6 @@ allTests(Test::TestHelper* helper)
         adapter = AdapterDescriptor();
         adapter.id = "Server1";
         adapter.serverLifetime = false;
-        adapter.registerProcess = false;
         info.descriptor->adapters.push_back(adapter);
         update = empty;
         update.nodes[0].servers.push_back(info.descriptor);
@@ -388,7 +385,6 @@ allTests(Test::TestHelper* helper)
         adapter = AdapterDescriptor();
         adapter.id = "ServerX";
         adapter.serverLifetime = false;
-        adapter.registerProcess = false;
         object = ObjectDescriptor();
         object.id = Ice::stringToIdentity("test");
         adapter.objects.push_back(object);
@@ -535,7 +531,6 @@ allTests(Test::TestHelper* helper)
         AdapterDescriptor adapter;
         adapter.name = "${service}";
         adapter.id = "${server}.${service}";
-        adapter.registerProcess = false;
         adapter.serverLifetime = false;
         addProperty(service, "${service}.Endpoints", "default");
         service->adapters.push_back(adapter);
@@ -1153,7 +1148,6 @@ allTests(Test::TestHelper* helper)
         AdapterDescriptor adapter;
         adapter.name = "Server";
         adapter.id = "ServerAdapter";
-        adapter.registerProcess = false;
         adapter.serverLifetime = true;
         server->adapters.push_back(adapter);
         addProperty(server, "Server.Endpoints", "default");
