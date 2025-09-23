@@ -172,12 +172,14 @@ network programming interfaces and allows you to focus your efforts on
 your application logic.
 
 #
-# libicestorm3.8 package
+# icestorm package
 #
-%package -n lib%{?nameprefix}icestorm3.8
+%package -n %{?nameprefix}icestorm
 Summary: IceStorm publish-subscribe event distribution service.
 Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
-%description -n lib%{?nameprefix}icestorm3.8
+Requires: %{?nameprefix}icebox = %{version}-%{release}
+Requires: %{?nameprefix}ice-utils = %{version}-%{release}
+%description -n %{?nameprefix}icestorm
 This package contains the IceStorm publish-subscribe event distribution
 service.
 
@@ -246,6 +248,7 @@ your application logic.
 %package -n %{?nameprefix}icegrid
 Summary: Locate, deploy, and manage Ice servers.
 Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: %{?nameprefix}icestorm = %{version}-%{release}
 Requires: %{?nameprefix}ice-utils = %{version}-%{release}
 # Requirements for the users
 Requires(pre): %{shadow}
@@ -510,13 +513,13 @@ exit 0
 #
 # libicestorm-Mm package
 #
-%files -n lib%{?nameprefix}icestorm3.8
+%files -n %{?nameprefix}icestorm
 %license LICENSE
 %license ICE_LICENSE
 %doc packaging/rpm/README
 %{_libdir}/libIceStormService.so.*
-%post -n lib%{?nameprefix}icestorm3.8 -p /sbin/ldconfig
-%postun -n lib%{?nameprefix}icestorm3.8
+%post -n %{?nameprefix}icestorm  -p /sbin/ldconfig
+%postun -n %{?nameprefix}icestorm
 /sbin/ldconfig
 exit 0
 

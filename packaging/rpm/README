@@ -11,6 +11,7 @@ dsnode                  DataStorm server
 glacier2                Glacier2 service
 ice-slice               Slice definition files
 ice-utils               Utilities for administering an Ice installation
+ice2slice               The Ice to Slice compiler.
 icebox                  IceBox server for C++
 icebridge               IceBridge service
 icegrid                 IceGrid service
