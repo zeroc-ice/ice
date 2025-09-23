@@ -36,7 +36,7 @@ SessionControlClient::run(int argc, char** argv)
     cout << "accessing test controller... " << flush;
     Ice::InitializationData initData;
     initData.properties = communicator->getProperties();
-    auto controlComm = Ice::initialize(argc, argv, initData);
+    auto controlComm = Ice::initialize(initData);
     auto controller =
         checkedCast<TestControllerPrx>(controlComm->stringToProxy("testController:" + getTestEndpoint(2, "tcp")));
     test(controller);

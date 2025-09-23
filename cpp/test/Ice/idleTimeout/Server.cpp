@@ -21,7 +21,7 @@ Server::run(int argc, char** argv)
     // Serialize dispatches on each incoming connection.
     initData.properties->setProperty("TestAdapter.Connection.MaxDispatches", "1");
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));

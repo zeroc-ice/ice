@@ -142,48 +142,23 @@ Ice::CommunicatorPtr
 Ice::initialize(InitializationData initData)
 {
     CommunicatorPtr communicator = Communicator::create(std::move(initData));
-    int argc = 0;
-    const char* argv[] = {nullptr};
-    communicator->finishSetup(argc, argv);
+    communicator->finishSetup();
     return communicator;
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const char* argv[], InitializationData initData)
+Ice::initialize(int& argc, const char* argv[])
 {
-    initData.properties = createProperties(argc, argv, initData.properties);
-
-    CommunicatorPtr communicator = Communicator::create(std::move(initData));
-    communicator->finishSetup(argc, argv);
-    return communicator;
-}
-
-Ice::CommunicatorPtr
-Ice::initialize(int& argc, const char* argv[], string_view configFile)
-{
-    InitializationData initData;
-    initData.properties = createProperties();
-    initData.properties->load(configFile);
-    return initialize(argc, argv, std::move(initData));
+    InitializationData initData{.properties = createProperties(argc, argv)};
+    return initialize(std::move(initData));
 }
 
 #ifdef _WIN32
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const wchar_t* argv[], InitializationData initData)
+Ice::initialize(int& argc, const wchar_t* argv[])
 {
-    Ice::StringSeq args = argsToStringSeq(argc, argv);
-    CommunicatorPtr communicator = initialize(args, std::move(initData));
-    stringSeqToArgs(args, argc, argv);
-    return communicator;
-}
-
-Ice::CommunicatorPtr
-Ice::initialize(int& argc, const wchar_t* argv[], string_view configFile)
-{
-    InitializationData initData;
-    initData.properties = createProperties();
-    initData.properties->load(configFile);
-    return initialize(argc, argv, std::move(initData));
+    InitializationData initData{.properties = createProperties(argc, argv)};
+    return initialize(std::move(initData));
 }
 #endif
 

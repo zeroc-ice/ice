@@ -333,7 +333,7 @@ namespace Ice
         static CommunicatorPtr create(InitializationData);
 
         // Certain initialization tasks need to be completed after the constructor.
-        void finishSetup(int&, const char*[]);
+        void finishSetup();
 
         [[nodiscard]] IceInternal::ReferencePtr _stringToProxy(std::string_view str) const;
         [[nodiscard]] IceInternal::ReferencePtr _propertyToProxy(std::string_view property) const;

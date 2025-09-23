@@ -1349,9 +1349,8 @@ IceInternal::Instance::~Instance()
     }
 }
 
-// TODO: remove argc/argv.
 void
-IceInternal::Instance::finishSetup(int&, const char*[], const Ice::CommunicatorPtr& communicator)
+IceInternal::Instance::finishSetup(const Ice::CommunicatorPtr& communicator)
 {
     // Load plug-ins.
     assert(!_serverThreadPool);

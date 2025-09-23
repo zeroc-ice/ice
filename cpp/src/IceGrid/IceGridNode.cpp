@@ -54,7 +54,7 @@ namespace
         bool startImpl(int, char*[], int&);
         void waitForShutdown() override;
         bool stop() override;
-        CommunicatorPtr initializeCommunicator(int&, char*[], InitializationData) override;
+        CommunicatorPtr initializeCommunicator(InitializationData) override;
 
     private:
         void usage(const std::string&);
@@ -699,10 +699,8 @@ NodeService::stop()
 }
 
 CommunicatorPtr
-NodeService::initializeCommunicator(int& argc, char* argv[], InitializationData initData)
+NodeService::initializeCommunicator(InitializationData initData)
 {
-    initData.properties = createProperties(argc, argv, initData.properties);
-
     // If IceGrid.Registry.[Admin]PermissionsVerifier is not set and
     // IceGrid.Registry.[Admin]CryptPasswords is set, load the
     // Glacier2CryptPermissionsVerifier plug-in
@@ -760,7 +758,7 @@ NodeService::initializeCommunicator(int& argc, char* argv[], InitializationData 
     //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
 
-    return Service::initializeCommunicator(argc, argv, std::move(initData));
+    return Service::initializeCommunicator(std::move(initData));
 }
 
 void

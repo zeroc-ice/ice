@@ -29,7 +29,7 @@ void ::Writer::run(int argc, char* argv[])
             customExecutor = [](const function<void()>& cb) { cb(); };
         }
     }
-    Node node(argc, argv, nullopt, customExecutor);
+    Node node{argc, argv, customExecutor};
 
     WriterConfig config;
     config.sampleCount = -1; // Unlimited sample count

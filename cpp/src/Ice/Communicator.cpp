@@ -350,11 +350,11 @@ Ice::Communicator::~Communicator()
 }
 
 void
-Ice::Communicator::finishSetup(int& argc, const char* argv[])
+Ice::Communicator::finishSetup()
 {
     try
     {
-        _instance->finishSetup(argc, argv, shared_from_this());
+        _instance->finishSetup(shared_from_this());
     }
     catch (...)
     {

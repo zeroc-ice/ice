@@ -120,7 +120,7 @@ Server::run(int argc, char** argv)
     string defaultProtocol = properties->getIceProperty("Ice.Default.Protocol");
     properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
-    CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
+    CommunicatorHolder communicator{initialize(std::move(initData))};
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));

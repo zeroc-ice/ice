@@ -26,7 +26,7 @@ Server::run(int argc, char** argv)
         initData.pluginFactories = {Ice::udpPluginFactory(), IceDiscovery::discoveryPluginFactory()};
     }
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
+    Ice::CommunicatorHolder communicator = initialize(std::move(initData));
     Ice::PropertiesPtr properties = communicator->getProperties();
 
     int num = argc == 2 ? stoi(argv[1]) : 0;

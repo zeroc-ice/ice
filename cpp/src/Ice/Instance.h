@@ -128,7 +128,7 @@ namespace IceInternal
     private:
         Instance(Ice::InitializationData);
         void initialize(const Ice::CommunicatorPtr&);
-        void finishSetup(int&, const char*[], const Ice::CommunicatorPtr&);
+        void finishSetup(const Ice::CommunicatorPtr&);
         void destroy() noexcept;
         void destroyAsync(std::function<void()> completed) noexcept;
 

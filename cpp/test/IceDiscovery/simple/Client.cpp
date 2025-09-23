@@ -25,7 +25,7 @@ Client::run(int argc, char** argv)
         initData.pluginFactories = {IceDiscovery::discoveryPluginFactory()};
     }
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, std::move(initData));
+    Ice::CommunicatorHolder communicator{initialize(std::move(initData))};
     int num = argc == 2 ? stoi(argv[1]) : 1;
 
     void allTests(Test::TestHelper*, int);

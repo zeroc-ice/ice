@@ -28,7 +28,7 @@ Client::run(int argc, char** argv)
         "1"); // speed up connection establishment test
     CommunicatorObserverIPtr observer = make_shared<CommunicatorObserverI>();
     initData.observer = observer;
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
 
     MetricsPrx allTests(Test::TestHelper*, const CommunicatorObserverIPtr&);
     MetricsPrx metrics = allTests(this, observer);
