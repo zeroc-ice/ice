@@ -207,41 +207,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             data.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
         }
 
-        //
-        // Remaining command line options are passed to the communicator
-        // as an argument vector in case they contain plugin properties.
-        //
-        int ac = static_cast<int>(seq.size());
-        char** av = new char*[ac + 1];
-        int i = 0;
-        for (const auto& s : seq)
-        {
-            av[i++] = strdup(s.c_str());
-        }
-        av[ac] = 0;
-
-        Ice::CommunicatorPtr communicator;
-        try
-        {
-            if (!NIL_P(args))
-            {
-                communicator = Ice::initialize(ac, av, data);
-            }
-            else
-            {
-                communicator = Ice::initialize(data);
-            }
-        }
-        catch (...)
-        {
-            for (i = 0; i < ac + 1; ++i)
-            {
-                free(av[i]);
-            }
-            delete[] av;
-
-            throw;
-        }
+        Ice::CommunicatorPtr communicator = Ice::initialize(data);
 
         //
         // Replace the contents of the given argument list with the filtered arguments.
@@ -253,18 +219,13 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             //
             // We start at index 1 in order to skip the element that we inserted earlier.
             //
-            for (i = 1; i < ac; ++i)
+            for (size_t i = 1; i < seq.size(); ++i)
             {
-                volatile VALUE str = createString(av[i]);
+                volatile VALUE str = createString(seq[i]);
                 callRuby(rb_ary_push, args, str);
             }
         }
 
-        for (i = 0; i < ac + 1; ++i)
-        {
-            free(av[i]);
-        }
-        delete[] av;
 
         VALUE result = TypedData_Wrap_Struct(
             _communicatorClass,
