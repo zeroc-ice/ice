@@ -5,27 +5,26 @@ local_node_srcs         = Activator.cpp \
                           NodeI.cpp \
                           NodeSessionManager.cpp \
                           ServerAdapterI.cpp \
-                          ServerI.cpp \
-                          XMLParser.cpp \
-                          ../Glacier2/CryptPermissionsVerifier.cpp \
-                          ../IceDB/IceDB.cpp
+                          ServerI.cpp
+
+# icegridregistry needs XML parsing (expat etc.) because of the default templates configured using
+# IceGrid.Registry.DefaultTemplates.
 
 local_registry_srcs     = Internal.ice \
-                          AdminRouter.cpp \
-                          DescriptorBuilder.cpp \
-                          DescriptorParser.cpp \
-                          FileCache.cpp \
-                          PlatformInfo.cpp \
-                          SessionManager.cpp \
-                          TraceLevels.cpp \
-                          AdminCallbackRouter.cpp \
+                          ../Glacier2/CryptPermissionsVerifier.cpp \
+                          ../IceDB/IceDB.cpp \
                           AdapterCache.cpp \
+                          AdminCallbackRouter.cpp \
                           AdminI.cpp \
+                          AdminRouter.cpp \
                           AdminSessionI.cpp \
                           Allocatable.cpp \
                           AllocatableObjectCache.cpp \
                           Database.cpp \
+                          DescriptorBuilder.cpp \
                           DescriptorHelper.cpp \
+                          DescriptorParser.cpp \
+                          FileCache.cpp \
                           FileUserAccountMapperI.cpp \
                           InternalRegistryI.cpp \
                           LocatorI.cpp \
@@ -33,6 +32,7 @@ local_registry_srcs     = Internal.ice \
                           NodeCache.cpp \
                           NodeSessionI.cpp \
                           ObjectCache.cpp \
+                          PlatformInfo.cpp \
                           PluginFacadeI.cpp \
                           QueryI.cpp \
                           ReapThread.cpp \
@@ -43,14 +43,14 @@ local_registry_srcs     = Internal.ice \
                           ReplicaSessionManager.cpp \
                           ServerCache.cpp \
                           SessionI.cpp \
+                          SessionManager.cpp \
                           SessionServantManager.cpp \
                           SynchronizationException.cpp \
                           Topics.cpp \
+                          TraceLevels.cpp \
                           Util.cpp \
                           WellKnownObjectsManager.cpp \
-                          XMLParser.cpp \
-                          ../Glacier2/CryptPermissionsVerifier.cpp \
-                          ../IceDB/IceDB.cpp
+                          XMLParser.cpp
 
 local_admin_srcs        = Internal.ice \
                           Client.cpp \
@@ -74,12 +74,12 @@ $(project)_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 
 icegridnode_sources             := $(addprefix $(currentdir)/,$(local_node_srcs) $(local_registry_srcs) IceGridNode.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/Lookup.ice
-icegridnode_dependencies        := IceBox IceStormService IceStorm
+icegridnode_dependencies        := IceStormService IceStorm
 icegridnode_libs                := expat lmdb
 
 icegridregistry_sources         := $(addprefix $(currentdir)/,$(local_registry_srcs) IceGridRegistry.cpp) \
                                    $(slicedir)/IceLocatorDiscovery/Lookup.ice
-icegridregistry_dependencies    := IceBox IceStormService IceStorm $(local_dependencies)
+icegridregistry_dependencies    := IceStormService IceStorm
 icegridregistry_libs            := expat lmdb
 
 icegridadmin_sources            := $(addprefix $(currentdir)/,$(local_admin_srcs))
