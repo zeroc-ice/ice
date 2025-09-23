@@ -15,7 +15,7 @@ zeroc-dsnode             DataStorm server
 zeroc-glacier2           Glacier2 service
 zeroc-ice-ice2slice      The Ice to Slice compiler
 zeroc-ice-slice          Slice definition files
-zeroc-ice-utils          Utilities for administering an Ice installation
+zeroc-ice-utils          Admin utilities for Ice services
 zeroc-icebox             IceBox server for C++
 zeroc-icebridge          IceBridge service
 zeroc-icegrid            IceGrid service
