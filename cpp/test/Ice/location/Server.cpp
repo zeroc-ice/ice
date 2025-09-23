@@ -16,8 +16,7 @@ public:
 void
 Server::run(int argc, char** argv)
 {
-    auto properties = createTestProperties(argc, argv);
-    Ice::InitializationData initData{.properties = properties};
+    Ice::InitializationData initData{.properties = createTestProperties(argc, argv)};
     installTransport(initData);
 
     Ice::CommunicatorHolder communicator = initialize(initData);
@@ -26,7 +25,7 @@ Server::run(int argc, char** argv)
     // 'server' (a server isn't a different process, it's just a new
     // communicator and object adapter).
     //
-    test(properties == communicator->getProperties());
+    auto properties = communicator->getProperties();
     properties->setProperty("Ice.ThreadPool.Server.Size", "2");
     properties->setProperty("ServerManager.Endpoints", getTestEndpoint());
 
@@ -39,10 +38,6 @@ Server::run(int argc, char** argv)
     //
     ServerLocatorRegistryPtr registry = make_shared<ServerLocatorRegistry>();
     registry->addObject(adapter->createProxy(Ice::stringToIdentity("ServerManager")));
-
-    // Make sure we use a separate copy of the properties for this servant, since ServerManagerI clears
-    // Ice.PrintAdapterReady.
-    initData.properties = properties->clone();
 
     Ice::ObjectPtr object = make_shared<ServerManagerI>(registry, initData);
     adapter->add(object, Ice::stringToIdentity("ServerManager"));

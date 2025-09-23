@@ -114,7 +114,8 @@ namespace Ice
     };
 
     /// Creates a new communicator.
-    /// @param initData Options for the new communicator.
+    /// @param initData Options for the new communicator. This function clones the properties of @p initData when not
+    /// null, so that multiple communicators created with the same @p initData do not share the same properties object.
     /// @return The new communicator.
     /// @remark This is the main initialize function. All other overloads are provided for convenience and call this
     /// function.
