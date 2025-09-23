@@ -7,8 +7,8 @@
     <!-- Dynamic libraries and import libraries -->
     <ItemGroup>
         <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll"
-                   Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.dll;
-                            $(IceSrcRootDir)lib\$(Platform)\$(Configuration)\libexpat*.dll" />
+                   Exclude="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\icestormservice*.dll;
+                            $(IceSrcRootDir)bin\$(Platform)\$(Configuration)\libexpat*.dll" />
 
         <ImportLibraries Include="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\*.lib"
                          Exclude="$(IceSrcRootDir)lib\$(Platform)\$(Configuration)\icestormservice*.lib;
