@@ -22,7 +22,7 @@ will automatically add the task to the project build.
 By default, all `.ice` files in the project directory and its subdirectories are included in the build. You can
 disable this behavior by setting `EnableDefaultSliceCompileItems` to `false`.
 
-For example, to disable automatic inclusion of Slice files, add the following to your `.csproj` file:
+For example, to disable automatic inclusion of Slice files, add the following to your `.vcxproj` file:
 
 ```xml
 <PropertyGroup>
