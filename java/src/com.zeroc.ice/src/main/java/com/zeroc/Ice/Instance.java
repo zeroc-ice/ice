@@ -866,7 +866,8 @@ public final class Instance {
         }
     }
 
-    public String[] finishSetup(String[] args, Communicator communicator) {
+    // TODO: remove args and return void
+    String[] finishSetup(String[] args, Communicator communicator) {
 
         Properties properties = _initData.properties;
         //
@@ -874,7 +875,7 @@ public final class Instance {
         //
         assert (_serverThreadPool == null);
         PluginManagerI pluginManagerImpl = (PluginManagerI) _pluginManager;
-        args = pluginManagerImpl.loadPlugins(args);
+        pluginManagerImpl.loadPlugins();
 
         //
         // Initialize the endpoint factories once all the plugins are loaded. This gives

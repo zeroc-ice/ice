@@ -846,18 +846,19 @@ public sealed class Instance
         }
     }
 
-    public void finishSetup(ref string[] args, Ice.Communicator communicator)
+    // TODO: remove args
+    internal void finishSetup(ref string[] args, Ice.Communicator communicator)
     {
         //
         // Load plug-ins.
         //
         Debug.Assert(_serverThreadPool == null);
         var pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
-        pluginManagerImpl.loadPlugins(ref args);
+        pluginManagerImpl.loadPlugins();
 
         //
         // Initialize the endpoint factories once all the plugins are loaded. This gives
-        // the opportunity for the endpoint factories to find underyling factories.
+        // the opportunity for the endpoint factories to find underlying factories.
         //
         _endpointFactoryManager.initialize();
 

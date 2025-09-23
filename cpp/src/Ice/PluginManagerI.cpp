@@ -174,13 +174,10 @@ Ice::PluginManagerI::destroy() noexcept
 Ice::PluginManagerI::PluginManagerI(CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
 bool
-Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
+Ice::PluginManagerI::loadPlugins()
 {
     assert(_communicator);
-
     bool libraryLoaded = false;
-
-    StringSeq cmdArgs = argsToStringSeq(argc, argv);
 
     const string prefix = "Ice.Plugin.";
     PropertiesPtr properties = _communicator->getProperties();
@@ -195,12 +192,12 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         auto r = plugins.find(key);
         if (r != plugins.end())
         {
-            loadPlugin(pluginFactory.factoryFunc, name, r->second, cmdArgs);
+            loadPlugin(pluginFactory.factoryFunc, name, r->second);
             plugins.erase(r);
         }
         else
         {
-            loadPlugin(pluginFactory.factoryFunc, name, "", cmdArgs);
+            loadPlugin(pluginFactory.factoryFunc, name, "");
         }
     }
 
@@ -227,7 +224,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         auto r = plugins.find(property);
         if (r != plugins.end())
         {
-            libraryLoaded |= loadPlugin(nullptr, name, r->second, cmdArgs);
+            libraryLoaded |= loadPlugin(nullptr, name, r->second);
             plugins.erase(r);
         }
         else
@@ -242,19 +239,14 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
 
     for (const auto& [key, value] : plugins)
     {
-        libraryLoaded |= loadPlugin(nullptr, key.substr(prefix.size()), value, cmdArgs);
+        libraryLoaded |= loadPlugin(nullptr, key.substr(prefix.size()), value);
     }
-    stringSeqToArgs(cmdArgs, argc, argv);
 
     return libraryLoaded;
 }
 
 bool
-Ice::PluginManagerI::loadPlugin(
-    PluginFactoryFunc factoryFunc,
-    const string& name,
-    const string& pluginSpec,
-    StringSeq& cmdArgs)
+Ice::PluginManagerI::loadPlugin(PluginFactoryFunc factoryFunc, const string& name, const string& pluginSpec)
 {
     assert(_communicator);
 
@@ -295,14 +287,9 @@ Ice::PluginManagerI::loadPlugin(
         entryPoint = args[0];
         args.erase(args.begin());
 
-        //
-        // Convert command-line options into properties. First we
-        // convert the options from the plug-in configuration, then
-        // we convert the options from the application command-line.
-        //
+        // Convert command-line options into properties.
         PropertiesPtr properties = _communicator->getProperties();
         args = properties->parseCommandLineOptions(name, args);
-        cmdArgs = properties->parseCommandLineOptions(name, cmdArgs);
     }
 
     if (!factoryFunc)

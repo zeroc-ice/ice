@@ -171,7 +171,7 @@ internal sealed class PluginManagerI : PluginManager
         _initialized = false;
     }
 
-    public void loadPlugins(ref string[] cmdArgs)
+    internal void loadPlugins()
     {
         Debug.Assert(_communicator is not null);
         string prefix = "Ice.Plugin.";
@@ -185,12 +185,12 @@ internal sealed class PluginManagerI : PluginManager
             string key = $"Ice.Plugin.{name}";
             if (plugins.TryGetValue(key, out string? pluginSpec))
             {
-                loadPlugin(pluginFactory, name, pluginSpec, ref cmdArgs);
+                loadPlugin(pluginFactory, name, pluginSpec);
                 plugins.Remove(key);
             }
             else
             {
-                loadPlugin(pluginFactory, name, "", ref cmdArgs);
+                loadPlugin(pluginFactory, name, "");
             }
         }
 
@@ -228,7 +228,7 @@ internal sealed class PluginManagerI : PluginManager
             plugins.TryGetValue(key, out string? value);
             if (value is not null)
             {
-                loadPlugin(null, loadOrder[i], value, ref cmdArgs);
+                loadPlugin(null, loadOrder[i], value);
                 plugins.Remove(key);
             }
             else
@@ -242,11 +242,11 @@ internal sealed class PluginManagerI : PluginManager
         //
         foreach (KeyValuePair<string, string> entry in plugins)
         {
-            loadPlugin(null, entry.Key[prefix.Length..], entry.Value, ref cmdArgs);
+            loadPlugin(null, entry.Key[prefix.Length..], entry.Value);
         }
     }
 
-    private void loadPlugin(PluginFactory? pluginFactory, string name, string pluginSpec, ref string[] cmdArgs)
+    private void loadPlugin(PluginFactory? pluginFactory, string name, string pluginSpec)
     {
         Debug.Assert(_communicator is not null);
 
@@ -283,15 +283,9 @@ internal sealed class PluginManagerI : PluginManager
             Array.Copy(args, 1, tmp, 0, args.Length - 1);
             args = tmp;
 
-            //
-            // Convert command-line options into properties. First
-            // we convert the options from the plug-in
-            // configuration, then we convert the options from the
-            // application command-line.
-            //
+            // Convert command-line options into properties.
             Properties properties = _communicator.getProperties();
             args = properties.parseCommandLineOptions(name, args);
-            cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
         }
 
         string err = "unable to load plug-in `" + entryPoint + "': ";
