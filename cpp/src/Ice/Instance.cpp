@@ -1349,8 +1349,9 @@ IceInternal::Instance::~Instance()
     }
 }
 
+// TODO: remove argc/argv.
 void
-IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::CommunicatorPtr& communicator)
+IceInternal::Instance::finishSetup(int&, const char*[], const Ice::CommunicatorPtr& communicator)
 {
     // Load plug-ins.
     assert(!_serverThreadPool);
@@ -1358,7 +1359,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     assert(pluginManagerImpl);
 
     addDefaultPluginFactories(_initData.pluginFactories);
-    bool libraryLoaded = pluginManagerImpl->loadPlugins(argc, argv);
+    bool libraryLoaded = pluginManagerImpl->loadPlugins();
 
     // On Windows, if we loaded any plugin and stack trace collection is enabled, we need to call
     // ice_enableStackTraceCollection() again to refresh the module list. This refresh is fairly slow so we make it only

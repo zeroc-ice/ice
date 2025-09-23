@@ -29,14 +29,10 @@ namespace Ice
         // Loads all the plugins (internal).
         // Returns true when one or more libraries may have been loaded dynamically; returns false when definitely no
         // library was loaded dynamically.
-        bool loadPlugins(int& argc, const char* argv[]);
+        bool loadPlugins();
 
     private:
-        bool loadPlugin(
-            PluginFactoryFunc pluginFactoryFunc,
-            const std::string& name,
-            const std::string& pluginSpec,
-            StringSeq& cmdArgs);
+        bool loadPlugin(PluginFactoryFunc pluginFactoryFunc, const std::string& name, const std::string& pluginSpec);
 
         [[nodiscard]] PluginPtr findPlugin(std::string_view) const;
 
