@@ -135,7 +135,7 @@ final class PluginManagerI implements PluginManager {
         _initialized = false;
     }
 
-    public String[] loadPlugins(String[] cmdArgs) {
+    void loadPlugins() {
         assert (_communicator != null);
 
         final String prefix = "Ice.Plugin.";
@@ -147,10 +147,10 @@ final class PluginManagerI implements PluginManager {
             String name = pluginFactory.getPluginName();
             String key = "Ice.Plugin." + name;
             if (plugins.containsKey(key)) {
-                cmdArgs = loadPlugin(pluginFactory, name, plugins.get(key), cmdArgs);
+                loadPlugin(pluginFactory, name, plugins.get(key));
                 plugins.remove(key);
             } else {
-                cmdArgs = loadPlugin(pluginFactory, name, "", cmdArgs);
+                loadPlugin(pluginFactory, name, "");
             }
         }
 
@@ -176,7 +176,7 @@ final class PluginManagerI implements PluginManager {
             boolean hasKey = plugins.containsKey(key);
             if (hasKey) {
                 final String value = plugins.get(key);
-                cmdArgs = loadPlugin(null, name, value, cmdArgs);
+                loadPlugin(null, name, value);
                 plugins.remove(key);
             } else {
                 throw new PluginInitializationException("plug-in '" + name + "' not defined");
@@ -187,15 +187,11 @@ final class PluginManagerI implements PluginManager {
         // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
         //
         for (var entry : plugins.entrySet()) {
-            cmdArgs =
-                loadPlugin(
-                    null, entry.getKey().substring(prefix.length()), entry.getValue(), cmdArgs);
+            loadPlugin(null, entry.getKey().substring(prefix.length()), entry.getValue());
         }
-
-        return cmdArgs;
     }
 
-    private String[] loadPlugin(PluginFactory pluginFactory, String name, String pluginSpec, String[] cmdArgs) {
+    private void loadPlugin(PluginFactory pluginFactory, String name, String pluginSpec) {
         assert (_communicator != null);
 
         if (findPlugin(name) != null) {
@@ -278,14 +274,9 @@ final class PluginManagerI implements PluginManager {
             System.arraycopy(args, 1, tmp, 0, args.length - 1);
             args = tmp;
 
-            //
-            // Convert command-line options into properties. First we
-            // convert the options from the plug-in configuration, then
-            // we convert the options from the application command-line.
-            //
+            // Convert command-line options into properties.
             Properties properties = _communicator.getProperties();
             args = properties.parseCommandLineOptions(name, args);
-            cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
         }
 
         if (pluginFactory == null) {
@@ -399,8 +390,6 @@ final class PluginManagerI implements PluginManager {
         info.name = name;
         info.plugin = plugin;
         _plugins.add(info);
-
-        return cmdArgs;
     }
 
     private Plugin findPlugin(String name) {
