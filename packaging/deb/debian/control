@@ -32,7 +32,6 @@ Vcs-Browser: https://github.com/zeroc-ice/ice.git
 
 Package: libzeroc-ice-dev
 Architecture: any
-Multi-Arch: same
 Section: libdevel
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
          zeroc-ice-slice (= ${source:Version}),
@@ -49,7 +48,6 @@ Description: libraries and headers for developing Ice applications in C++
 
 Package: libzeroc-ice3.8
 Architecture: any
-Multi-Arch: same
 Section: libs
 Pre-Depends: ${misc:Pre-Depends}
 Depends: adduser,
@@ -65,7 +63,6 @@ Description: C++ run-time libraries for the Ice framework
 
 Package: zeroc-icestorm
 Architecture: any
-Multi-Arch: same
 Section: net
 Pre-Depends: ${misc:Pre-Depends}
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
@@ -121,7 +118,6 @@ Description: Python 3 extension for Ice
 
 Package: zeroc-glacier2
 Architecture: any
-Multi-Arch: foreign
 Section: net
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
          ${misc:Depends},
@@ -140,7 +136,6 @@ Description: Glacier2 router
 
 Package: zeroc-ice-ice2slice
 Architecture: any
-Multi-Arch: foreign
 Section: devel
 Depends: zeroc-ice-slice (= ${source:Version}),
          ${misc:Depends},
@@ -159,7 +154,6 @@ Description: The Ice-to-Slice compiler (ice2slice)
 
 Package: zeroc-ice-slice
 Architecture: all
-Multi-Arch: foreign
 Section: devel
 Depends: ${misc:Depends}
 Description: Slice files for Ice
@@ -172,7 +166,6 @@ Description: Slice files for Ice
 
 Package: zeroc-ice-utils
 Architecture: any
-Multi-Arch: foreign
 Section: admin
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
          libzeroc-icestorm3.8 (= ${binary:Version}),
@@ -188,7 +181,6 @@ Description: Ice utilities and admin tools
 
 Package: zeroc-dsnode
 Architecture: any
-Multi-Arch: foreign
 Section: net
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
          ${misc:Depends},
@@ -204,7 +196,6 @@ Description: This package contains the DataStorm node server. The DataStorm node
 
 Package: zeroc-icebox
 Architecture: any
-Multi-Arch: foreign
 Section: net
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
          ${misc:Depends},
@@ -220,7 +211,6 @@ Description: IceBox server, a framework for Ice application services
 
 Package: zeroc-icegrid
 Architecture: any
-Multi-Arch: foreign
 Section: net
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
          zeroc-icestorm (= ${binary:Version}),
@@ -238,7 +228,6 @@ Description: Locate, deploy, and manage Ice servers
 
 Package: zeroc-icebridge
 Architecture: any
-Multi-Arch: foreign
 Section: net
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
          ${misc:Depends},
