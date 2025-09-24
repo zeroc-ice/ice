@@ -175,7 +175,6 @@ allTests(Test::TestHelper* helper)
         AdapterDescriptor adapter;
         adapter.name = "Server";
         adapter.id = "ServerAdapter";
-        adapter.registerProcess = false;
         adapter.serverLifetime = true;
         addProperty(server, "Server.Endpoints", "default");
         ObjectDescriptor object;
@@ -221,7 +220,6 @@ allTests(Test::TestHelper* helper)
         adapter = AdapterDescriptor();
         adapter.name = "Server";
         adapter.id = "${server}";
-        adapter.registerProcess = false;
         adapter.serverLifetime = true;
         addProperty(server, "Server.Endpoints", "default");
         object = ObjectDescriptor();
@@ -419,7 +417,6 @@ allTests(Test::TestHelper* helper)
             adapter = AdapterDescriptor();
             adapter.id = "ServerFoo";
             adapter.serverLifetime = false;
-            adapter.registerProcess = false;
             info.descriptor->adapters.push_back(adapter);
             update = empty;
             update.nodes[0].servers.push_back(info.descriptor);
@@ -494,7 +491,6 @@ allTests(Test::TestHelper* helper)
         adapter = AdapterDescriptor();
         adapter.name = "${service}";
         adapter.id = "${server}.${service}";
-        adapter.registerProcess = false;
         adapter.serverLifetime = false;
         addProperty(service, "${service}.Endpoints", "default");
         object.id = Ice::stringToIdentity("${server}.${service}");

@@ -1597,7 +1597,6 @@ allTests(TestHelper* helper)
         AdapterDescriptor adapter;
         adapter.name = "Server";
         adapter.id = "ServerAdapter";
-        adapter.registerProcess = false;
         adapter.serverLifetime = true;
         server->adapters.push_back(std::move(adapter));
         server->propertySet.properties.push_back(PropertyDescriptor{"Server.Endpoints", "default"});

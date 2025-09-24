@@ -72,22 +72,6 @@ class AdapterEditor extends CommunicatorChildEditor {
             Action.SHORT_DESCRIPTION, "Goto the definition of this replica group");
         _replicaGroupButton = new JButton(gotoReplicaGroup);
 
-        Action checkRegisterProcess =
-            new AbstractAction("Register Process") {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    updated();
-                }
-            };
-        _registerProcess = new JCheckBox(checkRegisterProcess);
-        _registerProcess.setToolTipText(
-            "<html>This setting is ignored for servers running Ice<br>"
-                + "version 3.3 or greater.<br>"
-                + "During activation, create a Process object<br>"
-                + "in this adapter and register it with IceGrid<br>"
-                + "to enable clean shutdown; you should register<br>"
-                + "exactly one Process object per server.</html>");
-
         Action checkServerLifetime =
             new AbstractAction("Server Lifetime") {
                 @Override
@@ -182,7 +166,6 @@ class AdapterEditor extends CommunicatorChildEditor {
         descriptor.id = getIdAsString();
         descriptor.replicaGroupId = getReplicaGroupIdAsString();
         descriptor.priority = _priority.getText().trim();
-        descriptor.registerProcess = _registerProcess.isSelected();
         descriptor.serverLifetime = _serverLifetime.isSelected();
         descriptor.objects = _objectList;
         descriptor.allocatables = _allocatableList;
@@ -240,8 +223,6 @@ class AdapterEditor extends CommunicatorChildEditor {
         builder.append(_proxyOptions, 3);
         builder.nextLine();
 
-        builder.append("", _registerProcess);
-        builder.nextLine();
         builder.append("", _serverLifetime);
         builder.nextLine();
 
@@ -488,9 +469,6 @@ class AdapterEditor extends CommunicatorChildEditor {
         _objects.set(objectDescriptorSeqToMap(descriptor.objects), resolver, isEditable);
         _allocatables.set(objectDescriptorSeqToMap(descriptor.allocatables), resolver, isEditable);
 
-        _registerProcess.setSelected(descriptor.registerProcess);
-        _registerProcess.setEnabled(isEditable);
-
         _serverLifetime.setSelected(descriptor.serverLifetime);
         _serverLifetime.setEnabled(isEditable);
 
@@ -576,7 +554,6 @@ class AdapterEditor extends CommunicatorChildEditor {
     private JTextField _currentStatus = new JTextField(20);
     private JTextField _currentEndpoints = new JTextField(20);
 
-    private JCheckBox _registerProcess;
     private JCheckBox _serverLifetime;
 
     private ArrayMapField _objects;

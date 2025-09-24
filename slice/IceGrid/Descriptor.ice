@@ -84,7 +84,8 @@ module IceGrid
         string priority;
 
         /// When `true`, the object adapter registers a process object.
-        bool registerProcess;
+        ["deprecated:This field is provided for schema compatibility. It is no longer used."]
+        bool registerProcess = false;
 
         /// When `true`, the lifetime of this object adapter is the same of the server lifetime. This information is
         /// used by the IceGrid node to figure out the server state: the server is active when all its "server lifetime"
@@ -103,7 +104,7 @@ module IceGrid
     sequence<AdapterDescriptor> AdapterDescriptorSeq;
 
     /// A Freeze database environment descriptor (deprecated, no longer used).
-    ["deprecated:This descriptor is provided for schema compatibility. It is no longer used as of Ice 3.8."]
+    ["deprecated:This descriptor is provided for schema compatibility. It is no longer used."]
     struct DbEnvDescriptor
     {
         /// The name of the database environment.
@@ -121,7 +122,7 @@ module IceGrid
     }
 
     /// A sequence of {@link DbEnvDescriptor}.
-    ["deprecated:This descriptor is provided for schema compatibility. It is no longer used as of Ice 3.8."]
+    ["deprecated:This descriptor is provided for schema compatibility. It is no longer used."]
     sequence<DbEnvDescriptor> DbEnvDescriptorSeq;
 
     /// Describes an Ice communicator.
@@ -145,7 +146,7 @@ module IceGrid
     }
 
     /// Describes a distribution.
-    ["deprecated:This descriptor is provided for schema compatibility. It is no longer used as of Ice 3.8."]
+    ["deprecated:This descriptor is provided for schema compatibility. It is no longer used."]
     struct DistributionDescriptor
     {
         /// The proxy of the IcePatch2 server.

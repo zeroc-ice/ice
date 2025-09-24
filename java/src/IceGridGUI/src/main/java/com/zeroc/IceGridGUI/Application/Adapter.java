@@ -130,7 +130,6 @@ class Adapter extends TreeNode implements DescriptorHolder {
         _descriptor.id = ad.id;
         _descriptor.replicaGroupId = ad.replicaGroupId;
         _descriptor.description = ad.description;
-        _descriptor.registerProcess = ad.registerProcess;
         _descriptor.serverLifetime = ad.serverLifetime;
         _descriptor.objects = ad.objects;
     }
@@ -170,9 +169,6 @@ class Adapter extends TreeNode implements DescriptorHolder {
             }
 
             attributes.add(createAttribute("id", _descriptor.id));
-            if (_descriptor.registerProcess) {
-                attributes.add(createAttribute("register-process", "true"));
-            }
             if (_descriptor.replicaGroupId.length() > 0) {
                 attributes.add(createAttribute("replica-group", _descriptor.replicaGroupId));
             }

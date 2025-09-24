@@ -778,10 +778,6 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     else
     {
         props.push_back(createProperty("Ice.ServerId", info.descriptor->id));
-        //
-        // Prior to Ice 3.3, use adapter's registerProcess to compute server->processRegistered;
-        // see ToInternalServerDescriptor::operator() above
-        //
     }
 
     props.push_back(createProperty("Ice.ProgramName", info.descriptor->id));
@@ -880,18 +876,6 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
                 if (!adapter.replicaGroupId.empty())
                 {
                     serverProps.push_back(createProperty(adapter.name + ".ReplicaGroupId", adapter.replicaGroupId));
-                }
-
-                //
-                // Ignore the register process attribute if the server is using Ice >= 3.3.0
-                //
-                if (iceVersion != 0 && iceVersion < 30300)
-                {
-                    if (adapter.registerProcess)
-                    {
-                        serverProps.push_back(createProperty(adapter.name + ".RegisterProcess", "1"));
-                        server->processRegistered = true;
-                    }
                 }
             }
 
