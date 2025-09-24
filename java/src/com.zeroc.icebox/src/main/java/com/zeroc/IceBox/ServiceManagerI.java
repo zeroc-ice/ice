@@ -463,6 +463,7 @@ final class ServiceManagerI implements ServiceManager {
                     // Next, parse the service "<service>.*" command line options (the Ice command
                     // line options were parsed by the createProperties above).
                     serviceArgs = initData.properties.parseCommandLineOptions(service, serviceArgs);
+                    info.args = serviceArgs;
                 }
 
                 // Clone the logger to assign a new prefix. If one of the built-in loggers is
@@ -484,11 +485,7 @@ final class ServiceManagerI implements ServiceManager {
                 String serviceFacetNamePrefix = "IceBox.Service." + service + ".";
                 boolean addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);
 
-                // Remaining command line options are passed to the communicator. This is necessary
-                // for Ice plug-in properties (e.g.: Ice.SSL).
-                List<String> remainingArgs = new ArrayList<>();
-                info.communicator = Util.initialize(serviceArgs, initData, remainingArgs);
-                info.args = remainingArgs.toArray(new String[remainingArgs.size()]);
+                info.communicator = Util.initialize(initData);
                 communicator = info.communicator;
 
                 if (addFacets) {

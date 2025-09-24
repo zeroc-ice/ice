@@ -535,16 +535,9 @@ public final class Communicator implements AutoCloseable {
         _instance.initialize(this, initData);
     }
 
-    /** Certain initialization tasks need to be completed after the constructor. */
-    void finishSetup(String[] args, List<String> rArgs) {
+    void finishSetup() {
         try {
-            args = _instance.finishSetup(args, this);
-            if (rArgs != null) {
-                rArgs.clear();
-                if (args.length > 0) {
-                    rArgs.addAll(Arrays.asList(args));
-                }
-            }
+            _instance.finishSetup(this);
         } catch (RuntimeException ex) {
             _instance.destroy(false);
             throw ex;

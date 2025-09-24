@@ -92,12 +92,11 @@ final class Server {
         List<String> argSeq = new ArrayList<>();
 
         InitializationData initData = new InitializationData();
-        initData.properties = new Properties(Collections.singletonList("IceBox"));
+        initData.properties = new Properties(args, new Properties(Collections.singletonList("IceBox")), argSeq);
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
         ShutdownHook shutdownHook = null;
 
-        try (Communicator communicator =
-            Util.initialize(args, initData, argSeq)) {
+        try (Communicator communicator = Util.initialize(initData)) {
             shutdownHook = new ShutdownHook(communicator);
             Runtime.getRuntime().addShutdownHook(shutdownHook);
 

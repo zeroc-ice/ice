@@ -17,9 +17,9 @@ public class Server extends TestHelper {
         properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
 
         try (Communicator communicator = initialize(properties)) {
-            communicator
-                .getProperties()
-                .setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
+            test(properties == communicator.getProperties());
+
+            properties.setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
 
             //
             // Register the server manager. The server manager creates a new

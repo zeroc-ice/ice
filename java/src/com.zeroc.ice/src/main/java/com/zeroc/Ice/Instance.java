@@ -866,8 +866,7 @@ public final class Instance {
         }
     }
 
-    // TODO: remove args and return void
-    String[] finishSetup(String[] args, Communicator communicator) {
+    void finishSetup(Communicator communicator) {
 
         Properties properties = _initData.properties;
         //
@@ -1020,8 +1019,6 @@ public final class Instance {
         if (properties.getIcePropertyAsInt("Ice.Admin.DelayCreation") <= 0) {
             getAdmin();
         }
-
-        return args;
     }
 
     //
