@@ -130,10 +130,9 @@ public final class Util {
      * Creates a new communicator, using Ice properties parsed from command-line arguments.
      *
      * @param args A command-line argument vector. This method parses arguments starting with `--` and one of the
-     * reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument starting
-     * with `--Ice.Config`, this method loads the specified configuration file. When the same property is set in a
-     * configuration file and through a command-line argument, the command-line setting takes precedence.
-     *
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
+     *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
+     *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
      * @return The new communicator.
      */
     public static Communicator initialize(String[] args) {
@@ -146,13 +145,11 @@ public final class Util {
      * Creates a new communicator, using Ice properties parsed from command-line arguments.
      *
      * @param args A command-line argument vector. This method parses arguments starting with `--` and one of the
-     * reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument starting
-     * with `--Ice.Config`, this method loads the specified configuration file. When the same property is set in a
-     * configuration file and through a command-line argument, the command-line setting takes precedence.
-     *
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
+     *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
+     *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
      * @param remainingArgs If non-null, the given list will contain on return the command-line arguments that were
-     * not used to set properties.
-     *
+     *     not used to set properties.
      * @return The new communicator.
      */
     public static Communicator initialize(String[] args, List<String> remainingArgs) {
