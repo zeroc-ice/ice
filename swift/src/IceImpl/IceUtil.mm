@@ -48,9 +48,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     return true;
 }
 
-+ (ICECommunicator*)initialize:(ICEProperties*)properties
-                        logger:(id<ICELoggerProtocol>)logger
-                         error:(NSError**)error
++ (ICECommunicator*)initialize:(ICEProperties*)properties logger:(id<ICELoggerProtocol>)logger error:(NSError**)error
 {
     assert(properties);
 

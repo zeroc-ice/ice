@@ -226,7 +226,6 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             }
         }
 
-
         VALUE result = TypedData_Wrap_Struct(
             _communicatorClass,
             &IceRuby_CommunicatorType,
