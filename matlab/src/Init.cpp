@@ -11,26 +11,19 @@ using namespace IceMatlab;
 
 extern "C"
 {
-    mxArray* Ice_initialize(mxArray* args, void* propsImpl, void** r)
+    mxArray* Ice_initialize(void* propsImpl, void** r)
     {
         try
         {
-            Ice::StringSeq seq;
-            getStringList(args, seq);
+            assert(propsImpl);
+            Ice::InitializationData initData{.properties = deref<Ice::Properties>(propsImpl)};
 
-            // We add a first argument of 'matlab-client'. It will become the ProgramName unless Ice.ProgramName is set
-            // explicitly.
-            seq.insert(seq.begin(), "matlab-client");
-
-            // Create the C++ InitializationData object.
-            Ice::InitializationData initData;
-
-            if (propsImpl)
+            if (initData.properties->getIceProperty("Ice.ProgramName").empty())
             {
-                initData.properties = deref<Ice::Properties>(propsImpl);
+                // Set a default program name if Ice.ProgramName is not set. This is used by Ice to identify the
+                // application in log messages.
+                initData.properties->setProperty("Ice.ProgramName", "matlab-client");
             }
-
-            initData.properties = Ice::createProperties(seq, initData.properties);
 
             // We don't implement Ice.AcceptClassCycles in InputStream, and ignore the value of this property.
 
@@ -47,14 +40,11 @@ extern "C"
 
             *r = new shared_ptr<Ice::Communicator>(Ice::initialize(initData));
 
-            // Remove the first argument, 'matlab-client'.
-            seq.erase(seq.begin());
-
-            return createResultValue(createStringList(seq));
+            return createEmptyArray();
         }
         catch (...)
         {
-            return createResultException(convertException(std::current_exception()));
+            return convertException(std::current_exception());
         }
     }
 

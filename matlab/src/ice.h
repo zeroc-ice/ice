@@ -24,7 +24,7 @@ extern "C"
 
     typedef struct mxArray_tag mxArray; // Forward declaration to avoid importing mex.h here
 
-    ICE_MATLAB_API mxArray* Ice_initialize(mxArray*, void*, void**);
+    ICE_MATLAB_API mxArray* Ice_initialize(void*, void**);
     ICE_MATLAB_API mxArray* Ice_stringToIdentity(mxArray*);
     ICE_MATLAB_API mxArray* Ice_identityToString(mxArray*, mxArray*);
     ICE_MATLAB_API mxArray* Ice_stringVersion();

@@ -25,14 +25,14 @@ classdef Communicator < IceInternal.WrapperObject
     % Copyright (c) ZeroC, Inc.
 
     methods
-        function [obj, remArgs] = Communicator(args, options)
+        function obj = Communicator(args, options)
             %COMMUNICATOR Constructs a new communicator.
             %
             %   Examples
             %     communicator = Ice.Communicator();
-            %     [communicator, remArgs] = Ice.Communicator(args);
+            %     communicator = Ice.Communicator(args);
             %     communicator = Ice.Communicator(Properties = props, SliceLoader = sliceLoader);
-            %     [communicator, remArgs] = Ice.Communicator(args, SliceLoader = sliceLoader);
+            %     communicator = Ice.Communicator(args, Properties = props, SliceLoader = sliceLoader);
             %
             %   Input Arguments
             %     args - Argument vector. Any Ice-related options in this vector are used to set the communicator
@@ -41,16 +41,14 @@ classdef Communicator < IceInternal.WrapperObject
             %
             %   Input Name-Value Arguments
             %     Properties - Properties object used to initialize the communicator properties. If args is non-empty,
-            %       any reserved properties specified in args override these in properties.
+            %       any reserved properties specified in args override these properties.
             %       Ice.Properties scalar
             %     SliceLoader - Slice loader used to load Slice classes and exceptions.
             %       Ice.SliceLoader scalar
             %
             %   Output Arguments
-            %     communicator - The new communicator.
+            %     obj - The new communicator.
             %       Ice.Communicator scalar
-            %     remArgs - Remaining command-line arguments that were not used to set properties.
-            %       string array
             arguments
                 args (1, :) string = string.empty
                 options.?Ice.InitializationData
@@ -58,11 +56,15 @@ classdef Communicator < IceInternal.WrapperObject
                 options.SliceLoader (1, 1) Ice.SliceLoader = IceInternal.DefaultSliceLoader.Instance
             end
 
+            if ~isempty(args)
+                options.Properties = Ice.Properties(args, options.Properties);
+            end
+
             % We need to extract and pass the libpointer object for properties to the C function. Passing the wrapper
             % (Ice.Properties) object won't work because the C code has no way to obtain the inner pointer.
             propsImpl = options.Properties.impl_;
             impl = libpointer('voidPtr');
-            remArgs = IceInternal.Util.callWithResult('Ice_initialize', args, propsImpl, impl);
+            IceInternal.Util.call('Ice_initialize', propsImpl, impl);
 
             obj@IceInternal.WrapperObject(impl);
 
