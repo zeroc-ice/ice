@@ -40,28 +40,13 @@ static const rb_data_type_t IceRuby_CommunicatorType = {
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
-namespace
-{
-    class CommunicatorDestroyer
-    {
-    public:
-        CommunicatorDestroyer(const Ice::CommunicatorPtr& c) : _communicator(c) {}
-
-        ~CommunicatorDestroyer() { _communicator->destroy(); }
-
-    private:
-        Ice::CommunicatorPtr _communicator;
-    };
-}
-
 extern "C" VALUE
 IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
 {
-    // This is the implementation of the public Ice::initialize function. There is no Ruby wrapper.
+    // This is the implementation of the Ice.initialize module method. There is no Ruby wrapper.
 
     ICE_RUBY_TRY
     {
-        //
         // The argument options are:
         //
         // Ice::initialize()
@@ -69,7 +54,6 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         // Ice::initialize(initData)
         //
         // An implicit block is optional.
-        //
 
         if (argc > 1)
         {
@@ -183,7 +167,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         //
         if (rb_block_given_p())
         {
-            CommunicatorDestroyer destroyer(communicator);
+            Ice::CommunicatorHolder communicatorHolder{communicator};
             //
             // Examine the arity of the block procedure. If it accepts one argument, pass it the
             // communicator. If it accepts two arguments, pass it the communicator and the
