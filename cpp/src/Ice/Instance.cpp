@@ -934,7 +934,8 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
             if (!_initData.properties)
             {
-                _initData.properties = createProperties();
+                // Plain empty properties, in particular, no ICE_CONFIG properties.
+                _initData.properties = make_shared<Ice::Properties>();
             }
 
             if (!oneOffDone)
