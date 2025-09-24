@@ -84,7 +84,7 @@ def initialize(
 
     eventLoopAdapter = initData.eventLoopAdapter if initData else None
     if eventLoop:
-        assert not eventLoopAdapter # initData is None here
+        assert not eventLoopAdapter  # initData is None here
         if not isinstance(eventLoop, asyncio.AbstractEventLoop):
             raise InitializationException("The event loop must be an instance of asyncio.AbstractEventLoop")
         eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
