@@ -25,7 +25,7 @@ class InitializationData:
     Attributes
     ----------
     properties : Ice.Properties | None
-        You can use the Ice.createProperties function to create a new property set.
+        The properties to use for the communicator.
     logger : Logger | None
         The logger to use for the communicator.
     threadStart : Callable[[], None] | None
