@@ -75,8 +75,6 @@ public sealed class Util
     public static Communicator initialize(InitializationData? initData = null)
     {
         initData = initData is null ? new InitializationData() : initData with { };
-        // TODO: some tests rely on updating the properties after initialize.
-        // initData.properties = initData.properties?.Clone();
         var result = new Communicator(initData);
         result.finishSetup();
         return result;
