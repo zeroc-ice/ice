@@ -98,15 +98,19 @@ public abstract class TestHelper
 
     public Ice.Communicator initialize(ref string[] args)
     {
-        var initData = new Ice.InitializationData();
-        initData.properties = createTestProperties(ref args);
+        var initData = new Ice.InitializationData
+        {
+            properties = createTestProperties(ref args)
+        };
         return initialize(initData);
     }
 
     public Ice.Communicator initialize(Ice.Properties properties)
     {
-        var initData = new Ice.InitializationData();
-        initData.properties = properties;
+        var initData = new Ice.InitializationData
+        {
+            properties = properties
+        };
         return initialize(initData);
     }
 
