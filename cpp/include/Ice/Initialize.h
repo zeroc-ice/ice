@@ -143,7 +143,7 @@ namespace Ice
     /// @remark Windows only.
     ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[]);
 
-    /// @copydoc initialize(int&, const char*[], InitializationData)
+    /// @copydoc initialize(int&, const char*[])
     /// @remark Windows only.
     inline CommunicatorPtr initialize(int& argc, wchar_t* argv[])
     {
