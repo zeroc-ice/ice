@@ -48,22 +48,13 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     return true;
 }
 
-+ (ICECommunicator*)initialize:(NSArray*)swiftArgs
-                    properties:(ICEProperties*)properties
-                withConfigFile:(BOOL)withConfigFile
++ (ICECommunicator*)initialize:(ICEProperties*)properties
                         logger:(id<ICELoggerProtocol>)logger
-                       remArgs:(NSArray**)remArgs
                          error:(NSError**)error
 {
-    Ice::StringSeq args;
-    fromNSArray(swiftArgs, args);
-
     assert(properties);
-    assert(withConfigFile || args.empty());
 
-    //
     // Collect InitializationData members.
-    //
     Ice::InitializationData initData;
     initData.properties = [properties properties];
 
@@ -94,17 +85,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
     try
     {
-        std::shared_ptr<Ice::Communicator> communicator;
-        if (withConfigFile)
-        {
-            communicator = Ice::initialize(args, initData);
-            *remArgs = toNSArray(args);
-        }
-        else
-        {
-            communicator = Ice::initialize(initData);
-        }
-
+        Ice::CommunicatorPtr communicator = Ice::initialize(initData);
         return [ICECommunicator getHandle:communicator];
     }
     catch (...)
@@ -135,7 +116,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
         }
         auto props = Ice::createProperties(a, def);
 
-        // a now contains remaning arguments that were not used by Ice::createProperties
+        // a now contains remaining arguments that were not used by Ice::createProperties
         if (remArgs)
         {
             *remArgs = toNSArray(a);
