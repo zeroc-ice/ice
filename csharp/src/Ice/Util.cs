@@ -49,12 +49,14 @@ public sealed class Util
     public static Properties createProperties(ref string[] args, Properties defaults) => new(ref args, defaults);
 
     /// <summary>
-    /// Creates a communicator.
+    /// Creates a new communicator, using Ice properties parsed from command-line arguments.
     /// </summary>
-    /// <param name="args">A command-line argument vector. Any Ice-related options
-    /// in this vector are used to initialize the communicator.
-    /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <returns>The initialized communicator.</returns>
+    /// <param name="args">A command-line argument vector. This method parses arguments starting with `--` and one of
+    /// the reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
+    /// starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is set
+    /// in a configuration file and through a command-line argument, the command-line setting takes precedence.</param>
+    /// <returns>The new communicator.</returns>
+    /// <remarks>This method removes any Ice-related options from <paramref name="args" />.</remarks>
     public static Communicator initialize(ref string[] args)
     {
         var initData = new InitializationData
@@ -68,10 +70,10 @@ public sealed class Util
     }
 
     /// <summary>
-    /// Creates a communicator.
+    /// Creates a new communicator.
     /// </summary>
-    /// <param name="initData">Additional initialization data.</param>
-    /// <returns>The initialized communicator.</returns>
+    /// <param name="initData">Options for the new communicator.</param>
+    /// <returns>The new communicator.</returns>
     public static Communicator initialize(InitializationData? initData = null)
     {
         initData = initData is null ? new InitializationData() : initData with { };
