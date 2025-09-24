@@ -18,18 +18,15 @@ ICEIMPL_API @interface ICEUtil : NSObject
 @property(class, nonatomic, readonly) Class<ICEEndpointInfoFactory> endpointInfoFactory;
 @property(class, nonatomic, readonly) Class<ICEAdminFacetFactory> adminFacetFactory;
 
-// This method should only be called once to guarenteed thread safety
+// This method should only be called once to guarantee thread safety
 + (BOOL)registerFactories:(Class<ICELocalExceptionFactory>)exception
            connectionInfo:(Class<ICEConnectionInfoFactory>)connectionInfo
              endpointInfo:(Class<ICEEndpointInfoFactory>)endpointInfo
                adminFacet:(Class<ICEAdminFacetFactory>)adminFacet
     NS_SWIFT_NAME(registerFactories(exception:connectionInfo:endpointInfo:adminFacet:));
 
-+ (nullable ICECommunicator*)initialize:(NSArray*)swiftArgs
-                             properties:(ICEProperties*)properties
-                         withConfigFile:(BOOL)withConfiFile
++ (nullable ICECommunicator*)initialize:(ICEProperties*)properties
                                  logger:(id<ICELoggerProtocol> _Nullable)logger
-                                remArgs:(NSArray* _Null_unspecified* _Null_unspecified)remArgs
                                   error:(NSError* _Nullable* _Nullable)error;
 
 + (ICEProperties*)createProperties;

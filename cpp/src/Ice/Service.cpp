@@ -873,7 +873,8 @@ Ice::Service::stop()
 Ice::CommunicatorPtr
 Ice::Service::initializeCommunicator(int& argc, char* argv[], InitializationData initData)
 {
-    return Ice::initialize(argc, argv, std::move(initData));
+    initData.properties = createProperties(argc, argv, initData.properties);
+    return Ice::initialize(std::move(initData));
 }
 
 void

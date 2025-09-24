@@ -600,11 +600,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             const string serviceFacetNamePrefix = "IceBox.Service." + service + ".";
             bool addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);
 
-            //
-            // Remaining command line options are passed to the communicator. This is
-            // necessary for Ice plug-in properties (e.g.: IceSSL).
-            //
-            info.communicator = initialize(info.args, std::move(initData));
+            info.communicator = initialize(std::move(initData));
             communicator = info.communicator;
 
             if (addFacets)

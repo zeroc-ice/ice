@@ -21,7 +21,7 @@ Collocated::run(int argc, char** argv)
     auto executor = Executor::create();
     initData.executor = [=](const function<void()>& call, const shared_ptr<Ice::Connection>& conn)
     { executor->execute(make_shared<ExecutorCall>(call), conn); };
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));

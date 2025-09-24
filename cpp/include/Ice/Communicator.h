@@ -28,7 +28,7 @@ namespace Ice
     /// - managing properties (configuration), retries, logging, instrumentation, and more.
     /// You create a communicator with `Ice::initialize`, and it's usually the first object you create when programming
     /// with Ice. You can create multiple communicators in a single program, but this is not common.
-    /// @see ::initialize(int&, const char*[], InitializationData)
+    /// @see ::initialize(int&, const char*[])
     /// @see ::initialize(InitializationData)
     /// @headerfile Ice/Ice.h
     class ICE_API Communicator final : public std::enable_shared_from_this<Communicator>
@@ -333,7 +333,7 @@ namespace Ice
         static CommunicatorPtr create(InitializationData);
 
         // Certain initialization tasks need to be completed after the constructor.
-        void finishSetup(int&, const char*[]);
+        void finishSetup();
 
         [[nodiscard]] IceInternal::ReferencePtr _stringToProxy(std::string_view str) const;
         [[nodiscard]] IceInternal::ReferencePtr _propertyToProxy(std::string_view property) const;

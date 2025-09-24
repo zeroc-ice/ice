@@ -96,12 +96,10 @@ namespace Test
         [[nodiscard]] int getTestPort(int port = 0) const;
         static int getTestPort(const Ice::PropertiesPtr&, int port = 0);
 
-        static Ice::PropertiesPtr createTestProperties(int&, char*[]);
-        static void parseTestOptions(int&, char*[], const Ice::PropertiesPtr&);
+        static Ice::PropertiesPtr createTestProperties(int&, char*[], const Ice::PropertiesPtr& = nullptr);
 
         Ice::CommunicatorPtr initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = nullptr);
         Ice::CommunicatorPtr initialize(Ice::InitializationData);
-        Ice::CommunicatorPtr initialize(int&, char*[], Ice::InitializationData);
 
         [[nodiscard]] Ice::CommunicatorPtr communicator() const;
 
@@ -113,6 +111,8 @@ namespace Test
         virtual void run(int argc, char* argv[]) = 0;
 
     private:
+        static void parseTestOptions(int&, char*[], const Ice::PropertiesPtr&);
+
         ControllerHelper* _controllerHelper{nullptr};
         Ice::CommunicatorPtr _communicator;
         bool _registerPlugins{true};

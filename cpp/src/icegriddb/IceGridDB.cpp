@@ -101,7 +101,7 @@ main(int argc, char* argv[])
         auto customSliceLoader = make_shared<CustomSliceLoader>();
         initData.sliceLoader = customSliceLoader;
 
-        Ice::CommunicatorHolder ich(argc, argv, initData);
+        Ice::CommunicatorHolder ich{std::move(initData)};
         communicator = ich.communicator();
 
         ctrlCHandler.setCallback(&destroyCommunicator);
