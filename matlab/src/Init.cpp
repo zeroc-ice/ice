@@ -15,12 +15,12 @@ extern "C"
     {
         try
         {
-            Ice::StringSeq a;
-            getStringList(args, a);
+            Ice::StringSeq seq;
+            getStringList(args, seq);
 
             // We add a first argument of 'matlab-client'. It will become the ProgramName unless Ice.ProgramName is set
             // explicitly.
-            a.insert(a.begin(), "matlab-client");
+            seq.insert(seq.begin(), "matlab-client");
 
             // Create the C++ InitializationData object.
             Ice::InitializationData initData;
@@ -30,10 +30,7 @@ extern "C"
                 initData.properties = deref<Ice::Properties>(propsImpl);
             }
 
-            if (!initData.properties)
-            {
-                initData.properties = Ice::createProperties();
-            }
+            initData.properties = Ice::createProperties(seq, initData.properties);
 
             // We don't implement Ice.AcceptClassCycles in InputStream, and ignore the value of this property.
 
@@ -48,12 +45,12 @@ extern "C"
                 initData.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
             }
 
-            *r = new shared_ptr<Ice::Communicator>(Ice::initialize(a, initData));
+            *r = new shared_ptr<Ice::Communicator>(Ice::initialize(initData));
 
             // Remove the first argument, 'matlab-client'.
-            a.erase(a.begin());
+            seq.erase(seq.begin());
 
-            return createResultValue(createStringList(a));
+            return createResultValue(createStringList(seq));
         }
         catch (...)
         {
