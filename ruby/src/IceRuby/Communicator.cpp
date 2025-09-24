@@ -57,6 +57,8 @@ namespace
 extern "C" VALUE
 IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
 {
+    // This is the implementation of the public Ice::initialize function. There is no Ruby wrapper.
+
     ICE_RUBY_TRY
     {
         //
@@ -65,22 +67,19 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         // Ice::initialize()
         // Ice::initialize(args)
         // Ice::initialize(initData)
-        // Ice::initialize(configFile)
-        // Ice::initialize(args, initData)
-        // Ice::initialize(args, configFile)
         //
         // An implicit block is optional.
         //
 
-        if (argc > 2)
+        if (argc > 1)
         {
             throw RubyException(rb_eArgError, "invalid number of arguments to Ice::initialize");
         }
 
         volatile VALUE initDataCls = callRuby(rb_path2class, "Ice::InitializationData");
-        volatile VALUE args = Qnil, initData = Qnil, configFile = Qnil;
+        volatile VALUE args = Qnil, rbInitData = Qnil;
 
-        if (argc >= 1)
+        if (argc == 1)
         {
             if (isArray(argv[0]))
             {
@@ -88,80 +87,26 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             }
             else if (callRuby(rb_obj_is_instance_of, argv[0], initDataCls) == Qtrue)
             {
-                initData = argv[0];
-            }
-            else if (TYPE(argv[0]) == T_STRING)
-            {
-                configFile = argv[0];
+                rbInitData = argv[0];
             }
             else
             {
-                throw RubyException(
-                    rb_eTypeError,
-                    "initialize expects an argument list, InitializationData or a configuration filename");
+                throw RubyException(rb_eTypeError, "initialize expects an argument list or an InitializationData");
             }
         }
 
-        if (argc >= 2)
-        {
-            if (isArray(argv[1]))
-            {
-                if (!NIL_P(args))
-                {
-                    throw RubyException(rb_eTypeError, "unexpected array argument to initialize");
-                }
-                args = argv[1];
-            }
-            else if (callRuby(rb_obj_is_instance_of, argv[1], initDataCls) == Qtrue)
-            {
-                if (!NIL_P(initData))
-                {
-                    throw RubyException(rb_eTypeError, "unexpected InitializationData argument to initialize");
-                }
-                initData = argv[1];
-            }
-            else if (TYPE(argv[1]) == T_STRING)
-            {
-                if (!NIL_P(configFile))
-                {
-                    throw RubyException(rb_eTypeError, "unexpected string argument to initialize");
-                }
-                configFile = argv[1];
-            }
-            else
-            {
-                throw RubyException(
-                    rb_eTypeError,
-                    "initialize expects an argument list, InitializationData or a configuration filename");
-            }
-        }
-
-        if (!NIL_P(initData) && !NIL_P(configFile))
-        {
-            throw RubyException(
-                rb_eTypeError,
-                "initialize accepts either Ice.InitializationData or a configuration filename");
-        }
-
-        Ice::StringSeq seq;
-        if (!NIL_P(args) && !arrayToStringSeq(args, seq))
-        {
-            throw RubyException(rb_eTypeError, "invalid array argument to Ice::initialize");
-        }
-
-        Ice::InitializationData data;
-
+        Ice::InitializationData initData;
         Ice::SliceLoaderPtr sliceLoader = DefaultSliceLoader::instance();
 
-        if (!NIL_P(initData))
+        if (!NIL_P(rbInitData))
         {
-            VALUE properties = callRuby(rb_iv_get, initData, "@properties");
+            VALUE properties = callRuby(rb_iv_get, rbInitData, "@properties");
             if (!NIL_P(properties))
             {
-                data.properties = getProperties(properties);
+                initData.properties = getProperties(properties);
             }
 
-            VALUE initDataSliceLoader = callRuby(rb_iv_get, initData, "@sliceLoader");
+            VALUE initDataSliceLoader = callRuby(rb_iv_get, rbInitData, "@sliceLoader");
             if (!NIL_P(initDataSliceLoader))
             {
                 auto compositeSliceLoader = make_shared<Ice::CompositeSliceLoader>();
@@ -170,61 +115,53 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
                 sliceLoader = std::move(compositeSliceLoader);
             }
         }
-
-        //
-        // Insert the program name (stored in the Ruby global variable $0) as the first
-        // element of the sequence.
-        //
-        volatile VALUE progName = callRuby(rb_gv_get, "$0");
-        seq.insert(seq.begin(), getString(progName));
-
-        if (!data.properties)
+        else if (!NIL_P(args))
         {
-            data.properties = Ice::createProperties();
-        }
+            Ice::StringSeq seq;
+            if (!arrayToStringSeq(args, seq))
+            {
+                throw RubyException(rb_eTypeError, "invalid array argument to Ice::initialize");
+            }
 
-        if (!NIL_P(configFile))
-        {
-            data.properties->load(getString(configFile));
-        }
+            initData.properties = Ice::createProperties(seq);
 
-        if (!NIL_P(args))
-        {
-            data.properties = Ice::createProperties(seq, data.properties);
-        }
-
-        // Always accept class cycles during the unmarshaling of Ruby objects by the C++ code.
-        data.properties->setProperty("Ice.AcceptClassCycles", "1");
-
-        // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
-        if (!data.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
-        {
-            data.pluginFactories.push_back(IceDiscovery::discoveryPluginFactory());
-        }
-
-        if (!data.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
-        {
-            data.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
-        }
-
-        Ice::CommunicatorPtr communicator = Ice::initialize(data);
-
-        //
-        // Replace the contents of the given argument list with the filtered arguments.
-        //
-        if (!NIL_P(args))
-        {
+            // Replace the contents of the given argument list with the filtered arguments.
             callRuby(rb_ary_clear, args);
 
-            //
-            // We start at index 1 in order to skip the element that we inserted earlier.
-            //
-            for (size_t i = 1; i < seq.size(); ++i)
+            for (const auto& arg: seq)
             {
-                volatile VALUE str = createString(seq[i]);
+                volatile VALUE str = createString(arg);
                 callRuby(rb_ary_push, args, str);
             }
         }
+
+        if (!initData.properties)
+        {
+            initData.properties = Ice::createProperties();
+        }
+
+        // Insert the program name (stored in the Ruby global variable $0) unless already set.
+        if (initData.properties->getProperty("Ice.ProgramName").empty())
+        {
+            volatile VALUE progName = callRuby(rb_gv_get, "$0");
+            initData.properties->setProperty("Ice.ProgramName", getString(progName));
+        }
+
+        // Always accept class cycles during the unmarshaling of Ruby objects by the C++ code.
+        initData.properties->setProperty("Ice.AcceptClassCycles", "1");
+
+        // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
+        if (!initData.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
+        {
+            initData.pluginFactories.push_back(IceDiscovery::discoveryPluginFactory());
+        }
+
+        if (!initData.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
+        {
+            initData.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
+        }
+
+        Ice::CommunicatorPtr communicator = Ice::initialize(initData);
 
         VALUE result = TypedData_Wrap_Struct(
             _communicatorClass,

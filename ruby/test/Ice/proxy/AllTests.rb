@@ -775,7 +775,7 @@ def allTests(helper, communicator)
 
     print "testing communicator shutdown/destroy... "
     STDOUT.flush
-    c = Ice::initialize();
+    c = Ice.initialize();
     c.shutdown();
     test(c.isShutdown());
     c.waitForShutdown();
