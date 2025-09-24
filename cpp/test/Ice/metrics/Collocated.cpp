@@ -26,7 +26,7 @@ Collocated::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Warn.Dispatch", "0");
     CommunicatorObserverIPtr observer = make_shared<CommunicatorObserverI>();
     initData.observer = observer;
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");

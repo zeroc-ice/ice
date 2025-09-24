@@ -209,16 +209,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     try
     {
         AllowThreads allowThreads;
-        if (argList != Py_None)
-        {
-            // Remaining command line options are passed to the communicator as an argument vector in case they
-            // contain plug-in properties.
-            communicator = Ice::initialize(seq, data);
-        }
-        else
-        {
-            communicator = Ice::initialize(data);
-        }
+        communicator = Ice::initialize(data);
     }
     catch (...)
     {

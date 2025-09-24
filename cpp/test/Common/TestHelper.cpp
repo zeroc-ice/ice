@@ -256,9 +256,9 @@ Test::TestHelper::getTestPort(const Ice::PropertiesPtr& properties, int num)
 }
 
 Ice::PropertiesPtr
-Test::TestHelper::createTestProperties(int& argc, char* argv[])
+Test::TestHelper::createTestProperties(int& argc, char* argv[], const Ice::PropertiesPtr& defaults)
 {
-    Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
+    Ice::PropertiesPtr properties = Ice::createProperties(argc, argv, defaults);
     parseTestOptions(argc, argv, properties);
     return properties;
 }
@@ -273,31 +273,14 @@ Test::TestHelper::parseTestOptions(int& argc, char* argv[], const Ice::Propertie
 }
 
 Ice::CommunicatorPtr
-Test::TestHelper::initialize(Ice::InitializationData initData)
-{
-    int argc = 0;
-    char* argv[] = {nullptr};
-    return initialize(argc, argv, std::move(initData));
-}
-
-Ice::CommunicatorPtr
 Test::TestHelper::initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties)
 {
-    Ice::InitializationData initData;
-    if (properties)
-    {
-        parseTestOptions(argc, argv, properties);
-        initData.properties = properties;
-    }
-    else
-    {
-        initData.properties = createTestProperties(argc, argv);
-    }
-    return initialize(argc, argv, initData);
+    Ice::InitializationData initData{.properties = createTestProperties(argc, argv, properties)};
+    return initialize(std::move(initData));
 }
 
 Ice::CommunicatorPtr
-Test::TestHelper::initialize(int& argc, char* argv[], Ice::InitializationData initData)
+Test::TestHelper::initialize(Ice::InitializationData initData)
 {
     if (_registerPlugins && IceInternal::isMinBuild())
     {
@@ -325,7 +308,7 @@ Test::TestHelper::initialize(int& argc, char* argv[], Ice::InitializationData in
         }
     }
 
-    _communicator = Ice::initialize(argc, argv, std::move(initData));
+    _communicator = Ice::initialize(std::move(initData));
     if (_controllerHelper)
     {
         _controllerHelper->communicatorInitialized(_communicator);

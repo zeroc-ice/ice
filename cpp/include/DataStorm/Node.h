@@ -27,77 +27,6 @@ namespace DataStorm
     {
     public:
         /// Constructs a DataStorm node.
-        /// A node is the main DataStorm object. It is required to construct topics.
-        /// @param argc The number of arguments in argv.
-        /// @param argv The configuration arguments.
-        /// @param configFile The path to an optional Ice configuration file.
-        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
-        Node(
-            int& argc,
-            const char* argv[],
-            std::optional<std::string_view> configFile = std::nullopt,
-            std::function<void(std::function<void()> call)> customExecutor = nullptr);
-
-        /// Constructs a DataStorm node.
-        /// A node is the main DataStorm object. It is required to construct topics.
-        /// @param argc The number of arguments in argv.
-        /// @param argv The configuration arguments.
-        /// @param configFile The path to an optional Ice configuration file.
-        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
-        Node(
-            int& argc,
-            char* argv[],
-            std::optional<std::string_view> configFile = std::nullopt,
-            std::function<void(std::function<void()> call)> customExecutor = nullptr)
-            : Node(argc, const_cast<const char**>(argv), configFile, std::move(customExecutor))
-        {
-        }
-
-#if defined(_WIN32) || defined(ICE_DOXYGEN)
-        /// Constructs a DataStorm node.
-        /// A node is the main DataStorm object. It is required to construct topics.
-        /// @param argc The number of arguments in argv.
-        /// @param argv The configuration arguments.
-        /// @param configFile The path to an optional Ice configuration file.
-        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
-        /// @remark Windows only.
-        Node(
-            int& argc,
-            const wchar_t* argv[],
-            std::optional<std::string_view> configFile = std::nullopt,
-            std::function<void(std::function<void()> call)> customExecutor = nullptr);
-
-        /// Constructs a DataStorm node.
-        /// A node is the main DataStorm object. It is required to construct topics.
-        /// @param argc The number of arguments in argv.
-        /// @param argv The configuration arguments.
-        /// @param configFile The path to an optional Ice configuration file.
-        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
-        /// @remark Windows only.
-        Node(
-            int& argc,
-            wchar_t* argv[],
-            std::optional<std::string_view> configFile = std::nullopt,
-            std::function<void(std::function<void()> call)> customExecutor = nullptr)
-            : Node(argc, const_cast<const wchar_t**>(argv), configFile, customExecutor)
-        {
-        }
-#endif
-
-        /// Constructs a DataStorm node.
-        /// A node is the main DataStorm object. It is required to construct topics.
-        /// @param configFile The path to an optional Ice configuration file.
-        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
-        Node(
-            std::optional<std::string_view> configFile = std::nullopt,
-            std::function<void(std::function<void()> call)> customExecutor = nullptr);
-
-        /// Constructs a DataStorm node.
         /// A node is the main DataStorm object. It is required to construct topics. The node uses the given Ice
         /// communicator.
         /// @param communicator The Ice communicator used by the topic factory for its configuration and communications.
@@ -107,6 +36,45 @@ namespace DataStorm
         Node(
             Ice::CommunicatorPtr communicator,
             std::function<void(std::function<void()> call)> customExecutor = nullptr);
+
+        /// Constructs a DataStorm node.
+        /// A node is the main DataStorm object. It is required to construct topics.
+        /// @param argc The number of arguments in argv.
+        /// @param argv The configuration arguments.
+        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
+        Node(int& argc, const char* argv[], std::function<void(std::function<void()> call)> customExecutor = nullptr);
+
+        /// Constructs a DataStorm node.
+        /// A node is the main DataStorm object. It is required to construct topics.
+        /// @param argc The number of arguments in argv.
+        /// @param argv The configuration arguments.
+        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
+        Node(int& argc, char* argv[], std::function<void(std::function<void()> call)> customExecutor = nullptr)
+            : Node(argc, const_cast<const char**>(argv), std::move(customExecutor))
+        {
+        }
+
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
+        /// Constructs a DataStorm node.
+        /// A node is the main DataStorm object. It is required to construct topics.
+        /// @param argc The number of arguments in argv.
+        /// @param argv The configuration arguments.
+        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
+        /// @remark Windows only.
+        Node(
+            int& argc,
+            const wchar_t* argv[],
+            std::function<void(std::function<void()> call)> customExecutor = nullptr);
+#endif
+
+        /// Constructs a DataStorm node.
+        /// A node is the main DataStorm object. It is required to construct topics.
+        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
+        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
+        Node(std::function<void(std::function<void()> call)> customExecutor = nullptr);
 
         /// Move constructor.
         /// @param node The node to move from.

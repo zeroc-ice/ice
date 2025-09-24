@@ -24,7 +24,7 @@ Client::run(int argc, char** argv)
     initData.properties->setProperty("Ice.AcceptClassCycles", "1");
     initData.sliceLoader = createCustomSliceLoader();
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
 
     InitialPrx initial = allTests(this, initData.sliceLoader);
     initial->shutdown();

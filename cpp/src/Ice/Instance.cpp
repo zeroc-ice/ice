@@ -934,7 +934,8 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
             if (!_initData.properties)
             {
-                _initData.properties = createProperties();
+                // Plain empty properties, in particular, no ICE_CONFIG properties.
+                _initData.properties = make_shared<Ice::Properties>();
             }
 
             if (!oneOffDone)
@@ -1349,9 +1350,8 @@ IceInternal::Instance::~Instance()
     }
 }
 
-// TODO: remove argc/argv.
 void
-IceInternal::Instance::finishSetup(int&, const char*[], const Ice::CommunicatorPtr& communicator)
+IceInternal::Instance::finishSetup(const Ice::CommunicatorPtr& communicator)
 {
     // Load plug-ins.
     assert(!_serverThreadPool);

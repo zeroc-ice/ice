@@ -60,14 +60,6 @@ void ::Writer::run(int argc, char* argv[])
 
         Node n3;
 
-        try
-        {
-            Node n4(argc, argv, "config.file");
-        }
-        catch (const Ice::FileException&)
-        {
-        }
-
         Node n5(argc, argv);
 
         {

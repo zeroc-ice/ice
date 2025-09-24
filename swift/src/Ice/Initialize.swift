@@ -19,173 +19,80 @@ let factoriesRegistered: Bool = {
     return true
 }()
 
-/// Creates a communicator.
+/// Creates a new communicator, using Ice properties parsed from the command-line arguments.
+/// - Parameter args: The command-line arguments. This function parses arguments starting with `--` and one of the
+///   reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument starting
+///   with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
+///   configuration file and through a command-line argument, the command-line setting takes precedence.
 ///
-/// - parameter args: `[String]` - A command-line argument vector. Any Ice-related options
-///   in this vector are used to initialize the communicator.
-///
-/// - parameter initData: `Ice.InitializationData` - Additional initialization data. Property
-///   settings in args override property settings in initData.
-///
-/// - returns: The initialized communicator.
-public func initialize(_ args: [String], initData: InitializationData? = nil) throws -> Communicator {
-    return try initializeImpl(
-        args: args, initData: initData ?? InitializationData(), withConfigFile: true
-    ).0
+/// - Returns: The new communicator.
+public func initialize(_ args: [String]) throws -> Communicator {
+    try initialize(InitializationData(properties: createProperties(args)))
 }
 
-/// Creates a communicator.
+/// Creates a new communicator, using Ice properties parsed from the command-line arguments.
+/// - Parameter args: The command-line arguments. This function parses arguments starting with `--` and one of the
+///   reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument starting
+///   with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
+///   configuration file and through a command-line argument, the command-line setting takes precedence. This function
+///   modifies args by removing any Ice-related options.
 ///
-/// - parameter args: `[String]` - A command-line argument vector. Any Ice-related options
-///   in this vector are used to initialize the communicator. This method modifies the
-///   argument vector by removing any Ice-related options.
-///
-/// - parameter initData: `Ice.InitializationData` - Additional initialization data. Property
-///   settings in args override property settings in initData.
-///
-/// - returns: `Ice.Communicator` - The initialized communicator.
-public func initialize(_ args: inout [String], initData: InitializationData? = nil) throws
-    -> Communicator
-{
-    let result = try initializeImpl(
-        args: args, initData: initData ?? InitializationData(), withConfigFile: true)
-    args = result.1
-    return result.0
+/// - Returns: The new communicator.
+public func initialize(_ args: inout [String]) throws -> Communicator {
+    try initialize(InitializationData(properties: createProperties(&args)))
 }
 
-/// Creates a communicator.
-///
-/// - parameter args: `[String]` - A command-line argument array. Any Ice-related options
-///   in this array are used to initialize the communicator.
-///
-/// - parameter configFile: `String` - Path to a config file that sets the new communicator's
-///   default properties.
-///
-/// - returns: `Ice.Communicator` - The initialized communicator.
-public func initialize(args: [String], configFile: String) throws -> Communicator {
-    var initData = InitializationData()
-    let properties = createProperties()
-    try properties.load(configFile)
-    initData.properties = properties
-    return try initialize(args, initData: initData)
-}
-
-/// Creates a communicator.
-///
-/// - parameter args: `[String]` - A command-line argument array. Any Ice-related options
-///   in this array are used to initialize the communicator. This method modifies the
-///   argument array by removing any Ice-related options.
-///
-/// - parameter configFile: `String` - Path to a config file that sets the new communicator's
-///   default properties.
-///
-/// - returns: `Ice.Communicator` - The initialized communicator.
-public func initialize(args: inout [String], configFile: String) throws -> Communicator {
-    var initData = InitializationData()
-    let properties = createProperties()
-    try properties.load(configFile)
-    initData.properties = properties
-    return try initialize(&args, initData: initData)
-}
-
-/// Creates a communicator.
-///
-/// - parameter initData: `Ice.InitializationData` - Additional initialization data.
-///
-/// - returns: `Ice.Communicator` - The initialized communicator.
-public func initialize(_ initData: InitializationData? = nil) throws -> Communicator {
-    // This is the no-configFile flavor: we never load config from ICE_CONFIG
-    return try initializeImpl(
-        args: [], initData: initData ?? InitializationData(), withConfigFile: false
-    ).0
-}
-
-/// Creates a communicator.
-///
-/// - parameter configFile: `String` - Path to a config file that sets the new communicator's default
-///   properties.
-///
-/// - returns: `Ice.Communicator` - The initialized communicator.
-public func initialize(_ configFile: String) throws -> Communicator {
-    return try initialize(args: [], configFile: configFile)
-}
-
-private func initializeImpl(
-    args: [String],
-    initData userInitData: InitializationData,
-    withConfigFile: Bool
-) throws -> (Communicator, [String]) {
-    // Ensure factories are initialized
+/// Creates a new communicator.
+/// - Parameter initData: Options for the new communicator.
+/// - Returns: The new communicator.
+public func initialize(_ initData: InitializationData = InitializationData()) throws -> Communicator {
+    // Ensure factories are initialized.
     guard factoriesRegistered else {
         fatalError("Unable to initialize Ice")
     }
 
-    var initData = userInitData
-    if initData.properties == nil {
-        initData.properties = createProperties()
-    }
+    var newInitData = initData
+    newInitData.properties = initData.properties ?? createProperties()
 
     var loggerP: ICELoggerProtocol?
-    if let l = initData.logger {
-        loggerP = LoggerWrapper(handle: l)
+    if let logger = initData.logger {
+        loggerP = LoggerWrapper(handle: logger)
     }
 
-    let propsHandle = (initData.properties as! PropertiesI).handle
+    let propsHandle = (newInitData.properties as! PropertiesI).handle
 
     return try autoreleasepool {
-        var remArgs: NSArray?
-        let handle = try ICEUtil.initialize(
-            args,
-            properties: propsHandle,
-            withConfigFile: withConfigFile,
-            logger: loggerP,
-            remArgs: &remArgs)
+        let handle = try ICEUtil.initialize(propsHandle, logger: loggerP)
 
-        //
-        // Update initData.properties reference to point to the properties object
-        // created by Ice::initialize, in case it changed
-        //
-        let newPropsHandle = handle.getProperties()
-        initData.properties = newPropsHandle.getSwiftObject(PropertiesI.self) {
-            PropertiesI(handle: newPropsHandle)
-        }
+        precondition(propsHandle === handle.getProperties(), "initialize changed the properties object")
 
-        //
-        // Update initData.logger reference in case we are using a C++ logger (defined though a property) or
-        //  a C++ logger plug-in installed a new logger
-        //
+        // Update newInitData.logger reference in case we are using a C++ logger (defined though a property) or
+        // a C++ logger plug-in installed a new logger.
         if let objcLogger = handle.getLogger() as? ICELogger {
-            initData.logger = objcLogger.getSwiftObject(ObjcLoggerWrapper.self) {
+            newInitData.logger = objcLogger.getSwiftObject(ObjcLoggerWrapper.self) {
                 ObjcLoggerWrapper(handle: objcLogger)
             }
         }
 
-        precondition(initData.logger != nil && initData.properties != nil)
+        precondition(newInitData.logger != nil)
 
-        if let sliceLoader = initData.sliceLoader {
-            initData.sliceLoader = CompositeSliceLoader(sliceLoader, DefaultSliceLoader())
+        if let sliceLoader = newInitData.sliceLoader {
+            newInitData.sliceLoader = CompositeSliceLoader(sliceLoader, DefaultSliceLoader())
         } else {
-            initData.sliceLoader = DefaultSliceLoader()
+            newInitData.sliceLoader = DefaultSliceLoader()
         }
 
-        let notFoundCacheSize = try initData.properties!.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize")
+        let notFoundCacheSize = try newInitData.properties!.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize")
         if notFoundCacheSize > 0 {
             let cacheFullLogger =
-                try initData.properties!.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0 ? initData.logger : nil
-            initData.sliceLoader = NotFoundSliceLoaderDecorator(
-                initData.sliceLoader!,
+                try newInitData.properties!.getIcePropertyAsInt("Ice.Warn.SliceLoader") > 0 ? newInitData.logger : nil
+            newInitData.sliceLoader = NotFoundSliceLoaderDecorator(
+                newInitData.sliceLoader!,
                 cacheSize: notFoundCacheSize,
                 logger: cacheFullLogger)
         }
 
-        let communicator = CommunicatorI(handle: handle, initData: initData)
-        if remArgs == nil {
-            return (communicator, [])
-        } else {
-            // swiftlint:disable force_cast
-            return (communicator, remArgs as! [String])
-            // swiftlint:enable force_cast
-        }
+        return CommunicatorI(handle: handle, initData: newInitData)
     }
 }
 

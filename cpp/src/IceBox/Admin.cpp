@@ -24,14 +24,14 @@ main(int argc, char* argv[])
         Ice::CtrlCHandler ctrlCHandler;
 
         // Initialize with a Properties object with the correct property prefix enabled.
-        Ice::InitializationData initData;
-        initData.properties = make_shared<Ice::Properties>(vector<string>{"IceBoxAdmin"});
+        auto properties =
+            Ice::createProperties(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceBoxAdmin"}));
+        Ice::InitializationData initData{.properties = properties};
+        auto communicator = Ice::initialize(std::move(initData));
+        Ice::CommunicatorHolder ich{communicator};
+        ctrlCHandler.setCallback([communicator](int) { communicator->destroy(); });
 
-        Ice::CommunicatorHolder ich{argc, argv, initData};
-
-        ctrlCHandler.setCallback([communicator = ich.communicator()](int) { communicator->destroy(); });
-
-        status = run(ich.communicator(), Ice::argsToStringSeq(argc, argv));
+        status = run(communicator, Ice::argsToStringSeq(argc, argv));
     }
     catch (const std::exception& ex)
     {

@@ -20,7 +20,7 @@ Client::run(int argc, char** argv)
     // of the heartbeats that schedules the inactivity timer task.
     initData.properties->setProperty("Ice.Connection.Client.IdleTimeout", "1");
     initData.properties->setProperty("Ice.Connection.Client.InactivityTimeout", "3");
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
 
     void allTests(Test::TestHelper*);
     allTests(this);

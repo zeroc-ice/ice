@@ -7,23 +7,16 @@ function client(args)
 
     fprintf("testing Ice.initialize... ");
     args1 = ["--Foo.Bar=1", "--Foo.Baz=2" "--Ice.Trace.Network=3"];
-    [communicator, remainingArgs] = Ice.initialize(args1);
-    assert(isa(remainingArgs, 'string'));
-    assert(length(remainingArgs) == 2);
-    assert(remainingArgs(1) == args1(1));
-    assert(remainingArgs(2) == args1(2));
+    communicator = Ice.initialize(args1);
     assert(communicator.getProperties().getIceProperty('Ice.Trace.Network') == '3');
     communicator.destroy();
     fprintf('ok\n');
 
     fprintf("testing Ice.Communicator constructor... ");
     args1 = ["--Foo.Bar=1", "--Foo.Baz=2", "--Ice.Trace.Network=3"];
-    [communicator, remainingArgs] = Ice.Communicator(args1);
-    assert(isa(remainingArgs, 'string'));
-    assert(length(remainingArgs) == 2);
-    assert(remainingArgs(1) == args1(1));
-    assert(remainingArgs(2) == args1(2));
-    assert(communicator.getProperties().getIceProperty('Ice.Trace.Network') == '3');
+    args2 = ["--Foo.Baz=1", "--Ice.Trace.Network=2"];
+    communicator = Ice.Communicator(args2, Properties = Ice.Properties(args1));
+    assert(communicator.getProperties().getIceProperty('Ice.Trace.Network') == '2');
     % display(communicator.getProperties());
     communicator.destroy();
     fprintf('ok\n');

@@ -12,53 +12,28 @@ using namespace Ice;
 
 namespace
 {
-
-    CommunicatorPtr argsToCommunicator(int& argc, const char* argv[], optional<string_view> configFile)
+    CommunicatorPtr createCommunicator()
     {
         PropertiesPtr properties = make_shared<Properties>(vector<string>{"DataStorm"});
+        InitializationData initData{.properties = properties};
+        return initialize(std::move(initData));
+    }
 
-        if (configFile)
-        {
-            properties->load(*configFile);
-        }
-
-        InitializationData initData;
-        initData.properties = properties;
-
-        return initialize(argc, argv, std::move(initData));
+    CommunicatorPtr argsToCommunicator(int& argc, const char* argv[])
+    {
+        PropertiesPtr properties = createProperties(argc, argv, make_shared<Properties>(vector<string>{"DataStorm"}));
+        InitializationData initData{.properties = properties};
+        return initialize(std::move(initData));
     }
 
 #ifdef _WIN32
-    CommunicatorPtr argsToCommunicator(int& argc, const wchar_t* argv[], optional<string_view> configFile)
+    CommunicatorPtr argsToCommunicator(int& argc, const wchar_t* argv[])
     {
-        PropertiesPtr properties = make_shared<Properties>(vector<string>{"DataStorm"});
-
-        if (configFile)
-        {
-            properties->load(*configFile);
-        }
-
-        InitializationData initData;
-        initData.properties = properties;
-
-        return initialize(argc, argv, std::move(initData));
-    }
-#endif
-
-    CommunicatorPtr configToCommunicator(optional<string_view> configFile)
-    {
-        PropertiesPtr properties = make_shared<Properties>(vector<string>{"DataStorm"});
-
-        if (configFile)
-        {
-            properties->load(*configFile);
-        }
-
-        InitializationData initData;
-        initData.properties = properties;
-
+        PropertiesPtr properties = createProperties(argc, argv, make_shared<Properties>(vector<string>{"DataStorm"}));
+        InitializationData initData{.properties = properties};
         return initialize(std::move(initData));
     }
+#endif
 }
 
 const char*
@@ -67,33 +42,25 @@ NodeShutdownException::what() const noexcept
     return "::DataStorm::NodeShutdownException";
 }
 
-Node::Node(
-    int& argc,
-    const char* argv[],
-    optional<string_view> configFile,
-    function<void(function<void()> call)> customExecutor)
-    : Node(argsToCommunicator(argc, argv, configFile), std::move(customExecutor), true)
+Node::Node(CommunicatorPtr communicator, function<void(function<void()> call)> customExecutor)
+    : Node(std::move(communicator), std::move(customExecutor), false)
+{
+}
+
+Node::Node(int& argc, const char* argv[], function<void(function<void()> call)> customExecutor)
+    : Node(argsToCommunicator(argc, argv), std::move(customExecutor), true)
 {
 }
 
 #ifdef _WIN32
-Node::Node(
-    int& argc,
-    const wchar_t* argv[],
-    optional<string_view> configFile,
-    function<void(function<void()> call)> customExecutor)
-    : Node(argsToCommunicator(argc, argv, configFile), std::move(customExecutor), true)
+Node::Node(int& argc, const wchar_t* argv[], function<void(function<void()> call)> customExecutor)
+    : Node(argsToCommunicator(argc, argv), std::move(customExecutor), true)
 {
 }
 #endif
 
-Node::Node(optional<string_view> configFile, function<void(function<void()> call)> customExecutor)
-    : Node(configToCommunicator(configFile), std::move(customExecutor), true)
-{
-}
-
-Node::Node(CommunicatorPtr communicator, function<void(function<void()> call)> customExecutor)
-    : Node(std::move(communicator), std::move(customExecutor), false)
+Node::Node(function<void(function<void()> call)> customExecutor)
+    : Node(createCommunicator(), std::move(customExecutor), true)
 {
 }
 

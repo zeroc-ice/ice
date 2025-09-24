@@ -237,8 +237,7 @@ Subscriber::run(int argc, char** argv)
 {
     InitializationData initData;
     initData.properties = make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"});
-    initData.properties = createProperties(argc, argv, initData.properties);
-    parseTestOptions(argc, argv, initData.properties);
+    initData.properties = createTestProperties(argc, argv, initData.properties);
 
     // override the test default since we abort connections
     initData.properties->setProperty("Ice.Warn.Connections", "0");

@@ -11,28 +11,18 @@ using namespace IceMatlab;
 
 extern "C"
 {
-    mxArray* Ice_initialize(mxArray* args, void* propsImpl, void** r)
+    mxArray* Ice_initialize(void* propsImpl, void** r)
     {
         try
         {
-            Ice::StringSeq a;
-            getStringList(args, a);
+            assert(propsImpl);
+            Ice::InitializationData initData{.properties = deref<Ice::Properties>(propsImpl)};
 
-            // We add a first argument of 'matlab-client'. It will become the ProgramName unless Ice.ProgramName is set
-            // explicitly.
-            a.insert(a.begin(), "matlab-client");
-
-            // Create the C++ InitializationData object.
-            Ice::InitializationData initData;
-
-            if (propsImpl)
+            if (initData.properties->getIceProperty("Ice.ProgramName").empty())
             {
-                initData.properties = deref<Ice::Properties>(propsImpl);
-            }
-
-            if (!initData.properties)
-            {
-                initData.properties = Ice::createProperties();
+                // Set a default program name if Ice.ProgramName is not set. This is used by Ice to identify the
+                // application in log messages.
+                initData.properties->setProperty("Ice.ProgramName", "matlab-client");
             }
 
             // We don't implement Ice.AcceptClassCycles in InputStream, and ignore the value of this property.
@@ -48,16 +38,13 @@ extern "C"
                 initData.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
             }
 
-            *r = new shared_ptr<Ice::Communicator>(Ice::initialize(a, initData));
+            *r = new shared_ptr<Ice::Communicator>(Ice::initialize(initData));
 
-            // Remove the first argument, 'matlab-client'.
-            a.erase(a.begin());
-
-            return createResultValue(createStringList(a));
+            return createEmptyArray();
         }
         catch (...)
         {
-            return createResultException(convertException(std::current_exception()));
+            return convertException(std::current_exception());
         }
     }
 

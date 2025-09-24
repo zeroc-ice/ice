@@ -64,6 +64,7 @@ namespace Ice
     struct InitializationData
     {
         /// The properties for the communicator.
+        /// When not-null, this corresponds to the object returned by the Communicator::getProperties function.
         PropertiesPtr properties{};
 
         /// The logger for the communicator.
@@ -114,6 +115,13 @@ namespace Ice
     };
 
     /// Creates a new communicator.
+    /// @param initData Options for the new communicator.
+    /// @return The new communicator.
+    /// @remark This is the main initialize function. All other overloads are provided for convenience and call this
+    /// function.
+    ICE_API CommunicatorPtr initialize(InitializationData initData = {});
+
+    /// Creates a new communicator, using Ice properties parsed from the command-line arguments.
     /// @param[in,out] argc The number of arguments in @p argv. When this function parses properties from @p argv, it
     /// reshuffles the arguments so that the remaining arguments start at the beginning of @p argv, and updates @p argc
     /// accordingly.
@@ -121,82 +129,27 @@ namespace Ice
     /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument starting
     /// with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
     /// configuration file and through a command-line argument, the command-line setting takes precedence.
-    /// @param initData Options for the new communicator.
     /// @return The new communicator.
-    ICE_API CommunicatorPtr initialize(int& argc, const char* argv[], InitializationData initData = {});
+    ICE_API CommunicatorPtr initialize(int& argc, const char* argv[]);
 
-    /// @copydoc initialize(int&, const char*[], InitializationData)
-    inline CommunicatorPtr initialize(int& argc, char* argv[], InitializationData initData = {})
+    /// @copydoc initialize(int&, const char*[])
+    inline CommunicatorPtr initialize(int& argc, char* argv[])
     {
-        return initialize(argc, const_cast<const char**>(argv), std::move(initData));
-    }
-
-    /// Creates a new communicator.
-    /// @param[in,out] argc The number of arguments in @p argv. When this function parses properties from @p argv, it
-    /// reshuffles the arguments so that the remaining arguments start at the beginning of @p argv, and updates @p argc.
-    /// @param argv The command-line arguments. This function parses arguments starting with `--` and one of the
-    /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator.
-    /// @param configFile The name of an Ice configuration file.
-    /// @return The new communicator.
-    ICE_API CommunicatorPtr initialize(int& argc, const char* argv[], std::string_view configFile);
-
-    /// @copydoc initialize(int&, const char*[], std::string_view)
-    inline CommunicatorPtr initialize(int& argc, char* argv[], std::string_view configFile)
-    {
-        return initialize(argc, const_cast<const char**>(argv), configFile);
+        return initialize(argc, const_cast<const char**>(argv));
     }
 
 #if defined(_WIN32) || defined(ICE_DOXYGEN)
-    /// @copydoc initialize(int&, const char*[], InitializationData)
+    /// @copydoc initialize(int&, const char*[])
     /// @remark Windows only.
-    ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[], InitializationData initData = {});
+    ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[]);
 
-    /// @copydoc initialize(int&, const char*[], InitializationData)
+    /// @copydoc initialize(int&, const char*[])
     /// @remark Windows only.
-    inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], InitializationData initData = {})
+    inline CommunicatorPtr initialize(int& argc, wchar_t* argv[])
     {
-        return initialize(argc, const_cast<const wchar_t**>(argv), std::move(initData));
-    }
-
-    // @copydoc initialize(int&, const char*[], std::string_view)
-    /// @remark Windows only.
-    ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[], std::string_view configFile);
-
-    // @copydoc initialize(int&, const char*[], std::string_view)
-    /// @remark Windows only.
-    inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], std::string_view configFile)
-    {
-        return initialize(argc, const_cast<const wchar_t**>(argv), configFile);
+        return initialize(argc, const_cast<const wchar_t**>(argv));
     }
 #endif
-
-    /// Creates a new communicator.
-    /// @param[in,out] seq The command-line arguments. This function parses arguments starting with `--` and one of the
-    /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator and removes these elements from the
-    /// list. If there is an argument starting with `--Ice.Config`, this function loads the specified configuration
-    /// file. When the same property is set in a configuration file and through a command-line argument, the
-    /// command-line setting takes precedence.
-    /// @param initData Options for the new communicator.
-    /// @return The new communicator.
-    ICE_API CommunicatorPtr initialize(StringSeq& seq, InitializationData initData = {});
-
-    /// Creates a new communicator.
-    /// @param[in,out] seq The command-line arguments. This function parses arguments starting with `--` and one of the
-    /// reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator and removes these elements from the
-    /// list.
-    /// @param configFile The name of an Ice configuration file.
-    /// @return The new communicator.
-    ICE_API CommunicatorPtr initialize(StringSeq& seq, std::string_view configFile);
-
-    /// Creates a new communicator.
-    /// @param initData Options for the new communicator.
-    /// @return The new communicator.
-    ICE_API CommunicatorPtr initialize(InitializationData initData = {});
-
-    /// Creates a new communicator.
-    /// @param configFile The name of an Ice configuration file.
-    /// @return The new communicator.
-    ICE_API CommunicatorPtr initialize(std::string_view configFile);
 
     /// Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
     /// configured at the time the communicator is created.

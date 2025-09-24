@@ -17,7 +17,7 @@ Client::run(int argc, char** argv)
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
     initData.properties->setProperty("Ice.Connection.Client.IdleTimeout", "1");
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
 
     void allTests(Test::TestHelper*);
     allTests(this);
