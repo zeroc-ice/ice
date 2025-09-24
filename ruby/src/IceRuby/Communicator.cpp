@@ -112,7 +112,7 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
             // Replace the contents of the given argument list with the filtered arguments.
             callRuby(rb_ary_clear, args);
 
-            for (const auto& arg: seq)
+            for (const auto& arg : seq)
             {
                 volatile VALUE str = createString(arg);
                 callRuby(rb_ary_push, args, str);
