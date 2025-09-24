@@ -126,9 +126,11 @@ namespace Ice
         virtual bool stop();
 
         /// Initializes a communicator.
+        /// @param argc The number of arguments in @p argv.
+        /// @param argv The command-line arguments.
         /// @param initData Configuration data for the new communicator.
         /// @return The new communicator instance.
-        virtual Ice::CommunicatorPtr initializeCommunicator(InitializationData initData);
+        virtual Ice::CommunicatorPtr initializeCommunicator(int& argc, char* argv[], InitializationData initData);
 
         /// Logs a system error, which includes a description of the current system error code.
         /// @param msg The log message.

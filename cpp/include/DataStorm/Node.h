@@ -68,18 +68,6 @@ namespace DataStorm
             int& argc,
             const wchar_t* argv[],
             std::function<void(std::function<void()> call)> customExecutor = nullptr);
-
-        /// Constructs a DataStorm node.
-        /// A node is the main DataStorm object. It is required to construct topics.
-        /// @param argc The number of arguments in argv.
-        /// @param argv The configuration arguments.
-        /// @param customExecutor An optional executor used to execute user callbacks, if no callback executor is
-        /// provided the Node will use the default callback executor that executes callback in a dedicated thread.
-        /// @remark Windows only.
-        Node(int& argc, wchar_t* argv[], std::function<void(std::function<void()> call)> customExecutor = nullptr)
-            : Node(argc, const_cast<const wchar_t**>(argv), configFile, customExecutor)
-        {
-        }
 #endif
 
         /// Constructs a DataStorm node.

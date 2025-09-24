@@ -733,7 +733,7 @@ Ice::Service::run(int argc, const char* const argv[], InitializationData initDat
         //
         // Initialize the communicator.
         //
-        _communicator = initializeCommunicator(std::move(initData));
+        _communicator = initializeCommunicator(av.argc, av.argv, std::move(initData));
 
         //
         // Use the configured logger.
@@ -871,8 +871,9 @@ Ice::Service::stop()
 }
 
 Ice::CommunicatorPtr
-Ice::Service::initializeCommunicator(InitializationData initData)
+Ice::Service::initializeCommunicator(int& argc, char* argv[], InitializationData initData)
 {
+    initData.properties = createProperties(argc, argv, initData.properties);
     return Ice::initialize(std::move(initData));
 }
 
@@ -1611,7 +1612,7 @@ Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
         //
         // Initialize the communicator.
         //
-        _communicator = initializeCommunicator(std::move(initData));
+        _communicator = initializeCommunicator(argc, argv, std::move(initData));
 
         if (_closeFiles)
         {
