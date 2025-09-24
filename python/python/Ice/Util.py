@@ -92,7 +92,7 @@ def initialize(
     if args:
         initData = InitializationData(properties=createProperties(args))
 
-    # initData can be None here, that's ok.
+    # initData can be None here, which is acceptable.
     communicator = IcePy.Communicator(initData)
     return Communicator(communicator, eventLoopAdapter)
 
