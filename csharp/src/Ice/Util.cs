@@ -54,33 +54,17 @@ public sealed class Util
     /// <param name="args">A command-line argument vector. Any Ice-related options
     /// in this vector are used to initialize the communicator.
     /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <param name="initData">Additional initialization data. Property settings in args
-    /// override property settings in initData.</param>
     /// <returns>The initialized communicator.</returns>
-    public static Communicator initialize(ref string[] args, InitializationData? initData = null)
+    public static Communicator initialize(ref string[] args)
     {
-        initData = initData is null ? new InitializationData() : initData with { };
-        initData.properties = new Properties(ref args, initData.properties);
-        var result = new Communicator(initData);
-        result.finishSetup(ref args);
-        return result;
-    }
+        var initData = new InitializationData
+        {
+            properties = new Properties(ref args)
+        };
 
-    /// <summary>
-    /// Creates a communicator.
-    /// </summary>
-    /// <param name="args">A command-line argument vector. Any Ice-related options
-    /// in this vector are used to initialize the communicator.
-    /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <param name="configFile">Path to a config file that sets the new communicator's default
-    /// properties.</param>
-    /// <returns>The initialized communicator.</returns>
-    public static Communicator initialize(ref string[] args, string configFile)
-    {
-        var initData = new InitializationData();
-        initData.properties = new Properties();
-        initData.properties.load(configFile);
-        return initialize(ref args, initData);
+        var result = new Communicator(initData);
+        result.finishSetup();
+        return result;
     }
 
     /// <summary>
@@ -94,23 +78,8 @@ public sealed class Util
         // TODO: some tests rely on updating the properties after initialize.
         // initData.properties = initData.properties?.Clone();
         var result = new Communicator(initData);
-        string[] args = [];
-        result.finishSetup(ref args);
+        result.finishSetup();
         return result;
-    }
-
-    /// <summary>
-    /// Creates a communicator.
-    /// </summary>
-    /// <param name="configFile">Path to a config file that sets the new communicator's default
-    /// properties.</param>
-    /// <returns>The initialized communicator.</returns>
-    public static Communicator initialize(string configFile)
-    {
-        var initData = new InitializationData();
-        initData.properties = new Properties();
-        initData.properties.load(configFile);
-        return initialize(initData);
     }
 
     /// <summary>

@@ -556,11 +556,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                 string serviceFacetNamePrefix = "IceBox.Service." + service + ".";
                 bool addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);
 
-                //
-                // Remaining command line options are passed to the communicator. This is
-                // necessary for Ice plug-in properties (e.g.: IceSSL).
-                //
-                info.communicator = Ice.Util.initialize(ref info.args, initData);
+                info.communicator = Ice.Util.initialize(initData);
                 communicator = info.communicator;
 
                 if (addFacets)

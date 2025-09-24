@@ -54,13 +54,16 @@ public static class Server
     {
         int status = 0;
 
-        var initData = new Ice.InitializationData();
-        initData.properties = new Ice.Properties(["IceBox"]);
+        var initData = new Ice.InitializationData
+        {
+            properties = new Ice.Properties(["IceBox"])
+        };
+        initData.properties = new Ice.Properties(ref args, initData.properties);
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 
         try
         {
-            using Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
+            using Ice.Communicator communicator = Ice.Util.initialize(initData);
             Console.CancelKeyPress += (sender, eventArgs) =>
             {
                 eventArgs.Cancel = true;
