@@ -73,10 +73,10 @@ classdef Communicator < IceInternal.WrapperObject
                 obj.SliceLoader = Ice.CompositeSliceLoader(obj.SliceLoader, IceInternal.DefaultSliceLoader.Instance);
             end
 
-            notFoundCacheSize = obj.getProperties().getIcePropertyAsInt('Ice.SliceLoader.NotFoundCacheSize');
+            notFoundCacheSize = options.Properties.getIcePropertyAsInt('Ice.SliceLoader.NotFoundCacheSize');
             if notFoundCacheSize > 0
                 % Install the NotFoundSliceLoaderDecorator.
-                if obj.getProperties().getIcePropertyAsInt('Ice.Warn.SliceLoader') > 0
+                if options.Properties.getIcePropertyAsInt('Ice.Warn.SliceLoader') > 0
                     cacheFullLogger = obj.getLogger();
                 else
                     cacheFullLogger = [];
@@ -86,7 +86,7 @@ classdef Communicator < IceInternal.WrapperObject
                     obj.SliceLoader, notFoundCacheSize, cacheFullLogger);
             end
 
-            enc = obj.getProperties().getProperty('Ice.Default.EncodingVersion');
+            enc = options.Properties.getProperty('Ice.Default.EncodingVersion');
             if isempty(enc)
                 obj.encoding = IceInternal.Protocol.CurrentEncoding;
             else
@@ -96,7 +96,7 @@ classdef Communicator < IceInternal.WrapperObject
                 end
                 obj.encoding = Ice.EncodingVersion(arr(1), arr(2));
             end
-            if obj.getProperties().getIcePropertyAsInt('Ice.Default.SlicedFormat') > 0
+            if options.Properties.getIcePropertyAsInt('Ice.Default.SlicedFormat') > 0
                 obj.format = Ice.FormatType.SlicedFormat;
             else
                 obj.format = Ice.FormatType.CompactFormat;

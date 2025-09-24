@@ -64,6 +64,7 @@ namespace Ice
     struct InitializationData
     {
         /// The properties for the communicator.
+        /// When not-null, this corresponds to the object returned by the communicator's #getProperties function.
         PropertiesPtr properties{};
 
         /// The logger for the communicator.
@@ -114,8 +115,7 @@ namespace Ice
     };
 
     /// Creates a new communicator.
-    /// @param initData Options for the new communicator. This function clones the properties of @p initData when not
-    /// null, so that multiple communicators created with the same @p initData do not share the same properties object.
+    /// @param initData Options for the new communicator.
     /// @return The new communicator.
     /// @remark This is the main initialize function. All other overloads are provided for convenience and call this
     /// function.

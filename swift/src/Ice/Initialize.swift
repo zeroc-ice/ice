@@ -64,11 +64,7 @@ public func initialize(_ initData: InitializationData = InitializationData()) th
     return try autoreleasepool {
         let handle = try ICEUtil.initialize(propsHandle, logger: loggerP)
 
-        // Update newInitData.properties reference to point to the properties object created by Ice::initialize.
-        let newPropsHandle = handle.getProperties()
-        newInitData.properties = newPropsHandle.getSwiftObject(PropertiesI.self) {
-            PropertiesI(handle: newPropsHandle)
-        }
+        precondition(propsHandle === handle.getProperties(), "initialize changed the properties object")
 
         // Update newInitData.logger reference in case we are using a C++ logger (defined though a property) or
         // a C++ logger plug-in installed a new logger.
@@ -78,7 +74,7 @@ public func initialize(_ initData: InitializationData = InitializationData()) th
             }
         }
 
-        precondition(newInitData.logger != nil && newInitData.properties != nil)
+        precondition(newInitData.logger != nil)
 
         if let sliceLoader = newInitData.sliceLoader {
             newInitData.sliceLoader = CompositeSliceLoader(sliceLoader, DefaultSliceLoader())

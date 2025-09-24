@@ -141,13 +141,6 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
 Ice::CommunicatorPtr
 Ice::initialize(InitializationData initData)
 {
-    // We clone the properties: if two communicators share the same initData, we don't want them to share the same
-    // properties object.
-    if (initData.properties)
-    {
-        initData.properties = initData.properties->clone();
-    }
-
     CommunicatorPtr communicator = Communicator::create(std::move(initData));
     communicator->finishSetup();
     return communicator;
