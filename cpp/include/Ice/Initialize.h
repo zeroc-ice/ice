@@ -64,7 +64,7 @@ namespace Ice
     struct InitializationData
     {
         /// The properties for the communicator.
-        /// When not-null, this corresponds to the object returned by the communicator's #getProperties function.
+        /// When not-null, this corresponds to the object returned by the Communicator::getProperties function.
         PropertiesPtr properties{};
 
         /// The logger for the communicator.
