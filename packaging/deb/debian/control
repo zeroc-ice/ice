@@ -168,7 +168,6 @@ Package: zeroc-ice-utils
 Architecture: any
 Section: admin
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
-         libzeroc-icestorm3.8 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: Ice utilities and admin tools

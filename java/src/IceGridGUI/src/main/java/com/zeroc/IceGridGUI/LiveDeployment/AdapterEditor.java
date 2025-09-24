@@ -27,7 +27,6 @@ class AdapterEditor extends Editor {
         _priority.setEditable(false);
         _endpoints.setEditable(false);
         _publishedEndpoints.setEditable(false);
-        _registerProcess.setEnabled(false);
         _serverLifetime.setEnabled(false);
     }
 
@@ -58,7 +57,6 @@ class AdapterEditor extends Editor {
         _publishedEndpoints.setText(
             resolver.substitute(properties.get(adapter.getId() + ".PublishedEndpoints")));
 
-        _registerProcess.setSelected(descriptor.registerProcess);
         _serverLifetime.setSelected(descriptor.serverLifetime);
 
         _objects.setObjects(descriptor.objects, resolver);
@@ -109,8 +107,6 @@ class AdapterEditor extends Editor {
         builder.append(_publishedEndpoints, 3);
         builder.nextLine();
 
-        builder.append("", _registerProcess);
-        builder.nextLine();
         builder.append("", _serverLifetime);
         builder.nextLine();
 
@@ -157,7 +153,6 @@ class AdapterEditor extends Editor {
     private final JTextField _endpoints = new JTextField(20);
     private final JTextField _publishedEndpoints = new JTextField(20);
 
-    private final JCheckBox _registerProcess = new JCheckBox("Register Process");
     private final JCheckBox _serverLifetime = new JCheckBox("Server Lifetime");
 
     private final TableField _objects = new TableField("Identity", "Type");

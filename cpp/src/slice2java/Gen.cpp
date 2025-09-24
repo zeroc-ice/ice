@@ -3411,7 +3411,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             out << nl << "@Deprecated";
         }
-        out << nl << "public " << s << " get" << capName << "()";
+        out << nl << "public final " << s << " get" << capName << "()";
         out << sb;
         if (isOptional)
         {
@@ -3432,7 +3432,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             out << nl << "@Deprecated";
         }
-        out << nl << "public void set" << capName << '(' << s << " " << name << ')';
+        out << nl << "public final void set" << capName << '(' << s << " " << name << ')';
         out << sb;
         if (isOptional)
         {
@@ -3452,7 +3452,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             {
                 out << nl << "@Deprecated";
             }
-            out << nl << "public boolean has" << capName << "()";
+            out << nl << "public final boolean has" << capName << "()";
             out << sb;
             out << nl << "return _" << name << ';';
             out << eb;
@@ -3463,7 +3463,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             {
                 out << nl << "@Deprecated";
             }
-            out << nl << "public void clear" << capName << "()";
+            out << nl << "public final void clear" << capName << "()";
             out << sb;
             out << nl << "_" << name << " = false;";
             out << eb;
@@ -3476,7 +3476,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             {
                 out << nl << "@Deprecated";
             }
-            out << nl << "public void optional" << capName << '(' << optType << " v)";
+            out << nl << "public final void optional" << capName << '(' << optType << " v)";
             out << sb;
             out << nl << "if (v == null || !v.isPresent())";
             out << sb;
@@ -3509,7 +3509,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             {
                 out << nl << "@Deprecated";
             }
-            out << nl << "public " << optType << " optional" << capName << "()";
+            out << nl << "public final " << optType << " optional" << capName << "()";
             out << sb;
             out << nl << "if (_" << name << ')';
             out << sb;
@@ -3565,7 +3565,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             {
                 out << nl << "@Deprecated";
             }
-            out << nl << "public boolean is" << capName << "()";
+            out << nl << "public final boolean is" << capName << "()";
             out << sb;
             if (isOptional)
             {
@@ -3597,7 +3597,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 {
                     out << nl << "@Deprecated";
                 }
-                out << nl << "public " << elem << " get" << capName << "(int index)";
+                out << nl << "public final " << elem << " get" << capName << "(int index)";
                 out << sb;
                 if (isOptional)
                 {
@@ -3617,7 +3617,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 {
                     out << nl << "@Deprecated";
                 }
-                out << nl << "public void set" << capName << "(int index, " << elem << " val)";
+                out << nl << "public final void set" << capName << "(int index, " << elem << " val)";
                 out << sb;
                 if (isOptional)
                 {

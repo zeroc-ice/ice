@@ -652,7 +652,6 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     }
     desc.replicaGroupId = attrs("replica-group", "");
     desc.priority = attrs("priority", "");
-    desc.registerProcess = attrs.asBool("register-process", false);
     if (desc.id == "")
     {
         throw invalid_argument("empty 'id' for adapter '" + desc.name + "'");

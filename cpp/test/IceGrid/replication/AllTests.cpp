@@ -956,7 +956,6 @@ allTests(Test::TestHelper* helper)
         AdapterDescriptor adapter;
         adapter.name = "TestAdapter";
         adapter.id = "TestAdapter.Server";
-        adapter.registerProcess = false;
         adapter.serverLifetime = true;
         PropertyDescriptor property;
         property.name = "TestAdapter.Endpoints";
@@ -1193,7 +1192,6 @@ allTests(Test::TestHelper* helper)
         adapter.name = "TestAdapter";
         adapter.id = "TestAdapter.Server";
         adapter.serverLifetime = true;
-        adapter.registerProcess = false;
         PropertyDescriptor property;
         property.name = "TestAdapter.Endpoints";
         property.value = "default";
@@ -1329,7 +1327,6 @@ allTests(Test::TestHelper* helper)
         adapter.name = "TestAdapter";
         adapter.id = "TestAdapter.Server";
         adapter.serverLifetime = true;
-        adapter.registerProcess = false;
         PropertyDescriptor property;
         property.name = "TestAdapter.Endpoints";
         property.value = "default";
@@ -1389,7 +1386,6 @@ allTests(Test::TestHelper* helper)
         adapter.id = "TestAdapter.${server}";
         adapter.replicaGroupId = "TestReplicaGroup";
         adapter.serverLifetime = true;
-        adapter.registerProcess = false;
         PropertyDescriptor property;
         property.name = "TestAdapter.Endpoints";
         property.value = "default";
