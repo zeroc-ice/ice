@@ -28,7 +28,7 @@ Client::run(int argc, char** argv)
     { executor->execute(make_shared<ExecutorCall>(call), conn); };
     // The communicator must be destroyed before the executor is terminated.
     {
-        Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+        Ice::CommunicatorHolder communicator = initialize(initData);
 
         void allTests(Test::TestHelper*);
         allTests(this);

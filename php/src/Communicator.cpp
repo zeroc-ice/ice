@@ -774,19 +774,11 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
 }
 
 static CommunicatorInfoIPtr
-initializeCommunicator(zval* zv, Ice::StringSeq& args, bool hasArgs, Ice::InitializationData initData)
+initializeCommunicator(zval* zv, Ice::InitializationData initData)
 {
     try
     {
-        Ice::CommunicatorPtr c;
-        if (hasArgs)
-        {
-            c = Ice::initialize(args, std::move(initData));
-        }
-        else
-        {
-            c = Ice::initialize(std::move(initData));
-        }
+        Ice::CommunicatorPtr c = Ice::initialize(std::move(initData));
         ActiveCommunicatorPtr ac = make_shared<ActiveCommunicator>(c);
 
         CommunicatorInfoIPtr info = createCommunicator(zv, ac);
@@ -945,10 +937,7 @@ ZEND_FUNCTION(Ice_initialize)
         }
     }
 
-    if (!initData.properties)
-    {
-        initData.properties = Ice::createProperties();
-    }
+    initData.properties = Ice::createProperties(seq, initData.properties);
 
     // Always accept class cycles during the unmarshaling of PHP objects by the C++ code.
     initData.properties->setProperty("Ice.AcceptClassCycles", "1");
@@ -964,7 +953,7 @@ ZEND_FUNCTION(Ice_initialize)
         initData.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
     }
 
-    CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, zvargs != 0, std::move(initData));
+    CommunicatorInfoIPtr info = initializeCommunicator(return_value, std::move(initData));
     if (!info)
     {
         RETURN_NULL();

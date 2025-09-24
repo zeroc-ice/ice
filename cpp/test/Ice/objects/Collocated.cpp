@@ -29,7 +29,7 @@ Collocated::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Warn.Dispatch", "0");
     initData.sliceLoader = make_shared<CustomSliceLoader>();
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");

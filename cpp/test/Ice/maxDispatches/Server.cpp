@@ -17,7 +17,7 @@ Server::run(int argc, char** argv)
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
     initData.properties->setProperty("Ice.ThreadPool.Server.Size", "10"); // plenty of threads to handle the requests
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
 
     auto responder = make_shared<ResponderI>();
     auto testIntf = make_shared<TestIntfI>(responder);

@@ -1095,7 +1095,7 @@ Client::run(int argc, char** argv)
     initData.properties->setProperty("Ice.AcceptClassCycles", "1");
     auto customSliceLoader = make_shared<CustomSliceLoader>();
     initData.sliceLoader = customSliceLoader;
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
     allTests(this, customSliceLoader);
 }
 

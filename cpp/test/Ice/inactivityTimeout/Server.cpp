@@ -22,7 +22,7 @@ Server::run(int argc, char** argv)
     initData.properties->setProperty("TestAdapter.Connection.InactivityTimeout", "5");
     initData.properties->setProperty("TestAdapter3s.Connection.InactivityTimeout", "3");
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    Ice::CommunicatorHolder communicator = initialize(initData);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
     communicator->getProperties()->setProperty("TestAdapter3s.Endpoints", getTestEndpoint(1));
 

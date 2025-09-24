@@ -33,12 +33,13 @@ main(int argc, char* argv[])
     {
         Ice::CtrlCHandler ctrlCHandler;
 
-        Ice::InitializationData id;
-        id.properties = make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"});
-        id.properties->setProperty("Ice.Warn.Endpoints", "0");
+        auto properties =
+            Ice::createProperties(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
+        properties->setProperty("Ice.Warn.Endpoints", "0");
 
-        Ice::CommunicatorHolder ich(argc, argv, id);
-        const auto& communicator = ich.communicator();
+        Ice::InitializationData initData{.properties = properties};
+        auto communicator = Ice::initialize(std::move(initData));
+        Ice::CommunicatorHolder ich(communicator);
 
         ctrlCHandler.setCallback([communicator](int) { communicator->destroy(); });
 
