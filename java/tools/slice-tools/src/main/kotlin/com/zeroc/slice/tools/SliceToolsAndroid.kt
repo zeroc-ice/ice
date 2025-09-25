@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.ice.slice.tools
+package com.zeroc.slice.tools
 
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.variant.AndroidComponentsExtension

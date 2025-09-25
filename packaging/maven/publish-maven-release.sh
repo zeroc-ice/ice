@@ -1,4 +1,4 @@
-set -euo pipefail
+set -xeuo pipefail
 
 case "$CHANNEL" in
   "3.8")
@@ -68,7 +68,7 @@ if [ "$CHANNEL" = "nightly" ]; then
 
   mkdir -p plugin
 
-  plugin_staging_dir="${STAGING_DIR}/slice-tools-packages/com/zeroc/ice/slice-tools"
+  plugin_staging_dir="${STAGING_DIR}/slice-tools-packages/com/zeroc/slice-tools"
 
   cp "${plugin_staging_dir}/${ice_version}/"*.jar "plugin/slice-tools-${ice_version}.jar"
   cp "${plugin_staging_dir}/${ice_version}/"*.jar.asc "plugin/slice-tools-${ice_version}.jar.asc"
@@ -87,21 +87,21 @@ if [ "$CHANNEL" = "nightly" ]; then
     -Durl="${SOURCE_URL}" \
     -DrepositoryId="${REPO_ID}" || { echo "Failed to publish plugin"; exit 1; }
 
-  cp "${plugin_staging_dir}/com.zeroc.ice.slice-tools.gradle.plugin/${ice_version}/"*.pom \
-    "plugin/com.zeroc.ice.slice-tools.gradle.plugin-${ice_version}.pom"
-  cp "${plugin_staging_dir}/com.zeroc.ice.slice-tools.gradle.plugin/${ice_version}/"*.pom.asc \
-    "plugin/com.zeroc.ice.slice-tools.gradle.plugin-${ice_version}.pom.asc"
+  cp "${plugin_staging_dir}/com.zeroc.slice-tools.gradle.plugin/${ice_version}/"*.pom \
+    "plugin/com.zeroc.slice-tools.gradle.plugin-${ice_version}.pom"
+  cp "${plugin_staging_dir}/com.zeroc.slice-tools.gradle.plugin/${ice_version}/"*.pom.asc \
+    "plugin/com.zeroc.slice-tools.gradle.plugin-${ice_version}.pom.asc"
 
-  plugin_marker_pom="plugin/com.zeroc.ice.slice-tools.gradle.plugin-${ice_version}.pom"
-  plugin_marker_asc="plugin/com.zeroc.ice.slice-tools.gradle.plugin-${ice_version}.pom.asc"
+  plugin_marker_pom="plugin/com.zeroc.slice-tools.gradle.plugin-${ice_version}.pom"
+  plugin_marker_asc="plugin/com.zeroc.slice-tools.gradle.plugin-${ice_version}.pom.asc"
 
   echo "Publishing plugin marker POM"
 
   mvn deploy:deploy-file \
     -Dfile="${plugin_marker_pom}" \
     -Dpackaging=pom \
-    -DgroupId="com.zeroc.ice.slice-tools" \
-    -DartifactId="com.zeroc.ice.slice-tools.gradle.plugin" \
+    -DgroupId="com.zeroc.slice-tools" \
+    -DartifactId="com.zeroc.slice-tools.gradle.plugin" \
     -Dversion="${ice_version}" \
     -Dfiles="${plugin_marker_asc}" \
     -Dtypes=pom.asc \

@@ -6,7 +6,7 @@ integrates seamlessly with the Gradle build system.
 
 > Note: This Gradle plugin replaces the Ice Builder for Gradle plugin (com.zeroc.gradle.ice-builder.slice). While the
 > Ice Builder for Gradle is still compatible with Ice 3.8, we recommend using the Slice Tools for Ice and Java
-> (com.zeroc.ice.slice-tools) for better integration with Ice 3.8.
+> (com.zeroc.slice-tools) for better integration with Ice 3.8.
 
 ## Features
 
@@ -29,7 +29,7 @@ Apply the plugin to your `build.gradle` (Groovy) or `build.gradle.kts` (Kotlin):
 
 ```groovy
 plugins {
-    id 'com.zeroc.ice.slice-tools' version '3.8.0-alpha.0'
+    id 'com.zeroc.slice-tools' version '3.8.0-alpha.0'
 }
 ```
 
@@ -37,7 +37,7 @@ plugins {
 
 ```kotlin
 plugins {
-    id("com.zeroc.ice.slice-tools") version "3.8.0-alpha.0"
+    id("com.zeroc.slice-tools") version "3.8.0-alpha.0"
 }
 ```
 
@@ -178,7 +178,7 @@ A minimal Java project with Slice support:
 ```groovy
 plugins {
     id 'java'
-    id 'com.zeroc.ice.slice-tools' version '3.8.0-alpha.0'
+    id 'com.zeroc.slice-tools' version '3.8.0-alpha.0'
 }
 ```
 

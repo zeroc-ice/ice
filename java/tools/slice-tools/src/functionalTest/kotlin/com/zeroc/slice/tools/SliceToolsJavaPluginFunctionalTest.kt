@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.ice.slice.tools
+package com.zeroc.slice.tools
 
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.io.TempDir
@@ -27,7 +27,7 @@ class SliceToolsJavaPluginFunctionalTest {
             """
             plugins {
                 id('java')
-                id('com.zeroc.ice.slice-tools')
+                id('com.zeroc.slice-tools')
             }
 
             slice {
