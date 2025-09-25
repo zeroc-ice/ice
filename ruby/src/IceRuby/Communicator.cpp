@@ -168,27 +168,15 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         if (rb_block_given_p())
         {
             Ice::CommunicatorHolder communicatorHolder{communicator};
-            //
-            // Examine the arity of the block procedure. If it accepts one argument, pass it the
-            // communicator. If it accepts two arguments, pass it the communicator and the
-            // argument vector.
-            //
             VALUE proc = callRuby(rb_block_proc);
             int arity = rb_proc_arity(proc);
             if (arity == 1)
             {
                 return callRuby(rb_yield, result);
             }
-            else if (arity == 2)
-            {
-                VALUE blockArgs = createArray(2);
-                RARRAY_ASET(blockArgs, 0, result);
-                RARRAY_ASET(blockArgs, 1, args);
-                return callRuby(rb_yield, blockArgs);
-            }
             else
             {
-                throw RubyException(rb_eArgError, "block must accept one or two arguments");
+                throw RubyException(rb_eArgError, "block must accept a single argument (the communicator)");
             }
         }
         else
