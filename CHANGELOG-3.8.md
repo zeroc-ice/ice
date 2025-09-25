@@ -1006,7 +1006,6 @@ initialization. See `InitializationData.pluginFactories`.
   Ice.loadSlice(["-I.", "Foo.ice"])
   ```
 
-
 ### Swift Changes
 
 - Upgrade to Swift 6.1.
