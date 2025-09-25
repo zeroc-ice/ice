@@ -29,9 +29,9 @@ namespace DataStorm
         /// The Ice communicator used by the node. If nullptr, the node creates its own communicator.
         Ice::CommunicatorPtr communicator{nullptr};
 
-        /// Whether or not the node owns the communicator.
-        /// This option is only used the communicator field is not nullptr. If true, the node destroys the communicator
-        /// when the node is destroyed. The default value is false.
+        /// Specifies whether or not the node owns the communicator.
+        /// This option is only meaningful when the communicator field is not nullptr. If true, the node's destructor
+        /// destroys the communicator. The default value is false.
         bool nodeOwnsCommunicator{false};
 
         /// An optional executor used to execute user callbacks.
@@ -68,15 +68,15 @@ namespace DataStorm
         /// @param argv The configuration arguments.
         Node(int& argc, const char* argv[]);
 
-        /// @copydoc initialize(int&, const char*[])
+        /// @copydoc Node(int&, const char*[])
         Node(int& argc, char* argv[]) : Node{argc, const_cast<const char**>(argv)} {}
 
 #if defined(_WIN32) || defined(ICE_DOXYGEN)
-        /// @copydoc initialize(int&, const char*[])
+        /// @copydoc Node(int&, const char*[])
         /// @remark Windows only.
         Node(int& argc, const wchar_t* argv[]);
 
-        /// @copydoc initialize(int&, const char*[])
+        /// @copydoc Node(int&, const char*[])
         /// @remark Windows only.
         Node(int& argc, wchar_t* argv[]) : Node{argc, const_cast<const wchar_t**>(argv)} {}
 #endif
