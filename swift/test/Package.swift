@@ -110,7 +110,9 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
         for case let fileURL as URL in enumerator {
             let fileName = fileURL.lastPathComponent
             if fileName.hasSuffix(".keychain") || fileName.hasPrefix(".fl") {
-                exclude.append(fileName)
+                // Compute the relative path from testPath
+                let relativePath = fileURL.path.replacingOccurrences(of: testPathURL.path + "/", with: "")
+                exclude.append(relativePath)
             }
         }
     }
