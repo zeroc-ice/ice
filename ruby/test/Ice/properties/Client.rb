@@ -109,5 +109,13 @@ class Client < ::TestHelper
         end
         puts "ok"
 
+        print "testing Ice.initialize with args... "
+        args = ["--Foo.Bar=1", "--Foo.Bar=2", "--Ice.Trace.Network=3"]
+        Ice.initialize(args) do |communicator|
+            test(communicator.getProperties().getIceProperty("Ice.Trace.Network") == "3")
+            test(args.length == 2)
+        end
+
+        puts "ok"
     end
 end

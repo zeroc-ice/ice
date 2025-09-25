@@ -988,6 +988,10 @@ initialization. See `InitializationData.pluginFactories`.
 
 ### Ruby Changes
 
+- Updated the optional `Ice.initialize` block to only accept a single argument, the communicator. Previously, this
+  optional block could accept one argument (the communicator), or two arguments (the communicator and the remaining
+  command-line arguments).
+
 - The `Ice.loadSlice` function for dynamically loading Slice files at runtime now accepts only a list of compiler
   arguments (strings). Previously, it accepted both a command string and an optional list of arguments (which served
   the same purpose). This has been simplified to require a single list of strings.
