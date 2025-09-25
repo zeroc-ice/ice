@@ -171,7 +171,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   The existing `stringToProxy` operation on `Communicator` remains available. However, the new syntax is now the
   preferred way to create a proxy from a string.
 
-- Reduced the number of `initialize` functions that create a `Communicator`.  You can now pass either an
+- Reduced the number of `initialize` functions that create a `Communicator`. You can now pass either an
   `InitializationData` to `initialize`, or a command-line argument vector. If you were using another overload, you
   should update your code to construct an `InitializationData`.
 
