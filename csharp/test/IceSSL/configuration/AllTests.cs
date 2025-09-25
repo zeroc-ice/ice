@@ -129,14 +129,12 @@ public class AllTests : global::Test.AllTests
         Dictionary<string, string> d;
         try
         {
-            var args = new string[] { };
-
             Console.Out.Write("testing certificate without password... ");
             Console.Out.Flush();
             {
                 initData = createClientProps(defaultProperties, "ca1/client_password_less", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.Password", "");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
@@ -166,7 +164,7 @@ public class AllTests : global::Test.AllTests
                 //
                 initData = createClientProps(defaultProperties, "", "");
                 initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca1/server", "");
@@ -195,7 +193,7 @@ public class AllTests : global::Test.AllTests
                 //
                 initData = createClientProps(defaultProperties, "", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-                comm = Ice.Util.initialize(ref args, initData);
+                comm = Ice.Util.initialize(initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca1/server", "");
@@ -218,7 +216,7 @@ public class AllTests : global::Test.AllTests
                 // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
                 //
                 initData = createClientProps(defaultProperties, "", "ca1/ca1");
-                comm = Ice.Util.initialize(ref args, initData);
+                comm = Ice.Util.initialize(initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca1/server", "");
@@ -265,7 +263,7 @@ public class AllTests : global::Test.AllTests
                 // Provide "ca1/ca1" to the client to verify the server certificate (without this the client connection
                 // wouldn't be able to provide the certificate chain).
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                comm = Ice.Util.initialize(ref args, initData);
+                comm = Ice.Util.initialize(initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -319,7 +317,7 @@ public class AllTests : global::Test.AllTests
                 // client doesn't trust the server's CA.
                 //
                 initData = createClientProps(defaultProperties, "", "");
-                comm = Ice.Util.initialize(ref args, initData);
+                comm = Ice.Util.initialize(initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca1/server", "");
@@ -348,7 +346,7 @@ public class AllTests : global::Test.AllTests
                 //
                 initData = createClientProps(defaultProperties, "ca2/client", "");
                 initData.properties.setProperty("IceSSL.VerifyPeer", "0");
-                comm = Ice.Util.initialize(ref args, initData);
+                comm = Ice.Util.initialize(initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca1/server", "");
@@ -380,7 +378,7 @@ public class AllTests : global::Test.AllTests
                 // trusted.
                 //
                 initData = createClientProps(defaultProperties, "", "ca2/ca2");
-                comm = Ice.Util.initialize(ref args, initData);
+                comm = Ice.Util.initialize(initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca2/ca2", "");
@@ -403,7 +401,7 @@ public class AllTests : global::Test.AllTests
                 // trusted.
                 //
                 initData = createClientProps(defaultProperties);
-                comm = Ice.Util.initialize(ref args, initData);
+                comm = Ice.Util.initialize(initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca2/ca2", "");
@@ -430,7 +428,7 @@ public class AllTests : global::Test.AllTests
                 // Verify that IceSSL.CheckCertName has no effect in a server.
                 //
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                comm = Ice.Util.initialize(ref args, initData);
+                comm = Ice.Util.initialize(initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -466,7 +464,7 @@ public class AllTests : global::Test.AllTests
                     {
                         initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                         initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                        comm = Ice.Util.initialize(ref args, initData);
+                        comm = Ice.Util.initialize(initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
@@ -495,7 +493,7 @@ public class AllTests : global::Test.AllTests
                     {
                         initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                         initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                        comm = Ice.Util.initialize(ref args, initData);
+                        comm = Ice.Util.initialize(initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
@@ -521,7 +519,7 @@ public class AllTests : global::Test.AllTests
                     {
                         initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                         initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                        comm = Ice.Util.initialize(ref args, initData);
+                        comm = Ice.Util.initialize(initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
@@ -547,7 +545,7 @@ public class AllTests : global::Test.AllTests
                     {
                         initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                         initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                        comm = Ice.Util.initialize(ref args, initData);
+                        comm = Ice.Util.initialize(initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
@@ -573,7 +571,7 @@ public class AllTests : global::Test.AllTests
                     {
                         initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                         initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                        comm = Ice.Util.initialize(ref args, initData);
+                        comm = Ice.Util.initialize(initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
@@ -603,7 +601,7 @@ public class AllTests : global::Test.AllTests
                     {
                         initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                         initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                        comm = Ice.Util.initialize(ref args, initData);
+                        comm = Ice.Util.initialize(initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
@@ -627,7 +625,7 @@ public class AllTests : global::Test.AllTests
                     {
                         initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                         initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                        comm = Ice.Util.initialize(ref args, initData);
+                        comm = Ice.Util.initialize(initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
@@ -652,7 +650,7 @@ public class AllTests : global::Test.AllTests
                     {
                         initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                         initData.properties.setProperty("IceSSL.CheckCertName", "1");
-                        comm = Ice.Util.initialize(ref args, initData);
+                        comm = Ice.Util.initialize(initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
@@ -684,7 +682,7 @@ public class AllTests : global::Test.AllTests
             {
                 // This should fail because the server's certificate is expired.
                 initData = createClientProps(defaultProperties, "ca1/client", "ca5/ca5");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca5/server_expired", "ca1/ca1");
@@ -709,7 +707,7 @@ public class AllTests : global::Test.AllTests
 
                 // This should fail because the client's certificate is expired.
                 initData = createClientProps(defaultProperties, "ca5/client_expired", "ca1/ca1");
-                comm = Ice.Util.initialize(ref args, initData);
+                comm = Ice.Util.initialize(initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
                 d = createServerProps(defaultProperties, "ca1/server", "ca5/ca5");
@@ -742,7 +740,7 @@ public class AllTests : global::Test.AllTests
                 {
                     initData = createClientProps(defaultProperties, "ca1/client", "");
                     initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
-                    Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                    Ice.Communicator comm = Ice.Util.initialize(initData);
                     Test.ServerFactoryPrx fact =
                         Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
@@ -825,7 +823,7 @@ public class AllTests : global::Test.AllTests
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly",
                     "C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -846,7 +844,7 @@ public class AllTests : global::Test.AllTests
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly",
                     "!C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -866,7 +864,7 @@ public class AllTests : global::Test.AllTests
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly",
                     "C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -885,7 +883,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -906,7 +904,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -927,7 +925,7 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -947,7 +945,7 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "!CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -965,7 +963,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -985,7 +983,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1005,7 +1003,7 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "CN=ca1.client");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1023,7 +1021,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1043,7 +1041,7 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "C=Canada,CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1062,7 +1060,7 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "!C=Canada,CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1082,7 +1080,7 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "C=Canada;CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1102,7 +1100,7 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "!C=Canada;!CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1121,7 +1119,7 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "!CN=ca1.server_x"); // Should not match "ca1.server"
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1140,7 +1138,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1164,7 +1162,7 @@ public class AllTests : global::Test.AllTests
                 //
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "ST=Florida;!CN=ca1.server;C=US");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1185,7 +1183,7 @@ public class AllTests : global::Test.AllTests
                 // Rejection takes precedence (server).
                 //
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1210,7 +1208,7 @@ public class AllTests : global::Test.AllTests
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly.Client",
                     "C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1234,7 +1232,7 @@ public class AllTests : global::Test.AllTests
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly.Client",
                     "!C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1252,7 +1250,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1274,7 +1272,7 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly.Client", "CN=ca1.client");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1293,7 +1291,7 @@ public class AllTests : global::Test.AllTests
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 initData.properties.setProperty("IceSSL.TrustOnly.Client", "!CN=ca1.client");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1319,7 +1317,7 @@ public class AllTests : global::Test.AllTests
                 // Should have no effect.
                 initData.properties.setProperty("IceSSL.TrustOnly.Server",
                     "C=US, ST=Florida, O=ZeroC,OU=Ice test infrastructure, emailAddress=info@zeroc.com, CN=ca1.client");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1340,7 +1338,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1362,7 +1360,7 @@ public class AllTests : global::Test.AllTests
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
                 // Should have no effect.
                 initData.properties.setProperty("IceSSL.TrustOnly.Server", "!CN=ca1.server");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1381,7 +1379,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1400,7 +1398,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1423,7 +1421,7 @@ public class AllTests : global::Test.AllTests
             Console.Out.Flush();
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1445,7 +1443,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1465,7 +1463,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1484,7 +1482,7 @@ public class AllTests : global::Test.AllTests
             }
             {
                 initData = createClientProps(defaultProperties, "ca1/client", "ca1/ca1");
-                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 d = createServerProps(defaultProperties, "ca1/server", "ca1/ca1");
@@ -1560,7 +1558,7 @@ public class AllTests : global::Test.AllTests
 
                         // Use TrustOnly to ensure the peer has pick the expected certificate.
                         initData.properties.setProperty("IceSSL.TrustOnly", "CN=ca1.server");
-                        Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                        Ice.Communicator comm = Ice.Util.initialize(initData);
 
                         Test.ServerFactoryPrx fact =
                             Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
@@ -1592,7 +1590,7 @@ public class AllTests : global::Test.AllTests
                         {
                             initData = createClientProps(defaultProperties);
                             initData.properties.setProperty("IceSSL.FindCert", s);
-                            Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                            Ice.Communicator comm = Ice.Util.initialize(initData);
                             test(false);
                         }
                         catch (Ice.InitializationException)
@@ -1625,7 +1623,7 @@ public class AllTests : global::Test.AllTests
                     {
                         initData = createClientProps(defaultProperties);
                         initData.properties.setProperty("IceSSL.FindCert", s);
-                        Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                        Ice.Communicator comm = Ice.Util.initialize(initData);
                         test(false);
                     }
                     catch (Ice.InitializationException)

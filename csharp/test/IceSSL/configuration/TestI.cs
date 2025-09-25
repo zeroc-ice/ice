@@ -74,8 +74,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
             initData.properties.setProperty(key, props[key]);
         }
         initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
-        string[] args = new string[0];
-        Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
+        Ice.Communicator communicator = Ice.Util.initialize(initData);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         var server = new ServerI(communicator);
         Ice.ObjectPrx obj = adapter.addWithUUID(server);

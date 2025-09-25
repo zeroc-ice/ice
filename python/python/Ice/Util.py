@@ -24,23 +24,17 @@ __name__ = "Ice"
 
 
 @overload
-def initialize(args: list[str] | None = None, initData: InitializationData | None = None) -> Communicator: ...
+def initialize(args: list[str] | None = None, eventLoop: asyncio.AbstractEventLoop | None = None) -> Communicator: ...
 
 
 @overload
+def initialize(*, initData: InitializationData | None = None) -> Communicator: ...
+
+
 def initialize(
     args: list[str] | None = None,
-    initData: None = None,
-    configFile: str | None = None,
     eventLoop: asyncio.AbstractEventLoop | None = None,
-) -> Communicator: ...
-
-
-def initialize(
-    args: list[str] | None = None,
     initData: InitializationData | None = None,
-    configFile: str | None = None,
-    eventLoop: asyncio.AbstractEventLoop | None = None,
 ) -> Communicator:
     """
     Creates a new communicator.
@@ -52,16 +46,14 @@ def initialize(
         reserved prefixes (Ice, IceSSL etc.) as properties for the new communicator. If there is an argument starting
         with ``--Ice.Config``, this function loads the specified configuration file. When the same property is set in a
         configuration file and through a command-line argument, the command-line setting takes precedence.
-    initData : InitializationData, optional
-        Options for the new communicator. This argument and the `configFile` argument are mutually exclusive.
-    configFile : str, optional
-        The path to a configuration file. This argument and the `initData` argument are mutually exclusive.
     eventLoop : asyncio.AbstractEventLoop, optional
         An asyncio event loop used to run coroutines and wrap futures. If provided, a new event loop adapter is created
         and configured with the communicator. This adapter is responsible for executing coroutines returned by Ice
         asynchronous dispatch methods and for wrapping Ice futures (from Ice Async APIs) into asyncio futures.
         This argument and the `initData` argument are mutually exclusive. If the `initData` argument is provided, the
         event loop adapter can be set using the :attr:`InitializationData.eventLoopAdapter` attribute.
+    initData : InitializationData, optional
+        Options for the new communicator. This argument and the `args` argument are mutually exclusive.
 
     Returns
     -------
@@ -84,19 +76,24 @@ def initialize(
     if initData and not isinstance(initData, InitializationData):
         raise InitializationException("initData must be an instance of Ice.InitializationData")
 
-    if initData and configFile:
-        raise InitializationException("Both initData and configFile arguments cannot be specified")
+    if initData and args:
+        raise InitializationException("Both args and initData arguments cannot be specified")
 
     if initData and eventLoop:
         raise InitializationException("Both initData and eventLoop arguments cannot be specified")
 
     eventLoopAdapter = initData.eventLoopAdapter if initData else None
     if eventLoop:
+        assert not eventLoopAdapter  # initData is None here
         if not isinstance(eventLoop, asyncio.AbstractEventLoop):
             raise InitializationException("The event loop must be an instance of asyncio.AbstractEventLoop")
         eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
 
-    communicator = IcePy.Communicator(args, initData, configFile)
+    if args:
+        initData = InitializationData(properties=createProperties(args))
+
+    # initData can be None here, which is acceptable.
+    communicator = IcePy.Communicator(initData)
     return Communicator(communicator, eventLoopAdapter)
 
 

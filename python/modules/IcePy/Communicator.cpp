@@ -82,44 +82,33 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 }
 
 // Only called by Ice.Initialize
-// IcePy.Communicator(args: [str]|None, initData: Ice.InitializationData|None, configFile: str|None)
+// IcePy.Communicator(initData: Ice.InitializationData|None)
 
 extern "C" int
 communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 {
-    PyObject* argList{nullptr};
-    PyObject* initData{nullptr};
-    PyObject* configFile{nullptr};
-    if (!PyArg_ParseTuple(args, "OOO", &argList, &initData, &configFile))
+    PyObject* pyInitData{nullptr};
+    if (!PyArg_ParseTuple(args, "O", &pyInitData))
     {
         return -1;
     }
 
-    // The initData and configFile are mutually exclusive. The caller Ice.initialize validates this.
-    assert(initData == Py_None || configFile == Py_None);
-
-    Ice::StringSeq seq;
-    if (argList != Py_None && !listToStringSeq(argList, seq))
-    {
-        return -1;
-    }
-
-    Ice::InitializationData data;
+    Ice::InitializationData initData;
     ExecutorPtr executorWrapper;
 
     Ice::SliceLoaderPtr sliceLoader = DefaultSliceLoader::instance();
 
     try
     {
-        if (initData != Py_None)
+        if (pyInitData != Py_None)
         {
-            PyObjectHandle properties{getAttr(initData, "properties", false)};
-            PyObjectHandle logger{getAttr(initData, "logger", false)};
-            PyObjectHandle threadStart{getAttr(initData, "threadStart", false)};
-            PyObjectHandle threadStop{getAttr(initData, "threadStop", false)};
-            PyObjectHandle batchRequestInterceptor{getAttr(initData, "batchRequestInterceptor", false)};
-            PyObjectHandle executor{getAttr(initData, "executor", false)};
-            PyObjectHandle initDataSliceLoader{getAttr(initData, "sliceLoader", false)};
+            PyObjectHandle properties{getAttr(pyInitData, "properties", false)};
+            PyObjectHandle logger{getAttr(pyInitData, "logger", false)};
+            PyObjectHandle threadStart{getAttr(pyInitData, "threadStart", false)};
+            PyObjectHandle threadStop{getAttr(pyInitData, "threadStop", false)};
+            PyObjectHandle batchRequestInterceptor{getAttr(pyInitData, "batchRequestInterceptor", false)};
+            PyObjectHandle executor{getAttr(pyInitData, "executor", false)};
+            PyObjectHandle initDataSliceLoader{getAttr(pyInitData, "sliceLoader", false)};
 
             if (properties.get())
             {
@@ -128,25 +117,26 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
                 //
                 PyObjectHandle impl{getAttr(properties.get(), "_impl", false)};
                 assert(impl.get());
-                data.properties = getProperties(impl.get());
+                initData.properties = getProperties(impl.get());
             }
 
             if (logger.get())
             {
-                data.logger = make_shared<LoggerWrapper>(logger.get());
+                initData.logger = make_shared<LoggerWrapper>(logger.get());
             }
 
             if (threadStart.get() || threadStop.get())
             {
                 auto threadHook = make_shared<ThreadHook>(threadStart.get(), threadStop.get());
-                data.threadStart = [threadHook]() { threadHook->start(); };
-                data.threadStop = [threadHook]() { threadHook->stop(); };
+                initData.threadStart = [threadHook]() { threadHook->start(); };
+                initData.threadStop = [threadHook]() { threadHook->stop(); };
             }
 
             if (executor.get())
             {
                 executorWrapper = make_shared<Executor>(executor.get());
-                data.executor = [executorWrapper](function<void()> call, const shared_ptr<Ice::Connection>& connection)
+                initData.executor =
+                    [executorWrapper](function<void()> call, const shared_ptr<Ice::Connection>& connection)
                 { executorWrapper->execute(std::move(call), connection); };
             }
 
@@ -154,7 +144,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             {
                 auto batchRequestInterceptorWrapper =
                     make_shared<BatchRequestInterceptorWrapper>(batchRequestInterceptor.get());
-                data.batchRequestInterceptor =
+                initData.batchRequestInterceptor =
                     [batchRequestInterceptorWrapper](const Ice::BatchRequest& req, int count, int size)
                 { batchRequestInterceptorWrapper->enqueue(req, count, size); };
             }
@@ -168,21 +158,11 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             }
         }
 
-        // data.sliceLoader remains null as we don't want to change the Slice loader for the Ice C++ runtime.
+        // initData.sliceLoader remains null as we don't want to change the Slice loader for the Ice C++ runtime.
 
-        if (!data.properties)
+        if (!initData.properties)
         {
-            data.properties = Ice::createProperties();
-        }
-
-        if (configFile != Py_None)
-        {
-            data.properties->load(getString(configFile));
-        }
-
-        if (argList != Py_None)
-        {
-            data.properties = Ice::createProperties(seq, data.properties);
+            initData.properties = Ice::createProperties();
         }
     }
     catch (...)
@@ -192,47 +172,29 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
 
     // Always accept class cycles during the unmarshaling of Python objects by the C++ code.
-    data.properties->setProperty("Ice.AcceptClassCycles", "1");
+    initData.properties->setProperty("Ice.AcceptClassCycles", "1");
 
     // Add IceDiscovery/IceLocatorDiscovery if these plug-ins are configured via Ice.Plugin.name.
-    if (!data.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
+    if (!initData.properties->getIceProperty("Ice.Plugin.IceDiscovery").empty())
     {
-        data.pluginFactories.push_back(IceDiscovery::discoveryPluginFactory());
+        initData.pluginFactories.push_back(IceDiscovery::discoveryPluginFactory());
     }
 
-    if (!data.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
+    if (!initData.properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery").empty())
     {
-        data.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
+        initData.pluginFactories.push_back(IceLocatorDiscovery::locatorDiscoveryPluginFactory());
     }
 
     Ice::CommunicatorPtr communicator;
     try
     {
         AllowThreads allowThreads;
-        communicator = Ice::initialize(data);
+        communicator = Ice::initialize(initData);
     }
     catch (...)
     {
         setPythonException(current_exception());
         return -1;
-    }
-
-    //
-    // Replace the contents of the given argument list with the filtered arguments.
-    //
-    if (argList != Py_None)
-    {
-        // Clear the list.
-        if (PyList_SetSlice(argList, 0, PY_SSIZE_T_MAX, nullptr) == -1)
-        {
-            return -1;
-        }
-
-        for (const string& arg : seq)
-        {
-            PyObjectHandle str{Py_BuildValue("s", arg.c_str())};
-            PyList_Append(argList, str.get());
-        }
     }
 
     self->communicator = new Ice::CommunicatorPtr(communicator);
