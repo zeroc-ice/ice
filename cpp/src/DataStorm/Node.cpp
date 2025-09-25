@@ -47,8 +47,7 @@ NodeShutdownException::what() const noexcept
     return "::DataStorm::NodeShutdownException";
 }
 
-Node::Node(NodeOptions options)
-    : _ownsCommunicator(!options.communicator || options.nodeOwnsCommunicator)
+Node::Node(NodeOptions options) : _ownsCommunicator(!options.communicator || options.nodeOwnsCommunicator)
 {
     auto communicator = options.communicator ? options.communicator : createCommunicator();
 
@@ -68,16 +67,10 @@ Node::Node(NodeOptions options)
     _factory = _instance->getTopicFactory();
 }
 
-Node::Node(int& argc, const char* argv[])
-    : Node{createNodeOptions(argc, argv)}
-{
-}
+Node::Node(int& argc, const char* argv[]) : Node{createNodeOptions(argc, argv)} {}
 
 #ifdef _WIN32
-Node::Node(int& argc, const wchar_t* argv[])
-    : Node{createNodeOptions(argc, argv)}
-{
-}
+Node::Node(int& argc, const wchar_t* argv[]) : Node{createNodeOptions(argc, argv)} {}
 #endif
 
 Node::Node(Node&& node) noexcept

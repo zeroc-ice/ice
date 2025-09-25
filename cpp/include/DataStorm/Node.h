@@ -69,10 +69,7 @@ namespace DataStorm
         Node(int& argc, const char* argv[]);
 
         /// @copydoc initialize(int&, const char*[])
-        Node(int& argc, char* argv[])
-            : Node{argc, const_cast<const char**>(argv)}
-        {
-        }
+        Node(int& argc, char* argv[]) : Node{argc, const_cast<const char**>(argv)} {}
 
 #if defined(_WIN32) || defined(ICE_DOXYGEN)
         /// @copydoc initialize(int&, const char*[])
@@ -81,10 +78,7 @@ namespace DataStorm
 
         /// @copydoc initialize(int&, const char*[])
         /// @remark Windows only.
-        Node(int& argc, wchar_t* argv[])
-            : Node{argc, const_cast<const wchar_t**>(argv)}
-        {
-        }
+        Node(int& argc, wchar_t* argv[]) : Node{argc, const_cast<const wchar_t**>(argv)} {}
 #endif
         /// Move constructor.
         /// @param node The node to move from.
