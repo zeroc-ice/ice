@@ -16,6 +16,6 @@ namespace IcePHP
 
     bool createConnectionInfo(zval*, const Ice::ConnectionInfoPtr&);
 
-} // End of namespace IcePHP
+}
 
 #endif
