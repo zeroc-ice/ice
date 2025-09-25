@@ -1,7 +1,6 @@
 <?php
 // Copyright (c) ZeroC, Inc.
 
-$NS = function_exists("Ice\initialize");
 require_once('Test.php');
 
 function allTests($helper)
