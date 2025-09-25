@@ -34,7 +34,7 @@ Package: libzeroc-ice-dev
 Architecture: any
 Section: libdevel
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
-         zeroc-ice-slice (= ${source:Version}),
+         zeroc-ice-slice (= ${binary:Version}),
          libssl-dev,
          ${misc:Depends}
 Description: libraries and headers for developing Ice applications in C++
@@ -88,6 +88,7 @@ Package: php-zeroc-ice
 Architecture: any
 Section: php
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         zeroc-ice-slice (= ${binary:Version}),
          ${misc:Depends},
          ${php:Depends},
          ${shlibs:Depends}
@@ -105,6 +106,7 @@ Build-Profiles: <!no-python312>
 Architecture: any
 Section: python
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         zeroc-ice-slice (= ${binary:Version}),
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
@@ -137,7 +139,7 @@ Description: Glacier2 router
 Package: zeroc-ice-ice2slice
 Architecture: any
 Section: devel
-Depends: zeroc-ice-slice (= ${source:Version}),
+Depends: zeroc-ice-slice (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: The Ice-to-Slice compiler (ice2slice)

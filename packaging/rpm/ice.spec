@@ -322,6 +322,7 @@ your application logic.
 %package -n %{phpname}-%{?nameprefix}ice
 Summary: PHP extension for Ice.
 Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 Requires: %{phpcommon}
 
 %description -n %{phpname}-%{?nameprefix}ice
@@ -338,6 +339,7 @@ your application logic.
 %package -n python3-%{?nameprefix}ice
 Summary: Python extension for Ice.
 Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
+Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 Requires: python3
 %description -n python3-%{?nameprefix}ice
 This package contains a Python extension for communicating with Ice.
