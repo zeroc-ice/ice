@@ -133,11 +133,13 @@ public final class Util {
      *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
      *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
      *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
+     * @param remainingArgs If non-null, the given list will contain on return the command-line arguments that were
+     *     not used to set properties.
      * @return The new communicator.
      */
-    public static Communicator initialize(String[] args) {
+    public static Communicator initialize(String[] args, List<String> remainingArgs) {
         var initData = new InitializationData();
-        initData.properties = new Properties(args);
+        initData.properties = new Properties(args, remainingArgs);
         return initialize(initData);
     }
 
@@ -148,14 +150,10 @@ public final class Util {
      *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
      *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
      *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
-     * @param remainingArgs If non-null, the given list will contain on return the command-line arguments that were
-     *     not used to set properties.
      * @return The new communicator.
      */
-    public static Communicator initialize(String[] args, List<String> remainingArgs) {
-        var initData = new InitializationData();
-        initData.properties = new Properties(args, remainingArgs);
-        return initialize(initData);
+    public static Communicator initialize(String[] args) {
+        return initialize(args, null);
     }
 
     /**
