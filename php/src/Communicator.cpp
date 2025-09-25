@@ -804,7 +804,13 @@ initializeCommunicator(zval* zv, Ice::InitializationData initData)
 
 ZEND_FUNCTION(Ice_initialize)
 {
-    if (ZEND_NUM_ARGS() > 2)
+    // The argument options are:
+    //
+    // initialize()
+    // initialize(args)
+    // initialize(initData)
+
+    if (ZEND_NUM_ARGS() > 1)
     {
         runtimeError("too many arguments");
         RETURN_NULL();
@@ -825,28 +831,10 @@ ZEND_FUNCTION(Ice_initialize)
         RETURN_NULL();
     }
 
-    Ice::StringSeq seq;
-    Ice::InitializationData initData;
-    zval* zvargs = 0;
-    zval* zvinit = 0;
+    zval* zvargs = nullptr; // args
+    zval* zvinit = nullptr; // initData
 
-    //
-    // The argument options are:
-    //
-    // initialize()
-    // initialize(args)
-    // initialize(initData)
-    // initialize(args, initData)
-    // initialize(initData, args)
-    //
-
-    if (ZEND_NUM_ARGS() > 2)
-    {
-        runtimeError("too many arguments to initialize");
-        RETURN_NULL();
-    }
-
-    if (ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() == 1)
     {
         zval* arg = &args[0];
         while (Z_TYPE_P(arg) == IS_REFERENCE)
@@ -864,50 +852,30 @@ ZEND_FUNCTION(Ice_initialize)
         }
         else
         {
-            invalidArgument("initialize expects an argument list, an InitializationData object, or both");
+            invalidArgument("initialize expects an argument list or an InitializationData object");
             RETURN_NULL();
         }
     }
 
-    if (ZEND_NUM_ARGS() > 1)
+    Ice::InitializationData initData;
+
+    if (zvargs)
     {
-        zval* arg = &args[1];
-        while (Z_TYPE_P(arg) == IS_REFERENCE)
+        Ice::StringSeq seq;
+        if (!extractStringArray(zvargs, seq))
         {
-            arg = Z_REFVAL_P(arg);
+            RETURN_NULL();
         }
 
-        if (Z_TYPE_P(arg) == IS_ARRAY)
+        initData.properties = Ice::createProperties(seq);
+
+        zval_dtor(zvargs);
+        if (!createStringArray(zvargs, seq))
         {
-            if (zvargs)
-            {
-                invalidArgument("unexpected array argument to initialize");
-                RETURN_NULL();
-            }
-            zvargs = arg;
-        }
-        else if (Z_TYPE_P(arg) == IS_OBJECT && Z_OBJCE_P(arg) == initClass)
-        {
-            if (zvinit)
-            {
-                invalidArgument("unexpected InitializationData argument to initialize");
-                RETURN_NULL();
-            }
-            zvinit = arg;
-        }
-        else
-        {
-            invalidArgument("initialize expects an argument list, an InitializationData object, or both");
             RETURN_NULL();
         }
     }
-
-    if (zvargs && !extractStringArray(zvargs, seq))
-    {
-        RETURN_NULL();
-    }
-
-    if (zvinit)
+    else if (zvinit)
     {
         zval* data;
         string member;
@@ -937,7 +905,11 @@ ZEND_FUNCTION(Ice_initialize)
         }
     }
 
-    initData.properties = Ice::createProperties(seq, initData.properties);
+    // Make sure we have a Properties object.
+    if (!initData.properties)
+    {
+       initData.properties = make_shared<Ice::Properties>();
+    }
 
     // Always accept class cycles during the unmarshaling of PHP objects by the C++ code.
     initData.properties->setProperty("Ice.AcceptClassCycles", "1");
@@ -957,18 +929,6 @@ ZEND_FUNCTION(Ice_initialize)
     if (!info)
     {
         RETURN_NULL();
-    }
-
-    //
-    // Replace the existing argument array with the filtered set.
-    //
-    if (zvargs)
-    {
-        zval_dtor(zvargs);
-        if (!createStringArray(zvargs, seq))
-        {
-            RETURN_NULL();
-        }
     }
 }
 
