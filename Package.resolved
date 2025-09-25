@@ -1,6 +1,14 @@
 {
-  "originHash" : "0d79ac59ec616be918a4d81669c28b77ae9a722b7ead9f22588d7f324acc993a",
   "pins" : [
+    {
+      "identity" : "mcpp",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/zeroc-ice/mcpp.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "406c5e05578438c5df4c62cb9f33038f093c700f"
+      }
+    },
     {
       "identity" : "swift-docc-plugin",
       "kind" : "remoteSourceControl",
@@ -20,5 +28,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
