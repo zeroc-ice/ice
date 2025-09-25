@@ -171,6 +171,10 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   The existing `stringToProxy` operation on `Communicator` remains available. However, the new syntax is now the
   preferred way to create a proxy from a string.
 
+- Reduced the number of `initialize` functions that create a `Communicator`.  We can now pass either an
+  `InitializationData` to `initialize`, or a command-line argument vector. If you were using another variation, you
+  should update your code to construct an `InitializationData`.
+
 - Add new dispatcher API in C++, C#, Java, JavaScript, and Swift.
   - Replaced dispatch interceptors by middleware. See the new forwarder and middleware demos.
   - Changed the name of the Ice 3.7 dispatcher API: it's now called executor.
@@ -1036,8 +1040,10 @@ initialization. See `InitializationData.pluginFactories`.
 - The DataStorm publisher/subscriber framework has been integrated into the Ice distribution, and is no longer a
   separate product.
 
-- Added support for running DataStorm callbacks using a custom executor. The executor can be set using the
-  `customExecutor` parameter of the Node's constructor.
+- Added `NodeOptions` struct to configure a new `Node` instance.
+
+- Added support for running DataStorm callbacks using a custom executor. The custom executor can be set in
+  `NodeOptions`.
 
 - Added `DataStorm.Node.Name` property to configure the name of a DataStorm node. The node names must be unique within
   a DataStorm deployment.
