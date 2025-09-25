@@ -908,7 +908,7 @@ ZEND_FUNCTION(Ice_initialize)
     // Make sure we have a Properties object.
     if (!initData.properties)
     {
-       initData.properties = make_shared<Ice::Properties>();
+        initData.properties = make_shared<Ice::Properties>();
     }
 
     // Always accept class cycles during the unmarshaling of PHP objects by the C++ code.
