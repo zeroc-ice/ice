@@ -9,8 +9,6 @@ if(!extension_loaded("ice"))
     exit(1);
 }
 
-$NS = function_exists("\\Ice\\initialize");
-
 require_once('Ice.php');
 
 class TestHelper
@@ -24,8 +22,6 @@ class TestHelper
 
     public function getTestEndpoint()
     {
-        global $NS;
-        $propertiesCLS = $NS ? "\\Ice\\Properties" : "\\Ice_Properties";
         $properties = NULL;
         $num = 0;
         $protocol = "";
@@ -33,7 +29,7 @@ class TestHelper
 
         if(func_num_args() > 0)
         {
-            if($args[0] instanceof $propertiesCLS)
+            if($args[0] instanceof Ice\Properties)
             {
                 $properties = $args[0];
                 if(func_num_args() > 1)
@@ -106,15 +102,13 @@ class TestHelper
 
     public function getTestPort()
     {
-        global $NS;
-        $propertiesCLS = $NS ? "\\Ice\\Properties" : "\\Ice_Properties";
         $properties = NULL;
         $num = 0;
         $args = func_get_args();
 
         if(func_num_args() > 0)
         {
-            if($args[0] instanceof $propertiesCLS)
+            if($args[0] instanceof Ice\Properties)
             {
                 $properties = $args[0];
                 if(func_num_args() > 1)
@@ -138,29 +132,25 @@ class TestHelper
 
     public function createTestProperties($args = array())
     {
-        global $NS;
-        $properties = call_user_func_array($NS ? "\\Ice\\createProperties" : "\\Ice_createProperties", array(&$args));
+        $properties = Ice\createProperties($args);
         $properties->parseCommandLineOptions("Test", $args);
         return $properties;
     }
 
     public function initialize()
     {
-        global $NS;
-        $initDataCLS = $NS ? "\\Ice\\InitializationData" : "\\Ice_InitializationData";
-        $propertiesCLS = $NS ? "\\Ice\\Properties" : "\\Ice_Properties";
         $initData = NULL;
         if(func_num_args() > 0)
         {
             $args = func_get_args();
-            if($args[0] instanceof $initDataCLS)
+            if($args[0] instanceof Ice\InitializationData)
             {
                 $initData = $args[0];
             }
             else
             {
-                $initData = new $initDataCLS;
-                if($args[0] instanceof $propertiesCLS)
+                $initData = new Ice\InitializationData;
+                if($args[0] instanceof Ice\Properties)
                 {
                     $initData->properties = $args[0];
                 }
@@ -171,7 +161,7 @@ class TestHelper
             }
         }
 
-        $communicator = call_user_func_array($NS ? "\\Ice\\initialize" : "\\Ice_initialize", array(&$initData));
+        $communicator = Ice\initialize($initData);
         if($this->_communicator == NULL)
         {
             $this->_communicator = $communicator;

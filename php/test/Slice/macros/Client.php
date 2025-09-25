@@ -5,8 +5,6 @@ require_once('Test.php');
 
 function allTests()
 {
-    global $NS;
-
     echo "testing Slice predefined macros... ";
     flush();
     $d = new Test\YesDefault();
