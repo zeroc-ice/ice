@@ -2,75 +2,9 @@
 
 #nullable enable
 
-using System.Collections.Immutable;
 using System.Globalization;
-using System.Net.Security;
 
 namespace Ice;
-
-/// <summary>
-/// A class that encapsulates data to initialize a communicator.
-/// </summary>
-public sealed record class InitializationData
-{
-    /// <summary>
-    /// Gets or sets the properties for the communicator.
-    /// </summary>
-    public Properties? properties { get; set; }
-
-    /// <summary>
-    /// Gets or sets the logger for the communicator.
-    /// </summary>
-    public Logger? logger { get; set; }
-
-    /// <summary>
-    /// Gets or sets the communicator observer used by the Ice run-time.
-    /// </summary>
-    public Instrumentation.CommunicatorObserver? observer { get; set; }
-
-    /// <summary>
-    /// Gets or sets the thread start hook for the communicator.
-    /// </summary>
-    /// <value>
-    /// The Ice run time calls this hook for each new thread it creates. The call is made by the newly-started thread.
-    /// </value>
-    public Action? threadStart { get; set; }
-
-    /// <summary>
-    /// Gets or sets the thread stop hook for the communicator.
-    /// </summary>
-    /// <value>
-    /// The Ice run time calls stop before it destroys a thread. The call is made by thread that is about to be
-    /// destroyed.
-    /// </value>
-    public Action? threadStop { get; set; }
-
-    /// <summary>
-    /// Gets or sets the executor for the communicator.
-    /// </summary>
-    public Action<Action, Connection?>? executor { get; set; }
-
-    /// <summary>
-    /// Gets or sets the batch request interceptor.
-    /// </summary>
-    public Action<BatchRequest, int, int>? batchRequestInterceptor { get; set; }
-
-    /// <summary>
-    /// Gets or sets the <see cref="SslClientAuthenticationOptions"/> used by the client-side ssl transport.
-    /// </summary>
-    public SslClientAuthenticationOptions? clientAuthenticationOptions { get; set; }
-
-    /// <summary>
-    /// Gets or sets the plug-in factories. The corresponding plug-ins are created during communicator initialization,
-    /// in order, before all other plug-ins.
-    /// </summary>
-    public IList<PluginFactory> pluginFactories { get; set; } = ImmutableList<PluginFactory>.Empty;
-
-    /// <summary>
-    /// Gets or sets the Slice loader. The Slice loader is used to unmarshal Slice classes and exceptions.
-    /// </summary>
-    public SliceLoader? sliceLoader { get; set; }
-}
 
 /// <summary>
 /// Utility methods for the Ice run time.
@@ -115,68 +49,37 @@ public sealed class Util
     public static Properties createProperties(ref string[] args, Properties defaults) => new(ref args, defaults);
 
     /// <summary>
-    /// Creates a communicator.
+    /// Creates a new communicator, using Ice properties parsed from command-line arguments.
     /// </summary>
-    /// <param name="args">A command-line argument vector. Any Ice-related options
-    /// in this vector are used to initialize the communicator.
-    /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <param name="initData">Additional initialization data. Property settings in args
-    /// override property settings in initData.</param>
-    /// <returns>The initialized communicator.</returns>
-    public static Communicator initialize(ref string[] args, InitializationData? initData = null)
+    /// <param name="args">A command-line argument vector. This method parses arguments starting with `--` and one of
+    /// the reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
+    /// starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is set
+    /// in a configuration file and through a command-line argument, the command-line setting takes precedence.</param>
+    /// <returns>The new communicator.</returns>
+    /// <remarks>This method removes any Ice-related options from <paramref name="args" />.</remarks>
+    public static Communicator initialize(ref string[] args)
     {
-        initData = initData is null ? new InitializationData() : initData with { };
-        initData.properties = new Properties(ref args, initData.properties);
+        var initData = new InitializationData
+        {
+            properties = new Properties(ref args)
+        };
+
         var result = new Communicator(initData);
-        result.finishSetup(ref args);
+        result.finishSetup();
         return result;
     }
 
     /// <summary>
-    /// Creates a communicator.
+    /// Creates a new communicator.
     /// </summary>
-    /// <param name="args">A command-line argument vector. Any Ice-related options
-    /// in this vector are used to initialize the communicator.
-    /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <param name="configFile">Path to a config file that sets the new communicator's default
-    /// properties.</param>
-    /// <returns>The initialized communicator.</returns>
-    public static Communicator initialize(ref string[] args, string configFile)
-    {
-        var initData = new InitializationData();
-        initData.properties = new Properties();
-        initData.properties.load(configFile);
-        return initialize(ref args, initData);
-    }
-
-    /// <summary>
-    /// Creates a communicator.
-    /// </summary>
-    /// <param name="initData">Additional initialization data.</param>
-    /// <returns>The initialized communicator.</returns>
+    /// <param name="initData">Options for the new communicator.</param>
+    /// <returns>The new communicator.</returns>
     public static Communicator initialize(InitializationData? initData = null)
     {
         initData = initData is null ? new InitializationData() : initData with { };
-        // TODO: some tests rely on updating the properties after initialize.
-        // initData.properties = initData.properties?.Clone();
         var result = new Communicator(initData);
-        string[] args = [];
-        result.finishSetup(ref args);
+        result.finishSetup();
         return result;
-    }
-
-    /// <summary>
-    /// Creates a communicator.
-    /// </summary>
-    /// <param name="configFile">Path to a config file that sets the new communicator's default
-    /// properties.</param>
-    /// <returns>The initialized communicator.</returns>
-    public static Communicator initialize(string configFile)
-    {
-        var initData = new InitializationData();
-        initData.properties = new Properties();
-        initData.properties.load(configFile);
-        return initialize(initData);
     }
 
     /// <summary>

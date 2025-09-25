@@ -20,6 +20,8 @@ public class Server : TestHelper
         communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
 
+        test(properties == communicator.getProperties());
+
         //
         // We also register a sample server locator which implements the
         // locator interface, this locator is used by the clients and the

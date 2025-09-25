@@ -846,8 +846,7 @@ public sealed class Instance
         }
     }
 
-    // TODO: remove args
-    internal void finishSetup(ref string[] args, Ice.Communicator communicator)
+    internal void finishSetup(Communicator communicator)
     {
         //
         // Load plug-ins.
