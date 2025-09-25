@@ -37,7 +37,7 @@ namespace DataStorm
         /// An optional executor used to execute user callbacks.
         /// If no callback executor is set, the node will use the default callback executor that executes callbacks
         /// in a dedicated thread.
-        std::function<void(std::function<void()> call)> customExecutor{nullptr};
+        std::function<void(std::function<void()> call)> customExecutor{};
     };
 
     /// The Node class allows creating topic readers and writers.
