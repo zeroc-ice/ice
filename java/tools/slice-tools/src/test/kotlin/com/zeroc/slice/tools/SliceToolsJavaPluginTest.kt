@@ -1,13 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.ice.slice.tools
+package com.zeroc.slice.tools
 
 import org.gradle.testfixtures.ProjectBuilder
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 /**
- * A simple unit test for the 'com.zeroc.ice.slice-tools' plugin.
+ * A simple unit test for the 'com.zeroc.slice-tools' plugin.
  */
 class SliceToolsJavaPluginTest {
     @Test fun `plugin registers task`() {
@@ -15,7 +15,7 @@ class SliceToolsJavaPluginTest {
         val project = ProjectBuilder.builder().build()
         project.extensions.extraProperties.set("sliceToolsVersion", "3.8.0-alpha.0")
         project.plugins.apply("java")
-        project.plugins.apply("com.zeroc.ice.slice-tools")
+        project.plugins.apply("com.zeroc.slice-tools")
 
         // Set toolsPath in the plugin extension
         val extension = project.extensions.getByType(SliceExtension::class.java)

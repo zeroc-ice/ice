@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 plugins {
-    id 'com.zeroc.ice.slice-tools' apply false
+    id 'com.zeroc.slice-tools' apply false
     id 'checkstyle'
     id 'org.openrewrite.rewrite' version '7.7.0'
 }
@@ -20,7 +20,7 @@ subprojects {
 
     apply plugin: 'checkstyle'
     apply plugin: 'java'
-    apply plugin: 'com.zeroc.ice.slice-tools'
+    apply plugin: 'com.zeroc.slice-tools'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
     repositories {

@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-package com.zeroc.ice.slice.tools
+package com.zeroc.slice.tools
 
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project

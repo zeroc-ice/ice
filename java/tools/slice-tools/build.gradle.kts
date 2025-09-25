@@ -33,13 +33,13 @@ dependencies {
 // Plugin version management
 val sliceToolsVersion: String by project
 version = sliceToolsVersion
-group = "com.zeroc.ice"
+group = "com.zeroc"
 
 gradlePlugin {
     plugins {
         create("sliceTools") {
-            id = "com.zeroc.ice.slice-tools"
-            implementationClass = "com.zeroc.ice.slice.tools.SliceToolsPlugin"
+            id = "com.zeroc.slice-tools"
+            implementationClass = "com.zeroc.slice.tools.SliceToolsPlugin"
         }
     }
 }

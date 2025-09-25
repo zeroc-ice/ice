@@ -57,7 +57,7 @@ For example, when using a C++ `Debug` build for `Win32`, you can run:
 
 ### Slice Tools for Java
 
-By default, the Slice Tools for Java package `com.zeroc.ice.slice-tools` includes only the `slice2java` compiler created
+By default, the Slice Tools for Java package `com.zeroc.slice-tools` includes only the `slice2java` compiler created
 by the local C++ build. Refer to [Building Slice Tools for Ice](./tools/slice-tools/BUILDING.md) for instructions on
 including the `slice2java` compilers for all supported platforms.
 

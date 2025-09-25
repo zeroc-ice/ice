@@ -13,11 +13,11 @@ buildscript {
 }
 
 plugins {
-    id 'com.zeroc.ice.slice-tools' apply false
+    id 'com.zeroc.slice-tools' apply false
 }
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.zeroc.ice.slice-tools'
+apply plugin: 'com.zeroc.slice-tools'
 
 def topSrcDir = new File("$rootProject.projectDir/../../../..").getCanonicalPath()
 
