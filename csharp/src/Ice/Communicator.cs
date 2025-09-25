@@ -423,11 +423,11 @@ public sealed class Communicator : IDisposable, IAsyncDisposable
         instance.initialize(this, initData);
     }
 
-    internal void finishSetup(ref string[] args)
+    internal void finishSetup()
     {
         try
         {
-            instance.finishSetup(ref args, this);
+            instance.finishSetup(this);
         }
         catch
         {
