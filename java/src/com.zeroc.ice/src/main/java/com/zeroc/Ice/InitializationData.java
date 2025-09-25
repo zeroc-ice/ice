@@ -35,7 +35,10 @@ public final class InitializationData implements Cloneable {
         return c;
     }
 
-    /** The properties for the communicator. */
+    /**
+     * The properties for the communicator. When non-null, this field corresponds to the object returned by
+     * {@link Communicator#getProperties()}.
+    */
     public Properties properties;
 
     /** The logger for the communicator. */

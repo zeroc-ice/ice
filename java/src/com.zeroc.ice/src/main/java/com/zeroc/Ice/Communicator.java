@@ -5,9 +5,7 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -535,16 +533,9 @@ public final class Communicator implements AutoCloseable {
         _instance.initialize(this, initData);
     }
 
-    /** Certain initialization tasks need to be completed after the constructor. */
-    void finishSetup(String[] args, List<String> rArgs) {
+    void finishSetup() {
         try {
-            args = _instance.finishSetup(args, this);
-            if (rArgs != null) {
-                rArgs.clear();
-                if (args.length > 0) {
-                    rArgs.addAll(Arrays.asList(args));
-                }
-            }
+            _instance.finishSetup(this);
         } catch (RuntimeException ex) {
             _instance.destroy(false);
             throw ex;

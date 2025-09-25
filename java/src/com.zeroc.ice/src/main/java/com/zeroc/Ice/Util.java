@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadFactory;
@@ -102,121 +101,59 @@ public final class Util {
     /**
      * Creates a new communicator.
      *
-     * @return The new communicator.
-     */
-    public static Communicator initialize() {
-        return initialize(new InitializationData());
-    }
-
-    /**
-     * Creates a new communicator.
-     *
-     * @param args A command-line argument vector. Any Ice-related options in this vector are used
-     *     to initialize the communicator.
-     * @return The new communicator.
-     */
-    public static Communicator initialize(String[] args) {
-        return initialize(args, (InitializationData) null, null);
-    }
-
-    /**
-     * Creates a new communicator.
-     *
-     * @param args A command-line argument vector. Any Ice-related options in this vector are used
-     *     to initialize the communicator.
-     * @param remainingArgs If non null, the given list will contain on return the command-line
-     *     arguments that were not used to set properties.
-     * @return The new communicator.
-     */
-    public static Communicator initialize(String[] args, List<String> remainingArgs) {
-        return initialize(args, (InitializationData) null, remainingArgs);
-    }
-
-    /**
-     * Creates a new communicator.
-     *
-     * @param initData Additional initialization data.
-     * @return The new communicator.
-     */
-    public static Communicator initialize(InitializationData initData) {
-        return initialize(null, initData, null);
-    }
-
-    /**
-     * Creates a new communicator.
-     *
-     * @param args A command-line argument vector. Any Ice-related options in this vector are used
-     *     to initialize the communicator.
-     * @param initData Additional initialization data.
-     * @return The new communicator.
-     */
-    public static Communicator initialize(String[] args, InitializationData initData) {
-        return initialize(args, initData, null);
-    }
-
-    /**
-     * Creates a new communicator.
-     *
-     * @param args A command-line argument vector. Any Ice-related options in this vector are used
-     *     to initialize the communicator.
-     * @param configFile Path to a config file that sets the new communicator's default properties.
-     * @return The new communicator.
-     */
-    public static Communicator initialize(String[] args, String configFile) {
-        return initialize(args, configFile, null);
-    }
-
-    /**
-     * Creates a new communicator.
-     *
-     * @param args A command-line argument vector. Any Ice-related options in this vector are used
-     *     to initialize the communicator.
-     * @param initData Additional initialization data. Property settings in {@code args}
-     *     override property settings in {@code initData}.
-     * @param remainingArgs If non null, the given list will contain on return the command-line
-     *     arguments that were not used to set properties.
+     * @param initData Options for the new communicator.
      * @return The new communicator.
      * @see InitializationData
      */
-    public static Communicator initialize(
-            String[] args, InitializationData initData, List<String> remainingArgs) {
+    public static Communicator initialize(InitializationData initData) {
         if (initData == null) {
             initData = new InitializationData();
         } else {
-            initData = initData.clone();
-        }
-
-        if (args != null) {
-            List<String> rArgs = new ArrayList<>();
-            initData.properties = createProperties(args, initData.properties, rArgs);
-            args = rArgs.toArray(new String[rArgs.size()]);
+            initData = initData.clone(); // shallow clone
         }
 
         var communicator = new Communicator(initData);
-        communicator.finishSetup(args != null ? args : new String[0], remainingArgs);
+        communicator.finishSetup();
         return communicator;
     }
 
     /**
-     * Creates a new communicator.
+     * Creates a new communicator with the default options.
      *
-     * @param args A command-line argument vector. Any Ice-related options in this vector are used
-     *     to initialize the communicator.
-     * @param configFile Path to a config file that sets the new communicator's default properties.
-     * @param remainingArgs If non null, the given list will contain on return the command-line
-     *     arguments that were not used to set properties.
      * @return The new communicator.
      */
-    public static Communicator initialize(
-            String[] args, String configFile, List<String> remainingArgs) {
-        InitializationData initData = null;
-        if (configFile != null) {
-            initData = new InitializationData();
-            initData.properties = new Properties();
-            initData.properties.load(configFile);
-        }
+    public static Communicator initialize() {
+        return initialize((InitializationData) null);
+    }
 
-        return initialize(args, initData, remainingArgs);
+    /**
+     * Creates a new communicator, using Ice properties parsed from command-line arguments.
+     *
+     * @param args A command-line argument vector. This method parses arguments starting with `--` and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
+     *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
+     *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
+     * @param remainingArgs If non-null, the given list will contain on return the command-line arguments that were
+     *     not used to set properties.
+     * @return The new communicator.
+     */
+    public static Communicator initialize(String[] args, List<String> remainingArgs) {
+        var initData = new InitializationData();
+        initData.properties = new Properties(args, remainingArgs);
+        return initialize(initData);
+    }
+
+    /**
+     * Creates a new communicator, using Ice properties parsed from command-line arguments.
+     *
+     * @param args A command-line argument vector. This method parses arguments starting with `--` and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
+     *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
+     *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
+     * @return The new communicator.
+     */
+    public static Communicator initialize(String[] args) {
+        return initialize(args, null);
     }
 
     /**

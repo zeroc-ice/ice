@@ -29,13 +29,10 @@ final class Admin {
     public static void main(String[] args) {
         int status = 0;
         List<String> commands = new ArrayList<>();
-
         InitializationData initData = new InitializationData();
-        initData.properties =
-            new Properties(Collections.singletonList("IceBoxAdmin"));
+        initData.properties = new Properties(args, new Properties(Collections.singletonList("IceBoxAdmin")), commands);
 
-        try (Communicator communicator =
-            Util.initialize(args, initData, commands)) {
+        try (Communicator communicator = Util.initialize(initData)) {
             Runtime.getRuntime()
                 .addShutdownHook(
                     new Thread(
