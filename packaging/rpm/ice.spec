@@ -199,7 +199,7 @@ your application logic.
 %package -n lib%{?nameprefix}ice-c++-devel
 Summary: Libraries and headers for developing Ice applications in C++.
 Requires: lib%{?nameprefix}ice3.8-c++ = %{version}-%{release}
-Requires: {?nameprefix}ice-slice = %{version}-%{release}
+Requires: %{?nameprefix}ice-slice = %{version}-%{release}
 Requires: glibc-devel
 Requires: openssl-devel
 %description -n lib%{?nameprefix}ice-c++-devel
