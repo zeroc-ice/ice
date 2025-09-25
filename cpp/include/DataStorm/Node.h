@@ -117,7 +117,7 @@ namespace DataStorm
     private:
         std::shared_ptr<DataStormI::Instance> _instance;
         std::shared_ptr<DataStormI::TopicFactory> _factory;
-        bool _ownsCommunicator;
+        bool _ownsCommunicator{false};
 
         template<typename, typename, typename> friend class Topic;
     };

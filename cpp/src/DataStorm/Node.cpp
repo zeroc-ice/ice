@@ -47,9 +47,18 @@ NodeShutdownException::what() const noexcept
     return "::DataStorm::NodeShutdownException";
 }
 
-Node::Node(NodeOptions options) : _ownsCommunicator(!options.communicator || options.nodeOwnsCommunicator)
+Node::Node(NodeOptions options)
 {
-    auto communicator = options.communicator ? options.communicator : createCommunicator();
+    auto communicator = options.communicator;
+    if (communicator)
+    {
+        _ownsCommunicator = options.nodeOwnsCommunicator;
+    }
+    else
+    {
+        _ownsCommunicator = true;
+        communicator = createCommunicator(); // the only call that can throw up to here
+    }
 
     try
     {
