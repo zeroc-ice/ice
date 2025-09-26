@@ -24,6 +24,10 @@ cd "$root_dir/packaging/swift"
 git clone "https://x-access-token:${ICE_NIGHTLY_PUBLISH_TOKEN}@github.com/zeroc-ice/ice-swift-nightly.git" -b main
 cd ice-swift-nightly
 
+# Remove existing directories to avoid keeping stale files that may have been removed from the Ice repository.
+rm -rfv cpp slice swift
+
+# Copy the Ice for Swift sources and package manifest.
 cp -rfv ../../../cpp .
 cp -rfv ../../../slice .
 cp -rfv ../../../swift .
@@ -44,7 +48,8 @@ for zip_file in "${STAGING_DIR}"/*.zip; do
     sed -i '' -e "s|path: \".*$name\.xcframework\"|url: \"${zip_url}\",\n${indent}checksum: \"${checksum}\"|" Package.swift
 done
 
-git add Package.swift cpp swift README.md
+# Commit and push the changes
+git add .
 git config user.name "ZeroC"
 git config user.email "git@zeroc.com"
 git commit -m "ice: $version Nightly build"
