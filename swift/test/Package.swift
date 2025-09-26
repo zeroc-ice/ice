@@ -103,10 +103,25 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
         sources.append("Collocated.swift")
     }
 
+    // Exclude all .keychain and .fl* files in the test path
+    let testPathURL = URL(fileURLWithPath: testPath)
+    var exclude = [String]()
+    if let enumerator = FileManager.default.enumerator(at: testPathURL, includingPropertiesForKeys: nil) {
+        for case let fileURL as URL in enumerator {
+            let fileName = fileURL.lastPathComponent
+            if fileName.hasSuffix(".keychain") || fileName.hasPrefix(".fl") {
+                // Compute the relative path from testPath
+                let relativePath = fileURL.path.replacingOccurrences(of: testPathURL.path + "/", with: "")
+                exclude.append(relativePath)
+            }
+        }
+    }
+
     return Target.target(
         name: name,
         dependencies: dependencies,
         path: testPath,
+        exclude: exclude,
         sources: sources,
         resources: testConfig.resources,
         plugins: plugins
