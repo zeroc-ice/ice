@@ -798,6 +798,14 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
 }
 
 void
+Ice::ConnectionI::disableInactivityCheck()
+{
+    std::lock_guard lock{_mutex};
+    cancelInactivityTimerTask();
+    _inactivityTimerTask = nullptr;
+}
+
+void
 Ice::ConnectionI::closeCallback(const CloseCallback& callback)
 {
     try

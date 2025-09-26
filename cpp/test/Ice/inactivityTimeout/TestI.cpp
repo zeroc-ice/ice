@@ -20,6 +20,12 @@ TestIntfI::sleepAsync(int32_t ms, function<void()> response, function<void(excep
 }
 
 void
+TestIntfI::disableInactivityCheck(const Ice::Current& current)
+{
+    current.con->disableInactivityCheck();
+}
+
+void
 TestIntfI::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();

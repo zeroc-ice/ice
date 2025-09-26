@@ -14,6 +14,7 @@ public:
         std::function<void(std::exception_ptr)> exception,
         const Ice::Current& current) final;
 
+    void disableInactivityCheck(const Ice::Current&) final;
     void shutdown(const Ice::Current&) final;
 
 private:

@@ -23,13 +23,21 @@ testClientInactivityTimeout(const TestIntfPrx& p)
     p->ice_ping();
     ConnectionPtr connection2 = p->ice_getCachedConnection();
     test(connection2 != connection);
+    connection2->close().get();
     cout << "ok" << endl;
 }
 
 void
-testServerInactivityTimeout(const string& proxyString, const PropertiesPtr& properties)
+testServerInactivityTimeout(const string& proxyString, const PropertiesPtr& properties, bool disableCheck)
 {
-    cout << "testing that the server side inactivity timeout shuts down the connection... " << flush;
+    if (disableCheck)
+    {
+        cout << "testing connection with a disabled server-side inactivity check... " << flush;
+    }
+    else
+    {
+        cout << "testing that the server side inactivity timeout shuts down the connection... " << flush;
+    }
 
     // Create a new communicator with the desired properties.
     Ice::InitializationData initData;
@@ -40,6 +48,11 @@ testServerInactivityTimeout(const string& proxyString, const PropertiesPtr& prop
     TestIntfPrx p(holder.communicator(), proxyString);
 
     p->ice_ping();
+    if (disableCheck)
+    {
+        p->disableInactivityCheck();
+    }
+
     ConnectionPtr connection = p->ice_getCachedConnection();
     test(connection);
 
@@ -47,7 +60,18 @@ testServerInactivityTimeout(const string& proxyString, const PropertiesPtr& prop
     this_thread::sleep_for(chrono::seconds(4));
     p->ice_ping();
     ConnectionPtr connection2 = p->ice_getCachedConnection();
-    test(connection2 != connection);
+
+    if (disableCheck)
+    {
+        // With a disabled inactivity check, the connections should be the same.
+        test(connection2 == connection);
+    }
+    else
+    {
+        // When the inactivity check is enabled, the connections should be different because the server closed the
+        // first connection.
+        test(connection2 != connection);
+    }
     cout << "ok" << endl;
 }
 
@@ -84,6 +108,7 @@ testWithOutstandingRequest(TestIntfPrx p, bool oneway)
         // With a two-way invocation, the inactivity timeout should not shutdown any connection.
         test(connection2 == connection);
     }
+    connection2->close().get();
     cout << "ok" << endl;
 }
 
@@ -97,7 +122,8 @@ allTests(TestHelper* helper)
     string proxyString3s = "test: " + helper->getTestEndpoint(1);
 
     testClientInactivityTimeout(p);
-    testServerInactivityTimeout(proxyString3s, communicator->getProperties());
+    testServerInactivityTimeout(proxyString3s, communicator->getProperties(), false);
+    testServerInactivityTimeout(proxyString3s, communicator->getProperties(), true);
     testWithOutstandingRequest(p, false);
     testWithOutstandingRequest(p, true);
 
