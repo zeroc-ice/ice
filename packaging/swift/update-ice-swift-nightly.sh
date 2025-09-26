@@ -44,9 +44,9 @@ for zip_file in "${STAGING_DIR}"/*.zip; do
     sed -i '' -e "s|path: \".*$name\.xcframework\"|url: \"${zip_url}\",\n${indent}checksum: \"${checksum}\"|" Package.swift
 done
 
-git add Package.swift cpp swift README.md
+# Commit and push the changes
 git config user.name "ZeroC"
 git config user.email "git@zeroc.com"
-git commit -m "ice: $version Nightly build"
+git commit . -m "ice: $version Nightly build"
 git tag -a "$version" -m "ice: $version"
 git push origin main --tags
