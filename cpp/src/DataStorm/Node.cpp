@@ -14,24 +14,29 @@ namespace
 {
     CommunicatorPtr createCommunicator()
     {
-        PropertiesPtr properties = make_shared<Properties>(vector<string>{"DataStorm"});
-        InitializationData initData{.properties = properties};
+        InitializationData initData{.properties = make_shared<Properties>(vector<string>{"DataStorm"})};
         return initialize(std::move(initData));
     }
 
-    CommunicatorPtr argsToCommunicator(int& argc, const char* argv[])
+    NodeOptions createNodeOptions(int& argc, const char* argv[])
     {
-        PropertiesPtr properties = createProperties(argc, argv, make_shared<Properties>(vector<string>{"DataStorm"}));
+        NodeOptions options;
+        auto properties = Ice::createProperties(argc, argv, make_shared<Properties>(vector<string>{"DataStorm"}));
         InitializationData initData{.properties = properties};
-        return initialize(std::move(initData));
+        options.communicator = Ice::initialize(std::move(initData));
+        options.nodeOwnsCommunicator = true;
+        return options;
     }
 
 #ifdef _WIN32
-    CommunicatorPtr argsToCommunicator(int& argc, const wchar_t* argv[])
+    NodeOptions createNodeOptions(int& argc, const wchar_t* argv[])
     {
-        PropertiesPtr properties = createProperties(argc, argv, make_shared<Properties>(vector<string>{"DataStorm"}));
+        NodeOptions options;
+        auto properties = Ice::createProperties(argc, argv, make_shared<Properties>(vector<string>{"DataStorm"}));
         InitializationData initData{.properties = properties};
-        return initialize(std::move(initData));
+        options.communicator = Ice::initialize(std::move(initData));
+        options.nodeOwnsCommunicator = true;
+        return options;
     }
 #endif
 }
@@ -42,37 +47,22 @@ NodeShutdownException::what() const noexcept
     return "::DataStorm::NodeShutdownException";
 }
 
-Node::Node(CommunicatorPtr communicator, function<void(function<void()> call)> customExecutor)
-    : Node(std::move(communicator), std::move(customExecutor), false)
+Node::Node(NodeOptions options)
 {
-}
+    auto communicator = options.communicator;
+    if (communicator)
+    {
+        _ownsCommunicator = options.nodeOwnsCommunicator;
+    }
+    else
+    {
+        _ownsCommunicator = true;
+        communicator = createCommunicator(); // the only call that can throw up to here
+    }
 
-Node::Node(int& argc, const char* argv[], function<void(function<void()> call)> customExecutor)
-    : Node(argsToCommunicator(argc, argv), std::move(customExecutor), true)
-{
-}
-
-#ifdef _WIN32
-Node::Node(int& argc, const wchar_t* argv[], function<void(function<void()> call)> customExecutor)
-    : Node(argsToCommunicator(argc, argv), std::move(customExecutor), true)
-{
-}
-#endif
-
-Node::Node(function<void(function<void()> call)> customExecutor)
-    : Node(createCommunicator(), std::move(customExecutor), true)
-{
-}
-
-Node::Node(
-    CommunicatorPtr communicator, // NOLINT(performance-unnecessary-value-param)
-    std::function<void(std::function<void()> call)> customExecutor,
-    bool ownsCommunicator)
-    : _ownsCommunicator(ownsCommunicator)
-{
     try
     {
-        _instance = make_shared<DataStormI::Instance>(communicator, std::move(customExecutor));
+        _instance = make_shared<DataStormI::Instance>(communicator, std::move(options.customExecutor));
         _instance->init();
     }
     catch (...)
@@ -85,6 +75,12 @@ Node::Node(
     }
     _factory = _instance->getTopicFactory();
 }
+
+Node::Node(int& argc, const char* argv[]) : Node{createNodeOptions(argc, argv)} {}
+
+#ifdef _WIN32
+Node::Node(int& argc, const wchar_t* argv[]) : Node{createNodeOptions(argc, argv)} {}
+#endif
 
 Node::Node(Node&& node) noexcept
 {

@@ -29,7 +29,15 @@ void ::Writer::run(int argc, char* argv[])
             customExecutor = [](const function<void()>& cb) { cb(); };
         }
     }
-    Node node{argc, argv, customExecutor};
+
+    Ice::InitializationData initData{
+        .properties = Ice::createProperties(argc, argv, make_shared<Ice::Properties>(vector<string>{"DataStorm"}))};
+    NodeOptions options{
+        .communicator = Ice::initialize(std::move(initData)),
+        .nodeOwnsCommunicator = true,
+        .customExecutor = std::move(customExecutor)};
+
+    Node node{std::move(options)};
 
     WriterConfig config;
     config.sampleCount = -1; // Unlimited sample count
