@@ -82,8 +82,8 @@ public interface Connection
     /// Flush any pending batch requests for this connection.
     /// This means all batch requests invoked on fixed proxies associated with the connection.
     /// </summary>
-    /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent over
-    /// the wire.</param>
+    /// <param name="compress">Specifies whether or not the queued batch requests should be compressed before being sent
+    /// over the wire.</param>
     void flushBatchRequests(CompressBatch compress);
 
     System.Threading.Tasks.Task flushBatchRequestsAsync(
@@ -99,6 +99,11 @@ public interface Connection
     /// </summary>
     /// <param name="callback">The close callback object.</param>
     void setCloseCallback(CloseCallback callback);
+
+    /// <summary>
+    /// Disables the inactivity check on this connection.
+    /// </summary>
+    void disableInactivityCheck();
 
     /// <summary>
     /// Return the connection type.

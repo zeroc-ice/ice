@@ -301,6 +301,11 @@ export class ConnectionI {
         }
     }
 
+    disableInactivityCheck() {
+        this.cancelInactivityTimer();
+        this._inactivityTimeout = 0;
+    }
+
     asyncRequestCanceled(outAsync, ex) {
         for (let i = 0; i < this._sendStreams.length; i++) {
             const o = this._sendStreams[i];

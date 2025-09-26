@@ -22,7 +22,9 @@ public class AllTests {
 
         testClientInactivityTimeout(p, helper.getWriter());
         testServerInactivityTimeout(
-            helper, proxyString3s, communicator.getProperties(), helper.getWriter());
+            helper, proxyString3s, communicator.getProperties(), helper.getWriter(), false);
+        testServerInactivityTimeout(
+            helper, proxyString3s, communicator.getProperties(), helper.getWriter(), true);
         testWithOutstandingRequest(p, false, helper.getWriter());
         testWithOutstandingRequest(p, true, helper.getWriter());
 
@@ -47,13 +49,19 @@ public class AllTests {
         p.ice_ping();
         Connection connection2 = p.ice_getConnection();
         test(connection2 != connection);
+        connection2.close();
         output.println("ok");
     }
 
     private static void testServerInactivityTimeout(
-            TestHelper helper, String proxyString, Properties properties, PrintWriter output) {
-        output.write(
-            "testing that the server side inactivity timeout shuts down the connection... ");
+            TestHelper helper, String proxyString, Properties properties, PrintWriter output, boolean disableCheck) {
+
+        if (disableCheck) {
+            output.write("testing connection with a disabled server-side inactivity check... ");
+        } else {
+            output.write("testing that the server side inactivity timeout shuts down the connection... ");
+        }
+
         output.flush();
 
         // Create a new communicator with the desired properties.
@@ -65,6 +73,10 @@ public class AllTests {
             TestIntfPrx p = TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
 
             p.ice_ping();
+            if (disableCheck) {
+                p.disableInactivityCheck();
+            }
+
             Connection connection = p.ice_getConnection();
             test(connection != null);
 
@@ -75,7 +87,12 @@ public class AllTests {
             } catch (InterruptedException ex) {}
             p.ice_ping();
             Connection connection2 = p.ice_getConnection();
-            test(connection2 != connection);
+
+            if (disableCheck) {
+                test(connection2 == connection);
+            } else {
+                test(connection2 != connection);
+            }
         }
         output.println("ok");
     }
@@ -116,6 +133,7 @@ public class AllTests {
             // With a two-way invocation, the inactivity timeout should not shutdown any connection.
             test(connection2 == connection);
         }
+        connection2.close();
         output.println("ok");
     }
 

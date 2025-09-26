@@ -10,6 +10,8 @@ module Test
         ["amd"]
         void sleep(int ms);
 
+        void disableInactivityCheck();
+
         void shutdown();
     }
 }

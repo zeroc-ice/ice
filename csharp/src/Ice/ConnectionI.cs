@@ -394,6 +394,15 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private const string _flushBatchRequests_name = "flushBatchRequests";
 
+    public void disableInactivityCheck()
+    {
+        lock (_mutex)
+        {
+            cancelInactivityTimer();
+            _inactivityTimeout = TimeSpan.Zero;
+        }
+    }
+
     public void setCloseCallback(CloseCallback callback)
     {
         lock (_mutex)
@@ -2860,7 +2869,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private readonly TimeSpan _connectTimeout;
     private readonly TimeSpan _closeTimeout;
-    private readonly TimeSpan _inactivityTimeout;
+    private TimeSpan _inactivityTimeout; // protected by _mutex
 
     private System.Threading.Timer _inactivityTimer; // can be null
 

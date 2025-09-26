@@ -4,19 +4,31 @@ import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 import { TestHelper, test } from "../../Common/TestHelper.js";
 
-async function testClientInactivityTimeout(p: Test.TestIntfPrx, helper: TestHelper) {
+async function testClientInactivityTimeout(p: Test.TestIntfPrx, helper: TestHelper, disableCheck: boolean) {
     const output = helper.getWriter();
-    output.write("testing that the client side inactivity timeout shuts down the connection... ");
+    if (disableCheck) {
+        output.write("testing connection with a disabled client-side inactivity check... ");
+    } else {
+        output.write("testing that the client side inactivity timeout shuts down the connection... ");
+    }
 
     await p.ice_ping();
     const connection = await p.ice_getConnection();
     test(connection !== null);
+    if (disableCheck) {
+        connection.disableInactivityCheck();
+    }
 
     // The inactivity timeout is 3s on the client side and 5s on the server side. 4 seconds tests the client side.
     await Ice.Promise.delay(4000);
     await p.ice_ping();
     const connection2 = await p.ice_getConnection();
-    test(connection2 != connection);
+    if (disableCheck) {
+        test(connection2 == connection);
+    } else {
+        test(connection2 != connection);
+    }
+    await connection2.close();
     output.writeLine("ok");
 }
 
@@ -49,6 +61,7 @@ async function testWithOutstandingRequest(p: Test.TestIntfPrx, oneway: boolean, 
         // With a two-way invocation, the inactivity timeout should not shutdown any connection.
         test(connection2 == connection);
     }
+    await connection2.close();
     output.writeLine("ok");
 }
 
@@ -58,7 +71,8 @@ export class Client extends TestHelper {
 
         const p = new Test.TestIntfPrx(communicator, `test: ${this.getTestEndpoint()}`);
 
-        await testClientInactivityTimeout(p, this);
+        await testClientInactivityTimeout(p, this, false);
+        await testClientInactivityTimeout(p, this, true);
         await testWithOutstandingRequest(p, false, this);
         await testWithOutstandingRequest(p, true, this);
 
