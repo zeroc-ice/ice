@@ -45,8 +45,9 @@ for zip_file in "${STAGING_DIR}"/*.zip; do
 done
 
 # Commit and push the changes
+git add .
 git config user.name "ZeroC"
 git config user.email "git@zeroc.com"
-git commit . -m "ice: $version Nightly build"
+git commit -m "ice: $version Nightly build"
 git tag -a "$version" -m "ice: $version"
 git push origin main --tags
