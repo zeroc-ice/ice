@@ -24,10 +24,10 @@ cd "$root_dir/packaging/swift"
 git clone "https://x-access-token:${ICE_NIGHTLY_PUBLISH_TOKEN}@github.com/zeroc-ice/ice-swift-nightly.git" -b main
 cd ice-swift-nightly
 
-# Clean up the repository to ensure files removed from ice are not kept in ice-swift-nightly
-rm -rfv *
+# Remove existing directories to avoid keeping stale files that may have been removed from the Ice repository.
+rm -rfv cpp slice swift
 
-# Now copy the Ice for Swift sources
+# Copy the Ice for Swift sources and package manifest.
 cp -rfv ../../../cpp .
 cp -rfv ../../../slice .
 cp -rfv ../../../swift .
