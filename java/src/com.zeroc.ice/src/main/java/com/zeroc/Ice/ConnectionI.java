@@ -350,6 +350,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     }
 
     @Override
+    public synchronized void disableInactivityCheck() {
+        cancelInactivityTimer();
+        _inactivityTimeout = 0;
+    }
+
+    @Override
     public synchronized void asyncRequestCanceled(OutgoingAsyncBase outAsync, LocalException ex) {
         if (_state >= StateClosed) {
             return; // The request has already been or will be shortly notified of the failure.
@@ -2397,7 +2403,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     // All these timeouts are in seconds. A value <= 0 means infinite timeout.
     private final int _connectTimeout;
     private final int _closeTimeout;
-    private final int _inactivityTimeout;
+    private int _inactivityTimeout;
 
     private ScheduledFuture<?> _inactivityTimerFuture; // can be null
 
