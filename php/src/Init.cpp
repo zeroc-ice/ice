@@ -16,9 +16,7 @@ using namespace IcePHP;
 ZEND_DECLARE_MODULE_GLOBALS(ice)
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_initialize_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(0))
-ZEND_ARG_INFO(1, args)
-ZEND_ARG_INFO(1, properties)
-ZEND_ARG_INFO(1, initData)
+ZEND_ARG_INFO(1, argsOrInitData)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_createProperties_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(0))

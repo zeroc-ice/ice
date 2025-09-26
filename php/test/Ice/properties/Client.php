@@ -78,5 +78,12 @@ class Client extends TestHelper
         } catch (\Ice\PropertyException $ex) {
         }
         echo "ok\n";
+
+        echo "testing Ice.initialize with args... ";
+        $args = ["--Foo.Bar=1", "--Foo.Bar=2", "--Ice.Trace.Network=3"];
+        $communicator = Ice\initialize($args);
+        test($communicator->getProperties()->getIceProperty("Ice.Trace.Network") == "3");
+        test(count($args) == 2);
+        echo "ok\n";
     }
 }
