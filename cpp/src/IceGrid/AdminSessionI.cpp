@@ -486,9 +486,8 @@ AdminSessionFactory::createGlacier2Session(
         }
     }
 
-    // We can't use a non-0 timeout such as the Glacier2 session timeout. As of Ice 3.8, heartbeats may not be sent
-    // at all on a busy connection. Furthermore, as of Ice 3.8, Glacier2 no longer "converts" heartbeats into
-    // keepAlive requests.
+    // We can't use a non-0 timeout. As of Ice 3.8, heartbeats may not be sent at all on a busy connection.
+    // Furthermore, as of Ice 3.8, Glacier2 no longer "converts" heartbeats into keepAlive requests.
     _reaper->add(make_shared<SessionReapable<AdminSessionI>>(_database->getTraceLevels()->logger, session), 0s, con);
     return Ice::uncheckedCast<Glacier2::SessionPrx>(proxy);
 }

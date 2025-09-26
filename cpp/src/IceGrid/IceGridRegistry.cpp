@@ -179,17 +179,6 @@ RegistryService::initializeCommunicator(int& argc, char* argv[], InitializationD
         initData.properties->setProperty("Ice.Admin.Enabled", "1");
     }
 
-    // Turn-off the inactivity timeout for the IceGrid.Registry.Client object adapter unless the application sets this
-    // property. That's because the IceGrid.Registry.Client object adapter hosts connection-bound sessions
-    // (admin sessions and resource allocation sessions).
-    // We use getProperty and not getIceProperty on purpose here!
-    // TODO: replace this code by switching off the inactivity timeout programmatically on incoming connections with
-    // associated sessions.
-    if (initData.properties->getProperty("IceGrid.Registry.Client.Connection.InactivityTimeout").empty())
-    {
-        initData.properties->setProperty("IceGrid.Registry.Client.Connection.InactivityTimeout", "0");
-    }
-
     //
     // Setup the client thread pool size.
     //

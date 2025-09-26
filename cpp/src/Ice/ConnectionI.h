@@ -177,6 +177,8 @@ namespace Ice
 
         void setCloseCallback(CloseCallback) final;
 
+        void disableInactivityCheck() final;
+
         void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
         [[nodiscard]] IceInternal::EndpointIPtr endpoint() const;

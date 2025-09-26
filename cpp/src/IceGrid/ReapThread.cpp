@@ -146,6 +146,11 @@ ReapThread::add(const shared_ptr<Reapable>& reapable, chrono::seconds timeout, c
         auto p = _connections.find(connection);
         if (p == _connections.end())
         {
+            // Disable the inactivity check on this connection since it's bound to a session.
+            // This is useful for incoming connections managed by the IceGrid.Registry.Client object adapter; for
+            // other object adapters, the inactivity timeout is 0 and the check is already disabled.
+            connection->disableInactivityCheck();
+
             p = _connections.insert({connection, {}}).first;
             connection->setCloseCallback(_closeCallback);
         }
