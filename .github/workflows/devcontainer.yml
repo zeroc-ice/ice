@@ -1,0 +1,24 @@
+name: Dev Containers
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build dev containers
+        run: |
+          set -e
+          find .devcontainer -name 'devcontainer.json' -type f | while IFS= read -r file; do
+            echo "Building devcontainer for workspace folder: $(dirname "$file")"
+            npx @devcontainers/cli@latest build --workspace-folder "$(dirname "$file")" --config "$file"
+          done
