@@ -18,6 +18,7 @@ ICEIMPL_API @interface ICEConnection : ICELocalObject
 - (ICEEndpoint*)getEndpoint;
 - (void)flushBatchRequests:(uint8_t)compress exception:(void (^)(NSError*))exception sent:(void (^)(bool))sent;
 - (BOOL)setCloseCallback:(nullable void (^)(ICEConnection*))callback error:(NSError* _Nullable* _Nullable)error;
+- (void)disableInactivityCheck;
 
 - (NSString*)type;
 - (NSString*)toString;

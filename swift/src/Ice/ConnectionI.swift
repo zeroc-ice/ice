@@ -74,6 +74,10 @@ final class ConnectionI: LocalObject<ICEConnection>, Connection, @unchecked Send
         }
     }
 
+    func disableInactivityCheck() {
+        handle.disableInactivityCheck()
+    }
+
     func type() -> String {
         return handle.type()
     }

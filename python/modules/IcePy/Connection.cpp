@@ -474,6 +474,14 @@ connectionSetCloseCallback(ConnectionObject* self, PyObject* args)
 }
 
 extern "C" PyObject*
+connectionDisableInactivityCheck(ConnectionObject* self, PyObject* /* args */)
+{
+    assert(self->connection);
+    (*self->connection)->disableInactivityCheck();
+    return Py_None;
+}
+
+extern "C" PyObject*
 connectionType(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
@@ -589,6 +597,10 @@ static PyMethodDef ConnectionMethods[] = {
      reinterpret_cast<PyCFunction>(connectionCreateProxy),
      METH_VARARGS,
      PyDoc_STR("createProxy(Ice.Identity) -> Ice.ObjectPrx")},
+    {"disableInactivityCheck",
+     reinterpret_cast<PyCFunction>(connectionDisableInactivityCheck),
+     METH_NOARGS,
+     PyDoc_STR("disableInactivityCheck() -> None")},
     {"setAdapter",
      reinterpret_cast<PyCFunction>(connectionSetAdapter),
      METH_VARARGS,
