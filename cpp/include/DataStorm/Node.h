@@ -57,10 +57,7 @@ namespace DataStorm
         /// A node is the main DataStorm object. It is required to construct topics.
         /// @param communicator The communicator used by the node. If nullptr, the node creates its own communicator.
         /// @remark This constructor sets the nodeOwnsCommunicator option to false.
-        explicit Node(Ice::CommunicatorPtr communicator)
-            : Node{NodeOptions{.communicator = std::move(communicator), .nodeOwnsCommunicator = false}}
-        {
-        }
+        explicit Node(Ice::CommunicatorPtr communicator);
 
         /// Constructs a DataStorm node with an Ice communicator initialized from command line arguments.
         /// A node is the main DataStorm object. It is required to construct topics.
