@@ -97,6 +97,19 @@ ZEND_METHOD(Ice_Connection, close)
     }
 }
 
+ZEND_METHOD(Ice_Connection, disableInactivityCheck)
+{
+    if (ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
+    assert(_this);
+
+    _this->disableInactivityCheck();
+}
+
 ZEND_METHOD(Ice_Connection, getEndpoint)
 {
     if (ZEND_NUM_ARGS() > 0)
@@ -304,6 +317,8 @@ static zend_function_entry _connectionClassMethods[] = {
     ZEND_ME(Ice_Connection, abort, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // close
     ZEND_ME(Ice_Connection, close, ice_void_arginfo, ZEND_ACC_PUBLIC)
+    // disableInactivityCheck
+    ZEND_ME(Ice_Connection, disableInactivityCheck, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // getEndpoint
     ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
     // flushBatchRequests

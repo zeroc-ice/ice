@@ -84,6 +84,15 @@ classdef Connection < IceInternal.WrapperObject
             r = Ice.ObjectPrx(obj.communicator, '', proxy, obj.communicator.getEncoding());
         end
 
+        function disableInactivityCheck(obj)
+            %DISABLEINACTIVITYCHECK Disables the inactivity check for this connection.
+
+            arguments
+                obj (1, 1) Ice.Connection
+            end
+            obj.iceCall('disableInactivityCheck');
+        end
+
         function r = getEndpoint(obj)
             %GETENDPOINT Gets the endpoint from which the connection was created.
             %
