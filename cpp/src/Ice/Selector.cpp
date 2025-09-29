@@ -116,31 +116,40 @@ Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int 
     LPOVERLAPPED ol;
     error = ERROR_SUCCESS;
 
-    if (!GetQueuedCompletionStatus(_handle, &count, &key, &ol, timeout > 0 ? timeout * 1000 : INFINITE))
+    int getQueuedPackageFailed = 0;
+    while (true)
     {
-        int err = WSAGetLastError();
-        if (ol == 0)
+        if (!GetQueuedCompletionStatus(_handle, &count, &key, &ol, timeout > 0 ? timeout * 1000 : INFINITE))
         {
-            if (err == WAIT_TIMEOUT)
+            error = GetLastError();
+            if (ol == 0)
             {
-                throw SelectorTimeoutException();
+                if (error == WAIT_TIMEOUT)
+                {
+                    throw SelectorTimeoutException();
+                }
+                else
+                {
+                    if (++getQueuedPackageFailed > 100)
+                    {
+                        getQueuedPackageFailed = 0;
+                        Ice::SocketException ex(__FILE__, __LINE__, error);
+                        Ice::Warning out(_instance->initializationData().logger);
+                        out << "couldn't dequeue packet from completion port:\n" << ex;
+                    }
+                    std::this_thread::sleep_for(1ms); // Sleep 1ms to avoid looping
+                    continue;
+                }
             }
-            else
+            AsyncInfo* info = static_cast<AsyncInfo*>(ol);
+            if (info)
             {
-                Ice::SocketException ex(__FILE__, __LINE__, err);
-                Ice::Error out(_instance->initializationData().logger);
-                out << "couldn't dequeue packet from completion port:\n" << ex;
-                this_thread::sleep_for(5s); // Sleep 5s to avoid looping
+                status = info->status;
             }
+            count = 0;
+            return reinterpret_cast<EventHandler*>(key);
         }
-        AsyncInfo* info = static_cast<AsyncInfo*>(ol);
-        if (info)
-        {
-            status = info->status;
-        }
-        count = 0;
-        error = WSAGetLastError();
-        return reinterpret_cast<EventHandler*>(key);
+        break;
     }
 
     AsyncInfo* info = static_cast<AsyncInfo*>(ol);
@@ -619,6 +628,7 @@ Selector::select(int timeout)
     }
 
     int spuriousWakeup = 0;
+    int selectorFailed = 0;
     while (true)
     {
 #    if defined(ICE_USE_EPOLL)
@@ -645,10 +655,15 @@ Selector::select(int timeout)
                 continue;
             }
 
-            Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
-            Ice::Error out(_instance->initializationData().logger);
-            out << "selector failed:\n" << ex;
-            std::this_thread::sleep_for(5s); // Sleep 5s to avoid looping
+            if (++selectorFailed > 100)
+            {
+                selectorFailed = 0;
+                Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
+                Ice::Warning out(_instance->initializationData().logger);
+                out << "selector failed:\n" << ex;
+            }
+            std::this_thread::sleep_for(1ms); // Sleep 1ms to avoid looping
+            continue;
         }
         else if (_count == 0 && timeout < 0)
         {
@@ -657,7 +672,7 @@ Selector::select(int timeout)
                 spuriousWakeup = 0;
                 _instance->initializationData().logger->warning("spurious selector wakeup");
             }
-            std::this_thread::sleep_for(1ms);
+            std::this_thread::sleep_for(1ms); // Sleep 1ms to avoid looping
             continue;
         }
         break;
