@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <ctype.h>
+#include <strstream>
 
 using namespace std;
 using namespace IcePHP;
@@ -532,7 +533,9 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
         {
             return;
         }
-        setStringMember(zex, "message", e.what());
+        ostringstream os;
+        e.ice_print(os);
+        setStringMember(zex, "message", os.str());
     }
     catch (const std::invalid_argument& e)
     {

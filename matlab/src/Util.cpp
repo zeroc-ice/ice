@@ -290,10 +290,10 @@ namespace
     }
 
     // Create a "standard" MATLAB exception for the given typeId then fallback to LocalException.
-    mxArray* createMatlabException(const char* typeId, const char* what)
+    mxArray* createMatlabException(const char* typeId, const string& message)
     {
         string errID = replace(string{typeId}.substr(2), "::", ":");
-        std::array params{IceMatlab::createStringFromUTF8(errID), IceMatlab::createStringFromUTF8(what)};
+        std::array params{IceMatlab::createStringFromUTF8(errID), IceMatlab::createStringFromUTF8(message)};
 
         string className = replace(string{typeId}.substr(2), "::", ".");
         mxArray* ex;
@@ -402,7 +402,9 @@ IceMatlab::convertException(const std::exception_ptr exc)
     }
     catch (const Ice::LocalException& e)
     {
-        result = createMatlabException(e.ice_id(), e.what());
+        ostringstream os;
+        e.ice_print(os);
+        result = createMatlabException(e.ice_id(), os.str().c_str());
     }
     catch (const std::exception& e)
     {

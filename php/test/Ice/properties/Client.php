@@ -65,7 +65,7 @@ class Client extends TestHelper
             $properties->getIceProperty("Ice.UnknownProperty");
             test(False);
         } catch (\Ice\PropertyException $ex) {
-            test($ex->getMessage() == "unknown Ice property: Ice.UnknownProperty");
+            test(str_contains($ex->getMessage(), "unknown Ice property: Ice.UnknownProperty"));
         }
         echo "ok\n";
 

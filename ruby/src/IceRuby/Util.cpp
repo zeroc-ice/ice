@@ -4,6 +4,7 @@
 #include "Ice/LocalExceptions.h"
 #include "Ice/VersionFunctions.h"
 #include <stdarg.h>
+#include <strstream>
 
 using namespace std;
 using namespace IceRuby;
@@ -623,7 +624,9 @@ IceRuby::convertException(std::exception_ptr eptr)
         // Then all other exceptions.
         catch (const Ice::LocalException& ex)
         {
-            std::array args{IceRuby::createString(ex.what())};
+            ostringstream os;
+            ex.ice_print(os);
+            std::array args{IceRuby::createString(os.str())};
             return createRubyException(ex.ice_id(), std::move(args), true);
         }
         catch (const std::exception& ex)
