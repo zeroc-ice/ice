@@ -76,8 +76,8 @@ Node::Node(NodeOptions options)
     _factory = _instance->getTopicFactory();
 }
 
-
-Node::Node(Ice::CommunicatorPtr communicator) : Node{NodeOptions{.communicator = std::move(communicator), .nodeOwnsCommunicator = false}}
+Node::Node(Ice::CommunicatorPtr communicator)
+    : Node{NodeOptions{.communicator = std::move(communicator), .nodeOwnsCommunicator = false}}
 {
 }
 
