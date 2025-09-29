@@ -7,6 +7,7 @@
 #include <array>
 #include <locale>
 #include <string>
+#include <strstream>
 
 using namespace std;
 
@@ -404,7 +405,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
     {
         ostringstream os;
         e.ice_print(os);
-        result = createMatlabException(e.ice_id(), os.str().c_str());
+        result = createMatlabException(e.ice_id(), os.str());
     }
     catch (const std::exception& e)
     {
