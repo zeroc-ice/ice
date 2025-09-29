@@ -168,7 +168,7 @@ namespace IceInternal
         // the task has already run, was already cancelled or was never
         // scheduled.
         //
-        bool cancel(const TimerTaskPtr&);
+        bool cancel(const TimerTaskPtr&) noexcept;
 
         // Checks if this timer task is scheduled.
         bool isScheduled(const TimerTaskPtr&);
@@ -197,7 +197,7 @@ namespace IceInternal
         };
 
         void run();
-        bool cancelNoSync(const TimerTaskPtr& task);
+        bool cancelNoSync(const TimerTaskPtr& task) noexcept;
 
         std::mutex _mutex;
         std::condition_variable _condition;

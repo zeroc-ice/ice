@@ -116,8 +116,8 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     /// Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
     /// associated with the connection.
     ///
-    /// - parameter compress: `CompressBatch` Specifies whether or not the queued batch requests should be compressed before
-    /// being sent over the wire.
+    /// - parameter compress: `CompressBatch` Specifies whether or not the queued batch requests should be compressed
+    /// before being sent over the wire.
     func flushBatchRequests(_ compress: CompressBatch) async throws
 
     /// Set a close callback on the connection. The callback is called by the connection when it's closed. The callback
@@ -126,6 +126,9 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     ///
     /// - parameter callback: `CloseCallback?` The close callback object.
     func setCloseCallback(_ callback: CloseCallback?) throws
+
+    /// Disable the inactivity check on this connection.
+    func disableInactivityCheck()
 
     /// Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
     ///

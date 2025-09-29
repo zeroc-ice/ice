@@ -130,7 +130,7 @@ namespace Ice
         virtual void setCloseCallback(CloseCallback callback) = 0;
 
         /// Disables the inactivity check on this connection.
-        virtual void disableInactivityCheck() = 0;
+        virtual void disableInactivityCheck() noexcept = 0;
 
         /// Returns the connection type. This corresponds to the endpoint type, such as "tcp", "udp", etc.
         /// @return The type of the connection.

@@ -34,7 +34,7 @@ Timer::destroy()
 }
 
 bool
-Timer::cancel(const TimerTaskPtr& task)
+Timer::cancel(const TimerTaskPtr& task) noexcept
 {
     lock_guard lock(_mutex);
     return cancelNoSync(task);
@@ -143,7 +143,7 @@ Timer::run()
 }
 
 bool
-Timer::cancelNoSync(const TimerTaskPtr& task)
+Timer::cancelNoSync(const TimerTaskPtr& task) noexcept
 {
     if (_destroyed)
     {
