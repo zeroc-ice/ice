@@ -84,6 +84,11 @@ declare module "@zeroc/ice" {
             setCloseCallback(callback: Ice.CloseCallback): void;
 
             /**
+             * Disables the inactivity check on this connection.
+             */
+            disableInactivityCheck(): void;
+
+            /**
              * Returns the connection type, which corresponds to the endpoint type (e.g., "tcp", "udp", etc.).
              *
              * @returns The type of the connection.

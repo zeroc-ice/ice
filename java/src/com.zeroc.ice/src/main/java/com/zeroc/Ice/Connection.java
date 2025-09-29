@@ -84,6 +84,11 @@ public interface Connection {
     void setCloseCallback(CloseCallback callback);
 
     /**
+     * Disables the inactivity check on this connection.
+     */
+    void disableInactivityCheck();
+
+    /**
      * Gets the connection type. This corresponds to the endpoint type, such as "tcp", "udp", etc.
      *
      * @return The type of the connection.

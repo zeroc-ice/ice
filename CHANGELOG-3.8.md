@@ -74,7 +74,9 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
   setting `Ice.Connection.Client.InactivityTimeout` (for client connections) or
   `Ice.Connection.Server.InactivityTimeout` (for server connections). The unit for this timeout is seconds. You
   can also override this value for a specific object adapter with the configuration property
-  `AdapterName.Connection.InactivityTimeout`.\
+  `AdapterName.Connection.InactivityTimeout`. You can also disable the inactivity timeout/check on a connection
+  programmatically by calling `disableInactivityCheck` on the connection. This disables the inactivity check only on
+  your end of the connection.\
   Make sure your inactivity timeout is greater than your idle timeout, as the implementation of the inactivity
   timeout relies on a smaller idle timeout value. If you disable your idle timeout by setting it to 0 or very large
   value (not something we recommend), you will effectively disable your inactivity timeout as well.

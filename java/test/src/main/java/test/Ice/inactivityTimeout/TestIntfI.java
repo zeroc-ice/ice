@@ -23,6 +23,11 @@ class TestIntfI implements TestIntf {
     }
 
     @Override
+    public void disableInactivityCheck(Current current) {
+        current.con.disableInactivityCheck();
+    }
+
+    @Override
     public void shutdown(Current current) {
         current.adapter.getCommunicator().shutdown();
     }
