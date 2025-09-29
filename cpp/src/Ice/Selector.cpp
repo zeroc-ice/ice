@@ -14,6 +14,7 @@
 #include <chrono>
 #include <thread>
 
+#ifndef ICE_USE_CFSTREAM
 // Constants shared across Windows and Unix selector implementations.
 
 // Warn every 100 iterations if there is an unexpected selector error. To avoid flooding the log.
@@ -21,6 +22,7 @@ static constexpr int selectorRetryWarnEvery = 100;
 
 // Backoff duration for transient errors. This is the time we wait before retrying to avoid overloading the CPU.
 static constexpr auto transientErrorBackoff = std::chrono::milliseconds(1);
+#endif
 
 using namespace std;
 using namespace IceInternal;
