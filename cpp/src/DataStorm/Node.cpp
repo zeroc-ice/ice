@@ -76,6 +76,11 @@ Node::Node(NodeOptions options)
     _factory = _instance->getTopicFactory();
 }
 
+Node::Node(Ice::CommunicatorPtr communicator)
+    : Node{NodeOptions{.communicator = std::move(communicator), .nodeOwnsCommunicator = false}}
+{
+}
+
 Node::Node(int& argc, const char* argv[]) : Node{createNodeOptions(argc, argv)} {}
 
 #ifdef _WIN32
