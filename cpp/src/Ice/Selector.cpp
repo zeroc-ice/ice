@@ -14,6 +14,14 @@
 #include <chrono>
 #include <thread>
 
+// Constants shared across Windows and Unix selector implementations.
+
+// Warn every 100 iterations if there is an unexpected selector error. To avoid flooding the log.
+static constexpr int selectorRetryWarnEvery = 100;
+
+// Backoff duration for transient errors. This is the time we wait before retrying to avoid overloading the CPU.
+static constexpr auto transientErrorBackoff = std::chrono::milliseconds(1);
+
 using namespace std;
 using namespace IceInternal;
 
@@ -116,41 +124,40 @@ Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int 
     LPOVERLAPPED ol;
     error = ERROR_SUCCESS;
 
-    int getQueuedPackageFailed = 0;
-    while (true)
+    int dequePacketFailed = 0;
+    while (!GetQueuedCompletionStatus(_handle, &count, &key, &ol, timeout > 0 ? timeout * 1000 : INFINITE))
     {
-        if (!GetQueuedCompletionStatus(_handle, &count, &key, &ol, timeout > 0 ? timeout * 1000 : INFINITE))
+        error = GetLastError();
+        if (ol == nullptr)
         {
-            error = GetLastError();
-            if (ol == 0)
+            if (error == WAIT_TIMEOUT)
             {
-                if (error == WAIT_TIMEOUT)
-                {
-                    throw SelectorTimeoutException();
-                }
-                else
-                {
-                    if (++getQueuedPackageFailed > 100)
-                    {
-                        getQueuedPackageFailed = 0;
-                        Ice::SocketException ex(__FILE__, __LINE__, error);
-                        Ice::Warning out(_instance->initializationData().logger);
-                        out << "couldn't dequeue packet from completion port:\n" << ex;
-                    }
-                    std::this_thread::sleep_for(1ms); // Sleep 1ms to avoid looping
-                    continue;
-                }
+                throw SelectorTimeoutException();
             }
-            AsyncInfo* info = static_cast<AsyncInfo*>(ol);
-            if (info)
+            else
             {
-                status = info->status;
+                // This is an unexpected error, we log a warning every selectorRetryWarnEvery iterations to avoid
+                // flooding the log.
+                if (++dequePacketFailed % selectorRetryWarnEvery == 0)
+                {
+                    Ice::SocketException ex(__FILE__, __LINE__, error);
+                    Ice::Warning out(_instance->initializationData().logger);
+                    out << "couldn't dequeue packet from completion port:\n" << ex;
+                }
+                // Sleep to avoid retrying immediately.
+                std::this_thread::sleep_for(transientErrorBackoff);
+                continue;
             }
-            count = 0;
-            return reinterpret_cast<EventHandler*>(key);
         }
-        break;
+        AsyncInfo* info = static_cast<AsyncInfo*>(ol);
+        if (info)
+        {
+            status = info->status;
+        }
+        count = 0;
+        return reinterpret_cast<EventHandler*>(key);
     }
+    error = 0;
 
     AsyncInfo* info = static_cast<AsyncInfo*>(ol);
     if (info)
@@ -655,24 +662,27 @@ Selector::select(int timeout)
                 continue;
             }
 
-            if (++selectorFailed > 100)
+            // Warn every selectorRetryWarnEvery iterations if the selector fails, to avoid flooding the log.
+            if (++selectorFailed % selectorRetryWarnEvery == 0)
             {
-                selectorFailed = 0;
                 Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
                 Ice::Warning out(_instance->initializationData().logger);
                 out << "selector failed:\n" << ex;
             }
-            std::this_thread::sleep_for(1ms); // Sleep 1ms to avoid looping
+            // Sleep to avoid retrying immediately.
+            std::this_thread::sleep_for(transientErrorBackoff);
             continue;
         }
         else if (_count == 0 && timeout < 0)
         {
-            if (++spuriousWakeup > 100)
+            // This is a spurious wakeup, we log a warning every selectorRetryWarnEvery iterations to avoid flooding the
+            // log.
+            if (++spuriousWakeup % selectorRetryWarnEvery == 0)
             {
-                spuriousWakeup = 0;
                 _instance->initializationData().logger->warning("spurious selector wakeup");
             }
-            std::this_thread::sleep_for(1ms); // Sleep 1ms to avoid looping
+            // Sleep to avoid retrying immediately.
+            std::this_thread::sleep_for(transientErrorBackoff);
             continue;
         }
         break;
