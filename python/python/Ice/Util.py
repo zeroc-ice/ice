@@ -70,12 +70,6 @@ def initialize(
             await greeter.greetAsync()
     """
 
-    if initData and args:
-        raise InitializationException("Both args and initData arguments cannot be specified")
-
-    if initData and eventLoop:
-        raise InitializationException("Both initData and eventLoop arguments cannot be specified")
-
     eventLoopAdapter = initData.eventLoopAdapter if initData else None
     if eventLoop:
         eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
