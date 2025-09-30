@@ -177,7 +177,7 @@ namespace Ice
 
         void setCloseCallback(CloseCallback) final;
 
-        void disableInactivityCheck() final;
+        void disableInactivityCheck() noexcept final;
 
         void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
@@ -322,7 +322,7 @@ namespace Ice
         IceInternal::SocketOperation write(IceInternal::Buffer&);
 
         void scheduleInactivityTimerTask();
-        void cancelInactivityTimerTask();
+        void cancelInactivityTimerTask() noexcept;
 
         void scheduleCloseTimerTask();
         void doApplicationClose() noexcept;

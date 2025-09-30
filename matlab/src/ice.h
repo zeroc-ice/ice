@@ -151,6 +151,7 @@ extern "C"
     ICE_MATLAB_API mxArray* Ice_Connection_abort(void*);
     ICE_MATLAB_API mxArray* Ice_Connection_close(void*, void**);
     ICE_MATLAB_API mxArray* Ice_Connection_createProxy(void*, mxArray*, void**);
+    ICE_MATLAB_API mxArray* Ice_Connection_disableInactivityCheck(void*);
     ICE_MATLAB_API mxArray* Ice_Connection_flushBatchRequests(void*, mxArray*);
     ICE_MATLAB_API mxArray* Ice_Connection_flushBatchRequestsAsync(void*, mxArray*, void**);
     ICE_MATLAB_API mxArray* Ice_Connection_getEndpoint(void*, void**);

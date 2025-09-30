@@ -798,7 +798,7 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
 }
 
 void
-Ice::ConnectionI::disableInactivityCheck()
+Ice::ConnectionI::disableInactivityCheck() noexcept
 {
     std::lock_guard lock{_mutex};
     cancelInactivityTimerTask();
@@ -3529,7 +3529,7 @@ ConnectionI::scheduleInactivityTimerTask()
 }
 
 void
-ConnectionI::cancelInactivityTimerTask()
+ConnectionI::cancelInactivityTimerTask() noexcept
 {
     // Called with the ConnectionI mutex locked.
     if (_inactivityTimerTaskScheduled && _inactivityTimerTask)

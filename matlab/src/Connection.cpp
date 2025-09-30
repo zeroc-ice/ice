@@ -174,6 +174,12 @@ extern "C"
         }
     }
 
+    mxArray* Ice_Connection_disableInactivityCheck(void* self)
+    {
+        deref<Ice::Connection>(self)->disableInactivityCheck();
+        return createEmptyArray();
+    }
+
     mxArray* Ice_Connection_flushBatchRequests(void* self, mxArray* c)
     {
         try

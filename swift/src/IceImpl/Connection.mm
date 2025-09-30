@@ -126,6 +126,11 @@
     }
 }
 
+- (void)disableInactivityCheck
+{
+    self.connection->disableInactivityCheck();
+}
+
 - (NSString*)type
 {
     return toNSString(self.connection->type());
