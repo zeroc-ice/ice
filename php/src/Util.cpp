@@ -6,7 +6,7 @@
 
 #include <algorithm>
 #include <ctype.h>
-#include <strstream>
+#include <sstream>
 
 using namespace std;
 using namespace IcePHP;

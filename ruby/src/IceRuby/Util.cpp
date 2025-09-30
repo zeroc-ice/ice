@@ -4,7 +4,7 @@
 #include "Ice/LocalExceptions.h"
 #include "Ice/VersionFunctions.h"
 #include <stdarg.h>
-#include <strstream>
+#include <sstream>
 
 using namespace std;
 using namespace IceRuby;

@@ -9,7 +9,7 @@
 #include <compile.h>
 #include <cstddef>
 #include <frameobject.h>
-#include <strstream>
+#include <sstream>
 
 using namespace std;
 using namespace Slice::Python;

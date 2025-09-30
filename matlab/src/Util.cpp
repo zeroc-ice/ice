@@ -7,7 +7,7 @@
 #include <array>
 #include <locale>
 #include <string>
-#include <strstream>
+#include <sstream>
 
 using namespace std;
 
