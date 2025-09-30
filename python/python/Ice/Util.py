@@ -70,12 +70,6 @@ def initialize(
             await greeter.greetAsync()
     """
 
-    if args and not isinstance(args, list):
-        raise InitializationException("args must be a list of strings")
-
-    if initData and not isinstance(initData, InitializationData):
-        raise InitializationException("initData must be an instance of Ice.InitializationData")
-
     if initData and args:
         raise InitializationException("Both args and initData arguments cannot be specified")
 
@@ -84,9 +78,6 @@ def initialize(
 
     eventLoopAdapter = initData.eventLoopAdapter if initData else None
     if eventLoop:
-        assert not eventLoopAdapter  # initData is None here
-        if not isinstance(eventLoop, asyncio.AbstractEventLoop):
-            raise InitializationException("The event loop must be an instance of asyncio.AbstractEventLoop")
         eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
 
     if args:
