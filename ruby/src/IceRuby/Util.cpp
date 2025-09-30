@@ -3,8 +3,8 @@
 #include "Util.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/VersionFunctions.h"
-#include <stdarg.h>
 #include <sstream>
+#include <stdarg.h>
 
 using namespace std;
 using namespace IceRuby;

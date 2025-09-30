@@ -6,8 +6,8 @@
 
 #include <array>
 #include <locale>
-#include <string>
 #include <sstream>
+#include <string>
 
 using namespace std;
 
