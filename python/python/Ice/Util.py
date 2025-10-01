@@ -71,7 +71,11 @@ def initialize(
     """
 
     eventLoopAdapter = initData.eventLoopAdapter if initData else None
-    if eventLoop:
+
+    eventLoopAdapter = None
+    if initData:
+        eventLoopAdapter = initData.eventLoopAdapter
+    elif eventLoop:
         eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
 
     if args:
