@@ -16,25 +16,19 @@ internal class AllTests : global::Test.AllTests
         string proxyString3s = $"test: {helper.getTestEndpoint(2)}";
         string proxyStringNoIdleTimeout = $"test: {helper.getTestEndpoint(3)}";
 
-        while (true)
+        if (proxyString.Contains("ssl"))
         {
-            try
+            for (int i = 0; i < 50; i++)
             {
                 await testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
             }
-            catch (Exception exception)
-            {
-                Console.WriteLine(
-                    $"testIdleCheckDoesNotAbortBackPressuredConnection FAILED with exception: {exception}");
-                break;
-            }
         }
         /*
-            await testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
-            await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), helper.getWriter());
-            await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), helper.getWriter());
-            await testNoIdleTimeout(proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
-            */
+                await testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
+                await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), helper.getWriter());
+                await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), helper.getWriter());
+                await testNoIdleTimeout(proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
+                */
 
         await p.shutdownAsync();
     }
@@ -50,7 +44,7 @@ internal class AllTests : global::Test.AllTests
         // Establish connection.
         await p.ice_pingAsync();
 
-        await p.sleepAsync(2000); // the implementation in the server sleeps synchronously for 2,000ms
+        await p.sleepAsync(20_000); // the implementation in the server sleeps synchronously for 20,000ms
 
         // close connection
         await p.ice_getConnection()!.closeAsync();
