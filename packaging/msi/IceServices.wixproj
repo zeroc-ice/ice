@@ -12,8 +12,6 @@
     <VCInstallDir Condition="'$(VCInstallDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(VCInstallDir)'))</VCInstallDir>
     <!-- Use DefineConstants to make MSBuild properties available in wxs Wix Files-->
     <DefineConstants>Version=3.8.0</DefineConstants>
-    <DefineConstants>$(DefineConstants);IceManualUrl=https://docs.zeroc.com/ice/latest/cpp/</DefineConstants>
-    <DefineConstants>$(DefineConstants);IceSourceUrl=https://github.com/zeroc-ice/ice</DefineConstants>
     <DefineConstants>$(DefineConstants);IceReleaseNotesUrl=https://docs.zeroc.com/ice/latest/cpp/ice-3-8-0-preview</DefineConstants>
     <OutputName>Ice-Services-$(IcePackageVersion)</OutputName>
     <ProductCode>Ice-Services-$(Version)</ProductCode>
@@ -31,7 +29,8 @@
   <ItemGroup>
     <Libraries Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\*.dll" />
     <Executables Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\*.exe"
-      Exclude="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\slice2*.exe" />
+      Exclude="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\slice2*.exe;
+               $(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\ice2slice.exe" />
   </ItemGroup>
   <!-- Copy required files to staging before MSI build -->
   <Target Name="CopyToStaging" BeforeTargets="CoreCompile">
@@ -39,7 +38,6 @@
       Text="The IceGridGUI must be build before creating the MSI package." />
     <RemoveDir Directories="$(StagingDir)" />
     <MakeDir Directories="$(StagingDir)bin" />
-    <Copy SourceFiles="@(Tools)" DestinationFolder="$(StagingDir)bin" />
     <Copy SourceFiles="@(Libraries)" DestinationFolder="$(StagingDir)bin" />
     <Copy SourceFiles="@(Executables)" DestinationFolder="$(StagingDir)bin" />
   </Target>
