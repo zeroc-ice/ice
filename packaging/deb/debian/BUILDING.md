@@ -78,6 +78,12 @@ Install the required build dependencies:
 sudo mk-build-deps -ir -t 'apt-get -y' debian/control
 ```
 
+**For Debian 12:** Use the `no-python312` build profile to exclude Python 3.12 support:
+
+```bash
+sudo DEB_BUILD_PROFILES="no-python312" mk-build-deps -ir -t 'apt-get -y' debian/control
+```
+
 ### 7. Build Packages
 
 #### Source Package
@@ -88,12 +94,24 @@ Build the source package (generates .dsc and .tar.gz files):
 dpkg-buildpackage -S -uc -us
 ```
 
+**For Debian 12:** Use the `no-python312` build profile:
+
+```bash
+DEB_BUILD_PROFILES="no-python312" dpkg-buildpackage -S -uc -us
+```
+
 #### Binary Packages
 
 Build the binary packages:
 
 ```bash
 dpkg-buildpackage -b -uc -us
+```
+
+**For Debian 12:** Use the `no-python312` build profile:
+
+```bash
+DEB_BUILD_PROFILES="no-python312" dpkg-buildpackage -b -uc -us
 ```
 
 The built packages will be available in the parent directory (`$HOME/packaging/zeroc-ice/`):
