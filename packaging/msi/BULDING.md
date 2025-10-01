@@ -10,7 +10,7 @@ First build the C++ distribution. From the `cpp` directory, follow `cpp/BUILDING
 Next build IceGridGUI. From the `java` directory, follow `java/BUILDING.md` to build the Java components, including
 **IceGridGUI**.
 
-Finally uild the MSI Installer
+Finally build the MSI Installer
 
 ```cmd
 cd packaging\msi
