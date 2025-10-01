@@ -1,1 +1,1 @@
-statically-linked-binary usr/bin/slice2cpp
+libzeroc-ice-dev: statically-linked-binary usr/bin/slice2cpp

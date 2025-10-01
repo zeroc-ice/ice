@@ -141,12 +141,13 @@ Architecture: any
 Section: devel
 Depends: zeroc-ice-slice (= ${binary:Version}),
          ${misc:Depends}
-Description: Ice-to-Slice compiler (ice2slice)
- This package contains the Ice-to-Slice compiler (ice2slice). The Ice-to-Slice
- compiler converts Slice definitions in .ice files into Slice definitions in
- .slice files. .ice is the Slice syntax and format understood by the Slice
- compilers provided by Ice; .slice is the Slice syntax and format understood by
- slicec, the Slice compiler provided by IceRPC.
+Description: Ice to Slice compiler
+ This package provides the ice2slice compiler. It converts Slice definitions
+ written in ".ice" files into Slice definitions in ".slice" files.
+ .
+ The ".ice" format is the syntax understood by the Slice compilers included
+ with Ice. The ".slice" format is the syntax understood by slicec, the Slice
+ compiler provided by IceRPC
  .
  Ice is a comprehensive RPC framework that helps you network your software
  with minimal effort. Ice takes care of all interactions with low-level
@@ -185,9 +186,10 @@ Section: net
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
-Description: This package contains the DataStorm node server. The DataStorm node server
- allows other DataStorm nodes to exchange topic discovery information without relying on
- UDP multicast. It also helps create deployments that span multiple IP networks.
+Description: This package contains the DataStorm node server. The DataStorm
+ node server allows other DataStorm nodes to exchange topic discovery
+ information without relying on UDP multicast. It also helps create deployments
+ that span multiple IP networks.
  .
  Ice is a comprehensive RPC framework that helps you network your software
  with minimal effort. Ice takes care of all interactions with low-level

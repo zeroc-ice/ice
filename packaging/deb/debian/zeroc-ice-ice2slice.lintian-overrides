@@ -1,1 +1,1 @@
-statically-linked-binary usr/bin/ice2slice
+zeroc-ice-ice2slice: statically-linked-binary usr/bin/ice2slice
