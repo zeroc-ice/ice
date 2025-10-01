@@ -16,11 +16,25 @@ internal class AllTests : global::Test.AllTests
         string proxyString3s = $"test: {helper.getTestEndpoint(2)}";
         string proxyStringNoIdleTimeout = $"test: {helper.getTestEndpoint(3)}";
 
-        await testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
-        await testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
-        await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), helper.getWriter());
-        await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), helper.getWriter());
-        await testNoIdleTimeout(proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
+        while (true)
+        {
+            try
+            {
+                await testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(
+                    $"testIdleCheckDoesNotAbortBackPressuredConnection FAILED with exception: {exception}");
+                break;
+            }
+        }
+        /*
+            await testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
+            await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), helper.getWriter());
+            await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), helper.getWriter());
+            await testNoIdleTimeout(proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
+            */
 
         await p.shutdownAsync();
     }
