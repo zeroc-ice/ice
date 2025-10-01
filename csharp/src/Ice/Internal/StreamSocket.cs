@@ -232,7 +232,7 @@ internal sealed class StreamSocket
             _writeEventArgs.UserToken = state;
             _writeEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), buf.b.remaining());
             bool completedSynchronously = !_fd.SendAsync(_writeEventArgs);
-            messageFullyWritten = true; // TODO: remove variable
+            messageFullyWritten = true;
             return completedSynchronously;
         }
         catch (System.Net.Sockets.SocketException ex)

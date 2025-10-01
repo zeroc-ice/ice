@@ -215,7 +215,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         {
             _writeResult = _sslStream.WriteAsync(buf.b.rawBytes(), buf.b.position(), buf.b.remaining());
             _writeResult.ContinueWith(task => cb(state), TaskScheduler.Default);
-            messageFullyWritten = true; // TODO: remove variable
+            messageFullyWritten = true;
             return false;
         }
         catch (IOException ex)
