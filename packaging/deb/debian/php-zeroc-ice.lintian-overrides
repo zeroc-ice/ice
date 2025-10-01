@@ -1,1 +1,1 @@
-php-zeroc-ice: statically-linked-binary usr/bin/slice2php
+php-zeroc-ice: statically-linked-binary *

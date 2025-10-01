@@ -19,18 +19,21 @@ sudo apt-get install -y \
     build-essential \
     git \
     devscripts \
-    dpkg-dev
+    dpkg-dev \
+    equivs
 ```
 
 ## Building Packages
 
 ### 1. Create Build Directory
 
-Create a build directory outside the Ice repository:
+Create a build directory and clone the Ice repository:
 
 ```bash
-mkdir -p $HOME/packaging/zeroc-ice/build
+mkdir -p $HOME/packaging/zeroc-ice
 cd $HOME/packaging/zeroc-ice
+git clone git@github.com:zeroc-ice/ice.git
+mkdir build
 ```
 
 ### 2. Copy Packaging Files
@@ -58,7 +61,6 @@ Generate the upstream tarball from the Git repository:
 cd ice
 git archive --format=tar.gz --prefix=zeroc-ice-${UPSTREAM_VERSION}/ \
     -o $HOME/packaging/zeroc-ice/zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz HEAD
-cd $HOME/packaging/zeroc-ice
 ```
 
 ### 5. Extract Source
@@ -66,7 +68,7 @@ cd $HOME/packaging/zeroc-ice
 Unpack the source archive in the build directory:
 
 ```bash
-cd build
+cd cd $HOME/packaging/zeroc-ice/build
 tar xzf ../zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz --strip-components=1
 ```
 

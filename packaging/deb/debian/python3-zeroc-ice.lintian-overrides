@@ -1,1 +1,1 @@
-python3-zeroc-ice: statically-linked-binary usr/bin/slice2py
+python3-zeroc-ice: statically-linked-binary *
