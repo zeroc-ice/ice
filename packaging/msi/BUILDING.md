@@ -17,7 +17,7 @@ cd packaging\msi
 dotnet build -c Release -p:Platform=x64
 ```
 
-The MSI will be produced at:
+The MSI will be placed in:
 
 ```cmd
 packaging\msi\bin\x64\Release\
