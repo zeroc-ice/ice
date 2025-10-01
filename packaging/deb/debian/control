@@ -140,14 +140,13 @@ Package: zeroc-ice-ice2slice
 Architecture: any
 Section: devel
 Depends: zeroc-ice-slice (= ${binary:Version}),
-         ${misc:Depends},
-         ${shlibs:Depends}
-Description: The Ice-to-Slice compiler (ice2slice)
+         ${misc:Depends}
+Description: Ice-to-Slice compiler (ice2slice)
  This package contains the Ice-to-Slice compiler (ice2slice). The Ice-to-Slice
- compiler converts Slice definitions in .ice files into Slice definitions in .slice
- files. .ice is the Slice syntax and format understood by the Slice compilers provided
- by Ice; .slice is the Slice syntax and format understood by slicec, the Slice compiler
- provided by IceRPC.
+ compiler converts Slice definitions in .ice files into Slice definitions in
+ .slice files. .ice is the Slice syntax and format understood by the Slice
+ compilers provided by Ice; .slice is the Slice syntax and format understood by
+ slicec, the Slice compiler provided by IceRPC.
  .
  Ice is a comprehensive RPC framework that helps you network your software
  with minimal effort. Ice takes care of all interactions with low-level
