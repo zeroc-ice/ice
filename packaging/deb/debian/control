@@ -25,6 +25,9 @@ Build-Depends: debhelper,
                python3-dev (>= 3.12) <!no-python312>,
                python3-setuptools,
                python3-passlib
+Build-Depends-Indep: default-jdk <icegridgui>,
+                     libjgoodies-forms-java (>= 1.6.0) <icegridgui>,
+                     libjgoodies-looks-java (>= 2.5.2 ) <icegridgui>,
 Standards-Version: 4.6.1
 Homepage: https://zeroc.com
 Vcs-Git: https://github.com/zeroc-ice/ice.git
