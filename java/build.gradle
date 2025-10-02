@@ -77,7 +77,7 @@ task alljavadoc(type: Javadoc) {
         // TODO: --no-module-directories is an undocumented option required for the
         // generated search to work properly. Without this option, search returns
         // .../undefined/... URLs.
-        options.addBooleanOption('-no-module-directories', true)
+        // options.addBooleanOption('-no-module-directories', true)
     }
     options.addBooleanOption('html5', true)
     options.header = 'Ice for Java'

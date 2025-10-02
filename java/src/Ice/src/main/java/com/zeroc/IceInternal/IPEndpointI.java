@@ -11,6 +11,7 @@ public abstract class IPEndpointI extends EndpointI
     protected IPEndpointI(ProtocolInstance instance, String host, int port, java.net.InetSocketAddress sourceAddr,
                           String connectionId)
     {
+        assert instance != null;
         _instance = instance;
         _host = host;
         _port = port;
@@ -21,6 +22,7 @@ public abstract class IPEndpointI extends EndpointI
 
     protected IPEndpointI(ProtocolInstance instance)
     {
+        assert instance != null;
         _instance = instance;
         _host = null;
         _port = 0;
@@ -31,6 +33,7 @@ public abstract class IPEndpointI extends EndpointI
 
     protected IPEndpointI(ProtocolInstance instance, com.zeroc.Ice.InputStream s)
     {
+        assert instance != null;
         _instance = instance;
         _host = s.readString();
         _port = s.readInt();
@@ -412,7 +415,7 @@ public abstract class IPEndpointI extends EndpointI
     protected abstract Connector createConnector(java.net.InetSocketAddress addr, NetworkProxy proxy);
     protected abstract IPEndpointI createEndpoint(String host, int port, String connectionId);
 
-    protected ProtocolInstance _instance;
+    protected final ProtocolInstance _instance;
     protected String _host;
     protected int _port;
     protected java.net.InetSocketAddress _sourceAddr;
