@@ -202,12 +202,12 @@ internal sealed class StreamSocket
         }
     }
 
-    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageFullyWritten)
+    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageWritten)
     {
         Debug.Assert(_fd != null && _writeEventArgs != null);
         if (_state == StateConnectPending)
         {
-            messageFullyWritten = false;
+            messageWritten = false;
             _writeCallback = callback;
             try
             {
@@ -232,7 +232,7 @@ internal sealed class StreamSocket
             _writeEventArgs.UserToken = state;
             _writeEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), buf.b.remaining());
             bool completedSynchronously = !_fd.SendAsync(_writeEventArgs);
-            messageFullyWritten = true;
+            messageWritten = true;
             return completedSynchronously;
         }
         catch (System.Net.Sockets.SocketException ex)

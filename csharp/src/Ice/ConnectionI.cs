@@ -621,10 +621,12 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                                 completedCallback,
                                 this,
                                 out bool messageWritten);
-                        // If the startWrite call consumed the complete buffer, we assume the message is sent now for
-                        // at-most-once semantics.
+
+                        // If the startWrite call wrote the message, we assume the message is sent now for at-most-once
+                        // semantics in the event the connection is closed while the message is still in _sendStreams.
                         if (messageWritten && _sendStreams.Count > 0)
                         {
+                            // See finish() code.
                             _sendStreams.First.Value.isSent = true;
                         }
 

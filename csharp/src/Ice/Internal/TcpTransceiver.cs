@@ -36,8 +36,8 @@ internal sealed class TcpTransceiver : Transceiver
 
     public void finishRead(Buffer buf) => _stream.finishRead(buf);
 
-    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageFullyWritten) =>
-        _stream.startWrite(buf, callback, state, out messageFullyWritten);
+    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageWritten) =>
+        _stream.startWrite(buf, callback, state, out messageWritten);
 
     public void finishWrite(Buffer buf) => _stream.finishWrite(buf);
 

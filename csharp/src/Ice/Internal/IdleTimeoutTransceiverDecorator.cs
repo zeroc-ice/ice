@@ -83,8 +83,8 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
         _decoratee.startRead(buf, callback, state);
 
     // startWrite is called right after write returns SocketOperationWrite. The logic in write is sufficient.
-    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageFullyWritten) =>
-        _decoratee.startWrite(buf, callback, state, out messageFullyWritten);
+    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageWritten) =>
+        _decoratee.startWrite(buf, callback, state, out messageWritten);
 
     public string toDetailedString() => _decoratee.toDetailedString();
 
