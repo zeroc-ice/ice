@@ -171,9 +171,6 @@ namespace IceInternal
         void hold();
         void destroy();
 
-        void startAcceptor();
-        void stopAcceptor();
-
         void updateConnectionObservers();
 
         void waitUntilHolding() const;
@@ -238,7 +235,6 @@ namespace IceInternal
         EndpointIPtr _endpoint;
 
         bool _acceptorStarted{false};
-        bool _acceptorStopped{false};
 
         std::shared_ptr<Ice::ObjectAdapterI> _adapter;
         const bool _warn;
