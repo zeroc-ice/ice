@@ -6,7 +6,6 @@ import java.nio.channels.SelectableChannel;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 final class IncomingConnectionFactory extends EventHandler implements ConnectionI.StartCallback {
     public synchronized void activate() {
