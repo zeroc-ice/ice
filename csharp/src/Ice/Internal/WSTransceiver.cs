@@ -570,18 +570,18 @@ internal sealed class WSTransceiver : Transceiver
         postRead(buf);
     }
 
-    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageFullyWritten)
+    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageWritten)
     {
         _writePending = true;
         if (_state < StateOpened)
         {
             if (_state < StateConnected)
             {
-                return _delegate.startWrite(buf, callback, state, out messageFullyWritten);
+                return _delegate.startWrite(buf, callback, state, out messageWritten);
             }
             else
             {
-                return _delegate.startWrite(_writeBuffer, callback, state, out messageFullyWritten);
+                return _delegate.startWrite(_writeBuffer, callback, state, out messageWritten);
             }
         }
 
@@ -589,17 +589,17 @@ internal sealed class WSTransceiver : Transceiver
         {
             if (_writeBuffer.b.hasRemaining())
             {
-                return _delegate.startWrite(_writeBuffer, callback, state, out messageFullyWritten);
+                return _delegate.startWrite(_writeBuffer, callback, state, out messageWritten);
             }
             else
             {
                 Debug.Assert(_incoming);
-                return _delegate.startWrite(buf, callback, state, out messageFullyWritten);
+                return _delegate.startWrite(buf, callback, state, out messageWritten);
             }
         }
         else
         {
-            messageFullyWritten = true;
+            messageWritten = true;
             return false;
         }
     }

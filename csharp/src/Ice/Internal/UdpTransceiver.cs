@@ -370,12 +370,12 @@ internal sealed class UdpTransceiver : Transceiver
         buf.b.position(ret);
     }
 
-    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageFullyWritten)
+    public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageWritten)
     {
         if (!_incoming && _state < StateConnected)
         {
             Debug.Assert(_addr != null);
-            messageFullyWritten = false;
+            messageWritten = false;
             if (_sourceAddr != null)
             {
                 _fd.Bind(_sourceAddr);
@@ -426,7 +426,7 @@ internal sealed class UdpTransceiver : Transceiver
             }
         }
 
-        messageFullyWritten = true;
+        messageWritten = true;
         return completedSynchronously;
     }
 
