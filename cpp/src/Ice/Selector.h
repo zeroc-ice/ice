@@ -9,8 +9,8 @@
 #include "Network.h"
 #include "UniqueRef.h"
 
-#include <map>
 #include <condition_variable>
+#include <map>
 
 #if defined(ICE_USE_EPOLL)
 #    include <sys/epoll.h>
