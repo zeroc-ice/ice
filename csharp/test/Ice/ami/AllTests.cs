@@ -894,11 +894,14 @@ public class AllTests : global::Test.AllTests
         {
             output.Write("testing back pressure... ");
             output.Flush();
+            // We want to verify that server with an exhausted thread pool doesn't keep reading data. We verify oneway
+            // invocations eventually block.
+            // Note that the proper way to implement back pressure is to use MaxDispatches, not thread pool exhaustion.
             {
                 // Keep the 3 server thread pool threads busy.
-                Task sleep1Task = p.sleepAsync(1000);
-                Task sleep2Task = p.sleepAsync(1000);
-                Task sleep3Task = p.sleepAsync(1000);
+                Task sleep1Task = p.sleepAsync(1500);
+                Task sleep2Task = p.sleepAsync(1500);
+                Task sleep3Task = p.sleepAsync(1500);
                 bool canceled = false;
                 using var cts = new CancellationTokenSource(200);
                 try
@@ -908,7 +911,12 @@ public class AllTests : global::Test.AllTests
                     // Sending should be canceled because the TCP send/receive buffer size on the server is set
                     // to 50KB. Note: we don't use the cancel parameter of the operation here because the
                     // cancellation doesn't cancel the operation whose payload is being sent.
-                    await onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).WaitAsync(cts.Token);
+                    // We loop up to 3 times because on Windows with TCP, the Socket.Send call appears to always succeed
+                    // twice before blocking.
+                    for (int i = 0; i < 3; ++i)
+                    {
+                        await onewayProxy.opWithPayloadAsync(new byte[768 * 1024]).WaitAsync(cts.Token);
+                    }
                 }
                 catch (OperationCanceledException)
                 {

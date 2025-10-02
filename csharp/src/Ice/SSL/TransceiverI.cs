@@ -28,12 +28,6 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
 
         Ice.Internal.Network.setBlock(fd(), true); // SSL requires a blocking socket
 
-        // For timeouts to work properly, we need to receive/send the data in several chunks. Otherwise, we would only
-        // be notified when all the data is received/written. The connection timeout could easily be triggered when
-        // receiving/sending large messages.
-        _maxSendPacketSize = Math.Max(512, Ice.Internal.Network.getSendBufferSize(fd()));
-        _maxRecvPacketSize = Math.Max(512, Ice.Internal.Network.getRecvBufferSize(fd()));
-
         if (_sslStream == null)
         {
             try
@@ -114,10 +108,9 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
 
         Debug.Assert(_sslStream != null && _sslStream.IsAuthenticated);
 
-        int packetSz = getRecvPacketSize(buf.b.remaining());
         try
         {
-            _readResult = _sslStream.ReadAsync(buf.b.rawBytes(), buf.b.position(), packetSz);
+            _readResult = _sslStream.ReadAsync(buf.b.rawBytes(), buf.b.position(), buf.b.remaining());
             _readResult.ContinueWith(
                 task => callback(state),
                 TaskScheduler.Default);
@@ -218,13 +211,11 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             return startAuthenticate(cb, state);
         }
 
-        // We limit the packet size for beingWrite to ensure connection timeouts are based on a fixed packet size.
-        int packetSize = getSendPacketSize(buf.b.remaining());
         try
         {
-            _writeResult = _sslStream.WriteAsync(buf.b.rawBytes(), buf.b.position(), packetSize);
+            _writeResult = _sslStream.WriteAsync(buf.b.rawBytes(), buf.b.position(), buf.b.remaining());
             _writeResult.ContinueWith(task => cb(state), TaskScheduler.Default);
-            messageFullyWritten = packetSize == buf.b.remaining();
+            messageFullyWritten = true;
             return false;
         }
         catch (IOException ex)
@@ -258,10 +249,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         }
         else if (_sslStream == null) // Transceiver was closed
         {
-            if (getSendPacketSize(buf.b.remaining()) == buf.b.remaining()) // Sent last packet
-            {
-                buf.b.position(buf.b.limit()); // Assume all the data was sent for at-most-once semantics.
-            }
+            buf.b.position(buf.b.limit()); // Assume all the data was sent for at-most-once semantics.
             _writeResult = null;
             return;
         }
@@ -271,7 +259,6 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             return;
         }
 
-        int sent = getSendPacketSize(buf.b.remaining());
         Debug.Assert(_writeResult != null);
         try
         {
@@ -283,7 +270,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
             {
                 throw ex.InnerException;
             }
-            buf.b.position(buf.b.position() + sent);
+            buf.b.position(buf.b.position() + buf.b.remaining());
         }
         catch (IOException ex)
         {
@@ -508,12 +495,6 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         return errors == 0;
     }
 
-    private int getSendPacketSize(int length) =>
-        _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
-
-    public int getRecvPacketSize(int length) =>
-        _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
-
     private string _errorDescription = "";
     private readonly Instance _instance;
     private readonly Ice.Internal.Transceiver _delegate;
@@ -526,8 +507,6 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
     private bool _authenticated;
     private Task _writeResult;
     private Task<int> _readResult;
-    private int _maxSendPacketSize;
-    private int _maxRecvPacketSize;
     private string _cipher;
     private bool _verified;
     private readonly SslServerAuthenticationOptions _serverAuthenticationOptions;

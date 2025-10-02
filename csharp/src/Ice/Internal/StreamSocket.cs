@@ -90,10 +90,6 @@ internal sealed class StreamSocket
 
     public Socket fd() => _fd;
 
-    public int getSendPacketSize(int length) => _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
-
-    public int getRecvPacketSize(int length) => _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
-
     public void setBufferSize(int rcvSize, int sndSize) => Network.setTcpBufSize(_fd, rcvSize, sndSize, _instance);
 
     public int read(Buffer buf)
@@ -145,12 +141,11 @@ internal sealed class StreamSocket
     {
         Debug.Assert(_fd != null && _readEventArgs != null);
 
-        int packetSize = getRecvPacketSize(buf.b.remaining());
         try
         {
             _readCallback = callback;
             _readEventArgs.UserToken = state;
-            _readEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
+            _readEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), buf.b.remaining());
             return !_fd.ReceiveAsync(_readEventArgs);
         }
         catch (System.Net.Sockets.SocketException ex)
@@ -231,14 +226,13 @@ internal sealed class StreamSocket
             }
         }
 
-        int packetSize = getSendPacketSize(buf.b.remaining());
         try
         {
             _writeCallback = callback;
             _writeEventArgs.UserToken = state;
-            _writeEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
+            _writeEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), buf.b.remaining());
             bool completedSynchronously = !_fd.SendAsync(_writeEventArgs);
-            messageFullyWritten = packetSize == buf.b.remaining();
+            messageFullyWritten = true;
             return completedSynchronously;
         }
         catch (System.Net.Sockets.SocketException ex)
@@ -259,10 +253,7 @@ internal sealed class StreamSocket
     {
         if (_fd == null) // Transceiver was closed
         {
-            if (buf.size() - buf.b.position() < _maxSendPacketSize)
-            {
-                buf.b.position(buf.b.limit()); // Assume all the data was sent for at-most-once semantics.
-            }
+            buf.b.position(buf.b.limit()); // Assume all the data was sent for at-most-once semantics.
             return;
         }
 
@@ -371,34 +362,16 @@ internal sealed class StreamSocket
     private int write(ByteBuffer buf)
     {
         Debug.Assert(_fd != null);
-        int packetSize = buf.remaining();
-        if (AssemblyUtil.isWindows)
-        {
-            //
-            // On Windows, limiting the buffer size is important to prevent
-            // poor throughput performances when transfering large amount of
-            // data. See Microsoft KB article KB823764.
-            //
-            if (_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize / 2)
-            {
-                packetSize = _maxSendPacketSize / 2;
-            }
-        }
-
         int sent = 0;
         while (buf.hasRemaining())
         {
             try
             {
-                int ret = _fd.Send(buf.rawBytes(), buf.position(), packetSize, SocketFlags.None);
+                int ret = _fd.Send(buf.rawBytes(), buf.position(), buf.remaining(), SocketFlags.None);
                 Debug.Assert(ret > 0);
 
                 sent += ret;
                 buf.position(buf.position() + ret);
-                if (packetSize > buf.remaining())
-                {
-                    packetSize = buf.remaining();
-                }
             }
             catch (System.Net.Sockets.SocketException ex)
             {
@@ -442,16 +415,6 @@ internal sealed class StreamSocket
 
         _writeEventArgs = new SocketAsyncEventArgs();
         _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
-
-        //
-        // For timeouts to work properly, we need to receive/send
-        // the data in several chunks. Otherwise, we would only be
-        // notified when all the data is received/written. The
-        // connection timeout could easily be triggered when
-        // receiving/sending large messages.
-        //
-        _maxSendPacketSize = Math.Max(512, Network.getSendBufferSize(_fd));
-        _maxRecvPacketSize = Math.Max(512, Network.getRecvBufferSize(_fd));
     }
 
     private int toState(int operation)
@@ -470,8 +433,6 @@ internal sealed class StreamSocket
     private readonly EndPoint _sourceAddr;
 
     private Socket _fd;
-    private int _maxSendPacketSize;
-    private int _maxRecvPacketSize;
     private int _state;
     private string _desc;
 
