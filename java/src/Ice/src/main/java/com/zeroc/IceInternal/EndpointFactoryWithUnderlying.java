@@ -12,6 +12,7 @@ abstract public class EndpointFactoryWithUnderlying implements EndpointFactory
 {
     public EndpointFactoryWithUnderlying(ProtocolInstance instance, short type)
     {
+        assert instance != null;
         _instance = instance;
         _type = type;
     }
@@ -64,7 +65,6 @@ abstract public class EndpointFactoryWithUnderlying implements EndpointFactory
         {
             _underlying.destroy();
         }
-        _instance = null;
     }
 
     public EndpointFactory clone(ProtocolInstance instance)
@@ -80,7 +80,7 @@ abstract public class EndpointFactoryWithUnderlying implements EndpointFactory
 
     abstract protected EndpointI readWithUnderlying(EndpointI underlying, com.zeroc.Ice.InputStream s);
 
-    protected ProtocolInstance _instance;
+    protected final ProtocolInstance _instance;
 
     private final short _type;
     private EndpointFactory _underlying;
