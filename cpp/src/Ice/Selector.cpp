@@ -170,7 +170,7 @@ Selector::completed(EventHandler* handler, SocketOperation op)
     }
 }
 
-#elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_POLL)
+#elif defined(ICE_USE_EPOLL) || defined(ICE_USE_KQUEUE)
 
 Selector::Selector(InstancePtr instance) : _instance(std::move(instance))
 {
@@ -197,7 +197,7 @@ Selector::Selector(InstancePtr instance) : _instance(std::move(instance))
         Ice::Error out(_instance->initializationData().logger);
         out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
     }
-#    elif defined(ICE_USE_KQUEUE)
+#    else // ICE_USE_KQUEUE
     _events.resize(256);
     _queueFd = kqueue();
     if (_queueFd < 0)
@@ -213,18 +213,12 @@ Selector::Selector(InstancePtr instance) : _instance(std::move(instance))
         Ice::Error out(_instance->initializationData().logger);
         out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
     }
-#    else
-    struct pollfd pollFd;
-    pollFd.fd = _fdIntrRead;
-    pollFd.events = POLLIN;
-    _pollFdSet.push_back(pollFd);
 #    endif
 }
 
 void
 Selector::destroy()
 {
-#    if defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL)
     try
     {
         closeSocket(_queueFd);
@@ -234,7 +228,6 @@ Selector::destroy()
         Ice::Error out(_instance->initializationData().logger);
         out << "exception in selector while calling closeSocket():\n" << ex;
     }
-#    endif
 
     try
     {
@@ -314,7 +307,7 @@ Selector::enable(EventHandler* handler, SocketOperation status)
             Ice::Error out(_instance->initializationData().logger);
             out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
         }
-#    elif defined(ICE_USE_KQUEUE)
+#    else // ICE_USE_KQUEUE
         struct kevent ev;
         SOCKET fd = handler->getNativeInfo()->fd();
         EV_SET(&ev, fd, status == SocketOperationRead ? EVFILT_READ : EVFILT_WRITE, EV_ENABLE, 0, 0, handler);
@@ -323,10 +316,6 @@ Selector::enable(EventHandler* handler, SocketOperation status)
         {
             updateSelector();
         }
-#    else
-        _changes.push_back(
-            make_pair(handler, static_cast<SocketOperation>(handler->_registered & ~handler->_disabled)));
-        wakeup();
 #    endif
     }
 }
@@ -368,7 +357,7 @@ Selector::disable(EventHandler* handler, SocketOperation status)
             Ice::Error out(_instance->initializationData().logger);
             out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
         }
-#    elif defined(ICE_USE_KQUEUE)
+#    else // ICE_USE_KQUEUE
         SOCKET fd = nativeInfo->fd();
         struct kevent ev;
         EV_SET(&ev, fd, status == SocketOperationRead ? EVFILT_READ : EVFILT_WRITE, EV_DISABLE, 0, 0, handler);
@@ -377,10 +366,6 @@ Selector::disable(EventHandler* handler, SocketOperation status)
         {
             updateSelector();
         }
-#    else
-        _changes.push_back(
-            make_pair(handler, static_cast<SocketOperation>(handler->_registered & ~handler->_disabled)));
-        wakeup();
 #    endif
     }
 }
@@ -391,9 +376,6 @@ Selector::finish(EventHandler* handler, bool closeNow)
     if (handler->_registered)
     {
         update(handler, handler->_registered, SocketOperationNone);
-#    if !defined(ICE_USE_EPOLL) && !defined(ICE_USE_KQUEUE)
-        return false; // Don't close now if selecting
-#    endif
     }
 
 #    if defined(ICE_USE_KQUEUE)
@@ -405,11 +387,6 @@ Selector::finish(EventHandler* handler, bool closeNow)
         // epoll since we always update the epoll FD immediately.
         //
         updateSelector();
-    }
-#    elif !defined(ICE_USE_EPOLL)
-    if (!_changes.empty())
-    {
-        return false;
     }
 #    endif
 
@@ -490,7 +467,7 @@ Selector::startSelect()
         _interrupted = false;
     }
 
-#    if !defined(ICE_USE_EPOLL)
+#    if defined(ICE_USE_KQUEUE)
     if (!_changes.empty())
     {
         updateSelector();
@@ -512,18 +489,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
 
     assert(handlers.empty());
 
-#    if defined(ICE_USE_POLL)
-    if (_interrupted) // Interrupted, we have to process the interrupt before returning any handlers
-    {
-        return;
-    }
-#    endif
-
-#    if defined(ICE_USE_POLL)
-    for (vector<struct pollfd>::const_iterator r = _pollFdSet.begin(); r != _pollFdSet.end(); ++r)
-#    else
     for (int i = 0; i < _count; ++i)
-#    endif
     {
         pair<EventHandler*, SocketOperation> p;
 
@@ -533,7 +499,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
         p.second = static_cast<SocketOperation>(
             ((ev.events & (EPOLLIN | EPOLLERR)) ? SocketOperationRead : SocketOperationNone) |
             ((ev.events & (EPOLLOUT | EPOLLERR)) ? SocketOperationWrite : SocketOperationNone));
-#    elif defined(ICE_USE_KQUEUE)
+#    else // ICE_USE_KQUEUE
         struct kevent& ev = _events[static_cast<size_t>(i)];
         if (ev.flags & EV_ERROR)
         {
@@ -543,25 +509,6 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
         }
         p.first = reinterpret_cast<EventHandler*>(ev.udata);
         p.second = (ev.filter == EVFILT_READ) ? SocketOperationRead : SocketOperationWrite;
-#    else
-        if (r->revents == 0)
-        {
-            continue;
-        }
-
-        SOCKET fd = r->fd;
-        assert(_handlers.find(fd) != _handlers.end());
-        p.first = _handlers[fd];
-        p.second = SocketOperationNone;
-        if (r->revents & (POLLIN | POLLERR | POLLHUP))
-        {
-            p.second = static_cast<SocketOperation>(p.second | SocketOperationRead);
-        }
-        if (r->revents & (POLLOUT | POLLERR | POLLHUP))
-        {
-            p.second = static_cast<SocketOperation>(p.second | SocketOperationWrite);
-        }
-        assert(p.second);
 #    endif
         if (!p.first)
         {
@@ -608,8 +555,8 @@ Selector::select(int timeout)
     }
     else if (timeout > 0)
     {
-        // kqueue use seconds, epoll and poll use milliseconds
-#    ifndef ICE_USE_KQUEUE
+        // kqueue use seconds, epoll use milliseconds
+#    ifdef ICE_USE_EPOLL
         timeout = timeout * 1000;
 #    endif
     }
@@ -623,7 +570,7 @@ Selector::select(int timeout)
     {
 #    if defined(ICE_USE_EPOLL)
         _count = epoll_wait(_queueFd, &_events[0], _events.size(), timeout);
-#    elif defined(ICE_USE_KQUEUE)
+#    else // ICE_USE_KQUEUE
         assert(!_events.empty());
         if (timeout >= 0)
         {
@@ -634,8 +581,6 @@ Selector::select(int timeout)
         {
             _count = kevent(_queueFd, nullptr, 0, &_events[0], static_cast<int>(_events.size()), nullptr);
         }
-#    else
-        _count = poll(&_pollFdSet[0], _pollFdSet.size(), timeout);
 #    endif
 
         if (_count == SOCKET_ERROR)
@@ -687,10 +632,10 @@ Selector::checkReady(EventHandler* handler)
     }
 }
 
+#    if defined(ICE_USE_KQUEUE)
 void
 Selector::updateSelector()
 {
-#    if defined(ICE_USE_KQUEUE)
     int rs = kevent(
         _queueFd,
         &_changes[0],
@@ -721,64 +666,8 @@ Selector::updateSelector()
         }
     }
     _changes.clear();
-#    elif !defined(ICE_USE_EPOLL)
-    assert(!_selecting);
-
-    for (vector<pair<EventHandler*, SocketOperation>>::const_iterator p = _changes.begin(); p != _changes.end(); ++p)
-    {
-        EventHandler* handler = p->first;
-        SocketOperation status = p->second;
-
-        SOCKET fd = handler->getNativeInfo()->fd();
-        if (status)
-        {
-            short events = 0;
-            if (status & SocketOperationRead)
-            {
-                events |= POLLIN;
-            }
-            if (status & SocketOperationWrite)
-            {
-                events |= POLLOUT;
-            }
-            map<SOCKET, EventHandler*>::const_iterator q = _handlers.find(fd);
-            if (q == _handlers.end())
-            {
-                struct pollfd pollFd;
-                pollFd.fd = fd;
-                pollFd.events = events;
-                pollFd.revents = 0;
-                _pollFdSet.push_back(pollFd);
-                _handlers.insert(make_pair(fd, handler));
-            }
-            else
-            {
-                for (vector<struct pollfd>::iterator r = _pollFdSet.begin(); r != _pollFdSet.end(); ++r)
-                {
-                    if (r->fd == fd)
-                    {
-                        r->events = events;
-                        break;
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (vector<struct pollfd>::iterator r = _pollFdSet.begin(); r != _pollFdSet.end(); ++r)
-            {
-                if (r->fd == fd)
-                {
-                    _pollFdSet.erase(r);
-                    break;
-                }
-            }
-            _handlers.erase(fd);
-        }
-    }
-    _changes.clear();
-#    endif
 }
+#    endif
 
 void
 Selector::updateSelectorForEventHandler(
@@ -831,7 +720,7 @@ Selector::updateSelectorForEventHandler(
         Ice::Error out(_instance->initializationData().logger);
         out << "error while updating selector:\n" << IceInternal::errorToString(IceInternal::getSocketErrno());
     }
-#    elif defined(ICE_USE_KQUEUE)
+#    else // ICE_USE_KQUEUE
     SOCKET fd = handler->getNativeInfo()->fd();
     assert(fd != INVALID_SOCKET);
     if (remove & SocketOperationRead)
@@ -876,9 +765,6 @@ Selector::updateSelectorForEventHandler(
     {
         updateSelector();
     }
-#    else
-    _changes.push_back(make_pair(handler, static_cast<SocketOperation>(handler->_registered & ~handler->_disabled)));
-    wakeup();
 #    endif
     checkReady(handler);
 }

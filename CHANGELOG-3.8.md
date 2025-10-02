@@ -705,6 +705,8 @@ See `InitializationData::pluginFactories`.
   `std::chrono::duration` values. The corresponding `ice_getInvocationTimeout` and `ice_getLocatorCacheTimeout` methods
   now return `std::chrono::milliseconds`.
 
+- Removed support for using poll as a selector mechanism.
+
 ### C# Changes
 
 - Upgrade to .NET 8.0 / C# 12.

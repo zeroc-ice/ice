@@ -9,21 +9,14 @@
 #include "Network.h"
 #include "UniqueRef.h"
 
+#include <condition_variable>
 #include <map>
 
 #if defined(ICE_USE_EPOLL)
 #    include <sys/epoll.h>
 #elif defined(ICE_USE_KQUEUE)
 #    include <sys/event.h>
-#elif defined(ICE_USE_IOCP)
-// Nothing to include
-#elif defined(ICE_USE_POLL)
-#    include <sys/poll.h>
-#endif
-
-#include <condition_variable>
-
-#if defined(ICE_USE_CFSTREAM)
+#elif defined(ICE_USE_CFSTREAM)
 #    include <set>
 #    include <thread>
 
@@ -76,7 +69,7 @@ namespace IceInternal
         HANDLE _handle;
     };
 
-#elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_POLL)
+#elif defined(ICE_USE_EPOLL) || defined(ICE_USE_KQUEUE)
 
     class Selector final
     {
@@ -103,7 +96,9 @@ namespace IceInternal
     private:
         void wakeup();
         void checkReady(EventHandler*);
+#    if defined(ICE_USE_KQUEUE)
         void updateSelector();
+#    endif
         void updateSelectorForEventHandler(EventHandler*, SocketOperation, SocketOperation);
 
         const InstancePtr _instance;
@@ -119,14 +114,10 @@ namespace IceInternal
 #    if defined(ICE_USE_EPOLL)
         std::vector<struct epoll_event> _events;
         int _queueFd;
-#    elif defined(ICE_USE_KQUEUE)
+#    else // ICE_USE_KQUEUE
         std::vector<struct kevent> _events;
         std::vector<struct kevent> _changes;
         int _queueFd;
-#    elif defined(ICE_USE_POLL)
-        std::vector<std::pair<EventHandler*, SocketOperation>> _changes;
-        std::map<SOCKET, EventHandler*> _handlers;
-        std::vector<struct pollfd> _pollFdSet;
 #    endif
     };
 
