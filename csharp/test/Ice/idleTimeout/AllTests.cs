@@ -20,6 +20,10 @@ internal class AllTests : global::Test.AllTests
         {
             for (int i = 0; i < 50; i++)
             {
+                Console.WriteLine($"iteration {i + 1}/500");
+                await p.runGCAsync();
+                GC.Collect();
+
                 await testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
             }
         }
