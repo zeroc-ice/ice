@@ -35,10 +35,10 @@ typedef int ssize_t;
 
 #if defined(__linux__)
 #    define ICE_USE_EPOLL 1
-#elif (defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)) && TARGET_OS_IPHONE == 0
-#    define ICE_USE_KQUEUE 1
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) && TARGET_OS_IPHONE != 0
 #    define ICE_USE_CFSTREAM 1
+#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#    define ICE_USE_KQUEUE 1
 #elif defined(_WIN32)
 #    define ICE_USE_IOCP 1
 #else

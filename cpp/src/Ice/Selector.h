@@ -10,16 +10,13 @@
 #include "UniqueRef.h"
 
 #include <map>
+#include <condition_variable>
 
 #if defined(ICE_USE_EPOLL)
 #    include <sys/epoll.h>
 #elif defined(ICE_USE_KQUEUE)
 #    include <sys/event.h>
-#endif
-
-#include <condition_variable>
-
-#if defined(ICE_USE_CFSTREAM)
+#elif defined(ICE_USE_CFSTREAM)
 #    include <set>
 #    include <thread>
 
