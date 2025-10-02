@@ -6,12 +6,12 @@ import Foundation
 public protocol Endpoint: AnyObject, CustomStringConvertible {
     /// Return a string representation of the endpoint.
     ///
-    /// - returns: `String` - The string representation of the endpoint.
+    /// - Returns: The string representation of the endpoint.
     func toString() -> String
 
     /// Returns the endpoint information.
     ///
-    /// - returns: `EndpointInfo?` - The endpoint information class.
+    /// - Returns: The endpoint information class.
     func getInfo() -> EndpointInfo?
 }
 
@@ -27,21 +27,21 @@ open class EndpointInfo {
 
     /// Returns the type of the endpoint.
     ///
-    /// - returns: `Int16` - The endpoint type.
+    /// - Returns: The endpoint type.
     public func type() -> Int16 {
         underlying?.type() ?? -1
     }
 
     /// Returns true if this endpoint is a datagram endpoint.
     ///
-    /// - returns: `Bool` - True for a datagram endpoint.
+    /// - Returns: True for a datagram endpoint.
     public func datagram() -> Bool {
         underlying?.datagram() ?? false
     }
 
     /// Returns true if this endpoint is a secure endpoint.
     ///
-    /// - returns: `Bool` - True for a secure endpoint.
+    /// - Returns: True for a secure endpoint.
     public func secure() -> Bool {
         underlying?.secure() ?? false
     }
