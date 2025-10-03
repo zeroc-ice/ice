@@ -32,7 +32,7 @@ Create a build directory and clone the Ice repository:
 ```bash
 mkdir -p $HOME/packaging/zeroc-ice
 cd $HOME/packaging/zeroc-ice
-git clone git@github.com:zeroc-ice/ice.git
+git clone https://github.com/zeroc-ice/ice.git
 mkdir build
 ```
 
