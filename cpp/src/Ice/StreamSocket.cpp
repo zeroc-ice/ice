@@ -119,26 +119,6 @@ StreamSocket::isConnected()
     return _state == StateConnected && _fd != INVALID_SOCKET;
 }
 
-size_t
-StreamSocket::getSendPacketSize(size_t length)
-{
-#if defined(ICE_USE_IOCP)
-    return _maxSendPacketSize > 0 ? std::min(length, _maxSendPacketSize) : length;
-#else
-    return length;
-#endif
-}
-
-size_t
-StreamSocket::getRecvPacketSize(size_t length)
-{
-#if defined(ICE_USE_IOCP)
-    return _maxRecvPacketSize > 0 ? std::min(length, _maxRecvPacketSize) : length;
-#else
-    return length;
-#endif
-}
-
 void
 StreamSocket::setBufferSize(int rcvSize, int sndSize)
 {
@@ -257,16 +237,7 @@ StreamSocket::write(const char* buf, size_t length)
 {
     assert(_fd != INVALID_SOCKET);
 
-#ifdef ICE_USE_IOCP
-    //
-    // On Windows, limiting the buffer size is important to prevent
-    // poor throughput performances when sending large amount of
-    // data. See Microsoft KB article KB823764.
-    //
-    size_t packetSize = _maxSendPacketSize > 0 ? std::min(length, _maxSendPacketSize / 2) : length;
-#else
     size_t packetSize = length;
-#endif
     ssize_t sent = 0;
     while (length > 0)
     {
@@ -346,9 +317,8 @@ StreamSocket::startWrite(Buffer& buf)
 
     size_t length = buf.b.end() - buf.i;
     assert(length > 0);
-    size_t packetSize = getSendPacketSize(length);
 
-    _write.buf.len = static_cast<DWORD>(packetSize);
+    _write.buf.len = static_cast<DWORD>(length);
     _write.buf.buf = reinterpret_cast<char*>(&*buf.i);
     _write.error = ERROR_SUCCESS;
     int err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, nullptr);
@@ -366,7 +336,7 @@ StreamSocket::startWrite(Buffer& buf)
             }
         }
     }
-    return packetSize == length;
+    return true;
 }
 
 void
@@ -403,8 +373,7 @@ StreamSocket::startRead(Buffer& buf)
     size_t length = buf.b.end() - buf.i;
     assert(length > 0);
 
-    size_t packetSize = getRecvPacketSize(length);
-    _read.buf.len = static_cast<DWORD>(packetSize);
+    _read.buf.len = static_cast<DWORD>(length);
     _read.buf.buf = reinterpret_cast<char*>(&*buf.i);
     _read.error = ERROR_SUCCESS;
     int err = WSARecv(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_read, nullptr);
@@ -486,18 +455,6 @@ StreamSocket::init()
 {
     setBlock(_fd, false);
     setTcpBufSize(_fd, _instance);
-
-#if defined(ICE_USE_IOCP)
-    //
-    // For timeouts to work properly, we need to receive or send the
-    // data in several chunks when using IOCP WSARecv or WSASend.
-    // Otherwise, we would only be notified when all the data is
-    // received or written.  The connection timeout could easily be
-    // triggered when receiving or sending large messages.
-    //
-    _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(_fd));
-    _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(_fd));
-#endif
 }
 
 StreamSocket::State
