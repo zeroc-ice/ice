@@ -28,7 +28,7 @@ public enum ToStringMode: UInt8 {
 extension InputStream {
     /// Read an enumerated value.
     ///
-    /// - Returns: The enumarated value.
+    /// - Returns: The enumerated value.
     public func read() throws -> ToStringMode {
         let rawValue: UInt8 = try read(enumMaxValue: 2)
         guard let val = ToStringMode(rawValue: rawValue) else {
