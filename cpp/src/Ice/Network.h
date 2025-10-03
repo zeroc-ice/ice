@@ -180,7 +180,6 @@ namespace IceInternal
     };
     using NativeInfoPtr = std::shared_ptr<NativeInfo>;
 
-    ICE_API bool noMoreFds(int);
     ICE_API std::string errorToStringDNS(ErrorCode);
 
     ICE_API std::vector<Address>

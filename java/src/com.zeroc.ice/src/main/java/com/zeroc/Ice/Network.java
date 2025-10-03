@@ -94,27 +94,6 @@ public final class Network {
         return false;
     }
 
-    public static boolean noMoreFds(Throwable ex) {
-        String msg = ex.getMessage();
-        if (msg != null) {
-            msg = msg.toLowerCase();
-
-            final String[] msgs = {
-                "too many open files", // EMFILE
-                "file table overflow", // ENFILE
-                "too many open files in system" // ENFILE
-            };
-
-            for (String m : msgs) {
-                if (msg.indexOf(m) != -1) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     public static boolean isIPv6Supported() {
         try {
             Socket socket = new Socket();

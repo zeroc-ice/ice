@@ -171,8 +171,11 @@ namespace IceInternal
         void hold();
         void destroy();
 
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
+        // Used on iOS to stop/start the acceptor when the app enters background/foreground mode.
         void startAcceptor();
         void stopAcceptor();
+#endif
 
         void updateConnectionObservers();
 
@@ -238,7 +241,9 @@ namespace IceInternal
         EndpointIPtr _endpoint;
 
         bool _acceptorStarted{false};
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
         bool _acceptorStopped{false};
+#endif
 
         std::shared_ptr<Ice::ObjectAdapterI> _adapter;
         const bool _warn;

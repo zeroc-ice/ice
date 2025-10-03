@@ -65,34 +65,6 @@ namespace
         }
         return nullptr;
     }
-
-    class StartAcceptor : public TimerTask, public std::enable_shared_from_this<StartAcceptor>
-    {
-    public:
-        StartAcceptor(IncomingConnectionFactoryPtr factory, InstancePtr instance)
-            : _factory(std::move(factory)),
-              _instance(std::move(instance))
-        {
-        }
-
-        void runTimerTask() override
-        {
-            try
-            {
-                _factory->startAcceptor();
-            }
-            catch (const Ice::Exception& ex)
-            {
-                Error out(_instance->initializationData().logger);
-                out << "acceptor creation failed:\n" << ex << '\n' << _factory->toString();
-                _instance->timer()->schedule(shared_from_this(), chrono::seconds(1));
-            }
-        }
-
-    private:
-        IncomingConnectionFactoryPtr _factory;
-        InstancePtr _instance;
-    };
 }
 
 bool
@@ -1279,15 +1251,10 @@ IceInternal::IncomingConnectionFactory::finishAsync(SocketOperation)
     {
         _acceptorException = nullptr;
 
-        Error out(_instance->initializationData().logger);
-        out << "couldn't accept connection:\n" << ex << '\n' << _acceptor->toString();
-        if (_acceptorStarted)
+        if (_warn)
         {
-            _acceptorStarted = false;
-            if (_adapter->getThreadPool()->finish(shared_from_this(), true))
-            {
-                closeAcceptor();
-            }
+            Warning out(_instance->initializationData().logger);
+            out << "error accepting connection:\n" << ex << '\n' << _acceptor->toString();
         }
     }
     return _state < StateClosed;
@@ -1361,31 +1328,12 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
                 out << "trying to accept " << _endpoint->protocol() << " connection\n" << transceiver->toString();
             }
         }
-        catch (const SocketException& ex)
-        {
-            if (noMoreFds(ex.error()))
-            {
-                Error out(_instance->initializationData().logger);
-                out << "can't accept more connections:\n" << ex << '\n' << _acceptor->toString();
-
-                assert(_acceptorStarted);
-                _acceptorStarted = false;
-                if (_adapter->getThreadPool()->finish(shared_from_this(), true))
-                {
-                    closeAcceptor();
-                }
-            }
-
-            // Ignore socket exceptions.
-            return;
-        }
         catch (const LocalException& ex)
         {
-            // Warn about other Ice local exceptions.
             if (_warn)
             {
                 Warning out(_instance->initializationData().logger);
-                out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+                out << "error accepting connection:\n" << ex << '\n' << _acceptor->toString();
             }
             return;
         }
@@ -1424,7 +1372,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
             if (_warn)
             {
                 Warning out(_instance->initializationData().logger);
-                out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+                out << "error accepting connection:\n" << ex << '\n' << _acceptor->toString();
             }
             return;
         }
@@ -1449,15 +1397,6 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
         if (close)
         {
             closeAcceptor();
-        }
-
-        //
-        // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
-        // because of an unexpected error), try to restart the acceptor in 1 second.
-        //
-        if (!_acceptorStopped)
-        {
-            _instance->timer()->schedule(make_shared<StartAcceptor>(shared_from_this(), _instance), chrono::seconds(1));
         }
         return;
     }
@@ -1561,6 +1500,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
 {
 }
 
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
 void
 IceInternal::IncomingConnectionFactory::startAcceptor()
 {
@@ -1590,6 +1530,7 @@ IceInternal::IncomingConnectionFactory::stopAcceptor()
         closeAcceptor();
     }
 }
+#endif
 
 void
 IceInternal::IncomingConnectionFactory::initialize()

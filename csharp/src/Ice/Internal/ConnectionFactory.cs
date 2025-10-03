@@ -927,34 +927,6 @@ internal sealed class OutgoingConnectionFactory
 
 internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.StartCallback
 {
-    private class StartAcceptor(IncomingConnectionFactory factory) : TimerTask
-    {
-        public void runTimerTask() => _factory.startAcceptor();
-
-        private readonly IncomingConnectionFactory _factory = factory;
-    }
-
-    internal void startAcceptor()
-    {
-        lock (_mutex)
-        {
-            if (_state >= StateClosed || _acceptorStarted)
-            {
-                return;
-            }
-
-            try
-            {
-                createAcceptor();
-            }
-            catch (System.Exception ex)
-            {
-                _instance.initializationData().logger!.error($"acceptor creation failed:\n{ex}\n{_acceptor}");
-                _instance.timer().schedule(new StartAcceptor(this), 1000);
-            }
-        }
-    }
-
     internal void activate()
     {
         lock (_mutex)
@@ -1139,12 +1111,9 @@ internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.Star
         catch (LocalException ex)
         {
             _acceptorException = null;
-            _instance.initializationData().logger!.error($"couldn't accept connection:\n{ex}\n{_acceptor}");
-            if (_acceptorStarted)
+            if (_warn)
             {
-                _acceptorStarted = false;
-                _adapter.getThreadPool().finish(this);
-                closeAcceptor();
+                _instance.initializationData().logger!.warning($"error accepting connection:\n{ex}\n{_acceptor}");
             }
         }
         return _state < StateClosed;
@@ -1220,27 +1189,12 @@ internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.Star
                         _instance.initializationData().logger!.trace(_instance.traceLevels().networkCat, s.ToString());
                     }
                 }
-                catch (SocketException ex)
-                {
-                    if (Network.noMoreFds(ex.InnerException))
-                    {
-                        string s = "can't accept more connections:\n" + ex + '\n' + _acceptor?.ToString();
-                        _instance.initializationData().logger!.error(s);
-                        Debug.Assert(_acceptorStarted);
-                        _acceptorStarted = false;
-                        _adapter.getThreadPool().finish(this);
-                        closeAcceptor();
-                    }
-
-                    // Ignore socket exceptions.
-                    return;
-                }
                 catch (LocalException ex)
                 {
-                    // Warn about other Ice local exceptions.
                     if (_warn)
                     {
-                        warning(ex);
+                        _instance.initializationData().logger!.warning(
+                            $"error accepting connection:\n{ex}\n{_acceptor}");
                     }
                     return;
                 }
@@ -1271,7 +1225,8 @@ internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.Star
 
                     if (_warn)
                     {
-                        warning(ex);
+                        _instance.initializationData().logger!.warning(
+                            $"error accepting connection:\n{ex}\n{_acceptor}");
                     }
                     return;
                 }
@@ -1294,9 +1249,6 @@ internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.Star
         {
             if (_state < StateClosed)
             {
-                // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
-                // because of an unexpected error), try to restart the acceptor in 1 second.
-                _instance.timer().schedule(new StartAcceptor(this), 1000);
                 return;
             }
 
@@ -1582,9 +1534,6 @@ internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.Star
             // else it's already being cleaned up.
         }
     }
-
-    private void warning(LocalException ex) =>
-        _instance.initializationData().logger!.warning($"connection exception:\n{ex}\n{_acceptor}");
 
     private readonly Instance _instance;
     private readonly ConnectionOptions _connectionOptions;

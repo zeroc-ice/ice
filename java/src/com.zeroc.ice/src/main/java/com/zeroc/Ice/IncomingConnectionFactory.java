@@ -6,29 +6,8 @@ import java.nio.channels.SelectableChannel;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 final class IncomingConnectionFactory extends EventHandler implements ConnectionI.StartCallback {
-    public synchronized void startAcceptor() {
-        if (_state >= StateClosed || _acceptorStarted) {
-            return;
-        }
-
-        try {
-            createAcceptor();
-        } catch (Exception ex) {
-            String s =
-                "acceptor creation failed:\n"
-                    + ex.getCause().getMessage()
-                    + '\n'
-                    + _acceptor.toString();
-            _instance.initializationData().logger.error(s);
-            _instance
-                .timer()
-                .schedule(() -> startAcceptor(), 1, TimeUnit.SECONDS);
-        }
-    }
-
     public synchronized void activate() {
         setState(StateActive);
     }
@@ -202,33 +181,10 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                         .logger
                         .trace(_instance.traceLevels().networkCat, s.toString());
                 }
-            } catch (SocketException ex) {
-                if (Network.noMoreFds(ex.getCause())) {
-                    try {
-                        String s = "can't accept more connections:\n" + ex.getCause().getMessage();
-                        s += '\n' + _acceptor.toString();
-                        try {
-                            _instance.initializationData().logger.error(s);
-                        } catch (Throwable ex1) {
-                            System.out.println(s);
-                        }
-                    } catch (Throwable ex2) {
-                        // Ignore, could be a class loading error.
-                    }
-
-                    assert _acceptorStarted;
-                    _acceptorStarted = false;
-                    if (_adapter.getThreadPool().finish(this, true)) {
-                        closeAcceptor();
-                    }
-                }
-
-                // Ignore socket exceptions.
-                return;
             } catch (LocalException ex) {
-                // Warn about other Ice local exceptions.
                 if (_warn) {
-                    warning(ex);
+                    _instance.initializationData().logger.warning(
+                        "error accepting connection:\n" + Ex.toString(ex) + '\n' + _acceptor.toString());
                 }
                 return;
             }
@@ -254,7 +210,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 }
 
                 if (_warn) {
-                    warning(ex);
+                    _instance.initializationData().logger.warning(
+                        "error accepting connection:\n" + Ex.toString(ex) + '\n' + _acceptor.toString());
                 }
                 return;
             }
@@ -272,14 +229,6 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             if (close) {
                 closeAcceptor();
             }
-
-            //
-            // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got
-            // closed because of an unexpected error), try to restart the acceptor in 1 second.
-            //
-            _instance
-                .timer()
-                .schedule(() -> startAcceptor(), 1, TimeUnit.SECONDS);
             return;
         }
 
@@ -587,11 +536,6 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             _connections.remove(connection);
         }
         // else it's already being cleaned up.
-    }
-
-    private void warning(LocalException ex) {
-        String s = "connection exception:\n" + Ex.toString(ex) + '\n' + _acceptor.toString();
-        _instance.initializationData().logger.warning(s);
     }
 
     private final Instance _instance;
