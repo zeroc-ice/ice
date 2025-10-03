@@ -229,18 +229,7 @@ class StreamSocket {
         int sent = 0;
         while (buf.hasRemaining()) {
             try {
-                int ret;
-                if (_maxSendPacketSize > 0 && buf.remaining() > _maxSendPacketSize) {
-                    int previous = buf.limit();
-                    // Cast to java.nio.Buffer to avoid incompatible covariant
-                    // return type used in Java 9 java.nio.ByteBuffer
-                    ((java.nio.Buffer) buf).limit(buf.position() + _maxSendPacketSize);
-                    ret = _fd.write(buf);
-                    ((java.nio.Buffer) buf).limit(previous);
-                } else {
-                    ret = _fd.write(buf);
-                }
-
+                int ret = _fd.write(buf);
                 if (ret == -1) {
                     throw new ConnectionLostException();
                 } else if (ret == 0) {
@@ -283,16 +272,6 @@ class StreamSocket {
     private void init() {
         Network.setBlock(_fd, false);
         Network.setTcpBufSize(_fd, _instance);
-
-        if (System.getProperty("os.name").startsWith("Windows")) {
-            //
-            // On Windows, limiting the buffer size is important to prevent poor throughput
-            // performances when sending large amount of data. See Microsoft KB article KB823764.
-            //
-            _maxSendPacketSize = java.lang.Math.max(512, Network.getSendBufferSize(_fd) / 2);
-        } else {
-            _maxSendPacketSize = 0;
-        }
     }
 
     private int toState(int operation) {
@@ -312,7 +291,6 @@ class StreamSocket {
     private final InetSocketAddress _addr;
 
     private SocketChannel _fd;
-    private int _maxSendPacketSize;
     private int _state;
     private String _desc;
 
