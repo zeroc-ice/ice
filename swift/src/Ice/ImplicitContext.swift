@@ -44,9 +44,9 @@ public protocol ImplicitContext: AnyObject {
 
     /// Create or update a key/value entry in the underlying context.
     ///
-    /// - Parameter key: The key.
-    ///
-    /// - Parameter value: The value.
+    /// - Parameters:
+    ///   - key: The key.
+    ///   - value: The value.
     /// - Returns: The previous value associated with the key, if any.
     @discardableResult
     func put(key: String, value: String) -> String

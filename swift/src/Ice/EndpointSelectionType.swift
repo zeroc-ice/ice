@@ -49,8 +49,9 @@ extension OutputStream {
 
     /// Writes an optional enumerated value to the stream.
     ///
-    /// - Parameter tag: The numeric tag associated with the value.
-    /// - Parameter value: The enumerator to write.
+    /// - Parameters:
+    ///   - tag: The numeric tag associated with the value.
+    ///   - value: The enumerator to write.
     public func write(tag: Int32, value: EndpointSelectionType?) {
         guard let v = value else {
             return
