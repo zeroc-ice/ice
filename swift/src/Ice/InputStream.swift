@@ -553,7 +553,7 @@ extension InputStream {
     /// Reads a sequence size from the stream and ensures the stream has enough
     /// bytes for `size` elements, where each element's size is at least minSize.
     ///
-    /// - Parameter minSize: The mininum element size to use for the check.
+    /// - Parameter minSize: The minimum element size to use for the check.
     /// - Returns: The size read from the stream.
     public func readAndCheckSeqSize(minSize: Int) throws -> Int {
         let sz = try Int(readSize())
