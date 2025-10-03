@@ -1251,15 +1251,10 @@ IceInternal::IncomingConnectionFactory::finishAsync(SocketOperation)
     {
         _acceptorException = nullptr;
 
-        Error out(_instance->initializationData().logger);
-        out << "couldn't accept connection:\n" << ex << '\n' << _acceptor->toString();
-        if (_acceptorStarted)
+        if (_warn)
         {
-            _acceptorStarted = false;
-            if (_adapter->getThreadPool()->finish(shared_from_this(), true))
-            {
-                closeAcceptor();
-            }
+            Warning out(_instance->initializationData().logger);
+            out << "error accepting connection:\n" << ex << '\n' << _acceptor->toString();
         }
     }
     return _state < StateClosed;
@@ -1335,11 +1330,10 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         }
         catch (const LocalException& ex)
         {
-            // Warn about other Ice local exceptions.
             if (_warn)
             {
                 Warning out(_instance->initializationData().logger);
-                out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+                out << "error accepting connection:\n" << ex << '\n' << _acceptor->toString();
             }
             return;
         }
@@ -1378,7 +1372,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
             if (_warn)
             {
                 Warning out(_instance->initializationData().logger);
-                out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+                out << "error accepting connection:\n" << ex << '\n' << _acceptor->toString();
             }
             return;
         }

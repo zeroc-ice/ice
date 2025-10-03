@@ -182,9 +182,9 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                         .trace(_instance.traceLevels().networkCat, s.toString());
                 }
             } catch (LocalException ex) {
-                // Warn about other Ice local exceptions.
                 if (_warn) {
-                    warning(ex);
+                    _instance.initializationData().logger.warning(
+                        "error accepting connection:\n" + Ex.toString(ex) + '\n' + _acceptor.toString());
                 }
                 return;
             }
@@ -210,7 +210,8 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 }
 
                 if (_warn) {
-                    warning(ex);
+                    _instance.initializationData().logger.warning(
+                        "error accepting connection:\n" + Ex.toString(ex) + '\n' + _acceptor.toString());
                 }
                 return;
             }
@@ -535,11 +536,6 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             _connections.remove(connection);
         }
         // else it's already being cleaned up.
-    }
-
-    private void warning(LocalException ex) {
-        String s = "connection exception:\n" + Ex.toString(ex) + '\n' + _acceptor.toString();
-        _instance.initializationData().logger.warning(s);
     }
 
     private final Instance _instance;

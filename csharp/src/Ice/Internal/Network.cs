@@ -79,18 +79,6 @@ internal sealed class Network
         //
         ex.Message.Contains("period of time", StringComparison.Ordinal);
 
-    internal static bool noMoreFds(System.Exception ex)
-    {
-        try
-        {
-            return ex != null && socketErrorCode((System.Net.Sockets.SocketException)ex) == SocketError.TooManyOpenSockets;
-        }
-        catch (InvalidCastException)
-        {
-            return false;
-        }
-    }
-
     internal static bool isMulticast(IPEndPoint addr)
     {
         string ip = addr.Address.ToString().ToUpperInvariant();

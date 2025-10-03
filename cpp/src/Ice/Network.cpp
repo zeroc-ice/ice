@@ -550,16 +550,6 @@ IceInternal::NativeInfo::newFd()
 
 #endif
 
-bool
-IceInternal::noMoreFds(int error)
-{
-#if defined(_WIN32)
-    return error == WSAEMFILE;
-#else
-    return error == EMFILE || error == ENFILE;
-#endif
-}
-
 string
 IceInternal::errorToStringDNS(ErrorCode error)
 {

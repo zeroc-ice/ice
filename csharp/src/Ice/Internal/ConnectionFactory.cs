@@ -1111,7 +1111,10 @@ internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.Star
         catch (LocalException ex)
         {
             _acceptorException = null;
-            _instance.initializationData().logger!.error($"couldn't accept connection:\n{ex}\n{_acceptor}");
+            if (_warn)
+            {
+                _instance.initializationData().logger!.warning($"error accepting connection:\n{ex}\n{_acceptor}");
+            }
         }
         return _state < StateClosed;
     }
@@ -1188,10 +1191,10 @@ internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.Star
                 }
                 catch (LocalException ex)
                 {
-                    // Warn about other Ice local exceptions.
                     if (_warn)
                     {
-                        warning(ex);
+                        _instance.initializationData().logger!.warning(
+                            $"error accepting connection:\n{ex}\n{_acceptor}");
                     }
                     return;
                 }
@@ -1222,7 +1225,8 @@ internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.Star
 
                     if (_warn)
                     {
-                        warning(ex);
+                        _instance.initializationData().logger!.warning(
+                            $"error accepting connection:\n{ex}\n{_acceptor}");
                     }
                     return;
                 }
@@ -1530,9 +1534,6 @@ internal sealed class IncomingConnectionFactory : EventHandler, ConnectionI.Star
             // else it's already being cleaned up.
         }
     }
-
-    private void warning(LocalException ex) =>
-        _instance.initializationData().logger!.warning($"connection exception:\n{ex}\n{_acceptor}");
 
     private readonly Instance _instance;
     private readonly ConnectionOptions _connectionOptions;
