@@ -77,13 +77,10 @@ namespace
         {
             lock_guard lock(_mutex);
 
-            //
-            // Notify all the incoming connection factories that we are
-            // entering the background mode.
-            //
-            for (set<IncomingConnectionFactoryPtr>::const_iterator p = _factories.begin(); p != _factories.end(); ++p)
+            // Notify all the incoming connection factories that we are entering the background mode.
+            for (const auto& factory : _factories)
             {
-                (*p)->stopAcceptor();
+                factory->stopAcceptor();
             }
             _background = true;
         }
@@ -92,14 +89,11 @@ namespace
         {
             lock_guard lock(_mutex);
 
-            //
-            // Notify all the incoming connection factories that we are
-            // entering the foreground mode.
-            //
+            // Notify all the incoming connection factories that we are entering the foreground mode.
             _background = false;
-            for (set<IncomingConnectionFactoryPtr>::const_iterator p = _factories.begin(); p != _factories.end(); ++p)
+            for (const auto& factory : _factories)
             {
-                (*p)->startAcceptor();
+                factory->startAcceptor();
             }
         }
 

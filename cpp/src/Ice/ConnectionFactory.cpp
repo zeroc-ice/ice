@@ -1500,6 +1500,38 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
 {
 }
 
+#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
+void
+IceInternal::IncomingConnectionFactory::startAcceptor()
+{
+    lock_guard lock(_mutex);
+    if (_state >= StateClosed || _acceptorStarted)
+    {
+        return;
+    }
+
+    _acceptorStopped = false;
+    createAcceptor();
+}
+
+void
+IceInternal::IncomingConnectionFactory::stopAcceptor()
+{
+    lock_guard lock(_mutex);
+    if (_state >= StateClosed || !_acceptorStarted)
+    {
+        return;
+    }
+
+    _acceptorStopped = true;
+    _acceptorStarted = false;
+    if (_adapter->getThreadPool()->finish(shared_from_this(), true))
+    {
+        closeAcceptor();
+    }
+}
+#endif
+
 void
 IceInternal::IncomingConnectionFactory::initialize()
 {
