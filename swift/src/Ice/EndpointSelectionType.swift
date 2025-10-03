@@ -17,7 +17,7 @@ public enum EndpointSelectionType: UInt8 {
 extension InputStream {
     /// Read an enumerated value.
     ///
-    /// - Returns: The enumarated value.
+    /// - Returns: The enumerated value.
     public func read() throws -> EndpointSelectionType {
         let rawValue: UInt8 = try read(enumMaxValue: 1)
         guard let val = EndpointSelectionType(rawValue: rawValue) else {
