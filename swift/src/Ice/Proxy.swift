@@ -7,269 +7,253 @@ import IceImpl
 public protocol ObjectPrx: CustomStringConvertible, AnyObject, Sendable {
     /// Returns the communicator that created this proxy.
     ///
-    /// - returns: `Ice.Communicator` - The communicator that created this proxy.
+    /// - Returns: The communicator that created this proxy.
     func ice_getCommunicator() -> Communicator
 
     /// Returns the identity embedded in this proxy.
     ///
-    /// - returns: `Ice.Identity` - The identity of the target object.
+    /// - Returns: The identity of the target object.
     func ice_getIdentity() -> Identity
 
     /// Creates a new proxy that is identical to this proxy, except for the identity.
     ///
-    /// - parameter id: `Ice.Identity` - The identity for the new proxy.
-    ///
-    /// - returns: A proxy with the new identity.
+    /// - Parameter id: The identity for the new proxy.
+    /// - Returns: A proxy with the new identity.
     func ice_identity(_ id: Identity) -> Self
 
     /// Returns the per-proxy context for this proxy.
     ///
-    /// - returns: `Ice.Context` - The per-proxy context.
+    /// - Returns: The per-proxy context.
     func ice_getContext() -> Context
 
     /// Creates a new proxy that is identical to this proxy, except for the per-proxy context.
     ///
-    /// - parameter context: `Ice.Context` - The context for the new proxy.
-    ///
-    /// - returns: The proxy with the new per-proxy context.
+    /// - Parameter context: The context for the new proxy.
+    /// - Returns: The proxy with the new per-proxy context.
     func ice_context(_ context: Context) -> Self
 
     /// Returns the facet for this proxy.
     ///
-    /// - returns: `String` - The facet for this proxy. If the proxy uses the default facet,
+    /// - Returns: The facet for this proxy. If the proxy uses the default facet,
     ///   the return value is the empty string.
     func ice_getFacet() -> String
 
     /// Creates a new proxy that is identical to this proxy, except for the facet.
     ///
-    /// - parameter facet: `String` - The facet for the new proxy.
-    ///
-    /// - returns: `Ice.ObjectPrx` - The proxy with the new facet.
+    /// - Parameter facet: The facet for the new proxy.
+    /// - Returns: The proxy with the new facet.
     func ice_facet(_ facet: String) -> ObjectPrx
 
     /// Returns the adapter ID for this proxy.
     ///
-    /// - returns: `String` - The adapter ID. If the proxy does not have an adapter ID, the return value is the
+    /// - Returns: The adapter ID. If the proxy does not have an adapter ID, the return value is the
     ///   empty string.
     func ice_getAdapterId() -> String
 
     /// Creates a new proxy that is identical to this proxy, except for the adapter ID.
     ///
-    /// - parameter id: `String` - The adapter ID for the new proxy.
-    ///
-    /// - returns: The proxy with the new adapter ID.
+    /// - Parameter id: The adapter ID for the new proxy.
+    /// - Returns: The proxy with the new adapter ID.
     func ice_adapterId(_ id: String) -> Self
 
     /// Returns the endpoints used by this proxy.
     ///
-    /// - returns: `EndpointSeq` - The endpoints used by this proxy.
+    /// - Returns: The endpoints used by this proxy.
     func ice_getEndpoints() -> EndpointSeq
 
     /// Creates a new proxy that is identical to this proxy, except for the endpoints.
     ///
-    /// - parameter endpoints: `EndpointSeq` - The endpoints for the new proxy.
-    ///
-    /// - returns: The proxy with the new endpoints.
+    /// - Parameter endpoints: The endpoints for the new proxy.
+    /// - Returns: The proxy with the new endpoints.
     func ice_endpoints(_ endpoints: EndpointSeq) -> Self
 
     /// Returns the locator cache timeout of this proxy.
     ///
-    /// - returns: `Int32` - The locator cache timeout value (in seconds).
+    /// - Returns: The locator cache timeout value (in seconds).
     func ice_getLocatorCacheTimeout() -> Int32
 
     /// Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
     ///
-    /// - parameter timeout: `Int32` - The new locator cache timeout (in seconds).
-    ///
-    /// - returns: A new proxy with the specified cache timeout.
+    /// - Parameter timeout: The new locator cache timeout (in seconds).
+    /// - Returns: A new proxy with the specified cache timeout.
     func ice_locatorCacheTimeout(_ timeout: Int32) -> Self
 
     /// Returns the invocation timeout of this proxy.
     ///
-    /// - returns: `Int32` - The invocation timeout value (in seconds).
+    /// - Returns: The invocation timeout value (in seconds).
     func ice_getInvocationTimeout() -> Int32
 
     /// Creates a new proxy that is identical to this proxy, except for the invocation timeout.
     ///
-    /// - parameter timeout: `Int32` - The new invocation timeout (in seconds).
-    ///
-    /// - returns: A new proxy with the specified invocation timeout.
+    /// - Parameter timeout: The new invocation timeout (in seconds).
+    /// - Returns: A new proxy with the specified invocation timeout.
     func ice_invocationTimeout(_ timeout: Int32) -> Self
 
     /// Returns the connection id of this proxy.
     ///
-    /// returns: `String` - The connection id.
+    /// - Returns: The connection id.
     func ice_getConnectionId() -> String
 
     /// Creates a new proxy that is identical to this proxy, except for its connection ID.
     ///
-    /// - parameter id: `String` - The connection ID for the new proxy. An empty string removes the
+    /// - Parameter id: The connection ID for the new proxy. An empty string removes the
     ///   connection ID.
-    ///
-    /// - returns: A new proxy with the specified connection ID.
+    /// - Returns: A new proxy with the specified connection ID.
     func ice_connectionId(_ id: String) -> Self
 
     /// Returns whether this proxy caches connections.
     ///
-    /// - returns: `Bool` - True if this proxy caches connections; false, otherwise.
+    /// - Returns: True if this proxy caches connections; false, otherwise.
     func ice_isConnectionCached() -> Bool
 
-    /// Creates a new proxy that is identical to this proxy, except for connection caching.
+    /// Creates a new proxy that is identical to this proxy, except for how it selects connections.
     ///
-    /// - parameter cached: `Bool` - True if the new proxy should cache connections; false, otherwise.
-    ///
-    /// - returns: The new proxy with the specified caching policy.
+    /// - Parameter cached: True if the new proxy should cache connections; false, otherwise.
+    /// - Returns: The new proxy with the specified caching policy.
     func ice_connectionCached(_ cached: Bool) -> Self
 
     /// Returns how this proxy selects endpoints (randomly or ordered).
     ///
-    /// - returns: `Ice.EndpointSelectionType` - The endpoint selection policy.
+    /// - Returns: The endpoint selection policy.
     func ice_getEndpointSelection() -> EndpointSelectionType
 
     /// Creates a new proxy that is identical to this proxy, except for the endpoint selection policy.
     ///
-    /// - parameter type: `Ice.EndpointSelectionType` - The new endpoint selection policy.
-    ///
-    /// - returns: The new proxy with the specified endpoint selection policy.
+    /// - Parameter type: The new endpoint selection policy.
+    /// - Returns: The new proxy with the specified endpoint selection policy.
     func ice_endpointSelection(_ type: EndpointSelectionType) -> Self
 
     /// Returns the encoding version used to marshal requests parameters.
     ///
-    /// - returns: `Ice.EncodingVersion` - The encoding version.
+    /// - Returns: The encoding version.
     func ice_getEncodingVersion() -> EncodingVersion
 
     /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
     /// parameters.
     ///
-    /// - parameter encoding: `Ice.EncodingVersion` - The encoding version to use to marshal requests parameters.
-    ///
-    /// - returns: The new proxy with the specified encoding version.
+    /// - Parameter encoding: The encoding version to use to marshal requests parameters.
+    /// - Returns: The new proxy with the specified encoding version.
     func ice_encodingVersion(_ encoding: EncodingVersion) -> Self
 
     /// Returns the router for this proxy.
     ///
-    /// - returns: `Ice.RouterPrx?` - The router for the proxy. If no router is configured for the proxy,
+    /// - Returns: The router for the proxy. If no router is configured for the proxy,
     ///   the return value is nil.
     func ice_getRouter() -> RouterPrx?
 
     /// Creates a new proxy that is identical to this proxy, except for the router.
     ///
-    /// - parameter router: `Ice.RouterPrx?` - The router for the new proxy.
-    ///
-    /// - returns: The new proxy with the specified router.
+    /// - Parameter router: The router for the new proxy.
+    /// - Returns: The new proxy with the specified router.
     func ice_router(_ router: RouterPrx?) -> Self
 
     /// Returns the locator for this proxy.
     ///
-    /// - returns: `Ice.LocatorPrx?` - The locator for this proxy. If no locator is configured, the
+    /// - Returns: The locator for this proxy. If no locator is configured, the
     ///   return value is nil.
     func ice_getLocator() -> LocatorPrx?
 
     /// Creates a new proxy that is identical to this proxy, except for the locator.
     ///
-    /// - parameter locator: `Ice.LocatorPrx` The locator for the new proxy.
-    ///
-    /// - returns: The new proxy with the specified locator.
+    /// - Parameter locator: The locator for the new proxy.
+    /// - Returns: The new proxy with the specified locator.
     func ice_locator(_ locator: LocatorPrx?) -> Self
 
     /// Returns whether this proxy uses twoway invocations.
     ///
-    /// - returns: `Bool` - True if this proxy uses twoway invocations; false, otherwise.
+    /// - Returns: True if this proxy uses twoway invocations; false, otherwise.
     func ice_isTwoway() -> Bool
 
     /// Creates a new proxy that is identical to this proxy, but uses twoway invocations.
     ///
-    /// - returns: A new proxy that uses twoway invocations.
+    /// - Returns: A new proxy that uses twoway invocations.
     func ice_twoway() -> Self
 
     /// Returns whether this proxy uses oneway invocations.
     ///
-    /// - returns: `Bool` - True if this proxy uses oneway invocations; false, otherwise.
+    /// - Returns: True if this proxy uses oneway invocations; false, otherwise.
     func ice_isOneway() -> Bool
 
     /// Creates a new proxy that is identical to this proxy, but uses oneway invocations.
     ///
-    /// - returns: A new proxy that uses oneway invocations.
+    /// - Returns: A new proxy that uses oneway invocations.
     func ice_oneway() -> Self
 
     /// Returns whether this proxy uses batch oneway invocations.
     ///
-    /// - returns: `Bool` - True if this proxy uses batch oneway invocations; false, otherwise.
+    /// - Returns: True if this proxy uses batch oneway invocations; false, otherwise.
     func ice_isBatchOneway() -> Bool
 
     /// Creates a new proxy that is identical to this proxy, but uses batch oneway invocations.
     ///
-    /// - returns: A new proxy that uses batch oneway invocations.
+    /// - Returns: A new proxy that uses batch oneway invocations.
     func ice_batchOneway() -> Self
 
     /// Returns whether this proxy uses datagram invocations.
     ///
-    /// - returns: `Bool` - True if this proxy uses datagram invocations; false, otherwise.
+    /// - Returns: True if this proxy uses datagram invocations; false, otherwise.
     func ice_isDatagram() -> Bool
 
     /// Creates a new proxy that is identical to this proxy, but uses datagram invocations.
     ///
-    /// - returns: A new proxy that uses datagram invocations.
+    /// - Returns: A new proxy that uses datagram invocations.
     func ice_datagram() -> Self
 
     /// Returns whether this proxy uses batch datagram invocations.
     ///
-    /// - returns: `Bool` - True if this proxy uses batch datagram invocations; false, otherwise.
+    /// - Returns: True if this proxy uses batch datagram invocations; false, otherwise.
     func ice_isBatchDatagram() -> Bool
 
     /// Creates a new proxy that is identical to this proxy, but uses batch datagram invocations.
     ///
-    /// - returns: A new proxy that uses batch datagram invocations.
+    /// - Returns: A new proxy that uses batch datagram invocations.
     func ice_batchDatagram() -> Self
 
     /// Obtains the compression override setting of this proxy.
     ///
-    /// - returns: `Bool` - The compression override setting. If no optional value is present, no override is
+    /// - Returns: The compression override setting. If no optional value is present, no override is
     ///   set. Otherwise, true if compression is enabled, false otherwise.
     func ice_getCompress() -> Bool?
 
     /// Creates a new proxy that is identical to this proxy, except for compression.
     ///
-    /// - parameter compress: `Bool` - True enables compression for the new proxy; false disables compression.
-    ///
-    /// - returns: A new proxy with the specified compression setting.
+    /// - Parameter compress: True enables compression for the new proxy; false disables compression.
+    /// - Returns: A new proxy with the specified compression setting.
     func ice_compress(_ compress: Bool) -> Self
 
     /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
     /// to the given connection.
     ///
-    /// - parameter connection: `Ice.Connection` - The fixed proxy connection.
-    ///
-    /// - returns: A fixed proxy bound to the given connection.
+    /// - Parameter connection: The fixed proxy connection.
+    /// - Returns: A fixed proxy bound to the given connection.
     func ice_fixed(_ connection: Connection) -> Self
 
     /// Returns whether this proxy is a fixed proxy.
     ///
-    /// - returns: `Bool` - True if this is a fixed proxy, false otherwise.
+    /// - Returns: True if this is a fixed proxy, false otherwise.
     func ice_isFixed() -> Bool
 
     /// Returns the cached Connection for this proxy. If the proxy does not yet have an established
     /// connection, it does not attempt to create a connection.
     ///
-    /// - returns: `Ice.Connection?` - The cached Connection for this proxy (nil if the proxy does not have
+    /// - Returns: The cached Connection for this proxy (nil if the proxy does not have
     ///   an established connection).
     func ice_getCachedConnection() -> Connection?
 
     /// Returns the stringified form of this proxy.
     ///
-    /// - returns: `String` - The stringified proxy
+    /// - Returns: The stringified proxy
     func ice_toString() -> String
 
     /// Returns whether this proxy uses collocation optimization.
     ///
-    /// - returns: `Bool` - True if the proxy uses collocation optimization; false, otherwise.
+    /// - Returns: True if the proxy uses collocation optimization; false, otherwise.
     func ice_isCollocationOptimized() -> Bool
 
     /// Creates a new proxy that is identical to this proxy, except for collocation optimization.
     ///
-    /// - parameter collocated: `Bool` - True if the new proxy enables collocation optimization; false, otherwise.
-    ///
-    /// - returns: The new proxy the specified collocation optimization.
+    /// - Parameter collocated: True if the new proxy enables collocation optimization; false, otherwise.
+    /// - Returns: The new proxy the specified collocation optimization.
     func ice_collocationOptimized(_ collocated: Bool) -> Self
 }
 
@@ -289,18 +273,14 @@ public func makeProxy(communicator: Ice.Communicator, proxyString: String, type:
 
 /// Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
 ///
-/// - parameter prx: `Ice.ObjectPrx` - The source proxy.
-///
-/// - parameter type: `Ice.ObjectPrx.Protocol` - The type of the new proxy.
-///
-/// - parameter facet: `String?` - The optional facet for the new proxy.
-///
-/// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
-///
-/// - throws: Throws an Ice local exception if the target object does not exist, the specified facet
+/// - Parameters:
+///   - prx: The source proxy.
+///   - type: The type of the new proxy.
+///   - facet: The optional facet for the new proxy.
+///   - context: The optional context dictionary for the invocation.
+/// - Throws: Throws an Ice local exception if the target object does not exist, the specified facet
 ///   does not exist, or the server cannot be reached.
-///
-/// - returns: A new proxy with the specified facet or nil if the target object does not support the specified
+/// - Returns: A new proxy with the specified facet or nil if the target object does not support the specified
 ///   interface.
 public func checkedCast(
     prx: Ice.ObjectPrx,
@@ -313,13 +293,11 @@ public func checkedCast(
 
 /// Creates a new proxy from an existing proxy.
 ///
-/// - parameter prx: `Ice.ObjectPrx` - The source proxy.
-///
-/// - parameter type: `Ice.ObjectPrx.Protocol` - The type of the new proxy.
-///
-/// - parameter facet: `String?` - The optional facet for the new proxy.
-///
-/// - returns: A new proxy with the specified facet.
+/// - Parameters:
+///   - prx: The source proxy.
+///   - type: The type of the new proxy.
+///   - facet: The optional facet for the new proxy.
+/// - Returns: A new proxy with the specified facet.
 public func uncheckedCast(
     prx: Ice.ObjectPrx,
     type _: ObjectPrx.Protocol,
@@ -330,7 +308,7 @@ public func uncheckedCast(
 
 /// Returns the Slice type id of the interface or class associated with this proxy class.
 ///
-/// - returns: `String` - The type id, "::Ice::Object".
+/// - Returns: The type id, "::Ice::Object".
 public func ice_staticId(_: ObjectPrx.Protocol) -> String {
     return ObjectTraits.staticId
 }
@@ -361,7 +339,7 @@ extension ObjectPrx {
 
     /// Sends ping request to the target object.
     ///
-    /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
+    /// - Parameter context: The optional context dictionary for the invocation.
     public func ice_ping(context: Context? = nil) async throws {
         return try await _impl._invoke(
             operation: "ice_ping",
@@ -371,11 +349,10 @@ extension ObjectPrx {
 
     /// Tests whether this object supports a specific Slice interface.
     ///
-    /// - parameter id: `String` - The type ID of the Slice interface to test against.
-    ///
-    /// - parameter context: `Ice.Context` - The optional context dictionary for the invocation.
-    ///
-    /// - returns: `Bool` - The result of the invocation.
+    /// - Parameters:
+    ///   - id: The type ID of the Slice interface to test against.
+    ///   - context: The optional context dictionary for the invocation.
+    /// - Returns: The result of the invocation.
     public func ice_isA(id: String, context: Context? = nil) async throws -> Bool {
         return try await _impl._invoke(
             operation: "ice_isA",
@@ -389,9 +366,8 @@ extension ObjectPrx {
 
     /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
     ///
-    /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
-    ///
-    /// - returns: `String` The result of the invocation.
+    /// - Parameter context: The optional context dictionary for the invocation.
+    /// - Returns: `String` The result of the invocation.
     public func ice_id(context: Context? = nil) async throws -> String {
         return try await _impl._invoke(
             operation: "ice_id",
@@ -402,9 +378,8 @@ extension ObjectPrx {
 
     /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
     ///
-    /// - parameter context: `Ice.Context?` - The optional context dictionary for the invocation.
-    ///
-    /// - returns: `Ice.StringSeq` - The result of the invocation.
+    /// - Parameter context: The optional context dictionary for the invocation.
+    /// - Returns: The result of the invocation.
     public func ice_ids(context: Context? = nil) async throws -> StringSeq {
         return try await _impl._invoke(
             operation: "ice_ids",
@@ -415,15 +390,12 @@ extension ObjectPrx {
 
     /// Invokes an operation dynamically.
     ///
-    /// - parameter operation: `String` - The name of the operation to invoke.
-    ///
-    /// - parameter mode: `Ice.OperationMode` - The operation mode (normal or idempotent).
-    ///
-    /// - parameter inEncaps: `Data` - The encoded in-parameters for the operation.
-    ///
-    /// - parameter context: `Ice.Context` - The context dictionary for the invocation.
-    ///
-    /// - returns: `(ok: Bool, outEncaps: Data)` - The result of the invocation.
+    /// - Parameters:
+    ///   - operation: The name of the operation to invoke.
+    ///   - mode: The operation mode (normal or idempotent).
+    ///   - inEncaps: The encoded in-parameters for the operation.
+    ///   - context: The context dictionary for the invocation.
+    /// - Returns: The result of the invocation.
     public func ice_invoke(
         operation: String,
         mode: OperationMode,
@@ -486,7 +458,7 @@ extension ObjectPrx {
     /// Returns the connection for this proxy. If the proxy does not yet have an established connection,
     /// it first attempts to create a connection.
     ///
-    /// - returns: `Ice.Connection?` - The result of the invocation.
+    /// - Returns: The result of the invocation.
     public func ice_getConnection() async throws -> Connection? {
         return try await withCheckedThrowingContinuation { continuation in
             self._impl.handle.ice_getConnection(

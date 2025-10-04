@@ -17,7 +17,7 @@ public enum EndpointSelectionType: UInt8 {
 extension InputStream {
     /// Read an enumerated value.
     ///
-    /// - returns: `EndpointSelectionType` - The enumarated value.
+    /// - Returns: The enumerated value.
     public func read() throws -> EndpointSelectionType {
         let rawValue: UInt8 = try read(enumMaxValue: 1)
         guard let val = EndpointSelectionType(rawValue: rawValue) else {
@@ -28,9 +28,8 @@ extension InputStream {
 
     /// Read an optional enumerated value from the stream.
     ///
-    /// - parameter tag: `Int32` - The numeric tag associated with the value.
-    ///
-    /// - returns: `EndpointSelectionType` - The enumerated value.
+    /// - Parameter tag: The numeric tag associated with the value.
+    /// - Returns: The enumerated value.
     public func read(tag: Int32) throws -> EndpointSelectionType? {
         guard try readOptional(tag: tag, expectedFormat: .Size) else {
             return nil
@@ -43,16 +42,16 @@ extension InputStream {
 extension OutputStream {
     /// Writes an enumerated value to the stream.
     ///
-    /// - parameter value: `EndpointSelectionType` - The enumerator to write.
+    /// - Parameter value: The enumerator to write.
     public func write(_ value: EndpointSelectionType) {
         write(enum: value.rawValue, maxValue: 1)
     }
 
     /// Writes an optional enumerated value to the stream.
     ///
-    /// - parameter tag: `Int32` - The numeric tag associated with the value.
-    ///
-    /// - parameter value: `EndpointSelectionType` - The enumerator to write.
+    /// - Parameters:
+    ///   - tag: The numeric tag associated with the value.
+    ///   - value: The enumerator to write.
     public func write(tag: Int32, value: EndpointSelectionType?) {
         guard let v = value else {
             return

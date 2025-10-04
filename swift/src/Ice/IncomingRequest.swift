@@ -8,9 +8,10 @@ public struct IncomingRequest {
     public let inputStream: InputStream
 
     /// Constructs an incoming request.
-    /// - parameter current: The current object for the request.
-    /// - parameter inputStream: The input stream buffer over the incoming Ice protocol request message. The stream is
-    /// positioned at the beginning of the encapsulation in the request.
+    /// - Parameters:
+    ///   - current: The current object for the request.
+    ///   - inputStream: The input stream buffer over the incoming Ice protocol request message. The stream is
+    ///     positioned at the beginning of the encapsulation in the request.
     public init(current: Current, inputStream: InputStream) {
         self.current = current
         self.inputStream = inputStream

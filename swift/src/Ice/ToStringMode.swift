@@ -28,7 +28,7 @@ public enum ToStringMode: UInt8 {
 extension InputStream {
     /// Read an enumerated value.
     ///
-    /// - returns: `ToStringMode` - The enumarated value.
+    /// - Returns: The enumerated value.
     public func read() throws -> ToStringMode {
         let rawValue: UInt8 = try read(enumMaxValue: 2)
         guard let val = ToStringMode(rawValue: rawValue) else {
@@ -39,9 +39,8 @@ extension InputStream {
 
     /// Read an optional enumerated value from the stream.
     ///
-    /// - parameter tag: `Int32` - The numeric tag associated with the value.
-    ///
-    /// - returns: `ToStringMode` - The enumerated value.
+    /// - Parameter tag: The numeric tag associated with the value.
+    /// - Returns: The enumerated value.
     public func read(tag: Int32) throws -> ToStringMode? {
         guard try readOptional(tag: tag, expectedFormat: .Size) else {
             return nil
@@ -54,16 +53,16 @@ extension InputStream {
 extension OutputStream {
     /// Writes an enumerated value to the stream.
     ///
-    /// - parameter value: `ToStringMode` - The enumerator to write.
+    /// - Parameter value: The enumerator to write.
     public func write(_ value: ToStringMode) {
         write(enum: value.rawValue, maxValue: 2)
     }
 
     /// Writes an optional enumerated value to the stream.
     ///
-    /// - parameter tag: `Int32` - The numeric tag associated with the value.
-    ///
-    /// - parameter value: `ToStringMode` - The enumerator to write.
+    /// - Parameters:
+    ///   - tag: The numeric tag associated with the value.
+    ///   - value: The enumerator to write.
     public func write(tag: Int32, value: ToStringMode?) {
         guard let v = value else {
             return

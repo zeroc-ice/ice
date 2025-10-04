@@ -16,31 +16,27 @@ public protocol SliceTraits {
 public protocol Object {
     /// Returns the Slice type ID of the most-derived interface supported by this object.
     ///
-    /// - parameter current: `Ice.Current` - The Current object for the dispatch.
-    ///
-    /// - returns: `String` - The Slice type ID of the most-derived interface.
+    /// - Parameter current: The Current object for the dispatch.
+    /// - Returns: The Slice type ID of the most-derived interface.
     func ice_id(current: Current) async throws -> String
 
     /// Returns the Slice type IDs of the interfaces supported by this object.
     ///
-    /// - parameter current: `Ice.Current` - The Current object for the dispatch.
-    ///
-    /// - returns: `[String]` The Slice type IDs of the interfaces supported by this object, in alphabetical order.
+    /// - Parameter current: The Current object for the dispatch.
+    /// - Returns: `[String]` The Slice type IDs of the interfaces supported by this object, in alphabetical order.
     func ice_ids(current: Current) async throws -> [String]
 
     /// Tests whether this object supports a specific Slice interface.
-    ///
-    /// - parameter id: `String` - The type ID of the Slice interface to test against.
-    ///
-    /// - parameter current: `Ice.Current` - The Current object for the dispatch.
-    ///
-    /// - returns: `Bool` - True if this object has the interface specified by s or
+    /// - Parameters:
+    ///   - id: The type ID of the Slice interface to test against.
+    ///   - current: The Current object for the dispatch.
+    /// - Returns: True if this object has the interface specified by s or
     ///   derives from the interface specified by s.
     func ice_isA(id: String, current: Current) async throws -> Bool
 
     /// Tests whether this object can be reached.
     ///
-    /// - parameter current: The Current object for the dispatch.
+    /// - Parameter current: The Current object for the dispatch.
     func ice_ping(current: Current) async throws
 }
 

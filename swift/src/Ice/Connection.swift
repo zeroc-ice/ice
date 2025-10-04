@@ -19,7 +19,7 @@ public enum CompressBatch: UInt8 {
 extension InputStream {
     /// Read an enumerated value.
     ///
-    /// - returns: `CompressBatch` - The enumerated value.
+    /// - Returns: The enumerated value.
     public func read() throws -> CompressBatch {
         let rawValue: UInt8 = try read(enumMaxValue: 2)
         guard let val = CompressBatch(rawValue: rawValue) else {
@@ -30,9 +30,8 @@ extension InputStream {
 
     /// Read an optional enumerated value from the stream.
     ///
-    /// - parameter tag: `Int32` - The numeric tag associated with the value.
-    ///
-    /// - returns: `CompressBatch` - The enumerated value.
+    /// - Parameter tag: The numeric tag associated with the value.
+    /// - Returns: The enumerated value.
     public func read(tag: Int32) throws -> CompressBatch? {
         guard try readOptional(tag: tag, expectedFormat: .Size) else {
             return nil
@@ -45,16 +44,15 @@ extension InputStream {
 extension OutputStream {
     /// Writes an enumerated value to the stream.
     ///
-    /// - parameter v: `CompressBatch` - The enumerator to write.
+    /// - Parameter v: The enumerator to write.
     public func write(_ v: CompressBatch) {
         write(enum: v.rawValue, maxValue: 2)
     }
 
     /// Writes an optional enumerated value to the stream.
-    ///
-    /// - parameter tag: `Int32` - The numeric tag associated with the value.
-    ///
-    /// - parameter value: `CompressBatch` - The enumerator to write.
+    /// - Parameters:
+    ///   - tag: The numeric tag associated with the value.
+    ///   - value: The enumerator to write.
     public func write(tag: Int32, value: CompressBatch?) {
         guard let v = value else {
             return
@@ -71,7 +69,7 @@ public typealias HeaderDict = [String: String]
 /// This method is called by the connection when the connection is closed. If the callback needs more information
 /// about the closure, it can call Connection.throwException.
 ///
-/// - parameter _: `Connection?` The connection that was closed.
+/// - Parameter _: The connection that was closed.
 public typealias CloseCallback = (Connection?) -> Void
 
 /// The user-level interface to a connection.
@@ -89,9 +87,8 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     /// client if the server cannot directly establish a connection to the client, for example because of firewalls. In
     /// this case, the server would create a proxy using an already established connection from the client.
     ///
-    /// - parameter id: `Identity` The identity for which a proxy is to be created.
-    ///
-    /// - returns: `ObjectPrx` - A proxy that matches the given identity and uses this connection.
+    /// - Parameter id: The identity for which a proxy is to be created.
+    /// - Returns: A proxy that matches the given identity and uses this connection.
     func createProxy(_ id: Identity) throws -> ObjectPrx
 
     /// Associates an object adapter with this connection. When a connection receives a request, it dispatches this
@@ -100,23 +97,23 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     /// The default object adapter of an incoming connection is the object adapter that created this connection;
     /// the default object adapter of an outgoing connection is the communicator's default object adapter.
     ///
-    /// - parameter adapter: `ObjectAdapter?` The object adapter to associate with the connection.
+    /// - Parameter adapter: The object adapter to associate with the connection.
     func setAdapter(_ adapter: ObjectAdapter?) throws
 
     /// Gets the object adapter associated with this connection.
     ///
-    /// - returns: `ObjectAdapter?` - The object adapter associated with this connection.
+    /// - Returns: The object adapter associated with this connection.
     func getAdapter() -> ObjectAdapter?
 
     /// Get the endpoint from which the connection was created.
     ///
-    /// - returns: `Endpoint` - The endpoint from which the connection was created.
+    /// - Returns: The endpoint from which the connection was created.
     func getEndpoint() -> Endpoint
 
     /// Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
     /// associated with the connection.
     ///
-    /// - parameter compress: `CompressBatch` Specifies whether or not the queued batch requests should be compressed
+    /// - Parameter compress: Specifies whether or not the queued batch requests should be compressed
     /// before being sent over the wire.
     func flushBatchRequests(_ compress: CompressBatch) async throws
 
@@ -124,7 +121,7 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     /// is called from the Ice thread pool associated with the connection. If the callback needs more information about
     /// the closure, it can call Connection.throwException.
     ///
-    /// - parameter callback: `CloseCallback?` The close callback object.
+    /// - Parameter callback: The close callback object.
     func setCloseCallback(_ callback: CloseCallback?) throws
 
     /// Disable the inactivity check on this connection.
@@ -132,24 +129,24 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
 
     /// Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
     ///
-    /// - returns: `String` - The type of the connection.
+    /// - Returns: The type of the connection.
     func type() -> String
 
     /// Return a description of the connection as human readable text, suitable for logging or error messages.
     ///
-    /// - returns: `String` - The description of the connection as human readable text.
+    /// - Returns: The description of the connection as human readable text.
     func toString() -> String
 
     /// Returns the connection information.
     ///
-    /// - returns: `ConnectionInfo` - The connection information.
+    /// - Returns: The connection information.
     func getInfo() throws -> ConnectionInfo
 
     /// Set the connection buffer receive/send size.
     ///
-    /// - parameter rcvSize: `Int32` The connection receive buffer size.
-    ///
-    /// - parameter sndSize: `Int32` The connection send buffer size.
+    /// - Parameters:
+    ///   - rcvSize: The connection receive buffer size.
+    ///   - sndSize: The connection send buffer size.
     func setBufferSize(rcvSize: Int32, sndSize: Int32) throws
 
     /// Throw an exception indicating the reason for connection closure. For example,
