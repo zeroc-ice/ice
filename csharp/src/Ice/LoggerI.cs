@@ -114,8 +114,16 @@ internal sealed class FileLoggerI : LoggerI
 
     protected override void write(string message)
     {
+        long start = Environment.TickCount64;
         _writer.WriteLine(message);
         _writer.Flush();
+
+        long elapsed = Environment.TickCount64 - start;
+        if (elapsed > 150)
+        {
+            _writer.WriteLine($"************************ The previous message took {elapsed} ms to write");
+            _writer.Flush();
+        }
     }
 
     internal FileLoggerI(string prefix, string file)
