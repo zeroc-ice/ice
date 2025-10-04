@@ -40,7 +40,12 @@ public class Server : global::Test.TestHelper
         var logger = communicator.getLogger();
         // Trace heartbeat every 250ms.
         using var timer =
-            new Timer(_ => logger.trace("Heartbeat", "Alive"), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(250));
+        new Timer(_ => logger.trace(
+                "Heartbeat",
+                $"ThreadCount = {ThreadPool.ThreadCount}, PendingWorkItems = {ThreadPool.PendingWorkItemCount}"),
+                null,
+                TimeSpan.Zero,
+                TimeSpan.FromMilliseconds(250));
 
         serverReady();
         communicator.waitForShutdown();

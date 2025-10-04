@@ -48,7 +48,12 @@ internal class AllTests : global::Test.AllTests
         var logger = p.ice_getCommunicator().getLogger();
         // Trace heartbeat every 250ms.
         await using var timer =
-            new Timer(_ => logger.trace("Heartbeat", "Alive"), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(250));
+            new Timer(_ => logger.trace(
+                "Heartbeat",
+                $"ThreadCount = {ThreadPool.ThreadCount}, PendingWorkItems = {ThreadPool.PendingWorkItemCount}"),
+                null,
+                TimeSpan.Zero,
+                TimeSpan.FromMilliseconds(250));
 
         // Establish connection.
         await p.ice_pingAsync();
