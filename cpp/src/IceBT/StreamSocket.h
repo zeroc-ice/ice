@@ -16,9 +16,6 @@ namespace IceBT
         StreamSocket(InstancePtr, SOCKET);
         ~StreamSocket() override;
 
-        size_t getSendPacketSize(size_t);
-        size_t getRecvPacketSize(size_t);
-
         void setBufferSize(SOCKET, int rcvSize, int sndSize);
 
         IceInternal::SocketOperation read(IceInternal::Buffer&);

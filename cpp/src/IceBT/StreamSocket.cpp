@@ -24,18 +24,6 @@ IceBT::StreamSocket::StreamSocket(InstancePtr instance, SOCKET fd)
 
 IceBT::StreamSocket::~StreamSocket() { assert(_fd == INVALID_SOCKET); }
 
-size_t
-IceBT::StreamSocket::getSendPacketSize(size_t length)
-{
-    return length;
-}
-
-size_t
-IceBT::StreamSocket::getRecvPacketSize(size_t length)
-{
-    return length;
-}
-
 void
 IceBT::StreamSocket::setBufferSize(SOCKET fd, int rcvSize, int sndSize)
 {

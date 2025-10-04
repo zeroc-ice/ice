@@ -20,8 +20,6 @@ namespace IceInternal
 
         SocketOperation connect(Buffer&, Buffer&);
         bool isConnected();
-        size_t getSendPacketSize(size_t);
-        size_t getRecvPacketSize(size_t);
 
         void setBufferSize(int rcvSize, int sndSize);
 
@@ -65,8 +63,6 @@ namespace IceInternal
         std::string _desc;
 
 #if defined(ICE_USE_IOCP)
-        size_t _maxSendPacketSize;
-        size_t _maxRecvPacketSize;
         AsyncInfo _read;
         AsyncInfo _write;
 #endif
