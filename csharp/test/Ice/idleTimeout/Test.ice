@@ -8,6 +8,7 @@ module Test
     interface TestIntf
     {
         void sleep(int ms);
+        void runGC();
         void shutdown();
     }
 }

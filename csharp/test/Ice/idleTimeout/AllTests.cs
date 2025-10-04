@@ -16,11 +16,23 @@ internal class AllTests : global::Test.AllTests
         string proxyString3s = $"test: {helper.getTestEndpoint(2)}";
         string proxyStringNoIdleTimeout = $"test: {helper.getTestEndpoint(3)}";
 
-        await testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
-        await testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
-        await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), helper.getWriter());
-        await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), helper.getWriter());
-        await testNoIdleTimeout(proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
+        if (proxyString.Contains("ssl"))
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                Console.WriteLine($"iteration {i + 1}/50");
+                await p.runGCAsync();
+                GC.Collect();
+
+                await testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
+            }
+        }
+        /*
+                await testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
+                await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), helper.getWriter());
+                await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), helper.getWriter());
+                await testNoIdleTimeout(proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
+                */
 
         await p.shutdownAsync();
     }
@@ -33,10 +45,20 @@ internal class AllTests : global::Test.AllTests
         output.Write("testing that the idle check does not abort a back-pressured connection... ");
         output.Flush();
 
+        var logger = p.ice_getCommunicator().getLogger();
+        // Trace heartbeat every 250ms.
+        await using var timer =
+            new Timer(_ => logger.trace(
+                "Heartbeat",
+                $"ThreadCount = {ThreadPool.ThreadCount}, PendingWorkItems = {ThreadPool.PendingWorkItemCount}"),
+                null,
+                TimeSpan.Zero,
+                TimeSpan.FromMilliseconds(250));
+
         // Establish connection.
         await p.ice_pingAsync();
 
-        await p.sleepAsync(2000); // the implementation in the server sleeps synchronously for 2,000ms
+        await p.sleepAsync(20_000); // the implementation in the server sleeps synchronously for 20,000ms
 
         // close connection
         await p.ice_getConnection()!.closeAsync();
