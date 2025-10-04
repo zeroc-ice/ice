@@ -20,7 +20,7 @@ internal class AllTests : global::Test.AllTests
         {
             for (int i = 0; i < 50; i++)
             {
-                Console.WriteLine($"iteration {i + 1}/500");
+                Console.WriteLine($"iteration {i + 1}/50");
                 await p.runGCAsync();
                 GC.Collect();
 
@@ -44,6 +44,11 @@ internal class AllTests : global::Test.AllTests
     {
         output.Write("testing that the idle check does not abort a back-pressured connection... ");
         output.Flush();
+
+        var logger = p.ice_getCommunicator().getLogger();
+        // Trace heartbeat every 250ms.
+        await using var timer =
+            new Timer(_ => logger.trace("Heartbeat", "Alive"), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(250));
 
         // Establish connection.
         await p.ice_pingAsync();

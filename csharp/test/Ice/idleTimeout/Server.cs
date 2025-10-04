@@ -37,6 +37,11 @@ public class Server : global::Test.TestHelper
         adapterNoIdleTimeout.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
         adapterNoIdleTimeout.activate();
 
+        var logger = communicator.getLogger();
+        // Trace heartbeat every 250ms.
+        using var timer =
+            new Timer(_ => logger.trace("Heartbeat", "Alive"), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(250));
+
         serverReady();
         communicator.waitForShutdown();
     }
