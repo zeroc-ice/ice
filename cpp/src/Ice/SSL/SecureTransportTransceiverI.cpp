@@ -82,23 +82,6 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
         _connected = true;
     }
 
-    //
-    // Limit the size of packets passed to SSLWrite/SSLRead to avoid
-    // blocking and holding too much memory.
-    //
-    if (_delegate->getNativeInfo()->fd() != INVALID_SOCKET)
-    {
-        _maxSendPacketSize =
-            static_cast<size_t>(std::max(512, IceInternal::getSendBufferSize(_delegate->getNativeInfo()->fd())));
-        _maxRecvPacketSize =
-            static_cast<size_t>(std::max(512, IceInternal::getRecvBufferSize(_delegate->getNativeInfo()->fd())));
-    }
-    else
-    {
-        _maxSendPacketSize = 128 * 1024; // 128KB
-        _maxRecvPacketSize = 128 * 1024; // 128KB
-    }
-
     OSStatus err = 0;
     if (!_ssl)
     {
@@ -335,14 +318,14 @@ Ice::SSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
     }
 
     //
-    // It's impossible for packetSize to be more than an Int.
+    // It's impossible for remaining to be more than an Int.
     //
-    size_t packetSize = std::min(static_cast<size_t>(buf.b.end() - buf.i), _maxSendPacketSize);
-    while (buf.i != buf.b.end())
+    size_t remaining = static_cast<size_t>(buf.b.end() - buf.i);
+    while (remaining > 0)
     {
         size_t processed = 0;
         OSStatus err = _buffered ? SSLWrite(_ssl.get(), nullptr, 0, &processed)
-                                 : SSLWrite(_ssl.get(), reinterpret_cast<const void*>(buf.i), packetSize, &processed);
+                                 : SSLWrite(_ssl.get(), reinterpret_cast<const void*>(buf.i), remaining, &processed);
 
         if (err)
         {
@@ -394,10 +377,7 @@ Ice::SSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
             buf.i += processed;
         }
 
-        if (packetSize > static_cast<size_t>(buf.b.end() - buf.i))
-        {
-            packetSize = static_cast<size_t>(buf.b.end() - buf.i);
-        }
+        remaining = static_cast<size_t>(buf.b.end() - buf.i);
     }
 
     return IceInternal::SocketOperationNone;
@@ -418,11 +398,11 @@ Ice::SSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
 
     _delegate->getNativeInfo()->ready(IceInternal::SocketOperationRead, false);
 
-    size_t packetSize = std::min(static_cast<size_t>(buf.b.end() - buf.i), _maxRecvPacketSize);
-    while (buf.i != buf.b.end())
+    size_t remaining = static_cast<size_t>(buf.b.end() - buf.i);
+    while (remaining > 0)
     {
         size_t processed = 0;
-        OSStatus err = SSLRead(_ssl.get(), reinterpret_cast<void*>(buf.i), packetSize, &processed);
+        OSStatus err = SSLRead(_ssl.get(), reinterpret_cast<void*>(buf.i), remaining, &processed);
         if (err)
         {
             if (err == errSSLWouldBlock)
@@ -462,10 +442,7 @@ Ice::SSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
 
         buf.i += processed;
 
-        if (packetSize > static_cast<size_t>(buf.b.end() - buf.i))
-        {
-            packetSize = static_cast<size_t>(buf.b.end() - buf.i);
-        }
+        remaining = static_cast<size_t>(buf.b.end() - buf.i);
     }
 
     //
