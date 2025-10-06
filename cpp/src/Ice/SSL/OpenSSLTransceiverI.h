@@ -53,9 +53,6 @@ namespace Ice::SSL::OpenSSL
         int verifyCallback(int, X509_STORE_CTX*);
 
     private:
-        bool receive();
-        bool send();
-
         friend class Ice::SSL::OpenSSL::SSLEngine;
 
         const InstancePtr _instance;
@@ -69,7 +66,6 @@ namespace Ice::SSL::OpenSSL
         X509* _peerCertificate;
         ::SSL* _ssl;
         SSL_CTX* _sslCtx;
-        BIO* _memBio;
         IceInternal::Buffer _writeBuffer;
         IceInternal::Buffer _readBuffer;
         int _sentBytes;
