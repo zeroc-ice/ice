@@ -73,12 +73,12 @@ https://download.zeroc.com/nexus/repository/nuget-nightly/
 
 ### Ice for Java
 
-The nightly packages are available from the ZeroC maven-nightly repository.
+The nightly packages are available from the maven central snapshots repository.
 
 To use them, add the following Maven repository to your build configuration:
 
 ```shell
-https://download.zeroc.com/nexus/repository/maven-nightly/
+https://central.sonatype.com/repository/maven-snapshots
 ```
 
 #### Gradle <!-- omit in toc -->
@@ -90,9 +90,9 @@ Here’s an example configuration using Kotlin DSL:
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        // This demo uses the nightly build of the Slice Tools plugin, published to the ZeroC Maven Nightly repository.
+        // Use the nightly build of the Slice Tools plugin, published to the maven central snapshots repository.
         maven {
-            url = uri("https://download.zeroc.com/nexus/repository/maven-nightly/")
+            url = uri("https://central.sonatype.com/repository/maven-snapshots")
             content {
                 includeGroupByRegex("com\\.zeroc.*")
             }
@@ -103,9 +103,9 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        // This demo uses the nightly build of Ice, published to the ZeroC Maven Nightly repository.
+        // Use the nightly build of Ice, published to the maven central snapshots repository.
         maven {
-            url = uri("https://download.zeroc.com/nexus/repository/maven-nightly/")
+            url = uri("https://central.sonatype.com/repository/maven-snapshots")
             content {
                 includeGroupByRegex("com\\.zeroc.*")
             }
@@ -343,7 +343,7 @@ brew install zeroc-ice/nightly/ice
 
 The ice formula includes:
 
-- the Ice for C++ runtime and dev kit
+- the Ice for C++ runtime and dev kit.
 - all Ice services (Glacier2, IceGrid, IceStorm, etc.) and all admin tools except IceGrid GUI.
 
 IceGridGUI is distributed in its own brew cask. This cask is not yet available.

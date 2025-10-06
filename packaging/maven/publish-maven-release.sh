@@ -3,11 +3,11 @@ set -xeuo pipefail
 case "$CHANNEL" in
   "3.8")
     REPO_ID=ossrh
-    SOURCE_URL="https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+    SOURCE_URL="https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
     ;;
   "nightly")
-    REPO_ID=maven-nightly
-    SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-nightly/"
+    REPO_ID=maven-snapshots
+    SOURCE_URL="https://central.sonatype.com/repository/maven-snapshots/"
     ;;
   *)
     echo "Unsupported channel: $CHANNEL"
@@ -32,10 +32,13 @@ cat > ~/.m2/settings.xml <<EOF
 </settings>
 EOF
 
+# Import the signing GPG key.
+echo "$GPG_KEY" | gpg --batch --import
+
+# Copy the JAR and POM files
 mkdir -p lib
 cp -pf "${STAGING_DIR}"/java-packages/*.jar lib
 cp -pf "${STAGING_DIR}"/java-packages/*.pom lib
-cp -pf "${STAGING_DIR}"/java-packages/*.asc lib
 
 ice_version=$(basename "$(ls lib/ice-*-sources.jar)" | sed -E 's/^ice-(.+)-sources\.jar$/\1/')
 components=(ice glacier2 icebt icebox icediscovery icelocatordiscovery icegrid icestorm)
@@ -51,17 +54,25 @@ for component in "${components[@]}"; do
 
   echo "Publishing $base_name"
 
-  mvn deploy:deploy-file \
+  mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.4:sign-and-deploy-file \
+    -Dgpg.keyname="${GPG_KEY_ID}" \
     -Dfile="${jar}" \
     -Djavadoc="${javadoc_jar}" \
     -Dsources="${sources_jar}" \
     -DpomFile="${pom_file}" \
-    -Dfiles="${pom_file}.asc,${jar}.asc,${javadoc_jar}.asc,${sources_jar}.asc" \
-    -Dtypes=pom.asc,jar.asc,javadoc.jar.asc,sources.jar.asc \
-    -Dclassifiers=,jar,javadoc,sources \
     -Durl="${SOURCE_URL}" \
     -DrepositoryId="${REPO_ID}" || { echo "Failed to publish $base_name"; exit 1; }
 done
+
+if [ "$CHANNEL" = "3.8" ]; then
+  # Tell maven central to validate the deployed artifacts, the deployment needs to be manually published
+  # from the maven central web site after it has been validated.
+  curl -sS -X POST \
+  -H "Authorization: Bearer ${MAVEN_CENTRAL_BEARER_AUTH_TOKEN}" \
+  -H "Content-Type: application/json" \
+  "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/com.zeroc" \
+  -d '{"publishing_type":"user_managed"}'
+fi
 
 if [ "$CHANNEL" = "nightly" ]; then
   echo "Publishing Slice Tools plugin"
@@ -71,41 +82,32 @@ if [ "$CHANNEL" = "nightly" ]; then
   plugin_staging_dir="${STAGING_DIR}/slice-tools-packages/com/zeroc/slice-tools"
 
   cp "${plugin_staging_dir}/${ice_version}/"*.jar "plugin/slice-tools-${ice_version}.jar"
-  cp "${plugin_staging_dir}/${ice_version}/"*.jar.asc "plugin/slice-tools-${ice_version}.jar.asc"
   cp "${plugin_staging_dir}/${ice_version}/"*.pom "plugin/slice-tools-${ice_version}.pom"
-  cp "${plugin_staging_dir}/${ice_version}/"*.pom.asc "plugin/slice-tools-${ice_version}.pom.asc"
 
   plugin_jar="plugin/slice-tools-${ice_version}.jar"
   plugin_pom="plugin/slice-tools-${ice_version}.pom"
 
-  mvn deploy:deploy-file \
+  mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.4:sign-and-deploy-file \
+    -Dgpg.keyname="${GPG_KEY_ID}" \
     -Dfile="${plugin_jar}" \
     -DpomFile="${plugin_pom}" \
-    -Dfiles="${plugin_jar}.asc,${plugin_pom}.asc" \
-    -Dtypes=jar.asc,pom.asc \
-    -Dclassifiers=, \
     -Durl="${SOURCE_URL}" \
     -DrepositoryId="${REPO_ID}" || { echo "Failed to publish plugin"; exit 1; }
 
   cp "${plugin_staging_dir}/com.zeroc.slice-tools.gradle.plugin/${ice_version}/"*.pom \
     "plugin/com.zeroc.slice-tools.gradle.plugin-${ice_version}.pom"
-  cp "${plugin_staging_dir}/com.zeroc.slice-tools.gradle.plugin/${ice_version}/"*.pom.asc \
-    "plugin/com.zeroc.slice-tools.gradle.plugin-${ice_version}.pom.asc"
 
   plugin_marker_pom="plugin/com.zeroc.slice-tools.gradle.plugin-${ice_version}.pom"
-  plugin_marker_asc="plugin/com.zeroc.slice-tools.gradle.plugin-${ice_version}.pom.asc"
 
   echo "Publishing plugin marker POM"
 
-  mvn deploy:deploy-file \
+  mvn org.apache.maven.plugins:maven-gpg-plugin:3.2.4:sign-and-deploy-file \
+    -Dgpg.keyname="${GPG_KEY_ID}" \
     -Dfile="${plugin_marker_pom}" \
     -Dpackaging=pom \
     -DgroupId="com.zeroc.slice-tools" \
     -DartifactId="com.zeroc.slice-tools.gradle.plugin" \
     -Dversion="${ice_version}" \
-    -Dfiles="${plugin_marker_asc}" \
-    -Dtypes=pom.asc \
-    -Dclassifiers= \
     -Durl="${SOURCE_URL}" \
     -DrepositoryId="${REPO_ID}" || { echo "Failed to publish plugin marker"; exit 1; }
 fi

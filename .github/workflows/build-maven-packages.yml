@@ -118,16 +118,6 @@ jobs:
         run: ./gradlew dist
         working-directory: ice/java
 
-      - name: Sign Ice for Java Files
-        run: |
-          set -euo pipefail
-          echo "$GPG_KEY" | gpg --batch --import
-          find ice/java/lib local-repo -type f \( -name '*.jar' -o -name '*.pom' \) \
-            -exec gpg -u "$GPG_KEY_ID" --armor --detach-sign --batch --yes --output '{}.asc' '{}' \;
-        env:
-          GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
-          GPG_KEY_ID: ${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}
-
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -135,7 +125,6 @@ jobs:
           path: |
             ice/java/lib/*.jar
             ice/java/lib/*.pom
-            ice/java/lib/*.asc
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -143,5 +132,4 @@ jobs:
           name: slice-tools-packages
           path: |
             local-repo/**/*.jar
-            local-repo/**/*.asc
             local-repo/**/*.pom
