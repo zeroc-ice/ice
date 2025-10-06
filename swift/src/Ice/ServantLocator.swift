@@ -16,10 +16,12 @@ public protocol ServantLocator: Sendable {
     ///
     /// - Parameter curr: Information about the current operation for which a servant is required.
     /// - Returns: A tuple containing:
-    ///   - `returnValue`: The located servant of type `Dispatcher?`, or `nil` if no suitable servant has been found.
+    ///   - `returnValue`: The located servant of type `Dispatcher?`, or `nil` if no suitable servant has been
+    ///     found.
     ///   - `cookie`: A value of type `AnyObject?` that will be passed to `finished`.
     /// - Throws:
-    ///   - `UserException`: The implementation can raise a `UserException`, which the runtime will marshal as the result of the invocation.
+    ///   - `UserException`: The implementation can raise a `UserException`, which the runtime will marshal as the
+    ///     result of the invocation.
     func locate(_ curr: Current) throws -> (returnValue: Dispatcher?, cookie: AnyObject?)
 
     /// Called by the object adapter after a request has been made. This operation is only called if
@@ -35,7 +37,8 @@ public protocol ServantLocator: Sendable {
     ///   - curr: Information about the current operation call for which a servant was located by `locate`.
     ///   - servant: The servant that was returned by `locate`.
     ///   - cookie: The cookie that was returned by `locate`.
-    /// - Throws: The implementation can raise a `UserException`, which the runtime will marshal as the result of the invocation.
+    /// - Throws: The implementation can raise a `UserException`, which the runtime will marshal as the result of
+    ///   the invocation.
     func finished(curr: Current, servant: Dispatcher, cookie: AnyObject?) throws
 
     /// Called when the object adapter in which this servant locator is installed is destroyed.

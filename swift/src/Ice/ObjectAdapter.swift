@@ -129,9 +129,9 @@ public protocol ObjectAdapter: AnyObject, Sendable {
 
     /// Remove a servant (that is, the default facet) from the object adapter's Active Servant Map.
     ///
-    /// - Parameter id: The identity of the Ice object that is implemented by the servant. If the servant
-    ///                 implements multiple Ice objects, remove has to be called for all those Ice objects. Removing an identity
-    ///                 that is not in the map throws NotRegisteredException.
+    /// - Parameter id: The identity of the Ice object that is implemented by the servant. If the servant implements
+    ///   multiple Ice objects, remove has to be called for all those Ice objects. Removing an identity that is not in
+    ///   the map throws NotRegisteredException.
     /// - Returns: The removed servant.
     @discardableResult
     func remove(_ id: Identity) throws -> Dispatcher
