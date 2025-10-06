@@ -25,7 +25,7 @@ class WSTransceiver {
     constructor(instance, secure, addr, resource) {
         this._readBuffers = [];
         this._readPosition = 0;
-        this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
+        this._maxBufferedAmount = instance.properties().getPropertyAsIntWithDefault("Ice.WS.MaxBufferedAmount", 512 * 1024);
         this._writeReadyTimeout = 0;
 
         let url = secure ? "wss" : "ws";
@@ -166,10 +166,10 @@ class WSTransceiver {
         const cb = () => {
             if (this._fd) {
                 const packetSize =
-                    this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize
-                        ? this._maxSendPacketSize
+                    this._maxBufferedAmount > 0 && byteBuffer.remaining > this._maxBufferedAmount
+                        ? this._maxBufferedAmount
                         : byteBuffer.remaining;
-                if (this._fd.bufferedAmount + packetSize <= this._maxSendPacketSize) {
+                if (this._fd.bufferedAmount + packetSize <= this._maxBufferedAmount) {
                     this._bytesWrittenCallback();
                 } else {
                     Timer.setTimeout(cb, this.writeReadyTimeout());
@@ -179,14 +179,14 @@ class WSTransceiver {
 
         while (true) {
             const packetSize =
-                this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize
-                    ? this._maxSendPacketSize
+                this._maxBufferedAmount > 0 && byteBuffer.remaining > this._maxBufferedAmount
+                    ? this._maxBufferedAmount
                     : byteBuffer.remaining;
             if (byteBuffer.remaining === 0) {
                 break;
             }
             console.assert(packetSize > 0);
-            if (this._fd.bufferedAmount + packetSize > this._maxSendPacketSize) {
+            if (this._fd.bufferedAmount + packetSize > this._maxBufferedAmount) {
                 Timer.setTimeout(cb, this.writeReadyTimeout());
                 return false;
             }
@@ -258,7 +258,7 @@ class WSTransceiver {
             -1,
             this._addr.host,
             this._addr.port,
-            this._maxSendPacketSize,
+            this._maxBufferedAmount,
         );
 
         if (this._secure) {
@@ -266,10 +266,6 @@ class WSTransceiver {
         }
 
         return new WSConnectionInfo(info);
-    }
-
-    setBufferSize(_, sndSize) {
-        this._maxSendPacketSize = sndSize;
     }
 
     toString() {

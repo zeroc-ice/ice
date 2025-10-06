@@ -21,7 +21,6 @@ class TcpTransceiver {
         this._logger = instance.logger();
         this._readBuffers = [];
         this._readPosition = 0;
-        this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
 
         this._fd = null;
         this._addr = addr;
@@ -212,12 +211,7 @@ class TcpTransceiver {
             this._fd.localPort,
             this._fd.remoteAddress,
             this._fd.remotePort,
-            this._maxSendPacketSize,
         );
-    }
-
-    setBufferSize(_, sndSize) {
-        this._maxSendPacketSize = sndSize;
     }
 
     toString() {

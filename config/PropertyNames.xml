@@ -117,7 +117,8 @@
         <property name="SyslogPort" languages="java" default="514"/>
         <property name="TCP.Backlog" languages="cpp,csharp,java" default="511" />
         <property name="TCP.RcvSize" languages="cpp,csharp,java" />
-        <property name="TCP.SndSize" languages="cpp,csharp,java,js" />
+        <property name="TCP.SndSize" languages="cpp,csharp,java" />
+        <property name="WS.MaxBufferedAmount" languages="js" />
         <property name="ThreadPool.Client" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPool.Server" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPriority" languages="csharp,java" />

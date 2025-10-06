@@ -83,7 +83,6 @@ export class Client extends TestHelper {
         out.write("testing connection information... ");
 
         conn = await testIntf.ice_getConnection();
-        conn.setBufferSize(1024, 2048);
 
         const info = conn.getInfo();
         const ipConnectionInfo: Ice.TCPConnectionInfo | null = getTCPConnectionInfo(info);
@@ -99,7 +98,6 @@ export class Client extends TestHelper {
                 test(ipConnectionInfo.localAddress == defaultHost);
             }
         }
-        test(ipConnectionInfo.sndSize >= 2048);
         ctx = await testIntf.getConnectionInfoAsContext();
 
         test(ctx.get("incoming") == "true");
