@@ -24,7 +24,6 @@ let factoriesRegistered: Bool = {
 ///   reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument starting
 ///   with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
 ///   configuration file and through a command-line argument, the command-line setting takes precedence.
-///
 /// - Returns: The new communicator.
 public func initialize(_ args: [String]) throws -> Communicator {
     try initialize(InitializationData(properties: createProperties(args)))
@@ -36,7 +35,6 @@ public func initialize(_ args: [String]) throws -> Communicator {
 ///   with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
 ///   configuration file and through a command-line argument, the command-line setting takes precedence. This function
 ///   modifies args by removing any Ice-related options.
-///
 /// - Returns: The new communicator.
 public func initialize(_ args: inout [String]) throws -> Communicator {
     try initialize(InitializationData(properties: createProperties(&args)))
@@ -98,7 +96,7 @@ public func initialize(_ initData: InitializationData = InitializationData()) th
 
 /// Creates a new empty property set.
 ///
-/// - returns: `Properties` - A new empty property set.
+/// - Returns: A new empty property set.
 public func createProperties() -> Properties {
     guard factoriesRegistered else {
         fatalError("Unable to initialize Ice")
@@ -108,16 +106,13 @@ public func createProperties() -> Properties {
 
 /// Creates a property set initialized from an argument array.
 ///
-/// - parameter args: `[String]` - A command-line argument array, possibly containing options to
-///   set properties. If the command-line options include a `--Ice.Config` option, the
-///   corresponding configuration files are parsed. If the same property is set in a configuration
-///   file and in the argument array, the argument array takes precedence.
-///
-/// - parameter defaults: `Ice.Properties` - Optional default values for the property set. Settings in
-///   configuration files and argument array override these defaults.
-///
-/// - returns: `Ice.Properties` - A new property set initialized with the property settings from the arguments
-///   array and defaults.
+/// - Parameters:
+///   - args: A command-line argument array, possibly containing options to set properties. If the
+///     command-line options include `--Ice.Config`, the corresponding configuration files are parsed. If the same
+///     property is set in a configuration file and in the argument array, the argument array takes precedence.
+///   - defaults: Optional default values for the property set. Settings in configuration files and the
+///     argument array override these defaults.
+/// - Returns: A new property set initialized with the property settings from the arguments array and defaults.
 public func createProperties(_ args: [String], defaults: Properties? = nil) throws -> Properties {
     guard factoriesRegistered else {
         fatalError("Unable to initialize Ice")
@@ -133,17 +128,14 @@ public func createProperties(_ args: [String], defaults: Properties? = nil) thro
 
 /// Creates a property set initialized from an argument array.
 ///
-/// - parameter args: `[String]` - A command-line argument array, possibly containing options to
-///   set properties. If the command-line options include a `--Ice.Config` option, the
-///   corresponding configuration files are parsed. If the same property is set in a configuration
-///   file and in the argument array, the argument array takes precedence. This method modifies the
-///   argument array by removing any Ice-related options.
-///
-/// - parameter defaults: `Ice.Properties` - Optional default values for the property set. Settings in
-///   configuration files and argument array override these defaults.
-///
-/// - returns: `Ice.Properties` - A new property set initialized with the property settings from args
-///   and defaults.
+/// - Parameters:
+///   - args: A command-line argument array, possibly containing options to set properties. If the
+///     command-line options include `--Ice.Config`, the corresponding configuration files are parsed. If the same
+///     property is set in a configuration file and in the argument array, the argument array takes precedence. This
+///     method modifies the argument array by removing any Ice-related options.
+///   - defaults: Optional default values for the property set. Settings in configuration files and the
+///     argument array override these defaults.
+/// - Returns: A new property set initialized with the property settings from the arguments and defaults.
 public func createProperties(_ args: inout [String], defaults: Properties? = nil) throws
     -> Properties
 {
@@ -181,9 +173,8 @@ public let currentEncoding = Encoding_1_1
 
 /// Converts a string to an object identity.
 ///
-/// - parameter string: `String` - The string to convert.
-///
-/// - returns: `Ice.Identity` - The converted object identity.
+/// - Parameter string: The string to convert.
+/// - Returns: The converted object identity.
 public func stringToIdentity(_ string: String) throws -> Identity {
     guard factoriesRegistered else {
         fatalError("Unable to initialize Ice")
@@ -198,12 +189,10 @@ public func stringToIdentity(_ string: String) throws -> Identity {
 
 /// Converts an object identity to a string.
 ///
-/// - parameter id: `Ice.Identity` - The object identity to convert.
-///
-/// - parameter mode: `ToStringMode` - Specifies if and how non-printable ASCII characters are escaped
-///   in the result.
-///
-/// - returns: `String` - The string representation of the object identity.
+/// - Parameters:
+///   - id: The object identity to convert.
+///   - mode: Specifies if and how non-printable ASCII characters are escaped in the result.
+/// - Returns: The string representation of the object identity.
 public func identityToString(id: Identity, mode: ToStringMode = .Unicode) -> String {
     precondition(!id.name.isEmpty, "Invalid identity with an empty name")
     return ICEUtil.identityToString(name: id.name, category: id.category, mode: mode.rawValue)
@@ -211,9 +200,8 @@ public func identityToString(id: Identity, mode: ToStringMode = .Unicode) -> Str
 
 /// Converts an encoding version to a string.
 ///
-/// - parameter encoding: `Ice.EncodingVersion` - The encoding version to convert.
-///
-/// - returns: `String` - The converted string.
+/// - Parameter encoding: The encoding version to convert.
+/// - Returns: The converted string.
 public func encodingVersionToString(_ encoding: EncodingVersion) -> String {
     return ICEUtil.encodingVersionToString(major: encoding.major, minor: encoding.minor)
 }

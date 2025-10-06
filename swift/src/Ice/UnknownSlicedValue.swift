@@ -14,7 +14,7 @@ public final class UnknownSlicedValue: Value {
 
     /// Returns the Slice type ID associated with this object.
     ///
-    /// - returns: `String` - The type ID.
+    /// - Returns: The type ID.
     override public func ice_id() -> String {
         return unknownTypeId
     }

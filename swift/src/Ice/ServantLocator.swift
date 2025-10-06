@@ -14,17 +14,13 @@ public protocol ServantLocator: Sendable {
     /// If you call locate from your own code, you must also call finished
     /// when you have finished using the servant, provided that locate returned a non-null servant.
     ///
-    /// - parameter curr: `Current` Information about the current operation for which a servant is required.
-    ///
-    /// - returns: `(returnValue: Dispatcher?, cookie: AnyObject?)`:
-    ///
-    ///   - returnValue: `Dispatcher?` - The located servant, or null if no suitable servant has been found.
-    ///
-    ///   - cookie: `AnyObject?` - A "cookie" that will be passed to finished.
-    ///
-    /// - throws:
-    ///
-    ///   - UserException - The implementation can raise a UserException and the run time will marshal it as the
+    /// - Parameter curr: Information about the current operation for which a servant is required.
+    /// - Returns: A tuple containing:
+    ///   - `returnValue`: The located servant of type `Dispatcher?`, or `nil` if no suitable servant has been
+    ///     found.
+    ///   - `cookie`: A value of type `AnyObject?` that will be passed to `finished`.
+    /// - Throws:
+    ///   - `UserException`: The implementation can raise a `UserException`, which the runtime will marshal as the
     ///     result of the invocation.
     func locate(_ curr: Current) throws -> (returnValue: Dispatcher?, cookie: AnyObject?)
 
@@ -37,21 +33,16 @@ public protocol ServantLocator: Sendable {
     /// If both the operation and finished throw an exception, the exception thrown by
     /// finished is marshaled back to the client.
     ///
-    /// - parameter curr: `Current` Information about the current operation call for which a servant was located by
-    /// locate.
-    ///
-    /// - parameter servant: `Dispatcher` The servant that was returned by locate.
-    ///
-    /// - parameter cookie: `AnyObject?` The cookie that was returned by locate.
-    ///
-    /// - throws:
-    ///
-    ///   - UserException - The implementation can raise a UserException and the run time will marshal it as the
-    ///     result of the invocation.
+    /// - Parameters:
+    ///   - curr: Information about the current operation call for which a servant was located by `locate`.
+    ///   - servant: The servant that was returned by `locate`.
+    ///   - cookie: The cookie that was returned by `locate`.
+    /// - Throws: The implementation can raise a `UserException`, which the runtime will marshal as the result of
+    ///   the invocation.
     func finished(curr: Current, servant: Dispatcher, cookie: AnyObject?) throws
 
     /// Called when the object adapter in which this servant locator is installed is destroyed.
     ///
-    /// - parameter category: `String` Indicates for which category the servant locator is being deactivated.
+    /// - Parameter category: Indicates for which category the servant locator is being deactivated.
     func deactivate(_ category: String)
 }

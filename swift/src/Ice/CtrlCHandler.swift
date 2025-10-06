@@ -13,7 +13,7 @@ public struct CtrlCHandler {
 
     /// Sets the signal callback. If there was a previous callback, it is replaced.
     /// - Parameter callback: The callback to call when a signal is caught; its parameter is the signal number.
-    /// When nil, the signal is ignored.
+    ///   When nil, the signal is ignored.
     public func setCallback(_ callback: ((Int32) -> Void)?) {
         self.handle.setCallback(callback)
     }

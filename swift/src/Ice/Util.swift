@@ -5,9 +5,8 @@ import IceImpl
 
 /// Converts a string to an encoding version.
 ///
-/// - parameter s: `String` - The string to convert.
-///
-/// - returns: `Ice.EncodingVersion` - The converted encoding version.</returns>
+/// - Parameter s: The string to convert.
+/// - Returns: The converted encoding version.
 func stringToEncodingVersion(_ s: String) throws -> EncodingVersion {
     let (major, minor) = try stringToMajorMinor(s)
     return EncodingVersion(major: major, minor: minor)
