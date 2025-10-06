@@ -140,18 +140,16 @@ class TcpTransceiver {
         if (this._exception) {
             throw this._exception;
         }
+        console.assert(byteBuffer.remaining > 0);
 
-        let packetSize = byteBuffer.remaining;
-        console.assert(packetSize > 0);
-
-        const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
+        const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + byteBuffer.remaining);
         let sync = true;
         sync = this._fd.write(Buffer.from(slice), null, () => {
             if (!sync) {
                 this._bytesWrittenCallback();
             }
         });
-        byteBuffer.position += packetSize;
+        byteBuffer.position += byteBuffer.remaining;
         return sync;
     }
 
