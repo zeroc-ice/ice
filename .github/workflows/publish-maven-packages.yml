@@ -39,7 +39,7 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir "${STAGING_DIR}"
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "slice-tools-packages" --dir "${STAGING_DIR}"
 
-      - name: Publish 3.8 Java Packages
+      - name: Publish Java Packages
         run: packaging/maven/publish-maven-release.sh
         env:
           CHANNEL: ${{ inputs.channel }}

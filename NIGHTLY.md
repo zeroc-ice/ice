@@ -90,8 +90,7 @@ Here’s an example configuration using Kotlin DSL:
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        // This demo uses the nightly build of the Slice Tools plugin, published to the maven central snapshots
-        // repository.
+        // Use the nightly build of the Slice Tools plugin, published to the maven central snapshots repository.
         maven {
             url = uri("https://central.sonatype.com/repository/maven-snapshots")
             content {
@@ -104,7 +103,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        // This demo uses the nightly build of Ice, published to the maven central snapshots repository.
+        // Use the nightly build of Ice, published to the maven central snapshots repository.
         maven {
             url = uri("https://central.sonatype.com/repository/maven-snapshots")
             content {
@@ -344,7 +343,7 @@ brew install zeroc-ice/nightly/ice
 
 The ice formula includes:
 
-- the Ice for C++ runtime and dev kit
+- the Ice for C++ runtime and dev kit.
 - all Ice services (Glacier2, IceGrid, IceStorm, etc.) and all admin tools except IceGrid GUI.
 
 IceGridGUI is distributed in its own brew cask. This cask is not yet available.
