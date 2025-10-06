@@ -392,7 +392,7 @@ extension InputStream {
 
     /// Reads an optional numeric value from the stream.
     ///
-    /// - Parameter tag: The tag of the optional data member or parameter.
+    /// - Parameter tag: The tag of the optional field or parameter.
     /// - Returns: The optional numeric value read from the stream.
     public func read<Element>(tag: Int32) throws -> Element? where Element: StreamableNumeric {
         let expectedFormat = OptionalFormat(fixedSize: MemoryLayout<Element>.size)
@@ -432,7 +432,7 @@ extension InputStream {
 
     /// Reads an optional sequence of numeric values from the stream.
     ///
-    /// - Parameter tag: The tag of the optional data member or parameter.
+    /// - Parameter tag: The tag of the optional field or parameter.
     /// - Returns: The optional sequence read from the stream.
     public func read<Element>(tag: Int32) throws -> [Element]? where Element: StreamableNumeric {
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
@@ -478,7 +478,7 @@ extension InputStream {
 
     /// Reads an optional sequence of bytes from the stream.
     ///
-    /// - Parameter tag: The tag of the optional data member or parameter.
+    /// - Parameter tag: The tag of the optional field or parameter.
     /// - Returns: The optional sequence of bytes read from the stream.
     public func read(tag: Int32) throws -> Data? {
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
@@ -498,7 +498,7 @@ extension InputStream {
 
     /// Reads an optional boolean value from the stream.
     ///
-    /// - Parameter tag: The tag of the optional data member or parameter.
+    /// - Parameter tag: The tag of the optional field or parameter.
     /// - Returns: The optional boolean value read from the stream.
     public func read(tag: Int32) throws -> Bool? {
         guard try readOptional(tag: tag, expectedFormat: .F1) else {
@@ -529,7 +529,7 @@ extension InputStream {
 
     /// Reads an optional sequence of boolean value from the stream.
     ///
-    /// - Parameter tag: The tag of the optional data member or parameter.
+    /// - Parameter tag: The tag of the optional field or parameter.
     /// - Returns: The optional sequence of boolean values read from the stream.
     public func read(tag: Int32) throws -> [Bool]? {
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
@@ -637,13 +637,13 @@ extension InputStream {
             if tag > readTag {
                 let offset = tag < 30 ? -1 : (tag < 255 ? -2 : -6)  // Rewind
                 try changePos(offset: offset)
-                return false  // No optional data members with the requested tag
+                return false  // No optional fields with the requested tag
             } else if tag < readTag {
-                try skipOptional(format: format)  // Skip optional data members
+                try skipOptional(format: format)  // Skip optional fields
             } else {
                 if format != expectedFormat {
                     throw MarshalException(
-                        "invalid optional data member `\(tag)': unexpected format")
+                        "invalid optional field `\(tag)': unexpected format")
                 }
                 return true
             }
@@ -718,7 +718,7 @@ extension InputStream {
 
     /// Reads an optional string from the stream.
     ///
-    /// - Parameter tag: The tag of the optional data member or parameter.
+    /// - Parameter tag: The tag of the optional field or parameter.
     /// - Returns: The optional string read from the stream.
     public func read(tag: Int32) throws -> String? {
         guard try readOptional(tag: tag, expectedFormat: .VSize) else {
@@ -742,7 +742,7 @@ extension InputStream {
 
     /// Reads an optional sequence of strings from the stream.
     ///
-    /// - Parameter tag: The tag of the optional data member or parameter.
+    /// - Parameter tag: The tag of the optional field or parameter.
     /// - Returns: The optional sequence of strings read from the stream.
     public func read(tag: Int32) throws -> [String]? {
         guard try readOptional(tag: tag, expectedFormat: .FSize) else {
@@ -761,7 +761,7 @@ extension InputStream {
 
     /// Reads an optional proxy from the stream (internal helper).
     ///
-    /// - Parameter tag: The tag of the optional data member or parameter.
+    /// - Parameter tag: The tag of the optional field or parameter.
     /// - Returns: The proxy read from the stream.
     public func read<ProxyImpl>(tag: Int32) throws -> ProxyImpl?
     where ProxyImpl: ObjectPrxI {
@@ -782,7 +782,7 @@ extension InputStream {
     /// Reads an optional base proxy from the stream.
     ///
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - type: The proxy type.
     /// - Returns: The proxy read from the stream.
     public func read(tag: Int32, type _: ObjectPrx.Protocol) throws -> ObjectPrx? {
@@ -909,7 +909,7 @@ extension EncapsDecoder {
 
         //
         // Check if we already unmarshaled the object. If that's the case, just patch the object smart pointer
-        // and we're done. A null value indicates we've encountered a cycle and Ice.AllowClassCycles is false.
+        // and we're done. A nil value indicates we've encountered a cycle and Ice.AllowClassCycles is false.
         //
         if let optObj = unmarshaledMap[index] {
             guard let obj = optObj else {
@@ -935,7 +935,7 @@ extension EncapsDecoder {
         // Add the instance to the map of unmarshaled instances, this must
         // be done before reading the instances (for circular references).
         //
-        // If circular references are not allowed we insert null (for cycle detection) and add
+        // If circular references are not allowed we insert nil (for cycle detection) and add
         // the object to the map once it has been fully unmarshaled.
         //
         unmarshaledMap[index] = stream.acceptClassCycles ? v : (nil as Value?)
@@ -975,7 +975,7 @@ extension EncapsDecoder {
                 //
                 // Iterate over the instance list and invoke ice_postUnmarshal on
                 // each instance. We must do this after all instances have been
-                // unmarshaled in order to ensure that any instance data members
+                // unmarshaled in order to ensure that any instance fields
                 // have been properly patched.
                 //
                 for p in valueList {
@@ -1421,7 +1421,7 @@ private class EncapsDecoder11: EncapsDecoder {
             //
             // Sanity checks. If there are optional members, it's possible
             // that not all instance references were read if they are from
-            // unknown optional data members.
+            // unknown optional fields.
             //
             if indirectionTable.isEmpty {
                 throw MarshalException("empty indirection table")

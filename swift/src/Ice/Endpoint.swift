@@ -19,7 +19,7 @@ public typealias EndpointSeq = [Endpoint]
 
 /// Base class providing access to the endpoint details.
 open class EndpointInfo {
-    /// The information of the underlying endpoint or null if there's no underlying endpoint.
+    /// The information of the underlying endpoint or nil if there's no underlying endpoint.
     public let underlying: EndpointInfo?
 
     /// Specifies whether or not compression should be used if available when using this endpoint.

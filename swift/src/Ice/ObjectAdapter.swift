@@ -168,7 +168,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// to find a servant by using any installed ServantLocator.
     ///
     /// - Parameter id: The identity of the Ice object for which the servant should be returned.
-    /// - Returns: The servant that implements the Ice object with the given identity, or null if no such
+    /// - Returns: The servant that implements the Ice object with the given identity, or nil if no such
     ///            servant has been found.
     func find(_ id: Identity) -> Dispatcher?
 
@@ -178,7 +178,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// - Parameters:
     ///   - id: The identity of the Ice object for which the servant should be returned.
     ///   - facet: The facet. An empty facet means the default facet.
-    /// - Returns: The servant that implements the Ice object with the given identity and facet, or null if
+    /// - Returns: The servant that implements the Ice object with the given identity and facet, or nil if
     ///            no such servant has been found.
     func findFacet(id: Identity, facet: String) -> Dispatcher?
 
@@ -194,7 +194,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// find a servant by using any installed ServantLocator.
     ///
     /// - Parameter proxy: The proxy for which the servant should be returned.
-    /// - Returns: The servant that matches the proxy, or null if no such servant has been found.
+    /// - Returns: The servant that matches the proxy, or nil if no such servant has been found.
     func findByProxy(_ proxy: ObjectPrx) -> Dispatcher?
 
     /// Add a Servant Locator to this object adapter. Adding a servant locator for a category for which a servant
@@ -235,14 +235,14 @@ public protocol ObjectAdapter: AnyObject, Sendable {
     /// - Parameter category: The category for which the Servant Locator can locate servants, or an empty
     /// string if the Servant Locator does not belong to any specific category.
     ///
-    /// - Returns: The Servant Locator, or null if no Servant Locator was found for the given
+    /// - Returns: The Servant Locator, or nil if no Servant Locator was found for the given
     /// category.
     func findServantLocator(_ category: String) -> ServantLocator?
 
     /// Find the default servant for a specific category.
     ///
     /// - Parameter category: The category of the default servant to find.
-    /// - Returns: The default servant or null if no default servant was registered for the category.
+    /// - Returns: The default servant or nil if no default servant was registered for the category.
     func findDefaultServant(_ category: String) -> Dispatcher?
 
     /// Create a proxy for the object with the given identity. If this object adapter is configured with an adapter id,
@@ -279,7 +279,7 @@ public protocol ObjectAdapter: AnyObject, Sendable {
 
     /// Get the Ice locator used by this object adapter.
     ///
-    /// - Returns: The locator used by this object adapter, or null if no locator is used by this
+    /// - Returns: The locator used by this object adapter, or nil if no locator is used by this
     /// object adapter.
     func getLocator() -> LocatorPrx?
 
