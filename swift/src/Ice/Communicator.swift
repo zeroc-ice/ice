@@ -179,7 +179,7 @@ public protocol Communicator: AnyObject, Sendable {
     /// Ice.Admin.InstanceName is not set. If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called
     /// by the communicator initialization, after initialization of all plugins.
     ///
-    /// - Returns: A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin
+    /// - Returns: A proxy to the main ("") facet of the Admin object, or a nil proxy if no Admin
     ///            object is configured.
     func getAdmin() throws -> ObjectPrx?
 
