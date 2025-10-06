@@ -318,7 +318,6 @@ func allTests(_ helper: TestHelper) async throws {
         try test(logMessages[2].message == "error")
         try test(logMessages[3].message == "print")
 
-
         //
         // Get only errors and warnings
         //
@@ -344,7 +343,6 @@ func allTests(_ helper: TestHelper) async throws {
             )
         }
 
-
         //
         // Get only errors and traces with Cat = "testCat"
         //
@@ -367,7 +365,6 @@ func allTests(_ helper: TestHelper) async throws {
                 msg.type == .errorMessage
                     || (msg.type == .traceMessage && msg.traceCategory == "testCat"))
         }
-
 
         //
         // Same, but limited to last 2 messages(trace3 + error3)
@@ -403,7 +400,6 @@ func allTests(_ helper: TestHelper) async throws {
             type: Ice.RemoteLoggerPrx.self)
 
         try adapter.activate()
-
 
         //
         // No filtering
