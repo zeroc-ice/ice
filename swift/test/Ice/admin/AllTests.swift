@@ -287,7 +287,6 @@ func allTests(_ helper: TestHelper) async throws {
     }
     output.writeLine("ok")
 
-    // TODO: some of these tests are failing as they relied on on a blocked thread. We'll fix this by introduce a MaxDispatch setting on the OA.
     output.write("testing logger facet... ")
     do {
         let props = [
