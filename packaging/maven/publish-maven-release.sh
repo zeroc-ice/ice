@@ -64,7 +64,6 @@ for component in "${components[@]}"; do
     -DrepositoryId="${REPO_ID}" || { echo "Failed to publish $base_name"; exit 1; }
 done
 
-
 if [ "$CHANNEL" = "3.8" ]; then
   # Tell maven central to validate the deployed artifacts, the deployment needs to be manually published
   # from the maven central web site after it has been validated.
