@@ -92,7 +92,7 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
     func createProxy(_ id: Identity) throws -> ObjectPrx
 
     /// Associates an object adapter with this connection. When a connection receives a request, it dispatches this
-    /// request using its associated object adapter. If the associated object adapter is null, the connection
+    /// request using its associated object adapter. If the associated object adapter is nil, the connection
     /// rejects any incoming request with an ObjectNotExistException.
     /// The default object adapter of an incoming connection is the object adapter that created this connection;
     /// the default object adapter of an outgoing connection is the communicator's default object adapter.
@@ -157,7 +157,7 @@ public protocol Connection: AnyObject, CustomStringConvertible, Sendable {
 
 /// Base class providing access to the connection details.
 open class ConnectionInfo {
-    /// The information of the underlying transport or null if there's no underlying transport.
+    /// The information of the underlying transport or nil if there's no underlying transport.
     public let underlying: ConnectionInfo?
 
     /// Whether or not the connection is an incoming or outgoing connection.

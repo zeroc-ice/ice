@@ -133,7 +133,7 @@ public protocol Communicator: AnyObject, Sendable {
     func getDefaultRouter() -> RouterPrx?
 
     /// Set a default router for this communicator. All newly created proxies will use this default router. To disable
-    /// the default router, null can be used. Note that this operation has no effect on existing proxies.
+    /// the default router, nil can be used. Note that this operation has no effect on existing proxies.
     /// You can also set a router for an individual proxy by calling the operation ice_router on the
     /// proxy.
     ///
@@ -146,7 +146,7 @@ public protocol Communicator: AnyObject, Sendable {
     func getDefaultLocator() -> LocatorPrx?
 
     /// Set a default Ice locator for this communicator. All newly created proxy and object adapters will use this
-    /// default locator. To disable the default locator, null can be used. Note that this operation has no effect on
+    /// default locator. To disable the default locator, nil can be used. Note that this operation has no effect on
     /// existing proxies or object adapters.
     /// You can also set a locator for an individual proxy by calling the operation ice_locator on the
     /// proxy, or for an object adapter by calling ObjectAdapter.setLocator on the object adapter.
@@ -167,10 +167,10 @@ public protocol Communicator: AnyObject, Sendable {
     /// the Locator's LocatorRegistry. createAdmin must only be called once; subsequent calls raise
     /// InitializationException.
     ///
-    /// - Parameter adminAdapter: The object adapter used to host the Admin object; if null and
+    /// - Parameter adminAdapter: The object adapter used to host the Admin object; if nil and
     ///                          Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.
     /// - Parameter adminId: The identity of the Admin object.
-    /// - Returns: A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
+    /// - Returns: A proxy to the main ("") facet of the Admin object. Never returns a nil proxy.
     func createAdmin(adminAdapter: ObjectAdapter?, adminId: Identity) throws -> ObjectPrx
 
     /// Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and
@@ -202,7 +202,7 @@ public protocol Communicator: AnyObject, Sendable {
     /// Returns a facet of the Admin object.
     ///
     /// - Parameter facet: The name of the Admin facet.
-    /// - Returns: The servant associated with this Admin facet, or null if no facet is registered with the
+    /// - Returns: The servant associated with this Admin facet, or nil if no facet is registered with the
     ///            given name.
     func findAdminFacet(_ facet: String) -> Dispatcher?
 

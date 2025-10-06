@@ -18,12 +18,12 @@ open class Value {
 
     open func _iceWriteImpl(to _: OutputStream) {}
 
-    /// The Ice run time invokes this method prior to marshaling an object's data members.
+    /// The Ice run time invokes this method prior to marshaling an object's fields.
     /// This allows a subclass to override this method in order to validate its data
     /// members.
     open func ice_preMarshal() {}
 
-    /// This Ice run time invokes this method after unmarshaling an object's data members. This allows a
+    /// This Ice run time invokes this method after unmarshaling an object's fields. This allows a
     /// subclass to override this method in order to perform additional initialization.
     open func ice_postUnmarshal() {}
 

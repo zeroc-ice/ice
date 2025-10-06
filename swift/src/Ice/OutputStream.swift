@@ -192,7 +192,7 @@ extension OutputStream {
     /// Writes an optional numeric value to the stream.
     ///
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - value: The numeric value to write.
     public func write<Element>(tag: Int32, value: Element?) where Element: StreamableNumeric {
         let format = OptionalFormat(fixedSize: MemoryLayout<Element>.size)
@@ -223,7 +223,7 @@ extension OutputStream {
     /// Writes an optional sequence of numeric values to the stream.
     ///
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - value: The sequence of numeric values to write.
     public func write<Element>(tag: Int32, value: [Element]?) where Element: StreamableNumeric {
         if let val = value {
@@ -276,7 +276,7 @@ extension OutputStream {
     /// Writes an optional sequence of bytes to the stream.
     ///
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - value: The sequence of bytes to write.
     public func write(tag: Int32, value: Data?) {
         if let val = value {
@@ -297,7 +297,7 @@ extension OutputStream {
     /// Writes an optional boolean value to the stream.
     ///
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - value: The boolean value to write.
     public func write(tag: Int32, value: Bool?) {
         if let val = value {
@@ -323,7 +323,7 @@ extension OutputStream {
 
     /// Writes an optional sequence of boolean values to the stream.
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - value: The sequence of boolean values to write.
     public func write(tag: Int32, value: [Bool]?) {
         if let val = value {
@@ -385,7 +385,7 @@ extension OutputStream {
 
     /// Writes an optional enumerator to the stream.
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - val: The value of the enumerator to write.
     ///   - maxValue: The maximum value for the enumeration's enumerators
     ///     (used only for the 1.0 encoding).
@@ -416,7 +416,7 @@ extension OutputStream {
 
     /// Writes an optional enumerator to the stream.
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - val: The value of the enumerator to write.
     ///   - maxValue: The maximum value for the enumeration's enumerators
     ///     (used only for the 1.0 encoding).
@@ -437,7 +437,7 @@ extension OutputStream {
 
     /// Writes a string to the stream.
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - v: The string to write.
     public func write(tag: Int32, value v: String?) {
         if let val = v {
@@ -459,7 +459,7 @@ extension OutputStream {
 
     /// Writes an optional sequence of strings to the stream.
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - v: The sequence of strings to write.
     public func write(tag: Int32, value v: [String]?) {
         if let val = v {
@@ -487,7 +487,7 @@ extension OutputStream {
 
     /// Writes an optional proxy to the stream.
     /// - Parameters:
-    ///   - tag: The tag of the optional data member or parameter.
+    ///   - tag: The tag of the optional field or parameter.
     ///   - v: The proxy to write.
     public func write(tag: Int32, value v: ObjectPrx?) {
         if let val = v {
@@ -658,7 +658,7 @@ private final class EncapsEncoder10: EncapsEncoder {
     // Instance attributes
     private var sliceType: SliceType = .NoSlice
     // Slice attributes
-    private var writeSlice: Int32 = 0  // Position of the slice data members
+    private var writeSlice: Int32 = 0  // Position of the slice fields
     // Encapsulation attributes for instance marshaling.
     private var valueIdIndex: Int32 = 0
     private var toBeMarshaledMap = [ValueHolder: Int32]()
@@ -1052,7 +1052,7 @@ private class InstanceData {
 
     // Slice attributes
     var sliceFlags: SliceFlags = []
-    var writeSlice: Int32 = 0  // Position of the slice data members
+    var writeSlice: Int32 = 0  // Position of the slice fields
     var sliceFlagsPos: Int32 = 0  // Position of the slice flags
     lazy var indirectionTable = [ValueHolder]()
     lazy var indirectionMap = [ValueHolder: Int32]()

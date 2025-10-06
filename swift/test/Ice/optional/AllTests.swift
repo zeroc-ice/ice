@@ -192,7 +192,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
     try test(initial == base)
     output.writeLine("ok")
 
-    output.write("testing optional data members... ")
+    output.write("testing optional fields... ")
 
     let oo1 = OneOptional()
     try test(oo1.a == nil)
@@ -790,7 +790,7 @@ func allTests(_ helper: TestHelper, customSliceLoader: CustomSliceLoader) async 
 
     do {
         //
-        // Use the 1.0 encoding with an exception whose only data members are optional.
+        // Use the 1.0 encoding with an exception whose only fields are optional.
         //
         let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0)
         try await initial2.opOptionalException(a: 30, b: "test")
@@ -1409,7 +1409,7 @@ func testVarStruct(initial: InitialPrx, helper: TestHelper) async throws {
     (p2, p3) = try await initial.opVarStruct(p1)
     try test(p2!.m == "test" && p3!.m == "test")
 
-    // Test null struct
+    // Test nil struct
     (p2, p3) = try await initial.opVarStruct(nil)
     try test(p2 == nil && p3 == nil)
 

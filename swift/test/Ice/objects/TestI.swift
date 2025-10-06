@@ -64,7 +64,7 @@ final class InitialI: Initial, @unchecked Sendable {
 
         _b1.theA = _b2  // Cyclic reference to another B
         _b1.theB = _b1  // Self reference.
-        _b1.theC = nil  // Null reference.
+        _b1.theC = nil  // nil reference.
 
         _b2.theA = _b2  // Self reference, using base.
         _b2.theB = _b1  // Cyclic reference to another B
