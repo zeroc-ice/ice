@@ -150,9 +150,8 @@ export class Client extends TestHelper {
         {
             let r1: Ice.AsyncResult<void>;
             let r2: Ice.AsyncResult<void>;
-            if (!TestHelper.isSafari()) {
-                // Safari WebSocket implementation accepts lots of data before apply back-pressure
-                // making this test very slow.
+
+            {
                 await testController.holdAdapter();
                 const requests: Ice.AsyncResult<void>[] = [];
                 try {
@@ -234,9 +233,7 @@ export class Client extends TestHelper {
             }
         }
 
-        if (!TestHelper.isSafari()) {
-            // Safari WebSocket implementation accepts lots of data before apply backpressure
-            // making this test very slow.
+        {
             await testController.holdAdapter();
             const seq = new Uint8Array(new Array(100000));
             let r;

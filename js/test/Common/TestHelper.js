@@ -122,10 +122,6 @@ export class TestHelper {
         this.controllerHelper.serverReady();
     }
 
-    static isSafari() {
-        return typeof navigator !== "undefined" && /^((?!chrome).)*safari/i.test(navigator.userAgent);
-    }
-
     static isBrowser() {
         return typeof window !== "undefined" || TestHelper.isWorker();
     }

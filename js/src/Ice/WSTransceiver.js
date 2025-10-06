@@ -158,6 +158,11 @@ class WSTransceiver {
         }
         console.assert(this._fd);
 
+        // If the write buffer is full, we wait until some data has been sent before sending more data.
+        // The bufferedAmount represent the number of bytes that have been queued using send() but not yet transmitted to the network.
+        // we don't want to keep calling send() or the socket might be closed by the browser.
+        // The writeReadyTimeout uses an exponential backoff to avoid busy loop.
+
         const cb = () => {
             if (this._fd) {
                 const packetSize =
@@ -190,13 +195,6 @@ class WSTransceiver {
 
             this._fd.send(slice);
             byteBuffer.position += packetSize;
-
-            // WORKAROUND for Safari issue. The websocket accepts all the data (bufferedAmount is always 0). We
-            // relinquish the control here to ensure timeouts work properly.
-            if (IsSafari && byteBuffer.remaining > 0) {
-                Timer.setTimeout(cb, this.writeReadyTimeout());
-                return false;
-            }
         }
         return true;
     }

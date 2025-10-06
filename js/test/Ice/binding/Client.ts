@@ -531,21 +531,8 @@ export class Client extends TestHelper {
     async run(args: string[]) {
         let communicator: Ice.Communicator | null = null;
         try {
-            const out = this.getWriter();
             [communicator, args] = this.initialize(args);
-            if (TestHelper.isSafari() && TestHelper.isWorker()) {
-                //
-                // BUGFIX:
-                //
-                // With Safari 9.1 and WebWorkers, this test hangs in communicator destruction. The
-                // web socket send() method never returns for the sending of close connection message.
-                //
-                out.writeLine("Test not supported with Safari web workers.");
-                const prx = new Test.RemoteCommunicatorPrx(communicator, `communicator:${this.getTestEndpoint()}`);
-                await prx.shutdown();
-            } else {
-                await this.allTests();
-            }
+            await this.allTests();
         } finally {
             if (communicator) {
                 await communicator.destroy();

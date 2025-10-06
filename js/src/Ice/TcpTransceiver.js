@@ -131,7 +131,7 @@ class TcpTransceiver {
     }
 
     /**
-     * Write the given byte buffer to the socket. The buffer is written using multiple socket write calls.
+     * Write the given byte buffer to the socket.
      *
      * @param byteBuffer the byte buffer to write.
      * @returns Whether or not the write operation completed synchronously.
@@ -144,32 +144,15 @@ class TcpTransceiver {
         let packetSize = byteBuffer.remaining;
         console.assert(packetSize > 0);
 
-        if (this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize) {
-            packetSize = this._maxSendPacketSize;
-        }
-
-        while (packetSize > 0) {
-            const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
-            let sync = true;
-            sync = this._fd.write(Buffer.from(slice), null, () => {
-                if (!sync) {
-                    this._bytesWrittenCallback();
-                }
-            });
-
-            byteBuffer.position += packetSize;
-
+        const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
+        let sync = true;
+        sync = this._fd.write(Buffer.from(slice), null, () => {
             if (!sync) {
-                return false; // Wait for callback to be called before sending more data.
+                this._bytesWrittenCallback();
             }
-
-            if (this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize) {
-                packetSize = this._maxSendPacketSize;
-            } else {
-                packetSize = byteBuffer.remaining;
-            }
-        }
-        return true;
+        });
+        byteBuffer.position += packetSize;
+        return sync;
     }
 
     read(byteBuffer, moreData) {
