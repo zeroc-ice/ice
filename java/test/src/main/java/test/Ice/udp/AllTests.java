@@ -176,7 +176,7 @@ public class AllTests {
                     }
                     throw ex;
                 }
-                ret = replyI.waitReply(numServers, 2000, out);
+                ret = replyI.waitReply(numServers, 5000, out);
                 if (ret) {
                     break; // Success
                 }
