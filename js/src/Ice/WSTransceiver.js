@@ -25,7 +25,9 @@ class WSTransceiver {
     constructor(instance, secure, addr, resource) {
         this._readBuffers = [];
         this._readPosition = 0;
-        this._maxBufferedAmount = instance.properties().getPropertyAsIntWithDefault("Ice.WS.MaxBufferedAmount", 512 * 1024);
+        this._maxBufferedAmount = instance
+            .properties()
+            .getPropertyAsIntWithDefault("Ice.WS.MaxBufferedAmount", 512 * 1024);
         this._writeReadyTimeout = 0;
 
         let url = secure ? "wss" : "ws";
