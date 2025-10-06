@@ -74,7 +74,7 @@ public protocol Properties: AnyObject {
 
     /// Get all properties whose keys begins with prefix. If prefix is an empty string, then all
     /// properties are returned.
-    /// - Parameter prefix: The prefix to search for (empty string if none).
+    /// - Parameter prefix: The prefix to search for, or an empty string to return all properties.
     /// - Returns: The matching property set.
     func getPropertiesForPrefix(_ prefix: String) -> PropertyDict
 
