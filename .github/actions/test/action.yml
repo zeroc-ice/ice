@@ -32,6 +32,6 @@ runs:
       # Exclude the working directory from Windows Defender real-time scanning to avoid intermittent hangs.
       run: |
         Set-MpPreference -ExclusionPath "${{ inputs.working_directory }}"
-        python allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+        python allTests.py --debug --all --continue --workers=2 --export-xml=test-report.xml ${{ inputs.flags }}
       shell: powershell
       if: runner.os == 'Windows'
