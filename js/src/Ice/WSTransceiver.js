@@ -162,7 +162,7 @@ class WSTransceiver {
 
         // If the write buffer is full, we wait until some data has been sent before sending more data.
         // The bufferedAmount represents the number of bytes that have been queued using send() but not yet transmitted to the network.
-        // we don't want to keep calling send() or the socket might be closed by the browser.
+        // We don't want to keep calling send() or the socket might be closed by the browser.
         // The writeReadyTimeout uses an exponential backoff to avoid busy loop.
 
         const cb = () => {
