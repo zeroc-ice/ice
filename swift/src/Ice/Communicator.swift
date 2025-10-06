@@ -113,7 +113,7 @@ public protocol Communicator: AnyObject, Sendable {
 
     /// Get the implicit context associated with this communicator.
     ///
-    /// - Returns: The implicit context associated with this communicator; returns null when the
+    /// - Returns: The implicit context associated with this communicator; returns nil when the
     ///            property Ice.ImplicitContext is not set or is set to None.
     func getImplicitContext() -> ImplicitContext?
 
