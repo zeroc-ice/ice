@@ -631,4 +631,3 @@ OpenSSL::TransceiverI::TransceiverI(
 }
 
 OpenSSL::TransceiverI::~TransceiverI() = default;
-
