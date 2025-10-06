@@ -151,7 +151,15 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 
                         break;
                     }
-                    throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
+
+                    if (IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
+                    {
+                        throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
+                    }
+                    else
+                    {
+                        throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
+                    }
                 }
                 case SSL_ERROR_SSL:
                 {
