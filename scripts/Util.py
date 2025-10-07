@@ -2284,7 +2284,7 @@ class RemoteProcessController(ProcessController):
         def teardown(self, current, success):
             pass
 
-    def __init__(self, current, endpoints="tcp"):
+    def __init__(self, current, endpoints):
         self.processControllerProxies = {}
         self.controllerApps = []
         self.driver = current.driver
@@ -2306,7 +2306,9 @@ class RemoteProcessController(ProcessController):
         import Ice
 
         comm.getProperties().setProperty("Adapter.AdapterId", str(uuid.uuid4()))
+
         self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
+
         self.adapter.add(
             ProcessControllerRegistryI(self),
             Ice.stringToIdentity("Util/ProcessControllerRegistry"),
@@ -2486,10 +2488,11 @@ class AndroidProcessController(RemoteProcessController):
         return "adb -d" if self.device == "usb" else "adb"
 
     def startEmulator(self, avd):
+        sys.stdout.write("starting the emulator... ")
+        sys.stdout.flush()
         #
         # First check if the AVD image is available
         #
-        print("starting the emulator... ")
         out = run("emulator -list-avds")
 
         if avd not in out:
@@ -2518,23 +2521,29 @@ class AndroidProcessController(RemoteProcessController):
 
         self.avd = avd
 
+        print("ok")
+
+        sys.stdout.write("waiting for the emulator to respond to adb... ")
+        sys.stdout.flush()
+        run("adb wait-for-device")
+        print("ok")
+
         #
         # Wait for the device to be ready
         #
+        sys.stdout.write("waiting for the emulator to start.. ")
+        sys.stdout.flush()
+
         t = time.time()
-        while True:
-            try:
-                lines = run("{} shell getprop sys.boot_completed".format(self.adb()))
-                if len(lines) > 0 and lines[0].strip() == "1":
-                    break
-            except RuntimeError:
-                pass  # expected if device is offline
-            #
-            # If the emulator doesn't complete boot in 300 seconds give up
-            #
-            if (time.time() - t) > 300:
-                raise RuntimeError("couldn't start the Android emulator `{}'".format(avd))
+        # Wait for up to 5 minutes (300 seconds)
+        while (time.time() - t) <= 300:
+            if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
+                break
             time.sleep(2)
+        else:
+            # This runs if the while loop completes without breaking
+            raise RuntimeError(f"emulator '{avd}' not booted after 300s")
+        print("ok")
 
     def startControllerApp(self, current, ident):
         # Stop previous controller app before starting new one
@@ -2546,13 +2555,16 @@ class AndroidProcessController(RemoteProcessController):
         elif not current.config.device:
             # Create Android Virtual Device
             sdk = current.testcase.getMapping().getSDKPackage()
-            print("creating virtual device ({0})... ".format(sdk))
+            sys.stdout.write("creating virtual device ({0})... ".format(sdk))
+            sys.stdout.flush()
             try:
                 run("avdmanager -v delete avd -n IceTests")  # Delete the created device
             except Exception:
                 pass
             run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
+            print("ok")
             self.startEmulator("IceTests")
+
         elif current.config.device != "usb":
             run("adb connect {}".format(current.config.device))
 
@@ -2611,7 +2623,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-15"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, None)
+        RemoteProcessController.__init__(self, current, "tcp")
         self.simulatorID = None
         self.runtimeID = None
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
@@ -2733,7 +2745,7 @@ class iOSDeviceProcessController(RemoteProcessController):
     appPath = "cpp/test/ios/controller/build"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, None)
+        RemoteProcessController.__init__(self, current, "tcp")
 
     def __str__(self):
         return "iOS Device"
