@@ -78,12 +78,11 @@ class InvocationFuture(Future):
         with self._condition:
             return self._sentSynchronously
 
-    def add_sent_callback(self, fn: Callable) -> None:
+    def add_sent_callback(self, fn: Callable[[bool], None]) -> None:
         """
         Attach a callback to be executed when the invocation is sent.
 
-        The callback `fn` is called with the future as its first argument and a boolean as its
-        second argument, indicating whether the invocation was sent synchronously.
+        The callback `fn` is called with a boolean argument, indicating whether the invocation was sent synchronously.
 
         If the future has already been sent, `fn` is called immediately from the calling thread.
 
@@ -96,7 +95,7 @@ class InvocationFuture(Future):
             if not self._sent:
                 self._sentCallbacks.append(fn)
                 return
-        fn(self, self._sentSynchronously)
+        fn(self._sentSynchronously)
 
     def sent(self, timeout: int | float | None = None) -> bool:
         """
@@ -151,7 +150,7 @@ class InvocationFuture(Future):
 
         for callback in callbacks:
             try:
-                callback(self, sentSynchronously)
+                callback(sentSynchronously)
             except Exception as ex:
                 logging.getLogger("Ice.Future").exception("sent callback raised exception: %s", ex)
 
