@@ -99,10 +99,10 @@ class FutureSentCallback(CallbackBase):
         CallbackBase.__init__(self)
         self._thread = threading.current_thread()
 
-    def sent(self, f: Ice.InvocationFuture, sentSynchronously: bool):
+    def sent(self, sentSynchronously: bool):
         self.called()
 
-    def sentAsync(self, f: Ice.InvocationFuture, sentSynchronously: bool):
+    def sentAsync(self, sentSynchronously: bool):
         test(self._thread != threading.current_thread())
         self.called()
 
@@ -113,10 +113,10 @@ class FutureFlushCallback(CallbackBase):
         self._thread = threading.current_thread()
         self._cookie = cookie
 
-    def sent(self, f: Ice.InvocationFuture, sentSynchronously: bool):
+    def sent(self, sentSynchronously: bool):
         self.called()
 
-    def sentAsync(self, f: Ice.InvocationFuture, sentSynchronously: bool):
+    def sentAsync(self, sentSynchronously: bool):
         test(self._thread != threading.current_thread())
         self.called()
 
@@ -130,7 +130,7 @@ class FutureFlushExCallback(CallbackBase):
     def exception(self, ex: BaseException):
         self.called()
 
-    def sent(self, f: Ice.InvocationFuture, sentSynchronously: bool):
+    def sent(self, sentSynchronously: bool):
         test(False)
 
 
