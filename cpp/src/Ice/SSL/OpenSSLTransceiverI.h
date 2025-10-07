@@ -68,9 +68,6 @@ namespace Ice::SSL::OpenSSL
         SSL_CTX* _sslCtx;
         IceInternal::Buffer _writeBuffer;
         IceInternal::Buffer _readBuffer;
-        int _sentBytes;
-        size_t _maxSendPacketSize;
-        size_t _maxRecvPacketSize;
         std::function<SSL_CTX*(const std::string&)> _localSSLContextSelectionCallback;
         std::function<bool(bool, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&)>
             _remoteCertificateVerificationCallback;

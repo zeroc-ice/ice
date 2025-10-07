@@ -593,9 +593,6 @@ OpenSSL::TransceiverI::TransceiverI(
       _peerCertificate(nullptr),
       _ssl(nullptr),
       _sslCtx(nullptr),
-      _sentBytes(0),
-      _maxSendPacketSize(0),
-      _maxRecvPacketSize(0),
       _localSSLContextSelectionCallback(
           serverAuthenticationOptions.serverSSLContextSelectionCallback
               ? serverAuthenticationOptions.serverSSLContextSelectionCallback
@@ -623,9 +620,6 @@ OpenSSL::TransceiverI::TransceiverI(
       _peerCertificate(nullptr),
       _ssl(nullptr),
       _sslCtx(nullptr),
-      _sentBytes(0),
-      _maxSendPacketSize(0),
-      _maxRecvPacketSize(0),
       _localSSLContextSelectionCallback(
           clientAuthenticationOptions.clientSSLContextSelectionCallback
               ? clientAuthenticationOptions.clientSSLContextSelectionCallback
