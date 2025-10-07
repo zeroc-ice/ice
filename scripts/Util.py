@@ -2616,15 +2616,22 @@ class iOSSimulatorProcessController(RemoteProcessController):
         self.runtimeID = None
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
         try:
-            for r in run("xcrun simctl list runtimes").split("\n"):
+            sys.stdout.write("finding latest iOS simulator runtime... ")
+            sys.stdout.flush()
+
+            availableRuntimes = run("xcrun simctl list runtimes").split("\n")
+            for r in availableRuntimes:
                 m = re.search(r"iOS .* \(.*\) - (.*)", r)
                 if m:
                     self.runtimeID = m.group(1)
         except Exception:
             pass
 
-        if not self.runtimeID:
+        if self.runtimeID:
+            print(f"selected iOS simulator runtime ID: {self.runtimeID}")
+        else:
             self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-17-5"  # Default value
+            print(f"selected fallback iOS simulator runtime ID: {self.runtimeID}")
 
     def __str__(self):
         return "iOS Simulator ({})".format(self.runtimeID.replace("com.apple.CoreSimulator.SimRuntime.", "").strip())
@@ -2633,8 +2640,11 @@ class iOSSimulatorProcessController(RemoteProcessController):
         return current.testcase.getMapping().getIOSControllerIdentity(current)
 
     def startControllerApp(self, current, ident):
+        sys.stdout.write("locating iOS simulator controller application... ")
+        sys.stdout.flush()
         mapping = current.testcase.getMapping()
         appFullPath = mapping.getIOSAppFullPath(current)
+        print(f"{appFullPath}")
 
         sys.stdout.write("launching simulator... ")
         sys.stdout.flush()
