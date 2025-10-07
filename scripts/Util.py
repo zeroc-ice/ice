@@ -26,7 +26,7 @@ import Expect
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
-def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
+def run(cmd, cwd=None, expectErr=False, stdout=False, stdin=None, stdinRepeat=True):
     p = subprocess.Popen(
         cmd,
         shell=True,
@@ -48,8 +48,17 @@ def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
                 pass
 
         out = (p.stderr if stdout else p.stdout).read().decode("UTF-8").strip()
-        if (not err and p.wait() != 0) or (err and p.wait() == 0):
+
+        status = p.wait()
+
+        # Just a normal failure
+        if status != 0 and not expectErr:
             raise RuntimeError(cmd + " failed:\n" + out)
+
+        # We expected an error but the command succeeded
+        if status == 0 and expectErr:
+            raise RuntimeError(cmd + " did not fail with expected error:\n" + out)
+
     finally:
         #
         # Without this we get warnings when running with python_d on Windows
@@ -2488,11 +2497,10 @@ class AndroidProcessController(RemoteProcessController):
         return "adb -d" if self.device == "usb" else "adb"
 
     def startEmulator(self, avd):
-        sys.stdout.write("starting the emulator... ")
-        sys.stdout.flush()
         #
         # First check if the AVD image is available
         #
+        print("checking for AVD `{}'".format(avd))
         out = run("emulator -list-avds")
 
         if avd not in out:
@@ -2514,6 +2522,8 @@ class AndroidProcessController(RemoteProcessController):
         cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
             avd, port
         )
+
+        print("starting the AVD `{}' on port {}".format(avd, port))
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
@@ -2521,18 +2531,13 @@ class AndroidProcessController(RemoteProcessController):
 
         self.avd = avd
 
-        print("ok")
-
-        sys.stdout.write("waiting for the emulator to respond to adb... ")
-        sys.stdout.flush()
-        run("adb wait-for-device")
-        print("ok")
+        print("waiting for the emulator to respond to adb")
+        run(f"{self.adb()} wait-for-device")
 
         #
         # Wait for the device to be ready
         #
-        sys.stdout.write("waiting for the emulator to start.. ")
-        sys.stdout.flush()
+        print("waiting for the emulator to boot")
 
         t = time.time()
         # Wait for up to 5 minutes (300 seconds)
@@ -2543,7 +2548,6 @@ class AndroidProcessController(RemoteProcessController):
         else:
             # This runs if the while loop completes without breaking
             raise RuntimeError(f"emulator '{avd}' not booted after 300s")
-        print("ok")
 
     def startControllerApp(self, current, ident):
         # Stop previous controller app before starting new one
