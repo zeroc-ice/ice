@@ -42,7 +42,8 @@ public class AllTests {
                 if (delay > 0) {
                     try {
                         wait(delay);
-                    } catch (InterruptedException ex) {}
+                    } catch (InterruptedException ex) {
+                    }
                 } else {
                     break;
                 }
@@ -69,8 +70,7 @@ public class AllTests {
 
         out.print("testing udp... ");
         out.flush();
-        ObjectPrx base =
-            communicator.stringToProxy("test -d:" + helper.getTestEndpoint(0, "udp"));
+        ObjectPrx base = communicator.stringToProxy("test -d:" + helper.getTestEndpoint(0, "udp"));
         TestIntfPrx obj = TestIntfPrx.uncheckedCast(base);
 
         int nRetry = 5;
@@ -85,7 +85,8 @@ public class AllTests {
                 break; // Success
             }
 
-            // If the 3 datagrams were not received within the 2 seconds, we try again to receive 3
+            // If the 3 datagrams were not received within the 2 seconds, we try again to
+            // receive 3
             // new datagrams using a new object. We give up after 5 retries.
             replyI = new PingReplyI();
             reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
@@ -94,7 +95,8 @@ public class AllTests {
 
         if (communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0) {
             //
-            // Only run this test if compression is disabled, the test expects fixed message size to
+            // Only run this test if compression is disabled, the test expects fixed message
+            // size to
             // be sent over the wire.
             //
             byte[] seq = null;
@@ -128,88 +130,94 @@ public class AllTests {
         }
 
         out.println("ok");
-
-        out.print("testing udp multicast... ");
         out.flush();
-        {
-            StringBuilder endpoint = new StringBuilder();
-            if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
-                endpoint.append("udp -h \"ff15::1:1\" -p ");
-                endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
-                if (System.getProperty("os.name").contains("OS X")
-                    || System.getProperty("os.name").startsWith("Windows")) {
-                    endpoint.append(
-                        " --interface \"::1\""); // Use loopback to prevent other machines to
-                    // answer.
-                }
-            } else {
-                endpoint.append("udp -h 239.255.1.1 -p ");
-                endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
-                if (System.getProperty("os.name").contains("OS X")
-                    || System.getProperty("os.name").startsWith("Windows")) {
-                    endpoint.append(
-                        " --interface 127.0.0.1"); // Use loopback to prevent other machines to
-                    // answer.
-                }
-            }
-            base = communicator.stringToProxy("test -d:" + endpoint.toString());
-            TestIntfPrx objMcast = TestIntfPrx.uncheckedCast(base);
 
-            //
-            // On Android, the test suite driver only starts one server instance. Otherwise, we
-            // expect there to be five servers and we expect a response from all of them.
-            //
-            final int numServers = helper.isAndroid() ? 1 : 5;
-
-            nRetry = 5;
-            while (nRetry-- > 0) {
-                replyI.reset();
-                try {
-                    objMcast.ping(reply);
-                } catch (SocketException ex) {
-                    if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
-                        // Multicast IPv6 not supported on the platform. This occurs for example on
-                        // macOS Big Sur
-                        out.print("(not supported) ");
-                        ret = true;
-                        break;
-                    }
-                    throw ex;
-                }
-                ret = replyI.waitReply(numServers, 5000, out);
-                if (ret) {
-                    break; // Success
-                }
-                replyI = new PingReplyI();
-                reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
-            }
-
-            test(ret);
-            out.println("ok");
-
-            out.print("testing udp bi-dir connection... ");
-            // This feature is only half-implemented. In particular, we maintain a single
-            // Connection object on the server side that gets updated each time we receive
-            // a new request.
+        for (int i = 0; i < 1000; ++i) {
+            out.print("testing udp multicast round " + i + "... ");
             out.flush();
-            obj.ice_getConnection().setAdapter(adapter);
-            nRetry = 5;
-            while (nRetry-- > 0) {
-                replyI.reset();
-                obj.pingBiDir(reply.ice_getIdentity());
-                obj.pingBiDir(reply.ice_getIdentity());
-                obj.pingBiDir(reply.ice_getIdentity());
-                ret = replyI.waitReply(3, 2000, out);
-                if (ret) {
-                    break; // Success
+            {
+                StringBuilder endpoint = new StringBuilder();
+                if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
+                    endpoint.append("udp -h \"ff15::1:1\" -p ");
+                    endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
+                    if (System.getProperty("os.name").contains("OS X")
+                            || System.getProperty("os.name").startsWith("Windows")) {
+                        endpoint.append(
+                                " --interface \"::1\""); // Use loopback to prevent other machines to
+                        // answer.
+                    }
+                } else {
+                    endpoint.append("udp -h 239.255.1.1 -p ");
+                    endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
+                    if (System.getProperty("os.name").contains("OS X")
+                            || System.getProperty("os.name").startsWith("Windows")) {
+                        endpoint.append(
+                                " --interface 127.0.0.1"); // Use loopback to prevent other machines to
+                        // answer.
+                    }
                 }
-                replyI = new PingReplyI();
-                reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                base = communicator.stringToProxy("test -d:" + endpoint.toString());
+                TestIntfPrx objMcast = TestIntfPrx.uncheckedCast(base);
+
+                //
+                // On Android, the test suite driver only starts one server instance. Otherwise,
+                // we
+                // expect there to be five servers and we expect a response from all of them.
+                //
+                final int numServers = helper.isAndroid() ? 1 : 5;
+
+                nRetry = 5;
+                while (nRetry-- > 0) {
+                    replyI.reset();
+                    try {
+                        objMcast.ping(reply);
+                    } catch (SocketException ex) {
+                        if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
+                            // Multicast IPv6 not supported on the platform. This occurs for example on
+                            // macOS Big Sur
+                            out.print("(not supported) ");
+                            ret = true;
+                            break;
+                        }
+                        throw ex;
+                    }
+                    ret = replyI.waitReply(numServers, 5000, out);
+                    if (ret) {
+                        break; // Success
+                    }
+                    replyI = new PingReplyI();
+                    reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                }
+
+                test(ret);
+                out.println("ok");
+                objMcast.ice_getConnection().close();
             }
-            test(ret);
         }
+
+        out.print("testing udp bi-dir connection... ");
+        // This feature is only half-implemented. In particular, we maintain a single
+        // Connection object on the server side that gets updated each time we receive
+        // a new request.
+        out.flush();
+        obj.ice_getConnection().setAdapter(adapter);
+        nRetry = 5;
+        while (nRetry-- > 0) {
+            replyI.reset();
+            obj.pingBiDir(reply.ice_getIdentity());
+            obj.pingBiDir(reply.ice_getIdentity());
+            obj.pingBiDir(reply.ice_getIdentity());
+            ret = replyI.waitReply(3, 2000, out);
+            if (ret) {
+                break; // Success
+            }
+            replyI = new PingReplyI();
+            reply = PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+        }
+        test(ret);
         out.println("ok");
     }
 
-    private AllTests() {}
+    private AllTests() {
+    }
 }
