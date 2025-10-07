@@ -21,7 +21,6 @@ class TcpTransceiver {
         this._logger = instance.logger();
         this._readBuffers = [];
         this._readPosition = 0;
-        this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
 
         this._fd = null;
         this._addr = addr;
@@ -131,7 +130,7 @@ class TcpTransceiver {
     }
 
     /**
-     * Write the given byte buffer to the socket. The buffer is written using multiple socket write calls.
+     * Write the given byte buffer to the socket.
      *
      * @param byteBuffer the byte buffer to write.
      * @returns Whether or not the write operation completed synchronously.
@@ -140,36 +139,17 @@ class TcpTransceiver {
         if (this._exception) {
             throw this._exception;
         }
+        console.assert(byteBuffer.remaining > 0);
 
-        let packetSize = byteBuffer.remaining;
-        console.assert(packetSize > 0);
-
-        if (this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize) {
-            packetSize = this._maxSendPacketSize;
-        }
-
-        while (packetSize > 0) {
-            const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
-            let sync = true;
-            sync = this._fd.write(Buffer.from(slice), null, () => {
-                if (!sync) {
-                    this._bytesWrittenCallback();
-                }
-            });
-
-            byteBuffer.position += packetSize;
-
+        const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + byteBuffer.remaining);
+        let sync = true;
+        sync = this._fd.write(Buffer.from(slice), null, () => {
             if (!sync) {
-                return false; // Wait for callback to be called before sending more data.
+                this._bytesWrittenCallback();
             }
-
-            if (this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize) {
-                packetSize = this._maxSendPacketSize;
-            } else {
-                packetSize = byteBuffer.remaining;
-            }
-        }
-        return true;
+        });
+        byteBuffer.position += byteBuffer.remaining;
+        return sync;
     }
 
     read(byteBuffer, moreData) {
@@ -231,12 +211,7 @@ class TcpTransceiver {
             this._fd.localPort,
             this._fd.remoteAddress,
             this._fd.remotePort,
-            this._maxSendPacketSize,
         );
-    }
-
-    setBufferSize(_, sndSize) {
-        this._maxSendPacketSize = sndSize;
     }
 
     toString() {

@@ -71,7 +71,8 @@ PropertyNames.IceProps.properties = [
     new Property("Warn.Connections", false, "0", false, null),
     new Property("Warn.Dispatch", false, "1", false, null),
     new Property("Warn.Endpoints", false, "1", false, null),
-    new Property("Warn.UnusedProperties", false, "0", false, null)
+    new Property("Warn.UnusedProperties", false, "0", false, null),
+    new Property("WS.MaxBufferedAmount", false, "524288", false, null)
 ];
 
 PropertyNames.IceMXProps = new PropertyArray("IceMX", false, false);

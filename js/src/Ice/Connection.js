@@ -61,18 +61,18 @@ export class IPConnectionInfo extends ConnectionInfo {
 /**
  *  Provides access to the connection details of a TCP connection
  */
-export class TCPConnectionInfo extends IPConnectionInfo {
-    constructor(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort, sndSize) {
-        super(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
-        this._sndSize = sndSize;
-    }
-
-    get sndSize() {
-        return this._sndSize;
-    }
-}
+export class TCPConnectionInfo extends IPConnectionInfo {}
 
 /**
  *  Provides access to the connection details of a WebSocket connection
  */
-export class WSConnectionInfo extends ConnectionInfo {}
+export class WSConnectionInfo extends ConnectionInfo {
+    constructor(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort, maxBufferedAmount) {
+        super(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
+        this._maxBufferedAmount = maxBufferedAmount;
+    }
+
+    get maxBufferedAmount() {
+        return this._maxBufferedAmount;
+    }
+}

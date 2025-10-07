@@ -110,14 +110,6 @@ declare module "@zeroc/ice" {
             getInfo(): Ice.ConnectionInfo;
 
             /**
-             * Sets the connection buffer sizes for receiving and sending data.
-             *
-             * @param rcvSize - The size of the receive buffer in bytes.
-             * @param sndSize - The size of the send buffer in bytes.
-             */
-            setBufferSize(rcvSize: number, sndSize: number): void;
-
-            /**
              * Throw an exception indicating the reason for connection closure. For example,
              * {@link CloseConnectionException} is raised if the connection was closed gracefully, whereas
              * {@link ConnectionAbortedException}/{@link ConnectionClosedException} is raised if the connection was
@@ -174,16 +166,18 @@ declare module "@zeroc/ice" {
         /**
          * Provides access to the connection details of a TCP connection
          */
-        class TCPConnectionInfo extends IPConnectionInfo {
-            /**
-             * The connection buffer send size.
-             */
-            get sndSize(): number;
-        }
+        class TCPConnectionInfo extends IPConnectionInfo {}
 
         /**
          * Provides access to the connection details of a WebSocket connection.
          */
-        class WSConnectionInfo extends ConnectionInfo {}
+        class WSConnectionInfo extends ConnectionInfo {
+            /**
+             * The maximum number of bytes that can be buffered by a WebSocket connection. Once the WebSocket
+             * `bufferedAmount` reaches this limit, sending additional data is delayed until it drops below the
+             * threshold.
+             */
+            get maxBufferedAmount(): number;
+        }
     }
 }

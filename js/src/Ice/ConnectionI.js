@@ -750,13 +750,6 @@ export class ConnectionI {
         );
     }
 
-    setBufferSize(rcvSize, sndSize) {
-        if (this._state >= StateClosed) {
-            throw this._exception;
-        }
-        this._transceiver.setBufferSize(rcvSize, sndSize);
-    }
-
     exception(ex) {
         this.setState(StateClosed, ex);
     }

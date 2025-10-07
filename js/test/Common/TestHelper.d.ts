@@ -25,7 +25,6 @@ export class TestHelper {
     setControllerHelper(controllerHelper: ControllerHelper): void;
     serverReady(): void;
 
-    static isSafari(): boolean;
     static isBrowser(): boolean;
     static isWorker(): boolean;
 }

@@ -25,7 +25,7 @@ class WSTransceiver {
     constructor(instance, secure, addr, resource) {
         this._readBuffers = [];
         this._readPosition = 0;
-        this._maxSendPacketSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", 512 * 1024);
+        this._maxBufferedAmount = instance.properties().getIcePropertyAsInt("Ice.WS.MaxBufferedAmount");
         this._writeReadyTimeout = 0;
 
         let url = secure ? "wss" : "ws";
@@ -158,13 +158,18 @@ class WSTransceiver {
         }
         console.assert(this._fd);
 
+        // If the write buffer is full, we wait until some data has been sent before sending more data.
+        // The bufferedAmount represents the number of bytes that have been queued using send() but not yet transmitted to the network.
+        // We don't want to keep calling send() or the socket might be closed by the browser.
+        // The writeReadyTimeout uses an exponential backoff to avoid busy loop.
+
         const cb = () => {
             if (this._fd) {
                 const packetSize =
-                    this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize
-                        ? this._maxSendPacketSize
+                    this._maxBufferedAmount > 0 && byteBuffer.remaining > this._maxBufferedAmount
+                        ? this._maxBufferedAmount
                         : byteBuffer.remaining;
-                if (this._fd.bufferedAmount + packetSize <= this._maxSendPacketSize) {
+                if (this._fd.bufferedAmount + packetSize <= this._maxBufferedAmount) {
                     this._bytesWrittenCallback();
                 } else {
                     Timer.setTimeout(cb, this.writeReadyTimeout());
@@ -174,14 +179,14 @@ class WSTransceiver {
 
         while (true) {
             const packetSize =
-                this._maxSendPacketSize > 0 && byteBuffer.remaining > this._maxSendPacketSize
-                    ? this._maxSendPacketSize
+                this._maxBufferedAmount > 0 && byteBuffer.remaining > this._maxBufferedAmount
+                    ? this._maxBufferedAmount
                     : byteBuffer.remaining;
             if (byteBuffer.remaining === 0) {
                 break;
             }
             console.assert(packetSize > 0);
-            if (this._fd.bufferedAmount + packetSize > this._maxSendPacketSize) {
+            if (this._maxBufferedAmount > 0 && this._fd.bufferedAmount + packetSize > this._maxBufferedAmount) {
                 Timer.setTimeout(cb, this.writeReadyTimeout());
                 return false;
             }
@@ -190,13 +195,6 @@ class WSTransceiver {
 
             this._fd.send(slice);
             byteBuffer.position += packetSize;
-
-            // WORKAROUND for Safari issue. The websocket accepts all the data (bufferedAmount is always 0). We
-            // relinquish the control here to ensure timeouts work properly.
-            if (IsSafari && byteBuffer.remaining > 0) {
-                Timer.setTimeout(cb, this.writeReadyTimeout());
-                return false;
-            }
         }
         return true;
     }
@@ -260,7 +258,7 @@ class WSTransceiver {
             -1,
             this._addr.host,
             this._addr.port,
-            this._maxSendPacketSize,
+            this._maxBufferedAmount,
         );
 
         if (this._secure) {
@@ -268,10 +266,6 @@ class WSTransceiver {
         }
 
         return new WSConnectionInfo(info);
-    }
-
-    setBufferSize(_, sndSize) {
-        this._maxSendPacketSize = sndSize;
     }
 
     toString() {
