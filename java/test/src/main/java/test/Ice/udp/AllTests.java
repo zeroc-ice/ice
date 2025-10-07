@@ -132,7 +132,7 @@ public class AllTests {
         out.println("ok");
         out.flush();
 
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < 1000; i++) {
             out.print("testing udp multicast round " + i + "... ");
             out.flush();
             {
@@ -141,18 +141,18 @@ public class AllTests {
                     endpoint.append("udp -h \"ff15::1:1\" -p ");
                     endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
                     if (System.getProperty("os.name").contains("OS X")
-                            || System.getProperty("os.name").startsWith("Windows")) {
+                        || System.getProperty("os.name").startsWith("Windows")) {
                         endpoint.append(
-                                " --interface \"::1\""); // Use loopback to prevent other machines to
+                            " --interface \"::1\""); // Use loopback to prevent other machines to
                         // answer.
                     }
                 } else {
                     endpoint.append("udp -h 239.255.1.1 -p ");
                     endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
                     if (System.getProperty("os.name").contains("OS X")
-                            || System.getProperty("os.name").startsWith("Windows")) {
+                        || System.getProperty("os.name").startsWith("Windows")) {
                         endpoint.append(
-                                " --interface 127.0.0.1"); // Use loopback to prevent other machines to
+                            " --interface 127.0.0.1"); // Use loopback to prevent other machines to
                         // answer.
                     }
                 }

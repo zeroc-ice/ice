@@ -139,68 +139,63 @@ public class AllTests : global::Test.AllTests
 
         Console.Out.WriteLine("ok");
 
-        for (int i = 0; i < 1000; ++i)
+        Console.Out.Write("testing udp multicast... ");
+        Console.Out.Flush();
+        var endpoint = new StringBuilder();
+        //
+        // Use loopback to prevent other machines to answer.
+        //
+        if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
         {
-            Console.Out.Write($"testing udp multicast round {i}... ");
-            Console.Out.Flush();
-            var endpoint = new StringBuilder();
-            //
-            // Use loopback to prevent other machines to answer.
-            //
-            if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
+            endpoint.Append("udp -h \"ff15::1:1\"");
+            if (Ice.Internal.AssemblyUtil.isWindows || Ice.Internal.AssemblyUtil.isMacOS)
             {
-                endpoint.Append("udp -h \"ff15::1:1\"");
-                if (Ice.Internal.AssemblyUtil.isWindows || Ice.Internal.AssemblyUtil.isMacOS)
-                {
-                    endpoint.Append(" --interface \"::1\"");
-                }
+                endpoint.Append(" --interface \"::1\"");
             }
-            else
+        }
+        else
+        {
+            endpoint.Append("udp -h 239.255.1.1");
+            if (Ice.Internal.AssemblyUtil.isWindows || Ice.Internal.AssemblyUtil.isMacOS)
             {
-                endpoint.Append("udp -h 239.255.1.1");
-                if (Ice.Internal.AssemblyUtil.isWindows || Ice.Internal.AssemblyUtil.isMacOS)
-                {
-                    endpoint.Append(" --interface 127.0.0.1");
-                }
+                endpoint.Append(" --interface 127.0.0.1");
             }
-            endpoint.Append(" -p ");
-            endpoint.Append(helper.getTestPort(10));
-            @base = communicator.stringToProxy("test -d:" + endpoint.ToString());
-            var objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
+        }
+        endpoint.Append(" -p ");
+        endpoint.Append(helper.getTestPort(10));
+        @base = communicator.stringToProxy("test -d:" + endpoint.ToString());
+        var objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
 
-            nRetry = 5;
-            while (nRetry-- > 0)
+        nRetry = 5;
+        while (nRetry-- > 0)
+        {
+            replyI.reset();
+            try
             {
-                replyI.reset();
-                try
+                objMcast.ping(reply);
+            }
+            catch (Ice.SocketException)
+            {
+                if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
                 {
-                    objMcast.ping(reply);
-                }
-                catch (Ice.SocketException)
-                {
-                    if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
-                    {
-                        // Multicast IPv6 not supported on the platform. This occurs for example on macOS big_suir
-                        Console.Out.Write("(not supported) ");
-                        ret = true;
-                        break;
-                    }
-                    throw;
-                }
-                ret = replyI.waitReply(5, 5000);
-                if (ret)
-                {
+                    // Multicast IPv6 not supported on the platform. This occurs for example on macOS big_suir
+                    Console.Out.Write("(not supported) ");
+                    ret = true;
                     break;
                 }
-                replyI = new PingReplyI();
-                reply =
-                    (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
+                throw;
             }
-            test(ret);
-            Console.Out.WriteLine("ok");
-
-            await objMcast.ice_getConnection().closeAsync();
+            ret = replyI.waitReply(5, 5000);
+            if (ret)
+            {
+                break;
+            }
+            replyI = new PingReplyI();
+            reply =
+                (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
+        test(ret);
+        Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing udp bi-dir connection... ");
         // This feature is only half-implemented. In particular, we maintain a single Connection object on the server
