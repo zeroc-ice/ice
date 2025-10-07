@@ -3061,9 +3061,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         out << sp;
         out << nl << "/**";
-        out << nl << " * Constructs a {@code " << name
-            << "} with values for all fields not marked optional in the Slice definition for {@code " << p->scoped()
-            << "}.";
+        out << nl << " * Constructs a {@code " << name << "} with values for all its fields.";
         writeParamDocComments(out, members);
         out << nl << " */";
         out << nl << "public " << name << spar << parameters << epar;
