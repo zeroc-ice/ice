@@ -2624,11 +2624,12 @@ class iOSSimulatorProcessController(RemoteProcessController):
                 m = re.search(r"iOS .* \(.*\) - (.*)", r)
                 if m:
                     self.runtimeID = m.group(1)
-            print(f"{self.runtimeID}")
         except Exception:
             pass
 
-        if not self.runtimeID:
+        if self.runtimeID:
+            print(f"selected iOS simulator runtime ID: {self.runtimeID}")
+        else:
             self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-17-5"  # Default value
             print(f"selected fallback iOS simulator runtime ID: {self.runtimeID}")
 
