@@ -191,7 +191,10 @@ public class AllTests {
 
                 test(ret);
                 out.println("ok");
-                objMcast.ice_getConnection().close();
+                var connection = objMcast.ice_getCachedConnection();
+                if (connection != null) {
+                    connection.close();
+                }
             }
         }
 
