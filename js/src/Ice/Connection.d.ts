@@ -173,9 +173,9 @@ declare module "@zeroc/ice" {
          */
         class WSConnectionInfo extends ConnectionInfo {
             /**
-             * The maximum number of bytes that can be buffered by the WebSocket transport. Once the WebSocket
-             * `bufferedAmount` reaches this threshold, data transmission is paused until the bufferedAmount falls
-             * below it.
+             * The maximum number of bytes that can be buffered by a WebSocket connection. Once the WebSocket
+             * `bufferedAmount` reaches this limit, sending additional data is delayed until it drops below the
+             * threshold.
              */
             get maxBufferedAmount(): number;
         }

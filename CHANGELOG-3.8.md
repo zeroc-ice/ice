@@ -778,7 +778,7 @@ initialization. See `InitializationData.pluginFactories`.
   graph of Slice class instances.
 
 - Added the `Ice.WS.MaxBufferedAmount` property, which controls the maximum number of bytes that can be queued
-  by the WebSocket transport. Once the WebSocket `bufferedAmount` reaches this limit, sending additional data
+  by a WebSocket connection. Once the WebSocket `bufferedAmount` reaches this limit, sending additional data
   is delayed until it drops below the threshold.
 
 ### JavaScript Changes
