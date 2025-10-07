@@ -118,7 +118,6 @@
         <property name="TCP.Backlog" languages="cpp,csharp,java" default="511" />
         <property name="TCP.RcvSize" languages="cpp,csharp,java" />
         <property name="TCP.SndSize" languages="cpp,csharp,java" />
-        <property name="WS.MaxBufferedAmount" languages="js" />
         <property name="ThreadPool.Client" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPool.Server" class="ThreadPool" languages="cpp,csharp,java" />
         <property name="ThreadPriority" languages="csharp,java" />
@@ -146,6 +145,8 @@
         <!-- Warn.SliceLoader: cpp is a stand-in for swift and matlab -->
         <property name="Warn.SliceLoader" languages="cpp,java" default="1" />
         <property name="Warn.UnusedProperties" languages="all" default="0" />
+        <!-- The maximum number of bytes that can be buffered by JavaScript WebSocket connections -->
+        <property name="WS.MaxBufferedAmount" languages="js" default="524288" />
     </section>
 
     <section name="IceMX" opt-in="false">

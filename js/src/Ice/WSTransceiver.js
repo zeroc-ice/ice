@@ -25,9 +25,7 @@ class WSTransceiver {
     constructor(instance, secure, addr, resource) {
         this._readBuffers = [];
         this._readPosition = 0;
-        this._maxBufferedAmount = instance
-            .properties()
-            .getPropertyAsIntWithDefault("Ice.WS.MaxBufferedAmount", 512 * 1024);
+        this._maxBufferedAmount = instance.properties().getIcePropertyAsInt("Ice.WS.MaxBufferedAmount");
         this._writeReadyTimeout = 0;
 
         let url = secure ? "wss" : "ws";
@@ -188,7 +186,7 @@ class WSTransceiver {
                 break;
             }
             console.assert(packetSize > 0);
-            if (this._fd.bufferedAmount + packetSize > this._maxBufferedAmount) {
+            if (this._maxBufferedAmount > 0 && this._fd.bufferedAmount + packetSize > this._maxBufferedAmount) {
                 Timer.setTimeout(cb, this.writeReadyTimeout());
                 return false;
             }

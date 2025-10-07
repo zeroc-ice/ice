@@ -777,6 +777,10 @@ initialization. See `InitializationData.pluginFactories`.
 - Added support for the `Ice.ClassGraphDepthMax` property, which controls the maximum depth allowed when unmarshaling a
   graph of Slice class instances.
 
+- Added the `Ice.WS.MaxBufferedAmount` property, which controls the maximum number of bytes that can be queued
+  by the WebSocket transport. Once the WebSocket `bufferedAmount` reaches this limit, sending additional data
+  is delayed until it drops below the threshold.
+
 ### JavaScript Changes
 
 - Added support for `Symbol.asyncDispose` on `Ice.Communicator`. TypeScript applications can now use the communicator in
