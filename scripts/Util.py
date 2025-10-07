@@ -2537,8 +2537,8 @@ class AndroidProcessController(RemoteProcessController):
         #
         # Wait for the device to be ready
         #
-        print("waiting for the emulator to boot")
-
+        sys.stdout.write("waiting for the emulator to boot... ")
+        sys.stdout.flush()
         t = time.time()
         # Wait for up to 5 minutes (300 seconds)
         while (time.time() - t) <= 300:
@@ -2548,6 +2548,7 @@ class AndroidProcessController(RemoteProcessController):
         else:
             # This runs if the while loop completes without breaking
             raise RuntimeError(f"emulator '{avd}' not booted after 300s")
+        print("ok")
 
     def startControllerApp(self, current, ident):
         # Stop previous controller app before starting new one
@@ -2559,14 +2560,12 @@ class AndroidProcessController(RemoteProcessController):
         elif not current.config.device:
             # Create Android Virtual Device
             sdk = current.testcase.getMapping().getSDKPackage()
-            sys.stdout.write("creating virtual device ({0})... ".format(sdk))
-            sys.stdout.flush()
+            print("creating virtual device ({0})... ".format(sdk))
             try:
                 run("avdmanager -v delete avd -n IceTests")  # Delete the created device
             except Exception:
                 pass
             run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
-            print("ok")
             self.startEmulator("IceTests")
 
         elif current.config.device != "usb":
