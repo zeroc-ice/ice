@@ -2653,46 +2653,45 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.flush()
         mapping = current.testcase.getMapping()
         appFullPath = mapping.getIOSAppFullPath(current)
+
+        if not os.path.exists(appFullPath):
+            raise RuntimeError(f"couldn't find iOS simulator controller application `{appFullPath}'")
+
         print(f"{appFullPath}")
+
+        sys.stdout.write(f"checking for iOS simulator device {self.device}... ")
+        sys.stdout.flush()
+        listDevicesOutput = run("xcrun simctl list devices")
+        deviceExists = next(
+            (line.strip() for line in listDevicesOutput.split("\n") if line.strip().startswith(self.device)), None
+        )
+
+        if deviceExists:
+            print("ok")
+        else:
+            print("not found")
+
+            sys.stdout.write(f"creating iOS simulator device {self.device}... ")
+            sys.stdout.flush()
+            # Simulators created by us are deleted in destroy().
+            self.simulatorID = run(
+                'xcrun simctl create "{0}" {1} {2}'.format(self.device, self.deviceID, self.runtimeID)
+            )
+            print(f"{self.simulatorID}")
 
         sys.stdout.write("launching simulator... ")
         sys.stdout.flush()
-        try:
-            run('xcrun simctl boot "{0}"'.format(self.device))
-            run('xcrun simctl bootstatus "{0}"'.format(self.device))  # Wait for the boot to complete
-        except Exception as ex:
-            if str(ex).find("Booted") >= 0:
-                pass
-            elif str(ex).find("Invalid device") >= 0 or str(ex).find("Assertion failure in SimDevicePair"):
-                #
-                # Create the simulator device if it doesn't exist
-                #
-                self.simulatorID = run(
-                    'xcrun simctl create "{0}" {1} {2}'.format(self.device, self.deviceID, self.runtimeID)
-                )
-                run('xcrun simctl boot "{0}"'.format(self.device))
-                run('xcrun simctl bootstatus "{0}"'.format(self.device))  # Wait for the boot to complete
-                #
-                # This not longer works on iOS 15 simulator, fails with:
-                #   "Could not write domain com.apple.springboard; exiting"
-                #
-                # We update the watchdog timer scale to prevent issues with the controller app taking too long
-                # to start on the simulator. The security validation of the app can take a significant time and
-                # causes the watch dog to kick-in leaving the springboard app in a bogus state where it's not
-                # possible to terminate and restart the controller
-                #
-                # run("xcrun simctl spawn \"{0}\" defaults write com.apple.springboard FBLaunchWatchdogScale 20".format(self.device))
-                # run("xcrun simctl shutdown \"{0}\"".format(self.device))
-                # run("xcrun simctl boot \"{0}\"".format(self.device))
-            else:
-                raise
+        run('xcrun simctl boot "{0}"'.format(self.device))
+        print("ok")
+
+        sys.stdout.write("waiting for simulator to boot... ")
+        sys.stdout.flush()
+        run('xcrun simctl bootstatus "{0}"'.format(self.device))
         print("ok")
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
 
-        if not os.path.exists(appFullPath):
-            raise RuntimeError("couldn't find iOS simulator controller application, did you build it?")
         run('xcrun simctl install "{0}" "{1}"'.format(self.device, appFullPath))
         run('xcrun simctl launch "{0}" {1}'.format(self.device, ident.name))
         print("ok")
