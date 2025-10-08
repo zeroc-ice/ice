@@ -2689,7 +2689,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
             sys.stdout.write("waiting for simulator to boot... ")
             sys.stdout.flush()
-            run('xcrun simctl bootstatus "{0}"'.format(self.device))
+            subprocess.run(["xcrun", "simctl", "bootstatus", self.device], timeout=600, check=True)
             print("ok")
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
