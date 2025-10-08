@@ -998,6 +998,9 @@ initialization. See `InitializationData.pluginFactories`.
   Ice.loadSlice(["-I.", "Foo.ice"])
   ```
 
+- Removed the self-reference parameter from `InvocationFuture.add_sent_callback`. Registered callbacks no longer
+  receive the `Ice.InvocationFuture` instance as their first parameter.
+
 ### Ruby Changes
 
 - Updated the optional `Ice.initialize` block to only accept a single argument, the communicator. Previously, this
