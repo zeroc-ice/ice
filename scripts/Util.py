@@ -2662,11 +2662,13 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.write(f"checking for iOS simulator device {self.device}... ")
         sys.stdout.flush()
         listDevicesOutput = run("xcrun simctl list devices")
-        deviceExists = next(
+        deviceLine = next(
             (line.strip() for line in listDevicesOutput.split("\n") if line.strip().startswith(self.device)), None
         )
 
-        if deviceExists:
+        booted = deviceLine and "(Booted)" in deviceLine
+
+        if deviceLine:
             print("ok")
         else:
             print("not found")
@@ -2679,15 +2681,16 @@ class iOSSimulatorProcessController(RemoteProcessController):
             )
             print(f"{self.simulatorID}")
 
-        sys.stdout.write("launching simulator... ")
-        sys.stdout.flush()
-        run('xcrun simctl boot "{0}"'.format(self.device))
-        print("ok")
+        if not booted:
+            sys.stdout.write("launching simulator... ")
+            sys.stdout.flush()
+            run('xcrun simctl boot "{0}"'.format(self.device))
+            print("ok")
 
-        sys.stdout.write("waiting for simulator to boot... ")
-        sys.stdout.flush()
-        run('xcrun simctl bootstatus "{0}"'.format(self.device))
-        print("ok")
+            sys.stdout.write("waiting for simulator to boot... ")
+            sys.stdout.flush()
+            run('xcrun simctl bootstatus "{0}"'.format(self.device))
+            print("ok")
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
