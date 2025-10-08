@@ -2534,11 +2534,8 @@ class AndroidProcessController(RemoteProcessController):
         print("waiting for the emulator to respond to adb")
         subprocess.run([self.adb(), "wait-for-device"], timeout=60, check=True)
 
-        #
         # Wait for the device to be ready
-        #
-        sys.stdout.write("waiting for the emulator to boot... ")
-        sys.stdout.flush()
+        print("waiting for the emulator to boot")
         t = time.time()
         # Wait for up to 5 minutes (300 seconds)
         while (time.time() - t) <= 300:
@@ -2548,7 +2545,6 @@ class AndroidProcessController(RemoteProcessController):
         else:
             # This runs if the while loop completes without breaking
             raise RuntimeError(f"emulator '{avd}' not booted after 300s")
-        print("ok")
 
     def startControllerApp(self, current, ident):
         # Stop previous controller app before starting new one
@@ -2560,7 +2556,7 @@ class AndroidProcessController(RemoteProcessController):
         elif not current.config.device:
             # Create Android Virtual Device
             sdk = current.testcase.getMapping().getSDKPackage()
-            print("creating virtual device ({0})... ".format(sdk))
+            print("creating AVD ({0})".format(sdk))
             try:
                 run("avdmanager -v delete avd -n IceTests")  # Delete the created device
             except Exception:
@@ -2576,7 +2572,9 @@ class AndroidProcessController(RemoteProcessController):
             run("{} shell pm uninstall com.zeroc.testcontroller".format(self.adb()))
         except Exception:
             pass
+        print("installing the controller application")
         run("{} install -t -r {}".format(self.adb(), current.testcase.getMapping().getApk(current)))
+        print("starting the controller application")
         run(
             '{} shell am start -n "{}" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER'.format(
                 self.adb(), current.testcase.getMapping().getActivityName()
@@ -3410,7 +3408,7 @@ class JavaMapping(Mapping):
             print("--android                 Run the Android tests.")
             print("--device=<device-id>      ID of the Android emulator or device used to run the tests.")
             print("--avd=<name>              Start specific Android Virtual Device.")
-            print("--jacoco=<path>             Path to the JaCoCo agent.")
+            print("--jacoco=<path>           Path to the JaCoCo agent.")
 
     def getCommandLine(self, current, process, exe, args):
         javaHome = os.getenv("JAVA_HOME", "")
