@@ -607,7 +607,6 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << "/// Read an optional `" << docName << "?` structured value from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
-    out << nl << "///";
     out << nl << "/// - Returns: The structured value read from the stream.";
     out << nl << "func read(tag: Swift.Int32) throws -> sending " << name << "?";
     out << sb;
@@ -646,8 +645,9 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << sp;
     out << nl << "/// Write an optional `" << docName << "?` structured value to the stream.";
     out << nl << "///";
-    out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
-    out << nl << "/// - Parameter value: The value to write to the stream.";
+    out << nl << "/// - Parameters:";
+    out << nl << "///   - tag: The numeric tag associated with the value.";
+    out << nl << "///   - value: The value to write to the stream.";
     out << nl << "func write(tag: Swift.Int32, value: " << name << "?)" << sb;
     out << nl << "if let v = value" << sb;
     out << nl << "if writeOptional(tag: tag, format: " << optionalFormat << ")" << sb;
@@ -714,7 +714,6 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "/// Read a `" << unescapedName << "` sequence from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
-    out << nl << "///";
     out << nl << "/// - Returns: The sequence read from the stream.";
     out << nl << "public static func read(from istr: " << istr << ") throws -> sending " << name;
     out << sb;
@@ -750,9 +749,9 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << sp;
     out << nl << "/// Read an optional `" << unescapedName << "?` sequence from the stream.";
     out << nl << "///";
-    out << nl << "/// - Parameter istr: The stream to read from.";
-    out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
-    out << nl << "///";
+    out << nl << "/// - Parameters:";
+    out << nl << "///   - istr: The stream to read from.";
+    out << nl << "///   - tag: The numeric tag associated with the value.";
     out << nl << "/// - Returns: The sequence read from the stream.";
     out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> sending " << name
         << "?";
@@ -775,8 +774,9 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << sp;
     out << nl << "/// Write a `" << unescapedName << "` sequence to the stream.";
     out << nl << "///";
-    out << nl << "/// - Parameter ostr: The stream to write to.";
-    out << nl << "/// - Parameter v: The sequence value to write to the stream.";
+    out << nl << "/// - Parameters:";
+    out << nl << "///   - ostr: The stream to write to.";
+    out << nl << "///   - v: The sequence value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
@@ -858,7 +858,6 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "/// Read a `" << unescapedName << "` dictionary from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
-    out << nl << "///";
     out << nl << "/// - Returns: The dictionary read from the stream.";
     out << nl << "public static func read(from istr: " << istr << ") throws -> sending " << name;
     out << sb;
@@ -907,9 +906,9 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << sp;
     out << nl << "/// Read an optional `" << unescapedName << "?` dictionary from the stream.";
     out << nl << "///";
-    out << nl << "/// - Parameter istr: The stream to read from.";
-    out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
-    out << nl << "///";
+    out << nl << "/// - Parameters:";
+    out << nl << "///   - istr: The stream to read from.";
+    out << nl << "///   - tag: The numeric tag associated with the value.";
     out << nl << "/// - Returns: The dictionary read from the stream.";
     out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> sending " << name
         << "?";
@@ -932,8 +931,9 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << sp;
     out << nl << "/// Write a `" << unescapedName << "` dictionary to the stream.";
     out << nl << "///";
-    out << nl << "/// - Parameter ostr: The stream to write to.";
-    out << nl << "/// - Parameter v: The dictionary value to write to the stream.";
+    out << nl << "/// - Parameters:";
+    out << nl << "///   - ostr: The stream to write to.";
+    out << nl << "///   - v: The dictionary value to write to the stream.";
     out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
@@ -1015,7 +1015,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp;
     out << nl << "/// Read an enumerated value.";
     out << nl << "///";
-    out << nl << "/// - Returns:  The enumerated value.";
+    out << nl << "/// - Returns: The enumerated value.";
     out << nl << "func read() throws -> " << name;
     out << sb;
     out << nl << "let rawValue: " << enumType << " = try read(enumMaxValue: " << p->maxValue() << ")";
@@ -1030,7 +1030,6 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "/// Read an optional enumerated value from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
-    out << nl << "///";
     out << nl << "/// - Returns: The enumerated value.";
     out << nl << "func read(tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
@@ -1060,8 +1059,9 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp;
     out << nl << "/// Writes an optional enumerated value to the stream.";
     out << nl << "///";
-    out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
-    out << nl << "/// - Parameter value: The enumerator to write.";
+    out << nl << "/// - Parameters:";
+    out << nl << "///   - tag: The numeric tag associated with the value.";
+    out << nl << "///   - value: The enumerator to write.";
     out << nl << "func write(tag: Swift.Int32, value: " << name << "?)";
     out << sb;
     out << nl << "guard let v = value else";
@@ -1172,10 +1172,8 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "///    - communicator: The communicator of the new proxy.";
     out << nl << "///    - proxyString: The proxy string to parse.";
     out << nl << "///    - type: The type of the new proxy.";
-    out << nl << "///";
-    out << nl << "/// - Throws: `Ice.ParseException` if the proxy string is invalid.";
-    out << nl << "///";
     out << nl << "/// - Returns: A new proxy with the requested type.";
+    out << nl << "/// - Throws: `Ice.ParseException` if the proxy string is invalid.";
     out << nl << "public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: " << prx
         << ".Protocol) throws -> " << prx;
     out << sb;
@@ -1198,10 +1196,8 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "///   - type: The type of the new proxy.";
     out << nl << "///   - facet: The optional name of the desired facet.";
     out << nl << "///   - context: The optional context dictionary for the remote invocation.";
-    out << nl << "///";
     out << nl
         << "/// - Returns: A proxy with the requested type or nil if the target object does not support this type.";
-    out << nl << "///";
     out << nl << "/// - Throws: `Ice.LocalException` if a communication error occurs.";
     out << nl << "public func checkedCast" << spar << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
         << ("type: " + prx + ".Protocol") << ("facet: Swift.String? = nil")
@@ -1222,7 +1218,6 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "///   - prx: The source proxy.";
     out << nl << "///   - type: The type of the new proxy.";
     out << nl << "///   - facet: The optional name of the desired facet.";
-    out << nl << "///";
     out << nl << "/// - Returns: A new proxy with the requested type.";
     out << nl << "public func uncheckedCast" << spar << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
         << ("type: " + prx + ".Protocol") << ("facet: Swift.String? = nil") << epar << " -> " << prx;
@@ -1237,7 +1232,6 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "/// Returns the Slice type id of the interface associated with this proxy type.";
     out << nl << "///";
     out << nl << "/// - Parameter type:  The proxy type to retrieve the type id.";
-    out << nl << "///";
     out << nl << "/// - Returns: The type id of the interface associated with this proxy type.";
     out << nl << "public func ice_staticId" << spar << ("_ type: " + prx + ".Protocol") << epar << " -> Swift.String";
     out << sb;
@@ -1256,7 +1250,6 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "/// Extracts a proxy from the stream. The stream must have been initialized with a communicator.";
     out << nl << "///";
     out << nl << "/// - Parameter type: The type of the proxy to be extracted.";
-    out << nl << "///";
     out << nl << "/// - Returns: The extracted proxy.";
     out << nl << "func read(_ type: " << prx << ".Protocol) throws -> " << prx << "?";
     out << sb;
@@ -1265,9 +1258,9 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     out << nl << "/// Extracts a proxy from the stream. The stream must have been initialized with a communicator.";
     out << nl << "///";
-    out << nl << "/// - Parameter tag:  The numeric tag associated with the value.";
-    out << nl << "/// - Parameter type: The type of the proxy to be extracted.";
-    out << nl << "///";
+    out << nl << "/// - Parameters:";
+    out << nl << "///   - tag: The numeric tag associated with the value.";
+    out << nl << "///   - type: The type of the proxy to be extracted.";
     out << nl << "/// - Returns: The extracted proxy.";
     out << nl << "func read(tag: Swift.Int32, type: " << prx << ".Protocol) throws -> " << prx << "?";
     out << sb;

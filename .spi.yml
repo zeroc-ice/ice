@@ -1,0 +1,5 @@
+# See https://swiftpackageindex.com/swiftpackageindex/spimanifest/1.11.0/documentation/spimanifest
+version: 1
+builder:
+  configs:
+    - documentation_targets: [Ice, Glacier2, IceGrid, IceStorm]
