@@ -2315,9 +2315,7 @@ class RemoteProcessController(ProcessController):
         import Ice
 
         comm.getProperties().setProperty("Adapter.AdapterId", str(uuid.uuid4()))
-
         self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
-
         self.adapter.add(
             ProcessControllerRegistryI(self),
             Ice.stringToIdentity("Util/ProcessControllerRegistry"),
@@ -2563,7 +2561,6 @@ class AndroidProcessController(RemoteProcessController):
                 pass
             run('avdmanager -v create avd -k "{0}" -d "Nexus 6" -n IceTests'.format(sdk))
             self.startEmulator("IceTests")
-
         elif current.config.device != "usb":
             run("adb connect {}".format(current.config.device))
 
