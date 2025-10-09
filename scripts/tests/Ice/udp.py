@@ -3,7 +3,7 @@
 
 from Util import Client, ClientServerTestCase, Server, TestSuite
 
-traceProps = {"Ice.Trace.Network": 2, "Ice.Trace.Retry": 1, "Ice.Trace.Protocol": 1}
+traceProps = {"Ice.Trace.Network": 3, "Ice.Trace.Retry": 1, "Ice.Trace.Protocol": 1}
 
 
 class UdpTestCase(ClientServerTestCase):
