@@ -254,11 +254,10 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
     const auto& docExceptions = doc->exceptions();
     if (!docExceptions.empty())
     {
-        useListStyle = docExceptions.size() < 2;
         out << nl << "/// - Throws:";
         for (const auto& docException : docExceptions)
         {
-            if (useListStyle)
+            if (docExceptions.size() > 1)
             {
                 out << nl << "///   -";
             }
