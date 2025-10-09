@@ -185,6 +185,10 @@ public class AllTests {
             }
 
             test(ret);
+            if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
+                out.print("aborting to get the log files");
+                test(false);
+            }
             out.println("ok");
 
             out.print("testing udp bi-dir connection... ");
