@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 /**
  * For deserialization of Slice types that contain a proxy, the application must instantiate a
- * subclass of <code>ObjectInputStream</code> and supply a communicator that is used to reconstruct
+ * subclass of {@code ObjectInputStream} and supply a communicator that is used to reconstruct
  * the proxy.
  */
 public class ObjectInputStream extends java.io.ObjectInputStream {

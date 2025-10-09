@@ -115,7 +115,7 @@ public final class InputStream {
 
     /**
      * Releases any data retained by encapsulations. The {@link #reset} method internally calls
-     * <code>clear</code>.
+     * {@code clear}.
      */
     public void clear() {
         if (_encapsStack != null) {

@@ -7,7 +7,7 @@ public interface PluginManager {
     /**
      * Initialize the configured plug-ins. The communicator automatically initializes the plug-ins
      * by default, but an application may need to interact directly with a plug-in prior to
-     * initialization. In this case, the application must set <code>Ice.InitPlugins=0</code> and
+     * initialization. In this case, the application must set {@code Ice.InitPlugins=0} and
      * then invoke {@link #initializePlugins} manually. The plug-ins are initialized in the order in
      * which they are loaded. If a plug-in raises an exception during initialization, the
      * communicator invokes destroy on the plug-ins that have already been initialized.

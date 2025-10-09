@@ -54,11 +54,11 @@ import javax.swing.UIManager;
 import javax.swing.border.AbstractBorder;
 
 /**
- * A <code>JPanel</code> subclass that has a drop shadow border and that provides a header with
+ * A {@code JPanel} subclass that has a drop shadow border and that provides a header with
  * icon, title and tool bar.
  *
- * <p>This class can be used to replace the <code>JInternalFrame</code>, for use outside of a <code>
- * JDesktopPane</code>. The <code>SimpleInternalFrame</code> is less flexible but often more usable;
+ * <p>This class can be used to replace the {@code JInternalFrame}, for use outside of a <code>
+ * JDesktopPane</code>. The {@code SimpleInternalFrame} is less flexible but often more usable;
  * it avoids overlapping windows and scales well up to IDE size. Several customers have reported
  * that they and their clients feel much better with both the appearance and the UI feel.
  *

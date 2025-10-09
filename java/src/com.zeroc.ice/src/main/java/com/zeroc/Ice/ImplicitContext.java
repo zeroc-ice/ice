@@ -7,23 +7,23 @@ import java.util.Map;
 /**
  * An interface to associate implict contexts with communicators. When you make a remote invocation
  * without an explicit context parameter, Ice uses the per-proxy context (if any) combined with the
- * <code>ImplicitContext</code> associated with the communicator. Ice provides several
- * implementations of <code>ImplicitContext</code>. The implementation used depends on the value of
- * the <code>Ice.ImplicitContext</code> property.
+ * {@code ImplicitContext} associated with the communicator. Ice provides several
+ * implementations of {@code ImplicitContext}. The implementation used depends on the value of
+ * the {@code Ice.ImplicitContext} property.
  *
  * <dl>
- *   <dt><code>None</code> (default)
+ *   <dt>{@code None} (default)
  *   <dd>No implicit context at all.
- *   <dt><code>PerThread</code>
+ *   <dt>{@code PerThread}
  *   <dd>The implementation maintains a context per thread.
- *   <dt><code>Shared</code>
+ *   <dt>{@code Shared}
  *   <dd>The implementation maintains a single context shared by all threads.
  * </dl>
  *
- * <code>ImplicitContext</code> also provides a number of operations to create, update or retrieve
+ * {@code ImplicitContext} also provides a number of operations to create, update or retrieve
  * an entry in the underlying context without first retrieving a copy of the entire context. These
- * operations correspond to a subset of the <code>java.util.Map</code> methods, with <code>
- * java.lang.Object</code> replaced by <code>string</code> and null replaced by the empty-string.
+ * operations correspond to a subset of the {@code java.util.Map} methods, with <code>
+ * java.lang.Object</code> replaced by {@code string} and null replaced by the empty-string.
  */
 public interface ImplicitContext {
     /**
