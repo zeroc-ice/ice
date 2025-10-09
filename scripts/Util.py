@@ -2166,7 +2166,8 @@ class LocalProcessController(ProcessController):
 
         def teardown(self, current, success):
             if self.traceFile:
-                if success or current.driver.isInterrupted():
+                # keep the log file if requested by command line flags, the test failed, or if the driver is interrupted
+                if not current.driver.keepLogs and (success or current.driver.isInterrupted()):
                     try:
                         os.remove(self.traceFile)
                     except FileNotFoundError:
@@ -3046,6 +3047,7 @@ class Driver:
                 "valgrind",
                 "languages=",
                 "rlanguages=",
+                "keep-logs",
             ],
         )
 
@@ -3069,6 +3071,7 @@ class Driver:
         print("--interface=<IP>      The multicast interface to use to discover controllers.")
         print("--controller-app      Start the process controller application.")
         print("--valgrind            Start executables with valgrind.")
+        print("--keep-logs           Keep log files from successful runs.")
 
     def __init__(self, options, component):
         self.component = component
@@ -3084,6 +3087,7 @@ class Driver:
         self.languages = [self.languages] if self.languages else []
         self.rlanguages = []
         self.failures = []
+        self.keepLogs = False
 
         parseOptions(
             self,
@@ -3097,6 +3101,7 @@ class Driver:
                 "host-ipv6": "hostIPv6",
                 "host-bt": "hostBT",
                 "controller-app": "controllerApp",
+                "keep-logs": "keepLogs",
             },
         )
 
