@@ -22,8 +22,8 @@ import java.util.Map;
  *
  * {@code ImplicitContext} also provides a number of operations to create, update or retrieve
  * an entry in the underlying context without first retrieving a copy of the entire context. These
- * operations correspond to a subset of the {@code java.util.Map} methods, with <code>
- * java.lang.Object</code> replaced by {@code string} and null replaced by the empty-string.
+ * operations correspond to a subset of the {@code java.util.Map} methods, with {@code java.lang.Object}
+ * replaced by {@code string} and null replaced by the empty-string.
  */
 public interface ImplicitContext {
     /**

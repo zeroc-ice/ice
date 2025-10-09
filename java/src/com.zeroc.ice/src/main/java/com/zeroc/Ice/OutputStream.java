@@ -112,9 +112,7 @@ public final class OutputStream {
     }
 
     /**
-     * Releases any data retained by encapsulations. The {@link #reset} method internally calls
-     * <code>
-     * clear</code>.
+     * Releases any data retained by encapsulations. The {@link #reset} method internally calls this method.
      */
     public void clear() {
         if (_encapsStack != null) {

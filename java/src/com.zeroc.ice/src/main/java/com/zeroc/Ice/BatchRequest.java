@@ -10,21 +10,21 @@ public interface BatchRequest {
     /**
      * The marshaled size of the request.
      *
-     * @return The marshaled size.
+     * @return the marshaled size
      */
     int getSize();
 
     /**
      * The name of the operation.
      *
-     * @return The operation name.
+     * @return the operation name
      */
     String getOperation();
 
     /**
      * The proxy used to invoke the batch request.
      *
-     * @return The proxy.
+     * @return the proxy
      */
     ObjectPrx getProxy();
 }
