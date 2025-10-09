@@ -7,7 +7,7 @@ import java.util.concurrent.CompletionStage;
 
 /**
  * Base class for dynamic dispatch servants. A server application derives a concrete servant class
- * from <code>Blobject</code> that implements the {@link Blobject#ice_invoke} method.
+ * from {@code Blobject} that implements the {@link Blobject#ice_invoke} method.
  */
 public interface Blobject extends Object {
     /**

@@ -2,19 +2,19 @@
 
 package com.zeroc.Ice;
 
-/** Unknown sliced value holds an instance of an unknown Slice class type. */
+/** This class holds an instance of an unknown Slice-defined class type. */
 public final class UnknownSlicedValue extends Value {
     /**
-     * Represents an instance of a Slice class type having the given Slice type.
+     * Constructs an UnknownSlicedValue with the specified type ID.
      *
-     * @param unknownTypeId The Slice type ID of the unknown object.
+     * @param unknownTypeId the Slice type ID of the unknown object
      */
     public UnknownSlicedValue(String unknownTypeId) {
         _unknownTypeId = unknownTypeId;
     }
 
     /**
-     * Determine the Slice type ID associated with this object.
+     * Returns the Slice type ID associated with this object.
      *
      * @return the type ID
      */

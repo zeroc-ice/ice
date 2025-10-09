@@ -11,16 +11,16 @@ import java.util.Map;
 /** Base class for exceptions defined in Slice. */
 public abstract class UserException extends java.lang.Exception {
     /**
-     * Returns the type id of this exception.
+     * Returns the type ID of this exception.
      *
-     * @return The type id of this exception.
+     * @return the type ID of this exception
      */
     public abstract String ice_id();
 
     /**
      * Returns a string representation of this exception.
      *
-     * @return A string representation of this exception.
+     * @return a string representation of this exception
      */
     @Override
     public String toString() {

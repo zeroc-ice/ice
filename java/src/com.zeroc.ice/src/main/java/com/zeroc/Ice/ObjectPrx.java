@@ -84,8 +84,7 @@ public interface ObjectPrx {
     /**
      * Gets the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical
-     *     order.
+     * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
      */
     String[] ice_ids();
 
@@ -159,8 +158,7 @@ public interface ObjectPrx {
      * @see Blobject
      * @see OperationMode
      */
-    Object.Ice_invokeResult ice_invoke(
-            String operation, OperationMode mode, byte[] inParams);
+    Object.Ice_invokeResult ice_invoke(String operation, OperationMode mode, byte[] inParams);
 
     /**
      * Invokes an operation dynamically.
@@ -189,8 +187,7 @@ public interface ObjectPrx {
      * @see Blobject
      * @see OperationMode
      */
-    CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(
-            String operation, OperationMode mode, byte[] inParams);
+    CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(String operation, OperationMode mode, byte[] inParams);
 
     /**
      * Invokes an operation asynchronously.

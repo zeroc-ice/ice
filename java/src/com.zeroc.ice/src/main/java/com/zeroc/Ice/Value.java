@@ -4,12 +4,12 @@ package com.zeroc.Ice;
 
 import java.io.Serializable;
 
-/** The base class for instances of Slice classes. */
+/** The base class for instances of Slice-defined classes. */
 public abstract class Value implements Cloneable, Serializable {
     /**
      * Returns a copy of the object. The cloned object contains field-for-field copies of the state.
      *
-     * @return The cloned object.
+     * @return the cloned object
      */
     public Value clone() {
         Value c = null;
@@ -48,16 +48,16 @@ public abstract class Value implements Cloneable, Serializable {
      * Returns the sliced data if the value has a preserved-slice base class and has been sliced
      * during un-marshaling of the value, null is returned otherwise.
      *
-     * @return The sliced data or null.
+     * @return the sliced data or null
      */
     public SlicedData ice_getSlicedData() {
         return _slicedData;
     }
 
     /**
-     * Gets the Slice type ID of this type.
+     * Returns the Slice type ID of the interface supported by this object.
      *
-     * @return the Slice type ID of this type, which is always <code>::Ice::Object</code>.
+     * @return The return value is always <code>::Ice::Object</code>.
      */
     public static String ice_staticId() {
         return "::Ice::Object";

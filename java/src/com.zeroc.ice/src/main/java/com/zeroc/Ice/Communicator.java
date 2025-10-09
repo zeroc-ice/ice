@@ -41,7 +41,7 @@ public final class Communicator implements AutoCloseable {
 
     /**
      * Destroys this communicator. This method calls {@link #shutdown} implicitly. Calling {@link
-     * #destroy} destroys all object adapters, and closes all outgoing connections. {@code destroy} waits for all
+     * #destroy} destroys all object adapters, and closes all outgoing connections. This method waits for all
      * outstanding dispatches to complete before returning. This includes "bidirectional dispatches" that execute on
      * outgoing connections.
      *
@@ -54,8 +54,7 @@ public final class Communicator implements AutoCloseable {
 
     /**
      * Shuts down this communicator. This method calls {@link ObjectAdapter#deactivate} on all object adapters
-     * created by this communicator. Shutting down a communicator has no effect on outgoing
-     * connections.
+     * created by this communicator. Shutting down a communicator has no effect on outgoing connections.
      *
      * @see #destroy
      * @see #waitForShutdown
@@ -70,9 +69,10 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Waits for shutdown to complete. This method calls {@link ObjectAdapter#waitForDeactivate} on all object adapters
-     * created by this communicator. In a client application that does not accept incoming connections, this
-     * method returns as soon as another thread calls {@link #shutdown} or {@link #destroy} on this communicator.
+     * Waits for the shutdown of this communicator to complete.
+     * This method calls {@link ObjectAdapter#waitForDeactivate} on all object adapters created by this communicator.
+     * In a client application that does not accept incoming connections, this method returns as soon as another
+     * thread calls {@link #shutdown} or {@link #destroy} on this communicator.
      *
      * @see #shutdown
      * @see #destroy
@@ -89,7 +89,7 @@ public final class Communicator implements AutoCloseable {
     /**
      * Checks whether or not {@link #shutdown} was called on this communicator.
      *
-     * @return {@code true} if {@link #shutdown} was called on this communicator, {@code false} otherwise.
+     * @return {@code true} if {@link #shutdown} was called on this communicator; {@code false} otherwise.
      * @see #shutdown
      */
     public boolean isShutdown() {
