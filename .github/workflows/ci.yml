@@ -113,6 +113,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Print network interfaces
+        run: |
+          ip a
+        shell: bash
+        if: runner.os == 'Linux'
+
       - name: macOS FQDN Fix
         uses: ./.github/actions/macos-fqdn
         if: runner.os == 'macOS'
