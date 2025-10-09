@@ -69,7 +69,7 @@ public interface Object {
      * Returns the Slice type IDs of the interfaces supported by this object.
      *
      * @param current The {@link Current} object for the invocation.
-     * @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
+     * @return the Slice type IDs of the interfaces supported by this object, in alphabetical order
      */
     default String[] ice_ids(Current current) {
         var typeIds = new TreeSet<String>();

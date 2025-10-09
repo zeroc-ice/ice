@@ -84,31 +84,30 @@ public interface ObjectPrx {
     /**
      * Gets the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
+     * @return the Slice type IDs of the interfaces supported by the target object, in alphabetical order
      */
     String[] ice_ids();
 
     /**
      * Gets the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param context The context map for the invocation.
-     * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical
-     *     order.
+     * @param context the context map for the invocation
+     * @return the Slice type IDs of the interfaces supported by the target object, in alphabetical order
      */
     String[] ice_ids(Map<String, String> context);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @return A future for the completion of the request.
+     * @return a future for the completion of the request
      */
     CompletableFuture<String[]> ice_idsAsync();
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param context The context map for the invocation.
-     * @return A future for the completion of the request.
+     * @param context the context map for the invocation
+     * @return a future for the completion of the request
      */
     CompletableFuture<String[]> ice_idsAsync(
             Map<String, String> context);
@@ -209,22 +208,22 @@ public interface ObjectPrx {
     /**
      * Gets the identity embedded in this proxy.
      *
-     * @return The identity of the target object.
+     * @return the identity of the target object
      */
     Identity ice_getIdentity();
 
     /**
      * Creates a new proxy that is identical to this proxy, except for the identity.
      *
-     * @param newIdentity The identity for the new proxy.
-     * @return A proxy with the new identity.
+     * @param newIdentity the identity for the new proxy
+     * @return a proxy with the new identity
      */
     ObjectPrx ice_identity(Identity newIdentity);
 
     /**
      * Gets the per-proxy context for this proxy.
      *
-     * @return The per-proxy context. If the proxy does not have a per-proxy (implicit) context, the
+     * @return the per-proxy context. If the proxy does not have a per-proxy (implicit) context, the
      *     return value is {@code null}.
      */
     Map<String, String> ice_getContext();
@@ -232,47 +231,45 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy that is identical to this proxy, except for the per-proxy context.
      *
-     * @param newContext The context for the new proxy.
-     * @return A proxy with the new per-proxy context.
+     * @param newContext the context for the new proxy
+     * @return a proxy with the new per-proxy context
      */
     ObjectPrx ice_context(Map<String, String> newContext);
 
     /**
      * Gets the facet for this proxy.
      *
-     * @return The facet for this proxy. If the proxy uses the default facet, the return value is
-     *     the empty string.
+     * @return the facet for this proxy. If the proxy uses the default facet, the return value is the empty string.
      */
     String ice_getFacet();
 
     /**
      * Creates a new proxy that is identical to this proxy, except for the facet.
      *
-     * @param newFacet The facet for the new proxy.
-     * @return A proxy with the new facet.
+     * @param newFacet the facet for the new proxy
+     * @return a proxy with the new facet
      */
     ObjectPrx ice_facet(String newFacet);
 
     /**
      * Gets the adapter ID for this proxy.
      *
-     * @return The adapter ID. If the proxy does not have an adapter ID, the return value is the
-     *     empty string.
+     * @return the adapter ID. If the proxy does not have an adapter ID, the return value is the empty string.
      */
     String ice_getAdapterId();
 
     /**
      * Creates a new proxy that is identical to this proxy, except for the adapter ID.
      *
-     * @param newAdapterId The adapter ID for the new proxy.
-     * @return A proxy with the new adapter ID.
+     * @param newAdapterId the adapter ID for the new proxy
+     * @return a proxy with the new adapter ID
      */
     ObjectPrx ice_adapterId(String newAdapterId);
 
     /**
      * Gets the endpoints used by this proxy.
      *
-     * @return The endpoints used by this proxy.
+     * @return the endpoints used by this proxy
      * @see Endpoint
      */
     Endpoint[] ice_getEndpoints();
@@ -280,15 +277,15 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy that is identical to this proxy, except for the endpoints.
      *
-     * @param newEndpoints The endpoints for the new proxy.
-     * @return A proxy with the new endpoints.
+     * @param newEndpoints the endpoints for the new proxy
+     * @return a proxy with the new endpoints
      */
     ObjectPrx ice_endpoints(Endpoint[] newEndpoints);
 
     /**
      * Gets the locator cache timeout of this proxy.
      *
-     * @return The locator cache timeout value.
+     * @return the locator cache timeout value
      * @see Locator
      */
     Duration ice_getLocatorCacheTimeout();
@@ -296,14 +293,14 @@ public interface ObjectPrx {
     /**
      * Gets the invocation timeout of this proxy.
      *
-     * @return The invocation timeout value.
+     * @return the invocation timeout value
      */
     Duration ice_getInvocationTimeout();
 
     /**
      * Gets the connection id of this proxy.
      *
-     * @return The connection id.
+     * @return the connection id
      */
     String ice_getConnectionId();
 
@@ -311,8 +308,8 @@ public interface ObjectPrx {
      * Creates a new proxy that is identical to this proxy, except it's a fixed proxy bound to the given
      * connection.
      *
-     * @param connection The fixed proxy connection.
-     * @return A fixed proxy bound to the given connection.
+     * @param connection the fixed proxy connection
+     * @return a fixed proxy bound to the given connection
      */
     ObjectPrx ice_fixed(Connection connection);
 
@@ -532,7 +529,7 @@ public interface ObjectPrx {
     /**
      * Gets the compression override setting of this proxy.
      *
-     * @return The compression override setting. If no optional value is present, no override is set.
+     * @return the compression override setting. If no optional value is present, no override is set.
      *     Otherwise, true if compression is enabled, false otherwise.
      */
     Optional<Boolean> ice_getCompress();
@@ -540,8 +537,8 @@ public interface ObjectPrx {
     /**
      * Returns a proxy that is identical to this proxy, except for its connection ID.
      *
-     * @param connectionId The connection ID for the new proxy. An empty string removes the connection ID.
-     * @return A proxy with the specified connection ID.
+     * @param connectionId the connection ID for the new proxy. An empty string removes the connection ID.
+     * @return a proxy with the specified connection ID
      */
     ObjectPrx ice_connectionId(String connectionId);
 
@@ -549,7 +546,7 @@ public interface ObjectPrx {
      * Gets the connection for this proxy. If the proxy does not yet have an established
      * connection, it first attempts to create a connection.
      *
-     * @return The {@link Connection} for this proxy.
+     * @return the {@link Connection} for this proxy
      * @see Connection
      */
     Connection ice_getConnection();
@@ -557,7 +554,7 @@ public interface ObjectPrx {
     /**
      * Gets an executor object that uses the Ice thread pool.
      *
-     * @return The Executor object.
+     * @return the {@code Executor} object
      */
     default Executor ice_executor() {
         return _getReference().getThreadPool();
@@ -566,7 +563,7 @@ public interface ObjectPrx {
     /**
      * Gets the connection for this proxy asynchronously. The call does not block.
      *
-     * @return A future for the completion of the request.
+     * @return a future for the completion of the request
      */
     CompletableFuture<Connection> ice_getConnectionAsync();
 
@@ -574,8 +571,8 @@ public interface ObjectPrx {
      * Gets the cached {@link Connection} for this proxy. If the proxy does not yet have an
      * established connection, it does not attempt to create a connection.
      *
-     * @return The cached {@link Connection} for this proxy or {@code null} if the proxy
-     *         does not have an established connection.
+     * @return the cached {@link Connection} for this proxy or {@code null} if the proxy
+     *         does not have an established connection
      * @see Connection
      */
     Connection ice_getCachedConnection();
@@ -588,7 +585,7 @@ public interface ObjectPrx {
     /**
      * Flushes any pending batched requests for this proxy asynchronously. The call does not block.
      *
-     * @return A future for the completion of the request.
+     * @return a future for the completion of the request
      */
     CompletableFuture<Void> ice_flushBatchRequestsAsync();
 
@@ -608,7 +605,7 @@ public interface ObjectPrx {
     /**
      * Gets the Slice type ID associated with this type.
      *
-     * @return The Slice type ID.
+     * @return the Slice type ID
      */
     static String ice_staticId() {
         return ice_staticId;
@@ -617,9 +614,9 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy that implements {@link ObjectPrx}.
      *
-     * @param communicator The communicator of the new proxy.
-     * @param proxyString The string representation of the proxy.
-     * @return The new proxy.
+     * @param communicator the communicator of the new proxy
+     * @param proxyString the string representation of the proxy
+     * @return the new proxy
      * @throws ParseException Thrown when {@code proxyString} is not a valid proxy string.
      */
     public static ObjectPrx createProxy(Communicator communicator, String proxyString) {
@@ -633,8 +630,8 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The source proxy.
-     * @return A new proxy or {@code null} if the target object does not support the specified type.
+     * @param obj the source proxy
+     * @return a new proxy or {@code null} if the target object does not support the specified type
      */
     static ObjectPrx checkedCast(ObjectPrx obj) {
         return checkedCast(obj, noExplicitContext);
@@ -643,9 +640,9 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The source proxy.
-     * @param context The {@code Context} map for the invocation.
-     * @return A new proxy or {@code null} if the target object does not support the specified type.
+     * @param obj the source proxy
+     * @param context the {@code Context} map for the invocation
+     * @return a new proxy or {@code null} if the target object does not support the specified type
      */
     static ObjectPrx checkedCast(ObjectPrx obj, Map<String, String> context) {
         return obj != null && obj.ice_isA(ice_staticId, context) ? obj : null;
@@ -654,10 +651,10 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The source proxy.
-     * @param facet The facet for the new proxy.
-     * @return A new proxy with the specified facet, or {@code null} if the target facet does not support the specified
-     *         type.
+     * @param obj the source proxy
+     * @param facet the facet for the new proxy
+     * @return a new proxy with the specified facet, or {@code null} if the target facet does not support the specified
+     *         type
      */
     static ObjectPrx checkedCast(ObjectPrx obj, String facet) {
         return checkedCast(obj, facet, noExplicitContext);
@@ -666,11 +663,11 @@ public interface ObjectPrx {
     /**
     * Creates a new proxy from an existing proxy after confirming the target object's type via a remote invocation.
      *
-     * @param obj The source proxy.
-     * @param facet The facet for the new proxy.
-     * @param context The {@code Context} map for the invocation.
-     * @return A new proxy with the specified facet, or {@code null} if the target facet does not support the specified
-     *         type.
+     * @param obj the source proxy
+     * @param facet the facet for the new proxy
+     * @param context the {@code Context} map for the invocation
+     * @return a new proxy with the specified facet, or {@code null} if the target facet does not support the specified
+     *         type
      */
     static ObjectPrx checkedCast(ObjectPrx obj, String facet, Map<String, String> context) {
         return obj == null ? null : checkedCast(obj.ice_facet(facet), context);
@@ -679,8 +676,8 @@ public interface ObjectPrx {
     /**
      * Creates a new proxy from an existing proxy.
      *
-     * @param obj The source proxy.
-     * @return A new proxy with the desired type or {@code null} if {@code obj} is {@code null}.
+     * @param obj the source proxy
+     * @return a new proxy with the desired type or {@code null} if {@code obj} is {@code null}
      */
     static ObjectPrx uncheckedCast(ObjectPrx obj) {
         return obj;
@@ -689,9 +686,9 @@ public interface ObjectPrx {
     /**
     * Creates a new proxy from an existing proxy.
      *
-     * @param obj The source proxy.
-     * @param facet The facet for the new proxy.
-     * @return A new proxy with the desired type or {@code null} if {@code obj} is {@code null}.
+     * @param obj the source proxy
+     * @param facet the facet for the new proxy
+     * @return a new proxy with the desired type or {@code null} if {@code obj} is {@code null}
      */
     static ObjectPrx uncheckedCast(ObjectPrx obj, String facet) {
         return obj == null ? null : obj.ice_facet(facet);
