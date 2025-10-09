@@ -169,7 +169,7 @@ namespace DataStorm
         /// @param communicator The communicator associated with the node.
         /// @param value The byte sequence to decode.
         /// @return The resulting value.
-        static T decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& value) noexcept;
+        static T decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& value);
     };
 
     /// The Cloner template provides a method to clone user types.
@@ -205,7 +205,7 @@ namespace DataStorm
 
     // Decoder template implementation.
     template<typename T, typename E>
-    T Decoder<T, E>::decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& value) noexcept
+    T Decoder<T, E>::decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& value)
     {
         T v;
         if (value.empty())
