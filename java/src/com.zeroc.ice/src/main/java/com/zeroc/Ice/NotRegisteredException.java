@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * An attempt was made to find or deregister something that is not registered with Ice.
+ * The exception that is thrown when trying to find or deregister something that is not registered with Ice.
  */
 public final class NotRegisteredException extends LocalException {
     /**

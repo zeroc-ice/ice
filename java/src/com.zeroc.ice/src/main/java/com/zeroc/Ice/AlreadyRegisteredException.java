@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * An attempt was made to register an object more than once with the Ice runtime.
+ * The exception that is thrown when a server registers an object more than once with the Ice runtime.
  */
 public final class AlreadyRegisteredException extends LocalException {
     /**
