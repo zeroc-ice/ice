@@ -2166,7 +2166,6 @@ class LocalProcessController(ProcessController):
 
         def teardown(self, current, success):
             if self.traceFile:
-                # keep the log file if requested by command line flags, the test failed, or if the driver is interrupted
                 if not current.driver.keepLogs and (success or current.driver.isInterrupted()):
                     try:
                         os.remove(self.traceFile)
