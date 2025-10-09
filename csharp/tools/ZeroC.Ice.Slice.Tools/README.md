@@ -68,8 +68,23 @@ Example:
 </ItemGroup>
 ```
 
+### Troubleshooting
+
+If the Slice Tools task fails, you may want to inspect the exact command used to invoke the Slice-to-C# compiler, as
+well as the computed properties used to configure the task.
+
+The easiest way to do this is by generating a binary log of the build:
+
+```shell
+dotnet build -bl:build-log.binlog
+```
+
+You can open this log file using the [MSBuild Structured Log Viewer] Visual Studio Code extension. Then search
+for `SliceCompile`.
+
 [default-items]: https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#enabledefaultitems
 [package]: https://www.nuget.org/packages/ZeroC.Ice.Slice.Tools
 [slice]: https://docs.zeroc.com/ice/latest/csharp/the-slice-language
 [slice2cs]: https://docs.zeroc.com/ice/latest/csharp/using-the-slice-compilers
 [source]: https://github.com/zeroc-ice/ice/tree/main/csharp/tools/ZeroC.Ice.Slice.Tools
+[MSBuild Structured Log Viewer]: https://marketplace.visualstudio.com/items?itemName=lambdageek.msbuild-structured-log-viewer

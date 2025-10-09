@@ -65,7 +65,22 @@ Example:
 </ItemGroup>
 ```
 
+### Troubleshooting
+
+If the Slice Tools task fails, you may want to inspect the exact command used to invoke the Slice-to-C++ compiler, as
+well as the computed properties used to configure the task.
+
+The easiest way to do this is by generating a binary log of the build:
+
+```shell
+MSBuild -bl:build-log.binlog
+```
+
+You can open this log file using the [MSBuild Structured Log Viewer] Visual Studio Code extension. Then search
+for `SliceCompile`.
+
 [package]: https://www.nuget.org/packages/ZeroC.Ice.Cpp
 [slice]: https://docs.zeroc.com/ice/latest/cpp/the-slice-language
 [slice2cpp]: https://docs.zeroc.com/ice/latest/cpp/using-the-slice-compilers
 [source]: https://github.com/zeroc-ice/ice/tree/main/cpp/tools/ZeroC.Ice.Slice.Tools.Cpp
+[MSBuild Structured Log Viewer]: https://marketplace.visualstudio.com/items?itemName=lambdageek.msbuild-structured-log-viewer
