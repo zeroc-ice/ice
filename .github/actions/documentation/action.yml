@@ -68,7 +68,7 @@ runs:
 
         swift package --allow-writing-to-directory ./swift/docs generate-documentation \
           --enable-experimental-combined-documentation \
-          --fallback-display-name "ZeroC Ice for Swift" \
+          --fallback-display-name "Ice for Swift" \
           --target Ice --target IceStorm --target Glacier2 --target IceGrid \
           --output-path ./swift/docs --transform-for-static-hosting --hosting-base-path /ice/main/api/swift 2>&1 | tee -a doc_output.log
 
@@ -127,7 +127,7 @@ runs:
 
         aws s3 sync ./python/docs/_build/html s3://${AWS_S3_CODE_BUCKET}/ice/main/api/python --delete
 
-        aws s3 sync ./swift/docs/ice.doccarchive s3://${AWS_S3_CODE_BUCKET}/ice/main/api/swift --delete
+        aws s3 sync ./swift/docs s3://${AWS_S3_CODE_BUCKET}/ice/main/api/swift --delete
 
         aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/java --delete
 
