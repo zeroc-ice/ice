@@ -21,28 +21,21 @@ public class BZip2 {
         byte[] data = null;
         int offset = 0;
         try {
-            //
-            // If the ByteBuffer is backed by an array then we can avoid
-            // an extra copy by using the array directly.
-            //
+            // If the ByteBuffer is backed by an array then we can avoid an extra copy by using the array directly.
             data = buf.b.array();
             offset = buf.b.arrayOffset();
         } catch (Exception ex) {
-            //
             // Otherwise, allocate an array to hold a copy of the uncompressed data.
-            //
             data = new byte[buf.size()];
             buf.position(0);
             buf.b.get(data);
         }
 
         try {
-            //
             // Compress the data using the class
             // org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
             // Its constructor requires an OutputStream argument, therefore we pass the
             // compressed buffer in an OutputStream wrapper.
-            //
             BufferedOutputStream bos = new BufferedOutputStream(compressed);
             java.lang.Object[] args =
                 new java.lang.Object[]{bos, Integer.valueOf(compressionLevel)};
@@ -54,9 +47,7 @@ public class BZip2 {
             throw new ProtocolException("bzip2 compression failed", ex);
         }
 
-        //
         // Don't bother if the compressed data is larger than the uncompressed data.
-        //
         if (compressedLen >= uncompressedLen) {
             return null;
         }
@@ -65,19 +56,13 @@ public class BZip2 {
         r.resize(headerSize + 4 + compressedLen, false);
         r.position(0);
 
-        //
         // Copy the header from the uncompressed stream to the compressed one.
-        //
         r.b.put(data, offset, headerSize);
 
-        //
         // Add the size of the uncompressed stream before the message body.
-        //
         r.b.putInt(buf.size());
 
-        //
         // Add the compressed message body.
-        //
         r.b.put(compressed, 0, compressedLen);
 
         return r;
@@ -101,16 +86,11 @@ public class BZip2 {
         byte[] compressed = null;
         int offset = 0;
         try {
-            //
-            // If the ByteBuffer is backed by an array then we can avoid
-            // an extra copy by using the array directly.
-            //
+            // If the ByteBuffer is backed by an array then we can avoid an extra copy by using the array directly.
             compressed = buf.b.array();
             offset = buf.b.arrayOffset();
         } catch (Exception ex) {
-            //
             // Otherwise, allocate an array to hold a copy of the compressed data.
-            //
             compressed = new byte[buf.size()];
             buf.position(0);
             buf.b.get(compressed);
@@ -120,15 +100,11 @@ public class BZip2 {
         r.resize(uncompressedSize, false);
 
         try {
-            //
             // Uncompress the data using the class
             // org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream.
             // Its constructor requires an InputStream argument, therefore we pass the
             // compressed data in a ByteArrayInputStream.
-            //
-            ByteArrayInputStream bais =
-                new ByteArrayInputStream(
-                    compressed, offset + headerSize + 4, compressedLen);
+            ByteArrayInputStream bais = new ByteArrayInputStream(compressed, offset + headerSize + 4, compressedLen);
 
             java.lang.Object[] args = new java.lang.Object[]{bais};
             InputStream is = (InputStream) _bzInputStreamCtor.newInstance(args);
@@ -143,9 +119,7 @@ public class BZip2 {
             throw new ProtocolException("bzip2 uncompression failed", ex);
         }
 
-        //
         // Copy the header from the compressed stream to the uncompressed one.
-        //
         r.position(0);
         r.b.put(compressed, offset, headerSize);
 
@@ -157,10 +131,7 @@ public class BZip2 {
     private static java.lang.reflect.Constructor<?> _bzOutputStreamCtor;
 
     public static synchronized boolean supported() {
-        //
-        // Use lazy initialization when determining whether support for bzip2 compression is
-        // available.
-        //
+        // Use lazy initialization when determining whether support for bzip2 compression is available.
         if (!_checked) {
             _checked = true;
             try {
