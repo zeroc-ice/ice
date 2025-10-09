@@ -6,8 +6,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 /**
- * Base class for dynamic dispatch servants. A server application derives a concrete servant class
- * from {@code Blobject} that implements the {@link Blobject#ice_invoke} method.
+ * Base class for dynamic dispatch servants.
+ * A server application derives a concrete servant class from {@code Blobject} that implements the
+ * {@link Blobject#ice_invoke} method.
  */
 public interface Blobject extends Object {
     /**
@@ -28,7 +29,6 @@ public interface Blobject extends Object {
     default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) throws UserException {
         byte[] inEncaps = request.inputStream.readEncapsulation(null);
         Object.Ice_invokeResult r = ice_invoke(inEncaps, request.current);
-        return CompletableFuture.completedFuture(
-            request.current.createOutgoingResponse(r.returnValue, r.outParams));
+        return CompletableFuture.completedFuture(request.current.createOutgoingResponse(r.returnValue, r.outParams));
     }
 }

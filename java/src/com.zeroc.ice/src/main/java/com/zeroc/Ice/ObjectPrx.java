@@ -533,7 +533,7 @@ public interface ObjectPrx {
      * Gets the compression override setting of this proxy.
      *
      * @return The compression override setting. If no optional value is present, no override is set.
-     * Otherwise, true if compression is enabled, false otherwise.
+     *     Otherwise, true if compression is enabled, false otherwise.
      */
     Optional<Boolean> ice_getCompress();
 

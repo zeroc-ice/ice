@@ -23,8 +23,7 @@ final class TraceUtil {
             StringWriter s = new StringWriter();
             byte type = printMessage(s, is, connection);
 
-            logger.trace(
-                tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
+            logger.trace(tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
 
             str.pos(p);
         }
@@ -46,7 +45,7 @@ final class TraceUtil {
         }
     }
 
-    public static void trace( String heading, InputStream str, ConnectionI connection, Logger logger, TraceLevels tl) {
+    public static void trace(String heading, InputStream str, ConnectionI connection, Logger logger, TraceLevels tl) {
         if (tl.protocol >= 1) {
             int p = str.pos();
             str.pos(0);
