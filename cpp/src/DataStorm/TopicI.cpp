@@ -262,6 +262,10 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
             else
             {
                 peerFilter = _keyFilterFactories->decode(_instance->getCommunicator(), info.name, info.value);
+                if (!peerFilter)
+                {
+                    peerFilter = alwaysMatchFilter;
+                }
             }
 
             // Add key elements matching the filter.
@@ -400,6 +404,10 @@ TopicI::attachElements(
                     else
                     {
                         filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
+                        if (!filter)
+                        {
+                            filter = alwaysMatchFilter;
+                        }
                     }
                 }
 
@@ -506,6 +514,10 @@ TopicI::attachElementsAck(
                     else
                     {
                         filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
+                        if (!filter)
+                        {
+                            filter = alwaysMatchFilter;
+                        }
                     }
                 }
 
