@@ -31,7 +31,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @hidden Public because it's used by IceDiscovery and IceLocatorDiscovery.
@@ -619,15 +618,13 @@ public final class Network {
         try {
             return NetworkInterface.networkInterfaces().filter(p -> {
                 try {
-                    // We filter-out virtual interfaces as we only want to get the IP address from the physical
-                    // interfaces. Including the virtual interfaces also causes problems on Ubuntu with IPv6.
-                    return p.isUp() && p.supportsMulticast() && !p.isVirtual();
+                    return p.isUp() && p.supportsMulticast();
                 } catch (java.net.SocketException ex) {
                     return false;
                 }
             }).flatMap(NetworkInterface::inetAddresses).filter(addr -> {
                 return protocol == EnableBoth || isValidAddr(addr, protocol);
-            }).distinct().collect(Collectors.toList());
+            }).collect(Collectors.toList());
         } catch (java.net.SocketException | java.lang.SecurityException ex) {
             throw new SocketException(ex);
         }

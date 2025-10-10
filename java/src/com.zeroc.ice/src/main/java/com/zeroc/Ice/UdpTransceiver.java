@@ -215,7 +215,7 @@ final class UdpTransceiver implements Transceiver {
         Logger logger = _instance.logger();
         logger.print("*** UDP Multicast Server Transceiver: Logging local addresses for protocol " + protocol);
 
-        ArrayList<InetAddress> result = new ArrayList<>();
+        ArrayList<InetAddress> seenAddresses = new ArrayList<>();
         try {
             Stream<NetworkInterface> interfaces =
                 NetworkInterface.networkInterfaces().filter(p -> {
@@ -228,16 +228,22 @@ final class UdpTransceiver implements Transceiver {
 
             interfaces.forEach(p -> {
                 logger.print("****** Found interface: " + p);
+                logger.print("********* Name: " + p.getName());
+                logger.print("********* isVirtual: " + p.isVirtual());
+
                 Enumeration<InetAddress> addrs = p.getInetAddresses();
                 while (addrs.hasMoreElements()) {
                     InetAddress addr = addrs.nextElement();
                     logger.print("********* Found address: " + addr);
-                    if (!result.contains(addr) && !addr.isMulticastAddress() && (protocol == Network.EnableBoth || Network.isValidAddr(addr, protocol))) {
-                        result.add(addr);
-                        logger.print("********* Added address: " + addr);
+
+                    if (seenAddresses.contains(addr)) {
+                        logger.print("********* Already seen address");
                     } else {
-                        logger.print("********* Ignored address: " + addr);
+                        logger.print("********* New address");
+                        seenAddresses.add(addr);
                     }
+
+                    logger.print("********* isValid wrt IPv4/v6: " + Network.isValidAddr(addr, protocol));
                 }
             });
         } catch (java.net.SocketException ex) {
