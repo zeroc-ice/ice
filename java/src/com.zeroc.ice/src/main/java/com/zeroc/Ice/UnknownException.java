@@ -40,7 +40,7 @@ public class UnknownException extends DispatchException {
         return "::Ice::UnknownException";
     }
 
-    // Logically protected too.
+    // Logically protected too. TODO: should this be marked protected?
     UnknownException(ReplyStatus replyStatus, String message) {
         super(replyStatus.value(), message);
     }

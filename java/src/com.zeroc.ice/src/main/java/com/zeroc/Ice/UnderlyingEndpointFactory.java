@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 /**
  * The underlying endpoint factory creates endpoints with a factory of the given type. If this
- * factory is of the EndpointFactoryWithUnderlying type, it will delegate to the given underlying
+ * factory is of the {@code EndpointFactoryWithUnderlying} type, it will delegate to the given underlying
  * factory (this is used by IceIAP/IceBT plugins for the BTS/iAPS endpoint factories).
  *
  * @hidden Public because it's used by IceBT.
@@ -19,11 +19,8 @@ public class UnderlyingEndpointFactory implements EndpointFactory {
     }
 
     public void initialize() {
-        //
-        // Get the endpoint factory of the given endpoint type. If it's a factory that
-        // delegates to an underlying endpoint, clone it and instruct it to delegate to
-        // our underlying factory.
-        //
+        // Get the endpoint factory of the given endpoint type. If it's a factory that delegates to an
+        // underlying endpoint, clone it and instruct it to delegate to our underlying factory.
         EndpointFactory factory = _instance.getEndpointFactory(_type);
         if (factory != null && factory instanceof EndpointFactoryWithUnderlying) {
             EndpointFactoryWithUnderlying f = (EndpointFactoryWithUnderlying) factory;

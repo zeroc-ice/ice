@@ -3,9 +3,8 @@
 package com.zeroc.Ice;
 
 /**
- * Class to support custom loggers. Applications using a custom logger instantiate a <code>
- * LoggerPlugin</code> with a custom logger and return the instance from their {@link PluginFactory}
- * implementation.
+ * Class to support custom loggers. Applications using a custom logger instantiate a {@code LoggerPlugin}
+ * with a custom logger and return the instance from their {@link PluginFactory} implementation.
  *
  * @see PluginFactory
  * @see Plugin

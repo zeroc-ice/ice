@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * The exception that is thrown when you attempt to register an object more than once with the Ice runtime.
+ * The exception that is thrown when a server registers an object more than once with the Ice runtime.
  */
 public final class AlreadyRegisteredException extends LocalException {
     /**
@@ -23,14 +23,10 @@ public final class AlreadyRegisteredException extends LocalException {
         return "::Ice::AlreadyRegisteredException";
     }
 
-    /**
-     * The kind of object that could not be removed: "servant", "facet", "object", "default
-     * servant", "servant locator", "plugin", "object adapter", "object adapter
-     * with router", "replica group".
-     */
+    /** The kind of object that was already registered. */
     public final String kindOfObject;
 
-    /** The ID (or name) of the object that is registered already. */
+    /** The ID (or name) of the object that was already registered. */
     public final String id;
 
     private static final long serialVersionUID = 392587231034664196L;

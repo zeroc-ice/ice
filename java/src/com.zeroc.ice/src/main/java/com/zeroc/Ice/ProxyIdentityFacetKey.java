@@ -3,9 +3,8 @@
 package com.zeroc.Ice;
 
 /**
- * This class wraps a proxy to allow it to be used the key for a hashed collection. The <code>
- * hashCode</code> and <code>equals</code> methods are based on the object identity and the facet of
- * the proxy.
+ * This class wraps a proxy to allow it to be used the key for a hashed collection.
+ * The {@code hashCode} and {@code equals} methods are based on the object identity and the facet of the proxy.
  *
  * @see Util#proxyIdentityAndFacetCompare
  * @see Util#proxyIdentityCompare
@@ -45,8 +44,8 @@ public class ProxyIdentityFacetKey {
      * Compares this proxy with the passed object for equality.
      *
      * @param obj The object to compare this proxy with.
-     * @return <code>true</code> if the passed object is a proxy with the same object identity and
-     *     facet as this proxy; <code>false</code>, otherwise.
+     * @return {@code true} if the passed object is a proxy with the same object identity and facet as this proxy;
+     *     {@code false}, otherwise.
      */
     @Override
     public boolean equals(java.lang.Object obj) {

@@ -14,9 +14,9 @@ public final class ClassSliceLoader implements SliceLoader {
     /**
      * Creates a ClassSliceLoader.
      *
-     * @param classes An array of classes with the {@link SliceTypeId} annotation. Each class may also have the
-     *                {@link CompactSliceTypeId} annotation.
-     * @throws IllegalArgumentException If any class is not annotated with {@link SliceTypeId}.
+     * @param classes an array of classes with the {@link SliceTypeId} annotation.
+     *     Each class may also have the {@link CompactSliceTypeId} annotation.
+     * @throws IllegalArgumentException if any class is not annotated with {@link SliceTypeId}.
      */
     public ClassSliceLoader(Class<?>... classes) {
         for (Class<?> c : classes) {
@@ -46,9 +46,7 @@ public final class ClassSliceLoader implements SliceLoader {
                 return c.getDeclaredConstructor().newInstance();
             } catch (Exception ex) {
                 throw new MarshalException(
-                    String.format(
-                        "Failed to create an instance of class '%s' for type ID '%s'.",
-                        c.getName(), typeId),
+                    String.format("Failed to create an instance of class '%s' for type ID '%s'.", c.getName(), typeId),
                     ex);
             }
         }

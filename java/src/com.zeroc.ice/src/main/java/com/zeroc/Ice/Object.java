@@ -10,7 +10,7 @@ import java.util.concurrent.CompletionStage;
 /** The base interface for servants. */
 @SliceTypeId(value = "::Ice::Object")
 public interface Object {
-    /** Holds the results of a call to <code>ice_invoke</code>. */
+    /** Holds the results of a call to {@code ice_invoke}. */
     public class Ice_invokeResult {
         /** Default initializes the fields. */
         public Ice_invokeResult() {}
@@ -29,9 +29,9 @@ public interface Object {
         }
 
         /**
-         * If the operation completed successfully, the return value is <code>true</code>. If the
-         * operation raises a user exception, the return value is <code>false</code>; in this case,
-         * <code>outParams</code> contains the encoded user exception. If the operation raises a
+         * If the operation completed successfully, the return value is {@code true}. If the
+         * operation raises a user exception, the return value is {@code false}; in this case,
+         * {@code outParams} contains the encoded user exception. If the operation raises a
          * run-time exception, it throws it directly.
          */
         public boolean returnValue;
@@ -48,8 +48,8 @@ public interface Object {
      *
      * @param s The type ID of the Slice interface to test against.
      * @param current The {@link Current} object for the invocation.
-     * @return <code>true</code> if this object has the interface specified by <code>s</code> or
-     *     derives from the interface specified by <code>s</code>.
+     * @return {@code true} if this object has the interface specified by {@code s} or
+     *     derives from the interface specified by {@code s}.
      */
     default boolean ice_isA(String s, Current current) {
 
@@ -69,7 +69,7 @@ public interface Object {
      * Returns the Slice type IDs of the interfaces supported by this object.
      *
      * @param current The {@link Current} object for the invocation.
-     * @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
+     * @return the Slice type IDs of the interfaces supported by this object, in alphabetical order
      */
     default String[] ice_ids(Current current) {
         var typeIds = new TreeSet<String>();

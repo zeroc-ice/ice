@@ -50,7 +50,7 @@ public final class Properties {
      * Creates a property set initialized from an argument vector.
      *
      * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
+     *     the command-line options include a {@code --Ice.Config} option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
      */
@@ -63,7 +63,7 @@ public final class Properties {
      * arguments.
      *
      * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
+     *     the command-line options include a {@code --Ice.Config} option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
      * @param remainingArgs If non null, the given list will contain on return the command-line
@@ -77,12 +77,11 @@ public final class Properties {
      * Creates a property set initialized from an argument vector.
      *
      * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
+     *     the command-line options include a {@code --Ice.Config} option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
      * @param defaults Default values for the property set. Settings in configuration files and
-     *     <code>
-     *     args</code> override these defaults.
+     *     {@code args} override these defaults.
      */
     public Properties(String[] args, Properties defaults) {
         this(args, defaults, null);
@@ -93,12 +92,11 @@ public final class Properties {
      * arguments.
      *
      * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
+     *     the command-line options include a {@code --Ice.Config} option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
      * @param defaults Default values for the property set. Settings in configuration files and
-     *     <code>
-     *     args</code> override these defaults.
+     *     {@code args} override these defaults.
      * @param remainingArgs If non null, the given list will contain on return the command-line
      *     arguments that were not used to set properties.
      */
@@ -424,9 +422,7 @@ public final class Properties {
 
     /**
      * Get a sequence of command-line options that is equivalent to this property set. Each element
-     * of the returned sequence is a command-line option of the form <code>
-     * --<em>key</em>=<em>value</em>
-     * </code>.
+     * of the returned sequence is a command-line option of the form {@code --<em>key</em>=<em>value</em>}.
      *
      * @return The command line options for this property set.
      */
@@ -442,15 +438,12 @@ public final class Properties {
 
     /**
      * Convert a sequence of command-line options into properties. All options that begin with
-     * <code>
-     * --<em>prefix</em>.</code> are converted into properties. If the prefix is empty, all options
-     * that begin with <code>--</code> are converted to properties.
+     * {@code --<em>prefix</em>.} are converted into properties. If the prefix is empty, all options
+     * that begin with {@code --} are converted to properties.
      *
-     * @param prefix The property prefix, or an empty string to convert all options starting with
-     *     <code>--</code>.
+     * @param prefix The property prefix, or an empty string to convert all options starting with {@code --}.
      * @param options The command-line options.
-     * @return The command-line options that do not start with the specified prefix, in their
-     *     original order.
+     * @return The command-line options that do not start with the specified prefix, in their original order.
      */
     public String[] parseCommandLineOptions(String prefix, String[] options) {
         if (!prefix.isEmpty() && prefix.charAt(prefix.length() - 1) != '.') {
@@ -475,13 +468,11 @@ public final class Properties {
 
     /**
      * Convert a sequence of command-line options into properties. All options that begin with one
-     * of the following prefixes are converted into properties: <code>--Ice</code>, <code>--IceBox
-     * </code> , <code>--IceGrid</code>, <code>--Ice.SSL</code>, <code>--IceStorm</code>, and <code>
-     * --Glacier2</code>.
+     * of the following prefixes are converted into properties: {@code --Ice}, {@code --IceBox},
+     * {@code --IceGrid}, {@code --Ice.SSL}, {@code --IceStorm}, and {@code --Glacier2}.
      *
      * @param options The command-line options.
-     * @return The command-line options that do not start with one of the listed prefixes, in their
-     *     original order.
+     * @return The command-line options that do not start with one of the listed prefixes, in their original order.
      */
     public String[] parseIceCommandLineOptions(String[] options) {
         String[] args = options;

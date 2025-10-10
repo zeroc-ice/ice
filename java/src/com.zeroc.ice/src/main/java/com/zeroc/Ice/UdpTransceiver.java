@@ -23,17 +23,13 @@ final class UdpTransceiver implements Transceiver {
 
     @Override
     public int initialize(Buffer readBuffer, Buffer writeBuffer) {
-        //
         // Nothing to do.
-        //
         return SocketOperation.None;
     }
 
     @Override
     public int closing(boolean initiator, LocalException ex) {
-        //
         // Nothing to do.
-        //
         return SocketOperation.None;
     }
 
@@ -149,8 +145,7 @@ final class UdpTransceiver implements Transceiver {
             }
         }
 
-        // A client connection is already connected at this point, and a server connection is never
-        // connected.
+        // A client connection is already connected at this point, and a server connection is never connected.
         assert _state != StateNeedConnect;
 
         buf.resize(ret, true);
@@ -263,10 +258,8 @@ final class UdpTransceiver implements Transceiver {
 
     @Override
     public synchronized void checkSendSize(Buffer buf) {
-        //
         // The maximum packetSize is either the maximum allowable UDP packet size, or the UDP send
         // buffer size (which ever is smaller).
-        //
         final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
         if (packetSize < buf.size()) {
             throw new DatagramLimitException(
@@ -286,9 +279,7 @@ final class UdpTransceiver implements Transceiver {
         return _addr.getPort();
     }
 
-    //
     // Only for use by UdpEndpoint
-    //
     UdpTransceiver(
             ProtocolInstance instance,
             InetSocketAddress addr,
@@ -303,10 +294,8 @@ final class UdpTransceiver implements Transceiver {
             _fd = Network.createUdpSocket(_addr);
             setBufSize(-1, -1);
             Network.setBlock(_fd, false);
-            //
             // NOTE: setting the multicast interface before performing the
             // connect is important for some OS such as macOS.
-            //
             if (_addr.getAddress().isMulticastAddress()) {
                 if (!mcastInterface.isEmpty()) {
                     Network.setMcastInterface(_fd, mcastInterface);
@@ -323,9 +312,7 @@ final class UdpTransceiver implements Transceiver {
         }
     }
 
-    //
     // Only for use by UdpEndpoint
-    //
     UdpTransceiver(
             UdpEndpointI endpoint,
             ProtocolInstance instance,
@@ -374,15 +361,12 @@ final class UdpTransceiver implements Transceiver {
                 _sndSize = dfltSize;
             }
 
-            //
             // Get property for buffer size if size not passed in.
-            //
             if (sizeRequested == -1) {
                 sizeRequested = _instance.properties().getPropertyAsIntWithDefault(prop, dfltSize);
             }
-            //
+
             // Check for sanity.
-            //
             if (sizeRequested < (_udpOverhead + Protocol.headerSize)) {
                 _instance
                     .logger()
@@ -397,10 +381,8 @@ final class UdpTransceiver implements Transceiver {
             }
 
             if (sizeRequested != dfltSize) {
-                //
                 // Try to set the buffer size. The kernel will silently adjust the size to an
                 // acceptable value. Then read the size back to get the size that was actually set.
-                //
                 int sizeSet;
                 if (i == 0) {
                     Network.setRecvBufferSize(_fd, sizeRequested);
@@ -412,10 +394,8 @@ final class UdpTransceiver implements Transceiver {
                     sizeSet = _sndSize;
                 }
 
-                //
                 // Warn if the size that was set is less than the requested size and we have not
                 // already warned
-                //
                 if (sizeSet < sizeRequested) {
                     BufSizeWarnInfo winfo = _instance.getBufSizeWarn(UDPEndpointType.value);
                     if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested))
