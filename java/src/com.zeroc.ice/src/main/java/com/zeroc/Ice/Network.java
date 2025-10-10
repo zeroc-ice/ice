@@ -872,7 +872,7 @@ public final class Network {
         return s.toString();
     }
 
-    static boolean isValidAddr(InetAddress addr, int protocol) {
+    private static boolean isValidAddr(InetAddress addr, int protocol) {
         byte[] bytes = null;
         if (addr != null) {
             bytes = addr.getAddress();
