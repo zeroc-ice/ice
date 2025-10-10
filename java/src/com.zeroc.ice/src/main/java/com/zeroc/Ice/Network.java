@@ -628,9 +628,7 @@ public final class Network {
             }).flatMap(NetworkInterface::inetAddresses).filter(addr -> {
                 return protocol == EnableBoth || isValidAddr(addr, protocol);
             }).distinct().collect(Collectors.toList());
-        } catch (java.net.SocketException ex) {
-            throw new SocketException(ex);
-        } catch (java.lang.SecurityException ex) {
+        } catch (java.net.SocketException | java.lang.SecurityException ex) {
             throw new SocketException(ex);
         }
     }
