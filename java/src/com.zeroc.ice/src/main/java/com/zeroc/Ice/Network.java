@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @hidden Public because it's used by IceDiscovery and IceLocatorDiscovery.
@@ -614,7 +615,7 @@ public final class Network {
     }
 
     // Only used for multicast.
-    private static List<InetAddress> getLocalAddresses(int protocol) {
+    private static Stream<InetAddress> getLocalAddresses(int protocol) {
         try {
             return NetworkInterface.networkInterfaces().filter(p -> {
                 try {
@@ -624,21 +625,25 @@ public final class Network {
                 }
             }).flatMap(NetworkInterface::inetAddresses).filter(addr -> {
                 return protocol == EnableBoth || isValidAddr(addr, protocol);
-            }).collect(Collectors.toList());
+            });
+            // We don't use distinct() because two addresses that compare equal may actually be (print) different, for
+            // example fe80:0:0:0:7eed:8dff:fe28:b315%enP12455s1 and fe80:0:0:0:7eed:8dff:fe28:b315%eth0 on Ubuntu.
         } catch (java.net.SocketException | java.lang.SecurityException ex) {
             throw new SocketException(ex);
         }
     }
 
     public static List<String> getInterfacesForMulticast(String intf, int protocolSupport) {
-        ArrayList<String> interfaces = new ArrayList<>();
+        List<String> interfaces = null;
         if (isWildcard(intf)) {
-            for (InetAddress addr : getLocalAddresses(protocolSupport)) {
-                interfaces.add(addr.getHostAddress());
-            }
+            // We apply distinct() here, after converting the addresses to strings.
+            interfaces = getLocalAddresses(protocolSupport)
+                .map(InetAddress::getHostAddress)
+                .distinct()
+                .collect(Collectors.toList());
         }
-        if (interfaces.isEmpty()) {
-            interfaces.add(intf);
+        if (interfaces == null || interfaces.isEmpty()) {
+            interfaces = List.of(intf);
         }
         return interfaces;
     }
