@@ -634,18 +634,15 @@ public final class Network {
     }
 
     public static List<String> getInterfacesForMulticast(String intf, int protocolSupport) {
-        List<String> interfaces = null;
         if (isWildcard(intf)) {
             // We apply distinct() here, after converting the addresses to strings.
-            interfaces = getLocalAddresses(protocolSupport)
+            return getLocalAddresses(protocolSupport)
                 .map(InetAddress::getHostAddress)
                 .distinct()
                 .collect(Collectors.toList());
+        } else {
+            return List.of(intf);
         }
-        if (interfaces == null || interfaces.isEmpty()) {
-            interfaces = List.of(intf);
-        }
-        return interfaces;
     }
 
     public static void setTcpBufSize(
