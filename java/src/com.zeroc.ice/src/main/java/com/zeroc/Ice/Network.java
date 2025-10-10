@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -615,34 +615,24 @@ public final class Network {
     }
 
     // Only used for multicast.
-    private static ArrayList<InetAddress> getLocalAddresses(int protocol) {
-        ArrayList<InetAddress> result = new ArrayList<>();
+    private static List<InetAddress> getLocalAddresses(int protocol) {
         try {
-            Stream<NetworkInterface> interfaces =
-                NetworkInterface.networkInterfaces().filter(p -> {
-                    try {
-                        return p.isUp() && p.supportsMulticast();
-                    } catch (Exception ex) {
-                        return false;
-                    }
-                });
-
-            interfaces.forEach(p -> {
-                Enumeration<InetAddress> addrs = p.getInetAddresses();
-                while (addrs.hasMoreElements()) {
-                    InetAddress addr = addrs.nextElement();
-                    if (!result.contains(addr) && !addr.isMulticastAddress() && (protocol == EnableBoth || isValidAddr(addr, protocol))) {
-                        result.add(addr);
-                        break; // need only one address per interface
-                    }
+            return NetworkInterface.networkInterfaces().filter(p -> {
+                try {
+                    // We filter-out virtual interfaces as we only want to get the IP address from the physical
+                    // interfaces. Including the virtual interfaces also causes problems on Ubuntu with IPv6.
+                    return p.isUp() && p.supportsMulticast() && !p.isVirtual();
+                } catch (java.net.SocketException ex) {
+                    return false;
                 }
-            });
+            }).flatMap(NetworkInterface::inetAddresses).filter(addr -> {
+                return protocol == EnableBoth || isValidAddr(addr, protocol);
+            }).distinct().collect(Collectors.toList());
         } catch (java.net.SocketException ex) {
             throw new SocketException(ex);
         } catch (java.lang.SecurityException ex) {
             throw new SocketException(ex);
         }
-        return result;
     }
 
     public static List<String> getInterfacesForMulticast(String intf, int protocolSupport) {

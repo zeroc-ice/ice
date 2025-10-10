@@ -211,7 +211,7 @@ final class UdpTransceiver implements Transceiver {
         return s.toString();
     }
 
-     private void logLocalAddresses(int protocol) {
+    private void logLocalAddresses(int protocol) {
         Logger logger = _instance.logger();
         logger.print("*** UDP Multicast Server Transceiver: Logging local addresses for protocol " + protocol);
 
