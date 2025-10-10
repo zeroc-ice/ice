@@ -617,17 +617,18 @@ public final class Network {
     private static ArrayList<InetAddress> getLocalAddresses(int protocol) {
         ArrayList<InetAddress> result = new ArrayList<>();
         try {
-            Enumeration<NetworkInterface> ifaces =
-                NetworkInterface.getNetworkInterfaces();
+            Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
             while (ifaces.hasMoreElements()) {
                 NetworkInterface iface = ifaces.nextElement();
-                Enumeration<InetAddress> addrs = iface.getInetAddresses();
-                while (addrs.hasMoreElements()) {
-                    InetAddress addr = addrs.nextElement();
-                    if (!result.contains(addr)
-                        && (protocol == EnableBoth || isValidAddr(addr, protocol))) {
-                        result.add(addr);
-                        break;
+
+                if (iface.isUp() && iface.supportsMulticast()) {
+                    Enumeration<InetAddress> addrs = iface.getInetAddresses();
+                    while (addrs.hasMoreElements()) {
+                        InetAddress addr = addrs.nextElement();
+                        if (!result.contains(addr) && (protocol == EnableBoth || isValidAddr(addr, protocol))) {
+                            result.add(addr);
+                            break; // need only one address per interface
+                        }
                     }
                 }
             }
