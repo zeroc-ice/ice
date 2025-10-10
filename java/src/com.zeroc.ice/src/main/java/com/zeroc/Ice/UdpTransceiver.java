@@ -4,12 +4,17 @@ package com.zeroc.Ice;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.PortUnreachableException;
 import java.net.SocketAddress;
 import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectableChannel;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.stream.Stream;
 
 final class UdpTransceiver implements Transceiver {
     @Override
@@ -191,6 +196,8 @@ final class UdpTransceiver implements Transceiver {
 
     @Override
     public String toDetailedString() {
+        logLocalAddresses(Network.getProtocolSupport(_addr));
+
         StringBuilder s = new StringBuilder(toString());
         if (_mcastAddr != null) {
             var intfs =
@@ -203,6 +210,43 @@ final class UdpTransceiver implements Transceiver {
         }
         return s.toString();
     }
+
+     private void logLocalAddresses(int protocol) {
+        Logger logger = _instance.logger();
+        logger.print("*** UDP Multicast Server Transceiver: Logging local addresses for protocol " + protocol);
+
+        ArrayList<InetAddress> result = new ArrayList<>();
+        try {
+            Stream<NetworkInterface> interfaces =
+                NetworkInterface.networkInterfaces().filter(p -> {
+                    try {
+                        return p.isUp() && p.supportsMulticast();
+                    } catch (Exception ex) {
+                        return false;
+                    }
+                });
+
+            interfaces.forEach(p -> {
+                logger.print("****** Found interface: " + p);
+                Enumeration<InetAddress> addrs = p.getInetAddresses();
+                while (addrs.hasMoreElements()) {
+                    InetAddress addr = addrs.nextElement();
+                    logger.print("********* Found address: " + addr);
+                    if (!result.contains(addr) && !addr.isMulticastAddress() && (protocol == Network.EnableBoth || Network.isValidAddr(addr, protocol))) {
+                        result.add(addr);
+                        logger.print("********* Added address: " + addr);
+                    } else {
+                        logger.print("********* Ignored address: " + addr);
+                    }
+                }
+            });
+        } catch (java.net.SocketException ex) {
+            throw new SocketException(ex);
+        } catch (java.lang.SecurityException ex) {
+            throw new SocketException(ex);
+        }
+    }
+
 
     @Override
     public ConnectionInfo getInfo(boolean incoming, String adapterName, String connectionId) {

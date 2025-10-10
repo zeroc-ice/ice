@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Stream;
 
 /**
  * @hidden Public because it's used by IceDiscovery and IceLocatorDiscovery.
@@ -617,27 +618,30 @@ public final class Network {
     private static ArrayList<InetAddress> getLocalAddresses(int protocol) {
         ArrayList<InetAddress> result = new ArrayList<>();
         try {
-            Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
-            while (ifaces.hasMoreElements()) {
-                NetworkInterface iface = ifaces.nextElement();
+            Stream<NetworkInterface> interfaces =
+                NetworkInterface.networkInterfaces().filter(p -> {
+                    try {
+                        return p.isUp() && p.supportsMulticast();
+                    } catch (Exception ex) {
+                        return false;
+                    }
+                });
 
-                if (iface.isUp() && iface.supportsMulticast()) {
-                    Enumeration<InetAddress> addrs = iface.getInetAddresses();
-                    while (addrs.hasMoreElements()) {
-                        InetAddress addr = addrs.nextElement();
-                        if (!result.contains(addr) && (protocol == EnableBoth || isValidAddr(addr, protocol))) {
-                            result.add(addr);
-                            break; // need only one address per interface
-                        }
+            interfaces.forEach(p -> {
+                Enumeration<InetAddress> addrs = p.getInetAddresses();
+                while (addrs.hasMoreElements()) {
+                    InetAddress addr = addrs.nextElement();
+                    if (!result.contains(addr) && !addr.isMulticastAddress() && (protocol == EnableBoth || isValidAddr(addr, protocol))) {
+                        result.add(addr);
+                        break; // need only one address per interface
                     }
                 }
-            }
+            });
         } catch (java.net.SocketException ex) {
             throw new SocketException(ex);
         } catch (java.lang.SecurityException ex) {
             throw new SocketException(ex);
         }
-
         return result;
     }
 
@@ -878,7 +882,7 @@ public final class Network {
         return s.toString();
     }
 
-    private static boolean isValidAddr(InetAddress addr, int protocol) {
+    static boolean isValidAddr(InetAddress addr, int protocol) {
         byte[] bytes = null;
         if (addr != null) {
             bytes = addr.getAddress();
