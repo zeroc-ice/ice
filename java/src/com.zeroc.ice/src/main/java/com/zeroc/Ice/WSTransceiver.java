@@ -823,7 +823,7 @@ final class WSTransceiver implements Transceiver {
                         throw new ProtocolException("text frames not supported");
                     }
 
-                    case OP_CONT /* Continuation frame */,  OP_DATA /* Data frame */ -> {
+                    case OP_CONT, OP_DATA /* Continuation frame or Data frame */ -> {
                         if (_instance.traceLevel() >= 2) {
                             _instance
                                 .logger()
