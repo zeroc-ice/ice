@@ -113,6 +113,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Print System Info
+        uses: ./.github/actions/system-info
+
       - name: macOS FQDN Fix
         uses: ./.github/actions/macos-fqdn
         if: runner.os == 'macOS'
