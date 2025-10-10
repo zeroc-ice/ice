@@ -1,0 +1,21 @@
+name: Print System Info
+runs:
+  using: "composite"
+  steps:
+    - name: Linux Network Info
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        ip a
+
+    - name: macOS Network Info
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        ifconfig
+
+    - name: Windows Network Info
+      if: runner.os == 'Windows'
+      shell: powershell
+      run: |
+        ipconfig /all
