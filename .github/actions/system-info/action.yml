@@ -1,4 +1,5 @@
 name: Print System Info
+description: Prints network information for the current runner OS (Linux, macOS, or Windows).
 runs:
   using: "composite"
   steps:
