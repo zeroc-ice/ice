@@ -169,6 +169,7 @@ namespace
         }
 
         struct ifaddrs* curr = ifap;
+        set<string> interfaces;
         while (curr != nullptr)
         {
             unsigned int flags = curr->ifa_flags;
@@ -180,7 +181,11 @@ namespace
                     memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in));
                     if (addr.saIn.sin_addr.s_addr != 0)
                     {
-                        result.push_back(addr);
+                        if (interfaces.find(curr->ifa_name) == interfaces.end())
+                        {
+                            result.push_back(addr);
+                            interfaces.insert(curr->ifa_name); // one address per interface name
+                        }
                     }
                 }
                 else if (curr->ifa_addr->sa_family == AF_INET6 && protocol != EnableIPv4)
@@ -189,7 +194,11 @@ namespace
                     memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in6));
                     if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
                     {
-                        result.push_back(addr);
+                        if (interfaces.find(curr->ifa_name) == interfaces.end())
+                        {
+                            result.push_back(addr);
+                            interfaces.insert(curr->ifa_name); // one address per interface name
+                        }
                     }
                 }
             }
