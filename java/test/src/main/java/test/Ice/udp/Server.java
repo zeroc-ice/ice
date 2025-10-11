@@ -21,6 +21,7 @@ public class Server extends TestHelper {
         {
             String endpoint;
             if ("1".equals(properties.getIceProperty("Ice.IPv6"))) {
+                // We don't do this on Linux because the loopback interface doesn't support multicast.
                 if (System.getProperty("os.name").contains("OS X")) {
                     endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
                 } else {

@@ -558,7 +558,7 @@ internal sealed class Network
     }
 
     // Only used for multicast.
-    internal static IPAddress[] getLocalAddresses(int protocol)
+    private static IPAddress[] getLocalAddresses(int protocol)
     {
         List<IPAddress> addresses;
         int retry = 5;
