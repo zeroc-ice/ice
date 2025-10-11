@@ -558,50 +558,21 @@ internal sealed class Network
     }
 
     // Only used for multicast.
-    internal static IPAddress[] getLocalAddresses(int protocol)
+    private static IEnumerable<IPAddress> getLocalAddresses(int protocol)
     {
-        List<IPAddress> addresses;
-        int retry = 5;
-
-    repeatGetHostByName:
         try
         {
-            addresses = new List<IPAddress>();
-            IEnumerable<NetworkInterface> nics = NetworkInterface.GetAllNetworkInterfaces().Where(
-                nic => nic.SupportsMulticast && nic.OperationalStatus == OperationalStatus.Up);
-
-            foreach (NetworkInterface ni in nics)
-            {
-                IPInterfaceProperties ipProps = ni.GetIPProperties();
-                UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
-                foreach (UnicastIPAddressInformation uni in uniColl)
-                {
-                    if ((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                       (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
-                    {
-                        if (!addresses.Contains(uni.Address))
-                        {
-                            addresses.Add(uni.Address);
-                            break; // need only one address per interface
-                        }
-                    }
-                }
-            }
-        }
-        catch (System.Net.Sockets.SocketException ex)
-        {
-            if (socketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
-            {
-                goto repeatGetHostByName;
-            }
-            throw new DNSException("0.0.0.0", ex);
+            return NetworkInterface.GetAllNetworkInterfaces()
+                .Where(p => p.SupportsMulticast && p.OperationalStatus == OperationalStatus.Up)
+                .SelectMany(p => p.GetIPProperties().UnicastAddresses)
+                .Where(uni => (uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                    (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                .Select(uni => uni.Address);
         }
         catch (System.Exception ex)
         {
-            throw new DNSException("0.0.0.0", ex);
+            throw new SyscallException("Failed to retrieve the local network interfaces.", ex);
         }
-
-        return addresses.ToArray();
     }
 
     internal static void setTcpBufSize(Socket socket, ProtocolInstance instance)
@@ -669,22 +640,13 @@ internal sealed class Network
         }
     }
 
-    internal static List<string> getInterfacesForMulticast(string intf, int protocol)
-    {
-        var interfaces = new List<string>();
-        if (isWildcard(intf, out bool ipv4Wildcard))
-        {
-            foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol))
-            {
-                interfaces.Add(a.ToString());
-            }
-        }
-        if (interfaces.Count == 0)
-        {
-            interfaces.Add(intf);
-        }
-        return interfaces;
-    }
+    internal static List<string> getInterfacesForMulticast(string intf, int protocol) =>
+        isWildcard(intf, out bool ipv4Wildcard)
+            ? getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol)
+                .Select(addr => addr.ToString())
+                .Distinct()
+                .ToList()
+            : [intf];
 
     internal static string fdToString(Socket socket, NetworkProxy proxy, EndPoint target)
     {
