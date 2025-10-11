@@ -134,7 +134,7 @@ namespace
             {
                 for (PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != nullptr; aa = aa->Next)
                 {
-                    if (aa->OperStatus != IfOperStatusUp)
+                    if (aa->OperStatus != IfOperStatusUp || (aa->Flags & IP_ADAPTER_NO_MULTICAST) != 0)
                     {
                         continue;
                     }
@@ -147,7 +147,6 @@ namespace
                             if (addr.saIn.sin_addr.s_addr != 0)
                             {
                                 result.push_back(addr);
-                                break; // a single address per interface is sufficient
                             }
                         }
                         else if (addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
@@ -155,7 +154,6 @@ namespace
                             if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
                             {
                                 result.push_back(addr);
-                                break; // a single address per interface is sufficient
                             }
                         }
                     }
