@@ -31,7 +31,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @hidden Public because it's used by IceDiscovery and IceLocatorDiscovery.
@@ -615,28 +614,41 @@ public final class Network {
     }
 
     // Only used for multicast.
-    private static Stream<InetAddress> getLocalAddresses(int protocol) {
+    private static List<InetAddress> getLocalAddresses(int protocol) {
+        // We can't use NetworkInterface.networkInterfaces or NetworkInterface.inetAddresses because they are not
+        // available on Android.
+
+        ArrayList<InetAddress> result = new ArrayList<>();
+
         try {
-            return NetworkInterface.networkInterfaces().filter(p -> {
+            NetworkInterface.getNetworkInterfaces().asIterator().forEachRemaining(p -> {
                 try {
-                    return p.isUp() && p.supportsMulticast();
+                    if (p.isUp() && p.supportsMulticast()) {
+                        p.getInetAddresses().asIterator().forEachRemaining(addr -> {
+                            if (protocol == EnableBoth || isValidAddr(addr, protocol)) {
+                                // We don't check for duplicates here because two addresses that compare equal may
+                                // actually be (print) different, for example fe80:0:0:0:7eed:8dff:fe28:b315%enP12455s1
+                                // and fe80:0:0:0:7eed:8dff:fe28:b315%eth0 on Ubuntu.
+                                result.add(addr);
+                            }
+                        });
+                    }
                 } catch (java.net.SocketException ex) {
-                    return false;
+                    // Ignore and continue
                 }
-            }).flatMap(NetworkInterface::inetAddresses).filter(addr -> {
-                return protocol == EnableBoth || isValidAddr(addr, protocol);
             });
-            // We don't use distinct() because two addresses that compare equal may actually be (print) different, for
-            // example fe80:0:0:0:7eed:8dff:fe28:b315%enP12455s1 and fe80:0:0:0:7eed:8dff:fe28:b315%eth0 on Ubuntu.
         } catch (java.net.SocketException | java.lang.SecurityException ex) {
             throw new SocketException(ex);
         }
+
+        return result;
     }
 
     public static List<String> getInterfacesForMulticast(String intf, int protocolSupport) {
         if (isWildcard(intf)) {
             // We apply distinct() here, after converting the addresses to strings.
             return getLocalAddresses(protocolSupport)
+                .stream()
                 .map(InetAddress::getHostAddress)
                 .distinct()
                 .collect(Collectors.toList());
