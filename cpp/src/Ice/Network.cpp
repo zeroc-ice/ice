@@ -175,8 +175,7 @@ namespace
             // We always include the loopback interface (provided it's up), even if it doesn't support multicast.
             // This is required for the DataStorm tests on Ubuntu 24.04.
             unsigned int flags = curr->ifa_flags;
-            if ((flags & IFF_UP) != 0 &&
-                ((flags & IFF_MULTICAST) != 0 || (flags & IFF_LOOPBACK) != 0) &&
+            if ((flags & IFF_UP) != 0 && ((flags & IFF_MULTICAST) != 0 || (flags & IFF_LOOPBACK) != 0) &&
                 curr->ifa_addr)
             {
                 if (curr->ifa_addr->sa_family == AF_INET && protocol != EnableIPv6)
