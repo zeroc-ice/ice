@@ -134,26 +134,25 @@ namespace
             {
                 for (PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != nullptr; aa = aa->Next)
                 {
-                    if (aa->OperStatus != IfOperStatusUp || (aa->Flags & IP_ADAPTER_NO_MULTICAST) != 0)
+                    if (aa->OperStatus == IfOperStatusUp && (aa->Flags & IP_ADAPTER_NO_MULTICAST) == 0)
                     {
-                        continue;
-                    }
-                    for (PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != nullptr; ua = ua->Next)
-                    {
-                        Address addr;
-                        memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
-                        if (addr.saStorage.ss_family == AF_INET && protocol != EnableIPv6)
+                        for (PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != nullptr; ua = ua->Next)
                         {
-                            if (addr.saIn.sin_addr.s_addr != 0)
+                            Address addr;
+                            memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
+                            if (addr.saStorage.ss_family == AF_INET && protocol != EnableIPv6)
                             {
-                                result.push_back(addr);
+                                if (addr.saIn.sin_addr.s_addr != 0)
+                                {
+                                    result.push_back(addr);
+                                }
                             }
-                        }
-                        else if (addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
-                        {
-                            if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
+                            else if (addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
                             {
-                                result.push_back(addr);
+                                if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
+                                {
+                                    result.push_back(addr);
+                                }
                             }
                         }
                     }
