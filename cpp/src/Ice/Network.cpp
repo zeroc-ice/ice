@@ -145,6 +145,7 @@ namespace
                                 if (addr.saIn.sin_addr.s_addr != 0)
                                 {
                                     result.push_back(addr);
+                                    break; // We return at most one address per interface.
                                 }
                             }
                             else if (addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
@@ -152,6 +153,7 @@ namespace
                                 if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
                                 {
                                     result.push_back(addr);
+                                    break; // We return at most one address per interface.
                                 }
                             }
                         }
@@ -202,7 +204,6 @@ namespace
                     }
                 }
             }
-
             curr = curr->ifa_next;
         }
 

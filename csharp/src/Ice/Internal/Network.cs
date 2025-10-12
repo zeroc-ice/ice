@@ -562,16 +562,28 @@ internal sealed class Network
     {
         try
         {
-            return NetworkInterface.GetAllNetworkInterfaces()
-                .Where(p => p.SupportsMulticast && p.OperationalStatus == OperationalStatus.Up)
-                .SelectMany(p => p.GetIPProperties().UnicastAddresses)
-                .Where(uni => (uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                    (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
-                .Select(uni => uni.Address);
+            var result = new List<IPAddress>();
+            foreach (NetworkInterface p in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (p.SupportsMulticast && p.OperationalStatus == OperationalStatus.Up)
+                {
+                    IPInterfaceProperties ipProps = p.GetIPProperties();
+                    foreach (UnicastIPAddressInformation uni in ipProps.UnicastAddresses)
+                    {
+                        if ((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                            (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                        {
+                            result.Add(uni.Address);
+                            break; // We return at most one address per interface.
+                        }
+                    }
+                }
+            }
+            return result;
         }
         catch (System.Exception ex)
         {
-            throw new SyscallException("Failed to retrieve the local network interfaces.", ex);
+            throw new SyscallException("Failed to enumerate the local network interfaces.", ex);
         }
     }
 
