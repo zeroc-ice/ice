@@ -626,14 +626,16 @@ public final class Network {
                     // TODO: figure out why we need the isAndroid() check here. Without it, the Ice/udp test fails with
                     // IPv6.
                     if (Util.isAndroid() || (p.isUp() && p.supportsMulticast())) {
-                        p.getInetAddresses().asIterator().forEachRemaining(addr -> {
+                        for (var it = p.getInetAddresses().asIterator(); it.hasNext(); ) {
+                            InetAddress addr = it.next();
                             if (protocol == EnableBoth || isValidAddr(addr, protocol)) {
-                                // We don't check for duplicates here because two addresses that compare equal may
-                                // actually be (print) different, for example fe80:0:0:0:7eed:8dff:fe28:b315%enP12455s1
-                                // and fe80:0:0:0:7eed:8dff:fe28:b315%eth0 on Ubuntu.
+                                // Two addresses that compare equal may actually use different interfaces, for example
+                                // fe80:0:0:0:7eed:8dff:fe28:b315%enP12455s1 and fe80:0:0:0:7eed:8dff:fe28:b315%eth0 on
+                                // Ubuntu.
                                 result.add(addr);
+                                break; // we add at most one address per interface
                             }
-                        });
+                        }
                     }
                 } catch (java.net.SocketException ex) {
                     // Ignore and continue
