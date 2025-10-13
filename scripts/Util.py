@@ -2623,7 +2623,6 @@ class AndroidProcessController(RemoteProcessController):
                     f.write(logCatResult.stdout)
             except Exception as ex:
                 print(f"failed to get logcat output: {ex}")
-                pass
 
         try:
             run("{} shell pm uninstall com.zeroc.testcontroller".format(self.adb()))
