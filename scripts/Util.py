@@ -1312,7 +1312,6 @@ class Process(Runnable):
     def stop(self, current, waitSuccess=False, exitstatus=0):
         if self in current.processes:
             process = current.processes[self]
-            print(f"stopping {process}: {self}")
             try:
                 # Wait for the process to exit successfully by itself.
                 if not process.isTerminated() and waitSuccess:
@@ -2288,8 +2287,8 @@ class RemoteProcessController(ProcessController):
         def terminate(self):
             self.output = self.proxy.terminate().strip()
             self.terminated = True
-            # if self.stdout and self.output:
-            print(self.output)
+            if self.stdout and self.output:
+                print(self.output)
 
         def teardown(self, current, success):
             pass
