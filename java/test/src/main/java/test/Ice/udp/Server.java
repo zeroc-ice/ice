@@ -52,7 +52,6 @@ public class Server extends TestHelper {
             } else {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(getTestPort(10));
-
             }
             properties.setProperty("McastTestAdapter.Endpoints", endpoint.toString());
 
