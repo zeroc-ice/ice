@@ -558,7 +558,7 @@ internal sealed class Network
     }
 
     // Only used for multicast.
-    private static IPAddress[] getLocalAddresses(int protocol)
+    private static IEnumerable<IPAddress> getLocalAddresses(int protocol)
     {
         try
         {
