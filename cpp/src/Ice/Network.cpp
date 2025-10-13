@@ -142,7 +142,7 @@ namespace
                             memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
                             if (addr.saStorage.ss_family == AF_INET && protocol != EnableIPv6)
                             {
-                                if (addr.saIn.sin_addr.s_addr != 0)
+                                if (addr.saIn.sin_addr.s_addr != INADDR_ANY)
                                 {
                                     result.push_back(addr);
                                     break; // We return at most one address per interface.
@@ -181,26 +181,20 @@ namespace
                 {
                     Address addr;
                     memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in));
-                    if (addr.saIn.sin_addr.s_addr != 0)
+                    // one address per interface name
+                    if (addr.saIn.sin_addr.s_addr != INADDR_ANY && interfaces.insert(curr->ifa_name).second)
                     {
-                        if (interfaces.find(curr->ifa_name) == interfaces.end())
-                        {
-                            result.push_back(addr);
-                            interfaces.insert(curr->ifa_name); // one address per interface name
-                        }
+                        result.push_back(addr);
                     }
                 }
                 else if (curr->ifa_addr->sa_family == AF_INET6 && protocol != EnableIPv4)
                 {
                     Address addr;
                     memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in6));
-                    if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
+                    // one address per interface name
+                    if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) && interfaces.insert(curr->ifa_name).second)
                     {
-                        if (interfaces.find(curr->ifa_name) == interfaces.end())
-                        {
-                            result.push_back(addr);
-                            interfaces.insert(curr->ifa_name); // one address per interface name
-                        }
+                        result.push_back(addr);
                     }
                 }
             }
