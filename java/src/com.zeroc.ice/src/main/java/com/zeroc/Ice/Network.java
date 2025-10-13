@@ -45,23 +45,27 @@ public final class Network {
     private static Pattern IPV6_PATTERN;
     private static final String ipv4Pattern =
         "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
-    private static final String ipv6Pattern =
-        "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-"
-            + "fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1"
-            + ",4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,"
-            + "4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-"
-            + "F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
-            + "\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}"
-            + "[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))";
+    private static final String ipv6Pattern = "("
+        + "([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|"
+        + "([0-9a-fA-F]{1,4}:){1,7}:|"
+        + "([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|"
+        + "([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|"
+        + "([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|"
+        + "([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|"
+        + "([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|"
+        + "[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|"
+        + ":((:[0-9a-fA-F]{1,4}){1,7}|:)|"
+        + "fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|"
+        + "::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}"
+        + "(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|"
+        + "([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}"
+        + "(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
+        + ")";
 
     static {
         try {
-            IPV4_PATTERN =
-                Pattern.compile(
-                    ipv4Pattern, Pattern.CASE_INSENSITIVE);
-            IPV6_PATTERN =
-                Pattern.compile(
-                    ipv6Pattern, Pattern.CASE_INSENSITIVE);
+            IPV4_PATTERN = Pattern.compile(ipv4Pattern, Pattern.CASE_INSENSITIVE);
+            IPV6_PATTERN = Pattern.compile(ipv6Pattern, Pattern.CASE_INSENSITIVE);
         } catch (PatternSyntaxException ex) {
             assert false;
         }
@@ -77,17 +81,12 @@ public final class Network {
     }
 
     public static boolean connectionRefused(ConnectException ex) {
-        //
-        // The JDK raises a generic ConnectException when the server
-        // actively refuses a connection. Unfortunately, our only choice is to search the exception
-        // message for distinguishing phrases.
-        //
+        // The JDK raises a generic ConnectException when the server actively refuses a connection.
+        // Unfortunately, our only choice is to search the exception message for distinguishing phrases.
 
         String msg = ex.getMessage();
-
         if (msg != null) {
             msg = msg.toLowerCase();
-
             return msg.indexOf("connection refused") != -1;
         }
 
@@ -130,12 +129,10 @@ public final class Network {
         }
     }
 
-    public static DatagramChannel createUdpSocket(
-            InetSocketAddress addr) {
+    public static DatagramChannel createUdpSocket(InetSocketAddress addr) {
         try {
             if (addr.getAddress().isMulticastAddress()) {
-                var familyStr =
-                    addr.getAddress() instanceof Inet6Address ? "INET6" : "INET";
+                var familyStr = addr.getAddress() instanceof Inet6Address ? "INET6" : "INET";
                 var family = StandardProtocolFamily.valueOf(familyStr);
                 return DatagramChannel.open(family);
             } else {
@@ -163,9 +160,7 @@ public final class Network {
             }
         } catch (Exception ex) {}
         try {
-            iface =
-                NetworkInterface.getByInetAddress(
-                    InetAddress.getByName(intf));
+            iface = NetworkInterface.getByInetAddress(InetAddress.getByName(intf));
             if (iface != null) {
                 return iface;
             }
@@ -181,8 +176,7 @@ public final class Network {
         }
     }
 
-    public static void setMcastGroup(
-            MulticastSocket fd, InetSocketAddress group, String intf) {
+    public static void setMcastGroup(MulticastSocket fd, InetSocketAddress group, String intf) {
         try {
             Set<NetworkInterface> interfaces = new HashSet<>();
             for (String address : getInterfacesForMulticast(intf, getProtocolSupport(group))) {
@@ -197,8 +191,7 @@ public final class Network {
         }
     }
 
-    public static void setMcastGroup(
-            DatagramChannel fd, InetSocketAddress group, String intf) {
+    public static void setMcastGroup(DatagramChannel fd, InetSocketAddress group, String intf) {
         try {
             Set<NetworkInterface> interfaces = new HashSet<>();
             for (String address : getInterfacesForMulticast(intf, getProtocolSupport(group))) {
@@ -248,10 +241,7 @@ public final class Network {
         }
     }
 
-    public static InetSocketAddress doBind(
-            ServerSocketChannel fd,
-            InetSocketAddress addr,
-            int backlog) {
+    public static InetSocketAddress doBind(ServerSocketChannel fd, InetSocketAddress addr, int backlog) {
         try {
             ServerSocket sock = fd.socket();
             sock.bind(addr, backlog);
@@ -262,8 +252,7 @@ public final class Network {
         }
     }
 
-    public static InetSocketAddress doBind(
-            DatagramChannel fd, InetSocketAddress addr) {
+    public static InetSocketAddress doBind(DatagramChannel fd, InetSocketAddress addr) {
         try {
             DatagramSocket sock = fd.socket();
             sock.bind(addr);
@@ -274,8 +263,7 @@ public final class Network {
         }
     }
 
-    public static SocketChannel doAccept(
-            ServerSocketChannel socketChannel) {
+    public static SocketChannel doAccept(ServerSocketChannel socketChannel) {
         SocketChannel fd = null;
         while (true) {
             try {
@@ -297,10 +285,7 @@ public final class Network {
         return fd;
     }
 
-    public static boolean doConnect(
-            SocketChannel fd,
-            InetSocketAddress addr,
-            InetSocketAddress sourceAddr) {
+    public static boolean doConnect(SocketChannel fd, InetSocketAddress addr, InetSocketAddress sourceAddr) {
         if (sourceAddr != null) {
             try {
                 fd.bind(sourceAddr);
@@ -377,10 +362,7 @@ public final class Network {
         }
     }
 
-    public static void doConnect(
-            DatagramChannel fd,
-            InetSocketAddress addr,
-            InetSocketAddress sourceAddr) {
+    public static void doConnect(DatagramChannel fd, InetSocketAddress addr, InetSocketAddress sourceAddr) {
         if (sourceAddr != null) {
             doBind(fd, sourceAddr);
         }
@@ -412,15 +394,13 @@ public final class Network {
     }
 
     public static int getSendBufferSize(SocketChannel fd) {
-        int size;
         try {
             Socket socket = fd.socket();
-            size = socket.getSendBufferSize();
+            return socket.getSendBufferSize();
         } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
-        return size;
     }
 
     public static void setRecvBufferSize(SocketChannel fd, int size) {
@@ -434,15 +414,13 @@ public final class Network {
     }
 
     public static int getRecvBufferSize(SocketChannel fd) {
-        int size;
         try {
             Socket socket = fd.socket();
-            size = socket.getReceiveBufferSize();
+            return socket.getReceiveBufferSize();
         } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
-        return size;
     }
 
     public static void setRecvBufferSize(ServerSocketChannel fd, int size) {
@@ -456,15 +434,13 @@ public final class Network {
     }
 
     public static int getRecvBufferSize(ServerSocketChannel fd) {
-        int size;
         try {
             ServerSocket socket = fd.socket();
-            size = socket.getReceiveBufferSize();
+            return socket.getReceiveBufferSize();
         } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
-        return size;
     }
 
     public static void setSendBufferSize(DatagramChannel fd, int size) {
@@ -478,15 +454,13 @@ public final class Network {
     }
 
     public static int getSendBufferSize(DatagramChannel fd) {
-        int size;
         try {
             DatagramSocket socket = fd.socket();
-            size = socket.getSendBufferSize();
+            return socket.getSendBufferSize();
         } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
-        return size;
     }
 
     public static void setRecvBufferSize(DatagramChannel fd, int size) {
@@ -500,31 +474,26 @@ public final class Network {
     }
 
     public static int getRecvBufferSize(DatagramChannel fd) {
-        int size;
         try {
             DatagramSocket socket = fd.socket();
-            size = socket.getReceiveBufferSize();
+            return socket.getReceiveBufferSize();
         } catch (IOException ex) {
             closeSocketNoThrow(fd);
             throw new SocketException(ex);
         }
-        return size;
     }
 
     public static int getProtocolSupport(InetSocketAddress addr) {
         return addr.getAddress().getAddress().length == 4 ? Network.EnableIPv4 : Network.EnableIPv6;
     }
 
-    public static InetSocketAddress getAddressForServer(
-            String host, int port, int protocol, boolean preferIPv6) {
+    public static InetSocketAddress getAddressForServer(String host, int port, int protocol, boolean preferIPv6) {
         if (host == null || host.isEmpty()) {
             try {
                 if (protocol != EnableIPv4) {
-                    return new InetSocketAddress(
-                        InetAddress.getByName("::0"), port);
+                    return new InetSocketAddress(InetAddress.getByName("::0"), port);
                 } else {
-                    return new InetSocketAddress(
-                        InetAddress.getByName("0.0.0.0"), port);
+                    return new InetSocketAddress(InetAddress.getByName("0.0.0.0"), port);
                 }
             } catch (UnknownHostException ex) {
                 assert false;
@@ -536,8 +505,7 @@ public final class Network {
         return getAddresses(host, port, protocol, preferIPv6, true).get(0);
     }
 
-    public static int compareAddress(
-            InetSocketAddress addr1, InetSocketAddress addr2) {
+    public static int compareAddress(InetSocketAddress addr1, InetSocketAddress addr2) {
         if (addr1 == null) {
             return addr2 == null ? 0 : -1;
         } else if (addr2 == null) {
@@ -567,8 +535,7 @@ public final class Network {
 
             List<InetSocketAddress> addrs = new ArrayList<>();
             try {
-                addrs.add(
-                    new InetSocketAddress(InetAddress.getByName(host), port));
+                addrs.add(new InetSocketAddress(InetAddress.getByName(host), port));
             } catch (UnknownHostException ex) {
                 assert false;
             }
@@ -603,9 +570,7 @@ public final class Network {
             throw new SocketException(ex);
         }
 
-        //
         // No Inet4Address/Inet6Address available.
-        //
         if (addresses.isEmpty()) {
             throw new DNSException(host);
         }
@@ -660,58 +625,39 @@ public final class Network {
         }
     }
 
-    public static void setTcpBufSize(
-            SocketChannel socket, ProtocolInstance instance) {
-        //
-        // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system
-        // defaults.
-        //
+    public static void setTcpBufSize(SocketChannel socket, ProtocolInstance instance) {
+        // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
         int dfltBufSize = 0;
         if (System.getProperty("os.name").startsWith("Windows")) {
             dfltBufSize = 128 * 1024;
         }
 
-        int rcvSize =
-            instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
-        int sndSize =
-            instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+        int rcvSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+        int sndSize = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
 
         setTcpBufSize(socket, rcvSize, sndSize, instance);
     }
 
-    public static void setTcpBufSize(
-            SocketChannel socket,
-            int rcvSize,
-            int sndSize,
-            ProtocolInstance instance) {
+    public static void setTcpBufSize(SocketChannel socket, int rcvSize, int sndSize, ProtocolInstance instance) {
         if (rcvSize > 0) {
-            //
             // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
             // value. Then read the size back to get the size that was actually set.
-            //
             setRecvBufferSize(socket, rcvSize);
             int size = getRecvBufferSize(socket);
             if (size < rcvSize) {
-                // Warn if the size that was set is less than the requested size and we have not
-                // already warned.
+                // Warn if the size that was set is less than the requested size and we have not already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(TCPEndpointType.value);
                 if (!winfo.rcvWarn || rcvSize != winfo.rcvSize) {
-                    instance.logger()
-                        .warning(
-                            "TCP receive buffer size: requested size of "
-                                + rcvSize
-                                + " adjusted to "
-                                + size);
+                    String msg = "TCP receive buffer size: requested size of " + rcvSize + " adjusted to " + size;
+                    instance.logger().warning(msg);
                     instance.setRcvBufSizeWarn(TCPEndpointType.value, rcvSize);
                 }
             }
         }
 
         if (sndSize > 0) {
-            //
             // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
             // value. Then read the size back to get the size that was actually set.
-            //
             setSendBufferSize(socket, sndSize);
             int size = getSendBufferSize(socket);
             if (size < sndSize) {
@@ -719,62 +665,41 @@ public final class Network {
                 // already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(TCPEndpointType.value);
                 if (!winfo.sndWarn || sndSize != winfo.sndSize) {
-                    instance.logger()
-                        .warning(
-                            "TCP send buffer size: requested size of "
-                                + sndSize
-                                + " adjusted to "
-                                + size);
+                    String msg = "TCP send buffer size: requested size of " + sndSize + " adjusted to " + size;
+                    instance.logger().warning(msg);
                     instance.setSndBufSizeWarn(TCPEndpointType.value, sndSize);
                 }
             }
         }
     }
 
-    public static void setTcpBufSize(
-            ServerSocketChannel socket, ProtocolInstance instance) {
-        //
-        // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system
-        // defaults.
-        //
+    public static void setTcpBufSize(ServerSocketChannel socket, ProtocolInstance instance) {
+        // By default, on Windows we use a 128KB buffer size. On Unix platforms, we use the system defaults.
         int dfltBufSize = 0;
         if (System.getProperty("os.name").startsWith("Windows")) {
             dfltBufSize = 128 * 1024;
         }
 
-        //
         // Get property for buffer size.
-        //
-        int sizeRequested =
-            instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+        int sizeRequested = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
         if (sizeRequested > 0) {
-            //
             // Try to set the buffer size. The kernel will silently adjust the size to an acceptable
             // value. Then read the size back to get the size that was actually set.
-            //
             setRecvBufferSize(socket, sizeRequested);
             int size = getRecvBufferSize(socket);
             if (size < sizeRequested) {
-                // Warn if the size that was set is less than the requested size and we have not
-                // already warned.
+                // Warn if the size that was set is less than the requested size and we have not already warned.
                 BufSizeWarnInfo winfo = instance.getBufSizeWarn(TCPEndpointType.value);
                 if (!winfo.rcvWarn || sizeRequested != winfo.rcvSize) {
-                    instance.logger()
-                        .warning(
-                            "TCP receive buffer size: requested size of "
-                                + sizeRequested
-                                + " adjusted to "
-                                + size);
+                    String msg = "TCP receive buffer size: requested size of " + sizeRequested + " adjusted to " + size;
+                    instance.logger().warning(msg);
                     instance.setRcvBufSizeWarn(TCPEndpointType.value, sizeRequested);
                 }
             }
         }
     }
 
-    public static String fdToString(
-            SelectableChannel fd,
-            NetworkProxy proxy,
-            InetSocketAddress target) {
+    public static String fdToString(SelectableChannel fd, NetworkProxy proxy, InetSocketAddress target) {
         if (fd == null) {
             return "<closed>";
         }
@@ -802,30 +727,7 @@ public final class Network {
     }
 
     public static String fdToString(SelectableChannel fd) {
-        if (fd == null) {
-            return "<closed>";
-        }
-
-        InetAddress localAddr = null, remoteAddr = null;
-        int localPort = -1, remotePort = -1;
-
-        if (fd instanceof SocketChannel) {
-            Socket socket = ((SocketChannel) fd).socket();
-            localAddr = socket.getLocalAddress();
-            localPort = socket.getLocalPort();
-            remoteAddr = socket.getInetAddress();
-            remotePort = socket.getPort();
-        } else if (fd instanceof DatagramChannel) {
-            DatagramSocket socket = ((DatagramChannel) fd).socket();
-            localAddr = socket.getLocalAddress();
-            localPort = socket.getLocalPort();
-            remoteAddr = socket.getInetAddress();
-            remotePort = socket.getPort();
-        } else {
-            assert false;
-        }
-
-        return addressesToString(localAddr, localPort, remoteAddr, remotePort);
+        return fdToString(fd, null, null);
     }
 
     public static String addressesToString(
@@ -866,14 +768,6 @@ public final class Network {
         }
 
         return s.toString();
-    }
-
-    public static String addressesToString(
-            InetAddress localAddr,
-            int localPort,
-            InetAddress remoteAddr,
-            int remotePort) {
-        return addressesToString(localAddr, localPort, remoteAddr, remotePort, null, null);
     }
 
     public static String addrToString(InetSocketAddress addr) {
@@ -966,8 +860,7 @@ public final class Network {
         public int compare(InetSocketAddress lhs, InetSocketAddress rhs) {
             if (lhs.getAddress().getAddress().length < rhs.getAddress().getAddress().length) {
                 return _ipv6 ? 1 : -1;
-            } else if (lhs.getAddress().getAddress().length
-                > rhs.getAddress().getAddress().length) {
+            } else if (lhs.getAddress().getAddress().length > rhs.getAddress().getAddress().length) {
                 return _ipv6 ? -1 : 1;
             } else {
                 return 0;
