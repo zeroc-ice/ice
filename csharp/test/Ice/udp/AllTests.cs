@@ -148,10 +148,20 @@ public class AllTests : global::Test.AllTests
         if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
         {
             endpoint.Append("udp -h \"ff15::1:1\"");
+            // Use loopback on macOS to run successfully on GitHub runners.
+            if (Ice.Internal.AssemblyUtil.isMacOS)
+            {
+                endpoint.Append(" --interface \"::1\"");
+            }
         }
         else
         {
             endpoint.Append("udp -h 239.255.1.1");
+            // Use loopback on macOS to run successfully on GitHub runners.
+            if (Ice.Internal.AssemblyUtil.isMacOS)
+            {
+                endpoint.Append(" --interface 127.0.0.1");
+            }
         }
         endpoint.Append(" -p ");
         endpoint.Append(helper.getTestPort(10));

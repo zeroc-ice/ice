@@ -109,9 +109,9 @@ public func allTests(_ helper: TestHelper) async throws {
     output.write("testing udp multicast... ")
     var endpoint = "udp -h "
     if communicator.getProperties().getIceProperty("Ice.IPv6") == "1" {
-        endpoint += "\"ff15::1:1\""
+        endpoint += "\"ff15::1:1\" --interface \"::1\""
     } else {
-        endpoint += "239.255.1.1"
+        endpoint += "239.255.1.1 --interface 127.0.0.1"
     }
     endpoint += " -p "
     endpoint += "\(helper.getTestPort(num: 10))"

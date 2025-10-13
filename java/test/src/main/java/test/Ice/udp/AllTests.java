@@ -136,9 +136,17 @@ public class AllTests {
             if ("1".equals(communicator.getProperties().getIceProperty("Ice.IPv6"))) {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
+                if (System.getProperty("os.name").contains("OS X")) {
+                    // Use loopback on macOS to run successfully on GitHub runners.
+                    endpoint.append(" --interface \"::1\"");
+                }
             } else {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
+                if (System.getProperty("os.name").contains("OS X")) {
+                    // Use loopback on macOS to run successfully on GitHub runners.
+                    endpoint.append(" --interface 127.0.0.1");
+                }
             }
             base = communicator.stringToProxy("test -d:" + endpoint.toString());
             TestIntfPrx objMcast = TestIntfPrx.uncheckedCast(base);
