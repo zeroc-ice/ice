@@ -558,50 +558,33 @@ internal sealed class Network
     }
 
     // Only used for multicast.
-    private static IPAddress[] getLocalAddresses(int protocol)
+    private static IEnumerable<IPAddress> getLocalAddresses(int protocol)
     {
-        List<IPAddress> addresses;
-        int retry = 5;
-
-    repeatGetHostByName:
         try
         {
-            addresses = new List<IPAddress>();
-            IEnumerable<NetworkInterface> nics = NetworkInterface.GetAllNetworkInterfaces().Where(
-                nic => nic.SupportsMulticast && nic.OperationalStatus == OperationalStatus.Up);
-
-            foreach (NetworkInterface ni in nics)
+            var result = new List<IPAddress>();
+            foreach (NetworkInterface p in NetworkInterface.GetAllNetworkInterfaces())
             {
-                IPInterfaceProperties ipProps = ni.GetIPProperties();
-                UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
-                foreach (UnicastIPAddressInformation uni in uniColl)
+                if (p.SupportsMulticast && p.OperationalStatus == OperationalStatus.Up)
                 {
-                    if ((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                       (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                    IPInterfaceProperties ipProps = p.GetIPProperties();
+                    foreach (UnicastIPAddressInformation uni in ipProps.UnicastAddresses)
                     {
-                        if (!addresses.Contains(uni.Address))
+                        if ((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                            (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                         {
-                            addresses.Add(uni.Address);
-                            break; // need only one address per interface
+                            result.Add(uni.Address);
+                            break; // We return at most one address per interface.
                         }
                     }
                 }
             }
-        }
-        catch (System.Net.Sockets.SocketException ex)
-        {
-            if (socketErrorCode(ex) == SocketError.TryAgain && --retry >= 0)
-            {
-                goto repeatGetHostByName;
-            }
-            throw new DNSException("0.0.0.0", ex);
+            return result;
         }
         catch (System.Exception ex)
         {
-            throw new DNSException("0.0.0.0", ex);
+            throw new SyscallException("Failed to enumerate the local network interfaces.", ex);
         }
-
-        return addresses.ToArray();
     }
 
     internal static void setTcpBufSize(Socket socket, ProtocolInstance instance)
@@ -669,22 +652,13 @@ internal sealed class Network
         }
     }
 
-    internal static List<string> getInterfacesForMulticast(string intf, int protocol)
-    {
-        var interfaces = new List<string>();
-        if (isWildcard(intf, out bool ipv4Wildcard))
-        {
-            foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol))
-            {
-                interfaces.Add(a.ToString());
-            }
-        }
-        if (interfaces.Count == 0)
-        {
-            interfaces.Add(intf);
-        }
-        return interfaces;
-    }
+    internal static List<string> getInterfacesForMulticast(string intf, int protocol) =>
+        isWildcard(intf, out bool ipv4Wildcard)
+            ? getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol)
+                .Select(addr => addr.ToString())
+                .Distinct()
+                .ToList()
+            : [intf];
 
     internal static string fdToString(Socket socket, NetworkProxy proxy, EndPoint target)
     {

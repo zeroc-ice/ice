@@ -36,12 +36,6 @@ using namespace IceInternal;
 
 namespace
 {
-    struct AddressCompare
-    {
-    public:
-        bool operator()(const Address& lhs, const Address& rhs) const { return compareAddress(lhs, rhs) < 0; }
-    };
-
     void sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, bool preferIPv6)
     {
         if (protocol == EnableBoth)
@@ -140,28 +134,27 @@ namespace
             {
                 for (PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != nullptr; aa = aa->Next)
                 {
-                    if (aa->OperStatus != IfOperStatusUp)
+                    if (aa->OperStatus == IfOperStatusUp && (aa->Flags & IP_ADAPTER_NO_MULTICAST) == 0)
                     {
-                        continue;
-                    }
-                    for (PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != nullptr; ua = ua->Next)
-                    {
-                        Address addr;
-                        memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
-                        if (addr.saStorage.ss_family == AF_INET && protocol != EnableIPv6)
+                        for (PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != nullptr; ua = ua->Next)
                         {
-                            if (addr.saIn.sin_addr.s_addr != 0)
+                            Address addr;
+                            memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
+                            if (addr.saStorage.ss_family == AF_INET && protocol != EnableIPv6)
                             {
-                                result.push_back(addr);
-                                break; // a single address per interface is sufficient
+                                if (addr.saIn.sin_addr.s_addr != INADDR_ANY)
+                                {
+                                    result.push_back(addr);
+                                    break; // We return at most one address per interface.
+                                }
                             }
-                        }
-                        else if (addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
-                        {
-                            if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
+                            else if (addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
                             {
-                                result.push_back(addr);
-                                break; // a single address per interface is sufficient
+                                if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
+                                {
+                                    result.push_back(addr);
+                                    break; // We return at most one address per interface.
+                                }
                             }
                         }
                     }
@@ -181,56 +174,35 @@ namespace
         set<string> interfaces;
         while (curr != nullptr)
         {
-            if (curr->ifa_addr)
+            unsigned int flags = curr->ifa_flags;
+            if ((flags & IFF_UP) != 0 && (flags & IFF_MULTICAST) != 0 && curr->ifa_addr)
             {
                 if (curr->ifa_addr->sa_family == AF_INET && protocol != EnableIPv6)
                 {
                     Address addr;
                     memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in));
-                    if (addr.saIn.sin_addr.s_addr != 0)
+                    // one address per interface name
+                    if (addr.saIn.sin_addr.s_addr != INADDR_ANY && interfaces.insert(curr->ifa_name).second)
                     {
-                        if (interfaces.find(curr->ifa_name) == interfaces.end())
-                        {
-                            result.push_back(addr);
-                            interfaces.insert(curr->ifa_name);
-                        }
+                        result.push_back(addr);
                     }
                 }
                 else if (curr->ifa_addr->sa_family == AF_INET6 && protocol != EnableIPv4)
                 {
                     Address addr;
                     memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in6));
-                    if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
+                    // one address per interface name
+                    if (!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) && interfaces.insert(curr->ifa_name).second)
                     {
-                        if (interfaces.find(curr->ifa_name) == interfaces.end())
-                        {
-                            result.push_back(addr);
-                            interfaces.insert(curr->ifa_name);
-                        }
+                        result.push_back(addr);
                     }
                 }
             }
-
             curr = curr->ifa_next;
         }
 
         ::freeifaddrs(ifap);
 #endif
-
-        //
-        // Remove potential duplicates from the result.
-        //
-        set<Address, AddressCompare> seen;
-        vector<Address> tmp;
-        tmp.swap(result);
-        for (const auto& p : tmp)
-        {
-            if (seen.find(p) == seen.end())
-            {
-                result.push_back(p);
-                seen.insert(p);
-            }
-        }
         return result;
     }
 
@@ -999,21 +971,27 @@ IceInternal::isAddressValid(const Address& addr)
 vector<string>
 IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport protocolSupport)
 {
-    vector<string> interfaces;
     bool ipv4Wildcard = false;
     if (isWildcard(intf, protocolSupport, ipv4Wildcard))
     {
+        vector<string> interfaces;
         vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport);
         for (const auto& addr : addrs)
         {
-            interfaces.push_back(inetAddrToString(addr)); // We keep link local addresses for multicast
+            string addrStr = inetAddrToString(addr);
+            // Suppress duplicates.
+            if (find(interfaces.begin(), interfaces.end(), addrStr) == interfaces.end())
+            {
+                interfaces.push_back(addrStr);
+            }
         }
+        return interfaces;
     }
-    if (interfaces.empty())
+    else
     {
-        interfaces.push_back(intf);
+        // If the interface is not a wildcard, we just return it as is.
+        return vector<string>{intf};
     }
-    return interfaces;
 }
 
 string
