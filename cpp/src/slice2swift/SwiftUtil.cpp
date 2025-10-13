@@ -35,21 +35,12 @@ namespace
         }
     }
 
-    bool writeDeprecatedDocComment(Output& out, const DocComment& comment, bool needsNewline)
+    void writeDeprecatedDocComment(Output& out, const DocComment& comment)
     {
-        if (!comment.isDeprecated())
-        {
-            return false;
-        }
-
-        if (needsNewline)
-        {
-            out << nl << "///";
-        }
+        assert(comment.isDeprecated());
         out << nl << "/// ## Deprecated";
         const StringList& docDeprecated = comment.deprecated();
         writeDocLines(out, docDeprecated);
-        return true;
     }
 }
 
@@ -95,7 +86,7 @@ Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
         return;
     }
 
-    bool hasStarted = false;
+    bool hasStarted{false};
 
     const StringList& docOverview = doc->overview();
     if (!docOverview.empty())
@@ -104,7 +95,15 @@ Slice::Swift::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
         hasStarted = true;
     }
 
-    hasStarted |= writeDeprecatedDocComment(out, *doc, hasStarted);
+    if (doc->isDeprecated())
+    {
+        if (hasStarted)
+        {
+            out << nl << "///";
+        }
+        writeDeprecatedDocComment(out, *doc);
+        hasStarted = true;
+    }
 
     // TODO we should add a section for '@see' tags.
 
@@ -129,7 +128,7 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
         return;
     }
 
-    bool hasStarted = false;
+    bool hasStarted{false};
 
     // Write the overview.
     const StringList& docOverview = doc->overview();
@@ -140,7 +139,32 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
     }
 
     // If the comment contained an `@deprecated` include it as a section in the overview.
-    hasStarted |= writeDeprecatedDocComment(out, *doc, hasStarted);
+    if (doc->isDeprecated())
+    {
+        if (hasStarted)
+        {
+            out << nl << "///";
+        }
+        writeDeprecatedDocComment(out, *doc);
+        hasStarted = true;
+    }
+
+    const StringList& remarks = doc->remarks();
+    if (!remarks.empty())
+    {
+        if (hasStarted)
+        {
+            out << nl << "///";
+        }
+        out << nl << "/// ## Remarks";
+        writeDocLines(out, remarks);
+        hasStarted = true;
+    }
+
+    if (hasStarted && (p->parameters().size() > 0 || p->returnType() || p->throws().size() > 0))
+    {
+        out << nl << "///";
+    }
 
     const auto& docParameters = doc->parameters();
 
@@ -148,11 +172,7 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
     const ParameterList inParams = p->inParameters();
     bool useListStyle = inParams.size() >= 1; // '>=' instead of '>' to account for the current/context parameter.
     const string& parameterLineStart = (useListStyle ? "  - " : "- Parameter ");
-    if (hasStarted)
-    {
-        out << nl << "///";
-        // Don't bother setting `hasStarted`. We always emit a comment for parameters. So no need to check anymore.
-    }
+
     if (useListStyle)
     {
         out << nl << "/// - Parameters:";
@@ -182,7 +202,6 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
     useListStyle = p->returnsMultipleValues();
     if (useListStyle)
     {
-        out << nl << "///";
         out << nl << "/// - Returns:";
     }
     if (p->returnType())
@@ -202,7 +221,6 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
         }
         else if (!docMessage.empty())
         {
-            out << nl << "///";
             out << nl << "/// - Returns: ";
             writeDocLines(out, docMessage, false);
         }
@@ -227,7 +245,6 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
         }
         else if (!docMessage.empty())
         {
-            out << nl << "///";
             out << nl << "/// - Returns: ";
             writeDocLines(out, docMessage, false);
         }
@@ -237,12 +254,10 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
     const auto& docExceptions = doc->exceptions();
     if (!docExceptions.empty())
     {
-        useListStyle = docExceptions.size() < 2;
-        out << nl << "///";
         out << nl << "/// - Throws:";
         for (const auto& docException : docExceptions)
         {
-            if (useListStyle)
+            if (docExceptions.size() > 1)
             {
                 out << nl << "///   -";
             }
@@ -253,14 +268,6 @@ Slice::Swift::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p,
                 writeDocLines(out, docException.second, false, "     ");
             }
         }
-    }
-
-    const StringList& remarks = doc->remarks();
-    if (!remarks.empty())
-    {
-        out << nl << "///";
-        out << nl << "/// ## Remarks";
-        writeDocLines(out, remarks);
     }
 }
 
@@ -284,40 +291,6 @@ Slice::Swift::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefP
     {
         writeDocLines(out, docOverview);
     }
-
-    const OperationList ops = p->operations();
-    if (!ops.empty())
-    {
-        out << nl << "///";
-        out << nl << "/// " << prx << " Methods:";
-        for (const auto& op : ops)
-        {
-            const optional<DocComment>& opdoc = op->docComment();
-            optional<StringList> opDocOverview;
-            if (opdoc)
-            {
-                const StringList& overview = opdoc->overview();
-                if (!overview.empty())
-                {
-                    opDocOverview = overview;
-                }
-            }
-
-            const string opName = removeEscaping(op->mappedName());
-
-            out << nl << "///  - " << opName;
-            if (auto overview = opDocOverview)
-            {
-                out << ": " << getFirstSentence(*overview);
-            }
-
-            out << nl << "///  - " << opName << "Async";
-            if (auto overview = opDocOverview)
-            {
-                out << ": " << getFirstSentence(*overview);
-            }
-        }
-    }
 }
 
 void
@@ -339,26 +312,6 @@ Slice::Swift::writeServantDocSummary(IceInternal::Output& out, const InterfaceDe
     else
     {
         writeDocLines(out, docOverview);
-    }
-
-    const OperationList ops = p->operations();
-    if (!ops.empty())
-    {
-        out << nl << "///";
-        out << nl << "/// " << name << " Methods:";
-        for (const auto& op : ops)
-        {
-            out << nl << "///  - " << removeEscaping(op->mappedName());
-            const optional<DocComment>& opdoc = op->docComment();
-            if (opdoc)
-            {
-                const StringList& opdocOverview = opdoc->overview();
-                if (!opdocOverview.empty())
-                {
-                    out << ": " << getFirstSentence(opdocOverview);
-                }
-            }
-        }
     }
 }
 

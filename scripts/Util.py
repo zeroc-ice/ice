@@ -26,7 +26,7 @@ import Expect
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
-def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
+def run(cmd, cwd=None, expectErr=False, stdout=False, stdin=None, stdinRepeat=True):
     p = subprocess.Popen(
         cmd,
         shell=True,
@@ -48,8 +48,17 @@ def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
                 pass
 
         out = (p.stderr if stdout else p.stdout).read().decode("UTF-8").strip()
-        if (not err and p.wait() != 0) or (err and p.wait() == 0):
+
+        status = p.wait()
+
+        # Just a normal failure
+        if status != 0 and not expectErr:
             raise RuntimeError(cmd + " failed:\n" + out)
+
+        # We expected an error but the command succeeded
+        if status == 0 and expectErr:
+            raise RuntimeError(cmd + " did not fail with expected error:\n" + out)
+
     finally:
         #
         # Without this we get warnings when running with python_d on Windows
@@ -2157,7 +2166,7 @@ class LocalProcessController(ProcessController):
 
         def teardown(self, current, success):
             if self.traceFile:
-                if success or current.driver.isInterrupted():
+                if not current.driver.keepLogs and (success or current.driver.isInterrupted()):
                     try:
                         os.remove(self.traceFile)
                     except FileNotFoundError:
@@ -2284,7 +2293,7 @@ class RemoteProcessController(ProcessController):
         def teardown(self, current, success):
             pass
 
-    def __init__(self, current, endpoints="tcp"):
+    def __init__(self, current, endpoints):
         self.processControllerProxies = {}
         self.controllerApps = []
         self.driver = current.driver
@@ -2489,7 +2498,7 @@ class AndroidProcessController(RemoteProcessController):
         #
         # First check if the AVD image is available
         #
-        print("starting the emulator... ")
+        print("checking for AVD `{}'".format(avd))
         out = run("emulator -list-avds")
 
         if avd not in out:
@@ -2511,6 +2520,8 @@ class AndroidProcessController(RemoteProcessController):
         cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
             avd, port
         )
+
+        print("starting the AVD `{}' on port {}".format(avd, port))
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
@@ -2518,23 +2529,20 @@ class AndroidProcessController(RemoteProcessController):
 
         self.avd = avd
 
-        #
+        print("waiting for the emulator to respond to adb")
+        subprocess.run([self.adb(), "wait-for-device"], timeout=60, check=True)
+
         # Wait for the device to be ready
-        #
+        print("waiting for the emulator to boot")
         t = time.time()
-        while True:
-            try:
-                lines = run("{} shell getprop sys.boot_completed".format(self.adb()))
-                if len(lines) > 0 and lines[0].strip() == "1":
-                    break
-            except RuntimeError:
-                pass  # expected if device is offline
-            #
-            # If the emulator doesn't complete boot in 300 seconds give up
-            #
-            if (time.time() - t) > 300:
-                raise RuntimeError("couldn't start the Android emulator `{}'".format(avd))
+        # Wait for up to 5 minutes (300 seconds)
+        while (time.time() - t) <= 300:
+            if run(f"{self.adb()} shell getprop sys.boot_completed").strip() == "1":
+                break
             time.sleep(2)
+        else:
+            # This runs if the while loop completes without breaking
+            raise RuntimeError(f"emulator '{avd}' not booted after 300s")
 
     def startControllerApp(self, current, ident):
         # Stop previous controller app before starting new one
@@ -2546,7 +2554,7 @@ class AndroidProcessController(RemoteProcessController):
         elif not current.config.device:
             # Create Android Virtual Device
             sdk = current.testcase.getMapping().getSDKPackage()
-            print("creating virtual device ({0})... ".format(sdk))
+            print("creating AVD ({0})".format(sdk))
             try:
                 run("avdmanager -v delete avd -n IceTests")  # Delete the created device
             except Exception:
@@ -2561,7 +2569,9 @@ class AndroidProcessController(RemoteProcessController):
             run("{} shell pm uninstall com.zeroc.testcontroller".format(self.adb()))
         except Exception:
             pass
+        print("installing the controller application")
         run("{} install -t -r {}".format(self.adb(), current.testcase.getMapping().getApk(current)))
+        print("starting the controller application")
         run(
             '{} shell am start -n "{}" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER'.format(
                 self.adb(), current.testcase.getMapping().getActivityName()
@@ -2611,7 +2621,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-15"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, None)
+        RemoteProcessController.__init__(self, current, "")
         self.simulatorID = None
         self.runtimeID = None
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
@@ -2643,46 +2653,61 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.flush()
         mapping = current.testcase.getMapping()
         appFullPath = mapping.getIOSAppFullPath(current)
+
+        if not os.path.exists(appFullPath):
+            raise RuntimeError(f"couldn't find iOS simulator controller application `{appFullPath}'")
+
         print(f"{appFullPath}")
 
-        sys.stdout.write("launching simulator... ")
+        sys.stdout.write(f"checking for iOS simulator device {self.device}... ")
         sys.stdout.flush()
-        try:
+        listDevicesOutput = run("xcrun simctl list devices")
+        deviceLine = next(
+            (line.strip() for line in listDevicesOutput.split("\n") if line.strip().startswith(self.device)), None
+        )
+
+        booted = deviceLine and "(Booted)" in deviceLine
+
+        if deviceLine:
+            print("ok")
+        else:
+            print("not found")
+
+            sys.stdout.write(f"creating iOS simulator device {self.device}... ")
+            sys.stdout.flush()
+            # Simulators created by us are deleted in destroy().
+            self.simulatorID = run(
+                'xcrun simctl create "{0}" {1} {2}'.format(self.device, self.deviceID, self.runtimeID)
+            )
+            print(f"{self.simulatorID}")
+
+        if not booted:
+            sys.stdout.write("launching simulator... ")
+            sys.stdout.flush()
             run('xcrun simctl boot "{0}"'.format(self.device))
-            run('xcrun simctl bootstatus "{0}"'.format(self.device))  # Wait for the boot to complete
-        except Exception as ex:
-            if str(ex).find("Booted") >= 0:
-                pass
-            elif str(ex).find("Invalid device") >= 0 or str(ex).find("Assertion failure in SimDevicePair"):
-                #
-                # Create the simulator device if it doesn't exist
-                #
-                self.simulatorID = run(
-                    'xcrun simctl create "{0}" {1} {2}'.format(self.device, self.deviceID, self.runtimeID)
+            print("ok")
+
+            print("waiting for simulator to boot")
+            try:
+                subprocess.run(["xcrun", "simctl", "bootstatus", self.device], timeout=600, check=True)
+            except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
+                subprocess.run(
+                    [
+                        "xcrun",
+                        "simctl",
+                        "spawn",
+                        self.device,
+                        "log",
+                        "collect",
+                        "--output",
+                        f"device-{self.device}.log",
+                    ]
                 )
-                run('xcrun simctl boot "{0}"'.format(self.device))
-                run('xcrun simctl bootstatus "{0}"'.format(self.device))  # Wait for the boot to complete
-                #
-                # This not longer works on iOS 15 simulator, fails with:
-                #   "Could not write domain com.apple.springboard; exiting"
-                #
-                # We update the watchdog timer scale to prevent issues with the controller app taking too long
-                # to start on the simulator. The security validation of the app can take a significant time and
-                # causes the watch dog to kick-in leaving the springboard app in a bogus state where it's not
-                # possible to terminate and restart the controller
-                #
-                # run("xcrun simctl spawn \"{0}\" defaults write com.apple.springboard FBLaunchWatchdogScale 20".format(self.device))
-                # run("xcrun simctl shutdown \"{0}\"".format(self.device))
-                # run("xcrun simctl boot \"{0}\"".format(self.device))
-            else:
-                raise
-        print("ok")
+                raise RuntimeError("timed out waiting for simulator to boot")
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
 
-        if not os.path.exists(appFullPath):
-            raise RuntimeError("couldn't find iOS simulator controller application, did you build it?")
         run('xcrun simctl install "{0}" "{1}"'.format(self.device, appFullPath))
         run('xcrun simctl launch "{0}" {1}'.format(self.device, ident.name))
         print("ok")
@@ -2733,7 +2758,7 @@ class iOSDeviceProcessController(RemoteProcessController):
     appPath = "cpp/test/ios/controller/build"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current, None)
+        RemoteProcessController.__init__(self, current, "")
 
     def __str__(self):
         return "iOS Device"
@@ -3034,6 +3059,7 @@ class Driver:
                 "valgrind",
                 "languages=",
                 "rlanguages=",
+                "keep-logs",
             ],
         )
 
@@ -3057,6 +3083,7 @@ class Driver:
         print("--interface=<IP>      The multicast interface to use to discover controllers.")
         print("--controller-app      Start the process controller application.")
         print("--valgrind            Start executables with valgrind.")
+        print("--keep-logs           Keep log files from successful runs.")
 
     def __init__(self, options, component):
         self.component = component
@@ -3072,6 +3099,7 @@ class Driver:
         self.languages = [self.languages] if self.languages else []
         self.rlanguages = []
         self.failures = []
+        self.keepLogs = False
 
         parseOptions(
             self,
@@ -3085,6 +3113,7 @@ class Driver:
                 "host-ipv6": "hostIPv6",
                 "host-bt": "hostBT",
                 "controller-app": "controllerApp",
+                "keep-logs": "keepLogs",
             },
         )
 
@@ -3395,7 +3424,7 @@ class JavaMapping(Mapping):
             print("--android                 Run the Android tests.")
             print("--device=<device-id>      ID of the Android emulator or device used to run the tests.")
             print("--avd=<name>              Start specific Android Virtual Device.")
-            print("--jacoco=<path>             Path to the JaCoCo agent.")
+            print("--jacoco=<path>           Path to the JaCoCo agent.")
 
     def getCommandLine(self, current, process, exe, args):
         javaHome = os.getenv("JAVA_HOME", "")
