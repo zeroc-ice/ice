@@ -31,14 +31,14 @@ class Server: TestHelperI, @unchecked Sendable {
             try adapter2.activate()
         }
 
-        var endpoint = ""
+        var endpoint = "udp -h "
         //
         // Use loopback to prevent other machines to answer.
         //
         if properties.getIceProperty("Ice.IPv6") == "1" {
-            endpoint += "udp -h \"ff15::1:1\" --interface \"::1\""
+            endpoint += "\"ff15::1:1\""
         } else {
-            endpoint += "udp -h 239.255.1.1 --interface 127.0.0.1"
+            endpoint += "239.255.1.1"
         }
         endpoint += " -p "
         endpoint += "\(getTestPort(properties: properties, num: 10))"
