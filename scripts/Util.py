@@ -2618,8 +2618,10 @@ class AndroidProcessController(RemoteProcessController):
                 )
 
                 # Save to file
-                with open(f"android-emulator-{self.controllerPid}.log", "w") as f:
-                    print(f"saving android-emulator-{self.controllerPid}.log")
+                sanitized_pid = re.sub(r'[^A-Za-z0-9_-]', '_', self.controllerPid.strip())
+                filename = f"android-emulator-{sanitized_pid}.log"
+                with open(filename, "w") as f:
+                    print(f"saving {filename}")
                     f.write(logCatResult.stdout)
             except Exception as ex:
                 print(f"failed to get logcat output: {ex}")
