@@ -11,11 +11,6 @@ public class Server : global::Test.TestHelper
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.UDP.RcvSize", "16384");
-        if (Ice.Internal.AssemblyUtil.isMacOS && properties.getIcePropertyAsInt("Ice.IPv6") > 0)
-        {
-            // Disable dual mode sockets on macOS, see https://github.com/dotnet/corefx/issues/31182
-            properties.setProperty("Ice.IPv4", "0");
-        }
 
         using var communicator = initialize(properties);
         int num = 0;

@@ -200,9 +200,7 @@ internal sealed class UdpTransceiver : Transceiver
                     }
                 }
 
-                // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
-                if (_state == StateConnected ||
-                   (AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
+                if (_state == StateConnected)
                 {
                     ret = _fd.Receive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None);
                 }
@@ -272,9 +270,7 @@ internal sealed class UdpTransceiver : Transceiver
 
         try
         {
-            // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
-            if (_state == StateConnected ||
-               (AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
+            if (_state == StateConnected)
             {
                 _readCallback = callback;
                 _readEventArgs.UserToken = state;
@@ -326,9 +322,7 @@ internal sealed class UdpTransceiver : Transceiver
                 throw new System.Net.Sockets.SocketException((int)_readEventArgs.SocketError);
             }
             ret = _readEventArgs.BytesTransferred;
-            // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
-            if (_state != StateConnected &&
-               !(AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
+            if (_state != StateConnected)
             {
                 _peerAddr = _readEventArgs.RemoteEndPoint;
             }
