@@ -2452,6 +2452,7 @@ class RemoteProcessController(ProcessController):
         args = ["--{0}={1}".format(k, val(v, quoteValue=False)) for k, v in props.items()] + [val(a) for a in args]
         if current.driver.debug:
             current.writeln("(executing `{0}/{1}' on `{2}' args = {3})".format(current.testsuite, exe, self, args))
+
         prx = processController.start(str(current.testsuite), exe, args)
 
         # Create bi-dir proxy in case we're talking to a bi-bir process controller.
@@ -2481,6 +2482,7 @@ class AndroidProcessController(RemoteProcessController):
         self.device = current.config.device if current.config.device != "" else None
         self.avd = current.config.avd
         self.emulator = None  # Keep a reference to the android emulator process
+        self.controllerPid = None
 
     def __str__(self):
         return "Android"
@@ -2522,6 +2524,7 @@ class AndroidProcessController(RemoteProcessController):
         )
 
         print("starting the AVD `{}' on port {}".format(avd, port))
+
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
@@ -2545,10 +2548,6 @@ class AndroidProcessController(RemoteProcessController):
             raise RuntimeError(f"emulator '{avd}' not booted after 300s")
 
     def startControllerApp(self, current, ident):
-        # Stop previous controller app before starting new one
-        for ident in self.controllerApps:
-            self.stopControllerApp(ident)
-
         if current.config.avd:
             self.startEmulator(current.config.avd)
         elif not current.config.device:
@@ -2578,7 +2577,51 @@ class AndroidProcessController(RemoteProcessController):
             )
         )
 
+        self.controllerPid = None
+        sys.stdout.write("waiting for the controller to start")
+        sys.stdout.flush()
+        for i in range(30):
+            try:
+                self.controllerPid = run("adb shell pidof -s com.zeroc.testcontroller")
+                if self.controllerPid:
+                    print(" ok (pid={})".format(self.controllerPid))
+                    break
+            except Exception:
+                pass
+            sys.stdout.write(".")
+            sys.stdout.flush()
+            time.sleep(1)
+
     def stopControllerApp(self, ident):
+        # Get controller logcat output
+        if self.controllerPid:
+            try:
+                logCatResult = subprocess.run(
+                    [
+                        self.adb(),
+                        "logcat",
+                        "-d",
+                        "-v",
+                        "time",
+                        "--pid",
+                        self.controllerPid,
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    timeout=30,
+                    check=False,
+                )
+
+                # Save to file
+                sanitized_pid = re.sub(r"[^A-Za-z0-9_-]", "_", self.controllerPid.strip())
+                filename = f"android-emulator-{sanitized_pid}.log"
+                with open(filename, "w") as f:
+                    print(f"saving {filename}")
+                    f.write(logCatResult.stdout)
+            except Exception as ex:
+                print(f"failed to get logcat output: {ex}")
+
         try:
             run("{} shell pm uninstall com.zeroc.testcontroller".format(self.adb()))
         except Exception:
