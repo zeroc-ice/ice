@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 /**
  * @hidden Public because it's used by IceDiscovery and IceLocatorDiscovery.
@@ -614,26 +614,33 @@ public final class Network {
     }
 
     // Only used for multicast.
-    private static ArrayList<InetAddress> getLocalAddresses(int protocol) {
+    private static List<InetAddress> getLocalAddresses(int protocol) {
+        // We can't use NetworkInterface.networkInterfaces or NetworkInterface.inetAddresses because they are not
+        // available on Android.
+
         ArrayList<InetAddress> result = new ArrayList<>();
+
         try {
-            Enumeration<NetworkInterface> ifaces =
-                NetworkInterface.getNetworkInterfaces();
-            while (ifaces.hasMoreElements()) {
-                NetworkInterface iface = ifaces.nextElement();
-                Enumeration<InetAddress> addrs = iface.getInetAddresses();
-                while (addrs.hasMoreElements()) {
-                    InetAddress addr = addrs.nextElement();
-                    if (!result.contains(addr)
-                        && (protocol == EnableBoth || isValidAddr(addr, protocol))) {
-                        result.add(addr);
-                        break;
+            NetworkInterface.getNetworkInterfaces().asIterator().forEachRemaining(p -> {
+                try {
+                    // TODO: figure out why we need the isAndroid() check here. Without it, the Ice/udp test fails with
+                    // IPv6.
+                    if (Util.isAndroid() || (p.isUp() && p.supportsMulticast())) {
+                        for (InetAddress addr : Collections.list(p.getInetAddresses())) {
+                            if (protocol == EnableBoth || isValidAddr(addr, protocol)) {
+                                // Two addresses that compare equal may actually use different interfaces, for example
+                                // fe80:0:0:0:7eed:8dff:fe28:b315%enP12455s1 and fe80:0:0:0:7eed:8dff:fe28:b315%eth0 on
+                                // Ubuntu.
+                                result.add(addr);
+                                break; // we add at most one address per interface
+                            }
+                        }
                     }
+                } catch (java.net.SocketException ex) {
+                    // Ignore and continue
                 }
-            }
-        } catch (java.net.SocketException ex) {
-            throw new SocketException(ex);
-        } catch (java.lang.SecurityException ex) {
+            });
+        } catch (java.net.SocketException | java.lang.SecurityException ex) {
             throw new SocketException(ex);
         }
 
@@ -641,16 +648,16 @@ public final class Network {
     }
 
     public static List<String> getInterfacesForMulticast(String intf, int protocolSupport) {
-        ArrayList<String> interfaces = new ArrayList<>();
         if (isWildcard(intf)) {
-            for (InetAddress addr : getLocalAddresses(protocolSupport)) {
-                interfaces.add(addr.getHostAddress());
-            }
+            // We apply distinct() here, after converting the addresses to strings.
+            return getLocalAddresses(protocolSupport)
+                .stream()
+                .map(InetAddress::getHostAddress)
+                .distinct()
+                .collect(Collectors.toList());
+        } else {
+            return List.of(intf);
         }
-        if (interfaces.isEmpty()) {
-            interfaces.add(intf);
-        }
-        return interfaces;
     }
 
     public static void setTcpBufSize(
