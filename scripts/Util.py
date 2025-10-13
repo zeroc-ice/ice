@@ -1312,6 +1312,7 @@ class Process(Runnable):
     def stop(self, current, waitSuccess=False, exitstatus=0):
         if self in current.processes:
             process = current.processes[self]
+            print(f"stopping {process}: {self}")
             try:
                 # Wait for the process to exit successfully by itself.
                 if not process.isTerminated() and waitSuccess:
@@ -2287,8 +2288,8 @@ class RemoteProcessController(ProcessController):
         def terminate(self):
             self.output = self.proxy.terminate().strip()
             self.terminated = True
-            if self.stdout and self.output:
-                print(self.output)
+            # if self.stdout and self.output:
+            print(self.output)
 
         def teardown(self, current, success):
             pass
@@ -2354,8 +2355,8 @@ class RemoteProcessController(ProcessController):
             if ident in self.controllerApps:
                 self.restartControllerApp(current, ident)  # Controller must have crashed, restart it
             else:
-                self.controllerApps.append(ident)
                 self.startControllerApp(current, ident)
+                self.controllerApps.append(ident)
 
         # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
         proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
@@ -2452,6 +2453,7 @@ class RemoteProcessController(ProcessController):
         args = ["--{0}={1}".format(k, val(v, quoteValue=False)) for k, v in props.items()] + [val(a) for a in args]
         if current.driver.debug:
             current.writeln("(executing `{0}/{1}' on `{2}' args = {3})".format(current.testsuite, exe, self, args))
+
         prx = processController.start(str(current.testsuite), exe, args)
 
         # Create bi-dir proxy in case we're talking to a bi-bir process controller.
@@ -2481,6 +2483,7 @@ class AndroidProcessController(RemoteProcessController):
         self.device = current.config.device if current.config.device != "" else None
         self.avd = current.config.avd
         self.emulator = None  # Keep a reference to the android emulator process
+        self.controllerPid = None
 
     def __str__(self):
         return "Android"
@@ -2522,6 +2525,7 @@ class AndroidProcessController(RemoteProcessController):
         )
 
         print("starting the AVD `{}' on port {}".format(avd, port))
+
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
@@ -2578,7 +2582,50 @@ class AndroidProcessController(RemoteProcessController):
             )
         )
 
+        self.controllerPid = None
+        sys.stdout.write("waiting for the controller to start")
+        sys.stdout.flush()
+        for i in range(30):
+            try:
+                self.controllerPid = run("adb shell pidof -s com.zeroc.testcontroller")
+                if self.controllerPid:
+                    print(" ok (pid={})".format(self.controllerPid))
+                    break
+            except Exception:
+                pass
+            sys.stdout.write(".")
+            sys.stdout.flush()
+            time.sleep(1)
+
     def stopControllerApp(self, ident):
+        # Get controller logcat output
+        if self.controllerPid:
+            try:
+                logCatResult = subprocess.run(
+                    [
+                        self.adb(),
+                        "logcat",
+                        "-d",
+                        "-v",
+                        "time",
+                        "--pid",
+                        self.controllerPid,
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    timeout=30,
+                    check=False,
+                )
+
+                # Save to file
+                with open(f"android-emulator-{self.controllerPid}.log", "w") as f:
+                    print(f"saving android-emulator-{self.controllerPid}.log")
+                    f.write(logCatResult.stdout)
+            except Exception as ex:
+                print(f"failed to get logcat output: {ex}")
+                pass
+
         try:
             run("{} shell pm uninstall com.zeroc.testcontroller".format(self.adb()))
         except Exception:
