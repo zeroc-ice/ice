@@ -2354,8 +2354,8 @@ class RemoteProcessController(ProcessController):
             if ident in self.controllerApps:
                 self.restartControllerApp(current, ident)  # Controller must have crashed, restart it
             else:
-                self.startControllerApp(current, ident)
                 self.controllerApps.append(ident)
+                self.startControllerApp(current, ident)
 
         # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
         proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
@@ -2548,10 +2548,6 @@ class AndroidProcessController(RemoteProcessController):
             raise RuntimeError(f"emulator '{avd}' not booted after 300s")
 
     def startControllerApp(self, current, ident):
-        # Stop previous controller app before starting new one
-        for ident in self.controllerApps:
-            self.stopControllerApp(ident)
-
         if current.config.avd:
             self.startEmulator(current.config.avd)
         elif not current.config.device:
@@ -2618,7 +2614,7 @@ class AndroidProcessController(RemoteProcessController):
                 )
 
                 # Save to file
-                sanitized_pid = re.sub(r'[^A-Za-z0-9_-]', '_', self.controllerPid.strip())
+                sanitized_pid = re.sub(r"[^A-Za-z0-9_-]", "_", self.controllerPid.strip())
                 filename = f"android-emulator-{sanitized_pid}.log"
                 with open(filename, "w") as f:
                     print(f"saving {filename}")
