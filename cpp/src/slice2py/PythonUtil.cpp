@@ -2980,7 +2980,7 @@ Slice::Python::pyLinkFormatter(const string& rawLink, const ContainedPtr&, const
             string targetScoped = operationTarget->interface()->mappedScoped(".");
 
             // link to the method on the proxy interface
-            result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "`";
+            result << ":meth:`" << targetScoped << "Prx." << operationTarget->mappedName() << "Async`";
         }
         else if (dynamic_pointer_cast<Sequence>(target) || dynamic_pointer_cast<Dictionary>(target))
         {
