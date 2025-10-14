@@ -424,7 +424,7 @@ public class ControllerApp extends Application {
             try {
                 String logFilePath = logFilePath(testsuite, exe);
                 String[] argsWithLogFile = java.util.Arrays.copyOf(args, args.length + 1);
-                argsWithLogFile[argsWithLogFile.length - 1] = "--Ice.LogFile=\'" + logFilePath + "\'";
+                argsWithLogFile[argsWithLogFile.length - 1] = "--Ice.LogFile=\"" + logFilePath + "\"";
 
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
                 ControllerHelperI mainHelper = new ControllerHelperI(bundle, argsWithLogFile);
