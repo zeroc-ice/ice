@@ -2,7 +2,7 @@
 
 namespace Ice.operations.AMD;
 
-public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
+public sealed class MyDerivedClassI : Test.AsyncMyDerivedClassDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 

@@ -16,10 +16,10 @@
     <Compile Include="../../Cookie.cs" />
     <Compile Include="../../ServantLocatorAMDI.cs" />
     <Compile Include="../../TestActivationAMDI.cs" />
-    <Compile Include="generated\TestAMD.cs">
-      <SliceCompileSource>../../TestAMD.ice</SliceCompileSource>
+    <Compile Include="generated\Test.cs">
+      <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>
-    <SliceCompile Include="../../TestAMD.ice" />
+    <SliceCompile Include="../../Test.ice" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="generated\" />

@@ -14,7 +14,8 @@ namespace Slice::Csharp
     /// Returns the namespace of a Contained entity.
     [[nodiscard]] std::string getNamespace(const ContainedPtr& p);
 
-    [[nodiscard]] std::string getUnqualified(const ContainedPtr& p, const std::string& package);
+    [[nodiscard]] std::string
+    getUnqualified(const ContainedPtr& p, const std::string& package, const std::string& prefix = "");
 
     /// Removes a leading '@' character from the provided identifier (if one is present).
     [[nodiscard]] std::string removeEscapePrefix(const std::string& identifier);

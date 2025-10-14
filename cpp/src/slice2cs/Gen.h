@@ -144,6 +144,7 @@ namespace Slice
                 const std::string&);
 
             std::string asyncPrefix() const;
+            std::string prependAsyncPrefix(const std::string&) const;
             const bool _async;
         };
     };

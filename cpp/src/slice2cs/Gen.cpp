@@ -104,6 +104,7 @@ namespace
         writeDocLine(out, "returns", "The unmarshaled value.");
     }
 
+    /*
     // TODO: this function should probably use the link formatter.
     // This is currently not possible because DocComment::seeAlso() returns a list of strings.
     string toCsIdent(const string& s)
@@ -123,14 +124,16 @@ namespace
         result[pos] = '.';
         return result;
     }
+    */
 
-    void writeSeeAlso(Output& out, const StringList& lines)
+    void writeSeeAlso([[maybe_unused]] Output& out, const StringList& lines)
     {
         for (const auto& line : lines)
         {
             if (!line.empty())
             {
-                out << nl << "/// <seealso cref=\"" << toCsIdent(line) << "\" />";
+                // TODO: this version often results in broken links.
+                // out << nl << "/// <seealso cref=\"" << toCsIdent(line) << "\" />";
             }
         }
     }
@@ -2300,15 +2303,20 @@ bool
 Slice::Gen::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string ns = getNamespace(p);
+    string name = prependAsyncPrefix(p->mappedName());
 
     _out << sp;
     ostringstream notes;
-    notes << "Your servant class implements this interface by deriving from <see cref=\"" << p->mappedName()
-          << "Disp_\" /> or from the Disp_ class for a derived interface.";
+    if (_async)
+    {
+        notes << "This Async interface maps each Slice operation to an asynchronous method that returns a Task. ";
+    }
+    notes << "Your servant class implements this interface by deriving from"
+          << "<see cref=\"" << name << "Disp_\" /> or from the Disp_ class for a derived interface.";
 
     writeDocComment(p, "server-side interface", notes.str());
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
-    _out << nl << "public partial interface " << asyncPrefix() << p->mappedName() << " : ";
+    _out << nl << "public partial interface " << name << " : ";
 
     auto baseInterfaces = p->bases();
     if (baseInterfaces.empty())
@@ -2321,7 +2329,7 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out.spar("");
         for (const auto& q : baseInterfaces)
         {
-            _out << (asyncPrefix() + getUnqualified(q, ns));
+            _out << getUnqualified(q, ns, asyncPrefix());
         }
         _out.epar("");
     }
@@ -2335,7 +2343,7 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     _out << eb;
 
-    string name = p->mappedName();
+    string name = prependAsyncPrefix(p->mappedName());
     string ns = getNamespace(p);
 
     _out << sp;
@@ -2344,11 +2352,15 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             << p->name() << "</c>.";
 
     ostringstream remarks;
+    if (_async)
+    {
+        remarks << "This Async skeleton class provides only asynchronous methods. ";
+    }
     remarks << "Your servant class derives from this abstract class to implement Slice interface <c>" << p->name()
             << "</c>.";
 
     writeHelperDocComment(p, summary.str(), "skeleton class", remarks.str());
-    _out << nl << "public abstract partial class " << asyncPrefix() << name << "Disp_ : " << asyncPrefix() << name;
+    _out << nl << "public abstract partial class " << name << "Disp_ : " << name;
 
     _out << sb;
 
@@ -2381,6 +2393,7 @@ void
 Slice::Gen::SkeletonVisitor::visitOperation(const OperationPtr& op)
 {
     InterfaceDefPtr interface = op->interface();
+    string interfaceName = prependAsyncPrefix(interface->mappedName());
     string ns = getNamespace(interface);
     const bool amd = _async || interface->hasMetadata("amd") || op->hasMetadata("amd");
 
@@ -2406,7 +2419,7 @@ Slice::Gen::SkeletonVisitor::visitOperation(const OperationPtr& op)
          << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_"
          << removeEscapePrefix(op->mappedName()) << "Async(";
     _out.inc();
-    _out << nl << interface->mappedName() << " obj,";
+    _out << nl << interfaceName << " obj,";
     _out << nl << "Ice.IncomingRequest request)";
     _out.dec();
     _out << sb;
@@ -2570,8 +2583,8 @@ Slice::Gen::SkeletonVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << sb;
         for (const auto& op : allOps)
         {
-            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_"
-                 << removeEscapePrefix(op->mappedName()) << "Async(this, request),";
+            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->interface(), ns, asyncPrefix())
+                 << ".iceD_" << removeEscapePrefix(op->mappedName()) << "Async(this, request),";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
         {
@@ -2623,6 +2636,12 @@ Slice::Gen::SkeletonVisitor::getDispatchParams(
     params.push_back("Ice.Current " + currentParamName);
     args.push_back(currentParamName);
     return name;
+}
+
+string
+Slice::Gen::SkeletonVisitor::prependAsyncPrefix(const string& name) const
+{
+    return _async ? "Async" + removeEscapePrefix(name) : name;
 }
 
 string
