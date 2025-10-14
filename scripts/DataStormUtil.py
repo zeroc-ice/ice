@@ -30,7 +30,8 @@ class Writer(Client, DataStormProcess):
         props = DataStormProcess.getEffectiveProps(self, current, props)
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
-            # Use loopback on macOS to run successfully on GitHub runners.
+            props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {port}"
+             # Need to use --interface 127.0.0.1 for the macOS GitHub runners.
             if isinstance(platform, Darwin):
                 props["DataStorm.Node.Multicast.Proxy"] = (
                     f"DataStorm/Lookup -d:udp -h 239.255.0.1 -p {port} --interface 127.0.0.1"
@@ -62,7 +63,7 @@ class Reader(Server, DataStormProcess):
         if ("DataStorm.Node.Multicast.Enabled", 1) in props.items():
             port = current.driver.getTestPort(20)
             props["DataStorm.Node.Multicast.Endpoints"] = f"udp -h 239.255.0.1 -p {port}"
-            # Use loopback on macOS to run successfully on GitHub runners.
+            # Need to use --interface 127.0.0.1 for the macOS GitHub runners.
             if isinstance(platform, Darwin):
                 props["DataStorm.Node.Multicast.Proxy"] = (
                     f"DataStorm/Lookup -d:udp -h 239.255.0.1 -p {port} --interface 127.0.0.1"
