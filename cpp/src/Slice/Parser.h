@@ -390,13 +390,13 @@ namespace Slice
         /// Returns the mapped identifier that this element will use in the target language.
         [[nodiscard]] std::string mappedName() const;
 
-        /// Returns the mapped scope that this element will be generated in in the target language.
+        /// Returns the mapped fully-scoped identifier that this element will use in the target language.
         /// @param separator This string will be used to separate scope segments.
         /// @param leading If true, the returned string will have a leading `separator` (defaults to false).
         /// @remark Equivalent to `mappedScope(separator, leading) + mappedName()`.
         [[nodiscard]] std::string mappedScoped(const std::string& separator, bool leading = false) const;
 
-        /// Returns the mapped fully-scoped identifier that this element will use in the target language.
+        /// Returns the mapped scope that this element will be generated in in the target language.
         /// @param separator This string will be used to separate scope segments.
         /// @param leading If true, the returned string will have a leading `separator` (defaults to false).
         [[nodiscard]] std::string mappedScope(const std::string& separator, bool leading = false) const;
