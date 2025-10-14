@@ -91,10 +91,6 @@ final class ThreadPool implements Executor {
 
         int nProcessors = Runtime.getRuntime().availableProcessors();
 
-        //
-        // We use just one thread as the default. This is the fastest possible setting, still allows
-        // one level of nesting, and doesn't require to make the servants thread safe.
-        //
         int size = properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
         if (size < 1) {
             String s = _prefix + ".Size < 1; Size adjusted to 1";
