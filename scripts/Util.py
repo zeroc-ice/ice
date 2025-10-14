@@ -2692,6 +2692,9 @@ class iOSSimulatorProcessController(RemoteProcessController):
         return current.testcase.getMapping().getIOSControllerIdentity(current)
 
     def startControllerApp(self, current, ident):
+        iOSLogsDir = os.path.join(current.testcase.getMapping().getPath(), "test", "logs", "ios")
+        os.makedirs(iOSLogsDir, exist_ok=True)
+
         sys.stdout.write("locating iOS simulator controller application... ")
         sys.stdout.flush()
         mapping = current.testcase.getMapping()
@@ -2735,7 +2738,22 @@ class iOSSimulatorProcessController(RemoteProcessController):
                 subprocess.run(["xcrun", "simctl", "bootstatus", self.device], timeout=600, check=True)
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
                 print("simulator failed to boot, printing spawn and diagnostic logs")
-                subprocess.run(["xcrun", "simctl", "spawn", self.device, "log", "show", "--last", "600s"], check=False, timeout=600)
+                subprocess.run(
+                    [
+                        "xcrun",
+                        "simctl",
+                        "spawn",
+                        self.device,
+                        "log",
+                        "show",
+                        "--last",
+                        "600s",
+                        "--output",
+                        f"simulator-{self.device}.log",
+                    ],
+                    check=False,
+                    timeout=600,
+                )
                 raise RuntimeError("timed out waiting for simulator to boot") from None
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
