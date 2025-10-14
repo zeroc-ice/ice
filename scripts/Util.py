@@ -2596,7 +2596,6 @@ class AndroidProcessController(RemoteProcessController):
         androidLogsDir = os.path.join(toplevel, "java", "test", "logs", "android")
         os.makedirs(androidLogsDir, exist_ok=True)
         try:
-            # Pull log files from the device
             print("pulling log files from the device")
             subprocess.run(
                 [self.adb(), "pull", "/sdcard/Android/data/com.zeroc.testcontroller/", androidLogsDir],
