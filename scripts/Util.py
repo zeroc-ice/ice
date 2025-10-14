@@ -2599,8 +2599,6 @@ class AndroidProcessController(RemoteProcessController):
             # Pull log files from the device
             print("pulling log files from the device")
             # get dir for target language
-            if not os.path.exists(androidLogsDir):
-                os.mkdir(androidLogsDir)
 
             subprocess.run(
                 [self.adb(), "pull", "/sdcard/Android/data/com.zeroc.testcontroller/", androidLogsDir],
