@@ -2609,7 +2609,6 @@ class AndroidProcessController(RemoteProcessController):
             )
         except Exception as ex:
             print(f"failed to pull log files from the device: {ex}")
-            pass
 
         # Get controller logcat output
         if self.controllerPid:
