@@ -406,7 +406,6 @@ public class ControllerApp extends Application {
     }
 
     class ProcessControllerI implements Test.Common.ProcessController {
-
         public Test.Common.ProcessPrx start(
                 final String testsuite,
                 final String exe,
