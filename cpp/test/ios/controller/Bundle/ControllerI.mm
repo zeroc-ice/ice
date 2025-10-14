@@ -22,6 +22,36 @@ using namespace Test::Common;
 
 namespace
 {
+    string getLogFilePath(const string& prefixPath, const string& exe)
+    {
+        // Create timestamp in MMddyy-HHmm format
+        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"MMddyy-HHmm"];
+        NSString* timestamp = [dateFormatter stringFromDate:[NSDate date]];
+
+        // Get cache directory
+        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        NSString* cacheDirectory = [paths firstObject];
+
+        // Create log directory path
+        NSString* nsPrefixPath = [NSString stringWithUTF8String:prefixPath.c_str()];
+        NSString* logDirectory = [cacheDirectory stringByAppendingPathComponent:nsPrefixPath];
+
+        // Create directory if it doesn't exist
+        [[NSFileManager defaultManager] createDirectoryAtPath:logDirectory
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:nil];
+
+        // Create log file name
+        NSString* nsExe = [NSString stringWithUTF8String:exe.c_str()];
+        NSString* logFileName = [NSString stringWithFormat:@"%@-%@.log", nsExe, timestamp];
+        NSString* logFilePath = [logDirectory stringByAppendingPathComponent:logFileName];
+
+        // Convert back to string
+        return string([logFilePath UTF8String]);
+    }
+
     typedef Test::TestHelper* (*CREATE_HELPER_ENTRY_POINT)();
 
     class ControllerHelperI : public Test::ControllerHelper
@@ -325,6 +355,7 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
     std::string prefix = std::string("test/") + testSuite;
     replace(prefix.begin(), prefix.end(), '/', '_');
     newArgs.insert(newArgs.begin(), testSuite + ' ' + exe);
+    newArgs.push_back("--Ice.LogFile=" + getLogFilePath(prefix, exe));
     [_controller println:[NSString stringWithFormat:@"starting %s %s... ", testSuite.c_str(), exe.c_str()]];
     auto helper = make_shared<ControllerHelperI>(_controller, prefix + '/' + exe + ".bundle", newArgs);
     return c.adapter->addWithUUID<ProcessPrx>(make_shared<ProcessI>(_controller, helper));
@@ -340,11 +371,14 @@ ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString
 {
     Ice::InitializationData initData = Ice::InitializationData();
     initData.properties = Ice::createProperties();
+    initData.properties->setProperty("Ice.LogFile", getLogFilePath("controller", "controller"));
+    initData.properties->setProperty("Ice.Trace.Dispatch", "1");
+    // initData.properties->setProperty("Ice.Trace.Network", "2");
+    // initData.properties->setProperty("Ice.Trace.Protocol", "2");
+
     initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");
     initData.properties->setProperty("IceDiscovery.DomainId", "TestController");
     initData.properties->setProperty("ControllerAdapter.Endpoints", "tcp");
-    // initData.properties->setProperty("Ice.Trace.Network", "2");
-    // initData.properties->setProperty("Ice.Trace.Protocol", "2");
     initData.properties->setProperty("ControllerAdapter.AdapterId", Ice::generateUUID());
 
     initData.pluginFactories = {Ice::udpPluginFactory(), IceDiscovery::discoveryPluginFactory()};
@@ -366,10 +400,10 @@ ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString
 ControllerI::~ControllerI()
 {
     _communicator->destroy();
-    _communicator = 0;
+    _communicator = nullptr;
 }
 
-static ControllerI* controllerI = 0;
+static ControllerI* controllerI = nullptr;
 
 extern "C"
 {
@@ -383,7 +417,7 @@ extern "C"
         if (controllerI)
         {
             delete controllerI;
-            controllerI = 0;
+            controllerI = nullptr;
         }
     }
 }

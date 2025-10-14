@@ -2596,7 +2596,7 @@ class AndroidProcessController(RemoteProcessController):
             time.sleep(1)
 
     def stopControllerApp(self, ident):
-        androidLogsDir = os.path.join(toplevel, "java", "test", "logs", "android")
+        androidLogsDir = os.path.join(toplevel, "logs", "android")
         os.makedirs(androidLogsDir, exist_ok=True)
         try:
             print("pulling log files from the device")
