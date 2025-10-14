@@ -143,8 +143,8 @@ namespace Slice
                 std::vector<std::string>&,
                 const std::string&);
 
-            [[nodiscard]] std::string asyncPrefix() const;
-            [[nodiscard]] std::string prependAsyncPrefix(const std::string&) const;
+            [[nodiscard]] std::string skeletonPrefix() const;
+            [[nodiscard]] std::string prependSkeletonPrefix(const std::string&) const;
             const bool _async;
         };
     };

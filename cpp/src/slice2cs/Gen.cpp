@@ -2303,7 +2303,7 @@ bool
 Slice::Gen::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string ns = getNamespace(p);
-    string name = prependAsyncPrefix(p->mappedName());
+    string name = prependSkeletonPrefix(p->mappedName());
 
     _out << sp;
     ostringstream notes;
@@ -2329,7 +2329,7 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out.spar("");
         for (const auto& q : baseInterfaces)
         {
-            _out << getUnqualified(q, ns, asyncPrefix());
+            _out << getUnqualified(q, ns, skeletonPrefix());
         }
         _out.epar("");
     }
@@ -2343,7 +2343,7 @@ Slice::Gen::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     _out << eb;
 
-    string name = prependAsyncPrefix(p->mappedName());
+    string name = prependSkeletonPrefix(p->mappedName());
     string ns = getNamespace(p);
 
     _out << sp;
@@ -2393,7 +2393,7 @@ void
 Slice::Gen::SkeletonVisitor::visitOperation(const OperationPtr& op)
 {
     InterfaceDefPtr interface = op->interface();
-    string interfaceName = prependAsyncPrefix(interface->mappedName());
+    string interfaceName = prependSkeletonPrefix(interface->mappedName());
     string ns = getNamespace(interface);
     const bool amd = _async || interface->hasMetadata("amd") || op->hasMetadata("amd");
 
@@ -2583,7 +2583,7 @@ Slice::Gen::SkeletonVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << sb;
         for (const auto& op : allOps)
         {
-            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->interface(), ns, asyncPrefix())
+            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->interface(), ns, skeletonPrefix())
                  << ".iceD_" << removeEscapePrefix(op->mappedName()) << "Async(this, request),";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
@@ -2607,45 +2607,45 @@ Slice::Gen::SkeletonVisitor::getDispatchParams(
 {
     string name = op->mappedName();
     InterfaceDefPtr interface = op->interface();
-    ParameterList parameterss;
+    ParameterList parameterList;
 
     if (_async || interface->hasMetadata("amd") || op->hasMetadata("amd"))
     {
         name += "Async";
         params = getInParams(op, ns);
         args = getInArgs(op);
-        parameterss = op->inParameters();
+        parameterList = op->inParameters();
         retS = taskResultType(op, ns, true);
     }
     else if (op->hasMarshaledResult())
     {
         params = getInParams(op, ns);
         args = getInArgs(op);
-        parameterss = op->inParameters();
+        parameterList = op->inParameters();
         retS = resultType(op, ns, true);
     }
     else
     {
         params = getParams(op, ns);
         args = getArgs(op);
-        parameterss = op->parameters();
+        parameterList = op->parameters();
         retS = typeToString(op->returnType(), ns, op->returnIsOptional());
     }
 
-    string currentParamName = getEscapedParamName(op->parameters(), "current");
+    string currentParamName = getEscapedParamName(parameterList, "current");
     params.push_back("Ice.Current " + currentParamName);
     args.push_back(currentParamName);
     return name;
 }
 
 string
-Slice::Gen::SkeletonVisitor::prependAsyncPrefix(const string& name) const
+Slice::Gen::SkeletonVisitor::prependSkeletonPrefix(const string& name) const
 {
     return _async ? "Async" + removeEscapePrefix(name) : name;
 }
 
 string
-Slice::Gen::SkeletonVisitor::asyncPrefix() const
+Slice::Gen::SkeletonVisitor::skeletonPrefix() const
 {
     return _async ? "Async" : "";
 }
