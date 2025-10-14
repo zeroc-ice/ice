@@ -167,7 +167,7 @@ namespace Slice
         class InterfaceVisitor final : public ParserVisitor
         {
         public:
-            InterfaceVisitor(IceInternal::Output&, IceInternal::Output&, std::string);
+            InterfaceVisitor(IceInternal::Output& h, IceInternal::Output& c, std::string dllExport, bool async);
             InterfaceVisitor(const InterfaceVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -177,10 +177,14 @@ namespace Slice
             void visitOperation(const OperationPtr&) final;
 
         private:
+            [[nodiscard]] std::string skeletonPrefix() const;
+            [[nodiscard]] std::string prependSkeletonPrefix(const std::string& name) const;
+
             IceInternal::Output& H;
             IceInternal::Output& C;
-
             std::string _dllExport;
+            bool _async;
+
             TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
             bool _firstElement{true};
