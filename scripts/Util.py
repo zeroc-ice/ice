@@ -2735,7 +2735,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
                 subprocess.run(["xcrun", "simctl", "bootstatus", self.device], timeout=600, check=True)
             except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
                 print("simulator failed to boot, printing spawn and diagnostic logs")
-                subprocess.run(["xcrun", "simctl", "spawn", self.device, "log", "show", "--last", "600s"], check=False)
+                subprocess.run(["xcrun", "simctl", "spawn", self.device, "log", "show", "--last", "600s"], check=False, timeout=600)
                 raise RuntimeError("timed out waiting for simulator to boot") from None
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
