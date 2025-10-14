@@ -2448,6 +2448,9 @@ class RemoteProcessController(ProcessController):
 
         # TODO: support envs?
 
+        traceProps = process.getEffectiveTraceProps(current)
+        props.update(traceProps)
+
         exe = process.getExe(current)
         args = ["--{0}={1}".format(k, val(v, quoteValue=False)) for k, v in props.items()] + [val(a) for a in args]
         if current.driver.debug:
@@ -2782,8 +2785,21 @@ class iOSSimulatorProcessController(RemoteProcessController):
         run('xcrun simctl launch "{0}" {1}'.format(self.device, ident.name))
 
     def stopControllerApp(self, ident):
+        controllerBundleIdentifier = ident.name
+        logDir = os.path.join(toplevel, "logs", self.device, controllerBundleIdentifier)
+
         try:
-            run('xcrun simctl uninstall "{0}" {1}'.format(self.device, ident.name))
+            cacheDir = run(f"xcrun simctl get_app_container booted {controllerBundleIdentifier} data")
+
+            # copy contents of cacheDir to logDir
+            os.makedirs(logDir, exist_ok=True)
+            shutil.copytree(cacheDir, logDir, dirs_exist_ok=True)
+
+        except Exception as ex:
+            print(f"failed to get app cache directory: {ex}")
+
+        try:
+            run('xcrun simctl uninstall "{0}" {1}'.format(self.device, controllerBundleIdentifier))
         except Exception:
             pass
 

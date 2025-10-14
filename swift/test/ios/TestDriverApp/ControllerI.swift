@@ -56,7 +56,10 @@ final class ProcessControllerI: CommonProcessController {
             currentTest += "AMD"
         }
 
-        let helper = ControllerHelperI(view: _view, testName: currentTest, args: args, exe: exe)
+        let logFilePath = LogHelper.getLogFilePath(prefixPath: testsuite, exe: exe)
+        let argsWithLogFile = args + ["--Ice.LogFile=\(logFilePath)"]
+
+        let helper = ControllerHelperI(view: _view, testName: currentTest, args: argsWithLogFile, exe: exe)
 
         helper.run()
         return try uncheckedCast(
@@ -80,13 +83,18 @@ class ControllerI {
 
     private init(view: ViewController, ipv4: String, ipv6: String) throws {
         let properties = Ice.createProperties()
+
+        properties.setProperty(
+            key: "Ice.LogFile", value: LogHelper.getLogFilePath(prefixPath: "controller", exe: "controller"))
+        properties.setProperty(key: "Ice.Trace.Dispatch", value: "1")
+        // properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
+        // properties.setProperty(key: "Ice.Trace.Network", value: "3")
+
         properties.setProperty(key: "Ice.Plugin.IceDiscovery", value: "1")
         properties.setProperty(key: "Ice.ThreadPool.Server.SizeMax", value: "10")
         properties.setProperty(key: "IceDiscovery.DomainId", value: "TestController")
         properties.setProperty(key: "ControllerAdapter.Endpoints", value: "tcp")
         properties.setProperty(key: "ControllerAdapter.AdapterId", value: UUID().uuidString)
-        // properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
-        // properties.setProperty(key: "Ice.Trace.Network", value: "3")
 
         var initData = Ice.InitializationData()
         initData.properties = properties
@@ -248,5 +256,31 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
 
     public func getOutput() -> String {
         return _out
+    }
+}
+
+class LogHelper {
+    static func getLogFilePath(prefixPath: String, exe: String) -> String {
+        // Create timestamp in MMddyy-HHmm format
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMddyy-HHmm"
+        let timestamp = dateFormatter.string(from: Date())
+
+        // Get the appropriate directory (Documents for iOS)
+        guard let documentsDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+            fatalError("Unable to access documents directory")
+        }
+
+        // Create log directory path
+        let logDirectory = documentsDirectory.appendingPathComponent(prefixPath)
+
+        // Create directory if it doesn't exist
+        try? FileManager.default.createDirectory(at: logDirectory, withIntermediateDirectories: true, attributes: nil)
+
+        // Create log file name
+        let logFileName = "\(exe)-\(timestamp).log"
+        let logFilePath = logDirectory.appendingPathComponent(logFileName)
+
+        return logFilePath.path
     }
 }
