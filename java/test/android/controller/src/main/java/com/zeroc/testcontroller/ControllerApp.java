@@ -17,7 +17,6 @@ import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Time;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 import java.util.Locale;
