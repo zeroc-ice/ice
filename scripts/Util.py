@@ -2598,8 +2598,6 @@ class AndroidProcessController(RemoteProcessController):
         try:
             # Pull log files from the device
             print("pulling log files from the device")
-            # get dir for target language
-
             subprocess.run(
                 [self.adb(), "pull", "/sdcard/Android/data/com.zeroc.testcontroller/", androidLogsDir],
                 timeout=60,
