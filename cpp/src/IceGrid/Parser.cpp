@@ -2662,10 +2662,6 @@ Parser::exception(std::exception_ptr pex)
     {
         error("registry '" + ex.name + "' couldn't be reached:\n" + ex.reason);
     }
-    catch (const ServerUnreachableException& ex)
-    {
-        error("server '" + ex.name + "' couldn't be reached:\n" + ex.reason);
-    }
     catch (const AccessDeniedException& ex)
     {
         error("couldn't update the registry, the session from '" + ex.lockUserId + "' is updating the registry");

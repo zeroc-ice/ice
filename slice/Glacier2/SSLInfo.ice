@@ -15,6 +15,8 @@
 ["java:identifier:com.zeroc.Glacier2"]
 module Glacier2
 {
+    interface SSLPermissionsVerifier; // So that doc-comments can link to `SSLPermissionsVerifier`.
+
     /// Represents information gathered from an incoming SSL connection and used for authentication and authorization.
     /// @see SSLPermissionsVerifier
     struct SSLInfo
