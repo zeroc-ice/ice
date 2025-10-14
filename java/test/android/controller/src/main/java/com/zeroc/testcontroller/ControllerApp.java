@@ -169,8 +169,9 @@ public class ControllerApp extends Application {
             initData.properties = new com.zeroc.Ice.Properties();
             initData.properties.setProperty("Ice.LogFile", logFilePath("controller", "controller"));
 
-            initData.properties.setProperty("Ice.Trace.Retry", "1");
-            initData.properties.setProperty("Ice.Trace.Protocol", "1");
+            initData.properties.setProperty("Ice.Trace.Dispatch", "1");
+            // initData.properties.setProperty("Ice.Trace.Retry", "1");
+            // initData.properties.setProperty("Ice.Trace.Protocol", "1");
             // initData.properties.setProperty("Ice.Trace.Network", "1");
             initData.properties.setProperty("Ice.Warn.Connections", "1");
 
