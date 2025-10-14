@@ -2605,7 +2605,8 @@ class AndroidProcessController(RemoteProcessController):
         except Exception as ex:
             print(f"failed to pull log files from the device: {ex}")
 
-        # Get controller logcat output
+        # Get controller logcat output. This will contain logs from the app process that include the
+        # output from the Ice process logger.
         if self.controllerPid:
             try:
                 logCatResult = subprocess.run(
