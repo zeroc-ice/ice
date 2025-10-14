@@ -431,7 +431,7 @@ public class ControllerApp extends Application {
                 mainHelper.start();
                 return Test.Common.ProcessPrx.uncheckedCast(
                         current.adapter.addWithUUID(new ProcessI(mainHelper)));
-            } catch (Exception ex) {
+            } catch (ClassNotFoundException ex) {
                 throw new Test.Common.ProcessFailedException(
                         "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex);
             }
