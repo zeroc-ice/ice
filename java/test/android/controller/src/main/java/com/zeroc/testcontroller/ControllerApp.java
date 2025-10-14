@@ -5,6 +5,7 @@
 package com.zeroc.testcontroller;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
@@ -15,9 +16,11 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Time;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 import java.util.Locale;
-import java.io.Writer;
 
 public class ControllerApp extends Application {
     private final String TAG = "ControllerApp";
@@ -164,6 +167,13 @@ public class ControllerApp extends Application {
         public ControllerI(boolean bluetooth) {
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = new com.zeroc.Ice.Properties();
+            initData.properties.setProperty("Ice.LogFile", logFilePath("controller", "controller"));
+
+            initData.properties.setProperty("Ice.Trace.Retry", "1");
+            initData.properties.setProperty("Ice.Trace.Protocol", "1");
+            // initData.properties.setProperty("Ice.Trace.Network", "1");
+            initData.properties.setProperty("Ice.Warn.Connections", "1");
+
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
             initData.properties.setProperty(
@@ -396,6 +406,7 @@ public class ControllerApp extends Application {
     }
 
     class ProcessControllerI implements Test.Common.ProcessController {
+
         public Test.Common.ProcessPrx start(
                 final String testsuite,
                 final String exe,
@@ -409,13 +420,20 @@ public class ControllerApp extends Application {
                             + "."
                             + exe.substring(0, 1).toUpperCase(Locale.ROOT)
                             + exe.substring(1);
+
             try {
+                String logFilePath = logFilePath(testsuite, exe);
+                String[] argsWithLogFile = java.util.Arrays.copyOf(args, args.length + 1);
+                // logFilePath must not have spaces
+                argsWithLogFile[argsWithLogFile.length - 1] = "--Ice.LogFile=" + logFilePath;
+
+
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
-                ControllerHelperI mainHelper = new ControllerHelperI(bundle, args);
+                ControllerHelperI mainHelper = new ControllerHelperI(bundle, argsWithLogFile);
                 mainHelper.start();
                 return Test.Common.ProcessPrx.uncheckedCast(
                         current.adapter.addWithUUID(new ProcessI(mainHelper)));
-            } catch (ClassNotFoundException ex) {
+            } catch (Exception ex) {
                 throw new Test.Common.ProcessFailedException(
                         "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex);
             }
@@ -462,5 +480,17 @@ public class ControllerApp extends Application {
         }
 
         private final ControllerHelperI _controllerHelper;
+    }
+
+    String logFilePath(String prefixPath, String exe) throws RuntimeException {
+        String timestamp = new java.text.SimpleDateFormat("MMddyy-HHmm").format(new java.util.Date());
+        Context applicationContext = getApplicationContext();
+        File cacheDir = applicationContext.getExternalFilesDir(null);
+
+        File logDir = new File(cacheDir, prefixPath);
+        logDir.mkdirs();
+        File logFile = new File(logDir, exe + "-" + timestamp + ".log");
+
+        return logFile.getAbsolutePath();
     }
 }

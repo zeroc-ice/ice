@@ -2593,6 +2593,24 @@ class AndroidProcessController(RemoteProcessController):
             time.sleep(1)
 
     def stopControllerApp(self, ident):
+        androidLogsDir = os.path.join(toplevel, "java", "test", "logs", "android")
+        os.makedirs(androidLogsDir, exist_ok=True)
+        try:
+            # Pull log files from the device
+            print("pulling log files from the device")
+            # get dir for target language
+            if not os.path.exists(androidLogsDir):
+                os.mkdir(androidLogsDir)
+
+            subprocess.run(
+                [self.adb(), "pull", "/sdcard/Android/data/com.zeroc.testcontroller/", androidLogsDir],
+                timeout=60,
+                check=True,
+            )
+        except Exception as ex:
+            print(f"failed to pull log files from the device: {ex}")
+            pass
+
         # Get controller logcat output
         if self.controllerPid:
             try:
@@ -2613,10 +2631,8 @@ class AndroidProcessController(RemoteProcessController):
                     check=False,
                 )
 
-                # Save to file
-                sanitized_pid = re.sub(r"[^A-Za-z0-9_-]", "_", self.controllerPid.strip())
-                filename = f"android-emulator-{sanitized_pid}.log"
-                with open(filename, "w") as f:
+                filename = f"emulator-{self.controllerPid}.log"
+                with open(os.path.join(androidLogsDir, filename), "w") as f:
                     print(f"saving {filename}")
                     f.write(logCatResult.stdout)
             except Exception as ex:
