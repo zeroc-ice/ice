@@ -3,9 +3,9 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include "TestAMD.h"
+#include "Test.h"
 
-class MetricsI final : public Test::Metrics
+class MetricsI final : public Test::AsyncMetrics
 {
 public:
     void opAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
@@ -31,9 +31,13 @@ public:
     void
     opByteSAsync(Test::ByteSeq, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
         final;
-    std::optional<Ice::ObjectPrx> getAdmin(const Ice::Current&) final;
 
-    void shutdown(const Ice::Current&) final;
+    void getAdminAsync(
+        std::function<void(const std::optional<Ice::ObjectPrx>&)> response,
+        std::function<void(std::exception_ptr)> error,
+        const Ice::Current&) final;
+
+    void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 };
 
 class ControllerI final : public Test::Controller

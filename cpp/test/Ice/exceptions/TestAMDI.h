@@ -3,11 +3,11 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include "TestAMD.h"
+#include "Test.h"
 
 bool endsWith(const std::string&, const std::string&);
 
-class ThrowerI : public Test::Thrower
+class ThrowerI : public Test::AsyncThrower
 {
 public:
     ThrowerI();
