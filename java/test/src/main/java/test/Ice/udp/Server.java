@@ -21,12 +21,7 @@ public class Server extends TestHelper {
         {
             String endpoint;
             if ("1".equals(properties.getIceProperty("Ice.IPv6"))) {
-                // We don't do this on Linux because the loopback interface doesn't support multicast.
-                if (System.getProperty("os.name").contains("OS X")) {
-                    endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
-                } else {
-                    endpoint = "udp -h \"ff15::1:1\" -p 12020";
-                }
+                endpoint = "udp -h \"ff15::1:1\" -p 12020";
             } else {
                 endpoint = "udp -h 239.255.1.1 -p 12020";
             }
@@ -54,21 +49,9 @@ public class Server extends TestHelper {
             if ("1".equals(properties.getIceProperty("Ice.IPv6"))) {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(getTestPort(10));
-                if (System.getProperty("os.name").contains("OS X")
-                    || System.getProperty("os.name").startsWith("Windows")) {
-                    endpoint.append(
-                        " --interface \"::1\""); // Use loopback to prevent other machines to
-                    // answer.
-                }
             } else {
                 endpoint.append("udp -h 239.255.1.1 -p ");
                 endpoint.append(getTestPort(10));
-                if (System.getProperty("os.name").contains("OS X")
-                    || System.getProperty("os.name").startsWith("Windows")) {
-                    endpoint.append(
-                        " --interface 127.0.0.1"); // Use loopback to prevent other machines to
-                    // answer.
-                }
             }
             properties.setProperty("McastTestAdapter.Endpoints", endpoint.toString());
 

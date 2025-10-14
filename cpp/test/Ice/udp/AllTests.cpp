@@ -116,15 +116,17 @@ allTests(Test::TestHelper* helper)
     if (communicator->getProperties()->getIceProperty("Ice.IPv6") == "1")
     {
         endpoint << "udp -h \"ff15::1:1\" -p " << helper->getTestPort(10);
-#if defined(__APPLE__) || defined(_WIN32)
-        endpoint << " --interface \"::1\""; // Use loopback to prevent other machines to answer. the multicast requests.
+#if defined(__APPLE__)
+        // Use loopback on macOS to run successfully on GitHub runners.
+        endpoint << " --interface \"::1\"";
 #endif
     }
     else
     {
         endpoint << "udp -h 239.255.1.1 -p " << helper->getTestPort(10);
-#if defined(__APPLE__) || defined(_WIN32)
-        endpoint << " --interface 127.0.0.1"; // Use loopback to prevent other machines to answer.
+#if defined(__APPLE__)
+        // Use loopback on macOS to run successfully on GitHub runners.
+        endpoint << " --interface 127.0.0.1";
 #endif
     }
 

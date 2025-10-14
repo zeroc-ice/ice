@@ -41,16 +41,10 @@ Server::run(int argc, char** argv)
     if (communicator->getProperties()->getIceProperty("Ice.IPv6") == "1")
     {
         endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(10);
-#if defined(__APPLE__) || defined(_WIN32)
-        endpoint << " --interface \"::1\""; // Use loopback to prevent other machines to answer.
-#endif
     }
     else
     {
         endpoint << "udp -h 239.255.1.1 -p " << getTestPort(10);
-#if defined(__APPLE__) || defined(_WIN32)
-        endpoint << " --interface 127.0.0.1"; // Use loopback to prevent other machines to answer.
-#endif
     }
     communicator->getProperties()->setProperty("McastTestAdapter.Endpoints", endpoint.str());
 
