@@ -229,8 +229,8 @@ final class Selector {
 
     private void wakeup() {
         if (_selecting && !_interrupted) {
-            _selector.wakeup();
             _interrupted = true;
+            _selector.wakeup();
         }
     }
 
@@ -277,6 +277,8 @@ final class Selector {
     private final HashSet<EventHandler> _readyHandlers = new HashSet<>();
     private boolean _selecting;
     private boolean _selectNow;
-    private boolean _interrupted;
+    // Marked as volatile to ensure that when the selector is wakeup, after calling wakeup(), the _interrupted
+    // change is visible to the thread blocked in select().
+    private volatile boolean _interrupted;
     private int _spuriousWakeUp;
 }
