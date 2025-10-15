@@ -3,9 +3,9 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include "TestAMD.h"
+#include "Test.h"
 
-class InitialI final : public Test::Initial
+class InitialI final : public Test::AsyncInitial
 {
 public:
     InitialI();
@@ -14,7 +14,7 @@ public:
 
     void pingPongAsync(
         Ice::ValuePtr,
-        std::function<void(const Ice::ValuePtr&)>,
+        std::function<void(PingPongMarshaledResult)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 

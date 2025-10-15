@@ -3,9 +3,9 @@
 #ifndef TESTAMD_I_H
 #define TESTAMD_I_H
 
-#include "TestAMD.h"
+#include "Test.h"
 
-class TestAMDI : public Test::TestIntf
+class TestAMDI : public Test::AsyncTestIntf
 {
 public:
     void requestFailedExceptionAsync(

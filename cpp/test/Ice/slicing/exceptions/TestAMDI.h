@@ -3,9 +3,9 @@
 #ifndef TESTAMDI_H
 #define TESTAMDI_H
 
-#include "ServerPrivateAMD.h"
+#include "ServerPrivate.h"
 
-class TestI final : public Test::TestIntf
+class TestI final : public Test::AsyncTestIntf
 {
 public:
     TestI();

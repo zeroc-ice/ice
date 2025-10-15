@@ -22,6 +22,37 @@ using namespace Test::Common;
 
 namespace
 {
+    string createLogDirectory(const string& path)
+    {
+        // Get cache directory
+        NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
+        NSString* cacheDirectory = [paths firstObject];
+
+        // Create log directory path
+        NSString* nsPrefixPath = [NSString stringWithUTF8String:path.c_str()];
+        NSString* logDirectory = [cacheDirectory stringByAppendingPathComponent:nsPrefixPath];
+
+        // Create directory if it doesn't exist
+        [[NSFileManager defaultManager] createDirectoryAtPath:logDirectory
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:nil];
+
+        // Convert back to string
+        return string([logDirectory UTF8String]);
+    }
+
+    string getControllerLogFile()
+    {
+        // Create timestamp in MMddyy-HHmm format
+        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"MMddyy-HHmm"];
+        NSString* timestamp = [dateFormatter stringFromDate:[NSDate date]];
+
+        string logDirectory = createLogDirectory("controller");
+        return logDirectory + "/controller-" + string([timestamp UTF8String]) + ".log";
+    }
+
     typedef Test::TestHelper* (*CREATE_HELPER_ENTRY_POINT)();
 
     class ControllerHelperI : public Test::ControllerHelper
@@ -77,8 +108,9 @@ namespace
     public:
         ProcessControllerI(id<ControllerView>, NSString*, NSString*);
 
-        virtual optional<ProcessPrx> start(string, string, StringSeq, const Ice::Current&);
-        virtual string getHost(string, bool, const Ice::Current&);
+        optional<ProcessPrx> start(string, string, StringSeq, const Ice::Current&) override;
+        string getHost(string, bool, const Ice::Current&) override;
+        string createLogDirectory(string, const Ice::Current&) override;
 
     private:
         id<ControllerView> _controller;
@@ -90,7 +122,7 @@ namespace
     {
     public:
         ControllerI(id<ControllerView>, NSString*, NSString*);
-        virtual ~ControllerI();
+        ~ControllerI();
 
     private:
         Ice::CommunicatorPtr _communicator;
@@ -336,15 +368,21 @@ ProcessControllerI::getHost(string protocol, bool ipv6, const Ice::Current& c)
     return ipv6 ? _ipv6 : _ipv4;
 }
 
+string
+ProcessControllerI::createLogDirectory(string path, const Ice::Current& c)
+{
+    return ::createLogDirectory(path);
+}
+
 ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString* ipv6)
 {
     Ice::InitializationData initData = Ice::InitializationData();
     initData.properties = Ice::createProperties();
+    initData.properties->setProperty("Ice.LogFile", getControllerLogFile());
+    initData.properties->setProperty("Ice.Trace.Dispatch", "1");
     initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");
     initData.properties->setProperty("IceDiscovery.DomainId", "TestController");
     initData.properties->setProperty("ControllerAdapter.Endpoints", "tcp");
-    // initData.properties->setProperty("Ice.Trace.Network", "2");
-    // initData.properties->setProperty("Ice.Trace.Protocol", "2");
     initData.properties->setProperty("ControllerAdapter.AdapterId", Ice::generateUUID());
 
     initData.pluginFactories = {Ice::udpPluginFactory(), IceDiscovery::discoveryPluginFactory()};
@@ -366,10 +404,10 @@ ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString
 ControllerI::~ControllerI()
 {
     _communicator->destroy();
-    _communicator = 0;
+    _communicator = nullptr;
 }
 
-static ControllerI* controllerI = 0;
+static ControllerI* controllerI = nullptr;
 
 extern "C"
 {
@@ -383,7 +421,7 @@ extern "C"
         if (controllerI)
         {
             delete controllerI;
-            controllerI = 0;
+            controllerI = nullptr;
         }
     }
 }

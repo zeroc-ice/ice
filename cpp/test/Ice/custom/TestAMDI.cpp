@@ -30,7 +30,7 @@ void
 TestIntfI::opDoubleArrayAsync(
     bool,
     pair<const double*, const double*> in,
-    function<void(const DoubleSeq&, const DoubleSeq&)> response,
+    function<void(std::pair<const double*, const double*>, std::pair<const double*, const double*>)> response,
     function<void(exception_ptr)>,
     const Current&)
 {
@@ -39,20 +39,17 @@ TestIntfI::opDoubleArrayAsync(
     test(reinterpret_cast<size_t>(in.first) % sizeof(double) != 0);
     test(*(in.first) == 3.14);
 #endif
-
-    DoubleSeq out(in.first, in.second);
-    response(out, out);
+    response(in, in);
 }
 
 void
 TestIntfI::opBoolArrayAsync(
     pair<const bool*, const bool*> in,
-    function<void(const BoolSeq&, const BoolSeq&)> response,
+    function<void(std::pair<const bool*, const bool*>, std::pair<const bool*, const bool*>)> response,
     function<void(exception_ptr)>,
     const Current&)
 {
-    BoolSeq out(in.first, in.second);
-    response(out, out);
+    response(in, in);
 }
 
 void
@@ -68,12 +65,11 @@ TestIntfI::opByteArrayAsync(
 void
 TestIntfI::opVariableArrayAsync(
     pair<const Variable*, const Variable*> in,
-    function<void(const VariableList&, const VariableList&)> response,
+    function<void(std::pair<const Variable*, const Variable*>, std::pair<const Variable*, const Variable*>)> response,
     function<void(exception_ptr)>,
     const Current&)
 {
-    VariableList out(in.first, in.second);
-    response(out, out);
+    response(in, in);
 }
 
 void
@@ -94,6 +90,26 @@ TestIntfI::opBoolListAsync(
     const Current&)
 {
     response(in, in);
+}
+
+void
+TestIntfI::opBoolDequeListAsync(
+    BoolDequeList in,
+    function<void(const BoolDequeList&, const BoolDequeList&)> response,
+    function<void(exception_ptr)>,
+    const Current&)
+{
+    response(in, in);
+}
+
+void
+TestIntfI::opBoolDequeListArrayAsync(
+    pair<const deque<bool>*, const deque<bool>*> inSeq,
+    function<void(pair<const deque<bool>*, const deque<bool>*>, pair<const deque<bool>*, const deque<bool>*>)> response,
+    function<void(exception_ptr)>,
+    const Current&)
+{
+    response(inSeq, inSeq);
 }
 
 void

@@ -71,6 +71,10 @@ final class ProcessControllerI: CommonProcessController {
     ) throws -> String {
         return ipv6 ? _ipv6 : _ipv4
     }
+
+    func createLogDirectory(path: String, current: Ice.Current) throws -> String {
+        return LogHelper.createLogDirectory(path).path
+    }
 }
 
 class ControllerI {
@@ -80,13 +84,14 @@ class ControllerI {
 
     private init(view: ViewController, ipv4: String, ipv6: String) throws {
         let properties = Ice.createProperties()
+
+        properties.setProperty(key: "Ice.LogFile", value: LogHelper.getControllerLogFile().path)
+        properties.setProperty(key: "Ice.Trace.Dispatch", value: "1")
         properties.setProperty(key: "Ice.Plugin.IceDiscovery", value: "1")
         properties.setProperty(key: "Ice.ThreadPool.Server.SizeMax", value: "10")
         properties.setProperty(key: "IceDiscovery.DomainId", value: "TestController")
         properties.setProperty(key: "ControllerAdapter.Endpoints", value: "tcp")
         properties.setProperty(key: "ControllerAdapter.AdapterId", value: UUID().uuidString)
-        // properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
-        // properties.setProperty(key: "Ice.Trace.Network", value: "3")
 
         var initData = Ice.InitializationData()
         initData.properties = properties
@@ -248,5 +253,32 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
 
     public func getOutput() -> String {
         return _out
+    }
+}
+
+class LogHelper {
+    static func createLogDirectory(_ path: String) -> URL {
+        // Get the appropriate directory (Documents for iOS)
+        guard let documentsDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+            fatalError("Unable to access documents directory")
+        }
+
+        // Create log directory path
+        let logDirectory = documentsDirectory.appendingPathComponent(path)
+
+        // Create directory if it doesn't exist
+        try? FileManager.default.createDirectory(at: logDirectory, withIntermediateDirectories: true, attributes: nil)
+
+        return logDirectory
+    }
+
+    static func getControllerLogFile() -> URL {
+        // Create timestamp in MMddyy-HHmm format
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMddyy-HHmm"
+        let timestamp = dateFormatter.string(from: Date())
+
+        let logDir = createLogDirectory("controller")
+        return logDir.appendingPathComponent("controller-\(timestamp).log")
     }
 }

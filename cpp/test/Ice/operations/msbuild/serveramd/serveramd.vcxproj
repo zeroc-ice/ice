@@ -85,29 +85,29 @@
   <ItemGroup>
     <ClCompile Include="..\..\ServerAMD.cpp" />
     <ClCompile Include="..\..\TestAMDI.cpp" />
-    <ClCompile Include="Win32\Debug\TestAMD.cpp">
+    <ClCompile Include="Win32\Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\Test.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="Win32\Release\TestAMD.cpp">
+    <ClCompile Include="Win32\Release\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\Test.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Debug\TestAMD.cpp">
+    <ClCompile Include="x64\Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\Test.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Release\TestAMD.cpp">
+    <ClCompile Include="x64\Release\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\Test.ice</SliceCompileSource>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -116,29 +116,29 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\Test.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="Win32\Release\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\Test.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="x64\Debug\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\Test.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="x64\Release\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
+      <SliceCompileSource>..\..\Test.ice</SliceCompileSource>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\TestAMD.ice" />
+    <SliceCompile Include="..\..\Test.ice" />
   </ItemGroup>
   <PropertyGroup Label="UserMacros" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

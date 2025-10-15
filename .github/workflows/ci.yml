@@ -231,7 +231,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-logs-${{ matrix.config }}-${{ matrix.os }}
-          path: ${{ matrix.working_directory || '.' }}/**/*.log
+          path: ${{ '.' }}/**/*.log
           if-no-files-found: ignore
         if: always()
 
@@ -271,10 +271,3 @@ jobs:
           path: ${{ github.workspace }}/LocalDumpReports/*
           if-no-files-found: ignore
         if: runner.os == 'Windows' && always()
-
-      - name: Upload Android crashdata
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-logs-${{ matrix.config }}-${{ matrix.os }}
-          path: /tmp/android-runner/
-        if: matrix.config == 'android' && always()

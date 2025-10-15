@@ -3,9 +3,9 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include "TestAMD.h"
+#include "Test.h"
 
-class TestIntfI : public virtual Test::TestIntf
+class TestIntfI : public virtual Test::AsyncTestIntf
 {
 public:
     void opShortArrayAsync(
@@ -19,13 +19,13 @@ public:
     void opDoubleArrayAsync(
         bool,
         std::pair<const double*, const double*>,
-        std::function<void(const Test::DoubleSeq&, const Test::DoubleSeq&)>,
+        std::function<void(std::pair<const double*, const double*>, std::pair<const double*, const double*>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 
     void opBoolArrayAsync(
         std::pair<const bool*, const bool*>,
-        std::function<void(const Test::BoolSeq&, const Test::BoolSeq&)>,
+        std::function<void(std::pair<const bool*, const bool*>, std::pair<const bool*, const bool*>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 
@@ -38,7 +38,9 @@ public:
 
     void opVariableArrayAsync(
         std::pair<const Test::Variable*, const Test::Variable*>,
-        std::function<void(const Test::VariableList&, const Test::VariableList&)>,
+        std::function<void(
+            std::pair<const Test::Variable*, const Test::Variable*>,
+            std::pair<const Test::Variable*, const Test::Variable*>)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 
@@ -53,6 +55,20 @@ public:
         std::function<void(const Test::BoolList&, const Test::BoolList&)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
+
+    void opBoolDequeListAsync(
+        Test::BoolDequeList,
+        std::function<void(const Test::BoolDequeList&, const Test::BoolDequeList&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) override;
+
+    void opBoolDequeListArrayAsync(
+        std::pair<const std::deque<bool>*, const std::deque<bool>*> inSeq,
+        std::function<void(
+            std::pair<const std::deque<bool>*, const std::deque<bool>*> returnValue,
+            std::pair<const std::deque<bool>*, const std::deque<bool>*> outSeq)> response,
+        std::function<void(std::exception_ptr)> exception,
+        const Ice::Current& current) override;
 
     void opByteSeqAsync(
         std::deque<std::byte>,

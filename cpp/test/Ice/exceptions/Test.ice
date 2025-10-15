@@ -75,6 +75,8 @@ module Test
 
         void throwAfterResponse();
         void throwAfterException() throws A;
+
+        void throwE() throws E;
     }
 
     interface WrongOperation
