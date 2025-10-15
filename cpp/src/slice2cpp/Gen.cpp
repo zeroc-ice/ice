@@ -247,8 +247,8 @@ namespace
 
     void writeSeeAlso(
         [[maybe_unused]] Output& out,
-        [[maybe_unused]]const StringList& lines,
-        [[maybe_unused]]const string& space = " ")
+        [[maybe_unused]] const StringList& lines,
+        [[maybe_unused]] const string& space = " ")
     {
         // See #4543
     }
