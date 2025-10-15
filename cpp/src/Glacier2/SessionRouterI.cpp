@@ -556,43 +556,44 @@ SessionRouterI::destroy()
 void
 SessionRouterI::getClientProxyAsync(
     std::function<void(const optional<Ice::ObjectPrx>&, optional<bool>)> response,
-    std::function<void(exception_ptr)> exception,
+    std::function<void(exception_ptr)>,
     const Current& current) const
 {
-    getRouter(current.con, current.id)
-        ->getClientProxyAsync(std::move(response), std::move(exception), current); // Forward to the per-client router.
+    // Forward to the per-client router.
+    optional<bool> hasRoutingTable;
+    optional<ObjectPrx> proxy = getRouter(current.con, current.id)->getClientProxy(hasRoutingTable, current);
+    response(proxy, hasRoutingTable);
 }
 
 void
 SessionRouterI::getServerProxyAsync(
     std::function<void(const optional<Ice::ObjectPrx>&)> response,
-    std::function<void(exception_ptr)> exception,
+    std::function<void(exception_ptr)>,
     const Current& current) const
 {
     // Forward to the per-client router.
-    getRouter(current.con, current.id)->getServerProxyAsync(std::move(response), std::move(exception), current);
+    response(getRouter(current.con, current.id)->getServerProxy(current));
 }
 
 void
 SessionRouterI::addProxiesAsync(
     ObjectProxySeq proxies,
     std::function<void(const ObjectProxySeq&)> response,
-    std::function<void(exception_ptr)> exception,
+    std::function<void(exception_ptr)>,
     const Current& current)
 {
     // Forward to the per-client router.
-    getRouter(current.con, current.id)
-        ->addProxiesAsync(std::move(proxies), std::move(response), std::move(exception), current);
+    response(getRouter(current.con, current.id)->addProxies(std::move(proxies), current));
 }
 
 void
 SessionRouterI::getCategoryForClientAsync(
     std::function<void(string_view)> response,
-    std::function<void(exception_ptr)> exception,
+    std::function<void(exception_ptr)>,
     const Ice::Current& current) const
 {
     // Forward to the per-client router.
-    getRouter(current.con, current.id)->getCategoryForClientAsync(std::move(response), std::move(exception), current);
+    response(getRouter(current.con, current.id)->getCategoryForClient(current));
 }
 
 void
@@ -722,7 +723,7 @@ SessionRouterI::destroySession(const ConnectionPtr& connection)
 
         if (_instance->serverObjectAdapter())
         {
-            string category = router->getServerProxy()->ice_getIdentity().category;
+            string category = router->serverProxy()->ice_getIdentity().category;
             assert(!category.empty());
             _routersByCategory.erase(category);
             _routersByCategoryHint = _routersByCategory.cend();
