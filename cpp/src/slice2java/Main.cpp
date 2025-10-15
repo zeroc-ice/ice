@@ -30,7 +30,28 @@ class JavaDocCommentFormatter final : public DocCommentFormatter
 
     string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {
-        return Slice::Java::javaLinkFormatter(rawLink, source, target);
+        string mappedLink;
+        if (Slice::Java::javaLinkFormatter(rawLink, source, target, mappedLink))
+        {
+            return "{@link " + mappedLink + '}';
+        }
+        else
+        {
+            return "{@code " + mappedLink + '}';
+        }
+    }
+
+    string formatSeeAlso(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+    {
+        string mappedLink;
+        if (Slice::Java::javaLinkFormatter(rawLink, source, target, mappedLink))
+        {
+            return "@see " + mappedLink;
+        }
+        else
+        {
+            return "@see \"" + mappedLink + '"';
+        }
     }
 };
 

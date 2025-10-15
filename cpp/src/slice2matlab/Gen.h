@@ -61,8 +61,9 @@ namespace Slice
         std::unique_ptr<IceInternal::Output> _out;
     };
 
-    /// Returns a MATLAB formatted link (an 'href') for the provided Slice identifier.
-    std::string
+    /// Converts a Slice link to a MATLAB link.
+    /// @returns a pair containing a fully-qualified MATLAB link, and a locally-scoped MATLAB link, in that order.
+    std::pair<std::string, std::string>
     matlabLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 }
 

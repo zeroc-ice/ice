@@ -79,9 +79,17 @@ namespace Slice::Csharp
         bool marshal,
         const std::string& customStream = "");
 
-    /// Returns a C# formatted link to the provided Slice identifier.
-    std::string
-    csLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
+    /// Converts a Slice-formatted link into a C# formatted link.
+    /// @param rawLink The references's raw text, taken verbatim from the doc-comment.
+    /// @param source A pointer to the Slice element that the doc-comment (and reference) are written on.
+    /// @param target A pointer to the Slice element that is being referenced, or `nullptr` if it doesn't exist.
+    /// @param mappedLink Output parameter where the formatted link is written to.
+    /// @returns @c false if the link was to a Slice element which isn't mapped in C#, @c true otherwise.
+    bool csLinkFormatter(
+        const std::string& rawLink,
+        const ContainedPtr& source,
+        const SyntaxTreeBasePtr& target,
+        std::string& mappedLink);
 }
 
 #endif

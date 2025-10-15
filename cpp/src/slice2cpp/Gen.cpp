@@ -245,15 +245,11 @@ namespace
         }
     }
 
-    void writeSeeAlso(Output& out, const StringList& lines, const string& space = " ")
+    void writeSeeAlso(Output& out, const StringList& lines)
     {
         for (const string& line : lines)
         {
-            out << nl << "///";
-            if (!line.empty())
-            {
-                out << space << "@see " << line;
-            }
+            out << nl << "/// " << line;
         }
     }
 
@@ -284,11 +280,7 @@ namespace
             writeDocLines(out, remarks, false);
         }
 
-        const StringList& seeAlso = doc->seeAlso();
-        if (!seeAlso.empty())
-        {
-            writeSeeAlso(out, seeAlso);
-        }
+        writeSeeAlso(out, doc->seeAlso());
 
         if (options.generateDeprecated)
         {
@@ -463,11 +455,7 @@ namespace
             writeDocLines(out, remarks, false);
         }
 
-        const StringList& seeAlso = doc.seeAlso();
-        if (!seeAlso.empty())
-        {
-            writeSeeAlso(out, seeAlso);
-        }
+        writeSeeAlso(out, doc.seeAlso());
 
         if (options.generateDeprecated)
         {

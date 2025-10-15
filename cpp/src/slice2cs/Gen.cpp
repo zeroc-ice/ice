@@ -104,33 +104,14 @@ namespace
         writeDocLine(out, "returns", "The unmarshaled value.");
     }
 
-    // TODO: this function should probably use the link formatter.
-    // This is currently not possible because DocComment::seeAlso() returns a list of strings.
-    string toCsIdent(const string& s)
+    void writeSeeAlso(Output& out, const StringList& seeAlso)
     {
-        string::size_type pos = s.find('#');
-        if (pos == string::npos)
+        for (const string& line : seeAlso)
         {
-            return s;
-        }
-
-        string result = s;
-        if (pos == 0)
-        {
-            return result.erase(0, 1);
-        }
-
-        result[pos] = '.';
-        return result;
-    }
-
-    void writeSeeAlso(Output& out, const StringList& lines)
-    {
-        for (const auto& line : lines)
-        {
+            out << nl << "///";
             if (!line.empty())
             {
-                out << nl << "/// <seealso cref=\"" << toCsIdent(line) << "\" />";
+                out << " " << line;
             }
         }
     }
