@@ -245,16 +245,12 @@ namespace
         }
     }
 
-    void writeSeeAlso(Output& out, const StringList& lines, const string& space = " ")
+    void writeSeeAlso(
+        [[maybe_unused]] Output& out,
+        [[maybe_unused]]const StringList& lines,
+        [[maybe_unused]]const string& space = " ")
     {
-        for (const string& line : lines)
-        {
-            out << nl << "///";
-            if (!line.empty())
-            {
-                out << space << "@see " << line;
-            }
-        }
+        // See #4543
     }
 
     struct DocSummaryOptions
