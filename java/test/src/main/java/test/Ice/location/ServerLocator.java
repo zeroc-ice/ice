@@ -24,13 +24,11 @@ public class ServerLocator implements TestLocator {
     }
 
     @Override
-    public CompletionStage<ObjectPrx> findAdapterByIdAsync(
-            String adapter, Current current)
-        throws AdapterNotFoundException {
+    public ObjectPrx findAdapterById(String adapter, Current current) throws AdapterNotFoundException {
         ++_requestCount;
         if ("TestAdapter10".equals(adapter) || "TestAdapter10-2".equals(adapter)) {
             assert (current.encoding.equals(Util.Encoding_1_0));
-            return CompletableFuture.completedFuture(_registry.getAdapter("TestAdapter"));
+            return _registry.getAdapter("TestAdapter");
         }
 
         // We add a small delay to make sure locator request queuing gets tested when running the
@@ -38,20 +36,18 @@ public class ServerLocator implements TestLocator {
         try {
             Thread.sleep(1);
         } catch (InterruptedException ex) {}
-        return CompletableFuture.completedFuture(_registry.getAdapter(adapter));
+        return _registry.getAdapter(adapter);
     }
 
     @Override
-    public CompletionStage<ObjectPrx> findObjectByIdAsync(
-            Identity id, Current current)
-        throws ObjectNotFoundException {
+    public ObjectPrx findObjectById(Identity id, Current current) throws ObjectNotFoundException {
         ++_requestCount;
         // We add a small delay to make sure locator request queuing gets tested when running the
         // test on a fast machine
         try {
             Thread.sleep(1);
         } catch (InterruptedException ex) {}
-        return CompletableFuture.completedFuture(_registry.getObject(id));
+        return _registry.getObject(id);
     }
 
     @Override

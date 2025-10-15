@@ -116,15 +116,13 @@ class PluginI implements Plugin {
 
     private static class VoidLocatorI implements Locator {
         @Override
-        public CompletionStage<ObjectPrx> findObjectByIdAsync(
-                Identity id, Current current) {
-            return CompletableFuture.completedFuture((ObjectPrx) null);
+        public ObjectPrx findObjectById(Identity id, Current current) {
+            return null;
         }
 
         @Override
-        public CompletionStage<ObjectPrx> findAdapterByIdAsync(
-                String id, Current current) {
-            return CompletableFuture.completedFuture((ObjectPrx) null);
+        public ObjectPrx findAdapterById(String id, Current current) {
+            return null;
         }
 
         @Override
