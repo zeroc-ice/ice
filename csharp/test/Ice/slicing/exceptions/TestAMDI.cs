@@ -2,7 +2,7 @@
 
 using Test;
 
-public sealed class TestI : TestIntfDisp_
+public sealed class TestI : AsyncTestIntfDisp_
 {
     public override Task shutdownAsync(Ice.Current current)
     {

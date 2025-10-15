@@ -32,12 +32,6 @@ namespace Slice
         static std::vector<std::string> getOutParams(const OperationPtr&, const std::string&, bool, bool);
         static std::vector<std::string> getArgs(const OperationPtr&);
         static std::vector<std::string> getInArgs(const OperationPtr&, bool = false);
-        static std::string getDispatchParams(
-            const OperationPtr&,
-            std::string&,
-            std::vector<std::string>&,
-            std::vector<std::string>&,
-            const std::string&);
 
         /// Generates C# attributes from any 'cs:attribute' metadata.
         void emitAttributes(const ContainedPtr&);
@@ -128,10 +122,10 @@ namespace Slice
             void visitOperation(const OperationPtr&) final;
         };
 
-        class ServantVisitor final : public CsVisitor
+        class SkeletonVisitor final : public CsVisitor
         {
         public:
-            ServantVisitor(IceInternal::Output&);
+            SkeletonVisitor(IceInternal::Output& output, bool async);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
@@ -141,6 +135,17 @@ namespace Slice
 
         private:
             void writeDispatch(const InterfaceDefPtr&);
+
+            std::string getDispatchParams(
+                const OperationPtr&,
+                std::string&,
+                std::vector<std::string>&,
+                std::vector<std::string>&,
+                const std::string&);
+
+            [[nodiscard]] std::string skeletonPrefix() const;
+            [[nodiscard]] std::string prependSkeletonPrefix(const std::string&) const;
+            const bool _async;
         };
     };
 }

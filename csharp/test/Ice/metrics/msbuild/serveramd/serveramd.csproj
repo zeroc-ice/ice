@@ -12,11 +12,11 @@
   <ItemGroup>
     <Compile Include="../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../MetricsAMDI.cs" />
-    <Compile Include="../../Server.cs" />
-    <Compile Include="generated\TestAMD.cs">
-      <SliceCompileSource>../../TestAMD.ice</SliceCompileSource>
+    <Compile Include="../../ServerAMD.cs" />
+    <Compile Include="generated\Test.cs">
+      <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>
-    <SliceCompile Include="../../TestAMD.ice" />
+    <SliceCompile Include="../../Test.ice" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="generated\" />
