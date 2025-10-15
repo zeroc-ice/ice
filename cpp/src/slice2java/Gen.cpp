@@ -2332,8 +2332,14 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
 }
 
 void
-Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& ref)
+Slice::JavaVisitor::writeSeeAlso(
+    [[maybe_unused]] Output& out,
+    [[maybe_unused]] const UnitPtr& unt,
+    [[maybe_unused]] const string& ref)
 {
+    // See #4543
+
+    /*
     assert(!ref.empty());
 
     //
@@ -2374,6 +2380,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
         assert(cont);
         out << getUnqualified(cont) << rest;
     }
+    */
 }
 
 void
