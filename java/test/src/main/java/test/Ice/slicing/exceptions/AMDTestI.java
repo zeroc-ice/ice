@@ -4,20 +4,21 @@ package test.Ice.slicing.exceptions;
 
 import com.zeroc.Ice.Current;
 
-import test.Ice.slicing.exceptions.serverAMD.Test.Base;
-import test.Ice.slicing.exceptions.serverAMD.Test.KnownDerived;
-import test.Ice.slicing.exceptions.serverAMD.Test.KnownIntermediate;
-import test.Ice.slicing.exceptions.serverAMD.Test.KnownMostDerived;
-import test.Ice.slicing.exceptions.serverAMD.Test.TestIntf;
-import test.Ice.slicing.exceptions.serverAMD.Test.UnknownDerived;
-import test.Ice.slicing.exceptions.serverAMD.Test.UnknownIntermediate;
-import test.Ice.slicing.exceptions.serverAMD.Test.UnknownMostDerived1;
-import test.Ice.slicing.exceptions.serverAMD.Test.UnknownMostDerived2;
+import test.Ice.slicing.exceptions.server.Test.AsyncTestIntf;
+import test.Ice.slicing.exceptions.server.Test.Base;
+import test.Ice.slicing.exceptions.server.Test.KnownDerived;
+import test.Ice.slicing.exceptions.server.Test.KnownIntermediate;
+import test.Ice.slicing.exceptions.server.Test.KnownMostDerived;
+import test.Ice.slicing.exceptions.server.Test.TestIntf;
+import test.Ice.slicing.exceptions.server.Test.UnknownDerived;
+import test.Ice.slicing.exceptions.server.Test.UnknownIntermediate;
+import test.Ice.slicing.exceptions.server.Test.UnknownMostDerived1;
+import test.Ice.slicing.exceptions.server.Test.UnknownMostDerived2;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public final class AMDTestI implements TestIntf {
+public final class AMDTestI implements AsyncTestIntf {
     @Override
     public CompletionStage<Void> shutdownAsync(Current current) {
         current.adapter.getCommunicator().shutdown();

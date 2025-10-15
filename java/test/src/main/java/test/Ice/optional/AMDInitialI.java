@@ -5,24 +5,25 @@ package test.Ice.optional;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Value;
 
-import test.Ice.optional.AMD.Test.A;
-import test.Ice.optional.AMD.Test.DerivedException;
-import test.Ice.optional.AMD.Test.FixedStruct;
-import test.Ice.optional.AMD.Test.G;
-import test.Ice.optional.AMD.Test.Initial;
-import test.Ice.optional.AMD.Test.Initial.OpMDict1MarshaledResult;
-import test.Ice.optional.AMD.Test.Initial.OpMDict2MarshaledResult;
-import test.Ice.optional.AMD.Test.Initial.OpMSeq1MarshaledResult;
-import test.Ice.optional.AMD.Test.Initial.OpMSeq2MarshaledResult;
-import test.Ice.optional.AMD.Test.Initial.OpMStruct1MarshaledResult;
-import test.Ice.optional.AMD.Test.Initial.OpMStruct2MarshaledResult;
-import test.Ice.optional.AMD.Test.MyEnum;
-import test.Ice.optional.AMD.Test.MyInterfacePrx;
-import test.Ice.optional.AMD.Test.OneOptional;
-import test.Ice.optional.AMD.Test.OptionalException;
-import test.Ice.optional.AMD.Test.RequiredException;
-import test.Ice.optional.AMD.Test.SmallStruct;
-import test.Ice.optional.AMD.Test.VarStruct;
+import test.Ice.optional.Test.A;
+import test.Ice.optional.Test.AsyncInitial;
+import test.Ice.optional.Test.DerivedException;
+import test.Ice.optional.Test.FixedStruct;
+import test.Ice.optional.Test.G;
+import test.Ice.optional.Test.Initial;
+import test.Ice.optional.Test.Initial.OpMDict1MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMDict2MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMSeq1MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMSeq2MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMStruct1MarshaledResult;
+import test.Ice.optional.Test.Initial.OpMStruct2MarshaledResult;
+import test.Ice.optional.Test.MyEnum;
+import test.Ice.optional.Test.MyInterfacePrx;
+import test.Ice.optional.Test.OneOptional;
+import test.Ice.optional.Test.OptionalException;
+import test.Ice.optional.Test.RequiredException;
+import test.Ice.optional.Test.SmallStruct;
+import test.Ice.optional.Test.VarStruct;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +35,7 @@ import java.util.OptionalLong;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public final class AMDInitialI implements Initial {
+public final class AMDInitialI implements AsyncInitial {
     @Override
     public CompletionStage<Void> shutdownAsync(Current current) {
         current.adapter.getCommunicator().shutdown();
