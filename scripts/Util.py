@@ -2455,9 +2455,7 @@ class RemoteProcessController(ProcessController):
                 programName = process.exe or current.testcase.getProcessType(process)
 
             logDirectory = processController.createLogDirectory(current.testsuite)
-            traceProps["Ice.LogFile"] = os.path.join(
-                logDirectory, f"{programName}-{time.strftime('%m%d%y-%H%M')}.log"
-            )
+            traceProps["Ice.LogFile"] = os.path.join(logDirectory, f"{programName}-{time.strftime('%m%d%y-%H%M')}.log")
             props.update(traceProps)
 
         exe = process.getExe(current)
