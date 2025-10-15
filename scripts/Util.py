@@ -2457,7 +2457,7 @@ class RemoteProcessController(ProcessController):
             # The process controller will add update this to append the path.
             logDirectory = processController.createLogDirectory(current.testsuite)
             traceProps["Ice.LogFile"] = os.path.join(
-                logDirectory, current.testsuite, f"{programName}-{time.strftime('%m%d%y-%H%M')}.log"
+                logDirectory, f"{programName}-{time.strftime('%m%d%y-%H%M')}.log"
             )
             props.update(traceProps)
 
