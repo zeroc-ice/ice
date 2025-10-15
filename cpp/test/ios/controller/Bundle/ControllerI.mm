@@ -380,9 +380,6 @@ ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString
     initData.properties = Ice::createProperties();
     initData.properties->setProperty("Ice.LogFile", getControllerLogFile());
     initData.properties->setProperty("Ice.Trace.Dispatch", "1");
-    // initData.properties->setProperty("Ice.Trace.Network", "2");
-    // initData.properties->setProperty("Ice.Trace.Protocol", "2");
-
     initData.properties->setProperty("Ice.ThreadPool.Server.SizeMax", "10");
     initData.properties->setProperty("IceDiscovery.DomainId", "TestController");
     initData.properties->setProperty("ControllerAdapter.Endpoints", "tcp");

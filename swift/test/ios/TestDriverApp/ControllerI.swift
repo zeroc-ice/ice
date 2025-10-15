@@ -87,9 +87,6 @@ class ControllerI {
 
         properties.setProperty(key: "Ice.LogFile", value: LogHelper.getControllerLogFile().path)
         properties.setProperty(key: "Ice.Trace.Dispatch", value: "1")
-        // properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
-        // properties.setProperty(key: "Ice.Trace.Network", value: "3")
-
         properties.setProperty(key: "Ice.Plugin.IceDiscovery", value: "1")
         properties.setProperty(key: "Ice.ThreadPool.Server.SizeMax", value: "10")
         properties.setProperty(key: "IceDiscovery.DomainId", value: "TestController")
