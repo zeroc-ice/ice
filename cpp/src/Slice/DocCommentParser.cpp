@@ -611,7 +611,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
             }
             else
             {
-                // If the line ends with a period, remove it and warn users that '@see' should not be sentences.
+                // If the line ends with a period, remove it and warn users that '@see' tags are not sentences.
                 // Trailing periods will trip up some language's doc-comments.
                 if (lineText.back() == '.')
                 {
@@ -633,7 +633,7 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                     // Parameter references must be done with '@p' tags, and can only appear on the enclosing operation.
                     string msg = "cannot link parameter '" + lineText + "'; parameters can only be referenced with @p";
                     p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                    lineText = nullptr;
+                    seeTarget = nullptr;
                 }
 
                 // Run the '@see's content through the doc-comment formatter to map it into the target language.
