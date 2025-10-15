@@ -18,8 +18,8 @@ $(project)_server_sources          = Server.cpp \
 $(project)_serveramd_sources       = ServerAMD.cpp \
                                   TestAMDI.cpp \
                                   WstringAMDI.cpp \
-                                  TestAMD.ice \
-                                  WstringAMD.ice \
+                                  Test.ice \
+                                  Wstring.ice \
                                   MyByteSeq.cpp \
                                   StringConverterI.cpp
 

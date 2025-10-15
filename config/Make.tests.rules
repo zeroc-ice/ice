@@ -19,7 +19,7 @@ test-programs           = client server serveramd collocated
 #
 test-client-sources     = Client.$1 *Test.ice AllTests.$1
 test-server-sources     = Server.$1 *Test.ice TestI.$1
-test-serveramd-sources  = ServerAMD.$1 *TestAMD.ice *Test.ice TestAMDI.$1
+test-serveramd-sources  = ServerAMD.$1 *Test.ice TestAMDI.$1
 test-collocated-sources = Collocated.$1
 
 #

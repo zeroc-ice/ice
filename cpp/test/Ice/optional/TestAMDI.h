@@ -14,7 +14,7 @@ public:
 
     void pingPongAsync(
         Ice::ValuePtr,
-        std::function<void(Test::AsyncInitial::PingPongMarshaledResult)>>,
+        std::function<void(PingPongMarshaledResult)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
 

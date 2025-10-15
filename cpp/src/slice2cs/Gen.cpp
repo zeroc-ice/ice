@@ -2639,13 +2639,13 @@ Slice::Gen::SkeletonVisitor::getDispatchParams(
 }
 
 string
-Slice::Gen::SkeletonVisitor::prependSkeletonPrefix(const string& name) const
-{
-    return _async ? "Async" + removeEscapePrefix(name) : name;
-}
-
-string
 Slice::Gen::SkeletonVisitor::skeletonPrefix() const
 {
     return _async ? "Async" : "";
+}
+
+string
+Slice::Gen::SkeletonVisitor::prependSkeletonPrefix(const string& name) const
+{
+    return _async ? "Async" + removeEscapePrefix(name) : name;
 }
