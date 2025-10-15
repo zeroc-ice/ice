@@ -2073,7 +2073,7 @@ Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unt, const optio
         out << nl << " *";
         for (const auto& p : seeAlso)
         {
-            out << nl << " * @see ";
+            // out << nl << " * @see ";
             writeSeeAlso(out, unt, p);
         }
     }
@@ -2212,7 +2212,7 @@ Slice::JavaVisitor::writeProxyOpDocComment(
         StringList sa = seeAlso;
         for (const auto& q : sa)
         {
-            out << nl << " * @see ";
+            // out << nl << " * @see ";
             writeSeeAlso(out, p->unit(), q);
         }
     }
@@ -2323,7 +2323,7 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
         out << nl << " *";
         for (const auto& q : seeAlso)
         {
-            out << nl << " * @see ";
+            // out << nl << " * @see ";
             writeSeeAlso(out, p->unit(), q);
         }
     }
