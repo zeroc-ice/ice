@@ -2198,8 +2198,7 @@ class LocalProcessController(ProcessController):
                 else:
                     programName = process.exe or current.testcase.getProcessType(process)
                 traceFile = os.path.join(
-                    current.testsuite.getPath(),
-                    "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M")),
+                    current.testsuite.getPath(), "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M"))
                 )
                 traceProps["Ice.LogFile"] = traceFile
             props.update(traceProps)
@@ -2449,7 +2448,18 @@ class RemoteProcessController(ProcessController):
         # TODO: support envs?
 
         traceProps = process.getEffectiveTraceProps(current)
-        props.update(traceProps)
+        if traceProps:
+            if "Ice.ProgramName" in props:
+                programName = props["Ice.ProgramName"]
+            else:
+                programName = process.exe or current.testcase.getProcessType(process)
+            # Set Ice.LogFile to the log only the program name and timestamp.
+            # The process controller will add update this to append the path.
+            logDirectory = processController.createLogDirectory(current.testsuite)
+            traceProps["Ice.LogFile"] = os.path.join(
+                logDirectory, current.testsuite, f"{programName}-{time.strftime('%m%d%y-%H%M')}.log"
+            )
+            props.update(traceProps)
 
         exe = process.getExe(current)
         args = ["--{0}={1}".format(k, val(v, quoteValue=False)) for k, v in props.items()] + [val(a) for a in args]

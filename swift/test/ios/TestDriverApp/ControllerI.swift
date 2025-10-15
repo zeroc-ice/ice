@@ -56,10 +56,7 @@ final class ProcessControllerI: CommonProcessController {
             currentTest += "AMD"
         }
 
-        let logFilePath = LogHelper.getLogFilePath(prefixPath: testsuite, exe: exe)
-        let argsWithLogFile = args + ["--Ice.LogFile=\(logFilePath)"]
-
-        let helper = ControllerHelperI(view: _view, testName: currentTest, args: argsWithLogFile, exe: exe)
+        let helper = ControllerHelperI(view: _view, testName: currentTest, args: args, exe: exe)
 
         helper.run()
         return try uncheckedCast(
@@ -74,6 +71,10 @@ final class ProcessControllerI: CommonProcessController {
     ) throws -> String {
         return ipv6 ? _ipv6 : _ipv4
     }
+
+    func createLogDirectory(path: String, current: Ice.Current) throws -> String {
+        return LogHelper.createLogDirectory(path).path
+    }
 }
 
 class ControllerI {
@@ -84,8 +85,7 @@ class ControllerI {
     private init(view: ViewController, ipv4: String, ipv6: String) throws {
         let properties = Ice.createProperties()
 
-        properties.setProperty(
-            key: "Ice.LogFile", value: LogHelper.getLogFilePath(prefixPath: "controller", exe: "controller"))
+        properties.setProperty(key: "Ice.LogFile", value: LogHelper.getControllerLogFile().path)
         properties.setProperty(key: "Ice.Trace.Dispatch", value: "1")
         // properties.setProperty(key: "Ice.Trace.Protocol", value: "2")
         // properties.setProperty(key: "Ice.Trace.Network", value: "3")
@@ -260,27 +260,28 @@ class ControllerHelperI: ControllerHelper, TextWriter, @unchecked Sendable {
 }
 
 class LogHelper {
-    static func getLogFilePath(prefixPath: String, exe: String) -> String {
-        // Create timestamp in MMddyy-HHmm format
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMddyy-HHmm"
-        let timestamp = dateFormatter.string(from: Date())
-
+    static func createLogDirectory(_ path: String) -> URL {
         // Get the appropriate directory (Documents for iOS)
         guard let documentsDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
             fatalError("Unable to access documents directory")
         }
 
         // Create log directory path
-        let logDirectory = documentsDirectory.appendingPathComponent(prefixPath)
+        let logDirectory = documentsDirectory.appendingPathComponent(path)
 
         // Create directory if it doesn't exist
         try? FileManager.default.createDirectory(at: logDirectory, withIntermediateDirectories: true, attributes: nil)
 
-        // Create log file name
-        let logFileName = "\(exe)-\(timestamp).log"
-        let logFilePath = logDirectory.appendingPathComponent(logFileName)
+        return logDirectory
+    }
 
-        return logFilePath.path
+    static func getControllerLogFile() -> URL {
+         // Create timestamp in MMddyy-HHmm format
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMddyy-HHmm"
+        let timestamp = dateFormatter.string(from: Date())
+
+        let logDir = createLogDirectory("controller")
+        return logDir.appendingPathComponent("controller-\(timestamp).log")
     }
 }

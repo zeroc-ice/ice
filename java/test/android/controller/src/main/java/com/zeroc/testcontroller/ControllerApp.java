@@ -166,7 +166,7 @@ public class ControllerApp extends Application {
         public ControllerI(boolean bluetooth) {
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = new com.zeroc.Ice.Properties();
-            initData.properties.setProperty("Ice.LogFile", logFilePath("controller", "controller"));
+            initData.properties.setProperty("Ice.LogFile", getControllerLogFile().getAbsolutePath());
 
             initData.properties.setProperty("Ice.Trace.Dispatch", "1");
             // initData.properties.setProperty("Ice.Trace.Retry", "1");
@@ -421,12 +421,8 @@ public class ControllerApp extends Application {
                             + exe.substring(1);
 
             try {
-                String logFilePath = logFilePath(testsuite, exe);
-                String[] argsWithLogFile = java.util.Arrays.copyOf(args, args.length + 1);
-                argsWithLogFile[argsWithLogFile.length - 1] = "--Ice.LogFile=" + logFilePath;
-
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
-                ControllerHelperI mainHelper = new ControllerHelperI(bundle, argsWithLogFile);
+                ControllerHelperI mainHelper = new ControllerHelperI(bundle, args);
                 mainHelper.start();
                 return Test.Common.ProcessPrx.uncheckedCast(
                         current.adapter.addWithUUID(new ProcessI(mainHelper)));
@@ -444,6 +440,10 @@ public class ControllerApp extends Application {
                     return ipv6 ? _ipv6Address : _ipv4Address;
                 }
             }
+        }
+
+        public String createLogDirectory(String path, com.zeroc.Ice.Current current) {
+            return ControllerApp.this.createLogDirectory(path).getAbsolutePath();
         }
     }
 
@@ -479,15 +479,20 @@ public class ControllerApp extends Application {
         private final ControllerHelperI _controllerHelper;
     }
 
-    String logFilePath(String prefixPath, String exe) throws RuntimeException {
-        String timestamp = new java.text.SimpleDateFormat("MMddyy-HHmm").format(new java.util.Date());
+    File createLogDirectory(String path) {
+
         Context applicationContext = getApplicationContext();
         File cacheDir = applicationContext.getExternalFilesDir(null);
 
-        File logDir = new File(cacheDir, prefixPath);
+        File logDir = new File(cacheDir, path);
         logDir.mkdirs();
-        File logFile = new File(logDir, exe + "-" + timestamp + ".log");
 
-        return logFile.getAbsolutePath();
+        return logDir;
+    }
+
+    File getControllerLogFile() {
+        String timestamp = new java.text.SimpleDateFormat("MMddyy-HHmm").format(new java.util.Date());
+        File logFile = new File(createLogDirectory("controller"), "controller-" + timestamp + ".log");
+        return logFile;
     }
 }

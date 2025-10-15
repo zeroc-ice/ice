@@ -85,6 +85,8 @@ module Test::Common
             throws ProcessFailedException;
 
         string getHost(["swift:identifier:transportProtocol"] string protocol, bool ipv6);
+
+        idempotent string createLogDirectory(string path);
     }
 
     interface BrowserProcessController extends ProcessController

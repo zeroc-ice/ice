@@ -22,19 +22,14 @@ using namespace Test::Common;
 
 namespace
 {
-    string getLogFilePath(const string& prefixPath, const string& exe)
+    string createLogDirectory(const string& path)
     {
-        // Create timestamp in MMddyy-HHmm format
-        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"MMddyy-HHmm"];
-        NSString* timestamp = [dateFormatter stringFromDate:[NSDate date]];
-
         // Get cache directory
         NSArray* paths = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES);
         NSString* cacheDirectory = [paths firstObject];
 
         // Create log directory path
-        NSString* nsPrefixPath = [NSString stringWithUTF8String:prefixPath.c_str()];
+        NSString* nsPrefixPath = [NSString stringWithUTF8String:path.c_str()];
         NSString* logDirectory = [cacheDirectory stringByAppendingPathComponent:nsPrefixPath];
 
         // Create directory if it doesn't exist
@@ -43,13 +38,19 @@ namespace
                                                    attributes:nil
                                                         error:nil];
 
-        // Create log file name
-        NSString* nsExe = [NSString stringWithUTF8String:exe.c_str()];
-        NSString* logFileName = [NSString stringWithFormat:@"%@-%@.log", nsExe, timestamp];
-        NSString* logFilePath = [logDirectory stringByAppendingPathComponent:logFileName];
-
         // Convert back to string
-        return string([logFilePath UTF8String]);
+        return string([logDirectory UTF8String]);
+    }
+
+    string getControllerLogFile()
+    {
+        // Create timestamp in MMddyy-HHmm format
+        NSDateFormatter* dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:@"MMddyy-HHmm"];
+        NSString* timestamp = [dateFormatter stringFromDate:[NSDate date]];
+
+        string logDirectory = createLogDirectory("controller");
+        return logDirectory + "/controller-" + string([timestamp UTF8String]) + ".log";
     }
 
     typedef Test::TestHelper* (*CREATE_HELPER_ENTRY_POINT)();
@@ -107,8 +108,9 @@ namespace
     public:
         ProcessControllerI(id<ControllerView>, NSString*, NSString*);
 
-        virtual optional<ProcessPrx> start(string, string, StringSeq, const Ice::Current&);
-        virtual string getHost(string, bool, const Ice::Current&);
+        optional<ProcessPrx> start(string, string, StringSeq, const Ice::Current&) override;
+        string getHost(string, bool, const Ice::Current&) override;
+        string createLogDirectory(string, const Ice::Current&) override;
 
     private:
         id<ControllerView> _controller;
@@ -120,7 +122,7 @@ namespace
     {
     public:
         ControllerI(id<ControllerView>, NSString*, NSString*);
-        virtual ~ControllerI();
+        ~ControllerI();
 
     private:
         Ice::CommunicatorPtr _communicator;
@@ -355,7 +357,6 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
     std::string prefix = std::string("test/") + testSuite;
     replace(prefix.begin(), prefix.end(), '/', '_');
     newArgs.insert(newArgs.begin(), testSuite + ' ' + exe);
-    newArgs.push_back("--Ice.LogFile=" + getLogFilePath(prefix, exe));
     [_controller println:[NSString stringWithFormat:@"starting %s %s... ", testSuite.c_str(), exe.c_str()]];
     auto helper = make_shared<ControllerHelperI>(_controller, prefix + '/' + exe + ".bundle", newArgs);
     return c.adapter->addWithUUID<ProcessPrx>(make_shared<ProcessI>(_controller, helper));
@@ -367,11 +368,17 @@ ProcessControllerI::getHost(string protocol, bool ipv6, const Ice::Current& c)
     return ipv6 ? _ipv6 : _ipv4;
 }
 
+string
+ProcessControllerI::createLogDirectory(string path, const Ice::Current& c)
+{
+    return ::createLogDirectory(path);
+}
+
 ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString* ipv6)
 {
     Ice::InitializationData initData = Ice::InitializationData();
     initData.properties = Ice::createProperties();
-    initData.properties->setProperty("Ice.LogFile", getLogFilePath("controller", "controller"));
+    initData.properties->setProperty("Ice.LogFile", getControllerLogFile());
     initData.properties->setProperty("Ice.Trace.Dispatch", "1");
     // initData.properties->setProperty("Ice.Trace.Network", "2");
     // initData.properties->setProperty("Ice.Trace.Protocol", "2");
