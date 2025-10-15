@@ -12,8 +12,8 @@ import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
 import com.zeroc.Ice.UserException;
 
-import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
-import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
+import test.Ice.servantLocator.Test.TestImpossibleException;
+import test.Ice.servantLocator.Test.TestIntfUserException;
 
 public final class AMDServantLocatorI implements ServantLocator {
     public AMDServantLocatorI(String category) {

@@ -7,16 +7,16 @@ import com.zeroc.Ice.DispatchException;
 import com.zeroc.Ice.TimeoutException;
 import com.zeroc.Ice.UserException;
 
-import test.Ice.exceptions.AMD.Test.A;
-import test.Ice.exceptions.AMD.Test.B;
-import test.Ice.exceptions.AMD.Test.C;
-import test.Ice.exceptions.AMD.Test.D;
-import test.Ice.exceptions.AMD.Test.Thrower;
+import test.Ice.exceptions.Test.A;
+import test.Ice.exceptions.Test.AsyncThrower;
+import test.Ice.exceptions.Test.B;
+import test.Ice.exceptions.Test.C;
+import test.Ice.exceptions.Test.D;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public final class AMDThrowerI implements Thrower {
+public final class AMDThrowerI implements AsyncThrower {
     public AMDThrowerI() {}
 
     @Override
