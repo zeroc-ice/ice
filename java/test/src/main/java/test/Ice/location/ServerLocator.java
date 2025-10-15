@@ -12,9 +12,6 @@ import com.zeroc.Ice.Util;
 
 import test.Ice.location.Test.TestLocator;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-
 public class ServerLocator implements TestLocator {
     public ServerLocator(
             ServerLocatorRegistry registry, LocatorRegistryPrx registryPrx) {

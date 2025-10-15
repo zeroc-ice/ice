@@ -12,8 +12,6 @@ import com.zeroc.Ice.ProcessPrx;
 import test.Ice.location.Test.TestLocatorRegistry;
 
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public class ServerLocatorRegistry implements TestLocatorRegistry {
     @Override

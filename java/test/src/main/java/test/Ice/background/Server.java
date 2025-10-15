@@ -18,8 +18,6 @@ import test.TestHelper;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public class Server extends TestHelper {
     public static class LocatorI implements Locator {

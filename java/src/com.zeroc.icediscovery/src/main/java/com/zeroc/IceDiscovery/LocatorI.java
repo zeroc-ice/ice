@@ -2,9 +2,9 @@
 
 package com.zeroc.IceDiscovery;
 
+import com.zeroc.Ice.AsyncLocator;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Identity;
-import com.zeroc.Ice.AsyncLocator;
 import com.zeroc.Ice.LocatorRegistryPrx;
 import com.zeroc.Ice.ObjectPrx;
 
