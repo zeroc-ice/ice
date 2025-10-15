@@ -276,7 +276,7 @@ class LogHelper {
     }
 
     static func getControllerLogFile() -> URL {
-         // Create timestamp in MMddyy-HHmm format
+        // Create timestamp in MMddyy-HHmm format
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMddyy-HHmm"
         let timestamp = dateFormatter.string(from: Date())
