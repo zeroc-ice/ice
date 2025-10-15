@@ -32,7 +32,7 @@ namespace Glacier2
             std::function<void(const std::optional<Ice::ObjectPrx>& returnValue, std::optional<bool> hasRoutingTable)>
                 response,
             std::function<void(std::exception_ptr)> exception,
-            const Ice::Current&) const;
+            const Ice::Current&) const final;
 
         void getServerProxyAsync(
             std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,
