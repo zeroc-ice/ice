@@ -212,14 +212,23 @@ namespace Slice
             void visitOperation(const OperationPtr&) final;
         };
 
-        class ServantVisitor final : public JavaVisitor
+        class SkeletonVisitor final : public JavaVisitor
         {
         public:
-            ServantVisitor(const std::string& dir);
+            SkeletonVisitor(const std::string& dir, bool async);
 
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
             void visitOperation(const OperationPtr&) final;
+
+        private:
+            [[nodiscard]] std::string skeletonPrefix() const;
+            [[nodiscard]] std::string prependSkeletonPrefix(const std::string& name) const;
+
+            [[nodiscard]] std::string
+            getDispatchResultType(const OperationPtr& op, const std::string& package, bool object) const;
+
+            const bool _async;
         };
     };
 }

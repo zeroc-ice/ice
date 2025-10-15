@@ -14,7 +14,7 @@ import test.TestHelper;
 public class AMDServer extends TestHelper {
     public void run(String[] args) {
         InitializationData initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.exceptions.AMD.Test");
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.exceptions.Test");
         // For this test, we need a dummy logger, otherwise the assertion test will print an error message.
         initData.logger = new DummyLogger();
 

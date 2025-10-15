@@ -53,18 +53,9 @@ namespace
 }
 
 string
-Slice::Java::getResultType(const OperationPtr& op, const string& package, bool object, bool dispatch)
+Slice::Java::getResultType(const OperationPtr& op, const string& package, bool object)
 {
-    if (dispatch && op->hasMarshaledResult())
-    {
-        const InterfaceDefPtr interface = op->interface();
-        assert(interface);
-        string abs = getUnqualified(interface, package);
-        string name = op->mappedName();
-        name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
-        return abs + "." + name + "MarshaledResult";
-    }
-    else if (op->returnsMultipleValues())
+    if (op->returnsMultipleValues())
     {
         const ContainedPtr c = dynamic_pointer_cast<Contained>(op->container());
         assert(c);
@@ -287,9 +278,9 @@ Slice::Java::getUnqualified(const std::string& type, const std::string& package)
 }
 
 string
-Slice::Java::getUnqualified(const ContainedPtr& cont, const string& package)
+Slice::Java::getUnqualified(const ContainedPtr& cont, const string& package, const string& prefix)
 {
-    string name = cont->mappedName();
+    string name = prefix + cont->mappedName();
     string contPkg = getPackage(cont);
     return (contPkg == package || contPkg.empty()) ? name : contPkg + "." + name;
 }

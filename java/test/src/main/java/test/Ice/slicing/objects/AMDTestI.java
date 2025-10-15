@@ -6,37 +6,38 @@ import com.zeroc.Ice.Current;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.Value;
 
-import test.Ice.slicing.objects.serverAMD.Test.B;
-import test.Ice.slicing.objects.serverAMD.Test.BaseException;
-import test.Ice.slicing.objects.serverAMD.Test.D1;
-import test.Ice.slicing.objects.serverAMD.Test.D2;
-import test.Ice.slicing.objects.serverAMD.Test.D4;
-import test.Ice.slicing.objects.serverAMD.Test.DerivedException;
-import test.Ice.slicing.objects.serverAMD.Test.Forward;
-import test.Ice.slicing.objects.serverAMD.Test.Hidden;
-import test.Ice.slicing.objects.serverAMD.Test.MyClass;
-import test.Ice.slicing.objects.serverAMD.Test.PBase;
-import test.Ice.slicing.objects.serverAMD.Test.PNode;
-import test.Ice.slicing.objects.serverAMD.Test.PSUnknown;
-import test.Ice.slicing.objects.serverAMD.Test.PSUnknown2;
-import test.Ice.slicing.objects.serverAMD.Test.PSUnknownException;
-import test.Ice.slicing.objects.serverAMD.Test.Preserved;
-import test.Ice.slicing.objects.serverAMD.Test.SBSKnownDerived;
-import test.Ice.slicing.objects.serverAMD.Test.SBSUnknownDerived;
-import test.Ice.slicing.objects.serverAMD.Test.SBase;
-import test.Ice.slicing.objects.serverAMD.Test.SS1;
-import test.Ice.slicing.objects.serverAMD.Test.SS2;
-import test.Ice.slicing.objects.serverAMD.Test.SS3;
-import test.Ice.slicing.objects.serverAMD.Test.SUnknown;
-import test.Ice.slicing.objects.serverAMD.Test.TestIntf;
-import test.Ice.slicing.objects.serverAMD.Test.UnknownDerivedException;
+import test.Ice.slicing.objects.server.Test.AsyncTestIntf;
+import test.Ice.slicing.objects.server.Test.B;
+import test.Ice.slicing.objects.server.Test.BaseException;
+import test.Ice.slicing.objects.server.Test.D1;
+import test.Ice.slicing.objects.server.Test.D2;
+import test.Ice.slicing.objects.server.Test.D4;
+import test.Ice.slicing.objects.server.Test.DerivedException;
+import test.Ice.slicing.objects.server.Test.Forward;
+import test.Ice.slicing.objects.server.Test.Hidden;
+import test.Ice.slicing.objects.server.Test.MyClass;
+import test.Ice.slicing.objects.server.Test.PBase;
+import test.Ice.slicing.objects.server.Test.PNode;
+import test.Ice.slicing.objects.server.Test.PSUnknown;
+import test.Ice.slicing.objects.server.Test.PSUnknown2;
+import test.Ice.slicing.objects.server.Test.PSUnknownException;
+import test.Ice.slicing.objects.server.Test.Preserved;
+import test.Ice.slicing.objects.server.Test.SBSKnownDerived;
+import test.Ice.slicing.objects.server.Test.SBSUnknownDerived;
+import test.Ice.slicing.objects.server.Test.SBase;
+import test.Ice.slicing.objects.server.Test.SS1;
+import test.Ice.slicing.objects.server.Test.SS2;
+import test.Ice.slicing.objects.server.Test.SS3;
+import test.Ice.slicing.objects.server.Test.SUnknown;
+import test.Ice.slicing.objects.server.Test.TestIntf;
+import test.Ice.slicing.objects.server.Test.UnknownDerivedException;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public final class AMDTestI implements TestIntf {
+public final class AMDTestI implements AsyncTestIntf {
     private static void test(boolean b) {
         if (!b) {
             throw new RuntimeException();

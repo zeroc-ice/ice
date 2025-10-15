@@ -1363,7 +1363,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
     const string name = p->mappedName();
     const string package = getPackage(p->interface());
 
-    const string resultType = getResultType(p, package, false, false);
+    const string resultType = getResultType(p, package, false);
 
     const string contextParamName = getEscapedParamName(p->parameters(), "context");
     const string contextDoc = "@param " + contextParamName + " The Context map to send with the invocation.";
@@ -1449,7 +1449,7 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
     const string name = p->mappedName();
     const string package = getPackage(p->interface());
 
-    const string resultType = getResultType(p, package, true, false);
+    const string resultType = getResultType(p, package, true);
     const string futureType = "java.util.concurrent.CompletableFuture<" + resultType + ">";
 
     const string contextParamName = getEscapedParamName(p->parameters(), "context");
@@ -1493,7 +1493,7 @@ Slice::JavaVisitor::writeIceIHelperMethods(
     const string name = p->mappedName();
     const string package = getPackage(p->interface());
 
-    const string resultType = getResultType(p, package, true, false);
+    const string resultType = getResultType(p, package, true);
     const string futureImplType = "com.zeroc.Ice.OutgoingAsync<" + resultType + ">";
 
     // Generate the internal method '_iceI_<NAME>Async'.
@@ -1578,7 +1578,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
 
     if (op->returnsMultipleValues())
     {
-        string resultType = getResultType(op, package, false, false);
+        string resultType = getResultType(op, package, false);
         out << nl << resultType << ' ' << name << " = new " << resultType << "();";
         out << nl << name << ".read(istr);";
         if (op->returnsClasses())
@@ -1589,7 +1589,7 @@ Slice::JavaVisitor::writeUnmarshalProxyResults(Output& out, const string& packag
     }
     else
     {
-        string resultType = getResultType(op, package, false, false);
+        string resultType = getResultType(op, package, false);
 
         bool isOptional;
         TypePtr type;
@@ -2073,7 +2073,7 @@ Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unt, const optio
         out << nl << " *";
         for (const auto& p : seeAlso)
         {
-            out << nl << " * @see ";
+            // out << nl << " * @see ";
             writeSeeAlso(out, unt, p);
         }
     }
@@ -2151,7 +2151,7 @@ Slice::JavaVisitor::writeProxyOpDocComment(
     //
     if (p->returnsMultipleValues())
     {
-        const string r = getResultType(p, package, true, false);
+        const string r = getResultType(p, package, true);
         if (async)
         {
             out << nl << " * @return A future that will be completed with an instance of " << r << '.';
@@ -2212,7 +2212,7 @@ Slice::JavaVisitor::writeProxyOpDocComment(
         StringList sa = seeAlso;
         for (const auto& q : sa)
         {
-            out << nl << " * @see ";
+            // out << nl << " * @see ";
             writeSeeAlso(out, p->unit(), q);
         }
     }
@@ -2268,7 +2268,7 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
     // Handle the return value (if any).
     if (p->returnsMultipleValues())
     {
-        const string r = getResultType(p, package, true, false);
+        const string r = getResultType(p, package, true);
         if (async)
         {
             out << nl << " * @return A completion stage that the servant will complete with an instance of " << r
@@ -2323,7 +2323,7 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
         out << nl << " *";
         for (const auto& q : seeAlso)
         {
-            out << nl << " * @see ";
+            // out << nl << " * @see ";
             writeSeeAlso(out, p->unit(), q);
         }
     }
@@ -2332,8 +2332,14 @@ Slice::JavaVisitor::writeServantOpDocComment(Output& out, const OperationPtr& p,
 }
 
 void
-Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& ref)
+Slice::JavaVisitor::writeSeeAlso(
+    [[maybe_unused]] Output& out,
+    [[maybe_unused]] const UnitPtr& unt,
+    [[maybe_unused]] const string& ref)
 {
+    // See #4543
+
+    /*
     assert(!ref.empty());
 
     //
@@ -2374,6 +2380,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
         assert(cont);
         out << getUnqualified(cont) << rest;
     }
+    */
 }
 
 void
@@ -2412,8 +2419,13 @@ Slice::Gen::generate(const UnitPtr& p)
     TypesVisitor typesVisitor(_dir);
     p->visit(&typesVisitor);
 
-    ServantVisitor servantVisitor(_dir);
-    p->visit(&servantVisitor);
+    // Generate the default skeletons.
+    SkeletonVisitor skeletonVisitor(_dir, false);
+    p->visit(&skeletonVisitor);
+
+    // Generate the async skeletons.
+    SkeletonVisitor asyncSkeletonVisitor(_dir, true);
+    p->visit(&asyncSkeletonVisitor);
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) : JavaVisitor(dir) {}
@@ -4458,15 +4470,16 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::ServantVisitor::ServantVisitor(const string& dir) : JavaVisitor(dir) {}
+Slice::Gen::SkeletonVisitor::SkeletonVisitor(const string& dir, bool async) : JavaVisitor(dir), _async(async) {}
 
 bool
-Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::Gen::SkeletonVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
+    string name = prependSkeletonPrefix(p->mappedName());
     InterfaceList bases = p->bases();
 
     string package = getPackage(p);
-    open(getUnqualified(p), p->file());
+    open(getUnqualified(p, "", skeletonPrefix()), p->file());
 
     Output& out = output();
 
@@ -4475,7 +4488,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     writeDocComment(out, p->unit(), dc);
 
     out << nl << "@com.zeroc.Ice.SliceTypeId(value = \"" << p->scoped() << "\")";
-    out << nl << "public interface " << p->mappedName() << " extends ";
+    out << nl << "public interface " << name << " extends ";
     if (bases.empty())
     {
         out << "com.zeroc.Ice.Object";
@@ -4485,7 +4498,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out.spar("");
         for (const auto& base : bases)
         {
-            out << getUnqualified(base, package);
+            out << getUnqualified(base, package, skeletonPrefix());
         }
         out.epar("");
     }
@@ -4494,7 +4507,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+Slice::Gen::SkeletonVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     Output& out = output();
 
@@ -4502,7 +4515,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // Generate the dispatch code.
     //
 
-    const string name = p->mappedName();
+    const string name = prependSkeletonPrefix(p->mappedName());
     const string package = getPackage(p);
     const OperationList ops = p->operations();
 
@@ -4511,7 +4524,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         vector<string> params = getParamsProxy(op, package, true);
         const string currentParam = "com.zeroc.Ice.Current " + getEscapedParamName(op->parameters(), "current");
         const string opName = op->mappedName();
-        const bool amd = p->hasMetadata("amd") || op->hasMetadata("amd");
+        const bool amd = _async || p->hasMetadata("amd") || op->hasMetadata("amd");
 
         ExceptionList throws = op->throws();
 
@@ -4520,14 +4533,14 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
         if (amd)
         {
-            out << nl << "java.util.concurrent.CompletionStage<" << getResultType(op, package, true, true) << "> "
+            out << nl << "java.util.concurrent.CompletionStage<" << getDispatchResultType(op, package, true) << "> "
                 << opName << "Async" << spar << params << currentParam << epar;
             writeThrowsClause(out, package, throws, op);
             out << ';';
         }
         else
         {
-            out << nl << getResultType(op, package, false, true) << ' ' << opName << spar << params << currentParam
+            out << nl << getDispatchResultType(op, package, false) << ' ' << opName << spar << params << currentParam
                 << epar;
             writeThrowsClause(out, package, throws, op);
             out << ';';
@@ -4579,7 +4592,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         }
         out << sb;
 
-        const bool amd = p->hasMetadata("amd") || op->hasMetadata("amd");
+        const bool amd = _async || p->hasMetadata("amd") || op->hasMetadata("amd");
         const ParameterList inParams = op->inParameters();
 
         if (op->mode() == Operation::Mode::Normal)
@@ -4654,7 +4667,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         }
 
         vector<string> inArgs = getInArgs(op, true);
-        string retS = getResultType(op, package, false, true);
+        string retS = getDispatchResultType(op, package, false);
 
         if (op->hasMarshaledResult())
         {
@@ -4750,8 +4763,9 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out << sb;
         for (const auto& op : allOps)
         {
-            out << nl << "case \"" << op->name() << "\" -> " << getUnqualified(op->interface(), package) << "._iceD_"
-                << op->mappedName() << "(this, request);";
+            out << nl << "case \"" << op->name() << "\" -> "
+                << getUnqualified(op->interface(), package, skeletonPrefix()) << "._iceD_" << op->mappedName()
+                << "(this, request);";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
         {
@@ -4768,7 +4782,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& p)
+Slice::Gen::SkeletonVisitor::visitOperation(const OperationPtr& p)
 {
     //
     // Generate the operation signature for a servant.
@@ -4783,15 +4797,43 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& p)
 
     const optional<DocComment>& dc = p->docComment();
 
-    // Generate the "Result" type needed by operations that return multiple values.
-    if (p->returnsMultipleValues())
+    // Generate the "Result" type needed by operations that return multiple values (default skeletons only).
+    if (p->returnsMultipleValues() && !_async)
     {
         writeResultType(out, p, package, dc);
     }
 
-    // The "MarshaledResult" type is generated in the servant interface.
+    // The "MarshaledResult" type is generated in the servant interface (all skeletons).
     if (p->hasMarshaledResult())
     {
         writeMarshaledResultType(out, p, package, dc);
     }
+}
+
+string
+Slice::Gen::SkeletonVisitor::skeletonPrefix() const
+{
+    return _async ? "Async" : "";
+}
+
+string
+Slice::Gen::SkeletonVisitor::prependSkeletonPrefix(const string& name) const
+{
+    return skeletonPrefix() + name;
+}
+
+string
+Slice::Gen::SkeletonVisitor::getDispatchResultType(const OperationPtr& op, const string& package, bool object) const
+{
+    if (op->hasMarshaledResult())
+    {
+        const InterfaceDefPtr interface = op->interface();
+        assert(interface);
+        string abs = getUnqualified(interface, package, skeletonPrefix());
+        string name = op->mappedName();
+        name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
+        return abs + "." + name + "MarshaledResult";
+    }
+
+    return getResultType(op, package, object);
 }

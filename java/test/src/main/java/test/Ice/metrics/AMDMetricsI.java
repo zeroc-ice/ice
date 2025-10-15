@@ -7,13 +7,13 @@ import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.SyscallException;
 
-import test.Ice.metrics.AMD.Test.Metrics;
-import test.Ice.metrics.AMD.Test.UserEx;
+import test.Ice.metrics.Test.AsyncMetrics;
+import test.Ice.metrics.Test.UserEx;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public final class AMDMetricsI implements Metrics {
+public final class AMDMetricsI implements AsyncMetrics {
     public AMDMetricsI() {}
 
     @Override
@@ -62,12 +62,13 @@ public final class AMDMetricsI implements Metrics {
     }
 
     @Override
-    public ObjectPrx getAdmin(Current current) {
-        return current.adapter.getCommunicator().getAdmin();
+    public CompletionStage<ObjectPrx> getAdminAsync(Current current) {
+        return CompletableFuture.completedFuture(current.adapter.getCommunicator().getAdmin());
     }
 
     @Override
-    public void shutdown(Current current) {
+    public CompletionStage<Void> shutdownAsync(Current current) {
         current.adapter.getCommunicator().shutdown();
+        return CompletableFuture.completedFuture(null);
     }
 }
