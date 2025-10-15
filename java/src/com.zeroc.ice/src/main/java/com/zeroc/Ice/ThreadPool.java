@@ -47,8 +47,7 @@ final class ThreadPool implements Executor {
 
         @Override
         public void execute(ThreadPoolCurrent current) {
-            // No call to ioCompleted, this shouldn't block (and we don't want to cause a new thread
-            // to be started).
+            // Do not call ioCompleted, this shouldn't block (and we don't want to cause a new thread to be started).
             try {
                 _thread.join();
             } catch (InterruptedException e) {
@@ -59,16 +58,7 @@ final class ThreadPool implements Executor {
         private final EventHandlerThread _thread;
     }
 
-    static final class InterruptWorkItem implements ThreadPoolWorkItem {
-        @Override
-        public void execute(ThreadPoolCurrent current) {
-            // Nothing to do, this is just used to interrupt the thread pool selector.
-        }
-    }
-
-    //
     // Exception raised by the thread pool work queue when the thread pool is destroyed.
-    //
     static final class DestroyedException extends RuntimeException {
         private static final long serialVersionUID = -6665535975321237670L;
     }
@@ -91,10 +81,8 @@ final class ThreadPool implements Executor {
 
         int nProcessors = Runtime.getRuntime().availableProcessors();
 
-        //
-        // We use just one thread as the default. This is the fastest possible setting, still allows
-        // one level of nesting, and doesn't require to make the servants thread safe.
-        //
+        // We use just one thread as the default. This is the fastest possible setting, still allows one level of
+        // nesting, and doesn't require to make the servants thread safe.
         int size = properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
         if (size < 1) {
             String s = _prefix + ".Size < 1; Size adjusted to 1";
@@ -107,36 +95,18 @@ final class ThreadPool implements Executor {
             sizeMax = nProcessors;
         }
         if (sizeMax < size) {
-            String s =
-                _prefix
-                    + ".SizeMax < "
-                    + _prefix
-                    + ".Size; SizeMax adjusted to Size ("
-                    + size
-                    + ")";
+            String s = _prefix + ".SizeMax < " + _prefix + ".Size; SizeMax adjusted to Size (" + size + ")";
             _instance.initializationData().logger.warning(s);
             sizeMax = size;
         }
 
         int sizeWarn = properties.getPropertyAsInt(_prefix + ".SizeWarn");
         if (sizeWarn != 0 && sizeWarn < size) {
-            String s =
-                _prefix
-                    + ".SizeWarn < "
-                    + _prefix
-                    + ".Size; adjusted SizeWarn to Size ("
-                    + size
-                    + ")";
+            String s = _prefix + ".SizeWarn < " + _prefix + ".Size; adjusted SizeWarn to Size (" + size + ")";
             _instance.initializationData().logger.warning(s);
             sizeWarn = size;
         } else if (sizeWarn > sizeMax) {
-            String s =
-                _prefix
-                    + ".SizeWarn > "
-                    + _prefix
-                    + ".SizeMax; adjusted SizeWarn to SizeMax ("
-                    + sizeMax
-                    + ")";
+            String s = _prefix + ".SizeWarn > " + _prefix + ".SizeMax; adjusted SizeWarn to SizeMax (" + sizeMax + ")";
             _instance.initializationData().logger.warning(s);
             sizeWarn = sizeMax;
         }
@@ -176,27 +146,15 @@ final class ThreadPool implements Executor {
         _nextHandler = _handlers.iterator();
 
         if (_instance.traceLevels().threadPool >= 1) {
-            String s =
-                "creating "
-                    + _prefix
-                    + ": Size = "
-                    + _size
-                    + ", SizeMax = "
-                    + _sizeMax
-                    + ", SizeWarn = "
-                    + _sizeWarn;
+            String s = "creating " + _prefix + ": Size = " + _size + ", SizeMax = " + _sizeMax + ", SizeWarn = "
+                + _sizeWarn;
             _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
         }
 
         try {
             for (int i = 0; i < _size; i++) {
-                EventHandlerThread thread =
-                    new EventHandlerThread(_threadPrefix + "-" + _threadIndex++);
-                if (_hasPriority) {
-                    thread.start(_priority);
-                } else {
-                    thread.start(Thread.NORM_PRIORITY);
-                }
+                EventHandlerThread thread = new EventHandlerThread(_threadPrefix + "-" + _threadIndex++);
+                thread.start(_hasPriority ? _priority : Thread.NORM_PRIORITY);
                 _threads.add(thread);
             }
         } catch (RuntimeException ex) {
@@ -242,17 +200,14 @@ final class ThreadPool implements Executor {
         assert (!_destroyed);
         _selector.initialize(handler);
 
-        handler.setReadyCallback(
-            new ReadyCallback() {
-                public void ready(int op, boolean value) {
-                    synchronized (ThreadPool.this) {
-                        if (_destroyed) {
-                            return;
-                        }
-                        _selector.ready(handler, op, value);
-                    }
+        handler.setReadyCallback((int op, boolean value) -> {
+            synchronized (ThreadPool.this) {
+                if (_destroyed) {
+                    return;
                 }
-            });
+                _selector.ready(handler, op, value);
+            }
+        });
     }
 
     public void register(EventHandler handler, int op) {
@@ -290,19 +245,12 @@ final class ThreadPool implements Executor {
             try {
                 _executor.accept(workItem, workItem.getConnection());
             } catch (Exception ex) {
-                if (_instance
-                    .initializationData()
-                    .properties
-                    .getIcePropertyAsInt("Ice.Warn.Executor")
-                    > 1) {
+                if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Executor") > 1) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     ex.printStackTrace(pw);
                     pw.flush();
-                    _instance
-                        .initializationData()
-                        .logger
-                        .warning("executor exception:\n" + sw.toString());
+                    _instance.initializationData().logger.warning("executor exception:\n" + sw.toString());
                 }
             }
         } else {
@@ -318,24 +266,14 @@ final class ThreadPool implements Executor {
     }
 
     public void joinWithAllThreads() throws InterruptedException {
-        //
-        // _threads is immutable after destroy() has been called,
-        // therefore no synchronization is needed. (Synchronization wouldn't be possible here
-        // anyway, because otherwise the other threads would never terminate.)
-        //
+        // _threads is immutable after destroy() has been called, therefore no synchronization is needed.
         for (EventHandlerThread thread : _threads) {
             thread.join();
         }
-
-        //
-        // Destroy the selector
-        //
         _selector.destroy();
     }
 
-    //
     // Implement execute method from java.util.concurrent.Executor interface
-    //
     @Override
     public void execute(Runnable command) {
         dispatch(
@@ -361,8 +299,8 @@ final class ThreadPool implements Executor {
                     }
                     return;
                 } catch (Exception ex) {
-                    String s = "exception in `" + _prefix + "':\n" + Ex.toString(ex);
-                    s += "\nevent handler: " + current._handler.toString();
+                    String s = "exception in `" + _prefix + "':\n" + Ex.toString(ex) + "\nevent handler: "
+                        + current._handler.toString();
                     _instance.initializationData().logger.error(s);
                 }
             } else if (select) {
@@ -389,16 +327,11 @@ final class ThreadPool implements Executor {
                     }
                 } else if (_sizeMax > 1) {
                     if (!current._ioCompleted) {
-                        //
-                        // The handler didn't call ioCompleted() so we take care of decreasing
-                        // the IO thread count now.
-                        //
+                        // The handler didn't call ioCompleted() so we take care of decreasing the IO thread count now.
                         --_inUseIO;
                     } else {
-                        //
-                        // If the handler called ioCompleted(), we re-enable the handler in
-                        // case it was disabled and we decrease the number of thread in use.
-                        //
+                        // If the handler called ioCompleted(), we re-enable the handler in case it was disabled and we
+                        // decrease the number of thread in use.
                         if (_serialize) {
                             _selector.enable(current._handler, current.operation);
                         }
@@ -411,9 +344,7 @@ final class ThreadPool implements Executor {
                     }
                 }
 
-                //
                 // Get the next ready handler.
-                //
                 current._handler = null;
                 while (_nextHandler.hasNext()) {
                     EventHandlerOpPair n = _nextHandler.next();
@@ -428,13 +359,10 @@ final class ThreadPool implements Executor {
                 }
 
                 if (current._handler == null) {
-                    //
-                    // If there are no more ready handlers and there are still threads busy
-                    // performing IO, we give up leadership and promote another follower (which will
-                    // perform the
-                    // select() only once all the IOs are completed). Otherwise, if there's no more
-                    // threads peforming IOs, it's time to do another select().
-                    //
+                    // If there are no more ready handlers and there are still threads busy performing IO, we give up
+                    // leadership and promote another follower (which will perform the select() only once all the IOs
+                    // are completed). Otherwise, if there's no more threads performing IOs, it's time to do another
+                    // select().
                     if (_inUseIO > 0) {
                         promoteFollower(current);
                     } else {
@@ -444,10 +372,8 @@ final class ThreadPool implements Executor {
                         thread.setState(ThreadState.ThreadStateIdle);
                     }
                 } else if (_sizeMax > 1) {
-                    //
-                    // Increment the IO thread count and if there's still threads available to
-                    // perform IO and more handlers ready, we promote a follower.
-                    //
+                    // Increment the IO thread count and if there's still threads available to perform IO and more
+                    // handlers ready, we promote a follower.
                     ++_inUseIO;
                     if (_nextHandler.hasNext() && _inUseIO < _sizeIO) {
                         promoteFollower(current);
@@ -458,8 +384,8 @@ final class ThreadPool implements Executor {
     }
 
     synchronized void ioCompleted(ThreadPoolCurrent current) {
-        current._ioCompleted =
-            true; // Set the IO completed flag to specify that ioCompleted() has been called.
+        // Set the IO completed flag to specify that ioCompleted() has been called.
+        current._ioCompleted = true;
 
         current._thread.setState(ThreadState.ThreadStateInUseForUser);
 
@@ -473,9 +399,7 @@ final class ThreadPool implements Executor {
             }
 
             if (current._leader) {
-                //
                 // If this thread is still the leader, it's time to promote a new leader.
-                //
                 promoteFollower(current);
             } else if (_promote && (_nextHandler.hasNext() || _inUseIO == 0)) {
                 notify();
@@ -485,18 +409,8 @@ final class ThreadPool implements Executor {
             ++_inUse;
 
             if (_inUse == _sizeWarn) {
-                String s =
-                    "thread pool `"
-                        + _prefix
-                        + "' is running low on threads\n"
-                        + "Size="
-                        + _size
-                        + ", "
-                        + "SizeMax="
-                        + _sizeMax
-                        + ", "
-                        + "SizeWarn="
-                        + _sizeWarn;
+                String s = "thread pool `" + _prefix + "' is running low on threads\nSize=" + _size+ ", SizeMax="
+                    + _sizeMax + ", SizeWarn=" + _sizeWarn;
                 _instance.initializationData().logger.warning(s);
             }
 
@@ -512,8 +426,7 @@ final class ThreadPool implements Executor {
                     }
 
                     try {
-                        EventHandlerThread thread =
-                            new EventHandlerThread(_threadPrefix + "-" + _threadIndex++);
+                        EventHandlerThread thread = new EventHandlerThread(_threadPrefix + "-" + _threadIndex++);
                         _threads.add(thread);
                         if (_hasPriority) {
                             thread.start(_priority);
@@ -521,8 +434,7 @@ final class ThreadPool implements Executor {
                             thread.start(Thread.NORM_PRIORITY);
                         }
                     } catch (RuntimeException ex) {
-                        String s =
-                            "cannot create thread for `" + _prefix + "':\n" + Ex.toString(ex);
+                        String s = "cannot create thread for `" + _prefix + "':\n" + Ex.toString(ex);
                         _instance.initializationData().logger.error(s);
                     }
                 }
@@ -544,34 +456,25 @@ final class ThreadPool implements Executor {
 
         current._thread.setState(ThreadState.ThreadStateIdle);
 
-        //
-        // It's important to clear the handler before waiting to make sure that resources for the
-        // handler are released now if it's finished. We also clear the per-thread stream.
-        //
+        // It's important to clear the handler before waiting to make sure that resources for the handler are released
+        // now if it's finished. We also clear the per-thread stream.
         current._handler = null;
         current.stream.reset();
 
-        //
         // Wait to be promoted and for all the IO threads to be done.
-        //
         while (!_promote || _inUseIO == _sizeIO || (!_nextHandler.hasNext() && _inUseIO > 0)) {
             if (_threadIdleTime > 0) {
                 long before = Time.currentMonotonicTimeMillis();
                 boolean interrupted = false;
                 try {
-                    //
                     // If the wait is interrupted then we'll let the thread die as if it timed out.
-                    //
                     wait(_threadIdleTime * 1000);
                 } catch (InterruptedException e) {
                     interrupted = true;
                 }
-                if (interrupted
-                    || Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000) {
+                if (interrupted || Time.currentMonotonicTimeMillis() - before >= _threadIdleTime * 1000) {
                     if (!_destroyed
-                        && (!_promote
-                        || _inUseIO == _sizeIO
-                        || (!_nextHandler.hasNext() && _inUseIO > 0))) {
+                        && (!_promote || _inUseIO == _sizeIO || (!_nextHandler.hasNext() && _inUseIO > 0))) {
                         if (_instance.traceLevels().threadPool >= 1) {
                             String s = "shrinking " + _prefix + ": Size=" + (_threads.size() - 1);
                             _instance
@@ -579,8 +482,8 @@ final class ThreadPool implements Executor {
                                 .logger
                                 .trace(_instance.traceLevels().threadPoolCat, s);
                         }
-                        assert (_threads.size()
-                            > 1); // Can only be called by a waiting follower thread.
+                        // Can only be called by a waiting follower thread.
+                        assert (_threads.size() > 1);
                         _threads.remove(current._thread);
                         _workQueue.queue(new JoinThreadWorkItem(current._thread));
                         return true;
@@ -590,9 +493,7 @@ final class ThreadPool implements Executor {
                 try {
                     wait();
                 } catch (InterruptedException e) {
-                    //
-                    // Eat the InterruptedException.
-                    //
+                    // Ignore
                 }
             }
         }
@@ -618,10 +519,9 @@ final class ThreadPool implements Executor {
 
         public void updateObserver() {
             // Must be called with the thread pool mutex locked
-            CommunicatorObserver obsv =
-                _instance.initializationData().observer;
-            if (obsv != null) {
-                _observer = obsv.getThreadObserver(_prefix, _name, _state, _observer);
+            CommunicatorObserver observer = _instance.initializationData().observer;
+            if (observer != null) {
+                _observer = observer.getThreadObserver(_prefix, _name, _state, _observer);
                 if (_observer != null) {
                     _observer.attach();
                 }
@@ -654,8 +554,8 @@ final class ThreadPool implements Executor {
                 try {
                     _instance.initializationData().threadStart.run();
                 } catch (Exception ex) {
-                    String s = "threadStart method raised an unexpected exception in `";
-                    s += _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
+                    String s = "threadStart method raised an unexpected exception in `" + _prefix + "' thread "
+                        + _name + ":\n" + Ex.toString(ex);
                     _instance.initializationData().logger.error(s);
                 }
             }
@@ -663,8 +563,7 @@ final class ThreadPool implements Executor {
             try {
                 ThreadPool.this.run(this);
             } catch (Exception ex) {
-                String s =
-                    "exception in `" + _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
+                String s = "exception in `" + _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
                 _instance.initializationData().logger.error(s);
             }
 
@@ -676,15 +575,11 @@ final class ThreadPool implements Executor {
                 try {
                     _instance.initializationData().threadStop.run();
                 } catch (Exception ex) {
-                    String s = "threadStop method raised an unexpected exception in `";
-                    s += _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
+                    String s = "threadStop method raised an unexpected exception in `" + _prefix + "' thread " + _name
+                        + ":\n" + Ex.toString(ex);
                     _instance.initializationData().logger.error(s);
                 }
             }
-        }
-
-        Thread getThread() {
-            return _thread;
         }
 
         private final String _name;
@@ -696,8 +591,7 @@ final class ThreadPool implements Executor {
     private final int _size; // Number of threads that are pre-created.
     private final int _sizeIO; // Number of threads that can concurrently perform IO.
     private final int _sizeMax; // Maximum number of threads.
-    private final int
-        _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+    private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
     private final boolean _serialize; // True if requests need to be serialized over the connection.
     private final int _priority;
     private final boolean _hasPriority;
