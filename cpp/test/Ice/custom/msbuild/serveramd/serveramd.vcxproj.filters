@@ -7,28 +7,28 @@
     <ClCompile Include="..\..\TestAMDI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\WstringAMD.cpp">
+    <ClCompile Include="x64\Debug\WString.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Debug\TestAMD.cpp">
+    <ClCompile Include="x64\Debug\Test.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\WstringAMD.cpp">
+    <ClCompile Include="Win32\Debug\WString.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\TestAMD.cpp">
+    <ClCompile Include="Win32\Debug\Test.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\WstringAMD.cpp">
+    <ClCompile Include="x64\Release\WString.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="x64\Release\TestAMD.cpp">
+    <ClCompile Include="x64\Release\Test.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\WstringAMD.cpp">
+    <ClCompile Include="Win32\Release\WString.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\TestAMD.cpp">
+    <ClCompile Include="Win32\Release\Test.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\MyByteSeq.cpp">
@@ -128,10 +128,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\TestAMD.ice">
+    <SliceCompile Include="..\..\Test.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
-    <SliceCompile Include="..\..\WstringAMD.ice">
+    <SliceCompile Include="..\..\Wstring.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>

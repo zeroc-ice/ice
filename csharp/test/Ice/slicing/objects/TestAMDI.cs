@@ -2,7 +2,7 @@
 
 using Test;
 
-public sealed class TestI : TestIntfDisp_
+public sealed class TestI : AsyncTestIntfDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 

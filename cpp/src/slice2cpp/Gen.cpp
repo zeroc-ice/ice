@@ -758,8 +758,13 @@ Slice::Gen::generate(const UnitPtr& p)
         DataDefVisitor dataDefVisitor(H, C, _dllExport);
         p->visit(&dataDefVisitor);
 
-        InterfaceVisitor interfaceVisitor(H, C, _dllExport);
+        // Generate the default (usually synchronous) skeletons.
+        InterfaceVisitor interfaceVisitor(H, C, _dllExport, false);
         p->visit(&interfaceVisitor);
+
+        // Generate the async skeletons.
+        InterfaceVisitor asyncInterfaceVisitor(H, C, _dllExport, true);
+        p->visit(&asyncInterfaceVisitor);
 
         if (!dc->hasMetadata("cpp:no-stream"))
         {
@@ -2446,10 +2451,15 @@ Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool first
     }
 }
 
-Slice::Gen::InterfaceVisitor::InterfaceVisitor(IceInternal::Output& h, IceInternal::Output& c, string dllExport)
+Slice::Gen::InterfaceVisitor::InterfaceVisitor(
+    IceInternal::Output& h,
+    IceInternal::Output& c,
+    string dllExport,
+    bool async)
     : H(h),
       C(c),
-      _dllExport(std::move(dllExport))
+      _dllExport(std::move(dllExport)),
+      _async(async)
 {
 }
 
@@ -2489,9 +2499,9 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-    const string name = p->mappedName();
+    const string name = prependSkeletonPrefix(p->mappedName());
     const string scope = p->mappedScope("::", true);
-    const string scoped = p->mappedScoped("::");
+    const string scoped = p->mappedScope("::") + name;
     const InterfaceList bases = p->bases();
 
     writeDocSummary(H, p, {.generateDeprecated = false, .includeHeaderFile = true});
@@ -2505,7 +2515,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         for (const auto& base : bases)
         {
-            H << ("public virtual " + getUnqualified(base->mappedScoped("::", true), scope));
+            string baseScoped = base->mappedScope("::", true) + prependSkeletonPrefix(base->mappedName());
+            H << ("public virtual " + getUnqualified(baseScoped, scope));
         }
     }
     H.epar("");
@@ -2630,8 +2641,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 void
 Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
-    const string name = p->mappedName();
-    const string scoped = p->mappedScoped("::");
+    const string name = prependSkeletonPrefix(p->mappedName());
+    const string scoped = p->mappedScope("::") + name;
 
     H << sp;
     H << nl << "/// Gets the type ID of the associated Slice interface.";
@@ -2656,9 +2667,11 @@ void
 Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 {
     const string name = p->mappedName();
-    const string scope = p->mappedScope("::");
     const InterfaceDefPtr container = p->interface();
     const string interfaceScope = container->mappedScope("::", true);
+
+    // The name of the enclosing class + "::".
+    const string scope = container->mappedScope("::") + prependSkeletonPrefix(container->mappedName()) + "::";
 
     TypePtr ret = p->returnType();
 
@@ -2673,7 +2686,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     const ParameterList outParams = p->outParameters();
     const ParameterList paramList = p->parameters();
 
-    const bool amd = (container->hasMetadata("amd") || p->hasMetadata("amd"));
+    const bool amd = _async || container->hasMetadata("amd") || p->hasMetadata("amd");
     const string opName = amd ? (name + "Async") : name;
 
     const string returnValueParam = escapeParam(outParams, "returnValue");
@@ -3007,6 +3020,18 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << eb;
     }
     C << eb;
+}
+
+string
+Slice::Gen::InterfaceVisitor::skeletonPrefix() const
+{
+    return _async ? "Async" : "";
+}
+
+string
+Slice::Gen::InterfaceVisitor::prependSkeletonPrefix(const string& name) const
+{
+    return skeletonPrefix() + name;
 }
 
 Slice::Gen::StreamVisitor::StreamVisitor(Output& h) : H(h) {}

@@ -43,24 +43,30 @@ Slice::Csharp::getNamespace(const ContainedPtr& p)
 }
 
 string
-Slice::Csharp::getUnqualified(const ContainedPtr& p, const string& package)
+Slice::Csharp::getUnqualified(const ContainedPtr& p, const string& package, const string& prefix)
 {
+    string name = p->mappedName();
+    if (!prefix.empty())
+    {
+        name = prefix + removeEscapePrefix(name);
+    }
+
     // If contained is an operation, a field, or an enumerator, we use the enclosing type.
     if (dynamic_pointer_cast<Operation>(p) || dynamic_pointer_cast<DataMember>(p) ||
         dynamic_pointer_cast<Enumerator>(p))
     {
-        return getUnqualified(dynamic_pointer_cast<Contained>(p->container()), package) + "." + p->mappedName();
+        return getUnqualified(dynamic_pointer_cast<Contained>(p->container()), package) + "." + name;
     }
     else
     {
         string pNamespace = getNamespace(p);
         if (pNamespace == package || pNamespace.empty())
         {
-            return p->mappedName();
+            return name;
         }
         else
         {
-            return "global::" + pNamespace + "." + p->mappedName();
+            return "global::" + pNamespace + "." + name;
         }
     }
 }
@@ -1726,7 +1732,7 @@ Slice::Csharp::csLinkFormatter(
         {
             // link to the method on the proxy interface
             result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx."
-                   << operationTarget->mappedName();
+                   << operationTarget->mappedName() << "Async";
         }
         else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
         {

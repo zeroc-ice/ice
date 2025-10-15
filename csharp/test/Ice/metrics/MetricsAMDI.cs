@@ -15,9 +15,9 @@ public sealed class ControllerI(Ice.ObjectAdapter adapter) : ControllerDisp_
     private readonly Ice.ObjectAdapter _adapter = adapter;
 }
 
-public sealed class MetricsI : MetricsDisp_
+public sealed class MetricsI : AsyncMetricsDisp_
 {
-    public override Task opAsync(Ice.Current current) => null;
+    public override Task opAsync(Ice.Current current) => Task.CompletedTask;
 
     public override Task failAsync(Ice.Current current)
     {
@@ -27,21 +27,23 @@ public sealed class MetricsI : MetricsDisp_
 
     public override Task opWithUserExceptionAsync(Ice.Current current) => throw new UserEx();
 
-    public override Task
-    opWithRequestFailedExceptionAsync(Ice.Current current) => throw new Ice.ObjectNotExistException();
+    public override Task opWithRequestFailedExceptionAsync(Ice.Current current) =>
+        throw new Ice.ObjectNotExistException();
 
-    public override Task
-    opWithLocalExceptionAsync(Ice.Current current) => throw new Ice.SyscallException(message: null);
+    public override Task opWithLocalExceptionAsync(Ice.Current current) =>
+        throw new Ice.SyscallException(message: null);
 
-    public override Task
-    opWithUnknownExceptionAsync(Ice.Current current) => throw new ArgumentOutOfRangeException();
+    public override Task opWithUnknownExceptionAsync(Ice.Current current) =>
+        throw new ArgumentOutOfRangeException();
 
-    public override Task
-    opByteSAsync(byte[] bs, Ice.Current current) => null;
+    public override Task opByteSAsync(byte[] bs, Ice.Current current) => Task.CompletedTask;
 
-    public override Ice.ObjectPrx
-    getAdmin(Ice.Current current) => current.adapter.getCommunicator().getAdmin();
+    public override Task<Ice.ObjectPrx> getAdminAsync(Ice.Current current) =>
+        Task.FromResult(current.adapter.getCommunicator().getAdmin());
 
-    public override void
-    shutdown(Ice.Current current) => current.adapter.getCommunicator().shutdown();
+    public override Task shutdownAsync(Ice.Current current)
+    {
+        current.adapter.getCommunicator().shutdown();
+        return Task.CompletedTask;
+    }
 }
