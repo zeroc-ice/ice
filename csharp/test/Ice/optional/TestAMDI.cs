@@ -2,7 +2,7 @@
 
 namespace Ice.optional.AMD;
 
-public class InitialI : Test.InitialDisp_
+public class InitialI : Test.AsyncInitialDisp_
 {
     public override Task shutdownAsync(Current current)
     {
@@ -92,7 +92,7 @@ public class InitialI : Test.InitialDisp_
     opBoolSeqAsync(bool[] p1, Current current) => Task.FromResult(new Test.Initial_OpBoolSeqResult(p1, p1));
 
     public override Task<Test.Initial_OpShortSeqResult>
-    opShortSeqAsync(short[] p1, Current current) => Task.FromResult(new Test.Initial_OpShortSeqResult(p1, p1));
+    opShortSeqAsync(List<short> p1, Current current) => Task.FromResult(new Test.Initial_OpShortSeqResult(p1, p1));
 
     public override Task<Test.Initial_OpIntSeqResult>
     opIntSeqAsync(int[] p1, Current current) => Task.FromResult(new Test.Initial_OpIntSeqResult(p1, p1));

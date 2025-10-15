@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Ice.exceptions.AMD;
 
-public class ThrowerI : Test.ThrowerDisp_
+public class ThrowerI : Test.AsyncThrowerDisp_
 {
     public ThrowerI()
     {
