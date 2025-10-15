@@ -10,7 +10,6 @@ import test.Ice.operations.Test.AsyncMyDerivedClass;
 import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClass1;
 import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyDerivedClass;
 import test.Ice.operations.Test.MyEnum;
 import test.Ice.operations.Test.MyStruct;
 import test.Ice.operations.Test.MyStruct1;

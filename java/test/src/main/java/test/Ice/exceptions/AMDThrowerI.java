@@ -12,7 +12,6 @@ import test.Ice.exceptions.Test.AsyncThrower;
 import test.Ice.exceptions.Test.B;
 import test.Ice.exceptions.Test.C;
 import test.Ice.exceptions.Test.D;
-import test.Ice.exceptions.Test.Thrower;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;

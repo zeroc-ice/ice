@@ -4,11 +4,11 @@ package test.Ice.seqMapping;
 
 import com.zeroc.Ice.Current;
 
-import test.Ice.seqMapping.Test.AsyncMyClass;
-import test.Ice.seqMapping.Test.MyClass;
 import test.Ice.seqMapping.Serialize.Large;
 import test.Ice.seqMapping.Serialize.Small;
 import test.Ice.seqMapping.Serialize.Struct;
+import test.Ice.seqMapping.Test.AsyncMyClass;
+import test.Ice.seqMapping.Test.MyClass;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;

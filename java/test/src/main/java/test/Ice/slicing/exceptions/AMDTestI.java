@@ -9,7 +9,6 @@ import test.Ice.slicing.exceptions.server.Test.Base;
 import test.Ice.slicing.exceptions.server.Test.KnownDerived;
 import test.Ice.slicing.exceptions.server.Test.KnownIntermediate;
 import test.Ice.slicing.exceptions.server.Test.KnownMostDerived;
-import test.Ice.slicing.exceptions.server.Test.TestIntf;
 import test.Ice.slicing.exceptions.server.Test.UnknownDerived;
 import test.Ice.slicing.exceptions.server.Test.UnknownIntermediate;
 import test.Ice.slicing.exceptions.server.Test.UnknownMostDerived1;

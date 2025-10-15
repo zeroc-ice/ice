@@ -7,7 +7,6 @@ import com.zeroc.Ice.ObjectNotExistException;
 
 import test.Ice.servantLocator.Test.AsyncTestIntf;
 import test.Ice.servantLocator.Test.TestImpossibleException;
-import test.Ice.servantLocator.Test.TestIntf;
 import test.Ice.servantLocator.Test.TestIntfUserException;
 
 import java.util.concurrent.CompletableFuture;
