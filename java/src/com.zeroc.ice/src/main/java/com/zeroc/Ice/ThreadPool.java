@@ -409,7 +409,7 @@ final class ThreadPool implements Executor {
             ++_inUse;
 
             if (_inUse == _sizeWarn) {
-                String s = "thread pool `" + _prefix + "' is running low on threads\nSize=" + _size+ ", SizeMax="
+                String s = "thread pool `" + _prefix + "' is running low on threads\nSize=" + _size + ", SizeMax="
                     + _sizeMax + ", SizeWarn=" + _sizeWarn;
                 _instance.initializationData().logger.warning(s);
             }
