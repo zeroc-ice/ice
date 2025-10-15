@@ -34,7 +34,7 @@ module IceGrid
         /// @throws AllocationException Thrown when the allocation fails.
         /// @see #setAllocationTimeout
         /// @see #releaseObject
-        ["amd"] Object* allocateObjectById(Ice::Identity id)
+        Object* allocateObjectById(Ice::Identity id)
             throws ObjectNotRegisteredException, AllocationException;
 
         /// Allocates an object with the given type.
@@ -43,7 +43,7 @@ module IceGrid
         /// @throws AllocationException Thrown when the allocation fails.
         /// @see #setAllocationTimeout
         /// @see #releaseObject
-        ["amd"] Object* allocateObjectByType(string type)
+        Object* allocateObjectByType(string type)
             throws AllocationException;
 
         /// Releases an object that was allocated using {@link allocateObjectById} or {@link allocateObjectByType}.

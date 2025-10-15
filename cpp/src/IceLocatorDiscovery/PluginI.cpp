@@ -123,25 +123,11 @@ namespace
     class VoidLocatorI final : public Ice::Locator
     {
     public:
-        void findObjectByIdAsync(
-            Ice::Identity,
-            function<void(const optional<Ice::ObjectPrx>&)> response,
-            function<void(exception_ptr)>,
-            const Ice::Current&) const final
-        {
-            response(nullopt);
-        }
+        std::optional<Ice::ObjectPrx> findObjectById(Ice::Identity, const Ice::Current&) const final { return nullopt; }
 
-        void findAdapterByIdAsync(
-            string,
-            function<void(const optional<Ice::ObjectPrx>&)> response,
-            function<void(exception_ptr)>,
-            const Ice::Current&) const final
-        {
-            response(nullopt);
-        }
+        std::optional<Ice::ObjectPrx> findAdapterById(string, const Ice::Current&) const final { return nullopt; }
 
-        [[nodiscard]] optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final { return nullopt; }
+        std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final { return nullopt; }
     };
 
     class PluginI final : public Plugin

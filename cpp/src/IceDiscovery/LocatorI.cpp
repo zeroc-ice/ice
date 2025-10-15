@@ -20,12 +20,7 @@ LocatorRegistryI::LocatorRegistryI(const Ice::CommunicatorPtr& communicator)
 }
 
 void
-LocatorRegistryI::setAdapterDirectProxyAsync(
-    string adapterId,
-    optional<ObjectPrx> proxy,
-    function<void()> response,
-    function<void(exception_ptr)>,
-    const Ice::Current&)
+LocatorRegistryI::setAdapterDirectProxy(string adapterId, optional<ObjectPrx> proxy, const Ice::Current&)
 {
     lock_guard lock(_mutex);
     if (proxy)
@@ -36,16 +31,13 @@ LocatorRegistryI::setAdapterDirectProxyAsync(
     {
         _adapters.erase(adapterId);
     }
-    response();
 }
 
 void
-LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(
+LocatorRegistryI::setReplicatedAdapterDirectProxy(
     string adapterId,
     string replicaGroupId,
     optional<ObjectPrx> proxy,
-    function<void()> response,
-    function<void(exception_ptr)>,
     const Ice::Current&)
 {
     lock_guard lock(_mutex);
@@ -72,18 +64,11 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(
             }
         }
     }
-    response();
 }
 
 void
-LocatorRegistryI::setServerProcessProxyAsync(
-    string,
-    optional<ProcessPrx>,
-    function<void()> response,
-    function<void(exception_ptr)>,
-    const Ice::Current&)
+LocatorRegistryI::setServerProcessProxy(string, optional<ProcessPrx>, const Ice::Current&)
 {
-    response();
 }
 
 optional<Ice::ObjectPrx>
@@ -207,8 +192,11 @@ LocatorI::findAdapterByIdAsync(
     _lookup->findAdapter(make_pair(response, ex), adapterId);
 }
 
-optional<LocatorRegistryPrx>
-LocatorI::getRegistry(const Current&) const
+void
+LocatorI::getRegistryAsync(
+    function<void(const optional<LocatorRegistryPrx>&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&) const
 {
-    return _registry;
+    response(_registry);
 }

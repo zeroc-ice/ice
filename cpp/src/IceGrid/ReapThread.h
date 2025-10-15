@@ -46,7 +46,7 @@ namespace IceGrid
                 }
                 else
                 {
-                    _session->destroy(Ice::Current());
+                    _session->destroy();
                 }
             }
             catch (const Ice::ObjectNotExistException&)

@@ -14,7 +14,7 @@ namespace Glacier2
     class RouterI;
     class FilterManager;
 
-    class RouterI final : public Router
+    class RouterI final : public AsyncRouter
     {
     public:
         RouterI(
@@ -28,24 +28,64 @@ namespace Glacier2
 
         void destroy(std::function<void(std::exception_ptr)>);
 
-        std::optional<Ice::ObjectPrx> getClientProxy(std::optional<bool>&, const Ice::Current&) const final;
-        [[nodiscard]] std::optional<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const final;
-        Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) final;
-        [[nodiscard]] std::string getCategoryForClient(const Ice::Current&) const final;
+        void getClientProxyAsync(
+            std::function<void(const std::optional<Ice::ObjectPrx>& returnValue, std::optional<bool> hasRoutingTable)>
+                response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) const;
+
+        void getServerProxyAsync(
+            std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) const final;
+
+        void addProxiesAsync(
+            Ice::ObjectProxySeq,
+            std::function<void(const Ice::ObjectProxySeq&)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
+
+        void getCategoryForClientAsync(
+            std::function<void(std::string_view)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) const final;
+
         void createSessionAsync(
             std::string,
             std::string,
             std::function<void(const std::optional<SessionPrx>& returnValue)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
+
         void createSessionFromSecureConnectionAsync(
             std::function<void(const std::optional<SessionPrx>& returnValue)>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
-        void refreshSession(const Ice::Current&) final {}
-        void destroySession(const Ice::Current&) final;
-        [[nodiscard]] std::int64_t getSessionTimeout(const Ice::Current&) const final;
-        [[nodiscard]] int getACMTimeout(const Ice::Current&) const final;
+
+        void refreshSessionAsync(
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) final
+        {
+            response();
+        }
+
+        void destroySessionAsync(
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
+
+        void getSessionTimeoutAsync(
+            std::function<void(std::int64_t)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) const final;
+
+        void getACMTimeoutAsync(
+            std::function<void(std::int32_t)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) const final;
+
+        std::optional<Ice::ObjectPrx> getServerProxy() const;
 
         [[nodiscard]] std::shared_ptr<ClientBlobject> getClientBlobject() const;
         [[nodiscard]] std::shared_ptr<ServerBlobject> getServerBlobject() const;

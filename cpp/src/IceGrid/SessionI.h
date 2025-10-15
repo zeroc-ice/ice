@@ -49,29 +49,51 @@ namespace IceGrid
     {
     };
 
-    class SessionI final : public BaseSessionI, public Session
+    class SessionI final : public BaseSessionI, public AsyncSession
     {
     public:
         SessionI(const std::string&, const std::shared_ptr<Database>&, IceInternal::TimerPtr);
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
-        void keepAlive(const Ice::Current&) final {} // no-op
+        void keepAliveAsync(
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) final
+        {
+            response(); // no-op
+        }
+
         void allocateObjectByIdAsync(
             Ice::Identity id,
             std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,
             std::function<void(std::exception_ptr)> exception,
             const Ice::Current& current) final;
+
         void allocateObjectByTypeAsync(
             std::string,
             std::function<void(const std::optional<Ice::ObjectPrx>& returnValue)> response,
             std::function<void(std::exception_ptr)> exception,
             const Ice::Current& current) final;
-        void releaseObject(Ice::Identity, const Ice::Current&) final;
-        void setAllocationTimeout(int, const Ice::Current&) final;
+
+        void releaseObjectAsync(
+            Ice::Identity,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) final;
+
+        void setAllocationTimeoutAsync(
+            std::int32_t,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) final;
+
+        void destroyAsync(
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
 
         void destroy();
-        void destroy(const Ice::Current&) final;
 
         [[nodiscard]] int getAllocationTimeout() const;
         [[nodiscard]] const IceInternal::TimerPtr& getTimer() const { return _timer; }

@@ -104,14 +104,11 @@ internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
 
 internal class VoidLocatorI : Ice.LocatorDisp_
 {
-    public override Task<Ice.ObjectPrx>
-    findObjectByIdAsync(Ice.Identity id, Ice.Current current) => Task.FromResult<Ice.ObjectPrx>(null);
+    public override Ice.ObjectPrx findObjectById(Ice.Identity id, Ice.Current current) => null;
 
-    public override Task<Ice.ObjectPrx>
-    findAdapterByIdAsync(string id, Ice.Current current) => Task.FromResult<Ice.ObjectPrx>(null);
+    public override Ice.ObjectPrx findAdapterById(string id, Ice.Current current) => null;
 
-    public override Ice.LocatorRegistryPrx
-    getRegistry(Ice.Current current) => null;
+    public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current) => null;
 }
 
 internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask

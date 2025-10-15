@@ -117,143 +117,181 @@ AdminSessionI::_register(
     return session;
 }
 
-optional<AdminPrx>
-AdminSessionI::getAdmin(const Ice::Current&) const
+void
+AdminSessionI::getAdminAsync(
+    std::function<void(const std::optional<AdminPrx>&)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&) const
 {
-    return _admin;
-}
-
-std::optional<Ice::ObjectPrx>
-AdminSessionI::getAdminCallbackTemplate(const Ice::Current&) const
-{
-    return _adminCallbackTemplate;
+    response(_admin);
 }
 
 void
-AdminSessionI::setObservers(
+AdminSessionI::getAdminCallbackTemplateAsync(
+    std::function<void(const std::optional<Ice::ObjectPrx>&)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&) const
+{
+    response(_adminCallbackTemplate);
+}
+
+void
+AdminSessionI::setObserversAsync(
     optional<RegistryObserverPrx> registryObserver,
     optional<NodeObserverPrx> nodeObserver,
     optional<ApplicationObserverPrx> appObserver,
     optional<AdapterObserverPrx> adapterObserver,
     optional<ObjectObserverPrx> objectObserver,
+    function<void()> response,
+    function<void(std::exception_ptr)>,
     const Ice::Current&)
 {
-    lock_guard lock(_mutex);
+    {
+        lock_guard lock(_mutex);
 
-    if (_destroyed)
-    {
-        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
-    }
+        if (_destroyed)
+        {
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+        }
 
-    const auto locator = _registry->getLocator();
-    if (registryObserver)
-    {
-        setupObserverSubscription(TopicName::RegistryObserver, addForwarder(registryObserver->ice_locator(locator)));
-    }
-    else
-    {
-        setupObserverSubscription(TopicName::RegistryObserver, nullopt);
-    }
+        const auto locator = _registry->getLocator();
+        if (registryObserver)
+        {
+            setupObserverSubscription(
+                TopicName::RegistryObserver,
+                addForwarder(registryObserver->ice_locator(locator)));
+        }
+        else
+        {
+            setupObserverSubscription(TopicName::RegistryObserver, nullopt);
+        }
 
-    if (nodeObserver)
-    {
-        setupObserverSubscription(TopicName::NodeObserver, addForwarder(nodeObserver->ice_locator(locator)));
-    }
-    else
-    {
-        setupObserverSubscription(TopicName::NodeObserver, nullopt);
-    }
+        if (nodeObserver)
+        {
+            setupObserverSubscription(TopicName::NodeObserver, addForwarder(nodeObserver->ice_locator(locator)));
+        }
+        else
+        {
+            setupObserverSubscription(TopicName::NodeObserver, nullopt);
+        }
 
-    if (appObserver)
-    {
-        setupObserverSubscription(TopicName::ApplicationObserver, addForwarder(appObserver->ice_locator(locator)));
-    }
-    else
-    {
-        setupObserverSubscription(TopicName::ApplicationObserver, nullopt);
-    }
+        if (appObserver)
+        {
+            setupObserverSubscription(TopicName::ApplicationObserver, addForwarder(appObserver->ice_locator(locator)));
+        }
+        else
+        {
+            setupObserverSubscription(TopicName::ApplicationObserver, nullopt);
+        }
 
-    if (adapterObserver)
-    {
-        setupObserverSubscription(TopicName::AdapterObserver, addForwarder(adapterObserver->ice_locator(locator)));
-    }
-    else
-    {
-        setupObserverSubscription(TopicName::AdapterObserver, nullopt);
-    }
+        if (adapterObserver)
+        {
+            setupObserverSubscription(TopicName::AdapterObserver, addForwarder(adapterObserver->ice_locator(locator)));
+        }
+        else
+        {
+            setupObserverSubscription(TopicName::AdapterObserver, nullopt);
+        }
 
-    if (objectObserver)
-    {
-        setupObserverSubscription(TopicName::ObjectObserver, addForwarder(objectObserver->ice_locator(locator)));
+        if (objectObserver)
+        {
+            setupObserverSubscription(TopicName::ObjectObserver, addForwarder(objectObserver->ice_locator(locator)));
+        }
+        else
+        {
+            setupObserverSubscription(TopicName::ObjectObserver, nullopt);
+        }
     }
-    else
-    {
-        setupObserverSubscription(TopicName::ObjectObserver, nullopt);
-    }
+    response();
 }
 
 void
-AdminSessionI::setObserversByIdentity(
+AdminSessionI::setObserversByIdentityAsync(
     Ice::Identity registryObserver,
     Ice::Identity nodeObserver,
     Ice::Identity appObserver,
     Ice::Identity adapterObserver,
     Ice::Identity objectObserver,
+    function<void()> response,
+    function<void(std::exception_ptr)>,
     const Ice::Current& current)
 {
-    lock_guard lock(_mutex);
-
-    if (_destroyed)
     {
-        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+        lock_guard lock(_mutex);
+
+        if (_destroyed)
+        {
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+        }
+
+        setupObserverSubscription(TopicName::RegistryObserver, addForwarder(registryObserver, current), true);
+        setupObserverSubscription(TopicName::NodeObserver, addForwarder(nodeObserver, current), true);
+        setupObserverSubscription(TopicName::ApplicationObserver, addForwarder(appObserver, current), true);
+        setupObserverSubscription(TopicName::AdapterObserver, addForwarder(adapterObserver, current), true);
+        setupObserverSubscription(TopicName::ObjectObserver, addForwarder(objectObserver, current), true);
     }
-
-    setupObserverSubscription(TopicName::RegistryObserver, addForwarder(registryObserver, current), true);
-    setupObserverSubscription(TopicName::NodeObserver, addForwarder(nodeObserver, current), true);
-    setupObserverSubscription(TopicName::ApplicationObserver, addForwarder(appObserver, current), true);
-    setupObserverSubscription(TopicName::AdapterObserver, addForwarder(adapterObserver, current), true);
-    setupObserverSubscription(TopicName::ObjectObserver, addForwarder(objectObserver, current), true);
-}
-
-int
-AdminSessionI::startUpdate(const Ice::Current&)
-{
-    lock_guard lock(_mutex);
-
-    if (_destroyed)
-    {
-        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
-    }
-
-    int serial = _database->lock(this, _id);
-    return serial;
+    response();
 }
 
 void
-AdminSessionI::finishUpdate(const Ice::Current&)
+AdminSessionI::startUpdateAsync(
+    function<void(int32_t)> response,
+    function<void(std::exception_ptr)>,
+    const Ice::Current&)
 {
-    lock_guard lock(_mutex);
-
-    if (_destroyed)
+    int32_t serial;
     {
-        throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+        lock_guard lock(_mutex);
+
+        if (_destroyed)
+        {
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+        }
+
+        serial = _database->lock(this, _id);
     }
-
-    _database->unlock(this);
+    response(serial);
 }
 
-string
-AdminSessionI::getReplicaName(const Ice::Current&) const
+void
+AdminSessionI::finishUpdateAsync(function<void()> response, function<void(std::exception_ptr)>, const Ice::Current&)
 {
-    return _replicaName;
+    {
+        lock_guard lock(_mutex);
+
+        if (_destroyed)
+        {
+            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+        }
+
+        _database->unlock(this);
+    }
+    response();
 }
 
-optional<FileIteratorPrx>
-AdminSessionI::openServerLog(string id, string path, int nLines, const Ice::Current& current)
+void
+AdminSessionI::getReplicaNameAsync(
+    function<void(string_view)> response,
+    function<void(std::exception_ptr)>,
+    const Ice::Current&) const
+{
+    response(_replicaName);
+}
+
+void
+AdminSessionI::openServerLogAsync(
+    string id,
+    string path,
+    int32_t nLines,
+    function<void(const optional<FileIteratorPrx>&)> response,
+    function<void(std::exception_ptr)>,
+    const Ice::Current& current)
 {
     try
     {
-        return addFileIterator(_database->getServer(id)->getProxy(false, 5s), "#" + path, nLines, current);
+        FileIteratorPrx fileIterator =
+            addFileIterator(_database->getServer(id)->getProxy(false, 5s), "#" + path, nLines, current);
+        response(fileIterator);
     }
     catch (const SynchronizationException&)
     {
@@ -261,12 +299,19 @@ AdminSessionI::openServerLog(string id, string path, int nLines, const Ice::Curr
     }
 }
 
-optional<FileIteratorPrx>
-AdminSessionI::openServerStdOut(string id, int nLines, const Ice::Current& current)
+void
+AdminSessionI::openServerStdOutAsync(
+    string id,
+    int32_t nLines,
+    function<void(const optional<FileIteratorPrx>&)> response,
+    function<void(std::exception_ptr)>,
+    const Ice::Current& current)
 {
     try
     {
-        return addFileIterator(_database->getServer(id)->getProxy(false, 5s), "stdout", nLines, current);
+        FileIteratorPrx fileIterator =
+            addFileIterator(_database->getServer(id)->getProxy(false, 5s), "stdout", nLines, current);
+        response(fileIterator);
     }
     catch (const SynchronizationException&)
     {
@@ -274,12 +319,19 @@ AdminSessionI::openServerStdOut(string id, int nLines, const Ice::Current& curre
     }
 }
 
-optional<FileIteratorPrx>
-AdminSessionI::openServerStdErr(string id, int nLines, const Ice::Current& current)
+void
+AdminSessionI::openServerStdErrAsync(
+    string id,
+    int32_t nLines,
+    function<void(const optional<FileIteratorPrx>&)> response,
+    function<void(std::exception_ptr)>,
+    const Ice::Current& current)
 {
     try
     {
-        return addFileIterator(_database->getServer(id)->getProxy(false, 5s), "stderr", nLines, current);
+        FileIteratorPrx fileIterator =
+            addFileIterator(_database->getServer(id)->getProxy(false, 5s), "stderr", nLines, current);
+        response(fileIterator);
     }
     catch (const SynchronizationException&)
     {
@@ -287,42 +339,73 @@ AdminSessionI::openServerStdErr(string id, int nLines, const Ice::Current& curre
     }
 }
 
-optional<FileIteratorPrx>
-AdminSessionI::openNodeStdOut(string name, int nLines, const Ice::Current& current)
+void
+AdminSessionI::openNodeStdOutAsync(
+    string name,
+    int32_t nLines,
+    function<void(const optional<FileIteratorPrx>&)> response,
+    function<void(std::exception_ptr)>,
+    const Ice::Current& current)
 {
-    return addFileIterator(_database->getNode(name)->getProxy(), "stdout", nLines, current);
+    FileIteratorPrx fileIterator = addFileIterator(_database->getNode(name)->getProxy(), "stdout", nLines, current);
+    response(fileIterator);
 }
 
-optional<FileIteratorPrx>
-AdminSessionI::openNodeStdErr(string name, int nLines, const Ice::Current& current)
+void
+AdminSessionI::openNodeStdErrAsync(
+    string name,
+    int32_t nLines,
+    function<void(const optional<FileIteratorPrx>&)> response,
+    function<void(std::exception_ptr)>,
+    const Ice::Current& current)
 {
-    return addFileIterator(_database->getNode(name)->getProxy(), "stderr", nLines, current);
+    FileIteratorPrx fileIterator = addFileIterator(_database->getNode(name)->getProxy(), "stderr", nLines, current);
+    response(fileIterator);
 }
 
-optional<FileIteratorPrx>
-AdminSessionI::openRegistryStdOut(string name, int nLines, const Ice::Current& current)
+void
+AdminSessionI::openRegistryStdOutAsync(
+    string name,
+    int32_t nLines,
+    function<void(const optional<FileIteratorPrx>&)> response,
+    function<void(std::exception_ptr)>,
+    const Ice::Current& current)
 {
-    return addFileIterator(
+    FileIteratorPrx fileIterator = addFileIterator(
         name == _replicaName ? _database->getReplicaCache().getInternalRegistry()
                              : _database->getReplica(name)->getProxy(),
         "stdout",
         nLines,
         current);
+    response(fileIterator);
 }
 
-optional<FileIteratorPrx>
-AdminSessionI::openRegistryStdErr(string name, int nLines, const Ice::Current& current)
+void
+AdminSessionI::openRegistryStdErrAsync(
+    string name,
+    int32_t nLines,
+    function<void(const optional<FileIteratorPrx>&)> response,
+    function<void(std::exception_ptr)>,
+    const Ice::Current& current)
 {
-    return addFileIterator(
+    FileIteratorPrx fileIterator = addFileIterator(
         name == _replicaName ? _database->getReplicaCache().getInternalRegistry()
                              : _database->getReplica(name)->getProxy(),
         "stderr",
         nLines,
         current);
+    response(fileIterator);
 }
 
 void
-AdminSessionI::destroy(const Ice::Current&)
+AdminSessionI::destroyAsync(function<void()> response, function<void(std::exception_ptr)>, const Ice::Current&)
+{
+    destroy();
+    response();
+}
+
+void
+AdminSessionI::destroy()
 {
     destroyImpl(false);
 }
@@ -477,7 +560,7 @@ AdminSessionFactory::createGlacier2Session(
         }
         catch (const Ice::LocalException& e)
         {
-            session->destroy(Ice::Current());
+            session->destroy();
 
             Ice::Warning out(_database->getTraceLevels()->logger);
             out << "Failed to callback Glacier2 session control object:\n" << e;

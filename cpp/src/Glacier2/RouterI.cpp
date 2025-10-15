@@ -90,30 +90,41 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
     _routingTable->destroy();
 }
 
-optional<ObjectPrx>
-Glacier2::RouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current&) const
+void
+Glacier2::RouterI::getClientProxyAsync(
+    std::function<void(const optional<Ice::ObjectPrx>& returnValue, optional<bool> hasRoutingTable)> response,
+    std::function<void(exception_ptr)>,
+    const Current&) const
 {
-    hasRoutingTable = true;
-    return nullopt; // always return nullopt from Glacier2 router implementation
+    response(nullopt, true); // always return nullopt from Glacier2 router implementation
 }
 
-optional<ObjectPrx>
-Glacier2::RouterI::getServerProxy(const Current&) const
+void
+Glacier2::RouterI::getServerProxyAsync(
+    std::function<void(const optional<Ice::ObjectPrx>& returnValue)> response,
+    std::function<void(exception_ptr)>,
+    const Current&) const
 {
-    return _serverProxy;
+    response(_serverProxy);
 }
 
-ObjectProxySeq
-Glacier2::RouterI::addProxies(ObjectProxySeq proxies, const Current& current)
+void
+Glacier2::RouterI::addProxiesAsync(
+    Ice::ObjectProxySeq proxies,
+    std::function<void(const Ice::ObjectProxySeq&)> response,
+    std::function<void(exception_ptr)>,
+    const Current& current)
 {
-    return _routingTable->add(std::move(proxies), current);
+    response(_routingTable->add(std::move(proxies), current));
 }
 
-string
-Glacier2::RouterI::getCategoryForClient(const Current&) const
+void
+Glacier2::RouterI::getCategoryForClientAsync(
+    std::function<void(std::string_view)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&) const
 {
-    assert(false); // Must not be called in this router implementation.
-    return {};
+    response(_serverProxy ? _serverProxy->ice_getIdentity().category : "");
 }
 
 void
@@ -137,23 +148,34 @@ Glacier2::RouterI::createSessionFromSecureConnectionAsync(
 }
 
 void
-Glacier2::RouterI::destroySession(const Current&)
+Glacier2::RouterI::destroySessionAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     assert(false); // Must not be called in this router implementation.
+    response();
 }
 
-int64_t
-Glacier2::RouterI::getSessionTimeout(const Current&) const
+void
+Glacier2::RouterI::getSessionTimeoutAsync(
+    function<void(int64_t)> response,
+    function<void(exception_ptr)>,
+    const Current&) const
 {
     assert(false); // Must not be called in this router implementation.
-    return 0;
+    response(0);
 }
 
-int32_t
-Glacier2::RouterI::getACMTimeout(const Current&) const
+void
+Glacier2::RouterI::getACMTimeoutAsync(function<void(int32_t)> response, function<void(exception_ptr)>, const Current&)
+    const
 {
     assert(false); // Must not be called in this router implementation.
-    return 0;
+    response(0);
+}
+
+std::optional<Ice::ObjectPrx>
+Glacier2::RouterI::getServerProxy() const
+{
+    return _serverProxy; // No mutex lock necessary, _serverProxy is immutable.
 }
 
 shared_ptr<ClientBlobject>

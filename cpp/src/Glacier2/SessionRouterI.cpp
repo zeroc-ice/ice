@@ -50,10 +50,7 @@ namespace Glacier2
 
         optional<IdentitySetPrx> identities(const Current&) final { return _filters->identitiesPrx(); }
 
-        int getSessionTimeout(const Current& current) final
-        {
-            return static_cast<int>(_sessionRouter->getSessionTimeout(current));
-        }
+        int getSessionTimeout(const Current&) final { return static_cast<int>(_sessionRouter->getSessionTimeout()); }
 
         void destroy(const Current&) final
         {
@@ -556,40 +553,46 @@ SessionRouterI::destroy()
     }
 }
 
-optional<ObjectPrx>
-SessionRouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current& current) const
+void
+SessionRouterI::getClientProxyAsync(
+    std::function<void(const optional<Ice::ObjectPrx>&, optional<bool>)> response,
+    std::function<void(exception_ptr)> exception,
+    const Current& current) const
 {
-    return getRouter(current.con, current.id)
-        ->getClientProxy(hasRoutingTable, current); // Forward to the per-client router.
+    getRouter(current.con, current.id)
+        ->getClientProxyAsync(std::move(response), std::move(exception), current); // Forward to the per-client router.
 }
 
-optional<ObjectPrx>
-SessionRouterI::getServerProxy(const Current& current) const
-{
-    return getRouter(current.con, current.id)->getServerProxy(current); // Forward to the per-client router.
-}
-
-ObjectProxySeq
-SessionRouterI::addProxies(ObjectProxySeq proxies, const Current& current)
-{
-    //
-    // Forward to the per-client router.
-    //
-    return getRouter(current.con, current.id)->addProxies(std::move(proxies), current);
-}
-
-string
-SessionRouterI::getCategoryForClient(const Ice::Current& current) const
+void
+SessionRouterI::getServerProxyAsync(
+    std::function<void(const optional<Ice::ObjectPrx>&)> response,
+    std::function<void(exception_ptr)> exception,
+    const Current& current) const
 {
     // Forward to the per-client router.
-    if (_instance->serverObjectAdapter())
-    {
-        return getRouter(current.con, current.id)->getServerProxy(current)->ice_getIdentity().category;
-    }
-    else
-    {
-        return "";
-    }
+    getRouter(current.con, current.id)->getServerProxyAsync(std::move(response), std::move(exception), current);
+}
+
+void
+SessionRouterI::addProxiesAsync(
+    ObjectProxySeq proxies,
+    std::function<void(const ObjectProxySeq&)> response,
+    std::function<void(exception_ptr)> exception,
+    const Current& current)
+{
+    // Forward to the per-client router.
+    getRouter(current.con, current.id)
+        ->addProxiesAsync(std::move(proxies), std::move(response), std::move(exception), current);
+}
+
+void
+SessionRouterI::getCategoryForClientAsync(
+    std::function<void(string_view)> response,
+    std::function<void(exception_ptr)> exception,
+    const Ice::Current& current) const
+{
+    // Forward to the per-client router.
+    getRouter(current.con, current.id)->getCategoryForClientAsync(std::move(response), std::move(exception), current);
 }
 
 void
@@ -677,9 +680,10 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
 }
 
 void
-SessionRouterI::destroySession(const Current& current)
+SessionRouterI::destroySessionAsync(function<void()> response, function<void(exception_ptr)>, const Current& current)
 {
     destroySession(current.con);
+    response();
 }
 
 void
@@ -718,7 +722,7 @@ SessionRouterI::destroySession(const ConnectionPtr& connection)
 
         if (_instance->serverObjectAdapter())
         {
-            string category = router->getServerProxy(Current())->ice_getIdentity().category;
+            string category = router->getServerProxy()->ice_getIdentity().category;
             assert(!category.empty());
             _routersByCategory.erase(category);
             _routersByCategoryHint = _routersByCategory.cend();
@@ -737,14 +741,30 @@ SessionRouterI::destroySession(const ConnectionPtr& connection)
     router->destroy([self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); });
 }
 
-int64_t
-SessionRouterI::getSessionTimeout(const Ice::Current& current) const
+void
+SessionRouterI::getSessionTimeoutAsync(
+    function<void(int64_t)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&) const
 {
-    return getACMTimeout(current);
+    response(getSessionTimeout());
 }
 
-int
-SessionRouterI::getACMTimeout(const Ice::Current&) const
+void
+SessionRouterI::getACMTimeoutAsync(function<void(int32_t)> response, function<void(exception_ptr)>, const Ice::Current&)
+    const
+{
+    response(getACMTimeout());
+}
+
+int64_t
+SessionRouterI::getSessionTimeout() const
+{
+    return getACMTimeout();
+}
+
+int32_t
+SessionRouterI::getACMTimeout() const
 {
     int idleTimeout = _instance->properties()->getIcePropertyAsInt("Ice.Connection.Server.IdleTimeout");
     return _instance->properties()->getPropertyAsIntWithDefault("Glacier2.Client.Connection.IdleTimeout", idleTimeout);

@@ -20,7 +20,7 @@ namespace
     //
     // The NodeForwarder wraps the node and session proxy parameters passed to the DataContract::Node operations
     // in forwarder proxies, which handle forwarding to the corresponding target objects.
-    class NodeForwarder : public Node, public enable_shared_from_this<NodeForwarder>
+    class NodeForwarder : public AsyncNode, public enable_shared_from_this<NodeForwarder>
     {
     public:
         NodeForwarder(

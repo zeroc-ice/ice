@@ -152,28 +152,41 @@ SessionI::allocateObjectByTypeAsync(
 }
 
 void
-SessionI::releaseObject(Ice::Identity id, const Ice::Current&)
+SessionI::releaseObjectAsync(
+    Ice::Identity id,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     _database->getAllocatableObject(id)->release(static_pointer_cast<SessionI>(shared_from_this()));
+    response();
 }
 
 void
-SessionI::setAllocationTimeout(int timeout, const Ice::Current&)
+SessionI::setAllocationTimeoutAsync(
+    int32_t timeout,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
-    lock_guard lock(_mutex);
-    _allocationTimeout = timeout;
+    {
+        lock_guard lock(_mutex);
+        _allocationTimeout = timeout;
+    }
+    response();
+}
+
+void
+SessionI::destroyAsync(function<void()> response, function<void(std::exception_ptr)>, const Ice::Current&)
+{
+    destroy();
+    response();
 }
 
 void
 SessionI::destroy()
 {
     destroyImpl(false);
-}
-
-void
-SessionI::destroy(const Ice::Current&)
-{
-    destroy();
 }
 
 int
@@ -299,7 +312,7 @@ ClientSessionFactory::createGlacier2Session(
         }
         catch (const Ice::LocalException& e)
         {
-            session->destroy(Ice::Current());
+            session->destroy();
 
             Ice::Warning out(_database->getTraceLevels()->logger);
             out << "Failed to callback Glacier2 session control object:\n" << e;

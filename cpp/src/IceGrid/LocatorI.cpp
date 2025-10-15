@@ -788,22 +788,31 @@ LocatorI::findAdapterByIdAsync(
     }
 }
 
-optional<Ice::LocatorRegistryPrx>
-LocatorI::getRegistry(const Ice::Current&) const
+void
+LocatorI::getRegistryAsync(
+    function<void(const optional<Ice::LocatorRegistryPrx>&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&) const
 {
-    return _wellKnownObjects->getLocatorRegistry();
+    response(_wellKnownObjects->getLocatorRegistry());
 }
 
-optional<RegistryPrx>
-LocatorI::getLocalRegistry(const Ice::Current&) const
+void
+LocatorI::getLocalRegistryAsync(
+    function<void(const optional<RegistryPrx>&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&) const
 {
-    return _localRegistry;
+    response(_localRegistry);
 }
 
-optional<QueryPrx>
-LocatorI::getLocalQuery(const Ice::Current&) const
+void
+LocatorI::getLocalQueryAsync(
+    function<void(const optional<QueryPrx>&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&) const
 {
-    return _localQuery;
+    response(_localQuery);
 }
 
 const shared_ptr<Ice::Communicator>&

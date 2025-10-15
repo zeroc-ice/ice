@@ -46,7 +46,7 @@ module Ice
         /// @throws AdapterAlreadyActiveException Thrown when an object adapter with the same adapter ID has already
         /// registered its endpoints. Since this operation is marked idempotent, this exception may be thrown when the
         /// Ice client runtime retries an invocation with a non-null @p proxy.
-        ["amd"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
+        idempotent void setAdapterDirectProxy(string id, Object* proxy)
             throws AdapterNotFoundException, AdapterAlreadyActiveException;
 
         /// Registers or unregisters the endpoints of an object adapter. This object adapter is a member of a replica
@@ -63,7 +63,7 @@ module Ice
         /// Ice client runtime retries an invocation with a non-null @p proxy.
         /// @throws InvalidReplicaGroupIdException Thrown when the given replica group does not match the replica group
         /// associated with the adapter ID in the locator's database.
-        ["amd"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
+        idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
             throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidReplicaGroupIdException;
 
         /// Registers a proxy to the {@link Process} object of a server application.
@@ -71,7 +71,7 @@ module Ice
         /// @param proxy A proxy to the {@link Process} object of the server. This proxy is never null.
         /// @throws ServerNotFoundException Thrown when the locator does not know a server application with a server ID
         /// of @p id.
-        ["amd"] idempotent void setServerProcessProxy(string id, Process* proxy)
+        idempotent void setServerProcessProxy(string id, Process* proxy)
             throws ServerNotFoundException;
     }
 }

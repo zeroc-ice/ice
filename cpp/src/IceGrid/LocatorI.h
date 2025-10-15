@@ -18,7 +18,7 @@ namespace IceGrid
     struct LocatorAdapterInfo;
     using LocatorAdapterInfoSeq = std::vector<LocatorAdapterInfo>;
 
-    class LocatorI : public Locator, public std::enable_shared_from_this<LocatorI>
+    class LocatorI : public AsyncLocator, public std::enable_shared_from_this<LocatorI>
     {
     public:
         class Request : public std::enable_shared_from_this<Request>
@@ -49,9 +49,20 @@ namespace IceGrid
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) const override;
 
-        [[nodiscard]] std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const override;
-        [[nodiscard]] std::optional<RegistryPrx> getLocalRegistry(const Ice::Current&) const override;
-        [[nodiscard]] std::optional<QueryPrx> getLocalQuery(const Ice::Current&) const override;
+        void getRegistryAsync(
+            std::function<void(const std::optional<Ice::LocatorRegistryPrx>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) const override;
+
+        void getLocalRegistryAsync(
+            std::function<void(const std::optional<RegistryPrx>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) const override;
+
+        void getLocalQueryAsync(
+            std::function<void(const std::optional<QueryPrx>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) const override;
 
         [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const;
         [[nodiscard]] const std::shared_ptr<TraceLevels>& getTraceLevels() const;
