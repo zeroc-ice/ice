@@ -2453,8 +2453,7 @@ class RemoteProcessController(ProcessController):
                 programName = props["Ice.ProgramName"]
             else:
                 programName = process.exe or current.testcase.getProcessType(process)
-            # Set Ice.LogFile to the log only the program name and timestamp.
-            # The process controller will add update this to append the path.
+
             logDirectory = processController.createLogDirectory(current.testsuite)
             traceProps["Ice.LogFile"] = os.path.join(
                 logDirectory, f"{programName}-{time.strftime('%m%d%y-%H%M')}.log"
