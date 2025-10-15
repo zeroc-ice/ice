@@ -3,9 +3,9 @@
 #ifndef TEST_AMD_I_H
 #define TEST_AMD_I_H
 
-#include "TestAMD.h"
+#include "Test.h"
 
-class MyDerivedClassI final : public Test::MyDerivedClass
+class MyDerivedClassI final : public Test::AsyncMyDerivedClass
 {
 public:
     MyDerivedClassI();

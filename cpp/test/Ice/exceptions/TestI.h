@@ -40,6 +40,7 @@ public:
 
     void throwAfterResponse(const Ice::Current&) override;
     void throwAfterException(const Ice::Current&) override;
+    void throwE(const Ice::Current&) override;
 };
 
 #endif

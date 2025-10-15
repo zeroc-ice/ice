@@ -104,38 +104,9 @@ namespace
         writeDocLine(out, "returns", "The unmarshaled value.");
     }
 
-    /*
-    // TODO: this function should probably use the link formatter.
-    // This is currently not possible because DocComment::seeAlso() returns a list of strings.
-    string toCsIdent(const string& s)
+    void writeSeeAlso([[maybe_unused]] Output& out, [[maybe_unused]] const StringList& lines)
     {
-        string::size_type pos = s.find('#');
-        if (pos == string::npos)
-        {
-            return s;
-        }
-
-        string result = s;
-        if (pos == 0)
-        {
-            return result.erase(0, 1);
-        }
-
-        result[pos] = '.';
-        return result;
-    }
-    */
-
-    void writeSeeAlso([[maybe_unused]] Output& out, const StringList& lines)
-    {
-        for (const auto& line : lines)
-        {
-            if (!line.empty())
-            {
-                // TODO: this version often results in broken links.
-                // out << nl << "/// <seealso cref=\"" << toCsIdent(line) << "\" />";
-            }
-        }
+        // See #4543.
     }
 
     string sliceModeToIceMode(Operation::Mode opMode)
@@ -2639,13 +2610,13 @@ Slice::Gen::SkeletonVisitor::getDispatchParams(
 }
 
 string
-Slice::Gen::SkeletonVisitor::prependSkeletonPrefix(const string& name) const
-{
-    return _async ? "Async" + removeEscapePrefix(name) : name;
-}
-
-string
 Slice::Gen::SkeletonVisitor::skeletonPrefix() const
 {
     return _async ? "Async" : "";
+}
+
+string
+Slice::Gen::SkeletonVisitor::prependSkeletonPrefix(const string& name) const
+{
+    return _async ? "Async" + removeEscapePrefix(name) : name;
 }

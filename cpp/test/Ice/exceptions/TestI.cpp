@@ -151,3 +151,9 @@ ThrowerI::throwAfterException(const Ice::Current&)
     //
     throw A(12345);
 }
+
+void
+ThrowerI::throwE(const Ice::Current&)
+{
+    throw E{"E"};
+}

@@ -19,11 +19,11 @@ InitialI::shutdownAsync(function<void()> response, function<void(exception_ptr)>
 void
 InitialI::pingPongAsync(
     shared_ptr<Ice::Value> obj,
-    function<void(const shared_ptr<Ice::Value>&)> response,
+    function<void(PingPongMarshaledResult)> response,
     function<void(exception_ptr)>,
-    const Ice::Current&)
+    const Ice::Current& current)
 {
-    response(obj);
+    response({obj, current});
 }
 
 void

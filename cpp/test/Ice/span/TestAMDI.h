@@ -3,9 +3,9 @@
 #ifndef TEST_AMD_I_H
 #define TEST_AMD_I_H
 
-#include "TestAMD.h"
+#include "Test.h"
 
-class TestIntfAMDI final : public Test::TestIntf
+class TestIntfAMDI final : public Test::AsyncTestIntf
 {
 public:
     void opByteSpanAsync(
