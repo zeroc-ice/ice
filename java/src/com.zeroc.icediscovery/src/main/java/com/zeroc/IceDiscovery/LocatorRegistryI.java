@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 class LocatorRegistryI implements LocatorRegistry {
     public LocatorRegistryI(Communicator com) {
@@ -29,18 +27,16 @@ class LocatorRegistryI implements LocatorRegistry {
     }
 
     @Override
-    public synchronized CompletionStage<Void> setAdapterDirectProxyAsync(
-            String adapterId, ObjectPrx proxy, Current current) {
+    public synchronized void setAdapterDirectProxy(String adapterId, ObjectPrx proxy, Current current) {
         if (proxy != null) {
             _adapters.put(adapterId, proxy);
         } else {
             _adapters.remove(adapterId);
         }
-        return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
-    public synchronized CompletionStage<Void> setReplicatedAdapterDirectProxyAsync(
+    public synchronized void setReplicatedAdapterDirectProxy(
             String adapterId,
             String replicaGroupId,
             ObjectPrx proxy,
@@ -63,13 +59,10 @@ class LocatorRegistryI implements LocatorRegistry {
                 }
             }
         }
-        return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
-    public CompletionStage<Void> setServerProcessProxyAsync(
-            String serverId, ProcessPrx process, Current current) {
-        return CompletableFuture.completedFuture((Void) null);
+    public void setServerProcessProxy(String serverId, ProcessPrx process, Current current) {
     }
 
     synchronized ObjectPrx findObject(Identity id) {

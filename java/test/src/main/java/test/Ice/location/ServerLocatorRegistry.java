@@ -12,24 +12,19 @@ import com.zeroc.Ice.ProcessPrx;
 import test.Ice.location.Test.TestLocatorRegistry;
 
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public class ServerLocatorRegistry implements TestLocatorRegistry {
     @Override
-    public CompletionStage<Void> setAdapterDirectProxyAsync(
-            String adapter, ObjectPrx object, Current current) {
+    public void setAdapterDirectProxy(String adapter, ObjectPrx object, Current current) {
         if (object != null) {
             _adapters.put(adapter, object);
         } else {
             _adapters.remove(adapter);
         }
-        return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
-    public CompletionStage<Void> setReplicatedAdapterDirectProxyAsync(
-            String adapter, String replica, ObjectPrx object, Current current) {
+    public void setReplicatedAdapterDirectProxy(String adapter, String replica, ObjectPrx object, Current current) {
         if (object != null) {
             _adapters.put(adapter, object);
             _adapters.put(replica, object);
@@ -37,13 +32,11 @@ public class ServerLocatorRegistry implements TestLocatorRegistry {
             _adapters.remove(adapter);
             _adapters.remove(replica);
         }
-        return CompletableFuture.completedFuture((Void) null);
     }
 
     @Override
-    public CompletionStage<Void> setServerProcessProxyAsync(
-            String id, ProcessPrx proxy, Current current) {
-        return CompletableFuture.completedFuture((Void) null);
+    public void setServerProcessProxy(String id, ProcessPrx proxy, Current current) {
+        // No-op
     }
 
     @Override

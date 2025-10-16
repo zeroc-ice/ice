@@ -24,29 +24,21 @@ extern "C"
 class LocatorI final : public Locator
 {
 public:
-    void findAdapterByIdAsync(
-        string,
-        function<void(const optional<ObjectPrx>&)> response,
-        function<void(exception_ptr)>,
-        const Current& current) const final
+    [[nodiscard]] optional<ObjectPrx> findAdapterById(string, const Current& current) const final
     {
         _controller->checkCallPause(current);
         CommunicatorPtr communicator = current.adapter->getCommunicator();
-        response(current.adapter->createDirectProxy(stringToIdentity("dummy")));
+        return current.adapter->createDirectProxy(stringToIdentity("dummy"));
     }
 
-    void findObjectByIdAsync(
-        Identity id,
-        function<void(const optional<ObjectPrx>&)> response,
-        function<void(exception_ptr)>,
-        const Current& current) const final
+    [[nodiscard]] optional<ObjectPrx> findObjectById(Identity id, const Current& current) const final
     {
         _controller->checkCallPause(current);
         CommunicatorPtr communicator = current.adapter->getCommunicator();
-        response(current.adapter->createDirectProxy(id));
+        return current.adapter->createDirectProxy(id);
     }
 
-    [[nodiscard]] optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return nullopt; }
+    [[nodiscard]] optional<LocatorRegistryPrx> getRegistry(const Current&) const final { return nullopt; }
 
     LocatorI(BackgroundControllerIPtr controller) : _controller(std::move(controller)) {}
 

@@ -12,20 +12,17 @@ public class Server : Test.TestHelper
 {
     internal class LocatorI : Ice.LocatorDisp_
     {
-        public override Task<Ice.ObjectPrx>
-        findAdapterByIdAsync(string adapter, Ice.Current current)
+        public override Ice.ObjectPrx findAdapterById(string adapter, Ice.Current current)
         {
             _controller.checkCallPause(current);
             _ = current.adapter.getCommunicator();
-            return Task<Ice.ObjectPrx>.FromResult(
-                current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy")));
+            return current.adapter.createDirectProxy(Ice.Util.stringToIdentity("dummy"));
         }
 
-        public override Task<Ice.ObjectPrx>
-        findObjectByIdAsync(Ice.Identity id, Ice.Current current)
+        public override Ice.ObjectPrx findObjectById(Ice.Identity id, Ice.Current current)
         {
             _controller.checkCallPause(current);
-            return Task<Ice.ObjectPrx>.FromResult(current.adapter.createDirectProxy(id));
+            return current.adapter.createDirectProxy(id);
         }
 
         public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current) => null;

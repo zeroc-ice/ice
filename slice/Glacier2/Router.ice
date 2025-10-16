@@ -49,7 +49,6 @@ module Glacier2
         /// @see Session
         /// @see SessionManager
         /// @see PermissionsVerifier
-        ["amd"]
         Session* createSession(string userId, string password)
             throws PermissionDeniedException, CannotCreateSessionException;
 
@@ -67,7 +66,6 @@ module Glacier2
         /// @see Session
         /// @see SessionManager
         /// @see PermissionsVerifier
-        ["amd"]
         Session* createSessionFromSecureConnection()
             throws PermissionDeniedException, CannotCreateSessionException;
 

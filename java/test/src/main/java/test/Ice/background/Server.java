@@ -18,25 +18,19 @@ import test.TestHelper;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public class Server extends TestHelper {
     public static class LocatorI implements Locator {
         @Override
-        public CompletionStage<ObjectPrx> findAdapterByIdAsync(
-                String adapter, Current current) {
+        public ObjectPrx findAdapterById(String adapter, Current current) {
             _controller.checkCallPause(current);
-            return CompletableFuture.completedFuture(
-                current.adapter.createDirectProxy(
-                    Util.stringToIdentity("dummy")));
+            return current.adapter.createDirectProxy(Util.stringToIdentity("dummy"));
         }
 
         @Override
-        public CompletionStage<ObjectPrx> findObjectByIdAsync(
-                Identity id, Current current) {
+        public ObjectPrx findObjectById(Identity id, Current current) {
             _controller.checkCallPause(current);
-            return CompletableFuture.completedFuture(current.adapter.createDirectProxy(id));
+            return current.adapter.createDirectProxy(id);
         }
 
         @Override

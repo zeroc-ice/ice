@@ -112,28 +112,28 @@ Glacier2::RouterI::addProxies(ObjectProxySeq proxies, const Current& current)
 string
 Glacier2::RouterI::getCategoryForClient(const Current&) const
 {
-    assert(false); // Must not be called in this router implementation.
-    return {};
+    if (_serverProxy)
+    {
+        return _serverProxy->ice_getIdentity().category;
+    }
+    else
+    {
+        return "";
+    }
 }
 
-void
-Glacier2::RouterI::createSessionAsync(
-    string,
-    string,
-    function<void(const optional<SessionPrx>& returnValue)>,
-    function<void(exception_ptr)>,
-    const Current&)
+optional<SessionPrx>
+Glacier2::RouterI::createSession(string, string, const Current&)
 {
     assert(false); // Must not be called in this router implementation.
+    return nullopt;
 }
 
-void
-Glacier2::RouterI::createSessionFromSecureConnectionAsync(
-    function<void(const optional<SessionPrx>& returnValue)>,
-    function<void(exception_ptr)>,
-    const Current&)
+optional<SessionPrx>
+Glacier2::RouterI::createSessionFromSecureConnection(const Current&)
 {
     assert(false); // Must not be called in this router implementation.
+    return nullopt;
 }
 
 void

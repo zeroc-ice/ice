@@ -13,52 +13,124 @@ namespace IceGrid
     class RegistryI;
     class FileIteratorI;
 
-    class AdminSessionI final : public BaseSessionI, public AdminSession
+    class AdminSessionI final : public BaseSessionI, public AsyncAdminSession
     {
     public:
         AdminSessionI(const std::string&, const std::shared_ptr<Database>&, const std::shared_ptr<RegistryI>&);
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
-        void keepAlive(const Ice::Current&) final {} // no-op
+        void keepAliveAsync(
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) final
+        {
+            response(); // no-op
+        }
 
-        [[nodiscard]] std::optional<AdminPrx> getAdmin(const Ice::Current&) const final;
-        [[nodiscard]] std::optional<Ice::ObjectPrx> getAdminCallbackTemplate(const Ice::Current&) const final;
+        void getAdminAsync(
+            std::function<void(const std::optional<AdminPrx>&)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) const final;
 
-        void setObservers(
+        void getAdminCallbackTemplateAsync(
+            std::function<void(const std::optional<Ice::ObjectPrx>&)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) const final;
+
+        void setObserversAsync(
             std::optional<RegistryObserverPrx>,
             std::optional<NodeObserverPrx>,
             std::optional<ApplicationObserverPrx>,
             std::optional<AdapterObserverPrx>,
             std::optional<ObjectObserverPrx>,
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)> exception,
             const Ice::Current&) final;
 
-        void setObserversByIdentity(
+        void setObserversByIdentityAsync(
             Ice::Identity,
             Ice::Identity,
             Ice::Identity,
             Ice::Identity,
             Ice::Identity,
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)> exception,
             const Ice::Current&) final;
 
-        int startUpdate(const Ice::Current&) final;
-        void finishUpdate(const Ice::Current&) final;
+        void startUpdateAsync(
+            std::function<void(std::int32_t)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
 
-        [[nodiscard]] std::string getReplicaName(const Ice::Current&) const final;
+        void finishUpdateAsync(
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
 
-        std::optional<FileIteratorPrx> openServerLog(std::string, std::string, int, const Ice::Current&) final;
-        std::optional<FileIteratorPrx> openServerStdOut(std::string, int, const Ice::Current&) final;
-        std::optional<FileIteratorPrx> openServerStdErr(std::string, int, const Ice::Current&) final;
+        void getReplicaNameAsync(
+            std::function<void(std::string_view)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) const final;
 
-        std::optional<FileIteratorPrx> openNodeStdOut(std::string, int, const Ice::Current&) final;
-        std::optional<FileIteratorPrx> openNodeStdErr(std::string, int, const Ice::Current&) final;
+        void openServerLogAsync(
+            std::string,
+            std::string,
+            std::int32_t,
+            std::function<void(const std::optional<FileIteratorPrx>&)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
 
-        std::optional<FileIteratorPrx> openRegistryStdOut(std::string, int, const Ice::Current&) final;
-        std::optional<FileIteratorPrx> openRegistryStdErr(std::string, int, const Ice::Current&) final;
+        void openServerStdOutAsync(
+            std::string,
+            std::int32_t,
+            std::function<void(const std::optional<FileIteratorPrx>&)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
 
-        void destroy(const Ice::Current&) final;
+        void openServerStdErrAsync(
+            std::string,
+            std::int32_t,
+            std::function<void(const std::optional<FileIteratorPrx>&)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
+
+        void openNodeStdOutAsync(
+            std::string,
+            std::int32_t,
+            std::function<void(const std::optional<FileIteratorPrx>&)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
+
+        void openNodeStdErrAsync(
+            std::string,
+            std::int32_t,
+            std::function<void(const std::optional<FileIteratorPrx>&)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
+
+        void openRegistryStdOutAsync(
+            std::string,
+            std::int32_t,
+            std::function<void(const std::optional<FileIteratorPrx>&)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
+
+        void openRegistryStdErrAsync(
+            std::string,
+            std::int32_t,
+            std::function<void(const std::optional<FileIteratorPrx>&)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
+
+        void destroyAsync(
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) final;
 
         void removeFileIterator(const Ice::Identity&, const Ice::Current&);
+
+        void destroy();
 
     private:
         void setupObserverSubscription(TopicName, const std::optional<Ice::ObjectPrx>&, bool = false);

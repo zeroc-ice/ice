@@ -29,25 +29,27 @@ namespace Glacier2
         void destroy(std::function<void(std::exception_ptr)>);
 
         std::optional<Ice::ObjectPrx> getClientProxy(std::optional<bool>&, const Ice::Current&) const final;
+
         [[nodiscard]] std::optional<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const final;
+
         Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) final;
+
         [[nodiscard]] std::string getCategoryForClient(const Ice::Current&) const final;
-        void createSessionAsync(
-            std::string,
-            std::string,
-            std::function<void(const std::optional<SessionPrx>& returnValue)>,
-            std::function<void(std::exception_ptr)>,
-            const Ice::Current&) final;
-        void createSessionFromSecureConnectionAsync(
-            std::function<void(const std::optional<SessionPrx>& returnValue)>,
-            std::function<void(std::exception_ptr)>,
-            const Ice::Current&) final;
+
+        std::optional<SessionPrx> createSession(std::string, std::string, const Ice::Current&) final;
+
+        std::optional<SessionPrx> createSessionFromSecureConnection(const Ice::Current&) final;
+
         void refreshSession(const Ice::Current&) final {}
+
         void destroySession(const Ice::Current&) final;
+
         [[nodiscard]] std::int64_t getSessionTimeout(const Ice::Current&) const final;
-        [[nodiscard]] int getACMTimeout(const Ice::Current&) const final;
+
+        [[nodiscard]] std::int32_t getACMTimeout(const Ice::Current&) const final;
 
         [[nodiscard]] std::shared_ptr<ClientBlobject> getClientBlobject() const;
+
         [[nodiscard]] std::shared_ptr<ServerBlobject> getServerBlobject() const;
 
         [[nodiscard]] std::optional<SessionPrx> getSession() const;

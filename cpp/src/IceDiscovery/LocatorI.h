@@ -14,27 +14,13 @@ namespace IceDiscovery
     public:
         LocatorRegistryI(const Ice::CommunicatorPtr&);
 
-        void setAdapterDirectProxyAsync(
-            std::string,
-            std::optional<Ice::ObjectPrx>,
-            std::function<void()>,
-            std::function<void(std::exception_ptr)>,
-            const Ice::Current&) final;
+        void setAdapterDirectProxy(std::string, std::optional<Ice::ObjectPrx>, const Ice::Current&) final;
 
-        void setReplicatedAdapterDirectProxyAsync(
-            std::string,
-            std::string,
-            std::optional<Ice::ObjectPrx>,
-            std::function<void()>,
-            std::function<void(std::exception_ptr)>,
-            const Ice::Current&) override;
+        void
+        setReplicatedAdapterDirectProxy(std::string, std::string, std::optional<Ice::ObjectPrx>, const Ice::Current&)
+            final;
 
-        void setServerProcessProxyAsync(
-            std::string,
-            std::optional<Ice::ProcessPrx>,
-            std::function<void()>,
-            std::function<void(std::exception_ptr)>,
-            const Ice::Current&) final;
+        void setServerProcessProxy(std::string, std::optional<Ice::ProcessPrx>, const Ice::Current&) final;
 
         [[nodiscard]] std::optional<Ice::ObjectPrx> findObject(const Ice::Identity&) const;
         std::optional<Ice::ObjectPrx> findAdapter(const std::string&, bool&) const;
@@ -50,7 +36,7 @@ namespace IceDiscovery
     class LookupI;
     using LookupIPtr = std::shared_ptr<LookupI>;
 
-    class LocatorI final : public Ice::Locator
+    class LocatorI final : public Ice::AsyncLocator
     {
     public:
         LocatorI(LookupIPtr, Ice::LocatorRegistryPrx);
@@ -65,9 +51,12 @@ namespace IceDiscovery
             std::string,
             std::function<void(const std::optional<Ice::ObjectPrx>&)>,
             std::function<void(std::exception_ptr)>,
-            const Ice::Current&) const override;
+            const Ice::Current&) const final;
 
-        [[nodiscard]] std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final;
+        void getRegistryAsync(
+            std::function<void(const std::optional<Ice::LocatorRegistryPrx>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) const final;
 
     private:
         LookupIPtr _lookup;

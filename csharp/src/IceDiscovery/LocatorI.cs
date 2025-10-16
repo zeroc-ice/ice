@@ -9,8 +9,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
         _wellKnownProxy = Ice.ObjectPrxHelper.createProxy(com, "p").ice_locator(null)
             .ice_router(null).ice_collocationOptimized(true);
 
-    public override Task
-    setAdapterDirectProxyAsync(string adapterId, Ice.ObjectPrx proxy, Ice.Current current)
+    public override void setAdapterDirectProxy(string adapterId, Ice.ObjectPrx proxy, Ice.Current current)
     {
         lock (_mutex)
         {
@@ -23,11 +22,9 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
                 _adapters.Remove(adapterId);
             }
         }
-        return Task.CompletedTask;
     }
 
-    public override Task
-    setReplicatedAdapterDirectProxyAsync(
+    public override void setReplicatedAdapterDirectProxy(
         string adapterId,
         string replicaGroupId,
         Ice.ObjectPrx proxy,
@@ -58,11 +55,11 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
                 }
             }
         }
-        return Task.CompletedTask;
     }
 
-    public override Task
-    setServerProcessProxyAsync(string id, Ice.ProcessPrx process, Ice.Current current) => Task.CompletedTask;
+    public override void setServerProcessProxy(string id, Ice.ProcessPrx process, Ice.Current current)
+    {
+    }
 
     internal Ice.ObjectPrx findObject(Ice.Identity id)
     {
@@ -154,7 +151,7 @@ internal class LocatorRegistryI : Ice.LocatorRegistryDisp_
     private readonly object _mutex = new();
 }
 
-internal class LocatorI : Ice.LocatorDisp_
+internal class LocatorI : Ice.AsyncLocatorDisp_
 {
     public LocatorI(LookupI lookup, Ice.LocatorRegistryPrx registry)
     {
@@ -162,13 +159,13 @@ internal class LocatorI : Ice.LocatorDisp_
         _registry = registry;
     }
 
-    public override Task<Ice.ObjectPrx>
-    findObjectByIdAsync(Ice.Identity id, Ice.Current current) => _lookup.findObject(id);
+    public override Task<Ice.ObjectPrx> findObjectByIdAsync(Ice.Identity id, Ice.Current current) =>
+        _lookup.findObject(id);
 
-    public override Task<Ice.ObjectPrx>
-    findAdapterByIdAsync(string adapterId, Ice.Current current) => _lookup.findAdapter(adapterId);
+    public override Task<Ice.ObjectPrx> findAdapterByIdAsync(string adapterId, Ice.Current current) =>
+        _lookup.findAdapter(adapterId);
 
-    public override Ice.LocatorRegistryPrx getRegistry(Ice.Current current) => _registry;
+    public override Task<Ice.LocatorRegistryPrx> getRegistryAsync(Ice.Current current) => Task.FromResult(_registry);
 
     private readonly LookupI _lookup;
     private readonly Ice.LocatorRegistryPrx _registry;

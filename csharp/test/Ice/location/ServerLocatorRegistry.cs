@@ -12,8 +12,7 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         _objects = new Hashtable();
     }
 
-    public override Task
-    setAdapterDirectProxyAsync(string adapter, Ice.ObjectPrx obj, Ice.Current current)
+    public override void setAdapterDirectProxy(string adapter, Ice.ObjectPrx obj, Ice.Current current)
     {
         if (obj != null)
         {
@@ -23,11 +22,12 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         {
             _adapters.Remove(adapter);
         }
-        return Task.CompletedTask;
     }
 
-    public override Task
-    setReplicatedAdapterDirectProxyAsync(string adapter, string replica, Ice.ObjectPrx obj,
+    public override void setReplicatedAdapterDirectProxy(
+        string adapter,
+        string replica,
+        Ice.ObjectPrx obj,
         Ice.Current current)
     {
         if (obj != null)
@@ -40,11 +40,11 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
             _adapters.Remove(adapter);
             _adapters.Remove(replica);
         }
-        return Task.CompletedTask;
     }
 
-    public override Task
-    setServerProcessProxyAsync(string id, Ice.ProcessPrx proxy, Ice.Current current) => Task.CompletedTask;
+    public override void setServerProcessProxy(string id, Ice.ProcessPrx proxy, Ice.Current current)
+    {
+    }
 
     public override void addObject(Ice.ObjectPrx obj, Ice.Current current) => addObject(obj);
 

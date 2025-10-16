@@ -19,36 +19,11 @@ using namespace Test;
 class ServerLocatorRegistry final : public LocatorRegistry
 {
 public:
-    void setAdapterDirectProxyAsync(
-        string,
-        optional<ObjectPrx>,
-        function<void()> response,
-        function<void(exception_ptr)>,
-        const Current&) override
-    {
-        response();
-    }
+    void setAdapterDirectProxy(string, optional<ObjectPrx>, const Current&) override {}
 
-    void setReplicatedAdapterDirectProxyAsync(
-        string,
-        string,
-        optional<ObjectPrx>,
-        function<void()> response,
-        function<void(exception_ptr)>,
-        const Current&) override
-    {
-        response();
-    }
+    void setReplicatedAdapterDirectProxy(string, string, optional<ObjectPrx>, const Current&) override {}
 
-    void setServerProcessProxyAsync(
-        string,
-        optional<ProcessPrx>,
-        function<void()> response,
-        function<void(exception_ptr)>,
-        const Current&) override
-    {
-        response();
-    }
+    void setServerProcessProxy(string, optional<ProcessPrx>, const Current&) override {}
 };
 
 class ServerLocatorI final : public Locator
@@ -63,22 +38,14 @@ public:
     {
     }
 
-    void findObjectByIdAsync(
-        Identity id,
-        function<void(const optional<ObjectPrx>&)> response,
-        function<void(exception_ptr)>,
-        const Current&) const override
+    [[nodiscard]] optional<Ice::ObjectPrx> findObjectById(Identity id, const Current&) const override
     {
-        response(_adapter->createProxy(id));
+        return _adapter->createProxy(id);
     }
 
-    void findAdapterByIdAsync(
-        string,
-        function<void(const optional<ObjectPrx>&)> response,
-        function<void(exception_ptr)>,
-        const Current&) const override
+    [[nodiscard]] optional<Ice::ObjectPrx> findAdapterById(string, const Current&) const override
     {
-        response(_adapter->createDirectProxy(stringToIdentity("dummy")));
+        return _adapter->createDirectProxy(stringToIdentity("dummy"));
     }
 
     [[nodiscard]] optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return _registryPrx; }

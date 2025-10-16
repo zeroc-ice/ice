@@ -13,12 +13,7 @@ using namespace Ice;
 ServerLocatorRegistry::ServerLocatorRegistry() = default;
 
 void
-ServerLocatorRegistry::setAdapterDirectProxyAsync(
-    string adapter,
-    optional<ObjectPrx> object,
-    function<void()> response,
-    function<void(exception_ptr)>,
-    const Current&)
+ServerLocatorRegistry::setAdapterDirectProxy(string adapter, optional<ObjectPrx> object, const Current&)
 {
     if (!object)
     {
@@ -28,16 +23,13 @@ ServerLocatorRegistry::setAdapterDirectProxyAsync(
     {
         _adapters[adapter] = object;
     }
-    response();
 }
 
 void
-ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(
+ServerLocatorRegistry::setReplicatedAdapterDirectProxy(
     string adapter,
     string replicaGroup,
     optional<ObjectPrx> object,
-    function<void()> response,
-    function<void(exception_ptr)>,
     const Current&)
 {
     if (!object)
@@ -50,18 +42,11 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(
         _adapters[adapter] = object;
         _adapters[replicaGroup] = object;
     }
-    response();
 }
 
 void
-ServerLocatorRegistry::setServerProcessProxyAsync(
-    string,
-    optional<ProcessPrx>,
-    function<void()> response,
-    function<void(exception_ptr)>,
-    const Current&)
+ServerLocatorRegistry::setServerProcessProxy(string, optional<ProcessPrx>, const Current&)
 {
-    response();
 }
 
 void
@@ -105,39 +90,30 @@ ServerLocator::ServerLocator(ServerLocatorRegistryPtr registry, const optional<L
 {
 }
 
-void
-ServerLocator::findObjectByIdAsync(
-    Identity id,
-    function<void(const optional<ObjectPrx>&)> response,
-    function<void(exception_ptr)>,
-    const Current&) const
+optional<ObjectPrx>
+ServerLocator::findObjectById(Identity id, const Current&) const
 {
     ++const_cast<int&>(_requestCount);
     // We add a small delay to make sure locator request queuing gets tested when
     // running the test on a fast machine
     this_thread::sleep_for(chrono::milliseconds(1));
-    response(_registry->getObject(id));
+    return _registry->getObject(id);
 }
 
-void
-ServerLocator::findAdapterByIdAsync(
-    string id,
-    function<void(const optional<ObjectPrx>&)> response,
-    function<void(exception_ptr)>,
-    const Current& current) const
+std::optional<ObjectPrx>
+ServerLocator::findAdapterById(string id, const Current& current) const
 {
     ++const_cast<int&>(_requestCount);
     if (id == "TestAdapter10" || id == "TestAdapter10-2")
     {
         test(current.encoding == Encoding_1_0);
-        response(_registry->getAdapter("TestAdapter"));
-        return;
+        return _registry->getAdapter("TestAdapter");
     }
 
     // We add a small delay to make sure locator request queuing gets tested when
     // running the test on a fast machine
     this_thread::sleep_for(chrono::milliseconds(1));
-    response(_registry->getAdapter(id));
+    return _registry->getAdapter(id);
 }
 
 optional<LocatorRegistryPrx>
@@ -146,7 +122,7 @@ ServerLocator::getRegistry(const Current&) const
     return _registryPrx;
 }
 
-int
+std::int32_t
 ServerLocator::getRequestCount(const Current&) const
 {
     return _requestCount;

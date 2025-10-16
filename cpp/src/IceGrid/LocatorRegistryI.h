@@ -12,7 +12,8 @@ namespace IceGrid
     class ReplicaSessionManager;
     class TraceLevels;
 
-    class LocatorRegistryI final : public Ice::LocatorRegistry, public std::enable_shared_from_this<LocatorRegistryI>
+    class LocatorRegistryI final : public Ice::AsyncLocatorRegistry,
+                                   public std::enable_shared_from_this<LocatorRegistryI>
     {
     public:
         LocatorRegistryI(const std::shared_ptr<Database>&, bool, bool, ReplicaSessionManager&);
