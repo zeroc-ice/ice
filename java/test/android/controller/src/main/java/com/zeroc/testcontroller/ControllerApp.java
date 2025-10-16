@@ -175,7 +175,7 @@ public class ControllerApp extends Application {
 
             if (isEmulator())
             {
-                // We used a hardcoded port that's forwarded to the host machine by the emulator
+                // We use a hardcoded port that's forwarded to the host machine by the emulator.
                 initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 15001");
                 initData.properties.setProperty("ControllerAdapter.PublishedHost", "127.0.0.1");
             }
