@@ -2725,14 +2725,18 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
         sys.stdout.write(f"checking for iOS simulator device {self.device}... ")
         sys.stdout.flush()
-        listDevicesOutput = run("xcrun simctl list devices")
-        deviceLine = next(
-            (line.strip() for line in listDevicesOutput.split("\n") if line.strip().startswith(self.device)), None
-        )
 
-        booted = deviceLine and "(Booted)" in deviceLine
+        def simctlDeviceLine():
+            listDevicesOutput = run("xcrun simctl list devices")
+            return next(
+                (line.strip() for line in listDevicesOutput.split("\n") if line.strip().startswith(self.device)), None
+            )
 
-        if deviceLine:
+        def isBooted():
+            deviceLine = simctlDeviceLine()
+            return deviceLine and "(Booted)" in deviceLines
+
+        if simctlDeviceLine():
             print("ok")
         else:
             print("not found")
@@ -2745,16 +2749,18 @@ class iOSSimulatorProcessController(RemoteProcessController):
             )
             print(f"{self.simulatorID}")
 
-        if not booted:
+        if not isBooted():
             sys.stdout.write("launching simulator... ")
             sys.stdout.flush()
             run('xcrun simctl boot "{0}"'.format(self.device))
             print("ok")
 
             print("waiting for simulator to boot")
+
             try:
                 subprocess.run(["xcrun", "simctl", "bootstatus", self.device], timeout=600, check=True)
-            except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
+            except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as ex:
+                print(simctlDeviceLine())
                 subprocess.run(
                     [
                         "xcrun",
@@ -2767,7 +2773,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
                         f"device-{self.device}.log",
                     ]
                 )
-                raise RuntimeError("timed out waiting for simulator to boot")
+                raise RuntimeError("timed out waiting for simulator to boot") from ex
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
