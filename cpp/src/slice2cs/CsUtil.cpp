@@ -1763,5 +1763,5 @@ Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source
         result << "cref=\"" << targetS << "\"";
     }
 
-    return make_pair(true, result.str());
+    return {true, result.str()};
 }
