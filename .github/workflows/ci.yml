@@ -171,15 +171,15 @@ jobs:
         shell: powershell
         if: runner.os == 'Windows'
 
-      # - name: Build ${{ matrix.config }} on ${{ matrix.os }}
-      #   uses: ./.github/actions/build
-      #   timeout-minutes: 90
-      #   with:
-      #     working_directory: ${{ matrix.working_directory || '.' }}
-      #     build_cpp_and_python: ${{ matrix.build_cpp_and_python || false }}
-      #     build_android_controller: ${{ matrix.build_android_controller || false }}
-      #     build_flags: ${{ matrix.build_flags || '' }}
-      #     msbuild_project: ${{ matrix.msbuild_project || 'ice.proj' }}
+      - name: Build ${{ matrix.config }} on ${{ matrix.os }}
+        uses: ./.github/actions/build
+        timeout-minutes: 90
+        with:
+          working_directory: ${{ matrix.working_directory || '.' }}
+          build_cpp_and_python: ${{ matrix.build_cpp_and_python || false }}
+          build_android_controller: ${{ matrix.build_android_controller || false }}
+          build_flags: ${{ matrix.build_flags || '' }}
+          msbuild_project: ${{ matrix.msbuild_project || 'ice.proj' }}
 
       - name: Install testing dependencies from pip
         run: python3 -m pip install passlib cryptography numpy
