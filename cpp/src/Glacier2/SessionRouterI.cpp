@@ -65,7 +65,7 @@ namespace Glacier2
                     {
                         rethrow_exception(e);
                     }
-                    catch (const Ice::ObjectNotExistException& ex)
+                    catch (const Ice::ObjectNotExistException&)
                     {
                         // Ignored. This typically occurs when the application-provided session calls
                         // SessionControl::destroy in its own destroy implementation.
