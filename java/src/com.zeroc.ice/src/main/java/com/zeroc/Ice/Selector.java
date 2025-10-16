@@ -26,10 +26,8 @@ final class Selector {
             throw new SyscallException(ex);
         }
 
-        //
-        // The Selector holds a Set representing the selected keys. The
-        // Set reference doesn't change, so we obtain it once here.
-        //
+        // The Selector holds a set representing the selected keys. The set reference doesn't change, so we obtain it
+        // once here.
         _keys = _selector.selectedKeys();
     }
 
@@ -182,6 +180,8 @@ final class Selector {
             if (_selectNow) {
                 _selector.selectNow();
             } else if (timeout > 0) {
+                // If interrupted is set, it means that wakeup was called, and select should return immediately
+                // without changes, allow the caller to go to finish select and process the ready handlers.
                 if (_selector.select(timeout * 1000) == 0 && !_interrupted) {
                     throw new TimeoutException();
                 }
@@ -277,7 +277,7 @@ final class Selector {
     private final HashSet<EventHandler> _readyHandlers = new HashSet<>();
     private boolean _selecting;
     private boolean _selectNow;
-    // Marked as volatile to ensure that when the selector is wakeup, after calling wakeup(), the _interrupted
+    // Marked as volatile to ensure that when the selector is woken up, after calling wakeup(), the _interrupted
     // change is visible to the thread blocked in select().
     private volatile boolean _interrupted;
     private int _spuriousWakeUp;
