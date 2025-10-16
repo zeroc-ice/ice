@@ -49,7 +49,7 @@ jobs:
           GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
           GPG_KEY_ID: ${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}
 
-      - name: Publish 3.8Java Packages
+      - name: Publish 3.8 Java Packages
         run: packaging/maven/publish-maven-release.sh
         if: ${{ inputs.channel != 'nightly' }}
         env:
