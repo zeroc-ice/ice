@@ -2266,7 +2266,7 @@ class RemoteProcessController(ProcessController):
                 result = self.proxy.waitSuccess(timeout)
             except Ice.UserException as ex:
                 if "timed out" in ex.reason:
-                    raise Expect.TIMEOUT("waitSuccess timeout") from None
+                    raise Expect.TIMEOUT("waitSuccess timeout")
                 else:
                     raise
 
