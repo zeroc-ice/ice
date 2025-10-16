@@ -171,7 +171,6 @@ public class ControllerApp extends Application {
             initData.properties.setProperty("Ice.LogFile", getControllerLogFile().getAbsolutePath());
             initData.properties.setProperty("Ice.Trace.Dispatch", "1");
             initData.properties.setProperty("Ice.Warn.Connections", "1");
-            initData.properties.setProperty("Ice.Warn.Dispatch", "2");
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
 
             if (isEmulator())
