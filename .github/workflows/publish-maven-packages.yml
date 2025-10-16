@@ -39,8 +39,19 @@ jobs:
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "java-packages" --dir "${STAGING_DIR}"
           gh run download "$RUN_ID" --repo zeroc-ice/ice --pattern "slice-tools-packages" --dir "${STAGING_DIR}"
 
-      - name: Publish Java Packages
+      - name: Publish Nightly Java Packages
         run: packaging/maven/publish-maven-release.sh
+        if: ${{ inputs.channel == 'nightly' }}
+        env:
+          CHANNEL: ${{ inputs.channel }}
+          MAVEN_USERNAME: "nightly"
+          MAVEN_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+          GPG_KEY: ${{ secrets.ICE_3_8_CI_SIGNER_KEY }}
+          GPG_KEY_ID: ${{ secrets.ICE_3_8_CI_SIGNER_KEY_ID }}
+
+      - name: Publish 3.8Java Packages
+        run: packaging/maven/publish-maven-release.sh
+        if: ${{ inputs.channel != 'nightly' }}
         env:
           CHANNEL: ${{ inputs.channel }}
           MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}

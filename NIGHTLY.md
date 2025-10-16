@@ -73,12 +73,12 @@ https://download.zeroc.com/nexus/repository/nuget-nightly/
 
 ### Ice for Java
 
-The nightly packages are available from the maven central snapshots repository.
+The nightly packages are available from the maven ZeroC maven-nightly repository.
 
 To use them, add the following Maven repository to your build configuration:
 
 ```shell
-https://central.sonatype.com/repository/maven-snapshots
+https://download.zeroc.com/nexus/repository/maven-nightly/
 ```
 
 #### Gradle <!-- omit in toc -->
@@ -90,9 +90,9 @@ Here’s an example configuration using Kotlin DSL:
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        // Use the nightly build of the Slice Tools plugin, published to the maven central snapshots repository.
+        // Use the nightly build of the Slice Tools plugin, published to the ZeroC maven-nightly repository.
         maven {
-            url = uri("https://central.sonatype.com/repository/maven-snapshots")
+            url = uri("https://download.zeroc.com/nexus/repository/maven-nightly/")
             content {
                 includeGroupByRegex("com\\.zeroc.*")
             }
@@ -103,9 +103,9 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
-        // Use the nightly build of Ice, published to the maven central snapshots repository.
+        // Use the nightly build of Ice, published to the ZeroC maven-nightly repository.
         maven {
-            url = uri("https://central.sonatype.com/repository/maven-snapshots")
+            url = uri("https://download.zeroc.com/nexus/repository/maven-nightly/")
             content {
                 includeGroupByRegex("com\\.zeroc.*")
             }
