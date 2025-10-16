@@ -707,6 +707,12 @@ See `InitializationData::pluginFactories`.
 
 - Removed support for using poll as a selector mechanism.
 
+- The Ice runtime now calls std::abort when a selector internal error occurs.
+  The underlying platform selectors — IOCP, kqueue, or epoll — can fail with internal errors that indicate fatal
+  conditions such as application bugs or malfunctioning systems.
+  There is no clean way to recover from these errors, and keeping malfunctioning systems running is of no help;
+  aborting the application allows the replica management system to take over in a replicated setup.
+
 ### C# Changes
 
 - Upgrade to .NET 8.0 / C# 12.
@@ -780,6 +786,13 @@ initialization. See `InitializationData.pluginFactories`.
 - Added the `Ice.WS.MaxBufferedAmount` property, which controls the maximum number of bytes that can be queued
   by a WebSocket connection. Once the WebSocket `bufferedAmount` reaches this limit, sending additional data
   is delayed until it drops below the threshold.
+
+- The Ice runtime terminates the Java Virtual Machine after receiving a selector internal error.
+  This typically indicates an application bug or a malfunctioning system.
+  The underlying platform selectors — IOCP, kqueue, or epoll — can fail with internal errors that represent fatal
+  conditions.
+  There is no clean way to recover from these errors, and keeping malfunctioning systems running is of no help;
+  terminating the JVM allows the replica management system to take over in a replicated setup.
 
 ### JavaScript Changes
 
