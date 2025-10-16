@@ -293,7 +293,8 @@ namespace
         const StringList& seeAlso = doc->seeAlso();
         if (!seeAlso.empty())
         {
-            // All references must be on one line.
+            // Write all references as comma-separated list on one line.
+            // This is the conventional way to format 'See also' in MATLAB.
             out << nl << "%";
             out << nl << "%   See also ";
             out.spar("");
