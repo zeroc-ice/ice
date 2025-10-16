@@ -40,7 +40,7 @@ public:
         return _adapter->createProxy(id);
     }
 
-    [[nodiscard]] std::optional<ObjectPrx> findAdapterById(string, const Current&) const override
+    [[nodiscard]] optional<ObjectPrx> findAdapterById(string, const Current&) const override
     {
         return _adapter->createDirectProxy(stringToIdentity("dummy"));
     }
