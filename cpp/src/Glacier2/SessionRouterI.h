@@ -8,6 +8,7 @@
 #include "Ice/Ice.h"
 #include "Instrumentation.h"
 
+#include <functional>
 #include <set>
 
 namespace Glacier2
@@ -139,17 +140,17 @@ namespace Glacier2
         /// Destroys the Glacier2 internal session.
         /// @param connection The client->Glacier2 router connection that identifies the session to destroy.
         /// @param error A callback that the implementation calls when the destruction of the application-provided
-        /// session fails (see SessionManager). When nullptr (the default), the implementation uses a default error
-        /// handler that logs all exceptions.
-        void
-        destroySession(const Ice::ConnectionPtr& connection, std::function<void(std::exception_ptr)> error = nullptr);
+        /// session fails (see SessionManager).
+        void destroySession(const Ice::ConnectionPtr& connection, std::function<void(std::exception_ptr)> error);
 
         [[nodiscard]] int sessionTraceLevel() const { return _sessionTraceLevel; }
 
         /// Provides the default handling of exceptions thrown by the destruction of application-provided sessions.
-        void sessionDestroyException(std::exception_ptr);
+        [[nodiscard]] std::function<void(std::exception_ptr)> defaultSessionDestroyExceptionHandler() const;
 
     private:
+        void sessionDestroyException(std::exception_ptr) const;
+
         [[nodiscard]] std::shared_ptr<RouterI>
         getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
 

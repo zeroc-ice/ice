@@ -59,7 +59,7 @@ namespace Glacier2
         {
             _sessionRouter->destroySession(
                 _connection,
-                [router = _sessionRouter](std::exception_ptr e)
+                [defaultExceptionHandler = _sessionRouter->defaultSessionDestroyExceptionHandler()](exception_ptr e)
                 {
                     try
                     {
@@ -72,8 +72,7 @@ namespace Glacier2
                     }
                     catch (...)
                     {
-                        // Use default handler
-                        router->sessionDestroyException(e);
+                        defaultExceptionHandler(e);
                     }
                 });
 
@@ -705,7 +704,7 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
 void
 SessionRouterI::destroySessionAsync(function<void()> response, function<void(exception_ptr)>, const Current& current)
 {
-    destroySession(current.con);
+    destroySession(current.con, defaultSessionDestroyExceptionHandler());
     response(); // We don't wait until the application-provided session is destroyed.
 }
 
@@ -759,11 +758,13 @@ SessionRouterI::destroySession(const ConnectionPtr& connection, function<void(ex
         out << "destroying session\n" << router->toString();
     }
 
-    if (!error)
-    {
-        error = [self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); };
-    }
     router->destroy(std::move(error));
+}
+
+function<void(std::exception_ptr)>
+SessionRouterI::defaultSessionDestroyExceptionHandler() const
+{
+    return [self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); };
 }
 
 void
@@ -891,7 +892,7 @@ SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identi
 }
 
 void
-SessionRouterI::sessionDestroyException(exception_ptr ex)
+SessionRouterI::sessionDestroyException(exception_ptr ex) const
 {
     if (_sessionTraceLevel > 0)
     {
@@ -998,7 +999,7 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const share
         {
             try
             {
-                self->destroySession(c);
+                self->destroySession(c, self->defaultSessionDestroyExceptionHandler());
             }
             catch (const std::exception&)
             {
