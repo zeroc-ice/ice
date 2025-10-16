@@ -124,10 +124,8 @@ namespace Slice
         /// @returns A pair containing:
         /// - @c false if the link was to a Slice element which isn't mapped in Java; @c true otherwise.
         /// - The java formatted link.
-        std::pair<bool, std::string> javaLinkFormatter(
-            const std::string& rawLink,
-            const ContainedPtr& source,
-            const SyntaxTreeBasePtr& target);
+        std::pair<bool, std::string>
+        javaLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
         void validateJavaMetadata(const UnitPtr&);
     }

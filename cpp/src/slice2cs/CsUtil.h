@@ -85,13 +85,11 @@ namespace Slice::Csharp
     /// @param source A pointer to the Slice element that the doc-comment (and reference) are written on.
     /// @param target A pointer to the Slice element that is being referenced, or `nullptr` if it doesn't exist.
     /// @param mappedLink Output parameter where the formatted link is written to.
-        /// @returns A pair containing:
-        /// - @c false if the link was to a Slice element which isn't mapped in C#; @c true otherwise.
-        /// - The C# formatted link.
-    std::pair<bool, std::string> csLinkFormatter(
-        const std::string& rawLink,
-        const ContainedPtr& source,
-        const SyntaxTreeBasePtr& target);
+    /// @returns A pair containing:
+    /// - @c false if the link was to a Slice element which isn't mapped in C#; @c true otherwise.
+    /// - The C# formatted link.
+    std::pair<bool, std::string>
+    csLinkFormatter(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 }
 
 #endif
