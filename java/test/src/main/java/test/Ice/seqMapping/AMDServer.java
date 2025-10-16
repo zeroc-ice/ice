@@ -14,7 +14,7 @@ public class AMDServer extends TestHelper {
     @Override
     public void run(String[] args) {
         var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.seqMapping.AMD.Test");
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.seqMapping.Test");
         initData.properties = createTestProperties(args);
 
         try (Communicator communicator = initialize(initData)) {

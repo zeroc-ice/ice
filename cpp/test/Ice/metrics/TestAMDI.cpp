@@ -62,16 +62,20 @@ MetricsI::opByteSAsync(Test::ByteSeq, function<void()> response, function<void(e
     response();
 }
 
-optional<Ice::ObjectPrx>
-MetricsI::getAdmin(const Ice::Current& current)
+void
+MetricsI::getAdminAsync(
+    std::function<void(const std::optional<Ice::ObjectPrx>&)> response,
+    std::function<void(exception_ptr)>,
+    const Ice::Current& current)
 {
-    return current.adapter->getCommunicator()->getAdmin();
+    response(current.adapter->getCommunicator()->getAdmin());
 }
 
 void
-MetricsI::shutdown(const Ice::Current& current)
+MetricsI::shutdownAsync(std::function<void()> response, std::function<void(exception_ptr)>, const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
+    response();
 }
 
 ControllerI::ControllerI(Ice::ObjectAdapterPtr adapter) : _adapter(std::move(adapter)) {}

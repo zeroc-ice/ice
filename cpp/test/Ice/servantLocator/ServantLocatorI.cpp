@@ -1,11 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "ServantLocatorI.h"
-#ifdef ICE_AMD_TEST
-#    include "TestAMD.h"
-#else
-#    include "Test.h"
-#endif
+#include "Test.h"
 #include "TestHelper.h"
 
 #include <stdexcept>

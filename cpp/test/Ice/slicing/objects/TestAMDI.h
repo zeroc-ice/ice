@@ -3,9 +3,9 @@
 #ifndef TESTI_H
 #define TESTI_H
 
-#include "ServerPrivateAMD.h"
+#include "ServerPrivate.h"
 
-class TestI : public virtual ::Test::TestIntf
+class TestI : public virtual ::Test::AsyncTestIntf
 {
 public:
     TestI();

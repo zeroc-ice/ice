@@ -13,7 +13,7 @@ import test.TestHelper;
 public class AMDServer extends TestHelper {
     public void run(String[] args) {
         var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.optional.AMD.Test");
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.optional.Test");
         initData.properties = createTestProperties(args);
 
         try (Communicator communicator = initialize(initData)) {

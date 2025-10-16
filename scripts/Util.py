@@ -2198,8 +2198,7 @@ class LocalProcessController(ProcessController):
                 else:
                     programName = process.exe or current.testcase.getProcessType(process)
                 traceFile = os.path.join(
-                    current.testsuite.getPath(),
-                    "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M")),
+                    current.testsuite.getPath(), "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M"))
                 )
                 traceProps["Ice.LogFile"] = traceFile
             props.update(traceProps)
@@ -2448,6 +2447,17 @@ class RemoteProcessController(ProcessController):
 
         # TODO: support envs?
 
+        traceProps = process.getEffectiveTraceProps(current)
+        if traceProps:
+            if "Ice.ProgramName" in props:
+                programName = props["Ice.ProgramName"]
+            else:
+                programName = process.exe or current.testcase.getProcessType(process)
+
+            logDirectory = processController.createLogDirectory(str(current.testsuite))
+            traceProps["Ice.LogFile"] = os.path.join(logDirectory, f"{programName}-{time.strftime('%m%d%y-%H%M')}.log")
+            props.update(traceProps)
+
         exe = process.getExe(current)
         args = ["--{0}={1}".format(k, val(v, quoteValue=False)) for k, v in props.items()] + [val(a) for a in args]
         if current.driver.debug:
@@ -2593,7 +2603,20 @@ class AndroidProcessController(RemoteProcessController):
             time.sleep(1)
 
     def stopControllerApp(self, ident):
-        # Get controller logcat output
+        androidLogsDir = os.path.join(toplevel, "logs", "android")
+        os.makedirs(androidLogsDir, exist_ok=True)
+        try:
+            print("pulling log files from the device")
+            subprocess.run(
+                [self.adb(), "pull", "/sdcard/Android/data/com.zeroc.testcontroller/", androidLogsDir],
+                timeout=60,
+                check=True,
+            )
+        except Exception as ex:
+            print(f"failed to pull log files from the device: {ex}")
+
+        # Get controller logcat output. This will contain logs from the app process that include the
+        # output from the Ice process logger.
         if self.controllerPid:
             try:
                 logCatResult = subprocess.run(
@@ -2613,10 +2636,8 @@ class AndroidProcessController(RemoteProcessController):
                     check=False,
                 )
 
-                # Save to file
-                sanitized_pid = re.sub(r"[^A-Za-z0-9_-]", "_", self.controllerPid.strip())
-                filename = f"android-emulator-{sanitized_pid}.log"
-                with open(filename, "w") as f:
+                filename = f"emulator-{self.controllerPid}.log"
+                with open(os.path.join(androidLogsDir, filename), "w") as f:
                     print(f"saving {filename}")
                     f.write(logCatResult.stdout)
             except Exception as ex:
@@ -2771,8 +2792,21 @@ class iOSSimulatorProcessController(RemoteProcessController):
         run('xcrun simctl launch "{0}" {1}'.format(self.device, ident.name))
 
     def stopControllerApp(self, ident):
+        controllerBundleIdentifier = ident.name
+        logDir = os.path.join(toplevel, "logs", self.device, controllerBundleIdentifier)
+
         try:
-            run('xcrun simctl uninstall "{0}" {1}'.format(self.device, ident.name))
+            cacheDir = run(f"xcrun simctl get_app_container booted {controllerBundleIdentifier} data")
+
+            # copy contents of cacheDir to logDir
+            os.makedirs(logDir, exist_ok=True)
+            shutil.copytree(cacheDir, logDir, dirs_exist_ok=True)
+
+        except Exception as ex:
+            print(f"failed to get app cache directory: {ex}")
+
+        try:
+            run('xcrun simctl uninstall "{0}" {1}'.format(self.device, controllerBundleIdentifier))
         except Exception:
             pass
 

@@ -15,7 +15,7 @@ using namespace Test;
 
 static Ice::InitializationData initData;
 
-class AsyncCallback final
+class AMICallback final
 {
 public:
     void response(int val)
@@ -577,7 +577,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "testing concurrent twoway callback... " << flush;
         Context context;
         context["_fwd"] = "t";
-        AsyncCallback cb0;
+        AMICallback cb0;
         twoway->initiateConcurrentCallbackAsync(
             0,
             twowayR,
@@ -586,7 +586,7 @@ CallbackClient::run(int argc, char** argv)
             nullptr,
             context);
 
-        AsyncCallback cb1;
+        AMICallback cb1;
         twoway->initiateConcurrentCallbackAsync(
             1,
             twowayR,
@@ -595,7 +595,7 @@ CallbackClient::run(int argc, char** argv)
             nullptr,
             context);
 
-        AsyncCallback cb2;
+        AMICallback cb2;
         twoway->initiateConcurrentCallbackAsync(
             2,
             twowayR,

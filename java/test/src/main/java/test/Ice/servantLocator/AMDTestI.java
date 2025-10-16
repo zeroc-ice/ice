@@ -5,14 +5,14 @@ package test.Ice.servantLocator;
 import com.zeroc.Ice.Current;
 import com.zeroc.Ice.ObjectNotExistException;
 
-import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
-import test.Ice.servantLocator.AMD.Test.TestIntf;
-import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
+import test.Ice.servantLocator.Test.AsyncTestIntf;
+import test.Ice.servantLocator.Test.TestImpossibleException;
+import test.Ice.servantLocator.Test.TestIntfUserException;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public final class AMDTestI implements TestIntf {
+public final class AMDTestI implements AsyncTestIntf {
     @Override
     public CompletionStage<Void> requestFailedExceptionAsync(Current current) {
         return CompletableFuture.completedFuture((Void) null);

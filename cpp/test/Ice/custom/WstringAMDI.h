@@ -3,11 +3,11 @@
 #ifndef WSTRINGAMD_I_H
 #define WSTRINGAMD_I_H
 
-#include "WstringAMD.h"
+#include "Wstring.h"
 
 namespace Test1
 {
-    class WstringClassI : public virtual WstringClass
+    class WstringClassI : public virtual AsyncWstringClass
     {
     public:
         void opStringAsync(
@@ -32,7 +32,7 @@ namespace Test1
 
 namespace Test2
 {
-    class WstringClassI : public virtual WstringClass
+    class WstringClassI : public virtual AsyncWstringClass
     {
     public:
         void opStringAsync(

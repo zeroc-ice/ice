@@ -5,6 +5,7 @@
 package com.zeroc.testcontroller;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
@@ -15,9 +16,10 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.Time;
 
+import java.io.File;
+import java.io.Writer;
 import java.util.List;
 import java.util.Locale;
-import java.io.Writer;
 
 public class ControllerApp extends Application {
     private final String TAG = "ControllerApp";
@@ -164,6 +166,10 @@ public class ControllerApp extends Application {
         public ControllerI(boolean bluetooth) {
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = new com.zeroc.Ice.Properties();
+
+            initData.properties.setProperty("Ice.LogFile", getControllerLogFile().getAbsolutePath());
+            initData.properties.setProperty("Ice.Trace.Dispatch", "1");
+            initData.properties.setProperty("Ice.Warn.Connections", "1");
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
             initData.properties.setProperty(
@@ -409,6 +415,7 @@ public class ControllerApp extends Application {
                             + "."
                             + exe.substring(0, 1).toUpperCase(Locale.ROOT)
                             + exe.substring(1);
+
             try {
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
                 ControllerHelperI mainHelper = new ControllerHelperI(bundle, args);
@@ -429,6 +436,10 @@ public class ControllerApp extends Application {
                     return ipv6 ? _ipv6Address : _ipv4Address;
                 }
             }
+        }
+
+        public String createLogDirectory(String path, com.zeroc.Ice.Current current) {
+            return ControllerApp.this.createLogDirectory(path).getAbsolutePath();
         }
     }
 
@@ -462,5 +473,22 @@ public class ControllerApp extends Application {
         }
 
         private final ControllerHelperI _controllerHelper;
+    }
+
+    File createLogDirectory(String path) {
+
+        Context applicationContext = getApplicationContext();
+        File cacheDir = applicationContext.getExternalFilesDir(null);
+
+        File logDir = new File(cacheDir, path);
+        logDir.mkdirs();
+
+        return logDir;
+    }
+
+    File getControllerLogFile() {
+        String timestamp = new java.text.SimpleDateFormat("MMddyy-HHmm").format(new java.util.Date());
+        File logFile = new File(createLogDirectory("controller"), "controller-" + timestamp + ".log");
+        return logFile;
     }
 }
