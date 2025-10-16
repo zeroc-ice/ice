@@ -361,7 +361,7 @@ final class ThreadPool implements Executor {
                 if (current._handler == null) {
                     // If there are no more ready handlers and there are still threads busy performing IO, we give up
                     // leadership and promote another follower (which will perform the select() only once all the IOs
-                    // are completed). Otherwise, if there's no more threads performing IOs, it's time to do another
+                    // are completed). Otherwise, if there are no more threads performing IOs, it's time to do another
                     // select().
                     if (_inUseIO > 0) {
                         promoteFollower(current);
