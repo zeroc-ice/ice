@@ -631,7 +631,7 @@ Slice::Java::javaLinkFormatter(const string& rawLink, const ContainedPtr& source
         mappedLink = rawLink;
     }
 
-    return make_pair(true, mappedLink);
+    return {true, mappedLink};
 }
 
 void
