@@ -2319,7 +2319,7 @@ class RemoteProcessController(ProcessController):
             self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
             self.adapter.add(
                 ProcessControllerRegistryI(self),
-                Ice.stringToIdentity("Util/ProcessControllerRegistry"),
+                Ice.Identity(category="Util", name="ProcessControllerRegistry"),
             )
             self.adapter.activate()
 
@@ -2369,7 +2369,7 @@ class RemoteProcessController(ProcessController):
         # First check to see if the controller has a direct endpoint
         controllerEndpoints = self.getControllerEndpoints(current)
 
-        if controllerEndpoints:
+        if controllerEndpoints is not None:
             proxy = Test.Common.ProcessControllerPrx(comm, f"{comm.identityToString(ident)}:{controllerEndpoints}")
         else:
             # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
@@ -2505,6 +2505,7 @@ class AndroidProcessController(RemoteProcessController):
         return "Android/ProcessController"
 
     def getControllerEndpoints(self, current):
+        # If using an emulator or no device is specified, we use adb port forwarding
         if current.config.avd or not current.config.device:
             return "tcp -h 127.0.0.1 -p 15001"
         return None
