@@ -425,7 +425,6 @@ string
 Slice::JavaScript::jsLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
 {
     ostringstream result;
-    result << "{@link ";
     if (target)
     {
         if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
@@ -473,7 +472,6 @@ Slice::JavaScript::jsLinkFormatter(const string& rawLink, const ContainedPtr&, c
             result << rawLink;
         }
     }
-    result << "}";
     return result.str();
 }
 

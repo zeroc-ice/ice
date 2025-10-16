@@ -41,7 +41,15 @@ namespace
 
         string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
         {
-            return Slice::matlabLinkFormatter(rawLink, source, target);
+            auto [linkText, displayText] = Slice::matlabLinkFormatter(rawLink, source, target);
+
+            // MATLAB allows you to run arbitrary commands inside an 'href', using the 'matlab:' command prefix.
+            return "<a href=\"matlab:help " + linkText + " -displayBanner\">" + displayText + "</a>";
+        }
+
+        string formatSeeAlso(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+        {
+            return Slice::matlabLinkFormatter(rawLink, source, target).first;
         }
     };
 

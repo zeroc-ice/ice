@@ -124,18 +124,6 @@ namespace
         }
     }
 
-    void writeSeeAlso(Output& out, const StringList& lines, const string& space = " ")
-    {
-        for (const auto& line : lines)
-        {
-            out << nl << " *";
-            if (!line.empty())
-            {
-                out << space << "@see " << line;
-            }
-        }
-    }
-
     void writeDeprecated(Output& out, const optional<DocComment>& comment, const ContainedPtr& contained)
     {
         // JavaScript doesn't provide a way to deprecate elements other than by using a comment, so we map both the
@@ -386,10 +374,9 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeRemarks,
             writeDocLines(_out, overview, true);
         }
 
-        const StringList seeAlso = comment->seeAlso();
-        if (!seeAlso.empty())
+        for (const string& line : comment->seeAlso())
         {
-            writeSeeAlso(_out, seeAlso);
+            _out << nl << " * " << line;
         }
     }
 
@@ -2292,10 +2279,9 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
 
         writeOpDocExceptions(out, op, *comment);
 
-        const StringList& seeAlso = comment->seeAlso();
-        if (!seeAlso.empty())
+        for (const string& line : comment->seeAlso())
         {
-            writeSeeAlso(out, seeAlso);
+            out << nl << " * " << line;
         }
     }
 

@@ -65,6 +65,13 @@ DocCommentFormatter::formatParamRef(const string& param)
     return formatCode(param);
 }
 
+string
+DocCommentFormatter::formatSeeAlso(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
+{
+    // Many languages don't support 'see-also' tags, so by default we map them to regular doc-links.
+    return formatLink(rawLink, source, target);
+}
+
 bool
 DocCommentParser::visitModuleStart(const ModulePtr& p)
 {
@@ -602,13 +609,36 @@ DocCommentParser::parseDocCommentFor(const ContainedPtr& p)
                 const string msg = "missing link target after '" + seeTag + "' tag";
                 p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
             }
-            else if (lineText.back() == '.')
+            else
             {
-                // '@see' tags aren't allowed to end with periods.
-                // They do not take sentences, and the trailing period will trip up some language's doc-comments.
-                const string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                lineText.pop_back();
+                // If the line ends with a period, remove it and warn users that '@see' tags are not sentences.
+                // Trailing periods will trip up some language's doc-comments.
+                if (lineText.back() == '.')
+                {
+                    const string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    lineText.pop_back();
+                }
+
+                // Attempt to resolve the Slice element being referenced by the '@see' tag.
+                SyntaxTreeBasePtr seeTarget = resolveDocLink(lineText, p);
+                if (!seeTarget)
+                {
+                    string msg = "no Slice element with identifier '" + lineText + "' could be found in this context";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                }
+                if (dynamic_pointer_cast<Parameter>(seeTarget))
+                {
+                    // We don't support referencing parameters with '@see' tags.
+                    // Parameter references must be done with '@p' tags, and can only appear on the enclosing operation.
+                    string msg = "cannot link parameter '" + lineText + "'; parameters can only be referenced with @p";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    seeTarget = nullptr;
+                }
+
+                // Run the '@see's content through the doc-comment formatter to map it into the target language.
+                // `lineText` will automatically be added to the `DocComment` struct later in this function.
+                lineText = _formatter.formatSeeAlso(lineText, p, seeTarget);
             }
         }
         else if (parseCommentLine(line, returnTag, lineText))

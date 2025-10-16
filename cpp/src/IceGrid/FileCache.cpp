@@ -4,7 +4,7 @@
 #include "../Ice/FileUtil.h"
 #include "Ice/Communicator.h"
 #include "Ice/Properties.h"
-#include "IceGrid/Exception.h"
+#include "IceGrid/Admin.h"
 
 #include <deque>
 #include <fstream>

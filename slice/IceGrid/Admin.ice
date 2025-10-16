@@ -208,6 +208,76 @@ module IceGrid
         ApplicationUpdateDescriptor descriptor;
     }
 
+    /// The exception that is thrown when IceGrid cannot deploy a server.
+    exception DeploymentException
+    {
+        /// The reason for the failure.
+        string reason;
+    }
+
+    /// The exception that is thrown when IceGrid cannot reach a node.
+    exception NodeUnreachableException
+    {
+        /// The name of the node that is not reachable.
+        string name;
+
+        /// The reason why the node couldn't be reached.
+        string reason;
+    }
+
+    /// The exception that is thrown when IceGrid cannot reach a registry.
+    exception RegistryUnreachableException
+    {
+        /// The name of the registry that is not reachable.
+        string name;
+
+        /// The reason why the registry couldn't be reached.
+        string reason;
+    }
+
+    /// The exception that is thrown when an unknown signal is sent to a server.
+    exception BadSignalException
+    {
+        /// The details of the unknown signal.
+        string reason;
+    }
+
+    /// The exception that is thrown when the registry update lock cannot be acquired.
+    exception AccessDeniedException
+    {
+        /// The id of the user holding the lock (if any).
+        string lockUserId;
+    }
+
+    /// The exception that is thrown when a client is not allowed to create a session.
+    exception PermissionDeniedException
+    {
+        /// The reason why permission was denied.
+        string reason;
+    }
+
+    /// The exception that is thrown when an observer is already registered with the registry.
+    /// @see AdminSession#setObservers
+    /// @see AdminSession#setObserversByIdentity
+    exception ObserverAlreadyRegisteredException
+    {
+        /// The identity of the observer.
+        Ice::Identity id;
+    }
+
+    /// The exception that is thrown when a log file is not available.
+    /// @see AdminSession#openServerStdOut
+    /// @see AdminSession#openServerStdErr
+    /// @see AdminSession#openNodeStdOut
+    /// @see AdminSession#openNodeStdErr
+    /// @see AdminSession#openRegistryStdOut
+    /// @see AdminSession#openRegistryStdErr
+    exception FileNotAvailableException
+    {
+        /// The reason for the failure.
+        string reason;
+    }
+
     /// Provides administrative access to an IceGrid deployment.
     interface Admin
     {

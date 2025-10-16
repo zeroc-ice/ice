@@ -117,11 +117,6 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
             _threadPrefix = _prefix;
         }
 
-        //
-        // We use just one thread as the default. This is the fastest
-        // possible setting, still allows one level of nesting, and
-        // doesn't require to make the servants thread safe.
-        //
         int size = properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
         if (size < 1)
         {

@@ -43,6 +43,16 @@ namespace Slice
         /// entire "{@link <rawLink>}" string with the returned value.
         [[nodiscard]] virtual std::string
         formatLink(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) = 0;
+
+        /// This function is called by the doc-comment parser to map see-also references ('@see <rawLink>') into each
+        /// language's syntax.
+        /// @param rawLink The references's raw text, taken verbatim from the doc-comment.
+        /// @param source A pointer to the Slice element that the doc-comment (and reference) are written on.
+        /// @param target A pointer to the Slice element that is being referenced, or `nullptr` if it doesn't exist.
+        /// @return A properly formatted see-also-link in the target language. This value will be stored in the
+        /// doc-comment's `seeAlso` field.
+        [[nodiscard]] virtual std::string
+        formatSeeAlso(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
     };
 
     /// Parses all doc-comments within the provided unit (in-place).

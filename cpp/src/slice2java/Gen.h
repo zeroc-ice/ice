@@ -153,7 +153,7 @@ namespace Slice
         static void writeHiddenDocComment(IceInternal::Output&);
         static void writeDocCommentLines(IceInternal::Output&, const StringList&);
         static void writeDocCommentLines(IceInternal::Output&, const std::string&);
-        static void writeDocComment(IceInternal::Output&, const UnitPtr&, const std::optional<DocComment>&);
+        static void writeDocComment(IceInternal::Output&, const std::optional<DocComment>&);
         static void writeDocComment(IceInternal::Output&, const std::string&);
         static void writeProxyOpDocComment(
             IceInternal::Output&,
@@ -163,7 +163,7 @@ namespace Slice
             bool,
             const std::string&);
         static void writeServantOpDocComment(IceInternal::Output&, const OperationPtr&, const std::string&, bool);
-        static void writeSeeAlso(IceInternal::Output&, const UnitPtr&, const std::string&);
+        static void writeSeeAlso(IceInternal::Output& out, const StringList& seeAlso);
         static void writeParamDocComments(IceInternal::Output& out, const DataMemberList& members);
 
     protected:

@@ -57,7 +57,28 @@ class CsharpDocCommentFormatter final : public DocCommentFormatter
 
     string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {
-        return Slice::Csharp::csLinkFormatter(rawLink, source, target);
+        auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
+        if (mapToLink)
+        {
+            return "<see " + qualifiedName + " />";
+        }
+        else
+        {
+            return "<c>" + qualifiedName + "</c>";
+        }
+    }
+
+    string formatSeeAlso(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+    {
+        auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
+        if (mapToLink)
+        {
+            return "<seealso " + qualifiedName + " />";
+        }
+        else
+        {
+            return "";
+        }
     }
 };
 

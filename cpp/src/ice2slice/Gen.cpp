@@ -286,33 +286,10 @@ namespace
             }
         }
 
-        for (string ident : comment->seeAlso())
+        // 'seeAlso' links have already been converted to Slice2 syntax by `formatSeeAlso`.
+        for (const string& mappedLink : comment->seeAlso())
         {
-            string memberComponent = "";
-            string::size_type hashPos = ident.find('#');
-            if (hashPos == 0)
-            {
-                ident = ident.substr(1);
-            }
-            else if (hashPos != string::npos)
-            {
-                memberComponent = ident.substr(hashPos + 1);
-                ident.erase(hashPos);
-            }
-
-            size_t pos = ident.find('.');
-            while (pos != string::npos)
-            {
-                ident.replace(pos, 1, "::");
-                pos = ident.find('.', pos + 2); // Move past the newly inserted "::"
-            }
-
-            if (!memberComponent.empty())
-            {
-                ident += "::" + memberComponent;
-            }
-
-            out << nl << "/// @see " << ident;
+            out << nl << "/// @see " << mappedLink;
         }
     }
 }

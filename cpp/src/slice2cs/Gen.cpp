@@ -104,9 +104,17 @@ namespace
         writeDocLine(out, "returns", "The unmarshaled value.");
     }
 
-    void writeSeeAlso([[maybe_unused]] Output& out, [[maybe_unused]] const StringList& lines)
+    void writeSeeAlso(Output& out, const StringList& seeAlso)
     {
-        // See #4543.
+        for (const auto& line : seeAlso)
+        {
+            // An empty line means that the see-also was referencing a Slice element which isn't mapped in C#.
+            // There's nothing we can do about this in C#, so we just skip it.
+            if (!line.empty())
+            {
+                out << nl << "/// " << line;
+            }
+        }
     }
 
     string sliceModeToIceMode(Operation::Mode opMode)

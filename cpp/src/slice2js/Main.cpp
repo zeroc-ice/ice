@@ -28,7 +28,13 @@ class JSDocCommentFormatter final : public DocCommentFormatter
 {
     string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {
-        return Slice::JavaScript::jsLinkFormatter(rawLink, source, target);
+        return "{@link " + Slice::JavaScript::jsLinkFormatter(rawLink, source, target) + '}';
+    }
+
+    string formatSeeAlso(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
+    {
+        // JSDoc will automatically hyperlink text after '@see', but TSDoc requires an explicit '@link'.
+        return "@see " + formatLink(rawLink, source, target);
     }
 };
 

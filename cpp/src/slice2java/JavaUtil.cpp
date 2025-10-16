@@ -589,52 +589,49 @@ Slice::Java::getSequenceTypes(
     return false;
 }
 
-string
+std::pair<bool, string>
 Slice::Java::javaLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     string sourceScope = getPackage(source);
-
-    ostringstream result;
-    result << "{@link ";
+    string mappedLink;
 
     if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
     {
-        result << typeToObjectString(builtinTarget, TypeModeIn);
+        mappedLink = typeToObjectString(builtinTarget, TypeModeIn);
     }
     else if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
     {
         // Link to the method on the proxy interface.
-        result << getUnqualified(operationTarget->interface(), sourceScope) << "Prx#" << operationTarget->mappedName();
+        mappedLink = getUnqualified(operationTarget->interface(), sourceScope) + "Prx#" + operationTarget->mappedName();
     }
     else if (auto fieldTarget = dynamic_pointer_cast<DataMember>(target))
     {
         // Link to the field on its parent type.
         auto parent = dynamic_pointer_cast<Contained>(fieldTarget->container());
-        result << getUnqualified(parent, sourceScope) << "#" << fieldTarget->mappedName();
+        mappedLink = getUnqualified(parent, sourceScope) + "#" + fieldTarget->mappedName();
     }
     else if (auto interfaceTarget = dynamic_pointer_cast<InterfaceDecl>(target))
     {
         // Link to the proxy interface.
-        result << getUnqualified(interfaceTarget, sourceScope) << "Prx";
+        mappedLink = getUnqualified(interfaceTarget, sourceScope) + "Prx";
     }
     else if (auto contained = dynamic_pointer_cast<Contained>(target))
     {
+        mappedLink = getUnqualified(contained, sourceScope);
+
         if (dynamic_pointer_cast<Sequence>(contained) || dynamic_pointer_cast<Dictionary>(contained))
         {
-            // slice2java doesn't generate Java types for sequences or dictionaries, so there's nothing to link to.
-            // Instead, we just output the sequence or dictionary name in code formatting.
-            return "{@code " + getUnqualified(contained, sourceScope) + "}";
+            // slice2java doesn't generate types for sequences or dictionaries, so there's nothing to link to.
+            // We return 'false' to signal this.
+            return {false, mappedLink};
         }
-
-        result << getUnqualified(contained, sourceScope);
     }
     else
     {
-        result << rawLink;
+        mappedLink = rawLink;
     }
 
-    result << '}';
-    return result.str();
+    return {true, mappedLink};
 }
 
 void

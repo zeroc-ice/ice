@@ -25,9 +25,15 @@ namespace
 
 class Slice2DocCommentFormatter final : public DocCommentFormatter
 {
-    string formatLink(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) final
+    string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {
-        // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
+        // Re-use the link fixing logic from 'formatSeeAlso'.
+        return "{@link " + formatSeeAlso(rawLink, source, target) + "}";
+    }
+
+    string formatSeeAlso(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&) final
+    {
+        // The only difference with links between the 'Ice' and 'Slice' syntaxes
         // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
         string formattedLink = rawLink;
         auto separatorPos = formattedLink.find('#');
@@ -41,7 +47,7 @@ class Slice2DocCommentFormatter final : public DocCommentFormatter
         {
             formattedLink.replace(separatorPos, 1, "::");
         }
-        return "{@link " + formattedLink + "}";
+        return formattedLink;
     }
 };
 

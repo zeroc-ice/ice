@@ -283,64 +283,26 @@ namespace
         }
     }
 
-    void writeSeeAlso(IceInternal::Output& out, const optional<DocComment>& doc, const ContainerPtr& container)
+    void writeSeeAlso(IceInternal::Output& out, const optional<DocComment>& doc)
     {
         if (!doc)
         {
             return;
         }
+
         const StringList& seeAlso = doc->seeAlso();
-        if (seeAlso.empty())
+        if (!seeAlso.empty())
         {
-            return;
-        }
-
-        //
-        // All references must be on one line.
-        //
-        out << nl << "%";
-        out << nl << "%   See also ";
-        for (auto p = seeAlso.begin(); p != seeAlso.end(); ++p)
-        {
-            if (p != seeAlso.begin())
+            // Write all references as comma-separated list on one line.
+            // This is the conventional way to format 'See also' in MATLAB.
+            out << nl << "%";
+            out << nl << "%   See also ";
+            out.spar("");
+            for (const string& line : seeAlso)
             {
-                out << ", ";
+                out << line;
             }
-
-            string sym = *p;
-            string rest;
-            string::size_type pos = sym.find('#');
-            if (pos != string::npos)
-            {
-                rest = sym.substr(pos + 1);
-                sym = sym.substr(0, pos);
-            }
-
-            if (!sym.empty() || !rest.empty())
-            {
-                if (!sym.empty())
-                {
-                    ContainedList c = container->lookupContained(sym, false);
-                    if (c.empty())
-                    {
-                        out << sym;
-                    }
-                    else
-                    {
-                        out << c.front()->mappedScoped(".");
-                    }
-
-                    if (!rest.empty())
-                    {
-                        out << ".";
-                    }
-                }
-
-                if (!rest.empty())
-                {
-                    out << rest;
-                }
-            }
+            out.epar("");
         }
     }
 
@@ -481,7 +443,7 @@ namespace
         }
 
         writeDeprecated(out, doc, p);
-        writeSeeAlso(out, doc, p->container());
+        writeSeeAlso(out, doc);
         writeRemarks(out, doc);
     }
 
@@ -599,7 +561,7 @@ namespace
             }
         }
 
-        writeSeeAlso(out, doc, p->container());
+        writeSeeAlso(out, doc);
         writeRemarks(out, doc);
 
         out << nl;
@@ -673,7 +635,7 @@ namespace
         out << nl << "%     uncheckedCast - Creates a new " << name << " from an existing proxy.";
 
         writeDeprecated(out, doc, p);
-        writeSeeAlso(out, doc, p->container());
+        writeSeeAlso(out, doc);
         writeRemarks(out, doc);
     }
 
@@ -885,7 +847,7 @@ namespace
             false);
 
         writeDeprecated(out, doc, field);
-        writeSeeAlso(out, doc, field->container());
+        writeSeeAlso(out, doc);
         writeRemarks(out, doc);
     }
 
@@ -3306,7 +3268,7 @@ CodeVisitor::convertStruct(IceInternal::Output& out, const StructPtr& p, const s
     }
 }
 
-string
+std::pair<std::string, std::string>
 Slice::matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr& target)
 {
     string displayText; // The hyperlink text that will be visible to the user.
@@ -3352,6 +3314,5 @@ Slice::matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const Syn
         displayText = linkText = std::regex_replace(rawLink, separatorRegex, ".");
     }
 
-    // MATLAB allows you to run arbitrary commands inside an 'href', using the 'matlab:' command prefix.
-    return "<a href=\"matlab:help " + linkText + " -displayBanner\">" + displayText + "</a>";
+    return make_pair(linkText, displayText);
 }

@@ -245,12 +245,12 @@ namespace
         }
     }
 
-    void writeSeeAlso(
-        [[maybe_unused]] Output& out,
-        [[maybe_unused]] const StringList& lines,
-        [[maybe_unused]] const string& space = " ")
+    void writeSeeAlso(Output& out, const StringList& lines)
     {
-        // See #4543
+        for (const string& line : lines)
+        {
+            out << nl << "/// " << line;
+        }
     }
 
     struct DocSummaryOptions
@@ -280,11 +280,7 @@ namespace
             writeDocLines(out, remarks, false);
         }
 
-        const StringList& seeAlso = doc->seeAlso();
-        if (!seeAlso.empty())
-        {
-            writeSeeAlso(out, seeAlso);
-        }
+        writeSeeAlso(out, doc->seeAlso());
 
         if (options.generateDeprecated)
         {
@@ -459,11 +455,7 @@ namespace
             writeDocLines(out, remarks, false);
         }
 
-        const StringList& seeAlso = doc.seeAlso();
-        if (!seeAlso.empty())
-        {
-            writeSeeAlso(out, seeAlso);
-        }
+        writeSeeAlso(out, doc.seeAlso());
 
         if (options.generateDeprecated)
         {

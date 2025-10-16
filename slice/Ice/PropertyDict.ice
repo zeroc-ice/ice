@@ -18,7 +18,6 @@ module Ice
 {
     /// A simple collection of properties, represented as a dictionary of key/value pairs. Both key and value are
     /// strings.
-    /// @see PropertiesAdmin#getPropertiesForPrefix
     ["cpp:type:std::map<std::string, std::string, std::less<>>"]
     dictionary<string, string> PropertyDict;
 }
