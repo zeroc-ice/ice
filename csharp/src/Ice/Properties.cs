@@ -477,7 +477,7 @@ public sealed class Properties
     /// Creates a new Properties object, loads the configuration files specified by the Ice.Config property or the
     /// ICE_CONFIG environment variable, and parses the Ice command-line options.
     /// </summary>
-    /// <param name="args">Command lines options.</param>
+    /// <param name="args">Command-line options.</param>
     /// <param name="options">Options to configure the new Properties objects.</param>
     /// <returns>A new Properties object.</returns>
     internal static Properties loadConfigAndParseIceOptions(ref string[] args, PropertiesOptions options)
