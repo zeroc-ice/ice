@@ -13,7 +13,7 @@ import test.TestHelper;
 public class AMDServer extends TestHelper {
     public void run(String[] args) {
         var initData = new InitializationData();
-        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.slicing.objects.serverAMD.Test");
+        initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.slicing.objects.server.Test");
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 

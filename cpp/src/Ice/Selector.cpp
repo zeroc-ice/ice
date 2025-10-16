@@ -119,7 +119,7 @@ Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int 
     if (!GetQueuedCompletionStatus(_handle, &count, &key, &ol, timeout > 0 ? timeout * 1000 : INFINITE))
     {
         int err = WSAGetLastError();
-        if (ol == 0)
+        if (ol == nullptr)
         {
             if (err == WAIT_TIMEOUT)
             {
@@ -127,10 +127,11 @@ Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int 
             }
             else
             {
+                // This indicates a internal error with the IOCP completion port, we log the error and abort.
                 Ice::SocketException ex(__FILE__, __LINE__, err);
                 Ice::Error out(_instance->initializationData().logger);
                 out << "couldn't dequeue packet from completion port:\n" << ex;
-                this_thread::sleep_for(5s); // Sleep 5s to avoid looping
+                std::abort();
             }
         }
         AsyncInfo* info = static_cast<AsyncInfo*>(ol);
@@ -590,10 +591,11 @@ Selector::select(int timeout)
                 continue;
             }
 
+            // This indicates a internal error with the selector, we log the error and abort.
             Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
             Ice::Error out(_instance->initializationData().logger);
             out << "selector failed:\n" << ex;
-            std::this_thread::sleep_for(5s); // Sleep 5s to avoid looping
+            std::abort();
         }
         else if (_count == 0 && timeout < 0)
         {

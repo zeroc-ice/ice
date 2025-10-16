@@ -18,8 +18,7 @@ namespace Slice
             TypeModeReturn
         };
 
-        [[nodiscard]] std::string
-        getResultType(const OperationPtr& op, const std::string& package, bool object, bool dispatch);
+        [[nodiscard]] std::string getResultType(const OperationPtr& op, const std::string& package, bool object);
 
         /// Returns a vector of this operation's parameters with each of them formatted as 'paramType paramName'.
         /// If 'internal' is true, the names will be prefixed with "iceP_".
@@ -60,7 +59,8 @@ namespace Slice
         ///
         /// This name is qualified relative to the provided 'package',
         /// so if 'contained' lives within this package, the returned name will have no qualification.
-        [[nodiscard]] std::string getUnqualified(const ContainedPtr& cont, const std::string& package = std::string());
+        [[nodiscard]] std::string
+        getUnqualified(const ContainedPtr& cont, const std::string& package = "", const std::string& prefix = "");
 
         /// Returns the method call necessary to obtain the static type ID for an object type.
         [[nodiscard]] std::string getStaticId(const TypePtr& type, const std::string& package);

@@ -3,7 +3,6 @@
 package com.zeroc.Ice;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
@@ -27,10 +26,8 @@ final class Selector {
             throw new SyscallException(ex);
         }
 
-        //
-        // The Selector holds a Set representing the selected keys. The
-        // Set reference doesn't change, so we obtain it once here.
-        //
+        // The Selector holds a set representing the selected keys. The set reference doesn't change, so we obtain it
+        // once here.
         _keys = _selector.selectedKeys();
     }
 
@@ -179,57 +176,21 @@ final class Selector {
     }
 
     void select(long timeout) throws TimeoutException {
-        while (true) {
-            try {
-                if (_selectNow) {
-                    _selector.selectNow();
-                } else if (timeout > 0) {
-                    //
-                    // NOTE: On some platforms, select() sometime returns slightly before
-                    // the timeout (at least according to our monotonic time). To make sure
-                    // timeouts are correctly detected, we wait for a little longer than
-                    // the configured timeout (10ms).
-                    //
-                    long before = Time.currentMonotonicTimeMillis();
-                    if (_selector.select(timeout * 1000 + 10) == 0) {
-                        if (Time.currentMonotonicTimeMillis() - before >= timeout * 1000) {
-                            throw new TimeoutException();
-                        }
-                    }
-                } else {
-                    _selector.select();
+        try {
+            if (_selectNow) {
+                _selector.selectNow();
+            } else if (timeout > 0) {
+                // If interrupted is set, it means that wakeup was called, and select should return immediately
+                // without changes, allow the caller to go to finish select and process the ready handlers.
+                if (_selector.select(timeout * 1000) == 0 && !_interrupted) {
+                    throw new TimeoutException();
                 }
-            } catch (CancelledKeyException ex) {
-                // This sometime occurs on macOS, ignore.
-                continue;
-            } catch (IOException ex) {
-                //
-                // Pressing Ctrl-C causes select() to raise an
-                // IOException, which seems like a JDK bug. We trap
-                // for that special case here and ignore it.
-                // Hopefully we're not masking something important!
-                //
-                if (ex instanceof InterruptedIOException) {
-                    continue;
-                }
-
-                try {
-                    String s = "selector failed:\n" + ex.getCause().getMessage();
-                    try {
-                        _instance.initializationData().logger.error(s);
-                    } catch (Throwable ex1) {
-                        System.out.println(s);
-                    }
-                } catch (Throwable ex2) {
-                    // Ignore
-                }
-
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException ex2) {}
+            } else {
+                _selector.select();
             }
-
-            break;
+        } catch (IOException ex) {
+            _instance.initializationData().logger.error("selector failed:\n" + Ex.toString(ex));
+            Runtime.getRuntime().halt(1);
         }
     }
 
@@ -260,9 +221,7 @@ final class Selector {
     private void checkReady(EventHandler handler) {
         if ((handler._ready & ~handler._disabled & handler._registered) != 0) {
             _readyHandlers.add(handler);
-            if (_selecting) {
-                wakeup();
-            }
+            wakeup();
         } else {
             _readyHandlers.remove(handler);
         }
@@ -270,8 +229,8 @@ final class Selector {
 
     private void wakeup() {
         if (_selecting && !_interrupted) {
-            _selector.wakeup();
             _interrupted = true;
+            _selector.wakeup();
         }
     }
 
@@ -318,6 +277,8 @@ final class Selector {
     private final HashSet<EventHandler> _readyHandlers = new HashSet<>();
     private boolean _selecting;
     private boolean _selectNow;
-    private boolean _interrupted;
+    // Marked as volatile to ensure that when the selector is woken up, after calling wakeup(), the _interrupted
+    // change is visible to the thread blocked in select().
+    private volatile boolean _interrupted;
     private int _spuriousWakeUp;
 }

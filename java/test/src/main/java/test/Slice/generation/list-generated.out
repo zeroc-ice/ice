@@ -5,10 +5,12 @@
     <file name="classes/test/Slice/generation/Test/_Interface1PrxI.java"/>
     <file name="classes/test/Slice/generation/modpkg/Test2/Class1.java"/>
     <file name="classes/test/Slice/generation/Test/Interface1.java"/>
+    <file name="classes/test/Slice/generation/Test/AsyncInterface1.java"/>
   </source>
   <source name="File2.ice">
     <file name="classes/test/Slice/generation/Test/Interface2Prx.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface2PrxI.java"/>
     <file name="classes/test/Slice/generation/Test/Interface2.java"/>
+    <file name="classes/test/Slice/generation/Test/AsyncInterface2.java"/>
   </source>
 </generated>
