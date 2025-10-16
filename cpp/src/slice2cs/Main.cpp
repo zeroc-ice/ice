@@ -57,23 +57,23 @@ class CsharpDocCommentFormatter final : public DocCommentFormatter
 
     string formatLink(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {
-        string mappedLink;
-        if (Slice::Csharp::csLinkFormatter(rawLink, source, target, mappedLink))
+        auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
+        if (mapToLink)
         {
-            return "<see " + mappedLink + " />";
+            return "<see " + qualifiedName + " />";
         }
         else
         {
-            return "<c>" + mappedLink + "</c>";
+            return "<c>" + qualifiedName + "</c>";
         }
     }
 
     string formatSeeAlso(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target) final
     {
-        string mappedLink;
-        if (Slice::Csharp::csLinkFormatter(rawLink, source, target, mappedLink))
+        auto [mapToLink, qualifiedName] = Slice::Csharp::csLinkFormatter(rawLink, source, target);
+        if (mapToLink)
         {
-            return "<seealso " + mappedLink + " />";
+            return "<seealso " + qualifiedName + " />";
         }
         else
         {

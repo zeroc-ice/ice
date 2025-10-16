@@ -598,14 +598,11 @@ Slice::Java::getSequenceTypes(
     return false;
 }
 
-bool
-Slice::Java::javaLinkFormatter(
-    const string& rawLink,
-    const ContainedPtr& source,
-    const SyntaxTreeBasePtr& target,
-    string& mappedLink)
+std::pair<bool, string>
+Slice::Java::javaLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     string sourceScope = getPackage(source);
+    string mappedLink;
 
     if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
     {
@@ -635,7 +632,7 @@ Slice::Java::javaLinkFormatter(
         {
             // slice2java doesn't generate types for sequences or dictionaries, so there's nothing to link to.
             // We return 'false' to signal this.
-            return false;
+            return make_pair(false, mappedLink);
         }
     }
     else
@@ -643,7 +640,7 @@ Slice::Java::javaLinkFormatter(
         mappedLink = rawLink;
     }
 
-    return true;
+    return make_pair(true, mappedLink);
 }
 
 void

@@ -1690,12 +1690,8 @@ Slice::Csharp::toArrayAlloc(const string& decl, const string& size)
     return o.str();
 }
 
-bool
-Slice::Csharp::csLinkFormatter(
-    const string& rawLink,
-    const ContainedPtr& source,
-    const SyntaxTreeBasePtr& target,
-    string& mappedLink)
+std::pair<bool, string>
+Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
 {
     ostringstream result;
 
@@ -1723,8 +1719,7 @@ Slice::Csharp::csLinkFormatter(
         {
             // slice2cs doesn't generate C# types for sequences or dictionaries, so there's nothing to link to.
             // So, we return 'false' to signal this, and just output the sequence or dictionary name.
-            mappedLink = getUnqualified(contained, sourceScope);
-            return false;
+            return make_pair(false, getUnqualified(contained, sourceScope));
         }
 
         result << "cref=\"";
@@ -1768,6 +1763,5 @@ Slice::Csharp::csLinkFormatter(
         result << "cref=\"" << targetS << "\"";
     }
 
-    mappedLink = result.str();
-    return true;
+    return make_pair(true, result.str());
 }

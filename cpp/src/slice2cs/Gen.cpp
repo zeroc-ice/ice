@@ -106,12 +106,13 @@ namespace
 
     void writeSeeAlso(Output& out, const StringList& seeAlso)
     {
-        for (const string& line : seeAlso)
+        for (const auto& line : seeAlso)
         {
-            out << nl << "///";
+            // An empty line means that the see-also was referencing a Slice element which isn't mapped in C#.
+            // There's nothing we can do about this in C#, so we just skip it.
             if (!line.empty())
             {
-                out << " " << line;
+                out << nl << "/// " << line;
             }
         }
     }

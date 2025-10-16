@@ -121,12 +121,13 @@ namespace Slice
         /// @param source A pointer to the Slice element that the doc-comment (and reference) are written on.
         /// @param target A pointer to the Slice element that is being referenced, or `nullptr` if it doesn't exist.
         /// @param mappedLink Output parameter where the formatted link is written to.
-        /// @returns @c false if the link was to a Slice element which isn't mapped in Java, @c true otherwise.
-        bool javaLinkFormatter(
+        /// @returns A pair containing:
+        /// - @c false if the link was to a Slice element which isn't mapped in Java; @c true otherwise.
+        /// - The java formatted link.
+        std::pair<bool, std::string> javaLinkFormatter(
             const std::string& rawLink,
             const ContainedPtr& source,
-            const SyntaxTreeBasePtr& target,
-            std::string& mappedLink);
+            const SyntaxTreeBasePtr& target);
 
         void validateJavaMetadata(const UnitPtr&);
     }
