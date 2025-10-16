@@ -137,7 +137,7 @@ namespace Glacier2
         [[nodiscard]] Ice::ObjectPtr getServerBlobject(const std::string&) const;
 
         /// Destroys the Glacier2 internal session.
-        /// @param connection The client->Glacier router connection that identifies the session to destroy.
+        /// @param connection The client->Glacier2 router connection that identifies the session to destroy.
         /// @param error A callback that the implementation calls when the destruction of the application-provided
         /// session fails (see SessionManager). When nullptr (the default), the implementation uses a default error
         /// handler that logs all exceptions.
