@@ -38,7 +38,7 @@ public:
     {
     }
 
-    [[nodiscard]] std::optional<Ice::ObjectPrx> findObjectById(Identity id, const Current&) const override
+    [[nodiscard]] optional<Ice::ObjectPrx> findObjectById(Identity id, const Current&) const override
     {
         return _adapter->createProxy(id);
     }
