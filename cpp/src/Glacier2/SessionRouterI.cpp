@@ -50,7 +50,10 @@ namespace Glacier2
 
         optional<IdentitySetPrx> identities(const Current&) final { return _filters->identitiesPrx(); }
 
-        int getSessionTimeout(const Current&) final { return static_cast<int>(_sessionRouter->getSessionTimeout()); }
+        int32_t getSessionTimeout(const Current&) final
+        {
+            return static_cast<int32_t>(_sessionRouter->getSessionTimeout());
+        }
 
         void destroy(const Current&) final
         {
@@ -767,7 +770,7 @@ SessionRouterI::getSessionTimeout() const
 int32_t
 SessionRouterI::getACMTimeout() const
 {
-    int idleTimeout = _instance->properties()->getIcePropertyAsInt("Ice.Connection.Server.IdleTimeout");
+    int32_t idleTimeout = _instance->properties()->getIcePropertyAsInt("Ice.Connection.Server.IdleTimeout");
     return _instance->properties()->getPropertyAsIntWithDefault("Glacier2.Client.Connection.IdleTimeout", idleTimeout);
 }
 

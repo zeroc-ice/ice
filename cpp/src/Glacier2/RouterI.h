@@ -46,7 +46,7 @@ namespace Glacier2
 
         [[nodiscard]] std::int64_t getSessionTimeout(const Ice::Current&) const final;
 
-        [[nodiscard]] int getACMTimeout(const Ice::Current&) const final;
+        [[nodiscard]] std::int32_t getACMTimeout(const Ice::Current&) const final;
 
         [[nodiscard]] std::shared_ptr<ClientBlobject> getClientBlobject() const;
 
