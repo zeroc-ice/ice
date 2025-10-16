@@ -287,9 +287,9 @@ namespace
         }
 
         // 'seeAlso' links have already been converted to Slice2 syntax by `formatSeeAlso`.
-        for (const string& correctedLink : comment->seeAlso())
+        for (const string& mappedLink : comment->seeAlso())
         {
-            out << nl << "/// @see " << correctedLink;
+            out << nl << "/// @see " << mappedLink;
         }
     }
 }
