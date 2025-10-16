@@ -2756,24 +2756,12 @@ class iOSSimulatorProcessController(RemoteProcessController):
             print("ok")
 
             print("waiting for simulator to boot")
-
-            try:
-                subprocess.run(["xcrun", "simctl", "bootstatus", self.device], timeout=600, check=True)
-            except (subprocess.TimeoutExpired, subprocess.CalledProcessError) as ex:
-                print(simctlDeviceLine())
-                subprocess.run(
-                    [
-                        "xcrun",
-                        "simctl",
-                        "spawn",
-                        self.device,
-                        "log",
-                        "collect",
-                        "--output",
-                        f"device-{self.device}.log",
-                    ]
-                )
-                raise RuntimeError("timed out waiting for simulator to boot") from ex
+            bootWaitTime = 300
+            t = time.time()
+            while (time.time() - t) <= bootWaitTime:
+                if isBooted():
+                    break
+                time.sleep(5)
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
@@ -3184,6 +3172,10 @@ class Driver:
         self.failures = []
         self.keepLogs = False
 
+        logDir = os.path.join(toplevel, "logs")
+        os.makedirs(logDir, exist_ok=True)
+        self.driverLogFile = os.path.join(logDir, f"driver-{time.strftime('%m%d%y-%H%M')}.log")
+
         parseOptions(
             self,
             options,
@@ -3298,12 +3290,15 @@ class Driver:
 
         initData = Ice.InitializationData()
         initData.properties = Ice.createProperties()
+        initData.properties.setProperty("Ice.LogFile", self.driverLogFile)
+        initData.properties.setProperty("Ice.Trace.Dispatch", "1")
+        initData.properties.setProperty("Ice.Warn.Connections", "1")
+        initData.properties.setProperty("Ice.PrintStackTraces", "0")
 
         # Load IceSSL, this is useful to talk with WSS for JavaScript
         initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
-        initData.properties.setProperty(
-            "IceSSL.DefaultDir", os.path.join(self.component.getSourceDir(), "certs/common/ca")
-        )
+        caDir = os.path.join(self.component.getSourceDir(), "certs/common/ca")
+        initData.properties.setProperty("IceSSL.DefaultDir", caDir)
         initData.properties.setProperty("IceSSL.CertFile", "server.p12")
         initData.properties.setProperty("IceSSL.Password", "password")
         initData.properties.setProperty("IceSSL.Keychain", "test.keychain")
@@ -3315,9 +3310,7 @@ class Driver:
         initData.properties.setProperty("IceDiscovery.Interface", self.interface)
         initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
-        # initData.properties.setProperty("Ice.Trace.Protocol", "1")
-        # initData.properties.setProperty("Ice.Trace.Network", "2")
-        # initData.properties.setProperty("Ice.StdErr", "allTests.log")
+
         self.communicator = Ice.initialize(initData=initData)
 
     def getProcessController(self, current, process=None):
@@ -3351,6 +3344,10 @@ class Driver:
         return props
 
     def destroy(self):
+        if not self.keepLogs:
+            if os.path.exists(self.driverLogFile):
+                os.unlink(self.driverLogFile)
+
         for controller in self.processControllers.values():
             controller.destroy(self)
 
