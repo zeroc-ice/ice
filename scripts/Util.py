@@ -1,7 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
 import copy
-from dataclasses import dataclass, field
 import getopt
 import itertools
 import json
@@ -19,6 +18,7 @@ import types
 import uuid
 import xml.sax.saxutils
 from collections import OrderedDict
+from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
 from platform import machine as platform_machine
