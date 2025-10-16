@@ -38,7 +38,7 @@ public:
         return current.adapter->createDirectProxy(id);
     }
 
-    [[nodiscard]] std::optional<LocatorRegistryPrx> getRegistry(const Current&) const final { return nullopt; }
+    [[nodiscard]] optional<LocatorRegistryPrx> getRegistry(const Current&) const final { return nullopt; }
 
     LocatorI(BackgroundControllerIPtr controller) : _controller(std::move(controller)) {}
 
