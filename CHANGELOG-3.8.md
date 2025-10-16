@@ -520,7 +520,7 @@ classDiagram
 
   ```slice
   ["deprecated:This operation should no longer be called"]
-  ["format:sliced"]
+  ["marshaled-result"] ["format:sliced"]
   void myOperation(MyClass c);
   ```
 
