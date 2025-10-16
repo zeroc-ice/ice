@@ -3,6 +3,7 @@
 #nullable enable
 
 using Ice.Internal;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,25 +11,36 @@ using System.Text.RegularExpressions;
 namespace Ice;
 
 /// <summary>
-/// A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
-/// values being strings.
+/// Represents a set of options that you can specify when creating a <see cref="Properties"/> object.
 /// </summary>
+public sealed record class PropertiesOptions
+{
+    /// <summary>
+    ///  Gets or sets the initial properties of the new Properties object.
+    /// </summary>
+    /// <value>The initial properties.</value>
+    public Properties? defaults { get; set; }
+
+    /// <summary>
+    /// Gets or sets a list of prefixes to allow in the new Properties object. Setting a property with a property
+    /// prefix that is opt-in (e.g. IceGrid, IceStorm, Glacier2, etc.) but not in this list is considered an error.
+    /// </summary>
+    /// <value>The list of opt-in prefixes.</value>
+    public ImmutableList<string> optInPrefixes { get; set; } = ImmutableList<string>.Empty;
+}
+
+/// <summary>
+/// Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
+/// where both the key and the value are strings. By convention, property keys should have the form
+/// <c>application-name>[.category[.sub-category]].name</c>.
+/// </summary>
+/// <remarks>This class is thread-safe: multiple threads can safely read and write the properties without their own
+/// synchronization.</remarks>
 public sealed class Properties
 {
-    private class PropertyValue
-    {
-        public string value { get; set; }
-
-        public bool used { get; set; }
-
-        public PropertyValue(string value, bool used)
-        {
-            this.value = value;
-            this.used = used;
-        }
-
-        public PropertyValue Clone() => new(value, used);
-    }
+    private readonly Dictionary<string, PropertyValue> _propertySet = [];
+    private readonly ImmutableList<string> _optInPrefixes = ImmutableList<string>.Empty;
+    private readonly object _mutex = new(); // protects _propertySet
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Properties" /> class. The property set is initially empty.
@@ -38,80 +50,23 @@ public sealed class Properties
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Properties" /> class with a list of opt-in prefixes.
+    /// Initializes a new instance of the <see cref="Properties" /> class with the specified options.
     /// </summary>
-    /// <param name="optInPrefixes">A list of opt-in prefixes to allow in the property set.</param>
-    public Properties(List<string> optInPrefixes) => _optInPrefixes = optInPrefixes;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Properties" /> class. The property set is initialized from the
-    /// provided argument vector.
-    /// </summary>
-    /// <param name="args">A command-line argument vector, possibly containing options to set properties. If the
-    /// command-line options include a --Ice.Config option, the corresponding configuration files are parsed. If the
-    /// same property is set in a configuration file and in the argument vector, the argument vector takes precedence.
-    /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <param name="defaults">Default values for the property set. Settings in configuration files and args override
-    /// these defaults. May be null.</param>
-    public Properties(ref string[] args, Properties? defaults = null)
+    /// <param name="options">Options to configure new Properties instance.</param>
+    public Properties(PropertiesOptions options)
     {
-        if (defaults is not null)
+        _optInPrefixes = options.optInPrefixes;
+
+        if (options.defaults is Properties defaults)
         {
-            foreach (KeyValuePair<string, PropertyValue> entry in defaults._properties)
+            foreach (KeyValuePair<string, PropertyValue> entry in defaults._propertySet)
             {
-                _properties[entry.Key] = entry.Value.Clone();
+                // Deep copy.
+                _propertySet[entry.Key] = entry.Value.Clone();
             }
 
             _optInPrefixes.AddRange(defaults._optInPrefixes);
         }
-
-        if (_properties.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
-        {
-            pv.used = true;
-        }
-        else
-        {
-            _properties["Ice.ProgramName"] = new PropertyValue(AppDomain.CurrentDomain.FriendlyName, true);
-        }
-
-        bool loadConfigFiles = false;
-
-        for (int i = 0; i < args.Length; i++)
-        {
-            if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
-            {
-                string line = args[i];
-                if (!line.Contains('=', StringComparison.Ordinal))
-                {
-                    line += "=1";
-                }
-                parseLine(line[2..]);
-                loadConfigFiles = true;
-
-                string[] arr = new string[args.Length - 1];
-                Array.Copy(args, 0, arr, 0, i);
-                if (i < args.Length - 1)
-                {
-                    Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
-                }
-                args = arr;
-            }
-        }
-
-        if (!loadConfigFiles)
-        {
-            //
-            // If Ice.Config is not set, load from ICE_CONFIG (if set)
-            //
-            loadConfigFiles = !_properties.ContainsKey("Ice.Config");
-        }
-
-        if (loadConfigFiles)
-        {
-            loadConfig();
-        }
-
-        args = parseIceCommandLineOptions(args);
     }
 
     /// <summary>
@@ -125,7 +80,7 @@ public sealed class Properties
         lock (_mutex)
         {
             string result = "";
-            if (_properties.TryGetValue(key, out PropertyValue? pv))
+            if (_propertySet.TryGetValue(key, out PropertyValue? pv))
             {
                 pv.used = true;
                 result = pv.value;
@@ -155,7 +110,7 @@ public sealed class Properties
         lock (_mutex)
         {
             string result = value;
-            if (_properties.TryGetValue(key, out PropertyValue? pv))
+            if (_propertySet.TryGetValue(key, out PropertyValue? pv))
             {
                 pv.used = true;
                 result = pv.value;
@@ -205,7 +160,7 @@ public sealed class Properties
     {
         lock (_mutex)
         {
-            if (!_properties.TryGetValue(key, out PropertyValue? pv))
+            if (!_propertySet.TryGetValue(key, out PropertyValue? pv))
             {
                 return value;
             }
@@ -267,7 +222,7 @@ public sealed class Properties
 
         lock (_mutex)
         {
-            if (!_properties.TryGetValue(key, out PropertyValue? pv))
+            if (!_propertySet.TryGetValue(key, out PropertyValue? pv))
             {
                 return value;
             }
@@ -301,11 +256,11 @@ public sealed class Properties
         {
             var result = new Dictionary<string, string>();
 
-            foreach (string s in _properties.Keys)
+            foreach (string s in _propertySet.Keys)
             {
                 if (prefix.Length == 0 || s.StartsWith(prefix, StringComparison.Ordinal))
                 {
-                    PropertyValue pv = _properties[s];
+                    PropertyValue pv = _propertySet[s];
                     pv.used = true;
                     result[s] = pv.value;
                 }
@@ -358,7 +313,7 @@ public sealed class Properties
             // Set or clear the property.
             if (value is not null && value.Length > 0)
             {
-                if (_properties.TryGetValue(key, out PropertyValue? pv))
+                if (_propertySet.TryGetValue(key, out PropertyValue? pv))
                 {
                     pv.value = value;
                 }
@@ -366,11 +321,11 @@ public sealed class Properties
                 {
                     pv = new PropertyValue(value, false);
                 }
-                _properties[key] = pv;
+                _propertySet[key] = pv;
             }
             else
             {
-                _properties.Remove(key);
+                _propertySet.Remove(key);
             }
         }
     }
@@ -385,9 +340,9 @@ public sealed class Properties
     {
         lock (_mutex)
         {
-            string[] result = new string[_properties.Count];
+            string[] result = new string[_propertySet.Count];
             int i = 0;
-            foreach (KeyValuePair<string, PropertyValue> entry in _properties)
+            foreach (KeyValuePair<string, PropertyValue> entry in _propertySet)
             {
                 result[i++] = "--" + entry.Key + "=" + entry.Value.value;
             }
@@ -483,9 +438,9 @@ public sealed class Properties
         var clonedProperties = new Properties();
         lock (_mutex)
         {
-            foreach ((string key, PropertyValue value) in _properties)
+            foreach ((string key, PropertyValue value) in _propertySet)
             {
-                clonedProperties._properties[key] = value.Clone();
+                clonedProperties._propertySet[key] = value.Clone();
             }
         }
         return clonedProperties;
@@ -507,7 +462,7 @@ public sealed class Properties
         lock (_mutex)
         {
             var unused = new List<string>();
-            foreach ((string key, PropertyValue value) in _properties)
+            foreach ((string key, PropertyValue value) in _propertySet)
             {
                 if (!value.used)
                 {
@@ -516,6 +471,67 @@ public sealed class Properties
             }
             return unused;
         }
+    }
+
+    /// <summary>
+    /// Creates a new Properties object, loads the configuration files specified by the Ice.Config property or the
+    /// ICE_CONFIG environment variable, and parses the Ice command-line options.
+    /// </summary>
+    /// <param name="args">Command lines options.</param>
+    /// <param name="options">Options to configure the new Properties objects.</param>
+    /// <returns>A new Properties object.</returns>
+    internal static Properties loadConfigAndParseIceOptions(ref string[] args, PropertiesOptions options)
+    {
+        var properties = new Properties(options);
+        Dictionary<string, PropertyValue> propertySet = properties._propertySet;
+
+        if (propertySet.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
+        {
+            pv.used = true;
+        }
+        else
+        {
+            propertySet["Ice.ProgramName"] = new PropertyValue(AppDomain.CurrentDomain.FriendlyName, true);
+        }
+
+        bool loadConfigFiles = false;
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
+            {
+                string line = args[i];
+                if (!line.Contains('=', StringComparison.Ordinal))
+                {
+                    line += "=1";
+                }
+                properties.parseLine(line[2..]);
+                loadConfigFiles = true;
+
+                string[] arr = new string[args.Length - 1];
+                Array.Copy(args, 0, arr, 0, i);
+                if (i < args.Length - 1)
+                {
+                    Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
+                }
+                args = arr;
+            }
+        }
+
+        if (!loadConfigFiles)
+        {
+            // If Ice.Config is not set, load from ICE_CONFIG (if set).
+            loadConfigFiles = !propertySet.ContainsKey("Ice.Config");
+        }
+
+        if (loadConfigFiles)
+        {
+            properties.loadConfig();
+        }
+
+        args = properties.parseIceCommandLineOptions(args);
+
+        return properties;
     }
 
     /// <summary>
@@ -861,11 +877,22 @@ public sealed class Properties
                 load(files[i].Trim());
             }
 
-            _properties["Ice.Config"] = new PropertyValue(val, true);
+            _propertySet["Ice.Config"] = new PropertyValue(val, true);
         }
     }
 
-    private readonly Dictionary<string, PropertyValue> _properties = [];
-    private readonly List<string> _optInPrefixes = [];
-    private readonly object _mutex = new();
+    private class PropertyValue
+    {
+        public string value { get; set; }
+
+        public bool used { get; set; }
+
+        public PropertyValue(string value, bool used)
+        {
+            this.value = value;
+            this.used = used;
+        }
+
+        public PropertyValue Clone() => new(value, used);
+    }
 }

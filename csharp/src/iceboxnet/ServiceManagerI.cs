@@ -315,7 +315,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     // Load the service properties using the shared communicator properties as
                     // the default properties.
                     //
-                    var svcProperties = new Ice.Properties(ref service.args, initData.properties);
+                    Ice.Properties svcProperties = Ice.Util.createProperties(ref service.args, initData.properties);
 
                     //
                     // Remove properties from the shared property set that a service explicitly clears.
@@ -530,7 +530,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     // Create the service properties with the given service arguments. This should
                     // read the service config file if it's specified with --Ice.Config.
                     //
-                    initData.properties = new Ice.Properties(ref info.args, initData.properties);
+                    initData.properties = Ice.Util.createProperties(ref info.args, initData.properties);
 
                     //
                     // Next, parse the service "<service>.*" command line options (the Ice command

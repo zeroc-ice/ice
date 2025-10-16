@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Ice;
 
 /// <summary>
-/// Utility methods for the Ice run time.
+/// Utility methods for the Ice runtime.
 /// </summary>
 public sealed class Util
 {
@@ -15,38 +15,41 @@ public sealed class Util
     /// Creates a new empty property set.
     /// </summary>
     /// <returns>A new empty property set.</returns>
-    [Obsolete("Use Ice.Properties() constructor instead.")]
+    [Obsolete("Use the Ice.Properties() constructor instead.")]
     public static Properties createProperties() => new();
 
     /// <summary>
-    /// Creates a property set initialized from an argument vector.
+    /// Creates a property set initialized from command-line arguments and a default property set.
     /// </summary>
-    /// <param name="args">A command-line argument vector, possibly containing
-    /// options to set properties. If the command-line options include
-    /// a --Ice.Config option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the argument vector, the argument vector takes precedence.
-    /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <returns>A property set initialized with the property settings
-    /// that were removed from args.</returns>
-    [Obsolete("Use Ice.Properties(ref string[], Ice.Properties) constructor instead.")]
-    public static Properties createProperties(ref string[] args) => new(ref args, null);
+    /// <param name="args">The command-line arguments. This method parses arguments starting with `--` and one of the
+    /// reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
+    /// argument starting with `--Ice.Config`, this method loads the specified configuration file. When the same
+    /// property is set in a configuration file and through a command-line argument, the command-line setting takes
+    /// precedence.</param>
+    /// <param name="defaults">Default values for the new property set. Settings in configuration files and the
+    /// arguments override these defaults.</param>
+    /// <returns>A new property set.</returns>
+    /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
+    /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
+    /// </remarks>
+    public static Properties createProperties(ref string[] args, Properties? defaults = null) =>
+        createProperties(ref args, new PropertiesOptions { defaults = defaults });
 
     /// <summary>
-    /// Creates a property set initialized from an argument vector.
+    /// Creates a property set initialized from command-line arguments and Properties options.
     /// </summary>
-    /// <param name="args">A command-line argument vector, possibly containing
-    /// options to set properties. If the command-line options include
-    /// a --Ice.Config option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the argument vector, the argument vector takes precedence.
-    /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <param name="defaults">Default values for the property set. Settings in configuration
-    /// files and args override these defaults.</param>
-    /// <returns>A property set initialized with the property settings
-    /// that were removed from args.</returns>
-    [Obsolete("Use Ice.Properties(ref string[], Ice.Properties) constructor instead.")]
-    public static Properties createProperties(ref string[] args, Properties defaults) => new(ref args, defaults);
+    /// <param name="args">The command-line arguments. This method parses arguments starting with `--` and one of the
+    /// reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
+    /// argument starting with `--Ice.Config`, this method loads the specified configuration file. When the same
+    /// property is set in a configuration file and through a command-line argument, the command-line setting takes
+    /// precedence.</param>
+    /// <param name="options">Options to configure the new property set.</param>
+    /// <returns>A new property set.</returns>
+    /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
+    /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
+    /// </remarks>
+    public static Properties createProperties(ref string[] args, PropertiesOptions options) =>
+        Properties.loadConfigAndParseIceOptions(ref args, options);
 
     /// <summary>
     /// Creates a new communicator, using Ice properties parsed from command-line arguments.
@@ -61,7 +64,7 @@ public sealed class Util
     {
         var initData = new InitializationData
         {
-            properties = new Properties(ref args)
+            properties = createProperties(ref args)
         };
 
         var result = new Communicator(initData);
