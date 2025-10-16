@@ -387,7 +387,7 @@ public class ControllerApp extends Application {
                     wait(timeout * 1000L);
                     if (Time.currentMonotonicTimeMillis() - now > timeout * 1000L) {
                         throw new Test.Common.ProcessFailedException(
-                                "timed out waiting for the process to be complete");
+                                "timed out waiting for the process to complete");
                     }
                 } catch (InterruptedException ex) {
                     // Ignore and try again.
