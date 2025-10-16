@@ -623,7 +623,7 @@ Slice::Java::javaLinkFormatter(const string& rawLink, const ContainedPtr& source
         {
             // slice2java doesn't generate types for sequences or dictionaries, so there's nothing to link to.
             // We return 'false' to signal this.
-            return make_pair(false, mappedLink);
+            return {false, mappedLink};
         }
     }
     else
