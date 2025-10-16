@@ -527,7 +527,7 @@ classDiagram
   Previously, all metadata needed to be in a single comma-separated list (note that this syntax is still supported):
 
   ```slice
-  ["deprecated:This operation should no longer be called", "format:sliced"]
+  ["deprecated:This operation should no longer be called", "marshaled-result", "format:sliced"]
   void myOperation(MyClass c);
   ```
 
