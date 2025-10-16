@@ -2563,7 +2563,7 @@ class AndroidProcessController(RemoteProcessController):
             # This runs if the while loop completes without breaking
             raise RuntimeError(f"emulator '{avd}' not booted after 300s")
 
-        assert self.forwardPort
+        assert self.forwardPort, "forwardPort must be set for emulator configuration"
         print(f"forwarding port {self.forwardPort} to the controller app")
         run(f"{self.adb()} forward tcp:{self.forwardPort} tcp:{self.forwardPort}")
 
