@@ -65,7 +65,7 @@ public sealed class Properties
                 _propertySet[entry.Key] = entry.Value.Clone();
             }
 
-            _optInPrefixes.AddRange(defaults._optInPrefixes);
+            _optInPrefixes = _optInPrefixes.AddRange(defaults._optInPrefixes);
         }
     }
 
