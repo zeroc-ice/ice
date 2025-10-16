@@ -1302,7 +1302,7 @@ class Process(Runnable):
 
         try:
             self.waitForStart(current)
-        except Exception as ex:
+        except Exception:
             self.stop(current)
             raise
 

@@ -174,7 +174,6 @@ public class ControllerApp extends Application {
             initData.properties.setProperty("Ice.Warn.Dispatch", "2");
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
 
-
             if(isEmulator())
             {
                 // We used a hardcoded port that's forwarded to the host machine by the emulator
