@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * An instance of java.nio.ByteBuffer cannot grow beyond its initial capacity. This class wraps a
- * ByteBuffer and supports reallocation.
+ * An instance of java.nio.ByteBuffer cannot grow beyond its initial capacity.
+ * This class wraps a ByteBuffer and supports reallocation.
  *
  * @hidden Public because it's used by IceBT, SSL, and the 'Ice/background' test.
  */

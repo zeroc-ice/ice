@@ -28,10 +28,7 @@ final class WSAcceptor implements Acceptor {
 
     @Override
     public Transceiver accept() {
-        //
-        // WebSocket handshaking is performed in TransceiverI::initialize, since
-        // accept must not block.
-        //
+        // WebSocket handshaking is performed in TransceiverI::initialize, since accept must not block.
         return new WSTransceiver(_instance, _delegate.accept());
     }
 

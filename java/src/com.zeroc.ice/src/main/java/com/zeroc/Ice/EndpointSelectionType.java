@@ -7,10 +7,10 @@ package com.zeroc.Ice;
  * connection.
  */
 public enum EndpointSelectionType {
-    /** <code>Random</code> causes the endpoints to be arranged in a random order. */
+    /** {@code Random} causes the endpoints to be arranged in a random order. */
     Random(0),
     /**
-     * <code>Ordered</code> forces the Ice run time to use the endpoints in the order they appeared
+     * {@code Ordered} forces the Ice run time to use the endpoints in the order they appeared
      * in the proxy.
      */
     Ordered(1);

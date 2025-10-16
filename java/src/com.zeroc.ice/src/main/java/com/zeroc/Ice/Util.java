@@ -15,7 +15,7 @@ public final class Util {
     /**
      * Creates a new empty property set.
      *
-     * @return A new empty property set.
+     * @return a new empty property set
      * @deprecated Use {@link Properties#Properties()} instead.
      */
     @Deprecated
@@ -26,12 +26,12 @@ public final class Util {
     /**
      * Creates a property set initialized from an argument vector.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
+     * @param args a command-line argument vector, possibly containing options to set properties. If
      *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
-     * @return A new property set initialized with the property settings that were removed from the
-     *     argument vector.
+     * @return a new property set initialized with the property settings that were removed from the
+     *     argument vector
      * @deprecated Use {@link Properties#Properties(String[])} instead.
      */
     @Deprecated
@@ -40,17 +40,16 @@ public final class Util {
     }
 
     /**
-     * Creates a property set initialized from an argument vector and returns the remaining
-     * arguments.
+     * Creates a property set initialized from an argument vector and returns the remaining arguments.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
+     * @param args a command-line argument vector, possibly containing options to set properties. If
      *     the command-line options include a {@code --Ice.Config} option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
      * @param remainingArgs If non null, the given list will contain on return the command-line
      *     arguments that were not used to set properties.
-     * @return A new property set initialized with the property settings that were removed from the
-     *     argument vector.
+     * @return a new property set initialized with the property settings that were removed from the
+     *     argument vector
      * @deprecated Use {@link Properties#Properties(String[], java.util.List)} instead.
      */
     @Deprecated
@@ -61,14 +60,14 @@ public final class Util {
     /**
      * Creates a property set initialized from an argument vector.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
+     * @param args a command-line argument vector, possibly containing options to set properties. If
      *     the command-line options include a {@code --Ice.Config} option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
-     * @param defaults Default values for the property set. Settings in configuration files and
+     * @param defaults default values for the property set. Settings in configuration files and
      *     {@code args} override these defaults.
-     * @return A new property set initialized with the property settings that were removed from the
-     *     argument vector.
+     * @return a new property set initialized with the property settings that were removed from the
+     *     argument vector
      * @deprecated Use {@link Properties#Properties(String[], Properties)} instead.
      */
     @Deprecated
@@ -80,29 +79,28 @@ public final class Util {
      * Creates a property set initialized from an argument vector and returns the remaining
      * arguments.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
+     * @param args a command-line argument vector, possibly containing options to set properties. If
      *     the command-line options include a {@code --Ice.Config} option, the corresponding
      *     configuration files are parsed. If the same property is set in a configuration file and
      *     in the argument vector, the argument vector takes precedence.
-     * @param defaults Default values for the property set. Settings in configuration files and
+     * @param defaults default values for the property set. Settings in configuration files and
      *     {@code args} override these defaults.
      * @param remainingArgs If non null, the given list will contain on return the command-line
      *     arguments that were not used to set properties.
-     * @return A new property set initialized with the property settings that were removed from the
-     *     argument vector.
+     * @return a new property set initialized with the property settings that were removed from the
+     *     argument vector
      * @deprecated Use {@link Properties#Properties(String[], Properties, java.util.List)} instead.
      */
     @Deprecated
-    public static Properties createProperties(
-            String[] args, Properties defaults, List<String> remainingArgs) {
+    public static Properties createProperties(String[] args, Properties defaults, List<String> remainingArgs) {
         return new Properties(args, defaults, remainingArgs);
     }
 
     /**
      * Creates a new communicator.
      *
-     * @param initData Options for the new communicator.
-     * @return The new communicator.
+     * @param initData options for the new communicator
+     * @return the new communicator
      * @see InitializationData
      */
     public static Communicator initialize(InitializationData initData) {
@@ -120,7 +118,7 @@ public final class Util {
     /**
      * Creates a new communicator with the default options.
      *
-     * @return The new communicator.
+     * @return the new communicator
      */
     public static Communicator initialize() {
         return initialize((InitializationData) null);
@@ -129,13 +127,13 @@ public final class Util {
     /**
      * Creates a new communicator, using Ice properties parsed from command-line arguments.
      *
-     * @param args A command-line argument vector. This method parses arguments starting with `--` and one of the
+     * @param args a command-line argument vector. This method parses arguments starting with `--` and one of the
      *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
      *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
      *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
      * @param remainingArgs If non-null, the given list will contain on return the command-line arguments that were
      *     not used to set properties.
-     * @return The new communicator.
+     * @return the new communicator
      */
     public static Communicator initialize(String[] args, List<String> remainingArgs) {
         var initData = new InitializationData();
@@ -146,11 +144,11 @@ public final class Util {
     /**
      * Creates a new communicator, using Ice properties parsed from command-line arguments.
      *
-     * @param args A command-line argument vector. This method parses arguments starting with `--` and one of the
+     * @param args a command-line argument vector. This method parses arguments starting with `--` and one of the
      *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
      *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
      *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
-     * @return The new communicator.
+     * @return the new communicator
      */
     public static Communicator initialize(String[] args) {
         return initialize(args, null);
@@ -159,16 +157,13 @@ public final class Util {
     /**
      * Converts a stringified identity into an Identity.
      *
-     * @param s The string to convert.
-     * @return The converted object identity.
+     * @param s the string to convert
+     * @return the converted object identity
      */
     public static Identity stringToIdentity(String s) {
         Identity ident = new Identity();
 
-        //
-        // Find unescaped separator; note that the string may contain an escaped
-        // backslash before the separator.
-        //
+        // Find unescaped separator; note that the string may contain an escaped backslash before the separator.
         int slash = -1, pos = 0;
         while ((pos = s.indexOf('/', pos)) != -1) {
             int escapes = 0;
@@ -176,16 +171,12 @@ public final class Util {
                 escapes++;
             }
 
-            //
             // We ignore escaped escapes
-            //
             if (escapes % 2 == 0) {
                 if (slash == -1) {
                     slash = pos;
                 } else {
-                    //
                     // Extra unescaped slash found.
-                    //
                     throw new ParseException("unescaped backslash in identity string '" + s + "'");
                 }
             }
@@ -220,11 +211,11 @@ public final class Util {
     }
 
     /**
-     * Converts an Identity into a string using the specified mode.
+     * Converts an object identity to a string using the specified mode.
      *
-     * @param ident The object identity to convert.
-     * @param toStringMode Specifies how to handle non-ASCII characters and non-printable ASCII characters.
-     * @return the stringified identifier
+     * @param ident the object identity to convert
+     * @param toStringMode specifies how to handle non-ASCII characters and non-printable ASCII characters
+     * @return the string representation of the object identity
      */
     public static String identityToString(Identity ident, ToStringMode toStringMode) {
         if (ident.category == null || ident.category.isEmpty()) {
@@ -239,8 +230,8 @@ public final class Util {
     /**
      * Converts an object identity to a string.
      *
-     * @param ident The object identity to convert.
-     * @return The string representation of the object identity using the default mode (Unicode)
+     * @param ident the object identity to convert
+     * @return the string representation of the object identity (in Unicode).
      */
     public static String identityToString(Identity ident) {
         return identityToString(ident, ToStringMode.Unicode);
@@ -249,12 +240,10 @@ public final class Util {
     /**
      * Compares the object identities of two proxies.
      *
-     * @param lhs A proxy.
-     * @param rhs A proxy.
+     * @param lhs a proxy
+     * @param rhs a proxy
      * @return -1 if the identity in {@code lhs} compares less than the identity in {@code rhs};
      *     0 if the identities compare equal; 1, otherwise.
-     * @see ProxyIdentityKey
-     * @see ProxyIdentityFacetKey
      * @see #proxyIdentityAndFacetCompare
      */
     public static int proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs) {
@@ -278,12 +267,10 @@ public final class Util {
     /**
      * Compares the object identities and facets of two proxies.
      *
-     * @param lhs A proxy.
-     * @param rhs A proxy.
+     * @param lhs a proxy
+     * @param rhs a proxy
      * @return -1 if the identity and facet in {@code lhs} compare less than the identity and
      *     facet in {@code rhs}; 0 if the identities and facets compare equal; 1, otherwise.
-     * @see ProxyIdentityFacetKey
-     * @see ProxyIdentityKey
      * @see #proxyIdentityCompare
      */
     public static int proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs) {
@@ -321,7 +308,7 @@ public final class Util {
      * Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
      * configured at the time the communicator is created.
      *
-     * @return The current per-process logger instance.
+     * @return the current per-process logger
      */
     public static Logger getProcessLogger() {
         synchronized (_processLoggerMutex) {
@@ -340,7 +327,7 @@ public final class Util {
      * Sets the per-process logger. This logger is used by all communicators that do not have their own specific logger
      * configured at the time the communicator is created.
      *
-     * @param logger The new per-process logger instance.
+     * @param logger the new per-process logger
      */
     public static void setProcessLogger(Logger logger) {
         synchronized (_processLoggerMutex) {
@@ -353,7 +340,7 @@ public final class Util {
      * major version, {@code B} indicates the minor version, and {@code C} indicates the
      * patch level.
      *
-     * @return The Ice version.
+     * @return the Ice version
      */
     public static String stringVersion() {
         return "3.8.0-alpha.0"; // "A.B.C", with A=major, B=minor, C=patch
@@ -364,7 +351,7 @@ public final class Util {
      * indicates the major version, {@code BB} indicates the minor version, and {@code CC}
      * indicates the patch level. For example, for Ice 3.8.1, the returned value is 30801.
      *
-     * @return The Ice version.
+     * @return the Ice version
      */
     public static int intVersion() {
         return 30850; // AABBCC, with AA=major, BB=minor, CC=patch
@@ -373,8 +360,8 @@ public final class Util {
     /**
      * Converts a string to a protocol version.
      *
-     * @param version The string to convert.
-     * @return The converted protocol version.
+     * @param version the string to convert
+     * @return the converted protocol version
      */
     public static ProtocolVersion stringToProtocolVersion(String version) {
         return new ProtocolVersion(stringToMajor(version), stringToMinor(version));
@@ -383,8 +370,8 @@ public final class Util {
     /**
      * Converts a string to an encoding version.
      *
-     * @param version The string to convert.
-     * @return The converted encoding version.
+     * @param version the string to convert
+     * @return the converted encoding version
      */
     public static EncodingVersion stringToEncodingVersion(String version) {
         return new EncodingVersion(stringToMajor(version), stringToMinor(version));
@@ -403,8 +390,8 @@ public final class Util {
     /**
      * Converts an encoding version to a string.
      *
-     * @param v The encoding version to convert.
-     * @return The converted string.
+     * @param v the encoding version to convert
+     * @return the converted string
      */
     public static String encodingVersionToString(EncodingVersion v) {
         return majorMinorToString(v.major, v.minor);
@@ -413,7 +400,7 @@ public final class Util {
     /**
      * Returns the supported Ice protocol version.
      *
-     * @return The Ice protocol version.
+     * @return the Ice protocol version
      */
     public static ProtocolVersion currentProtocol() {
         return Protocol.currentProtocol.clone();
@@ -422,7 +409,7 @@ public final class Util {
     /**
      * Returns the supported Slice encoding version.
      *
-     * @return The Slice encoding version.
+     * @return the Slice encoding version
      */
     public static EncodingVersion currentEncoding() {
         return Protocol.currentEncoding.clone();
@@ -431,20 +418,20 @@ public final class Util {
     /**
      * Downcasts a {@code CompletableFuture<T>} to an {@code InvocationFuture<T>} object.
      *
-     * @param f The CompletableFuture returned by an asynchronous invocation.
-     * @param <T> The result type.
-     * @return f casted to an {@code InvocationFuture<T>}.
-     * @throws ClassCastException if f is not an {@code InvocationFuture<T>}.
+     * @param f the CompletableFuture returned by an asynchronous invocation
+     * @param <T> the result type
+     * @return f casted to an {@code InvocationFuture<T>}
+     * @throws ClassCastException if f is not an {@code InvocationFuture<T>}
      */
     public static <T> InvocationFuture<T> getInvocationFuture(CompletableFuture<T> f) {
         return (InvocationFuture<T>) f;
     }
 
     /**
-     * Translates a Slice type id to a Java class name.
+     * Translates a Slice type ID to a Java class name.
      *
-     * @param id The Slice type id, such as {@code ::Module::Type}.
-     * @return The equivalent Java class name, or null if the type id is malformed.
+     * @param id The Slice type ID, such as {@code ::Module::Type}.
+     * @return The corresponding Java class name, or null if the type ID is malformed.
      */
     public static String typeIdToClass(String id) {
         if (!id.startsWith("::")) {
@@ -509,20 +496,16 @@ public final class Util {
      * @throws IOException if an I/O error occurs while trying to open the resource
      * @hidden Public because it's used by SSL.
      */
-    public static InputStream openResource(ClassLoader cl, String path)
-        throws IOException {
-        //
+    public static InputStream openResource(ClassLoader cl, String path) throws IOException {
         // Calling getResourceAsStream on the class loader means all paths are absolute,
         // whereas calling it on the class means all paths are relative to the class
         // unless the path has a leading forward slash. We call it on the class loader.
         //
         // getResourceAsStream returns null if the resource can't be found.
-        //
         InputStream stream = null;
         try {
             stream = cl.getResourceAsStream(path);
         } catch (IllegalArgumentException ex) {
-            //
             // With JDK-7 this can happen if the result url (base url + path) produces a
             // malformed url for an URLClassLoader. For example the code in following
             // comment will produce this exception under Windows.
@@ -530,7 +513,6 @@ public final class Util {
             // URLClassLoader cl = new URLClassLoader(new URL[] {new
             // URL("http://localhost:8080/")});
             // java.io.InputStream in = Util.openResource(cl, "c:\\foo.txt");
-            //
         }
         if (stream == null) {
             try {
@@ -555,14 +537,12 @@ public final class Util {
      * @hidden Public because it's used by IceBox and IceGridGUI.
      */
     public static Class<?> findClass(String className, ClassLoader cl) throws LinkageError {
-        //
         // Try to load the class using the given class loader (if any). If that fails (or
         // none is provided), we try to load the class a few more ways before giving up.
         //
         // Calling Class.forName() doesn't always work. For example, if Ice.jar is installed
         // as an extension (in $JAVA_HOME/jre/lib/ext), calling Class.forName(name) uses the
         // extension class loader, which will not look in CLASSPATH for the target class.
-        //
 
         Class<?> c = null;
 
@@ -570,9 +550,7 @@ public final class Util {
             c = loadClass(className, cl);
         }
 
-        //
         // Try using the current thread's class loader.
-        //
         if (c == null) {
             try {
                 cl = Thread.currentThread().getContextClassLoader();
@@ -582,9 +560,7 @@ public final class Util {
             } catch (java.lang.SecurityException ex) {}
         }
 
-        //
         // Try using Class.forName().
-        //
         try {
             if (c == null) {
                 c = Class.forName(className);
@@ -593,9 +569,7 @@ public final class Util {
             // Ignore
         }
 
-        //
         // Fall back to the system class loader (which knows about CLASSPATH).
-        //
         if (c == null) {
             try {
                 cl = ClassLoader.getSystemClassLoader();
