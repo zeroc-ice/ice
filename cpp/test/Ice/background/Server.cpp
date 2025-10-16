@@ -24,7 +24,7 @@ extern "C"
 class LocatorI final : public Locator
 {
 public:
-    [[nodiscard]] std::optional<ObjectPrx> findAdapterById(string, const Current& current) const final
+    [[nodiscard]] optional<ObjectPrx> findAdapterById(string, const Current& current) const final
     {
         _controller->checkCallPause(current);
         CommunicatorPtr communicator = current.adapter->getCommunicator();
