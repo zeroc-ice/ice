@@ -2734,7 +2734,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
         def isBooted():
             deviceLine = simctlDeviceLine()
-            return deviceLine and "(Booted)" in deviceLines
+            return deviceLine and "(Booted)" in deviceLine
 
         if simctlDeviceLine():
             print("ok")
