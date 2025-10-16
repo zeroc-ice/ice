@@ -142,6 +142,7 @@ public class ControllerApp extends Application {
     }
 
     public synchronized void println(final String data) {
+        com.zeroc.Ice.Util.getProcessLogger().print(data);
         _activity.runOnUiThread(
                 () -> {
                     synchronized (ControllerApp.this) {
@@ -171,10 +172,18 @@ public class ControllerApp extends Application {
             initData.properties.setProperty("Ice.Trace.Dispatch", "1");
             initData.properties.setProperty("Ice.Warn.Connections", "1");
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
-            initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
-            initData.properties.setProperty(
+
+            if (isEmulator())
+            {
+                // We use a hardcoded port that's forwarded to the host machine by the emulator.
+                initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 15001");
+                initData.properties.setProperty("ControllerAdapter.PublishedHost", "127.0.0.1");
+            }
+            else
+            {
+                initData.properties.setProperty(
                     "ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
-            if (!isEmulator()) {
+                initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
                 if (bluetooth) {
                     initData.properties.setProperty(
                             "Ice.Plugin.IceBT", "com.zeroc.IceBT.PluginFactory");
@@ -183,6 +192,7 @@ public class ControllerApp extends Application {
                         "Ice.Plugin.IceDiscovery", "com.zeroc.IceDiscovery.PluginFactory");
                 initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
             }
+
             _communicator = com.zeroc.Ice.Util.initialize(initData);
             com.zeroc.Ice.ObjectAdapter adapter =
                     _communicator.createObjectAdapter("ControllerAdapter");
@@ -193,20 +203,14 @@ public class ControllerApp extends Application {
                                     com.zeroc.Ice.Util.stringToIdentity(
                                             "Android/ProcessController")));
             adapter.activate();
-            ProcessControllerRegistryPrx registry;
-            if (isEmulator()) {
-                registry =
-                        ProcessControllerRegistryPrx.createProxy(
-                                _communicator,
-                                "Util/ProcessControllerRegistry:tcp -h 10.0.2.2 -p 15001");
-            } else {
+
+            if (!isEmulator())
+            {
                 // Use IceDiscovery to find a process controller registry
-                registry =
-                        ProcessControllerRegistryPrx.createProxy(
-                                _communicator, "Util/ProcessControllerRegistry");
+                ProcessControllerRegistryPrx registry =
+                    ProcessControllerRegistryPrx.createProxy(_communicator, "Util/ProcessControllerRegistry");
+                registerProcessController(adapter, registry, processController);
             }
-            registerProcessController(adapter, registry, processController);
-            println("Android/ProcessController");
         }
 
         public void registerProcessController(
@@ -375,15 +379,14 @@ public class ControllerApp extends Application {
             }
         }
 
-        private synchronized int waitSuccess(int timeout)
-                throws Test.Common.ProcessFailedException {
+        private synchronized int waitSuccess(int timeout) throws Test.Common.ProcessFailedException {
             long now = Time.currentMonotonicTimeMillis();
             while (!_completed) {
                 try {
                     wait(timeout * 1000L);
                     if (Time.currentMonotonicTimeMillis() - now > timeout * 1000L) {
                         throw new Test.Common.ProcessFailedException(
-                                "timed out waiting for the process to be ready");
+                                "timed out waiting for the process to complete");
                     }
                 } catch (InterruptedException ex) {
                     // Ignore and try again.
@@ -408,7 +411,7 @@ public class ControllerApp extends Application {
                 String[] args,
                 com.zeroc.Ice.Current current)
                 throws Test.Common.ProcessFailedException {
-            println("starting " + testsuite + " " + exe + "... ");
+            println("starting " + testsuite + " " + exe);
             String className =
                     "test."
                             + testsuite.replace("/", ".")
@@ -422,7 +425,7 @@ public class ControllerApp extends Application {
                 mainHelper.start();
                 return Test.Common.ProcessPrx.uncheckedCast(
                         current.adapter.addWithUUID(new ProcessI(mainHelper)));
-            } catch (ClassNotFoundException ex) {
+            } catch (Exception ex) {
                 throw new Test.Common.ProcessFailedException(
                         "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex);
             }
@@ -448,13 +451,11 @@ public class ControllerApp extends Application {
             _controllerHelper = controllerHelper;
         }
 
-        public void waitReady(int timeout, com.zeroc.Ice.Current current)
-                throws Test.Common.ProcessFailedException {
+        public void waitReady(int timeout, com.zeroc.Ice.Current current) throws Test.Common.ProcessFailedException {
             _controllerHelper.waitReady(timeout);
         }
 
-        public int waitSuccess(int timeout, com.zeroc.Ice.Current current)
-                throws Test.Common.ProcessFailedException {
+        public int waitSuccess(int timeout, com.zeroc.Ice.Current current) throws Test.Common.ProcessFailedException {
             return _controllerHelper.waitSuccess(timeout);
         }
 

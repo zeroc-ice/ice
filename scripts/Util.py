@@ -1299,6 +1299,7 @@ class Process(Runnable):
 
         processController = current.driver.getProcessController(current, self)
         current.processes[self] = processController.start(self, current, allArgs, allProps, allEnvs, watchDog)
+
         try:
             self.waitForStart(current)
         except Exception:
@@ -2268,8 +2269,6 @@ class RemoteProcessController(ProcessController):
                     raise Expect.TIMEOUT("waitSuccess timeout")
                 else:
                     raise
-            except Ice.LocalException:
-                raise
 
             if exitstatus != result:
                 raise RuntimeError("unexpected exit status: expected: %d, got %d\n" % (exitstatus, result))
@@ -2297,6 +2296,7 @@ class RemoteProcessController(ProcessController):
         self.controllerApps = []
         self.driver = current.driver
         self.cond = threading.Condition()
+        self.adapter = None
 
         comm = current.driver.getCommunicator()
         import Test
@@ -2314,18 +2314,28 @@ class RemoteProcessController(ProcessController):
         import Ice
 
         comm.getProperties().setProperty("Adapter.AdapterId", str(uuid.uuid4()))
-        self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
-        self.adapter.add(
-            ProcessControllerRegistryI(self),
-            Ice.stringToIdentity("Util/ProcessControllerRegistry"),
-        )
-        self.adapter.activate()
+        if endpoints:
+            print("starting process controller registry on {0}".format(endpoints))
+            self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
+            self.adapter.add(
+                ProcessControllerRegistryI(self),
+                Ice.Identity(category="Util", name="ProcessControllerRegistry"),
+            )
+            self.adapter.activate()
 
     def __str__(self):
         return "remote controller"
 
     def getHost(self, current):
         return self.getController(current).getHost(current.config.protocol, current.config.ipv6)
+
+    def getControllerIdentity(self, current):
+        # Must be overridden to return the identity of the process controller
+        raise NotImplementedError()
+
+    def getControllerEndpoints(self, current):
+        # Can be overridden to return a direct endpoint to the process controller
+        return None
 
     def getController(self, current):
         import Test
@@ -2356,8 +2366,14 @@ class RemoteProcessController(ProcessController):
                 self.controllerApps.append(ident)
                 self.startControllerApp(current, ident)
 
-        # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
-        proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
+        # First check to see if the controller has a direct endpoint
+        controllerEndpoints = self.getControllerEndpoints(current)
+
+        if controllerEndpoints is not None:
+            proxy = Test.Common.ProcessControllerPrx(comm, f"{comm.identityToString(ident)}:{controllerEndpoints}")
+        else:
+            # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
+            proxy = Test.Common.ProcessControllerPrx(comm, comm.identityToString(ident))
 
         #
         # First try to discover the process controller with IceDiscovery, if this doesn't
@@ -2401,23 +2417,7 @@ class RemoteProcessController(ProcessController):
         with self.cond:
             self.processControllerProxies[proxy.ice_getIdentity()] = proxy
             conn = proxy.ice_getConnection()
-            if hasattr(conn, "setCloseCallback"):
-                proxy.ice_getConnection().setCloseCallback(lambda conn: self.clearProcessController(proxy, conn))
-            else:
-                import Ice
-
-                class CallbackI(Ice.ConnectionCallback):
-                    def __init__(self, registry):
-                        self.registry = registry
-
-                    def heartbeath(self, conn):
-                        pass
-
-                    def closed(self, conn):
-                        self.registry.clearProcessController(proxy, conn)
-
-                proxy.ice_getConnection().setCallback(CallbackI(self))
-
+            proxy.ice_getConnection().setCloseCallback(lambda conn: self.clearProcessController(proxy, conn))
             self.cond.notify_all()
 
     def supportsDiscovery(self):
@@ -2484,10 +2484,11 @@ class RemoteProcessController(ProcessController):
 class AndroidProcessController(RemoteProcessController):
     def __init__(self, current):
         endpoint = None
+        self.forwardPort = None
         if current.config.device:
             endpoint = "tcp -h 0.0.0.0 -p 15001"
         elif current.config.avd or not current.config.device:
-            endpoint = "tcp -h 127.0.0.1 -p 15001"
+            self.forwardPort = "15001"
         RemoteProcessController.__init__(self, current, endpoint)
         self.device = current.config.device if current.config.device != "" else None
         self.avd = current.config.avd
@@ -2502,6 +2503,12 @@ class AndroidProcessController(RemoteProcessController):
 
     def getControllerIdentity(self, current):
         return "Android/ProcessController"
+
+    def getControllerEndpoints(self, current):
+        # If using an emulator or no device is specified, we use adb port forwarding
+        if current.config.avd or not current.config.device:
+            return "tcp -h 127.0.0.1 -p 15001"
+        return None
 
     def adb(self):
         return "adb -d" if self.device == "usb" else "adb"
@@ -2556,6 +2563,10 @@ class AndroidProcessController(RemoteProcessController):
         else:
             # This runs if the while loop completes without breaking
             raise RuntimeError(f"emulator '{avd}' not booted after 300s")
+
+        assert self.forwardPort, "forwardPort must be set for emulator configuration"
+        print(f"forwarding port {self.forwardPort} to the controller app")
+        run(f"{self.adb()} forward tcp:{self.forwardPort} tcp:{self.forwardPort}")
 
     def startControllerApp(self, current, ident):
         if current.config.avd:
