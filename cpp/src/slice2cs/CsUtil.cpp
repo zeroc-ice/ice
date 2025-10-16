@@ -1719,7 +1719,7 @@ Slice::Csharp::csLinkFormatter(const string& rawLink, const ContainedPtr& source
         {
             // slice2cs doesn't generate C# types for sequences or dictionaries, so there's nothing to link to.
             // So, we return 'false' to signal this, and just output the sequence or dictionary name.
-            return make_pair(false, getUnqualified(contained, sourceScope));
+            return {false, getUnqualified(contained, sourceScope)};
         }
 
         result << "cref=\"";
