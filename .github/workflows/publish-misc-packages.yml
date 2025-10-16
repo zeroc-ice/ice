@@ -161,3 +161,16 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Publish Homebrew Patch
+        run: |
+          set -euo pipefail
+          cd "$(brew --repo zeroc-ice/nightly)"
+          # Configure git for pushing the patch
+          git config user.name "ZeroC"
+          git config user.email "git@zeroc.com"
+          git remote set-url origin "https://x-access-token:${{secrets.ICE_NIGHTLY_PUBLISH_TOKEN}}@github.com/zeroc-ice/homebrew-nightly.git"
+          # Apply the patch created during the brew package build
+          git apply staging/homebrew-bottle/*.patch .
+          # Push the updated formula
+          git push origin main || { echo "Push failed"; exit 1; }

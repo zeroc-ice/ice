@@ -66,9 +66,12 @@ for file in ice--*.bottle.*tar.gz; do
     mv "$file" "${file/--/-}"
 done
 
-cd "$tap_path"
+git -C "$tap_path" config user.name "ZeroC"
+git -C "$tap_path" config user.email "git@zeroc.com"
 
-git config user.name "ZeroC"
-git config user.email "git@zeroc.com"
-git add Formula/ice.rb # just add the formula we don't want the rest to be included
-git commit -m "ice: $ice_version"
+# Add the formula and commit
+git -C "$tap_path" add Formula/ice.rb
+git -C "$tap_path" commit -m "ice: $ice_version"
+
+# Create a patch to attach to the GitHub release
+git -C "$tap_path" format-patch -1 HEAD --stdout > "ice-$ice_version.patch"
