@@ -31,7 +31,7 @@ public:
         return current.adapter->createDirectProxy(stringToIdentity("dummy"));
     }
 
-    [[nodiscard]] std::optional<ObjectPrx> findObjectById(Identity id, const Current& current) const final
+    [[nodiscard]] optional<ObjectPrx> findObjectById(Identity id, const Current& current) const final
     {
         _controller->checkCallPause(current);
         CommunicatorPtr communicator = current.adapter->getCommunicator();
