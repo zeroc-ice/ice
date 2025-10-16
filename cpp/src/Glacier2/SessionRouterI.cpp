@@ -57,7 +57,26 @@ namespace Glacier2
 
         void destroy(const Current&) final
         {
-            _sessionRouter->destroySession(_connection);
+            _sessionRouter->destroySession(
+                _connection,
+                [router = _sessionRouter](std::exception_ptr e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch (const Ice::ObjectNotExistException& ex)
+                    {
+                        // Ignored. This typically occurs when the application-provided session calls
+                        // SessionControl::destroy in its own destroy implementation.
+                    }
+                    catch (...)
+                    {
+                        // Use default handler
+                        router->sessionDestroyException(e);
+                    }
+                });
+
             _filters->destroy();
 
             // Initiate a graceful closure of the connection. Only initiate and graceful because the ultimate caller
@@ -687,11 +706,11 @@ void
 SessionRouterI::destroySessionAsync(function<void()> response, function<void(exception_ptr)>, const Current& current)
 {
     destroySession(current.con);
-    response();
+    response(); // We don't wait until the application-provided session is destroyed.
 }
 
 void
-SessionRouterI::destroySession(const ConnectionPtr& connection)
+SessionRouterI::destroySession(const ConnectionPtr& connection, function<void(exception_ptr)> error)
 {
     shared_ptr<RouterI> router;
 
@@ -733,16 +752,18 @@ SessionRouterI::destroySession(const ConnectionPtr& connection)
         }
     }
 
-    //
-    // We destroy the router outside the thread synchronization, to
-    // avoid deadlocks.
-    //
+    // We destroy the router (and application-provided session) outside the thread synchronization, to avoid deadlocks.
     if (_sessionTraceLevel >= 1)
     {
         Trace out(_instance->logger(), "Glacier2");
         out << "destroying session\n" << router->toString();
     }
-    router->destroy([self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); });
+
+    if (!error)
+    {
+        error = [self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); };
+    }
+    router->destroy(std::move(error));
 }
 
 void
