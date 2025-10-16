@@ -48,7 +48,7 @@ public:
         return _adapter->createDirectProxy(stringToIdentity("dummy"));
     }
 
-    [[nodiscard]] std::optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return _registryPrx; }
+    [[nodiscard]] optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return _registryPrx; }
 
 private:
     shared_ptr<Backend> _backend;
