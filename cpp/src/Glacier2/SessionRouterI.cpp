@@ -57,7 +57,25 @@ namespace Glacier2
 
         void destroy(const Current&) final
         {
-            _sessionRouter->destroySession(_connection);
+            _sessionRouter->destroySession(
+                _connection,
+                [defaultExceptionHandler = _sessionRouter->defaultSessionDestroyExceptionHandler()](exception_ptr e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch (const Ice::ObjectNotExistException&)
+                    {
+                        // Ignored. This typically occurs when the application-provided session calls
+                        // SessionControl::destroy in its own destroy implementation.
+                    }
+                    catch (...)
+                    {
+                        defaultExceptionHandler(e);
+                    }
+                });
+
             _filters->destroy();
 
             // Initiate a graceful closure of the connection. Only initiate and graceful because the ultimate caller
@@ -686,12 +704,12 @@ SessionRouterI::createSessionFromSecureConnectionAsync(
 void
 SessionRouterI::destroySessionAsync(function<void()> response, function<void(exception_ptr)>, const Current& current)
 {
-    destroySession(current.con);
-    response();
+    destroySession(current.con, defaultSessionDestroyExceptionHandler());
+    response(); // We don't wait until the application-provided session is destroyed.
 }
 
 void
-SessionRouterI::destroySession(const ConnectionPtr& connection)
+SessionRouterI::destroySession(const ConnectionPtr& connection, function<void(exception_ptr)> error)
 {
     shared_ptr<RouterI> router;
 
@@ -733,16 +751,20 @@ SessionRouterI::destroySession(const ConnectionPtr& connection)
         }
     }
 
-    //
-    // We destroy the router outside the thread synchronization, to
-    // avoid deadlocks.
-    //
+    // We destroy the router (and application-provided session) outside the thread synchronization, to avoid deadlocks.
     if (_sessionTraceLevel >= 1)
     {
         Trace out(_instance->logger(), "Glacier2");
         out << "destroying session\n" << router->toString();
     }
-    router->destroy([self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); });
+
+    router->destroy(std::move(error));
+}
+
+function<void(std::exception_ptr)>
+SessionRouterI::defaultSessionDestroyExceptionHandler() const
+{
+    return [self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); };
 }
 
 void
@@ -870,7 +892,7 @@ SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identi
 }
 
 void
-SessionRouterI::sessionDestroyException(exception_ptr ex)
+SessionRouterI::sessionDestroyException(exception_ptr ex) const
 {
     if (_sessionTraceLevel > 0)
     {
@@ -977,7 +999,7 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const share
         {
             try
             {
-                self->destroySession(c);
+                self->destroySession(c, self->defaultSessionDestroyExceptionHandler());
             }
             catch (const std::exception&)
             {

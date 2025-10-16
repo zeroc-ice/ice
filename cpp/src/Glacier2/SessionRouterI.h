@@ -8,6 +8,7 @@
 #include "Ice/Ice.h"
 #include "Instrumentation.h"
 
+#include <functional>
 #include <set>
 
 namespace Glacier2
@@ -136,15 +137,22 @@ namespace Glacier2
         [[nodiscard]] Ice::ObjectPtr getClientBlobject(const Ice::ConnectionPtr&, const Ice::Identity&) const;
         [[nodiscard]] Ice::ObjectPtr getServerBlobject(const std::string&) const;
 
-        void destroySession(const Ice::ConnectionPtr&);
+        /// Destroys the Glacier2 internal session.
+        /// @param connection The client->Glacier2 router connection that identifies the session to destroy.
+        /// @param error A callback that the implementation calls when the destruction of the application-provided
+        /// session fails (see SessionManager).
+        void destroySession(const Ice::ConnectionPtr& connection, std::function<void(std::exception_ptr)> error);
 
         [[nodiscard]] int sessionTraceLevel() const { return _sessionTraceLevel; }
 
+        /// Provides the default handling of exceptions thrown by the destruction of application-provided sessions.
+        [[nodiscard]] std::function<void(std::exception_ptr)> defaultSessionDestroyExceptionHandler() const;
+
     private:
+        void sessionDestroyException(std::exception_ptr) const;
+
         [[nodiscard]] std::shared_ptr<RouterI>
         getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
-
-        void sessionDestroyException(std::exception_ptr);
 
         bool startCreateSession(const std::shared_ptr<CreateSession>&, const Ice::ConnectionPtr&);
         void finishCreateSession(const Ice::ConnectionPtr&, const std::shared_ptr<RouterI>&);
