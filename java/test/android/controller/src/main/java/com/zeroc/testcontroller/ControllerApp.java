@@ -412,7 +412,7 @@ public class ControllerApp extends Application {
                 String[] args,
                 com.zeroc.Ice.Current current)
                 throws Test.Common.ProcessFailedException {
-            println("starting " + testsuite + " " + exe );
+            println("starting " + testsuite + " " + exe);
             String className =
                     "test."
                             + testsuite.replace("/", ".")
