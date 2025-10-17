@@ -18,7 +18,6 @@ import types
 import uuid
 import xml.sax.saxutils
 from collections import OrderedDict
-from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
 from platform import machine as platform_machine
