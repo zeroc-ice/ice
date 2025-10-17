@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Collections.Immutable;
-
 namespace IceBox;
 
 public static class Server
