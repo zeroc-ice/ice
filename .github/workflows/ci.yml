@@ -78,7 +78,7 @@ jobs:
             config: "ios"
             build_flags: "OPTIMIZE=no PLATFORMS='macosx iphonesimulator' CONFIGS='static shared' LANGUAGES='cpp swift'"
             # TODO swift/Ice/udp and swift/Ice/location are failing regularly
-            test_flags: "--languages='cpp,swift' --config=debug --platform=iphonesimulator --controller-app --rfilter=swift/Ice/udp --rfilter=swift/Ice/location"
+            test_flags: "--languages='cpp,swift' --config=debug --platform=iphonesimulator --controller-app"
             build_cpp_and_python: true
 
           # Static builds
