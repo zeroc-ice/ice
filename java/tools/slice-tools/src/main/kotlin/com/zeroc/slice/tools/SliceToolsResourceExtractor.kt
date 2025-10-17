@@ -79,7 +79,9 @@ object SliceToolsResourceExtractor {
                 .toList()
 
             for (resource in resourcePaths) {
-                val relativePath = resource.removePrefix("resources/slice/")
+                // Remove the leading "/resources/slice/" to get the relative path, the resourcePath contains a leading "/"
+                // which is not include in the jar entry resource name.
+                val relativePath = resource.removePrefix(resourcePath.removePrefix("/"))
 
                 val outputFile = File(targetDir, relativePath)
 
