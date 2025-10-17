@@ -315,7 +315,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     // Load the service properties using the shared communicator properties as
                     // the default properties.
                     //
-                    Ice.Properties svcProperties = Ice.Util.createProperties(ref service.args, initData.properties);
+                    Ice.Properties svcProperties = Ice.Properties.create(ref service.args, initData.properties);
 
                     //
                     // Remove properties from the shared property set that a service explicitly clears.
@@ -339,7 +339,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
                     //
                     // Parse <service>.* command line options (the Ice command line options
-                    // were parsed by the call to createProperties above).
+                    // were parsed by the call to Properties.create above).
                     //
                     service.args = initData.properties.parseCommandLineOptions(service.name, service.args);
                 }
@@ -530,11 +530,11 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     // Create the service properties with the given service arguments. This should
                     // read the service config file if it's specified with --Ice.Config.
                     //
-                    initData.properties = Ice.Util.createProperties(ref info.args, initData.properties);
+                    initData.properties = Ice.Properties.create(ref info.args, initData.properties);
 
                     //
                     // Next, parse the service "<service>.*" command line options (the Ice command
-                    // line options were parsed by the createProperties above)
+                    // line options were parsed by the Properties.create above)
                     //
                     info.args = initData.properties.parseCommandLineOptions(service, info.args);
                 }

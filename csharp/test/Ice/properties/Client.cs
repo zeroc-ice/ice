@@ -34,7 +34,7 @@ public class Client : Test.TestHelper
             Console.Out.Write("testing using Ice.Config with multiple config files... ");
             Console.Out.Flush();
             string[] args1 = ["--Ice.Config=config/config.1, config/config.2, config/config.3"];
-            var properties = Ice.Util.createProperties(ref args1);
+            var properties = Ice.Properties.create(ref args1);
             test(properties.getProperty("Config1") == "Config1");
             test(properties.getProperty("Config2") == "Config2");
             test(properties.getProperty("Config3") == "Config3");
@@ -45,7 +45,7 @@ public class Client : Test.TestHelper
             Console.Out.Write("testing configuration file escapes... ");
             Console.Out.Flush();
             string[] args1 = ["--Ice.Config=config/escapes.cfg"];
-            var properties = Ice.Util.createProperties(ref args1);
+            var properties = Ice.Properties.create(ref args1);
 
             var props = new Dictionary<string, string>
             {
@@ -187,7 +187,7 @@ public class Client : Test.TestHelper
                 "testing that passing a property multiple times on the command line uses the last value... ");
             Console.Out.Flush();
             string[] commandLineArgs = ["--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"];
-            var properties = Ice.Util.createProperties(ref commandLineArgs);
+            var properties = Ice.Properties.create(ref commandLineArgs);
             test(properties.getIceProperty("Ice.MessageSizeMax") == "20");
             Console.Out.WriteLine("ok");
         }

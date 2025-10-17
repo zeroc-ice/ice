@@ -91,7 +91,7 @@ public abstract class TestHelper
 
     public Ice.Properties createTestProperties(ref string[] args)
     {
-        var properties = Ice.Util.createProperties(ref args);
+        var properties = Ice.Properties.create(ref args);
         args = properties.parseCommandLineOptions("Test", args);
         return properties;
     }

@@ -58,9 +58,7 @@ public static class Server
 
         var initData = new Ice.InitializationData
         {
-            properties = Ice.Util.createProperties(
-                ref args,
-                new Ice.PropertiesOptions { optInPrefixes = ImmutableList.Create("IceBox") })
+            properties = Ice.Properties.create(ref args, defaults: null, "IceBox")
         };
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 

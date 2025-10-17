@@ -15,7 +15,7 @@ public sealed class Util
     /// Creates a new empty property set.
     /// </summary>
     /// <returns>A new empty property set.</returns>
-    [Obsolete("Use the Ice.Properties() constructor instead.")]
+    [Obsolete("Use the Ice.Properties constructor instead.")]
     public static Properties createProperties() => new();
 
     /// <summary>
@@ -32,24 +32,9 @@ public sealed class Util
     /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
     /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
     /// </remarks>
+    [Obsolete("Use Ice.Properties.create instead.")]
     public static Properties createProperties(ref string[] args, Properties? defaults = null) =>
-        createProperties(ref args, new PropertiesOptions { defaults = defaults });
-
-    /// <summary>
-    /// Creates a property set initialized from command-line arguments and Properties options.
-    /// </summary>
-    /// <param name="args">The command-line arguments. This method parses arguments starting with `--` and one of the
-    /// reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-    /// argument starting with `--Ice.Config`, this method loads the specified configuration file. When the same
-    /// property is set in a configuration file and through a command-line argument, the command-line setting takes
-    /// precedence.</param>
-    /// <param name="options">Options to configure the new property set.</param>
-    /// <returns>A new property set.</returns>
-    /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
-    /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
-    /// </remarks>
-    public static Properties createProperties(ref string[] args, PropertiesOptions options) =>
-        Properties.loadConfigAndParseIceOptions(ref args, options);
+        Properties.create(ref args, defaults);
 
     /// <summary>
     /// Creates a new communicator, using Ice properties parsed from command-line arguments.
@@ -64,7 +49,7 @@ public sealed class Util
     {
         var initData = new InitializationData
         {
-            properties = createProperties(ref args)
+            properties = Properties.create(ref args)
         };
 
         var result = new Communicator(initData);

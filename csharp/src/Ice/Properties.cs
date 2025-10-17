@@ -11,25 +11,6 @@ using System.Text.RegularExpressions;
 namespace Ice;
 
 /// <summary>
-/// Represents a set of options that you can specify when creating a <see cref="Properties"/> object.
-/// </summary>
-public sealed record class PropertiesOptions
-{
-    /// <summary>
-    ///  Gets or sets the initial properties of the new Properties object.
-    /// </summary>
-    /// <value>The initial properties.</value>
-    public Properties? defaults { get; set; }
-
-    /// <summary>
-    /// Gets or sets a list of prefixes to allow in the new Properties object. Setting a property with a property
-    /// prefix that is opt-in (e.g. IceGrid, IceStorm, Glacier2, etc.) but not in this list is considered an error.
-    /// </summary>
-    /// <value>The list of opt-in prefixes.</value>
-    public ImmutableList<string> optInPrefixes { get; set; } = ImmutableList<string>.Empty;
-}
-
-/// <summary>
 /// Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
 /// where both the key and the value are strings. By convention, property keys should have the form
 /// <c>application-name>[.category[.sub-category]].name</c>.
@@ -43,30 +24,80 @@ public sealed class Properties
     private readonly object _mutex = new(); // protects _propertySet
 
     /// <summary>
+    /// Creates a new Properties object, loads the configuration files specified by the <c>Ice.Config</c> property or
+    /// the <c>ICE_CONFIG</c> environment variable, and then parses Ice properties from <paramref name="args" />.
+    /// </summary>
+    /// <param name="args">The command-line arguments. This method parses arguments starting with `--` and one of the
+    /// reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
+    /// argument starting with `--Ice.Config`, this method loads the specified configuration file. When the same
+    /// property is set in a configuration file and through a command-line argument, the command-line setting takes
+    /// precedence.</param>
+    /// <param name="defaults">Default values for the new Properties object. Settings in configuration files and the
+    /// arguments override these defaults.</param>
+    /// <param name="optInPrefixes">Optional reserved prefixes to enable in this new Properties object.</param>
+    /// <returns>A new Properties object.</returns>
+    /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
+    /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
+    /// </remarks>
+    public static Properties create(ref string[] args, Properties? defaults = null, params string[] optInPrefixes)
+    {
+        var properties = new Properties(defaults, optInPrefixes);
+        Dictionary<string, PropertyValue> propertySet = properties._propertySet;
+
+        if (propertySet.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
+        {
+            pv.used = true;
+        }
+        else
+        {
+            propertySet["Ice.ProgramName"] = new PropertyValue(AppDomain.CurrentDomain.FriendlyName, true);
+        }
+
+        bool loadConfigFiles = false;
+
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
+            {
+                string line = args[i];
+                if (!line.Contains('=', StringComparison.Ordinal))
+                {
+                    line += "=1";
+                }
+                properties.parseLine(line[2..]);
+                loadConfigFiles = true;
+
+                string[] arr = new string[args.Length - 1];
+                Array.Copy(args, 0, arr, 0, i);
+                if (i < args.Length - 1)
+                {
+                    Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
+                }
+                args = arr;
+            }
+        }
+
+        if (!loadConfigFiles)
+        {
+            // If Ice.Config is not set, load from ICE_CONFIG (if set).
+            loadConfigFiles = !propertySet.ContainsKey("Ice.Config");
+        }
+
+        if (loadConfigFiles)
+        {
+            properties.loadConfig();
+        }
+
+        args = properties.parseIceCommandLineOptions(args);
+
+        return properties;
+    }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="Properties" /> class. The property set is initially empty.
     /// </summary>
     public Properties()
     {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Properties" /> class with the specified options.
-    /// </summary>
-    /// <param name="options">Options to configure new Properties instance.</param>
-    public Properties(PropertiesOptions options)
-    {
-        _optInPrefixes = options.optInPrefixes;
-
-        if (options.defaults is Properties defaults)
-        {
-            foreach (KeyValuePair<string, PropertyValue> entry in defaults._propertySet)
-            {
-                // Deep copy.
-                _propertySet[entry.Key] = entry.Value.Clone();
-            }
-
-            _optInPrefixes = _optInPrefixes.AddRange(defaults._optInPrefixes);
-        }
     }
 
     /// <summary>
@@ -474,67 +505,6 @@ public sealed class Properties
     }
 
     /// <summary>
-    /// Creates a new Properties object, loads the configuration files specified by the Ice.Config property or the
-    /// ICE_CONFIG environment variable, and parses the Ice command-line options.
-    /// </summary>
-    /// <param name="args">Command-line options.</param>
-    /// <param name="options">Options to configure the new Properties object.</param>
-    /// <returns>A new Properties object.</returns>
-    internal static Properties loadConfigAndParseIceOptions(ref string[] args, PropertiesOptions options)
-    {
-        var properties = new Properties(options);
-        Dictionary<string, PropertyValue> propertySet = properties._propertySet;
-
-        if (propertySet.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
-        {
-            pv.used = true;
-        }
-        else
-        {
-            propertySet["Ice.ProgramName"] = new PropertyValue(AppDomain.CurrentDomain.FriendlyName, true);
-        }
-
-        bool loadConfigFiles = false;
-
-        for (int i = 0; i < args.Length; i++)
-        {
-            if (args[i].StartsWith("--Ice.Config", StringComparison.Ordinal))
-            {
-                string line = args[i];
-                if (!line.Contains('=', StringComparison.Ordinal))
-                {
-                    line += "=1";
-                }
-                properties.parseLine(line[2..]);
-                loadConfigFiles = true;
-
-                string[] arr = new string[args.Length - 1];
-                Array.Copy(args, 0, arr, 0, i);
-                if (i < args.Length - 1)
-                {
-                    Array.Copy(args, i + 1, arr, i, args.Length - i - 1);
-                }
-                args = arr;
-            }
-        }
-
-        if (!loadConfigFiles)
-        {
-            // If Ice.Config is not set, load from ICE_CONFIG (if set).
-            loadConfigFiles = !propertySet.ContainsKey("Ice.Config");
-        }
-
-        if (loadConfigFiles)
-        {
-            properties.loadConfig();
-        }
-
-        args = properties.parseIceCommandLineOptions(args);
-
-        return properties;
-    }
-
-    /// <summary>
     /// Validate the properties for the given prefix.
     /// </summary>
     /// <param name="prefix">The property prefix to validate.</param>
@@ -668,6 +638,25 @@ public sealed class Properties
             throw new PropertyException($"unknown Ice property: {key}");
 
         return prop.defaultValue;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Properties" /> class with the specified options.
+    /// </summary>
+    private Properties(Properties? defaults, string[] optInPrefixes)
+    {
+        _optInPrefixes = optInPrefixes.ToImmutableList();
+
+        if (defaults is not null)
+        {
+            foreach (KeyValuePair<string, PropertyValue> entry in defaults._propertySet)
+            {
+                // Deep copy.
+                _propertySet[entry.Key] = entry.Value.Clone();
+            }
+
+            _optInPrefixes = _optInPrefixes.AddRange(defaults._optInPrefixes);
+        }
     }
 
     private void parse(StreamReader input)
