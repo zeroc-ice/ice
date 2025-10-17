@@ -2691,14 +2691,14 @@ class iOSSimulatorDevice:
         self.name = name
 
     def exists(self) -> bool:
-        state = iOSSimulatorDevice.get(self.name)
-        return state is not None
+        device = self.get()
+        return device is not None
 
     def isBooted(self) -> bool:
-        state = iOSSimulatorDevice.get(self.name)
+        device = self.get()
 
-        if state:
-            return state["state"] == "Booted"
+        if device:
+            return device["state"] == "Booted"
         return False
 
     def get() -> dict[str, str] | None:
