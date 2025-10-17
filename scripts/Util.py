@@ -3,6 +3,7 @@
 import copy
 import getopt
 import itertools
+import json
 import os
 import random
 import re
@@ -17,6 +18,7 @@ import types
 import uuid
 import xml.sax.saxutils
 from collections import OrderedDict
+from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
 from platform import machine as platform_machine
@@ -2691,6 +2693,35 @@ class AndroidProcessController(RemoteProcessController):
             pass
 
 
+class iOSSimulatorDevice:
+    """
+    Represents a single iOS Simulator device output by `xcrun simctl list devices --json`.
+    """
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def exists(self) -> bool:
+        device = self.get()
+        return device is not None
+
+    def isBooted(self) -> bool:
+        device = self.get()
+
+        if device:
+            return device["state"] == "Booted"
+        return False
+
+    def get(self) -> dict[str, str] | None:
+        output = run("xcrun simctl list devices --json")
+        data = json.loads(output)
+        for runtime, device_list in data["devices"].items():
+            for device_dict in device_list:
+                if device_dict["name"] == self.name:
+                    return device_dict
+        return None
+
+
 class iOSSimulatorProcessController(RemoteProcessController):
     device = "iOSSimulatorProcessController"
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-15"
@@ -2736,14 +2767,10 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
         sys.stdout.write(f"checking for iOS simulator device {self.device}... ")
         sys.stdout.flush()
-        listDevicesOutput = run("xcrun simctl list devices")
-        deviceLine = next(
-            (line.strip() for line in listDevicesOutput.split("\n") if line.strip().startswith(self.device)), None
-        )
 
-        booted = deviceLine and "(Booted)" in deviceLine
+        simulator = iOSSimulatorDevice(self.device)
 
-        if deviceLine:
+        if simulator.exists():
             print("ok")
         else:
             print("not found")
@@ -2756,29 +2783,22 @@ class iOSSimulatorProcessController(RemoteProcessController):
             )
             print(f"{self.simulatorID}")
 
-        if not booted:
+        if not simulator.isBooted():
             sys.stdout.write("launching simulator... ")
             sys.stdout.flush()
             run('xcrun simctl boot "{0}"'.format(self.device))
             print("ok")
 
             print("waiting for simulator to boot")
-            try:
-                subprocess.run(["xcrun", "simctl", "bootstatus", self.device], timeout=600, check=True)
-            except (subprocess.TimeoutExpired, subprocess.CalledProcessError):
-                subprocess.run(
-                    [
-                        "xcrun",
-                        "simctl",
-                        "spawn",
-                        self.device,
-                        "log",
-                        "collect",
-                        "--output",
-                        f"device-{self.device}.log",
-                    ]
-                )
-                raise RuntimeError("timed out waiting for simulator to boot")
+
+            t = time.time()
+            while (time.time() - t) <= 300:
+                if simulator.isBooted():
+                    break
+                time.sleep(5)
+            else:
+                # This runs if the while loop completes without breaking
+                raise RuntimeError(f"simulator '{self.device}' not booted after 300s")
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
@@ -3189,6 +3209,10 @@ class Driver:
         self.failures = []
         self.keepLogs = False
 
+        logDir = os.path.join(toplevel, "logs")
+        os.makedirs(logDir, exist_ok=True)
+        self.driverLogFile = os.path.join(logDir, f"driver-{time.strftime('%m%d%y-%H%M')}.log")
+
         parseOptions(
             self,
             options,
@@ -3303,12 +3327,15 @@ class Driver:
 
         initData = Ice.InitializationData()
         initData.properties = Ice.createProperties()
+        initData.properties.setProperty("Ice.LogFile", self.driverLogFile)
+        initData.properties.setProperty("Ice.Trace.Dispatch", "1")
+        initData.properties.setProperty("Ice.Warn.Connections", "1")
+        initData.properties.setProperty("Ice.PrintStackTraces", "0")
 
         # Load IceSSL, this is useful to talk with WSS for JavaScript
         initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL")
-        initData.properties.setProperty(
-            "IceSSL.DefaultDir", os.path.join(self.component.getSourceDir(), "certs/common/ca")
-        )
+        caDir = os.path.join(self.component.getSourceDir(), "certs/common/ca")
+        initData.properties.setProperty("IceSSL.DefaultDir", caDir)
         initData.properties.setProperty("IceSSL.CertFile", "server.p12")
         initData.properties.setProperty("IceSSL.Password", "password")
         initData.properties.setProperty("IceSSL.Keychain", "test.keychain")
@@ -3320,9 +3347,7 @@ class Driver:
         initData.properties.setProperty("IceDiscovery.Interface", self.interface)
         initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
-        # initData.properties.setProperty("Ice.Trace.Protocol", "1")
-        # initData.properties.setProperty("Ice.Trace.Network", "2")
-        # initData.properties.setProperty("Ice.StdErr", "allTests.log")
+
         self.communicator = Ice.initialize(initData=initData)
 
     def getProcessController(self, current, process=None):
@@ -3356,6 +3381,10 @@ class Driver:
         return props
 
     def destroy(self):
+        if not self.keepLogs:
+            if os.path.exists(self.driverLogFile):
+                os.unlink(self.driverLogFile)
+
         for controller in self.processControllers.values():
             controller.destroy(self)
 
