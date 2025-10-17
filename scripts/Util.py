@@ -2682,34 +2682,32 @@ class AndroidProcessController(RemoteProcessController):
             pass
 
 
-@dataclass
 class iOSSimulatorDevice:
-    """Represents a single iOS Simulator device output by `xcrun simctl list devices --json`. Only
-    the fields we care about are included here.
+    """
+    Represents a single iOS Simulator device output by `xcrun simctl list devices --json`.
     """
 
-    udid: str
-    name: str
-    state: str
-    isAvailable: bool
+    def __init__(self, name: str):
+        self.name = name
 
-    @property
+    def exists(self) -> bool:
+        state = iOSSimulatorDevice.get(self.name)
+        return state is not None
+
     def isBooted(self) -> bool:
-        return self.state == "Booted"
+        state = iOSSimulatorDevice.get(self.name)
 
-    @staticmethod
-    def get(device: str) -> iOSSimulatorDevice | None:
+        if state:
+            return state["state"] == "Booted"
+        return False
+
+    def get() -> dict[str, str] | None:
         output = run("xcrun simctl list devices --json")
         data = json.loads(output)
         for runtime, device_list in data["devices"].items():
             for device_dict in device_list:
-                if device_dict["name"] == device:
-                    return iOSSimulatorDevice(
-                        udid=device_dict["udid"],
-                        name=device_dict["name"],
-                        state=device_dict["state"],
-                        isAvailable=device_dict["isAvailable"],
-                    )
+                if device_dict["name"] == self.name:
+                    return device_dict
         return None
 
 
@@ -2759,7 +2757,9 @@ class iOSSimulatorProcessController(RemoteProcessController):
         sys.stdout.write(f"checking for iOS simulator device {self.device}... ")
         sys.stdout.flush()
 
-        if iOSSimulatorDevice.get(self.device):
+        simulator = iOSSimulatorDevice(self.device)
+
+        if simulator.exists():
             print("ok")
         else:
             print("not found")
@@ -2772,7 +2772,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
             )
             print(f"{self.simulatorID}")
 
-        if not iOSSimulatorDevice.get(self.device).isBooted:
+        if not simulator.isBooted():
             sys.stdout.write("launching simulator... ")
             sys.stdout.flush()
             run('xcrun simctl boot "{0}"'.format(self.device))
@@ -2782,7 +2782,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
             t = time.time()
             while (time.time() - t) <= 300:
-                if iOSSimulatorDevice.get(self.device).isBooted:
+                if simulator.isBooted():
                     break
                 time.sleep(5)
             else:
