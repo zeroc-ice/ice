@@ -162,10 +162,15 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          repository: zeroc-ice/homebrew-nightly
+          path: homebrew-nightly
+
       - name: Publish Homebrew Patch
         run: |
           set -euo pipefail
-          cd "$(brew --repo zeroc-ice/nightly)"
           # Configure git for pushing the patch
           git config user.name "ZeroC"
           git config user.email "git@zeroc.com"
@@ -174,3 +179,4 @@ jobs:
           git apply staging/homebrew-bottle/*.patch
           # Push the updated formula
           git push origin main || { echo "Push failed"; exit 1; }
+        working-directory: homebrew-nightly
