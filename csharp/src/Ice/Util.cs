@@ -15,7 +15,7 @@ public sealed class Util
     /// Creates a new empty property set.
     /// </summary>
     /// <returns>A new empty property set.</returns>
-    [Obsolete("Use the Ice.Properties constructor instead.")]
+    [Obsolete("Use the Ice.Properties parameterless constructor instead.")]
     public static Properties createProperties() => new();
 
     /// <summary>
@@ -32,9 +32,9 @@ public sealed class Util
     /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
     /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
     /// </remarks>
-    [Obsolete("Use Ice.Properties.create instead.")]
+    [Obsolete("Use the Ice.Properties constructor instead.")]
     public static Properties createProperties(ref string[] args, Properties? defaults = null) =>
-        Properties.create(ref args, defaults);
+        new(ref args, defaults);
 
     /// <summary>
     /// Creates a new communicator, using Ice properties parsed from command-line arguments.
@@ -49,7 +49,7 @@ public sealed class Util
     {
         var initData = new InitializationData
         {
-            properties = Properties.create(ref args)
+            properties = new Properties(ref args)
         };
 
         var result = new Communicator(initData);

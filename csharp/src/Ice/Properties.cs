@@ -24,8 +24,16 @@ public sealed class Properties
     private readonly object _mutex = new(); // protects _propertySet
 
     /// <summary>
-    /// Creates a new Properties object, loads the configuration files specified by the <c>Ice.Config</c> property or
-    /// the <c>ICE_CONFIG</c> environment variable, and then parses Ice properties from <paramref name="args" />.
+    /// Initializes a new instance of the <see cref="Properties" /> class. The property set is initially empty.
+    /// </summary>
+    public Properties()
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Properties" /> class, loads the configuration files specified by
+    /// the <c>Ice.Config</c> property or the <c>ICE_CONFIG</c> environment variable, and then parses Ice properties
+    /// from <paramref name="args" />.
     /// </summary>
     /// <param name="args">The command-line arguments. This method parses arguments starting with `--` and one of the
     /// reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
@@ -39,18 +47,16 @@ public sealed class Properties
     /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
     /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
     /// </remarks>
-    public static Properties create(ref string[] args, Properties? defaults = null, params string[] optInPrefixes)
+    public Properties(ref string[] args, Properties? defaults = null, params string[] optInPrefixes)
+        : this(defaults, optInPrefixes)
     {
-        var properties = new Properties(defaults, optInPrefixes);
-        Dictionary<string, PropertyValue> propertySet = properties._propertySet;
-
-        if (propertySet.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
+        if (_propertySet.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
         {
             pv.used = true;
         }
         else
         {
-            propertySet["Ice.ProgramName"] = new PropertyValue(AppDomain.CurrentDomain.FriendlyName, true);
+            _propertySet["Ice.ProgramName"] = new PropertyValue(AppDomain.CurrentDomain.FriendlyName, true);
         }
 
         bool loadConfigFiles = false;
@@ -64,7 +70,7 @@ public sealed class Properties
                 {
                     line += "=1";
                 }
-                properties.parseLine(line[2..]);
+                parseLine(line[2..]);
                 loadConfigFiles = true;
 
                 string[] arr = new string[args.Length - 1];
@@ -80,24 +86,15 @@ public sealed class Properties
         if (!loadConfigFiles)
         {
             // If Ice.Config is not set, load from ICE_CONFIG (if set).
-            loadConfigFiles = !propertySet.ContainsKey("Ice.Config");
+            loadConfigFiles = !_propertySet.ContainsKey("Ice.Config");
         }
 
         if (loadConfigFiles)
         {
-            properties.loadConfig();
+            loadConfig();
         }
 
-        args = properties.parseIceCommandLineOptions(args);
-
-        return properties;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Properties" /> class. The property set is initially empty.
-    /// </summary>
-    public Properties()
-    {
+        args = parseIceCommandLineOptions(args);
     }
 
     /// <summary>
