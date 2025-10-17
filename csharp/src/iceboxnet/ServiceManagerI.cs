@@ -339,7 +339,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
                     //
                     // Parse <service>.* command line options (the Ice command line options
-                    // were parsed by the call to Properties.create above).
+                    // were parsed by the Properties constructor called above).
                     //
                     service.args = initData.properties.parseCommandLineOptions(service.name, service.args);
                 }
@@ -534,7 +534,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
 
                     //
                     // Next, parse the service "<service>.*" command line options (the Ice command
-                    // line options were parsed by the Properties.create above)
+                    // line options were parsed by the Properties constructor above)
                     //
                     info.args = initData.properties.parseCommandLineOptions(service, info.args);
                 }
