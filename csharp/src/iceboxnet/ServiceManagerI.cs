@@ -315,7 +315,7 @@ internal class ServiceManagerI : ServiceManagerDisp_
                     // Load the service properties using the shared communicator properties as
                     // the default properties.
                     //
-                    Ice.Properties svcProperties = Ice.Properties.create(ref service.args, initData.properties);
+                    var svcProperties = Ice.Properties.create(ref service.args, initData.properties);
 
                     //
                     // Remove properties from the shared property set that a service explicitly clears.
