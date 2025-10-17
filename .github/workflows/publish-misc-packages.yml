@@ -176,7 +176,7 @@ jobs:
           git config user.email "git@zeroc.com"
           git remote set-url origin "https://x-access-token:${{secrets.ICE_NIGHTLY_PUBLISH_TOKEN}}@github.com/zeroc-ice/homebrew-nightly.git"
           # Apply the patch created during the brew package build
-          git apply staging/homebrew-bottle/*.patch
+          find "${GITHUB_WORKSPACE}/staging/homebrew-bottle/" -name 'ice-*.patch' -exec git apply {} +
           # Push the updated formula
           git push origin main || { echo "Push failed"; exit 1; }
         working-directory: homebrew-nightly
