@@ -6,8 +6,8 @@ case "$CHANNEL" in
     SOURCE_URL="https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
     ;;
   "nightly")
-    REPO_ID=maven-snapshots
-    SOURCE_URL="https://central.sonatype.com/repository/maven-snapshots/"
+    REPO_ID=maven-nightly
+    SOURCE_URL="https://download.zeroc.com/nexus/repository/maven-nightly/"
     ;;
   *)
     echo "Unsupported channel: $CHANNEL"
