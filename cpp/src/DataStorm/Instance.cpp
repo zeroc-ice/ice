@@ -48,7 +48,14 @@ Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> 
     }
     else
     {
-        _adapter = _communicator->createObjectAdapter("");
+        string name = "";
+        string messageSizeMax = properties->getIceProperty("DataStorm.Node.Client.MessageSizeMax");
+        if (!messageSizeMax.empty())
+        {
+            name = generateUUID();
+            properties->setProperty(name + ".MessageSizeMax", messageSizeMax);
+        }
+        _adapter = _communicator->createObjectAdapter(name);
     }
     _communicator->setDefaultObjectAdapter(_adapter);
 
@@ -86,8 +93,10 @@ Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> 
     // reference's AdapterId to determine if a collocated call can be used.
     //
     // A named adapter is required because we cannot assign an AdapterId to a nameless adapter.
-    auto collocated = generateUUID();
+    string collocated = generateUUID();
     properties->setProperty(collocated + ".AdapterId", collocated);
+    // No message size limit on internal collocated calls.
+    properties->setProperty(collocated + ".MessageSizeMax", "0");
     _collocatedAdapter = _communicator->createObjectAdapter(collocated);
 
     _collocatedForwarder = make_shared<ForwarderManager>(_collocatedAdapter, "forwarders");
