@@ -44,7 +44,6 @@ public sealed class Properties
     /// precedence.</param>
     /// <param name="defaults">Default values for the new Properties object. Settings in configuration files and the
     /// arguments override these defaults.</param>
-    /// <returns>A new Properties object.</returns>
     /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
     /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
     /// </remarks>
@@ -66,7 +65,6 @@ public sealed class Properties
     /// <param name="defaults">Default values for the new Properties object. Settings in configuration files and the
     /// arguments override these defaults.</param>
     /// <param name="optInPrefixes">Optional reserved prefixes to enable in this new Properties object.</param>
-    /// <returns>A new Properties object.</returns>
     /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
     /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
     /// </remarks>
