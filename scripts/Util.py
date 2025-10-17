@@ -2701,7 +2701,7 @@ class iOSSimulatorDevice:
             return device["state"] == "Booted"
         return False
 
-    def get() -> dict[str, str] | None:
+    def get(self) -> dict[str, str] | None:
         output = run("xcrun simctl list devices --json")
         data = json.loads(output)
         for runtime, device_list in data["devices"].items():
