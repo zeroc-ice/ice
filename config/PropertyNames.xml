@@ -408,6 +408,7 @@
         <property name="Node.Server" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Server.Enabled" default="1" languages="cpp" />
         <property name="Node.Server.ForwardDiscoveryToMulticast" default="0" languages="cpp" />
+        <property name="Node.Client.MessageSizeMax" languages="cpp" />
         <property name="Topic.ClearHistory" default="OnAll" languages="cpp" />
         <property name="Topic.DiscardPolicy" default="Never" languages="cpp" />
         <property name="Topic.Priority" default="0" languages="cpp" />
