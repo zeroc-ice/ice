@@ -670,7 +670,6 @@ public sealed class Properties
         {
             foreach (KeyValuePair<string, PropertyValue> entry in defaults._propertySet)
             {
-                // Deep copy.
                 _propertySet[entry.Key] = entry.Value.Clone();
             }
 
