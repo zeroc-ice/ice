@@ -79,7 +79,8 @@ object SliceToolsResourceExtractor {
                 .toList()
 
             for (resource in resourcePaths) {
-                val relativePath = resource.removePrefix(resourcePath)
+                val relativePath = resource.removePrefix("resources/slice/")
+
                 val outputFile = File(targetDir, relativePath)
 
                 outputFile.parentFile.mkdirs() // Create parent directories if needed
