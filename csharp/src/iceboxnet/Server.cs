@@ -1,5 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
+using System.Collections.Immutable;
+
 namespace IceBox;
 
 public static class Server
@@ -56,7 +58,7 @@ public static class Server
 
         var initData = new Ice.InitializationData
         {
-            properties = new Ice.Properties(ref args, defaults: null, "IceBox")
+            properties = new Ice.Properties(ref args, defaults: null, ImmutableList.Create("IceBox"))
         };
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 

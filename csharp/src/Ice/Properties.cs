@@ -4,6 +4,7 @@
 
 using Ice.Internal;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -20,13 +21,35 @@ namespace Ice;
 public sealed class Properties
 {
     private readonly Dictionary<string, PropertyValue> _propertySet = [];
-    private readonly ImmutableList<string> _optInPrefixes = ImmutableList<string>.Empty;
+    private readonly ImmutableList<string> _optInPrefixes;
     private readonly object _mutex = new(); // protects _propertySet
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Properties" /> class. The property set is initially empty.
     /// </summary>
     public Properties()
+        : this(defaults: null, optInPrefixes: [])
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Properties" /> class, loads the configuration files specified by
+    /// the <c>Ice.Config</c> property or the <c>ICE_CONFIG</c> environment variable, and then parses Ice properties
+    /// from <paramref name="args" />.
+    /// </summary>
+    /// <param name="args">The command-line arguments. This method parses arguments starting with `--` and one of the
+    /// reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
+    /// argument starting with `--Ice.Config`, this method loads the specified configuration file. When the same
+    /// property is set in a configuration file and through a command-line argument, the command-line setting takes
+    /// precedence.</param>
+    /// <param name="defaults">Default values for the new Properties object. Settings in configuration files and the
+    /// arguments override these defaults.</param>
+    /// <returns>A new Properties object.</returns>
+    /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
+    /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
+    /// </remarks>
+    public Properties(ref string[] args, Properties? defaults = null)
+        : this(ref args, defaults, optInPrefixes: [])
     {
     }
 
@@ -47,7 +70,8 @@ public sealed class Properties
     /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
     /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
     /// </remarks>
-    public Properties(ref string[] args, Properties? defaults = null, params string[] optInPrefixes)
+    [EditorBrowsable(EditorBrowsableState.Never)] // hidden because optInPrefixes is only for internal use in C#
+    public Properties(ref string[] args, Properties? defaults, ImmutableList<string> optInPrefixes)
         : this(defaults, optInPrefixes)
     {
         if (_propertySet.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
@@ -640,9 +664,9 @@ public sealed class Properties
     /// <summary>
     /// Initializes a new instance of the <see cref="Properties" /> class with the specified options.
     /// </summary>
-    private Properties(Properties? defaults, string[] optInPrefixes)
+    private Properties(Properties? defaults, ImmutableList<string> optInPrefixes)
     {
-        _optInPrefixes = optInPrefixes.ToImmutableList();
+        _optInPrefixes = optInPrefixes;
 
         if (defaults is not null)
         {

@@ -21,17 +21,11 @@ public sealed class Util
     /// <summary>
     /// Creates a property set initialized from command-line arguments and a default property set.
     /// </summary>
-    /// <param name="args">The command-line arguments. This method parses arguments starting with `--` and one of the
-    /// reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-    /// argument starting with `--Ice.Config`, this method loads the specified configuration file. When the same
-    /// property is set in a configuration file and through a command-line argument, the command-line setting takes
-    /// precedence.</param>
-    /// <param name="defaults">Default values for the new property set. Settings in configuration files and the
-    /// arguments override these defaults.</param>
+    /// <param name="args">The command-line arguments.</param>
+    /// <param name="defaults">Default values for the new property set.</param>
     /// <returns>A new property set.</returns>
-    /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
-    /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
-    /// </remarks>
+    /// <remarks>See <see cref="Properties(ref string[], Properties?)" /> for a detailed description of the behavior of
+    /// this deprecated factory method.</remarks>
     [Obsolete("Use the Ice.Properties constructor instead.")]
     public static Properties createProperties(ref string[] args, Properties? defaults = null) =>
         new(ref args, defaults);
