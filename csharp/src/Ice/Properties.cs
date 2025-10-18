@@ -37,16 +37,16 @@ public sealed class Properties
     /// the <c>Ice.Config</c> property or the <c>ICE_CONFIG</c> environment variable, and then parses Ice properties
     /// from <paramref name="args" />.
     /// </summary>
-    /// <param name="args">The command-line arguments. This method parses arguments starting with `--` and one of the
-    /// reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-    /// argument starting with `--Ice.Config`, this method loads the specified configuration file. When the same
-    /// property is set in a configuration file and through a command-line argument, the command-line setting takes
+    /// <param name="args">The command-line arguments. This constructor parses arguments starting with <c>--</c> and one
+    /// of the reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is
+    /// an argument starting with <c>--Ice.Config</c>, this constructor loads the specified configuration file. When the
+    /// same property is set in a configuration file and through a command-line argument, the command-line setting takes
     /// precedence.</param>
     /// <param name="defaults">Default values for the new Properties object. Settings in configuration files and the
     /// arguments override these defaults.</param>
-    /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
-    /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
-    /// </remarks>
+    /// <remarks>This constructor loads properties from files specified by the <c>ICE_CONFIG</c> environment variable
+    /// when there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default
+    /// value.</remarks>
     public Properties(ref string[] args, Properties? defaults = null)
         : this(ref args, defaults, optInPrefixes: [])
     {
@@ -57,17 +57,17 @@ public sealed class Properties
     /// the <c>Ice.Config</c> property or the <c>ICE_CONFIG</c> environment variable, and then parses Ice properties
     /// from <paramref name="args" />.
     /// </summary>
-    /// <param name="args">The command-line arguments. This method parses arguments starting with `--` and one of the
-    /// reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-    /// argument starting with `--Ice.Config`, this method loads the specified configuration file. When the same
-    /// property is set in a configuration file and through a command-line argument, the command-line setting takes
+    /// <param name="args">The command-line arguments. This constructor parses arguments starting with <c>--</c> and one
+    /// of the reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is
+    /// an argument starting with <c>--Ice.Config</c>, this constructor loads the specified configuration file. When the
+    /// same property is set in a configuration file and through a command-line argument, the command-line setting takes
     /// precedence.</param>
     /// <param name="defaults">Default values for the new Properties object. Settings in configuration files and the
     /// arguments override these defaults.</param>
     /// <param name="optInPrefixes">Optional reserved prefixes to enable in this new Properties object.</param>
-    /// <remarks>This method loads properties from files specified by the <c>ICE_CONFIG</c> environment variable when
-    /// there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default value.
-    /// </remarks>
+    /// <remarks>This constructor loads properties from files specified by the <c>ICE_CONFIG</c> environment variable
+    /// when there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default
+    /// value.</remarks>
     [EditorBrowsable(EditorBrowsableState.Never)] // hidden because optInPrefixes is only for internal use in C#
     public Properties(ref string[] args, Properties? defaults, ImmutableList<string> optInPrefixes)
         : this(defaults, optInPrefixes)
@@ -483,18 +483,7 @@ public sealed class Properties
     /// Create a copy of this property set.
     /// </summary>
     /// <returns>A copy of this property set.</returns>
-    public Properties Clone()
-    {
-        var clonedProperties = new Properties();
-        lock (_mutex)
-        {
-            foreach ((string key, PropertyValue value) in _propertySet)
-            {
-                clonedProperties._propertySet[key] = value.Clone();
-            }
-        }
-        return clonedProperties;
-    }
+    public Properties Clone() => new(this, []);
 
     /// <summary>
     /// Alias for <see cref="Clone" />. Provided for source compatibility with Ice 3.7 and earlier versions.
@@ -662,16 +651,19 @@ public sealed class Properties
     /// <summary>
     /// Initializes a new instance of the <see cref="Properties" /> class with the specified options.
     /// </summary>
+    /// <remarks>This constructor is called by all other constructors.</remarks>
     private Properties(Properties? defaults, ImmutableList<string> optInPrefixes)
     {
         _optInPrefixes = optInPrefixes;
 
         if (defaults is not null)
         {
-            foreach (KeyValuePair<string, PropertyValue> entry in defaults._propertySet)
+            lock (defaults._mutex)
             {
-                // Deep copy.
-                _propertySet[entry.Key] = entry.Value.Clone();
+                foreach (KeyValuePair<string, PropertyValue> entry in defaults._propertySet)
+                {
+                    _propertySet[entry.Key] = entry.Value.Clone();
+                }
             }
 
             _optInPrefixes = _optInPrefixes.AddRange(defaults._optInPrefixes);
