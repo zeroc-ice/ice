@@ -16,8 +16,7 @@ namespace Ice;
 /// where both the key and the value are strings. By convention, property keys should have the form
 /// <c>application-name>[.category[.sub-category]].name</c>.
 /// </summary>
-/// <remarks>This class is thread-safe: multiple threads can safely read and write the properties without their own
-/// synchronization.</remarks>
+/// <remarks>This class is thread-safe: multiple threads can safely read and write the properties.</remarks>
 public sealed class Properties
 {
     private readonly Dictionary<string, PropertyValue> _propertySet = [];
@@ -651,6 +650,8 @@ public sealed class Properties
     /// <summary>
     /// Initializes a new instance of the <see cref="Properties" /> class with the specified options.
     /// </summary>
+    /// <param name="defaults">Default values for the new Properties object.</param>
+    /// <param name="optInPrefixes">Optional reserved prefixes to enable in this new Properties object.</param>
     /// <remarks>This constructor is called by all other constructors.</remarks>
     private Properties(Properties? defaults, ImmutableList<string> optInPrefixes)
     {
