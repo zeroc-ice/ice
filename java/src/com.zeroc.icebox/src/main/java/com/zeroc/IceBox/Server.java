@@ -92,7 +92,7 @@ final class Server {
         List<String> argSeq = new ArrayList<>();
 
         InitializationData initData = new InitializationData();
-        initData.properties = new Properties(args, new Properties(Collections.singletonList("IceBox")), argSeq);
+        initData.properties = new Properties(args, null, argSeq, Collections.singletonList("IceBox"));
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
         ShutdownHook shutdownHook = null;
 
