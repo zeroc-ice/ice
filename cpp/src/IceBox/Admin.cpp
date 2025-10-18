@@ -24,8 +24,7 @@ main(int argc, char* argv[])
         Ice::CtrlCHandler ctrlCHandler;
 
         // Initialize with a Properties object with the correct property prefix enabled.
-        auto properties =
-            Ice::createProperties(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceBoxAdmin"}));
+        auto properties = Ice::createProperties(argc, argv, "IceBoxAdmin");
         Ice::InitializationData initData{.properties = properties};
         auto communicator = Ice::initialize(std::move(initData));
         Ice::CommunicatorHolder ich{communicator};
