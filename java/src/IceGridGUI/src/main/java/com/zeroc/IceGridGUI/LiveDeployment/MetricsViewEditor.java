@@ -180,7 +180,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
             tree.addTreeSelectionListener(new SelectionListener());
 
             Set<String> sectionSort = new LinkedHashSet<>();
-            _properties = new Properties((Properties) null, Collections.singletonList("IceGridGUI"));
+            _properties = new Properties(Collections.singletonList("IceGridGUI"));
             _properties.load("metrics.cfg");
 
             sectionSort.addAll(

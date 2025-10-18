@@ -28,7 +28,7 @@ public final class Properties {
 
     /** Constructs an empty property set. */
     public Properties() {
-        this((Properties) null, null);
+        this(List.of());
     }
 
     /**
@@ -43,7 +43,7 @@ public final class Properties {
      *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
      */
     public Properties(String[] args) {
-        this(args, null, null, null);
+        this(args, (Properties) null, null);
     }
 
     /**
@@ -60,7 +60,7 @@ public final class Properties {
      *     used to set properties.
      */
     public Properties(String[] args, List<String> remainingArgs) {
-        this(args, null, remainingArgs, null);
+        this(args, (Properties) null, remainingArgs);
     }
 
     /**
@@ -77,7 +77,7 @@ public final class Properties {
      *     these defaults.
      */
     public Properties(String[] args, Properties defaults) {
-        this(args, defaults, null, null);
+        this(args, defaults, null);
     }
 
     /**
@@ -96,26 +96,16 @@ public final class Properties {
      *     used to set properties.
      */
     public Properties(String[] args, Properties defaults, List<String> remainingArgs) {
-        this(args, defaults, remainingArgs, null);
+        this(defaults);
+        loadArgs(args, remainingArgs);
     }
 
     /**
      * @hidden optInPrefixes is only for internal use in Java.
-     *     Constructs a property set with the specified options. This constructor called by all other constructors.
+     *     Constructs a property set with additional opt-in prefixes.
      */
-    public Properties(Properties defaults, List<String> optInPrefixes) {
-        ArrayList<String> prefixes = optInPrefixes != null ? new ArrayList<>(optInPrefixes) : new ArrayList<>();
-
-        if (defaults != null) {
-            synchronized (defaults) {
-                for (Map.Entry<String, PropertyValue> p : defaults._propertySet.entrySet()) {
-                    _propertySet.put(p.getKey(), p.getValue().clone());
-                }
-            }
-
-            prefixes.addAll(defaults._optInPrefixes);
-        }
-        _optInPrefixes = List.copyOf(prefixes); // _optInPrefixes is immutable
+    public Properties(List<String> optInPrefixes) {
+        _optInPrefixes = List.copyOf(optInPrefixes); // _optInPrefixes is immutable
     }
 
     /**
@@ -125,45 +115,9 @@ public final class Properties {
      *     This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
      *     there is no {@code --Ice.Config} command-line argument.
      */
-    public Properties(String[] args, Properties defaults, List<String> remainingArgs, List<String> optInPrefixes) {
-        this(defaults, optInPrefixes);
-
-        boolean loadConfigFiles = false;
-
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].startsWith("--Ice.Config")) {
-                String line = args[i];
-                if (line.indexOf('=') == -1) {
-                    line += "=1";
-                }
-                parseLine(line.substring(2));
-                loadConfigFiles = true;
-
-                String[] arr = new String[args.length - 1];
-                System.arraycopy(args, 0, arr, 0, i);
-                if (i < args.length - 1) {
-                    System.arraycopy(args, i + 1, arr, i, args.length - i - 1);
-                }
-                args = arr;
-            }
-        }
-
-        if (!loadConfigFiles) {
-            // If Ice.Config is not set, load from ICE_CONFIG (if set)
-            loadConfigFiles = !_propertySet.containsKey("Ice.Config");
-        }
-
-        if (loadConfigFiles) {
-            loadConfig();
-        }
-
-        args = parseIceCommandLineOptions(args);
-        if (remainingArgs != null) {
-            remainingArgs.clear();
-            if (args.length > 0) {
-                remainingArgs.addAll(Arrays.asList(args));
-            }
-        }
+    public Properties(String[] args, List<String> remainingArgs, List<String> optInPrefixes) {
+        this(optInPrefixes);
+        loadArgs(args, remainingArgs);
     }
 
     /**
@@ -617,7 +571,7 @@ public final class Properties {
      * @return A copy of this property set.
      */
     public Properties _clone() {
-        return new Properties(this, null);
+        return new Properties(this);
     }
 
     /**
@@ -634,6 +588,59 @@ public final class Properties {
             }
         }
         return unused;
+    }
+
+    private Properties(Properties defaults) {
+        if (defaults != null) {
+            synchronized (defaults) {
+                for (Map.Entry<String, PropertyValue> p : defaults._propertySet.entrySet()) {
+                    _propertySet.put(p.getKey(), p.getValue().clone());
+                }
+            }
+            _optInPrefixes = defaults._optInPrefixes; // _optInPrefixes is immutable
+        } else {
+            _optInPrefixes = List.of();
+        }
+    }
+
+    // Helper method called exclusively by constructors.
+    private void loadArgs(String[] args, List<String> remainingArgs) {
+        boolean loadConfigFiles = false;
+
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].startsWith("--Ice.Config")) {
+                String line = args[i];
+                if (line.indexOf('=') == -1) {
+                    line += "=1";
+                }
+                parseLine(line.substring(2));
+                loadConfigFiles = true;
+
+                String[] arr = new String[args.length - 1];
+                System.arraycopy(args, 0, arr, 0, i);
+                if (i < args.length - 1) {
+                    System.arraycopy(args, i + 1, arr, i, args.length - i - 1);
+                }
+                args = arr;
+            }
+        }
+
+        if (!loadConfigFiles) {
+            // If Ice.Config is not set, load from ICE_CONFIG (if set)
+            loadConfigFiles = !_propertySet.containsKey("Ice.Config");
+        }
+
+        if (loadConfigFiles) {
+            loadConfig();
+        }
+
+        args = parseIceCommandLineOptions(args);
+        if (remainingArgs != null) {
+            remainingArgs.clear();
+            if (args.length > 0) {
+                remainingArgs.addAll(Arrays.asList(args));
+            }
+        }
     }
 
     private void parse(BufferedReader in) {

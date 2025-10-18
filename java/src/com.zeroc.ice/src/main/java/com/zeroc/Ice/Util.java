@@ -33,7 +33,7 @@ public final class Util {
      */
     @Deprecated
     public static Properties createProperties(String[] args) {
-        return new Properties(args, null, null);
+        return new Properties(args);
     }
 
     /**
@@ -49,7 +49,7 @@ public final class Util {
      */
     @Deprecated
     public static Properties createProperties(String[] args, List<String> remainingArgs) {
-        return new Properties(args, null, remainingArgs);
+        return new Properties(args, remainingArgs);
     }
 
     /**
@@ -65,7 +65,7 @@ public final class Util {
      */
     @Deprecated
     public static Properties createProperties(String[] args, Properties defaults) {
-        return new Properties(args, defaults, null);
+        return new Properties(args, defaults);
     }
 
     /**
