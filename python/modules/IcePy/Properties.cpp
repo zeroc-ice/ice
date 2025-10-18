@@ -680,7 +680,7 @@ propertiesClone(PropertiesObject* self, PyObject* /*args*/)
         return nullptr;
     }
 
-    return createProperties(properties);
+    return IcePy::createProperties(properties);
 }
 
 static PyMethodDef PropertyMethods[] = {

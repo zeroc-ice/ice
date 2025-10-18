@@ -93,8 +93,7 @@ namespace Ice
         /// @remarks This constructor loads properties from files specified by the `ICE_CONFIG` environment variable
         /// when there is no `--Ice.Config` command-line argument. It also gives `Ice.ProgramName` a default value.
         template<typename ArgV>
-        Properties(int& argc, ArgV argv, const PropertiesPtr& defaults = nullptr)
-            : Properties{defaults}
+        Properties(int& argc, ArgV argv, const PropertiesPtr& defaults = nullptr) : Properties{defaults}
         {
             StringSeq args = argsToStringSeq(argc, argv);
             loadArgs(args);
