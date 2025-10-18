@@ -42,7 +42,7 @@ public final class Util {
      * deprecated factory method.
      *
      * @param args The command-line arguments.
-     * @param remainingArgs If non null, the command-line arguments that remain after parsing Ice properties out of
+     * @param remainingArgs If non-null, the command-line arguments that remain after parsing Ice properties out of
      *     {@code args}.
      * @return A new property set.
      * @deprecated Use {@link Properties#Properties(String[], java.util.List)} instead.
