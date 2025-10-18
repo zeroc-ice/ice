@@ -9,6 +9,7 @@ import java.io.PushbackInputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +110,7 @@ public final class Properties {
      *     Constructs a property set with the specified options. This constructor called by all other constructors.
      */
     public Properties(Properties defaults, List<String> optInPrefixes) {
-        _optInPrefixes = optInPrefixes != null ? optInPrefixes : new ArrayList<>();
+        ArrayList<String> prefixes = optInPrefixes != null ? new ArrayList<>(optInPrefixes) : new ArrayList<>();
 
         if (defaults != null) {
             synchronized (defaults) {
@@ -118,8 +119,9 @@ public final class Properties {
                 }
             }
 
-            _optInPrefixes.addAll(defaults._optInPrefixes);
+            prefixes.addAll(defaults._optInPrefixes);
         }
+        _optInPrefixes = List.copyOf(prefixes); // _optInPrefixes is immutable
     }
 
     /**
