@@ -20,7 +20,7 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder ich = initialize(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
+    Ice::CommunicatorHolder ich = initialize(argc, argv, make_shared<Ice::Properties>("IceStormAdmin"));
     const auto& communicator = ich.communicator();
     auto properties = communicator->getProperties();
     auto managerProxy = properties->getIceProperty("IceStormAdmin.TopicManager.Default");

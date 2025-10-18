@@ -20,45 +20,6 @@
 
 namespace Ice
 {
-    /// Converts an argument vector into a string sequence.
-    /// @param argc The number of arguments in argv.
-    /// @param argv The arguments.
-    /// @return A string sequence containing the arguments.
-    ICE_API StringSeq argsToStringSeq(int argc, const char* const argv[]);
-
-#if defined(_WIN32) || defined(ICE_DOXYGEN)
-    /// @copydoc argsToStringSeq(int, const char* const[])
-    /// @remark Windows only.
-    ICE_API StringSeq argsToStringSeq(int argc, const wchar_t* const argv[]);
-#endif
-
-    /// Updates @p argv to match the contents of @p seq. This function assumes that @p seq contains only elements of
-    /// @p argv. The function shifts the argument vector elements so that the vector matches the contents of the
-    /// sequence.
-    /// @param seq The string sequence returned from a call to #argsToStringSeq.
-    /// @param[in,out] argc The number of arguments, updated to reflect the size of the sequence.
-    /// @param argv The arguments, shifted to match @p seq.
-    ICE_API void stringSeqToArgs(const StringSeq& seq, int& argc, const char* argv[]);
-
-    /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
-    inline void stringSeqToArgs(const StringSeq& seq, int& argc, char* argv[])
-    {
-        return stringSeqToArgs(seq, argc, const_cast<const char**>(argv));
-    }
-
-#if defined(_WIN32) || defined(ICE_DOXYGEN)
-    /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
-    /// @remark Windows only.
-    ICE_API void stringSeqToArgs(const StringSeq& seq, int& argc, const wchar_t* argv[]);
-
-    /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
-    /// @remark Windows only.
-    inline void stringSeqToArgs(const StringSeq& seq, int& argc, wchar_t* argv[])
-    {
-        return stringSeqToArgs(seq, argc, const_cast<const wchar_t**>(argv));
-    }
-#endif
-
     /// Represents a set of options that you can specify when initializing a communicator.
     /// @headerfile Ice/Ice.h
     struct InitializationData

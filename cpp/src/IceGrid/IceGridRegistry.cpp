@@ -222,6 +222,6 @@ main(int argc, char* argv[])
     RegistryService svc;
     // Initialize the service with a Properties object with the correct property prefix enabled.
     Ice::InitializationData initData;
-    initData.properties = make_shared<Properties>(vector<string>{"IceGrid", "IceStorm"});
+    initData.properties = make_shared<Properties>("IceGrid", "IceStorm");
     return svc.main(argc, argv, std::move(initData));
 }

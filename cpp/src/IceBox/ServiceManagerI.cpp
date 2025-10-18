@@ -868,7 +868,7 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
 {
     // We don't want to clone the properties object as we don't want to copy the opt-in prefix list.
     // NOTE: We always enable the "IceStorm" prefix as there's currently no way  to distinguish it.
-    PropertiesPtr properties = make_shared<Properties>(vector<string>{"IceStorm"});
+    PropertiesPtr properties = make_shared<Properties>("IceStorm");
     PropertiesPtr communicatorProperties = _communicator->getProperties();
     if (communicatorProperties->getIcePropertyAsInt("IceBox.InheritProperties") > 0)
     {

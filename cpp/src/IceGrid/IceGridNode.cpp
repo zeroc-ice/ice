@@ -790,6 +790,6 @@ main(int argc, char* argv[])
     NodeService svc;
     // Initialize the service with a Properties object with the correct property prefixes enabled.
     Ice::InitializationData initData;
-    initData.properties = make_shared<Properties>(vector<string>{"IceGrid", "IceGridAdmin"});
+    initData.properties = make_shared<Properties>("IceGrid", "IceGridAdmin");
     return svc.main(argc, argv, std::move(initData));
 }

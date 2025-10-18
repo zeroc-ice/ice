@@ -469,6 +469,6 @@ main(int argc, char* argv[])
     RouterService svc;
     // Initialize the service with a Properties object with the correct property prefix enabled.
     Ice::InitializationData initData;
-    initData.properties = make_shared<Properties>(vector<string>{"Glacier2"});
+    initData.properties = make_shared<Properties>("Glacier2");
     return svc.main(argc, argv, std::move(initData));
 }

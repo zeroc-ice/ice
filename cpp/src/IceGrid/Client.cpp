@@ -78,7 +78,7 @@ main(int argc, char* argv[])
     {
         Ice::CtrlCHandler ctrlCHandler;
         // Initialize IceGrid properties with a Properties object with the correct property prefix enabled.
-        auto defaultProps = make_shared<Ice::Properties>(vector<string>{"IceGridAdmin"});
+        auto defaultProps = make_shared<Ice::Properties>("IceGridAdmin");
         defaultProps->setProperty("IceGridAdmin.Server.Endpoints", "tcp -h 127.0.0.1");
 
         // Turn-off inactivity timeout for outgoing connections.

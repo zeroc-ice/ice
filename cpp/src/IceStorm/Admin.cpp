@@ -33,8 +33,7 @@ main(int argc, char* argv[])
     {
         Ice::CtrlCHandler ctrlCHandler;
 
-        auto properties =
-            Ice::createProperties(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
+        auto properties = Ice::createProperties(argc, argv, "IceStormAdmin");
         properties->setProperty("Ice.Warn.Endpoints", "0");
 
         Ice::InitializationData initData{.properties = properties};

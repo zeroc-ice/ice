@@ -14,14 +14,14 @@ namespace
 {
     CommunicatorPtr createCommunicator()
     {
-        InitializationData initData{.properties = make_shared<Properties>(vector<string>{"DataStorm"})};
+        InitializationData initData{.properties = make_shared<Properties>("DataStorm")};
         return initialize(std::move(initData));
     }
 
     NodeOptions createNodeOptions(int& argc, const char* argv[])
     {
         NodeOptions options;
-        auto properties = Ice::createProperties(argc, argv, make_shared<Properties>(vector<string>{"DataStorm"}));
+        auto properties = Ice::createProperties(argc, argv, "DataStorm");
         InitializationData initData{.properties = properties};
         options.communicator = Ice::initialize(std::move(initData));
         options.nodeOwnsCommunicator = true;
@@ -32,7 +32,7 @@ namespace
     NodeOptions createNodeOptions(int& argc, const wchar_t* argv[])
     {
         NodeOptions options;
-        auto properties = Ice::createProperties(argc, argv, make_shared<Properties>(vector<string>{"DataStorm"}));
+        auto properties = Ice::createProperties(argc, argv, "DataStorm");
         InitializationData initData{.properties = properties};
         options.communicator = Ice::initialize(std::move(initData));
         options.nodeOwnsCommunicator = true;
