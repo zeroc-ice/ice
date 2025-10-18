@@ -2322,7 +2322,7 @@ public class Coordinator {
     }
 
     private static Properties createProperties(String[] args, List<String> rArgs) {
-        Properties properties = new Properties(args, null, rArgs, Collections.singletonList("IceGridAdmin"));
+        Properties properties = new Properties();
 
         // Disable retries
         properties.setProperty("Ice.RetryIntervals", "-1");
@@ -2330,7 +2330,7 @@ public class Coordinator {
         // Turn-off inactivity timeout for outgoing connections
         properties.setProperty("Ice.Connection.Client.InactivityTimeout", "0");
 
-        return properties;
+        return new Properties(args, properties, rArgs, Collections.singletonList("IceGridAdmin"));
     }
 
     Coordinator(JFrame mainFrame, String[] args, Preferences prefs) {
