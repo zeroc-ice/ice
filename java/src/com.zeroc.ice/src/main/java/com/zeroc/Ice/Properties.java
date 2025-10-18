@@ -29,7 +29,7 @@ public final class Properties {
 
     /** Constructs an empty property set. */
     public Properties() {
-        this((Properties)null, null);
+        this((Properties) null, null);
     }
 
     /**
@@ -39,10 +39,10 @@ public final class Properties {
      * there is no {@code --Ice.Config} command-line argument.
      *
      * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
-     *    reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-     *    argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When the
-     *    same property is set in a configuration file and through a command-line argument, the command-line setting
-     *    takes precedence.
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
+     *     argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When
+     *     the same property is set in a configuration file and through a command-line argument, the command-line
+     *     setting takes precedence.
      */
     public Properties(String[] args) {
         this(args, null, null, null);
@@ -55,12 +55,12 @@ public final class Properties {
      * there is no {@code --Ice.Config} command-line argument.
      *
      * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
-     *    reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-     *    argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When the
-     *    same property is set in a configuration file and through a command-line argument, the command-line setting
-     *    takes precedence.
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
+     *     argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When
+     *     the same property is set in a configuration file and through a command-line argument, the command-line
+     *     setting takes precedence.
      * @param remainingArgs If non null, this constructor puts in this list the command-line arguments that were not
-     *    used to set properties.
+     *     used to set properties.
      */
     public Properties(String[] args, List<String> remainingArgs) {
         this(args, null, remainingArgs, null);
@@ -72,13 +72,13 @@ public final class Properties {
      * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
      * there is no {@code --Ice.Config} command-line argument.
      *
-     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
-     *    reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-     *    argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When the
-     *    same property is set in a configuration file and through a command-line argument, the command-line setting
-     *    takes precedence.
+    * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
+     *     argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When
+     *     the same property is set in a configuration file and through a command-line argument, the command-line
+     *     setting takes precedence.
      * @param defaults Default values for the property set. Settings in configuration files and {@code args} override
-     *    these defaults.
+     *     these defaults.
      */
     public Properties(String[] args, Properties defaults) {
         this(args, defaults, null, null);
@@ -90,15 +90,15 @@ public final class Properties {
      * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
      * there is no {@code --Ice.Config} command-line argument.
      *
-     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
-     *    reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-     *    argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When the
-     *    same property is set in a configuration file and through a command-line argument, the command-line setting
-     *    takes precedence.
+    * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
+     *     argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When
+     *     the same property is set in a configuration file and through a command-line argument, the command-line
+     *     setting takes precedence.
      * @param defaults Default values for the property set. Settings in configuration files and {@code args} override
-     *    these defaults.
+     *     these defaults.
      * @param remainingArgs If non null, this constructor puts in this list the command-line arguments that were not
-     *    used to set properties.
+     *     used to set properties.
      */
     public Properties(String[] args, Properties defaults, List<String> remainingArgs) {
         this(args, defaults, remainingArgs, null);
@@ -106,8 +106,7 @@ public final class Properties {
 
     /**
      * @hidden optInPrefixes is only for internal use in Java.
-     *
-     * Constructs a property set with the specified options. This constructor called by all other constructors.
+     *     Constructs a property set with the specified options. This constructor called by all other constructors.
      */
     public Properties(Properties defaults, List<String> optInPrefixes) {
         _optInPrefixes = optInPrefixes != null ? optInPrefixes : new ArrayList<>();
@@ -125,11 +124,10 @@ public final class Properties {
 
     /**
      * @hidden optInPrefixes is only for internal use in Java.
-     *
-     * Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
-     * {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
-     * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
-     * there is no {@code --Ice.Config} command-line argument.
+     *     Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
+     *     {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
+     *     This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     *     there is no {@code --Ice.Config} command-line argument.
      */
     public Properties(String[] args, Properties defaults, List<String> remainingArgs, List<String> optInPrefixes) {
         this(defaults, optInPrefixes);
