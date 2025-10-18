@@ -18,8 +18,7 @@ import java.util.stream.Collectors;
  * Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
  * where both the key and the value are strings. By convention, property keys should have the form
  * {@code application-name[.category[.sub-category]].name}.
- * This class is thread-safe: multiple threads can safely read and write the properties without their own
- * synchronization.
+ * This class is thread-safe: multiple threads can safely read and write the properties.
  */
 public final class Properties {
     private static final int ParseStateKey = 0;
@@ -39,10 +38,9 @@ public final class Properties {
      * there is no {@code --Ice.Config} command-line argument.
      *
      * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
-     *     reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-     *     argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When
-     *     the same property is set in a configuration file and through a command-line argument, the command-line
-     *     setting takes precedence.
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
+     *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
+     *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
      */
     public Properties(String[] args) {
         this(args, null, null, null);
@@ -55,10 +53,9 @@ public final class Properties {
      * there is no {@code --Ice.Config} command-line argument.
      *
      * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
-     *     reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-     *     argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When
-     *     the same property is set in a configuration file and through a command-line argument, the command-line
-     *     setting takes precedence.
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
+     *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
+     *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
      * @param remainingArgs If non null, this constructor puts in this list the command-line arguments that were not
      *     used to set properties.
      */
@@ -72,11 +69,10 @@ public final class Properties {
      * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
      * there is no {@code --Ice.Config} command-line argument.
      *
-    * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
-     *     reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-     *     argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When
-     *     the same property is set in a configuration file and through a command-line argument, the command-line
-     *     setting takes precedence.
+     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
+     *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
+     *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
      * @param defaults Default values for the property set. Settings in configuration files and {@code args} override
      *     these defaults.
      */
@@ -90,11 +86,10 @@ public final class Properties {
      * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
      * there is no {@code --Ice.Config} command-line argument.
      *
-    * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
-     *     reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-     *     argument starting with {@code --Ice.Config}, this constructor loads the specified configuration file. When
-     *     the same property is set in a configuration file and through a command-line argument, the command-line
-     *     setting takes precedence.
+     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
+     *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
+     *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
      * @param defaults Default values for the property set. Settings in configuration files and {@code args} override
      *     these defaults.
      * @param remainingArgs If non null, this constructor puts in this list the command-line arguments that were not
