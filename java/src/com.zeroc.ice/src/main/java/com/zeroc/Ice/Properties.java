@@ -97,7 +97,7 @@ public final class Properties {
      *     setting takes precedence.
      * @param defaults Default values for the property set. Settings in configuration files and {@code args} override
      *     these defaults.
-     * @param remainingArgs If non null, this constructor puts in this list the command-line arguments that were not
+     * @param remainingArgs If non-null, this constructor puts in this list the command-line arguments that were not
      *     used to set properties.
      */
     public Properties(String[] args, Properties defaults, List<String> remainingArgs) {
