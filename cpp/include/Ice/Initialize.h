@@ -12,7 +12,7 @@
 #include "Logger.h"
 #include "Plugin.h"
 #include "PluginFactory.h"
-#include "PropertiesF.h"
+#include "Properties.h"
 #include "SSL/ClientAuthenticationOptions.h"
 #include "SliceLoader.h"
 #include "StringUtil.h"
@@ -83,6 +83,7 @@ namespace Ice
     ICE_API CommunicatorPtr initialize(InitializationData initData = {});
 
     /// Creates a new communicator, using Ice properties parsed from the command-line arguments.
+    /// @tparam ArgvT The type of the argument vector, such as char**, const char**, or wchar_t** (on Windows).
     /// @param[in,out] argc The number of arguments in @p argv. When this function parses properties from @p argv, it
     /// reshuffles the arguments so that the remaining arguments start at the beginning of @p argv, and updates @p argc
     /// accordingly.
@@ -91,26 +92,12 @@ namespace Ice
     /// with `--Ice.Config`, this function loads the specified configuration file. When the same property is set in a
     /// configuration file and through a command-line argument, the command-line setting takes precedence.
     /// @return The new communicator.
-    ICE_API CommunicatorPtr initialize(int& argc, const char* argv[]);
-
-    /// @copydoc initialize(int&, const char*[])
-    inline CommunicatorPtr initialize(int& argc, char* argv[])
+    template<typename ArgvT> inline CommunicatorPtr initialize(int& argc, ArgvT argv)
     {
-        return initialize(argc, const_cast<const char**>(argv));
+        InitializationData initData;
+        initData.properties = std::make_shared<Properties>(argc, argv);
+        return initialize(std::move(initData));
     }
-
-#if defined(_WIN32) || defined(ICE_DOXYGEN)
-    /// @copydoc initialize(int&, const char*[])
-    /// @remark Windows only.
-    ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[]);
-
-    /// @copydoc initialize(int&, const char*[])
-    /// @remark Windows only.
-    inline CommunicatorPtr initialize(int& argc, wchar_t* argv[])
-    {
-        return initialize(argc, const_cast<const wchar_t**>(argv));
-    }
-#endif
 
     /// Gets the per-process logger. This logger is used by all communicators that do not have their own specific logger
     /// configured at the time the communicator is created.

@@ -33,22 +33,6 @@ Ice::initialize(InitializationData initData)
     return communicator;
 }
 
-Ice::CommunicatorPtr
-Ice::initialize(int& argc, const char* argv[])
-{
-    InitializationData initData{.properties = createProperties(argc, argv)};
-    return initialize(std::move(initData));
-}
-
-#ifdef _WIN32
-Ice::CommunicatorPtr
-Ice::initialize(int& argc, const wchar_t* argv[])
-{
-    InitializationData initData{.properties = createProperties(argc, argv)};
-    return initialize(std::move(initData));
-}
-#endif
-
 LoggerPtr
 Ice::getProcessLogger()
 {

@@ -81,19 +81,20 @@ namespace Ice
 
         /// Constructs a property set, loads the configuration files specified by the `Ice.Config` property or the
         /// `ICE_CONFIG` environment variable, and then parses Ice properties from @p args.
-        /// @tparam ArgV The type of the argument vector, such as char*[] or wchar_t*[] (on Windows).
-        /// @param[in, out] argc The number of command-line arguments in @p argv.
+        /// @tparam ArgvT The type of the argument vector, such as char**, const char**, or wchar_t** (on Windows).
+        /// @param[in, out] argc The number of command-line arguments in @p argv. When this constructor
+        /// parses properties from @p argv, it reshuffles the arguments so that the remaining arguments start at the
+        /// beginning of @p argv, and updates @p argc accordingly.
         /// @param argv The command-line arguments. This constructor parses arguments starting with `--` and one of the
-        /// reserved prefixes (Ice, IceSSL, etc.) as properties and moves these arguments to the end of the array. If
-        /// there is an argument starting with `--Ice.Config`, this constructor loads the specified configuration file.
-        /// When the same property is set in a configuration file and through a command-line argument, the command-line
-        /// setting takes precedence.
+        /// reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with `--Ice.Config`,
+        /// this constructor loads the specified configuration file. When the same property is set in a configuration
+        /// file and through a command-line argument, the command-line setting takes precedence.
         /// @param defaults Default values for the new Properties object. Settings in configuration files and the
         /// arguments override these defaults.
         /// @remarks This constructor loads properties from files specified by the `ICE_CONFIG` environment variable
         /// when there is no `--Ice.Config` command-line argument. It also gives `Ice.ProgramName` a default value.
-        template<typename ArgV>
-        Properties(int& argc, ArgV argv, const PropertiesPtr& defaults = nullptr) : Properties{defaults}
+        template<typename ArgvT>
+        Properties(int& argc, ArgvT argv, const PropertiesPtr& defaults = nullptr) : Properties{defaults}
         {
             StringSeq args = argsToStringSeq(argc, argv);
             loadArgs(args);
@@ -113,7 +114,7 @@ namespace Ice
         /// @private
         /// Constructs a property set, loads the configuration files specified by the `Ice.Config` property or the
         /// `ICE_CONFIG` environment variable, and then parses Ice properties from @p args.
-        /// @tparam ArgV The type of the argument vector, such as char*[] or wchar_t*[] (on Windows).
+        /// @tparam ArgvT The type of the argument vector, such as char**, const char**, or wchar_t** (on Windows).
         /// @param[in, out] argc The number of command-line arguments in @p argv.
         /// @param argv The command-line arguments. This constructor parses arguments starting with `--` and one of the
         /// reserved prefixes (Ice, IceSSL, etc.) as properties and moves these arguments to the end of the array. If
@@ -124,8 +125,8 @@ namespace Ice
         /// @param remainingOptInPrefixes The remaining opt-in prefixes.
         /// @remarks This constructor loads properties from files specified by the `ICE_CONFIG` environment variable
         /// when there is no `--Ice.Config` command-line argument. It also gives `Ice.ProgramName` a default value.
-        template<typename ArgV, typename... T>
-        Properties(int& argc, ArgV argv, std::string firstOptInPrefix, T... remainingOptInPrefixes)
+        template<typename ArgvT, typename... T>
+        Properties(int& argc, ArgvT argv, std::string firstOptInPrefix, T... remainingOptInPrefixes)
             : Properties{std::move(firstOptInPrefix), std::move(remainingOptInPrefixes)...}
         {
             StringSeq args = argsToStringSeq(argc, argv);
