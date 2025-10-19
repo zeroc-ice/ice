@@ -191,15 +191,6 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
 
 Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults) : Properties{defaults} { loadArgs(args); }
 
-#ifdef _WIN32
-Ice::Properties::Properties(int& argc, const wchar_t* argv[], const PropertiesPtr& defaults) : Properties{defaults}
-{
-    StringSeq args = argsToStringSeq(argc, argv);
-    loadArgs(args);
-    stringSeqToArgs(args, argc, argv);
-}
-#endif
-
 Ice::Properties::Properties(const Properties& other)
 {
     {
