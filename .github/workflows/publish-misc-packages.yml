@@ -162,11 +162,9 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          repository: zeroc-ice/homebrew-nightly
-          path: homebrew-nightly
+      - name: Clone Repository
+        run: |
+          git clone "https://x-access-token:${{ secrets.ICE_NIGHTLY_PUBLISH_TOKEN }}@github.com/zeroc-ice/homebrew-nightly.git" -b main
 
       - name: Publish Homebrew Patch
         run: |
@@ -174,7 +172,6 @@ jobs:
           # Configure git for pushing the patch
           git config user.name "ZeroC"
           git config user.email "git@zeroc.com"
-          git remote set-url origin "https://x-access-token:${{secrets.ICE_NIGHTLY_PUBLISH_TOKEN}}@github.com/zeroc-ice/homebrew-nightly.git"
           # Apply the patch created during the brew package build
           find "${GITHUB_WORKSPACE}/staging/homebrew-bottle/" -name 'ice-*.patch' -exec git apply {} +
           # Push the updated formula
