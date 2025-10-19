@@ -59,7 +59,7 @@ namespace DataStorm
         /// @remark This constructor sets the nodeOwnsCommunicator option to false.
         explicit Node(Ice::CommunicatorPtr communicator);
 
-        /// Constructs a DataStorm node with an Ice communicator initialized from command-lne arguments.
+        /// Constructs a DataStorm node with an Ice communicator initialized from command-line arguments.
         /// A node is the main DataStorm object. It is required to construct topics.
         /// @tparam ArgvT The type of the argument vector, such as char**, const char**, or wchar_t** (on Windows).
         /// @param argc The number of arguments in argv.
