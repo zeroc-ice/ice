@@ -105,7 +105,6 @@ namespace DataStorm
         {
             Ice::InitializationData initData;
             initData.properties = std::make_shared<Ice::Properties>(argc, argv, "DataStorm");
-            ;
 
             NodeOptions options;
             options.communicator = Ice::initialize(std::move(initData));
