@@ -7,8 +7,7 @@ class Collocated: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         let properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
-        properties.setProperty(key: "Ice.Warn.Connections", value: "0")
-        properties.setProperty(key: "Ice.MessageSizeMax", value: "10")  // 10KB max
+        // No need to set connection properties such as Ice.Warn.Connections or Ice.MessageSizeMax.
 
         let initData = Ice.InitializationData(properties: properties, sliceLoader: DefaultSliceLoader("IceExceptions"))
 
@@ -21,10 +20,8 @@ class Collocated: TestHelperI, @unchecked Sendable {
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         communicator.getProperties().setProperty(
             key: "TestAdapter2.Endpoints", value: getTestEndpoint(num: 1))
-        communicator.getProperties().setProperty(key: "TestAdapter2.MessageSizeMax", value: "0")
         communicator.getProperties().setProperty(
             key: "TestAdapter3.Endpoints", value: getTestEndpoint(num: 2))
-        communicator.getProperties().setProperty(key: "TestAdapter3.MessageSizeMax", value: "1")
 
         let adapter = try communicator.createObjectAdapter("TestAdapter")
 

@@ -15,8 +15,8 @@ public class Collocated extends TestHelper {
         var initData = new InitializationData();
         initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.interrupt.Test");
         initData.properties = createTestProperties(args);
-        // We need to send messages large enough to cause the transport buffers to fill up.
-        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+        // No need to set connection properties such as Ice.MessageSizeMax.
+
         // opIdempotent raises UnknownException, we disable dispatch warnings to prevent warnings.
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
