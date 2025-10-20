@@ -2789,11 +2789,13 @@ class iOSSimulatorProcessController(RemoteProcessController):
             run('xcrun simctl boot "{0}"'.format(self.device))
             print("ok")
 
-            print("waiting for simulator to boot")
+            sys.stdout.write("waiting for simulator to boot... ")
+            sys.stdout.flush()
 
             t = time.time()
             while (time.time() - t) <= 300:
                 if simulator.isBooted():
+                    print(f"{time.time() - t:.1f}s ok")
                     break
                 time.sleep(5)
             else:

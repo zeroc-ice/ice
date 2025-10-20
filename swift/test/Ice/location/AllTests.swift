@@ -158,7 +158,6 @@ func allTests(_ helper: TestHelper) async throws {
     try await manager.startServer()
 
     do {
-        let obj5 = try await checkedCast(prx: base5, type: TestIntfPrx.self)!
         try await obj5.ice_ping()
     } catch {
         try test(false)
