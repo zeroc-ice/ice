@@ -80,7 +80,7 @@ IceRuby_createProperties(int argc, VALUE* argv, VALUE /*self*/)
             }
         }
 
-        return createProperties(obj);
+        return IceRuby::createProperties(obj);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -324,7 +324,7 @@ IceRuby_Properties_clone(VALUE self)
     {
         Ice::PropertiesPtr p = getProperties(self);
         Ice::PropertiesPtr props = p->clone();
-        return createProperties(props);
+        return IceRuby::createProperties(props);
     }
     ICE_RUBY_CATCH
     return Qnil;

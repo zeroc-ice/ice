@@ -30,8 +30,7 @@ void ::Reader::run(int argc, char* argv[])
         }
     }
 
-    Ice::InitializationData initData{
-        .properties = Ice::createProperties(argc, argv, make_shared<Ice::Properties>(vector<string>{"DataStorm"}))};
+    Ice::InitializationData initData{.properties = Ice::createProperties(argc, argv, "DataStorm")};
     NodeOptions options{
         .communicator = Ice::initialize(std::move(initData)),
         .nodeOwnsCommunicator = true,

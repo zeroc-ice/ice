@@ -618,6 +618,6 @@ main(int argc, char* argv[])
     BridgeService svc;
     // Initialize the service with a Properties object with the correct property prefix enabled.
     Ice::InitializationData initData;
-    initData.properties = make_shared<Properties>(vector<string>{"IceBridge"});
+    initData.properties = make_shared<Properties>("IceBridge");
     return svc.main(argc, argv, std::move(initData));
 }
