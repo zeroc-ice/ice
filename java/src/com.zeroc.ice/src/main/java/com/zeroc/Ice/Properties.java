@@ -15,144 +15,109 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * A property set used to configure Ice and Ice applications. Properties are key/value pairs, with
- * both keys and values being strings. By convention, property keys should have the form
- * <em>application-name</em>[.<em>category</em>[.<em>sub-category</em>]].<em>name</em>.
+ * Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
+ * where both the key and the value are strings. By convention, property keys should have the form
+ * {@code application-name[.category[.sub-category]].name}.
+ * This class is thread-safe: multiple threads can safely read and write the properties.
  */
 public final class Properties {
-    static class PropertyValue {
-        public PropertyValue(String v, boolean u) {
-            value = v;
-            used = u;
-        }
-
-        public PropertyValue clone() {
-            return new PropertyValue(value, used);
-        }
-
-        public String value;
-        public boolean used;
-    }
+    private static final int ParseStateKey = 0;
+    private static final int ParseStateValue = 1;
+    private final HashMap<String, PropertyValue> _propertySet = new HashMap<>();
+    private final List<String> _optInPrefixes;
 
     /** Constructs an empty property set. */
-    public Properties() {}
-
-    /**
-     * Creates a property set initialized with a list of opt-in prefixes.
-     *
-     * @param optInPrefixes A list of prefixes that are opt-in.
-     */
-    public Properties(List<String> optInPrefixes) {
-        _optInPrefixes.addAll(optInPrefixes);
+    public Properties() {
+        this(List.of());
     }
 
     /**
-     * Creates a property set initialized from an argument vector.
+     * Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
+     * {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
+     * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     * there is no {@code --Ice.Config} command-line argument.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
-     *     configuration files are parsed. If the same property is set in a configuration file and
-     *     in the argument vector, the argument vector takes precedence.
+     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
+     *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
+     *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
      */
     public Properties(String[] args) {
-        this(args, null, null);
+        this(args, (Properties) null, null);
     }
 
     /**
-     * Creates a property set initialized from an argument vector and return the remaining
-     * arguments.
+     * Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
+     * {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
+     * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     * there is no {@code --Ice.Config} command-line argument.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
-     *     configuration files are parsed. If the same property is set in a configuration file and
-     *     in the argument vector, the argument vector takes precedence.
-     * @param remainingArgs If non null, the given list will contain on return the command-line
-     *     arguments that were not used to set properties.
+     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
+     *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
+     *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
+     * @param remainingArgs If non-null, this constructor puts in this list the command-line arguments that were not
+     *     used to set properties.
      */
     public Properties(String[] args, List<String> remainingArgs) {
-        this(args, null, remainingArgs);
+        this(args, (Properties) null, remainingArgs);
     }
 
     /**
-     * Creates a property set initialized from an argument vector.
+     * Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
+     * {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
+     * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     * there is no {@code --Ice.Config} command-line argument.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
-     *     configuration files are parsed. If the same property is set in a configuration file and
-     *     in the argument vector, the argument vector takes precedence.
-     * @param defaults Default values for the property set. Settings in configuration files and
-     *     <code>
-     *     args</code> override these defaults.
+     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
+     *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
+     *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
+     * @param defaults Default values for the property set. Settings in configuration files and {@code args} override
+     *     these defaults.
      */
     public Properties(String[] args, Properties defaults) {
         this(args, defaults, null);
     }
 
     /**
-     * Creates a property set initialized from an argument vector and return the remaining
-     * arguments.
+     * Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
+     * {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
+     * This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     * there is no {@code --Ice.Config} command-line argument.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
-     *     configuration files are parsed. If the same property is set in a configuration file and
-     *     in the argument vector, the argument vector takes precedence.
-     * @param defaults Default values for the property set. Settings in configuration files and
-     *     <code>
-     *     args</code> override these defaults.
-     * @param remainingArgs If non null, the given list will contain on return the command-line
-     *     arguments that were not used to set properties.
+     * @param args The command-line arguments. This constructor parses arguments starting with {@code --} and one of the
+     *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
+     *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
+     *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
+     * @param defaults Default values for the property set. Settings in configuration files and {@code args} override
+     *     these defaults.
+     * @param remainingArgs If non-null, this constructor puts in this list the command-line arguments that were not
+     *     used to set properties.
      */
     public Properties(String[] args, Properties defaults, List<String> remainingArgs) {
-        if (defaults != null) {
-            //
-            // NOTE: we can't just do a shallow copy of the map as the map values
-            // would otherwise be shared between the two Properties object.
-            //
-            for (Map.Entry<String, PropertyValue> p : defaults._properties.entrySet()) {
-                _properties.put(p.getKey(), p.getValue().clone());
-            }
+        this(defaults);
+        loadArgs(args, remainingArgs);
+    }
 
-            _optInPrefixes.addAll(defaults._optInPrefixes);
-        }
+    /**
+     * @hidden optInPrefixes is only for internal use in Java.
+     *     Constructs a property set with additional opt-in prefixes.
+     */
+    public Properties(List<String> optInPrefixes) {
+        _optInPrefixes = List.copyOf(optInPrefixes); // _optInPrefixes is immutable
+    }
 
-        boolean loadConfigFiles = false;
-
-        for (int i = 0; i < args.length; i++) {
-            if (args[i].startsWith("--Ice.Config")) {
-                String line = args[i];
-                if (line.indexOf('=') == -1) {
-                    line += "=1";
-                }
-                parseLine(line.substring(2));
-                loadConfigFiles = true;
-
-                String[] arr = new String[args.length - 1];
-                System.arraycopy(args, 0, arr, 0, i);
-                if (i < args.length - 1) {
-                    System.arraycopy(args, i + 1, arr, i, args.length - i - 1);
-                }
-                args = arr;
-            }
-        }
-
-        if (!loadConfigFiles) {
-            //
-            // If Ice.Config is not set, load from ICE_CONFIG (if set)
-            //
-            loadConfigFiles = !_properties.containsKey("Ice.Config");
-        }
-
-        if (loadConfigFiles) {
-            loadConfig();
-        }
-
-        args = parseIceCommandLineOptions(args);
-        if (remainingArgs != null) {
-            remainingArgs.clear();
-            if (args.length > 0) {
-                remainingArgs.addAll(Arrays.asList(args));
-            }
-        }
+    /**
+     * @hidden optInPrefixes is only for internal use in Java.
+     *     Constructs a property set, loads the configuration files specified by the {@code Ice.Config} property or the
+     *     {@code ICE_CONFIG} environment variable, and then parses Ice properties from {@code args}.
+     *     This constructor loads properties from files specified by the {@code ICE_CONFIG} environment variable when
+     *     there is no {@code --Ice.Config} command-line argument.
+     */
+    public Properties(String[] args, List<String> remainingArgs, List<String> optInPrefixes) {
+        this(optInPrefixes);
+        loadArgs(args, remainingArgs);
     }
 
     /**
@@ -163,7 +128,7 @@ public final class Properties {
      * @see #setProperty
      */
     public synchronized String getProperty(String key) {
-        PropertyValue pv = _properties.get(key);
+        PropertyValue pv = _propertySet.get(key);
         if (pv != null) {
             pv.used = true;
             return pv.value;
@@ -181,7 +146,7 @@ public final class Properties {
      * @see #setProperty
      */
     public synchronized String getIceProperty(String key) {
-        PropertyValue pv = _properties.get(key);
+        PropertyValue pv = _propertySet.get(key);
         if (pv != null) {
             pv.used = true;
             return pv.value;
@@ -199,7 +164,7 @@ public final class Properties {
      * @see #setProperty
      */
     public synchronized String getPropertyWithDefault(String key, String value) {
-        PropertyValue pv = _properties.get(key);
+        PropertyValue pv = _propertySet.get(key);
         if (pv != null) {
             pv.used = true;
             return pv.value;
@@ -251,7 +216,7 @@ public final class Properties {
      * @see #setProperty
      */
     public synchronized int getPropertyAsIntWithDefault(String key, int value) {
-        PropertyValue pv = _properties.get(key);
+        PropertyValue pv = _propertySet.get(key);
         if (pv != null) {
             pv.used = true;
 
@@ -318,7 +283,7 @@ public final class Properties {
             value = new String[0];
         }
 
-        PropertyValue pv = _properties.get(key);
+        PropertyValue pv = _propertySet.get(key);
         if (pv != null) {
             pv.used = true;
 
@@ -349,7 +314,7 @@ public final class Properties {
      */
     public synchronized Map<String, String> getPropertiesForPrefix(String prefix) {
         HashMap<String, String> result = new HashMap<>();
-        for (Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
+        for (Map.Entry<String, PropertyValue> p : _propertySet.entrySet()) {
             String key = p.getKey();
             if (prefix.isEmpty() || key.startsWith(prefix)) {
                 PropertyValue pv = p.getValue();
@@ -409,15 +374,15 @@ public final class Properties {
             // Set or clear the property.
             //
             if (value != null && !value.isEmpty()) {
-                PropertyValue pv = _properties.get(key);
+                PropertyValue pv = _propertySet.get(key);
                 if (pv != null) {
                     pv.value = value;
                 } else {
                     pv = new PropertyValue(value, false);
                 }
-                _properties.put(key, pv);
+                _propertySet.put(key, pv);
             } else {
-                _properties.remove(key);
+                _propertySet.remove(key);
             }
         }
     }
@@ -431,9 +396,9 @@ public final class Properties {
      * @return The command line options for this property set.
      */
     public synchronized String[] getCommandLineOptions() {
-        String[] result = new String[_properties.size()];
+        String[] result = new String[_propertySet.size()];
         int i = 0;
-        for (Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
+        for (Map.Entry<String, PropertyValue> p : _propertySet.entrySet()) {
             result[i++] = "--" + p.getKey() + "=" + p.getValue().value;
         }
         assert (i == result.length);
@@ -605,17 +570,8 @@ public final class Properties {
      *
      * @return A copy of this property set.
      */
-    public synchronized Properties _clone() {
-        Properties clonedProperties = new Properties(_optInPrefixes);
-        //
-        // NOTE: we can't just do a shallow copy of the map as the map values
-        // would otherwise be shared between the two Properties objects.
-        //
-        // _properties = new java.util.HashMap<String, PropertyValue>(props._properties);
-        for (Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
-            clonedProperties._properties.put(p.getKey(), p.getValue().clone());
-        }
-        return clonedProperties;
+    public Properties _clone() {
+        return new Properties(this);
     }
 
     /**
@@ -625,13 +581,66 @@ public final class Properties {
      */
     public synchronized List<String> getUnusedProperties() {
         List<String> unused = new ArrayList<>();
-        for (Map.Entry<String, PropertyValue> p : _properties.entrySet()) {
+        for (Map.Entry<String, PropertyValue> p : _propertySet.entrySet()) {
             PropertyValue pv = p.getValue();
             if (!pv.used) {
                 unused.add(p.getKey());
             }
         }
         return unused;
+    }
+
+    private Properties(Properties defaults) {
+        if (defaults != null) {
+            synchronized (defaults) {
+                for (Map.Entry<String, PropertyValue> p : defaults._propertySet.entrySet()) {
+                    _propertySet.put(p.getKey(), p.getValue().clone());
+                }
+            }
+            _optInPrefixes = defaults._optInPrefixes; // _optInPrefixes is immutable
+        } else {
+            _optInPrefixes = List.of();
+        }
+    }
+
+    // Helper method called exclusively by constructors.
+    private void loadArgs(String[] args, List<String> remainingArgs) {
+        boolean loadConfigFiles = false;
+
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].startsWith("--Ice.Config")) {
+                String line = args[i];
+                if (line.indexOf('=') == -1) {
+                    line += "=1";
+                }
+                parseLine(line.substring(2));
+                loadConfigFiles = true;
+
+                String[] arr = new String[args.length - 1];
+                System.arraycopy(args, 0, arr, 0, i);
+                if (i < args.length - 1) {
+                    System.arraycopy(args, i + 1, arr, i, args.length - i - 1);
+                }
+                args = arr;
+            }
+        }
+
+        if (!loadConfigFiles) {
+            // If Ice.Config is not set, load from ICE_CONFIG (if set)
+            loadConfigFiles = !_propertySet.containsKey("Ice.Config");
+        }
+
+        if (loadConfigFiles) {
+            loadConfig();
+        }
+
+        args = parseIceCommandLineOptions(args);
+        if (remainingArgs != null) {
+            remainingArgs.clear();
+            if (args.length > 0) {
+                remainingArgs.addAll(Arrays.asList(args));
+            }
+        }
     }
 
     private void parse(BufferedReader in) {
@@ -810,7 +819,7 @@ public final class Properties {
                 load(file.trim());
             }
 
-            _properties.put("Ice.Config", new PropertyValue(value, true));
+            _propertySet.put("Ice.Config", new PropertyValue(value, true));
         }
     }
 
@@ -940,8 +949,17 @@ public final class Properties {
         return prop.defaultValue();
     }
 
-    private static final int ParseStateKey = 0;
-    private static final int ParseStateValue = 1;
-    private final HashMap<String, PropertyValue> _properties = new HashMap<>();
-    private final List<String> _optInPrefixes = new ArrayList<>();
+    static class PropertyValue {
+        public PropertyValue(String v, boolean u) {
+            value = v;
+            used = u;
+        }
+
+        public PropertyValue clone() {
+            return new PropertyValue(value, used);
+        }
+
+        public String value;
+        public boolean used;
+    }
 }

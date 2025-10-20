@@ -30,7 +30,7 @@ final class Admin {
         int status = 0;
         List<String> commands = new ArrayList<>();
         InitializationData initData = new InitializationData();
-        initData.properties = new Properties(args, new Properties(Collections.singletonList("IceBoxAdmin")), commands);
+        initData.properties = new Properties(args, commands, Collections.singletonList("IceBoxAdmin"));
 
         try (Communicator communicator = Util.initialize(initData)) {
             Runtime.getRuntime()
