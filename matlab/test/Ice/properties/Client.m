@@ -35,7 +35,7 @@ function client(args)
     fprintf('ok\n');
 
     fprintf('testing ice properties with set default values...');
-    props = Ice.createProperties(); % deprecated function
+    props = Ice.createProperties();
     toStringMode = props.getIceProperty('Ice.ToStringMode');
     assert(strcmp(toStringMode, 'Unicode'));
     closeTimeout = props.getIcePropertyAsInt('Ice.Connection.Client.CloseTimeout');

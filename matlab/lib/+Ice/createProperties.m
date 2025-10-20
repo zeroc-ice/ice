@@ -1,6 +1,7 @@
 function [properties, remArgs] = createProperties(args, defaults)
-    %CREATEPROPERTIES Deprecated function to create an Ice.Properties object. Use the Ice.Properties constructor
-    %   instead.
+    %CREATEPROPERTIES Creates an Ice.Properties object.
+    %   This function is provided for backwards compatibility. New code should call the Ice.Properties constructor
+    %   directly.
     %
     %   Input Arguments
     %     args - An optional argument vector.
@@ -15,6 +16,9 @@ function [properties, remArgs] = createProperties(args, defaults)
     %       string array
     %
     %   See also Ice.Properties/Properties.
+
+    % Copyright (c) ZeroC, Inc.
+
     arguments
         args (1, :) string = string.empty
         defaults Ice.Properties {mustBeScalarOrEmpty} = Ice.Properties.empty

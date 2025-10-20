@@ -13,65 +13,58 @@ import java.util.concurrent.ThreadFactory;
 /** Utility methods for the Ice runtime. */
 public final class Util {
     /**
-     * Creates a new empty property set.
+     * Creates a new empty property set. This method is provided for backwards compatibility. New code should call the
+     * {@link Properties#Properties()} constructor directly.
      *
      * @return A new empty property set.
-     * @deprecated Use {@link Properties#Properties()} instead.
      */
-    @Deprecated
     public static Properties createProperties() {
         return new Properties();
     }
 
     /**
-     * Creates a property set initialized from command-line arguments. See {@link Properties#Properties(String[])} for
-     * a detailed description of the behavior of this deprecated factory method.
+     * Creates a property set initialized from command-line arguments. This method is provided for backwards
+     * compatibility. New code should call the {@link Properties#Properties(String[])} constructor directly.
      *
      * @param args The command-line arguments.
      * @return A new property set.
-     * @deprecated Use {@link Properties#Properties(String[])} instead.
      */
-    @Deprecated
     public static Properties createProperties(String[] args) {
         return new Properties(args);
     }
 
     /**
-     * Creates a property set initialized from command-line arguments. See
-     * {@link Properties#Properties(String[], java.util.List)} for a detailed description of the behavior of this
-     * deprecated factory method.
+     * Creates a property set initialized from command-line arguments. This method is provided for backwards
+     * compatibility. New code should call the {@link Properties#Properties(String[], java.util.List)} constructor
+     * directly.
      *
      * @param args The command-line arguments.
      * @param remainingArgs If non-null, the command-line arguments that remain after parsing Ice properties out of
      *     {@code args}.
      * @return A new property set.
-     * @deprecated Use {@link Properties#Properties(String[], java.util.List)} instead.
      */
-    @Deprecated
     public static Properties createProperties(String[] args, List<String> remainingArgs) {
         return new Properties(args, remainingArgs);
     }
 
     /**
-     * Creates a property set initialized from command-line arguments and default properties. See
-     * {@link Properties#Properties(String[], Properties)} for a detailed description of the behavior of this deprecated
-     * factory method.
+     * Creates a property set initialized from command-line arguments and default properties. This method is provided
+     * for backwards compatibility. New code should call the {@link Properties#Properties(String[], Properties)}
+     * constructor directly.
      *
      * @param args The command-line arguments.
      * @param defaults Default values for the property set. Settings in configuration files and
      *     {@code args} override these defaults.
      * @return A new property set.
-     * @deprecated Use {@link Properties#Properties(String[], Properties)} instead.
      */
-    @Deprecated
     public static Properties createProperties(String[] args, Properties defaults) {
         return new Properties(args, defaults);
     }
 
     /**
-     * Creates a property set initialized from command-line arguments and default properties. See
-     * {@link Properties#Properties(String[], Properties, java.util.List)} for a detailed description of the behavior of
-     * this deprecated factory method.
+     * Creates a property set initialized from command-line arguments and default properties. This method is provided
+     * for backwards compatibility. New code should call the
+     * {@link Properties#Properties(String[], Properties, java.util.List)} constructor directly.
      *
      * @param args The command-line arguments.
      * @param defaults Default values for the property set. Settings in configuration files and
@@ -79,9 +72,7 @@ public final class Util {
      * @param remainingArgs If non-null, the command-line arguments that remain after parsing Ice properties out of
      *     {@code args}.
      * @return A new property set.
-     * @deprecated Use {@link Properties#Properties(String[], Properties, java.util.List)} instead.
      */
-    @Deprecated
     public static Properties createProperties(
             String[] args, Properties defaults, List<String> remainingArgs) {
         return new Properties(args, defaults, remainingArgs);

@@ -294,6 +294,8 @@ namespace Ice
     /// Creates a new shared Properties object.
     /// @param args The arguments to forward to `make_shared<Properties>`.
     /// @return A new property set.
+    /// @remarks This function is provided for backwards compatibility. New code should call
+    /// `std::make_shared<Properties>` directly.
     template<class... T> inline PropertiesPtr createProperties(T&&... args)
     {
         return std::make_shared<Properties>(std::forward<T>(args)...);
