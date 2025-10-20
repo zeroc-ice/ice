@@ -15,7 +15,8 @@ public sealed class Util
     /// Creates a new empty property set.
     /// </summary>
     /// <returns>A new empty property set.</returns>
-    [Obsolete("Use the Ice.Properties parameterless constructor instead.")]
+    /// <remarks>This method is provided for backwards compatibility. New code should call the
+    /// <see cref="Properties.Properties()" /> constructor directly.</remarks>
     public static Properties createProperties() => new();
 
     /// <summary>
@@ -24,9 +25,8 @@ public sealed class Util
     /// <param name="args">The command-line arguments.</param>
     /// <param name="defaults">Default values for the new property set.</param>
     /// <returns>A new property set.</returns>
-    /// <remarks>See <see cref="Properties.Properties(ref string[], Properties?)" /> for a detailed description of the behavior of
-    /// this deprecated factory method.</remarks>
-    [Obsolete("Use the Ice.Properties constructor instead.")]
+    /// <remarks>This method is provided for backwards compatibility. New code should call the
+    /// <see cref="Properties.Properties(ref string[], Properties?)" /> constructor directly.</remarks>
     public static Properties createProperties(ref string[] args, Properties? defaults = null) =>
         new(ref args, defaults);
 
