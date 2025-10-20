@@ -616,7 +616,6 @@ public final class Util {
         return Thread.NORM_PRIORITY;
     }
 
-    // TODO can we just move this to TestHelper?
     /**
      * Returns true if we're running on Android.
      *
