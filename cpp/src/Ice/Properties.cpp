@@ -134,7 +134,7 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const char* argv[])
     }
 
     //
-    // Make sure that argv[argc] == 0, the ISO C++ standard requires this.
+    // Make sure that argv[argc] == nullptr, the ISO C++ standard requires this.
     // We can only do this if we've shifted the array, otherwise argv[argc]
     // may point to an invalid address.
     //
