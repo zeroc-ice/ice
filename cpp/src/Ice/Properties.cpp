@@ -184,7 +184,7 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
     //
     if (argv && argcOrig != argc)
     {
-        argv[argc] = 0;
+        argv[argc] = nullptr;
     }
 }
 #endif
