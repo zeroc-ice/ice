@@ -131,7 +131,7 @@ PropertyNames.Glacier2Props = new PropertyArray("Glacier2", false, true);
 PropertyNames.Glacier2Props.properties = [
 ];
 
-PropertyNames.DataStormProps = new PropertyArray("DataStorm", false, true);
+PropertyNames.DataStormProps = new PropertyArray("DataStorm", false, false);
 PropertyNames.DataStormProps.properties = [
 ];
 
