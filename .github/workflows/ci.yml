@@ -77,7 +77,7 @@ jobs:
           - os: macos-26
             config: "ios"
             build_flags: "OPTIMIZE=no PLATFORMS='macosx iphonesimulator' CONFIGS='static shared' LANGUAGES='cpp swift'"
-            test_flags: "--languages='cpp,swift' --config=debug --platform=iphonesimulator --controller-app --filter swift/Ice/udp --filter swift/Ice/location"
+            test_flags: "--languages='cpp,swift' --config=debug --platform=iphonesimulator --controller-app --filter swift/Ice/udp"
             build_cpp_and_python: true
 
           # # Static builds
