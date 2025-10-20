@@ -763,16 +763,18 @@ DataReaderI::initSamples(
         {
             continue;
         }
-        else if (_discardPolicy == DataStorm::DiscardPolicy::SendTime && sample->timestamp <= _lastSendTime)
+
+        // Apply discard policies:
+        // - SendTime: discard samples older than the last received sample.
+        // - Priority: discard samples from publisher with lower priority than the highest priority among the connected
+        //   publishers for the same key. The subscriber list is sorted by priority in addConnectedKey.
+        if ((_discardPolicy == DataStorm::DiscardPolicy::SendTime && sample->timestamp <= _lastSendTime) ||
+            (_discardPolicy == DataStorm::DiscardPolicy::Priority &&
+             priority < _connectedKeys[sample->key].back()->priority))
         {
             continue;
         }
-        else if (
-            _discardPolicy == DataStorm::DiscardPolicy::Priority &&
-            priority < _connectedKeys[sample->key].back()->priority)
-        {
-            continue;
-        }
+
         assert(sample->key);
         valid.push_back(sample);
 
@@ -902,6 +904,10 @@ DataReaderI::queue(
         out << this << ": queued sample " << sample->id << " listeners=" << _listenerCount;
     }
 
+    // Apply discard policies:
+    // - SendTime: discard samples older than the last received sample.
+    // - Priority: discard samples from publisher with lower priority than the highest priority among the connected
+    //   publishers for the same key. The subscriber list is sorted by priority in addConnectedKey.
     if ((_discardPolicy == DataStorm::DiscardPolicy::SendTime && sample->timestamp <= _lastSendTime) ||
         (_discardPolicy == DataStorm::DiscardPolicy::Priority &&
          priority < _connectedKeys[sample->key].back()->priority))
