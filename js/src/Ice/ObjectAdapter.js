@@ -61,7 +61,6 @@ export class ObjectAdapter {
 
         if (this._noConfig) {
             this._reference = this._instance.referenceFactory().createFromString("dummy -t", "");
-            this._messageSizeMax = this._instance.messageSizeMax();
             promise.resolve(this);
             return;
         }
@@ -93,25 +92,6 @@ export class ObjectAdapter {
             } else {
                 throw ex;
             }
-        }
-
-        // The maximum size of an Ice protocol message in bytes. This is limited to 0x7fffffff, which corresponds to
-        // the maximum value of a 32-bit signed integer.
-        const messageSizeMaxUpperLimit = 0x7fffffff;
-        const defaultMessageSizeMax = this._instance.messageSizeMax() / 1024;
-        const messageSizeMax = properties.getPropertyAsIntWithDefault(
-            `${this._name}.MessageSizeMax`,
-            defaultMessageSizeMax,
-        );
-        if (messageSizeMax > messageSizeMaxUpperLimit / 1024) {
-            throw new InitializationException(
-                `${this._name}.MessageSizeMax '${messageSizeMax}' is too large, it must be less than or equal to '${messageSizeMaxUpperLimit / 1024}' KiB`,
-            );
-        } else if (messageSizeMax < 1) {
-            this._messageSizeMax = messageSizeMaxUpperLimit;
-        } else {
-            // The property is specified in kibibytes (KiB); _messageSizeMax is stored in bytes.
-            this._messageSizeMax = messageSizeMax * 1024;
         }
 
         try {
@@ -339,10 +319,6 @@ export class ObjectAdapter {
 
     getServantManager() {
         return this._servantManager;
-    }
-
-    messageSizeMax() {
-        return this._messageSizeMax;
     }
 
     newProxy(ident, facet) {

@@ -34,7 +34,6 @@ PropertyNames.ThreadPoolProps.properties = [
 
 PropertyNames.ObjectAdapterProps = new PropertyArray("ObjectAdapter", true, false);
 PropertyNames.ObjectAdapterProps.properties = [
-    new Property("MessageSizeMax", false, "", false, null),
     new Property("ProxyOptions", false, "", false, null),
     new Property("PublishedEndpoints", false, "", false, null),
     new Property("Router", false, "", false, PropertyNames.ProxyProps)
