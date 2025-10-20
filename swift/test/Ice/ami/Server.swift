@@ -9,11 +9,6 @@ class Server: TestHelperI, @unchecked Sendable {
         let properties = try createTestProperties(args)
 
         //
-        // Disable collocation optimization to test async/await dispatch.
-        //
-        properties.setProperty(key: "Ice.Default.CollocationOptimized", value: "0")
-
-        //
         // This test kills connections, so we don't want warnings.
         //
         properties.setProperty(key: "Ice.Warn.Connections", value: "0")
