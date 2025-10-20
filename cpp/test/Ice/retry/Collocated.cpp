@@ -33,11 +33,6 @@ Collocated::run(int argc, char** argv)
     initData.observer = getObserver();
 
     initData.properties->setProperty("Ice.RetryIntervals", "0 1 10 1");
-
-    //
-    // This test kills connections, so we don't want warnings.
-    //
-    initData.properties->setProperty("Ice.Warn.Connections", "0");
     initData.properties->setProperty("Ice.Warn.Dispatch", "0");
 
     installTransport(initData);

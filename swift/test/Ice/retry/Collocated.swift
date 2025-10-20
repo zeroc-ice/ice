@@ -7,11 +7,6 @@ class Collocated: TestHelperI, @unchecked Sendable {
     override public func run(args: [String]) async throws {
         var properties = try createTestProperties(args)
         properties.setProperty(key: "Ice.RetryIntervals", value: "0 1 10 1")
-
-        //
-        // This test kills connections, so we don't want warnings.
-        //
-        properties.setProperty(key: "Ice.Warn.Connections", value: "0")
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
 
         properties.setProperty(key: "TestAdapter.AdapterId", value: "RetryAdapter")

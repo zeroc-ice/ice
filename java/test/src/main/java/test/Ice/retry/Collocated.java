@@ -25,8 +25,6 @@ public class Collocated extends TestHelper {
         initData.observer = instrumentation.getObserver();
         initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");
-        // We don't want connection warnings because of the timeout
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
         try (Communicator communicator = initialize(initData)) {

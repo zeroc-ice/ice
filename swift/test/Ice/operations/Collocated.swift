@@ -17,10 +17,6 @@ class Collocated: TestHelperI, @unchecked Sendable {
         // scheduling so we suppress this warning.
         //
         properties.setProperty(key: "Ice.Warn.Dispatch", value: "0")
-        //
-        // We don't want connection warnings because of the timeout test.
-        //
-        properties.setProperty(key: "Ice.Warn.Connections", value: "0")
 
         let initData = Ice.InitializationData(properties: properties, sliceLoader: DefaultSliceLoader("IceOperations"))
         let communicator = try initialize(initData)
