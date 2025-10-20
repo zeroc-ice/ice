@@ -56,7 +56,7 @@ public final class Properties {
      *     reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with
      *     {@code --Ice.Config}, this constructor loads the specified configuration file. When the same property is set
      *     in a configuration file and through a command-line argument, the command-line setting takes precedence.
-     * @param remainingArgs If non null, this constructor puts in this list the command-line arguments that were not
+     * @param remainingArgs If non-null, this constructor puts in this list the command-line arguments that were not
      *     used to set properties.
      */
     public Properties(String[] args, List<String> remainingArgs) {
