@@ -31,7 +31,9 @@ Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> 
         {
             properties->setProperty("DataStorm.Node.Server.Endpoints", "tcp");
         }
-        properties->setProperty("DataStorm.Node.Server.ThreadPool.SizeMax", "1");
+        // Use a serialized thread pool to ensure that samples are processed in the order they are received. This is
+        // specially important for PartialUpdate samples which depend on the order to compute the value.
+        properties->setProperty("DataStorm.Node.Server.ThreadPool.Serialize", "1");
 
         try
         {
@@ -61,7 +63,6 @@ Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> 
             // address.
             properties->setProperty("DataStorm.Node.Multicast.PublishedHost", "239.255.0.1");
         }
-        properties->setProperty("DataStorm.Node.Multicast.ThreadPool.SizeMax", "1");
 
         try
         {
