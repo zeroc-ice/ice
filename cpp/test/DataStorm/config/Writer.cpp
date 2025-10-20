@@ -269,14 +269,17 @@ void ::Writer::run(int argc, char* argv[])
         config.priority = 1;
         auto writer2 = makeSingleKeyWriter(topic, "elemdp1", "", config);
 
-        writer1.add("value1");
-        writer1.update("value2");
-        writer1.partialUpdate<string>("concat")("1");
-        writer1.remove();
+        // Wait for the reader to connect to both writers, then send the data.
+        writer1.waitForReaders();
+        writer2.waitForReaders();
 
+        writer1.add("value1");
         writer2.add("novalue1");
+        writer1.update("value2");
         writer2.update("novalue2");
+        writer1.partialUpdate<string>("concat")("1");
         writer2.partialUpdate<string>("concat")("no1");
+        writer1.remove();
         writer2.remove();
 
         while (!readers.getNextUnread().getValue())
@@ -289,6 +292,7 @@ void ::Writer::run(int argc, char* argv[])
         config.priority = 10;
         auto writer2 = makeSingleKeyWriter(topic, "elemdp2", "", config);
 
+        writer1.waitForReaders();
         writer2.waitForReaders();
 
         writer1.add("novalue1");
