@@ -566,7 +566,6 @@ const Property DataStormPropsData[] =
     Property{"Node.Server", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Node.Server.Enabled", "1", false, false, nullptr},
     Property{"Node.Server.ForwardDiscoveryToMulticast", "0", false, false, nullptr},
-    Property{"Node.Client.MessageSizeMax", "", false, false, nullptr},
     Property{"Topic.ClearHistory", "OnAll", false, false, nullptr},
     Property{"Topic.DiscardPolicy", "Never", false, false, nullptr},
     Property{"Topic.Priority", "0", false, false, nullptr},
@@ -583,7 +582,7 @@ const PropertyArray PropertyNames::DataStormProps
     .prefixOnly=false,
     .isOptIn=true,
     .properties=DataStormPropsData,
-    .length=20
+    .length=19
 };
 
 const std::array<PropertyArray, 16> PropertyNames::validProps =
