@@ -24,7 +24,7 @@ public sealed class Util
     /// <param name="args">The command-line arguments.</param>
     /// <param name="defaults">Default values for the new property set.</param>
     /// <returns>A new property set.</returns>
-    /// <remarks>See <see cref="Properties(ref string[], Properties?)" /> for a detailed description of the behavior of
+    /// <remarks>See <see cref="Properties.Properties(ref string[], Properties?)" /> for a detailed description of the behavior of
     /// this deprecated factory method.</remarks>
     [Obsolete("Use the Ice.Properties constructor instead.")]
     public static Properties createProperties(ref string[] args, Properties? defaults = null) =>
