@@ -43,8 +43,7 @@ public sealed class Properties
     /// <param name="defaults">Default values for the new Properties object. Settings in configuration files and the
     /// arguments override these defaults.</param>
     /// <remarks>This constructor loads properties from files specified by the <c>ICE_CONFIG</c> environment variable
-    /// when there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default
-    /// value.</remarks>
+    /// when there is no <c>--Ice.Config</c> command-line argument.</remarks>
     public Properties(ref string[] args, Properties? defaults = null)
         : this(defaults) =>
         loadArgs(ref args);
@@ -61,8 +60,7 @@ public sealed class Properties
     /// precedence.</param>
     /// <param name="optInPrefixes">Optional reserved prefixes to enable in this new Properties object.</param>
     /// <remarks>This constructor loads properties from files specified by the <c>ICE_CONFIG</c> environment variable
-    /// when there is no <c>--Ice.Config</c> command-line argument. It also gives <c>Ice.ProgramName</c> a default
-    /// value.</remarks>
+    /// when there is no <c>--Ice.Config</c> command-line argument.</remarks>
     [EditorBrowsable(EditorBrowsableState.Never)] // hidden because optInPrefixes is only for internal use in C#
     public Properties(ref string[] args, ImmutableList<string> optInPrefixes)
     {
@@ -623,15 +621,6 @@ public sealed class Properties
     // Helper method called exclusively by constructors.
     private void loadArgs(ref string[] args)
     {
-        if (_propertySet.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
-        {
-            pv.used = true;
-        }
-        else
-        {
-            _propertySet["Ice.ProgramName"] = new PropertyValue(AppDomain.CurrentDomain.FriendlyName, true);
-        }
-
         bool loadConfigFiles = false;
 
         for (int i = 0; i < args.Length; i++)

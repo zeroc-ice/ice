@@ -841,33 +841,10 @@ Ice::Properties::Properties(const PropertiesPtr& defaults)
 void
 Ice::Properties::loadArgs(StringSeq& args)
 {
-    auto q = args.begin();
-
-    auto p = _propertySet.find("Ice.ProgramName");
-    if (p == _propertySet.end())
-    {
-        if (q != args.end())
-        {
-            //
-            // Use the first argument as the value for Ice.ProgramName. Replace
-            // any backslashes in this value with forward slashes, in case this
-            // value is used by the event logger.
-            //
-            string name = *q;
-            replace(name.begin(), name.end(), '\\', '/');
-
-            PropertyValue pv{std::move(name), true};
-            _propertySet["Ice.ProgramName"] = pv;
-        }
-    }
-    else
-    {
-        p->second.used = true;
-    }
-
     StringSeq tmp;
-
     bool loadConfigFiles = false;
+
+    auto q = args.begin();
     while (q != args.end())
     {
         string s = *q;

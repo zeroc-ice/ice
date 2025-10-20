@@ -928,6 +928,12 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 {
     try
     {
+        string programName;
+        if (_initData.properties)
+        {
+            programName = _initData.properties->getIceProperty("Ice.ProgramName");
+        }
+
         {
             lock_guard lock(staticMutex);
             instanceList->push_back(this);
@@ -986,7 +992,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 sigaction(SIGPIPE, &action, &oldAction);
                 if (_initData.properties->getIcePropertyAsInt("Ice.UseSyslog") > 0)
                 {
-                    identForOpenlog = _initData.properties->getIceProperty("Ice.ProgramName");
+                    identForOpenlog = programName;
                     if (identForOpenlog.empty())
                     {
                         identForOpenlog = "<Unknown Ice Program>";
@@ -1011,9 +1017,8 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     throw InitializationException(__FILE__, __LINE__, "Both syslog and file logger cannot be enabled.");
                 }
 
-                _initData.logger = make_shared<SysLoggerI>(
-                    _initData.properties->getIceProperty("Ice.ProgramName"),
-                    _initData.properties->getIceProperty("Ice.SyslogFacility"));
+                _initData.logger =
+                    make_shared<SysLoggerI>(programName, _initData.properties->getIceProperty("Ice.SyslogFacility"));
             }
             else
 #endif
@@ -1021,7 +1026,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 #ifdef __APPLE__
                 if (!_initData.logger && _initData.properties->getIcePropertyAsInt("Ice.UseOSLog") > 0)
             {
-                _initData.logger = make_shared<OSLogLoggerI>(_initData.properties->getIceProperty("Ice.ProgramName"));
+                _initData.logger = make_shared<OSLogLoggerI>(programName);
             }
             else
 #endif
@@ -1029,8 +1034,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 #ifdef ICE_USE_SYSTEMD
                 if (_initData.properties->getIcePropertyAsInt("Ice.UseSystemdJournal") > 0)
             {
-                _initData.logger =
-                    make_shared<SystemdJournalI>(_initData.properties->getIceProperty("Ice.ProgramName"));
+                _initData.logger = make_shared<SystemdJournalI>(programName);
             }
             else
 #endif
@@ -1041,21 +1045,14 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 {
                     sz = 0;
                 }
-                _initData.logger = make_shared<LoggerI>(
-                    _initData.properties->getIceProperty("Ice.ProgramName"),
-                    logfile,
-                    true,
-                    static_cast<size_t>(sz));
+                _initData.logger = make_shared<LoggerI>(programName, logfile, true, static_cast<size_t>(sz));
             }
             else
             {
                 _initData.logger = getProcessLogger();
                 if (dynamic_pointer_cast<LoggerI>(_initData.logger))
                 {
-                    _initData.logger = make_shared<LoggerI>(
-                        _initData.properties->getIceProperty("Ice.ProgramName"),
-                        "",
-                        logStdErrConvert);
+                    _initData.logger = make_shared<LoggerI>(programName, "", logStdErrConvert);
                 }
             }
         }

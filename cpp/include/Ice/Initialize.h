@@ -18,6 +18,8 @@
 #include "StringUtil.h"
 #include "TimerTask.h"
 
+#include <algorithm>
+
 namespace Ice
 {
     /// Represents a set of options that you can specify when initializing a communicator.
@@ -94,8 +96,19 @@ namespace Ice
     /// @return The new communicator.
     template<typename ArgvT> inline CommunicatorPtr initialize(int& argc, ArgvT argv)
     {
+        auto properties = std::make_shared<Properties>(argc, argv);
+        if (properties->getProperty("Ice.ProgramName").empty() && argc > 0)
+        {
+            StringSeq args = argsToStringSeq(argc, argv);
+            std::string programName = args[0];
+            // Replace any backslashes in this value with forward slashes, in case this value is used by the event
+            // logger.
+            std::replace(programName.begin(), programName.end(), '\\', '/');
+            properties->setProperty("Ice.ProgramName", std::move(programName));
+        }
+
         InitializationData initData;
-        initData.properties = std::make_shared<Properties>(argc, argv);
+        initData.properties = properties;
         return initialize(std::move(initData));
     }
 
