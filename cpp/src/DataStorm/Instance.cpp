@@ -48,14 +48,7 @@ Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> 
     }
     else
     {
-        string name = "";
-        string messageSizeMax = properties->getIceProperty("DataStorm.Node.Client.MessageSizeMax");
-        if (!messageSizeMax.empty())
-        {
-            name = generateUUID();
-            properties->setProperty(name + ".MessageSizeMax", messageSizeMax);
-        }
-        _adapter = _communicator->createObjectAdapter(name);
+        _adapter = _communicator->createObjectAdapter("");
     }
     _communicator->setDefaultObjectAdapter(_adapter);
 
