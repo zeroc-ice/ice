@@ -131,7 +131,7 @@ main(int argc, char* argv[])
     // Initialize the service with a Properties object with the correct property prefix enabled.
     // Since IceStorm is an IceBox service, we need to enable the IceBox property prefix as we allow configuring
     // IceStorm properties through IceBox properties.
-    initData.properties = make_shared<Properties>(vector<string>{"IceBox", "IceStorm"});
+    initData.properties = make_shared<Properties>("IceBox", "IceStorm");
     initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
     return svc.main(argc, argv, std::move(initData));
 }

@@ -24,72 +24,61 @@ public final class Util {
     }
 
     /**
-     * Creates a property set initialized from an argument vector.
+     * Creates a property set initialized from command-line arguments. See {@link Properties#Properties(String[])} for
+     * a detailed description of the behavior of this deprecated factory method.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a <code>--Ice.Config</code> option, the corresponding
-     *     configuration files are parsed. If the same property is set in a configuration file and
-     *     in the argument vector, the argument vector takes precedence.
-     * @return A new property set initialized with the property settings that were removed from the
-     *     argument vector.
+     * @param args The command-line arguments.
+     * @return A new property set.
      * @deprecated Use {@link Properties#Properties(String[])} instead.
      */
     @Deprecated
     public static Properties createProperties(String[] args) {
-        return new Properties(args, null, null);
+        return new Properties(args);
     }
 
     /**
-     * Creates a property set initialized from an argument vector and returns the remaining
-     * arguments.
+     * Creates a property set initialized from command-line arguments. See
+     * {@link Properties#Properties(String[], java.util.List)} for a detailed description of the behavior of this
+     * deprecated factory method.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a {@code --Ice.Config} option, the corresponding
-     *     configuration files are parsed. If the same property is set in a configuration file and
-     *     in the argument vector, the argument vector takes precedence.
-     * @param remainingArgs If non null, the given list will contain on return the command-line
-     *     arguments that were not used to set properties.
-     * @return A new property set initialized with the property settings that were removed from the
-     *     argument vector.
+     * @param args The command-line arguments.
+     * @param remainingArgs If non-null, the command-line arguments that remain after parsing Ice properties out of
+     *     {@code args}.
+     * @return A new property set.
      * @deprecated Use {@link Properties#Properties(String[], java.util.List)} instead.
      */
     @Deprecated
     public static Properties createProperties(String[] args, List<String> remainingArgs) {
-        return new Properties(args, null, remainingArgs);
+        return new Properties(args, remainingArgs);
     }
 
     /**
-     * Creates a property set initialized from an argument vector.
+     * Creates a property set initialized from command-line arguments and default properties. See
+     * {@link Properties#Properties(String[], Properties)} for a detailed description of the behavior of this deprecated
+     * factory method.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a {@code --Ice.Config} option, the corresponding
-     *     configuration files are parsed. If the same property is set in a configuration file and
-     *     in the argument vector, the argument vector takes precedence.
+     * @param args The command-line arguments.
      * @param defaults Default values for the property set. Settings in configuration files and
      *     {@code args} override these defaults.
-     * @return A new property set initialized with the property settings that were removed from the
-     *     argument vector.
+     * @return A new property set.
      * @deprecated Use {@link Properties#Properties(String[], Properties)} instead.
      */
     @Deprecated
     public static Properties createProperties(String[] args, Properties defaults) {
-        return new Properties(args, defaults, null);
+        return new Properties(args, defaults);
     }
 
     /**
-     * Creates a property set initialized from an argument vector and returns the remaining
-     * arguments.
+     * Creates a property set initialized from command-line arguments and default properties. See
+     * {@link Properties#Properties(String[], Properties, java.util.List)} for a detailed description of the behavior of
+     * this deprecated factory method.
      *
-     * @param args A command-line argument vector, possibly containing options to set properties. If
-     *     the command-line options include a {@code --Ice.Config} option, the corresponding
-     *     configuration files are parsed. If the same property is set in a configuration file and
-     *     in the argument vector, the argument vector takes precedence.
+     * @param args The command-line arguments.
      * @param defaults Default values for the property set. Settings in configuration files and
      *     {@code args} override these defaults.
-     * @param remainingArgs If non null, the given list will contain on return the command-line
-     *     arguments that were not used to set properties.
-     * @return A new property set initialized with the property settings that were removed from the
-     *     argument vector.
+     * @param remainingArgs If non-null, the command-line arguments that remain after parsing Ice properties out of
+     *     {@code args}.
+     * @return A new property set.
      * @deprecated Use {@link Properties#Properties(String[], Properties, java.util.List)} instead.
      */
     @Deprecated

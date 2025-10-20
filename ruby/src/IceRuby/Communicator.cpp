@@ -393,7 +393,7 @@ IceRuby_Communicator_getProperties(VALUE self)
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         Ice::PropertiesPtr props = p->getProperties();
-        return createProperties(props);
+        return IceRuby::createProperties(props);
     }
     ICE_RUBY_CATCH
     return Qnil;

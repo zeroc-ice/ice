@@ -236,7 +236,7 @@ void
 Subscriber::run(int argc, char** argv)
 {
     InitializationData initData;
-    initData.properties = make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"});
+    initData.properties = make_shared<Ice::Properties>("IceStormAdmin");
     initData.properties = createTestProperties(argc, argv, initData.properties);
 
     // override the test default since we abort connections
