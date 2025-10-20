@@ -76,7 +76,7 @@ public final class Util {
      * @param args The command-line arguments.
      * @param defaults Default values for the property set. Settings in configuration files and
      *     {@code args} override these defaults.
-     * @param remainingArgs If non null, the command-line arguments that remain after parsing Ice properties out of
+     * @param remainingArgs If non-null, the command-line arguments that remain after parsing Ice properties out of
      *     {@code args}.
      * @return A new property set.
      * @deprecated Use {@link Properties#Properties(String[], Properties, java.util.List)} instead.
