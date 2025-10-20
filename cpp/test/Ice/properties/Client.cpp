@@ -235,7 +235,6 @@ Client::run(int, char**)
         Ice::PropertiesPtr properties = Ice::createProperties(args);
         test(args.size() == 1);
         test(args[0] == "--Foo=Bar");
-        test(properties->getIceProperty("Ice.ProgramName") == "--Foo=Bar");
         test(properties->getIceProperty("Ice.Trace.Network") == "3");
         cout << "ok" << endl;
     }

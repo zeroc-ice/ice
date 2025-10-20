@@ -580,7 +580,15 @@ public sealed class Instance
 
         try
         {
-            _initData.properties ??= new Ice.Properties();
+            _initData.properties ??= new Properties();
+
+            string programName = _initData.properties.getIceProperty("Ice.ProgramName");
+            if (programName.Length == 0)
+            {
+                _initData.properties.setProperty("Ice.ProgramName", AppDomain.CurrentDomain.FriendlyName);
+                // Re-read it to mark it as used.
+                programName = _initData.properties.getIceProperty("Ice.ProgramName");
+            }
 
             lock (_staticLock)
             {
@@ -637,17 +645,15 @@ public sealed class Instance
                 string logfile = _initData.properties.getIceProperty("Ice.LogFile");
                 if (logfile.Length != 0)
                 {
-                    _initData.logger =
-                        new Ice.FileLoggerI(_initData.properties.getIceProperty("Ice.ProgramName"), logfile);
+                    _initData.logger = new FileLoggerI(programName, logfile);
                 }
-                else if (Ice.Util.getProcessLogger() is Ice.LoggerI)
+                else if (Ice.Util.getProcessLogger() is LoggerI)
                 {
                     //
                     // Ice.ConsoleListener is enabled by default.
                     //
                     bool console = _initData.properties.getIcePropertyAsInt("Ice.ConsoleListener") > 0;
-                    _initData.logger =
-                        new Ice.TraceLoggerI(_initData.properties.getIceProperty("Ice.ProgramName"), console);
+                    _initData.logger = new Ice.TraceLoggerI(programName, console);
                 }
                 else
                 {

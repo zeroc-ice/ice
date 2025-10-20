@@ -564,6 +564,9 @@ public final class Instance {
 
             Properties properties = _initData.properties;
 
+            // TODO: set a fallback value like in C#.
+            String programName = properties.getIceProperty("Ice.ProgramName");
+
             synchronized (Instance.class) {
                 if (!_oneOffDone) {
                     String stdOut = properties.getIceProperty("Ice.StdOut");
@@ -620,18 +623,16 @@ public final class Instance {
                     }
                     _initData.logger =
                         new SysLoggerI(
-                            properties.getIceProperty("Ice.ProgramName"),
+                            programName,
                             properties.getIceProperty("Ice.SyslogFacility"),
                             properties.getIceProperty("Ice.SyslogHost"),
                             properties.getIcePropertyAsInt("Ice.SyslogPort"));
                 } else if (!logFile.isEmpty()) {
-                    _initData.logger =
-                        new FileLoggerI(properties.getIceProperty("Ice.ProgramName"), logFile);
+                    _initData.logger = new FileLoggerI(programName, logFile);
                 } else {
                     _initData.logger = Util.getProcessLogger();
                     if (_initData.logger instanceof LoggerI) {
-                        _initData.logger =
-                            new LoggerI(properties.getIceProperty("Ice.ProgramName"));
+                        _initData.logger = new LoggerI(programName);
                     }
                 }
             }

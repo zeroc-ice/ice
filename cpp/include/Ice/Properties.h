@@ -76,7 +76,7 @@ namespace Ice
         /// @param defaults Default values for the new Properties object. Settings in configuration files and the
         /// arguments override these defaults.
         /// @remarks This constructor loads properties from files specified by the `ICE_CONFIG` environment variable
-        /// when there is no `--Ice.Config` command-line argument. It also gives `Ice.ProgramName` a default value.
+        /// when there is no `--Ice.Config` command-line argument.
         explicit Properties(StringSeq& args, const PropertiesPtr& defaults = nullptr);
 
         /// Constructs a property set, loads the configuration files specified by the `Ice.Config` property or the
@@ -92,7 +92,7 @@ namespace Ice
         /// @param defaults Default values for the new Properties object. Settings in configuration files and the
         /// arguments override these defaults.
         /// @remarks This constructor loads properties from files specified by the `ICE_CONFIG` environment variable
-        /// when there is no `--Ice.Config` command-line argument. It also gives `Ice.ProgramName` a default value.
+        /// when there is no `--Ice.Config` command-line argument.
         template<typename ArgvT>
         Properties(int& argc, ArgvT argv, const PropertiesPtr& defaults = nullptr) : Properties{defaults}
         {
@@ -124,7 +124,7 @@ namespace Ice
         /// @param firstOptInPrefix The first opt-in prefix.
         /// @param remainingOptInPrefixes The remaining opt-in prefixes.
         /// @remarks This constructor loads properties from files specified by the `ICE_CONFIG` environment variable
-        /// when there is no `--Ice.Config` command-line argument. It also gives `Ice.ProgramName` a default value.
+        /// when there is no `--Ice.Config` command-line argument.
         template<typename ArgvT, typename... T>
         Properties(int& argc, ArgvT argv, std::string firstOptInPrefix, T... remainingOptInPrefixes)
             : Properties{std::move(firstOptInPrefix), std::move(remainingOptInPrefixes)...}

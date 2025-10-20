@@ -211,9 +211,10 @@ public class AllTests : global::Test.AllTests
             // Test: PropertiesAdmin::getProperties()
             //
             Dictionary<string, string> pd = pa.getPropertiesForPrefix("");
-            test(pd.Count == 5);
+            test(pd.Count == 6);
             test(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1");
             test(pd["Ice.Admin.InstanceName"] == "Test");
+            test(pd["Ice.ProgramName"] == "server");
             test(pd["Prop1"] == "1");
             test(pd["Prop2"] == "2");
             test(pd["Prop3"] == "3");
