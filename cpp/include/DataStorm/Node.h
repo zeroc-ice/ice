@@ -103,11 +103,8 @@ namespace DataStorm
     private:
         template<typename ArgvT> NodeOptions createNodeOptions(int& argc, ArgvT argv)
         {
-            Ice::InitializationData initData;
-            initData.properties = std::make_shared<Ice::Properties>(argc, argv, "DataStorm");
-
             NodeOptions options;
-            options.communicator = Ice::initialize(std::move(initData));
+            options.communicator = Ice::initialize(argc, argv);
             options.nodeOwnsCommunicator = true;
             return options;
         }

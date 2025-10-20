@@ -580,7 +580,7 @@ const PropertyArray PropertyNames::DataStormProps
 {
     .name="DataStorm",
     .prefixOnly=false,
-    .isOptIn=true,
+    .isOptIn=false,
     .properties=DataStormPropsData,
     .length=19
 };

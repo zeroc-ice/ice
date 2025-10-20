@@ -396,7 +396,7 @@
         <property name="Trace.Session" languages="cpp" default="0" />
     </section>
 
-    <section name="DataStorm" opt-in="true">
+    <section name="DataStorm" opt-in="false">
         <property name="Node.ConnectTo" languages="cpp" />
         <property name="Node.Multicast" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Multicast.Enabled" default="1" languages="cpp" />

@@ -10,15 +10,6 @@ using namespace std;
 using namespace DataStorm;
 using namespace Ice;
 
-namespace
-{
-    CommunicatorPtr createCommunicator()
-    {
-        InitializationData initData{.properties = make_shared<Properties>("DataStorm")};
-        return initialize(std::move(initData));
-    }
-}
-
 const char*
 NodeShutdownException::what() const noexcept
 {
@@ -35,7 +26,7 @@ Node::Node(NodeOptions options)
     else
     {
         _ownsCommunicator = true;
-        communicator = createCommunicator(); // the only call that can throw up to here
+        communicator = Ice::initialize(); // the only call that can throw up to here
     }
 
     try

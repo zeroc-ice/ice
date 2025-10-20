@@ -317,7 +317,7 @@ final class PropertyNames {
     public static final PropertyArray DataStormProps = new PropertyArray(
         "DataStorm",
         false,
-        true,
+        false,
         new Property[] {
         });
 

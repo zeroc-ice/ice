@@ -294,7 +294,7 @@ internal sealed class PropertyNames
     internal static PropertyArray DataStormProps = new(
         "DataStorm",
         false,
-        true,
+        false,
         []);
 
     internal static PropertyArray[] validProps =
