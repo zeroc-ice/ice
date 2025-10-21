@@ -40,7 +40,8 @@ Instance::Instance(
 
         try
         {
-            _adapter = _communicator->createObjectAdapter("DataStorm.Node.Server", serverAuthenticationOptions);
+            _adapter =
+                _communicator->createObjectAdapter("DataStorm.Node.Server", std::move(serverAuthenticationOptions));
         }
         catch (const LocalException& ex)
         {
