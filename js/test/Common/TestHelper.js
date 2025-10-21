@@ -74,6 +74,15 @@ export class TestHelper {
         return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
     }
 
+    updateLogFileProperty(properties, suffix) {
+        const logFile = properties.getIceProperty("Ice.LogFile");
+        if (logFile) {
+            const newLogFile =
+                logFile.substring(0, logFile.lastIndexOf(".")) + suffix + logFile.substring(logFile.lastIndexOf("."));
+            properties.setProperty("Ice.LogFile", newLogFile);
+        }
+    }
+
     createTestProperties(args = []) {
         const properties = new Ice.Properties(args);
         args = properties.parseCommandLineOptions("Test", args);
