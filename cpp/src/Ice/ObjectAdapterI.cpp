@@ -925,14 +925,11 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             }
         }
 
-        int threadPoolSize = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
-        int threadPoolSizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-
-        //
-        // Create the per-adapter thread pool, if necessary. This is done before the creation of the incoming
-        // connection factory as the thread pool is needed during creation for the call to incFdsInUse.
-        //
-        if (threadPoolSize > 0 || threadPoolSizeMax > 0)
+        // If the user configured any of the ObjectAdapter.ThreadPool properties, create a per-adapter thread pool.
+        // Otherwise the OA will use the default server thread pool.
+        // This is done before the creation of the incoming connection factory as the thread pool is needed during
+        // creation for the call to incFdsInUse.
+        if (properties->getPropertiesForPrefix(_name + ".ThreadPool.").size() > 0)
         {
             _threadPool = ThreadPool::create(_instance, _name + ".ThreadPool", 0);
         }
