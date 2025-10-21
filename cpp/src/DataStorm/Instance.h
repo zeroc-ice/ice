@@ -24,7 +24,10 @@ namespace DataStormI
     class Instance final : public std::enable_shared_from_this<Instance>
     {
     public:
-        Instance(Ice::CommunicatorPtr communicator, std::function<void(std::function<void()> call)> customExecutor);
+        Instance(
+            Ice::CommunicatorPtr communicator,
+            std::function<void(std::function<void()> call)> customExecutor,
+            std::optional<Ice::SSL::ServerAuthenticationOptions> serverAuthenticationOptions);
 
         void init();
 

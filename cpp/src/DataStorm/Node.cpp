@@ -31,7 +31,10 @@ Node::Node(NodeOptions options)
 
     try
     {
-        _instance = make_shared<DataStormI::Instance>(communicator, std::move(options.customExecutor));
+        _instance = make_shared<DataStormI::Instance>(
+            communicator,
+            std::move(options.customExecutor),
+            std::move(options.serverAuthenticationOptions));
         _instance->init();
     }
     catch (...)
@@ -46,7 +49,10 @@ Node::Node(NodeOptions options)
 }
 
 Node::Node(Ice::CommunicatorPtr communicator)
-    : Node{NodeOptions{.communicator = std::move(communicator), .nodeOwnsCommunicator = false}}
+    : Node{NodeOptions{
+          .communicator = std::move(communicator),
+          .nodeOwnsCommunicator = false,
+          .serverAuthenticationOptions = std::nullopt}}
 {
 }
 
