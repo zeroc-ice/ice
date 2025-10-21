@@ -158,7 +158,7 @@ class BatchRequestQueue {
     }
 
     private void waitStreamInUse(boolean flush) {
-        // This is similar to a mutex lock in that the stream is  only "locked" while marshaling.
+        // This is similar to a mutex lock in that the stream is only "locked" while marshaling.
         // As such we don't permit the wait to be interrupted.
         // Instead the interrupted status is saved and restored.
         boolean interrupted = false;
