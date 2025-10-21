@@ -18,9 +18,9 @@ public interface Blobject extends Object {
      * @param inEncaps an encapsulation containing the encoded in-parameters for the operation.
      * @param current the Current object of the incoming request
      * @return The method returns an instance of {@link Ice_invokeResult}. If the operation completed successfully,
-     *     set the {@code returnValue} member to {@code true} and the {@code outParams} member to the encoded results.
+     *     set the {@code returnValue} field to {@code true} and the {@code outParams} field to the encoded results.
      *     If the operation threw a user exception, you can either throw it directly or set the {@code returnValue}
-     *     member to {@code false} and the {@code outParams} member to the encoded user exception.
+     *     field to {@code false} and the {@code outParams} field to the encoded user exception.
      *     If the operation throws an Ice run-time exception, it must throw it directly.
      * @throws UserException If a user exception is thrown, Ice will marshal it as the response payload.
      */
