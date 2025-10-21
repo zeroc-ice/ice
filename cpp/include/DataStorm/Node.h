@@ -38,6 +38,10 @@ namespace DataStorm
         /// If no callback executor is set, the node will use the default callback executor that executes callbacks
         /// in a dedicated thread.
         std::function<void(std::function<void()> call)> customExecutor{};
+
+        /// The server authentication options used for SSL connections.
+        /// When provided, these options are used to initialize the DataStorm.Node.Server object adapter.
+        std::optional<Ice::SSL::ServerAuthenticationOptions> serverAuthenticationOptions{std::nullopt};
     };
 
     /// The Node class allows creating topic readers and writers.

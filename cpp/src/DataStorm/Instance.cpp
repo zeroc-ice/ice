@@ -14,7 +14,10 @@ using namespace std;
 using namespace DataStormI;
 using namespace Ice;
 
-Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> call)> customExecutor)
+Instance::Instance(
+    CommunicatorPtr communicator,
+    function<void(function<void()> call)> customExecutor,
+    std::optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
     : _communicator(std::move(communicator))
 {
     if (_communicator->getDefaultObjectAdapter())
@@ -35,7 +38,7 @@ Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> 
 
         try
         {
-            _adapter = _communicator->createObjectAdapter("DataStorm.Node.Server");
+            _adapter = _communicator->createObjectAdapter("DataStorm.Node.Server", serverAuthenticationOptions);
         }
         catch (const LocalException& ex)
         {
