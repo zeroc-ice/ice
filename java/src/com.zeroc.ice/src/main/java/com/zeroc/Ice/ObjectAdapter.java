@@ -1171,15 +1171,7 @@ public final class ObjectAdapter {
         try {
             // If the user configured any of the ObjectAdapter.ThreadPool properties, create a per-adapter thread pool.
             // Otherwise the OA will use the default server thread pool.
-            boolean createThreadPool =
-                !properties.getProperty(_name + ".ThreadPool.Serialize").isEmpty()
-                    || !properties.getProperty(_name + ".ThreadPool.Size").isEmpty()
-                    || !properties.getProperty(_name + ".ThreadPool.SizeMax").isEmpty()
-                    || !properties.getProperty(_name + ".ThreadPool.SizeWarn").isEmpty()
-                    || !properties.getProperty(_name + ".ThreadPool.StackSize").isEmpty()
-                    || !properties.getProperty(_name + ".ThreadPool.ThreadIdleTime").isEmpty()
-                    || !properties.getProperty(_name + ".ThreadPool.ThreadPriority").isEmpty();
-            if (createThreadPool) {
+            if (!properties.getPropertiesForPrefix(_name + ".ThreadPool.").isEmpty()) {
                 _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
 

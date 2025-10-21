@@ -929,13 +929,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
         // Otherwise the OA will use the default server thread pool.
         // This is done before the creation of the incoming connection factory as the thread pool is needed during
         // creation for the call to incFdsInUse.
-        bool createThreadPool = !properties->getProperty(_name + ".ThreadPool.Serialize").empty() ||
-                                !properties->getProperty(_name + ".ThreadPool.Size").empty() ||
-                                !properties->getProperty(_name + ".ThreadPool.SizeMax").empty() ||
-                                !properties->getProperty(_name + ".ThreadPool.SizeWarn").empty() ||
-                                !properties->getProperty(_name + ".ThreadPool.ThreadIdleTime").empty();
-
-        if (createThreadPool)
+        if (properties->getPropertiesForPrefix(_name + ".ThreadPool.").size() > 0)
         {
             _threadPool = ThreadPool::create(_instance, _name + ".ThreadPool", 0);
         }
