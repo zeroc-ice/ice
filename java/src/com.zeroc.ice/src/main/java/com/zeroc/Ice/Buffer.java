@@ -6,8 +6,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * An instance of java.nio.ByteBuffer cannot grow beyond its initial capacity. This class wraps a
- * ByteBuffer and supports reallocation.
+ * An instance of {@link java.nio.ByteBuffer} cannot grow beyond its initial capacity.
+ * This class wraps a {@link ByteBuffer} and supports reallocation.
  *
  * @hidden Public because it's used by IceBT, SSL, and the 'Ice/background' test.
  */
@@ -64,20 +64,17 @@ public class Buffer {
     }
 
     public java.nio.Buffer position(int newPosition) {
-        // Cast to java.nio.Buffer to avoid incompatible covariant
-        // return type used in Java 9 java.nio.ByteBuffer
+        // Cast to java.nio.Buffer to avoid incompatible covariant return type used by java.nio.ByteBuffer.
         return ((java.nio.Buffer) b).position(newPosition);
     }
 
     public java.nio.Buffer limit(int newLimit) {
-        // Cast to java.nio.Buffer to avoid incompatible covariant
-        // return type used in Java 9 java.nio.ByteBuffer
+        // Cast to java.nio.Buffer to avoid incompatible covariant return type used by java.nio.ByteBuffer.
         return ((java.nio.Buffer) b).limit(newLimit);
     }
 
     public java.nio.Buffer flip() {
-        // Cast to java.nio.Buffer to avoid incompatible covariant
-        // return type used in Java 9 java.nio.ByteBuffer
+        // Cast to java.nio.Buffer to avoid incompatible covariant return type used by java.nio.ByteBuffer.
         return ((java.nio.Buffer) b).flip();
     }
 
@@ -119,11 +116,13 @@ public class Buffer {
         _shrinkCounter = 0;
     }
 
-    //
-    // Call expand(n) to add room for n additional bytes. Note that expand()
-    // examines the current position of the buffer first; we don't want to expand the buffer if the
-    // caller is writing to a location that is already in the buffer.
-    //
+    /**
+     * Adds room to this buffer for {@code n} additional bytes.
+     * Note that {@code expand} examines the current position of the buffer first;
+     * we don't want to expand the buffer if the caller is writing to a location that is already in the buffer.
+     *
+     * @param n the number of additional bytes
+     */
     public void expand(int n) {
         final int sz = b == _emptyBuffer ? n : b.position() + n;
         if (sz > _size) {
@@ -141,9 +140,7 @@ public class Buffer {
         }
         _size = n;
 
-        //
         // When used for reading, we want to set the buffer's limit to the new size.
-        //
         if (reading) {
             limit(_size);
         }
@@ -151,11 +148,8 @@ public class Buffer {
 
     public void reset() {
         if (_size > 0 && _size * 2 < _capacity) {
-            //
-            // If the current buffer size is smaller than the buffer capacity, we shrink the buffer
-            // memory to the current size. This is to avoid holding on to too much memory if it's
-            // not needed anymore.
-            //
+            // If the current buffer size is smaller than the buffer capacity, we shrink the buffer memory
+            // to the current size. This is to avoid holding on to too much memory if it's not needed anymore.
             if (++_shrinkCounter > 2) {
                 reserve(_size);
                 _shrinkCounter = 0;

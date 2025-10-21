@@ -10,7 +10,7 @@ import java.util.concurrent.CompletionStage;
 /** The base interface for servants. */
 @SliceTypeId(value = "::Ice::Object")
 public interface Object {
-    /** Holds the results of a call to <code>ice_invoke</code>. */
+    /** Holds the results of a call to {@code ice_invoke}. */
     public class Ice_invokeResult {
         /** Default initializes the fields. */
         public Ice_invokeResult() {}
@@ -18,9 +18,8 @@ public interface Object {
         /**
          * Primary constructor to initialize the fields.
          *
-         * @param returnValue {@code true} for a successful invocation with any results encoded in
-         *     {@code outParams}; {@code false} if a user exception occurred with the exception
-         *     encoded in {@code outParams}.
+         * @param returnValue {@code true} for a successful invocation (any results are encoded in {@code outParams});
+         *     {@code false} if a user exception occurred (the exception is encoded in {@code outParams}).
          * @param outParams The encoded results.
          */
         public Ice_invokeResult(boolean returnValue, byte[] outParams) {
@@ -29,16 +28,16 @@ public interface Object {
         }
 
         /**
-         * If the operation completed successfully, the return value is <code>true</code>. If the
-         * operation raises a user exception, the return value is <code>false</code>; in this case,
-         * <code>outParams</code> contains the encoded user exception. If the operation raises a
+         * If the operation completed successfully, the return value is {@code true}. If the
+         * operation raises a user exception, the return value is {@code false}; in this case,
+         * {@code outParams} contains the encoded user exception. If the operation raises a
          * run-time exception, it throws it directly.
          */
         public boolean returnValue;
 
         /**
-         * The encoded out-parameters and return value for the operation. The return value follows
-         * any out-parameters.
+         * The encoded out-parameters and return value for the operation.
+         * The return value follows any out-parameters.
          */
         public byte[] outParams;
     }
@@ -46,10 +45,10 @@ public interface Object {
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param s The type ID of the Slice interface to test against.
-     * @param current The {@link Current} object for the invocation.
-     * @return <code>true</code> if this object has the interface specified by <code>s</code> or
-     *     derives from the interface specified by <code>s</code>.
+     * @param s the type ID of the Slice interface to test against
+     * @param current the {@link Current} object of the incoming request
+     * @return {@code true} if this object implements the Slice interface specified by {@code s} or
+     *     implements a derived interface, {@code false} otherwise
      */
     default boolean ice_isA(String s, Current current) {
 
@@ -59,17 +58,17 @@ public interface Object {
     /**
      * Tests whether this object can be reached.
      *
-     * @param current The {@link Current} object for the invocation.
+     * @param current the {@link Current} object of the incoming request
      */
     default void ice_ping(Current current) {
         // Nothing to do.
     }
 
     /**
-     * Returns the Slice type IDs of the interfaces supported by this object.
+     * Returns the Slice interfaces supported by this object as a list of type IDs.
      *
-     * @param current The {@link Current} object for the invocation.
-     * @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
+     * @param current the {@link Current} object of the incoming request
+     * @return the Slice type IDs of the interfaces supported by this object, in alphabetical order
      */
     default String[] ice_ids(Current current) {
         var typeIds = new TreeSet<String>();
@@ -78,10 +77,10 @@ public interface Object {
     }
 
     /**
-     * Returns the Slice type ID of the most-derived interface supported by this object.
+     * Returns the type ID of the most-derived Slice interface supported by this object.
      *
-     * @param current The {@link Current} object for the invocation.
-     * @return The Slice type ID of the most-derived interface.
+     * @param current the {@link Current} object of the incoming request
+     * @return the Slice type ID of the most-derived interface
      */
     default String ice_id(Current current) {
         // The first direct interface with a type ID is necessarily the most derived interface.
@@ -95,7 +94,7 @@ public interface Object {
     }
 
     /**
-     * Returns the Slice type ID of the interface supported by this object.
+     * Returns the type ID of the associated Slice interface.
      *
      * @return The return value is always ::Ice::Object.
      */
@@ -106,12 +105,11 @@ public interface Object {
     /**
      * Dispatches an incoming request and returns the corresponding outgoing response.
      *
-     * @param request The incoming request.
-     * @return The outgoing response.
+     * @param request the incoming request
+     * @return a {@link CompletionStage} that will complete with the outgoing response
      * @throws UserException If a {@code UserException} is thrown, Ice will marshal it as the response payload.
      */
-    default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request)
-        throws UserException {
+    default CompletionStage<OutgoingResponse> dispatch(IncomingRequest request) throws UserException {
         return switch (request.current.operation) {
             case "ice_id" -> _iceD_ice_id(this, request);
             case "ice_ids" -> _iceD_ice_ids(this, request);
@@ -123,7 +121,7 @@ public interface Object {
 
     /**
      * Dispatches an incoming request and returns the corresponding outgoing response
-     * for the {@code ice_isA} operation.
+     * for the {@link ice_isA} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -143,7 +141,7 @@ public interface Object {
 
     /**
      * Dispatches an incoming request and returns the corresponding outgoing response
-     * for the {@code ice_ping} operation.
+     * for the {@link ice_ping} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -158,7 +156,7 @@ public interface Object {
 
     /**
      * Dispatches an incoming request and returns the corresponding outgoing response
-     * for the {@code ice_ids} operation.
+     * for the {@link ice_ids} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -177,7 +175,7 @@ public interface Object {
 
     /**
      * Dispatches an incoming request and returns the corresponding outgoing response
-     * for the {@code ice_id} operation.
+     * for the {@link ice_id} operation.
      *
      * @param obj the object to dispatch the request to
      * @param request the incoming request
@@ -192,7 +190,7 @@ public interface Object {
                 ret, (ostr, value) -> ostr.writeString(value), FormatType.CompactFormat));
     }
 
-    // Implements ice_isA by checking all interfaces recursively.
+    /** Implements {@link ice_isA} by checking all interfaces recursively. */
     private static boolean isA(Class<?> type, String typeId) {
         for (var directInterface : type.getInterfaces()) {
             var sliceTypeIdAnnotation = directInterface.getAnnotation(SliceTypeId.class);
@@ -209,7 +207,7 @@ public interface Object {
         return false;
     }
 
-    // Helper for ice_ids.
+    /** Helper for ice_ids. */
     private static void addTypeIds(Class<?> type, SortedSet<String> typeIds) {
         for (var directInterface : type.getInterfaces()) {
             var sliceTypeIdAnnotation = directInterface.getAnnotation(SliceTypeId.class);

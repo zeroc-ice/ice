@@ -3,8 +3,12 @@
 package com.zeroc.Ice;
 
 final class Assert {
-    // The JVM ignores exceptions raised in finalizers, therefore finalizers
-    // that use assertions should call this method instead of assert().
+    /**
+     * The JVM ignores exceptions raised in finalizers,
+     * therefore finalizers that use assertions should call this method instead of {@code assert()}.
+     *
+     * @param b the boolean to assert
+    */
     public static void FinalizerAssert(boolean b) {
         if (!b) {
             // Create a Throwable to obtain the stack trace.

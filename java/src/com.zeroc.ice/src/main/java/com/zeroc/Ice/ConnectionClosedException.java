@@ -8,7 +8,8 @@ public final class ConnectionClosedException extends LocalException {
      * Constructs a ConnectionClosedException.
      *
      * @param message the detail message
-     * @param closedByApplication indicates whether the connection was closed by the application
+     * @param closedByApplication {@code true} if the connection was closed by the application,
+     *     {@code false} if the connection was closed by the Ice runtime.
      */
     public ConnectionClosedException(String message, boolean closedByApplication) {
         super(message);
@@ -20,9 +21,7 @@ public final class ConnectionClosedException extends LocalException {
         return "::Ice::ConnectionClosedException";
     }
 
-    /**
-     * Indicates whether the connection was closed by the application.
-     */
+    /** Indicates whether the connection was closed by the application. */
     public final boolean closedByApplication;
 
     private static final long serialVersionUID = 7544357079121284684L;

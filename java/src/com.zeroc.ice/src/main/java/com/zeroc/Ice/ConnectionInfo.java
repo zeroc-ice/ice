@@ -2,18 +2,18 @@
 
 package com.zeroc.Ice;
 
-/** Base class providing access to the connection details. */
+/** Base class for all connection info classes. */
 public class ConnectionInfo {
-    /** The information of the underlying transport or null if there's no underlying transport. */
+    /** The information of the underlying transport or {@code null} if there's no underlying transport. */
     public final ConnectionInfo underlying;
 
-    /** Whether or not the connection is an incoming or outgoing connection. */
+    /** {@code true} if this in an incoming connection, {@code false} otherwise. */
     public final boolean incoming;
 
     /** The name of the adapter associated with the connection. */
     public final String adapterName;
 
-    /** The connection id. */
+    /** The connection ID. */
     public final String connectionId;
 
     /**

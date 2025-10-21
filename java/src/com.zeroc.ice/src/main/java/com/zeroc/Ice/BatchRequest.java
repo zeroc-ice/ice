@@ -2,29 +2,32 @@
 
 package com.zeroc.Ice;
 
-/** Represents an invocation on a proxy configured for batch-oneway or batch-datagram. */
+/**
+ * Represents a batch request.
+ * A batch request is created by invoking an operation on a batch-oneway or batch-datagram proxy.
+ */
 public interface BatchRequest {
-    /** Confirms the queuing of the batch request. */
+    /** Queues this request. */
     void enqueue();
 
     /**
-     * The marshaled size of the request.
+     * Returns the marshaled size of the request.
      *
-     * @return The marshaled size.
+     * @return the number of bytes consumed by the request
      */
     int getSize();
 
     /**
-     * The name of the operation.
+     * Returns the name of the operation.
      *
-     * @return The operation name.
+     * @return the operation name
      */
     String getOperation();
 
     /**
-     * The proxy used to invoke the batch request.
+     * Gets the proxy used to create this batch request.
      *
-     * @return The proxy.
+     * @return the proxy
      */
     ObjectPrx getProxy();
 }

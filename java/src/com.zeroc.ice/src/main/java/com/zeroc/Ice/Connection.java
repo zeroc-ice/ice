@@ -4,7 +4,7 @@ package com.zeroc.Ice;
 
 import java.util.concurrent.CompletableFuture;
 
-/** The user-level interface to a connection. */
+/** Represents a connection that uses the Ice protocol. */
 public interface Connection {
     /** Aborts this connection. */
     void abort();
@@ -19,21 +19,20 @@ public interface Connection {
     /**
      * Creates a special proxy (a "fixed proxy") that always uses this connection.
      *
-     * @param id The identity of the target object.
-     * @return A fixed proxy with the provided identity.
+     * @param id the identity of the target object
+     * @return a fixed proxy with the provided identity
      * @see #setAdapter
      */
     ObjectPrx createProxy(Identity id);
 
     /**
-     * Associates an object adapter with this connection. When a connection receives a request, it
-     * dispatches this request using its associated object adapter. If the associated object adapter
-     * is null, the connection rejects any incoming request with an {@link ObjectNotExistException}.
-     * The default object adapter of an incoming connection is the object adapter that created this
-     * connection; the default object adapter of an outgoing connection is the communicator's
-     * default object adapter.
+     * Associates an object adapter with this connection. When a connection receives a request, it dispatches this
+     * request using its associated object adapter. If the associated object adapter is null, the connection rejects
+     * any incoming request with an {@link ObjectNotExistException}.
+     * The default object adapter of an incoming connection is the object adapter that created this connection;
+     * the default object adapter of an outgoing connection is the communicator's default object adapter.
      *
-     * @param adapter The object adapter to associate with the connection.
+     * @param adapter the object adapter to associate with the connection
      * @see #createProxy
      * @see #getAdapter
      * @see Communicator#setDefaultObjectAdapter
@@ -43,7 +42,7 @@ public interface Connection {
     /**
      * Gets the object adapter associated with this connection.
      *
-     * @return The object adapter associated with this connection.
+     * @return the object adapter associated with this connection
      * @see #setAdapter
      * @see Communicator#getDefaultObjectAdapter
      */
@@ -52,34 +51,34 @@ public interface Connection {
     /**
      * Gets the endpoint from which the connection was created.
      *
-     * @return The endpoint from which the connection was created.
+     * @return the endpoint from which the connection was created
      */
     Endpoint getEndpoint();
 
     /**
-     * Flushes any pending batch requests for this connection. This corresponds to all batch requests invoked on
-     * fixed proxies associated with the connection.
+     * Flushes any pending batch requests for this connection.
+     * This corresponds to all batch requests invoked on fixed proxies associated with the connection.
      *
-     * @param compress Specifies whether or not the queued batch requests should be compressed
-     *     before being sent over the wire.
+     * @param compress Specifies whether or not the queued batch requests should be compressed before
+     *     being sent over the wire.
      */
     void flushBatchRequests(CompressBatch compress);
 
     /**
-     * Flushes any pending batch requests for this connection. This corresponds to all batch requests invoked on
-     * fixed proxies associated with the connection.
+     * Flushes any pending batch requests for this connection.
+     * This corresponds to all batch requests invoked on fixed proxies associated with the connection.
      *
-     * @param compress Specifies whether or not the queued batch requests should be compressed
-     *     before being sent over the wire.
+     * @param compress Specifies whether or not the queued batch requests should be compressed before
+     *     being sent over the wire.
      * @return A future that becomes available when the flush completes.
      */
     CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compress);
 
     /**
-     * Sets a close callback on the connection. The callback is called by the connection when it's closed. The
-     * callback is called from the Ice thread pool associated with the connection.
+     * Sets a close callback on the connection. The callback is called by the connection when it's closed.
+     * The callback is called from the Ice thread pool associated with the connection.
      *
-     * @param callback The close callback object.
+     * @param callback the close callback object
      */
     void setCloseCallback(CloseCallback callback);
 
@@ -91,38 +90,38 @@ public interface Connection {
     /**
      * Gets the connection type. This corresponds to the endpoint type, such as "tcp", "udp", etc.
      *
-     * @return The type of the connection.
+     * @return the type of the connection
      */
     String type();
 
     /**
-     * Gets a description of the connection as human readable text, suitable for logging or error
-     * messages. This method remains usable after the connection is closed or aborted.
+     * Gets a description of the connection as human readable text, suitable for logging or error messages.
+     * This method remains usable after the connection is closed or aborted.
      *
-     * @return The description of the connection as human readable text.
+     * @return the description of the connection as human readable text
      */
     String _toString();
 
     /**
      * Gets the connection information.
      *
-     * @return The connection information.
+     * @return the connection information
      */
     ConnectionInfo getInfo();
 
     /**
      * Sets the size of the receive and send buffers.
      *
-     * @param rcvSize The size of the receive buffer.
-     * @param sndSize The size of the send buffer.
+     * @param rcvSize the size of the receive buffer
+     * @param sndSize the size of the send buffer
      */
     void setBufferSize(int rcvSize, int sndSize);
 
     /**
-     * Throws an exception that provides the reason for the closure of this connection. For example, this method
-     * throws CloseConnectionException when the connection was closed gracefully by the peer; it throws
-     * ConnectionAbortedException when the connection is aborted. This method does nothing if the
-     * connection is not yet closed.
+     * Throws an exception that provides the reason for the closure of this connection. For example,
+     * this method throws {@link CloseConnectionException} when the connection was closed gracefully by the peer;
+     * it throws {@link ConnectionAbortedException} when the connection is aborted with {@link #abort}.
+     * This method does nothing if the connection is not yet closed.
      */
     void throwException();
 }
