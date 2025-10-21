@@ -261,8 +261,8 @@ Test::TestHelper::updateLogFileProperty(const Ice::PropertiesPtr& properties, co
     string logFile = properties->getIceProperty("Ice.LogFile");
     if (!logFile.empty())
     {
-        string newLogFile = logFile.substr(0, logFile.find_last_of('.')) + suffix +
-            logFile.substr(logFile.find_last_of('.'));
+        string newLogFile =
+            logFile.substr(0, logFile.find_last_of('.')) + suffix + logFile.substr(logFile.find_last_of('.'));
         properties->setProperty("Ice.LogFile", newLogFile);
     }
 }
