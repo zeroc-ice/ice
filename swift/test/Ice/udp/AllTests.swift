@@ -77,6 +77,7 @@ public func allTests(_ helper: TestHelper) async throws {
             while true {
                 seq = ByteSeq(repeating: 0, count: seq.count * 2 + 10)
                 try await obj.sendByteSeq(seq: seq, reply: reply)
+                _ = replyI.waitReply(expectedReplies: 1, timeout: 10000)
             }
         } catch is Ice.DatagramLimitException {
             //
