@@ -17,7 +17,7 @@ using namespace Ice;
 Instance::Instance(
     CommunicatorPtr communicator,
     function<void(function<void()> call)> customExecutor,
-    std::optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
+    std::optional<Ice::SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
     : _communicator(std::move(communicator))
 {
     if (_communicator->getDefaultObjectAdapter())
