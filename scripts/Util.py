@@ -2792,21 +2792,25 @@ class iOSSimulatorProcessController(RemoteProcessController):
             run('xcrun simctl boot "{0}"'.format(self.device))
             print("ok")
 
-            print("waiting for simulator to boot")
-
+            sys.stdout.write("waiting for simulator to boot... ")
+            sys.stdout.flush()
             t = time.time()
             while (time.time() - t) <= 300:
                 if simulator.isBooted():
+                    print(f"{int(time.time() - t)}s ok")
                     break
                 time.sleep(5)
             else:
                 # This runs if the while loop completes without breaking
                 raise RuntimeError(f"simulator '{self.device}' not booted after 300s")
 
+        sys.stdout.write("installing {0}... ".format(os.path.basename(appFullPath)))
+        sys.stdout.flush()
+        run('xcrun simctl install "{0}" "{1}"'.format(self.device, appFullPath))
+        print("ok")
+
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
-
-        run('xcrun simctl install "{0}" "{1}"'.format(self.device, appFullPath))
         run('xcrun simctl launch "{0}" {1}'.format(self.device, ident.name))
         print("ok")
 
