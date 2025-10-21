@@ -172,8 +172,8 @@ jobs:
           # Configure git for pushing the patch
           git config user.name "ZeroC"
           git config user.email "git@zeroc.com"
-          # Apply the patch created during the brew package build
-          find "${GITHUB_WORKSPACE}/staging/homebrew-bottle/" -name 'ice-*.patch' -exec git apply {} +
+          # Apply and commit the patch created during the brew package build
+          git am "${GITHUB_WORKSPACE}/staging/homebrew-bottle/"ice-*.patch
           # Push the updated formula
           git push origin main || { echo "Push failed"; exit 1; }
         working-directory: homebrew-nightly
