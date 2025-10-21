@@ -40,7 +40,7 @@
         <property name="Endpoints" languages="cpp,csharp,java" />
         <property name="Locator" class="Proxy" languages="cpp,csharp,java" />
         <property name="MaxConnections" languages="cpp,csharp,java" default="0" />
-        <property name="MessageSizeMax" languages="all" />
+        <property name="MessageSizeMax" languages="cpp,csharp,java" />
         <property name="ProxyOptions" languages="all" />
         <property name="PublishedEndpoints" languages="all" />
         <property name="PublishedHost" languages="cpp,csharp,java" />
@@ -396,7 +396,7 @@
         <property name="Trace.Session" languages="cpp" default="0" />
     </section>
 
-    <section name="DataStorm" opt-in="true">
+    <section name="DataStorm" opt-in="false">
         <property name="Node.ConnectTo" languages="cpp" />
         <property name="Node.Multicast" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Multicast.Enabled" default="1" languages="cpp" />

@@ -31,32 +31,10 @@ void ::Writer::run(int argc, char* argv[])
         }
 
         {
-            // Communicators shared with DataStorm must have a property set that can use the "DataStorm" opt-in prefix.
-            Ice::InitializationData initData;
-            initData.properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
-            Ice::CommunicatorHolder communicatorHolder{Ice::initialize(initData)};
-            Node n2{communicatorHolder.communicator()};
+            Ice::CommunicatorPtr communicator = Ice::initialize();
+            Ice::CommunicatorHolder communicatorHolder{communicator};
+            Node n2{communicator};
         }
-
-        Ice::InitializationData initData;
-        initData.properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
-        auto c = Ice::initialize(initData);
-        {
-            Node n22(c);
-        }
-        {
-            const Ice::CommunicatorPtr& c2 = c;
-            Node n23(c2);
-        }
-        {
-            const Ice::CommunicatorPtr& c3 = c;
-            Node n24(c3);
-        }
-        {
-            Ice::CommunicatorPtr& c4 = c;
-            Node n25(c4);
-        }
-        c->destroy();
 
         Node n3;
 

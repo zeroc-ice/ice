@@ -476,7 +476,7 @@ ZEND_METHOD(Ice_Communicator, getProperties)
     try
     {
         Ice::PropertiesPtr props = _this->getCommunicator()->getProperties();
-        if (!createProperties(return_value, props))
+        if (!IcePHP::createProperties(return_value, props))
         {
             RETURN_NULL();
         }
@@ -1102,7 +1102,7 @@ ZEND_FUNCTION(Ice_getProperties)
     }
 
     Ice::PropertiesPtr clone = p->second->clone();
-    if (!createProperties(return_value, clone))
+    if (!IcePHP::createProperties(return_value, clone))
     {
         RETURN_NULL();
     }

@@ -11,11 +11,6 @@ public class Server : TestHelper
         Ice.Properties properties = createTestProperties(ref args);
 
         //
-        // Disable collocation optimization to test async/await dispatch.
-        //
-        properties.setProperty("Ice.Default.CollocationOptimized", "0");
-
-        //
         // This test kills connections, so we don't want warnings.
         //
         properties.setProperty("Ice.Warn.Connections", "0");

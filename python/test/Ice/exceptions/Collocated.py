@@ -18,7 +18,6 @@ import Ice
 class Collocated(TestHelper):
     def run(self, args: list[str]):
         properties = self.createTestProperties(args)
-        properties.setProperty("Ice.MessageSizeMax", "10")
 
         with self.initialize(properties=properties) as communicator:
             communicator.getProperties().setProperty("Ice.Warn.Dispatch", "0")

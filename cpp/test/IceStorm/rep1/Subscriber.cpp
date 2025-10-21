@@ -70,8 +70,7 @@ public:
 void
 Subscriber::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator =
-        initialize(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, make_shared<Ice::Properties>("IceStormAdmin"));
     IceInternal::Options opts;
     opts.addOpt("", "ordered");
     opts.addOpt("", "twoway");

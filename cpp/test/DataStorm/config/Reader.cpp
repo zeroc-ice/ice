@@ -264,6 +264,8 @@ void ::Reader::run(int argc, char* argv[])
         test(reader.getNextUnread().getValue() == "value2");
         test(reader.getNextUnread().getValue() == "value21");
         test(reader.getNextUnread().getEvent() == DataStorm::SampleEvent::Remove);
+        // All other samples should have been discarded and there should not be any unread samples.
+        test(reader.hasUnread() == false);
 
         readers.update(true); // Reader is done
     }
@@ -278,6 +280,8 @@ void ::Reader::run(int argc, char* argv[])
         test(reader.getNextUnread().getValue() == "value2");
         test(reader.getNextUnread().getValue() == "value21");
         test(reader.getNextUnread().getEvent() == DataStorm::SampleEvent::Remove);
+        // All other samples should have been discarded and there should not be any unread samples.
+        test(reader.hasUnread() == false);
 
         readers.update(true); // Reader is done
     }

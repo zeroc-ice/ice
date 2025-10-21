@@ -162,6 +162,14 @@ public abstract class TestHelper {
         return Util.isAndroid();
     }
 
+    public boolean isAndroidEmulator() {
+        if (_communicator != null) {
+            // Test.AndroidEmulator is set by Util.py
+            return !_communicator.getProperties().getProperty("Test.AndroidEmulator").isEmpty();
+        }
+        return false;
+    }
+
     public void setWriter(Writer writer) {
         _printWriter = new PrintWriter(writer);
     }

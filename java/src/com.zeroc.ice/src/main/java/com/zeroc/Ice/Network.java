@@ -588,9 +588,7 @@ public final class Network {
         try {
             NetworkInterface.getNetworkInterfaces().asIterator().forEachRemaining(p -> {
                 try {
-                    // TODO: figure out why we need the isAndroid() check here. Without it, the Ice/udp test fails with
-                    // IPv6.
-                    if (Util.isAndroid() || (p.isUp() && p.supportsMulticast())) {
+                    if (p.isUp() && p.supportsMulticast()) {
                         for (InetAddress addr : Collections.list(p.getInetAddresses())) {
                             if (protocol == EnableBoth || isValidAddr(addr, protocol)) {
                                 // Two addresses that compare equal may actually use different interfaces, for example

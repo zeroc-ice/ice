@@ -10,37 +10,6 @@ using namespace std;
 using namespace DataStorm;
 using namespace Ice;
 
-namespace
-{
-    CommunicatorPtr createCommunicator()
-    {
-        InitializationData initData{.properties = make_shared<Properties>(vector<string>{"DataStorm"})};
-        return initialize(std::move(initData));
-    }
-
-    NodeOptions createNodeOptions(int& argc, const char* argv[])
-    {
-        NodeOptions options;
-        auto properties = Ice::createProperties(argc, argv, make_shared<Properties>(vector<string>{"DataStorm"}));
-        InitializationData initData{.properties = properties};
-        options.communicator = Ice::initialize(std::move(initData));
-        options.nodeOwnsCommunicator = true;
-        return options;
-    }
-
-#ifdef _WIN32
-    NodeOptions createNodeOptions(int& argc, const wchar_t* argv[])
-    {
-        NodeOptions options;
-        auto properties = Ice::createProperties(argc, argv, make_shared<Properties>(vector<string>{"DataStorm"}));
-        InitializationData initData{.properties = properties};
-        options.communicator = Ice::initialize(std::move(initData));
-        options.nodeOwnsCommunicator = true;
-        return options;
-    }
-#endif
-}
-
 const char*
 NodeShutdownException::what() const noexcept
 {
@@ -57,7 +26,7 @@ Node::Node(NodeOptions options)
     else
     {
         _ownsCommunicator = true;
-        communicator = createCommunicator(); // the only call that can throw up to here
+        communicator = Ice::initialize(); // the only call that can throw up to here
     }
 
     try
@@ -80,12 +49,6 @@ Node::Node(Ice::CommunicatorPtr communicator)
     : Node{NodeOptions{.communicator = std::move(communicator), .nodeOwnsCommunicator = false}}
 {
 }
-
-Node::Node(int& argc, const char* argv[]) : Node{createNodeOptions(argc, argv)} {}
-
-#ifdef _WIN32
-Node::Node(int& argc, const wchar_t* argv[]) : Node{createNodeOptions(argc, argv)} {}
-#endif
 
 Node::Node(Node&& node) noexcept
 {

@@ -2446,6 +2446,10 @@ class RemoteProcessController(ProcessController):
         # Get the process controller
         processController = self.getController(current)
 
+        if current.config.android and (current.config.avd or not current.config.device):
+            # We're using the emulator, set Test.AndroidEmulator=1
+            props["Test.AndroidEmulator"] = "1"
+
         # TODO: support envs?
 
         traceProps = process.getEffectiveTraceProps(current)

@@ -7,7 +7,7 @@ using System.Globalization;
 namespace Ice;
 
 /// <summary>
-/// Utility methods for the Ice run time.
+/// Utility methods for the Ice runtime.
 /// </summary>
 public sealed class Util
 {
@@ -15,38 +15,20 @@ public sealed class Util
     /// Creates a new empty property set.
     /// </summary>
     /// <returns>A new empty property set.</returns>
-    [Obsolete("Use Ice.Properties() constructor instead.")]
+    /// <remarks>This method is provided for backwards compatibility. New code should call the
+    /// <see cref="Properties.Properties()" /> constructor directly.</remarks>
     public static Properties createProperties() => new();
 
     /// <summary>
-    /// Creates a property set initialized from an argument vector.
+    /// Creates a property set initialized from command-line arguments and a default property set.
     /// </summary>
-    /// <param name="args">A command-line argument vector, possibly containing
-    /// options to set properties. If the command-line options include
-    /// a --Ice.Config option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the argument vector, the argument vector takes precedence.
-    /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <returns>A property set initialized with the property settings
-    /// that were removed from args.</returns>
-    [Obsolete("Use Ice.Properties(ref string[], Ice.Properties) constructor instead.")]
-    public static Properties createProperties(ref string[] args) => new(ref args, null);
-
-    /// <summary>
-    /// Creates a property set initialized from an argument vector.
-    /// </summary>
-    /// <param name="args">A command-line argument vector, possibly containing
-    /// options to set properties. If the command-line options include
-    /// a --Ice.Config option, the corresponding configuration
-    /// files are parsed. If the same property is set in a configuration
-    /// file and in the argument vector, the argument vector takes precedence.
-    /// This method modifies the argument vector by removing any Ice-related options.</param>
-    /// <param name="defaults">Default values for the property set. Settings in configuration
-    /// files and args override these defaults.</param>
-    /// <returns>A property set initialized with the property settings
-    /// that were removed from args.</returns>
-    [Obsolete("Use Ice.Properties(ref string[], Ice.Properties) constructor instead.")]
-    public static Properties createProperties(ref string[] args, Properties defaults) => new(ref args, defaults);
+    /// <param name="args">The command-line arguments.</param>
+    /// <param name="defaults">Default values for the new property set.</param>
+    /// <returns>A new property set.</returns>
+    /// <remarks>This method is provided for backwards compatibility. New code should call the
+    /// <see cref="Properties.Properties(ref string[], Properties?)" /> constructor directly.</remarks>
+    public static Properties createProperties(ref string[] args, Properties? defaults = null) =>
+        new(ref args, defaults);
 
     /// <summary>
     /// Creates a new communicator, using Ice properties parsed from command-line arguments.

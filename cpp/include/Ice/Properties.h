@@ -16,34 +16,131 @@
 
 namespace Ice
 {
+    /// Converts an argument vector into a string sequence.
+    /// @param argc The number of arguments in argv.
+    /// @param argv The arguments.
+    /// @return A string sequence containing the arguments.
+    ICE_API StringSeq argsToStringSeq(int argc, const char* const argv[]);
+
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
+    /// @copydoc argsToStringSeq(int, const char* const[])
+    /// @remark Windows only.
+    ICE_API StringSeq argsToStringSeq(int argc, const wchar_t* const argv[]);
+#endif
+
+    /// Updates @p argv to match the contents of @p seq. This function assumes that @p seq contains only elements of
+    /// @p argv. The function shifts the argument vector elements so that the vector matches the contents of the
+    /// sequence.
+    /// @param seq The string sequence returned from a call to #argsToStringSeq.
+    /// @param[in,out] argc The number of arguments, updated to reflect the size of the sequence.
+    /// @param argv The arguments, shifted to match @p seq.
+    ICE_API void stringSeqToArgs(const StringSeq& seq, int& argc, const char* argv[]);
+
+    /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
+    inline void stringSeqToArgs(const StringSeq& seq, int& argc, char* argv[])
+    {
+        return stringSeqToArgs(seq, argc, const_cast<const char**>(argv));
+    }
+
+#if defined(_WIN32) || defined(ICE_DOXYGEN)
+    /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
+    /// @remark Windows only.
+    ICE_API void stringSeqToArgs(const StringSeq& seq, int& argc, const wchar_t* argv[]);
+
+    /// @copydoc stringSeqToArgs(const StringSeq&, int&, const char*[])
+    /// @remark Windows only.
+    inline void stringSeqToArgs(const StringSeq& seq, int& argc, wchar_t* argv[])
+    {
+        return stringSeqToArgs(seq, argc, const_cast<const wchar_t**>(argv));
+    }
+#endif
+
     /// Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
     /// where both the key and the value are strings. By convention, property keys should have the form
     /// `application-name>[.category[.sub-category]].name`.
-    /// @remark This class is thread-safe: multiple threads can safely read and write the properties without their own
-    /// synchronization.
+    /// @remark This class is thread-safe: multiple threads can safely read and write the properties.
     /// @headerfile Ice/Ice.h
     class ICE_API Properties final
     {
     public:
-        /// Default constructor.
+        /// Constructs an empty property set.
         Properties() = default;
 
-        /// Constructs an empty property set with a list of opt-in prefixes.
-        /// @param optInPrefixes The list of opt-in prefixes allowed in the property set.
-        /// @remark This constructor is used by services such as IceGrid and IceStorm to parse properties with the
-        /// `IceGrid` and `IceStorm` prefixes.
-        explicit Properties(std::vector<std::string> optInPrefixes) : _optInPrefixes(std::move(optInPrefixes)) {}
+        /// Constructs a property set, loads the configuration files specified by the `Ice.Config` property or the
+        /// `ICE_CONFIG` environment variable, and then parses Ice properties from @p args.
+        /// @param args The command-line arguments. This constructor parses arguments starting with `--` and one
+        /// of the reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the vector. If
+        /// there is an argument starting with `--Ice.Config`, this constructor loads the specified configuration file.
+        /// When the same property is set in a configuration file and through a command-line argument, the command-line
+        /// setting takes precedence.
+        /// @param defaults Default values for the new Properties object. Settings in configuration files and the
+        /// arguments override these defaults.
+        /// @remarks This constructor loads properties from files specified by the `ICE_CONFIG` environment variable
+        /// when there is no `--Ice.Config` command-line argument.
+        explicit Properties(StringSeq& args, const PropertiesPtr& defaults = nullptr);
+
+        /// Constructs a property set, loads the configuration files specified by the `Ice.Config` property or the
+        /// `ICE_CONFIG` environment variable, and then parses Ice properties from @p args.
+        /// @tparam ArgvT The type of the argument vector, such as char**, const char**, or wchar_t** (on Windows).
+        /// @param[in, out] argc The number of command-line arguments in @p argv. When this constructor
+        /// parses properties from @p argv, it reshuffles the arguments so that the remaining arguments start at the
+        /// beginning of @p argv, and updates @p argc accordingly.
+        /// @param argv The command-line arguments. This constructor parses arguments starting with `--` and one of the
+        /// reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with `--Ice.Config`,
+        /// this constructor loads the specified configuration file. When the same property is set in a configuration
+        /// file and through a command-line argument, the command-line setting takes precedence.
+        /// @param defaults Default values for the new Properties object. Settings in configuration files and the
+        /// arguments override these defaults.
+        /// @remarks This constructor loads properties from files specified by the `ICE_CONFIG` environment variable
+        /// when there is no `--Ice.Config` command-line argument.
+        template<typename ArgvT>
+        Properties(int& argc, ArgvT argv, const PropertiesPtr& defaults = nullptr) : Properties{defaults}
+        {
+            StringSeq args = argsToStringSeq(argc, argv);
+            loadArgs(args);
+            stringSeqToArgs(args, argc, argv);
+        }
+
+        /// @private
+        /// Constructs an empty property set with additional reserved prefixes such as "IceBox", "IceStorm", etc.
+        /// @param firstOptInPrefix The first opt-in prefix.
+        /// @param remainingOptInPrefixes The remaining opt-in prefixes.
+        template<typename... T>
+        Properties(std::string firstOptInPrefix, T... remainingOptInPrefixes)
+            : _optInPrefixes{std::move(firstOptInPrefix), std::move(remainingOptInPrefixes)...}
+        {
+        }
+
+        /// @private
+        /// Constructs a property set, loads the configuration files specified by the `Ice.Config` property or the
+        /// `ICE_CONFIG` environment variable, and then parses Ice properties from @p args.
+        /// @tparam ArgvT The type of the argument vector, such as char**, const char**, or wchar_t** (on Windows).
+        /// @param[in, out] argc The number of command-line arguments in @p argv.
+        /// @param argv The command-line arguments. This constructor parses arguments starting with `--` and one of the
+        /// reserved prefixes (Ice, IceSSL, etc.) as properties and moves these arguments to the end of the array. If
+        /// there is an argument starting with `--Ice.Config`, this constructor loads the specified configuration file.
+        /// When the same property is set in a configuration file and through a command-line argument, the command-line
+        /// setting takes precedence.
+        /// @param firstOptInPrefix The first opt-in prefix.
+        /// @param remainingOptInPrefixes The remaining opt-in prefixes.
+        /// @remarks This constructor loads properties from files specified by the `ICE_CONFIG` environment variable
+        /// when there is no `--Ice.Config` command-line argument.
+        template<typename ArgvT, typename... T>
+        Properties(int& argc, ArgvT argv, std::string firstOptInPrefix, T... remainingOptInPrefixes)
+            : Properties{std::move(firstOptInPrefix), std::move(remainingOptInPrefixes)...}
+        {
+            StringSeq args = argsToStringSeq(argc, argv);
+            loadArgs(args);
+            stringSeqToArgs(args, argc, argv);
+        }
 
         /// Copy constructor.
         /// @param source The property set to copy.
         Properties(const Properties& source);
 
-        /// Constructs a property from command-line arguments and a default property set.
-        /// @param args The command-line arguments. Property arguments are removed from this sequence.
-        /// @param defaults The default property set.
-        Properties(StringSeq& args, const PropertiesPtr& defaults);
-
+        Properties(Properties&&) = delete;
         Properties& operator=(const Properties& rhs) = delete;
+        Properties& operator=(Properties&& rhs) = delete;
 
         /// Gets a property by key.
         /// @param key The property key.
@@ -172,8 +269,9 @@ namespace Ice
         static std::optional<std::pair<std::string, std::string>>
         parseLine(std::string_view, const StringConverterPtr&);
 
-        void loadArgs(StringSeq&);
+        Properties(const PropertiesPtr& defaults);
 
+        void loadArgs(StringSeq& args);
         void loadConfig();
 
         struct PropertyValue
@@ -185,58 +283,23 @@ namespace Ice
             std::string value;
             bool used;
         };
-        std::map<std::string, PropertyValue, std::less<>> _properties;
+
+        std::map<std::string, PropertyValue, std::less<>> _propertySet;
         // List of "opt-in" property prefixes to allow in the property set. Setting a property for a property prefix
         // that is opt-in (eg. IceGrid, IceStorm, Glacier2, etc.) but not in this list is considered an error.
         std::vector<std::string> _optInPrefixes;
         mutable std::mutex _mutex;
     };
 
-    /// Creates an empty property set.
-    /// @return A new empty property set.
-    ICE_API PropertiesPtr createProperties();
-
-    /// Creates a property set initialized from command-line arguments and a default property set.
-    /// @param seq The command-line arguments. This function parses arguments starting with `--` and one of the
-    /// reserved prefixes (Ice, IceSSL, etc.) as properties and removes these elements from the list. If there is an
-    /// argument starting with `--Ice.Config`, this function loads the specified configuration file. When the same
-    /// property is set in a configuration file and through a command-line argument, the command-line setting takes
-    /// precedence.
-    /// @param defaults Default values for the property set. Settings in configuration files and the arguments override
-    /// these defaults.
-    /// @return A new property set initialized with the properties that were removed from the argument vector.
-    ICE_API PropertiesPtr createProperties(StringSeq& seq, const PropertiesPtr& defaults = nullptr);
-
-    /// Creates a property set initialized from command-line arguments and a default property set.
-    /// @param argc The number of arguments in @p argv. When this function parses properties from @p argv, it
-    /// reshuffles the arguments so that the remaining arguments start at the beginning of @p argv, and updates @p argc.
-    /// @param argv The command-line arguments. This function parses arguments starting with `--` and one of the
-    /// reserved prefixes (Ice, IceSSL, etc.) as properties. If there is an argument starting with `--Ice.Config`, this
-    /// function loads the specified configuration file. When the same property is set in a configuration file and
-    /// through a command-line argument, the command-line setting takes precedence.
-    /// @param defaults Default values for the property set. Settings in configuration files and the arguments override
-    /// these defaults.
-    /// @return A new property set initialized with the properties that were removed from the argument vector.
-    ICE_API PropertiesPtr createProperties(int& argc, const char* argv[], const PropertiesPtr& defaults = nullptr);
-
-    /// @copydoc createProperties(int&, const char*[], const PropertiesPtr&)
-    inline PropertiesPtr createProperties(int& argc, char* argv[], const PropertiesPtr& defaults = nullptr)
+    /// Creates a new shared Properties object.
+    /// @param args The arguments to forward to `make_shared<Properties>`.
+    /// @return A new property set.
+    /// @remarks This function is provided for backwards compatibility. New code should call
+    /// `std::make_shared<Properties>` directly.
+    template<class... T> inline PropertiesPtr createProperties(T&&... args)
     {
-        return createProperties(argc, const_cast<const char**>(argv), defaults);
+        return std::make_shared<Properties>(std::forward<T>(args)...);
     }
-
-#if defined(_WIN32) || defined(ICE_DOXYGEN)
-    /// @copydoc createProperties(int&, const char*[], const PropertiesPtr&)
-    /// @remark Windows only.
-    ICE_API PropertiesPtr createProperties(int& argc, const wchar_t* argv[], const PropertiesPtr& defaults = nullptr);
-
-    /// @copydoc createProperties(int&, const char*[], const PropertiesPtr&)
-    /// @remark Windows only.
-    inline PropertiesPtr createProperties(int& argc, wchar_t* argv[], const PropertiesPtr& defaults = nullptr)
-    {
-        return createProperties(argc, const_cast<const wchar_t**>(argv), defaults);
-    }
-#endif
 }
 
 #endif

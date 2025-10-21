@@ -34,7 +34,6 @@ PropertyNames.ThreadPoolProps.properties = [
 
 PropertyNames.ObjectAdapterProps = new PropertyArray("ObjectAdapter", true, false);
 PropertyNames.ObjectAdapterProps.properties = [
-    new Property("MessageSizeMax", false, "", false, null),
     new Property("ProxyOptions", false, "", false, null),
     new Property("PublishedEndpoints", false, "", false, null),
     new Property("Router", false, "", false, PropertyNames.ProxyProps)
@@ -131,7 +130,7 @@ PropertyNames.Glacier2Props = new PropertyArray("Glacier2", false, true);
 PropertyNames.Glacier2Props.properties = [
 ];
 
-PropertyNames.DataStormProps = new PropertyArray("DataStorm", false, true);
+PropertyNames.DataStormProps = new PropertyArray("DataStorm", false, false);
 PropertyNames.DataStormProps.properties = [
 ];
 

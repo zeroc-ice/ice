@@ -19,10 +19,6 @@ class Collocated(TestHelper):
     def run(self, args: list[str]):
         properties = self.createTestProperties(args)
         properties.setProperty("Ice.Warn.AMICallback", "0")
-        #
-        # This test kills connections, so we don't want warnings.
-        #
-        properties.setProperty("Ice.Warn.Connections", "0")
 
         with self.initialize(properties=properties) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())

@@ -586,7 +586,7 @@ ZEND_METHOD(Ice_Properties, clone)
     {
         Ice::PropertiesPtr pclone = _this->clone();
 
-        if (!createProperties(return_value, pclone))
+        if (!IcePHP::createProperties(return_value, pclone))
         {
             RETURN_NULL();
         }
@@ -623,7 +623,7 @@ handleClone(zend_object* zobj)
     Ice::PropertiesPtr p = *Wrapper<Ice::PropertiesPtr>::fetch(zobj)->ptr;
     assert(p);
     zval clone;
-    if (!createProperties(&clone, p->clone()))
+    if (!IcePHP::createProperties(&clone, p->clone()))
     {
         return 0;
     }
@@ -678,7 +678,7 @@ ZEND_FUNCTION(Ice_createProperties)
             props = Ice::createProperties();
         }
 
-        if (!createProperties(return_value, props))
+        if (!IcePHP::createProperties(return_value, props))
         {
             RETURN_NULL();
         }

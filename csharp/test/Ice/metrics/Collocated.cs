@@ -19,7 +19,6 @@ public class Collocated : Test.TestHelper
         initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
         initData.properties.setProperty("Ice.Admin.InstanceName", "client");
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
 

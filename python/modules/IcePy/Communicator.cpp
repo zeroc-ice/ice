@@ -1019,7 +1019,7 @@ communicatorGetProperties(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     Ice::PropertiesPtr properties = (*self->communicator)->getProperties();
-    return createProperties(properties);
+    return IcePy::createProperties(properties);
 }
 
 extern "C" PyObject*

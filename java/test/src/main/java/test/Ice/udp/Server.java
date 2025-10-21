@@ -18,9 +18,11 @@ public class Server extends TestHelper {
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.UDP.RcvSize", "16384");
         properties.setProperty("Ice.UDP.SndSize", "16384");
+
+        boolean isIpv6 = "1".equals(properties.getIceProperty("Ice.IPv6"));
         {
             String endpoint;
-            if ("1".equals(properties.getIceProperty("Ice.IPv6"))) {
+            if (isIpv6) {
                 endpoint = "udp -h \"ff15::1:1\" -p 12020";
             } else {
                 endpoint = "udp -h 239.255.1.1 -p 12020";
@@ -46,7 +48,7 @@ public class Server extends TestHelper {
             }
 
             StringBuilder endpoint = new StringBuilder();
-            if ("1".equals(properties.getIceProperty("Ice.IPv6"))) {
+            if (isIpv6) {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(getTestPort(10));
             } else {
@@ -55,6 +57,7 @@ public class Server extends TestHelper {
             }
             properties.setProperty("McastTestAdapter.Endpoints", endpoint.toString());
 
+            // Not used for IPv6 + Android emulator, but doesn't fail either.
             ObjectAdapter mcastAdapter = communicator.createObjectAdapter("McastTestAdapter");
             mcastAdapter.add(new TestIntfI(), Util.stringToIdentity("test"));
             mcastAdapter.activate();

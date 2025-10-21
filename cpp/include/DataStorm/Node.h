@@ -59,24 +59,13 @@ namespace DataStorm
         /// @remark This constructor sets the nodeOwnsCommunicator option to false.
         explicit Node(Ice::CommunicatorPtr communicator);
 
-        /// Constructs a DataStorm node with an Ice communicator initialized from command line arguments.
+        /// Constructs a DataStorm node with an Ice communicator initialized from command-line arguments.
         /// A node is the main DataStorm object. It is required to construct topics.
+        /// @tparam ArgvT The type of the argument vector, such as char**, const char**, or wchar_t** (on Windows).
         /// @param argc The number of arguments in argv.
-        /// @param argv The configuration arguments.
-        Node(int& argc, const char* argv[]);
+        /// @param argv The command-line arguments.
+        template<typename ArgvT> Node(int& argc, ArgvT argv) : Node{createNodeOptions(argc, argv)} {}
 
-        /// @copydoc Node(int&, const char*[])
-        Node(int& argc, char* argv[]) : Node{argc, const_cast<const char**>(argv)} {}
-
-#if defined(_WIN32) || defined(ICE_DOXYGEN)
-        /// @copydoc Node(int&, const char*[])
-        /// @remark Windows only.
-        Node(int& argc, const wchar_t* argv[]);
-
-        /// @copydoc Node(int&, const char*[])
-        /// @remark Windows only.
-        Node(int& argc, wchar_t* argv[]) : Node{argc, const_cast<const wchar_t**>(argv)} {}
-#endif
         /// Move constructor.
         /// @param node The node to move from.
         Node(Node&& node) noexcept;
@@ -112,6 +101,14 @@ namespace DataStorm
         [[nodiscard]] Ice::ConnectionPtr getSessionConnection(std::string_view ident) const noexcept;
 
     private:
+        template<typename ArgvT> NodeOptions createNodeOptions(int& argc, ArgvT argv)
+        {
+            NodeOptions options;
+            options.communicator = Ice::initialize(argc, argv);
+            options.nodeOwnsCommunicator = true;
+            return options;
+        }
+
         std::shared_ptr<DataStormI::Instance> _instance;
         std::shared_ptr<DataStormI::TopicFactory> _factory;
         bool _ownsCommunicator{false};

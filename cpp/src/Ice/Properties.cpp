@@ -76,87 +76,128 @@ namespace
     }
 }
 
-Ice::Properties::Properties(const Properties& p)
+StringSeq
+Ice::argsToStringSeq(int argc, const char* const argv[])
 {
-    lock_guard lock(p._mutex);
-    _properties = p._properties;
-    _optInPrefixes = p._optInPrefixes;
+    StringSeq result;
+    for (int i = 0; i < argc; i++)
+    {
+        result.emplace_back(argv[i]);
+    }
+    return result;
 }
 
-Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
+#ifdef _WIN32
+
+StringSeq
+Ice::argsToStringSeq(int /*argc*/, const wchar_t* const argv[])
 {
-    if (defaults)
+    //
+    // Don't need to use a wide string converter argv is expected to
+    // come from Windows API.
+    //
+    const StringConverterPtr converter = getProcessStringConverter();
+    StringSeq args;
+    for (int i = 0; argv[i] != 0; i++)
     {
-        lock_guard lock(defaults->_mutex);
-        _properties = defaults->_properties;
-        _optInPrefixes = defaults->_optInPrefixes;
+        args.push_back(wstringToString(argv[i], converter));
     }
+    return args;
+}
 
-    auto q = args.begin();
+#endif
 
-    auto p = _properties.find("Ice.ProgramName");
-    if (p == _properties.end())
+void
+Ice::stringSeqToArgs(const StringSeq& args, int& argc, const char* argv[])
+{
+    //
+    // Shift all elements in argv which are present in args to the
+    // beginning of argv. We record the original value of argc so
+    // that we can know later if we've shifted the array.
+    //
+    const int argcOrig = argc;
+    int i = 0;
+    while (i < argc)
     {
-        if (q != args.end())
+        if (find(args.begin(), args.end(), argv[i]) == args.end())
         {
-            //
-            // Use the first argument as the value for Ice.ProgramName. Replace
-            // any backslashes in this value with forward slashes, in case this
-            // value is used by the event logger.
-            //
-            string name = *q;
-            replace(name.begin(), name.end(), '\\', '/');
-
-            PropertyValue pv{std::move(name), true};
-            _properties["Ice.ProgramName"] = pv;
-        }
-    }
-    else
-    {
-        p->second.used = true;
-    }
-
-    StringSeq tmp;
-
-    bool loadConfigFiles = false;
-    while (q != args.end())
-    {
-        string s = *q;
-        if (s.find("--Ice.Config") == 0)
-        {
-            if (s.find('=') == string::npos)
+            for (int j = i; j < argc - 1; j++)
             {
-                s += "=1";
+                argv[j] = argv[j + 1];
             }
-            if (auto optionPair = parseLine(s.substr(2), nullptr))
-            {
-                auto [key, value] = *optionPair;
-                setProperty(key, value);
-            }
-            loadConfigFiles = true;
+            --argc;
         }
         else
         {
-            tmp.push_back(s);
+            ++i;
         }
-        ++q;
     }
-    args = tmp;
 
-    if (!loadConfigFiles)
+    //
+    // Make sure that argv[argc] == nullptr, the ISO C++ standard requires this.
+    // We can only do this if we've shifted the array, otherwise argv[argc]
+    // may point to an invalid address.
+    //
+    if (argv && argcOrig != argc)
     {
-        //
-        // If Ice.Config is not set, load from ICE_CONFIG (if set)
-        //
-        loadConfigFiles = (_properties.find("Ice.Config") == _properties.end());
+        argv[argc] = nullptr;
     }
+}
 
-    if (loadConfigFiles)
+#ifdef _WIN32
+void
+Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
+{
+    //
+    // Don't need to use a wide string converter argv is expected to
+    // come from Windows API.
+    //
+    const StringConverterPtr converter = getProcessStringConverter();
+
+    //
+    // Shift all elements in argv which are present in args to the
+    // beginning of argv. We record the original value of argc so
+    // that we can know later if we've shifted the array.
+    //
+    const int argcOrig = argc;
+    int i = 0;
+    while (i < argc)
     {
-        loadConfig();
+        if (find(args.begin(), args.end(), wstringToString(argv[i], converter)) == args.end())
+        {
+            for (int j = i; j < argc - 1; j++)
+            {
+                argv[j] = argv[j + 1];
+            }
+            --argc;
+        }
+        else
+        {
+            ++i;
+        }
     }
 
-    args = parseIceCommandLineOptions(args);
+    //
+    // Make sure that argv[argc] == nullptr, the ISO C++ standard requires this.
+    // We can only do this if we've shifted the array, otherwise argv[argc]
+    // may point to an invalid address.
+    //
+    if (argv && argcOrig != argc)
+    {
+        argv[argc] = nullptr;
+    }
+}
+#endif
+
+Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults) : Properties{defaults} { loadArgs(args); }
+
+Ice::Properties::Properties(const Properties& other)
+{
+    {
+        lock_guard lock(other._mutex);
+        _propertySet = other._propertySet;
+    }
+    _optInPrefixes = other._optInPrefixes;
 }
 
 string
@@ -164,8 +205,8 @@ Ice::Properties::getProperty(string_view key)
 {
     lock_guard lock(_mutex);
 
-    auto p = _properties.find(key);
-    if (p != _properties.end())
+    auto p = _propertySet.find(key);
+    if (p != _propertySet.end())
     {
         p->second.used = true;
         return p->second.value;
@@ -188,8 +229,8 @@ Ice::Properties::getPropertyWithDefault(string_view key, string_view value)
 {
     lock_guard lock(_mutex);
 
-    auto p = _properties.find(key);
-    if (p != _properties.end())
+    auto p = _propertySet.find(key);
+    if (p != _propertySet.end())
     {
         p->second.used = true;
         return p->second.value;
@@ -227,8 +268,8 @@ Ice::Properties::getPropertyAsIntWithDefault(string_view key, int32_t value)
 {
     lock_guard lock(_mutex);
 
-    auto p = _properties.find(key);
-    if (p != _properties.end())
+    auto p = _propertySet.find(key);
+    if (p != _propertySet.end())
     {
         p->second.used = true;
         istringstream v(p->second.value);
@@ -264,8 +305,8 @@ Ice::Properties::getPropertyAsListWithDefault(string_view key, const StringSeq& 
 {
     lock_guard lock(_mutex);
 
-    auto p = _properties.find(key);
-    if (p != _properties.end())
+    auto p = _propertySet.find(key);
+    if (p != _propertySet.end())
     {
         p->second.used = true;
 
@@ -293,7 +334,7 @@ Ice::Properties::getPropertiesForPrefix(string_view prefix)
     lock_guard lock(_mutex);
 
     PropertyDict result;
-    for (auto& prop : _properties)
+    for (auto& prop : _propertySet)
     {
         if (prefix.empty() || prop.first.compare(0, prefix.size(), prefix) == 0)
         {
@@ -350,16 +391,16 @@ Ice::Properties::setProperty(string_view key, string_view value)
     if (!value.empty())
     {
         PropertyValue pv{string{value}, false};
-        auto p = _properties.find(currentKey);
-        if (p != _properties.end())
+        auto p = _propertySet.find(currentKey);
+        if (p != _propertySet.end())
         {
             pv.used = p->second.used;
         }
-        _properties[currentKey] = pv;
+        _propertySet[currentKey] = pv;
     }
     else
     {
-        _properties.erase(currentKey);
+        _propertySet.erase(currentKey);
     }
 }
 
@@ -369,8 +410,8 @@ Ice::Properties::getCommandLineOptions()
     lock_guard lock(_mutex);
 
     StringSeq result;
-    result.reserve(_properties.size());
-    for (const auto& prop : _properties)
+    result.reserve(_propertySet.size());
+    for (const auto& prop : _propertySet)
     {
         result.push_back("--" + prop.first + "=" + prop.second.value);
     }
@@ -563,7 +604,7 @@ Ice::Properties::getUnusedProperties()
 {
     lock_guard lock(_mutex);
     set<string> unusedProperties;
-    for (const auto& prop : _properties)
+    for (const auto& prop : _propertySet)
     {
         if (!prop.second.used)
         {
@@ -784,7 +825,65 @@ Ice::Properties::parseLine(string_view line, const StringConverterPtr& converter
     value = UTF8ToNative(value, converter);
 
     return make_pair(key, value);
-};
+}
+
+Ice::Properties::Properties(const PropertiesPtr& defaults)
+{
+    if (defaults)
+    {
+        Properties properties{*defaults}; // temporary copy
+        _propertySet = std::move(properties._propertySet);
+        _optInPrefixes = std::move(properties._optInPrefixes);
+    }
+}
+
+// Helper function called by the constructors.
+void
+Ice::Properties::loadArgs(StringSeq& args)
+{
+    StringSeq tmp;
+    bool loadConfigFiles = false;
+
+    auto q = args.begin();
+    while (q != args.end())
+    {
+        string s = *q;
+        if (s.find("--Ice.Config") == 0)
+        {
+            if (s.find('=') == string::npos)
+            {
+                s += "=1";
+            }
+            if (auto optionPair = parseLine(s.substr(2), nullptr))
+            {
+                auto [key, value] = *optionPair;
+                setProperty(key, value);
+            }
+            loadConfigFiles = true;
+        }
+        else
+        {
+            tmp.push_back(s);
+        }
+        ++q;
+    }
+    args = tmp;
+
+    if (!loadConfigFiles)
+    {
+        //
+        // If Ice.Config is not set, load from ICE_CONFIG (if set)
+        //
+        loadConfigFiles = (_propertySet.find("Ice.Config") == _propertySet.end());
+    }
+
+    if (loadConfigFiles)
+    {
+        loadConfig();
+    }
+
+    args = parseIceCommandLineOptions(args);
+}
 
 void
 Ice::Properties::loadConfig()
@@ -827,38 +926,6 @@ Ice::Properties::loadConfig()
         }
 
         PropertyValue pv{std::move(value), true};
-        _properties["Ice.Config"] = pv;
+        _propertySet["Ice.Config"] = pv;
     }
 }
-
-PropertiesPtr
-Ice::createProperties()
-{
-    return make_shared<Properties>();
-}
-
-PropertiesPtr
-Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
-{
-    return make_shared<Properties>(args, defaults);
-}
-
-PropertiesPtr
-Ice::createProperties(int& argc, const char* argv[], const PropertiesPtr& defaults)
-{
-    StringSeq args = argsToStringSeq(argc, argv);
-    PropertiesPtr properties = createProperties(args, defaults);
-    stringSeqToArgs(args, argc, argv);
-    return properties;
-}
-
-#ifdef _WIN32
-PropertiesPtr
-Ice::createProperties(int& argc, const wchar_t* argv[], const PropertiesPtr& defaults)
-{
-    StringSeq args = argsToStringSeq(argc, argv);
-    PropertiesPtr properties = createProperties(args, defaults);
-    stringSeqToArgs(args, argc, argv);
-    return properties;
-}
-#endif
