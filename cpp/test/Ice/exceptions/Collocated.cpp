@@ -17,8 +17,7 @@ void
 Collocated::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-    properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-    properties->setProperty("Ice.Warn.Connections", "0");
+    // No need to set connection properties such as Ice.Warn.Connections or Ice.MessageSizeMax.
     properties->setProperty("Ice.Warn.Dispatch", "0");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);

@@ -14,11 +14,6 @@ public class Collocated : TestHelper
         initData.properties = createTestProperties(ref args);
         initData.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-
-        //
-        // This test kills connections, so we don't want warnings.
-        //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
         await using var communicator = initialize(initData);
         //
         // Configure a second communicator for the invocation timeout
