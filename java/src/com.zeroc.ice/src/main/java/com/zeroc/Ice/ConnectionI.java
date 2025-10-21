@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 public final class ConnectionI extends EventHandler implements Connection, CancellationHandler {
     public interface StartCallback {
         void connectionStartCompleted(ConnectionI connection);
+
         void connectionStartFailed(ConnectionI connection, LocalException ex);
     }
 

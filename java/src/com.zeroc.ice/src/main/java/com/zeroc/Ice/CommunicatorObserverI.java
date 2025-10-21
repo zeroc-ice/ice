@@ -631,8 +631,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             _connections.setUpdater(null);
             _threads.setUpdater(null);
         } else {
-            _connections.setUpdater(() -> { updater.updateConnectionObservers(); });
-            _threads.setUpdater(() -> { updater.updateThreadObservers(); });
+            _connections.setUpdater(updater::updateConnectionObservers);
+            _threads.setUpdater(updater::updateThreadObservers);
         }
 
         if (_delegate != null) {

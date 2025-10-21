@@ -11,7 +11,7 @@ public interface BatchRequestInterceptor {
      *
      * <p>The implementation of this method must call {@code enqueue()} on the request to confirm its
      * addition to the queue; if it isn't called then the request isn't added to the queue.
-     * The implementation can raise an Ice local exception to notify the caller of a failure.
+     * The implementation can throw an Ice local exception to notify the caller of a failure.
      *
      * @param request the request to be added
      * @param queueBatchRequestCount the number of requests in the batch

@@ -25,7 +25,7 @@ public interface BatchRequest {
     String getOperation();
 
     /**
-     * Gets the proxy used to create this batch request.
+     * Returns the proxy used to create this batch request.
      *
      * @return the proxy
      */

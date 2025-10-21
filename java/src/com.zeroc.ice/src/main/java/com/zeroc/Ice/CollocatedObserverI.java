@@ -9,7 +9,8 @@ import com.zeroc.IceMX.ObserverWithDelegate;
 /**
  * @hidden Public because it's used by IceMX (via reflection).
  */
-public class CollocatedObserverI extends ObserverWithDelegate<CollocatedMetrics, CollocatedObserver> implements CollocatedObserver {
+public class CollocatedObserverI
+        extends ObserverWithDelegate<CollocatedMetrics, CollocatedObserver> implements CollocatedObserver {
     @Override
     public void reply(final int size) {
         forEach(

@@ -41,7 +41,8 @@ public final class ClassSliceLoader implements SliceLoader {
             try {
                 return c.getDeclaredConstructor().newInstance();
             } catch (Exception ex) {
-                String msg = String.format("Failed to create an instance of class '%s' for type ID '%s'.", c.getName(), typeId);
+                String msg =
+                    String.format("Failed to create an instance of class '%s' for type ID '%s'.", c.getName(), typeId);
                 throw new MarshalException(msg, ex);
             }
         }

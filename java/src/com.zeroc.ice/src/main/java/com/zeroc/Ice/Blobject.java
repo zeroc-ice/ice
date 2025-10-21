@@ -9,7 +9,7 @@ import java.util.concurrent.CompletionStage;
  * Base class for dynamic dispatch servants.
  *
  * <p>This class is provided for backward compatibility.
- * You should consider deriving directly from {@link Object} and overriding the {@link Object#dispatch} method. 
+ * You should consider deriving directly from {@link Object} and overriding the {@link Object#dispatch} method.
  */
 public interface Blobject extends Object {
     /**

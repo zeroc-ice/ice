@@ -8,7 +8,7 @@ import java.util.Map;
  * Represents the request context associated with a communicator.
  * When you make a remote invocation without an explicit request context parameter, Ice uses the per-proxy request
  * context (if any) combined with the {@code ImplicitContext} associated with your communicator.
- * 
+ *
  * <p>The property {@code Ice.ImplicitContext} controls if your communicator has an associated implicit context,
  * and when it does, whether this implicit context is per-thread or shared by all threads:
  * <dl>

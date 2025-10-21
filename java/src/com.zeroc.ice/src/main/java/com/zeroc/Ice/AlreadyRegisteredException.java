@@ -10,7 +10,7 @@ public final class AlreadyRegisteredException extends LocalException {
      * Constructs an AlreadyRegisteredException with the specified kind of object and ID.
      *
      * @param kindOfObject the kind of object that could not be removed
-     * @param id the ID (or name) of the object that is registered already
+     * @param id the ID (or name) of the object that is already registered
      */
     public AlreadyRegisteredException(String kindOfObject, String id) {
         super("Another " + kindOfObject + " is already registered with ID '" + id + "'.");
@@ -29,7 +29,7 @@ public final class AlreadyRegisteredException extends LocalException {
      */
     public final String kindOfObject;
 
-    /** The ID (or name) of the object that is registered already. */
+    /** The ID (or name) of the object that is already registered. */
     public final String id;
 
     private static final long serialVersionUID = 392587231034664196L;

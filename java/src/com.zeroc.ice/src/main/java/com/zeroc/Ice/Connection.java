@@ -70,7 +70,7 @@ public interface Connection {
      *
      * @param compress Specifies whether or not the queued batch requests should be compressed before
      *     being sent over the wire.
-     * @return A future that becomes available when the flush completes.
+     * @return a future that becomes available when the flush completes
      */
     CompletableFuture<Void> flushBatchRequestsAsync(CompressBatch compress);
 

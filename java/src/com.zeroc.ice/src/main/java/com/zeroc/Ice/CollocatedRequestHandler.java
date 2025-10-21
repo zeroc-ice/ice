@@ -225,7 +225,11 @@ final class CollocatedRequestHandler implements RequestHandler {
                 }
 
                 // Adopt the OutputStream's buffer.
-                var inputStream = new InputStream(_reference.getInstance(), outputStream.getEncoding(), outputStream.getBuffer(), true);
+                var inputStream = new InputStream(
+                    _reference.getInstance(),
+                    outputStream.getEncoding(),
+                    outputStream.getBuffer(),
+                    true); // adopt: true
 
                 inputStream.pos(Protocol.replyHdr.length + 4);
 
