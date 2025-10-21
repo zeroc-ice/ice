@@ -80,7 +80,10 @@ public abstract class TestHelper
         string logFile = properties.getIceProperty("Ice.LogFile");
         if (logFile.Length > 0)
         {
-            string newLogFile = logFile.Insert(logFile.LastIndexOf('.'), suffix);
+            int dotIndex = logFile.LastIndexOf('.');
+            string newLogFile = dotIndex >= 0
+                ? logFile.Insert(dotIndex, suffix)
+                : logFile + suffix;
             properties.setProperty("Ice.LogFile", newLogFile);
         }
     }
