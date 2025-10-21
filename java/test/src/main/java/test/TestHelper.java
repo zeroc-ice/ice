@@ -100,9 +100,16 @@ public abstract class TestHelper {
 
     public static void updateLogFileProperty(Properties properties, String suffix) {
         String logFile = properties.getIceProperty("Ice.LogFile");
+        assert logFile != null; // getIceProperty never returns null
+
         if (logFile.length() > 0) {
-            String newLogFile = logFile.substring(0, logFile.lastIndexOf('.')) + suffix +
-                logFile.substring(logFile.lastIndexOf('.'));
+            int dotIndex = logFile.lastIndexOf('.');
+            String newLogFile;
+            if (dotIndex == -1) {
+                newLogFile = logFile + suffix;
+            } else {
+                newLogFile = logFile.substring(0, dotIndex) + suffix + logFile.substring(dotIndex);
+            }
             properties.setProperty("Ice.LogFile", newLogFile);
         }
     }
