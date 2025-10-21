@@ -1086,9 +1086,17 @@ public sealed class ObjectAdapter
 
         try
         {
-            int threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
-            int threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-            if (threadPoolSize > 0 || threadPoolSizeMax > 0)
+            // If the user configured any of the ObjectAdapter.ThreadPool properties, create a per-adapter thread pool.
+            // Otherwise the OA will use the default server thread pool.
+            bool createThreadPool =
+                properties.getProperty(_name + ".ThreadPool.Serialize").Length > 0 ||
+                properties.getProperty(_name + ".ThreadPool.Size").Length > 0 ||
+                properties.getProperty(_name + ".ThreadPool.SizeMax").Length > 0 ||
+                properties.getProperty(_name + ".ThreadPool.SizeWarn").Length > 0 ||
+                properties.getProperty(_name + ".ThreadPool.StackSize").Length > 0 ||
+                properties.getProperty(_name + ".ThreadPool.ThreadIdleTime").Length > 0 ||
+                properties.getProperty(_name + ".ThreadPool.ThreadPriority").Length > 0;
+            if (createThreadPool)
             {
                 _threadPool = new Ice.Internal.ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
