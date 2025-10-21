@@ -11,10 +11,10 @@ import java.io.InputStream;
  */
 public class ObjectInputStream extends java.io.ObjectInputStream {
     /**
-     * Creates an ObjectInputStream with the specified communicator and input-stream.
+     * Creates an ObjectInputStream with the specified communicator and input stream.
      *
      * @param communicator the communicator to use to deserialize proxies
-     * @param stream the input-stream to read from
+     * @param stream the input stream to read from
      * @throws IOException if an I/O error occurs
      */
     public ObjectInputStream(Communicator communicator, InputStream stream) throws IOException {
