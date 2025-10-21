@@ -25,6 +25,13 @@ public:
 void
 allTests(Test::TestHelper* helper, const string& ref)
 {
+    auto startTime = chrono::steady_clock::now();
+    auto printElapsed = [&startTime]()
+    {
+        auto elapsed = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now() - startTime);
+        cout << " (" << (elapsed.count() / 1000.0) << "s)";
+    };
+
     Ice::CommunicatorPtr communicator = helper->communicator();
     ServerManagerPrx manager(communicator, ref);
     auto locator = uncheckedCast<TestLocatorPrx>(communicator->getDefaultLocator().value());
@@ -38,7 +45,9 @@ allTests(Test::TestHelper* helper, const string& ref)
     ObjectPrx base4(communicator, "ServerManager");
     ObjectPrx base5(communicator, "test2");
     ObjectPrx base6(communicator, "test @ ReplicatedAdapter");
-    cout << "ok" << endl;
+    cout << "ok ";
+    printElapsed();
+    cout << endl;
 
     cout << "testing ice_locator and ice_getLocator... " << flush;
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator()));
@@ -69,11 +78,15 @@ allTests(Test::TestHelper* helper, const string& ref)
     communicator->setDefaultRouter(nullopt);
     base = ObjectPrx(communicator, "test @ TestAdapter");
     test(!base->ice_getRouter());
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "starting server... " << flush;
     manager->startServer();
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing checked cast... " << flush;
     auto obj = Ice::checkedCast<TestIntfPrx>(base);
@@ -88,7 +101,9 @@ allTests(Test::TestHelper* helper, const string& ref)
     test(obj5);
     auto obj6 = Ice::checkedCast<TestIntfPrx>(base6);
     test(obj6);
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing id@AdapterId indirect proxy... " << flush;
     obj->shutdown();
@@ -102,7 +117,9 @@ allTests(Test::TestHelper* helper, const string& ref)
         cerr << ex << endl;
         test(false);
     }
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing id@ReplicaGroupId indirect proxy... " << flush;
     obj->shutdown();
@@ -116,7 +133,9 @@ allTests(Test::TestHelper* helper, const string& ref)
         cerr << ex << endl;
         test(false);
     }
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing identity indirect proxy... " << flush;
     obj->shutdown();
@@ -205,7 +224,9 @@ allTests(Test::TestHelper* helper, const string& ref)
         cerr << ex << endl;
         test(false);
     }
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing proxy with unknown identity... " << flush;
     try
@@ -219,7 +240,9 @@ allTests(Test::TestHelper* helper, const string& ref)
         test(ex.kindOfObject() == "object");
         test(ex.id() == "unknown/unknown");
     }
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing proxy with unknown adapter... " << flush;
     try
@@ -233,7 +256,9 @@ allTests(Test::TestHelper* helper, const string& ref)
         test(ex.kindOfObject() == "object adapter");
         test(ex.id() == "TestAdapterUnknown");
     }
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing locator cache timeout... " << flush;
 
@@ -270,7 +295,9 @@ allTests(Test::TestHelper* helper, const string& ref)
 
     test(ObjectPrx(communicator, "test")->ice_locatorCacheTimeout(99)->ice_getLocatorCacheTimeout() == 99s);
 
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing proxy from server... " << flush;
     obj = TestIntfPrx(communicator, "test@TestAdapter");
@@ -280,7 +307,9 @@ allTests(Test::TestHelper* helper, const string& ref)
     hello = obj->getReplicatedHello();
     test(hello->ice_getAdapterId() == "ReplicatedAdapter");
     hello->sayHello();
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing locator request queuing... " << flush;
     hello = obj->getReplicatedHello()->ice_locatorCacheTimeout(0)->ice_connectionCached(false);
@@ -341,7 +370,9 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         cout << "queuing = " << locator->getRequestCount() - count;
     }
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing adapter locator cache... " << flush;
     try
@@ -393,7 +424,9 @@ allTests(Test::TestHelper* helper, const string& ref)
     {
         test(false);
     }
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing well-known object locator cache... " << flush;
 
@@ -481,7 +514,9 @@ allTests(Test::TestHelper* helper, const string& ref)
     catch (const Ice::NoEndpointException&)
     {
     }
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing locator cache background updates... " << flush;
     {
@@ -537,14 +572,18 @@ allTests(Test::TestHelper* helper, const string& ref)
         }
         ic->destroy();
     }
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing proxy from server after shutdown... " << flush;
     hello = obj->getReplicatedHello();
     obj->shutdown();
     manager->startServer();
     hello->sayHello();
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing object migration... " << flush;
     hello = HelloPrx(communicator, "hello");
@@ -555,7 +594,9 @@ allTests(Test::TestHelper* helper, const string& ref)
     hello->sayHello();
     obj->migrateHello();
     hello->sayHello();
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing locator encoding resolution... " << flush;
 
@@ -568,11 +609,15 @@ allTests(Test::TestHelper* helper, const string& ref)
     ObjectPrx(communicator, "test -e 1.0@TestAdapter10-2")->ice_ping();
     test(++count == locator->getRequestCount());
 
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "shutdown server... " << flush;
     obj->shutdown();
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     cout << "testing whether server is gone... " << flush;
     try
@@ -599,7 +644,9 @@ allTests(Test::TestHelper* helper, const string& ref)
     catch (const Ice::LocalException&)
     {
     }
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 
     {
         cout << "testing indirect proxies to collocated objects... " << flush;
@@ -623,10 +670,14 @@ allTests(Test::TestHelper* helper, const string& ref)
         helloPrx = adapter->createDirectProxy<HelloPrx>(id);
         test(!helloPrx->ice_getConnection());
 
-        cout << "ok" << endl;
+        cout << "ok";
+        printElapsed();
+        cout << endl;
     }
 
     cout << "shutdown server manager... " << flush;
     manager->shutdown();
-    cout << "ok" << endl;
+    cout << "ok";
+    printElapsed();
+    cout << endl;
 }

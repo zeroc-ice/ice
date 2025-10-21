@@ -5,11 +5,18 @@ import Ice
 import TestCommon
 
 func allTests(_ helper: TestHelper) async throws {
+    let startTime = Date()
+
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
     }
 
     let output = helper.getWriter()
+
+    func elapsed() -> String {
+        let elapsed = Date().timeIntervalSince(startTime)
+        return String(format: " (%.2fs)", elapsed)
+    }
 
     let communicator = helper.communicator()
 
@@ -23,6 +30,7 @@ func allTests(_ helper: TestHelper) async throws {
     let registry = try await uncheckedCast(
         prx: locator.getRegistry()!, type: TestLocatorRegistryPrx.self)
 
+
     output.write("testing stringToProxy... ")
     var base = try communicator.stringToProxy("test @ TestAdapter")!
     let base2 = try communicator.stringToProxy("test @ TestAdapter")!
@@ -30,8 +38,7 @@ func allTests(_ helper: TestHelper) async throws {
     let base4 = try communicator.stringToProxy("ServerManager")!
     let base5 = try communicator.stringToProxy("test2")!
     let base6 = try communicator.stringToProxy("test @ ReplicatedAdapter")!
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing ice_locator and ice_getLocator... ")
     try test(
         base.ice_getLocator()!.ice_getIdentity()
@@ -71,12 +78,10 @@ func allTests(_ helper: TestHelper) async throws {
     communicator.setDefaultRouter(nil)
     base = try communicator.stringToProxy("test @ TestAdapter")!
     try test(base.ice_getRouter() == nil)
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("starting server... ")
     try await manager.startServer()
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing checked cast... ")
     var obj = try await checkedCast(prx: base, type: TestIntfPrx.self)!
     let obj2 = try await checkedCast(prx: base2, type: TestIntfPrx.self)!
@@ -84,8 +89,7 @@ func allTests(_ helper: TestHelper) async throws {
     _ = try await checkedCast(prx: base4, type: ServerManagerPrx.self)!
     let obj5 = try await checkedCast(prx: base5, type: TestIntfPrx.self)!
     let obj6 = try await checkedCast(prx: base6, type: TestIntfPrx.self)!
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing id@AdapterId indirect proxy... ")
     try await obj.shutdown()
     try await manager.startServer()
@@ -94,8 +98,7 @@ func allTests(_ helper: TestHelper) async throws {
     } catch {
         try test(false)
     }
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing id@ReplicaGroupId indirect proxy... ")
     try await obj.shutdown()
     try await manager.startServer()
@@ -104,8 +107,7 @@ func allTests(_ helper: TestHelper) async throws {
     } catch {
         try test(false)
     }
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing identity indirect proxy... ")
     try await obj.shutdown()
     try await manager.startServer()
@@ -162,8 +164,7 @@ func allTests(_ helper: TestHelper) async throws {
     } catch {
         try test(false)
     }
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing proxy with unknown identity... ")
     do {
         base = try communicator.stringToProxy("unknown/unknown")!
@@ -173,8 +174,7 @@ func allTests(_ helper: TestHelper) async throws {
         try test(ex.kindOfObject == "object")
         try test(ex.id == "unknown/unknown")
     }
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing proxy with unknown adapter... ")
     do {
         base = try communicator.stringToProxy("test @ TestAdapterUnknown")!
@@ -184,8 +184,7 @@ func allTests(_ helper: TestHelper) async throws {
         try test(ex.kindOfObject == "object adapter")
         try test(ex.id == "TestAdapterUnknown")
     }
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing locator cache timeout... ")
     let basencc = try communicator.stringToProxy("test@TestAdapter")!.ice_connectionCached(false)
     var count = try await locator.getRequestCount()
@@ -226,8 +225,7 @@ func allTests(_ helper: TestHelper) async throws {
         communicator.stringToProxy("test")!.ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout()
             == 99)
 
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing proxy from server... ")
     obj = try makeProxy(
         communicator: communicator, proxyString: "test@TestAdapter", type: TestIntfPrx.self)
@@ -237,8 +235,7 @@ func allTests(_ helper: TestHelper) async throws {
     hello = try await obj.getReplicatedHello()!
     try test(hello.ice_getAdapterId() == "ReplicatedAdapter")
     try await hello.sayHello()
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing locator request queuing... ")
     hello = try await obj.getReplicatedHello()!.ice_locatorCacheTimeout(0).ice_connectionCached(
         false)
@@ -287,8 +284,7 @@ func allTests(_ helper: TestHelper) async throws {
     if try await locator.getRequestCount() > count + 800 {
         try await output.write("queuing = \(locator.getRequestCount() - count)")
     }
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing adapter locator cache... ")
     do {
         try await communicator.stringToProxy("test@TestAdapter3")!.ice_ping()
@@ -329,8 +325,7 @@ func allTests(_ helper: TestHelper) async throws {
     } catch {
         try test(false)
     }
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing well-known object locator cache... ")
     try await registry.addObject(communicator.stringToProxy("test3@TestUnknown"))
     do {
@@ -396,8 +391,7 @@ func allTests(_ helper: TestHelper) async throws {
         try await communicator.stringToProxy("test4")!.ice_ping()
         try test(false)
     } catch is Ice.NoEndpointException {}
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing locator cache background updates... ")
     do {
         let properties = communicator.getProperties().clone()
@@ -457,15 +451,13 @@ func allTests(_ helper: TestHelper) async throws {
         }
         ic.destroy()
     }
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing proxy from server after shutdown... ")
     hello = try await obj.getReplicatedHello()!
     try await obj.shutdown()
     try await manager.startServer()
     try await hello.sayHello()
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing object migration... ")
     hello = try makeProxy(communicator: communicator, proxyString: "hello", type: HelloPrx.self)
     try await obj.migrateHello()
@@ -475,8 +467,7 @@ func allTests(_ helper: TestHelper) async throws {
     try await hello.sayHello()
     try await obj.migrateHello()
     try await hello.sayHello()
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing locator encoding resolution... ")
     hello = try makeProxy(communicator: communicator, proxyString: "hello", type: HelloPrx.self)
     count = try await locator.getRequestCount()
@@ -492,12 +483,10 @@ func allTests(_ helper: TestHelper) async throws {
     try await communicator.stringToProxy("test -e 1.0@TestAdapter10-2")!.ice_ping()
     count += 1
     try await test(count == locator.getRequestCount())
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("shutdown server... ")
     try await obj.shutdown()
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing whether server is gone... ")
     do {
         try await obj2.ice_ping()
@@ -513,8 +502,7 @@ func allTests(_ helper: TestHelper) async throws {
         try await obj5.ice_ping()
         try test(false)
     } catch is Ice.LocalException {}
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("testing indirect proxies to collocated objects... ")
 
     //
@@ -548,9 +536,8 @@ func allTests(_ helper: TestHelper) async throws {
     helloPrx = try await checkedCast(prx: adapter.createDirectProxy(ident), type: HelloPrx.self)!
     try await test(helloPrx.ice_getConnection() == nil)
 
-    output.writeLine("ok")
-
+    output.writeLine("ok" + elapsed())
     output.write("shutdown server manager... ")
     try await manager.shutdown()
-    output.writeLine("ok")
+    output.writeLine("ok" + elapsed())
 }

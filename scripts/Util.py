@@ -2795,7 +2795,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
             t = time.time()
             while (time.time() - t) <= 300:
                 if simulator.isBooted():
-                    print(f"{time.time() - t:.1f}s ok")
+                    print(f"{int(time.time() - t)}s ok")
                     break
                 time.sleep(5)
             else:
@@ -4142,7 +4142,6 @@ class SwiftMapping(Mapping):
         testdir = self.component.getTestDir(self)
         assert current.testcase.getPath(current).startswith(testdir)
         package = current.testcase.getPath(current)[len(testdir) + 1 :].replace(os.sep, "_")
-
         testDriver = "swift run -c {0} --skip-build TestDriver".format(current.config.buildConfig)
 
         return "{0} {1} {2} {3}".format(testDriver, package, exe, args)
