@@ -25,6 +25,10 @@ public sealed class DummyLogger : Ice.Logger
     public string getPrefix() => "";
 
     public Ice.Logger cloneWithPrefix(string prefix) => new DummyLogger();
+
+    public void Dispose()
+    {
+    }
 }
 
 public class Server : TestHelper

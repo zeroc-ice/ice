@@ -4,7 +4,7 @@
 
 namespace Ice;
 
-public interface Logger
+public interface Logger : IDisposable
 {
     /// <summary>
     /// Print a message.

@@ -128,5 +128,9 @@ public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
         public string getPrefix() => "NullLogger";
 
         public Ice.Logger cloneWithPrefix(string prefix) => this;
+
+        public void Dispose()
+        {
+        }
     }
 }
