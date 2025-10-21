@@ -35,6 +35,7 @@ testConnectionAbortedByIdleCheck(const string& proxyString, const PropertiesPtr&
     initData.properties = properties->clone();
     initData.properties->setProperty("Ice.Connection.Client.IdleTimeout", "3");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
+    TestHelper::updateLogFileProperty(initData.properties, "-idleTimeout=3s");
     installTransport(initData);
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);
@@ -68,6 +69,7 @@ testEnableDisableIdleCheck(bool enabled, const string& proxyString, const Proper
     initData.properties->setProperty("Ice.Connection.Client.IdleTimeout", "1");
     initData.properties->setProperty("Ice.Connection.Client.EnableIdleCheck", enabled ? "1" : "0");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
+    TestHelper::updateLogFileProperty(initData.properties, "-idleTimeout=1s");
     installTransport(initData);
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);
@@ -97,6 +99,7 @@ testNoIdleTimeout(const string& proxyString, const PropertiesPtr& properties)
     Ice::InitializationData initData;
     initData.properties = properties->clone();
     initData.properties->setProperty("Ice.Connection.Client.IdleTimeout", "0");
+    TestHelper::updateLogFileProperty(initData.properties, "-idleTimeout=0");
     installTransport(initData);
     Ice::CommunicatorHolder holder = initialize(initData);
     TestIntfPrx p(holder.communicator(), proxyString);

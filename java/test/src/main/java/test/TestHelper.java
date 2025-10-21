@@ -98,6 +98,15 @@ public abstract class TestHelper {
         return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
     }
 
+    public static void updateLogFileProperty(Properties properties, String suffix) {
+        String logFile = properties.getIceProperty("Ice.LogFile");
+        if (logFile.length() > 0) {
+            String newLogFile = logFile.substring(0, logFile.lastIndexOf('.')) + suffix +
+                logFile.substring(logFile.lastIndexOf('.'));
+            properties.setProperty("Ice.LogFile", newLogFile);
+        }
+    }
+
     public Properties createTestProperties(String[] args) {
         return createTestProperties(args, null);
     }
