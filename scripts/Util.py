@@ -2391,6 +2391,8 @@ class RemoteProcessController(ProcessController):
             except Exception:
                 pass
 
+        sys.stdout.write("connecting to remote controller '{0}'... ".format(proxy))
+        sys.stdout.flush()
         nRetry = 0
         while nRetry < 120:
             nRetry += 1
@@ -2402,6 +2404,7 @@ class RemoteProcessController(ProcessController):
                 if ident not in self.processControllerProxies:
                     self.cond.wait(5)
                 if ident in self.processControllerProxies:
+                    print("ok")
                     return self.processControllerProxies[ident]
 
             # If the controller isn't up after a while, we restart it. With the iOS simulator,
@@ -2811,8 +2814,8 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
-        run('xcrun simctl launch "{0}" {1}'.format(self.device, ident.name))
-        print("ok")
+        subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=300)
+        # No "ok" as the command prints its own output
 
     def restartControllerApp(self, current, ident):
         # We reboot the simulator if the controller fails to start. Terminating the controller app
