@@ -2586,7 +2586,6 @@ class AndroidProcessController(RemoteProcessController):
             run("adb connect {}".format(current.config.device))
 
         if self.forwardPort:
-            assert self.forwardPort, "forwardPort must be set for emulator configuration"
             print(f"forwarding port {self.forwardPort} to the controller app")
             run(f"{self.adb()} forward tcp:{self.forwardPort} tcp:{self.forwardPort}")
 
