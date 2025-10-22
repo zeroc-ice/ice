@@ -46,10 +46,8 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 project.ext.pomName = "${libDir}/${project.name}-${project.version}.pom"
 apply from: "$project.ext.topSrcDir/java/gradle/maven-publish.publishing.gradle"
 
-assemble.dependsOn(jarSources, javadocJar)
-
-artifacts {
-    archives jar, jarSources, javadocJar
+tasks.named('assemble') {
+    dependsOn tasks.named('jar'), tasks.named('jarSources'), tasks.named('javadocJar')
 }
 
 jar {
