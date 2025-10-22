@@ -31,7 +31,7 @@ namespace Ice
         /// @param newContext The new request context.
         void setContext(Context newContext);
 
-        /// Checks if this key has an associated value in the request context.
+        /// Checks if the specified key has an associated value in the request context.
         /// @param key The key.
         /// @return `true` if the key has an associated value, `false` otherwise.
         [[nodiscard]] bool containsKey(std::string_view key) const;

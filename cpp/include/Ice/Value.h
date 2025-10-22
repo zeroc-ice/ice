@@ -55,7 +55,7 @@ namespace Ice
 
         /// Gets the sliced data associated with this instance.
         /// @return The sliced data if the value has a preserved-slice base class and has been sliced during
-        /// unmarshaling of the value, nil otherwise.
+        /// unmarshaling of the value, null otherwise.
         [[nodiscard]] SlicedDataPtr ice_getSlicedData() const;
 
         /// Outputs a description of this instance to the stream. This description includes the type name and the name

@@ -138,9 +138,6 @@ dotnet_diagnostic.CA1840.severity = none
 # CA1854: Prefer a 'TryGetValue' call
 dotnet_diagnostic.CA1854.severity = none
 
-# Call System.IDisposable.Dispose on object
-dotnet_diagnostic.CA2000.severity = none
-
 # CA2002: Do not lock on objects with weak
 dotnet_diagnostic.CA2002.severity = none
 

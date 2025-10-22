@@ -31,24 +31,21 @@ async function testConnectionNotAbortedByIdleCheck(properties: Ice.Properties, h
     properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
     properties.setProperty("Ice.Connection.Client.EnableIdleCheck", "1");
     properties.setProperty("Ice.Warn.Connections", "0");
+    helper.updateLogFileProperty(properties, "-idleTimeout=1s");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
-    const communicator = Ice.initialize(initData);
-    try {
-        const adapter = await communicator.createObjectAdapter("");
-        const callback = Test.TestIntfPrx.uncheckedCast(adapter.add(new TestI(), Ice.stringToIdentity("test")));
+    await using communicator = Ice.initialize(initData);
+    const adapter = await communicator.createObjectAdapter("");
+    const callback = Test.TestIntfPrx.uncheckedCast(adapter.add(new TestI(), Ice.stringToIdentity("test")));
 
-        const p = new Test.TestIntfBidirPrx(communicator, proxyString);
+    const p = new Test.TestIntfBidirPrx(communicator, proxyString);
 
-        const connection = await p.ice_getConnection();
-        test(connection != null);
-        connection.setAdapter(adapter);
+    const connection = await p.ice_getConnection();
+    test(connection != null);
+    connection.setAdapter(adapter);
 
-        await p.ice_oneway().makeSleep(false, 2000, callback);
-        await completedPromise;
-    } finally {
-        await communicator.destroy();
-    }
+    await p.ice_oneway().makeSleep(false, 2000, callback);
+    await completedPromise;
     output.writeLine("ok");
 }
 
@@ -79,25 +76,22 @@ async function testConnectionAbortedByIdleCheck(properties: Ice.Properties, help
     properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
     properties.setProperty("Ice.Connection.Client.EnableIdleCheck", "1");
     properties.setProperty("Ice.Warn.Connections", "0");
+    helper.updateLogFileProperty(properties, "-idleTimeout=0");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
-    const communicator = Ice.initialize(initData);
-    try {
-        const adapter = await communicator.createObjectAdapter("");
-        const obj = adapter.add(new TestI(), Ice.stringToIdentity("test"));
-        const callback = Test.TestIntfPrx.uncheckedCast(obj);
+    await using communicator = Ice.initialize(initData);
+    const adapter = await communicator.createObjectAdapter("");
+    const obj = adapter.add(new TestI(), Ice.stringToIdentity("test"));
+    const callback = Test.TestIntfPrx.uncheckedCast(obj);
 
-        const p = new Test.TestIntfBidirPrx(communicator, proxyString);
+    const p = new Test.TestIntfBidirPrx(communicator, proxyString);
 
-        const connection = await p.ice_getConnection();
-        test(connection != null);
-        connection.setAdapter(adapter);
+    const connection = await p.ice_getConnection();
+    test(connection != null);
+    connection.setAdapter(adapter);
 
-        await p.ice_oneway().makeSleep(true, 2000, callback);
-        await completedPromise;
-    } finally {
-        await communicator.destroy();
-    }
+    await p.ice_oneway().makeSleep(true, 2000, callback);
+    await completedPromise;
     output.writeLine("ok");
 }
 
@@ -120,23 +114,20 @@ async function testServerWithEnableDisableIdleCheck(
     properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
     properties.setProperty("Ice.Connection.Client.EnableIdleCheck", enabled ? "1" : "0");
     properties.setProperty("Ice.Warn.Connections", "0");
+    helper.updateLogFileProperty(properties, "-idleTimeout=1s");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
-    const communicator = Ice.initialize(initData);
+    await using communicator = Ice.initialize(initData);
     const p = new Test.TestIntfPrx(communicator, proxyString3s);
-    try {
-        const connection = await p.ice_getConnection();
-        test(connection != null);
+    const connection = await p.ice_getConnection();
+    test(connection != null);
 
-        try {
-            await p.sleep(2000); // the implementation in the server sleeps for 2,000ms
-            test(!enabled);
-        } catch (ex) {
-            test(ex instanceof Ice.ConnectionAbortedException);
-            test(enabled);
-        }
-    } finally {
-        await communicator.destroy();
+    try {
+        await p.sleep(2000); // the implementation in the server sleeps for 2,000ms
+        test(!enabled);
+    } catch (ex) {
+        test(ex instanceof Ice.ConnectionAbortedException);
+        test(enabled);
     }
     output.writeLine("ok");
 }
@@ -151,18 +142,15 @@ async function testNoIdleTimeout(properties: Ice.Properties, helper: TestHelper)
     // Create a new communicator with the desired properties.
     properties = properties.clone();
     properties.setProperty("Ice.Connection.Client.IdleTimeout", "0");
+    helper.updateLogFileProperty(properties, "-idleTimeout=0");
     const initData = new Ice.InitializationData();
     initData.properties = properties;
-    const communicator = Ice.initialize(initData);
+    await using communicator = Ice.initialize(initData);
     const p = new Test.TestIntfPrx(communicator, proxyStringNoIdleTimeout);
-    try {
-        const connection = await p.ice_getConnection();
-        test(connection != null);
-        await p.sleep(2000); // the implementation in the server sleeps for 2,000ms
-        await connection.close();
-    } finally {
-        await communicator.destroy();
-    }
+    const connection = await p.ice_getConnection();
+    test(connection != null);
+    await p.sleep(2000); // the implementation in the server sleeps for 2,000ms
+    await connection.close();
     output.writeLine("ok");
 }
 

@@ -627,9 +627,9 @@ public class AllTests : global::Test.AllTests
             output.Write("testing async Task cancellation... ");
             output.Flush();
             {
-                var cs1 = new CancellationTokenSource();
-                var cs2 = new CancellationTokenSource();
-                var cs3 = new CancellationTokenSource();
+                using var cs1 = new CancellationTokenSource();
+                using var cs2 = new CancellationTokenSource();
+                using var cs3 = new CancellationTokenSource();
                 Task t1;
                 Task t2;
                 Task t3;

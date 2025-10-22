@@ -3,7 +3,7 @@
 package com.zeroc.Ice;
 
 final class Assert {
-    // The JVM ignores exceptions raised in finalizers, therefore finalizers
+    // The JVM ignores exceptions thrown in finalizers, therefore finalizers
     // that use assertions should call this method instead of assert().
     public static void FinalizerAssert(boolean b) {
         if (!b) {

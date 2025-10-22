@@ -114,8 +114,7 @@ public final class InputStream {
     }
 
     /**
-     * Releases any data retained by encapsulations. The {@link #reset} method internally calls
-     * <code>clear</code>.
+     * Releases any data retained by encapsulations. The {@link #reset} method internally calls {@code clear}.
      */
     public void clear() {
         if (_encapsStack != null) {
@@ -412,8 +411,8 @@ public final class InputStream {
 
     /**
      * Indicates that unmarshaling is complete, except for any class instances. The application must
-     * call this method only if the stream actually contains class instances. Calling <code>
-     * readPendingValues</code> triggers the calls to consumers provided with {@link #readValue} to
+     * call this method only if the stream actually contains class instances. Calling {@code readPendingValues}
+     * triggers the calls to consumers provided with {@link #readValue} to
      * inform the application that unmarshaling of an instance is complete.
      */
     public void readPendingValues() {

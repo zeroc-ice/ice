@@ -10,11 +10,8 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
     public CommunicatorFlushBatch(Communicator communicator, Instance instance) {
         super(communicator, instance, "flushBatchRequests");
 
-        //
         // _useCount is initialized to 1 to prevent premature callbacks.
-        // The caller must invoke ready() after all flush requests have
-        // been initiated.
-        //
+        // The caller must invoke ready() after all flush requests have been initiated.
         _useCount = 1;
     }
 
@@ -70,8 +67,7 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
 
         try {
             final FlushBatch flushBatch = new FlushBatch();
-            final BatchRequestQueue.SwapResult r =
-                con.getBatchRequestQueue().swap(flushBatch.getOs());
+            final BatchRequestQueue.SwapResult r = con.getBatchRequestQueue().swap(flushBatch.getOs());
             if (r == null) {
                 flushBatch.sent();
             } else {
