@@ -2374,7 +2374,7 @@ class RemoteProcessController(ProcessController):
             proxy = Test.Common.ProcessControllerPrx(comm, f"{comm.identityToString(ident)}:{controllerEndpoints}")
 
         else:
-            # Otherwise, use well-known proxy and IceDiscovery to discover the process controller object from the app.
+            # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
             proxy = Test.Common.ProcessControllerPrx(comm, comm.identityToString(ident))
 
         # First try to discover the process controller with IceDiscovery, if this doesn't
@@ -2384,9 +2384,8 @@ class RemoteProcessController(ProcessController):
             try:
                 future.result()
                 with self.cond:
-                    identity = proxy.ice_getIdentity()
-                    if identity not in self.processControllerProxies:
-                        self.processControllerProxies[identity] = proxy
+                    if ident not in self.processControllerProxies:
+                        self.processControllerProxies[proxy.ice_getIdentity()] = proxy
                     self.cond.notify_all()
             except Exception:
                 pass
