@@ -2327,6 +2327,13 @@ class RemoteProcessController(ProcessController):
     def __str__(self):
         return "remote controller"
 
+    def registerProcessControllerProxy(self, proxy):
+        with self.cond:
+            identity = proxy.ice_getIdentity()
+            if identity not in self.processControllerProxies:
+                self.processControllerProxies[identity] = proxy
+            self.cond.notify_all()
+
     def getHost(self, current):
         return self.getController(current).getHost(current.config.protocol, current.config.ipv6)
 
@@ -2367,27 +2374,30 @@ class RemoteProcessController(ProcessController):
                 self.controllerApps.append(ident)
                 self.startControllerApp(current, ident)
 
-        # First check to see if the controller has a direct endpoint
+        # First check to see if the controller has a direct endpoint. If that's the case,
+        # we use it directly. No need to go through discovery or the wait for registration from
+        # a remote controller.
         controllerEndpoints = self.getControllerEndpoints(current)
 
         if controllerEndpoints is not None:
             proxy = Test.Common.ProcessControllerPrx(comm, f"{comm.identityToString(ident)}:{controllerEndpoints}")
-        else:
-            # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
-            proxy = Test.Common.ProcessControllerPrx(comm, comm.identityToString(ident))
+            try:
+                proxy.ice_ping()
+            except Exception as ex:
+                raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident)) from ex
+            self.registerProcessControllerProxy(proxy)
+            return proxy
 
-        #
+        # Otherwise, use well-known proxy and IceDiscovery to discover the process controller object from the app.
+        proxy = Test.Common.ProcessControllerPrx(comm, comm.identityToString(ident))
+
         # First try to discover the process controller with IceDiscovery, if this doesn't
         # work we'll wait for 10s for the process controller to register with the registry.
         # If the wait times out, we retry again.
-        #
         def callback(future):
             try:
                 future.result()
-                with self.cond:
-                    if ident not in self.processControllerProxies:
-                        self.processControllerProxies[proxy.ice_getIdentity()] = proxy
-                    self.cond.notify_all()
+                self.registerProcessController(proxy)
             except Exception:
                 pass
 
@@ -2540,7 +2550,6 @@ class AndroidProcessController(RemoteProcessController):
         if port == -1:
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
-        self.device = "emulator-{}".format(port)
         cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
             avd, port
         )
