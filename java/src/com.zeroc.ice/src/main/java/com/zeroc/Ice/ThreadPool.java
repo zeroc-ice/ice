@@ -169,16 +169,6 @@ final class ThreadPool implements Executor {
         }
     }
 
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_destroyed);
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
-    }
-
     public synchronized void destroy() {
         if (_destroyed) {
             return;

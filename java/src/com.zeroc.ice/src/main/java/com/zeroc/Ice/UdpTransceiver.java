@@ -441,16 +441,6 @@ final class UdpTransceiver implements Transceiver {
         }
     }
 
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_fd == null);
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
-    }
-
     private UdpEndpointI _endpoint;
     private final ProtocolInstance _instance;
 

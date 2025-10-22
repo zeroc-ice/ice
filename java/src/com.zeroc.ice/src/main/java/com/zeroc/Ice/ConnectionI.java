@@ -1224,21 +1224,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         }
     }
 
-    @SuppressWarnings({"deprecation", "nofinalizer"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_startCallback == null);
-            Assert.FinalizerAssert(_state == StateFinished);
-            Assert.FinalizerAssert(_upcallCount == 0);
-            Assert.FinalizerAssert(_sendStreams.isEmpty());
-            Assert.FinalizerAssert(_asyncRequests.isEmpty());
-        } catch (Exception ex) {
-        } finally {
-            super.finalize();
-        }
-    }
-
     private static final int StateNotInitialized = 0;
     private static final int StateNotValidated = 1;
     private static final int StateActive = 2;

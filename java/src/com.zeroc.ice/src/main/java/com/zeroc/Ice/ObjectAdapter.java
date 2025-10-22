@@ -1262,32 +1262,6 @@ public final class ObjectAdapter {
         return _sslEngineFactory;
     }
 
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            if (_state < StateDeactivated) {
-                _instance
-                    .initializationData()
-                    .logger
-                    .warning("object adapter `" + getName() + "' has not been deactivated");
-            } else if (_state != StateDestroyed) {
-                _instance
-                    .initializationData()
-                    .logger
-                    .warning("object adapter `" + getName() + "' has not been destroyed");
-            } else {
-                Assert.FinalizerAssert(_threadPool == null);
-                // Not cleared, it needs to be immutable.
-                // Assert.FinalizerAssert(_servantManager == null);
-                // Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
-                Assert.FinalizerAssert(_directCount == 0);
-            }
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
-    }
-
     private ObjectPrx newProxy(Identity ident, String facet) {
         if (_id.isEmpty()) {
             return newDirectProxy(ident, facet);
