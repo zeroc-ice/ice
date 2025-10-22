@@ -10,8 +10,6 @@ task jarSources(type:Jar, dependsOn: jar){
     destinationDirectory = new File("${libDir}")
 }
 
-javadoc.dependsOn(compileSlice)
-
 javadoc {
     source = sourceSets.main.allJava
     doFirst {
@@ -36,13 +34,6 @@ javadoc {
         }
     }
  }
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    from javadoc
-    archiveClassifier = 'javadoc'
-    destinationDirectory = new File("${libDir}")
-}
-
 project.ext.pomName = "${libDir}/${project.name}-${project.version}.pom"
 apply from: "$project.ext.topSrcDir/java/gradle/maven-publish.publishing.gradle"
 
