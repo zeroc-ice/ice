@@ -71,7 +71,8 @@ public class ObserverWithDelegate<T extends Metrics, O extends com.zeroc.Ice.Ins
         S extends Metrics,
         ObserverImpl extends ObserverWithDelegate<S, Obs>,
         Obs extends com.zeroc.Ice.Instrumentation.Observer>
-    Obs getObserver(String mapName, MetricsHelper<S> helper, Class<S> mcl, Class<ObserverImpl> ocl, Obs delegate) {
+        Obs getObserver(String mapName, MetricsHelper<S> helper, Class<S> mcl, Class<ObserverImpl> ocl, Obs delegate) {
+
         ObserverImpl obsv = super.getObserver(mapName, helper, mcl, ocl);
         if (obsv != null) {
             obsv.setDelegate(delegate);

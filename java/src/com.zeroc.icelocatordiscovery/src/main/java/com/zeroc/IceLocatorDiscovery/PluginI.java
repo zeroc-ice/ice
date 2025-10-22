@@ -171,7 +171,7 @@ class PluginI implements Plugin {
             // Use a lookup reply proxy whose address matches the interface used to send multicast datagrams.
             Endpoint[] single = new Endpoint[1];
             for (Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet()) {
-                UDPEndpointInfo info = (UDPEndpointInfo)entry.getKey().ice_getEndpoints()[0].getInfo();
+                UDPEndpointInfo info = (UDPEndpointInfo) entry.getKey().ice_getEndpoints()[0].getInfo();
                 if (!info.mcastInterface.isEmpty()) {
                     for (Endpoint q : lookupReply.ice_getEndpoints()) {
                         EndpointInfo r = q.getInfo();
@@ -305,7 +305,7 @@ class PluginI implements Plugin {
                         newEndpoints.add(p);
                     }
                 }
-                l = (LocatorPrx)l.ice_endpoints(newEndpoints.toArray(new Endpoint[newEndpoints.size()]));
+                l = (LocatorPrx) l.ice_endpoints(newEndpoints.toArray(new Endpoint[newEndpoints.size()]));
             } else {
                 l = locator;
             }

@@ -174,7 +174,7 @@ public class SSLEngine {
                         // wrap the key managers in order to return the desired alias.
                         for (int i = 0; i < keyManagers.length; i++) {
                             keyManagers[i] =
-                                new X509KeyManagerI((X509ExtendedKeyManager) keyManagers[i],alias,overrideAlias);
+                                new X509KeyManagerI((X509ExtendedKeyManager) keyManagers[i], alias, overrideAlias);
                         }
                     }
                 }
