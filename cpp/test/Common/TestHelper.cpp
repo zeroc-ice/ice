@@ -263,13 +263,13 @@ Test::TestHelper::updateLogFileProperty(const Ice::PropertiesPtr& properties, co
     {
         size_t pos = logFile.find_last_of('.');
         string newLogFile;
-        if (pos != string::npos)
+        if (pos == string::npos)
         {
-            newLogFile = logFile.substr(0, pos) + suffix + logFile.substr(pos);
+            newLogFile = logFile + suffix;
         }
         else
         {
-            newLogFile = logFile + suffix;
+            newLogFile = logFile.substr(0, pos) + suffix + logFile.substr(pos);
         }
         properties->setProperty("Ice.LogFile", newLogFile);
     }

@@ -76,12 +76,12 @@ export class TestHelper {
 
     updateLogFileProperty(properties, suffix) {
         const logFile = properties.getIceProperty("Ice.LogFile");
-        if (logFile) {
+        if (logFile.length > 0) {
             const dotIndex = logFile.lastIndexOf(".");
             const newLogFile =
-                dotIndex !== -1
-                    ? logFile.substring(0, dotIndex) + suffix + logFile.substring(dotIndex)
-                    : logFile + suffix;
+                dotIndex == -1
+                    ? logFile + suffix
+                    : logFile.substring(0, dotIndex) + suffix + logFile.substring(dotIndex);
             properties.setProperty("Ice.LogFile", newLogFile);
         }
     }

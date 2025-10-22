@@ -102,7 +102,7 @@ public abstract class TestHelper {
         String logFile = properties.getIceProperty("Ice.LogFile");
         assert logFile != null; // getIceProperty never returns null
 
-        if (logFile.length() > 0) {
+        if (!logFile.isEmpty()) {
             int dotIndex = logFile.lastIndexOf('.');
             String newLogFile;
             if (dotIndex == -1) {

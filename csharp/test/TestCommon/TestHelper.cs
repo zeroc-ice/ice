@@ -81,9 +81,9 @@ public abstract class TestHelper
         if (logFile.Length > 0)
         {
             int dotIndex = logFile.LastIndexOf('.');
-            string newLogFile = dotIndex >= 0
-                ? logFile.Insert(dotIndex, suffix)
-                : logFile + suffix;
+            string newLogFile = dotIndex == -1
+                ? $"{logFile}{suffix}"
+                : logFile.Insert(dotIndex, suffix);
             properties.setProperty("Ice.LogFile", newLogFile);
         }
     }
