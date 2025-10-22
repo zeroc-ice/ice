@@ -19,7 +19,8 @@ public sealed record class InitializationData
     public Properties? properties { get; set; }
 
     /// <summary>
-    /// Gets or sets the logger for the communicator.
+    /// Gets or sets the logger for the communicator. The communicator does not take ownership of the logger; the
+    /// caller remains responsible for disposing it.
     /// </summary>
     public Logger? logger { get; set; }
 
