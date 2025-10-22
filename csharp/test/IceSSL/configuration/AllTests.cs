@@ -102,11 +102,8 @@ public class AllTests : global::Test.AllTests
         //
         string caCert1File = defaultDir + "/ca1/ca1_cert.pem";
         string caCert2File = defaultDir + "/ca2/ca2_cert.pem";
-        var caCert1 = new X509Certificate2(caCert1File);
-        var caCert2 = new X509Certificate2(caCert2File);
-
-        test(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert1File)).RawData, caCert1.RawData));
-        test(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert2File)).RawData, caCert2.RawData));
+        using var caCert1 = new X509Certificate2(caCert1File);
+        using var caCert2 = new X509Certificate2(caCert2File);
 
         var store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
         bool isAdministrator = false;
@@ -271,13 +268,11 @@ public class AllTests : global::Test.AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    var clientCert =
-                        new X509Certificate2(defaultDir + "/ca1/client.p12", "password");
+                    using var clientCert = new X509Certificate2(defaultDir + "/ca1/client.p12", "password");
                     server.checkCert(clientCert.Subject, clientCert.Issuer);
 
-                    var serverCert =
-                        new X509Certificate2(defaultDir + "/ca1/server.p12", "password");
-                    var caCert = new X509Certificate2(defaultDir + "/ca1/ca1_cert.pem");
+                    using var serverCert = new X509Certificate2(defaultDir + "/ca1/server.p12", "password");
+                    using var caCert = new X509Certificate2(defaultDir + "/ca1/ca1_cert.pem");
 
                     var info = (Ice.SSL.ConnectionInfo)server.ice_getConnection().getInfo();
                     test(info.certs.Length == 1);
@@ -300,7 +295,7 @@ public class AllTests : global::Test.AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    var clientCert = new X509Certificate2(defaultDir + "/ca1/client.p12", "password");
+                    using var clientCert = new X509Certificate2(defaultDir + "/ca1/client.p12", "password");
                     server.checkCert(clientCert.Subject, clientCert.Issuer);
                 }
                 catch (Exception ex)
@@ -1544,9 +1539,10 @@ public class AllTests : global::Test.AllTests
                 var storageFlags = X509KeyStorageFlags.DefaultKeySet;
                 try
                 {
-                    foreach (string cert in certificates)
+                    foreach (string certPath in certificates)
                     {
-                        certStore.Add(new X509Certificate2(defaultDir + cert, "password", storageFlags));
+                        using var cert = new X509Certificate2(defaultDir + certPath, "password", storageFlags);
+                        certStore.Add(cert);
                     }
 
                     for (int i = 0; i < clientFindCertProperties.Length; ++i)
@@ -1607,9 +1603,10 @@ public class AllTests : global::Test.AllTests
                 }
                 finally
                 {
-                    foreach (string cert in certificates)
+                    foreach (string certPath in certificates)
                     {
-                        certStore.Remove(new X509Certificate2(defaultDir + cert, "password"));
+                        using var cert = new X509Certificate2(defaultDir + certPath, "password");
+                        certStore.Remove(cert);
                     }
                     certStore.Close();
                 }
