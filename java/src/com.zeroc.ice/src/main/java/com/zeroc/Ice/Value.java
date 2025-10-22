@@ -39,7 +39,7 @@ public abstract class Value implements Cloneable, Serializable {
     /**
      * Returns the type ID of the most-derived Slice interface supported by this object.
      *
-     * @return The return value is always {@code::Ice::Object}.
+     * @return The return value is always {@code ::Ice::Object}.
      */
     public String ice_id() {
         return ice_staticId();
@@ -58,7 +58,7 @@ public abstract class Value implements Cloneable, Serializable {
     /**
      * Gets the Slice type ID of this type.
      *
-     * @return The return value is always {@code::Ice::Object}.
+     * @return The return value is always {@code ::Ice::Object}.
      */
     public static String ice_staticId() {
         return "::Ice::Object";
