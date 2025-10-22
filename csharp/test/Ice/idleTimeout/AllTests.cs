@@ -59,7 +59,8 @@ internal class AllTests : global::Test.AllTests
         properties = properties.Clone();
         properties.setProperty("Ice.Connection.Client.IdleTimeout", "3");
         properties.setProperty("Ice.Warn.Connections", "0");
-        Communicator communicator = Util.initialize(new InitializationData { properties = properties });
+        global::Test.TestHelper.updateLogFileProperty(properties, "-idleTimeout=3s");
+        await using Communicator communicator = Util.initialize(new InitializationData { properties = properties });
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
 
         // Establish connection.
@@ -96,7 +97,8 @@ internal class AllTests : global::Test.AllTests
         properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
         properties.setProperty("Ice.Connection.Client.EnableIdleCheck", enabled ? "1" : "0");
         properties.setProperty("Ice.Warn.Connections", "0");
-        Communicator communicator = Util.initialize(new InitializationData { properties = properties });
+        global::Test.TestHelper.updateLogFileProperty(properties, "-idleTimeout=1s");
+        await using Communicator communicator = Util.initialize(new InitializationData { properties = properties });
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
 
         Connection? connection = await p.ice_getConnectionAsync();
@@ -123,7 +125,8 @@ internal class AllTests : global::Test.AllTests
         // Create a new communicator with the desired properties.
         properties = properties.Clone();
         properties.setProperty("Ice.Connection.Client.IdleTimeout", "0");
-        Communicator communicator = Util.initialize(new InitializationData { properties = properties });
+        global::Test.TestHelper.updateLogFileProperty(properties, "-idleTimeout=0");
+        await using Communicator communicator = Util.initialize(new InitializationData { properties = properties });
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
 
         Connection? connection = await p.ice_getConnectionAsync();

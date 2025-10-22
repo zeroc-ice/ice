@@ -69,6 +69,7 @@ public class AllTests {
         properties = properties._clone();
         properties.setProperty("Ice.Connection.Client.IdleTimeout", "3");
         properties.setProperty("Ice.Warn.Connections", "0");
+        TestHelper.updateLogFileProperty(properties, "-idleTimeout=3s");
         var initData = new InitializationData();
         initData.properties = properties;
         try (var communicator = helper.initialize(initData)) {
@@ -107,6 +108,7 @@ public class AllTests {
         properties.setProperty("Ice.Connection.Client.IdleTimeout", "1");
         properties.setProperty("Ice.Connection.Client.EnableIdleCheck", enabled ? "1" : "0");
         properties.setProperty("Ice.Warn.Connections", "0");
+        TestHelper.updateLogFileProperty(properties, "-idleTimeout=1s");
         var initData = new InitializationData();
         initData.properties = properties;
         try (var communicator = helper.initialize(initData)) {
@@ -134,6 +136,7 @@ public class AllTests {
         // Create a new communicator with the desired properties.
         properties = properties._clone();
         properties.setProperty("Ice.Connection.Client.IdleTimeout", "0");
+        TestHelper.updateLogFileProperty(properties, "-idleTimeout=0");
         var initData = new InitializationData();
         initData.properties = properties;
         try (var communicator = helper.initialize(initData)) {

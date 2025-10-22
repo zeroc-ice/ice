@@ -96,6 +96,8 @@ namespace Test
         [[nodiscard]] int getTestPort(int port = 0) const;
         static int getTestPort(const Ice::PropertiesPtr&, int port = 0);
 
+        static void updateLogFileProperty(const Ice::PropertiesPtr& properties, const std::string& suffix);
+
         static Ice::PropertiesPtr createTestProperties(int&, char*[], const Ice::PropertiesPtr& = nullptr);
 
         Ice::CommunicatorPtr initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = nullptr);

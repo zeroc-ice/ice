@@ -67,6 +67,7 @@ public class AllTests {
         // Create a new communicator with the desired properties.
         properties = properties._clone();
         properties.setProperty("Ice.Connection.Client.InactivityTimeout", "5");
+        TestHelper.updateLogFileProperty(properties, "-inactivityTimeout=5s");
         var initData = new InitializationData();
         initData.properties = properties;
         try (var communicator = helper.initialize(initData)) {
