@@ -2569,10 +2569,6 @@ class AndroidProcessController(RemoteProcessController):
             # This runs if the while loop completes without breaking
             raise RuntimeError(f"emulator '{avd}' not booted after 300s")
 
-        assert self.forwardPort, "forwardPort must be set for emulator configuration"
-        print(f"forwarding port {self.forwardPort} to the controller app")
-        run(f"{self.adb()} forward tcp:{self.forwardPort} tcp:{self.forwardPort}")
-
     def startControllerApp(self, current, ident):
         if current.config.avd:
             self.startEmulator(current.config.avd)
@@ -2588,6 +2584,11 @@ class AndroidProcessController(RemoteProcessController):
             self.startEmulator("IceTests")
         elif current.config.device != "usb":
             run("adb connect {}".format(current.config.device))
+
+        if self.forwardPort:
+            assert self.forwardPort, "forwardPort must be set for emulator configuration"
+            print(f"forwarding port {self.forwardPort} to the controller app")
+            run(f"{self.adb()} forward tcp:{self.forwardPort} tcp:{self.forwardPort}")
 
         # First try uninstall in case the controller was left behind from a previous run
         try:
