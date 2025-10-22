@@ -150,10 +150,10 @@ namespace Ice
         /// @param logger The logger to be installed.
         LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger);
 
-        /// This method is a no-op.
+        /// This method is no-op.
         void initialize() override;
 
-        /// This method is a no-op.
+        /// This method is no-op.
         void destroy() override;
     };
 }

@@ -370,8 +370,7 @@ public interface ObjectPrx {
     /**
      * Returns a proxy that is identical to this proxy, except for connection caching.
      *
-     * @param newCache <code>true</code> if the new proxy should cache connections; <code>false
-     *     </code> otherwise.
+     * @param newCache {@code true} if the new proxy should cache connections; {@code false} otherwise.
      * @return The proxy with the specified caching policy.
      */
     ObjectPrx ice_connectionCached(boolean newCache);
@@ -451,8 +450,7 @@ public interface ObjectPrx {
     /**
      * Returns a proxy that is identical to this proxy, except for collocation optimization.
      *
-     * @param b <code>true</code> if the new proxy enables collocation optimization; <code>false
-     *     </code> otherwise.
+     * @param b {@code true} if the new proxy enables collocation optimization; {@code false} otherwise.
      * @return The proxy with the specified collocation optimization.
      */
     ObjectPrx ice_collocationOptimized(boolean b);
@@ -536,7 +534,7 @@ public interface ObjectPrx {
      * Returns a proxy that is identical to this proxy, except for its compression setting which
      * overrides the compression setting from the proxy endpoints.
      *
-     * @param co <code>true</code> enables compression for the new proxy; <code>false</code>
+     * @param co {@code true} enables compression for the new proxy; {@code false}
      *     disables compression.
      * @return A proxy with the specified compression setting.
      */
@@ -686,7 +684,7 @@ public interface ObjectPrx {
      *
      * @param obj The source proxy.
      * @param facet The facet for the new proxy.
-     * @param context The <code>Context</code> map for the invocation.
+     * @param context The {@code Context} map for the invocation.
      * @return A new proxy with the specified facet, or {@code null} if the target facet does not support the specified
      *         type.
      */
@@ -762,7 +760,7 @@ public interface ObjectPrx {
 
     /**
      * A special empty context that is indistinguishable from the absence of a context parameter.
-     * For example, <code>prx.op(noExplicitContext)</code> is the same as <code>prx.op()</code> and
+     * For example, {@code prx.op(noExplicitContext)} is the same as {@code prx.op()} and
      * does not override the current implicit context (if any).
      */
     static final Map<String, String> noExplicitContext = new HashMap<>();

@@ -28,82 +28,35 @@ import java.util.Map;
  * @hidden Public because it's used by IceMX (via reflection).
  */
 public class CommunicatorObserverI implements CommunicatorObserver {
-    static void addEndpointAttributes(MetricsHelper.AttributeResolver r, Class<?> cl)
-        throws Exception {
+    static void addEndpointAttributes(MetricsHelper.AttributeResolver r, Class<?> cl) throws Exception {
         r.add("endpoint", cl.getDeclaredMethod("getEndpoint"));
 
         Class<?> cli = EndpointInfo.class;
-        r.add(
-            "endpointType",
-            cl.getDeclaredMethod("getEndpointInfo"),
-            cli.getDeclaredMethod("type"));
-        r.add(
-            "endpointIsDatagram",
-            cl.getDeclaredMethod("getEndpointInfo"),
-            cli.getDeclaredMethod("datagram"));
-        r.add(
-            "endpointIsSecure",
-            cl.getDeclaredMethod("getEndpointInfo"),
-            cli.getDeclaredMethod("secure"));
-        r.add(
-            "endpointCompress",
-            cl.getDeclaredMethod("getEndpointInfo"),
-            cli.getDeclaredField("compress"));
+        r.add("endpointType", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredMethod("type"));
+        r.add("endpointIsDatagram", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredMethod("datagram"));
+        r.add("endpointIsSecure", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredMethod("secure"));
+        r.add("endpointCompress", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredField("compress"));
 
         cli = IPEndpointInfo.class;
-        r.add(
-            "endpointHost",
-            cl.getDeclaredMethod("getEndpointInfo"),
-            cli.getDeclaredField("host"));
-        r.add(
-            "endpointPort",
-            cl.getDeclaredMethod("getEndpointInfo"),
-            cli.getDeclaredField("port"));
+        r.add("endpointHost", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredField("host"));
+        r.add("endpointPort", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredField("port"));
     }
 
-    static void addConnectionAttributes(MetricsHelper.AttributeResolver r, Class<?> cl)
-        throws Exception {
+    static void addConnectionAttributes(MetricsHelper.AttributeResolver r, Class<?> cl) throws Exception {
         Class<?> cli = ConnectionInfo.class;
-        r.add(
-            "incoming",
-            cl.getDeclaredMethod("getConnectionInfo"),
-            cli.getDeclaredField("incoming"));
-        r.add(
-            "adapterName",
-            cl.getDeclaredMethod("getConnectionInfo"),
-            cli.getDeclaredField("adapterName"));
-        r.add(
-            "connectionId",
-            cl.getDeclaredMethod("getConnectionInfo"),
-            cli.getDeclaredField("connectionId"));
+        r.add("incoming", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("incoming"));
+        r.add("adapterName", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("adapterName"));
+        r.add("connectionId", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("connectionId"));
 
         cli = IPConnectionInfo.class;
-        r.add(
-            "localHost",
-            cl.getDeclaredMethod("getConnectionInfo"),
-            cli.getDeclaredField("localAddress"));
-        r.add(
-            "localPort",
-            cl.getDeclaredMethod("getConnectionInfo"),
-            cli.getDeclaredField("localPort"));
-        r.add(
-            "remoteHost",
-            cl.getDeclaredMethod("getConnectionInfo"),
-            cli.getDeclaredField("remoteAddress"));
-        r.add(
-            "remotePort",
-            cl.getDeclaredMethod("getConnectionInfo"),
-            cli.getDeclaredField("remotePort"));
+        r.add("localHost", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("localAddress"));
+        r.add("localPort", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("localPort"));
+        r.add("remoteHost", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("remoteAddress"));
+        r.add("remotePort", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("remotePort"));
 
         cli = UDPConnectionInfo.class;
-        r.add(
-            "mcastHost",
-            cl.getDeclaredMethod("getConnectionInfo"),
-            cli.getDeclaredField("mcastAddress"));
-        r.add(
-            "mcastPort",
-            cl.getDeclaredMethod("getConnectionInfo"),
-            cli.getDeclaredField("mcastPort"));
+        r.add("mcastHost", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("mcastAddress"));
+        r.add("mcastPort", cl.getDeclaredMethod("getConnectionInfo"), cli.getDeclaredField("mcastPort"));
 
         addEndpointAttributes(r, cl);
     }
@@ -219,19 +172,10 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                         addConnectionAttributes(this, cl);
 
                         Class<?> clc = Current.class;
-                        add(
-                            "operation",
-                            cl.getDeclaredMethod("getCurrent"),
-                            clc.getDeclaredField("operation"));
+                        add("operation", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("operation"));
                         add("identity", cl.getDeclaredMethod("getIdentity"));
-                        add(
-                            "facet",
-                            cl.getDeclaredMethod("getCurrent"),
-                            clc.getDeclaredField("facet"));
-                        add(
-                            "requestId",
-                            cl.getDeclaredMethod("getCurrent"),
-                            clc.getDeclaredField("requestId"));
+                        add("facet", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("facet"));
+                        add("requestId", cl.getDeclaredMethod("getCurrent"), clc.getDeclaredField("requestId"));
                         add("mode", cl.getDeclaredMethod("getMode"));
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -338,10 +282,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                         add("identity", cl.getDeclaredMethod("getIdentity"));
 
                         Class<?> cli = ObjectPrx.class;
-                        add(
-                            "facet",
-                            cl.getDeclaredMethod("getProxy"),
-                            cli.getDeclaredMethod("ice_getFacet"));
+                        add("facet", cl.getDeclaredMethod("getProxy"), cli.getDeclaredMethod("ice_getFacet"));
                         add("encoding", cl.getDeclaredMethod("getEncodingVersion"));
                         add("mode", cl.getDeclaredMethod("getMode"));
                         add("proxy", cl.getDeclaredMethod("getProxy"));
@@ -401,8 +342,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                             .append(']');
                     } catch (Exception ex) {
                         // Either a fixed proxy or the communicator is destroyed.
-                        os.append(_proxy.ice_getCommunicator()
-                            .identityToString(_proxy.ice_getIdentity()));
+                        os.append(_proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity()));
                         os.append(" [").append(_operation).append(']');
                     }
                     _id = os.toString();
@@ -593,10 +533,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                     ObserverWithDelegateI.class,
                     delegate);
             } catch (Exception ex) {
-                _metrics.getLogger()
-                    .error(
-                        "unexpected exception trying to obtain observer:\n"
-                            + Ex.toString(ex));
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
@@ -610,13 +547,9 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                 if (_delegate != null) {
                     delegate = _delegate.getEndpointLookupObserver(endpt);
                 }
-                return _endpointLookups.getObserver(
-                    new EndpointHelper(endpt), ObserverWithDelegateI.class, delegate);
+                return _endpointLookups.getObserver(new EndpointHelper(endpt), ObserverWithDelegateI.class, delegate);
             } catch (Exception ex) {
-                _metrics.getLogger()
-                    .error(
-                        "unexpected exception trying to obtain observer:\n"
-                            + Ex.toString(ex));
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
@@ -628,55 +561,37 @@ public class CommunicatorObserverI implements CommunicatorObserver {
         if (_connections.isEnabled()) {
             try {
                 ConnectionObserver delegate = null;
-                ConnectionObserverI o =
-                    observer instanceof ConnectionObserverI
-                        ? (ConnectionObserverI) observer
-                        : null;
+                ConnectionObserverI o = observer instanceof ConnectionObserverI ? (ConnectionObserverI) observer : null;
                 if (_delegate != null) {
-                    delegate =
-                        _delegate.getConnectionObserver(
-                            c, e, s, o != null ? o.getDelegate() : observer);
+                    delegate = _delegate.getConnectionObserver(c, e, s, o != null ? o.getDelegate() : observer);
                 }
-                return _connections.getObserver(
-                    new ConnectionHelper(c, e, s), o, ConnectionObserverI.class, delegate);
+                return _connections.getObserver(new ConnectionHelper(c, e, s), o, ConnectionObserverI.class, delegate);
             } catch (Exception ex) {
-                _metrics.getLogger()
-                    .error(
-                        "unexpected exception trying to obtain observer:\n"
-                            + Ex.toString(ex));
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
     }
 
     @Override
-    public ThreadObserver getThreadObserver(
-            String parent, String id, ThreadState s, ThreadObserver observer) {
+    public ThreadObserver getThreadObserver(String parent, String id, ThreadState s, ThreadObserver observer) {
         if (_threads.isEnabled()) {
             try {
                 ThreadObserver delegate = null;
-                ThreadObserverI o =
-                    observer instanceof ThreadObserverI ? (ThreadObserverI) observer : null;
+                ThreadObserverI o = observer instanceof ThreadObserverI ? (ThreadObserverI) observer : null;
                 if (_delegate != null) {
-                    delegate =
-                        _delegate.getThreadObserver(
-                            parent, id, s, o != null ? o.getDelegate() : observer);
+                    delegate = _delegate.getThreadObserver(parent, id, s, o != null ? o.getDelegate() : observer);
                 }
-                return _threads.getObserver(
-                    new ThreadHelper(parent, id, s), o, ThreadObserverI.class, delegate);
+                return _threads.getObserver(new ThreadHelper(parent, id, s), o, ThreadObserverI.class, delegate);
             } catch (Exception ex) {
-                _metrics.getLogger()
-                    .error(
-                        "unexpected exception trying to obtain observer:\n"
-                            + Ex.toString(ex));
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
     }
 
     @Override
-    public InvocationObserver getInvocationObserver(
-            ObjectPrx prx, String operation, Map<String, String> ctx) {
+    public InvocationObserver getInvocationObserver(ObjectPrx prx, String operation, Map<String, String> ctx) {
         if (_invocations.isEnabled()) {
             try {
                 InvocationObserver delegate = null;
@@ -688,10 +603,7 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                     InvocationObserverI.class,
                     delegate);
             } catch (Exception ex) {
-                _metrics.getLogger()
-                    .error(
-                        "unexpected exception trying to obtain observer:\n"
-                            + Ex.toString(ex));
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
@@ -705,13 +617,9 @@ public class CommunicatorObserverI implements CommunicatorObserver {
                 if (_delegate != null) {
                     delegate = _delegate.getDispatchObserver(c, size);
                 }
-                return _dispatch.getObserver(
-                    new DispatchHelper(c, size), DispatchObserverI.class, delegate);
+                return _dispatch.getObserver(new DispatchHelper(c, size), DispatchObserverI.class, delegate);
             } catch (Exception ex) {
-                _metrics.getLogger()
-                    .error(
-                        "unexpected exception trying to obtain observer:\n"
-                            + Ex.toString(ex));
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + Ex.toString(ex));
             }
         }
         return null;
@@ -723,14 +631,8 @@ public class CommunicatorObserverI implements CommunicatorObserver {
             _connections.setUpdater(null);
             _threads.setUpdater(null);
         } else {
-            _connections.setUpdater(
-                () -> {
-                    updater.updateConnectionObservers();
-                });
-            _threads.setUpdater(
-                () -> {
-                    updater.updateThreadObservers();
-                });
+            _connections.setUpdater(updater::updateConnectionObservers);
+            _threads.setUpdater(updater::updateThreadObservers);
         }
 
         if (_delegate != null) {
@@ -744,17 +646,10 @@ public class CommunicatorObserverI implements CommunicatorObserver {
 
     private final MetricsAdminI _metrics;
     private final CommunicatorObserver _delegate;
-    private final ObserverFactoryWithDelegate<
-        ConnectionMetrics, ConnectionObserverI, ConnectionObserver>
-        _connections;
-    private final ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI, DispatchObserver>
-        _dispatch;
-    private final ObserverFactoryWithDelegate<
-        InvocationMetrics, InvocationObserverI, InvocationObserver>
-        _invocations;
-    private final ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI, ThreadObserver>
-        _threads;
+    private final ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI, ConnectionObserver> _connections;
+    private final ObserverFactoryWithDelegate<DispatchMetrics, DispatchObserverI, DispatchObserver> _dispatch;
+    private final ObserverFactoryWithDelegate<InvocationMetrics, InvocationObserverI, InvocationObserver> _invocations;
+    private final ObserverFactoryWithDelegate<ThreadMetrics, ThreadObserverI, ThreadObserver> _threads;
     private final ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI, Observer> _connects;
-    private final ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI, Observer>
-        _endpointLookups;
+    private final ObserverFactoryWithDelegate<Metrics, ObserverWithDelegateI, Observer> _endpointLookups;
 }

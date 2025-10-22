@@ -3,9 +3,8 @@
 package com.zeroc.Ice;
 
 /**
- * This class wraps a proxy to allow it to be used the key for a hashed collection. The <code>
- * hashCode</code> and <code>equals</code> methods are based on the object identity and the facet of
- * the proxy.
+ * This class wraps a proxy to allow it to be used the key for a hashed collection.
+ * The {@code hashCode} and {@code equals} methods are based on the object identity and facet of the proxy.
  *
  * @see Util#proxyIdentityAndFacetCompare
  * @see Util#proxyIdentityCompare
@@ -13,16 +12,14 @@ package com.zeroc.Ice;
  */
 public class ProxyIdentityFacetKey {
     /**
-     * Initializes this class with the passed proxy.
+     * Creates a ProxyIdentityFacetKey from the passed proxy.
      *
-     * @param proxy The proxy for this instance.
+     * @param proxy the proxy to use
      */
     public ProxyIdentityFacetKey(ObjectPrx proxy) {
         _proxy = proxy;
 
-        //
         // Cache the identity and facet, and compute the hash code.
-        //
         _identity = proxy.ice_getIdentity();
         _facet = proxy.ice_getFacet();
         int h = 5381;
@@ -32,7 +29,7 @@ public class ProxyIdentityFacetKey {
     }
 
     /**
-     * Computes a hash value based on the object identity and the facet of the proxy.
+     * Returns a hash value based on the object identity and facet of the wrapped proxy.
      *
      * @return The hash value.
      */
@@ -42,11 +39,11 @@ public class ProxyIdentityFacetKey {
     }
 
     /**
-     * Compares this proxy with the passed object for equality.
+     * Compares the wrapped proxy with the provided object for equality.
      *
-     * @param obj The object to compare this proxy with.
-     * @return <code>true</code> if the passed object is a proxy with the same object identity and
-     *     facet as this proxy; <code>false</code>, otherwise.
+     * @param obj the object to compare this proxy with
+     * @return {@code true} if the passed object is a proxy with the same object identity and facet;
+     *     {@code false}, otherwise.
      */
     @Override
     public boolean equals(java.lang.Object obj) {
@@ -67,7 +64,7 @@ public class ProxyIdentityFacetKey {
     /**
      * Returns the proxy stored by this class.
      *
-     * @return The proxy stored by this class.
+     * @return the proxy stored by this class
      */
     public ObjectPrx getProxy() {
         return _proxy;

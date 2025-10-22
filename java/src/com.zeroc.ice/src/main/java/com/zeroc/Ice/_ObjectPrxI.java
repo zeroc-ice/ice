@@ -47,10 +47,8 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
         return _iceI_ice_isAAsync(id, context, false);
     }
 
-    private OutgoingAsync<Boolean> _iceI_ice_isAAsync(
-            String id, Map<String, String> context, boolean sync) {
-        OutgoingAsync<Boolean> f =
-            new OutgoingAsync<>(this, "ice_isA", OperationMode.Idempotent, sync, null);
+    private OutgoingAsync<Boolean> _iceI_ice_isAAsync(String id, Map<String, String> context, boolean sync) {
+        OutgoingAsync<Boolean> f = new OutgoingAsync<>(this, "ice_isA", OperationMode.Idempotent, sync, null);
         f.invoke(true, context, null, ostr -> ostr.writeString(id), istr -> istr.readBool());
         return f;
     }
@@ -72,8 +70,7 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
     }
 
     private OutgoingAsync<Void> _iceI_ice_pingAsync(Map<String, String> context, boolean sync) {
-        OutgoingAsync<Void> f =
-            new OutgoingAsync<>(this, "ice_ping", OperationMode.Idempotent, sync, null);
+        OutgoingAsync<Void> f = new OutgoingAsync<>(this, "ice_ping", OperationMode.Idempotent, sync, null);
         f.invoke(false, context, null, null, null);
         return f;
     }
@@ -95,8 +92,7 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
     }
 
     private OutgoingAsync<String[]> _iceI_ice_idsAsync(Map<String, String> context, boolean sync) {
-        OutgoingAsync<String[]> f =
-            new OutgoingAsync<>(this, "ice_ids", OperationMode.Idempotent, sync, null);
+        OutgoingAsync<String[]> f = new OutgoingAsync<>(this, "ice_ids", OperationMode.Idempotent, sync, null);
         f.invoke(true, context, null, null, istr -> istr.readStringSeq());
         return f;
     }
@@ -118,14 +114,12 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
     }
 
     private OutgoingAsync<String> _iceI_ice_idAsync(Map<String, String> context, boolean sync) {
-        OutgoingAsync<String> f =
-            new OutgoingAsync<>(this, "ice_id", OperationMode.Idempotent, sync, null);
+        OutgoingAsync<String> f = new OutgoingAsync<>(this, "ice_id", OperationMode.Idempotent, sync, null);
         f.invoke(true, context, null, null, istr -> istr.readString());
         return f;
     }
 
-    public Object.Ice_invokeResult ice_invoke(
-            String operation, OperationMode mode, byte[] inParams) {
+    public Object.Ice_invokeResult ice_invoke(String operation, OperationMode mode, byte[] inParams) {
         return ice_invoke(operation, mode, inParams, ObjectPrx.noExplicitContext);
     }
 
@@ -161,8 +155,7 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
 
     public ObjectPrx ice_identity(Identity newIdentity) {
         if (newIdentity.name == null || newIdentity.name.isEmpty()) {
-            throw new IllegalArgumentException(
-                "The name of an Ice object identity cannot be empty.");
+            throw new IllegalArgumentException("The name of an Ice object identity cannot be empty.");
         }
         if (newIdentity.equals(_reference.getIdentity())) {
             return this;
@@ -358,9 +351,9 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
         if (Arrays.equals(newEndpoints, _reference.getEndpoints())) {
             return this;
         } else {
-            EndpointI[] edpts = new EndpointI[newEndpoints.length];
-            edpts = Arrays.asList(newEndpoints).toArray(edpts);
-            return _newInstance(_reference.changeEndpoints(edpts));
+            EndpointI[] endpoints = new EndpointI[newEndpoints.length];
+            endpoints = Arrays.asList(newEndpoints).toArray(endpoints);
+            return _newInstance(_reference.changeEndpoints(endpoints));
         }
     }
 
@@ -375,8 +368,7 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
         if (connection == _reference.getConnection()) {
             return this;
         } else {
-            return _newInstance(
-                _reference.changeConnection((ConnectionI) connection));
+            return _newInstance(_reference.changeConnection((ConnectionI) connection));
         }
     }
 
@@ -478,23 +470,17 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
 
     @Override
     public ObjectPrx ice_batchOneway() {
-        return ice_isBatchOneway()
-            ? this
-            : _newInstance(_reference.changeMode(Reference.ModeBatchOneway));
+        return ice_isBatchOneway() ? this : _newInstance(_reference.changeMode(Reference.ModeBatchOneway));
     }
 
     @Override
     public ObjectPrx ice_datagram() {
-        return ice_isDatagram()
-            ? this
-            : _newInstance(_reference.changeMode(Reference.ModeDatagram));
+        return ice_isDatagram() ? this : _newInstance(_reference.changeMode(Reference.ModeDatagram));
     }
 
     @Override
     public ObjectPrx ice_batchDatagram() {
-        return ice_isBatchDatagram()
-            ? this
-            : _newInstance(_reference.changeMode(Reference.ModeBatchDatagram));
+        return ice_isBatchDatagram() ? this : _newInstance(_reference.changeMode(Reference.ModeBatchDatagram));
     }
 
     @Override
@@ -555,14 +541,11 @@ class _ObjectPrxI implements ObjectPrx, Serializable {
             _reference = proxy._reference;
             _requestHandlerCache = proxy._requestHandlerCache;
         } catch (ClassCastException ex) {
-            IOException e =
-                new IOException(
-                    "Cannot deserialize proxy: ObjectInputStream not found");
+            IOException e = new IOException("Cannot deserialize proxy: ObjectInputStream not found");
             e.initCause(ex);
             throw e;
         } catch (LocalException ex) {
-            IOException e =
-                new IOException("Failure occurred while deserializing proxy");
+            IOException e = new IOException("Failure occurred while deserializing proxy");
             e.initCause(ex);
             throw e;
         }

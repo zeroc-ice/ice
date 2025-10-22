@@ -112,9 +112,7 @@ public final class OutputStream {
     }
 
     /**
-     * Releases any data retained by encapsulations. The {@link #reset} method internally calls
-     * <code>
-     * clear</code>.
+     * Releases any data retained by encapsulations. The {@link #reset} method internally calls {@code clear}.
      */
     public void clear() {
         if (_encapsStack != null) {
@@ -484,7 +482,7 @@ public final class OutputStream {
     /**
      * Writes a byte sequence to the stream.
      *
-     * @param v The byte sequence to write to the stream. Passing <code>null</code> causes an empty
+     * @param v The byte sequence to write to the stream. Passing {@code null} causes an empty
      *     sequence to be written to the stream.
      */
     public void writeByteSeq(byte[] v) {
@@ -631,7 +629,7 @@ public final class OutputStream {
     /**
      * Writes a boolean sequence to the stream.
      *
-     * @param v The boolean sequence to write to the stream. Passing <code>null</code> causes an
+     * @param v The boolean sequence to write to the stream. Passing {@code null} causes an
      *     empty sequence to be written to the stream.
      */
     public void writeBoolSeq(boolean[] v) {
@@ -707,7 +705,7 @@ public final class OutputStream {
     /**
      * Writes a short sequence to the stream.
      *
-     * @param v The short sequence to write to the stream. Passing <code>null</code> causes an empty
+     * @param v The short sequence to write to the stream. Passing {@code null} causes an empty
      *     sequence to be written to the stream.
      */
     public void writeShortSeq(short[] v) {
@@ -814,7 +812,7 @@ public final class OutputStream {
     /**
      * Writes an int sequence to the stream.
      *
-     * @param v The int sequence to write to the stream. Passing <code>null</code> causes an empty
+     * @param v The int sequence to write to the stream. Passing {@code null} causes an empty
      *     sequence to be written to the stream.
      */
     public void writeIntSeq(int[] v) {
@@ -910,7 +908,7 @@ public final class OutputStream {
     /**
      * Writes a long sequence to the stream.
      *
-     * @param v The long sequence to write to the stream. Passing <code>null</code> causes an empty
+     * @param v The long sequence to write to the stream. Passing {@code null} causes an empty
      *     sequence to be written to the stream.
      */
     public void writeLongSeq(long[] v) {
@@ -1006,7 +1004,7 @@ public final class OutputStream {
     /**
      * Writes a float sequence to the stream.
      *
-     * @param v The float sequence to write to the stream. Passing <code>null</code> causes an empty
+     * @param v The float sequence to write to the stream. Passing {@code null} causes an empty
      *     sequence to be written to the stream.
      */
     public void writeFloatSeq(float[] v) {
@@ -1102,7 +1100,7 @@ public final class OutputStream {
     /**
      * Writes a double sequence to the stream.
      *
-     * @param v The double sequence to write to the stream. Passing <code>null</code> causes an
+     * @param v The double sequence to write to the stream. Passing {@code null} causes an
      *     empty sequence to be written to the stream.
      */
     public void writeDoubleSeq(double[] v) {
@@ -1167,7 +1165,7 @@ public final class OutputStream {
     /**
      * Writes a string to the stream.
      *
-     * @param v The string to write to the stream. Passing <code>null</code> causes an empty string
+     * @param v The string to write to the stream. Passing {@code null} causes an empty string
      *     to be written to the stream.
      */
     public void writeString(String v) {
@@ -1244,7 +1242,7 @@ public final class OutputStream {
     /**
      * Writes a string sequence to the stream.
      *
-     * @param v The string sequence to write to the stream. Passing <code>null</code> causes an
+     * @param v The string sequence to write to the stream. Passing {@code null} causes an
      *     empty sequence to be written to the stream.
      */
     public void writeStringSeq(String[] v) {
