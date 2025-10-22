@@ -75,6 +75,19 @@ public abstract class TestHelper
     public static int getTestPort(Ice.Properties properties, int num) =>
         properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
 
+    public static void updateLogFileProperty(Ice.Properties properties, string suffix)
+    {
+        string logFile = properties.getIceProperty("Ice.LogFile");
+        if (logFile.Length > 0)
+        {
+            int dotIndex = logFile.LastIndexOf('.');
+            string newLogFile = dotIndex == -1
+                ? $"{logFile}{suffix}"
+                : logFile.Insert(dotIndex, suffix);
+            properties.setProperty("Ice.LogFile", newLogFile);
+        }
+    }
+
     public TextWriter getWriter()
     {
         if (_writer == null)

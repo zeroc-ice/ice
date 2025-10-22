@@ -11,6 +11,8 @@ export class TestHelper {
     getTestProtocol(properties: Ice.Properties): string;
     getTestPort(num?: number): number;
 
+    updateLogFileProperty(properties: Ice.Properties, suffix: string): void;
+
     createTestProperties(args?: string[]): [Ice.Properties, string[]];
 
     initialize(initData: Ice.InitializationData): [Ice.Communicator, string[]];
