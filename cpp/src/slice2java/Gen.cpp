@@ -3643,6 +3643,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     {
         out << nl << "case " << enumerator->value() << " -> " << enumerator->mappedName() << ';';
     }
+    out << nl << "default -> null;";
     out.inc();
     out << eb << ';';
     out << eb;
