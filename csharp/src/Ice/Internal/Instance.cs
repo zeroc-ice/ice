@@ -551,13 +551,12 @@ public sealed class Instance
         }
     }
 
-    public void
-    setLogger(Ice.Logger logger)
+    public void setLogger(Ice.Logger logger)
     {
         // No locking, as it can only be called during plug-in loading.
-        if (_initData.logger != null && _ownLogger)
+        if (_ownLogger)
         {
-            _initData.logger.Dispose();
+            _initData.logger!.Dispose();
         }
         _initData.logger = logger;
         _ownLogger = false;
@@ -659,15 +658,16 @@ public sealed class Instance
                     // Ice.ConsoleListener is enabled by default.
                     //
                     bool console = _initData.properties.getIcePropertyAsInt("Ice.ConsoleListener") > 0;
-                    _initData.logger = new Ice.TraceLoggerI(programName, console);
+                    _initData.logger = new TraceLoggerI(programName, console);
                     _ownLogger = true;
                 }
                 else
                 {
                     _initData.logger = Ice.Util.getProcessLogger();
-                    _ownLogger = false;
+                    // _ownLogger remains false
                 }
             }
+            // else _ownLogger remains false
 
             _traceLevels = new TraceLevels(_initData.properties);
 
@@ -1161,7 +1161,7 @@ public sealed class Instance
 
         if (_ownLogger)
         {
-            _initData.logger?.Dispose();
+            _initData.logger!.Dispose();
         }
     }
 

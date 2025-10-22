@@ -23,7 +23,7 @@ public class LoggerPlugin : Plugin
             throw new PluginInitializationException("Communicator cannot be null.");
         }
 
-        if (logger == null)
+        if (logger is null)
         {
             throw new PluginInitializationException("Logger cannot be null.");
         }

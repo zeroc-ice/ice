@@ -277,7 +277,11 @@ public sealed class Util
     {
         lock (_processLoggerMutex)
         {
-            _processLogger ??= new ConsoleLoggerI(AppDomain.CurrentDomain.FriendlyName);
+            if (_processLogger is null)
+            {
+                _processLogger = new ConsoleLoggerI(AppDomain.CurrentDomain.FriendlyName);
+                _ownProcessLogger = true;
+            }
             return _processLogger;
         }
     }
@@ -290,7 +294,12 @@ public sealed class Util
     {
         lock (_processLoggerMutex)
         {
+            if (_ownProcessLogger)
+            {
+                _processLogger!.Dispose();
+            }
             _processLogger = logger;
+            _ownProcessLogger = false;
         }
     }
 
@@ -397,4 +406,5 @@ public sealed class Util
 
     private static readonly object _processLoggerMutex = new object();
     private static Logger? _processLogger;
+    private static bool _ownProcessLogger;
 }
