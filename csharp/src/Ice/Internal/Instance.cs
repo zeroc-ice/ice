@@ -551,7 +551,7 @@ public sealed class Instance
         }
     }
 
-    public void setLogger(Ice.Logger logger)
+    internal void setLogger(Logger logger)
     {
         // No locking, as it can only be called during plug-in loading.
         if (_ownLogger)
@@ -559,7 +559,7 @@ public sealed class Instance
             _initData.logger!.Dispose();
         }
         _initData.logger = logger;
-        _ownLogger = false;
+        _ownLogger = true;
     }
 
     public void

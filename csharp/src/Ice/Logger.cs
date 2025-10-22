@@ -4,18 +4,19 @@
 
 namespace Ice;
 
+/// <summary>Represents Ice's abstraction for logging and tracing. Applications can provide their own logger by
+/// implementing this abstraction and setting a logger on the communicator.</summary>
 public interface Logger : IDisposable
 {
     /// <summary>
-    /// Print a message.
-    /// The message is printed literally, without any decorations such as executable name or time
-    /// stamp.
+    /// Prints a message. The message is printed literally, without any decorations such as executable name or
+    /// timestamp.
     /// </summary>
     /// <param name="message">The message to log.</param>
     void print(string message);
 
     /// <summary>
-    /// Log a trace message.
+    /// Logs a trace message.
     /// </summary>
     /// <param name="category">The trace category.
     /// </param>
@@ -23,17 +24,15 @@ public interface Logger : IDisposable
     void trace(string category, string message);
 
     /// <summary>
-    /// Log a warning message.
+    /// Logs a warning message.
     /// </summary>
-    /// <param name="message">The warning message to log.
-    /// </param>
+    /// <param name="message">The warning message to log.</param>
     void warning(string message);
 
     /// <summary>
-    /// Log an error message.
+    /// Logs an error message.
     /// </summary>
-    /// <param name="message">The error message to log.
-    /// </param>
+    /// <param name="message">The error message to log.</param>
     void error(string message);
 
     /// <summary>
@@ -43,10 +42,9 @@ public interface Logger : IDisposable
     string getPrefix();
 
     /// <summary>
-    /// Returns a clone of the logger with a new prefix.
+    /// Returns a clone of the logger with a new prefix. The caller is responsible for disposing the returned logger.
     /// </summary>
-    /// <param name="prefix">The new prefix for the logger.
-    /// </param>
+    /// <param name="prefix">The new prefix for the logger.</param>
     /// <returns>A logger instance.</returns>
     Logger cloneWithPrefix(string prefix);
 }
