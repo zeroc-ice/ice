@@ -10,7 +10,12 @@ import java.util.concurrent.CompletionStage;
 /** The base interface for servants. */
 @SliceTypeId(value = "::Ice::Object")
 public interface Object {
-    /** Holds the results of a call to {@code ice_invoke}. */
+    /**
+     * Holds the results of a call to {@code ice_invoke}.
+     *
+     * @see Blobject#ice_invoke
+     * @see ObjectPrx#ice_invoke
+     */
     public class Ice_invokeResult {
         /** Default initializes the fields. */
         public Ice_invokeResult() {}
