@@ -10,6 +10,8 @@ task jarSources(type:Jar, dependsOn: jar){
     destinationDirectory = new File("${libDir}")
 }
 
+javadoc.dependsOn(compileSlice)
+
 javadoc {
     source = sourceSets.main.allJava
     doFirst {
