@@ -2327,6 +2327,9 @@ class RemoteProcessController(ProcessController):
     def __str__(self):
         return "remote controller"
 
+    def setup(self, current):
+        pass
+
     def getHost(self, current):
         return self.getController(current).getHost(current.config.protocol, current.config.ipv6)
 
@@ -2366,6 +2369,9 @@ class RemoteProcessController(ProcessController):
             else:
                 self.controllerApps.append(ident)
                 self.startControllerApp(current, ident)
+
+        # Perform any setup required before connecting to the process controller
+        self.setup(current)
 
         # If the process controller has specific endpoints, use them to create the proxy.
         controllerEndpoints = self.getControllerEndpoints(current)
@@ -2504,6 +2510,11 @@ class AndroidProcessController(RemoteProcessController):
     def __str__(self):
         return "Android"
 
+    def setup(self, current):
+        if self.forwardPort:
+            print(f"forwarding port {self.forwardPort} to the controller app")
+            run(f"{self.adb()} forward tcp:{self.forwardPort} tcp:{self.forwardPort}")
+
     def supportsDiscovery(self):
         return self.device is not None  # Discovery is only used with devices
 
@@ -2584,10 +2595,6 @@ class AndroidProcessController(RemoteProcessController):
             self.startEmulator("IceTests")
         elif current.config.device != "usb":
             run("adb connect {}".format(current.config.device))
-
-        if self.forwardPort:
-            print(f"forwarding port {self.forwardPort} to the controller app")
-            run(f"{self.adb()} forward tcp:{self.forwardPort} tcp:{self.forwardPort}")
 
         # First try uninstall in case the controller was left behind from a previous run
         try:
