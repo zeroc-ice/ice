@@ -553,7 +553,7 @@ public sealed class Instance
 
     internal void setLogger(Logger logger)
     {
-        // No locking, as it can only be called during plug-in loading.
+        // Only called by the LoggerPlugin constructor, so no need to lock.
         if (_ownLogger)
         {
             _initData.logger!.Dispose();

@@ -160,7 +160,7 @@ internal sealed class LoggerAdminLoggerI : LoggerAdminLogger
 
                 if (_detached)
                 {
-                    break; // for(;;)
+                    break;
                 }
 
                 Debug.Assert(_jobQueue.Count > 0);
