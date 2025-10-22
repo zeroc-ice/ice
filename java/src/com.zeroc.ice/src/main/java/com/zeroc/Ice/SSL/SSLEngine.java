@@ -45,8 +45,7 @@ public class SSLEngine {
     public SSLEngine(Communicator communicator) {
         _communicator = communicator;
         _logger = _communicator.getLogger();
-        _securityTraceLevel =
-            _communicator.getProperties().getIcePropertyAsInt("IceSSL.Trace.Security");
+        _securityTraceLevel = _communicator.getProperties().getIcePropertyAsInt("IceSSL.Trace.Security");
         _securityTraceCategory = "Security";
         _trustManager = new TrustManager(_communicator);
     }
@@ -57,8 +56,8 @@ public class SSLEngine {
         // CheckCertName determines whether we compare the name in a peer's certificate against its hostname.
         _checkCertName = properties.getIcePropertyAsInt("IceSSL.CheckCertName") > 0;
 
-        // CheckCertName > 1 enables SNI, the SNI extension applies to client connections, indicating the hostname to
-        // the server (must be DNS hostname, not an IP address).
+        // CheckCertName > 1 enables SNI, the SNI extension applies to client connections,
+        // indicating the hostname to the server (must be DNS hostname, not an IP address).
         _serverNameIndication = properties.getIcePropertyAsInt("IceSSL.CheckCertName") > 1;
 
         // VerifyPeer determines whether certificate validation failures abort a connection.
@@ -82,8 +81,7 @@ public class SSLEngine {
                 // The default keystore type is usually "JKS", but the legal values are determined by the JVM
                 // implementation. Other possibilities include "PKCS12" and "BKS".
                 final String defaultType = KeyStore.getDefaultType();
-                final String keystoreType =
-                    properties.getPropertyWithDefault("IceSSL.KeystoreType", defaultType);
+                final String keystoreType = properties.getPropertyWithDefault("IceSSL.KeystoreType", defaultType);
 
                 // The alias of the key to use in authentication.
                 String alias = properties.getIceProperty("IceSSL.Alias");
@@ -97,8 +95,7 @@ public class SSLEngine {
 
                 // The default truststore type is usually "JKS", but the legal values are determined by the JVM
                 // implementation. Other possibilities include "PKCS12" and "BKS".
-                final String truststoreType =
-                    properties.getPropertyWithDefault("IceSSL.TruststoreType", defaultType);
+                final String truststoreType = properties.getPropertyWithDefault("IceSSL.TruststoreType", defaultType);
 
                 // Collect the key managers.
                 KeyManager[] keyManagers = null;
@@ -108,8 +105,7 @@ public class SSLEngine {
                     try {
                         keystoreStream = openResource(keystorePath);
                         if (keystoreStream == null) {
-                            throw new InitializationException(
-                                "SSL transport: keystore not found:\n" + keystorePath);
+                            throw new InitializationException("SSL transport: keystore not found:\n" + keystorePath);
                         }
 
                         keys = KeyStore.getInstance(keystoreType);
@@ -178,10 +174,7 @@ public class SSLEngine {
                         // wrap the key managers in order to return the desired alias.
                         for (int i = 0; i < keyManagers.length; i++) {
                             keyManagers[i] =
-                                new X509KeyManagerI(
-                                    (X509ExtendedKeyManager) keyManagers[i],
-                                    alias,
-                                    overrideAlias);
+                                new X509KeyManagerI((X509ExtendedKeyManager) keyManagers[i],alias,overrideAlias);
                         }
                     }
                 }
@@ -260,15 +253,13 @@ public class SSLEngine {
                             new javax.net.ssl.TrustManager[]{
                                 new X509TrustManager() {
                                     @Override
-                                    public void checkClientTrusted(
-                                                X509Certificate[] chain, String authType)
+                                    public void checkClientTrusted(X509Certificate[] chain, String authType)
                                         throws CertificateException {
                                         throw new CertificateException("no trust anchors");
                                     }
 
                                     @Override
-                                    public void checkServerTrusted(
-                                                X509Certificate[] chain, String authType)
+                                    public void checkServerTrusted(X509Certificate[] chain, String authType)
                                         throws CertificateException {
                                         throw new CertificateException("no trust anchors");
                                     }
@@ -286,8 +277,7 @@ public class SSLEngine {
                 _context = SSLContext.getInstance("TLS");
                 _context.init(keyManagers, trustManagers, null);
             } catch (GeneralSecurityException ex) {
-                throw new InitializationException(
-                    "SSL transport: unable to initialize context", ex);
+                throw new InitializationException("SSL transport: unable to initialize context", ex);
             }
         }
     }
@@ -351,17 +341,8 @@ public class SSLEngine {
 
     void traceConnection(String desc, javax.net.ssl.SSLEngine engine, boolean incoming) {
         SSLSession session = engine.getSession();
-        String msg =
-            "SSL summary for "
-                + (incoming ? "incoming" : "outgoing")
-                + " connection\n"
-                + "cipher = "
-                + session.getCipherSuite()
-                + "\n"
-                + "protocol = "
-                + session.getProtocol()
-                + "\n"
-                + desc;
+        String msg = "SSL summary for " + (incoming ? "incoming" : "outgoing") + " connection\n" + "cipher = "
+            + session.getCipherSuite() + "\n" + "protocol = " + session.getProtocol() + "\n" + desc;
         _logger.trace(_securityTraceCategory, msg);
     }
 
@@ -374,16 +355,12 @@ public class SSLEngine {
         // ourselves for a client.
         if (!info.incoming) {
             if (_verifyPeer > 0 && !info.verified) {
-                throw new SecurityException(
-                    "SSL transport: server did not supply a certificate");
+                throw new SecurityException("SSL transport: server did not supply a certificate");
             }
         }
 
         if (!_trustManager.verify(info, desc)) {
-            String msg =
-                (info.incoming ? "incoming" : "outgoing")
-                    + " connection rejected by trust manager\n"
-                    + desc;
+            String msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected by trust manager\n" + desc;
             if (_securityTraceLevel >= 1) {
                 _logger.trace(_securityTraceCategory, msg);
             }
@@ -423,8 +400,7 @@ public class SSLEngine {
 
         InitializationData initData = _communicator.getInstance().initializationData();
 
-        ClassLoader classLoader =
-            initData.classLoader != null ? initData.classLoader : getClass().getClassLoader();
+        ClassLoader classLoader = initData.classLoader != null ? initData.classLoader : getClass().getClassLoader();
 
         InputStream stream = Util.openResource(classLoader, path);
 

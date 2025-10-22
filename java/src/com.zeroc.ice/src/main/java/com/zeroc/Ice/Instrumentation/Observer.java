@@ -3,8 +3,7 @@
 package com.zeroc.Ice.Instrumentation;
 
 /**
- * The object observer interface used by instrumented objects to notify the observer of their
- * existence.
+ * The object observer interface used by instrumented objects to notify the observer of their existence.
  */
 public interface Observer {
     /**

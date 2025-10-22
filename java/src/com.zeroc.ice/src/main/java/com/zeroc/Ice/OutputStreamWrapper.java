@@ -5,7 +5,6 @@ package com.zeroc.Ice;
 import java.io.IOException;
 import java.io.OutputStream;
 
-//
 // Class to provide a java.io.OutputStream on top of our stream.
 // We use this to serialize arbitrary Java serializable classes into
 //
@@ -19,8 +18,6 @@ import java.io.OutputStream;
 // that size to match the actual size. Otherwise, if the _bytes buffer contains
 // fewer than 255 bytes when this stream is closed, we write the sequence size
 // as a single byte, followed by the contents of the _bytes buffer.
-//
-
 class OutputStreamWrapper extends OutputStream {
     public OutputStreamWrapper(com.zeroc.Ice.OutputStream s) {
         _s = s;
@@ -33,30 +30,24 @@ class OutputStreamWrapper extends OutputStream {
     public void write(int b) throws IOException {
         try {
             if (_bytes != null) {
-                //
                 // If we can fit the data into the first 254 bytes, write it to _bytes.
-                //
                 if (_pos < _bytes.length) {
                     _bytes[_pos++] = (byte) b;
                     return;
                 }
 
-                _s.writeSize(255); // Dummy size, until we know how big the stream
-                // really is and can patch the size.
+                // Dummy size, until we know how big the stream really is and can patch the size.
+                _s.writeSize(255);
 
                 if (_pos > 0) {
-                    //
                     // Write the current contents of _bytes.
-                    //
                     _s.expand(_pos);
                     _s.getBuffer().b.put(_bytes, 0, _pos);
                 }
                 _bytes = null;
             }
 
-            //
             // Write data passed by caller.
-            //
             _s.expand(1);
             _s.getBuffer().b.put((byte) b);
             _pos += 1;
@@ -74,31 +65,25 @@ class OutputStreamWrapper extends OutputStream {
     public void write(byte[] bytes, int offset, int count) throws IOException {
         try {
             if (_bytes != null) {
-                //
                 // If we can fit the data into the first 254 bytes, write it to _bytes.
-                //
                 if (count <= _bytes.length - _pos) {
                     System.arraycopy(bytes, offset, _bytes, _pos, count);
                     _pos += count;
                     return;
                 }
 
-                _s.writeSize(255); // Dummy size, until we know how big the stream
-                // really is and can patch the size.
+                // Dummy size, until we know how big the stream really is and can patch the size.
+                _s.writeSize(255);
 
                 if (_pos > 0) {
-                    //
                     // Write the current contents of _bytes.
-                    //
                     _s.expand(_pos);
                     _s.getBuffer().b.put(_bytes, 0, _pos);
                 }
                 _bytes = null;
             }
 
-            //
             // Write data passed by caller.
-            //
             _s.expand(count);
             _s.getBuffer().b.put(bytes, offset, count);
             _pos += count;
@@ -109,9 +94,8 @@ class OutputStreamWrapper extends OutputStream {
 
     @Override
     public void flush() throws IOException {
-        // This does nothing because we do not know the final size of a writable stream until it is
-        // closed, and we cannot write to the stream until we know whether the final size is < 255
-        // or not.
+        // This does nothing because we do not know the final size of a writable stream until it is closed,
+        // and we cannot write to the stream until we know whether the final size is < 255 or not.
     }
 
     @Override

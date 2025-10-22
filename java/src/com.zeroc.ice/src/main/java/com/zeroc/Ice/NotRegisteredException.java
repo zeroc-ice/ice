@@ -10,7 +10,7 @@ public final class NotRegisteredException extends LocalException {
      * Constructs a NotRegisteredException with the object kind and ID.
      *
      * @param kindOfObject the kind of object that is not registered
-     * @param id           the ID of the object that is not registered
+     * @param id the ID of the object that is not registered
      */
     public NotRegisteredException(String kindOfObject, String id) {
         super("No " + kindOfObject + " is registered with ID '" + id + "'.");

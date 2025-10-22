@@ -88,9 +88,7 @@ final class RouterInfo {
                             callback.setException(new UnknownException(ex));
                         }
                     } else {
-                        callback.setEndpoints(
-                            setClientEndpoints(
-                                r.returnValue, r.hasRoutingTable.orElse(true)));
+                        callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable.orElse(true)));
                     }
                 });
     }
@@ -109,12 +107,11 @@ final class RouterInfo {
 
         synchronized (this) {
             if (!_hasRoutingTable) {
-                return true; // The router implementation doesn't maintain a routing table.
+                // The router implementation doesn't maintain a routing table.
+                return true;
             }
             if (_identities.contains(identity)) {
-                //
                 // Only add the proxy to the router if it's not already in our local map.
-                //
                 return true;
             }
         }
@@ -162,29 +159,21 @@ final class RouterInfo {
     }
 
     private synchronized void addAndEvictProxies(Identity identity, ObjectPrx[] evictedProxies) {
-        //
-        // Check if the proxy hasn't already been evicted by a concurrent addProxies call. If it's
-        // the case, don't add it to our local map.
-        //
+        // Check if the proxy hasn't already been evicted by a concurrent addProxies call.
+        // If it's the case, don't add it to our local map.
         int index = _evictedIdentities.indexOf(identity);
         if (index >= 0) {
             _evictedIdentities.remove(index);
         } else {
-            //
             // If we successfully added the proxy to the router, we add it to our local map.
-            //
             _identities.add(identity);
         }
 
-        //
         // We also must remove whatever proxies the router evicted.
-        //
         for (ObjectPrx p : evictedProxies) {
             if (!_identities.remove(p.ice_getIdentity())) {
-                //
                 // It's possible for the proxy to not have been added yet in the local map if two
                 // threads concurrently call addProxies.
-                //
                 _evictedIdentities.add(p.ice_getIdentity());
             }
         }

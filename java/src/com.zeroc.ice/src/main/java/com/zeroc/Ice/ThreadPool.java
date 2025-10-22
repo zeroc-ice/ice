@@ -417,10 +417,7 @@ final class ThreadPool implements Executor {
                 if (_inUse < _sizeMax && _inUse == _threads.size()) {
                     if (_instance.traceLevels().threadPool >= 1) {
                         String s = "growing " + _prefix + ": Size=" + (_threads.size() + 1);
-                        _instance
-                            .initializationData()
-                            .logger
-                            .trace(_instance.traceLevels().threadPoolCat, s);
+                        _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
                     }
 
                     try {
@@ -475,10 +472,7 @@ final class ThreadPool implements Executor {
                         && (!_promote || _inUseIO == _sizeIO || (!_nextHandler.hasNext() && _inUseIO > 0))) {
                         if (_instance.traceLevels().threadPool >= 1) {
                             String s = "shrinking " + _prefix + ": Size=" + (_threads.size() - 1);
-                            _instance
-                                .initializationData()
-                                .logger
-                                .trace(_instance.traceLevels().threadPoolCat, s);
+                            _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
                         }
                         // Can only be called by a waiting follower thread.
                         assert (_threads.size() > 1);

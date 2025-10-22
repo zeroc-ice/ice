@@ -57,22 +57,19 @@ final class LoggerMiddleware implements Object {
                                 case UnknownUserException:
                                 case UnknownLocalException:
                                     // always log when middleware installed
-                                    logDispatchFailed(
-                                        response.exceptionDetails, request.current);
+                                    logDispatchFailed(response.exceptionDetails, request.current);
                                     break;
 
                                 default:
                                     if (_traceLevel > 0 || _warningLevel > 1) {
-                                        logDispatchFailed(
-                                            response.exceptionDetails, request.current);
+                                        logDispatchFailed(response.exceptionDetails, request.current);
                                     }
                                     break;
                             }
                         } else {
                             // Unknown reply status, like default case above.
                             if (_traceLevel > 0 || _warningLevel > 1) {
-                                logDispatchFailed(
-                                    response.exceptionDetails, request.current);
+                                logDispatchFailed(response.exceptionDetails, request.current);
                             }
                         }
                         return response;
@@ -83,8 +80,7 @@ final class LoggerMiddleware implements Object {
             }
             throw ex;
         } catch (UnknownException ex) {
-            logDispatchFailed(
-                ex.toString(), request.current); // always log when middleware installed
+            logDispatchFailed(ex.toString(), request.current); // always log when middleware installed
             throw ex;
         } catch (DispatchException ex) {
             if (_traceLevel > 0 || _warningLevel > 1) {
@@ -156,8 +152,8 @@ final class LoggerMiddleware implements Object {
                 out.print(ipConnInfo.remoteAddress);
                 out.print(":" + ipConnInfo.remotePort);
             } else {
-                // Connection.toString() returns a multiline string, so we just use type() here
-                // for bt and similar.
+                // Connection.toString() returns a multiline string,
+                // so we just use type() here for bt and similar.
                 out.print(current.con.type());
             }
         } else {

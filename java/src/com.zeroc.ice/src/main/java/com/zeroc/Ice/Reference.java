@@ -224,10 +224,10 @@ public abstract class Reference implements Cloneable {
     public abstract ConnectionI getConnection();
 
     //
-    // The change* methods (here and in derived classes) create
-    // a new reference based on the existing one, with the
-    // corresponding value changed.
+    // The change* methods (here and in derived classes) create a new reference based on the existing one,
+    // with the corresponding value changed.
     //
+
     /**
      * Creates a new reference with the specified context.
      *
@@ -409,8 +409,7 @@ public abstract class Reference implements Cloneable {
         if (_compress.isPresent()) {
             h = HashUtil.hashAdd(h, _compress.get());
         }
-        // We don't include protocol and encoding in the hash; they are using 1.0 and 1.1,
-        // respectively.
+        // We don't include protocol and encoding in the hash; they are using 1.0 and 1.1, respectively.
         h = HashUtil.hashAdd(h, _invocationTimeout.toMillis());
 
         return h;
@@ -424,14 +423,13 @@ public abstract class Reference implements Cloneable {
     public Optional<Boolean> getCompressOverride() {
         DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
 
-        return defaultsAndOverrides.overrideCompress.isPresent()
-            ? defaultsAndOverrides.overrideCompress
-            : _compress;
+        return defaultsAndOverrides.overrideCompress.isPresent() ? defaultsAndOverrides.overrideCompress : _compress;
     }
 
     //
     // Utility methods
     //
+
     /**
      * Returns true if this is an indirect reference.
      *
@@ -449,20 +447,16 @@ public abstract class Reference implements Cloneable {
     //
     // Marshal the reference.
     //
+
     /**
      * Writes this reference to an output stream.
      *
      * @param s the output stream to write to
      */
     public void streamWrite(OutputStream s) {
-        //
-        // Don't write the identity here. Operations calling streamWrite
-        // write the identity.
-        //
+        // Don't write the identity here. Operations calling streamWrite write the identity.
 
-        //
         // For compatibility with the old FacetPath.
-        //
         if (_facet.isEmpty()) {
             s.writeStringSeq(null);
         } else {
@@ -482,18 +476,14 @@ public abstract class Reference implements Cloneable {
         // Derived class writes the remainder of the reference.
     }
 
-    //
     // Convert the reference to its string form.
-    //
     @Override
     public String toString() {
-        //
         // WARNING: Certain features, such as proxy validation in Glacier2,
         // depend on the format of proxy strings. Changes to toString() and
         // methods called to generate parts of the reference string could break
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
-        //
         StringBuilder s = new StringBuilder(128);
 
         ToStringMode toStringMode = _instance.toStringMode();
@@ -501,11 +491,8 @@ public abstract class Reference implements Cloneable {
 
         String id = Util.identityToString(_identity, toStringMode);
 
-        //
-        // If the encoded identity string contains characters which
-        // the reference parser uses as separators, then we enclose
-        // the identity string in quotes.
-        //
+        // If the encoded identity string contains characters which the reference parser uses as separators,
+        // then we enclose the identity string in quotes.
 
         if (StringUtil.findFirstOf(id, separators) != -1) {
             s.append('"');
@@ -516,11 +503,8 @@ public abstract class Reference implements Cloneable {
         }
 
         if (!_facet.isEmpty()) {
-            //
-            // If the encoded facet string contains characters which
-            // the reference parser uses as separators, then we enclose
-            // the facet string in quotes.
-            //
+            // If the encoded facet string contains characters which the reference parser uses as separators,
+            // then we enclose the facet string in quotes.
             s.append(" -f ");
             String fs = StringUtil.escapeString(_facet, "", toStringMode);
             if (StringUtil.findFirstOf(fs, separators) != -1) {
@@ -562,6 +546,7 @@ public abstract class Reference implements Cloneable {
     //
     // Convert the reference to its property form.
     //
+
     /**
      * Converts this reference to its property form.
      *
@@ -586,9 +571,7 @@ public abstract class Reference implements Cloneable {
 
     @Override
     public boolean equals(java.lang.Object obj) {
-        //
         // Note: if(this == obj) and type test are performed by each non-abstract derived class.
-        //
 
         Reference r = (Reference) obj; // Guaranteed to succeed.
 

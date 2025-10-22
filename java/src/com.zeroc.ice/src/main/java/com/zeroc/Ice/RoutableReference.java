@@ -80,12 +80,9 @@ class RoutableReference extends Reference {
         RoutableReference r = (RoutableReference) super.changeEncoding(newEncoding);
         if (r != this) {
             LocatorInfo locInfo = r._locatorInfo;
-            if (locInfo != null
-                && !locInfo.getLocator().ice_getEncodingVersion().equals(newEncoding)) {
+            if (locInfo != null && !locInfo.getLocator().ice_getEncodingVersion().equals(newEncoding)) {
                 r._locatorInfo =
-                    getInstance()
-                        .locatorManager()
-                        .get(locInfo.getLocator().ice_encodingVersion(newEncoding));
+                    getInstance().locatorManager().get(locInfo.getLocator().ice_encodingVersion(newEncoding));
             }
         }
         return r;
@@ -222,13 +219,11 @@ class RoutableReference extends Reference {
 
     @Override
     public String toString() {
-        //
         // WARNING: Certain features, such as proxy validation in Glacier2,
         // depend on the format of proxy strings. Changes to toString() and
         // methods called to generate parts of the reference string could break
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
-        //
         StringBuilder s = new StringBuilder(128);
         s.append(super.toString());
         if (_endpoints.length > 0) {
@@ -242,11 +237,8 @@ class RoutableReference extends Reference {
         } else if (!_adapterId.isEmpty()) {
             s.append(" @ ");
 
-            //
-            // If the encoded adapter id string contains characters which
-            // the reference parser uses as separators, then we enclose
-            // the adapter id string in quotes.
-            //
+            // If the encoded adapter id string contains characters which the reference parser uses as separators,
+            // then we enclose the adapter id string in quotes.
 
             String a = StringUtil.escapeString(_adapterId, null, getInstance().toStringMode());
             if (StringUtil.findFirstOf(a, " :@") != -1) {
@@ -284,8 +276,7 @@ class RoutableReference extends Reference {
 
         if (_routerInfo != null) {
             _ObjectPrxI h = (_ObjectPrxI) _routerInfo.getRouter();
-            Map<String, String> routerProperties =
-                h._getReference().toProperty(prefix + ".Router");
+            Map<String, String> routerProperties = h._getReference().toProperty(prefix + ".Router");
             for (Map.Entry<String, String> p : routerProperties.entrySet()) {
                 properties.put(p.getKey(), p.getValue());
             }
@@ -293,8 +284,7 @@ class RoutableReference extends Reference {
 
         if (_locatorInfo != null) {
             _ObjectPrxI h = (_ObjectPrxI) _locatorInfo.getLocator();
-            Map<String, String> locatorProperties =
-                h._getReference().toProperty(prefix + ".Locator");
+            Map<String, String> locatorProperties = h._getReference().toProperty(prefix + ".Locator");
             for (Map.Entry<String, String> p : locatorProperties.entrySet()) {
                 properties.put(p.getKey(), p.getValue());
             }
@@ -332,9 +322,7 @@ class RoutableReference extends Reference {
             return false;
         }
         RoutableReference rhs = (RoutableReference) obj; // Guaranteed to succeed.
-        if (_locatorInfo == null
-            ? rhs._locatorInfo != null
-            : !_locatorInfo.equals(rhs._locatorInfo)) {
+        if (_locatorInfo == null ? rhs._locatorInfo != null : !_locatorInfo.equals(rhs._locatorInfo)) {
             return false;
         }
         if (_routerInfo == null ? rhs._routerInfo != null : !_routerInfo.equals(rhs._routerInfo)) {
@@ -386,10 +374,7 @@ class RoutableReference extends Reference {
 
     public void getConnection(final GetConnectionCallback callback) {
         if (_routerInfo != null) {
-            //
-            // If we route, we send everything to the router's client
-            // proxy endpoints.
-            //
+            // If we route, we send everything to the router's client proxy endpoints.
             _routerInfo.getClientEndpoints(
                 new RouterInfo.GetClientEndpointsCallback() {
                     @Override
@@ -427,8 +412,7 @@ class RoutableReference extends Reference {
                     @Override
                     public void setEndpoints(EndpointI[] endpoints, final boolean cached) {
                         if (endpoints.length == 0) {
-                            callback.setException(
-                                new NoEndpointException(new _ObjectPrxI(self)));
+                            callback.setException(new NoEndpointException(new _ObjectPrxI(self)));
                             return;
                         }
 
@@ -437,8 +421,7 @@ class RoutableReference extends Reference {
                             endpoints,
                             new GetConnectionCallback() {
                                 @Override
-                                public void setConnection(
-                                                ConnectionI connection, boolean compress) {
+                                public void setConnection(ConnectionI connection, boolean compress) {
                                     callback.setConnection(connection, compress);
                                 }
 
@@ -447,24 +430,17 @@ class RoutableReference extends Reference {
                                     try {
                                         throw exc;
                                     } catch (NoEndpointException ex) {
-                                        callback.setException(
-                                            ex); // No need to retry if there's no
-                                        // endpoints.
+                                        // No need to retry if there's no endpoints.
+                                        callback.setException(ex);
                                     } catch (LocalException ex) {
                                         assert (_locatorInfo != null);
                                         _locatorInfo.clearCache(self);
                                         if (cached) {
-                                            TraceLevels traceLvls =
-                                                getInstance().traceLevels();
+                                            TraceLevels traceLvls = getInstance().traceLevels();
                                             if (traceLvls.retry >= 2) {
-                                                String s =
-                                                    "connection to cached endpoints failed\n"
-                                                        + "removing endpoints from cache and trying again\n"
-                                                        + ex;
-                                                getInstance()
-                                                    .initializationData()
-                                                    .logger
-                                                    .trace(traceLvls.retryCat, s);
+                                                String s = "connection to cached endpoints failed\nremoving endpoints "
+                                                    + "from cache and trying again\n" + ex;
+                                                getInstance().initializationData().logger.trace(traceLvls.retryCat, s);
                                             }
                                             getConnectionNoRouterInfo(callback); // Retry.
                                             return;
@@ -504,17 +480,7 @@ class RoutableReference extends Reference {
             Duration locatorCacheTimeout,
             Duration invocationTimeout,
             Map<String, String> context) {
-        super(
-            instance,
-            communicator,
-            identity,
-            facet,
-            mode,
-            compress,
-            protocol,
-            encoding,
-            invocationTimeout,
-            context);
+        super(instance, communicator, identity, facet, mode, compress, protocol, encoding, invocationTimeout, context);
         _endpoints = endpoints;
         _adapterId = adapterId;
         _locatorInfo = locatorInfo;
@@ -535,9 +501,7 @@ class RoutableReference extends Reference {
     }
 
     protected void applyOverrides(EndpointI[] endpts) {
-        //
         // Apply the endpoint overrides to each endpoint.
-        //
         for (int i = 0; i < endpts.length; i++) {
             endpts[i] = endpts[i].connectionId(_connectionId);
             if (getCompress().isPresent()) {
@@ -549,9 +513,7 @@ class RoutableReference extends Reference {
     private EndpointI[] filterEndpoints(EndpointI[] allEndpoints) {
         List<EndpointI> endpoints = new ArrayList<>();
 
-        //
         // Filter out opaque endpoints.
-        //
         for (EndpointI endpoint : allEndpoints) {
             if (!(endpoint instanceof OpaqueEndpointI)) {
                 endpoints.add(endpoint);
@@ -600,26 +562,18 @@ class RoutableReference extends Reference {
             return;
         }
 
-        //
         // Finally, create the connection.
-        //
         final OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
         if (getCacheConnection() || endpoints.length == 1) {
-            //
-            // Get an existing connection or create one if there's no
-            // existing connection to one of the given endpoints.
-            //
+            // Get an existing connection or create one if there's no existing connection to one of the given endpoints.
             factory.create(
                 endpoints,
                 false,
                 new OutgoingConnectionFactory.CreateConnectionCallback() {
                     @Override
                     public void setConnection(ConnectionI connection, boolean compress) {
-                        //
-                        // If we have a router, set the object adapter for this router
-                        // (if any) to the new connection, so that callbacks from the
-                        // router can be received over this new connection.
-                        //
+                        // If we have a router, set the object adapter for this router (if any) to the new connection,
+                        // so that callbacks from the router can be received over this new connection.
                         if (_routerInfo != null && _routerInfo.getAdapter() != null) {
                             connection.setAdapter(_routerInfo.getAdapter());
                         }
@@ -632,13 +586,9 @@ class RoutableReference extends Reference {
                     }
                 });
         } else {
-            //
-            // Go through the list of endpoints and try to create the
-            // connection until it succeeds. This is different from just
-            // calling create() with the given endpoints since this might
-            // create a new connection even if there's an existing
-            // connection for one of the endpoints.
-            //
+            // Go through the list of endpoints and try to create the connection until it succeeds.
+            // This is different from just calling create() with the given endpoints since this might
+            // create a new connection even if there's an existing connection for one of the endpoints.
 
             factory.create(
                 new EndpointI[]{endpoints[0]},
@@ -646,11 +596,9 @@ class RoutableReference extends Reference {
                 new OutgoingConnectionFactory.CreateConnectionCallback() {
                     @Override
                     public void setConnection(ConnectionI connection, boolean compress) {
-                        //
                         // If we have a router, set the object adapter for this router
                         // (if any) to the new connection, so that callbacks from the
                         // router can be received over this new connection.
-                        //
                         if (_routerInfo != null && _routerInfo.getAdapter() != null) {
                             connection.setAdapter(_routerInfo.getAdapter());
                         }

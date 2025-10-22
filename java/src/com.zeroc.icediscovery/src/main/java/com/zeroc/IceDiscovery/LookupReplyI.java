@@ -12,19 +12,12 @@ class LookupReplyI implements LookupReply {
     }
 
     @Override
-    public void foundObjectById(
-            Identity id,
-            ObjectPrx proxy,
-            Current current) {
+    public void foundObjectById(Identity id, ObjectPrx proxy, Current current) {
         _lookup.foundObject(id, current.id.name, proxy);
     }
 
     @Override
-    public void foundAdapterById(
-            String adapterId,
-            ObjectPrx proxy,
-            boolean isReplicaGroup,
-            Current current) {
+    public void foundAdapterById(String adapterId, ObjectPrx proxy, boolean isReplicaGroup, Current current) {
         _lookup.foundAdapter(adapterId, current.id.name, proxy, isReplicaGroup);
     }
 

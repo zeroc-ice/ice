@@ -29,21 +29,20 @@ public final class Communicator implements AutoCloseable {
     private final Instance _instance;
 
     /**
-     * Destroy the communicator. This Java-only method overrides close in java.lang.AutoCloseable
-     * and does not throw any exception.
+     * Destroy the communicator.
+     * This Java-only method overrides close in java.lang.AutoCloseable and does not throw any exception.
      *
      * @see #destroy
      */
     public void close() {
-        _instance.destroy(
-            false); // Don't allow destroy to be interrupted if called from try with statement.
+        // Don't allow destroy to be interrupted if called from try with statement.
+        _instance.destroy(false);
     }
 
     /**
-     * Destroys this communicator. This method calls {@link #shutdown} implicitly. Calling {@link
-     * #destroy} destroys all object adapters, and closes all outgoing connections. {@code destroy} waits for all
-     * outstanding dispatches to complete before returning. This includes "bidirectional dispatches" that execute on
-     * outgoing connections.
+     * Destroys this communicator. This method calls {@link #shutdown} implicitly. Calling {@link #destroy} destroys
+     * all object adapters, and closes all outgoing connections. {@code destroy} waits for all outstanding dispatches
+     * to complete before returning. This includes "bidirectional dispatches" that execute on outgoing connections.
      *
      * @see #shutdown
      * @see ObjectAdapter#destroy
@@ -54,8 +53,7 @@ public final class Communicator implements AutoCloseable {
 
     /**
      * Shuts down this communicator. This method calls {@link ObjectAdapter#deactivate} on all object adapters
-     * created by this communicator. Shutting down a communicator has no effect on outgoing
-     * connections.
+     * created by this communicator. Shutting down a communicator has no effect on outgoing connections.
      *
      * @see #destroy
      * @see #waitForShutdown
@@ -146,9 +144,7 @@ public final class Communicator implements AutoCloseable {
      * @return The property set.
      */
     public Map<String, String> proxyToProperty(ObjectPrx proxy, String prefix) {
-        return proxy == null
-            ? new HashMap<>()
-            : proxy._getReference().toProperty(prefix);
+        return proxy == null ? new HashMap<>() : proxy._getReference().toProperty(prefix);
     }
 
     /**
@@ -202,8 +198,7 @@ public final class Communicator implements AutoCloseable {
      */
     public ObjectAdapter createObjectAdapter(String name, SSLEngineFactory sslEngineFactory) {
         if (name.isEmpty() && sslEngineFactory != null) {
-            throw new IllegalArgumentException(
-                "name cannot be empty when using an SSLEngineFactory");
+            throw new IllegalArgumentException("name cannot be empty when using an SSLEngineFactory");
         }
         return _instance.objectAdapterFactory().createObjectAdapter(name, null, sslEngineFactory);
     }
@@ -270,9 +265,7 @@ public final class Communicator implements AutoCloseable {
             name = UUID.randomUUID().toString();
         }
 
-        //
         // We set the proxy properties here, although we still use the proxy supplied.
-        //
         Map<String, String> properties = proxyToProperty(router, name + ".Router");
         for (Map.Entry<String, String> p : properties.entrySet()) {
             getProperties().setProperty(p.getKey(), p.getValue());
@@ -295,8 +288,7 @@ public final class Communicator implements AutoCloseable {
 
     /**
      * Sets the object adapter that will be associated with new outgoing connections created by this
-     * communicator. This method has no effect on existing outgoing connections, or on incoming
-     * connections.
+     * communicator. This method has no effect on existing outgoing connections, or on incoming connections.
      *
      * @param adapter The object adapter to associate with new outgoing connections.
      * @see Connection#setAdapter
@@ -443,10 +435,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     private CommunicatorFlushBatch _iceI_flushBatchRequestsAsync(CompressBatch compressBatch) {
-        //
-        // This callback object receives the results of all invocations
-        // of Connection.begin_flushBatchRequests.
-        //
+        // This callback object receives the results of all invocations of Connection.begin_flushBatchRequests.
         var f = new CommunicatorFlushBatch(this, _instance);
         f.invoke(compressBatch);
         return f;
@@ -455,12 +444,10 @@ public final class Communicator implements AutoCloseable {
     /**
      * Adds the Admin object with all its facets to the provided object adapter. If
      * {@code Ice.Admin.ServerId} is set and the provided object adapter has a {@link Locator},
-     * createAdmin registers the Admin's Process facet with the {@link Locator}'s {@link
-     * LocatorRegistry}.
+     * createAdmin registers the Admin's Process facet with the {@link Locator}'s {@link LocatorRegistry}.
      *
-     * @param adminAdapter The object adapter used to host the Admin object; if null and
-     *     {@code Ice.Admin.Endpoints} is set, this method uses the {@code Ice.Admin} object adapter, after creating and
-     *     activating this adapter.
+     * @param adminAdapter The object adapter used to host the Admin object; if null and {@code Ice.Admin.Endpoints}
+     *     is set, this method uses the {@code Ice.Admin} object adapter, after creating and activating this adapter.
      * @param adminId The identity of the Admin object.
      * @return A proxy to the main ("") facet of the Admin object.
      * @throws InitializationException Thrown when createAdmin is called more than once.
@@ -477,8 +464,7 @@ public final class Communicator implements AutoCloseable {
      * {@code {UUID}/admin} when {@code Ice.Admin.InstanceName} is not set. If {@code Ice.Admin.DelayCreation} is
      * {@code 0} or not set, getAdmin is called by the communicator initialization, after initialization of all plugins.
      *
-     * @return A proxy to the main ("") facet of the Admin object, or null if no Admin
-     *     object is configured.
+     * @return A proxy to the main ("") facet of the Admin object, or null if no Admin object is configured.
      * @see #createAdmin
      */
     public ObjectPrx getAdmin() {
@@ -511,8 +497,7 @@ public final class Communicator implements AutoCloseable {
      * Returns a facet of the Admin object.
      *
      * @param facet The name of the Admin facet.
-     * @return The servant associated with this Admin facet, or null if no facet is registered with
-     *     the given name.
+     * @return The servant associated with this Admin facet, or null if no facet is registered with the given name.
      */
     public Object findAdminFacet(String facet) {
         return _instance.findAdminFacet(facet);

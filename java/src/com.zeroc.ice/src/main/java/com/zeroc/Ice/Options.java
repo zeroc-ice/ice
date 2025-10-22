@@ -137,13 +137,8 @@ public final class Options {
                                     final String octalDigits = "01234567";
                                     short us = 0;
                                     int j;
-                                    for (j = i;
-                                                        j < i + 3
-                                                                && j < line.length()
-                                                                && octalDigits.indexOf(
-                                                                                c = line.charAt(j))
-                                                                        != -1;
-                                                        j++) {
+                                    for (j = i; j < i + 3 && j < line.length()
+                                            && octalDigits.indexOf(c = line.charAt(j)) != -1; j++) {
                                         us = (short) (us * 8 + c - '0');
                                     }
                                     i = j - 1;
@@ -179,9 +174,7 @@ public final class Options {
                                 case 'c' -> {
                                     c = line.charAt(++i);
                                     if ((Character.toUpperCase(c) >= 'A'
-                                        && Character.toUpperCase(c) <= 'Z')
-                                        || c == '@'
-                                        || (c >= '[' && c <= '_')) {
+                                        && Character.toUpperCase(c) <= 'Z') || c == '@' || (c >= '[' && c <= '_')) {
                                         arg.append((char) (Character.toUpperCase(c) - '@'));
                                     } else {
                                         // Bash does not define what should happen if a

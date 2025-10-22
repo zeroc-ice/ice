@@ -42,10 +42,7 @@ final class EndpointFactoryManager {
         }
 
         if (arr.length == 0) {
-            throw new ParseException(
-                "Failed to parse endpoint '"
-                    + str
-                    + "': value has no non-whitespace characters");
+            throw new ParseException("Failed to parse endpoint '" + str + "': value has no non-whitespace characters");
         }
 
         ArrayList<String> v = new ArrayList<>(Arrays.asList(arr));
@@ -68,11 +65,7 @@ final class EndpointFactoryManager {
             EndpointI e = factory.create(v, oaEndpoint);
             if (!v.isEmpty()) {
                 throw new ParseException(
-                    "Failed to parse endpoint '"
-                        + str
-                        + "': unrecognized argument '"
-                        + v.get(0)
-                        + "'");
+                    "Failed to parse endpoint '" + str + "': unrecognized argument '" + v.get(0) + "'");
             }
             return e;
 
@@ -92,36 +85,22 @@ final class EndpointFactoryManager {
             */
         }
 
-        //
         // If the stringified endpoint is opaque, create an unknown endpoint,
         // then see whether the type matches one of the known endpoints.
-        //
         if ("opaque".equals(protocol)) {
             EndpointI ue = new OpaqueEndpointI(v);
             if (!v.isEmpty()) {
                 throw new ParseException(
-                    "Failed to parse endpoint '"
-                        + str
-                        + "': unrecognized argument '"
-                        + v.get(0)
-                        + "'");
+                    "Failed to parse endpoint '" + str + "': unrecognized argument '" + v.get(0) + "'");
             }
             factory = get(ue.type());
             if (factory != null) {
-                //
                 // Make a temporary stream, write the opaque endpoint data into the stream,
-                // and ask the factory to read the endpoint data from that stream to create
-                // the actual endpoint.
-                //
-                var os =
-                    new OutputStream(
-                        Protocol.currentProtocolEncoding,
-                        _instance.cacheMessageBuffers() > 1);
+                // and ask the factory to read the endpoint data from that stream to create the actual endpoint.
+                var os = new OutputStream(Protocol.currentProtocolEncoding, _instance.cacheMessageBuffers() > 1);
                 os.writeShort(ue.type());
                 ue.streamWrite(os);
-                var is =
-                    new InputStream(
-                        _instance, Protocol.currentProtocolEncoding, os.getBuffer(), true);
+                var is = new InputStream(_instance, Protocol.currentProtocolEncoding, os.getBuffer(), true);
                 is.pos(0);
                 is.readShort(); // type
                 is.startEncapsulation();
@@ -146,12 +125,10 @@ final class EndpointFactoryManager {
         if (factory != null) {
             e = factory.read(s);
         }
-        //
-        // If the factory failed to read the endpoint, return an opaque endpoint. This can
-        // occur if for example the factory delegates to another factory and this factory
-        // isn't available. In this case, the factory needs to make sure the stream position
-        // is preserved for reading the opaque endpoint.
-        //
+
+        // If the factory failed to read the endpoint, return an opaque endpoint.
+        // This can occur if for example the factory delegates to another factory and this factory isn't available.
+        // In this case the factory needs to make sure the stream position is preserved for reading the opaque endpoint.
         if (e == null) {
             e = new OpaqueEndpointI(type, s);
         }

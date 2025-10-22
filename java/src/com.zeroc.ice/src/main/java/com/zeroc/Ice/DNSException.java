@@ -16,7 +16,7 @@ public final class DNSException extends SyscallException {
     /**
      * Constructs a DNSException with a message and a cause.
      *
-     * @param host  the host that could not be resolved
+     * @param host the host that could not be resolved
      * @param cause the cause of this exception
      */
     public DNSException(String host, Throwable cause) {

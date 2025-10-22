@@ -42,12 +42,8 @@ public class MetricsAdminI
         }
 
         if (unknownProps.size() > 0) {
-            throw new PropertyException(
-                "found unknown IceMX properties for:"
-                    + ": '"
-                    + prefix
-                    + "'\n    "
-                    + String.join("\n    ", unknownProps));
+            throw new PropertyException("found unknown IceMX properties for:" + ": '" + prefix
+                + "'\n    " + String.join("\n    ", unknownProps));
         }
     }
 
@@ -66,15 +62,13 @@ public class MetricsAdminI
             return new MetricsMap<T>(mapPrefix, _class, properties, _subMaps);
         }
 
-        public <S extends Metrics> void registerSubMap(
-                String subMap, Class<S> cl, java.lang.reflect.Field field) {
+        public <S extends Metrics> void registerSubMap(String subMap, Class<S> cl, java.lang.reflect.Field field) {
             _subMaps.put(subMap, new MetricsMap.SubMapFactory<S>(cl, field));
         }
 
         private final Runnable _updater;
         private final Class<T> _class;
-        private final Map<String, MetricsMap.SubMapFactory<?>> _subMaps =
-            new HashMap<>();
+        private final Map<String, MetricsMap.SubMapFactory<?>> _subMaps = new HashMap<>();
     }
 
     public MetricsAdminI(Properties properties, Logger logger) {
@@ -87,8 +81,7 @@ public class MetricsAdminI
         Set<MetricsMapFactory<?>> updatedMaps = new HashSet<>();
         synchronized (this) {
             String viewsPrefix = "IceMX.Metrics.";
-            Map<String, String> viewsProps =
-                _properties.getPropertiesForPrefix(viewsPrefix);
+            Map<String, String> viewsProps = _properties.getPropertiesForPrefix(viewsPrefix);
             Map<String, MetricsViewI> views = new HashMap<>();
             _disabledViews.clear();
             for (Map.Entry<String, String> e : viewsProps.entrySet()) {
@@ -104,15 +97,12 @@ public class MetricsAdminI
 
                 validateProperties(viewsPrefix + viewName + '.', _properties);
 
-                if (_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0)
-                    > 0) {
+                if (_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0) {
                     _disabledViews.add(viewName);
                     continue; // The view is disabled
                 }
 
-                //
                 // Create the view or update it.
-                //
                 MetricsViewI v = _views.get(viewName);
                 if (v == null) {
                     v = new MetricsViewI(viewName);
@@ -129,9 +119,7 @@ public class MetricsAdminI
             _views = views;
             views = tmp;
 
-            //
             // Go through removed views to collect maps to update.
-            //
             for (Map.Entry<String, MetricsViewI> v : views.entrySet()) {
                 if (!_views.containsKey(v.getKey())) {
                     for (String n : v.getValue().getMaps()) {
@@ -141,17 +129,14 @@ public class MetricsAdminI
             }
         }
 
-        //
         // Call the updaters to update the maps.
-        //
         for (MetricsMapFactory<?> f : updatedMaps) {
             f.update();
         }
     }
 
     @Override
-    public synchronized MetricsAdmin.GetMetricsViewNamesResult getMetricsViewNames(
-            Current current) {
+    public synchronized MetricsAdmin.GetMetricsViewNamesResult getMetricsViewNames(Current current) {
         MetricsAdmin.GetMetricsViewNamesResult r = new MetricsAdmin.GetMetricsViewNamesResult();
         r.disabledViews = _disabledViews.toArray(new String[_disabledViews.size()]);
         r.returnValue = _views.keySet().toArray(new String[_views.size()]);
@@ -279,9 +264,8 @@ public class MetricsAdminI
                 try {
                     updateViews();
                 } catch (Exception ex) {
-                    _logger.warning(
-                        "unexpected exception while updating metrics view configuration:\n"
-                            + ex.toString());
+                    String msg = "unexpected exception while updating metrics view configuration:\n" + ex.toString();
+                    _logger.warning(msg);
                 }
                 return;
             }
@@ -317,8 +301,7 @@ public class MetricsAdminI
 
     private final Properties _properties;
     private final Logger _logger;
-    private final Map<String, MetricsMapFactory<?>> _factories =
-        new HashMap<>();
+    private final Map<String, MetricsMapFactory<?>> _factories = new HashMap<>();
 
     private Map<String, MetricsViewI> _views = new HashMap<>();
     private final Set<String> _disabledViews = new HashSet<>();

@@ -37,10 +37,10 @@ class LocatorRegistryI implements LocatorRegistry {
 
     @Override
     public synchronized void setReplicatedAdapterDirectProxy(
-            String adapterId,
-            String replicaGroupId,
-            ObjectPrx proxy,
-            Current current) {
+           String adapterId,
+           String replicaGroupId,
+           ObjectPrx proxy,
+           Current current) {
         if (proxy != null) {
             _adapters.put(adapterId, proxy);
             Set<String> s = _replicaGroups.get(replicaGroupId);
@@ -129,9 +129,7 @@ class LocatorRegistryI implements LocatorRegistry {
 
             if (prx != null) {
                 r.isReplicaGroup = true;
-                r.returnValue =
-                    prx.ice_endpoints(
-                        endpoints.toArray(new Endpoint[endpoints.size()]));
+                r.returnValue = prx.ice_endpoints(endpoints.toArray(new Endpoint[endpoints.size()]));
                 return r;
             }
         }

@@ -7,9 +7,7 @@ import com.zeroc.Ice.ParseException;
 import java.util.LinkedList;
 import java.util.List;
 
-//
 // See RFC 2253 and RFC 1779.
-//
 class RFC2253 {
     static class RDNPair {
         String key;
@@ -50,8 +48,7 @@ class RFC2253 {
                 results.add(current);
                 current = new RDNEntry();
             } else if (state.pos < state.data.length()) {
-                throw new ParseException(
-                    "expected ',' or ';' at `" + state.data.substring(state.pos) + "'");
+                throw new ParseException("expected ',' or ';' at `" + state.data.substring(state.pos) + "'");
             }
         }
         if (!current.rdn.isEmpty()) {
@@ -74,8 +71,7 @@ class RFC2253 {
                 || state.data.charAt(state.pos) == ';')) {
                 ++state.pos;
             } else if (state.pos < state.data.length()) {
-                throw new ParseException(
-                    "expected ',' or ';' at `" + state.data.substring(state.pos) + "'");
+                throw new ParseException("expected ',' or ';' at `" + state.data.substring(state.pos) + "'");
             }
         }
         return results;
@@ -104,8 +100,7 @@ class RFC2253 {
         p.key = parseAttributeType(state);
         eatWhite(state);
         if (state.pos >= state.data.length()) {
-            throw new ParseException(
-                "invalid attribute type/value pair (unexpected end of state.data)");
+            throw new ParseException("invalid attribute type/value pair (unexpected end of state.data)");
         }
         if (state.data.charAt(state.pos) != '=') {
             throw new ParseException("invalid attribute type/value pair (missing =)");
@@ -144,9 +139,8 @@ class RFC2253 {
         if (Character.isDigit(state.data.charAt(state.pos))
             || (state.data.length() - state.pos >= 4
             && ("oid.".equals(state.data.substring(state.pos, state.pos + 4))
-            || "OID."
-            .equals(state.data
-                .substring(state.pos, state.pos + 4))))) {
+            || "OID.".equals(state.data.substring(state.pos, state.pos + 4))))) {
+
             if (!Character.isDigit(state.data.charAt(state.pos))) {
                 result.append(state.data.substring(state.pos, state.pos + 4));
                 state.pos += 4;
@@ -154,8 +148,7 @@ class RFC2253 {
 
             while (true) {
                 // 1*DIGIT
-                while (state.pos < state.data.length()
-                    && Character.isDigit(state.data.charAt(state.pos))) {
+                while (state.pos < state.data.length() && Character.isDigit(state.data.charAt(state.pos))) {
                     result.append(state.data.charAt(state.pos));
                     ++state.pos;
                 }
@@ -164,10 +157,8 @@ class RFC2253 {
                     result.append(state.data.charAt(state.pos));
                     ++state.pos;
                     // 1*DIGIT must follow "."
-                    if (state.pos < state.data.length()
-                        && !Character.isDigit(state.data.charAt(state.pos))) {
-                        throw new ParseException(
-                            "invalid attribute type (expected end of state.data)");
+                    if (state.pos < state.data.length() && !Character.isDigit(state.data.charAt(state.pos))) {
+                        throw new ParseException("invalid attribute type (expected end of state.data)");
                     }
                 } else {
                     break;
@@ -175,11 +166,9 @@ class RFC2253 {
             }
         } else if (Character.isUpperCase(state.data.charAt(state.pos))
             || Character.isLowerCase(state.data.charAt(state.pos))) {
-            //
+
             // The grammar is wrong in this case. It should be ALPHA
-            // KEYCHAR* otherwise it will not accept "O" as a valid
-            // attribute type.
-            //
+            // KEYCHAR* otherwise it will not accept "O" as a valid attribute type.
             result.append(state.data.charAt(state.pos));
             ++state.pos;
             // 1* KEYCHAR
@@ -223,8 +212,7 @@ class RFC2253 {
             ++state.pos;
             while (true) {
                 if (state.pos >= state.data.length()) {
-                    throw new ParseException(
-                        "invalid attribute value (unexpected end of state.data)");
+                    throw new ParseException("invalid attribute value (unexpected end of state.data)");
                 }
                 // final terminating "
                 if (state.data.charAt(state.pos) == '"') {
@@ -285,13 +273,11 @@ class RFC2253 {
     //
     private static String parseHexPair(ParseState state, boolean allowEmpty) throws ParseException {
         String result = "";
-        if (state.pos < state.data.length()
-            && hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
+        if (state.pos < state.data.length() && hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
             result += state.data.charAt(state.pos);
             ++state.pos;
         }
-        if (state.pos < state.data.length()
-            && hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
+        if (state.pos < state.data.length() && hexvalid.indexOf(state.data.charAt(state.pos)) != -1) {
             result += state.data.charAt(state.pos);
             ++state.pos;
         }

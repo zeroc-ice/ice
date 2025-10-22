@@ -68,16 +68,13 @@ abstract class IPEndpointI extends EndpointI {
 
     @Override
     public List<EndpointI> expandHost() {
-
-        // If this endpoint has an empty host (wildcard address), don't expand, just return this
-        // endpoint.
+        // If this endpoint has an empty host (wildcard address), don't expand, just return this endpoint.
         if (_host.isEmpty()) {
             return Collections.singletonList(this);
         }
 
         List<InetSocketAddress> addresses =
-            Network.getAddresses(
-                _host, _port, _instance.protocolSupport(), _instance.preferIPv6(), true);
+            Network.getAddresses(_host, _port, _instance.protocolSupport(), _instance.preferIPv6(), true);
 
         var result = new ArrayList<EndpointI>(addresses.size());
         for (InetSocketAddress addr : addresses) {
@@ -114,8 +111,7 @@ abstract class IPEndpointI extends EndpointI {
             && ipEndpointI._port == _port;
     }
 
-    public List<Connector> connectors(
-            List<InetSocketAddress> addresses, NetworkProxy proxy) {
+    public List<Connector> connectors(List<InetSocketAddress> addresses, NetworkProxy proxy) {
         List<Connector> connectors = new ArrayList<>();
         for (InetSocketAddress p : addresses) {
             connectors.add(createConnector(p, proxy));
@@ -138,13 +134,11 @@ abstract class IPEndpointI extends EndpointI {
 
     @Override
     public String options() {
-        //
         // WARNING: Certain features, such as proxy validation in Glacier2,
         // depend on the format of proxy strings. Changes to toString() and
         // methods called to generate parts of the reference string could break these features.
         // Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
-        //
         String s = "";
 
         if (_host != null && !_host.isEmpty()) {
@@ -224,8 +218,7 @@ abstract class IPEndpointI extends EndpointI {
                 _host = "";
                 _normalizedHost = "";
             } else {
-                throw new ParseException(
-                    "'-h *' not valid for proxy endpoint '" + toString() + "'");
+                throw new ParseException("'-h *' not valid for proxy endpoint '" + toString() + "'");
             }
         }
 
@@ -239,8 +232,7 @@ abstract class IPEndpointI extends EndpointI {
                 _sourceAddr = _instance.defaultSourceAddress();
             }
         } else if (oaEndpoint) {
-            throw new ParseException(
-                "'--sourceAddress' not valid for object adapter endpoint '" + toString() + "'");
+            throw new ParseException("'--sourceAddress' not valid for object adapter endpoint '" + toString() + "'");
         }
     }
 
@@ -248,45 +240,33 @@ abstract class IPEndpointI extends EndpointI {
     protected boolean checkOption(String option, String argument, String endpoint) {
         if ("-h".equals(option)) {
             if (argument == null) {
-                throw new ParseException(
-                    "no argument provided for -h option in endpoint '" + endpoint + "'");
+                throw new ParseException("no argument provided for -h option in endpoint '" + endpoint + "'");
             }
             _host = argument;
             _normalizedHost = normalizeHost(argument);
         } else if ("-p".equals(option)) {
             if (argument == null) {
-                throw new ParseException(
-                    "no argument provided for -p option in endpoint '" + endpoint + "'");
+                throw new ParseException("no argument provided for -p option in endpoint '" + endpoint + "'");
             }
 
             try {
                 _port = Integer.parseInt(argument);
             } catch (NumberFormatException ex) {
-                throw new ParseException(
-                    "invalid port value '" + argument + "' in endpoint '" + endpoint + "'", ex);
+                throw new ParseException("invalid port value '" + argument + "' in endpoint '" + endpoint + "'", ex);
             }
 
             if (_port < 0 || _port > 65535) {
-                throw new ParseException(
-                    "port value '"
-                        + argument
-                        + "' out of range in endpoint '"
-                        + endpoint
-                        + "'");
+                throw new ParseException("port value '" + argument + "' out of range in endpoint '" + endpoint + "'");
             }
         } else if ("--sourceAddress".equals(option)) {
             if (argument == null) {
                 throw new ParseException(
-                    "no argument provided for --sourceAddress option in endpoint '"
-                        + endpoint
-                        + "'");
+                    "no argument provided for --sourceAddress option in endpoint '" + endpoint + "'");
             }
             _sourceAddr = Network.getNumericAddress(argument);
             if (_sourceAddr == null) {
                 throw new ParseException(
-                    "invalid IP address provided for --sourceAddress option in endpoint '"
-                        + endpoint
-                        + "'");
+                    "invalid IP address provided for --sourceAddress option in endpoint '" + endpoint + "'");
             }
         } else {
             return false;
@@ -307,8 +287,7 @@ abstract class IPEndpointI extends EndpointI {
         return host;
     }
 
-    protected abstract Connector createConnector(
-            InetSocketAddress addr, NetworkProxy proxy);
+    protected abstract Connector createConnector(InetSocketAddress addr, NetworkProxy proxy);
 
     protected abstract IPEndpointI createEndpoint(String host, int port, String connectionId);
 

@@ -3,8 +3,7 @@
 package com.zeroc.Ice;
 
 /**
- * The exception that is thrown when a dispatch cannot find a servant for the identity + facet carried by the
- * request.
+ * The exception that is thrown when a dispatch cannot find a servant for the identity + facet carried by the request.
  */
 public final class FacetNotExistException extends RequestFailedException {
     /**
@@ -17,8 +16,8 @@ public final class FacetNotExistException extends RequestFailedException {
     /**
      * Constructs a FacetNotExistException with the specified identity, facet, and operation.
      *
-     * @param id        the identity of the Ice Object to which the request was sent
-     * @param facet     the facet to which the request was sent
+     * @param id the identity of the Ice Object to which the request was sent
+     * @param facet the facet to which the request was sent
      * @param operation the operation name of the request
      */
     public FacetNotExistException(Identity id, String facet, String operation) {

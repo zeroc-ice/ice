@@ -51,22 +51,16 @@ public class NativePropertiesAdmin implements PropertiesAdmin {
             final String value = e.getValue();
             if (!old.containsKey(key)) {
                 if (!value.isEmpty()) {
-                    //
                     // This property is new.
-                    //
                     added.put(key, value);
                 }
             } else {
                 if (!value.equals(old.get(key))) {
                     if (value.isEmpty()) {
-                        //
                         // This property was removed.
-                        //
                         removed.put(key, value);
                     } else {
-                        //
                         // This property has changed.
-                        //
                         changed.put(key, value);
                     }
                 }
@@ -138,9 +132,7 @@ public class NativePropertiesAdmin implements PropertiesAdmin {
             changes.putAll(changed);
             changes.putAll(removed);
 
-            //
             // Copy the callbacks to allow callbacks to update the callbacks.
-            //
             for (Consumer<Map<String, String>> callback : new ArrayList<>(_updateCallbacks)) {
                 callback.accept(changes);
             }

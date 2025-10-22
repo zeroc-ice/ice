@@ -8,15 +8,11 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-//
-// Base class for proxy based invocations. This class handles the
-// retry for proxy invocations. It also ensures the child observer is
-// correct notified of failures and make sure the retry task is
+// Base class for proxy based invocations. This class handles the retry for proxy invocations.
+// It also ensures the child observer is correct notified of failures and make sure the retry task is
 // correctly canceled when the invocation completes.
-//
 abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
-    public abstract int invokeRemote(ConnectionI con, boolean compress, boolean response)
-        throws RetryException;
+    public abstract int invokeRemote(ConnectionI con, boolean compress, boolean response) throws RetryException;
 
     public abstract int invokeCollocated(CollocatedRequestHandler handler);
 
@@ -31,11 +27,8 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
 
     @Override
     public boolean completed(InputStream is) {
-        //
-        // NOTE: this method is called from ConnectionI.parseMessage
-        // with the connection locked. Therefore, it must not invoke
-        // any user callbacks.
-        //
+        // NOTE: this method is called from ConnectionI.parseMessage with the connection locked.
+        // Therefore, it must not invoke any user callbacks.
 
         assert (_proxy.ice_isTwoway()); // Can only be called for twoways.
 
@@ -67,9 +60,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                     case OperationNotExist:
                         Identity id = Identity.ice_read(is);
 
-                        //
                         // For compatibility with the old FacetPath.
-                        //
                         String[] facetPath = is.readStringSeq();
                         String facet;
                         if (facetPath.length > 0) {
@@ -123,10 +114,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
 
         _cachedConnection = null;
 
-        //
-        // NOTE: at this point, synchronization isn't needed, no other threads should be
-        // calling on the callback.
-        //
+        // NOTE: at this point, synchronization isn't needed, no other threads should be calling on the callback.
         try {
             // It's important to let the retry queue do the retry even if
             // the retry interval is 0. This method can be called with the
@@ -144,8 +132,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             _proxy._getRequestHandlerCache().clearCachedRequestHandler(_handler);
             // It's important to let the retry queue do the retry. This is
             // called from the connect request handler and the retry might
-            // require could end up waiting for the flush of the
-            // connection to be done.
+            // require could end up waiting for the flush of the connection to be done.
             _instance.retryQueue().add(this, 0);
         } catch (LocalException ex) {
             if (completed(ex)) {
@@ -163,11 +150,8 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         if (finished(ex)) {
             invokeCompletedAsync();
         } else if (ex instanceof CommunicatorDestroyedException) {
-            //
             // If it's a communicator destroyed exception, don't swallow
-            // it but instead notify the user thread. Even if no callback
-            // was provided.
-            //
+            // it but instead notify the user thread. Even if no callback was provided.
             throw ex;
         }
     }
@@ -193,15 +177,12 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             if (userThread) {
                 Duration invocationTimeout = _proxy._getReference().getInvocationTimeout();
                 if (invocationTimeout.compareTo(Duration.ZERO) > 0) {
-                    _timerFuture =
-                        _instance
-                            .timer()
-                            .schedule(
-                                () -> {
-                                    cancel(new InvocationTimeoutException());
-                                },
-                                invocationTimeout.toMillis(),
-                                TimeUnit.MILLISECONDS);
+                    _timerFuture = _instance.timer().schedule(
+                        () -> {
+                            cancel(new InvocationTimeoutException());
+                        },
+                        invocationTimeout.toMillis(),
+                        TimeUnit.MILLISECONDS);
                 }
             } else {
                 // If not called from the user thread, it's called from the retry queue.
@@ -439,14 +420,11 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
 
         int interval;
         if (_cnt == (retryIntervals.length + 1) && ex instanceof CloseConnectionException) {
-            // Always retry a CloseConnectionException at least once, even if the retry limit is
-            // reached.
+            // Always retry a CloseConnectionException at least once, even if the retry limit is reached.
             interval = 0;
         } else if (_cnt > retryIntervals.length) {
             if (traceLevels.retry >= 1) {
-                String s =
-                    "cannot retry operation call because retry limit has been exceeded\n"
-                        + ex.toString();
+                String s = "cannot retry operation call because retry limit has been exceeded\n" + ex.toString();
                 logger.trace(traceLevels.retryCat, s);
             }
             throw ex;
@@ -480,9 +458,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         }
         ref.getIdentity().ice_writeMembers(_os);
 
-        //
         // For compatibility with the old FacetPath.
-        //
         String facet = ref.getFacet();
         if (facet == null || facet.isEmpty()) {
             _os.writeStringSeq(null);
@@ -496,14 +472,10 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         _os.writeByte((byte) _mode.value());
 
         if (ctx != ObjectPrx.noExplicitContext) {
-            //
             // Explicit context
-            //
             ContextHelper.write(_os, ctx);
         } else {
-            //
             // Implicit context
-            //
             ImplicitContextI implicitContext = ref.getInstance().getImplicitContext();
             Map<String, String> prxContext = ref.getContext();
 

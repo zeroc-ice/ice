@@ -23,10 +23,7 @@ public final class AlreadyRegisteredException extends LocalException {
         return "::Ice::AlreadyRegisteredException";
     }
 
-    /**
-     * The kind of object that could not be removed: "servant", "facet", "object", "default servant", "servant locator",
-     * "plugin", "object adapter", "object adapter with router", "replica group".
-     */
+    /** The kind of object that could not be removed. */
     public final String kindOfObject;
 
     /** The ID (or name) of the object that is already registered. */

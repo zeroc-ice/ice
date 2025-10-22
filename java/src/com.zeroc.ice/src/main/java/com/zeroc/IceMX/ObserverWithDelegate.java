@@ -8,9 +8,9 @@ package com.zeroc.IceMX;
  * @param <T> the metrics type
  * @param <O> the delegate observer type
  */
-public class ObserverWithDelegate<
-    T extends Metrics, O extends com.zeroc.Ice.Instrumentation.Observer>
+public class ObserverWithDelegate<T extends Metrics, O extends com.zeroc.Ice.Instrumentation.Observer>
     extends Observer<T> {
+
     @Override
     public void attach() {
         super.attach();
@@ -71,12 +71,7 @@ public class ObserverWithDelegate<
         S extends Metrics,
         ObserverImpl extends ObserverWithDelegate<S, Obs>,
         Obs extends com.zeroc.Ice.Instrumentation.Observer>
-        Obs getObserver(
-                    String mapName,
-                    MetricsHelper<S> helper,
-                    Class<S> mcl,
-                    Class<ObserverImpl> ocl,
-                    Obs delegate) {
+    Obs getObserver(String mapName, MetricsHelper<S> helper, Class<S> mcl, Class<ObserverImpl> ocl, Obs delegate) {
         ObserverImpl obsv = super.getObserver(mapName, helper, mcl, ocl);
         if (obsv != null) {
             obsv.setDelegate(delegate);

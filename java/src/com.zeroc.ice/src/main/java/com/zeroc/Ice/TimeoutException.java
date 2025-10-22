@@ -4,9 +4,7 @@ package com.zeroc.Ice;
 
 /** This exception indicates a timeout condition. */
 public class TimeoutException extends LocalException {
-    /**
-     * Constructs a TimeoutException.
-     */
+    /** Constructs a TimeoutException. */
     public TimeoutException() {
         super("Operation timed out.");
     }

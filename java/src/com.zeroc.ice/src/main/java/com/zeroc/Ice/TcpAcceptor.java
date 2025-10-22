@@ -77,9 +77,7 @@ class TcpAcceptor implements Acceptor {
                 Network.setReuseAddress(_fd, true);
             }
 
-            _addr =
-                Network.getAddressForServer(
-                    host, port, instance.protocolSupport(), instance.preferIPv6());
+            _addr = Network.getAddressForServer(host, port, instance.protocolSupport(), instance.preferIPv6());
         } catch (RuntimeException ex) {
             _fd = null;
             throw ex;

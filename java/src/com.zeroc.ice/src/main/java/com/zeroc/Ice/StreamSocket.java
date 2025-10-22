@@ -275,14 +275,11 @@ class StreamSocket {
     }
 
     private int toState(int operation) {
-        switch (operation) {
-            case SocketOperation.Read:
-                return StateProxyRead;
-            case SocketOperation.Write:
-                return StateProxyWrite;
-            default:
-                return StateProxyConnected;
-        }
+        return switch (operation) {
+            case SocketOperation.Read -> StateProxyRead;
+            case SocketOperation.Write -> StateProxyWrite;
+            default -> StateProxyConnected;
+        };
     }
 
     private final ProtocolInstance _instance;

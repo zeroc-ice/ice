@@ -17,8 +17,8 @@ public final class IncomingRequest {
     public final InputStream inputStream;
 
     /**
-     * Gets the number of bytes in the request. These are all the bytes starting with the identity
-     * of the target.
+     * Gets the number of bytes in the request.
+     * These are all the bytes starting with the identity of the target.
      */
     public final int size;
 
@@ -26,15 +26,13 @@ public final class IncomingRequest {
      * Constructs an incoming request.
      *
      * @param requestId The request ID. It's 0 for oneway requests.
-     * @param connection The connection that received the request. It's null for collocated
-     *     invocations.
+     * @param connection The connection that received the request. It's null for collocated invocations.
      * @param adapter The object adapter to set in current.
      * @param inputStream The input stream buffer over the incoming Ice protocol request message.
      *     The stream is positioned at the beginning of the request header - the next data to read
      *     is the identity of the target.
      */
-    public IncomingRequest(
-            int requestId, Connection connection, ObjectAdapter adapter, InputStream inputStream) {
+    public IncomingRequest(int requestId, Connection connection, ObjectAdapter adapter, InputStream inputStream) {
         this.inputStream = inputStream;
 
         // Read everything else from the input stream
@@ -45,8 +43,7 @@ public final class IncomingRequest {
         String[] facetPath = inputStream.readStringSeq();
         if (facetPath.length > 0) {
             if (facetPath.length > 1) {
-                throw new MarshalException(
-                    "Received invalid facet path with " + facetPath.length + " elements.");
+                throw new MarshalException("Received invalid facet path with " + facetPath.length + " elements.");
             }
             facet = facetPath[0];
         }
@@ -63,17 +60,7 @@ public final class IncomingRequest {
         int encapsulationSize = inputStream.readInt();
         var encoding = EncodingVersion.ice_read(inputStream);
 
-        current =
-            new Current(
-                adapter,
-                connection,
-                identity,
-                facet,
-                operation,
-                mode,
-                ctx,
-                requestId,
-                encoding);
+        current = new Current(adapter, connection, identity, facet, operation, mode, ctx, requestId, encoding);
 
         // Rewind to the start of the encapsulation
         inputStream.pos(inputStream.pos() - 6);
