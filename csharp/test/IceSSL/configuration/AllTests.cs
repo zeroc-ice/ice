@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Net.Security;
-using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Test;
