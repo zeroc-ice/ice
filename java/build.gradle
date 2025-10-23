@@ -142,14 +142,15 @@ tasks.named('rewriteDryRun') {
     rewrite.failOnDryRunResults = runningInCi
 
     doFirst {
-        // Delete the old report file before running.
+        // Delete the old report file if present
         def reportFile = file(reportPath)
         if (reportFile.exists()) {
             reportFile.delete()
         }
     }
 
-    doLast {
+    // use 'finalizedBy' instead of 'doLast' so this executes even if errors were found.
+    finalizedBy {
         if (file(reportPath).exists()) {
             print("\n\n" + java.nio.file.Files.readString(reportPath))
         }
