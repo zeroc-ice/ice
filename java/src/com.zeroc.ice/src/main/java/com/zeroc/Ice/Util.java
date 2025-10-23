@@ -145,10 +145,7 @@ public final class Util {
     public static Identity stringToIdentity(String s) {
         Identity ident = new Identity();
 
-        //
-        // Find unescaped separator; note that the string may contain an escaped
-        // backslash before the separator.
-        //
+        // Find unescaped separator; note that the string may contain an escaped backslash before the separator.
         int slash = -1, pos = 0;
         while ((pos = s.indexOf('/', pos)) != -1) {
             int escapes = 0;
@@ -156,16 +153,12 @@ public final class Util {
                 escapes++;
             }
 
-            //
             // We ignore escaped escapes
-            //
             if (escapes % 2 == 0) {
                 if (slash == -1) {
                     slash = pos;
                 } else {
-                    //
                     // Extra unescaped slash found.
-                    //
                     throw new ParseException("unescaped backslash in identity string '" + s + "'");
                 }
             }
@@ -491,18 +484,15 @@ public final class Util {
      */
     public static InputStream openResource(ClassLoader cl, String path)
         throws IOException {
-        //
         // Calling getResourceAsStream on the class loader means all paths are absolute,
         // whereas calling it on the class means all paths are relative to the class
         // unless the path has a leading forward slash. We call it on the class loader.
         //
         // getResourceAsStream returns null if the resource can't be found.
-        //
         InputStream stream = null;
         try {
             stream = cl.getResourceAsStream(path);
         } catch (IllegalArgumentException ex) {
-            //
             // With JDK-7 this can happen if the result url (base url + path) produces a
             // malformed url for an URLClassLoader. For example the code in following
             // comment will produce this exception under Windows.
@@ -510,7 +500,6 @@ public final class Util {
             // URLClassLoader cl = new URLClassLoader(new URL[] {new
             // URL("http://localhost:8080/")});
             // java.io.InputStream in = Util.openResource(cl, "c:\\foo.txt");
-            //
         }
         if (stream == null) {
             try {
@@ -535,14 +524,12 @@ public final class Util {
      * @hidden Public because it's used by IceBox and IceGridGUI.
      */
     public static Class<?> findClass(String className, ClassLoader cl) throws LinkageError {
-        //
         // Try to load the class using the given class loader (if any). If that fails (or
         // none is provided), we try to load the class a few more ways before giving up.
         //
         // Calling Class.forName() doesn't always work. For example, if Ice.jar is installed
         // as an extension (in $JAVA_HOME/jre/lib/ext), calling Class.forName(name) uses the
         // extension class loader, which will not look in CLASSPATH for the target class.
-        //
 
         Class<?> c = null;
 
@@ -550,9 +537,7 @@ public final class Util {
             c = loadClass(className, cl);
         }
 
-        //
         // Try using the current thread's class loader.
-        //
         if (c == null) {
             try {
                 cl = Thread.currentThread().getContextClassLoader();
@@ -562,9 +547,7 @@ public final class Util {
             } catch (java.lang.SecurityException ex) {}
         }
 
-        //
         // Try using Class.forName().
-        //
         try {
             if (c == null) {
                 c = Class.forName(className);
@@ -573,9 +556,7 @@ public final class Util {
             // Ignore
         }
 
-        //
         // Fall back to the system class loader (which knows about CLASSPATH).
-        //
         if (c == null) {
             try {
                 cl = ClassLoader.getSystemClassLoader();

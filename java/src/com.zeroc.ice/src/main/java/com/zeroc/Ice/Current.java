@@ -14,10 +14,7 @@ public final class Current implements Cloneable {
     /** The object adapter that received the request. */
     public final ObjectAdapter adapter;
 
-    /**
-     * The connection that received the request. It's null when the invocation and dispatch are
-     * collocated.
-     */
+    /** The connection that received the request. It's null when the invocation and dispatch are collocated. */
     public final Connection con;
 
     /** The identity of the target Ice object. */
@@ -88,8 +85,8 @@ public final class Current implements Cloneable {
      * this method to ensure that when an operation's mode is not idempotent (locally), the incoming
      * request's operation mode is not idempotent.
      *
-     * @throws MarshalException Thrown when the request's operation mode is {@link
-     *     OperationMode#Idempotent} or {@link OperationMode#Nonmutating}.
+     * @throws MarshalException Thrown when the request's operation mode is {@link OperationMode#Idempotent}
+     *     or {@link OperationMode#Nonmutating}.
      */
     public void checkNonIdempotent() {
         if (mode != OperationMode.Normal) {
@@ -213,11 +210,8 @@ public final class Current implements Cloneable {
         OutputStream ostr;
 
         if (requestId != 0) {
-            // The default class format doesn't matter since we always encode user exceptions in
-            // Sliced format.;
-            ostr =
-                new OutputStream(
-                    Protocol.currentProtocolEncoding, FormatType.SlicedFormat, false);
+            // The default class format doesn't matter since we always encode user exceptions in Sliced format.
+            ostr = new OutputStream(Protocol.currentProtocolEncoding, FormatType.SlicedFormat, false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
         } else {
@@ -248,10 +242,7 @@ public final class Current implements Cloneable {
             replyStatus = ReplyStatus.UnknownLocalException.value();
         } else {
             replyStatus = ReplyStatus.UnknownException.value();
-            exceptionId =
-                exc.getClass().getName() != null
-                    ? exc.getClass().getName()
-                    : "java.lang.Exception";
+            exceptionId = exc.getClass().getName() != null ? exc.getClass().getName() : "java.lang.Exception";
         }
 
         if (replyStatus > ReplyStatus.UserException.value() && requestId != 0) {
@@ -289,8 +280,8 @@ public final class Current implements Cloneable {
                 ostr.writeString(operationName);
                 // and we don't use the dispatchExceptionMessage.
             } else {
-                // If the exception is a DispatchException, we keep its message as-is; otherwise, we
-                // create a custom message. This message doesn't include the stack trace.
+                // If the exception is a DispatchException, we keep its message as-is;
+                // otherwise, we create a custom message. This message doesn't include the stack trace.
                 if (dispatchExceptionMessage == null) {
                     dispatchExceptionMessage = "Dispatch failed with " + exc.toString();
                 }
@@ -336,10 +327,7 @@ public final class Current implements Cloneable {
             var ostr =
                 new OutputStream(
                     Protocol.currentProtocolEncoding,
-                    adapter.getCommunicator()
-                        .getInstance()
-                        .defaultsAndOverrides()
-                        .defaultFormat,
+                    adapter.getCommunicator().getInstance().defaultsAndOverrides().defaultFormat,
                     false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);

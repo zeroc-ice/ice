@@ -51,8 +51,7 @@ class PluginI implements Plugin {
                 if (p != interfaces.get(0)) {
                     lookupEndpoints += ":";
                 }
-                lookupEndpoints +=
-                    "udp -h \"" + address + "\" -p " + port + " --interface \"" + p + "\"";
+                lookupEndpoints += "udp -h \"" + address + "\" -p " + port + " --interface \"" + p + "\"";
             }
         }
 
@@ -63,8 +62,7 @@ class PluginI implements Plugin {
         }
 
         if (properties.getIceProperty("IceDiscovery.Locator.Endpoints").isEmpty()) {
-            properties.setProperty(
-                "IceDiscovery.Locator.AdapterId", UUID.randomUUID().toString());
+            properties.setProperty("IceDiscovery.Locator.AdapterId", UUID.randomUUID().toString());
         }
 
         _multicastAdapter = _communicator.createObjectAdapter("IceDiscovery.Multicast");
@@ -74,26 +72,21 @@ class PluginI implements Plugin {
         // Setup locator registry.
         LocatorRegistryI locatorRegistry = new LocatorRegistryI(_communicator);
         LocatorRegistryPrx locatorRegistryPrx =
-            LocatorRegistryPrx.uncheckedCast(
-                _locatorAdapter.addWithUUID(locatorRegistry));
+            LocatorRegistryPrx.uncheckedCast(_locatorAdapter.addWithUUID(locatorRegistry));
 
-        ObjectPrx lookupPrx =
-            ObjectPrx.createProxy(_communicator, "IceDiscovery/Lookup -d:" + lookupEndpoints);
+        ObjectPrx lookupPrx = ObjectPrx.createProxy(_communicator, "IceDiscovery/Lookup -d:" + lookupEndpoints);
         lookupPrx = lookupPrx.ice_router(null);
 
         // Add lookup and lookup reply Ice objects
-        LookupI lookup =
-            new LookupI(locatorRegistry, LookupPrx.uncheckedCast(lookupPrx), properties);
+        LookupI lookup = new LookupI(locatorRegistry, LookupPrx.uncheckedCast(lookupPrx), properties);
         _multicastAdapter.add(lookup, Util.stringToIdentity("IceDiscovery/Lookup"));
 
         _replyAdapter.addDefaultServant(new LookupReplyI(lookup), "");
         final Identity id = new Identity("dummy", "");
-        lookup.setLookupReply(
-            LookupReplyPrx.uncheckedCast(_replyAdapter.createProxy(id).ice_datagram()));
+        lookup.setLookupReply(LookupReplyPrx.uncheckedCast(_replyAdapter.createProxy(id).ice_datagram()));
 
         // Setup locator on the communicator.
-        ObjectPrx locator =
-            _locatorAdapter.addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
+        ObjectPrx locator = _locatorAdapter.addWithUUID(new LocatorI(lookup, locatorRegistryPrx));
         _defaultLocator = _communicator.getDefaultLocator();
         _locator = LocatorPrx.uncheckedCast(locator);
         _communicator.setDefaultLocator(_locator);

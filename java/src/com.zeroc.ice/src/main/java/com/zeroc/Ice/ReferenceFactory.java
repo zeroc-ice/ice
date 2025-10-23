@@ -48,9 +48,7 @@ final class ReferenceFactory {
             return null;
         }
 
-        //
         // Create new reference
-        //
         return new FixedReference(
             _instance,
             _communicator,
@@ -88,10 +86,7 @@ final class ReferenceFactory {
             throw new ParseException("no non-whitespace characters found in proxy string '" + s + "'");
         }
 
-        //
-        // Extract the identity, which may be enclosed in single
-        // or double quotation marks.
-        //
+        // Extract the identity, which may be enclosed in single or double quotation marks.
         String idstr = null;
         end = StringUtil.checkQuote(s, beg);
         if (end == -1) {
@@ -153,12 +148,8 @@ final class ReferenceFactory {
 
             String option = s.substring(beg, end);
             if (option.length() != 2 || option.charAt(0) != '-') {
-                throw new ParseException(
-                    "expected a proxy option but found '"
-                        + option
-                        + "' in proxy string '"
-                        + s
-                        + "'");
+                String msg = "expected a proxy option but found '" + option + "' in proxy string '" + s + "'";
+                throw new ParseException(msg);
             }
 
             // Check for the presence of an option argument.
@@ -172,11 +163,7 @@ final class ReferenceFactory {
                     end = StringUtil.checkQuote(s, beg);
                     if (end == -1) {
                         throw new ParseException(
-                            "mismatched quotes around value for "
-                                + option
-                                + " option in proxy string '"
-                                + s
-                                + "'");
+                            "mismatched quotes around value for " + option + " option in proxy string '" + s + "'");
                     } else if (end == 0) {
                         end = StringUtil.findFirstOf(s, delim + ":@", beg);
                         if (end == -1) {
@@ -210,12 +197,8 @@ final class ReferenceFactory {
 
                 case 't': {
                     if (argument != null) {
-                        throw new ParseException(
-                            "unexpected argument '"
-                                + argument
-                                + "' provided for -t option in proxy string '"
-                                + s
-                                + "'");
+                        throw new ParseException("unexpected argument '" + argument
+                            + "' provided for -t option in proxy string '" + s + "'");
                     }
                     mode = Reference.ModeTwoway;
                     break;
@@ -223,12 +206,8 @@ final class ReferenceFactory {
 
                 case 'o': {
                     if (argument != null) {
-                        throw new ParseException(
-                            "unexpected argument '"
-                                + argument
-                                + "' provided for -o option in proxy string '"
-                                + s
-                                + "'");
+                        throw new ParseException("unexpected argument '" + argument
+                            + "' provided for -o option in proxy string '" + s + "'");
                     }
                     mode = Reference.ModeOneway;
                     break;
@@ -237,11 +216,8 @@ final class ReferenceFactory {
                 case 'O': {
                     if (argument != null) {
                         throw new ParseException(
-                            "unexpected argument '"
-                                + argument
-                                + "' provided for -O option in proxy string '"
-                                + s
-                                + "'");
+                            "unexpected argument '" + argument
+                                + "' provided for -O option in proxy string '" + s + "'");
                     }
                     mode = Reference.ModeBatchOneway;
                     break;
@@ -250,11 +226,8 @@ final class ReferenceFactory {
                 case 'd': {
                     if (argument != null) {
                         throw new ParseException(
-                            "unexpected argument '"
-                                + argument
-                                + "' provided for -d option in proxy string '"
-                                + s
-                                + "'");
+                            "unexpected argument '" + argument
+                                + "' provided for -d option in proxy string '" + s + "'");
                     }
                     mode = Reference.ModeDatagram;
                     break;
@@ -263,11 +236,8 @@ final class ReferenceFactory {
                 case 'D': {
                     if (argument != null) {
                         throw new ParseException(
-                            "unexpected argument '"
-                                + argument
-                                + "' provided for -D option in proxy string '"
-                                + s
-                                + "'");
+                            "unexpected argument '" + argument
+                                + "' provided for -D option in proxy string '" + s + "'");
                     }
                     mode = Reference.ModeBatchDatagram;
                     break;
@@ -276,11 +246,8 @@ final class ReferenceFactory {
                 case 's': {
                     if (argument != null) {
                         throw new ParseException(
-                            "unexpected argument '"
-                                + argument
-                                + "' provided for -s option in proxy string '"
-                                + s
-                                + "'");
+                            "unexpected argument '" + argument
+                                + "' provided for -s option in proxy string '" + s + "'");
                     }
                     // Ignored. Only kept for backwards compatibility.
                     break;
@@ -294,13 +261,8 @@ final class ReferenceFactory {
                     try {
                         encoding = Util.stringToEncodingVersion(argument);
                     } catch (ParseException ex) {
-                        throw new ParseException(
-                            "invalid encoding version '"
-                                + argument
-                                + "' in proxy string '"
-                                + s
-                                + "'",
-                            ex);
+                        String msg = "invalid encoding version '" + argument + "' in proxy string '" + s + "'";
+                        throw new ParseException(msg, ex);
                     }
                     break;
                 }
@@ -313,13 +275,8 @@ final class ReferenceFactory {
                     try {
                         protocol = Util.stringToProtocolVersion(argument);
                     } catch (ParseException ex) {
-                        throw new ParseException(
-                            "invalid protocol version '"
-                                + argument
-                                + "' in proxy string '"
-                                + s
-                                + "'",
-                            ex);
+                        String msg = "invalid protocol version '" + argument + "' in proxy string '" + s + "'";
+                        throw new ParseException(msg, ex);
                     }
                     break;
                 }
@@ -384,14 +341,9 @@ final class ReferenceFactory {
             }
             if (endpoints.isEmpty()) {
                 assert (!unknownEndpoints.isEmpty());
-                throw new ParseException(
-                    "invalid endpoint '" + unknownEndpoints.get(0) + "' in '" + s + "'");
+                throw new ParseException("invalid endpoint '" + unknownEndpoints.get(0) + "' in '" + s + "'");
             } else if (!unknownEndpoints.isEmpty()
-                && _instance
-                .initializationData()
-                .properties
-                .getIcePropertyAsInt("Ice.Warn.Endpoints")
-                > 0) {
+                && _instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Endpoints") > 0) {
                 StringBuffer msg = new StringBuffer("Proxy contains unknown endpoints:");
                 for (String e : unknownEndpoints) {
                     msg.append(" `");
@@ -403,16 +355,7 @@ final class ReferenceFactory {
 
             EndpointI[] endp = new EndpointI[endpoints.size()];
             endpoints.toArray(endp);
-            return create(
-                ident,
-                facet,
-                mode,
-                Optional.empty(),
-                protocol,
-                encoding,
-                endp,
-                null,
-                propertyPrefix);
+            return create(ident, facet, mode, Optional.empty(), protocol, encoding, endp, null, propertyPrefix);
         } else if (s.charAt(beg) == '@') {
             beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
             if (beg == -1) {
@@ -422,8 +365,7 @@ final class ReferenceFactory {
             String adapterstr = null;
             end = StringUtil.checkQuote(s, beg);
             if (end == -1) {
-                throw new ParseException(
-                    "mismatched quotes around adapter ID in proxy string '" + s + "'");
+                throw new ParseException("mismatched quotes around adapter ID in proxy string '" + s + "'");
             } else if (end == 0) {
                 end = StringUtil.findFirstOf(s, delim, beg);
                 if (end == -1) {
@@ -437,8 +379,7 @@ final class ReferenceFactory {
             }
 
             if (end != s.length() && StringUtil.findFirstNotOf(s, delim, end) != -1) {
-                throw new ParseException(
-                    "invalid characters after adapter ID in proxy string '" + s + "'");
+                throw new ParseException("invalid characters after adapter ID in proxy string '" + s + "'");
             }
 
             try {
@@ -449,40 +390,26 @@ final class ReferenceFactory {
             if (adapter.isEmpty()) {
                 throw new ParseException("empty adapter ID in proxy string '" + s + "'");
             }
-            return create(
-                ident,
-                facet,
-                mode,
-                Optional.empty(),
-                protocol,
-                encoding,
-                null,
-                adapter,
-                propertyPrefix);
+            return create(ident, facet, mode, Optional.empty(), protocol, encoding, null, adapter, propertyPrefix);
         }
 
         throw new ParseException("malformed proxy string '" + s + "'");
     }
 
     public Reference create(Identity ident, InputStream s) {
-        //
         // Don't read the identity here. Operations calling this
         // constructor read the identity, and pass it as a parameter.
-        //
 
         if (ident.name.isEmpty() && ident.category.isEmpty()) {
             return null;
         }
 
-        //
         // For compatibility with the old FacetPath.
-        //
         String[] facetPath = s.readStringSeq();
         String facet;
         if (facetPath.length > 0) {
             if (facetPath.length > 1) {
-                throw new MarshalException(
-                    "Received invalid facet path with " + facetPath.length + " elements.");
+                throw new MarshalException("Received invalid facet path with " + facetPath.length + " elements.");
             }
             facet = facetPath[0];
         } else {
@@ -519,16 +446,7 @@ final class ReferenceFactory {
             adapterId = s.readString();
         }
 
-        return create(
-            ident,
-            facet,
-            mode,
-            Optional.empty(),
-            protocol,
-            encoding,
-            endpoints,
-            adapterId,
-            null);
+        return create(ident, facet, mode, Optional.empty(), protocol, encoding, endpoints, adapterId, null);
     }
 
     public ReferenceFactory setDefaultRouter(RouterPrx defaultRouter) {
@@ -547,9 +465,7 @@ final class ReferenceFactory {
     }
 
     public ReferenceFactory setDefaultLocator(LocatorPrx defaultLocator) {
-        if (_defaultLocator == null
-            ? defaultLocator == null
-            : _defaultLocator.equals(defaultLocator)) {
+        if (_defaultLocator == null ? defaultLocator == null : _defaultLocator.equals(defaultLocator)) {
             return this;
         }
 
@@ -583,16 +499,11 @@ final class ReferenceFactory {
             String propertyPrefix) {
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
-        //
         // Default local proxy options.
-        //
         LocatorInfo locatorInfo = null;
         if (_defaultLocator != null) {
             if (!((_ObjectPrxI) _defaultLocator)._getReference().getEncoding().equals(encoding)) {
-                locatorInfo =
-                    _instance
-                        .locatorManager()
-                        .get(_defaultLocator.ice_encodingVersion(encoding));
+                locatorInfo = _instance.locatorManager().get(_defaultLocator.ice_encodingVersion(encoding));
             } else {
                 locatorInfo = _instance.locatorManager().get(_defaultLocator);
             }
@@ -605,14 +516,11 @@ final class ReferenceFactory {
         Duration invocationTimeout = defaultsAndOverrides.defaultInvocationTimeout;
         Map<String, String> context = null;
 
-        //
         // Override the defaults with the proxy properties if a property prefix is defined.
-        //
         if (propertyPrefix != null && !propertyPrefix.isEmpty()) {
             Properties properties = _instance.initializationData().properties;
 
-            Properties.validatePropertiesWithPrefix(
-                propertyPrefix, properties, PropertyNames.ProxyProps);
+            Properties.validatePropertiesWithPrefix(propertyPrefix, properties, PropertyNames.ProxyProps);
 
             String property;
 
@@ -620,8 +528,7 @@ final class ReferenceFactory {
             LocatorPrx locator = LocatorPrx.uncheckedCast(_communicator.propertyToProxy(property));
             if (locator != null) {
                 if (!((_ObjectPrxI) locator)._getReference().getEncoding().equals(encoding)) {
-                    locatorInfo =
-                        _instance.locatorManager().get(locator.ice_encodingVersion(encoding));
+                    locatorInfo = _instance.locatorManager().get(locator.ice_encodingVersion(encoding));
                 } else {
                     locatorInfo = _instance.locatorManager().get(locator);
                 }
@@ -631,12 +538,8 @@ final class ReferenceFactory {
             RouterPrx router = RouterPrx.uncheckedCast(_communicator.propertyToProxy(property));
             if (router != null) {
                 if (propertyPrefix.endsWith(".Router")) {
-                    String s =
-                        "`"
-                            + property
-                            + "="
-                            + properties.getProperty(property)
-                            + "': cannot set a router on a router; setting ignored";
+                    String s = "`" + property + "=" + properties.getProperty(property)
+                        + "': cannot set a router on a router; setting ignored";
                     _instance.initializationData().logger.warning(s);
                 } else {
                     routerInfo = _instance.routerManager().get(router);
@@ -644,13 +547,10 @@ final class ReferenceFactory {
             }
 
             property = propertyPrefix + ".CollocationOptimized";
-            collocationOptimized =
-                properties.getPropertyAsIntWithDefault(property, collocationOptimized ? 1 : 0)
-                    > 0;
+            collocationOptimized = properties.getPropertyAsIntWithDefault(property, collocationOptimized ? 1 : 0) > 0;
 
             property = propertyPrefix + ".ConnectionCached";
-            cacheConnection =
-                properties.getPropertyAsIntWithDefault(property, cacheConnection ? 1 : 0) > 0;
+            cacheConnection = properties.getPropertyAsIntWithDefault(property, cacheConnection ? 1 : 0) > 0;
 
             property = propertyPrefix + ".EndpointSelection";
             if (properties.getProperty(property).length() > 0) {
@@ -661,25 +561,17 @@ final class ReferenceFactory {
                     endpointSelection = EndpointSelectionType.Ordered;
                 } else {
                     throw new ParseException(
-                        "illegal value '"
-                            + type
-                            + "' in property '"
-                            + property
-                            + "'; expected 'Random' or 'Ordered'");
+                        "illegal value '" + type + "' in property '" + property + "'; expected 'Random' or 'Ordered'");
                 }
             }
 
             property = propertyPrefix + ".LocatorCacheTimeout";
-            locatorCacheTimeout =
-                Duration.ofSeconds(
-                    properties.getPropertyAsIntWithDefault(
-                        property, (int) locatorCacheTimeout.toSeconds()));
+            locatorCacheTimeout = Duration.ofSeconds(
+                properties.getPropertyAsIntWithDefault(property, (int) locatorCacheTimeout.toSeconds()));
 
             property = propertyPrefix + ".InvocationTimeout";
-            invocationTimeout =
-                Duration.ofMillis(
-                    properties.getPropertyAsIntWithDefault(
-                        property, (int) invocationTimeout.toMillis()));
+            invocationTimeout = Duration.ofMillis(
+                properties.getPropertyAsIntWithDefault(property, (int) invocationTimeout.toMillis()));
 
             property = propertyPrefix + ".Context.";
             Map<String, String> contexts = properties.getPropertiesForPrefix(property);
@@ -691,9 +583,7 @@ final class ReferenceFactory {
             }
         }
 
-        //
         // Create new reference
-        //
         return new RoutableReference(
             _instance,
             _communicator,

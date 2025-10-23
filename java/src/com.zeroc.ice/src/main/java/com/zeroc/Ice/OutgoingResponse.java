@@ -45,11 +45,7 @@ public final class OutgoingResponse {
      *     exception other than a user exception.
      * @param outputStream The output stream that holds the response.
      */
-    public OutgoingResponse(
-            int replyStatus,
-            String exceptionId,
-            String exceptionDetails,
-            OutputStream outputStream) {
+    public OutgoingResponse(int replyStatus, String exceptionId, String exceptionDetails, OutputStream outputStream) {
         this.replyStatus = replyStatus;
         this.exceptionId = exceptionId;
         this.exceptionDetails = exceptionDetails;

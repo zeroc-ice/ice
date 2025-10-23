@@ -23,10 +23,7 @@ final class WSTransceiver implements Transceiver {
 
     @Override
     public int initialize(Buffer readBuffer, Buffer writeBuffer) {
-        //
-        // Delegate logs exceptions that occur during initialize(), so there's no need to trap them
-        // here.
-        //
+        // Delegate logs exceptions that occur during initialize(), so there's no need to trap them here.
         if (_state == StateInitializeDelegate) {
             int op = _delegate.initialize(readBuffer, writeBuffer);
             if (op != 0) {
@@ -37,22 +34,15 @@ final class WSTransceiver implements Transceiver {
 
         try {
             if (_state == StateConnected) {
-                //
                 // We don't know how much we'll need to read.
-                //
                 _readBuffer.resize(1024, true);
                 _readBuffer.position(0);
                 _readBufferPos = 0;
 
-                //
-                // The server waits for the client's upgrade request, the
-                // client sends the upgrade request.
-                //
+                // The server waits for the client's upgrade request, the client sends the upgrade request.
                 _state = StateUpgradeRequestPending;
                 if (!_incoming) {
-                    //
                     // Compose the upgrade request.
-                    //
                     StringBuffer out = new StringBuffer();
                     out.append("GET " + _resource + " HTTP/1.1\r\n");
                     out.append("Host: " + _host);
@@ -63,10 +53,7 @@ final class WSTransceiver implements Transceiver {
                     out.append("Sec-WebSocket-Version: 13\r\n");
                     out.append("Sec-WebSocket-Key: ");
 
-                    //
-                    // The value for Sec-WebSocket-Key is a 16-byte random number, encoded with
-                    // Base64.
-                    //
+                    // The value for Sec-WebSocket-Key is a 16-byte random number, encoded with Base64.
                     byte[] key = new byte[16];
                     _rand.nextBytes(key);
                     _key = Base64.encode(key);
@@ -79,9 +66,7 @@ final class WSTransceiver implements Transceiver {
                 }
             }
 
-            //
             // Try to write the client's upgrade request.
-            //
             if (_state == StateUpgradeRequestPending && !_incoming) {
                 if (_writeBuffer.b.hasRemaining()) {
                     int s = _delegate.write(_writeBuffer);
@@ -93,14 +78,8 @@ final class WSTransceiver implements Transceiver {
                 _state = StateUpgradeResponsePending;
 
                 if (_instance.traceLevel() >= 1) {
-                    _instance
-                        .logger()
-                        .trace(
-                            _instance.traceCategory(),
-                            "sent "
-                                + protocol()
-                                + " connection HTTP upgrade request\n"
-                                + toString());
+                    String msg = "sent " + protocol() + " connection HTTP upgrade request\n" + toString();
+                    _instance.logger().trace(_instance.traceCategory(), msg);
                 }
             }
 
@@ -112,23 +91,17 @@ final class WSTransceiver implements Transceiver {
                     }
                 }
 
-                //
                 // Try to read the client's upgrade request or the server's response.
-                //
                 if ((_state == StateUpgradeRequestPending && _incoming)
                     || (_state == StateUpgradeResponsePending && !_incoming)) {
-                    //
                     // Check if we have enough data for a complete message.
-                    //
                     int p = _parser.isCompleteMessage(_readBuffer.b, 0, _readBuffer.b.position());
                     if (p == -1) {
                         if (_readBuffer.b.hasRemaining()) {
                             return SocketOperation.Read;
                         }
 
-                        //
                         // Enlarge the buffer and try to read more.
-                        //
                         final int oldSize = _readBuffer.b.position();
                         if (oldSize + 1024 > _instance.messageSizeMax()) {
                             Ex.throwMemoryLimitException(
@@ -139,22 +112,16 @@ final class WSTransceiver implements Transceiver {
                         continue; // Try again to read the response/request
                     }
 
-                    //
                     // Set _readBufferPos at the end of the response/request message.
-                    //
                     _readBufferPos = p;
                 }
 
-                //
                 // We're done, the client's upgrade request or server's response is read.
-                //
                 break;
             }
 
             try {
-                //
                 // Parse the client's upgrade request.
-                //
                 if (_state == StateUpgradeRequestPending && _incoming) {
                     if (_parser.parse(_readBuffer.b, 0, _readBufferPos)) {
                         handleRequest(_writeBuffer);
@@ -173,9 +140,7 @@ final class WSTransceiver implements Transceiver {
                             }
                         }
                     } else {
-                        //
                         // Parse the server's response
-                        //
                         if (_parser.parse(_readBuffer.b, 0, _readBufferPos)) {
                             handleResponse();
                         } else {
@@ -195,37 +160,19 @@ final class WSTransceiver implements Transceiver {
             }
         } catch (LocalException ex) {
             if (_instance.traceLevel() >= 2) {
-                _instance
-                    .logger()
-                    .trace(
-                        _instance.traceCategory(),
-                        protocol()
-                            + " connection HTTP upgrade request failed\n"
-                            + toString()
-                            + "\n"
-                            + ex);
+                String msg = protocol() + " connection HTTP upgrade request failed\n" + toString() + "\n" + ex;
+                _instance.logger().trace(_instance.traceCategory(), msg);
             }
             throw ex;
         }
 
         if (_instance.traceLevel() >= 1) {
             if (_incoming) {
-                _instance
-                    .logger()
-                    .trace(
-                        _instance.traceCategory(),
-                        "accepted "
-                            + protocol()
-                            + " connection HTTP upgrade request\n"
-                            + toString());
+                String msg = "accepted " + protocol() + " connection HTTP upgrade request\n" + toString();
+                _instance.logger().trace(_instance.traceCategory(), msg);
             } else {
-                _instance
-                    .logger()
-                    .trace(
-                        _instance.traceCategory(),
-                        protocol()
-                            + " connection HTTP upgrade request accepted\n"
-                            + toString());
+                String msg = protocol() + " connection HTTP upgrade request accepted\n" + toString();
+                _instance.logger().trace(_instance.traceCategory(), msg);
             }
         }
 
@@ -235,24 +182,17 @@ final class WSTransceiver implements Transceiver {
     @Override
     public int closing(boolean initiator, LocalException reason) {
         if (_instance.traceLevel() >= 1) {
-            _instance
-                .logger()
-                .trace(
-                    _instance.traceCategory(),
-                    "gracefully closing " + protocol() + " connection\n" + toString());
+            String msg = "gracefully closing " + protocol() + " connection\n" + toString();
+            _instance.logger().trace(_instance.traceCategory(), msg);
         }
 
         int s = _nextState == StateOpened ? _state : _nextState;
 
         if (s == StateClosingRequestPending && _closingInitiator) {
-            //
-            // If we initiated a close connection but also received a
-            // close connection, we assume we didn't initiated the
-            // connection and we send the close frame now. This is to
-            // ensure that if both peers close the connection at the same
-            // time we don't hang having both peer waiting for the close
-            // frame of the other.
-            //
+            // If we initiated a close connection but also received a close connection,
+            // we assume we didn't initiated the connection and we send the close frame now.
+            // This is to ensure that if both peers close the connection at the same time we
+            // don't hang having both peer waiting for the close frame of the other.
             assert (!initiator);
             _closingInitiator = false;
             return SocketOperation.Write;
@@ -285,9 +225,7 @@ final class WSTransceiver implements Transceiver {
         _delegate.close();
         _state = StateClosed;
 
-        //
         // Clear the buffers now instead of waiting for destruction.
-        //
         _writeBuffer.clear();
         _readBuffer.clear();
     }
@@ -312,19 +250,14 @@ final class WSTransceiver implements Transceiver {
         do {
             if (preWrite(buf)) {
                 if (_writeState == WriteStateFlush) {
-                    //
                     // Invoke write() even though there's nothing to write.
-                    //
                     assert (!buf.b.hasRemaining());
                     s = _delegate.write(buf);
                 }
 
                 if (s == SocketOperation.None && _writeBuffer.b.hasRemaining()) {
                     s = _delegate.write(_writeBuffer);
-                } else if (s == SocketOperation.None
-                    && _incoming
-                    && !buf.empty()
-                    && _writeState == WriteStatePayload) {
+                } else if (s == SocketOperation.None && _incoming && !buf.empty() && _writeState == WriteStatePayload) {
                     s = _delegate.write(buf);
                 }
             }
@@ -364,11 +297,9 @@ final class WSTransceiver implements Transceiver {
         do {
             if (preRead(buf)) {
                 if (_readState == ReadStatePayload) {
-                    //
                     // If the payload length is smaller than what remains to be read, we read
                     // no more than the payload length. The remaining of the buffer will be
                     // sent over in another frame.
-                    //
                     int readSz = _readPayloadLength - (buf.b.position() - _readStart);
                     if (buf.b.remaining() > readSz) {
                         int size = buf.size();
@@ -448,18 +379,12 @@ final class WSTransceiver implements Transceiver {
         _resource = resource;
         _incoming = false;
 
-        //
-        // Use a 16KB write buffer size. We use 16KB for the write
-        // buffer size because all the data needs to be copied to the
-        // write buffer for the purpose of masking. A 16KB buffer
-        // appears to be a good compromise to reduce the number of
-        // socket write calls and not consume too much memory.
-        //
+        // Use a 16KB write buffer size. We use 16KB for the write buffer size because all the data needs to be copied
+        // to the write buffer for the purpose of masking. A 16KB buffer appears to be a good compromise to reduce
+        // the number of socket write calls and not consume too much memory.
         _writeBufferSize = 16 * 1024;
 
-        //
         // Write and read buffer size must be large enough to hold the frame header!
-        //
         assert (_writeBufferSize > 256);
         assert (_readBufferSize > 256);
     }
@@ -470,9 +395,7 @@ final class WSTransceiver implements Transceiver {
         _resource = "";
         _incoming = true;
 
-        //
         // Write and read buffer size must be large enough to hold the frame header!
-        //
         assert (_writeBufferSize > 256);
         assert (_readBufferSize > 256);
     }
@@ -508,10 +431,8 @@ final class WSTransceiver implements Transceiver {
             throw new WebSocketException("unsupported HTTP version");
         }
 
-        //
         // "An |Upgrade| header field containing the value 'websocket',
         //  treated as an ASCII case-insensitive value."
-        //
         String val = _parser.getHeader("Upgrade", true);
         if (val == null) {
             throw new WebSocketException("missing value for Upgrade field");
@@ -519,10 +440,8 @@ final class WSTransceiver implements Transceiver {
             throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
         }
 
-        //
         // "A |Connection| header field that includes the token 'Upgrade',
         //  treated as an ASCII case-insensitive value.
-        //
         val = _parser.getHeader("Connection", true);
         if (val == null) {
             throw new WebSocketException("missing value for Connection field");
@@ -530,9 +449,7 @@ final class WSTransceiver implements Transceiver {
             throw new WebSocketException("invalid value `" + val + "' for Connection field");
         }
 
-        //
         // "A |Sec-WebSocket-Version| header field, with a value of 13."
-        //
         val = _parser.getHeader("Sec-WebSocket-Version", false);
         if (val == null) {
             throw new WebSocketException("missing value for WebSocket version");
@@ -540,11 +457,9 @@ final class WSTransceiver implements Transceiver {
             throw new WebSocketException("unsupported WebSocket version `" + val + "'");
         }
 
-        //
         // "Optionally, a |Sec-WebSocket-Protocol| header field, with a list
         //  of values indicating which protocols the client would like to
         //  speak, ordered by preference."
-        //
         boolean addProtocol = false;
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
         if (val != null) {
@@ -561,10 +476,8 @@ final class WSTransceiver implements Transceiver {
             }
         }
 
-        //
         // "A |Sec-WebSocket-Key| header field with a base64-encoded
         //  value that, when decoded, is 16 bytes in length."
-        //
         String key = _parser.getHeader("Sec-WebSocket-Key", false);
         if (key == null) {
             throw new WebSocketException("missing value for WebSocket key");
@@ -579,14 +492,10 @@ final class WSTransceiver implements Transceiver {
             throw new WebSocketException("invalid base64 value `" + key + "' for WebSocket key");
         }
 
-        //
         // Retain the target resource.
-        //
         _resource = _parser.uri();
 
-        //
         // Compose the response.
-        //
         StringBuffer out = new StringBuffer();
         out.append("HTTP/1.1 101 Switching Protocols\r\n");
         out.append("Upgrade: websocket\r\n");
@@ -595,7 +504,6 @@ final class WSTransceiver implements Transceiver {
             out.append("Sec-WebSocket-Protocol: " + _iceProtocol + "\r\n");
         }
 
-        //
         // The response includes:
         //
         // "A |Sec-WebSocket-Accept| header field.  The value of this
@@ -604,7 +512,6 @@ final class WSTransceiver implements Transceiver {
         //  E914-47DA-95CA-C5AB0DC85B11", taking the SHA-1 hash of this
         //  concatenated value to obtain a 20-byte value and base64-
         //  encoding (see Section 4 of [RFC4648]) this 20-byte hash.
-        //
         out.append("Sec-WebSocket-Accept: ");
         final String input = key + _wsUUID;
         try {
@@ -634,14 +541,12 @@ final class WSTransceiver implements Transceiver {
             throw new WebSocketException("unsupported HTTP version");
         }
 
-        //
         // "If the status code received from the server is not 101, the
         //  client handles the response per HTTP [RFC2616] procedures.  In
         //  particular, the client might perform authentication if it
         //  receives a 401 status code; the server might redirect the client
         //  using a 3xx status code (but clients are not required to follow
         //  them), etc."
-        //
         if (_parser.status() != 101) {
             StringBuffer out = new StringBuffer("unexpected status value " + _parser.status());
             if (_parser.reason().length() > 0) {
@@ -650,12 +555,10 @@ final class WSTransceiver implements Transceiver {
             throw new WebSocketException(out.toString());
         }
 
-        //
         // "If the response lacks an |Upgrade| header field or the |Upgrade|
         //  header field contains a value that is not an ASCII case-
         //  insensitive match for the value "websocket", the client MUST
         //  _Fail the WebSocket Connection_."
-        //
         val = _parser.getHeader("Upgrade", true);
         if (val == null) {
             throw new WebSocketException("missing value for Upgrade field");
@@ -663,12 +566,10 @@ final class WSTransceiver implements Transceiver {
             throw new WebSocketException("invalid value `" + val + "' for Upgrade field");
         }
 
-        //
         // "If the response lacks a |Connection| header field or the
         //  |Connection| header field doesn't contain a token that is an
         //  ASCII case-insensitive match for the value "Upgrade", the client
         //  MUST _Fail the WebSocket Connection_."
-        //
         val = _parser.getHeader("Connection", true);
         if (val == null) {
             throw new WebSocketException("missing value for Connection field");
@@ -676,19 +577,16 @@ final class WSTransceiver implements Transceiver {
             throw new WebSocketException("invalid value `" + val + "' for Connection field");
         }
 
-        //
         // "If the response includes a |Sec-WebSocket-Protocol| header field
         //  and this header field indicates the use of a subprotocol that was
         //  not present in the client's handshake (the server has indicated a
         //  subprotocol not requested by the client), the client MUST _Fail
         //  the WebSocket Connection_."
-        //
         val = _parser.getHeader("Sec-WebSocket-Protocol", true);
         if (val != null && !_iceProtocol.equals(val)) {
             throw new WebSocketException("invalid value `" + val + "' for WebSocket protocol");
         }
 
-        //
         // "If the response lacks a |Sec-WebSocket-Accept| header field or
         //  the |Sec-WebSocket-Accept| contains a value other than the
         //  base64-encoded SHA-1 of the concatenation of the |Sec-WebSocket-
@@ -696,7 +594,6 @@ final class WSTransceiver implements Transceiver {
         //  E914-47DA-95CA-C5AB0DC85B11" but ignoring any leading and
         //  trailing whitespace, the client MUST _Fail the WebSocket
         //  Connection_."
-        //
         val = _parser.getHeader("Sec-WebSocket-Accept", false);
         if (val == null) {
             throw new WebSocketException("missing value for Sec-WebSocket-Accept");
@@ -717,29 +614,21 @@ final class WSTransceiver implements Transceiver {
     private boolean preRead(Buffer buf) {
         while (true) {
             if (_readState == ReadStateOpcode) {
-                //
                 // Is there enough data available to read the opcode?
-                //
                 if (!readBuffered(2)) {
                     return true;
                 }
 
-                //
-                // Most-significant bit indicates whether this is the
-                // last frame. Least-significant four bits hold the
-                // opcode.
-                //
+                // Most-significant bit indicates whether this is the last frame.
+                // Least-significant four bits hold the opcode.
                 int ch = _readBuffer.b.get(_readBufferPos++);
                 if (ch < 0) {
                     ch += 256;
                 }
                 _readOpCode = ch & 0xf;
 
-                //
-                // Remember if last frame if we're going to read a data or
-                // continuation frame, this is only for protocol
-                // correctness checking purpose.
-                //
+                // Remember if last frame if we're going to read a data or continuation frame,
+                // this is only for protocol correctness checking purpose.
                 if (_readOpCode == OP_DATA) {
                     if (!_readLastFrame) {
                         throw new ProtocolException("invalid data frame, no FIN on previous frame");
@@ -747,8 +636,7 @@ final class WSTransceiver implements Transceiver {
                     _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
                 } else if (_readOpCode == OP_CONT) {
                     if (_readLastFrame) {
-                        throw new ProtocolException(
-                            "invalid continuation frame, previous frame FIN set");
+                        throw new ProtocolException("invalid continuation frame, previous frame FIN set");
                     }
                     _readLastFrame = (ch & FLAG_FINAL) == FLAG_FINAL;
                 }
@@ -758,22 +646,18 @@ final class WSTransceiver implements Transceiver {
                     ch += 256;
                 }
 
-                //
                 // Check the MASK bit. Messages sent by a client must be masked;
                 // messages sent by a server must not be masked.
-                //
                 final boolean masked = (ch & FLAG_MASKED) == FLAG_MASKED;
                 if (masked != _incoming) {
                     throw new ProtocolException("invalid masking");
                 }
 
-                //
                 // Extract the payload length, which can have the following values:
                 //
                 // 0-125: The payload length
                 // 126:   The subsequent two bytes contain the payload length
                 // 127:   The subsequent eight bytes contain the payload length
-                //
                 _readPayloadLength = ch & 0x7f;
                 if (_readPayloadLength < 126) {
                     _readHeaderLength = 0;
@@ -825,17 +709,9 @@ final class WSTransceiver implements Transceiver {
 
                     case OP_CONT, OP_DATA /* Continuation frame or Data frame */ -> {
                         if (_instance.traceLevel() >= 2) {
-                            _instance
-                                .logger()
-                                .trace(
-                                    _instance.traceCategory(),
-                                    "received "
-                                        + protocol()
-                                        + (_readOpCode == OP_DATA ? " data" : " continuation")
-                                        + " frame with payload length of "
-                                        + _readPayloadLength
-                                        + " bytes\n"
-                                        + toString());
+                            String msg = "received " + protocol() + (_readOpCode == OP_DATA ? " data" : " continuation")
+                                + " frame with payload length of " + _readPayloadLength + " bytes\n" + toString();
+                            _instance.logger().trace(_instance.traceCategory(), msg);
                         }
 
                         if (_readPayloadLength <= 0) {
@@ -848,11 +724,8 @@ final class WSTransceiver implements Transceiver {
 
                     case OP_CLOSE /* Connection close */ -> {
                         if (_instance.traceLevel() >= 2) {
-                            _instance
-                                .logger()
-                                .trace(
-                                    _instance.traceCategory(),
-                                    "received " + protocol() + " connection close frame\n" + toString());
+                            String msg = "received " + protocol() + " connection close frame\n" + toString();
+                            _instance.logger().trace(_instance.traceCategory(), msg);
                         }
 
                         int s = _nextState == StateOpened ? _state : _nextState;
@@ -875,28 +748,16 @@ final class WSTransceiver implements Transceiver {
 
                     case OP_PING -> {
                         if (_instance.traceLevel() >= 2) {
-                            _instance
-                                .logger()
-                                .trace(
-                                    _instance.traceCategory(),
-                                    "received "
-                                        + protocol()
-                                        + " connection ping frame\n"
-                                        + toString());
+                            String msg = "received " + protocol() + " connection ping frame\n" + toString();
+                            _instance.logger().trace(_instance.traceCategory(), msg);
                         }
                         _readState = ReadStateControlFrame;
                     }
 
                     case OP_PONG -> {
                         if (_instance.traceLevel() >= 2) {
-                            _instance
-                                .logger()
-                                .trace(
-                                    _instance.traceCategory(),
-                                    "received "
-                                        + protocol()
-                                        + " connection pong frame\n"
-                                        + toString());
+                            String msg = "received " + protocol() + " connection pong frame\n" + toString();
+                            _instance.logger().trace(_instance.traceCategory(), msg);
                         }
                         _readState = ReadStateControlFrame;
                     }
@@ -937,18 +798,13 @@ final class WSTransceiver implements Transceiver {
                     }
                 }
 
-                //
-                // We've read the payload of the PING/PONG frame, we're ready
-                // to read a new frame.
-                //
+                // We've read the payload of the PING/PONG frame, we're ready to read a new frame.
                 _readState = ReadStateOpcode;
             }
 
             if (_readState == ReadStatePayload) {
-                //
-                // This must be assigned before the check for the buffer. If the buffer is empty
-                // or already read, postRead will return false.
-                //
+                // This must be assigned before the check for the buffer.
+                // If the buffer is empty or already read, postRead will return false.
                 _readStart = buf.b.position();
 
                 if (buf.empty() || !buf.b.hasRemaining()) {
@@ -976,10 +832,7 @@ final class WSTransceiver implements Transceiver {
                     _readBufferPos += n;
                 }
 
-                //
-                // Continue reading if we didn't read the full message or there's more payload data
-                // to read.
-                //
+                // Continue reading if we didn't read the full message or there's more payload data to read.
                 return buf.b.hasRemaining() && n < _readPayloadLength;
             }
         }
@@ -996,16 +849,13 @@ final class WSTransceiver implements Transceiver {
         assert (_readStart < buf.b.position());
 
         if (_incoming) {
-            //
             // Unmask the data we just read.
-            //
             final int pos = buf.b.position();
             if (buf.b.hasArray()) {
                 byte[] arr = buf.b.array();
                 int offset = buf.b.arrayOffset();
                 for (int n = _readStart; n < pos; n++) {
-                    arr[n + offset] =
-                        (byte) (arr[n + offset] ^ _readMask[(n - _readFrameStart) % 4]);
+                    arr[n + offset] = (byte) (arr[n + offset] ^ _readMask[(n - _readFrameStart) % 4]);
                 }
             } else {
                 for (int n = _readStart; n < pos; n++) {
@@ -1018,9 +868,7 @@ final class WSTransceiver implements Transceiver {
         _readPayloadLength -= buf.b.position() - _readStart;
         _readStart = buf.b.position();
         if (_readPayloadLength == 0) {
-            //
             // We've read the complete payload, we're ready to read a new frame.
-            //
             _readState = ReadStateOpcode;
         }
         return buf.b.hasRemaining();
@@ -1082,14 +930,10 @@ final class WSTransceiver implements Transceiver {
         }
 
         if (_writeState == WriteStatePayload) {
-            //
-            // For an outgoing connection, each message must be masked with a random
-            // 32-bit value, so we copy the entire message into the internal buffer
-            // for writing. For incoming connections, we just copy the start of the
-            // message in the internal buffer after the hedaer. If the message is
-            // larger, the reminder is sent directly from the message buffer to avoid
-            // copying.
-            //
+            // For an outgoing connection, each message must be masked with a random 32-bit value, so we copy the
+            // entire message into the internal buffer for writing. For incoming connections, we just copy the
+            // start of the message in the internal buffer after the header. If the message is larger,
+            // the reminder is sent directly from the message buffer to avoid copying.
 
             if (!_incoming && (_writePayloadLength == 0 || !_writeBuffer.b.hasRemaining())) {
                 if (!_writeBuffer.b.hasRemaining()) {
@@ -1150,37 +994,19 @@ final class WSTransceiver implements Transceiver {
             if (!_writeBuffer.b.hasRemaining()) {
                 if (_state == StatePingPending) {
                     if (_instance.traceLevel() >= 2) {
-                        _instance
-                            .logger()
-                            .trace(
-                                _instance.traceCategory(),
-                                "sent "
-                                    + protocol()
-                                    + " connection ping frame\n"
-                                    + toString());
+                        String msg = "sent " + protocol() + " connection ping frame\n" + toString();
+                        _instance.logger().trace(_instance.traceCategory(), msg);
                     }
                 } else if (_state == StatePongPending) {
                     if (_instance.traceLevel() >= 2) {
-                        _instance
-                            .logger()
-                            .trace(
-                                _instance.traceCategory(),
-                                "sent "
-                                    + protocol()
-                                    + " connection pong frame\n"
-                                    + toString());
+                        String msg = "sent " + protocol() + " connection pong frame\n" + toString();
+                        _instance.logger().trace(_instance.traceCategory(), msg);
                     }
                 } else if ((_state == StateClosingRequestPending && !_closingInitiator)
                     || (_state == StateClosingResponsePending && _closingInitiator)) {
                     if (_instance.traceLevel() >= 2) {
-                        _instance
-                            .logger()
-                            .trace(
-                                _instance.traceCategory(),
-                                "sent "
-                                    + protocol()
-                                    + " connection close frame\n"
-                                    + toString());
+                        String msg = "sent " + protocol() + " connection close frame\n" + toString();
+                        _instance.logger().trace(_instance.traceCategory(), msg);
                     }
 
                     if (_state == StateClosingRequestPending && !_closingInitiator) {
@@ -1208,12 +1034,8 @@ final class WSTransceiver implements Transceiver {
             }
         }
 
-        if (status == SocketOperation.Write
-            && !buf.b.hasRemaining()
-            && !_writeBuffer.b.hasRemaining()) {
-            //
+        if (status == SocketOperation.Write && !buf.b.hasRemaining() && !_writeBuffer.b.hasRemaining()) {
             // Our buffers are empty but the delegate needs another call to write().
-            //
             _writeState = WriteStateFlush;
             return false;
         } else if (!buf.b.hasRemaining()) {
@@ -1260,42 +1082,29 @@ final class WSTransceiver implements Transceiver {
     }
 
     private void prepareWriteHeader(byte opCode, int payloadLength) {
-        //
         // We need to prepare the frame header.
-        //
         _writeBuffer.resize(_writeBufferSize, false);
         _writeBuffer.limit(_writeBufferSize);
         _writeBuffer.position(0);
 
-        //
         // Set the opcode - this is the one and only data frame.
-        //
         _writeBuffer.b.put((byte) (opCode | FLAG_FINAL));
 
-        //
         // Set the payload length.
-        //
         if (payloadLength <= 125) {
             _writeBuffer.b.put((byte) payloadLength);
         } else if (payloadLength > 125 && payloadLength <= 65535) {
-            //
             // Use an extra 16 bits to encode the payload length.
-            //
             _writeBuffer.b.put((byte) 126);
             _writeBuffer.b.putShort((short) payloadLength);
         } else if (payloadLength > 65535) {
-            //
             // Use an extra 64 bits to encode the payload length.
-            //
             _writeBuffer.b.put((byte) 127);
             _writeBuffer.b.putLong(payloadLength);
         }
 
         if (!_incoming) {
-            //
-            // Add a random 32-bit mask to every outgoing frame, copy the payload data,
-            // and apply the mask.
-            //
+            // Add a random 32-bit mask to every outgoing frame, copy the payload data, and apply the mask.
             _writeBuffer.b.put(1, (byte) (_writeBuffer.b.get(1) | FLAG_MASKED));
             _rand.nextBytes(_writeMask);
             _writeBuffer.b.put(_writeMask);

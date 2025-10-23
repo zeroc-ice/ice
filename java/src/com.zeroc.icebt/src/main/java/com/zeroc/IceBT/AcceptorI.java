@@ -149,9 +149,8 @@ final class AcceptorI implements Acceptor {
                 synchronized (this) {
                     _pending.push(socket);
 
-                    // Notify the thread pool that we are ready to "read". The thread pool will
-                    // invoke accept()
-                    // and we can return a new transceiver.
+                    // Notify the thread pool that we are ready to "read".
+                    // The thread pool will invoke accept() and we can return a new transceiver.
                     _readyCallback.ready(SocketOperation.Read, true);
                 }
             } catch (Exception ex) {

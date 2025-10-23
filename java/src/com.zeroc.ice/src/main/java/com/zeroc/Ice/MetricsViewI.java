@@ -19,9 +19,7 @@ class MetricsViewI {
             String mapName,
             MetricsAdminI.MetricsMapFactory<?> factory,
             Logger logger) {
-        //
         // Add maps to views configured with the given map.
-        //
         String viewPrefix = "IceMX.Metrics." + _name + ".";
         String mapsPrefix = viewPrefix + "Map.";
         Map<String, String> mapsProps = properties.getPropertiesForPrefix(mapsPrefix);

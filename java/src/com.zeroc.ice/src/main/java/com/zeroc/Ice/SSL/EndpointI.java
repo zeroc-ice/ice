@@ -25,9 +25,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         _delegate.streamWriteImpl(s);
     }
 
-    //
     // Return the endpoint information.
-    //
     @Override
     public com.zeroc.Ice.EndpointInfo getInfo() {
         return new EndpointInfo(_delegate.getInfo());
@@ -95,10 +93,8 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         return _delegate.secure();
     }
 
-    //
-    // Return a server side transceiver for this endpoint, or null if a
-    // transceiver can only be created by an acceptor.
-    //
+    // Return a server side transceiver for this endpoint,
+    // or null if a transceiver can only be created by an acceptor.
     @Override
     public Transceiver transceiver() {
         return null;
@@ -132,10 +128,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         _delegate.connectors_async(cb);
     }
 
-    //
-    // Return an acceptor for this endpoint, or null if no acceptors
-    // is available.
-    //
+    // Return an acceptor for this endpoint, or null if no acceptors is available.
     @Override
     public Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
         return new AcceptorI(

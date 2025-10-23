@@ -31,9 +31,7 @@ final class OpaqueEndpointI extends EndpointI {
         _rawBytes = s.readBlob(sz);
     }
 
-    //
     // Marshal the endpoint
-    //
     @Override
     public void streamWrite(OutputStream s) {
         s.startEncapsulation(_rawEncoding, null);
@@ -46,44 +44,32 @@ final class OpaqueEndpointI extends EndpointI {
         assert false;
     }
 
-    //
     // Return the endpoint information.
-    //
     @Override
     public EndpointInfo getInfo() {
         return new OpaqueEndpointInfo(_type, _rawEncoding, _rawBytes);
     }
 
-    //
     // Return the endpoint type
-    //
     @Override
     public short type() {
         return _type;
     }
 
-    //
     // Return the protocol name
-    //
     @Override
     public String protocol() {
         return "opaque";
     }
 
-    //
-    // Return the timeout for the endpoint in milliseconds. 0 means
-    // non-blocking, -1 means no timeout.
-    //
+    // Return the timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
     @Override
     public int timeout() {
         return -1;
     }
 
-    //
     // Return a new endpoint with a different timeout value, provided
-    // that timeouts are supported by the endpoint. Otherwise the same
-    // endpoint is returned.
-    //
+    // that timeouts are supported by the endpoint. Otherwise the same endpoint is returned.
     @Override
     public EndpointI timeout(int t) {
         return this;
@@ -94,71 +80,51 @@ final class OpaqueEndpointI extends EndpointI {
         return "";
     }
 
-    //
     // Return a new endpoint with a different connection id.
-    //
     @Override
     public EndpointI connectionId(String connectionId) {
         return this;
     }
 
-    //
-    // Return true if the endpoints support bzip2 compress, or false
-    // otherwise.
-    //
+    // Return true if the endpoints support bzip2 compress, or false otherwise.
     @Override
     public boolean compress() {
         return false;
     }
 
-    //
-    // Return a new endpoint with a different compression value,
-    // provided that compression is supported by the
-    // endpoint. Otherwise the same endpoint is returned.
-    //
+    // Return a new endpoint with a different compression value, provided that compression is supported by the endpoint.
+    // Otherwise the same endpoint is returned.
     @Override
     public EndpointI compress(boolean compress) {
         return this;
     }
 
-    //
     // Return true if the endpoint is datagram-based.
-    //
     @Override
     public boolean datagram() {
         return false;
     }
 
-    //
     // Return true if the endpoint is secure.
-    //
     @Override
     public boolean secure() {
         return false;
     }
 
-    //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor.d.
-    //
     @Override
     public Transceiver transceiver() {
         return null;
     }
 
-    //
-    // Return connectors for this endpoint, or empty list if no connector
-    // is available.
-    //
+    // Return connectors for this endpoint, or empty list if no connector is available.
     @Override
     public void connectors_async(EndpointI_connectors callback) {
         callback.connectors(new ArrayList<>());
     }
 
-    //
-    // Return an acceptor for this endpoint, or null if no acceptors
-    // is available.
-    //
+    // Return an acceptor for this endpoint, or null if no acceptors is available.
     @Override
     public Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
         assert (factory == null);
@@ -180,9 +146,7 @@ final class OpaqueEndpointI extends EndpointI {
         return this;
     }
 
-    //
     // Check whether the endpoint is equivalent to another one.
-    //
     @Override
     public boolean equivalent(EndpointI endpoint) {
         return false;
@@ -260,36 +224,23 @@ final class OpaqueEndpointI extends EndpointI {
         switch (option.charAt(1)) {
             case 't': {
                 if (_type > -1) {
-                    throw new ParseException(
-                        "multiple -t options in endpoint '" + endpoint + "'");
+                    throw new ParseException("multiple -t options in endpoint '" + endpoint + "'");
                 }
                 if (argument == null) {
-                    throw new ParseException(
-                        "no argument provided for -t option in endpoint '"
-                            + endpoint
-                            + "'");
+                    throw new ParseException("no argument provided for -t option in endpoint '" + endpoint + "'");
                 }
 
                 int t;
                 try {
                     t = Integer.parseInt(argument);
                 } catch (NumberFormatException ex) {
-                    throw new ParseException(
-                        "invalid type value '"
-                            + argument
-                            + "' in endpoint '"
-                            + endpoint
-                            + "'",
-                        ex);
+                    String msg = "invalid type value '" + argument + "' in endpoint '" + endpoint + "'";
+                    throw new ParseException(msg, ex);
                 }
 
                 if (t < 0 || t > 65535) {
-                    throw new ParseException(
-                        "type value '"
-                            + argument
-                            + "' out of range in endpoint '"
-                            + endpoint
-                            + "'");
+                    String msg = "type value '" + argument + "' out of range in endpoint '" + endpoint + "'";
+                    throw new ParseException(msg);
                 }
 
                 _type = (short) t;
@@ -298,43 +249,30 @@ final class OpaqueEndpointI extends EndpointI {
 
             case 'v': {
                 if (_rawBytes.length > 0) {
-                    throw new ParseException(
-                        "multiple -v options in endpoint '" + endpoint + "'");
+                    throw new ParseException("multiple -v options in endpoint '" + endpoint + "'");
                 }
                 if (argument == null) {
-                    throw new ParseException(
-                        "no argument provided for -v option in endpoint '"
-                            + endpoint
-                            + "'");
+                    throw new ParseException("no argument provided for -v option in endpoint '" + endpoint + "'");
                 }
 
                 try {
                     _rawBytes = Base64.decode(argument);
                 } catch (IllegalArgumentException ex) {
-                    throw new ParseException(
-                        "invalid Base64 input in endpoint '" + endpoint + "'", ex);
+                    throw new ParseException("invalid Base64 input in endpoint '" + endpoint + "'", ex);
                 }
                 return true;
             }
 
             case 'e': {
                 if (argument == null) {
-                    throw new ParseException(
-                        "no argument provided for -e option in endpoint '"
-                            + endpoint
-                            + "'");
+                    throw new ParseException("no argument provided for -e option in endpoint '" + endpoint + "'");
                 }
 
                 try {
                     _rawEncoding = Util.stringToEncodingVersion(argument);
                 } catch (ParseException ex) {
-                    throw new ParseException(
-                        "invalid encoding version '"
-                            + argument
-                            + "' in endpoint '"
-                            + endpoint
-                            + "'",
-                        ex);
+                    String msg = "invalid encoding version '" + argument + "' in endpoint '" + endpoint + "'";
+                    throw new ParseException(msg, ex);
                 }
                 return true;
             }

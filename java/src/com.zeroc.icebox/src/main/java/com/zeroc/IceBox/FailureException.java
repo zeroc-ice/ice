@@ -5,9 +5,8 @@ package com.zeroc.IceBox;
 import com.zeroc.Ice.LocalException;
 
 /**
- * This exception is a general failure notification. It is thrown for errors such as a service
- * encountering an error during initialization, or the service manager being unable to load a
- * service executable.
+ * This exception is a general failure notification. It is thrown for errors such as a service encountering
+ * an error during initialization, or the service manager being unable to load a service executable.
  */
 public final class FailureException extends LocalException {
     /**
@@ -23,7 +22,7 @@ public final class FailureException extends LocalException {
      * Constructs a FailureException with a message and a cause.
      *
      * @param message the detail message
-     * @param cause   the cause
+     * @param cause the cause
      */
     public FailureException(String message, Throwable cause) {
         super(message, cause);

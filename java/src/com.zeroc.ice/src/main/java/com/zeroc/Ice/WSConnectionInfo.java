@@ -9,8 +9,7 @@ public final class WSConnectionInfo extends ConnectionInfo {
     /** The headers from the HTTP upgrade request. */
     public final Map<java.lang.String, java.lang.String> headers;
 
-    WSConnectionInfo(
-            ConnectionInfo underlying, Map<java.lang.String, java.lang.String> headers) {
+    WSConnectionInfo(ConnectionInfo underlying, Map<java.lang.String, java.lang.String> headers) {
         super(underlying);
         this.headers = headers;
     }

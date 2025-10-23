@@ -35,9 +35,7 @@ final class TcpEndpointI extends IPEndpointI {
         _compress = s.readBool();
     }
 
-    //
     // Return the endpoint information.
-    //
     @Override
     public EndpointInfo getInfo() {
         return new TCPEndpointInfo(
@@ -49,75 +47,54 @@ final class TcpEndpointI extends IPEndpointI {
             secure());
     }
 
-    //
-    // Return the timeout for the endpoint in milliseconds. 0 means
-    // non-blocking, -1 means no timeout.
-    //
+    // Return the timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
     @Override
     public int timeout() {
         return _timeout;
     }
 
-    //
-    // Return a new endpoint with a different timeout value, provided
-    // that timeouts are supported by the endpoint. Otherwise the same
-    // endpoint is returned.
-    //
+    // Return a new endpoint with a different timeout value, provided that timeouts are supported by the endpoint.
+    // Otherwise the same endpoint is returned.
     @Override
     public EndpointI timeout(int timeout) {
         if (timeout == _timeout) {
             return this;
         } else {
-            return new TcpEndpointI(
-                _instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
+            return new TcpEndpointI(_instance, _host, _port, _sourceAddr, timeout, _connectionId, _compress);
         }
     }
 
-    //
-    // Return true if the endpoints support bzip2 compress, or false
-    // otherwise.
-    //
+    // Return true if the endpoints support bzip2 compress, or false otherwise.
     @Override
     public boolean compress() {
         return _compress;
     }
 
-    //
-    // Return a new endpoint with a different compression value,
-    // provided that compression is supported by the
+    // Return a new endpoint with a different compression value, provided that compression is supported by the
     // endpoint. Otherwise the same endpoint is returned.
-    //
     @Override
     public EndpointI compress(boolean compress) {
         if (compress == _compress) {
             return this;
         } else {
-            return new TcpEndpointI(
-                _instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
+            return new TcpEndpointI(_instance, _host, _port, _sourceAddr, _timeout, _connectionId, compress);
         }
     }
 
-    //
     // Return true if the endpoint is datagram-based.
-    //
     @Override
     public boolean datagram() {
         return false;
     }
 
-    //
-    // Return a server side transceiver for this endpoint, or null if a
-    // transceiver can only be created by an acceptor.
-    //
+    // Return a server side transceiver for this endpoint,
+    // or null if a transceiver can only be created by an acceptor.
     @Override
     public Transceiver transceiver() {
         return null;
     }
 
-    //
-    // Return an acceptor for this endpoint, or null if no acceptors
-    // is available.
-    //
+    // Return an acceptor for this endpoint, or null if no acceptors is available.
     @Override
     public Acceptor acceptor(String adapterName, SSLEngineFactory factory) {
         assert (factory == null);
@@ -136,13 +113,11 @@ final class TcpEndpointI extends IPEndpointI {
 
     @Override
     public String options() {
-        //
         // WARNING: Certain features, such as proxy validation in Glacier2,
         // depend on the format of proxy strings. Changes to toString() and
         // methods called to generate parts of the reference string could break
         // these features. Please review for all features that depend on the
         // format of proxyToString() before changing this and related code.
-        //
         String s = super.options();
 
         if (_timeout != defaultTimeout) {
@@ -160,9 +135,7 @@ final class TcpEndpointI extends IPEndpointI {
         return s;
     }
 
-    //
     // Compare endpoints for sorting purposes
-    //
     @Override
     public int compareTo(EndpointI obj) {
         if (!(obj instanceof TcpEndpointI)) {
@@ -224,10 +197,7 @@ final class TcpEndpointI extends IPEndpointI {
         switch (option.charAt(1)) {
             case 't': {
                 if (argument == null) {
-                    throw new ParseException(
-                        "no argument provided for -t option in endpoint '"
-                            + endpoint
-                            + "'");
+                    throw new ParseException("no argument provided for -t option in endpoint '" + endpoint + "'");
                 }
 
                 if ("infinite".equals(argument)) {
@@ -236,21 +206,12 @@ final class TcpEndpointI extends IPEndpointI {
                     try {
                         _timeout = Integer.parseInt(argument);
                         if (_timeout < 1) {
-                            throw new ParseException(
-                                "invalid timeout value '"
-                                    + argument
-                                    + "' in endpoint '"
-                                    + endpoint
-                                    + "'");
+                            String msg = "invalid timeout value '" + argument + "' in endpoint '" + endpoint + "'";
+                            throw new ParseException(msg);
                         }
                     } catch (NumberFormatException ex) {
-                        throw new ParseException(
-                            "invalid timeout value '"
-                                + argument
-                                + "' in endpoint '"
-                                + endpoint
-                                + "'",
-                            ex);
+                        String msg = "invalid timeout value '" + argument + "' in endpoint '" + endpoint + "'";
+                        throw new ParseException(msg, ex);
                     }
                 }
 
@@ -259,12 +220,8 @@ final class TcpEndpointI extends IPEndpointI {
 
             case 'z': {
                 if (argument != null) {
-                    throw new ParseException(
-                        "unexpected argument '"
-                            + argument
-                            + "' provided for -z option in '"
-                            + endpoint
-                            + "'");
+                    String msg = "unexpected argument '" + argument + "' provided for -z option in '" + endpoint + "'";
+                    throw new ParseException(msg);
                 }
 
                 _compress = true;
@@ -285,8 +242,7 @@ final class TcpEndpointI extends IPEndpointI {
 
     @Override
     protected IPEndpointI createEndpoint(String host, int port, String connectionId) {
-        return new TcpEndpointI(
-            _instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
+        return new TcpEndpointI(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
     }
 
     private int _timeout;

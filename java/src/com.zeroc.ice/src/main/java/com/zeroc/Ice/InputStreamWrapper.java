@@ -7,13 +7,9 @@ import java.io.InputStream;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
-//
 // Class to provide a java.io.InputStream on top of a ByteBuffer.
-// We use this to deserialize arbitrary Java serializable classes from
-// a Slice byte sequence. This class is a wrapper around a Buffer
-// that passes all methods through.
-//
-
+// We use this to deserialize arbitrary Java serializable classes from a Slice byte sequence.
+// This class is a wrapper around a Buffer that passes all methods through.
 class InputStreamWrapper extends InputStream {
     public InputStreamWrapper(int size, ByteBuffer buf) {
         _buf = buf;
@@ -56,8 +52,7 @@ class InputStreamWrapper extends InputStream {
 
     @Override
     public void reset() throws IOException {
-        // Cast to java.nio.Buffer to avoid incompatible covariant
-        // return type used in Java 9 java.nio.ByteBuffer
+        // Cast to java.nio.Buffer to avoid incompatible covariant return type used in Java 9 java.nio.ByteBuffer
         ((Buffer) _buf).position(_markPos);
     }
 

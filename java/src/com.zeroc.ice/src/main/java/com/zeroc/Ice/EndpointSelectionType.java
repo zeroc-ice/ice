@@ -26,13 +26,11 @@ public enum EndpointSelectionType {
      * @return the enumerator corresponding to the given integer value, or {@code null} if no such enumerator exists
      */
     public static EndpointSelectionType valueOf(int v) {
-        switch (v) {
-            case 0:
-                return Random;
-            case 1:
-                return Ordered;
-        }
-        return null;
+        return switch (v) {
+            case 0 -> Random;
+            case 1 -> Ordered;
+            default -> null;
+        };
     }
 
     private EndpointSelectionType(int v) {

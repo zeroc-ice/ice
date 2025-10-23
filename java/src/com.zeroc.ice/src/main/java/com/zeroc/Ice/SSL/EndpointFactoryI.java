@@ -19,8 +19,7 @@ public final class EndpointFactoryI extends EndpointFactoryWithUnderlying {
     }
 
     @Override
-    public EndpointFactory cloneWithUnderlying(
-            ProtocolInstance instance, short underlying) {
+    public EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying) {
         return new EndpointFactoryI(
             new Instance(_instance.engine(), instance.type(), instance.protocol()), underlying);
     }
@@ -34,8 +33,7 @@ public final class EndpointFactoryI extends EndpointFactoryWithUnderlying {
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI readWithUnderlying(
-            com.zeroc.Ice.EndpointI underlying, InputStream s) {
+    public com.zeroc.Ice.EndpointI readWithUnderlying(com.zeroc.Ice.EndpointI underlying, InputStream s) {
         return new EndpointI(_instance, underlying);
     }
 

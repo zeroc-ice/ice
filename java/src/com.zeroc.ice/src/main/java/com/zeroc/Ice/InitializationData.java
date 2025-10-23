@@ -23,9 +23,7 @@ public final class InitializationData implements Cloneable {
     /** Creates and returns a copy of this object. */
     @Override
     public InitializationData clone() {
-        //
         // A member-wise copy is safe because the members are immutable.
-        //
         InitializationData c = null;
         try {
             c = (InitializationData) super.clone();

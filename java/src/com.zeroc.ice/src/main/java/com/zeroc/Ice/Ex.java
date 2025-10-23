@@ -9,10 +9,7 @@ class Ex {
     public static <T extends Value> void throwUOE(Class<T> expectedType, Value v) {
         if (v instanceof UnknownSlicedValue) {
             var usv = (UnknownSlicedValue) v;
-            throw new MarshalException(
-                "The Slice loader did not find a class for type ID '"
-                    + usv.ice_id()
-                    + "'.");
+            throw new MarshalException("The Slice loader did not find a class for type ID '" + usv.ice_id() + "'.");
         }
 
         String type = v.ice_id();
@@ -34,10 +31,7 @@ class Ex {
     public static void throwUOE(String expectedType, Value v) {
         if (v instanceof UnknownSlicedValue) {
             var usv = (UnknownSlicedValue) v;
-            throw new MarshalException(
-                "The Slice loader did not find a class for type ID '"
-                    + usv.ice_id()
-                    + "'.");
+            throw new MarshalException("The Slice loader did not find a class for type ID '" + usv.ice_id() + "'.");
         }
 
         String type = v.ice_id();
@@ -58,9 +52,7 @@ class Ex {
                 + " bytes (see Ice.MessageSizeMax).");
     }
 
-    //
     // A small utility to get the stack trace of the exception (which also includes toString()).
-    //
     public static String toString(Throwable ex) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);

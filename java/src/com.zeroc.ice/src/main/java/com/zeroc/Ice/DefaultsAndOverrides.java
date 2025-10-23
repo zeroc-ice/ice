@@ -35,8 +35,7 @@ final class DefaultsAndOverrides {
         if (!value.isEmpty()) {
             boolean b = properties.getIcePropertyAsInt("Ice.Override.Compress") > 0;
             if (b && !BZip2.supported()) {
-                System.err.println(
-                    "warning: bzip2 support not available, Ice.Override.Compress ignored");
+                System.err.println("warning: bzip2 support not available, Ice.Override.Compress ignored");
                 b = false;
             }
             overrideCompress = Optional.of(b);
@@ -44,8 +43,7 @@ final class DefaultsAndOverrides {
             overrideCompress = Optional.empty();
         }
 
-        defaultCollocationOptimization =
-            properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
+        defaultCollocationOptimization = properties.getIcePropertyAsInt("Ice.Default.CollocationOptimized") > 0;
 
         value = properties.getIceProperty("Ice.Default.EndpointSelection");
         if ("Random".equals(value)) {
@@ -53,23 +51,19 @@ final class DefaultsAndOverrides {
         } else if ("Ordered".equals(value)) {
             defaultEndpointSelection = EndpointSelectionType.Ordered;
         } else {
-            throw new ParseException(
-                "illegal value '"
-                    + value
-                    + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
+            throw new ParseException("illegal value '" + value
+                + "' in property Ice.Default.EndpointSelection; expected 'Random' or 'Ordered'");
         }
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.LocatorCacheTimeout");
         if (intValue < -1) {
-            throw new InitializationException(
-                "invalid value for Ice.Default.LocatorCacheTimeout: " + intValue);
+            throw new InitializationException("invalid value for Ice.Default.LocatorCacheTimeout: " + intValue);
         }
         defaultLocatorCacheTimeout = Duration.ofSeconds(intValue);
 
         intValue = properties.getIcePropertyAsInt("Ice.Default.InvocationTimeout");
         if (intValue < 1 && intValue != -1) {
-            throw new InitializationException(
-                "invalid value for Ice.Default.InvocationTimeout: " + intValue);
+            throw new InitializationException("invalid value for Ice.Default.InvocationTimeout: " + intValue);
         }
         defaultInvocationTimeout = Duration.ofMillis(intValue);
 

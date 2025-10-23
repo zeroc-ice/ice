@@ -9,8 +9,7 @@ import java.util.concurrent.CompletionStage;
 final class ServantManager implements Object {
     private Instance _instance;
     private final String _adapterName;
-    private final Map<Identity, Map<String, Object>> _servantMapMap =
-        new HashMap<Identity, Map<String, Object>>();
+    private final Map<Identity, Map<String, Object>> _servantMapMap = new HashMap<Identity, Map<String, Object>>();
     private final Map<String, Object> _defaultServantMap = new HashMap<String, Object>();
     private final Map<String, ServantLocator> _locatorMap = new HashMap<String, ServantLocator>();
 
@@ -54,8 +53,7 @@ final class ServantManager implements Object {
             try {
                 response = servant.dispatch(request);
             } catch (UserException | RuntimeException | Error exception) {
-                // We catch Error because ServantLocator guarantees finished gets called no matter
-                // what.
+                // We catch Error because ServantLocator guarantees finished gets called no matter what.
                 locator.finished(current, servant, cookie);
                 throw exception; // unless finished above throws another exception
             }
@@ -71,8 +69,8 @@ final class ServantManager implements Object {
                         ex = finishedEx;
                     }
                     if (ex != null) {
-                        // We only marshal errors and runtime exceptions (including
-                        // CompletionException) at a higher level.
+                        // We only marshal errors and runtime exceptions
+                        // (including CompletionException) at a higher level.
                         if (ex instanceof Error errorEx) {
                             throw errorEx;
                         }
@@ -85,8 +83,7 @@ final class ServantManager implements Object {
                     }
                 });
         } else {
-            // Skip the encapsulation. This allows the next batch requests in the same InputStream
-            // to proceed.
+            // Skip the encapsulation. This allows the next batch requests in the same InputStream to proceed.
             request.inputStream.skipEncapsulation();
             if (hasServant(current.id)) {
                 throw new FacetNotExistException();
@@ -181,14 +178,6 @@ final class ServantManager implements Object {
     }
 
     public synchronized Object findServant(Identity ident, String facet) {
-        //
-        // This assert is not valid if the adapter dispatch incoming
-        // requests from bidir connections. This method might be called if
-        // requests are received over the bidir connection after the
-        // adapter was deactivated.
-        //
-        // assert(_instance != null); // Must not be called after destruction.
-
         if (facet == null) {
             facet = "";
         }
@@ -225,14 +214,6 @@ final class ServantManager implements Object {
     }
 
     public synchronized boolean hasServant(Identity ident) {
-        //
-        // This assert is not valid if the adapter dispatch incoming
-        // requests from bidir connections. This method might be called if
-        // requests are received over the bidir connection after the
-        // adapter was deactivated.
-        //
-        // assert(_instance != null); // Must not be called after destruction.
-
         Map<String, Object> m = _servantMapMap.get(ident);
         if (m == null) {
             return false;
@@ -267,14 +248,6 @@ final class ServantManager implements Object {
     }
 
     public synchronized ServantLocator findServantLocator(String category) {
-        //
-        // This assert is not valid if the adapter dispatch incoming
-        // requests from bidir connections. This method might be called if
-        // requests are received over the bidir connection after the
-        // adapter was deactivated.
-        //
-        // assert(_instance != null); // Must not be called after destruction.
-
         return _locatorMap.get(category);
     }
 
@@ -293,9 +266,7 @@ final class ServantManager implements Object {
         Map<String, ServantLocator> locatorMap = new HashMap<String, ServantLocator>();
         Logger logger = null;
         synchronized (this) {
-            //
             // If the ServantManager has already been destroyed, we're done.
-            //
             if (_instance == null) {
                 return;
             }
@@ -317,15 +288,8 @@ final class ServantManager implements Object {
             try {
                 locator.deactivate(p.getKey());
             } catch (Exception ex) {
-                String s =
-                    "exception during locator deactivation:\n"
-                        + "object adapter: `"
-                        + _adapterName
-                        + "'\n"
-                        + "locator category: `"
-                        + p.getKey()
-                        + "'\n"
-                        + Ex.toString(ex);
+                String s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n"
+                    + "locator category: `" + p.getKey() + "'\n" + Ex.toString(ex);
                 logger.error(s);
             }
         }

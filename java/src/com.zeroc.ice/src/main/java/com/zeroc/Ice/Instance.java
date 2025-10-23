@@ -34,13 +34,10 @@ public final class Instance {
             _threadName = threadName;
         }
 
-        public synchronized void updateObserver(
-                CommunicatorObserver obsv) {
+        public synchronized void updateObserver(CommunicatorObserver obsv) {
             assert (obsv != null);
 
-            _observer =
-                obsv.getThreadObserver(
-                    "Communicator", _threadName, ThreadState.ThreadStateIdle, _observer);
+            _observer = obsv.getThreadObserver("Communicator", _threadName, ThreadState.ThreadStateIdle, _observer);
             if (_observer != null) {
                 _observer.attach();
             }
@@ -49,25 +46,21 @@ public final class Instance {
         protected void beforeExecute() {
             _threadObserver = _observer;
             if (_threadObserver != null) {
-                _threadObserver.stateChanged(
-                    ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
+                _threadObserver.stateChanged(ThreadState.ThreadStateIdle, ThreadState.ThreadStateInUseForOther);
             }
         }
 
         protected void afterExecute() {
             if (_threadObserver != null) {
-                _threadObserver.stateChanged(
-                    ThreadState.ThreadStateInUseForOther, ThreadState.ThreadStateIdle);
+                _threadObserver.stateChanged(ThreadState.ThreadStateInUseForOther, ThreadState.ThreadStateIdle);
                 _threadObserver = null;
             }
         }
 
         private final String _threadName;
-        //
-        // We use a volatile to avoid synchronization when reading
-        // _observer. Reference assignment is atomic in Java so it
-        // also doesn't need to be synchronized.
-        //
+
+        // We use a volatile to avoid synchronization when reading _observer.
+        // Reference assignment is atomic in Java so it also doesn't need to be synchronized.
         private volatile ThreadObserver _observer;
         private ThreadObserver _threadObserver;
     }
@@ -147,12 +140,9 @@ public final class Instance {
     }
 
     public InitializationData initializationData() {
-        //
-        // No check for destruction. It must be possible to access the initialization data after
-        // destruction.
+        // No check for destruction. It must be possible to access the initialization data after destruction.
         //
         // No mutex lock, immutable.
-        //
         return _initData;
     }
 
@@ -339,11 +329,8 @@ public final class Instance {
                 throw new CommunicatorDestroyedException();
             }
 
-            if (adminIdentity == null
-                || adminIdentity.name == null
-                || adminIdentity.name.isEmpty()) {
-                throw new IllegalArgumentException(
-                    "The admin identity '" + adminIdentity + "' is not valid");
+            if (adminIdentity == null || adminIdentity.name == null || adminIdentity.name.isEmpty()) {
+                throw new IllegalArgumentException("The admin identity '" + adminIdentity + "' is not valid");
             }
 
             if (_adminAdapter != null) {
@@ -356,8 +343,7 @@ public final class Instance {
 
             if (createAdapter) {
                 if (!_initData.properties.getIceProperty("Ice.Admin.Endpoints").isEmpty()) {
-                    adminAdapter =
-                        _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
+                    adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
                 } else {
                     throw new InitializationException("Ice.Admin.Endpoints is not set");
                 }
@@ -372,11 +358,9 @@ public final class Instance {
             try {
                 adminAdapter.activate();
             } catch (LocalException ex) {
-                //
                 // We cleanup _adminAdapter, however this error is not recoverable
                 // (can't call again getAdmin() after fixing the problem)
                 // since all the facets (servants) in the adapter are lost
-                //
                 adminAdapter.destroy();
                 synchronized (this) {
                     _adminAdapter = null;
@@ -401,15 +385,11 @@ public final class Instance {
                 return _adminAdapter.createProxy(_adminIdentity);
             } else if (_adminEnabled) {
                 if (!_initData.properties.getIceProperty("Ice.Admin.Endpoints").isEmpty()) {
-                    adminAdapter =
-                        _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
+                    adminAdapter = _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
                 } else {
                     return null;
                 }
-                adminIdentity =
-                    new Identity(
-                        "admin",
-                        _initData.properties.getIceProperty("Ice.Admin.InstanceName"));
+                adminIdentity = new Identity("admin", _initData.properties.getIceProperty("Ice.Admin.InstanceName"));
                 if (adminIdentity.category.isEmpty()) {
                     adminIdentity.category = UUID.randomUUID().toString();
                 }
@@ -426,11 +406,9 @@ public final class Instance {
         try {
             adminAdapter.activate();
         } catch (LocalException ex) {
-            //
             // We cleanup _adminAdapter, however this error is not recoverable
             // (can't call again getAdmin() after fixing the problem)
             // since all the facets (servants) in the adapter are lost
-            //
             adminAdapter.destroy();
             synchronized (this) {
                 _adminAdapter = null;
@@ -447,8 +425,7 @@ public final class Instance {
             throw new CommunicatorDestroyedException();
         }
 
-        if (_adminAdapter == null
-            || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
+        if (_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
             if (_adminFacets.get(facet) != null) {
                 throw new AlreadyRegisteredException("facet", facet);
             }
@@ -465,8 +442,7 @@ public final class Instance {
 
         Object result;
 
-        if (_adminAdapter == null
-            || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
+        if (_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
             result = _adminFacets.remove(facet);
             if (result == null) {
                 throw new NotRegisteredException("facet", facet);
@@ -485,8 +461,7 @@ public final class Instance {
 
         Object result = null;
 
-        if (_adminAdapter == null
-            || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
+        if (_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet))) {
             result = _adminFacets.get(facet);
         } else {
             result = _adminAdapter.findFacet(_adminIdentity, facet);
@@ -529,16 +504,12 @@ public final class Instance {
     }
 
     public void setLogger(Logger logger) {
-        //
         // No locking, as it can only be called during plug-in loading
-        //
         _initData.logger = logger;
     }
 
     public void setThreadHooks(Runnable threadStart, Runnable threadStop) {
-        //
         // No locking, as it can only be called during plug-in loading
-        //
         _initData.threadStart = threadStart;
         _initData.threadStop = threadStop;
     }
@@ -551,8 +522,8 @@ public final class Instance {
         return Util.findClass(className, _initData.classLoader);
     }
 
-    // Only for use by com.zeroc.Ice.Communicator. If the application provides an initData, the initData argument is a
-    // clone.
+    // Only for use by com.zeroc.Ice.Communicator.
+    // If the application provides an initData, the initData argument is a clone.
     void initialize(Communicator communicator, InitializationData initData) {
         _state = StateActive;
         _initData = initData;
@@ -575,16 +546,11 @@ public final class Instance {
                     PrintStream outStream = null;
 
                     if (!stdOut.isEmpty()) {
-                        //
-                        // We need to close the existing stdout for JVM thread dump to go to the new
-                        // file
-                        //
+                        // We need to close the existing stdout for JVM thread dump to go to the new file.
                         System.out.close();
 
                         try {
-                            outStream =
-                                new PrintStream(
-                                    new FileOutputStream(stdOut, true));
+                            outStream = new PrintStream(new FileOutputStream(stdOut, true));
                         } catch (FileNotFoundException ex) {
                             throw new FileException("cannot append to '" + stdOut + "'", ex);
                         }
@@ -592,18 +558,14 @@ public final class Instance {
                         System.setOut(outStream);
                     }
                     if (!stdErr.isEmpty()) {
-                        //
                         // close for consistency with stdout
-                        //
                         System.err.close();
 
                         if (stdErr.equals(stdOut)) {
                             System.setErr(outStream);
                         } else {
                             try {
-                                System.setErr(
-                                    new PrintStream(
-                                        new FileOutputStream(stdErr, true)));
+                                System.setErr(new PrintStream(new FileOutputStream(stdErr, true)));
                             } catch (FileNotFoundException ex) {
                                 throw new FileException("cannot append to '" + stdErr + "'", ex);
                             }
@@ -618,8 +580,7 @@ public final class Instance {
                 if (properties.getIcePropertyAsInt("Ice.UseSyslog") > 0
                     && !System.getProperty("os.name").startsWith("Windows")) {
                     if (!logFile.isEmpty()) {
-                        throw new InitializationException(
-                            "Both syslog and file logger cannot be enabled.");
+                        throw new InitializationException("Both syslog and file logger cannot be enabled.");
                     }
                     _initData.logger =
                         new SysLoggerI(
@@ -729,8 +690,7 @@ public final class Instance {
             sliceLoader.add(new DefaultPackageSliceLoader("", _initData.classLoader));
 
             // Finally add decorator that caches NotFound, if needed.
-            final int notFoundCacheSize =
-                properties.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize");
+            final int notFoundCacheSize = properties.getIcePropertyAsInt("Ice.SliceLoader.NotFoundCacheSize");
 
             if (notFoundCacheSize <= 0) {
                 _initData.sliceLoader = sliceLoader;
@@ -752,12 +712,10 @@ public final class Instance {
             } else if ("Compat".equals(toStringModeStr)) {
                 _toStringMode = ToStringMode.Compat;
             } else {
-                throw new InitializationException(
-                    "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+                throw new InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
             }
 
-            _implicitContext =
-                ImplicitContextI.create(properties.getIceProperty("Ice.ImplicitContext"));
+            _implicitContext = ImplicitContextI.create(properties.getIceProperty("Ice.ImplicitContext"));
 
             _routerManager = new RouterManager();
 
@@ -785,25 +743,19 @@ public final class Instance {
             _sslEngine = new SSLEngine(communicator);
             _endpointFactoryManager = new EndpointFactoryManager(this);
 
-            ProtocolInstance tcpProtocol =
-                new ProtocolInstance(this, TCPEndpointType.value, "tcp", false);
+            var tcpProtocol = new ProtocolInstance(this, TCPEndpointType.value, "tcp", false);
             _endpointFactoryManager.add(new TcpEndpointFactory(tcpProtocol));
 
-            ProtocolInstance udpProtocol =
-                new ProtocolInstance(this, UDPEndpointType.value, "udp", false);
+            var udpProtocol = new ProtocolInstance(this, UDPEndpointType.value, "udp", false);
             _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocol));
 
-            com.zeroc.Ice.SSL.Instance sslInstance =
-                new com.zeroc.Ice.SSL.Instance(_sslEngine, SSLEndpointType.value, "ssl");
-            _endpointFactoryManager.add(
-                new EndpointFactoryI(sslInstance, TCPEndpointType.value));
+            var sslInstance = new com.zeroc.Ice.SSL.Instance(_sslEngine, SSLEndpointType.value, "ssl");
+            _endpointFactoryManager.add(new EndpointFactoryI(sslInstance, TCPEndpointType.value));
 
-            ProtocolInstance wsProtocol =
-                new ProtocolInstance(this, WSEndpointType.value, "ws", false);
+            var wsProtocol = new ProtocolInstance(this, WSEndpointType.value, "ws", false);
             _endpointFactoryManager.add(new WSEndpointFactory(wsProtocol, TCPEndpointType.value));
 
-            ProtocolInstance wssProtocol =
-                new ProtocolInstance(this, WSSEndpointType.value, "wss", true);
+            var wssProtocol = new ProtocolInstance(this, WSSEndpointType.value, "wss", true);
             _endpointFactoryManager.add(new WSEndpointFactory(wssProtocol, SSLEndpointType.value));
 
             _pluginManager = new PluginManagerI(communicator, this);
@@ -848,25 +800,19 @@ public final class Instance {
     void finishSetup(Communicator communicator) {
 
         Properties properties = _initData.properties;
-        //
         // Load plug-ins.
-        //
         assert (_serverThreadPool == null);
         PluginManagerI pluginManagerImpl = (PluginManagerI) _pluginManager;
         pluginManagerImpl.loadPlugins();
 
-        //
         // Initialize the endpoint factories once all the plugins are loaded. This gives
         // the opportunity for the endpoint factories to find underlying factories.
-        //
         _endpointFactoryManager.initialize();
 
-        //
         // Create Admin facets, if enabled.
         //
         // Note that any logger-dependent admin facet must be created after we load all plugins,
         // since one of these plugins can be a Logger plugin that sets a new logger during loading
-        //
 
         if (properties.getIceProperty("Ice.Admin.Enabled").isEmpty()) {
             _adminEnabled = !properties.getIceProperty("Ice.Admin.Endpoints").isEmpty();
@@ -880,17 +826,13 @@ public final class Instance {
         }
 
         if (_adminEnabled) {
-            //
             // Process facet
-            //
             String processFacetName = "Process";
             if (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(processFacetName)) {
                 _adminFacets.put(processFacetName, new ProcessI(communicator));
             }
 
-            //
             // Logger facet
-            //
             String loggerFacetName = "Logger";
             if (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(loggerFacetName)) {
                 LoggerAdminLogger logger = new LoggerAdminLoggerI(properties, _initData.logger);
@@ -898,9 +840,7 @@ public final class Instance {
                 _adminFacets.put(loggerFacetName, logger.getFacet());
             }
 
-            //
             // Properties facet
-            //
             String propertiesFacetName = "Properties";
             NativePropertiesAdmin propsAdmin = null;
             if (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(propertiesFacetName)) {
@@ -908,34 +848,26 @@ public final class Instance {
                 _adminFacets.put(propertiesFacetName, propsAdmin);
             }
 
-            //
             // Metrics facet
-            //
             String metricsFacetName = "Metrics";
             if (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(metricsFacetName)) {
                 CommunicatorObserverI observer = new CommunicatorObserverI(_initData);
                 _initData.observer = observer;
                 _adminFacets.put(metricsFacetName, observer.getFacet());
 
-                //
                 // Make sure the admin plugin receives property updates.
-                //
                 if (propsAdmin != null) {
                     propsAdmin.addUpdateCallback(observer.getFacet());
                 }
             }
         }
 
-        //
         // Set observer updater
-        //
         if (_initData.observer != null) {
             _initData.observer.setObserverUpdater(new ObserverUpdaterI());
         }
 
-        //
         // Create threads.
-        //
         try {
             _timer = new Timer(properties, Util.createThreadName(properties, "Ice.Timer"));
         } catch (RuntimeException ex) {
@@ -954,21 +886,17 @@ public final class Instance {
 
         _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
-        //
-        // The default router/locator may have been set during the loading of plugins. Therefore we
-        // make sure it is not already set before checking the property.
-        //
+        // The default router/locator may have been set during the loading of plugins.
+        // Therefore we make sure it is not already set before checking the property.
         if (_referenceFactory.getDefaultRouter() == null) {
-            RouterPrx router =
-                RouterPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Router"));
+            RouterPrx router = RouterPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Router"));
             if (router != null) {
                 _referenceFactory = _referenceFactory.setDefaultRouter(router);
             }
         }
 
         if (_referenceFactory.getDefaultLocator() == null) {
-            LocatorPrx loc =
-                LocatorPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Locator"));
+            LocatorPrx loc = LocatorPrx.uncheckedCast(communicator.propertyToProxy("Ice.Default.Locator"));
             if (loc != null) {
                 _referenceFactory = _referenceFactory.setDefaultLocator(loc);
             }
@@ -977,39 +905,27 @@ public final class Instance {
         // SslEngine initialization
         _sslEngine.initialize();
 
-        //
         // Server thread pool initialization is lazy in serverThreadPool().
-        //
 
-        //
         // An application can set Ice.InitPlugins=0 if it wants to postpone
-        // initialization until after it has interacted directly with the
-        // plug-ins.
-        //
+        // initialization until after it has interacted directly with the plug-ins.
         if (properties.getIcePropertyAsInt("Ice.InitPlugins") > 0) {
             pluginManagerImpl.initializePlugins();
         }
 
-        //
         // This must be done last as this call creates the Ice.Admin object adapter
         // and eventually registers a process proxy with the Ice locator (allowing
         // remote clients to invoke on Ice.Admin facets as soon as it's registered).
-        //
         if (properties.getIcePropertyAsInt("Ice.Admin.DelayCreation") <= 0) {
             getAdmin();
         }
     }
 
-    //
     // Only for use by com.zeroc.Ice.Communicator
-    //
     void destroy(boolean interruptible) {
         synchronized (this) {
-            //
-            // If destroy is in progress, wait for it to be done. This
-            // is necessary in case destroy() is called concurrently
-            // by multiple threads.
-            //
+            // If destroy is in progress, wait for it to be done.
+            // This is necessary in case destroy() is called concurrently by multiple threads.
             while (_state == StateDestroyInProgress) {
                 try {
                     wait();
@@ -1027,10 +943,8 @@ public final class Instance {
         }
 
         try {
-            //
             // Shutdown and destroy all the incoming and outgoing Ice connections and wait for the
             // connections to be finished.
-            //
             if (_objectAdapterFactory != null) {
                 _objectAdapterFactory.shutdown();
             }
@@ -1060,11 +974,8 @@ public final class Instance {
                 ((LoggerAdminLogger) _initData.logger).destroy();
             }
 
-            //
             // Now, destroy the thread pools. This must be done *only* after all the connections are
-            // finished (the connections destruction can require invoking callbacks with the thread
-            // pools).
-            //
+            // finished (the connections destruction can require invoking callbacks with the thread pools).
             if (_serverThreadPool != null) {
                 _serverThreadPool.destroy();
             }
@@ -1078,9 +989,7 @@ public final class Instance {
                 _timer.shutdown(); // Don't use shutdownNow(), timers don't support interrupts
             }
 
-            //
             // Wait for all the threads to be finished.
-            //
             try {
                 if (_clientThreadPool != null) {
                     _clientThreadPool.joinWithAllThreads();
@@ -1103,10 +1012,8 @@ public final class Instance {
                 }
             }
 
-            //
             // NOTE: at this point destroy() can't be interrupted
             // anymore. The calls below are therefore guaranteed to be called once.
-            //
             if (_routerManager != null) {
                 _routerManager.destroy();
             }
@@ -1116,11 +1023,9 @@ public final class Instance {
             }
 
             if (_initData.properties.getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
-                List<String> unusedProperties =
-                    _initData.properties.getUnusedProperties();
+                List<String> unusedProperties = _initData.properties.getUnusedProperties();
                 if (!unusedProperties.isEmpty()) {
-                    StringBuilder message =
-                        new StringBuilder("The following properties were set but never read:");
+                    StringBuilder message = new StringBuilder("The following properties were set but never read:");
                     for (String p : unusedProperties) {
                         message.append("\n    ");
                         message.append(p);
@@ -1129,10 +1034,7 @@ public final class Instance {
                 }
             }
 
-            //
-            // Destroy last so that a Logger plugin can receive all log/traces before its
-            // destruction.
-            //
+            // Destroy last so that a Logger plugin can receive all log/traces before its destruction.
             if (_pluginManager != null) {
                 _pluginManager.destroy();
             }
@@ -1231,22 +1133,17 @@ public final class Instance {
 
         return new ConnectionOptions(
             properties.getPropertyAsIntWithDefault(
-                propertyPrefix + ".ConnectTimeout",
-                _serverConnectionOptions.connectTimeout()),
+                propertyPrefix + ".ConnectTimeout", _serverConnectionOptions.connectTimeout()),
             properties.getPropertyAsIntWithDefault(
                 propertyPrefix + ".CloseTimeout", _serverConnectionOptions.closeTimeout()),
             properties.getPropertyAsIntWithDefault(
                 propertyPrefix + ".IdleTimeout", _serverConnectionOptions.idleTimeout()),
             properties.getPropertyAsIntWithDefault(
-                propertyPrefix + ".EnableIdleCheck",
-                _serverConnectionOptions.enableIdleCheck() ? 1 : 0)
-                > 0,
+                propertyPrefix + ".EnableIdleCheck", _serverConnectionOptions.enableIdleCheck() ? 1 : 0) > 0,
             properties.getPropertyAsIntWithDefault(
-                propertyPrefix + ".InactivityTimeout",
-                _serverConnectionOptions.inactivityTimeout()),
+                propertyPrefix + ".InactivityTimeout", _serverConnectionOptions.inactivityTimeout()),
             properties.getPropertyAsIntWithDefault(
-                propertyPrefix + ".MaxDispatches",
-                _serverConnectionOptions.maxDispatches()));
+                propertyPrefix + ".MaxDispatches", _serverConnectionOptions.maxDispatches()));
     }
 
     private void updateConnectionObservers() {
@@ -1319,10 +1216,8 @@ public final class Instance {
         if (locator != null && !serverId.isEmpty()) {
             ProcessPrx process = ProcessPrx.uncheckedCast(admin.ice_facet("Process"));
             try {
-                //
                 // Note that as soon as the process proxy is registered, the communicator might be
                 // shutdown by a remote client and admin facets might start receiving calls.
-                //
                 locator.getRegistry().setServerProcessProxy(serverId, process);
             } catch (ServerNotFoundException ex) {
                 if (_traceLevels.location >= 1) {
@@ -1334,8 +1229,7 @@ public final class Instance {
                     _initData.logger.trace(_traceLevels.locationCat, s.toString());
                 }
 
-                throw new InitializationException(
-                    "Locator knows nothing about server `" + serverId + "'");
+                throw new InitializationException("Locator knows nothing about server `" + serverId + "'");
             } catch (LocalException ex) {
                 if (_traceLevels.location >= 1) {
                     StringBuilder s = new StringBuilder(128);
@@ -1372,8 +1266,7 @@ public final class Instance {
 
         proxyHost = properties.getIceProperty("Ice.HTTPProxyHost");
         if (!proxyHost.isEmpty()) {
-            return new HTTPNetworkProxy(
-                proxyHost, properties.getIcePropertyAsInt("Ice.HTTPProxyPort"));
+            return new HTTPNetworkProxy(proxyHost, properties.getIcePropertyAsInt("Ice.HTTPProxyPort"));
         }
 
         return null;

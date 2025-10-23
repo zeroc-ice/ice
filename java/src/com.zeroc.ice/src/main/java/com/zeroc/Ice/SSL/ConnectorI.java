@@ -8,15 +8,12 @@ import com.zeroc.Ice.Transceiver;
 final class ConnectorI implements Connector {
     @Override
     public Transceiver connect() {
-        SSLEngineFactory clientSSLEngineFactory =
-            _instance.initializationData().clientSSLEngineFactory;
+        SSLEngineFactory clientSSLEngineFactory = _instance.initializationData().clientSSLEngineFactory;
         if (clientSSLEngineFactory == null) {
             clientSSLEngineFactory =
-                (peerHost, peerPort) ->
-                    _instance.engine().createSSLEngine(false, peerHost, peerPort);
+                (peerHost, peerPort) -> _instance.engine().createSSLEngine(false, peerHost, peerPort);
         }
-        return new TransceiverI(
-            _instance, _delegate.connect(), _host, false, clientSSLEngineFactory);
+        return new TransceiverI(_instance, _delegate.connect(), _host, false, clientSSLEngineFactory);
     }
 
     @Override
@@ -34,9 +31,7 @@ final class ConnectorI implements Connector {
         return _delegate.hashCode();
     }
 
-    //
     // Only for use by EndpointI.
-    //
     ConnectorI(Instance instance, Connector delegate, String host) {
         _instance = instance;
         _delegate = delegate;

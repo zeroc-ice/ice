@@ -69,8 +69,7 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
     @Override
     public int read(Buffer buf) {
         if (_idleCheckEnabled) {
-            // We don't want the idle check to run while we're reading, so we reschedule it before
-            // reading.
+            // We don't want the idle check to run while we're reading, so we reschedule it before reading.
             rescheduleReadTimer();
         }
         return _decoratee.read(buf);
@@ -169,7 +168,6 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
     private void rescheduleWriteTimer() {
         cancelWriteTimer();
         _writeTimerFuture =
-            _scheduledExecutorService.schedule(
-                _sendHeartbeat, _idleTimeout * 1000 / 2, TimeUnit.MILLISECONDS);
+            _scheduledExecutorService.schedule(_sendHeartbeat, _idleTimeout * 1000 / 2, TimeUnit.MILLISECONDS);
     }
 }

@@ -33,12 +33,7 @@ final class Admin {
         initData.properties = new Properties(args, commands, Collections.singletonList("IceBoxAdmin"));
 
         try (Communicator communicator = Util.initialize(initData)) {
-            Runtime.getRuntime()
-                .addShutdownHook(
-                    new Thread(
-                        () -> {
-                            communicator.destroy();
-                        }));
+            Runtime.getRuntime().addShutdownHook(new Thread(communicator::destroy));
 
             status = run(communicator, commands);
         }
@@ -67,20 +62,16 @@ final class Admin {
             }
         }
 
-        ObjectPrx base =
-            communicator.propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
+        ObjectPrx base = communicator.propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
         if (base == null) {
-            System.err.println(
-                "IceBox.Admin: property 'IceBoxAdmin.ServiceManager.Proxy' is not set");
+            System.err.println("IceBox.Admin: property 'IceBoxAdmin.ServiceManager.Proxy' is not set");
             return 1;
         }
 
-        ServiceManagerPrx manager =
-            ServiceManagerPrx.checkedCast(base);
+        ServiceManagerPrx manager = ServiceManagerPrx.checkedCast(base);
         if (manager == null) {
-            System.err.println(
-                "IceBox.Admin: '" + base.toString() + "' is not an IceBox::ServiceManager");
+            System.err.println("IceBox.Admin: '" + base.toString() + "' is not an IceBox::ServiceManager");
             return 1;
         }
 

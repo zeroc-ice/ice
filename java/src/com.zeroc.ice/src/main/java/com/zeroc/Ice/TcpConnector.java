@@ -8,8 +8,7 @@ import java.util.Objects;
 final class TcpConnector implements Connector {
     @Override
     public Transceiver connect() {
-        return new TcpTransceiver(
-            _instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
+        return new TcpTransceiver(_instance, new StreamSocket(_instance, _proxy, _addr, _sourceAddr));
     }
 
     @Override

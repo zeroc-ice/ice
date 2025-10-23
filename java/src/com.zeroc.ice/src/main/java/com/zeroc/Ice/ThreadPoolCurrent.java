@@ -3,8 +3,7 @@
 package com.zeroc.Ice;
 
 final class ThreadPoolCurrent {
-    ThreadPoolCurrent(
-            Instance instance, ThreadPool threadPool, ThreadPool.EventHandlerThread thread) {
+    ThreadPoolCurrent(Instance instance, ThreadPool threadPool, ThreadPool.EventHandlerThread thread) {
         operation = SocketOperation.None;
         stream = new InputStream(instance, Protocol.currentProtocolEncoding, instance.cacheMessageBuffers() > 1);
         _threadPool = threadPool;
