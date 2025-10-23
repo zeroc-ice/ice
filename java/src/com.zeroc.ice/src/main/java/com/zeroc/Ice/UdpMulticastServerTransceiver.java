@@ -324,16 +324,6 @@ final class UdpMulticastServerTransceiver implements Transceiver {
         }
     }
 
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_socket == null);
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
-    }
-
     private void runReadThread() {
         try {
             DatagramPacket p = null;

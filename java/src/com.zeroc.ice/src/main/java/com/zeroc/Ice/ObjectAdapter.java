@@ -1113,8 +1113,6 @@ public final class ObjectAdapter {
             Properties.validatePropertiesWithPrefix(
                 _name, properties, PropertyNames.ObjectAdapterProps);
         } catch (PropertyException ex) {
-            // Prevent finalizer from complaining about the adapter not being destroyed.
-            _state = StateDestroyed;
             throw ex;
         }
 
@@ -1122,9 +1120,6 @@ public final class ObjectAdapter {
         // Make sure named adapter has some configuration.
         //
         if (router == null && properties.getPropertiesForPrefix(_name).isEmpty()) {
-            // Prevent finalizer from complaining about the adapter not being destroyed.
-            _state = StateDestroyed;
-
             throw new InitializationException(
                 "Object adapter '" + _name + "' requires configuration.");
         }
@@ -1140,8 +1135,6 @@ public final class ObjectAdapter {
         try {
             _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
         } catch (ParseException ex) {
-            // Prevent finalizer from complaining about the adapter not being destroyed.
-            _state = StateDestroyed;
             throw new InitializationException(
                 "invalid proxy options '"
                     + proxyOptions
@@ -1260,32 +1253,6 @@ public final class ObjectAdapter {
      */
     public SSLEngineFactory getSSLEngineFactory() {
         return _sslEngineFactory;
-    }
-
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            if (_state < StateDeactivated) {
-                _instance
-                    .initializationData()
-                    .logger
-                    .warning("object adapter `" + getName() + "' has not been deactivated");
-            } else if (_state != StateDestroyed) {
-                _instance
-                    .initializationData()
-                    .logger
-                    .warning("object adapter `" + getName() + "' has not been destroyed");
-            } else {
-                Assert.FinalizerAssert(_threadPool == null);
-                // Not cleared, it needs to be immutable.
-                // Assert.FinalizerAssert(_servantManager == null);
-                // Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
-                Assert.FinalizerAssert(_directCount == 0);
-            }
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
     }
 
     private ObjectPrx newProxy(Identity ident, String facet) {
