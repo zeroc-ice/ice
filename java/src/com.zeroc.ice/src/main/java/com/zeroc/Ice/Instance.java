@@ -503,9 +503,17 @@ public final class Instance {
         _referenceFactory = _referenceFactory.setDefaultRouter(router);
     }
 
-    public void setLogger(Logger logger) {
-        // No locking, as it can only be called during plug-in loading
+    void setLogger(Logger logger) {
+        // Only called by the LoggerPlugin constructor, so no need to lock.
+        if (_ownLogger) {
+            try {
+                _initData.logger.close();
+            } catch (Exception ex) {
+                // Ignore exceptions on close
+            }
+        }
         _initData.logger = logger;
+        _ownLogger = true;
     }
 
     public void setThreadHooks(Runnable threadStart, Runnable threadStop) {
@@ -836,7 +844,8 @@ public final class Instance {
             String loggerFacetName = "Logger";
             if (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains(loggerFacetName)) {
                 LoggerAdminLogger logger = new LoggerAdminLoggerI(properties, _initData.logger);
-                setLogger(logger);
+                // Decorate the existing logger, and don't change _ownLogger.
+                _initData.logger = logger;
                 _adminFacets.put(loggerFacetName, logger.getFacet());
             }
 
@@ -970,8 +979,9 @@ public final class Instance {
             }
 
             if (_initData.logger instanceof LoggerAdminLogger) {
-                // This only disables the remote logging; we don't set or reset _initData.logger
-                ((LoggerAdminLogger) _initData.logger).destroy();
+                // This only disables the remote logging; we don't set or reset _initData.logger, and we keep logging
+                // to the underlying logger.
+                ((LoggerAdminLogger) _initData.logger).detach();
             }
 
             // Now, destroy the thread pools. This must be done *only* after all the connections are
@@ -1039,14 +1049,12 @@ public final class Instance {
                 _pluginManager.destroy();
             }
 
-            if (_initData.logger instanceof FileLoggerI) {
-                FileLoggerI logger = (FileLoggerI) _initData.logger;
-                logger.destroy();
-            }
-
-            if (_initData.logger instanceof SysLoggerI) {
-                SysLoggerI logger = (SysLoggerI) _initData.logger;
-                logger.destroy();
+            if (_ownLogger) {
+                try {
+                    _initData.logger.close();
+                } catch (Exception ex) {
+                    // Ignore exceptions on close
+                }
             }
 
             synchronized (this) {
@@ -1289,6 +1297,7 @@ public final class Instance {
     private int _state;
 
     private InitializationData _initData; // Immutable, not reset by destroy().
+    private boolean _ownLogger;
     private TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private int _messageSizeMax; // Immutable, not reset by destroy().

@@ -57,7 +57,8 @@ final class SysLoggerI implements Logger {
         return new SysLoggerI(prefix, _facility, _host, _port);
     }
 
-    void destroy() {
+    @Override
+    public void close() {
         _socket.close();
     }
 

@@ -29,7 +29,7 @@ public final class Communicator implements AutoCloseable {
     private final Instance _instance;
 
     /**
-     * Destroy the communicator.
+     * Destroys the communicator.
      * This Java-only method overrides close in java.lang.AutoCloseable and does not throw any exception.
      *
      * @see #destroy
