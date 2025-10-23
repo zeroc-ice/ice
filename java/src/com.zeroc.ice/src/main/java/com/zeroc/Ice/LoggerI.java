@@ -96,7 +96,7 @@ class LoggerI implements Logger {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         // No resources to close in this implementation.
     }
 
