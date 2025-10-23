@@ -87,11 +87,6 @@ class Communicator:
             provided, the event loop adapter can be set using the :attr:`InitializationData.eventLoopAdapter` attribute.
         initData : InitializationData, optional
             Options for the new communicator. This argument and the `args` argument are mutually exclusive.
-
-        Returns
-        -------
-        Communicator
-            The new communicator.
         """
         eventLoopAdapter = None
         if initData:
