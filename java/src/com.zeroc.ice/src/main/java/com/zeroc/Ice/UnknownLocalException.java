@@ -11,7 +11,7 @@ public final class UnknownLocalException extends UnknownException {
      *
      * @param message the detail message
      */
-    public UnknownLocalException(String message) {
+    public UnknownLocalException(   String message) {
         super(ReplyStatus.UnknownLocalException, message);
     }
 
