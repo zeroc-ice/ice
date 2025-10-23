@@ -137,6 +137,23 @@ namespace
     // Helper functions
     //
 
+    LoggerPtr unwrapLocalLogger(const LoggerPtr& localLogger)
+    {
+        // There is currently no way to have a null local logger
+        assert(localLogger);
+
+        auto wrapper = dynamic_pointer_cast<LoggerAdminLoggerI>(localLogger);
+        if (wrapper)
+        {
+            // use the underlying local logger
+            return wrapper->getLocalLogger();
+        }
+        else
+        {
+            return localLogger;
+        }
+    }
+
     //
     // Filter out messages from in/out logMessages list
     //
@@ -556,18 +573,9 @@ namespace
     //
 
     LoggerAdminLoggerI::LoggerAdminLoggerI(const PropertiesPtr& props, const LoggerPtr& localLogger)
-        : _localLogger(localLogger),
+        : _localLogger(unwrapLocalLogger(localLogger)),
           _loggerAdmin(new LoggerAdminI(props))
     {
-        // There is currently no way to have a null local logger
-        assert(localLogger);
-
-        auto wrapper = dynamic_pointer_cast<LoggerAdminLoggerI>(localLogger);
-        if (wrapper)
-        {
-            // use the underlying local logger
-            const_cast<LoggerPtr&>(_localLogger) = wrapper->getLocalLogger();
-        }
     }
 
     void LoggerAdminLoggerI::print(const string& message)
