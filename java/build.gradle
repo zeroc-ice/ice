@@ -3,7 +3,7 @@
 plugins {
     id 'com.zeroc.slice-tools' apply false
     id 'checkstyle'
-    id 'org.openrewrite.rewrite' version '7.7.0'
+    id 'org.openrewrite.rewrite' version '7.19.0'
 }
 
 allprojects {
@@ -131,8 +131,8 @@ rewrite {
 
 dependencies {
     rewrite(
-        "org.openrewrite.recipe:rewrite-static-analysis:2.5.1",
-        "org.openrewrite.recipe:rewrite-java-dependencies:1.31.0"
+        "org.openrewrite.recipe:rewrite-static-analysis:2.19.0",
+        "org.openrewrite.recipe:rewrite-java-dependencies:1.43.0"
     )
 }
 
