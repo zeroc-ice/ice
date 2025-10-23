@@ -11,8 +11,7 @@ import java.util.concurrent.CompletionStage;
 
 final class CollocatedRequestHandler implements RequestHandler {
     private class InvokeAllAsync extends RunnableThreadPoolWorkItem {
-        private InvokeAllAsync(
-                OutgoingAsyncBase outAsync, OutputStream os, int requestId, int batchRequestNum) {
+        private InvokeAllAsync(OutgoingAsyncBase outAsync, OutputStream os, int requestId, int batchRequestNum) {
             _outAsync = outAsync;
             _os = os;
             _requestId = requestId;
@@ -38,11 +37,7 @@ final class CollocatedRequestHandler implements RequestHandler {
         _adapter = adapter;
         _response = _reference.isTwoway();
 
-        _logger =
-            _reference
-                .getInstance()
-                .initializationData()
-                .logger; // Cached for better performance.
+        _logger = _reference.getInstance().initializationData().logger; // Cached for better performance.
         _traceLevels = _reference.getInstance().traceLevels(); // Cached for better performance.
         _requestId = 0;
     }
@@ -85,10 +80,8 @@ final class CollocatedRequestHandler implements RequestHandler {
     }
 
     int invokeAsyncRequest(OutgoingAsyncBase outAsync, int batchRequestNum, boolean sync) {
-        //
         // Increase the direct count to prevent the thread pool from being destroyed before
         // dispatchAll is called. This will also throw if the object adapter has been deactivated.
-        //
         _adapter.incDirectCount();
 
         int requestId = 0;
@@ -106,18 +99,12 @@ final class CollocatedRequestHandler implements RequestHandler {
 
             outAsync.attachCollocatedObserver(_adapter, requestId);
 
-            if (!sync
-                || !_response
-                || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
-                _adapter.getThreadPool()
-                    .dispatch(
-                        new InvokeAllAsync(
-                            outAsync, outAsync.getOs(), requestId, batchRequestNum));
+            if (!sync || !_response || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+                var work = new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum);
+                _adapter.getThreadPool().dispatch(work);
             } else if (_executor) {
-                _adapter.getThreadPool()
-                    .executeFromThisThread(
-                        new InvokeAllAsync(
-                            outAsync, outAsync.getOs(), requestId, batchRequestNum));
+                var work = new InvokeAllAsync(outAsync, outAsync.getOs(), requestId, batchRequestNum);
+                _adapter.getThreadPool().executeFromThisThread(work);
             } else {
                 // Optimization: directly call dispatchAll if there's no executor.
                 if (sentAsync(outAsync)) {
@@ -138,10 +125,8 @@ final class CollocatedRequestHandler implements RequestHandler {
                 return false; // The request timed-out.
             }
 
-            //
             // This must be called within the synchronization to ensure completed(ex) can't be
             // called concurrently if the request is canceled.
-            //
             if (!outAsync.sent()) {
                 return true;
             }
@@ -178,11 +163,9 @@ final class CollocatedRequestHandler implements RequestHandler {
 
         try {
             while (dispatchCount > 0) {
-                //
                 // Increase the direct count for the dispatch. We increase it again here for each
                 // dispatch. It's important for the direct count to be > 0 until the last collocated
                 // request response is sent to make sure the thread pool isn't destroyed before.
-                //
                 try {
                     _adapter.incDirectCount();
                 } catch (ObjectAdapterDestroyedException ex) {
@@ -202,10 +185,7 @@ final class CollocatedRequestHandler implements RequestHandler {
                     response.whenComplete(
                         (result, exception) -> {
                             if (exception != null) {
-                                sendResponse(
-                                    request.current.createOutgoingResponse(exception),
-                                    requestId,
-                                    true);
+                                sendResponse(request.current.createOutgoingResponse(exception), requestId, true);
                             } else {
                                 sendResponse(result, requestId, true);
                             }
@@ -219,8 +199,8 @@ final class CollocatedRequestHandler implements RequestHandler {
         } catch (LocalException ex) {
             dispatchException(ex, requestId, false); // Fatal dispatch exception
         } catch (RuntimeException | Error ex) {
-            // A runtime exception or an error was thrown outside of servant code (i.e., by Ice
-            // code). Note that this code does NOT send a response to the client.
+            // A runtime exception or an error was thrown outside of servant code (i.e., by Ice code).
+            // Note that this code does NOT send a response to the client.
             var uex = new UnknownException(ex);
             var sw = new StringWriter();
             var pw = new PrintWriter(sw);
@@ -245,12 +225,11 @@ final class CollocatedRequestHandler implements RequestHandler {
                 }
 
                 // Adopt the OutputStream's buffer.
-                var inputStream =
-                    new InputStream(
-                        _reference.getInstance(),
-                        outputStream.getEncoding(),
-                        outputStream.getBuffer(),
-                        true); // adopt: true
+                var inputStream = new InputStream(
+                    _reference.getInstance(),
+                    outputStream.getEncoding(),
+                    outputStream.getBuffer(),
+                    true); // adopt: true
 
                 inputStream.pos(Protocol.replyHdr.length + 4);
 
@@ -265,10 +244,8 @@ final class CollocatedRequestHandler implements RequestHandler {
             }
 
             if (outAsync != null) {
-                //
                 // If called from an AMD dispatch, invoke asynchronously the completion callback
                 // since this might be called from the user code.
-                //
                 if (amd) {
                     outAsync.invokeCompletedAsync();
                 } else {
@@ -298,10 +275,8 @@ final class CollocatedRequestHandler implements RequestHandler {
         }
 
         if (outAsync != null) {
-            //
             // If called from an AMD dispatch, invoke asynchronously the completion callback since
             // this might be called from the user code.
-            //
             if (amd) {
                 outAsync.invokeCompletedAsync();
             } else {
@@ -324,11 +299,8 @@ final class CollocatedRequestHandler implements RequestHandler {
     private int _requestId;
 
     // A map of outstanding requests that can be canceled. A request can be canceled if it has an
-    // invocation timeout, or we support
-    // interrupts.
-    private final Map<OutgoingAsyncBase, Integer> _sendAsyncRequests =
-        new HashMap<>();
+    // invocation timeout, or we support interrupts.
+    private final Map<OutgoingAsyncBase, Integer> _sendAsyncRequests = new HashMap<>();
 
-    private final Map<Integer, OutgoingAsyncBase> _asyncRequests =
-        new HashMap<>();
+    private final Map<Integer, OutgoingAsyncBase> _asyncRequests = new HashMap<>();
 }

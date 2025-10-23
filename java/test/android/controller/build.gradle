@@ -8,7 +8,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.11.0'
+        classpath 'com.android.tools.build:gradle:8.13.0'
     }
 }
 
@@ -39,12 +39,12 @@ repositories {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId "com.zeroc.testcontroller"
-        minSdkVersion = 34 // SDK 34 required for Java 17 compatibility
-        targetSdkVersion = 34
+        minSdkVersion 34 // SDK 34 required for Java 17 compatibility
+        targetSdkVersion 36
         multiDexEnabled = true // Necessary otherwise we'd exceed the 64K DEX limit.
         compileOptions {
             // Sets Java compatibility to Java 17
@@ -79,13 +79,16 @@ android {
     }
 }
 
-task copyCertificatesTask(type: Copy) {
+def copyCertificates = tasks.register('copyCertificates', Copy) {
     from "${rootProject.projectDir}/../../../../certs/common/ca/ca.p12"
     from "${rootProject.projectDir}/../../../../certs/common/ca/client.p12"
     from "${rootProject.projectDir}/../../../../certs/common/ca/server.p12"
     into "src/main/res/raw"
 }
-preBuild.dependsOn(copyCertificatesTask)
+
+tasks.named('preBuild').configure {
+    dependsOn(copyCertificates)
+}
 
 clean {
     delete("src/main/res/raw/ca.p12")

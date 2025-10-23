@@ -415,7 +415,7 @@ public final class ObjectAdapter {
      *     creates its dispatch pipeline. A middleware factory is a function that takes an Object (the next element
      *     in the dispatch pipeline) and returns a new Object (the middleware you want to install in the pipeline).
      * @return This object adapter.
-     * @throws IllegalStateException Thrown if the object adapter's dispatch pipeline has already
+     * @throws IllegalStateException Thrown when the object adapter's dispatch pipeline has already
      *     been created. This creation typically occurs the first time the object adapter dispatches
      *     an incoming request.
      */

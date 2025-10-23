@@ -2327,6 +2327,9 @@ class RemoteProcessController(ProcessController):
     def __str__(self):
         return "remote controller"
 
+    def setup(self, current):
+        pass
+
     def getHost(self, current):
         return self.getController(current).getHost(current.config.protocol, current.config.ipv6)
 
@@ -2367,20 +2370,22 @@ class RemoteProcessController(ProcessController):
                 self.controllerApps.append(ident)
                 self.startControllerApp(current, ident)
 
-        # First check to see if the controller has a direct endpoint
+        # Perform any setup required before connecting to the process controller
+        self.setup(current)
+
+        # If the process controller has specific endpoints, use them to create the proxy.
         controllerEndpoints = self.getControllerEndpoints(current)
 
         if controllerEndpoints is not None:
             proxy = Test.Common.ProcessControllerPrx(comm, f"{comm.identityToString(ident)}:{controllerEndpoints}")
+
         else:
             # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
             proxy = Test.Common.ProcessControllerPrx(comm, comm.identityToString(ident))
 
-        #
         # First try to discover the process controller with IceDiscovery, if this doesn't
         # work we'll wait for 10s for the process controller to register with the registry.
         # If the wait times out, we retry again.
-        #
         def callback(future):
             try:
                 future.result()
@@ -2391,17 +2396,22 @@ class RemoteProcessController(ProcessController):
             except Exception:
                 pass
 
+        sys.stdout.write("connecting to remote controller '{0}'... ".format(proxy))
+        sys.stdout.flush()
         nRetry = 0
         while nRetry < 120:
             nRetry += 1
 
-            if self.supportsDiscovery():
+            # If the process controller supports discovery or if we have a direct endpoint to it, try to
+            # ping it. This can take a few tries as the controller app might still be starting.
+            if self.supportsDiscovery() or controllerEndpoints is not None:
                 proxy.ice_pingAsync().add_done_callback(callback)
 
             with self.cond:
                 if ident not in self.processControllerProxies:
                     self.cond.wait(5)
                 if ident in self.processControllerProxies:
+                    print("ok")
                     return self.processControllerProxies[ident]
 
             # If the controller isn't up after a while, we restart it. With the iOS simulator,
@@ -2503,6 +2513,11 @@ class AndroidProcessController(RemoteProcessController):
     def __str__(self):
         return "Android"
 
+    def setup(self, current):
+        if self.forwardPort:
+            print(f"forwarding port {self.forwardPort} to the controller app")
+            run(f"{self.adb()} forward tcp:{self.forwardPort} tcp:{self.forwardPort}")
+
     def supportsDiscovery(self):
         return self.device is not None  # Discovery is only used with devices
 
@@ -2540,7 +2555,6 @@ class AndroidProcessController(RemoteProcessController):
         if port == -1:
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
-        self.device = "emulator-{}".format(port)
         cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
             avd, port
         )
@@ -2568,10 +2582,6 @@ class AndroidProcessController(RemoteProcessController):
         else:
             # This runs if the while loop completes without breaking
             raise RuntimeError(f"emulator '{avd}' not booted after 300s")
-
-        assert self.forwardPort, "forwardPort must be set for emulator configuration"
-        print(f"forwarding port {self.forwardPort} to the controller app")
-        run(f"{self.adb()} forward tcp:{self.forwardPort} tcp:{self.forwardPort}")
 
     def startControllerApp(self, current, ident):
         if current.config.avd:
@@ -2811,8 +2821,8 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
-        run('xcrun simctl launch "{0}" {1}'.format(self.device, ident.name))
-        print("ok")
+        subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=300)
+        # No "ok" as the command prints its own output
 
     def restartControllerApp(self, current, ident):
         # We reboot the simulator if the controller fails to start. Terminating the controller app

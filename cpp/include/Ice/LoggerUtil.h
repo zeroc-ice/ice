@@ -147,13 +147,13 @@ namespace Ice
     public:
         /// Constructs the plug-in with a target communicator and a logger.
         /// @param communicator The communicator in which to install the logger.
-        /// @param logger The logger to be installed.
+        /// @param logger The logger to install.
         LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger);
 
-        /// This method is a no-op.
+        /// This method is no-op.
         void initialize() override;
 
-        /// This method is a no-op.
+        /// This method is no-op.
         void destroy() override;
     };
 }

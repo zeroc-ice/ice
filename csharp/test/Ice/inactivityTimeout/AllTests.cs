@@ -59,7 +59,10 @@ internal class AllTests : global::Test.AllTests
         // Create a new communicator with the desired properties.
         properties = properties.Clone();
         properties.setProperty("Ice.Connection.Client.InactivityTimeout", "5");
-        Communicator communicator = Util.initialize(new InitializationData { properties = properties });
+        // Switch to a separate log file
+        global::Test.TestHelper.updateLogFileProperty(properties, "-inactivityTimeout=5s");
+
+        await using Communicator communicator = Util.initialize(new InitializationData { properties = properties });
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
 
         await p.ice_pingAsync();

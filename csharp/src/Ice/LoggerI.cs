@@ -48,6 +48,8 @@ internal abstract class LoggerI : Logger
 
     public abstract Logger cloneWithPrefix(string prefix);
 
+    public abstract void Dispose();
+
     protected abstract void write(string message);
 
     internal LoggerI(string prefix)
@@ -90,6 +92,11 @@ internal sealed class ConsoleLoggerI : LoggerI
 {
     public override Logger cloneWithPrefix(string prefix) => new ConsoleLoggerI(prefix);
 
+    public override void Dispose()
+    {
+        // Nothing to do.
+    }
+
     protected override void write(string message) => System.Console.Error.WriteLine(message);
 
     internal ConsoleLoggerI(string prefix)
@@ -100,13 +107,11 @@ internal sealed class ConsoleLoggerI : LoggerI
     }
 }
 
-#pragma warning disable CA1001 // _writer is disposed by destroy.
 internal sealed class FileLoggerI : LoggerI
-#pragma warning restore CA1001
 {
     public override Logger cloneWithPrefix(string prefix) => new FileLoggerI(prefix, _file);
 
-    public void destroy()
+    public override void Dispose()
     {
         _writer.Close();
         _writer.Dispose();
@@ -194,6 +199,14 @@ internal sealed class TraceLoggerI : LoggerI
     }
 
     public override Logger cloneWithPrefix(string prefix) => new TraceLoggerI(prefix, _console);
+
+    public override void Dispose()
+    {
+        if (_console && Trace.Listeners.Contains(_consoleListener))
+        {
+            Trace.Listeners.Remove(_consoleListener);
+        }
+    }
 
     protected override void write(string message)
     {

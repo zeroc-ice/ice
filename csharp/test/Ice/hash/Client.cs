@@ -29,7 +29,7 @@ public class Client : Test.TestHelper
                     endpointCollisions < maxCollisions &&
                     i < maxIterations; ++i)
             {
-                var sw = new System.IO.StringWriter();
+                using var sw = new System.IO.StringWriter();
                 sw.Write(i);
                 sw.Write(":tcp -p ");
                 sw.Write(rand.Next(65536));
@@ -88,7 +88,7 @@ public class Client : Test.TestHelper
                 seenProxy = new Dictionary<int, Ice.ObjectPrx>();
                 for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
                 {
-                    var sw = new System.IO.StringWriter();
+                    using var sw = new System.IO.StringWriter();
                     sw.Write(i);
                     sw.Write(":tcp -p ");
                     sw.Write(rand.Next(65536));
@@ -125,7 +125,7 @@ public class Client : Test.TestHelper
             seenProxy = new Dictionary<int, Ice.ObjectPrx>();
             for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
             {
-                var sw = new System.IO.StringWriter();
+                using var sw = new System.IO.StringWriter();
                 sw.Write(i);
                 sw.Write(" -f demo:tcp -p ");
                 sw.Write(rand.Next(65536));

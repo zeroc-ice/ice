@@ -1,54 +1,36 @@
 // Copyright (c) ZeroC, Inc.
 
+#nullable enable
+
 namespace Ice;
 
 /// <summary>
-/// Class to support custom loggers. Applications using a custom logger
-/// instantiate a LoggerPlugin with a custom logger and
-/// return the instance from their PluginFactory implementation.
+/// A special plug-in that installs a logger during a communicator's initialization.
+/// Both initialize and destroy are no-op. See Ice::InitializationData.
 /// </summary>
 public class LoggerPlugin : Plugin
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="LoggerPlugin" /> class. This constructor installs a custom
-    /// logger to the given communicator.
+    /// Initializes a new instance of the <see cref="LoggerPlugin" /> class. This constructor installs a custom logger
+    /// in <paramref name="communicator" />. The communicator takes ownership of <paramref name="logger" /> and is
+    /// responsible for disposing it when the communicator is destroyed.
     /// </summary>
-    /// <param name="communicator">The communicator using the custom logger.</param>
-    /// <param name="logger">The custom logger for the communicator.</param>
+    /// <param name="communicator">The communicator in which to install the logger.</param>
+    /// <param name="logger">The logger to install.</param>
     public
-    LoggerPlugin(Communicator communicator, Logger logger)
-    {
-        if (communicator == null)
-        {
-            throw new PluginInitializationException("Communicator cannot be null.");
-        }
-
-        if (logger == null)
-        {
-            throw new PluginInitializationException("Logger cannot be null.");
-        }
-
-        Ice.Internal.Instance instance = communicator.instance;
-        instance.setLogger(logger);
-    }
+    LoggerPlugin(Communicator communicator, Logger logger) => communicator.instance.setLogger(logger);
 
     /// <summary>
-    /// Called by the Ice run time during communicator initialization. The derived class
-    /// can override this method to perform any initialization that might be required
-    /// by a custom logger.
+    /// This method is no-op.
     /// </summary>
-    public void
-    initialize()
+    public void initialize()
     {
     }
 
     /// <summary>
-    /// Called by the Ice run time when the communicator is destroyed. The derived class
-    /// can override this method to perform any finalization that might be required
-    /// by a custom logger.
+    /// This method is no-op.
     /// </summary>
-    public void
-    destroy()
+    public void destroy()
     {
     }
 }

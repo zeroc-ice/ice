@@ -32,6 +32,8 @@ subprojects {
         // --release is set through options.compileArgs (see above).
         sourceCompatibility = "1.${targetJavaRelease}"
         targetCompatibility = "1.${targetJavaRelease}"
+        withSourcesJar()
+        withJavadocJar()
     }
 
     jar {

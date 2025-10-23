@@ -255,6 +255,26 @@ Test::TestHelper::getTestPort(const Ice::PropertiesPtr& properties, int num)
     return properties->getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
 }
 
+void
+Test::TestHelper::updateLogFileProperty(const Ice::PropertiesPtr& properties, const string& suffix)
+{
+    string logFile = properties->getIceProperty("Ice.LogFile");
+    if (!logFile.empty())
+    {
+        size_t pos = logFile.find_last_of('.');
+        string newLogFile;
+        if (pos == string::npos)
+        {
+            newLogFile = logFile + suffix;
+        }
+        else
+        {
+            newLogFile = logFile.substr(0, pos) + suffix + logFile.substr(pos);
+        }
+        properties->setProperty("Ice.LogFile", newLogFile);
+    }
+}
+
 Ice::PropertiesPtr
 Test::TestHelper::createTestProperties(int& argc, char* argv[], const Ice::PropertiesPtr& defaults)
 {

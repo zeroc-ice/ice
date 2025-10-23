@@ -265,10 +265,10 @@ public class PlatformTests
         Console.Out.Write("server hot certificate reload... ");
         Console.Out.Flush();
 
-        var trustedRootCertificatesCA1 = new X509Certificate2(Path.Combine(certificatesPath, "ca1/ca1_cert.pem"));
-        var trustedRootCertificatesCA2 = new X509Certificate2(Path.Combine(certificatesPath, "ca2/ca2_cert.pem"));
+        using var trustedRootCertificatesCA1 = new X509Certificate2(Path.Combine(certificatesPath, "ca1/ca1_cert.pem"));
+        using var trustedRootCertificatesCA2 = new X509Certificate2(Path.Combine(certificatesPath, "ca2/ca2_cert.pem"));
 
-        var serverState = new ServerState(Path.Combine(certificatesPath, "ca1/server.p12"));
+        using var serverState = new ServerState(Path.Combine(certificatesPath, "ca1/server.p12"));
 
         var serverOptions = new SslServerAuthenticationOptions
         {
