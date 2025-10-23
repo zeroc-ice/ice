@@ -193,7 +193,7 @@ public class ControllerApp extends Application {
                 initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
             }
 
-            _communicator = new Communicator(initData);
+            _communicator = new com.zeroc.Ice.Communicator(initData);
             com.zeroc.Ice.ObjectAdapter adapter =
                     _communicator.createObjectAdapter("ControllerAdapter");
             ProcessControllerPrx processController =
