@@ -105,7 +105,7 @@ public final class Util {
      * constructor directly.
      *
      * @param args the command-line arguments
-     * @param remainingArgs if non-null,the remaining command-line arguments after parsing Ice properties
+     * @param remainingArgs if non-null, the remaining command-line arguments after parsing Ice properties
      * @return the new communicator
      */
     public static Communicator initialize(String[] args, List<String> remainingArgs) {
