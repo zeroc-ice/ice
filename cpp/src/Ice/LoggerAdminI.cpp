@@ -10,6 +10,7 @@
 #include "Ice/ProxyFunctions.h"
 #include "Ice/RemoteLogger.h"
 
+#include <atomic>
 #include <deque>
 #include <set>
 
@@ -111,7 +112,7 @@ namespace
         LoggerPtr cloneWithPrefix(std::string) final;
 
         [[nodiscard]] ObjectPtr getFacet() const override;
-        void destroy() final;
+        void detach() final;
 
         [[nodiscard]] const LoggerPtr& getLocalLogger() const { return _localLogger; }
 
@@ -120,13 +121,13 @@ namespace
     private:
         void log(const LogMessage&);
 
-        LoggerPtr _localLogger;
+        const LoggerPtr _localLogger;
         const LoggerAdminIPtr _loggerAdmin;
 
         std::mutex _mutex;
         std::condition_variable _conditionVariable;
 
-        bool _destroyed{false};
+        std::atomic<bool> _detached{false};
         std::thread _sendLogThread;
         std::deque<JobPtr> _jobQueue;
     };
@@ -135,6 +136,23 @@ namespace
     //
     // Helper functions
     //
+
+    LoggerPtr unwrapLocalLogger(const LoggerPtr& localLogger)
+    {
+        // There is currently no way to have a null local logger
+        assert(localLogger);
+
+        auto wrapper = dynamic_pointer_cast<LoggerAdminLoggerI>(localLogger);
+        if (wrapper)
+        {
+            // use the underlying local logger
+            return wrapper->getLocalLogger();
+        }
+        else
+        {
+            return localLogger;
+        }
+    }
 
     //
     // Filter out messages from in/out logMessages list
@@ -555,72 +573,69 @@ namespace
     //
 
     LoggerAdminLoggerI::LoggerAdminLoggerI(const PropertiesPtr& props, const LoggerPtr& localLogger)
-        : _loggerAdmin(new LoggerAdminI(props))
-
+        : _localLogger(unwrapLocalLogger(localLogger)),
+          _loggerAdmin(new LoggerAdminI(props))
     {
-        //
-        // There is currently no way to have a null local logger
-        //
-        assert(localLogger);
-
-        auto wrapper = dynamic_pointer_cast<LoggerAdminLoggerI>(localLogger);
-        if (wrapper)
-        {
-            // use the underlying local logger
-            _localLogger = wrapper->getLocalLogger();
-        }
-        else
-        {
-            _localLogger = localLogger;
-        }
     }
 
     void LoggerAdminLoggerI::print(const string& message)
     {
-        LogMessage logMessage = {
-            LogMessageType::PrintMessage,
-            chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
-            "",
-            message};
-
         _localLogger->print(message);
-        log(logMessage);
+
+        if (!_detached.load())
+        {
+            LogMessage logMessage = {
+                LogMessageType::PrintMessage,
+                chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+                "",
+                message};
+            log(logMessage);
+        }
     }
 
     void LoggerAdminLoggerI::trace(const string& category, const string& message)
     {
-        LogMessage logMessage = {
-            LogMessageType::TraceMessage,
-            chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
-            category,
-            message};
-
         _localLogger->trace(category, message);
-        log(logMessage);
+
+        if (!_detached.load())
+        {
+            LogMessage logMessage = {
+                LogMessageType::TraceMessage,
+                chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+                category,
+                message};
+            log(logMessage);
+        }
     }
 
     void LoggerAdminLoggerI::warning(const string& message)
     {
-        LogMessage logMessage = {
-            LogMessageType::WarningMessage,
-            chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
-            "",
-            message};
-
         _localLogger->warning(message);
-        log(logMessage);
+
+        if (!_detached.load())
+        {
+            LogMessage logMessage = {
+                LogMessageType::WarningMessage,
+                chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+                "",
+                message};
+            log(logMessage);
+        }
     }
 
     void LoggerAdminLoggerI::error(const string& message)
     {
-        LogMessage logMessage = {
-            LogMessageType::ErrorMessage,
-            chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
-            "",
-            message};
-
         _localLogger->error(message);
-        log(logMessage);
+
+        if (!_detached.load())
+        {
+            LogMessage logMessage = {
+                LogMessageType::ErrorMessage,
+                chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+                "",
+                message};
+            log(logMessage);
+        }
     }
 
     string LoggerAdminLoggerI::getPrefix() { return _localLogger->getPrefix(); }
@@ -650,7 +665,7 @@ namespace
         }
     }
 
-    void LoggerAdminLoggerI::destroy()
+    void LoggerAdminLoggerI::detach()
     {
         std::thread sendLogThread;
         {
@@ -659,7 +674,7 @@ namespace
             if (_sendLogThread.joinable())
             {
                 sendLogThread = std::move(_sendLogThread);
-                _destroyed = true;
+                _detached.store(true);
                 _conditionVariable.notify_all();
             }
         }
@@ -684,11 +699,11 @@ namespace
         for (;;)
         {
             unique_lock lock(_mutex);
-            _conditionVariable.wait(lock, [this] { return _destroyed || !_jobQueue.empty(); });
+            _conditionVariable.wait(lock, [this] { return _detached.load() || !_jobQueue.empty(); });
 
-            if (_destroyed)
+            if (_detached.load())
             {
-                break; // for(;;)
+                break;
             }
 
             assert(!_jobQueue.empty());

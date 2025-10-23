@@ -204,20 +204,6 @@ final class OutgoingConnectionFactory {
         _destroyed = false;
     }
 
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_destroyed);
-            Assert.FinalizerAssert(_connections.isEmpty());
-            Assert.FinalizerAssert(_connectionsByEndpoint.isEmpty());
-            Assert.FinalizerAssert(_pendingConnectCount == 0);
-            Assert.FinalizerAssert(_pending.isEmpty());
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
-    }
-
     private synchronized ConnectionI findConnectionByEndpoint(List<EndpointI> endpoints, Holder<Boolean> compress) {
         if (_destroyed) {
             throw new CommunicatorDestroyedException();

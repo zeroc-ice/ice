@@ -6,29 +6,6 @@ namespace Ice.exceptions
 {
     namespace AMD
     {
-        public sealed class DummyLogger : Ice.Logger
-        {
-            public void print(string message)
-            {
-            }
-
-            public void trace(string category, string message)
-            {
-            }
-
-            public void warning(string message)
-            {
-            }
-
-            public void error(string message)
-            {
-            }
-
-            public string getPrefix() => "";
-
-            public Ice.Logger cloneWithPrefix(string prefix) => new DummyLogger();
-        }
-
         public class Server : TestHelper
         {
             public override void run(string[] args)

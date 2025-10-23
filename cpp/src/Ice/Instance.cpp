@@ -1645,10 +1645,8 @@ IceInternal::Instance::destroy() noexcept
     LoggerAdminLoggerPtr logger = dynamic_pointer_cast<LoggerAdminLogger>(_initData.logger);
     if (logger)
     {
-        //
         // This only disables the remote logging; we don't set or reset _initData.logger
-        //
-        logger->destroy();
+        logger->detach();
     }
 
     //

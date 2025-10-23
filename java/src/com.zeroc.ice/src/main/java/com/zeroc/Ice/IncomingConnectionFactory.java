@@ -301,7 +301,6 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
                 createAcceptor();
             }
         } catch (Exception ex) {
-            // Clean up for finalizer.
             if (_transceiver != null) {
                 try {
                     _transceiver.close();
@@ -320,17 +319,6 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             } else {
                 throw new SyscallException(ex);
             }
-        }
-    }
-
-    @SuppressWarnings({"deprecation", "nofinalizer"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_state == StateFinished);
-            Assert.FinalizerAssert(_connections.isEmpty());
-        } catch (Exception ex) {} finally {
-            super.finalize();
         }
     }
 

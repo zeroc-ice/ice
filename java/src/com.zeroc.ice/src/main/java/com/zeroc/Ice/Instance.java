@@ -797,28 +797,6 @@ public final class Instance {
         }
     }
 
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_state == StateDestroyed);
-            Assert.FinalizerAssert(_referenceFactory == null);
-            Assert.FinalizerAssert(_outgoingConnectionFactory == null);
-            Assert.FinalizerAssert(_objectAdapterFactory == null);
-            Assert.FinalizerAssert(_clientThreadPool == null);
-            Assert.FinalizerAssert(_serverThreadPool == null);
-            Assert.FinalizerAssert(_endpointHostResolver == null);
-            Assert.FinalizerAssert(_timer == null);
-            Assert.FinalizerAssert(_routerManager == null);
-            Assert.FinalizerAssert(_locatorManager == null);
-            Assert.FinalizerAssert(_endpointFactoryManager == null);
-            Assert.FinalizerAssert(_pluginManager == null);
-            Assert.FinalizerAssert(_retryQueue == null);
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
-    }
-
     void finishSetup(Communicator communicator) {
 
         Properties properties = _initData.properties;

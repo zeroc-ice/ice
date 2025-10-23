@@ -202,18 +202,6 @@ final class ObjectAdapterFactory {
         _communicator = communicator;
     }
 
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_instance == null);
-            Assert.FinalizerAssert(_communicator == null);
-            Assert.FinalizerAssert(_adapters.isEmpty());
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
-    }
-
     private Instance _instance;
     private Communicator _communicator;
     private final Set<String> _adapterNamesInUse = new HashSet<>();

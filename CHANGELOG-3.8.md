@@ -753,6 +753,8 @@ plug-ins are created during communicator initialization. See `InitializationData
   await communicator.shutdownCompleted;
   ```
 
+- The Logger interface is now disposable.
+
 - Removed ThreadHookPlugin.
 
 - Removed support for serializable objects (the `cs:serializable` metadata directive).

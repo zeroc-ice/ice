@@ -25,6 +25,7 @@ public class ControllerActivity extends Activity
     private final LinkedList<String> _output = new LinkedList<>();
     private ArrayAdapter<String> _outputAdapter;
     private ListView _outputListView;
+    private WifiManager.MulticastLock _multicastLock;
 
     private static final int REQUEST_ENABLE_BT = 1;
 
@@ -41,8 +42,8 @@ public class ControllerActivity extends Activity
         }
 
         WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiManager.MulticastLock lock = wifiManager.createMulticastLock("com.zeroc.testcontroller");
-        lock.acquire();
+        _multicastLock = wifiManager.createMulticastLock("com.zeroc.testcontroller");
+        _multicastLock.acquire();
     }
 
     @Override
@@ -73,6 +74,22 @@ public class ControllerActivity extends Activity
         else
         {
             setup(true);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (_multicastLock != null && _multicastLock.isHeld()) {
+            _multicastLock.release();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (_multicastLock != null && !_multicastLock.isHeld()) {
+            _multicastLock.acquire();
         }
     }
 

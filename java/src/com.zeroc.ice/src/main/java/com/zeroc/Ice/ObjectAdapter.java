@@ -1049,16 +1049,11 @@ public final class ObjectAdapter {
         try {
             Properties.validatePropertiesWithPrefix(_name, properties, PropertyNames.ObjectAdapterProps);
         } catch (PropertyException ex) {
-            // Prevent finalizer from complaining about the adapter not being destroyed.
-            _state = StateDestroyed;
             throw ex;
         }
 
         // Make sure named adapter has some configuration.
         if (router == null && properties.getPropertiesForPrefix(_name).isEmpty()) {
-            // Prevent finalizer from complaining about the adapter not being destroyed.
-            _state = StateDestroyed;
-
             throw new InitializationException("Object adapter '" + _name + "' requires configuration.");
         }
 
@@ -1071,8 +1066,6 @@ public final class ObjectAdapter {
         try {
             _reference = _instance.referenceFactory().create("dummy " + proxyOptions, "");
         } catch (ParseException ex) {
-            // Prevent finalizer from complaining about the adapter not being destroyed.
-            _state = StateDestroyed;
             String msg = "invalid proxy options '" + proxyOptions + "' for object adapter '" + _name + "'.";
             throw new InitializationException(msg, ex);
         }
@@ -1166,28 +1159,6 @@ public final class ObjectAdapter {
      */
     public SSLEngineFactory getSSLEngineFactory() {
         return _sslEngineFactory;
-    }
-
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            if (_state < StateDeactivated) {
-                String msg = "object adapter `" + getName() + "' has not been deactivated";
-                _instance.initializationData().logger.warning(msg);
-            } else if (_state != StateDestroyed) {
-                String msg = "object adapter `" + getName() + "' has not been destroyed";
-                _instance.initializationData().logger.warning(msg);
-            } else {
-                Assert.FinalizerAssert(_threadPool == null);
-                // Not cleared, it needs to be immutable.
-                // Assert.FinalizerAssert(_servantManager == null);
-                // Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
-                Assert.FinalizerAssert(_directCount == 0);
-            }
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
     }
 
     private ObjectPrx newProxy(Identity ident, String facet) {
