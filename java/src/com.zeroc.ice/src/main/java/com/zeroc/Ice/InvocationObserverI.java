@@ -27,8 +27,7 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
                         add("parent", cl.getDeclaredMethod("getParent"));
                         add("id", cl.getDeclaredMethod("getId"));
                         add("requestId", cl.getDeclaredMethod("getRequestId"));
-                        CommunicatorObserverI.addConnectionAttributes(
-                            this, RemoteInvocationHelper.class);
+                        CommunicatorObserverI.addConnectionAttributes(this, RemoteInvocationHelper.class);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         assert false;
@@ -52,8 +51,7 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
         public String getId() {
             if (_id == null) {
                 _id = _endpoint.toString();
-                if (_connectionInfo.connectionId != null
-                    && !_connectionInfo.connectionId.isEmpty()) {
+                if (_connectionInfo.connectionId != null && !_connectionInfo.connectionId.isEmpty()) {
                     _id += " [" + _connectionInfo.connectionId + "]";
                 }
             }
@@ -157,8 +155,7 @@ public class InvocationObserverI extends ObserverWithDelegate<InvocationMetrics,
     }
 
     @Override
-    public RemoteObserver getRemoteObserver(
-            ConnectionInfo con, Endpoint edpt, int requestId, int sz) {
+    public RemoteObserver getRemoteObserver(ConnectionInfo con, Endpoint edpt, int requestId, int sz) {
         RemoteObserver delegate = null;
         if (_delegate != null) {
             delegate = _delegate.getRemoteObserver(con, edpt, requestId, sz);

@@ -8,11 +8,9 @@ import com.zeroc.Ice.Communicator;
 public interface Service {
     /**
      * Start the service. The given communicator is created by the {@link ServiceManager} for use by
-     * the service. This communicator may also be used by other services, depending on the service
-     * configuration.
+     * the service. This communicator may also be used by other services, depending on the service configuration.
      *
-     * <p class="Note">The {@link ServiceManager} owns this communicator, and is responsible for
-     * destroying it.
+     * <p class="Note">The {@link ServiceManager} owns this communicator, and is responsible for destroying it.
      *
      * @param name The service's name, as determined by the configuration.
      * @param communicator A communicator for use by the service.

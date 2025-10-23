@@ -25,8 +25,7 @@ public class IPEndpointInfo extends EndpointInfo {
      * @param port the port number
      * @param sourceAddress the source IP address
      */
-    protected IPEndpointInfo(
-            boolean compress, String host, int port, String sourceAddress) {
+    protected IPEndpointInfo(boolean compress, String host, int port, String sourceAddress) {
         super(compress);
         this.host = host;
         this.port = port;

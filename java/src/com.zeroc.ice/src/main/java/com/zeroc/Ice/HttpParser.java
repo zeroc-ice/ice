@@ -24,9 +24,7 @@ final class HttpParser {
     int isCompleteMessage(ByteBuffer buf, int begin, int end) {
         int p = begin;
 
-        //
         // Skip any leading CR-LF characters.
-        //
         while (p < end) {
             byte ch = buf.get(p);
             if (ch != (byte) '\r' && ch != (byte) '\n') {
@@ -35,9 +33,7 @@ final class HttpParser {
             ++p;
         }
 
-        //
         // Look for adjacent CR-LF/CR-LF or LF/LF.
-        //
         boolean seenFirst = false;
         while (p < end) {
             byte ch = buf.get(p++);
@@ -196,9 +192,7 @@ final class HttpParser {
                             _headers.put(_headerName, newValue.toString());
                             _state = c == CR ? State.HeaderFieldLF : State.HeaderFieldStart;
                         } else {
-                            //
                             // Could mark the end of the header fields.
-                            //
                             _state = c == CR ? State.HeaderFieldEndLF : State.Complete;
                         }
                     }
@@ -228,9 +222,8 @@ final class HttpParser {
                             str.append((char) buf.get(i));
                         }
                         _headerName = str.toString().toLowerCase();
-                        //
+
                         // Add a placeholder entry if necessary.
-                        //
                         if (!_headers.containsKey(_headerName)) {
                             _headers.put(_headerName, "");
                             _headerNames.put(_headerName, str.toString());
@@ -251,9 +244,7 @@ final class HttpParser {
                         break;
                     }
 
-                    //
                     // Check for "Name:\r\n"
-                    //
                     if (c == CR) {
                         _state = State.HeaderFieldLF;
                         break;
@@ -434,9 +425,7 @@ final class HttpParser {
                     break;
                 }
                 case ResponseReasonStart: {
-                    //
                     // Skip leading spaces.
-                    //
                     if (c == ' ') {
                         break;
                     }
@@ -510,9 +499,8 @@ final class HttpParser {
     Map<String, String> getHeaders() {
         Map<String, String> headers = new HashMap<>();
         for (Map.Entry<String, String> entry : _headers.entrySet()) {
-            headers.put(
-                _headerNames.get(entry.getKey()),
-                entry.getValue().trim()); // Return original header name.
+            // Return original header name.
+            headers.put(_headerNames.get(entry.getKey()), entry.getValue().trim());
         }
         return headers;
     }

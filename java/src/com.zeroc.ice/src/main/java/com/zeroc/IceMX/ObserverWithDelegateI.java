@@ -7,5 +7,4 @@ import com.zeroc.Ice.Instrumentation.Observer;
 /**
  * Observer implementation that supports delegation to another observer.
  */
-public class ObserverWithDelegateI
-    extends ObserverWithDelegate<Metrics, Observer> {}
+public class ObserverWithDelegateI extends ObserverWithDelegate<Metrics, Observer> {}

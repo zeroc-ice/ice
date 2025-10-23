@@ -35,7 +35,6 @@ class StreamSocket {
             }
         } catch (LocalException ex) {
             assert (!_fd.isOpen());
-            _fd = null; // Necessary for the finalizer
             throw ex;
         }
 
@@ -60,21 +59,10 @@ class StreamSocket {
             init();
         } catch (LocalException ex) {
             assert (!_fd.isOpen());
-            _fd = null; // Necessary for the finalizer
             throw ex;
         }
 
         _desc = Network.fdToString(_fd);
-    }
-
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_fd == null);
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
     }
 
     /**
@@ -254,8 +242,6 @@ class StreamSocket {
             _fd.close();
         } catch (IOException ex) {
             throw new SocketException(ex);
-        } finally {
-            _fd = null;
         }
     }
 
@@ -275,22 +261,19 @@ class StreamSocket {
     }
 
     private int toState(int operation) {
-        switch (operation) {
-            case SocketOperation.Read:
-                return StateProxyRead;
-            case SocketOperation.Write:
-                return StateProxyWrite;
-            default:
-                return StateProxyConnected;
-        }
+        return switch (operation) {
+            case SocketOperation.Read -> StateProxyRead;
+            case SocketOperation.Write -> StateProxyWrite;
+            default -> StateProxyConnected;
+        };
     }
 
     private final ProtocolInstance _instance;
 
     private final NetworkProxy _proxy;
     private final InetSocketAddress _addr;
+    private final SocketChannel _fd;
 
-    private SocketChannel _fd;
     private int _state;
     private String _desc;
 

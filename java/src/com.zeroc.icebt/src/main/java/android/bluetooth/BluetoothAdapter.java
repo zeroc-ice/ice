@@ -36,13 +36,11 @@ public final class BluetoothAdapter {
         return null;
     }
 
-    public BluetoothServerSocket listenUsingInsecureRfcommWithServiceRecord(
-            String name, UUID uuid) throws IOException {
+    public BluetoothServerSocket listenUsingInsecureRfcommWithServiceRecord(String name, UUID uuid) throws IOException {
         return null;
     }
 
-    public BluetoothServerSocket listenUsingRfcommWithServiceRecord(
-            String name, UUID uuid) throws IOException {
+    public BluetoothServerSocket listenUsingRfcommWithServiceRecord(String name, UUID uuid) throws IOException {
         return null;
     }
 }

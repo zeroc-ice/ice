@@ -150,8 +150,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
 
     @Override
     public boolean sent() {
-        return sent(!_proxy.ice_isTwoway()); // done = true if not a two-way proxy (no response
-        // expected)
+        return sent(!_proxy.ice_isTwoway()); // done = true if not a two-way proxy (no response expected)
     }
 
     @Override
@@ -163,10 +162,8 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
 
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler) {
-        // The stream cannot be cached if the proxy is not a twoway or there is an invocation
-        // timeout set.
-        if (!_proxy.ice_isTwoway()
-            || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+        // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
+        if (!_proxy.ice_isTwoway() || _proxy._getReference().getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
         }
@@ -176,11 +173,8 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     @Override
     public void abort(LocalException ex) {
         if (isBatch()) {
-            //
             // If we didn't finish a batch oneway or datagram request, we
-            // must notify the connection about that we give up ownership
-            // of the batch stream.
-            //
+            // must notify the connection about that we give up ownership of the batch stream.
             _proxy._getReference().getBatchRequestQueue().abortBatchRequest(_os);
         }
 
@@ -191,17 +185,13 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     protected void markCompleted() {
         try {
             if (!_proxy.ice_isTwoway()) {
-                //
                 // For a non-twoway proxy, the invocation is completed after it is sent.
-                //
                 complete(null);
             } else if ((_state & StateOK) > 0) {
                 T r = null;
                 try {
                     if (_unmarshal != null) {
-                        //
                         // The Unmarshaler callback unmarshals and returns the results.
-                        //
                         r = _unmarshal.unmarshal(startReadParams());
                         endReadParams();
                     } else {
@@ -213,9 +203,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
                 }
                 complete(r);
             } else {
-                //
                 // Handle user exception.
-                //
                 try {
                     throwUserException();
                 } catch (UserException ex) {
@@ -239,18 +227,12 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
 
     @Override
     public final boolean completed(InputStream is) {
-        //
-        // NOTE: this method is called from ConnectionI.parseMessage
-        // with the connection locked. Therefore, it must not invoke any user callbacks.
-        //
+        // NOTE: this method is called from ConnectionI.parseMessage with the connection locked.
+        // Therefore, it must not invoke any user callbacks.
 
         // _is can already be initialized if the invocation is retried
         if (_is == null) {
-            _is =
-                new InputStream(
-                    _instance,
-                    Protocol.currentProtocolEncoding,
-                    _instance.cacheMessageBuffers() > 1);
+            _is = new InputStream(_instance, Protocol.currentProtocolEncoding, _instance.cacheMessageBuffers() > 1);
         }
         _is.swap(is);
 

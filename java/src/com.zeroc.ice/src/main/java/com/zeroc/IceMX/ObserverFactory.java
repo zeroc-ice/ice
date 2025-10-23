@@ -26,12 +26,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
         _metrics = metrics;
         _name = name;
         _class = cl;
-        _metrics.registerMap(
-            name,
-            _class,
-            () -> {
-                update();
-            });
+        _metrics.registerMap(name, _class, () -> update());
     }
 
     /**
@@ -105,8 +100,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>> {
      * @param cl the sub-metrics class
      * @param field the field to associate with the sub-map
      */
-    public <S extends Metrics> void registerSubMap(
-            String subMap, Class<S> cl, java.lang.reflect.Field field) {
+    public <S extends Metrics> void registerSubMap(String subMap, Class<S> cl, java.lang.reflect.Field field) {
         _metrics.registerSubMap(_name, subMap, cl, field);
     }
 

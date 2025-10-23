@@ -212,7 +212,7 @@ public sealed class HTTPNetworkProxy : NetworkProxy
         {
             //
             // Read one more byte, we can't easily read bytes in advance
-            // since the transport implenentation might be be able to read
+            // since the transport implementation might be be able to read
             // the data from the memory instead of the socket.
             //
             buf.resize(buf.size() + 1, true);

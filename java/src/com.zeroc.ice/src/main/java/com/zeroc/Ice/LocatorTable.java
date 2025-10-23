@@ -31,8 +31,7 @@ final class LocatorTable {
     }
 
     synchronized void addAdapterEndpoints(String adapter, EndpointI[] endpoints) {
-        _adapterEndpointsTable.put(
-            adapter, new EndpointTableEntry(Time.currentMonotonicTimeMillis(), endpoints));
+        _adapterEndpointsTable.put(adapter, new EndpointTableEntry(Time.currentMonotonicTimeMillis(), endpoints));
     }
 
     synchronized EndpointI[] removeAdapterEndpoints(String adapter) {
@@ -94,7 +93,6 @@ final class LocatorTable {
         public final Reference reference;
     }
 
-    private final Map<String, EndpointTableEntry> _adapterEndpointsTable =
-        new HashMap<>();
+    private final Map<String, EndpointTableEntry> _adapterEndpointsTable = new HashMap<>();
     private final Map<Identity, ReferenceTableEntry> _objectTable = new HashMap<>();
 }

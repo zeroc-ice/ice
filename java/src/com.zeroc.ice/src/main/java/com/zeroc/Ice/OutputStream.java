@@ -150,11 +150,9 @@ public final class OutputStream {
         other._encoding = _encoding;
         _encoding = tmpEncoding;
 
-        //
         // Swap is never called for streams that have encapsulations being written. However,
         // encapsulations might still be set in case marshaling failed. We just reset the
         // encapsulations if there are still some set.
-        //
         resetEncapsulation();
         other.resetEncapsulation();
     }
@@ -223,10 +221,8 @@ public final class OutputStream {
 
     /** Writes the start of an encapsulation to the stream. */
     public void startEncapsulation() {
-        //
         // If no encoding version is specified, use the current write encapsulation encoding version
         // if there's a current write encapsulation, otherwise, use the stream encoding version.
-        //
 
         if (_encapsStack != null) {
             startEncapsulation(_encapsStack.encoding, _encapsStack.format);
@@ -296,8 +292,7 @@ public final class OutputStream {
      */
     public void writeEncapsulation(byte[] v) {
         if (v.length < 6) {
-            throw new MarshalException(
-                "A byte sequence with " + v.length + " bytes is not a valid encapsulation.");
+            throw new MarshalException("A byte sequence with " + v.length + " bytes is not a valid encapsulation.");
         }
         expand(v.length);
         _buf.b.put(v);
@@ -338,16 +333,12 @@ public final class OutputStream {
     public void writePendingValues() {
         if (_encapsStack != null && _encapsStack.encoder != null) {
             _encapsStack.encoder.writePendingValues();
-        } else if (_encapsStack != null
-            ? _encapsStack.encoding_1_0
-            : _encoding.equals(Util.Encoding_1_0)) {
-            //
+        } else if (_encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0)) {
             // If using the 1.0 encoding and no instances were written, we still write an empty
             // sequence for pending instances if requested (i.e.: if this is called).
             //
             // This is required by the 1.0 encoding, even if no instances are written we do marshal
             // an empty sequence if marshaled data types use classes.
-            //
             writeSize(0);
         }
     }
@@ -562,8 +553,7 @@ public final class OutputStream {
      * @param tag The optional tag.
      * @param v The optional serializable object to write.
      */
-    public <T extends Serializable> void writeSerializable(
-            int tag, Optional<T> v) {
+    public <T extends Serializable> void writeSerializable(int tag, Optional<T> v) {
         if (v != null && v.isPresent()) {
             writeSerializable(tag, v.get());
         }
@@ -1180,16 +1170,13 @@ public final class OutputStream {
                 if (_stringChars == null || len > _stringChars.length) {
                     _stringChars = new char[len];
                 }
-                //
+
                 // If the string contains only 7-bit characters, it's more efficient
                 // to perform the conversion to UTF-8 manually.
-                //
                 v.getChars(0, len, _stringChars, 0);
                 for (int i = 0; i < len; i++) {
                     if (_stringChars[i] > (char) 127) {
-                        //
                         // Found a multibyte character.
-                        //
                         if (_charEncoder == null) {
                             _charEncoder = _utf8.newEncoder();
                         }
@@ -1499,9 +1486,7 @@ public final class OutputStream {
 
         @Override
         void writeValue(Value v) {
-            //
             // Object references are encoded as a negative integer in 1.0.
-            //
             if (v != null) {
                 _stream.writeInt(-registerValue(v));
             } else {
@@ -1511,13 +1496,10 @@ public final class OutputStream {
 
         @Override
         void writeException(UserException v) {
-            //
             // User exception with the 1.0 encoding start with a boolean flag that indicates whether
             // or not the exception uses classes.
             //
-            // This allows reading the pending instances even if some part of the exception was
-            // sliced.
-            //
+            // This allows reading the pending instances even if some part of the exception was sliced.
             boolean usesClasses = v._usesClasses();
             _stream.writeBool(usesClasses);
             v._write(_stream);
@@ -1534,9 +1516,7 @@ public final class OutputStream {
         @Override
         void endInstance() {
             if (_sliceType == SliceType.ValueSlice) {
-                //
                 // Write the Object slice.
-                //
                 startSlice(Value.ice_staticId(), -1, true);
                 _stream.writeSize(0); // For compatibility with the old AFM.
                 endSlice();
@@ -1546,11 +1526,9 @@ public final class OutputStream {
 
         @Override
         void startSlice(String typeId, int compactId, boolean last) {
-            //
             // For instance slices, encode a boolean to indicate how the type ID
-            // is encoded and the type ID either as a string or index. For exception slices, always
-            // encode the type ID as a string.
-            //
+            // is encoded and the type ID either as a string or index.
+            // For exception slices, always encode the type ID as a string.
             if (_sliceType == SliceType.ValueSlice) {
                 int index = registerTypeId(typeId);
                 if (index < 0) {
@@ -1571,9 +1549,7 @@ public final class OutputStream {
 
         @Override
         void endSlice() {
-            //
             // Write the slice length.
-            //
             final int sz = _stream.pos() - _writeSlice + 4;
             _stream.rewriteInt(sz, _writeSlice - 4);
         }
@@ -1581,55 +1557,43 @@ public final class OutputStream {
         @Override
         void writePendingValues() {
             while (!_toBeMarshaledMap.isEmpty()) {
-                //
-                // Consider the to be marshaled instances as marshaled now, this is necessary to
-                // avoid adding again the "to be
-                // marshaled instances" into _toBeMarshaledMap while writing
-                // instances.
-                //
+                // Consider the to be marshaled instances as marshaled now, this is necessary to avoid adding
+                // again the "to be marshaled instances" into _toBeMarshaledMap while writing instances.
                 _marshaledMap.putAll(_toBeMarshaledMap);
 
                 IdentityHashMap<Value, Integer> savedMap = _toBeMarshaledMap;
                 _toBeMarshaledMap = new IdentityHashMap<>();
                 _stream.writeSize(savedMap.size());
                 for (Map.Entry<Value, Integer> p : savedMap.entrySet()) {
-                    //
                     // Ask the instance to marshal itself. Any new class instances that are
                     // triggered by the classes marshaled are added to toBeMarshaledMap.
-                    //
                     _stream.writeInt(p.getValue().intValue());
 
                     p.getKey().ice_preMarshal();
                     p.getKey()._iceWrite(_stream);
                 }
             }
-            _stream.writeSize(
-                0); // Zero marker indicates end of sequence of sequences of instances.
+            // Zero marker indicates end of sequence of sequences of instances.
+            _stream.writeSize(0);
         }
 
         private int registerValue(Value v) {
             assert (v != null);
 
-            //
             // Look for this instance in the to-be-marshaled map.
-            //
             Integer p = _toBeMarshaledMap.get(v);
             if (p != null) {
                 return p.intValue();
             }
 
-            //
             // Didn't find it, try the marshaled map next.
-            //
             p = _marshaledMap.get(v);
             if (p != null) {
                 return p.intValue();
             }
 
-            //
-            // We haven't seen this instance previously, create a new
-            // index, and insert it into the to-be-marshaled map.
-            //
+            // We haven't seen this instance previously, create a new index,
+            // and insert it into the to-be-marshaled map.
             _toBeMarshaledMap.put(v, ++_valueIdIndex);
             return _valueIdIndex;
         }
@@ -1663,17 +1627,13 @@ public final class OutputStream {
                     _current.indirectionMap = new IdentityHashMap<>();
                 }
 
-                //
                 // If writing an instance within a slice and using the sliced format, write an index
                 // from the instance indirection table. The indirect instance table is encoded at
                 // the end of each slice and is always read (even if the Slice is unknown).
-                //
                 Integer index = _current.indirectionMap.get(v);
                 if (index == null) {
                     _current.indirectionTable.add(v);
-                    final int idx =
-                        _current.indirectionTable
-                            .size(); // Position + 1 (0 is reserved for nil)
+                    final int idx = _current.indirectionTable.size(); // Position + 1 (0 is reserved for nil)
                     _current.indirectionMap.put(v, idx);
                     _stream.writeSize(idx);
                 } else {
@@ -1727,14 +1687,10 @@ public final class OutputStream {
 
             _stream.writeByte((byte) 0); // Placeholder for the slice flags
 
-            //
             // For instance slices, encode the flag and the type ID either as a string or index. For
             // exception slices, always encode the type ID a string.
-            //
             if (_current.sliceType == SliceType.ValueSlice) {
-                //
                 // Encode the type ID (only in the first slice for the compact encoding).
-                //
                 if (_encaps.format == FormatType.SlicedFormat || _current.firstSlice) {
                     if (compactId != -1) {
                         _current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT;
@@ -1764,33 +1720,25 @@ public final class OutputStream {
 
         @Override
         void endSlice() {
-            //
             // Write the optional member end marker if some optional members were encoded. Note that
             // the optional members are encoded before the indirection table and are included in the
             // slice size.
-            //
             if ((_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0) {
                 _stream.writeByte((byte) Protocol.OPTIONAL_END_MARKER);
             }
 
-            //
             // Write the slice length if necessary.
-            //
             if ((_current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) != 0) {
                 final int sz = _stream.pos() - _current.writeSlice + 4;
                 _stream.rewriteInt(sz, _current.writeSlice - 4);
             }
 
-            //
             // Only write the indirection table if it contains entries.
-            //
             if (_current.indirectionTable != null && !_current.indirectionTable.isEmpty()) {
                 assert (_encaps.format == FormatType.SlicedFormat);
                 _current.sliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
-                //
                 // Write the indirection instance table.
-                //
                 _stream.writeSize(_current.indirectionTable.size());
                 for (Value v : _current.indirectionTable) {
                     writeInstance(v);
@@ -1799,9 +1747,7 @@ public final class OutputStream {
                 _current.indirectionMap.clear();
             }
 
-            //
             // Finally, update the slice flags.
-            //
             _stream.rewriteByte(_current.sliceFlags, _current.sliceFlagsPos);
         }
 
@@ -1822,12 +1768,9 @@ public final class OutputStream {
         private void writeSlicedData(SlicedData slicedData) {
             assert (slicedData != null);
 
-            //
-            // We only remarshal preserved slices if we are using the sliced
-            // format. Otherwise, we ignore the preserved slices, which
-            // essentially "slices" the instance into the most-derived type
-            // known by the sender.
-            //
+            // We only remarshal preserved slices if we are using the sliced format.
+            // Otherwise, we ignore the preserved slices, which essentially "slices"
+            // the instance into the most-derived type known by the sender.
             if (_encaps.format != FormatType.SlicedFormat) {
                 return;
             }
@@ -1835,9 +1778,7 @@ public final class OutputStream {
             for (SliceInfo info : slicedData.slices) {
                 startSlice(info.typeId, info.compactId, info.isLastSlice);
 
-                //
                 // Write the bytes associated with this slice.
-                //
                 _stream.writeBlob(info.bytes);
 
                 if (info.hasOptionalMembers) {
@@ -1863,19 +1804,15 @@ public final class OutputStream {
         private void writeInstance(Value v) {
             assert (v != null);
 
-            //
             // If the instance was already marshaled, just write it's ID.
-            //
             Integer p = _marshaledMap.get(v);
             if (p != null) {
                 _stream.writeSize(p);
                 return;
             }
 
-            //
             // We haven't seen this instance previously, create a new ID,
             // insert it into the marshaled map, and write the instance.
-            //
             _marshaledMap.put(v, ++_valueIdIndex);
 
             v.ice_preMarshal();
@@ -1909,7 +1846,7 @@ public final class OutputStream {
 
         private InstanceData _current;
 
-        private int _valueIdIndex; // The ID of the next instance to marhsal
+        private int _valueIdIndex; // The ID of the next instance to marshal
     }
 
     private static final class Encaps {
@@ -1932,17 +1869,12 @@ public final class OutputStream {
         Encaps next;
     }
 
-    //
     // The encoding version to use when there's no encapsulation to read from or write to. This is
-    // for example used to read message headers or when the user is using the streaming API with no
-    // encapsulation.
-    //
+    // for example used to read message headers or when the user is using the streaming API with no encapsulation.
     private EncodingVersion _encoding;
 
     private boolean isEncoding_1_0() {
-        return _encapsStack != null
-            ? _encapsStack.encoding_1_0
-            : _encoding.equals(Util.Encoding_1_0);
+        return _encapsStack != null ? _encapsStack.encoding_1_0 : _encoding.equals(Util.Encoding_1_0);
     }
 
     private Encaps _encapsStack;

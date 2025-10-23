@@ -82,8 +82,7 @@ final class Server {
             }
         }
 
-        ServiceManagerI serviceManagerImpl =
-            new ServiceManagerI(communicator, argSeq.toArray(new String[0]));
+        ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, argSeq.toArray(new String[0]));
         return serviceManagerImpl.run();
     }
 

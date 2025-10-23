@@ -101,13 +101,11 @@ final class Protocol {
         (byte) 0 // Message size (placeholder).
     };
 
-    public static final ProtocolVersion currentProtocol =
-        new ProtocolVersion(protocolMajor, protocolMinor);
+    public static final ProtocolVersion currentProtocol = new ProtocolVersion(protocolMajor, protocolMinor);
     public static final EncodingVersion currentProtocolEncoding =
         new EncodingVersion(protocolEncodingMajor, protocolEncodingMinor);
 
-    public static final EncodingVersion currentEncoding =
-        new EncodingVersion(encodingMajor, encodingMinor);
+    public static final EncodingVersion currentEncoding = new EncodingVersion(encodingMajor, encodingMinor);
 
     public static void checkSupportedProtocol(ProtocolVersion v) {
         if (v.major != currentProtocol.major || v.minor > currentProtocol.minor) {
@@ -118,56 +116,36 @@ final class Protocol {
 
     public static void checkSupportedProtocolEncoding(EncodingVersion v) {
         if (v.major != currentProtocolEncoding.major || v.minor > currentProtocolEncoding.minor) {
-            throw new MarshalException(
-                "This Ice runtime does not support encoding version "
-                    + v.major
-                    + "."
-                    + v.minor);
+            throw new MarshalException("This Ice runtime does not support encoding version " + v.major + "." + v.minor);
         }
     }
 
     public static void checkSupportedEncoding(EncodingVersion v) {
         if (v.major != currentEncoding.major || v.minor > currentEncoding.minor) {
-            throw new MarshalException(
-                "This Ice runtime does not support encoding version "
-                    + v.major
-                    + "."
-                    + v.minor);
+            throw new MarshalException("This Ice runtime does not support encoding version " + v.major + "." + v.minor);
         }
     }
 
-    //
-    // Either return the given protocol if not compatible, or the greatest
-    // supported protocol otherwise.
-    //
+    // Either return the given protocol if not compatible, or the greatest supported protocol otherwise.
     public static ProtocolVersion getCompatibleProtocol(ProtocolVersion v) {
         if (v.major != currentProtocol.major) {
             return v; // Unsupported protocol, return as is.
         } else if (v.minor < currentProtocol.minor) {
             return v; // Supported protocol.
         } else {
-            //
-            // Unsupported but compatible, use the currently supported
-            // protocol, that's the best we can do.
-            //
+            // Unsupported but compatible, use the currently supported protocol, that's the best we can do.
             return currentProtocol;
         }
     }
 
-    //
-    // Either return the given encoding if not compatible, or the greatest
-    // supported encoding otherwise.
-    //
+    // Either return the given encoding if not compatible, or the greatest supported encoding otherwise.
     public static EncodingVersion getCompatibleEncoding(EncodingVersion v) {
         if (v.major != currentEncoding.major) {
             return v; // Unsupported encoding, return as is.
         } else if (v.minor < currentEncoding.minor) {
             return v; // Supported encoding.
         } else {
-            //
-            // Unsupported but compatible, use the currently supported
-            // encoding, that's the best we can do.
-            //
+            // Unsupported but compatible, use the currently supported encoding, that's the best we can do.
             return currentEncoding;
         }
     }

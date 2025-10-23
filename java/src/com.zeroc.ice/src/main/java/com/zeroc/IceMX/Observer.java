@@ -68,10 +68,7 @@ public class Observer<T extends Metrics> extends StopWatch
      * @param objects the list of metrics map entries
      * @param previous the previous observer, or null
      */
-    public void init(
-            MetricsHelper<T> helper,
-            List<MetricsMap<T>.Entry> objects,
-            Observer<T> previous) {
+    public void init(MetricsHelper<T> helper, List<MetricsMap<T>.Entry> objects, Observer<T> previous) {
         _objects = objects;
 
         if (previous == null) {
@@ -80,10 +77,7 @@ public class Observer<T extends Metrics> extends StopWatch
 
         _previousDelay = previous._previousDelay + previous.delay();
 
-        //
-        // Detach entries from previous observer which are no longer
-        // attached to this new observer.
-        //
+        // Detach entries from previous observer which are no longer attached to this new observer.
         for (MetricsMap<T>.Entry p : previous._objects) {
             if (!_objects.contains(p)) {
                 p.detach(_previousDelay);

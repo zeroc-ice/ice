@@ -48,26 +48,17 @@ public enum OptionalFormat {
      * @return the enumerator corresponding to the given integer value, or {@code null} if no such enumerator exists
      */
     public static OptionalFormat valueOf(int v) {
-        switch (v) {
-            case 0:
-                return F1;
-            case 1:
-                return F2;
-            case 2:
-                return F4;
-            case 3:
-                return F8;
-            case 4:
-                return Size;
-            case 5:
-                return VSize;
-            case 6:
-                return FSize;
-            case 7:
-                return Class;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return switch (v) {
+            case 0 -> F1;
+            case 1 -> F2;
+            case 2 -> F4;
+            case 3 -> F8;
+            case 4 -> Size;
+            case 5 -> VSize;
+            case 6 -> FSize;
+            case 7 -> Class;
+            default -> throw new IllegalArgumentException();
+        };
     }
 
     private final int _value;

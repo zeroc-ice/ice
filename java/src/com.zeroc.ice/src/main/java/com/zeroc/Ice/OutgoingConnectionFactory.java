@@ -16,9 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 final class OutgoingConnectionFactory {
-    //
     // Helper class to multi hash map.
-    //
     private static class MultiHashMap<K, V> extends HashMap<K, List<V>> {
         public void putOne(K key, V value) {
             List<V> list = this.get(key);
@@ -67,11 +65,8 @@ final class OutgoingConnectionFactory {
     public void waitUntilFinished() {
         Map<Connector, List<ConnectionI>> connections = null;
         synchronized (this) {
-            //
             // First we wait until the factory is destroyed. We also wait until there are no pending
-            // connections anymore. Only then we can be sure the _connections contains all
-            // connections.
-            //
+            // connections anymore. Only then we can be sure the _connections contains all connections.
             while (!_destroyed || !_pending.isEmpty() || _pendingConnectCount > 0) {
                 try {
                     wait();
@@ -80,24 +75,17 @@ final class OutgoingConnectionFactory {
                 }
             }
 
-            //
-            // We want to wait until all connections are finished outside the thread
-            // synchronization.
-            //
+            // We want to wait until all connections are finished outside the thread synchronization.
             connections = new HashMap<>(_connections);
         }
 
-        //
         // Now we wait until the destruction of each connection is finished.
-        //
         for (List<ConnectionI> connectionList : connections.values()) {
             for (ConnectionI connection : connectionList) {
                 try {
                     connection.waitUntilFinished();
                 } catch (InterruptedException e) {
-                    //
                     // Force close all of the connections.
-                    //
                     for (List<ConnectionI> l : connections.values()) {
                         for (ConnectionI c : l) {
                             c.abort();
@@ -120,9 +108,7 @@ final class OutgoingConnectionFactory {
         // TODO: fix API to use List directly.
         var endpoints = Arrays.asList(endpts);
 
-        //
         // Try to find a connection to one of the given endpoints.
-        //
         try {
             Holder<Boolean> compress = new Holder<>();
             ConnectionI connection = findConnectionByEndpoint(endpoints, compress);
@@ -142,30 +128,21 @@ final class OutgoingConnectionFactory {
     public void setRouterInfo(RouterInfo routerInfo) {
         assert (routerInfo != null);
         ObjectAdapter adapter = routerInfo.getAdapter();
-        EndpointI[] endpoints =
-            routerInfo.getClientEndpoints(); // Must be called outside the synchronization
+        EndpointI[] endpoints = routerInfo.getClientEndpoints(); // Must be called outside the synchronization
 
         synchronized (this) {
             if (_destroyed) {
                 throw new CommunicatorDestroyedException();
             }
 
-            //
-            // Search for connections to the router's client proxy
-            // endpoints, and update the object adapter for such
+            // Search for connections to the router's client proxy endpoints, and update the object adapter for such
             // connections, so that callbacks from the router can be received over such connections.
-            //
             for (EndpointI endpoint : endpoints) {
-                //
-                // The Connection object does not take the compression flag of
-                // endpoints into account, but instead gets the information
-                // about whether messages should be compressed or not from other sources. In order
-                // to allow connection sharing for
-                // endpoints that differ in the value of the compression flag
-                // only, we always set the compression flag to false here in this connection
-                // factory. We also clear the timeout as it is
-                // no longer used for Ice 3.8.
-                //
+                // The Connection object does not take the compression flag of endpoints into account, but
+                // instead gets the information about whether messages should be compressed or not from other sources.
+                // In order to allow connection sharing for endpoints that differ in the value of the compression flag
+                // only, we always set the compression flag to false here in this connection factory.
+                // We also clear the timeout as it is no longer used for Ice 3.8.
                 endpoint = endpoint.compress(false).timeout(-1);
 
                 for (List<ConnectionI> connectionList : _connections.values()) {
@@ -193,8 +170,7 @@ final class OutgoingConnectionFactory {
         }
     }
 
-    public void flushAsyncBatchRequests(
-            CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
+    public void flushAsyncBatchRequests(CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         List<ConnectionI> c = new LinkedList<>();
 
         synchronized (this) {
@@ -228,22 +204,7 @@ final class OutgoingConnectionFactory {
         _destroyed = false;
     }
 
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_destroyed);
-            Assert.FinalizerAssert(_connections.isEmpty());
-            Assert.FinalizerAssert(_connectionsByEndpoint.isEmpty());
-            Assert.FinalizerAssert(_pendingConnectCount == 0);
-            Assert.FinalizerAssert(_pending.isEmpty());
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
-    }
-
-    private synchronized ConnectionI findConnectionByEndpoint(
-            List<EndpointI> endpoints, Holder<Boolean> compress) {
+    private synchronized ConnectionI findConnectionByEndpoint(List<EndpointI> endpoints, Holder<Boolean> compress) {
         if (_destroyed) {
             throw new CommunicatorDestroyedException();
         }
@@ -286,8 +247,7 @@ final class OutgoingConnectionFactory {
     //
     // Must be called while synchronized.
     //
-    private ConnectionI findConnection(
-            List<ConnectorInfo> connectors, Holder<Boolean> compress) {
+    private ConnectionI findConnection(List<ConnectorInfo> connectors, Holder<Boolean> compress) {
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
         for (ConnectorInfo ci : connectors) {
             if (_pending.containsKey(ci.connector)) {
@@ -316,13 +276,11 @@ final class OutgoingConnectionFactory {
     }
 
     private synchronized void incPendingConnectCount() {
-        //
         // Keep track of the number of pending connects. The outgoing connection factory
         // waitUntilFinished() method waits for all the pending connects to terminate before
         // to return. This ensures that the communicator client thread pool isn't destroyed
         // too soon and will still be available to execute the ice_exception() callbacks for
         // the asynchronous requests waiting on a connection to be established.
-        //
 
         if (_destroyed) {
             throw new CommunicatorDestroyedException();
@@ -338,10 +296,7 @@ final class OutgoingConnectionFactory {
         }
     }
 
-    private ConnectionI getConnection(
-            List<ConnectorInfo> connectors,
-            ConnectCallback cb,
-            Holder<Boolean> compress) {
+    private ConnectionI getConnection(List<ConnectorInfo> connectors, ConnectCallback cb, Holder<Boolean> compress) {
         assert (cb != null);
         synchronized (this) {
             if (_destroyed) {
@@ -355,15 +310,14 @@ final class OutgoingConnectionFactory {
             }
 
             if (addToPending(cb, connectors)) {
-                // A connection to one of our endpoints is pending. The callback will be notified
-                // once the connection is established. Returning null indicates that the connection
-                // is still pending.
+                // A connection to one of our endpoints is pending. The callback will be notified once the
+                // connection is established. Returning null indicates that the connection is still pending.
                 return null;
             }
         }
 
-        // No connection is pending. Call nextConnector to initiate connection establishment. Return
-        // null to indicate that the connection is still pending.
+        // No connection is pending. Call nextConnector to initiate connection establishment.
+        // Return null to indicate that the connection is still pending.
         cb.nextConnector();
         return null;
     }
@@ -371,11 +325,9 @@ final class OutgoingConnectionFactory {
     private synchronized ConnectionI createConnection(Transceiver transceiver, ConnectorInfo ci) {
         assert (_pending.containsKey(ci.connector) && transceiver != null);
 
-        //
         // Create and add the connection to the connection map. Adding the connection to the map
         // is necessary to support the interruption of the connection initialization and validation
         // in case the communicator is destroyed.
-        //
         ConnectionI connection = null;
         try {
             if (_destroyed) {
@@ -458,8 +410,7 @@ final class OutgoingConnectionFactory {
         }
     }
 
-    private void finishGetConnection(
-            List<ConnectorInfo> connectors, LocalException ex, ConnectCallback cb) {
+    private void finishGetConnection(List<ConnectorInfo> connectors, LocalException ex, ConnectCallback cb) {
         Set<ConnectCallback> failedCallbacks = new HashSet<>();
         if (cb != null) {
             failedCallbacks.add(cb);
@@ -496,9 +447,7 @@ final class OutgoingConnectionFactory {
     }
 
     private boolean addToPending(ConnectCallback cb, List<ConnectorInfo> connectors) {
-        //
         // Add the callback to each connector pending list.
-        //
         boolean found = false;
         for (ConnectorInfo p : connectors) {
             Set<ConnectCallback> cbs = _pending.get(p.connector);
@@ -514,11 +463,8 @@ final class OutgoingConnectionFactory {
             return true;
         }
 
-        //
-        // If there's no pending connection for the given connectors, we're responsible for its
-        // establishment. We add empty pending lists, other callbacks to the same connectors will be
-        // queued.
-        //
+        // If there's no pending connection for the given connectors, we're responsible for its establishment.
+        // We add empty pending lists, other callbacks to the same connectors will be queued.
         for (ConnectorInfo p : connectors) {
             if (!_pending.containsKey(p.connector)) {
                 _pending.put(p.connector, new HashSet<>());
@@ -606,8 +552,7 @@ final class OutgoingConnectionFactory {
         public EndpointI endpoint;
     }
 
-    private static class ConnectCallback
-        implements ConnectionI.StartCallback, EndpointI_connectors {
+    private static class ConnectCallback implements ConnectionI.StartCallback, EndpointI_connectors {
         ConnectCallback(
                 OutgoingConnectionFactory f,
                 List<EndpointI> endpoints,
@@ -654,10 +599,7 @@ final class OutgoingConnectionFactory {
             } else {
                 assert (!_connectors.isEmpty());
 
-                //
-                // We now have all the connectors for the given endpoints. We can try to obtain the
-                // connection.
-                //
+                // We now have all the connectors for the given endpoints. We can try to obtain the connection.
                 _iter = _connectors.iterator();
                 getConnection();
             }
@@ -669,10 +611,7 @@ final class OutgoingConnectionFactory {
             if (_endpointsIter.hasNext()) {
                 nextEndpoint();
             } else if (!_connectors.isEmpty()) {
-                //
-                // We now have all the connectors for the given endpoints. We can try to obtain the
-                // connection.
-                //
+                // We now have all the connectors for the given endpoints. We can try to obtain the connection.
                 _iter = _connectors.iterator();
                 getConnection();
             } else {
@@ -682,18 +621,13 @@ final class OutgoingConnectionFactory {
         }
 
         void setConnection(ConnectionI connection, boolean compress) {
-            //
-            // Callback from the factory: the connection to one of the callback
-            // connectors has been established.
-            //
+            // Callback from the factory: the connection to one of the callback connectors has been established.
             _callback.setConnection(connection, compress);
             _factory.decPendingConnectCount(); // Must be called last.
         }
 
         void setException(LocalException ex) {
-            //
             // Callback from the factory: connection establishment failed.
-            //
             _callback.setException(ex);
             _factory.decPendingConnectCount(); // Must be called last.
         }
@@ -714,11 +648,9 @@ final class OutgoingConnectionFactory {
 
         private void getConnectors() {
             try {
-                //
                 // Notify the factory that there's an async connect pending. This is necessary to
                 // prevent the outgoing connection factory to be destroyed before all the pending
                 // asynchronous connects are finished.
-                //
                 _factory.incPendingConnectCount();
             } catch (LocalException ex) {
                 _callback.setException(ex);
@@ -740,17 +672,13 @@ final class OutgoingConnectionFactory {
 
         private void getConnection() {
             try {
-                //
                 // If all the connectors have been created, we ask the factory to get a connection.
-                //
                 Holder<Boolean> compress = new Holder<>();
                 ConnectionI connection = _factory.getConnection(_connectors, this, compress);
                 if (connection == null) {
-                    //
                     // A null return value from getConnection indicates that the connection
                     // is being established and that everything has been done to ensure that the
                     // callback will be notified when the connection establishment is done.
-                    //
                     return;
                 }
 
@@ -768,8 +696,7 @@ final class OutgoingConnectionFactory {
                     assert (_iter.hasNext());
                     _current = _iter.next();
 
-                    CommunicatorObserver observer =
-                        _factory._instance.initializationData().observer;
+                    CommunicatorObserver observer = _factory._instance.initializationData().observer;
                     if (observer != null) {
                         _observer =
                             observer.getConnectionEstablishmentObserver(
@@ -790,8 +717,7 @@ final class OutgoingConnectionFactory {
                             .trace(_factory._instance.traceLevels().networkCat, s.toString());
                     }
 
-                    ConnectionI connection =
-                        _factory.createConnection(_current.connector.connect(), _current);
+                    ConnectionI connection = _factory.createConnection(_current.connector.connect(), _current);
                     connection.start(this);
                 } catch (LocalException ex) {
                     if (_factory._instance.traceLevels().network >= 2) {
@@ -855,7 +781,6 @@ final class OutgoingConnectionFactory {
 
     private final MultiHashMap<Connector, ConnectionI> _connections = new MultiHashMap<>();
     private final MultiHashMap<EndpointI, ConnectionI> _connectionsByEndpoint = new MultiHashMap<>();
-    private final Map<Connector, HashSet<ConnectCallback>> _pending =
-        new HashMap<>();
+    private final Map<Connector, HashSet<ConnectCallback>> _pending = new HashMap<>();
     private int _pendingConnectCount;
 }

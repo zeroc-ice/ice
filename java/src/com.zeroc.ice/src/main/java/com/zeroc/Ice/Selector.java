@@ -26,8 +26,8 @@ final class Selector {
             throw new SyscallException(ex);
         }
 
-        // The Selector holds a set representing the selected keys. The set reference doesn't change, so we obtain it
-        // once here.
+        // The Selector holds a set representing the selected keys.
+        // The set reference doesn't change, so we obtain it once here.
         _keys = _selector.selectedKeys();
     }
 
@@ -115,10 +115,8 @@ final class Selector {
         }
         _selecting = true;
 
-        //
         // If there are ready handlers, don't block in select, just do a non-blocking
         // select to retrieve new ready handlers from the Java selector.
-        //
         _selectNow = !_readyHandlers.isEmpty();
     }
 
@@ -254,10 +252,7 @@ final class Selector {
 
     private int fromJavaOps(int o) {
         int op = 0;
-        if ((o
-            & (SelectionKey.OP_READ
-            | SelectionKey.OP_ACCEPT))
-            != 0) {
+        if ((o & (SelectionKey.OP_READ | SelectionKey.OP_ACCEPT)) != 0) {
             op |= SocketOperation.Read;
         }
         if ((o & SelectionKey.OP_WRITE) != 0) {
@@ -277,8 +272,8 @@ final class Selector {
     private final HashSet<EventHandler> _readyHandlers = new HashSet<>();
     private boolean _selecting;
     private boolean _selectNow;
-    // Marked as volatile to ensure that when the selector is woken up, after calling wakeup(), the _interrupted
-    // change is visible to the thread blocked in select().
+    // Marked as volatile to ensure that when the selector is woken up, after calling wakeup(),
+    // the _interrupted change is visible to the thread blocked in select().
     private volatile boolean _interrupted;
     private int _spuriousWakeUp;
 }

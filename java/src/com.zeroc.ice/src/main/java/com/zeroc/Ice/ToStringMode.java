@@ -45,15 +45,12 @@ public enum ToStringMode {
      * @return the enumerator corresponding to the given integer value, or {@code null} if no such enumerator exists
      */
     public static ToStringMode valueOf(int v) {
-        switch (v) {
-            case 0:
-                return Unicode;
-            case 1:
-                return ASCII;
-            case 2:
-                return Compat;
-        }
-        return null;
+        return switch (v) {
+            case 0 -> Unicode;
+            case 1 -> ASCII;
+            case 2 -> Compat;
+            default -> null;
+        };
     }
 
     private ToStringMode(int v) {

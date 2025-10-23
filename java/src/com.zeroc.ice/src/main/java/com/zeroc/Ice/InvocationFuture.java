@@ -43,16 +43,14 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
      * ignores a reply if the request has already been sent.
      *
      * @param mayInterruptIfRunning true if the thread executing this task should be interrupted;
-     *                             otherwise, in-progress tasks are allowed to complete
+     *     otherwise, in-progress tasks are allowed to complete
      * @return true if this task is now cancelled
      */
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
-        //
         // Call super.cancel(boolean) first. This sets the result of the future.
         // Calling cancel(LocalException) also eventually attempts to complete the future
         // (exceptionally), but this result is ignored.
-        //
         boolean r = super.cancel(mayInterruptIfRunning);
         cancel(new InvocationCanceledException());
         return r;
@@ -159,17 +157,14 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
      * @param action executed when the future is completed successfully or exceptionally
      * @return a future that completes when the message has been handed off to the transport
      */
-    public final synchronized CompletableFuture<Boolean> whenSent(
-            BiConsumer<Boolean, ? super Throwable> action) {
+    public final synchronized CompletableFuture<Boolean> whenSent(BiConsumer<Boolean, ? super Throwable> action) {
         if (_sentFuture == null) {
             _sentFuture = new CompletableFuture<>();
         }
 
         CompletableFuture<Boolean> r = _sentFuture.whenComplete(action);
 
-        //
         // Check if the request has already been sent.
-        //
         if (((_state & StateSent) > 0 || _exception != null) && !_sentFuture.isDone()) {
             if (_exception != null) {
                 _sentFuture.completeExceptionally(_exception);
@@ -188,8 +183,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
      * @param action executed when the future is completed successfully or exceptionally
      * @return a future that completes when the message has been handed off to the transport
      */
-    public final synchronized CompletableFuture<Boolean> whenSentAsync(
-            BiConsumer<Boolean, ? super Throwable> action) {
+    public final synchronized CompletableFuture<Boolean> whenSentAsync(BiConsumer<Boolean, ? super Throwable> action) {
         return whenSentAsync(action, null);
     }
 
@@ -215,9 +209,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
             r = _sentFuture.whenCompleteAsync(action, executor);
         }
 
-        //
         // Check if the request has already been sent.
-        //
         if (((_state & StateSent) > 0 || _exception != null) && !_sentFuture.isDone()) {
             if (_exception != null) {
                 _sentFuture.completeExceptionally(_exception);
@@ -299,10 +291,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
      * Invokes the completion callback asynchronously.
      */
     public final void invokeCompletedAsync() {
-        //
-        // CommunicatorDestroyedException is the only exception that can propagate directly from
-        // this method.
-        //
+        // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
         _instance
             .clientThreadPool()
             .dispatch(
@@ -346,12 +335,9 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
                 _cancellationHandler = null;
                 _doneInSent = true;
 
-                //
                 // For oneway requests after the data has been sent the buffers can be reused unless
                 // this is a collocated invocation. For collocated invocations the buffer won't be
-                // reused because it has already
-                // been marked as cached in invokeCollocated.
-                //
+                // reused because it has already been marked as cached in invokeCollocated.
                 cacheMessageBuffers();
             }
 
@@ -432,11 +418,8 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
      * Invokes the sent callback asynchronously.
      */
     public final void invokeSentAsync() {
-        //
-        // This is called when it's not safe to call the sent callback synchronously from this
-        // thread. Instead the future is completed asynchronously from a client in the client thread
-        // pool.
-        //
+        // This is called when it's not safe to call the sent callback synchronously from this thread.
+        // Instead the future is completed asynchronously from a client in the client thread pool.
         dispatch(() -> invokeSent());
     }
 
@@ -471,8 +454,7 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
     }
 
     private void warning(RuntimeException ex) {
-        if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.AMICallback")
-            > 0) {
+        if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.AMICallback") > 0) {
             String s = "exception raised by AMI callback:\n" + Ex.toString(ex);
             _instance.initializationData().logger.warning(s);
         }

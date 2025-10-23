@@ -18,8 +18,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
     }
 
     @Override
-    public String chooseClientAlias(
-            String[] keyType, Principal[] issuers, Socket socket) {
+    public String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket) {
         // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias
         if (!_override) {
             String alias = _delegate.chooseClientAlias(keyType, issuers, socket);
@@ -31,8 +30,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
     }
 
     @Override
-    public String chooseEngineClientAlias(
-            String[] keyType, Principal[] issuers, SSLEngine engine) {
+    public String chooseEngineClientAlias(String[] keyType, Principal[] issuers, SSLEngine engine) {
         // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias
         if (!_override) {
             String alias = _delegate.chooseEngineClientAlias(keyType, issuers, engine);
@@ -44,8 +42,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
     }
 
     @Override
-    public String chooseServerAlias(
-            String keyType, Principal[] issuers, Socket socket) {
+    public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
         if (!_override) {
             // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias.
             String alias = _delegate.chooseServerAlias(keyType, issuers, socket);
@@ -57,8 +54,7 @@ final class X509KeyManagerI extends X509ExtendedKeyManager {
     }
 
     @Override
-    public String chooseEngineServerAlias(
-            String keyType, Principal[] issuers, SSLEngine engine) {
+    public String chooseEngineServerAlias(String keyType, Principal[] issuers, SSLEngine engine) {
         // Don't bother checking for acceptable issuers if the user configured Ice.SSL.Alias
         if (!_override) {
             String alias = _delegate.chooseEngineServerAlias(keyType, issuers, engine);

@@ -37,19 +37,15 @@ final class LoggerAdminI implements LoggerAdmin {
                 }
 
                 _sendLogCommunicator =
-                    createSendLogCommunicator(
-                        current.adapter.getCommunicator(), _logger.getLocalLogger());
+                    createSendLogCommunicator(current.adapter.getCommunicator(), _logger.getLocalLogger());
             }
 
             Identity remoteLoggerId = remoteLogger.ice_getIdentity();
 
             if (_remoteLoggerMap.containsKey(remoteLoggerId)) {
                 if (_traceLevel > 0) {
-                    _logger.trace(
-                        _traceCategory,
-                        "rejecting `"
-                            + remoteLogger.toString()
-                            + "' with RemoteLoggerAlreadyAttachedException");
+                    String m = "rejecting `" + remoteLogger.toString() + "' with RemoteLoggerAlreadyAttachedException";
+                    _logger.trace(_traceCategory, m);
                 }
 
                 throw new RemoteLoggerAlreadyAttachedException();
@@ -57,8 +53,7 @@ final class LoggerAdminI implements LoggerAdmin {
 
             _remoteLoggerMap.put(
                 remoteLoggerId,
-                new RemoteLoggerData(
-                    changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
+                new RemoteLoggerData(changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
 
             if (messageMax != 0) {
                 initLogMessages = new LinkedList<>(_queue); // copy
@@ -72,8 +67,7 @@ final class LoggerAdminI implements LoggerAdmin {
         }
 
         if (!initLogMessages.isEmpty()) {
-            filterLogMessages(
-                initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
+            filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
         }
 
         try {
@@ -83,22 +77,14 @@ final class LoggerAdminI implements LoggerAdmin {
                     (Void v, Throwable ex) -> {
                         if (ex != null) {
                             if (ex instanceof LocalException) {
-                                deadRemoteLogger(
-                                    remoteLogger, _logger, (LocalException) ex, "init");
+                                deadRemoteLogger(remoteLogger, _logger, (LocalException) ex, "init");
                             } else {
-                                deadRemoteLogger(
-                                    remoteLogger,
-                                    _logger,
-                                    new UnknownException(ex),
-                                    "init");
+                                deadRemoteLogger(remoteLogger, _logger, new UnknownException(ex), "init");
                             }
                         } else {
                             if (_traceLevel > 1) {
-                                _logger.trace(
-                                    _traceCategory,
-                                    "init on `"
-                                        + remoteLogger.toString()
-                                        + "' completed successfully");
+                                String msg = "init on `" + remoteLogger.toString() + "' completed successfully";
+                                _logger.trace(_traceCategory, msg);
                             }
                         }
                     });
@@ -114,9 +100,7 @@ final class LoggerAdminI implements LoggerAdmin {
             return false;
         }
 
-        //
         // No need to convert the proxy as we only use its identity
-        //
         boolean found = removeRemoteLogger(remoteLogger);
 
         if (_traceLevel > 0) {
@@ -150,8 +134,7 @@ final class LoggerAdminI implements LoggerAdmin {
 
         if (!logMessages.isEmpty()) {
             Filters filters = new Filters(messageTypes, categories);
-            filterLogMessages(
-                logMessages, filters.messageTypes, filters.traceCategories, messageMax);
+            filterLogMessages(logMessages, filters.messageTypes, filters.traceCategories, messageMax);
         }
         r.returnValue = logMessages.toArray(new LogMessage[0]);
         return r;
@@ -175,10 +158,7 @@ final class LoggerAdminI implements LoggerAdmin {
             }
         }
 
-        //
-        // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent
-        // to remote loggers
-        //
+        // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to remote loggers
         if (sendLogCommunicator != null) {
             sendLogCommunicator.destroy();
         }
@@ -187,9 +167,7 @@ final class LoggerAdminI implements LoggerAdmin {
     synchronized List<RemoteLoggerPrx> log(LogMessage logMessage) {
         List<RemoteLoggerPrx> remoteLoggers = null;
 
-        //
         // Put message in _queue
-        //
         if ((logMessage.type != LogMessageType.TraceMessage && _maxLogCount > 0)
             || (logMessage.type == LogMessageType.TraceMessage && _maxTraceCount > 0)) {
             _queue.add(logMessage); // add at the end
@@ -197,15 +175,12 @@ final class LoggerAdminI implements LoggerAdmin {
             if (logMessage.type != LogMessageType.TraceMessage) {
                 assert (_maxLogCount > 0);
                 if (_logCount == _maxLogCount) {
-                    //
                     // Need to remove the oldest log from the queue
-                    //
                     assert (_oldestLog != -1);
                     _queue.remove(_oldestLog);
                     int qs = _queue.size();
 
-                    while (_oldestLog < qs
-                        && _queue.get(_oldestLog).type == LogMessageType.TraceMessage) {
+                    while (_oldestLog < qs && _queue.get(_oldestLog).type == LogMessageType.TraceMessage) {
                         _oldestLog++;
                     }
                     assert (_oldestLog < qs); // remember: we just added a log message at end
@@ -219,14 +194,11 @@ final class LoggerAdminI implements LoggerAdmin {
             } else {
                 assert (_maxTraceCount > 0);
                 if (_traceCount == _maxTraceCount) {
-                    //
                     // Need to remove the oldest trace from the queue
-                    //
                     assert (_oldestTrace != -1);
                     _queue.remove(_oldestTrace);
                     int qs = _queue.size();
-                    while (_oldestTrace < qs
-                        && _queue.get(_oldestTrace).type != LogMessageType.TraceMessage) {
+                    while (_oldestTrace < qs && _queue.get(_oldestTrace).type != LogMessageType.TraceMessage) {
                         _oldestTrace++;
                     }
                     assert (_oldestTrace < qs); // remember: we just added a trace message at end
@@ -239,14 +211,11 @@ final class LoggerAdminI implements LoggerAdmin {
                 }
             }
 
-            //
             // Queue updated, now find which remote loggers want this message
-            //
             for (RemoteLoggerData p : _remoteLoggerMap.values()) {
                 Filters filters = p.filters;
 
-                if (filters.messageTypes.isEmpty()
-                    || filters.messageTypes.contains(logMessage.type)) {
+                if (filters.messageTypes.isEmpty() || filters.messageTypes.contains(logMessage.type)) {
                     if (logMessage.type != LogMessageType.TraceMessage
                         || filters.traceCategories.isEmpty()
                         || filters.traceCategories.contains(logMessage.traceCategory)) {
@@ -262,21 +231,13 @@ final class LoggerAdminI implements LoggerAdmin {
         return remoteLoggers;
     }
 
-    void deadRemoteLogger(
-            RemoteLoggerPrx remoteLogger, Logger logger, LocalException ex, String operation) {
-        //
+    void deadRemoteLogger(RemoteLoggerPrx remoteLogger, Logger logger, LocalException ex, String operation) {
         // No need to convert remoteLogger as we only use its identity
-        //
         if (removeRemoteLogger(remoteLogger)) {
             if (_traceLevel > 0) {
                 logger.trace(
                     _traceCategory,
-                    "detached `"
-                        + remoteLogger.toString()
-                        + "' because "
-                        + operation
-                        + " raised:\n"
-                        + ex.toString());
+                    "detached `" + remoteLogger.toString() + "' because " + operation + " raised:\n" + ex.toString());
             }
         }
     }
@@ -296,10 +257,8 @@ final class LoggerAdminI implements LoggerAdmin {
             int messageMax) {
         assert (!logMessages.isEmpty() && messageMax != 0);
 
-        //
-        // Filter only if one of the 3 filters is set; messageMax < 0 means "give me all" that match
-        // the other filters, if any.
-        //
+        // Filter only if one of the 3 filters is set;
+        // messageMax < 0 means "give me all" that match the other filters, if any.
         if (!messageTypes.isEmpty() || !traceCategories.isEmpty() || messageMax > 0) {
             int count = 0;
             ListIterator<LogMessage> p = logMessages.listIterator(logMessages.size());
@@ -333,11 +292,8 @@ final class LoggerAdminI implements LoggerAdmin {
         // else, don't need any filtering
     }
 
-    //
     // Change this proxy's communicator, while keeping its invocation timeout
-    //
-    private static RemoteLoggerPrx changeCommunicator(
-            RemoteLoggerPrx prx, Communicator communicator) {
+    private static RemoteLoggerPrx changeCommunicator(RemoteLoggerPrx prx, Communicator communicator) {
         if (prx == null) {
             return null;
         }
@@ -347,14 +303,12 @@ final class LoggerAdminI implements LoggerAdmin {
     }
 
     private static void copyProperties(String prefix, Properties from, Properties to) {
-        for (Map.Entry<String, String> p :
-                from.getPropertiesForPrefix(prefix).entrySet()) {
+        for (Map.Entry<String, String> p : from.getPropertiesForPrefix(prefix).entrySet()) {
             to.setProperty(p.getKey(), p.getValue());
         }
     }
 
-    private static Communicator createSendLogCommunicator(
-            Communicator communicator, Logger logger) {
+    private static Communicator createSendLogCommunicator(Communicator communicator, Logger logger) {
         InitializationData initData = new InitializationData();
         initData.logger = logger;
         initData.properties = new Properties();
@@ -408,8 +362,7 @@ final class LoggerAdminI implements LoggerAdmin {
         final Filters filters;
     }
 
-    private final Map<Identity, RemoteLoggerData> _remoteLoggerMap =
-        new HashMap<>();
+    private final Map<Identity, RemoteLoggerData> _remoteLoggerMap = new HashMap<>();
 
     private final LoggerAdminLoggerI _logger;
     private Communicator _sendLogCommunicator;

@@ -18,8 +18,8 @@ public final class OperationNotExistException extends RequestFailedException {
     /**
      * Constructs an OperationNotExistException with object details.
      *
-     * @param id        the identity of the Ice Object to which the request was sent
-     * @param facet     the facet to which the request was sent
+     * @param id the identity of the Ice Object to which the request was sent
+     * @param facet the facet to which the request was sent
      * @param operation the operation name of the request
      */
     public OperationNotExistException(Identity id, String facet, String operation) {

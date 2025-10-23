@@ -21,8 +21,7 @@ class PluginI implements Plugin {
         facade.addEndpointFactory(new EndpointFactoryI(bt));
 
         Instance bts = new Instance(communicator, BTSEndpointType.value, "bts");
-        facade.addEndpointFactory(
-            new UnderlyingEndpointFactory(bts, SSLEndpointType.value, BTEndpointType.value));
+        facade.addEndpointFactory(new UnderlyingEndpointFactory(bts, SSLEndpointType.value, BTEndpointType.value));
     }
 
     @Override

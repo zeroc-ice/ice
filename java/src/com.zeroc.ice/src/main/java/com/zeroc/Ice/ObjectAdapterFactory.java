@@ -35,9 +35,7 @@ final class ObjectAdapterFactory {
     public void waitForShutdown() {
         List<ObjectAdapter> adapters;
         synchronized (this) {
-            //
             // First we wait for the shutdown of the factory itself.
-            //
             while (_instance != null) {
                 try {
                     wait();
@@ -49,9 +47,7 @@ final class ObjectAdapterFactory {
             adapters = new LinkedList<>(_adapters);
         }
 
-        //
         // Now we wait for deactivation of each object adapter.
-        //
         for (ObjectAdapter adapter : adapters) {
             adapter.waitForDeactivate();
         }
@@ -62,9 +58,7 @@ final class ObjectAdapterFactory {
     }
 
     public void destroy() {
-        //
         // First wait for shutdown to finish.
-        //
         waitForShutdown();
 
         List<ObjectAdapter> adapters;
@@ -103,8 +97,7 @@ final class ObjectAdapterFactory {
         }
     }
 
-    public ObjectAdapter createObjectAdapter(
-            String name, RouterPrx router, SSLEngineFactory sslEngineFactory) {
+    public ObjectAdapter createObjectAdapter(String name, RouterPrx router, SSLEngineFactory sslEngineFactory) {
         synchronized (this) {
             if (_instance == null) {
                 throw new CommunicatorDestroyedException();
@@ -118,17 +111,13 @@ final class ObjectAdapterFactory {
             }
         }
 
-        //
         // Must be called outside the synchronization since initialize can make client invocations
         // on the router if it's set.
-        //
         ObjectAdapter adapter = null;
         try {
             if (name.isEmpty()) {
                 String uuid = UUID.randomUUID().toString();
-                adapter =
-                    new ObjectAdapter(
-                        _instance, _communicator, this, uuid, null, true, sslEngineFactory);
+                adapter = new ObjectAdapter(_instance, _communicator, this, uuid, null, true, sslEngineFactory);
             } else {
                 adapter =
                     new ObjectAdapter(
@@ -196,8 +185,7 @@ final class ObjectAdapterFactory {
         _adapterNamesInUse.remove(adapter.getName());
     }
 
-    public void flushAsyncBatchRequests(
-            CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
+    public void flushAsyncBatchRequests(CompressBatch compressBatch, CommunicatorFlushBatch outAsync) {
         List<ObjectAdapter> adapters;
         synchronized (this) {
             adapters = new LinkedList<>(_adapters);
@@ -208,24 +196,10 @@ final class ObjectAdapterFactory {
         }
     }
 
-    //
     // Only for use by Instance.
-    //
     ObjectAdapterFactory(Instance instance, Communicator communicator) {
         _instance = instance;
         _communicator = communicator;
-    }
-
-    @SuppressWarnings({"nofinalizer", "deprecation"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_instance == null);
-            Assert.FinalizerAssert(_communicator == null);
-            Assert.FinalizerAssert(_adapters.isEmpty());
-        } catch (Exception ex) {} finally {
-            super.finalize();
-        }
     }
 
     private Instance _instance;

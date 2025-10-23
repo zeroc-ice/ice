@@ -47,26 +47,19 @@ final class HTTPNetworkProxy implements NetworkProxy {
 
     @Override
     public void beginRead(Buffer buf) {
-        //
         // Read the HTTP response
-        //
         buf.resize(7, true); // Enough space for reading at least HTTP1.1
         buf.position(0);
     }
 
     @Override
     public int endRead(Buffer buf) {
-        //
-        // Check if we received the full HTTP response, if not, continue
-        // reading otherwise we're done.
-        //
+        // Check if we received the full HTTP response, if not, continue reading otherwise we're done.
         int end = new HttpParser().isCompleteMessage(buf.b, 0, buf.b.position());
         if (end < 0 && !buf.b.hasRemaining()) {
-            //
             // Read one more byte, we can't easily read bytes in advance
-            // since the transport implenentation might be be able to read
+            // since the transport implementation might be be able to read
             // the data from the memory instead of the socket.
-            //
             buf.resize(buf.size() + 1, true);
             return SocketOperation.Read;
         }
@@ -85,8 +78,7 @@ final class HTTPNetworkProxy implements NetworkProxy {
     @Override
     public NetworkProxy resolveHost(int protocol) {
         assert (_host != null);
-        return new HTTPNetworkProxy(
-            Network.getAddresses(_host, _port, protocol, false, true).get(0), protocol);
+        return new HTTPNetworkProxy(Network.getAddresses(_host, _port, protocol, false, true).get(0), protocol);
     }
 
     @Override

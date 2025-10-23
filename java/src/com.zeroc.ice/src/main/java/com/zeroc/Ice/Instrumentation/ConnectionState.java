@@ -37,19 +37,14 @@ public enum ConnectionState {
      * @return the enumerator corresponding to the given integer value, or {@code null} if no such enumerator exists
      */
     public static ConnectionState valueOf(int v) {
-        switch (v) {
-            case 0:
-                return ConnectionStateValidating;
-            case 1:
-                return ConnectionStateHolding;
-            case 2:
-                return ConnectionStateActive;
-            case 3:
-                return ConnectionStateClosing;
-            case 4:
-                return ConnectionStateClosed;
-        }
-        return null;
+        return switch (v) {
+            case 0 -> ConnectionStateValidating;
+            case 1 -> ConnectionStateHolding;
+            case 2 -> ConnectionStateActive;
+            case 3 -> ConnectionStateClosing;
+            case 4 -> ConnectionStateClosed;
+            default -> null;
+        };
     }
 
     private ConnectionState(int v) {

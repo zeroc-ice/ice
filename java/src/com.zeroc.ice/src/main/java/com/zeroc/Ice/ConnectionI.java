@@ -214,11 +214,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             _instance
                 .initializationData()
                 .observer
-                .getConnectionObserver(
-                    initConnectionInfo(),
-                    _endpoint,
-                    toConnectionState(_state),
-                    _observer);
+                .getConnectionObserver(initConnectionInfo(), _endpoint, toConnectionState(_state), _observer);
         if (_observer != null) {
             _observer.attach();
         } else {
@@ -232,8 +228,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         final OutputStream os = out.getOs();
 
         if (_exception != null) {
-            // If the connection is closed before we even have a chance to send our request, we
-            // always try to send the request again.
+            // If the connection is closed before we even have a chance to send our request,
+            // we always try to send the request again.
             throw new RetryException((LocalException) _exception.fillInStackTrace());
         }
 
@@ -315,8 +311,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             try {
                                 callback.closed(ConnectionI.this);
                             } catch (LocalException ex) {
-                                _logger.error(
-                                    "connection callback exception:\n" + ex + '\n' + _desc);
+                                _logger.error("connection callback exception:\n" + ex + '\n' + _desc);
                             }
                         }
                     });
@@ -517,18 +512,14 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                 _observer.receivedBytes(Protocol.headerSize);
                             }
 
-                            //
                             // Connection is validated on first message. This is only used by
                             // setState() to check whether or not we can print a connection
                             // warning (a client might close the connection forcefully if the
-                            // connection isn't validated, we don't want to print a warning
-                            // in this case).
-                            //
+                            // connection isn't validated, we don't want to print a warning in this case).
                             _validated = true;
 
                             // Full header should be read because the size of _readStream is always
-                            // headerSize (14) when reading a new message (see the code that sets
-                            // _readHeader = true).
+                            // headerSize (14) when reading a new message (see the code that sets _readHeader = true).
                             int pos = _readStream.pos();
                             if (pos < Protocol.headerSize) {
                                 // This situation is possible for small UDP packets.
@@ -602,8 +593,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 int readyOp = current.operation & ~newOp;
 
                 if (_state <= StateNotValidated) {
-                    // If the connection is still not validated and there's still data to read or
-                    // write, continue waiting for data to read or write.
+                    // If the connection is still not validated and there's still data to read or write,
+                    // continue waiting for data to read or write.
                     if (newOp != 0) {
                         _threadPool.update(this, current.operation, newOp);
                         return;
@@ -619,8 +610,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         return;
                     }
 
-                    // The connection is validated and doesn't need additional data to be read or
-                    // written. So unregister it from the thread pool's selector.
+                    // The connection is validated and doesn't need additional data to be read or written.
+                    // So unregister it from the thread pool's selector.
                     _threadPool.unregister(this, current.operation);
 
                     // The connection starts in the holding state. It will be activated by the connection factory.
@@ -640,8 +631,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         // Optimization: use the thread's stream.
                         info = new MessageInfo(current.stream);
 
-                        // At this point, the protocol message is fully read and can therefore be
-                        // decoded by parseMessage. parseMessage returns the operation to wait for readiness next.
+                        // At this point, the protocol message is fully read and can therefore be decoded by
+                        // parseMessage. parseMessage returns the operation to wait for readiness next.
                         newOp |= parseMessage(info);
                         upcallCount += info.upcallCount;
                     }
@@ -773,9 +764,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             synchronized (this) {
                 _upcallCount -= dispatchedCount;
                 if (_upcallCount == 0) {
-                    // Only initiate shutdown if not already done. It might have already been done
-                    // if the sent callback or AMI callback was dispatched when the connection was
-                    // already in the closing state.
+                    // Only initiate shutdown if not already done. It might have already been done if the sent
+                    // callback or AMI callback was dispatched when the connection was already in the closing state.
                     if (_state == StateClosing) {
                         try {
                             initiateShutdown();
@@ -805,17 +795,14 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         // thread pool as soon as setState() calls _threadPool->finish(...).
         // There's no need to lock the mutex for the remainder of the code
         // because the data members accessed by finish() are immutable once
-        // _state == StateClosed (and we don't want to hold the mutex when
-        // calling upcalls).
+        // _state == StateClosed (and we don't want to hold the mutex when calling upcalls).
         synchronized (this) {
             assert _state == StateClosed;
         }
 
-        //
         // If there are no callbacks to call, we don't call ioCompleted() since
         // we're not going to call code that will potentially block (this avoids promoting a new
         // leader and unnecessary thread creation, especially if this is called on shutdown).
-        //
         if (_startCallback == null && _sendStreams.isEmpty() && _asyncRequests.isEmpty() && _closeCallback == null) {
             finish(close);
             return;
@@ -847,10 +834,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 s.append(toString());
                 s.append("\n");
                 s.append(_exception);
-                _instance
-                    .initializationData()
-                    .logger
-                    .trace(_instance.traceLevels().networkCat, s.toString());
+                _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
             }
         } else {
             if (_instance.traceLevels().network >= 1) {
@@ -1026,8 +1010,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 // pending outgoing message is a heartbeat.
 
                 // The stream of the first _sendStreams message is in _writeStream.
-                if (_sendStreams.isEmpty()
-                    || _writeStream.getBuffer().b.get(8) == Protocol.validateConnectionMsg) {
+                if (_sendStreams.isEmpty() || _writeStream.getBuffer().b.get(8) == Protocol.validateConnectionMsg) {
                     scheduleInactivityTimer();
                 }
             }
@@ -1135,21 +1118,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             throw ex;
         } catch (Exception ex) {
             throw new SyscallException(ex);
-        }
-    }
-
-    @SuppressWarnings({"deprecation", "nofinalizer"})
-    @Override
-    protected synchronized void finalize() throws Throwable {
-        try {
-            Assert.FinalizerAssert(_startCallback == null);
-            Assert.FinalizerAssert(_state == StateFinished);
-            Assert.FinalizerAssert(_upcallCount == 0);
-            Assert.FinalizerAssert(_sendStreams.isEmpty());
-            Assert.FinalizerAssert(_asyncRequests.isEmpty());
-        } catch (Exception ex) {
-        } finally {
-            super.finalize();
         }
     }
 
@@ -1880,8 +1848,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     try {
                         response = dispatcher.dispatch(request);
                     } catch (Throwable ex) { // UserException or an unchecked exception
-                        sendResponse(
-                            request.current.createOutgoingResponse(ex), isTwoWay, (byte) 0);
+                        sendResponse(request.current.createOutgoingResponse(ex), isTwoWay, (byte) 0);
                     }
                     if (response != null) {
                         response.whenComplete(
