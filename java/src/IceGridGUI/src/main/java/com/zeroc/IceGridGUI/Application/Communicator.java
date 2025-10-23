@@ -61,7 +61,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder {
                 }
             }
 
-            private int _index = 0;
+            private int _index;
             private Iterator<javax.swing.tree.TreeNode> _p =
                 _childListArray[0].iterator();
         };

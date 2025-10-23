@@ -61,7 +61,7 @@ public abstract class Communicator extends TreeNode {
                 }
             }
 
-            private int _index = 0;
+            private int _index;
             private Iterator<javax.swing.tree.TreeNode> _p = _childrenArray[0].iterator();
         };
     }
