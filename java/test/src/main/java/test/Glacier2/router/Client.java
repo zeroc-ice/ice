@@ -302,9 +302,7 @@ public class Client extends TestHelper {
                 context.put("_fwd", "t");
                 try {
                     CallbackPrx otherCategoryTwoway =
-                        CallbackPrx.uncheckedCast(
-                            twoway.ice_identity(
-                                new Identity("c3/callback", "")));
+                        CallbackPrx.uncheckedCast(twoway.ice_identity(new Identity("callback", "c3")));
                     otherCategoryTwoway.initiateCallback(twowayR, context);
                     test(false);
                 } catch (ObjectNotExistException ex) {
