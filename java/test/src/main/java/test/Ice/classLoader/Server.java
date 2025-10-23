@@ -3,11 +3,11 @@
 package test.Ice.classLoader;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -22,7 +22,7 @@ public class Server extends TestHelper {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Object object = new InitialI(adapter);
-            adapter.add(object, Util.stringToIdentity("initial"));
+            adapter.add(object, new Identity("initial", ""));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

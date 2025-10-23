@@ -3,9 +3,9 @@
 package test.Ice.faultTolerance;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -48,7 +48,7 @@ public class Server extends TestHelper {
                 .setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Object object = new TestI(port);
-            adapter.add(object, Util.stringToIdentity("test"));
+            adapter.add(object, new Identity("test", ""));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

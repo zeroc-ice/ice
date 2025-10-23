@@ -3,9 +3,9 @@
 package test.Ice.retry;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.Ice.retry.Test.RetryPrx;
 import test.TestHelper;
@@ -15,7 +15,7 @@ public class Collocated extends TestHelper {
 
     private void setupObjectAdapter(Communicator communicator) {
         ObjectAdapter adapter = communicator.createObjectAdapter("");
-        adapter.add(new RetryI(), Util.stringToIdentity("retry"));
+        adapter.add(new RetryI(), new Identity("retry", ""));
         // adapter.activate(); // Don't activate OA to ensure collocation is used.
     }
 

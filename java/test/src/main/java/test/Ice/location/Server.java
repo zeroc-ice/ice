@@ -3,10 +3,10 @@
 package test.Ice.location;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.LocatorRegistryPrx;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -36,18 +36,18 @@ public class Server extends TestHelper {
             //
             ServerLocatorRegistry registry = new ServerLocatorRegistry();
             registry.addObject(
-                adapter.createProxy(Util.stringToIdentity("ServerManager")),
+                adapter.createProxy(new Identity("ServerManager", "")),
                 null);
             Object object = new ServerManagerI(registry, this);
-            adapter.add(object, Util.stringToIdentity("ServerManager"));
+            adapter.add(object, new Identity("ServerManager", ""));
 
             LocatorRegistryPrx registryPrx =
                 LocatorRegistryPrx.uncheckedCast(
-                    adapter.add(registry, Util.stringToIdentity("registry")));
+                    adapter.add(registry, new Identity("registry", "")));
 
             adapter.add(
                 new ServerLocator(registry, registryPrx),
-                Util.stringToIdentity("locator"));
+                new Identity("locator", ""));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

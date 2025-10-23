@@ -3,9 +3,9 @@
 package test.Ice.custom;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -18,7 +18,7 @@ public class Collocated extends TestHelper {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Object test = new TestI(communicator);
-            adapter.add(test, Util.stringToIdentity("test"));
+            adapter.add(test, new Identity("test", ""));
             AllTests.allTests(this);
         }
     }

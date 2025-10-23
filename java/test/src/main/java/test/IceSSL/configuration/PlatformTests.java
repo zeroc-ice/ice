@@ -4,10 +4,10 @@ package test.IceSSL.configuration;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ConnectionLostException;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.SecurityException;
-import com.zeroc.Ice.Util;
 
 import test.IceSSL.configuration.Test.ServerPrx;
 import test.TestHelper;
@@ -96,7 +96,7 @@ public class PlatformTests {
                     engine.setNeedClientAuth(clientCertificateRequired);
                     return engine;
                 });
-        adapter.add(new ServerI(communicator), Util.stringToIdentity("server"));
+        adapter.add(new ServerI(communicator), new Identity("server", ""));
         adapter.activate();
         return communicator;
     }
@@ -347,7 +347,7 @@ public class PlatformTests {
                         return sslContext.createSSLEngine(peerHost, peerPort);
                     });
             adapter.add(
-                new ServerI(serverCommunicator), Util.stringToIdentity("server"));
+                new ServerI(serverCommunicator), new Identity("server", ""));
             adapter.activate();
 
             try (var clientCommunicator =

@@ -62,6 +62,7 @@ import com.zeroc.Ice.ObjectNotExistException;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.Locator;
 
 class Twoways {
@@ -280,14 +281,14 @@ class Twoways {
             test(Util.proxyIdentityAndFacetCompare(r.p2, p) == 0);
             test(Util.proxyIdentityAndFacetCompare(r.p3, p) != 0);
             test(Util.proxyIdentityAndFacetCompare(r.returnValue, p) == 0);
-            test(r.p2.ice_getIdentity().equals(Util.stringToIdentity("test")));
+            test(r.p2.ice_getIdentity().equals(new Identity("test", "")));
             test(
                 r.p3.ice_getIdentity()
-                    .equals(Util.stringToIdentity("noSuchIdentity")));
+                    .equals(new Identity("noSuchIdentity", "")));
             test(
                 r.returnValue
                     .ice_getIdentity()
-                    .equals(Util.stringToIdentity("test")));
+                    .equals(new Identity("test", "")));
             r.returnValue.opVoid();
             r.p2.opVoid();
             try {

@@ -419,7 +419,7 @@ public class AllTests {
 
         // not colloc-optimized target
         if (b1.ice_getConnection() != null) {
-            b2 = b1.ice_getConnection().createProxy(Util.stringToIdentity("fixed"));
+            b2 = b1.ice_getConnection().createProxy(new Identity("fixed", ""));
             String str = communicator.proxyToString(b2);
             test(b2.toString().equals(str));
             String str2 = b1.ice_identity(b2.ice_getIdentity()).toString();

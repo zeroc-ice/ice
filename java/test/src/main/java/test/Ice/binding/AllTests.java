@@ -8,6 +8,7 @@ import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.DNSException;
 import com.zeroc.Ice.Endpoint;
 import com.zeroc.Ice.EndpointSelectionType;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectNotExistException;
@@ -15,7 +16,6 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.SocketException;
 import com.zeroc.Ice.TwowayOnlyException;
-import com.zeroc.Ice.Util;
 
 import test.Ice.binding.Test.RemoteCommunicatorPrx;
 import test.Ice.binding.Test.RemoteObjectAdapterPrx;
@@ -765,7 +765,7 @@ public class AllTests {
                     }
 
                     String strPrx =
-                        oa.createProxy(Util.stringToIdentity("dummy")).toString();
+                        oa.createProxy(new Identity("dummy", "")).toString();
                     for (Properties q : clientProps) {
                         try (Communicator clientCommunicator = helper.initialize(q)) {
                             ObjectPrx prx = clientCommunicator.stringToProxy(strPrx);

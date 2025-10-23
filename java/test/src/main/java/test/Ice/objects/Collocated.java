@@ -5,10 +5,10 @@ package test.Ice.objects;
 import com.zeroc.Ice.ClassSliceLoader;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.CompositeSliceLoader;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
@@ -37,10 +37,10 @@ public class Collocated extends TestHelper {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Initial initial = new InitialI(adapter);
-            adapter.add(initial, Util.stringToIdentity("initial"));
-            adapter.add(new F2I(), Util.stringToIdentity("F21"));
+            adapter.add(initial, new Identity("initial", ""));
+            adapter.add(new F2I(), new Identity("F21", ""));
             UnexpectedObjectExceptionTestI object = new UnexpectedObjectExceptionTestI();
-            adapter.add(object, Util.stringToIdentity("uoet"));
+            adapter.add(object, new Identity("uoet", ""));
             AllTests.allTests(this);
             //
             // We must call shutdown even in the collocated case for cyclic dependency cleanup.

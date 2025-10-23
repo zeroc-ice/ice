@@ -3,11 +3,11 @@
 package test.Ice.exceptions;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -26,7 +26,7 @@ public class Collocated extends TestHelper {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Object object = new ThrowerI();
-            adapter.add(object, Util.stringToIdentity("thrower"));
+            adapter.add(object, new Identity("thrower", ""));
             AllTests.allTests(this);
         }
     }

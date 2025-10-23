@@ -3,8 +3,8 @@
 package test.Ice.retry;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -17,7 +17,7 @@ public class Server extends TestHelper {
         try (Communicator communicator = initialize(properties)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new RetryI(), Util.stringToIdentity("retry"));
+            adapter.add(new RetryI(), new Identity("retry", ""));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

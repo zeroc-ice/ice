@@ -21,7 +21,6 @@ import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.PropertiesAdminPrx;
 import com.zeroc.Ice.RemoteLoggerAlreadyAttachedException;
 import com.zeroc.Ice.RemoteLoggerPrx;
-import com.zeroc.Ice.Util;
 
 import test.Ice.admin.Test.RemoteCommunicatorFactoryPrx;
 import test.Ice.admin.Test.RemoteCommunicatorPrx;
@@ -150,7 +149,7 @@ public class AllTests {
             init.properties.setProperty("Ice.Admin.Enabled", "1");
             try (Communicator comm = new Communicator(init)) {
                 test(comm.getAdmin() == null);
-                Identity id = Util.stringToIdentity("test-admin");
+                Identity id = new Identity("test-admin", "");
                 try {
                     comm.createAdmin(null, id);
                     test(false);

@@ -3,9 +3,9 @@
 package test.Ice.executor;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -31,11 +31,11 @@ public class Server extends TestHelper {
             ObjectAdapter adapter2 =
                 communicator().createObjectAdapter("ControllerAdapter");
 
-            adapter.add(new TestI(executor), Util.stringToIdentity("test"));
+            adapter.add(new TestI(executor), new Identity("test", ""));
             adapter.activate();
             adapter2.add(
                 new TestControllerI(adapter),
-                Util.stringToIdentity("testController"));
+                new Identity("testController", ""));
             adapter2.activate();
             serverReady();
             communicator.waitForShutdown();

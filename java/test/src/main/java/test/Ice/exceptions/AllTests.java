@@ -24,7 +24,6 @@ import com.zeroc.Ice.SocketException;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownLocalException;
 import com.zeroc.Ice.UnknownUserException;
-import com.zeroc.Ice.Util;
 
 import test.Ice.exceptions.Test.A;
 import test.Ice.exceptions.Test.B;
@@ -85,24 +84,24 @@ public class AllTests {
             communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *");
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
             Object obj = new EmptyI();
-            adapter.add(obj, Util.stringToIdentity("x"));
+            adapter.add(obj, new Identity("x", ""));
             try {
-                adapter.add(obj, Util.stringToIdentity("x"));
+                adapter.add(obj, new Identity("x", ""));
                 test(false);
             } catch (AlreadyRegisteredException ex) {}
 
             try {
-                adapter.add(obj, Util.stringToIdentity(""));
+                adapter.add(obj, new Identity("", ""));
                 test(false);
             } catch (IllegalArgumentException ex) {}
             try {
-                adapter.add(null, Util.stringToIdentity("x"));
+                adapter.add(null, new Identity("x", ""));
                 test(false);
             } catch (IllegalArgumentException ex) {}
 
-            adapter.remove(Util.stringToIdentity("x"));
+            adapter.remove(new Identity("x", ""));
             try {
-                adapter.remove(Util.stringToIdentity("x"));
+                adapter.remove(new Identity("x", ""));
                 test(false);
             } catch (NotRegisteredException ex) {}
             adapter.deactivate();
@@ -362,7 +361,7 @@ public class AllTests {
         out.flush();
 
         {
-            Identity id = Util.stringToIdentity("does not exist");
+            Identity id = new Identity("does not exist", "");
             try {
                 ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
                 thrower2.ice_ping();
@@ -640,7 +639,7 @@ public class AllTests {
         out.flush();
 
         {
-            Identity id = Util.stringToIdentity("does not exist");
+            Identity id = new Identity("does not exist", "");
             ThrowerPrx thrower2 = ThrowerPrx.uncheckedCast(thrower.ice_identity(id));
             try {
                 thrower2.throwAasAAsync(1).join();
