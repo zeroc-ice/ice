@@ -112,7 +112,8 @@ actor ServerManagerI: ServerManager {
                 adapter = try serverCommunicator.createObjectAdapter("TestAdapter")
                 adapter2 = try serverCommunicator.createObjectAdapter("TestAdapter2")
 
-                let locator = try serverCommunicator.stringToProxy("locator:\(_helper.getTestEndpoint(properties: properties, num:0, prot:""))")!
+                let locator = try serverCommunicator.stringToProxy(
+                    "locator:\(_helper.getTestEndpoint(properties: properties, num:0, prot:""))")!
                 try adapter.setLocator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
                 try adapter2.setLocator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
 
