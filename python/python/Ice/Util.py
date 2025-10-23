@@ -12,7 +12,6 @@ import IcePy
 from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
 from .Communicator import Communicator
 from .InitializationData import InitializationData
-from .LocalExceptions import InitializationException
 from .Properties import Properties
 
 if TYPE_CHECKING:

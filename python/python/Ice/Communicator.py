@@ -6,7 +6,6 @@ import asyncio
 from typing import TYPE_CHECKING, Self, final, overload
 
 import IcePy
-from Ice.InitializationData import InitializationData
 
 from ._LoggerI import LoggerI
 from .asyncio.EventLoopAdapter import EventLoopAdapter as AsyncIOEventLoopAdapter
