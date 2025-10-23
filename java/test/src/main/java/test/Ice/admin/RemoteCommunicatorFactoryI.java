@@ -56,7 +56,7 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory {
                     }
 
                     @Override
-                    public void close() throws Exception {
+                    public void close() {
                         // No resources to close in this logger.
                     }
                 };
