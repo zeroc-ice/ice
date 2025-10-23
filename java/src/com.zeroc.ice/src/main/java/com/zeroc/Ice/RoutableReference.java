@@ -621,8 +621,8 @@ class RoutableReference extends Reference {
                         factory.create(endpoint, more, this);
                     }
 
-                    private int _i = 0;
-                    private LocalException _exception = null;
+                    private int _i;
+                    private LocalException _exception;
                 });
         }
     }
