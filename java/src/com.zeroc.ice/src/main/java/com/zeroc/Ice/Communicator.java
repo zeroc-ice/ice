@@ -56,7 +56,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Constructs a communicator, using Ice properties parsed from command-line arguments. This constructors uses args
+     * Constructs a communicator, using Ice properties parsed from command-line arguments. This constructor uses args
      * to create the {@link Properties} of the new communicator.
      *
      * @param args the command-line arguments
@@ -67,7 +67,7 @@ public final class Communicator implements AutoCloseable {
     }
 
     /**
-     * Constructs a communicator, using Ice properties parsed from command-line arguments. This constructors uses args
+     * Constructs a communicator, using Ice properties parsed from command-line arguments. This constructor uses args
      * to create the {@link Properties} of the new communicator.
      *
      * @param args the command-line arguments
