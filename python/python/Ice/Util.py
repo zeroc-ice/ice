@@ -55,7 +55,10 @@ def initialize(
     Communicator
         The new communicator.
     """
-    return Communicator(args, eventLoop, initData)
+    if args is not None or eventLoop is not None:
+        return Communicator(args, eventLoop)
+    else:
+        return Communicator(initData=initData)
 
 
 def identityToString(identity: Identity, toStringMode: ToStringMode | None = None) -> str:
