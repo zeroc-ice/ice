@@ -833,7 +833,7 @@ public class AllTests : global::Test.AllTests
             {
                 var serverInitData = new InitializationData();
                 serverInitData.properties = p;
-                Communicator serverCommunicator = Util.initialize(serverInitData);
+                using var serverCommunicator = new Communicator(serverInitData);
                 ObjectAdapter oa;
                 try
                 {
@@ -842,7 +842,6 @@ public class AllTests : global::Test.AllTests
                 }
                 catch (DNSException)
                 {
-                    serverCommunicator.destroy();
                     continue; // IP version not supported.
                 }
                 catch (SocketException)
@@ -851,7 +850,6 @@ public class AllTests : global::Test.AllTests
                     {
                         ipv6NotSupported = true;
                     }
-                    serverCommunicator.destroy();
                     continue; // IP version not supported.
                 }
 
@@ -862,7 +860,6 @@ public class AllTests : global::Test.AllTests
                 }
                 catch (LocalException)
                 {
-                    serverCommunicator.destroy();
                     continue; // IP version not supported.
                 }
 
@@ -871,7 +868,7 @@ public class AllTests : global::Test.AllTests
                 {
                     var clientInitData = new InitializationData();
                     clientInitData.properties = q;
-                    Communicator clientCommunicator = Util.initialize(clientInitData);
+                    using var clientCommunicator = new Communicator(clientInitData);
                     prx = clientCommunicator.stringToProxy(strPrx);
                     try
                     {
@@ -900,9 +897,7 @@ public class AllTests : global::Test.AllTests
                             (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) ||
                             (p == bothPreferIPv6 && q == ipv6));
                     }
-                    clientCommunicator.destroy();
                 }
-                serverCommunicator.destroy();
             }
 
             output.WriteLine("ok");

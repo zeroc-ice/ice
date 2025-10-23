@@ -403,7 +403,7 @@ internal sealed class LoggerAdminI : Ice.LoggerAdminDisp_
             }
             initData.properties.parseCommandLineOptions("", extraProps);
         }
-        return Ice.Util.initialize(initData);
+        return new Ice.Communicator(initData);
     }
 
     private bool removeRemoteLogger(Ice.RemoteLoggerPrx remoteLogger)

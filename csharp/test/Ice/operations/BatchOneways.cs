@@ -110,7 +110,7 @@ internal class BatchOneways
             initData.properties = p.ice_getCommunicator().getProperties().Clone();
             var interceptor = new BatchRequestInterceptorI();
             initData.batchRequestInterceptor = interceptor.enqueue;
-            Communicator ic = helper.initialize(initData);
+            using var ic = helper.initialize(initData);
 
             batch = Test.MyClassPrxHelper.uncheckedCast(ic.stringToProxy(p.ToString()).ice_batchOneway());
 
@@ -138,8 +138,6 @@ internal class BatchOneways
             batch.opByteSOneway(bs1); // This should trigger the flush
             batch.ice_ping();
             test(interceptor.count() == 2);
-
-            ic.destroy();
         }
 
         p.ice_ping();

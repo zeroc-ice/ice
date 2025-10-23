@@ -16,7 +16,7 @@ public sealed class Util
     /// </summary>
     /// <returns>A new empty property set.</returns>
     /// <remarks>This method is provided for backwards compatibility. New code should call the
-    /// <see cref="Properties.Properties()" /> constructor directly.</remarks>
+    /// <see cref="Properties()" /> constructor directly.</remarks>
     public static Properties createProperties() => new();
 
     /// <summary>
@@ -26,43 +26,27 @@ public sealed class Util
     /// <param name="defaults">Default values for the new property set.</param>
     /// <returns>A new property set.</returns>
     /// <remarks>This method is provided for backwards compatibility. New code should call the
-    /// <see cref="Properties.Properties(ref string[], Properties?)" /> constructor directly.</remarks>
+    /// <see cref="Properties(ref string[], Properties?)" /> constructor directly.</remarks>
     public static Properties createProperties(ref string[] args, Properties? defaults = null) =>
         new(ref args, defaults);
-
-    /// <summary>
-    /// Creates a new communicator, using Ice properties parsed from command-line arguments.
-    /// </summary>
-    /// <param name="args">A command-line argument vector. This method parses arguments starting with `--` and one of
-    /// the reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
-    /// starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is set
-    /// in a configuration file and through a command-line argument, the command-line setting takes precedence.</param>
-    /// <returns>The new communicator.</returns>
-    /// <remarks>This method removes any Ice-related options from <paramref name="args" />.</remarks>
-    public static Communicator initialize(ref string[] args)
-    {
-        var initData = new InitializationData
-        {
-            properties = new Properties(ref args)
-        };
-
-        var result = new Communicator(initData);
-        result.finishSetup();
-        return result;
-    }
 
     /// <summary>
     /// Creates a new communicator.
     /// </summary>
     /// <param name="initData">Options for the new communicator.</param>
     /// <returns>The new communicator.</returns>
-    public static Communicator initialize(InitializationData? initData = null)
-    {
-        initData = initData is null ? new InitializationData() : initData with { };
-        var result = new Communicator(initData);
-        result.finishSetup();
-        return result;
-    }
+    /// <remarks>This method is provided for backwards compatibility. New code should call the
+    /// <see cref="Communicator(InitializationData?)" /> constructor directly.</remarks>
+    public static Communicator initialize(InitializationData? initData = null) => new(initData);
+
+    /// <summary>
+    /// Creates a new communicator, using Ice properties parsed from command-line arguments.
+    /// </summary>
+    /// <param name="args">A command-line arguments.</param>
+    /// <returns>The new communicator.</returns>
+    /// <remarks>This method is provided for backwards compatibility. New code should call the
+    /// <see cref="Communicator(ref string[])" /> constructor directly.</remarks>
+    public static Communicator initialize(ref string[] args) => new(ref args);
 
     /// <summary>
     /// Converts a string to an object identity.
