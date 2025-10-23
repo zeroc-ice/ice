@@ -101,7 +101,7 @@ public final class Util {
 
     /**
      * Creates a new communicator, using Ice properties parsed from command-line arguments. This method is provided for
-     * backwards compatibility. New code should call the {@link Communicator#Communicator(String[], List<String>)}
+     * backwards compatibility. New code should call the {@link Communicator#Communicator(String[], java.util.List)}
      * constructor directly.
      *
      * @param args the command-line arguments
