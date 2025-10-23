@@ -100,7 +100,7 @@ class Communicator:
             eventLoopAdapter = AsyncIOEventLoopAdapter(eventLoop)
 
         if args:
-            initData = InitializationData(properties=IcePy.createProperties(args, None))
+            initData = InitializationData(properties=Properties(IcePy.createProperties(args, None)))
 
         # initData can be None here, which is acceptable.
         self._impl = IcePy.Communicator(initData)
