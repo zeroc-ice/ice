@@ -42,7 +42,7 @@ public sealed class Util
     /// <summary>
     /// Creates a new communicator, using Ice properties parsed from command-line arguments.
     /// </summary>
-    /// <param name="args">A command-line arguments.</param>
+    /// <param name="args">Command-line arguments.</param>
     /// <returns>The new communicator.</returns>
     /// <remarks>This method is provided for backwards compatibility. New code should call the
     /// <see cref="Communicator(ref string[])" /> constructor directly.</remarks>
