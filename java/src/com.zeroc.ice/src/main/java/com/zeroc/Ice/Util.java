@@ -328,7 +328,7 @@ public final class Util {
                 }
             }
             _processLogger = logger;
-            _ownProcessLogger = true;
+            _ownProcessLogger = false;
         }
     }
 
