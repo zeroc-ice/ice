@@ -596,15 +596,19 @@ public final class Instance {
                             properties.getIceProperty("Ice.SyslogFacility"),
                             properties.getIceProperty("Ice.SyslogHost"),
                             properties.getIcePropertyAsInt("Ice.SyslogPort"));
+                    _ownLogger = true;
                 } else if (!logFile.isEmpty()) {
                     _initData.logger = new FileLoggerI(programName, logFile);
+                    _ownLogger = true;
                 } else {
                     _initData.logger = Util.getProcessLogger();
                     if (_initData.logger instanceof LoggerI) {
                         _initData.logger = new LoggerI(programName);
                     }
+                    // _ownLogger remains false
                 }
             }
+            // else _ownLogger remains false
 
             validatePackages();
 

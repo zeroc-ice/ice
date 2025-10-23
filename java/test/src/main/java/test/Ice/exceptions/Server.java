@@ -15,33 +15,34 @@ public class Server extends TestHelper {
     public void run(String[] args) {
         InitializationData initData = new InitializationData();
         initData.sliceLoader = new ModuleToPackageSliceLoader("::Test", "test.Ice.exceptions.Test");
-        // For this test, we need a dummy logger, otherwise the assertion test will print an error message.
-        initData.logger = new DummyLogger();
+        try (var logger = new DummyLogger()) {
+            initData.logger = logger;
 
-        initData.properties = createTestProperties(args);
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+            initData.properties = createTestProperties(args);
+            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
+            initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
 
-        try (Communicator communicator = initialize(initData)) {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
-            communicator.getProperties().setProperty("TestAdapter2.MessageSizeMax", "0");
-            communicator.getProperties().setProperty("TestAdapter3.Endpoints", getTestEndpoint(2));
-            communicator.getProperties().setProperty("TestAdapter3.MessageSizeMax", "1");
+            try (Communicator communicator = initialize(initData)) {
+                communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
+                communicator.getProperties().setProperty("TestAdapter2.MessageSizeMax", "0");
+                communicator.getProperties().setProperty("TestAdapter3.Endpoints", getTestEndpoint(2));
+                communicator.getProperties().setProperty("TestAdapter3.MessageSizeMax", "1");
 
-            ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-            ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
-            Object object = new ThrowerI();
-            adapter.add(object, Util.stringToIdentity("thrower"));
-            adapter2.add(object, Util.stringToIdentity("thrower"));
-            adapter3.add(object, Util.stringToIdentity("thrower"));
-            adapter.activate();
-            adapter2.activate();
-            adapter3.activate();
-            serverReady();
-            communicator.waitForShutdown();
+                ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
+                ObjectAdapter adapter3 = communicator.createObjectAdapter("TestAdapter3");
+                Object object = new ThrowerI();
+                adapter.add(object, Util.stringToIdentity("thrower"));
+                adapter2.add(object, Util.stringToIdentity("thrower"));
+                adapter3.add(object, Util.stringToIdentity("thrower"));
+                adapter.activate();
+                adapter2.activate();
+                adapter3.activate();
+                serverReady();
+                communicator.waitForShutdown();
+            }
         }
     }
 }
