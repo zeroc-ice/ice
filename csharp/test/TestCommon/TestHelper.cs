@@ -169,6 +169,8 @@ public abstract class TestHelper
         Environment.Exit(1);
     }
 
+    public void setControllerHelper(ControllerHelper controllerHelper) => _controllerHelper = controllerHelper;
+
     public void serverReady() => _controllerHelper?.serverReady();
 
     private Ice.Communicator _communicator;
