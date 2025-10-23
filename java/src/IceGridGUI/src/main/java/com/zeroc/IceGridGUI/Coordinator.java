@@ -739,7 +739,7 @@ public class Coordinator {
 
     public Communicator getCommunicator() {
         if (_communicator == null) {
-            _communicator = Util.initialize(_initData);
+            _communicator = new Communicator(_initData);
         }
         return _communicator;
     }
@@ -1609,7 +1609,7 @@ public class Coordinator {
         initData.properties.setProperty("Ice.Default.Router", "");
 
         try {
-            _communicator = Util.initialize(initData);
+            _communicator = new Communicator(initData);
         } catch (LocalException e) {
             JOptionPane.showMessageDialog(
                 parent,

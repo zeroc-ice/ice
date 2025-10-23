@@ -108,7 +108,7 @@ public class AllTests {
                 "AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
-            Communicator comm = Util.initialize(initData);
+            Communicator comm = new Communicator(initData);
             test(comm.getDefaultLocator() != null);
             comm.stringToProxy("test @ TestAdapter").ice_ping();
             comm.stringToProxy("test").ice_ping();
@@ -134,7 +134,7 @@ public class AllTests {
             initData.properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties.setProperty("IceLocatorDiscovery.Timeout", "100");
-            comm = Util.initialize(initData);
+            comm = new Communicator(initData);
             test(comm.getDefaultLocator() != null);
             try {
                 comm.stringToProxy("test @ TestAdapter").ice_ping();
@@ -167,7 +167,7 @@ public class AllTests {
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty(
                 "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
-            comm = Util.initialize(initData);
+            comm = new Communicator(initData);
             test(comm.getDefaultLocator() != null);
             try {
                 comm.stringToProxy("test @ TestAdapter").ice_ping();
@@ -180,7 +180,7 @@ public class AllTests {
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "0");
             initData.properties.setProperty(
                 "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
-            comm = Util.initialize(initData);
+            comm = new Communicator(initData);
             test(comm.getDefaultLocator() != null);
             try {
                 comm.stringToProxy("test @ TestAdapter").ice_ping();
@@ -208,7 +208,7 @@ public class AllTests {
                         + port
                         + intf);
             }
-            comm = Util.initialize(initData);
+            comm = new Communicator(initData);
             test(comm.getDefaultLocator() != null);
             try {
                 comm.stringToProxy("test @ TestAdapter").ice_ping();

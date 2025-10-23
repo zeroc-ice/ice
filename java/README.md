@@ -31,11 +31,10 @@ module VisitorCenter
 
 import com.example.visitorcenter.GreeterPrx;
 import com.zeroc.Ice.Communicator;
-import com.zeroc.Ice.Util;
 
 class Client {
     public static void main(String[] args) {
-        try (Communicator communicator = Util.initialize(args)) {
+        try (var communicator = new Communicator(args)) {
             GreeterPrx greeter =
                 GreeterPrx.createProxy(communicator, "greeter:tcp -h localhost -p 4061");
 
@@ -52,11 +51,10 @@ class Client {
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 class Server {
     public static void main(String[] args) {
-        try (Communicator communicator = Util.initialize(args)) {
+        try (var communicator = new Communicator(args)) {
             ObjectAdapter adapter =
                 communicator.createObjectAdapterWithEndpoints("GreeterAdapter", "tcp -p 4061");
             adapter.add(new Chatbot(), new Identity("greeter", ""));

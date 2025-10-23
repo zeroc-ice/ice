@@ -2,9 +2,9 @@
 
 package test.Ice.properties;
 
+import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.PropertyException;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -133,7 +133,7 @@ public class Client extends TestHelper {
         }
 
         {
-            try (var communicator = Util.initialize()) {
+            try (var communicator = new Communicator()) {
                 var properties = communicator.getProperties();
 
                 System.out.print(

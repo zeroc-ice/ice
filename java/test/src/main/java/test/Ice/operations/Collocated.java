@@ -43,7 +43,7 @@ public class Collocated extends TestHelper {
         PrintWriter output = helper.getWriter();
         output.print("testing collocated invocation with normalized IPv6 address... ");
         output.flush();
-        try (var communicator = Util.initialize()) {
+        try (var communicator = new Communicator()) {
             communicator
                 .getProperties()
                 .setProperty("TestAdapter.Endpoints", "tcp -h \"0:0:0:0:0:0:0:1\" -p " + port);

@@ -86,7 +86,7 @@ public class PlatformTests {
             trustManagerFactory == null ? null : trustManagerFactory.getTrustManagers();
         sslContext.init(keyManagers, trustManagers, null);
 
-        var communicator = Util.initialize();
+        var communicator = new Communicator();
         var adapter =
             communicator.createObjectAdapterWithEndpoints(
                 "ServerAdapter",
@@ -120,7 +120,7 @@ public class PlatformTests {
         var initializationData = new InitializationData();
         initializationData.clientSSLEngineFactory =
             (String peerHost, int peerPort) -> sslContext.createSSLEngine(peerHost, peerPort);
-        return Util.initialize(initializationData);
+        return new Communicator(initializationData);
     }
 
     public static void clientValidatesServerUsingTrustStore(
@@ -335,7 +335,7 @@ public class PlatformTests {
             }
         }
 
-        try (var serverCommunicator = Util.initialize()) {
+        try (var serverCommunicator = new Communicator()) {
             var keyManager = new ReloadableKeyManager(certificatesPath + "/ca1/server.jks");
             var sslContext = SSLContext.getInstance("TLS");
             sslContext.init(new KeyManager[]{keyManager}, null, null);

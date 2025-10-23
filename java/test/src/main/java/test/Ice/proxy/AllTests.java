@@ -1092,7 +1092,7 @@ public class AllTests {
         out.print("testing communicator shutdown/destroy... ");
         out.flush();
         {
-            Communicator co = Util.initialize();
+            Communicator co = new Communicator();
             co.shutdown();
             test(co.isShutdown());
             co.waitForShutdown();

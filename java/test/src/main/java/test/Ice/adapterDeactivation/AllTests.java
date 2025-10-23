@@ -18,7 +18,6 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.OperationNotExistException;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.RouterPrx;
-import com.zeroc.Ice.Util;
 
 import test.Ice.adapterDeactivation.Test.TestIntfPrx;
 import test.TestHelper;
@@ -419,7 +418,7 @@ public class AllTests {
                     initData.properties = new Properties();
                     initData.properties.setProperty("Ice.ServerIdleTime", "1");
                     try (Communicator idleCommunicator =
-                        Util.initialize(initData)) {
+                        new Communicator(initData)) {
                         ObjectAdapter adapter =
                             idleCommunicator.createObjectAdapterWithEndpoints(
                                 "IdleAdapter", "tcp -h 127.0.0.1");
@@ -435,7 +434,7 @@ public class AllTests {
                     initData.properties = new Properties();
                     initData.properties.setProperty("Ice.ServerIdleTime", "0");
                     try (Communicator idleCommunicator =
-                        Util.initialize(initData)) {
+                        new Communicator(initData)) {
                         ObjectAdapter adapter =
                             idleCommunicator.createObjectAdapterWithEndpoints(
                                 "IdleAdapter", "tcp -h 127.0.0.1");
