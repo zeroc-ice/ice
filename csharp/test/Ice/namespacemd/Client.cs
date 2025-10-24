@@ -8,10 +8,10 @@ public class Client : TestHelper
 {
     public override void run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        using var communicator = initialize(properties);
-        var initial = AllTests.allTests(this);
+        using Communicator communicator = initialize(properties);
+        Test.InitialPrx initial = AllTests.allTests(this);
         initial.shutdown();
     }
 

@@ -6,12 +6,12 @@ public class AllTests : global::Test.AllTests
 {
     public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper, bool collocated)
     {
-        var communicator = helper.communicator();
-        var output = helper.getWriter();
+        Communicator communicator = helper.communicator();
+        TextWriter output = helper.getWriter();
         output.Flush();
         string rf = "test:" + helper.getTestEndpoint(0);
-        var baseProxy = communicator.stringToProxy(rf);
-        var cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
+        ObjectPrx baseProxy = communicator.stringToProxy(rf);
+        Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
 
         output.Write("testing twoway operations... ");
         output.Flush();

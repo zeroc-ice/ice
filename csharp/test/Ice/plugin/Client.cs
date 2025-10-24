@@ -38,7 +38,7 @@ public class Client : Test.TestHelper
             {
                 var properties = new Ice.Properties();
                 properties.setProperty("Ice.Plugin.Test", $"{pluginPath}:Ice.plugin.PluginInitializeFailFactory");
-                using var _ = initialize(properties);
+                using Communicator _ = initialize(properties);
                 test(false);
             }
             catch (Ice.PluginInitializationException ex)
@@ -103,7 +103,7 @@ public class Client : Test.TestHelper
                 properties.setProperty("Ice.Plugin.PluginTwoFail", $"{pluginPath}:Ice.plugin.PluginTwoFailFactory");
                 properties.setProperty("Ice.Plugin.PluginThreeFail", $"{pluginPath}:Ice.plugin.PluginThreeFailFactory");
                 properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
-                using var _ = initialize(properties);
+                using Communicator _ = initialize(properties);
             }
             catch (Ice.PluginInitializationException ex)
             {
@@ -119,7 +119,7 @@ public class Client : Test.TestHelper
             {
                 var properties = new Ice.Properties();
                 properties.setProperty("Ice.Plugin.Discovery", "IceDiscovery:IceDiscovery.PluginFactory");
-                using var _ = initialize(properties);
+                using Communicator _ = initialize(properties);
                 test(false);
             }
             catch (Ice.PluginInitializationException ex)

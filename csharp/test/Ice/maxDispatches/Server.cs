@@ -8,15 +8,15 @@ public class Server : global::Test.TestHelper
 {
     public override void run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.ThreadPool.Server.Size", "10"); // plenty of threads to handle the requests
-        using var communicator = initialize(properties);
+        using Communicator communicator = initialize(properties);
 
         var responder = new ResponderI();
         var testIntf = new TestIntfI(responder);
 
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        var adapter = communicator.createObjectAdapter("TestAdapter");
+        ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(testIntf, Ice.Util.stringToIdentity("test"));
         adapter.activate();
 

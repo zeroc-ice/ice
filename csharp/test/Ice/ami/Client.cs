@@ -8,7 +8,7 @@ public class Client : TestHelper
 {
     public override async Task runAsync(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.AMICallback", "0");
         properties.setProperty("Ice.Warn.Connections", "0");
 
@@ -23,7 +23,7 @@ public class Client : TestHelper
         // send() blocking after sending a given amount of data.
         //
         properties.setProperty("Ice.TCP.SndSize", "50000");
-        await using var communicator = initialize(properties);
+        await using Communicator communicator = initialize(properties);
         await AllTests.allTestsAsync(this, false);
     }
 

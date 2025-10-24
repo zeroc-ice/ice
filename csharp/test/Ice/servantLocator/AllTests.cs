@@ -187,19 +187,19 @@ public class AllTests : global::Test.AllTests
 
     public static Test.TestIntfPrx allTests(global::Test.TestHelper helper)
     {
-        var communicator = helper.communicator();
-        var output = helper.getWriter();
+        Communicator communicator = helper.communicator();
+        TextWriter output = helper.getWriter();
 
         output.Write("testing stringToProxy... ");
         output.Flush();
         string @ref = "asm:" + helper.getTestEndpoint(0);
-        var @base = communicator.stringToProxy(@ref);
+        ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         output.WriteLine("ok");
 
         output.Write("testing checked cast... ");
         output.Flush();
-        var obj = Test.TestIntfPrxHelper.checkedCast(@base);
+        Test.TestIntfPrx obj = Test.TestIntfPrxHelper.checkedCast(@base);
         test(obj != null);
         test(obj.Equals(@base));
         output.WriteLine("ok");
@@ -208,7 +208,7 @@ public class AllTests : global::Test.AllTests
         output.Flush();
         try
         {
-            var o = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
+            ObjectPrx o = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
             o.ice_ids();
             test(false);
         }
@@ -223,7 +223,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            var o = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
+            ObjectPrx o = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
             o.ice_ids();
             test(false);
         }
@@ -328,7 +328,7 @@ public class AllTests : global::Test.AllTests
         output.Write("testing servant locator removal... ");
         output.Flush();
         @base = communicator.stringToProxy("test/activation:" + helper.getTestEndpoint(0));
-        var activation = Test.TestActivationPrxHelper.checkedCast(@base);
+        Test.TestActivationPrx activation = Test.TestActivationPrxHelper.checkedCast(@base);
         activation.activateServantLocator(false);
         try
         {

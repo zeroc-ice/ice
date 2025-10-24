@@ -8,11 +8,11 @@ public class Server : TestHelper
 {
     public override void run(string[] args)
     {
-        var properties = createTestProperties(ref args);
+        Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        using var communicator = initialize(properties);
+        using Communicator communicator = initialize(properties);
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
         communicator.getProperties().setProperty("TestAdapter2.MessageSizeMax", "0");

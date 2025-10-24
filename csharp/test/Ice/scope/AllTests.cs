@@ -78,7 +78,7 @@ public class AllTests : global::Test.AllTests
                     {
                         ["a"] = s1
                     };
-                    var opMyStructMapResult = await i.opMyStructMapAsync(smap1);
+                    Test.MyInterface_OpMyStructMapResult opMyStructMapResult = await i.opMyStructMapAsync(smap1);
                     test(opMyStructMapResult.returnValue["a"].Equals(s1));
                     test(opMyStructMapResult.s2["a"].Equals(s1));
 

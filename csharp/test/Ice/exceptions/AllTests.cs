@@ -905,7 +905,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            var thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
+            Test.WrongOperationPrx thrower4 = Test.WrongOperationPrxHelper.uncheckedCast(thrower);
             await thrower4.noSuchOperationAsync();
             test(false);
         }

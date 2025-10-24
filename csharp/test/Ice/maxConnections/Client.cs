@@ -12,7 +12,7 @@ public class Client : global::Test.TestHelper
         // We disable retries to make the logs clearer and avoid hiding potential issues.
         properties.setProperty("Ice.RetryIntervals", "-1");
 
-        await using var communicator = initialize(properties);
+        await using Communicator communicator = initialize(properties);
         await AllTests.allTests(this);
     }
 

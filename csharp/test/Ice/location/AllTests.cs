@@ -458,7 +458,7 @@ public class AllTests : global::Test.AllTests
             var initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().Clone();
             initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
-            using var ic = helper.initialize(initData);
+            using Communicator ic = helper.initialize(initData);
 
             registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
             registry.addObject(communicator.stringToProxy("test3@TestAdapter"));

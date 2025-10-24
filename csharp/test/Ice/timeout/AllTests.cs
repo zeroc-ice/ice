@@ -46,12 +46,12 @@ public class AllTests : global::Test.AllTests
 
     public static async Task allTestsWithController(global::Test.TestHelper helper, Test.ControllerPrx controller)
     {
-        var communicator = helper.communicator();
+        Communicator communicator = helper.communicator();
         string sref = "timeout:" + helper.getTestEndpoint(0);
 
         Test.TimeoutPrx timeout = Test.TimeoutPrxHelper.createProxy(communicator, sref);
 
-        var output = helper.getWriter();
+        TextWriter output = helper.getWriter();
         output.Write("testing connect timeout... ");
         output.Flush();
         {
@@ -202,7 +202,7 @@ public class AllTests : global::Test.AllTests
         {
             communicator.getProperties().setProperty("TimeoutCollocated.AdapterId", "timeoutAdapter");
 
-            var adapter = communicator.createObjectAdapter("TimeoutCollocated");
+            ObjectAdapter adapter = communicator.createObjectAdapter("TimeoutCollocated");
             adapter.activate();
 
             Test.TimeoutPrx proxy = Test.TimeoutPrxHelper.uncheckedCast(adapter.addWithUUID(new TimeoutI()));
