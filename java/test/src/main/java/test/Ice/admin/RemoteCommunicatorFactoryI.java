@@ -52,7 +52,12 @@ public class RemoteCommunicatorFactoryI implements RemoteCommunicatorFactory {
 
                     @Override
                     public Logger cloneWithPrefix(String prefix) {
-                        return this;
+                        return this; // not a correct implementation
+                    }
+
+                    @Override
+                    public void close() {
+                        // No resources to close in this logger.
                     }
                 };
         }

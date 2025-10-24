@@ -6,7 +6,7 @@ namespace Ice;
 
 /// <summary>
 /// A special plug-in that installs a logger during a communicator's initialization.
-/// Both initialize and destroy are no-op. See Ice::InitializationData.
+/// Both initialize and destroy are no-op.
 /// </summary>
 public class LoggerPlugin : Plugin
 {
