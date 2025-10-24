@@ -2743,7 +2743,6 @@ class iOSSimulatorProcessController(RemoteProcessController):
         RemoteProcessController.__init__(self, current, "")
         self.simulatorID = None
         self.runtimeID = None
-        self.controllerProcesses = {}
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
         try:
             sys.stdout.write("searching for latest iOS simulator runtime... ")
@@ -2853,7 +2852,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         # We reboot the simulator if the controller fails to start. Terminating the controller app
         # with simctl terminate doesn't always work, it can hang if the controller app died because
         # of the springboard watchdog.
-        run('xcown "{0}"'.format(self.device))
+        run('xcrun simctl shutdown "{0}"'.format(self.device))
         nRetry = 0
         while nRetry < 20:
             try:
