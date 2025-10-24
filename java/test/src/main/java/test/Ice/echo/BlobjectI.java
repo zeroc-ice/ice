@@ -4,7 +4,6 @@ package test.Ice.echo;
 
 import com.zeroc.Ice.BlobjectAsync;
 import com.zeroc.Ice.Current;
-import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Util;
