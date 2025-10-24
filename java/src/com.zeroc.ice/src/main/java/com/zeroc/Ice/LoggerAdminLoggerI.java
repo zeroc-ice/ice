@@ -96,7 +96,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
             _localLogger.trace(_traceCategory, "send log thread started");
         }
 
-        for (; ; ) {
+        while (true) {
             Job job = null;
             synchronized (this) {
                 while (!_detached && _jobQueue.isEmpty()) {

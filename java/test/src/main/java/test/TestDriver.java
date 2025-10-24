@@ -33,4 +33,7 @@ public class TestDriver {
         }
         System.exit(status);
     }
+
+    private TestDriver() {
+    }
 }

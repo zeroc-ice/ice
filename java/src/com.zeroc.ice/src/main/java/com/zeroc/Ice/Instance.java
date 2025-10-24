@@ -508,8 +508,7 @@ public final class Instance {
         if (_ownLogger) {
             try {
                 _initData.logger.close();
-            } catch (Exception ex) {
-                // Ignore exceptions on close
+            } catch (Exception ignored) {
             }
         }
         _initData.logger = logger;
@@ -1056,8 +1055,7 @@ public final class Instance {
             if (_ownLogger) {
                 try {
                     _initData.logger.close();
-                } catch (Exception ex) {
-                    // Ignore exceptions on close
+                } catch (Exception ignored) {
                 }
             }
 

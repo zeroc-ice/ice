@@ -40,7 +40,7 @@ public class Server extends TestHelper {
                 }
 
                 @Override
-                public void close() throws Exception {
+                public void close() {
                     // No resources to close in this logger.
                 }
             };

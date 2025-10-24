@@ -323,8 +323,7 @@ public final class Util {
             if (_ownProcessLogger) {
                 try {
                     _processLogger.close();
-                } catch (Exception e) {
-                    // Ignore exceptions on close
+                } catch (Exception ignored) {
                 }
             }
             _processLogger = logger;
