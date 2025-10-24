@@ -6,6 +6,7 @@ import com.zeroc.Ice.Instrumentation.CommunicatorObserver;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -29,8 +30,52 @@ public final class Communicator implements AutoCloseable {
     private final Instance _instance;
 
     /**
+     * Constructs a communicator with the specified options.
+     *
+     * @param initData the options for the new communicator
+     */
+    public Communicator(InitializationData initData) {
+        _instance = new Instance();
+        _instance.initialize(this, initData);
+
+        try {
+            _instance.finishSetup(this);
+        } catch (RuntimeException ex) {
+            _instance.destroy(false);
+            throw ex;
+        }
+    }
+
+    /**
+     * Constructs a communicator with default options.
+     */
+    public Communicator() {
+        this(new InitializationData());
+    }
+
+    /**
+     * Constructs a communicator, using Ice properties parsed from command-line arguments. This constructor uses args
+     * to create the {@link Properties} of the new communicator.
+     *
+     * @param args the command-line arguments
+     * @param remainingArgs if non-null, the remaining command-line arguments after parsing Ice properties
+     */
+    public Communicator(String[] args, List<String> remainingArgs) {
+        this(createInitializationData(args, remainingArgs));
+    }
+
+    /**
+     * Constructs a communicator, using Ice properties parsed from command-line arguments. This constructor uses args
+     * to create the {@link Properties} of the new communicator.
+     *
+     * @param args the command-line arguments
+     */
+    public Communicator(String[] args) {
+        this(args, null);
+    }
+
+    /**
      * Destroys the communicator.
-     * This Java-only method overrides close in java.lang.AutoCloseable and does not throw any exception.
      *
      * @see #destroy
      */
@@ -513,20 +558,6 @@ public final class Communicator implements AutoCloseable {
         return _instance.findAllAdminFacets();
     }
 
-    Communicator(InitializationData initData) {
-        _instance = new Instance();
-        _instance.initialize(this, initData);
-    }
-
-    void finishSetup() {
-        try {
-            _instance.finishSetup(this);
-        } catch (RuntimeException ex) {
-            _instance.destroy(false);
-            throw ex;
-        }
-    }
-
     /**
      * Get the {@code Instance} object associated with this communicator.
      *
@@ -535,5 +566,12 @@ public final class Communicator implements AutoCloseable {
      */
     public Instance getInstance() {
         return _instance;
+    }
+
+    private static InitializationData createInitializationData(String[] args, List<String> remainingArgs) {
+        var properties = new Properties(args, remainingArgs);
+        var initData = new InitializationData();
+        initData.properties = properties;
+        return initData;
     }
 }

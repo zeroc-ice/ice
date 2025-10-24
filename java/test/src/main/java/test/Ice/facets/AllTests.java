@@ -4,11 +4,11 @@ package test.Ice.facets;
 
 import com.zeroc.Ice.AlreadyRegisteredException;
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.NotRegisteredException;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
-import com.zeroc.Ice.Util;
 
 import test.Ice.facets.Test.DPrx;
 import test.Ice.facets.Test.FPrx;
@@ -76,15 +76,15 @@ public class AllTests {
         ObjectAdapter adapter =
             communicator.createObjectAdapter("FacetExceptionTestAdapter");
         Object obj = new EmptyI();
-        adapter.add(obj, Util.stringToIdentity("d"));
-        adapter.addFacet(obj, Util.stringToIdentity("d"), "facetABCD");
+        adapter.add(obj, new Identity("d", ""));
+        adapter.addFacet(obj, new Identity("d", ""), "facetABCD");
         try {
-            adapter.addFacet(obj, Util.stringToIdentity("d"), "facetABCD");
+            adapter.addFacet(obj, new Identity("d", ""), "facetABCD");
             test(false);
         } catch (AlreadyRegisteredException ex) {}
-        adapter.removeFacet(Util.stringToIdentity("d"), "facetABCD");
+        adapter.removeFacet(new Identity("d", ""), "facetABCD");
         try {
-            adapter.removeFacet(Util.stringToIdentity("d"), "facetABCD");
+            adapter.removeFacet(new Identity("d", ""), "facetABCD");
             test(false);
         } catch (NotRegisteredException ex) {}
         out.println("ok");
@@ -92,22 +92,22 @@ public class AllTests {
         out.print("testing removeAllFacets... ");
         Object obj1 = new EmptyI();
         Object obj2 = new EmptyI();
-        adapter.addFacet(obj1, Util.stringToIdentity("id1"), "f1");
-        adapter.addFacet(obj2, Util.stringToIdentity("id1"), "f2");
+        adapter.addFacet(obj1, new Identity("id1", ""), "f1");
+        adapter.addFacet(obj2, new Identity("id1", ""), "f2");
         Object obj3 = new EmptyI();
-        adapter.addFacet(obj1, Util.stringToIdentity("id2"), "f1");
-        adapter.addFacet(obj2, Util.stringToIdentity("id2"), "f2");
-        adapter.addFacet(obj3, Util.stringToIdentity("id2"), "");
+        adapter.addFacet(obj1, new Identity("id2", ""), "f1");
+        adapter.addFacet(obj2, new Identity("id2", ""), "f2");
+        adapter.addFacet(obj3, new Identity("id2", ""), "");
         Map<String, Object> fm =
-            adapter.removeAllFacets(Util.stringToIdentity("id1"));
+            adapter.removeAllFacets(new Identity("id1", ""));
         test(fm.size() == 2);
         test(fm.get("f1") == obj1);
         test(fm.get("f2") == obj2);
         try {
-            adapter.removeAllFacets(Util.stringToIdentity("id1"));
+            adapter.removeAllFacets(new Identity("id1", ""));
             test(false);
         } catch (NotRegisteredException ex) {}
-        fm = adapter.removeAllFacets(Util.stringToIdentity("id2"));
+        fm = adapter.removeAllFacets(new Identity("id2", ""));
         test(fm.size() == 3);
         test(fm.get("f1") == obj1);
         test(fm.get("f2") == obj2);

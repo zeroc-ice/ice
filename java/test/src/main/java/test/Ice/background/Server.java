@@ -11,7 +11,6 @@ import com.zeroc.Ice.LocatorRegistryPrx;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Router;
-import com.zeroc.Ice.Util;
 
 import test.Ice.background.PluginFactory.PluginI;
 import test.TestHelper;
@@ -24,7 +23,7 @@ public class Server extends TestHelper {
         @Override
         public ObjectPrx findAdapterById(String adapter, Current current) {
             _controller.checkCallPause(current);
-            return current.adapter.createDirectProxy(Util.stringToIdentity("dummy"));
+            return current.adapter.createDirectProxy(new Identity("dummy", ""));
         }
 
         @Override
@@ -107,18 +106,18 @@ public class Server extends TestHelper {
 
             adapter.add(
                 new BackgroundI(backgroundController),
-                Util.stringToIdentity("background"));
+                new Identity("background", ""));
             adapter.add(
                 new LocatorI(backgroundController),
-                Util.stringToIdentity("locator"));
+                new Identity("locator", ""));
             adapter.add(
                 new RouterI(backgroundController),
-                Util.stringToIdentity("router"));
+                new Identity("router", ""));
             adapter.activate();
 
             adapter2.add(
                 backgroundController,
-                Util.stringToIdentity("backgroundController"));
+                new Identity("backgroundController", ""));
             adapter2.activate();
             serverReady();
             communicator.waitForShutdown();

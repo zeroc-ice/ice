@@ -9,7 +9,6 @@ import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.Properties;
-import com.zeroc.Ice.Util;
 
 import test.IceSSL.configuration.Test.ServerFactory;
 import test.IceSSL.configuration.Test.ServerPrx;
@@ -37,7 +36,7 @@ class ServerFactoryI implements ServerFactory {
             initData.properties.setProperty(i.getKey(), i.getValue());
         }
         initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
-        Communicator communicator = Util.initialize(initData);
+        Communicator communicator = new Communicator(initData);
         ObjectAdapter adapter =
             communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         ServerI server = new ServerI(communicator);

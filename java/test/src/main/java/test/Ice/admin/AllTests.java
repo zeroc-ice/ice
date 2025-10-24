@@ -21,7 +21,6 @@ import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.PropertiesAdminPrx;
 import com.zeroc.Ice.RemoteLoggerAlreadyAttachedException;
 import com.zeroc.Ice.RemoteLoggerPrx;
-import com.zeroc.Ice.Util;
 
 import test.Ice.admin.Test.RemoteCommunicatorFactoryPrx;
 import test.Ice.admin.Test.RemoteCommunicatorPrx;
@@ -116,7 +115,7 @@ public class AllTests {
             init.properties = new Properties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
-            try (Communicator comm = Util.initialize(init)) {
+            try (Communicator comm = new Communicator(init)) {
                 testFacets(comm, true);
             }
         }
@@ -129,7 +128,7 @@ public class AllTests {
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.Facets", "Properties");
-            try (Communicator comm = Util.initialize(init)) {
+            try (Communicator comm = new Communicator(init)) {
                 testFacets(comm, false);
             }
         }
@@ -137,7 +136,7 @@ public class AllTests {
             //
             // Test: Verify that the operations work correctly with the Admin object disabled.
             //
-            try (Communicator comm = Util.initialize()) {
+            try (Communicator comm = new Communicator()) {
                 testFacets(comm, false);
             }
         }
@@ -148,9 +147,9 @@ public class AllTests {
             InitializationData init = new InitializationData();
             init.properties = new Properties();
             init.properties.setProperty("Ice.Admin.Enabled", "1");
-            try (Communicator comm = Util.initialize(init)) {
+            try (Communicator comm = new Communicator(init)) {
                 test(comm.getAdmin() == null);
-                Identity id = Util.stringToIdentity("test-admin");
+                Identity id = new Identity("test-admin", "");
                 try {
                     comm.createAdmin(null, id);
                     test(false);
@@ -172,7 +171,7 @@ public class AllTests {
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.DelayCreation", "1");
-            try (Communicator comm = Util.initialize(init)) {
+            try (Communicator comm = new Communicator(init)) {
                 testFacets(comm, true);
                 comm.getAdmin();
                 testFacets(comm, true);

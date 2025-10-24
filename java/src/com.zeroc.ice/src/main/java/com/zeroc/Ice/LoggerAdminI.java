@@ -329,7 +329,7 @@ final class LoggerAdminI implements LoggerAdmin {
             }
             initData.properties.parseCommandLineOptions("", extraProps);
         }
-        return Util.initialize(initData);
+        return new Communicator(initData);
     }
 
     private final List<LogMessage> _queue = new LinkedList<>();

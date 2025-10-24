@@ -7,7 +7,6 @@ import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.NoEndpointException;
 import com.zeroc.Ice.ObjectNotExistException;
-import com.zeroc.Ice.Util;
 
 import test.IceDiscovery.simple.Test.ControllerPrx;
 import test.IceDiscovery.simple.Test.TestIntfPrx;
@@ -196,7 +195,7 @@ public class AllTests {
                 initData.properties = communicator.getProperties()._clone();
                 initData.properties.setProperty(
                     "IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
-                Communicator comm = Util.initialize(initData);
+                Communicator comm = new Communicator(initData);
                 test(comm.getDefaultLocator() != null);
                 try {
                     comm.stringToProxy("controller0@control0").ice_ping();
@@ -222,7 +221,7 @@ public class AllTests {
                         + " -p "
                         + port
                         + intf);
-                Communicator comm = Util.initialize(initData);
+                Communicator comm = new Communicator(initData);
                 test(comm.getDefaultLocator() != null);
                 comm.stringToProxy("controller0@control0").ice_ping();
                 comm.destroy();

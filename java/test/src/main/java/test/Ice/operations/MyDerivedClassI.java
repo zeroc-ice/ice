@@ -4,8 +4,8 @@ package test.Ice.operations;
 
 import com.zeroc.Ice.BZip2;
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.OperationMode;
-import com.zeroc.Ice.Util;
 
 import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClass1;
@@ -206,7 +206,7 @@ public final class MyDerivedClassI implements MyDerivedClass {
         r.p3 =
             MyClassPrx.uncheckedCast(
                 current.adapter.createProxy(
-                    Util.stringToIdentity("noSuchIdentity")));
+                    new Identity("noSuchIdentity", "")));
         r.returnValue = MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id));
         return r;
     }

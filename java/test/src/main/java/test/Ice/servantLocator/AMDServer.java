@@ -3,10 +3,10 @@
 package test.Ice.servantLocator;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -22,10 +22,10 @@ public class AMDServer extends TestHelper {
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.addServantLocator(new AMDServantLocatorI("category"), "category");
             adapter.addServantLocator(new AMDServantLocatorI(""), "");
-            adapter.add(new AMDTestI(), Util.stringToIdentity("asm"));
+            adapter.add(new AMDTestI(), new Identity("asm", ""));
             adapter.add(
                 new AMDTestActivationI(),
-                Util.stringToIdentity("test/activation"));
+                new Identity("activation", "test"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

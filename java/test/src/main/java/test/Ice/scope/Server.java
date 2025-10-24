@@ -4,10 +4,10 @@ package test.Ice.scope;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.Ice.scope.Test.MyClass;
 import test.Ice.scope.Test.MyEnum;
@@ -270,10 +270,10 @@ public class Server extends TestHelper {
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new MyInterface1(), Util.stringToIdentity("i1"));
-            adapter.add(new MyInterface2(), Util.stringToIdentity("i2"));
-            adapter.add(new MyInterface3(), Util.stringToIdentity("i3"));
-            adapter.add(new MyInterface4(), Util.stringToIdentity("i4"));
+            adapter.add(new MyInterface1(), new Identity("i1", ""));
+            adapter.add(new MyInterface2(), new Identity("i2", ""));
+            adapter.add(new MyInterface3(), new Identity("i3", ""));
+            adapter.add(new MyInterface4(), new Identity("i4", ""));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

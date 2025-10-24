@@ -3,8 +3,8 @@
 package test.Ice.udp;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -37,13 +37,13 @@ public class Server extends TestHelper {
                 .getProperties()
                 .setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
             ObjectAdapter adapter = communicator.createObjectAdapter("ControlAdapter");
-            adapter.add(new TestIntfI(), Util.stringToIdentity("control"));
+            adapter.add(new TestIntfI(), new Identity("control", ""));
             adapter.activate();
 
             if (num == 0) {
                 properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
                 ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter");
-                adapter2.add(new TestIntfI(), Util.stringToIdentity("test"));
+                adapter2.add(new TestIntfI(), new Identity("test", ""));
                 adapter2.activate();
             }
 
@@ -59,7 +59,7 @@ public class Server extends TestHelper {
 
             // Not used for IPv6 + Android emulator, but doesn't fail either.
             ObjectAdapter mcastAdapter = communicator.createObjectAdapter("McastTestAdapter");
-            mcastAdapter.add(new TestIntfI(), Util.stringToIdentity("test"));
+            mcastAdapter.add(new TestIntfI(), new Identity("test", ""));
             mcastAdapter.activate();
 
             serverReady();

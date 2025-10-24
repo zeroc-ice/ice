@@ -282,7 +282,7 @@ final class ServiceManagerI implements ServiceManager {
                 String facetNamePrefix = "IceBox.SharedCommunicator.";
                 boolean addFacets = configureAdmin(initData.properties, facetNamePrefix);
 
-                _sharedCommunicator = Util.initialize(initData);
+                _sharedCommunicator = new Communicator(initData);
 
                 if (addFacets) {
                     // Add all facets created on shared communicator to the IceBox communicator but
@@ -439,7 +439,7 @@ final class ServiceManagerI implements ServiceManager {
                 String serviceFacetNamePrefix = "IceBox.Service." + service + ".";
                 boolean addFacets = configureAdmin(initData.properties, serviceFacetNamePrefix);
 
-                info.communicator = Util.initialize(initData);
+                info.communicator = new Communicator(initData);
                 communicator = info.communicator;
 
                 if (addFacets) {

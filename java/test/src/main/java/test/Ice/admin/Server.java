@@ -3,8 +3,8 @@
 package test.Ice.admin;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -18,7 +18,7 @@ public class Server extends TestHelper {
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(
                 new RemoteCommunicatorFactoryI(),
-                Util.stringToIdentity("factory"));
+                new Identity("factory", ""));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

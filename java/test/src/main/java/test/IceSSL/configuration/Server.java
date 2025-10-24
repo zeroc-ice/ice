@@ -5,7 +5,6 @@ package test.IceSSL.configuration;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -25,7 +24,7 @@ public class Server extends TestHelper {
                 .getProperties()
                 .setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            Identity id = Util.stringToIdentity("factory");
+            Identity id = new Identity("factory", "");
             adapter.add(new ServerFactoryI(remainingArgs.get(0)), id);
             adapter.activate();
             serverReady();

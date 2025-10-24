@@ -4,10 +4,10 @@ package test.Slice.escape;
 
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Current;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 import test.escaped_abstract.CloneException;
@@ -119,14 +119,14 @@ public class Client extends TestHelper {
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new _defaultI(), Util.stringToIdentity("test"));
+            adapter.add(new _defaultI(), new Identity("test", ""));
             adapter.activate();
 
             System.out.print("Testing operation name... ");
             System.out.flush();
             _defaultPrx p =
                 _defaultPrx.uncheckedCast(
-                    adapter.createProxy(Util.stringToIdentity("test")));
+                    adapter.createProxy(new Identity("test", "")));
             p._do();
             System.out.println("ok");
         }

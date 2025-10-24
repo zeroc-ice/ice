@@ -95,7 +95,7 @@ final class Server {
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
         ShutdownHook shutdownHook = null;
 
-        try (Communicator communicator = Util.initialize(initData)) {
+        try (Communicator communicator = new Communicator(initData)) {
             shutdownHook = new ShutdownHook(communicator);
             Runtime.getRuntime().addShutdownHook(shutdownHook);
 

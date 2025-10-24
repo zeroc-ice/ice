@@ -3,10 +3,10 @@
 package test.Ice.slicing.exceptions;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -22,7 +22,7 @@ public class Server extends TestHelper {
                 .getProperties()
                 .setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 2000");
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new TestI(), Util.stringToIdentity("Test"));
+            adapter.add(new TestI(), new Identity("Test", ""));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();
