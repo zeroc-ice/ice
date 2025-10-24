@@ -442,7 +442,7 @@ func allTests(_ helper: TestHelper) async throws {
                 // 1s timeout.
                 try await ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(1)
                     .ice_ping()
-                try await Task.sleep(for: .milliseconds(100))
+                try await Task.sleep(for: .milliseconds(10))
             }
         } catch is Ice.LocalException {
             // Expected to fail once they endpoints have been updated in the background.
@@ -451,7 +451,7 @@ func allTests(_ helper: TestHelper) async throws {
         do {
             while true {
                 try await ic.stringToProxy("test3")!.ice_locatorCacheTimeout(1).ice_ping()  // 1s timeout.
-                try await Task.sleep(for: .milliseconds(100))
+                try await Task.sleep(for: .milliseconds(10))
             }
         } catch is Ice.LocalException {
             // Expected to fail once they endpoints have been updated in the background.

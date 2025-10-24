@@ -2821,7 +2821,15 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
         sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
-        subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=300)
+        n = 0
+        while n < 5:
+            try:
+                subprocess.run(["xcrun", "simctl", "launch", self.device, ident.name], check=True, timeout=60)
+                break
+            except subprocess.TimeoutExpired:
+                n += 1
+                sys.stdout.write(f"\nlaunch timeout, retrying {n}/5... ")
+                sys.stdout.flush()
         # No "ok" as the command prints its own output
 
     def restartControllerApp(self, current, ident):

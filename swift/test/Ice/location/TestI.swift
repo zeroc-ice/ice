@@ -51,13 +51,20 @@ final class TestI: TestIntf {
 
 actor ServerManagerI: ServerManager {
     let _registry: ServerLocatorRegistry
+    let _properties: Ice.Properties
     let _helper: TestHelper
     var _communicators = [Ice.Communicator]()
     var _nextPort: Int32 = 1
 
-    init(registry: ServerLocatorRegistry, helper: TestHelper) {
+    init(registry: ServerLocatorRegistry, properties: Ice.Properties, helper: TestHelper) {
         _registry = registry
+        _properties = properties
         _helper = helper
+
+        _properties.setProperty(key: "TestAdapter.AdapterId", value: "TestAdapter")
+        _properties.setProperty(key: "TestAdapter.ReplicaGroupId", value: "ReplicatedAdapter")
+        _properties.setProperty(key: "TestAdapter2.AdapterId", value: "TestAdapter2")
+        _properties.setProperty(key: "Ice.PrintAdapterReady", value: "0")
     }
 
     func startServer(current _: Ice.Current) async throws {
@@ -76,10 +83,7 @@ actor ServerManagerI: ServerManager {
         // the adapter id instead of the endpoints.
         //
         var initData = Ice.InitializationData()
-        let properties = _helper.communicator().getProperties().clone()
-        properties.setProperty(key: "TestAdapter.AdapterId", value: "TestAdapter")
-        properties.setProperty(key: "TestAdapter.ReplicaGroupId", value: "ReplicatedAdapter")
-        properties.setProperty(key: "TestAdapter2.AdapterId", value: "TestAdapter2")
+        let properties = _properties.clone()
         initData.properties = properties
 
         let serverCommunicator = try _helper.initialize(initData)
@@ -94,31 +98,31 @@ actor ServerManagerI: ServerManager {
             var adapter2: Ice.ObjectAdapter!
 
             do {
+
                 _nextPort += 1
                 serverCommunicator.getProperties().setProperty(
                     key: "TestAdapter.Endpoints",
-                    value: _helper.getTestEndpoint(num: _nextPort))
+                    value: _helper.getTestEndpoint(properties: properties, num: _nextPort, prot: ""))
 
                 _nextPort += 1
                 serverCommunicator.getProperties().setProperty(
                     key: "TestAdapter2.Endpoints",
-                    value: _helper.getTestEndpoint(num: _nextPort))
+                    value: _helper.getTestEndpoint(properties: properties, num: _nextPort, prot: ""))
 
                 adapter = try serverCommunicator.createObjectAdapter("TestAdapter")
                 adapter2 = try serverCommunicator.createObjectAdapter("TestAdapter2")
 
                 let locator = try serverCommunicator.stringToProxy(
-                    "locator:\(_helper.getTestEndpoint(num: 0))")!
+                    "locator:\(_helper.getTestEndpoint(properties: properties, num: 0, prot: ""))")!
                 try adapter.setLocator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
                 try adapter2.setLocator(uncheckedCast(prx: locator, type: Ice.LocatorPrx.self))
 
                 let object = try TestI(adapter1: adapter, adapter2: adapter2, registry: _registry)
                 try await _registry.addObject(adapter.add(servant: HelloI(), id: Ice.stringToIdentity("hello")))
 
-                try await _registry.addObject(
-                    adapter.add(servant: object, id: Ice.Identity(name: "test")))
-                try await _registry.addObject(
-                    adapter.add(servant: object, id: Ice.stringToIdentity("test2")))
+                try await _registry.addObject(adapter.add(servant: object, id: Ice.Identity(name: "test")))
+                try await _registry.addObject(adapter.add(servant: object, id: Ice.stringToIdentity("test2")))
+
                 _ = try adapter.add(servant: object, id: Ice.stringToIdentity("test3"))
 
                 try adapter.activate()
@@ -170,7 +174,7 @@ actor ServerLocator: TestLocator {
         } else {
             // We add a small delay to make sure locator request queuing gets tested when
             // running the test on a fast machine
-            try await Task.sleep(for: .milliseconds(100))
+            try await Task.sleep(for: .milliseconds(1))
             return try await _registry.getAdapter(id)
         }
     }
@@ -179,8 +183,7 @@ actor ServerLocator: TestLocator {
         _requestCount += 1
         // We add a small delay to make sure locator request queuing gets tested when
         // running the test on a fast machine
-
-        try await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(for: .milliseconds(1))
         return try await _registry.getObject(id)
     }
 
