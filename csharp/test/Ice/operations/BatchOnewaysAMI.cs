@@ -16,7 +16,7 @@ internal class BatchOnewaysAMI
             {
                 while (!_called)
                 {
-                    Monitor.Wait(this);
+                    Monitor.Wait(_mutex);
                 }
 
                 _called = false;
@@ -29,7 +29,7 @@ internal class BatchOnewaysAMI
             {
                 Debug.Assert(!_called);
                 _called = true;
-                Monitor.Pulse(this);
+                Monitor.Pulse(_mutex);
             }
         }
 
@@ -51,7 +51,7 @@ internal class BatchOnewaysAMI
         while (count < 27) // 3 * 9 requests auto-flushed.
         {
             count += p.opByteSOnewayCallCount();
-            System.Threading.Thread.Sleep(10);
+            Thread.Sleep(10);
         }
 
         if (batch.ice_getConnection() != null)
