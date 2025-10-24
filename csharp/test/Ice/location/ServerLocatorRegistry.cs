@@ -6,6 +6,10 @@ namespace Ice.location;
 
 public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
 {
+    private readonly Hashtable _adapters;
+    private readonly Hashtable _objects;
+    private int _setRequestCount;
+
     public ServerLocatorRegistry()
     {
         _adapters = new Hashtable();
@@ -14,6 +18,7 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
 
     public override void setAdapterDirectProxy(string id, ObjectPrx proxy, Current current)
     {
+        ++_setRequestCount;
         if (proxy != null)
         {
             _adapters[id] = proxy;
@@ -30,6 +35,7 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         ObjectPrx proxy,
         Current current)
     {
+        ++_setRequestCount;
         if (proxy != null)
         {
             _adapters[adapterId] = proxy;
@@ -42,11 +48,12 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         }
     }
 
-    public override void setServerProcessProxy(string id, Ice.ProcessPrx proxy, Ice.Current current)
-    {
-    }
+    public override void setServerProcessProxy(string id, Ice.ProcessPrx proxy, Ice.Current current) =>
+        ++_setRequestCount;
 
     public override void addObject(Ice.ObjectPrx obj, Ice.Current current) => addObject(obj);
+
+    public override int getSetRequestCount(Current current) => _setRequestCount;
 
     internal void addObject(Ice.ObjectPrx obj) => _objects[obj.ice_getIdentity()] = obj;
 
@@ -61,7 +68,4 @@ public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         object obj = _objects[id] ?? throw new Ice.ObjectNotFoundException();
         return (Ice.ObjectPrx)obj;
     }
-
-    private readonly Hashtable _adapters;
-    private readonly Hashtable _objects;
 }

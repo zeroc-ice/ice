@@ -68,6 +68,7 @@ public sealed class ObjectAdapter
     {
         LocatorInfo? locatorInfo = null;
         bool printAdapterReady = false;
+        bool hasPublishedEndpoints = false;
 
         lock (_mutex)
         {
@@ -103,27 +104,29 @@ public sealed class ObjectAdapter
                 Properties properties = _instance.initializationData().properties!;
                 printAdapterReady = properties.getIcePropertyAsInt("Ice.PrintAdapterReady") > 0;
             }
+
+            // We contact the locator registry once when this object adapter has one or more published endpoints.
+            hasPublishedEndpoints = _publishedEndpoints.Length > 0;
         }
 
-        try
+        if (hasPublishedEndpoints)
         {
-            var dummy = new Identity(name: "dummy", "");
-            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
-        }
-        catch (LocalException)
-        {
-            //
-            // If we couldn't update the locator registry, we let the
-            // exception go through and don't activate the adapter to
-            // allow to user code to retry activating the adapter
-            // later.
-            //
-            lock (_mutex)
+            try
             {
-                _state = StateUninitialized;
-                Monitor.PulseAll(_mutex);
+                var dummy = new Identity(name: "dummy", "");
+                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
             }
-            throw;
+            catch (LocalException)
+            {
+                // If we couldn't update the locator registry, we let the exception go through and don't activate the
+                // adapter to allow user code to retry activating the adapter later.
+                lock (_mutex)
+                {
+                    _state = StateUninitialized;
+                    Monitor.PulseAll(_mutex);
+                }
+                throw;
+            }
         }
 
         if (printAdapterReady)
@@ -195,6 +198,8 @@ public sealed class ObjectAdapter
     /// </summary>
     public void deactivate()
     {
+        bool hasPublishedEndpoints = false;
+
         lock (_mutex)
         {
             // Wait for activation or a previous deactivation to complete.
@@ -208,17 +213,22 @@ public sealed class ObjectAdapter
                 return;
             }
             _state = StateDeactivating;
+
+            hasPublishedEndpoints = _publishedEndpoints.Length > 0;
         }
 
-        // NOTE: the locator infos and incoming connection factory list are immutable at this point.
+        // The locator infos and incoming connection factory list are immutable at this point.
 
-        try
+        if (hasPublishedEndpoints)
         {
-            updateLocatorRegistry(_locatorInfo, null);
-        }
-        catch (LocalException)
-        {
-            // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
+            try
+            {
+                updateLocatorRegistry(_locatorInfo, null);
+            }
+            catch (LocalException)
+            {
+                // We can't throw exceptions in deactivate so we ignore failures to update the locator registry.
+            }
         }
 
         foreach (IncomingConnectionFactory factory in _incomingConnectionFactories)
@@ -797,12 +807,18 @@ public sealed class ObjectAdapter
     }
 
     /// <summary>
-    /// Set of the endpoints that proxies created by this object adapter will contain.
+    /// Sets the endpoints that proxies created by this object adapter will contain.
     /// </summary>
-    /// <param name="newEndpoints">The new set of endpoints that the object adapter will embed in proxies.
-    /// </param>
+    /// <param name="newEndpoints">The new set of endpoints that the object adapter will embed in proxies. Must contain
+    /// at least one endpoint.</param>
     public void setPublishedEndpoints(Endpoint[] newEndpoints)
     {
+        if (newEndpoints.Length == 0)
+        {
+            throw new ArgumentException(
+                $"The {nameof(newEndpoints)} argument must contain at least one endpoint.", nameof(newEndpoints));
+        }
+
         LocatorInfo? locatorInfo = null;
         EndpointI[] oldPublishedEndpoints;
 
@@ -811,8 +827,7 @@ public sealed class ObjectAdapter
             checkForDeactivation();
             if (_routerInfo is not null)
             {
-                throw new ArgumentException(
-                                "can't set published endpoints on object adapter associated with a router");
+                throw new ArgumentException("can't set published endpoints on object adapter associated with a router");
             }
 
             oldPublishedEndpoints = _publishedEndpoints;
