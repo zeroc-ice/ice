@@ -48,7 +48,6 @@ public final class Communicator implements AutoCloseable {
 
     /**
      * Constructs a communicator with default options.
-     *
      */
     public Communicator() {
         this(new InitializationData());
