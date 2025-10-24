@@ -82,7 +82,7 @@ public class RemoteCommunicatorFactoryI : Test.RemoteCommunicatorFactoryDisp_
         //
         // Initialize a new communicator.
         //
-        Ice.Communicator communicator = Ice.Util.initialize(init);
+        var communicator = new Ice.Communicator(init);
 
         //
         // Install a custom admin facet.

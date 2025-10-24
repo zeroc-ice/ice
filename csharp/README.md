@@ -31,7 +31,7 @@ module VisitorCenter
 
 using VisitorCenter;
 
-await using Ice.Communicator communicator = Ice.Util.initialize(ref args);
+await using var communicator = new Ice.Communicator(ref args);
 
 GreeterPrx greeter = GreeterPrxHelper.createProxy(
     communicator,
@@ -44,7 +44,7 @@ Console.WriteLine(greeting);
 ```csharp
 // Server application
 
-await using Ice.Communicator communicator = Ice.Util.initialize(ref args);
+await using var communicator = new Ice.Communicator(ref args);
 
 Ice.ObjectAdapter adapter =
     communicator.createObjectAdapterWithEndpoints("GreeterAdapter", "tcp -p 4061");
