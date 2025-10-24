@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Diagnostics;
-
 namespace Ice.ami;
 
 public class TestI : Test.TestIntfDisp_

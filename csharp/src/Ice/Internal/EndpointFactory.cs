@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Collections.Generic;
-
 namespace Ice.Internal;
 
 public interface EndpointFactory

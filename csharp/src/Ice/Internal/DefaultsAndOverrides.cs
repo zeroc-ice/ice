@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 using System.Net;
-using System.Text;
 
 namespace Ice.Internal;
 

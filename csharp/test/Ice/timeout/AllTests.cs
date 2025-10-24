@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Diagnostics;
-
 namespace Ice.timeout;
 
 public class AllTests : global::Test.AllTests

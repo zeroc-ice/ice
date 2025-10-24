@@ -8,7 +8,7 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-namespace  Ice.metrics;
+namespace Ice.metrics;
 
 public class Collocated : Test.TestHelper
 {

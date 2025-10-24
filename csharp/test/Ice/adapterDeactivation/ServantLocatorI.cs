@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using System.Text;
-
 namespace Ice.adapterDeactivation;
 
 public class RouterI : Ice.RouterDisp_

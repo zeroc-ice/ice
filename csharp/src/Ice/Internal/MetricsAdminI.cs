@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
