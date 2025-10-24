@@ -11,7 +11,7 @@ public class Client : global::Test.TestHelper
         var customSliceLoader = new AllTests.CustomSliceLoader();
         initData.sliceLoader = customSliceLoader;
 
-        using var communicator = initialize(initData);
+        using Communicator communicator = initialize(initData);
         AllTests.allTests(this, customSliceLoader);
     }
 

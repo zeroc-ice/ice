@@ -21,7 +21,7 @@ public static class PlatformTests
         TestHelper helper)
     {
         var communicator = new Ice.Communicator();
-        var adapter = communicator.createObjectAdapterWithEndpoints(
+        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(
             "ServerAdapter",
             helper.getTestEndpoint(10, "ssl"),
             serverAuthenticationOptions);
