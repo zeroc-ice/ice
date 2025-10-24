@@ -14,7 +14,7 @@ public class Server : Test.TestHelper
 {
     public override void run(string[] args)
     {
-        using var communicator = initialize(ref args);
+        using Ice.Communicator communicator = initialize(ref args);
         communicator.getProperties().parseCommandLineOptions("TestAdapter", args);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         string id = communicator.getProperties().getPropertyWithDefault("Identity", "test");
