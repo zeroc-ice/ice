@@ -110,7 +110,7 @@ class ServerManagerI(Test.ServerManager):
         # its endpoints with the locator and create references containing
         # the adapter id instead of the endpoints.
         #
-        serverCommunicator = Ice.initialize(initData=self._initData)
+        serverCommunicator = Ice.Communicator(initData=self._initData)
         self._communicators.append(serverCommunicator)
 
         nRetry = 10

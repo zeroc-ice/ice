@@ -3,10 +3,10 @@
 package test.Glacier2.router;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ModuleToPackageSliceLoader;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -25,16 +25,16 @@ public class Server extends TestHelper {
                 communicator.createObjectAdapter("CallbackAdapter");
 
             // The test allows "c1" as category.
-            adapter.add(new CallbackI(), Util.stringToIdentity("c1/callback"));
+            adapter.add(new CallbackI(), new Identity("callback", "c1"));
 
             // The test allows "c2" as category.
-            adapter.add(new CallbackI(), Util.stringToIdentity("c2/callback"));
+            adapter.add(new CallbackI(), new Identity("callback", "c2"));
 
             // The test rejects "c3" as category.
-            adapter.add(new CallbackI(), Util.stringToIdentity("c3/callback"));
+            adapter.add(new CallbackI(), new Identity("callback", "c3"));
 
             // The test allows the prefixed userid.
-            adapter.add(new CallbackI(), Util.stringToIdentity("_userid/callback"));
+            adapter.add(new CallbackI(), new Identity("callback", "_userid"));
             adapter.activate();
             communicator.waitForShutdown();
         }

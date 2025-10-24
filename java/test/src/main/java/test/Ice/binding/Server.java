@@ -7,7 +7,6 @@ import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Logger;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -36,14 +35,19 @@ public class Server extends TestHelper {
 
                 @Override
                 public Logger cloneWithPrefix(String prefix) {
-                    return this;
+                    return this; // not a correct implementation
+                }
+
+                @Override
+                public void close() {
+                    // No resources to close in this logger.
                 }
             };
 
         try (Communicator communicator = initialize(initData)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            Identity id = Util.stringToIdentity("communicator");
+            Identity id = new Identity("communicator", "");
             adapter.add(new RemoteCommunicatorI(this), id);
             adapter.activate();
             serverReady();

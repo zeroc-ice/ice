@@ -51,7 +51,7 @@ def allTests(helper: TestHelper, communicator: Ice.Communicator) -> Test.TestInt
     for _ in range(10):
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
-        comm = Ice.initialize(initData=initData)
+        comm = Ice.Communicator(initData=initData)
         prx = comm.stringToProxy("test:{0}".format(helper.getTestEndpoint()))
         assert prx is not None
         prx.ice_pingAsync()

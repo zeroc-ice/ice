@@ -1305,7 +1305,7 @@ def twoways(helper: TestHelper, p: Test.MyClassPrx) -> None:
             initData = Ice.InitializationData()
             initData.properties = communicator.getProperties().clone()
             initData.properties.setProperty("Ice.ImplicitContext", i)
-            communicator = Ice.initialize(initData=initData)
+            communicator = Ice.Communicator(initData=initData)
 
             ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 

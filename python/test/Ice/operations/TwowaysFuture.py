@@ -1257,7 +1257,7 @@ def twowaysFuture(helper: TestHelper, p: Test.MyClassPrx):
             initData = Ice.InitializationData()
             initData.properties = communicator.getProperties().clone()
             initData.properties.setProperty("Ice.ImplicitContext", i)
-            ic = Ice.initialize(initData=initData)
+            ic = Ice.Communicator(initData=initData)
 
             ctx = {"one": "ONE", "two": "TWO", "three": "THREE"}
 

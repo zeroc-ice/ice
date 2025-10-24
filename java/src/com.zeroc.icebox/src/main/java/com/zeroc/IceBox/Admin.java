@@ -32,7 +32,7 @@ final class Admin {
         InitializationData initData = new InitializationData();
         initData.properties = new Properties(args, commands, Collections.singletonList("IceBoxAdmin"));
 
-        try (Communicator communicator = Util.initialize(initData)) {
+        try (Communicator communicator = new Communicator(initData)) {
             Runtime.getRuntime().addShutdownHook(new Thread(communicator::destroy));
 
             status = run(communicator, commands);

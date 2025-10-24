@@ -8,8 +8,8 @@ import IcePy
 @final
 class Properties:
     """
-    A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
-    values being strings. By convention, property keys should have the form
+    Represents a set of properties used to configure Ice and Ice-based applications. A property is a key/value pair,
+    where both the key and the value are strings. By convention, property keys should have the form
     application-name[.category[.sub-category]].name.
     """
 

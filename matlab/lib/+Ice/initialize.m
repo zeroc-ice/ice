@@ -1,6 +1,7 @@
 function communicator = initialize(varargin)
-    %INITIALIZE Creates a communicator. This function is provided for consistency with other Ice language mappings,
-    %   and for backwards compatibility. Call instead the Ice.Communicator constructor.
+    %INITIALIZE Creates a communicator.
+    %   This function is provided for backwards compatibility. New code should call the Ice.Communicator
+    %   constructor directly.
     %
     %   Examples:
     %     communicator = Ice.initialize()

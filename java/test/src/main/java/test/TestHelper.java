@@ -152,7 +152,7 @@ public abstract class TestHelper {
             }
         }
 
-        Communicator communicator = Util.initialize(initData);
+        Communicator communicator = new Communicator(initData);
         if (_communicator == null) {
             _communicator = communicator;
         }

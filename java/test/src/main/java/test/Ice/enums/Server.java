@@ -3,9 +3,9 @@
 package test.Ice.enums;
 
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.Object;
 import com.zeroc.Ice.ObjectAdapter;
-import com.zeroc.Ice.Util;
 
 import test.TestHelper;
 
@@ -16,7 +16,7 @@ public class Server extends TestHelper {
 
             ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
             Object test = new TestIntfI();
-            adapter.add(test, Util.stringToIdentity("test"));
+            adapter.add(test, new Identity("test", ""));
 
             adapter.activate();
             serverReady();

@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadFactory;
 
@@ -73,67 +74,55 @@ public final class Util {
      *     {@code args}.
      * @return A new property set.
      */
-    public static Properties createProperties(
-            String[] args, Properties defaults, List<String> remainingArgs) {
+    public static Properties createProperties(String[] args, Properties defaults, List<String> remainingArgs) {
         return new Properties(args, defaults, remainingArgs);
     }
 
     /**
-     * Creates a new communicator.
+     * Creates a new communicator. This method is provided for backwards compatibility. New code should call the
+     * {@link Communicator#Communicator(InitializationData)} constructor directly.
      *
-     * @param initData Options for the new communicator.
-     * @return The new communicator.
+     * @param initData options for the new communicator
+     * @return the new communicator
      * @see InitializationData
      */
     public static Communicator initialize(InitializationData initData) {
-        if (initData == null) {
-            initData = new InitializationData();
-        } else {
-            initData = initData.clone(); // shallow clone
-        }
-
-        var communicator = new Communicator(initData);
-        communicator.finishSetup();
-        return communicator;
+        return new Communicator(initData);
     }
 
     /**
-     * Creates a new communicator with the default options.
+     * Creates a new communicator with the default options. This method is provided for backwards compatibility. New
+     * code should call the {@link Communicator#Communicator()} constructor directly.
      *
-     * @return The new communicator.
+     * @return the new communicator
      */
     public static Communicator initialize() {
-        return initialize((InitializationData) null);
+        return new Communicator();
     }
 
     /**
-     * Creates a new communicator, using Ice properties parsed from command-line arguments.
+     * Creates a new communicator, using Ice properties parsed from command-line arguments. This method is provided for
+     * backwards compatibility. New code should call the {@link Communicator#Communicator(String[], java.util.List)}
+     * constructor directly.
      *
-     * @param args A command-line argument vector. This method parses arguments starting with `--` and one of the
-     *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
-     *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
-     *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
-     * @param remainingArgs If non-null, the given list will contain on return the command-line arguments that were
-     *     not used to set properties.
-     * @return The new communicator.
+     * @param args the command-line arguments
+     * @param remainingArgs if non-null, the remaining command-line arguments after parsing Ice properties
+     * @return the new communicator
      */
     public static Communicator initialize(String[] args, List<String> remainingArgs) {
-        var initData = new InitializationData();
-        initData.properties = new Properties(args, remainingArgs);
-        return initialize(initData);
+        return new Communicator(args, remainingArgs);
     }
 
     /**
-     * Creates a new communicator, using Ice properties parsed from command-line arguments.
+     * Creates a new communicator, using Ice properties parsed from command-line arguments. This method is provided for
+     * backwards compatibility. New code should call the {@link Communicator#Communicator(String[])} constructor
+     * directly.
      *
-     * @param args A command-line argument vector. This method parses arguments starting with `--` and one of the
-     *     reserved prefixes (Ice, IceSSL, etc.) as properties for the new communicator. If there is an argument
-     *     starting with `--Ice.Config`, this method loads the specified configuration file. When the same property is
-     *     set in a configuration file and through a command-line argument, the command-line setting takes precedence.
-     * @return The new communicator.
+     * @param args the command-line arguments
+     * @return the new communicator
      */
     public static Communicator initialize(String[] args) {
-        return initialize(args, null);
+        return new Communicator(args);
     }
 
     /**
@@ -303,6 +292,7 @@ public final class Util {
                 // TODO: Would be nice to be able to use process name as prefix by default.
                 //
                 _processLogger = new LoggerI("");
+                _ownProcessLogger = true;
             }
 
             return _processLogger;
@@ -316,8 +306,16 @@ public final class Util {
      * @param logger The new per-process logger instance.
      */
     public static void setProcessLogger(Logger logger) {
+        Objects.requireNonNull(logger);
         synchronized (_processLoggerMutex) {
+            if (_ownProcessLogger) {
+                try {
+                    _processLogger.close();
+                } catch (Exception ignored) {
+                }
+            }
             _processLogger = logger;
+            _ownProcessLogger = false;
         }
     }
 
@@ -668,6 +666,7 @@ public final class Util {
 
     private static final java.lang.Object _processLoggerMutex = new java.lang.Object();
     private static Logger _processLogger;
+    private static boolean _ownProcessLogger;
 
     private Util() {}
 }
